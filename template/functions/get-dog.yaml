@@ -17,6 +17,8 @@
         - CloudWatchPutMetricPolicy: {}
         - DynamoDBCrudPolicy:
             TableName: !Ref DogTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTypeTable
       Events:
         GetDog:
           Type: Api

@@ -11,6 +11,8 @@ const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
   query: jest.fn(),
   // @ts-expect-error types don't quite match
   read: jest.fn(),
+  // @ts-expect-error generic methods cannot be represented precisely by jest.Mocked
+  readAll: jest.fn(),
   update: jest.fn(),
   write: jest.fn(),
 }
@@ -29,7 +31,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => mockDynamoDB),
 }))
 
-const { default: getDogHandler } = await import('./handler')
+const { default: getDogHandler, filterDogResults } = await import('./handler')
 
 describe('getDogHandler', () => {
   jest.spyOn(console, 'debug').mockImplementation(() => undefined)
@@ -41,12 +43,48 @@ describe('getDogHandler', () => {
     jest.setSystemTime(new Date('2024-06-20T10:00:00.000Z'))
   })
 
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks()
+    mockDynamoDB.readAll.mockResolvedValue([
+      { active: true, eventType: 'NOU' },
+      { active: true, eventType: 'NOME-B' },
+      { active: true, eventType: 'NOME-A' },
+      { active: true, eventType: 'NOWT' },
+    ])
   })
 
   afterAll(() => {
     jest.useRealTimers()
+  })
+
+  it('filters dog results using active event types without mutating the stored dog', () => {
+    const result = {
+      class: 'ALO',
+      date: '2024-01-01',
+      judge: 'Judge',
+      location: 'Helsinki',
+      result: 'ALO1',
+    }
+    const dog = {
+      regNo: 'FI12345/24',
+      results: [
+        { ...result, type: 'NOME-B' },
+        { ...result, type: 'VEPE' },
+        { ...result, type: 'NOU' },
+      ],
+    }
+
+    const filtered = filterDogResults(dog, [
+      { active: true, eventType: 'NOME-B' },
+      { active: false, eventType: 'VEPE' },
+      { active: true, eventType: 'NOU' },
+    ])
+
+    expect(filtered.results).toEqual([
+      expect.objectContaining({ type: 'NOME-B' }),
+      expect.objectContaining({ type: 'NOU' }),
+    ])
+    expect(dog.results).toHaveLength(3)
   })
 
   it('should handle basic 404', async () => {
@@ -211,6 +249,35 @@ describe('getDogHandler', () => {
     expect(logSpy).toHaveBeenCalledTimes(2)
   })
 
+  it('filters cached results in the endpoint response using active event types', async () => {
+    const result = {
+      class: 'ALO',
+      date: '2024-01-01',
+      judge: 'Judge',
+      location: 'Helsinki',
+      result: 'ALO1',
+    }
+    const cachedDog = {
+      refreshDate: '2024-06-20T09:55:00.000Z',
+      regNo: 'FI12345/24',
+      results: [
+        { ...result, type: 'NOME-B' },
+        { ...result, type: 'VEPE' },
+      ],
+    }
+    mockDynamoDB.read.mockResolvedValueOnce(cachedDog)
+    mockDynamoDB.readAll.mockResolvedValueOnce([
+      { active: true, eventType: 'NOME-B' },
+      { active: false, eventType: 'VEPE' },
+    ])
+
+    const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
+
+    expect(mockDynamoDB.readAll).toHaveBeenCalledWith({ table: expect.any(String) })
+    expect(JSON.parse(res.body).results).toEqual([expect.objectContaining({ type: 'NOME-B' })])
+    expect(mockDynamoDB.write).not.toHaveBeenCalled()
+  })
+
   it('should return dog with empty results when lueKoiranKoetulokset returns non-200', async () => {
     mockDynamoDB.read.mockResolvedValueOnce(undefined)
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
@@ -315,6 +382,19 @@ describe('getDogHandler', () => {
           tulos: 'VOI1',
           tuomari: 'Tuomari D',
         },
+        {
+          aika: '2024-05-01',
+          koemuoto: 'VEPE',
+          lisämerkinnät: '',
+          luokka: 'ALO',
+          paikkakunta: 'Tampere',
+          pisteet: 90,
+          sijoitus: 1,
+          tapahtumanTyyppi: 'kansallinen',
+          tarkenne: '',
+          tulos: 'ALO1',
+          tuomari: 'Tuomari E',
+        },
       ],
       status: 200,
     })
@@ -403,6 +483,11 @@ describe('getDogHandler', () => {
     }
 
     expect(JSON.parse(res.body)).toEqual(refreshedDog)
+    expect(mockDynamoDB.write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        results: [...refreshedDog.results, expect.objectContaining({ type: 'VEPE' })],
+      })
+    )
   })
 
   it('should handle null results from KLAPI', async () => {

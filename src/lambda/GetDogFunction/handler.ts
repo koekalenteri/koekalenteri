@@ -1,4 +1,4 @@
-import type { BreedCode, JsonDog, JsonTestResult } from '../../types'
+import type { BreedCode, JsonDog, JsonEventType, JsonTestResult } from '../../types'
 import { differenceInMinutes } from 'date-fns'
 import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
@@ -8,6 +8,16 @@ import { KLKieli } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.dogTable)
+
+export const filterDogResults = (
+  dog: JsonDog,
+  eventTypes: ReadonlyArray<Pick<JsonEventType, 'active' | 'eventType'>>
+): JsonDog => {
+  if (!dog.results) return dog
+
+  const activeEventTypes = new Set(eventTypes.filter(({ active }) => active).map(({ eventType }) => eventType))
+  return { ...dog, results: dog.results.filter(({ type }) => activeEventTypes.has(type)) }
+}
 
 const GENDER: Record<string, 'F' | 'M'> = {
   female: 'F',
@@ -156,7 +166,8 @@ const getDogLambda = lambda('getDog', async (event) => {
     item = dog
   }
 
-  return response(200, item, event)
+  const eventTypes = (await dynamoDB.readAll<JsonEventType>({ table: CONFIG.eventTypeTable })) ?? []
+  return response(200, filterDogResults(item, eventTypes), event)
 })
 
 export default getDogLambda
