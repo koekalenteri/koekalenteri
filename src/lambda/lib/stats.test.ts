@@ -1,5 +1,6 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
+import type { RegistrationStatsInput } from './stats'
 import { jest } from '@jest/globals'
 
 const mockQuery = jest.fn<any>()
@@ -46,6 +47,7 @@ const {
   updateEntityStats,
   updateYearlyParticipationStats,
   hashStatValue,
+  participationIdentifiers,
   eventStatsYear,
 } = await import('./stats')
 
@@ -472,7 +474,7 @@ describe('lib/stats', () => {
   // Tests for previously untested functions
   describe('calculateStatDeltas', () => {
     it('calculates correct deltas for new registration', () => {
-      const registration = {
+      const registration: RegistrationStatsInput = {
         cancelled: false,
         paidAmount: 50,
         refundAmount: 0,
@@ -815,6 +817,57 @@ describe('lib/stats', () => {
       const email2 = 'test2@example.com'
 
       expect(hashStatValue(email1)).not.toBe(hashStatValue(email2))
+    })
+  })
+
+  describe('participationIdentifiers', () => {
+    it('composes all yearly statistic identifiers', () => {
+      const dogRegNo = 'FI123'
+      const handlerEmail = 'handler@example.com'
+      const ownerEmail = 'owner@example.com'
+      const registration: RegistrationStatsInput = {
+        cancelled: false,
+        dog: { breedCode: '122', regNo: dogRegNo },
+        eventId: 'event-id',
+        eventType: 'NOU',
+        handler: { email: handlerEmail },
+        id: 'registration-id',
+        owner: { email: ownerEmail },
+        paidAmount: 0,
+        refundAmount: 0,
+      }
+      const dog = hashStatValue(dogRegNo)
+      const handler = hashStatValue(handlerEmail)
+
+      expect(participationIdentifiers(registration)).toEqual({
+        breed: '122',
+        dog,
+        'dog#handler': `${dog}#${handler}`,
+        eventType: 'NOU',
+        handler,
+        owner: hashStatValue(ownerEmail),
+      })
+    })
+
+    it('uses stable fallback identifiers for missing participant details', () => {
+      const registration = {
+        cancelled: false,
+        eventId: 'event-id',
+        eventType: 'NOU',
+        id: 'registration-id',
+        paidAmount: 0,
+        refundAmount: 0,
+      }
+      const emptyHash = hashStatValue()
+
+      expect(participationIdentifiers(registration)).toEqual({
+        breed: 'unknown',
+        dog: emptyHash,
+        'dog#handler': `${emptyHash}#${emptyHash}`,
+        eventType: 'NOU',
+        handler: emptyHash,
+        owner: emptyHash,
+      })
     })
   })
 

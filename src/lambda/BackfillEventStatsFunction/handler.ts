@@ -4,7 +4,7 @@ import type { EventStatsItem, YearlyStatTypes } from '../../types/Stats'
 import type { RegistrationStatsInput } from '../lib/stats'
 import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
-import { bucketForCount, eventStatsYear, hashStatValue } from '../lib/stats'
+import { bucketForCount, eventStatsYear, participationIdentifiers } from '../lib/stats'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 interface EventStatKey {
@@ -33,20 +33,6 @@ export function getEventStatsRecordYear({ PK, SK }: EventStatKey): number | unde
   }
 
   return undefined
-}
-
-const participationIdentifiers = (registration: RegistrationStatsInput): Record<YearlyStatTypes, string> => {
-  const handlerEmail = hashStatValue(registration.handler?.email)
-  const dog = hashStatValue(registration.dog?.regNo)
-
-  return {
-    breed: registration.dog?.breedCode ?? 'unknown',
-    dog,
-    'dog#handler': `${dog}#${handlerEmail}`,
-    eventType: registration.eventType,
-    handler: handlerEmail,
-    owner: hashStatValue(registration.owner?.email),
-  }
 }
 
 const increment = (counts: Map<string, number>, key: string, amount = 1) => {

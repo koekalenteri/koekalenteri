@@ -356,7 +356,7 @@ export function hashStatValue(value: string | undefined = ''): string {
   return fullDigest.subarray(0, 12).toString('base64').split('=')[0]
 }
 
-const participationIdentifiers = (registration: RegistrationStatsInput): Record<YearlyStatTypes, string> => {
+export const participationIdentifiers = (registration: RegistrationStatsInput): Record<YearlyStatTypes, string> => {
   const hashedHandlerEmail = hashStatValue(registration.handler?.email)
   const hashedOwnerEmail = hashStatValue(registration.owner?.email)
   const hashedRegNo = hashStatValue(registration.dog?.regNo)
