@@ -49,6 +49,35 @@ const persistEvent = async (existing: JsonConfirmedEvent | undefined, data: Json
   return data
 }
 
+const initializeNewEvent = (item: Patch<JsonConfirmedEvent>, timestamp: string, username: string) => {
+  item.id = nanoid(10)
+  item.createdAt = timestamp
+  item.createdBy = username
+  item.startListPublished = false
+}
+
+const invalidEventDateField = (data: JsonConfirmedEvent) =>
+  (['startDate', 'endDate'] as const).find((field) => {
+    const date = data[field]
+    return date === undefined || date === '' || typeof date !== 'string' || !getEventSeason(date)
+  })
+
+const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
+  if (data.startDate) data.season = getEventSeason(data.startDate)
+  if (data.eventType === 'NOME-B SM' && !data.qualificationStartDate) {
+    data.qualificationStartDate = await findQualificationStartDate(data.eventType, data.entryEndDate)
+  }
+}
+
+const persistEventWithRegistrations = async (
+  existing: JsonConfirmedEvent | undefined,
+  data: JsonConfirmedEvent
+): Promise<JsonDogEvent> => {
+  const result = await persistEvent(existing, data)
+  if (existing && existing.entries !== data.entries) return updateRegistrations(data.id)
+  return result
+}
+
 const putEventLambda = lambda('putEvent', async (event) => {
   const user = await authorize(event)
   if (!user) {
@@ -85,10 +114,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   }
 
   if (!existing) {
-    item.id = nanoid(10)
-    item.createdAt = timestamp
-    item.createdBy = user.name
-    item.startListPublished = false
+    initializeNewEvent(item, timestamp, user.name)
   }
 
   if (shouldStoreOriginalEntryEndDate(existing, item)) {
@@ -97,11 +123,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   }
 
   const data = existing && patchRequest ? patchMerge(existing, item) : ({ ...existing, ...item } as JsonConfirmedEvent)
-  const invalidDateField = (['startDate', 'endDate'] as const).find((field) => {
-    const date = data[field]
-    if (date === undefined || date === '') return true
-    return typeof date !== 'string' || !getEventSeason(date)
-  })
+  const invalidDateField = invalidEventDateField(data)
   if (invalidDateField) {
     return response(400, { message: `Bad request: ${invalidDateField} must be a valid date` }, event)
   }
@@ -109,25 +131,15 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // The registration-group lock is server-owned. Never accept it from an
   // admin payload, including when the stored event currently has no lock.
   restoreServerOwnedLocks(data, existing)
-  if (data.startDate) {
-    data.season = getEventSeason(data.startDate)
-  }
-
-  if (data.eventType === 'NOME-B SM' && !data.qualificationStartDate) {
-    data.qualificationStartDate = await findQualificationStartDate(data.eventType, data.entryEndDate)
-  }
+  await updateEventDerivedFields(data)
 
   // modification info is always updated
   data.modifiedAt = timestamp
   data.modifiedBy = user.name
   data.updatedAt = timestamp
 
-  let result: JsonDogEvent = await persistEvent(existing, data)
-
-  if (existing && existing.entries !== data.entries) {
-    // update registrations in case the secretary version was out of date
-    result = await updateRegistrations(data.id)
-  }
+  // Update registrations in case the secretary version was out of date.
+  const result = await persistEventWithRegistrations(existing, data)
 
   const auditKey = eventAuditKey(result)
   for (const auditMessage of getEventAuditMessages(existing, item)) {

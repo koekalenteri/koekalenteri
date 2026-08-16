@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, RegistrationMessage } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration, RegistrationMessage } from '../../types'
 import { isRegistrationClass } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
@@ -60,6 +60,51 @@ const markClassesAsReceived = async (
   return updatedEvent
 }
 
+const updateMessageState = async (
+  eventId: string,
+  template: RegistrationMessage['template'],
+  confirmedEvent: JsonConfirmedEvent,
+  registrations: JsonRegistration[],
+  eventRegistrations: JsonRegistration[]
+) => {
+  if (template === 'invitation' && confirmedEvent.startListPublished === undefined) {
+    confirmedEvent.startListPublished = false
+    await dynamoDB.update({ id: eventId }, { set: { startListPublished: false } }, eventTable)
+  }
+
+  if (template === 'reserve') {
+    await setReserveNotified(registrations)
+    for (const registration of registrations) registration.reserveNotified = registration.group?.number ?? 999
+  }
+
+  if (!updatesParticipantState(template)) return confirmedEvent
+
+  const registrationsByClass = groupRegistrationsByClass(eventRegistrations)
+  const registrationsByClassAndGroup = groupRegistrationsByClassAndGroup(registrationsByClass)
+  const classesToMark = findClassesToMark(registrationsByClassAndGroup, template)
+  return markClassesAsReceived(confirmedEvent, classesToMark, template)
+}
+
+const publishMessageUpdates = async (
+  eventId: string,
+  template: RegistrationMessage['template'],
+  confirmedEvent: JsonConfirmedEvent,
+  registrationPatches: ReturnType<typeof createRegistrationPatch>[]
+) => {
+  await publishRegistrationPatches(eventId, registrationPatches, confirmedEvent.organizer.id)
+  if (!updatesParticipantState(template)) return
+
+  await publishEventPatch(
+    {
+      classes: confirmedEvent.classes,
+      eventId,
+      state: confirmedEvent.state,
+      ...(template === 'invitation' ? { startListPublished: confirmedEvent.startListPublished } : {}),
+    },
+    confirmedEvent.organizer.id
+  )
+}
+
 const sendMessagesLambda = lambda('sendMessages', async (event) => {
   const origin = getOrigin(event)
 
@@ -96,32 +141,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     ''
   )
 
-  if (template === 'invitation' && confirmedEvent.startListPublished === undefined) {
-    confirmedEvent.startListPublished = false
-    await dynamoDB.update(
-      { id: eventId },
-      {
-        set: { startListPublished: false },
-      },
-      eventTable
-    )
-  }
-
-  if (template === 'reserve') {
-    await setReserveNotified(registrations)
-    for (const registration of registrations) {
-      registration.reserveNotified = registration.group?.number ?? 999
-    }
-  }
-
-  if (updatesParticipantState(template)) {
-    const allEventRegistrations = eventRegistrations || []
-    const registrationsByClass = groupRegistrationsByClass(allEventRegistrations)
-    const registrationsByClassAndGroup = groupRegistrationsByClassAndGroup(registrationsByClass)
-    const classesToMark = findClassesToMark(registrationsByClassAndGroup, template)
-
-    confirmedEvent = await markClassesAsReceived(confirmedEvent, classesToMark, template)
-  }
+  confirmedEvent = await updateMessageState(eventId, template, confirmedEvent, registrations, eventRegistrations || [])
 
   const messageClasses = [
     ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
@@ -157,18 +177,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   // public patch shape for both channels. Workflow markers and the creation
   // idempotency key must never be exposed to clients.
   const registrationPatches = registrations.map((registration) => createRegistrationPatch(registration))
-  await publishRegistrationPatches(eventId, registrationPatches, confirmedEvent.organizer.id)
-  if (updatesParticipantState(template)) {
-    await publishEventPatch(
-      {
-        classes: confirmedEvent.classes,
-        eventId,
-        state: confirmedEvent.state,
-        ...(template === 'invitation' ? { startListPublished: confirmedEvent.startListPublished } : {}),
-      },
-      confirmedEvent.organizer.id
-    )
-  }
+  await publishMessageUpdates(eventId, template, confirmedEvent, registrationPatches)
 
   const { state, classes, startListPublished } = confirmedEvent
   return response(200, { classes, failed, ok, registrations: registrationPatches, startListPublished, state }, event)

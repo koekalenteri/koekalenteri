@@ -92,6 +92,17 @@ const mergeAdminRegistration = (
   return { ...existing, ...registration } as JsonRegistration
 }
 
+const normalizePatchedAdminRegistration = (registration: Patch<JsonRegistration>): Patch<JsonRegistration> => {
+  const normalized = {
+    ...registration,
+    ...(registration.handler ? { handler: { ...registration.handler } } : {}),
+    ...(registration.owner ? { owner: { ...registration.owner } } : {}),
+    ...(registration.payer ? { payer: { ...registration.payer } } : {}),
+  }
+  normalizeRegistrationEmails(normalized)
+  return normalized
+}
+
 const completeNewAdminRegistration = async (
   registration: JsonRegistration,
   user: { name: string },
@@ -244,6 +255,7 @@ const prepareAdminRegistrationUpdate = async (
 interface FinalizeAdminRegistrationOptions {
   clearEmailDeliveryStatus: boolean
   confirmedEvent: JsonConfirmedEvent
+  editToken: string
   existing: JsonRegistration
   groupPatches: Patch<JsonRegistration>[]
   origin: string
@@ -254,6 +266,7 @@ interface FinalizeAdminRegistrationOptions {
 const finalizeAdminRegistrationUpdate = async ({
   clearEmailDeliveryStatus,
   confirmedEvent,
+  editToken,
   existing,
   groupPatches,
   origin,
@@ -269,8 +282,7 @@ const finalizeAdminRegistrationUpdate = async ({
   const message = getAuditMessage(updatedData, existing)
   if (message) await audit({ auditKey: registrationAuditKey(updatedData), message, user: user.name })
 
-  const editToken = await getRegistrationEditToken(updatedData)
-  if (!updatedData.handler?.email || !updatedData.owner?.email) return editToken
+  if (!updatedData.handler?.email || !updatedData.owner?.email) return
 
   const to = emailTo(updatedData)
   const templateData = registrationEmailTemplateData(updatedData, confirmedEvent, origin, 'update', editToken)
@@ -291,7 +303,6 @@ const finalizeAdminRegistrationUpdate = async ({
     message: `Email: ${templateData.subject}, to: ${to.join(', ')}`,
     user: user.name,
   })
-  return editToken
 }
 
 const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) => {
@@ -338,13 +349,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   registration = creation.registration
 
   if (operationRequest) {
-    registration = {
-      ...registration,
-      ...(registration.handler ? { handler: { ...registration.handler } } : {}),
-      ...(registration.owner ? { owner: { ...registration.owner } } : {}),
-      ...(registration.payer ? { payer: { ...registration.payer } } : {}),
-    }
-    normalizeRegistrationEmails(registration)
+    registration = normalizePatchedAdminRegistration(registration)
   }
 
   // modification info is always updated
@@ -369,9 +374,11 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     const editToken = await getRegistrationEditToken(completed)
     return response(200, participantRegistrationResponse(completed, editToken), event)
   }
-  const editToken = await finalizeAdminRegistrationUpdate({
+  const editToken = await getRegistrationEditToken(updatedData)
+  await finalizeAdminRegistrationUpdate({
     clearEmailDeliveryStatus,
     confirmedEvent,
+    editToken,
     existing,
     groupPatches,
     origin,

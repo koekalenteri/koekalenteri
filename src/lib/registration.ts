@@ -214,7 +214,7 @@ export const priorityDescriptionKey: PriorityCheckFn<
 export type SortableRegistration = {
   class?: Exclude<JsonRegistration['class'], undefined>
   eventType?: Exclude<JsonRegistration['eventType'], undefined>
-  group?: JsonRegistration['group'] | Registration['group']
+  group?: Exclude<JsonRegistration['group'] | Registration['group'], undefined>
 }
 
 const sortableDate = (date: string | Date | undefined): string =>

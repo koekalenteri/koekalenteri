@@ -276,7 +276,7 @@ const handleSuccessfulPayment = async (
     provider,
     transactionExists
   )
-  let { registration } = payment
+  const { registration } = payment
   const { appliedPayment, duplicatePayment, previouslyPaid } = payment
 
   // The provider captured this payment, and it is now recorded as a visible,
@@ -295,7 +295,7 @@ const handleSuccessfulPayment = async (
   try {
     if (workflow.postPaymentProcessedAt) return true
 
-    let confirmedEvent = await updateRegistrations(registration.eventId)
+    const confirmedEvent = await updateRegistrations(registration.eventId)
 
     // send receipt
     if (!workflow.receiptSentAt) {
@@ -347,7 +347,7 @@ const handleSuccessfulPayment = async (
       // Publication is deliberately last: a flaky admin socket must not block
       // the payer's receipt or confirmation email. Incremental refresh is the
       // admin-side recovery path if this strict publication needs a retry.
-      ;({ confirmedEvent, registration } = await publishSuccessfulPayment(registration, registrationId))
+      await publishSuccessfulPayment(registration, registrationId)
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'postPaymentPublishedAt')
     }
 

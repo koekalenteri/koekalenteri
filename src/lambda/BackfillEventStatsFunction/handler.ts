@@ -108,6 +108,29 @@ const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<st
   return records
 }
 
+interface StatsAccumulator {
+  organizerStats: Map<string, EventStatsItem>
+  yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
+  years: Set<number>
+}
+
+const addRegistrationStats = (
+  registration: RegistrationStatsInput,
+  event: EventStatsEvent,
+  year: number,
+  updatedAt: string,
+  accumulator: StatsAccumulator
+) => {
+  accumulator.years.add(year)
+  updateOrganizerStats(accumulator.organizerStats, event, registration, updatedAt)
+
+  if (!OFFICIAL_EVENT_TYPES.includes(event.eventType)) return
+
+  const yearlyCounts = getYearlyCounts(accumulator.yearlyStats, year)
+  const identifiers = participationIdentifiers(registration)
+  for (const type of PARTICIPATION_TYPES) increment(countsForType(yearlyCounts, type), identifiers[type])
+}
+
 /** Builds the complete desired stats-table contents without making DynamoDB writes. */
 export function buildStatsRecords(
   registrations: RegistrationStatsInput[],
@@ -117,6 +140,7 @@ export function buildStatsRecords(
   const organizerStats = new Map<string, EventStatsItem>()
   const yearlyStats = new Map<number, Map<YearlyStatTypes, Map<string, number>>>()
   const years = new Set<number>()
+  const accumulator = { organizerStats, yearlyStats, years }
   let skippedCount = 0
 
   for (const registration of registrations) {
@@ -127,15 +151,7 @@ export function buildStatsRecords(
       skippedCount++
       continue
     }
-    years.add(year)
-
-    updateOrganizerStats(organizerStats, event, registration, updatedAt)
-
-    if (!OFFICIAL_EVENT_TYPES.includes(event.eventType)) continue
-
-    const yearlyCounts = getYearlyCounts(yearlyStats, year)
-    const identifiers = participationIdentifiers(registration)
-    for (const type of PARTICIPATION_TYPES) increment(countsForType(yearlyCounts, type), identifiers[type])
+    addRegistrationStats(registration, event, year, updatedAt, accumulator)
   }
 
   const records: EventStatsItem[] = [...organizerStats.values(), ...yearlyStatsRecords(yearlyStats)]

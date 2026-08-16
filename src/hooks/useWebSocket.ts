@@ -109,6 +109,8 @@ const isAdminDataCollection = (value: unknown): value is AdminDataCollection =>
   value === 'organizers' ||
   value === 'users'
 
+const eventTypeKey = (item: { eventType: string }) => item.eventType
+
 export const applyRegistrations = (registrations: Registration[], next: Registration[]) => {
   if (registrations === next) return registrations
   return next
@@ -346,9 +348,7 @@ export const useWebSocket = () => {
                   : await getEventTypes(token)
                 adminDataCursorsRef.current.eventTypes = collectionResponseCursor(response)
                 set(adminEventTypesAtom, (latest) =>
-                  reconcileCollection(latest, response, (item) => item.eventType).sort(
-                    compareByLocalizedString('eventType')
-                  )
+                  reconcileCollection(latest, response, eventTypeKey).sort(compareByLocalizedString('eventType'))
                 )
                 break
               }

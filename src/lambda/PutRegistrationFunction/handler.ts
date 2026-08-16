@@ -67,6 +67,9 @@ const getData = async (registration: Patch<JsonRegistration>) => {
   return { confirmedEvent, existing }
 }
 
+const isAvailableEvent = (event: JsonConfirmedEvent | undefined): event is JsonConfirmedEvent =>
+  Boolean(event && !isEventOver({ endDate: new Date(event.endDate) }))
+
 const getEmailContext = (update: boolean, cancel: boolean, confirm: boolean, invitation: boolean) => {
   if (cancel) return 'cancel'
   if (confirm) return 'confirm'
@@ -496,10 +499,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   const { confirmedEvent, existing } = await getData(registration)
 
-  if (!confirmedEvent) {
-    return response(404, { message: 'Not found' }, event)
-  }
-  if (isEventOver({ endDate: new Date(confirmedEvent.endDate) })) {
+  if (!isAvailableEvent(confirmedEvent)) {
     return response(404, { message: 'Not found' }, event)
   }
 
