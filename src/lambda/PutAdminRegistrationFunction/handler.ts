@@ -24,6 +24,7 @@ import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
 import {
+  claimNewRegistrationPostProcessing,
   clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
   createRegistrationPatches,
@@ -33,13 +34,13 @@ import {
   getRegistration,
   getRegistrationChanges,
   getRegistrationEditToken,
+  markNewRegistrationPhase,
   participantRegistrationResponse,
   patchRegistration,
   registrationConflictBody,
   saveRegistration,
 } from '../lib/registration'
 import { removeNewRegistrationWorkflowMetadata, removeRegistrationCreationMetadata } from '../lib/registrationMetadata'
-import { claimNewRegistrationPostProcessing, markNewRegistrationPhase } from '../lib/registrationPostProcessing'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
 import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 

@@ -24,14 +24,43 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
+import { createDynamoLease } from './lease'
 import { createPatch } from './patch'
 import { removeRegistrationCreationMetadata } from './registrationMetadata'
 import { getRegistrationEditTokenSecret } from './secrets'
 
 const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
+const NEW_REGISTRATION_LEASE_DURATION_MS = 90 * 1000
+
+type NewRegistrationPhase =
+  | 'newRegistrationPublishedAt'
+  | 'newRegistrationAuditAt'
+  | 'newRegistrationEmailSentAt'
+  | 'newRegistrationProcessedAt'
+
+const newRegistrationPostProcessingLease = createDynamoLease<JsonRegistration, NewRegistrationPhase>({
+  client: dynamoDB,
+  durationMs: NEW_REGISTRATION_LEASE_DURATION_MS,
+  itemExistsField: 'id',
+  leaseField: 'newRegistrationLease',
+  table: registrationTable,
+})
 
 export const DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION = 1
+
+export const claimNewRegistrationPostProcessing = async (eventId: string, id: string) => {
+  const claim = await newRegistrationPostProcessingLease.claim({
+    key: { eventId, id },
+    missingItemMessage: `Registration '${id}' disappeared while claiming post-processing`,
+  })
+  if (!claim) return undefined
+
+  return { registration: claim.item, release: claim.release, token: claim.token }
+}
+
+export const markNewRegistrationPhase = (eventId: string, id: string, token: string, phase: NewRegistrationPhase) =>
+  newRegistrationPostProcessingLease.markPhase({ eventId, id }, token, phase)
 
 export const deriveRegistrationEditToken = (
   registration: Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>,

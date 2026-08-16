@@ -42,6 +42,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
 import {
   authorizeRegistrationEdit,
+  claimNewRegistrationPostProcessing,
   clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
   createRegistrationPatches,
@@ -53,13 +54,13 @@ import {
   getRegistrationChanges,
   getRegistrationEditToken,
   hasRegistrationChanges,
+  markNewRegistrationPhase,
   participantRegistrationResponse,
   patchRegistration,
   publicRegistrationPatch,
   registrationConflictBody,
   saveRegistration,
 } from '../lib/registration'
-import { claimNewRegistrationPostProcessing, markNewRegistrationPhase } from '../lib/registrationPostProcessing'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
 import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 

@@ -1,6 +1,5 @@
 import type { JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-import { randomUUID } from 'node:crypto'
 import { i18n } from '../../i18n/lambda'
 import { getCostSegmentName } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
@@ -15,6 +14,7 @@ import {
   updateRegistrations,
 } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
+import { createDynamoLease } from '../lib/lease'
 import { applySuccessfulPayment, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import {
   clearRegistrationEmailDeliveryStatus,
@@ -38,57 +38,26 @@ type PostPaymentPhase =
   | 'postPaymentPublishedAt'
   | 'receiptSentAt'
 
+const postPaymentLease = createDynamoLease<JsonTransaction, PostPaymentPhase>({
+  client: dynamoDB,
+  durationMs: POST_PAYMENT_LEASE_DURATION_MS,
+  itemExistsField: 'transactionId',
+  leaseField: 'postPaymentLease',
+  table: transactionTable,
+})
+
 const claimPostPaymentWorkflow = async (transactionId: string) => {
-  const token = randomUUID()
-  const now = Date.now()
-  try {
-    await dynamoDB.update(
-      { transactionId },
-      { set: { postPaymentLease: { expiresAt: now + POST_PAYMENT_LEASE_DURATION_MS, token } } },
-      transactionTable,
-      undefined,
-      {
-        expression:
-          'attribute_exists(#transactionId) AND (attribute_not_exists(#postPaymentLease) OR #postPaymentLease.#expiresAt < :now)',
-        names: {
-          '#expiresAt': 'expiresAt',
-          '#postPaymentLease': 'postPaymentLease',
-          '#transactionId': 'transactionId',
-        },
-        values: { ':now': now },
-      }
-    )
-  } catch (error) {
-    if ((error as { name?: string }).name === 'ConditionalCheckFailedException') return undefined
-    throw error
-  }
+  const claim = await postPaymentLease.claim({
+    key: { transactionId },
+    missingItemMessage: `Transaction '${transactionId}' disappeared while claiming post-payment workflow`,
+  })
+  if (!claim) return undefined
 
-  const transaction = await dynamoDB.read<JsonTransaction>({ transactionId }, transactionTable, true)
-  if (!transaction) throw new Error(`Transaction '${transactionId}' disappeared while claiming post-payment workflow`)
-
-  const release = async () => {
-    try {
-      await dynamoDB.update({ transactionId }, { remove: ['postPaymentLease'] }, transactionTable, undefined, {
-        expression: '#postPaymentLease.#token = :token',
-        names: { '#postPaymentLease': 'postPaymentLease', '#token': 'token' },
-        values: { ':token': token },
-      })
-    } catch (error) {
-      // The lease may have expired and been claimed by a retry. Do not remove
-      // that retry's lease or replace the original processing error.
-      if ((error as { name?: string }).name !== 'ConditionalCheckFailedException') throw error
-    }
-  }
-
-  return { release, token, transaction }
+  return { release: claim.release, token: claim.token, transaction: claim.item }
 }
 
 const markPostPaymentPhase = (transactionId: string, token: string, field: PostPaymentPhase) =>
-  dynamoDB.update({ transactionId }, { set: { [field]: new Date().toISOString() } }, transactionTable, undefined, {
-    expression: '#postPaymentLease.#token = :token',
-    names: { '#postPaymentLease': 'postPaymentLease', '#token': 'token' },
-    values: { ':token': token },
-  })
+  postPaymentLease.markPhase({ transactionId }, token, field)
 
 const recordDuplicatePayment = async (
   transaction: JsonTransaction,

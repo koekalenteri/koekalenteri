@@ -94,9 +94,11 @@ const libRegistration = await import('../lib/registration')
 
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
+  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
+  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
   patchRegistration: mockPatchRegistration,
   saveRegistration: mockSaveRegistration,
 }))
@@ -118,11 +120,6 @@ jest.unstable_mockModule('../lib/stats', () => ({
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
-}))
-
-jest.unstable_mockModule('../lib/registrationPostProcessing', () => ({
-  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
-  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
 }))
 
 const { default: putAdminRegistrationLambda } = await import('./handler')

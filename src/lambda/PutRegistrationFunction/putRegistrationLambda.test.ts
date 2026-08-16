@@ -55,11 +55,6 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
 
-jest.unstable_mockModule('../lib/registrationPostProcessing', () => ({
-  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
-  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
-}))
-
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
     query: mockDynamoDBQuery,
@@ -89,9 +84,11 @@ const mockAuthorizeRegistrationEdit = jest.fn(() => 'test-edit-token')
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
   authorizeRegistrationEdit: mockAuthorizeRegistrationEdit,
+  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
+  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
   patchRegistration: mockPatchRegistration,
   saveRegistration: mockSaveRegistration,
 }))
