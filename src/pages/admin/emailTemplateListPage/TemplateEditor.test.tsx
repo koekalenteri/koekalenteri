@@ -120,33 +120,17 @@ describe('TemplateEditor', () => {
   })
 
   describe('autocomplete integration', () => {
-    it('offers top-level keys when opening mustache with empty identifier', async () => {
+    it.each([
+      ['{{{{', '{{}}', 'event …'],
+      ['{{{{e', '{{e}}', 'e vent …'],
+      ['{{{{event.', '{{event.}}', 'name string'],
+    ])('offers matching keys after typing %s', async (input, content, optionName) => {
       const { editor, user } = setup({ templateId: 'receipt', value: '' })
-      await user.type(editor!, '{{{{')
+      await user.type(editor!, input)
       await flushPromises()
-      expect(editor).toHaveTextContent('{{}}')
+      expect(editor).toHaveTextContent(content)
 
-      const option = screen.getByRole('option', { name: 'event …' })
-      expect(option).toBeInTheDocument()
-    })
-
-    it('offers top-level keys when typing inside {{ }}', async () => {
-      const { editor, user } = setup({ templateId: 'receipt', value: '' })
-      await user.type(editor!, '{{{{e')
-      await flushPromises()
-      expect(editor).toHaveTextContent('{{e}}')
-
-      const option = screen.getByRole('option', { name: 'e vent …' })
-      expect(option).toBeInTheDocument()
-    })
-
-    it('offers child keys after selecting a property with trailing dot', async () => {
-      const { editor, user } = setup({ templateId: 'receipt', value: '' })
-      await user.type(editor!, '{{{{event.')
-      await flushPromises()
-      expect(editor).toHaveTextContent('{{event.}}')
-
-      const option = screen.getByRole('option', { name: 'name string' })
+      const option = screen.getByRole('option', { name: optionName })
       expect(option).toBeInTheDocument()
     })
 

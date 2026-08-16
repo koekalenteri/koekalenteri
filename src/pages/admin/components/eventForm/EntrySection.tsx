@@ -34,11 +34,10 @@ export default function EntrySection(props: Props) {
   )
   const sortedPriorities = useMemo(() => PRIORITY.slice().sort(prioritySort), [prioritySort])
   const allowPastRegistrationDates = isDevEnv()
-  const registrationStartDate = allowPastRegistrationDates
-    ? undefined
-    : event.createdAt
-      ? zonedStartOfDay(event.createdAt)
-      : zonedStartOfDay(new Date())
+  let registrationStartDate: Date | undefined
+  if (!allowPastRegistrationDates) {
+    registrationStartDate = zonedStartOfDay(event.createdAt ?? new Date())
+  }
   const registrationDateRange = useMemo(
     () => ({
       end: zonedEndOfDay(event.startDate),

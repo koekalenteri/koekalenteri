@@ -441,50 +441,48 @@ const organizerStatsTransactionItem = (
   },
 })
 
-const participationStatsTransactionItems = (
-  snapshots: ParticipationSnapshot[],
-  year: number
-): StatsTransactionItem[] => {
-  const items: StatsTransactionItem[] = []
-
-  for (const snapshot of snapshots) {
-    const countExists = snapshot.previousCount !== 0
-    items.push({
-      Update: {
-        ConditionExpression: countExists ? '#count = :previousCount' : 'attribute_not_exists(#count) OR #count = :zero',
-        ExpressionAttributeNames: { '#count': 'count' },
-        ExpressionAttributeValues: {
-          ':delta': 1,
-          ...(countExists ? { ':previousCount': snapshot.previousCount } : { ':zero': 0 }),
-        },
-        Key: { PK: `STAT#${year}#${snapshot.type}`, SK: snapshot.entityId },
-        TableName: CONFIG.eventStatsTable,
-        UpdateExpression: 'ADD #count :delta',
+const participationCountItem = (snapshot: ParticipationSnapshot, year: number): StatsTransactionItem => {
+  const countExists = snapshot.previousCount !== 0
+  return {
+    Update: {
+      ConditionExpression: countExists ? '#count = :previousCount' : 'attribute_not_exists(#count) OR #count = :zero',
+      ExpressionAttributeNames: { '#count': 'count' },
+      ExpressionAttributeValues: {
+        ':delta': 1,
+        ...(countExists ? { ':previousCount': snapshot.previousCount } : { ':zero': 0 }),
       },
-    })
+      Key: { PK: `STAT#${year}#${snapshot.type}`, SK: snapshot.entityId },
+      TableName: CONFIG.eventStatsTable,
+      UpdateExpression: 'ADD #count :delta',
+    },
+  }
+}
 
-    if (snapshot.previousCount <= 0 && snapshot.newCount > 0) {
-      items.push({
-        Update: {
-          ExpressionAttributeNames: { '#count': 'count' },
-          ExpressionAttributeValues: { ':delta': 1 },
-          Key: { PK: `TOTALS#${year}`, SK: snapshot.type },
-          TableName: CONFIG.eventStatsTable,
-          UpdateExpression: 'ADD #count :delta',
-        },
-      })
-    }
+const participationTotalItem = (snapshot: ParticipationSnapshot, year: number): StatsTransactionItem => ({
+  Update: {
+    ExpressionAttributeNames: { '#count': 'count' },
+    ExpressionAttributeValues: { ':delta': 1 },
+    Key: { PK: `TOTALS#${year}`, SK: snapshot.type },
+    TableName: CONFIG.eventStatsTable,
+    UpdateExpression: 'ADD #count :delta',
+  },
+})
 
-    if (snapshot.isDogHandler) {
-      const oldBucket = bucketForCount(snapshot.previousCount)
-      const newBucket = bucketForCount(snapshot.newCount)
-      if (oldBucket !== newBucket) {
-        for (const [bucket, delta] of [
-          [oldBucket, -1],
-          [newBucket, 1],
-        ] as const) {
-          if (!bucket) continue
-          items.push({
+const participationBucketItems = (snapshot: ParticipationSnapshot, year: number): StatsTransactionItem[] => {
+  if (!snapshot.isDogHandler) return []
+  const oldBucket = bucketForCount(snapshot.previousCount)
+  const newBucket = bucketForCount(snapshot.newCount)
+  if (oldBucket === newBucket) return []
+
+  return (
+    [
+      [oldBucket, -1],
+      [newBucket, 1],
+    ] as const
+  ).flatMap(([bucket, delta]) =>
+    bucket
+      ? [
+          {
             Update: {
               ExpressionAttributeNames: { '#count': 'count' },
               ExpressionAttributeValues: { ':delta': delta },
@@ -492,10 +490,25 @@ const participationStatsTransactionItems = (
               TableName: CONFIG.eventStatsTable,
               UpdateExpression: 'ADD #count :delta',
             },
-          })
-        }
-      }
+          },
+        ]
+      : []
+  )
+}
+
+const participationStatsTransactionItems = (
+  snapshots: ParticipationSnapshot[],
+  year: number
+): StatsTransactionItem[] => {
+  const items: StatsTransactionItem[] = []
+
+  for (const snapshot of snapshots) {
+    items.push(participationCountItem(snapshot, year))
+
+    if (snapshot.previousCount <= 0 && snapshot.newCount > 0) {
+      items.push(participationTotalItem(snapshot, year))
     }
+    items.push(...participationBucketItems(snapshot, year))
   }
 
   return items

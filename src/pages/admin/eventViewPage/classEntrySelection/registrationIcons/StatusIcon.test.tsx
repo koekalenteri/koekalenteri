@@ -3,25 +3,17 @@ import { render, screen } from '@testing-library/react'
 import StatusIcon from './StatusIcon'
 
 describe('StatusIcon', () => {
-  it('should render with full opacity when condition is true', () => {
-    render(<StatusIcon condition={true} icon={<CheckOutlined data-testid="test-icon" />} />)
+  it.each([
+    ['full opacity when condition is true', true, false, 1],
+    ['low opacity when condition is false', false, false, 0.05],
+    ['full opacity when alwaysShow is true', false, true, 1],
+  ])('should render with %s', (_description, condition, alwaysShow, opacity) => {
+    render(
+      <StatusIcon condition={condition} alwaysShow={alwaysShow} icon={<CheckOutlined data-testid="test-icon" />} />
+    )
 
     const icon = screen.getByTestId('test-icon')
-    expect(icon).toHaveStyle('opacity: 1')
-  })
-
-  it('should render with low opacity when condition is false', () => {
-    render(<StatusIcon condition={false} icon={<CheckOutlined data-testid="test-icon" />} />)
-
-    const icon = screen.getByTestId('test-icon')
-    expect(icon).toHaveStyle('opacity: 0.05')
-  })
-
-  it('should render with full opacity when alwaysShow is true regardless of condition', () => {
-    render(<StatusIcon condition={false} alwaysShow={true} icon={<CheckOutlined data-testid="test-icon" />} />)
-
-    const icon = screen.getByTestId('test-icon')
-    expect(icon).toHaveStyle('opacity: 1')
+    expect(icon).toHaveStyle(`opacity: ${opacity}`)
   })
 
   it('should set fontSize to small', () => {

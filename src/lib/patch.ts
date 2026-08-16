@@ -86,68 +86,78 @@ const compareOperations = (left: PatchOperation, right: PatchOperation): number 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && Object.prototype.toString.call(value) === '[object Object]'
 
-const applyOperationAtPath = (
-  current: Record<string, unknown> | unknown[],
-  operation: PatchOperation,
-  depth = 0
-): Record<string, unknown> | unknown[] => {
-  const key = operation.path[depth]
-  const last = depth === operation.path.length - 1
+const assertPatchChild = (child: unknown, operation: PatchOperation) => {
+  if (!Array.isArray(child) && !isRecord(child)) {
+    throw new InvalidPatchError(`Patch parent is not an object or array: ${pathKey(operation.path)}`)
+  }
+  return child
+}
 
-  if (Array.isArray(current)) {
-    if (typeof key !== 'number') {
-      throw new InvalidPatchError(`Array patch path must use an index: ${pathKey(operation.path)}`)
-    }
-    const result = [...current]
-    if (last) {
-      if (operation.type === 'CREATE') {
-        if (key > result.length) {
-          throw new InvalidPatchError(`Array create index is out of bounds: ${pathKey(operation.path)}`)
-        }
-        result.splice(key, 0, operation.value)
-      } else {
-        if (key >= result.length) {
-          throw new InvalidPatchError(`Array patch index is out of bounds: ${pathKey(operation.path)}`)
-        }
-        if (operation.type === 'REMOVE') result.splice(key, 1)
-        else result[key] = operation.value
-      }
-      return result
-    }
+const applyArrayOperation = (current: unknown[], operation: PatchOperation, depth: number): unknown[] => {
+  const key = operation.path[depth]
+  if (typeof key !== 'number') {
+    throw new InvalidPatchError(`Array patch path must use an index: ${pathKey(operation.path)}`)
+  }
+  const result = [...current]
+  const last = depth === operation.path.length - 1
+  if (!last) {
     if (key >= result.length) throw new InvalidPatchError(`Patch path does not exist: ${pathKey(operation.path)}`)
-    const child = result[key]
-    if (!Array.isArray(child) && !isRecord(child)) {
-      throw new InvalidPatchError(`Patch parent is not an object or array: ${pathKey(operation.path)}`)
-    }
-    result[key] = applyOperationAtPath(child, operation, depth + 1)
+    result[key] = applyOperationAtPath(assertPatchChild(result[key], operation), operation, depth + 1)
     return result
   }
+  if (operation.type === 'CREATE') {
+    if (key > result.length) {
+      throw new InvalidPatchError(`Array create index is out of bounds: ${pathKey(operation.path)}`)
+    }
+    result.splice(key, 0, operation.value)
+    return result
+  }
+  if (key >= result.length) {
+    throw new InvalidPatchError(`Array patch index is out of bounds: ${pathKey(operation.path)}`)
+  }
+  if (operation.type === 'REMOVE') result.splice(key, 1)
+  else result[key] = operation.value
+  return result
+}
 
+const applyRecordOperation = (
+  current: Record<string, unknown>,
+  operation: PatchOperation,
+  depth: number
+): Record<string, unknown> => {
+  const key = operation.path[depth]
   if (typeof key !== 'string') {
     throw new InvalidPatchError(`Object patch path must use a key: ${pathKey(operation.path)}`)
   }
   const exists = Object.hasOwn(current, key)
   const result = { ...current }
-  if (last) {
-    if (operation.type === 'CREATE') {
-      if (exists) throw new InvalidPatchError(`Patch create target already exists: ${pathKey(operation.path)}`)
-      result[key] = operation.value
-    } else if (!exists) {
-      throw new InvalidPatchError(`Patch target does not exist: ${pathKey(operation.path)}`)
-    } else if (operation.type === 'REMOVE') {
-      delete result[key]
-    } else {
-      result[key] = operation.value
-    }
+  const last = depth === operation.path.length - 1
+  if (!last) {
+    if (!exists) throw new InvalidPatchError(`Patch path does not exist: ${pathKey(operation.path)}`)
+    result[key] = applyOperationAtPath(assertPatchChild(result[key], operation), operation, depth + 1)
     return result
   }
-  if (!exists) throw new InvalidPatchError(`Patch path does not exist: ${pathKey(operation.path)}`)
-  const child = result[key]
-  if (!Array.isArray(child) && !isRecord(child)) {
-    throw new InvalidPatchError(`Patch parent is not an object or array: ${pathKey(operation.path)}`)
+  if (operation.type === 'CREATE') {
+    if (exists) throw new InvalidPatchError(`Patch create target already exists: ${pathKey(operation.path)}`)
+    result[key] = operation.value
+  } else if (!exists) {
+    throw new InvalidPatchError(`Patch target does not exist: ${pathKey(operation.path)}`)
+  } else if (operation.type === 'REMOVE') {
+    delete result[key]
+  } else {
+    result[key] = operation.value
   }
-  result[key] = applyOperationAtPath(child, operation, depth + 1)
   return result
+}
+
+function applyOperationAtPath(
+  current: Record<string, unknown> | unknown[],
+  operation: PatchOperation,
+  depth = 0
+): Record<string, unknown> | unknown[] {
+  return Array.isArray(current)
+    ? applyArrayOperation(current, operation, depth)
+    : applyRecordOperation(current, operation, depth)
 }
 
 export const createPatchOperations = (before: object, after: object): PatchOperation[] =>

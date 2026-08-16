@@ -185,8 +185,8 @@ export const priorityDescriptionKey: PriorityCheckFn<
 }
 
 export type SortableRegistration = {
-  class?: JsonRegistration['class']
-  eventType?: JsonRegistration['eventType']
+  class?: Exclude<JsonRegistration['class'], undefined>
+  eventType?: Exclude<JsonRegistration['eventType'], undefined>
   group?: JsonRegistration['group'] | Registration['group']
 }
 
@@ -348,6 +348,11 @@ export const getParticipantMessageInfo = <T extends InvitationAttachmentRegistra
   }
 }
 
+interface RegistrationEmailTemplateOptions {
+  previousGroup?: JsonRegistrationGroup
+  editToken?: string
+}
+
 export const getRegistrationEmailTemplateData = (
   registration: JsonRegistration | Registration,
   confirmedEvent: JsonConfirmedEvent | ConfirmedEvent,
@@ -355,9 +360,9 @@ export const getRegistrationEmailTemplateData = (
   context: RegistrationTemplateContext,
   text: string | undefined,
   t: TFunction,
-  previousGroup?: JsonRegistrationGroup,
-  editToken?: string
+  options: RegistrationEmailTemplateOptions = {}
 ) => {
+  const { editToken, previousGroup } = options
   const eventDate = t('dateFormat.datespan', { end: confirmedEvent.endDate, start: confirmedEvent.startDate })
   const reserveText = t(`registration.reserveChoises.${registration.reserve || 'ANY'}`)
   const dogBreed = registration.dog.breedCode ? t(`${registration.dog.breedCode}`, { ns: 'breed' }) : ''

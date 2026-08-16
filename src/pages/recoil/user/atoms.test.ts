@@ -41,20 +41,14 @@ describe('idTokenAtom', () => {
 
 describe('languageAtom', () => {
   describe('should default to i18n.language', () => {
-    it('when "fi"', () => {
-      i18n.language = 'fi'
+    it.each([
+      ['fi', 'fi'],
+      ['en', 'en'],
+      ['sv', 'fi'],
+    ])('maps %s to %s', (language, expected) => {
+      i18n.language = language
       const snapshot = snapshot_UNSTABLE()
-      expect(snapshot.getLoadable(languageAtom).valueOrThrow()).toEqual('fi')
-    })
-    it('when "en"', () => {
-      i18n.language = 'en'
-      const snapshot = snapshot_UNSTABLE()
-      expect(snapshot.getLoadable(languageAtom).valueOrThrow()).toEqual('en')
-    })
-    it('when unsupported, it should fallback to "fi"', () => {
-      i18n.language = 'sv'
-      const snapshot = snapshot_UNSTABLE()
-      expect(snapshot.getLoadable(languageAtom).valueOrThrow()).toEqual('fi')
+      expect(snapshot.getLoadable(languageAtom).valueOrThrow()).toEqual(expected)
     })
   })
 })

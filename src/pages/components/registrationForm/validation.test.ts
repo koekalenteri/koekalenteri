@@ -1,5 +1,6 @@
 import type { BreedCode, Dog, ManualTestResult, Registration } from '../../../types'
-import { filterRelevantResults, objectContains, validateDog, validateRegistration } from './validation'
+import { filterRelevantResults, objectContains } from '../../../lib/qualification'
+import { validateDog, validateRegistration } from './validation'
 
 const testDog: Dog = {
   breedCode: '122',
@@ -1097,7 +1098,7 @@ describe('validation', () => {
       // Should only have error for agreeToTerms, not for createdAt, modifiedAt, etc.
       // Filter out errors that are not related to agreeToTerms
       const termsErrors = errors.filter((e) => e.key === 'terms')
-      expect(termsErrors.length).toBe(1)
+      expect(termsErrors).toHaveLength(1)
 
       // Verify that none of the NOT_VALIDATED fields are in the errors
       const notValidatedFields = ['createdAt', 'modifiedAt', 'createdBy', 'modifiedBy', 'deletedAt', 'deletedBy']

@@ -429,7 +429,7 @@ describe('SelectMulti', () => {
 
       // We should see only one option (even though it was duplicated)
       const options = screen.getAllByText('Option 1')
-      expect(options.length).toBe(1)
+      expect(options).toHaveLength(1)
     })
   })
 

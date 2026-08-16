@@ -647,7 +647,7 @@ describe('lib/registration', () => {
         'confirmation' as any, // Type assertion for context
         '',
         t,
-        previousGroup as any
+        { previousGroup: previousGroup as any }
       )
 
       // Verify that the previous group's number is used

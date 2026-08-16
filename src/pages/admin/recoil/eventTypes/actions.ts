@@ -1,12 +1,11 @@
 import type { EventType, EventTypeData } from '../../../../types'
-import i18next from 'i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { getEventTypes, putEventType } from '../../../../api/eventType'
+import { compareByLocalizedString } from '../../../../lib/client/sort'
 import { validIdTokenSelector } from '../../../recoil/user'
 import { adminEventTypesAtom } from './atoms'
 
-const sortEventTypes = (eventTypes: EventType[]) =>
-  [...eventTypes].sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language))
+const sortEventTypes = (eventTypes: EventType[]) => [...eventTypes].sort(compareByLocalizedString('eventType'))
 
 export const useAdminEventTypeActions = () => {
   const [eventTypes, setEventTypes] = useRecoilState(adminEventTypesAtom)

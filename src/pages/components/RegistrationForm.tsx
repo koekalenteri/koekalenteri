@@ -32,6 +32,7 @@ import { calculateCost } from '../../lib/cost'
 import { getDiffOperations } from '../../lib/diff'
 import { isDevEnv } from '../../lib/env'
 import { formatMoney } from '../../lib/money'
+import { filterRelevantResults } from '../../lib/qualification'
 import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
 import { AsyncButton } from './AsyncButton'
@@ -46,7 +47,7 @@ import { OwnerInfo } from './registrationForm/OwnerInfo'
 import { PayerInfo } from './registrationForm/PayerInfo'
 import PaymentInfo from './registrationForm/PaymentInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
-import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
+import { validateRegistration } from './registrationForm/validation'
 
 interface Props {
   readonly admin?: boolean

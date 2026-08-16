@@ -40,6 +40,30 @@ const registrationDebug = (message: string, details: unknown) => {
   if (!isTestEnv()) console.debug(message, details)
 }
 
+type GroupMoveResult = Awaited<ReturnType<typeof putRegistrationGroups>>
+type EnqueueSnackbar = ReturnType<typeof useSnackbar>['enqueueSnackbar']
+
+const notifyGroupMoveResult = (result: GroupMoveResult, enqueueSnackbar: EnqueueSnackbar) => {
+  const notifications = [
+    ['Koepaikkailmoitus lähetetty onnistuneesti', result.pickedOk, 'success'],
+    ['Koekutsu lähetetty onnistuneesti', result.invitedOk, 'success'],
+    ['Varasijailmoitus lähetetty onnistuneesti', result.reserveOk, 'success'],
+    ['Peruutusilmoitus lähetetty onnistuneesti', result.cancelledOk, 'success'],
+    ['Koepaikkailmoituksen lähetys epäonnistui 💩', result.pickedFailed, 'success'],
+    ['Koekutsun lähetys epäonnistui 💩', result.invitedFailed, 'success'],
+    ['Varasijailmoituksen lähetys epäonnistui 💩', result.reserveFailed, 'success'],
+    ['Peruutusilmoituksen lähetys epäonnistui 💩', result.cancelledFailed, 'success'],
+  ] as const
+
+  for (const [message, recipients, variant] of notifications) {
+    if (!recipients.length) continue
+    enqueueSnackbar(`${message}\n\n${recipients.join('\n')}`, {
+      style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+      variant,
+    })
+  }
+}
+
 export const useAdminRegistrationActions = (eventId: string) => {
   const [eventRegistrations, setEventRegistrations] = useRecoilState(adminEventRegistrationsSelector(eventId))
   const [event, setEvent] = useRecoilState(adminEventSelector(eventId))
@@ -166,68 +190,9 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
         setBackgroundActionsRunning(true)
 
-        const {
-          items,
-          classes,
-          entries,
-          invitedOk,
-          invitedFailed,
-          pickedOk,
-          pickedFailed,
-          reserveOk,
-          reserveFailed,
-          cancelledOk,
-          cancelledFailed,
-        } = await putRegistrationGroups(targetEventId, groups, token)
-
-        if (pickedOk.length) {
-          enqueueSnackbar(`Koepaikkailmoitus lähetetty onnistuneesti\n\n${pickedOk.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (invitedOk.length) {
-          enqueueSnackbar(`Koekutsu lähetetty onnistuneesti\n\n${invitedOk.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (reserveOk.length) {
-          enqueueSnackbar(`Varasijailmoitus lähetetty onnistuneesti\n\n${reserveOk.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (cancelledOk.length) {
-          enqueueSnackbar(`Peruutusilmoitus lähetetty onnistuneesti\n\n${cancelledOk.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (pickedFailed.length) {
-          enqueueSnackbar(`Koepaikkailmoituksen lähetys epäonnistui 💩\n\n${pickedFailed.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (invitedFailed.length) {
-          enqueueSnackbar(`Koekutsun lähetys epäonnistui 💩\n\n${invitedFailed.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (reserveFailed.length) {
-          enqueueSnackbar(`Varasijailmoituksen lähetys epäonnistui 💩\n\n${reserveFailed.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (cancelledFailed.length) {
-          enqueueSnackbar(`Peruutusilmoituksen lähetys epäonnistui 💩\n\n${cancelledFailed.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
+        const result = await putRegistrationGroups(targetEventId, groups, token)
+        const { items, classes, entries } = result
+        notifyGroupMoveResult(result, enqueueSnackbar)
         // Defensive against backend returning sparse arrays / null items.
         // MUI X v7 will crash if `rows` contains nullish entries.
         const confirmed = (items as Array<Registration | null | undefined>).filter(Boolean) as Registration[]

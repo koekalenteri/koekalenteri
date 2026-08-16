@@ -9,6 +9,8 @@ export interface JsonDbRecord {
   updatedAt?: string
 }
 
+type AuditMessageParam = string | number | boolean
+
 export interface DbRecord extends Omit<JsonDbRecord, 'createdAt' | 'modifiedAt' | 'deletedAt' | 'updatedAt'> {
   createdAt: Date
   modifiedAt: Date
@@ -21,7 +23,7 @@ export interface JsonAuditRecord {
   changes?: JsonAuditChange[]
   details?: JsonAuditDetail[]
   messageKey?: string
-  messageParams?: Record<string, string | number | boolean>
+  messageParams?: Record<string, AuditMessageParam>
   timestamp: string
   user: string
   message: string

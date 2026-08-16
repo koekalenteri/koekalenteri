@@ -71,6 +71,8 @@ const newRegistrationPostProcessingLease = createDynamoLease<JsonRegistration, N
 
 export const DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION = 1
 
+type RegistrationEditTokenFields = Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>
+
 export const claimNewRegistrationPostProcessing = async (eventId: string, id: string) => {
   const claim = await newRegistrationPostProcessingLease.claim({
     key: { eventId, id },
@@ -84,19 +86,15 @@ export const claimNewRegistrationPostProcessing = async (eventId: string, id: st
 export const markNewRegistrationPhase = (eventId: string, id: string, token: string, phase: NewRegistrationPhase) =>
   newRegistrationPostProcessingLease.markPhase({ eventId, id }, token, phase)
 
-export const deriveRegistrationEditToken = (
-  registration: Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>,
-  secret: string
-): string =>
+export const deriveRegistrationEditToken = (registration: RegistrationEditTokenFields, secret: string): string =>
   createHmac('sha256', secret)
     .update(
       `registration-edit:${registration.eventId}:${registration.id}:${registration.editTokenVersion ?? DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION}`
     )
     .digest('base64url')
 
-export const getRegistrationEditToken = async (
-  registration: Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>
-): Promise<string> => deriveRegistrationEditToken(registration, await getRegistrationEditTokenSecret())
+export const getRegistrationEditToken = async (registration: RegistrationEditTokenFields): Promise<string> =>
+  deriveRegistrationEditToken(registration, await getRegistrationEditTokenSecret())
 
 const getBearerToken = (event: Pick<APIGatewayProxyEvent, 'headers'>): string => {
   const authorization = event.headers.Authorization ?? event.headers.authorization ?? ''

@@ -1,11 +1,9 @@
 import type { Organizer } from '../../../../types'
-import i18next from 'i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { getAdminOrganizers, putOrganizer } from '../../../../api/organizer'
+import { compareByLocalizedString } from '../../../../lib/client/sort'
 import { validIdTokenSelector } from '../../../recoil'
 import { adminOrganizersAtom } from './atoms'
-
-const nameSort = (a: Organizer, b: Organizer) => a.name.localeCompare(b.name, i18next.language)
 
 export const useAdminOrganizersActions = () => {
   const [organizers, setOrganizers] = useRecoilState(adminOrganizersAtom)
@@ -19,7 +17,7 @@ export const useAdminOrganizersActions = () => {
   function refresh() {
     if (!token) throw new Error('missing token')
     getAdminOrganizers(token, true).then((organizers) => {
-      setOrganizers([...organizers].sort(nameSort))
+      setOrganizers([...organizers].sort(compareByLocalizedString('name')))
     })
   }
 
@@ -27,6 +25,6 @@ export const useAdminOrganizersActions = () => {
     if (!token) throw new Error('missing token')
     const saved = await putOrganizer(organizer, token)
 
-    setOrganizers([...organizers.filter((o) => o.id !== saved.id), saved].sort(nameSort))
+    setOrganizers([...organizers.filter((o) => o.id !== saved.id), saved].sort(compareByLocalizedString('name')))
   }
 }

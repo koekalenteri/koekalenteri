@@ -1,3 +1,4 @@
+import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type {
   EmailTemplateId,
   JsonConfirmedEvent,
@@ -289,26 +290,287 @@ const sendMessages = async (
   }
 }
 
+interface PersistedRegistration {
+  groupPatches: Patch<JsonRegistration>[]
+  savedData: JsonRegistration
+}
+
+type RegistrationPersistenceResult =
+  | { conflict: JsonRegistration; kind: 'conflict' }
+  | (PersistedRegistration & { kind: 'saved' })
+
+const reconcileRegistrationGroups = async (
+  registration: JsonRegistration,
+  username: string
+): Promise<PersistedRegistration> => {
+  if (registration.state !== 'ready') return { groupPatches: [], savedData: registration }
+
+  const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId, true)
+  const reconciliationRegistrations = [
+    ...readyRegistrations.filter((item) => item.id !== registration.id),
+    { ...registration, ...(registration.group ? { group: { ...registration.group } } : {}) },
+  ]
+  const beforeReconciliation = reconciliationRegistrations.map((item) => ({
+    ...item,
+    ...(item.group ? { group: { ...item.group } } : {}),
+  }))
+  const reconciled = await fixRegistrationGroups(reconciliationRegistrations, { name: username })
+  return {
+    groupPatches: createRegistrationPatches(reconciled, beforeReconciliation),
+    savedData: {
+      ...registration,
+      group: reconciled.find((item) => item.id === registration.id)?.group ?? registration.group,
+    },
+  }
+}
+
+const persistRegistration = async (
+  data: JsonRegistration,
+  existing: JsonRegistration | undefined,
+  username: string
+): Promise<RegistrationPersistenceResult> => {
+  const releasePaymentLock =
+    !existing && data.state === 'ready' ? await lockRegistrationPayments(data.eventId) : undefined
+  let releaseGroupsLock: (() => Promise<void>) | undefined
+  let savedData = data
+  try {
+    if (releasePaymentLock) {
+      const concurrent = await findExistingRegistrationToEventForDog(
+        data.eventId,
+        data.dog.regNo,
+        data.creationIdempotencyKey,
+        true
+      )
+      const isIdempotentRetry =
+        concurrent &&
+        typeof data.creationIdempotencyKey === 'string' &&
+        concurrent.creationIdempotencyKey === data.creationIdempotencyKey
+      if (concurrent && !isIdempotentRetry) {
+        return { conflict: concurrent, kind: 'conflict' }
+      }
+      if (concurrent) savedData = concurrent
+    }
+
+    releaseGroupsLock = data.state === 'ready' ? await lockRegistrationGroups(data.eventId, 8) : undefined
+    if (savedData === data) {
+      if (existing) savedData = await patchRegistration(data.eventId, data.id, existing, data)
+      else await saveRegistration(data)
+    }
+    return { ...(await reconcileRegistrationGroups(savedData, username)), kind: 'saved' }
+  } finally {
+    if (releaseGroupsLock) await releaseGroupsLock()
+    if (releasePaymentLock) await releasePaymentLock()
+  }
+}
+
+const handleDuplicateRegistration = async (
+  duplicate: JsonRegistration,
+  registration: Patch<JsonRegistration>,
+  confirmedEvent: JsonConfirmedEvent,
+  linkOrigin: string,
+  username: string
+) => {
+  const groupPatches = await repairReadyRegistrationGroups(duplicate.eventId, { name: username })
+  const isIdempotentRetry =
+    typeof registration.creationIdempotencyKey === 'string' &&
+    registration.creationIdempotencyKey === duplicate.creationIdempotencyKey
+  if (!isIdempotentRetry) {
+    if (groupPatches.length) {
+      const updatedEvent = await updateRegistrations(duplicate.eventId)
+      await publishRegistrationPatches(duplicate.eventId, groupPatches, updatedEvent.organizer.id)
+    }
+    return { conflict: duplicate }
+  }
+
+  const editToken = await getRegistrationEditToken(duplicate)
+  const completed = await completeNewRegistration(
+    duplicate,
+    confirmedEvent,
+    linkOrigin,
+    username,
+    editToken,
+    groupPatches
+  )
+  return { completed, editToken }
+}
+
+const preparePublicRegistrationCreation = async (
+  registration: Patch<JsonRegistration>,
+  existing: JsonRegistration | undefined,
+  confirmedEvent: JsonConfirmedEvent,
+  timestamp: string,
+  username: string,
+  event: APIGatewayProxyEvent,
+  linkOrigin: string
+) => {
+  if (existing) return { registration }
+
+  const duplicate = await prepareNewRegistration(registration, confirmedEvent, timestamp, username, event)
+  if (!duplicate) {
+    registration.editTokenVersion = DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION
+    return { registration }
+  }
+  if (!('eventId' in duplicate)) return { earlyResponse: duplicate }
+
+  const handled = await handleDuplicateRegistration(duplicate, registration, confirmedEvent, linkOrigin, username)
+  if (handled.conflict) {
+    return { earlyResponse: response(409, registrationConflictBody(handled.conflict), event) }
+  }
+  return {
+    earlyResponse: response(200, participantRegistrationResponse(handled.completed, handled.editToken), event),
+  }
+}
+
+const authorizeAndApplyPublicPatch = async (
+  event: APIGatewayProxyEvent,
+  existing: JsonRegistration | undefined,
+  registration: Patch<JsonRegistration>,
+  operationRequest: JsonRegistrationPatchRequest | undefined
+) => {
+  if (typeof registration.eventId !== 'string' || typeof registration.id !== 'string') {
+    return { invalid: 'registration identity is missing' as const }
+  }
+  const editToken = existing
+    ? await authorizeRegistrationEdit(event, existing)
+    : await getRegistrationEditToken({
+        editTokenVersion: registration.editTokenVersion ?? undefined,
+        eventId: registration.eventId,
+        id: registration.id,
+      })
+  if (!existing || !operationRequest) return { editToken, registration }
+
+  try {
+    return { editToken, registration: applyPublicPatchRequest(existing, operationRequest) }
+  } catch (error) {
+    if (error instanceof InvalidPatchError) return { invalid: error.message }
+    throw error
+  }
+}
+
+const buildPublicRegistrationData = (
+  registration: Patch<JsonRegistration>,
+  existing: JsonRegistration | undefined,
+  confirmedEvent: JsonConfirmedEvent
+) => {
+  const update = Boolean(existing)
+  const cancel = !existing?.cancelled && Boolean(registration.cancelled)
+  const confirm = !existing?.confirmed && Boolean(registration.confirmed) && !existing?.cancelled
+  const invitationAttachment = existing ? getSentInvitationAttachment(confirmedEvent, existing) : undefined
+  const previousAttachment =
+    existing?.invitationAttachmentRead ??
+    (existing?.invitationRead ? (existing.invitationAttachmentSent ?? invitationAttachment) : undefined)
+  const invitation =
+    Boolean(registration.invitationRead) &&
+    !existing?.cancelled &&
+    (!existing?.invitationRead || Boolean(invitationAttachment && previousAttachment !== invitationAttachment))
+
+  let data: JsonRegistration
+  if (existing) data = patchMerge(existing, registration)
+  else {
+    registration.qualifies = false
+    registration.qualifyingResults = []
+    if (!isCompleteRegistration(registration)) return { invalid: 'registration data is incomplete' as const }
+    data = registration
+  }
+  if (invitation && invitationAttachment) data.invitationAttachmentRead = invitationAttachment
+  return { cancel, confirm, data, invitation, update }
+}
+
+const applyPublicPatchRequest = (
+  existing: JsonRegistration,
+  operationRequest: JsonRegistrationPatchRequest
+): Patch<JsonRegistration> => {
+  if (operationRequest.operations.some(({ path }) => !isPublicRegistrationOperationField(path[0]))) {
+    throw new InvalidPatchError('patch changes a protected registration field')
+  }
+  const patchedRegistration = applyPatchOperations(existing, operationRequest.operations)
+  if (hasInvalidRegistrationArrayFields(patchedRegistration, true)) {
+    throw new InvalidPatchError('registration array fields must be arrays')
+  }
+  const registration = publicRegistrationPatch(patchedRegistration, true)
+  const cloned = {
+    ...registration,
+    ...(registration.handler ? { handler: { ...registration.handler } } : {}),
+    ...(registration.owner ? { owner: { ...registration.owner } } : {}),
+    ...(registration.payer ? { payer: { ...registration.payer } } : {}),
+  }
+  normalizeRegistrationEmails(cloned)
+  return cloned
+}
+
+const parsePublicRegistrationRequest = (body: string | null, patchRequest: boolean) => {
+  const parsed: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(body)
+  const operationRequest = patchRequest && isPatchOperationRequest(parsed) ? parsed : undefined
+  if (patchRequest && isObject(parsed) && Object.hasOwn(parsed, 'operations') && !operationRequest) {
+    return { invalid: 'invalid patch operations' as const }
+  }
+  if (!operationRequest && hasInvalidRegistrationArrayFields(parsed)) {
+    return { invalid: 'registration array fields must be arrays' as const }
+  }
+  if (operationRequest && (typeof operationRequest.eventId !== 'string' || typeof operationRequest.id !== 'string')) {
+    return { invalid: 'invalid patch metadata' as const }
+  }
+  const registration = operationRequest
+    ? ({ eventId: operationRequest.eventId, id: operationRequest.id } satisfies Patch<JsonRegistration>)
+    : publicRegistrationPatch(parsed, Boolean(parsed.id))
+  return { operationRequest, registration }
+}
+
+interface FinalizeRegistrationOptions {
+  cancel: boolean
+  confirm: boolean
+  confirmedEvent: JsonConfirmedEvent
+  editToken: string
+  existing: JsonRegistration
+  groupPatches: Patch<JsonRegistration>[]
+  invitation: boolean
+  linkOrigin: string
+  savedData: JsonRegistration
+  update: boolean
+  username: string
+}
+
+const finalizeRegistrationUpdate = async ({
+  cancel,
+  confirm,
+  confirmedEvent,
+  editToken,
+  existing,
+  groupPatches,
+  invitation,
+  linkOrigin,
+  savedData,
+  update,
+  username,
+}: FinalizeRegistrationOptions) => {
+  await updateEventStatsForRegistration(savedData, existing, confirmedEvent)
+  if (update || cancel || savedData.state === 'ready') {
+    const updatedEvent = await updateRegistrations(savedData.eventId)
+    await publishRegistrationPatches(
+      savedData.eventId,
+      [createRegistrationPatch(savedData, existing), ...groupPatches.filter((patch) => patch.id !== savedData.id)],
+      updatedEvent.organizer.id
+    )
+  }
+  const message = getAuditMessage(cancel, confirm, savedData, existing)
+  if (message) await audit({ auditKey: registrationAuditKey(savedData), message, user: username })
+
+  const context = getEmailContext(update, cancel, confirm, invitation)
+  const shouldSend =
+    (context || confirmedEvent.paymentTime === 'confirmation') && savedData.handler?.email && savedData.owner?.email
+  if (shouldSend) await sendMessages(linkOrigin, context, savedData, confirmedEvent, existing, editToken)
+}
+
 const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const username = await getUsername(event)
   const timestamp = new Date().toISOString()
   const linkOrigin = getFrontendOrigin(event)
   const patchRequest = isPatchRequest(event)
 
-  const parsed: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(event.body)
-  const operationRequest = patchRequest && isPatchOperationRequest(parsed) ? parsed : undefined
-  if (patchRequest && isObject(parsed) && Object.hasOwn(parsed, 'operations') && !operationRequest) {
-    return response(400, { message: 'Bad request: invalid patch operations' }, event)
-  }
-  if (!operationRequest && hasInvalidRegistrationArrayFields(parsed)) {
-    return response(400, { message: 'Bad request: registration array fields must be arrays' }, event)
-  }
-  if (operationRequest && (typeof operationRequest.eventId !== 'string' || typeof operationRequest.id !== 'string')) {
-    return response(400, { message: 'Bad request: invalid patch metadata' }, event)
-  }
-  let registration = operationRequest
-    ? ({ eventId: operationRequest.eventId, id: operationRequest.id } satisfies Patch<JsonRegistration>)
-    : publicRegistrationPatch(parsed, Boolean(parsed.id))
+  const request = parsePublicRegistrationRequest(event.body, patchRequest)
+  if ('invalid' in request) return response(400, { message: `Bad request: ${request.invalid}` }, event)
+  let { registration } = request
+  const { operationRequest } = request
   if (!operationRequest) normalizeRegistrationEmails(registration)
 
   if (patchRequest && (!registration.eventId || !registration.id)) {
@@ -324,108 +586,31 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     return response(404, { message: 'Not found' }, event)
   }
 
-  if (!existing) {
-    const duplicate = await prepareNewRegistration(registration, confirmedEvent, timestamp, username, event)
-    if (duplicate) {
-      if (!('eventId' in duplicate)) return duplicate
-      const groupPatches = await repairReadyRegistrationGroups(duplicate.eventId, { name: username })
-      if (
-        typeof registration.creationIdempotencyKey === 'string' &&
-        registration.creationIdempotencyKey === duplicate.creationIdempotencyKey
-      ) {
-        const editToken = await getRegistrationEditToken(duplicate)
-        // Reconciliation may have persisted consequential renumberings before
-        // the original publication failed. Send the current ready snapshot so
-        // this retry repairs every connected client's ordering, not just this
-        // registration's own patch.
-        const completed = await completeNewRegistration(
-          duplicate,
-          confirmedEvent,
-          linkOrigin,
-          username,
-          editToken,
-          groupPatches
-        )
-        return response(200, participantRegistrationResponse(completed, editToken), event)
-      }
-      if (groupPatches.length) {
-        const updatedEvent = await updateRegistrations(duplicate.eventId)
-        await publishRegistrationPatches(duplicate.eventId, groupPatches, updatedEvent.organizer.id)
-      }
-      return response(409, registrationConflictBody(duplicate), event)
-    }
-    registration.editTokenVersion = DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION
-  }
+  const creation = await preparePublicRegistrationCreation(
+    registration,
+    existing,
+    confirmedEvent,
+    timestamp,
+    username,
+    event,
+    linkOrigin
+  )
+  if (creation.earlyResponse) return creation.earlyResponse
+  registration = creation.registration
 
-  if (typeof registration.eventId !== 'string' || typeof registration.id !== 'string') {
-    return response(400, { message: 'Bad request: registration identity is missing' }, event)
-  }
-  const editToken = existing
-    ? await authorizeRegistrationEdit(event, existing)
-    : await getRegistrationEditToken({
-        editTokenVersion: registration.editTokenVersion ?? undefined,
-        eventId: registration.eventId,
-        id: registration.id,
-      })
-
-  if (existing && operationRequest) {
-    if (operationRequest.operations.some(({ path }) => !isPublicRegistrationOperationField(path[0]))) {
-      return response(400, { message: 'Bad request: patch changes a protected registration field' }, event)
-    }
-    try {
-      const patchedRegistration = applyPatchOperations(existing, operationRequest.operations)
-      if (hasInvalidRegistrationArrayFields(patchedRegistration, true)) {
-        return response(400, { message: 'Bad request: registration array fields must be arrays' }, event)
-      }
-      registration = publicRegistrationPatch(patchedRegistration, true)
-    } catch (error) {
-      if (error instanceof InvalidPatchError) {
-        return response(400, { message: `Bad request: ${error.message}` }, event)
-      }
-      throw error
-    }
-    registration = {
-      ...registration,
-      ...(registration.handler ? { handler: { ...registration.handler } } : {}),
-      ...(registration.owner ? { owner: { ...registration.owner } } : {}),
-      ...(registration.payer ? { payer: { ...registration.payer } } : {}),
-    }
-    normalizeRegistrationEmails(registration)
-  }
-
-  const update = !!existing
-  const cancel = !existing?.cancelled && !!registration.cancelled
-  const confirm = !existing?.confirmed && !!registration.confirmed && !existing?.cancelled
-  const invitationAttachment = existing ? getSentInvitationAttachment(confirmedEvent, existing) : undefined
-  const previousInvitationAttachmentRead =
-    existing?.invitationAttachmentRead ??
-    (existing?.invitationRead ? (existing.invitationAttachmentSent ?? invitationAttachment) : undefined)
-  const invitation =
-    !!registration.invitationRead &&
-    !existing?.cancelled &&
-    (!existing?.invitationRead ||
-      Boolean(invitationAttachment && previousInvitationAttachmentRead !== invitationAttachment))
+  const authorized = await authorizeAndApplyPublicPatch(event, existing, registration, operationRequest)
+  if ('invalid' in authorized) return response(400, { message: `Bad request: ${authorized.invalid}` }, event)
+  registration = authorized.registration
+  const { editToken } = authorized
 
   // modification info is always updated
   registration.modifiedAt = timestamp
   registration.modifiedBy = username
   registration.updatedAt = timestamp
 
-  let data: JsonRegistration
-  if (existing) {
-    data = patchMerge(existing, registration)
-  } else {
-    registration.qualifies = false
-    registration.qualifyingResults = []
-    if (!isCompleteRegistration(registration)) {
-      return response(400, { message: 'Bad request: registration data is incomplete' }, event)
-    }
-    data = registration
-  }
-
-  if (invitation && invitationAttachment) {
-    data.invitationAttachmentRead = invitationAttachment
-  }
+  const built = buildPublicRegistrationData(registration, existing, confirmedEvent)
+  if ('invalid' in built) return response(400, { message: `Bad request: ${built.invalid}` }, event)
+  const { cancel, confirm, data, invitation, update } = built
 
   resolveQualification(data, confirmedEvent)
 
@@ -439,64 +624,11 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     delete data.emailDeliveryStatus
   }
 
-  // A ready registration changes the complete ordering, so make its durable
-  // write and group assignment one locked operation. Retrying the lock before
-  // the write prevents a permanently unassigned ready registration.
-  const releasePaymentLock =
-    !existing && data.state === 'ready' ? await lockRegistrationPayments(data.eventId) : undefined
-  let releaseGroupsLock: (() => Promise<void>) | undefined
-  let groupPatches: ReturnType<typeof createRegistrationPatches> = []
-  let savedData = data
-  try {
-    if (releasePaymentLock) {
-      const concurrent = await findExistingRegistrationToEventForDog(
-        data.eventId,
-        data.dog.regNo,
-        data.creationIdempotencyKey,
-        true
-      )
-      if (concurrent) {
-        if (
-          typeof data.creationIdempotencyKey === 'string' &&
-          concurrent.creationIdempotencyKey === data.creationIdempotencyKey
-        ) {
-          savedData = concurrent
-        } else {
-          return response(409, registrationConflictBody(concurrent), event)
-        }
-      }
-    }
-    releaseGroupsLock = data.state === 'ready' ? await lockRegistrationGroups(data.eventId, 8) : undefined
-    if (savedData !== data) {
-      // The request waited behind an identical create. Resume its durable row
-      // after leaving the lock instead of reporting a transient conflict.
-    } else if (existing) {
-      savedData = await patchRegistration(data.eventId, data.id, existing, data)
-    } else {
-      await saveRegistration(data)
-    }
-
-    if (savedData.state === 'ready') {
-      const readyRegistrations = await getReadyRegistrationsByEventId(savedData.eventId, true)
-      const reconciliationRegistrations = [
-        ...readyRegistrations.filter((registration) => registration.id !== savedData.id),
-        { ...savedData, ...(savedData.group ? { group: { ...savedData.group } } : {}) },
-      ]
-      const beforeReconciliation = reconciliationRegistrations.map((registration) => ({
-        ...registration,
-        ...(registration.group ? { group: { ...registration.group } } : {}),
-      }))
-      const reconciled = await fixRegistrationGroups(reconciliationRegistrations, { name: username })
-      groupPatches = createRegistrationPatches(reconciled, beforeReconciliation)
-      savedData = {
-        ...savedData,
-        group: reconciled.find((registration) => registration.id === savedData.id)?.group ?? savedData.group,
-      }
-    }
-  } finally {
-    if (releaseGroupsLock) await releaseGroupsLock()
-    if (releasePaymentLock) await releasePaymentLock()
+  const persisted = await persistRegistration(data, existing, username)
+  if (persisted.kind === 'conflict') {
+    return response(409, registrationConflictBody(persisted.conflict), event)
   }
+  const { groupPatches, savedData } = persisted
   if (!existing) {
     const responseEditToken = savedData.id === registration.id ? editToken : await getRegistrationEditToken(savedData)
     const completed = await completeNewRegistration(
@@ -509,35 +641,19 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     )
     return response(200, participantRegistrationResponse(completed, responseEditToken), event)
   }
-  // Update organizer event stats after registration change
-  await updateEventStatsForRegistration(savedData, existing, confirmedEvent)
-
-  if (update || cancel || savedData.state === 'ready') {
-    const updatedEvent = await updateRegistrations(savedData.eventId)
-    await publishRegistrationPatches(
-      savedData.eventId,
-      [createRegistrationPatch(savedData, existing), ...groupPatches.filter((patch) => patch.id !== savedData.id)],
-      updatedEvent.organizer.id
-    )
-  }
-
-  const message = getAuditMessage(cancel, confirm, savedData, existing)
-  if (message) {
-    await audit({
-      auditKey: registrationAuditKey(savedData),
-      message,
-      user: username,
-    })
-  }
-
-  const context = getEmailContext(update, cancel, confirm, invitation)
-  if (
-    (context || confirmedEvent.paymentTime === 'confirmation') &&
-    savedData.handler?.email &&
-    savedData.owner?.email
-  ) {
-    await sendMessages(linkOrigin, context, savedData, confirmedEvent, existing, editToken)
-  }
+  await finalizeRegistrationUpdate({
+    cancel,
+    confirm,
+    confirmedEvent,
+    editToken,
+    existing,
+    groupPatches,
+    invitation,
+    linkOrigin,
+    savedData,
+    update,
+    username,
+  })
 
   return response(200, participantRegistrationResponse(savedData, editToken), event)
 })

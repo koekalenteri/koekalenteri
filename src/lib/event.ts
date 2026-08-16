@@ -174,6 +174,27 @@ const getStateProgressPhaseIndex = (state: ConfirmedEventStates, entryStarted: b
   return getProgressPhaseIndex(state)
 }
 
+const getTemporalPhaseIndex = (event: ConfirmedEvent, now: Date): number => {
+  if (isEventOver(event, now)) return getProgressPhaseIndex('ended')
+  if (isEventOngoing(event, now)) return getProgressPhaseIndex('started')
+  return -1
+}
+
+const getPublishedStartListClasses = (
+  event: ConfirmedEvent,
+  startListClasses: string[],
+  legacyStartListPublished: boolean
+): string[] => {
+  if (legacyStartListPublished) return startListClasses
+
+  return startListClasses.filter((eventClass) => {
+    const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
+    const explicitlyPublished =
+      event.startListPublished === true || isStartListPublishedClassMap(event.startListPublished)
+    return isStartListPublishedForClass(event, eventClass) && (explicitlyPublished || canPublishStartList(state))
+  })
+}
+
 export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
   const entryStarted = hasEntryStarted(event, now)
   const eventClasses = [...new Set(event.classes.map(({ class: eventClass }) => eventClass))]
@@ -185,26 +206,14 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     ? Math.min(...classPhases.map(({ phaseIndex }) => phaseIndex))
     : getStateProgressPhaseIndex(event.state, entryStarted)
   const startListClasses = eventClasses.length ? eventClasses : [event.eventType]
-  const temporalPhaseIndex = isEventOver(event, now)
-    ? getProgressPhaseIndex('ended')
-    : isEventOngoing(event, now)
-      ? getProgressPhaseIndex('started')
-      : -1
+  const temporalPhaseIndex = getTemporalPhaseIndex(event, now)
   const legacyStartListPublished =
     event.startListPublished === undefined && temporalPhaseIndex >= getProgressPhaseIndex('started')
   const publishableStartListClasses = startListClasses.filter((eventClass) => {
     const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
     return canPublishStartList(state)
   })
-  const publishedStartListClasses = legacyStartListPublished
-    ? startListClasses
-    : startListClasses.filter((eventClass) => {
-        const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
-        const published = isStartListPublishedForClass(event, eventClass)
-        const explicitlyPublished =
-          event.startListPublished === true || isStartListPublishedClassMap(event.startListPublished)
-        return published && (explicitlyPublished || canPublishStartList(state))
-      })
+  const publishedStartListClasses = getPublishedStartListClasses(event, startListClasses, legacyStartListPublished)
   const startListActionable =
     legacyStartListPublished || publishableStartListClasses.length > 0 || publishedStartListClasses.length > 0
   const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length

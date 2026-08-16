@@ -7,7 +7,6 @@ import type {
   PublicDogEvent,
   Registration,
 } from '../types'
-import i18next from 'i18next'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
 import { getEmailTemplates } from '../api/email'
@@ -16,6 +15,7 @@ import { getJudges } from '../api/judge'
 import { getOfficials } from '../api/official'
 import { getAdminOrganizers } from '../api/organizer'
 import { getUsers } from '../api/user'
+import { compareByLocalizedString } from '../lib/client/sort'
 import { sanitizeDogEvent } from '../lib/event'
 import { collectionResponseCursor, collectionSince, reconcileCollection } from '../lib/incremental'
 import { getIdTokenDiagnostics } from '../lib/token'
@@ -36,6 +36,65 @@ import { userSelector } from '../pages/recoil/user/selectors'
 import { WS_API_URL } from '../routeConfig'
 
 const RECONNECT_INTERVAL = 1000
+
+interface WebSocketHandlers {
+  connectionId: number
+  handleMessage: (data: unknown) => void
+  isCurrent: () => boolean
+  onOpen: () => void
+  onReconnect: (delay: number) => void
+  resendSubscriptions: (socket: WebSocket) => void
+  send: (message: object, socket: WebSocket) => boolean
+  shouldReconnect: () => boolean
+  socket: WebSocket
+  token?: string
+}
+
+const configureWebSocket = ({
+  connectionId,
+  handleMessage,
+  isCurrent,
+  onOpen,
+  onReconnect,
+  resendSubscriptions,
+  send,
+  shouldReconnect,
+  socket,
+  token,
+}: WebSocketHandlers) => {
+  socket.onopen = () => {
+    if (!isCurrent()) {
+      console.debug('ws: ignored stale open', { connectionId })
+      socket.close()
+      return
+    }
+
+    onOpen()
+    if (token) send({ action: 'authenticate', token }, socket)
+    else resendSubscriptions(socket)
+  }
+
+  socket.onclose = () => {
+    if (!isCurrent()) {
+      console.debug('ws: ignored stale close', { connectionId })
+      return
+    }
+    if (shouldReconnect()) onReconnect(RECONNECT_INTERVAL)
+  }
+
+  socket.onerror = () => socket.close()
+  socket.onmessage = (event) => {
+    if (!isCurrent()) {
+      console.debug('ws: ignored stale message', { connectionId })
+      return
+    }
+    try {
+      handleMessage(parseJSON(event.data))
+    } catch {
+      // Ignore invalid messages.
+    }
+  }
+}
 
 const websocketMessageDiagnostics = (message: object) =>
   'action' in message && message.action === 'authenticate' && 'token' in message && typeof message.token === 'string'
@@ -255,10 +314,7 @@ export const useWebSocket = () => {
                 break
               }
               case 'organizers':
-                set(
-                  adminOrganizersAtom,
-                  [...(await getAdminOrganizers(token))].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-                )
+                set(adminOrganizersAtom, [...(await getAdminOrganizers(token))].sort(compareByLocalizedString('name')))
                 break
               case 'judges': {
                 const current = await snapshot.getPromise(adminJudgesAtom)
@@ -266,7 +322,7 @@ export const useWebSocket = () => {
                 const response = since ? await getJudges(token, undefined, undefined, since) : await getJudges(token)
                 adminDataCursorsRef.current.judges = collectionResponseCursor(response)
                 set(adminJudgesAtom, (latest) =>
-                  reconcileCollection(latest, response).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+                  reconcileCollection(latest, response).sort(compareByLocalizedString('name'))
                 )
                 break
               }
@@ -278,7 +334,7 @@ export const useWebSocket = () => {
                   : await getOfficials(token)
                 adminDataCursorsRef.current.officials = collectionResponseCursor(response)
                 set(adminOfficialsAtom, (latest) =>
-                  reconcileCollection(latest, response).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+                  reconcileCollection(latest, response).sort(compareByLocalizedString('name'))
                 )
                 break
               }
@@ -290,8 +346,8 @@ export const useWebSocket = () => {
                   : await getEventTypes(token)
                 adminDataCursorsRef.current.eventTypes = collectionResponseCursor(response)
                 set(adminEventTypesAtom, (latest) =>
-                  reconcileCollection(latest, response, (item) => item.eventType).sort((a, b) =>
-                    a.eventType.localeCompare(b.eventType, i18next.language)
+                  reconcileCollection(latest, response, (item) => item.eventType).sort(
+                    compareByLocalizedString('eventType')
                   )
                 )
                 break
@@ -304,7 +360,7 @@ export const useWebSocket = () => {
                   : await fetchEmailTemplates(token)
                 adminDataCursorsRef.current.emailTemplates = collectionResponseCursor(response)
                 set(adminEmailTemplatesAtom, (latest) =>
-                  reconcileCollection(latest, response).sort((a, b) => a.id.localeCompare(b.id, i18next.language))
+                  reconcileCollection(latest, response).sort(compareByLocalizedString('id'))
                 )
                 break
               }
@@ -420,35 +476,38 @@ export const useWebSocket = () => {
     [setAdminEvents, setPublicEvents]
   )
 
+  const handleAdminMessage = useCallback(
+    (data: any, token: string | undefined): boolean => {
+      if (data.scope === 'admin:event-registrations' && data.eventId && Array.isArray(data.patch)) {
+        patchRegistrations(data.eventId, data.patch)
+        return true
+      }
+      if (data.scope === 'admin:audit-record' && data.record?.auditKey && data.record.timestamp instanceof Date) {
+        for (const listener of auditRecordListenersRef.current) listener(data.record)
+        return true
+      }
+      if (data.scope === 'admin:data-invalidation' && Array.isArray(data.collections) && token) {
+        const collections = data.collections.filter(isAdminDataCollection)
+        if (collections.length) void refreshAdminData(collections, token).catch(console.error)
+        return true
+      }
+      if (data.scope !== 'admin:event-viewers' || !data.eventId || !Array.isArray(data.viewers)) return false
+
+      const viewerPayloads = getViewerPayloads(data.viewers)
+      rawViewersRef.current = viewerPayloads
+      const nextViewers = mapEventViewers(viewerPayloads, adminUsersRef.current, currentUserRef.current)
+      setViewers((current) => applyViewers(current, nextViewers))
+      return true
+    },
+    [patchRegistrations, refreshAdminData]
+  )
+
   const handleMessageData = useCallback(
     (data: any, token: string | undefined, ws: WebSocket, connectionId: number) => {
       console.debug('ws: ', data)
 
       if (handleCountMessage(data)) return
-
-      if (data.scope === 'admin:event-registrations' && data.eventId && Array.isArray(data.patch)) {
-        patchRegistrations(data.eventId, data.patch)
-        return
-      }
-
-      if (data.scope === 'admin:audit-record' && data.record?.auditKey && data.record.timestamp instanceof Date) {
-        for (const listener of auditRecordListenersRef.current) listener(data.record)
-        return
-      }
-
-      if (data.scope === 'admin:data-invalidation' && Array.isArray(data.collections) && token) {
-        const collections = data.collections.filter(isAdminDataCollection)
-        if (collections.length) void refreshAdminData(collections, token).catch(console.error)
-        return
-      }
-
-      if (data.scope === 'admin:event-viewers' && data.eventId && Array.isArray(data.viewers)) {
-        const viewerPayloads = getViewerPayloads(data.viewers)
-        rawViewersRef.current = viewerPayloads
-        const nextViewers = mapEventViewers(viewerPayloads, adminUsersRef.current, currentUserRef.current)
-        setViewers((current) => applyViewers(current, nextViewers))
-        return
-      }
+      if (handleAdminMessage(data, token)) return
 
       if (data.authenticated === true) {
         console.debug('ws: authentication succeeded', {
@@ -476,7 +535,7 @@ export const useWebSocket = () => {
         handleEventPatchMessage(data)
       }
     },
-    [handleCountMessage, handleEventPatchMessage, patchRegistrations, refreshAdminData, resendActiveSubscriptions]
+    [handleAdminMessage, handleCountMessage, handleEventPatchMessage, resendActiveSubscriptions]
   )
 
   const connect = useCallback(() => {
@@ -492,57 +551,25 @@ export const useWebSocket = () => {
     })
     const ws = new WebSocket(WS_API_URL)
     wsRef.current = ws
-
-    ws.onopen = () => {
-      if (wsRef.current !== ws) {
-        console.debug('ws: ignored stale open', { connectionId })
-        ws.close()
-        return
-      }
-
-      reconnectAttempts.current = 0
-
-      if (token) {
-        // Subscriptions are (re)sent after the backend acknowledges authentication,
-        // because the lambda authorizes subscribe based on the persisted connection
-        // record written during authenticate.
-        sendIfOpen({ action: 'authenticate', token }, ws)
-        return
-      }
-
-      // Re-send all active subscriptions after reconnect (unauthenticated channels)
-      resendActiveSubscriptions(ws)
-    }
-
-    ws.onclose = () => {
-      if (wsRef.current !== ws) {
-        console.debug('ws: ignored stale close', { connectionId })
-        return
-      }
-      if (!shouldReconnectRef.current) return
-
-      const delay = Math.min(30000, RECONNECT_INTERVAL * 2 ** reconnectAttempts.current)
-      console.debug('ws: reconnect scheduled', { connectionId, delay })
-      reconnectAttempts.current++
-      reconnectTimeoutRef.current = globalThis.setTimeout(connect, delay)
-    }
-
-    ws.onerror = () => {
-      ws.close()
-    }
-
-    ws.onmessage = (event) => {
-      if (wsRef.current !== ws) {
-        console.debug('ws: ignored stale message', { connectionId })
-        return
-      }
-
-      try {
-        handleMessageData(parseJSON(event.data), token, ws, connectionId)
-      } catch {
-        // ignore invalid messages
-      }
-    }
+    configureWebSocket({
+      connectionId,
+      handleMessage: (data) => handleMessageData(data, token, ws, connectionId),
+      isCurrent: () => wsRef.current === ws,
+      onOpen: () => {
+        reconnectAttempts.current = 0
+      },
+      onReconnect: () => {
+        const delay = Math.min(30000, RECONNECT_INTERVAL * 2 ** reconnectAttempts.current)
+        console.debug('ws: reconnect scheduled', { connectionId, delay })
+        reconnectAttempts.current++
+        reconnectTimeoutRef.current = globalThis.setTimeout(connect, delay)
+      },
+      resendSubscriptions: resendActiveSubscriptions,
+      send: sendIfOpen,
+      shouldReconnect: () => shouldReconnectRef.current,
+      socket: ws,
+      token,
+    })
   }, [handleMessageData, resendActiveSubscriptions, sendIfOpen])
 
   useEffect(() => {

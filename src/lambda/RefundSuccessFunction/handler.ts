@@ -66,87 +66,88 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   const registration = await getRegistration(eventId, registrationId)
   const editToken = await getRegistrationEditToken(registration)
 
-  if (status === 'ok') {
-    const { applied, appliedAt } = await applySuccessfulRefund(
-      transaction,
-      eventId,
-      registrationId,
-      Boolean(storedTransaction)
+  if (status !== 'ok') {
+    await updateTransactionStatus(transaction, status)
+    return response(200, undefined, event)
+  }
+
+  const { applied, appliedAt } = await applySuccessfulRefund(
+    transaction,
+    eventId,
+    registrationId,
+    Boolean(storedTransaction)
+  )
+  if (!applied) return response(200, undefined, event)
+
+  const t = i18n.getFixedT(registration.language)
+  const amount = transaction.amount / 100
+  const provider = params['checkout-provider']
+  const providerName = getProviderName(provider)
+
+  const handlingCost = (transaction.handlingCost ?? 0) / 100
+  const changes: Required<Pick<JsonRegistration, 'refundAmount' | 'refundAt' | 'refundStatus'>> &
+    Pick<JsonRegistration, 'refundHandlingCost'> = {
+    refundAmount: (registration.refundAmount ?? 0) + amount,
+    refundAt: appliedAt,
+    refundHandlingCost: (registration.refundHandlingCost ?? 0) + handlingCost,
+    refundStatus: 'SUCCESS',
+  }
+  const updatedAt = changes.refundAt
+
+  registration.refundAmount = (registration.refundAmount ?? 0) + amount
+  registration.refundAt = changes.refundAt
+  registration.refundHandlingCost = changes.refundHandlingCost
+  registration.refundStatus = 'SUCCESS'
+  registration.updatedAt = updatedAt
+
+  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+
+  // send refund notification
+  try {
+    const recipient: string[] = []
+    if (registration.payer?.email) recipient.push(registration.payer?.email)
+
+    const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'refund', editToken)
+    await clearRegistrationEmailDeliveryStatus(eventId, registrationId)
+    await sendTemplatedMail(
+      'refund',
+      registration.language,
+      emailFrom,
+      recipient,
+      {
+        ...templateData,
+        ...transaction,
+        ...changes,
+        amount: formatMoney(amount),
+        createdAt: t('dateFormat.long', { date: transaction.createdAt }),
+        handlingCost: formatMoney(Math.max(0, (registration.paidAmount ?? 0) - amount)),
+        paidAmount: formatMoney(registration.paidAmount ?? 0),
+        providerName,
+        refundAt: t('dateFormat.long', { date: registration.refundAt }),
+      },
+      registrationEmailTags(registration, 'refund')
     )
-    if (!applied) return response(200, undefined, event)
-
-    const t = i18n.getFixedT(registration.language)
-    const amount = transaction.amount / 100
-    const provider = params['checkout-provider']
-    const providerName = getProviderName(provider)
-
-    const handlingCost = (transaction.handlingCost ?? 0) / 100
-    const changes: Required<Pick<JsonRegistration, 'refundAmount' | 'refundAt' | 'refundStatus'>> &
-      Pick<JsonRegistration, 'refundHandlingCost'> = {
-      refundAmount: (registration.refundAmount ?? 0) + amount,
-      refundAt: appliedAt,
-      refundHandlingCost: (registration.refundHandlingCost ?? 0) + handlingCost,
-      refundStatus: 'SUCCESS',
-    }
-    const updatedAt = changes.refundAt
-
-    registration.refundAmount = (registration.refundAmount ?? 0) + amount
-    registration.refundAt = changes.refundAt
-    registration.refundHandlingCost = changes.refundHandlingCost
-    registration.refundStatus = 'SUCCESS'
-    registration.updatedAt = updatedAt
-
-    const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-
-    // send refund notification
-    try {
-      const recipient: string[] = []
-      if (registration.payer?.email) recipient.push(registration.payer?.email)
-
-      const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'refund', editToken)
-      await clearRegistrationEmailDeliveryStatus(eventId, registrationId)
-      await sendTemplatedMail(
-        'refund',
-        registration.language,
-        emailFrom,
-        recipient,
-        {
-          ...templateData,
-          ...transaction,
-          ...changes,
-          amount: formatMoney(amount),
-          createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-          handlingCost: formatMoney(Math.max(0, (registration.paidAmount ?? 0) - amount)),
-          paidAmount: formatMoney(registration.paidAmount ?? 0),
-          providerName,
-          refundAt: t('dateFormat.long', { date: registration.refundAt }),
-        },
-        registrationEmailTags(registration, 'refund')
-      )
-
-      await audit({
-        auditKey: registrationAuditKey(registration),
-        message: `Email: ${templateData.subject}, to: ${recipient.join(', ')}`,
-        user: transaction.user,
-      })
-    } catch (e) {
-      // this is not fatal
-      console.error('failed to send refund email', e)
-    }
 
     await audit({
       auditKey: registrationAuditKey(registration),
-      message: `Palautus (${providerName}), ${formatMoney(amount)}`,
+      message: `Email: ${templateData.subject}, to: ${recipient.join(', ')}`,
       user: transaction.user,
     })
-    await publishRegistrationPatches(
-      eventId,
-      [{ emailDeliveryStatus: null, eventId, id: registrationId, ...changes, updatedAt }],
-      confirmedEvent.organizer.id
-    )
-  } else {
-    await updateTransactionStatus(transaction, status)
+  } catch (e) {
+    // this is not fatal
+    console.error('failed to send refund email', e)
   }
+
+  await audit({
+    auditKey: registrationAuditKey(registration),
+    message: `Palautus (${providerName}), ${formatMoney(amount)}`,
+    user: transaction.user,
+  })
+  await publishRegistrationPatches(
+    eventId,
+    [{ emailDeliveryStatus: null, eventId, id: registrationId, ...changes, updatedAt }],
+    confirmedEvent.organizer.id
+  )
 
   return response(200, undefined, event)
 })

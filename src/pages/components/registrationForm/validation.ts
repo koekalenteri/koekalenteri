@@ -8,11 +8,8 @@ import type {
   TestResult,
 } from '../../../types'
 import { differenceInMonths } from 'date-fns'
-import { filterRelevantResults, objectContains } from '../../../lib/qualification'
 import { REQUIREMENTS } from '../../../rules'
 import { validatePerson } from './personValidation'
-
-export { filterRelevantResults, objectContains }
 
 function validateBreeder(breeder: RegistrationBreeder | undefined) {
   return !breeder?.name || !breeder.location

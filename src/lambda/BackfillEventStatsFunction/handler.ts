@@ -50,6 +50,64 @@ const eventStatsKey = (event: EventStatsEvent): EventStatKey => ({
   SK: `${event.startDate}#${event.id}`,
 })
 
+const updateOrganizerStats = (
+  organizerStats: Map<string, EventStatsItem>,
+  event: EventStatsEvent,
+  registration: RegistrationStatsInput,
+  updatedAt: string
+) => {
+  const key = eventStatsKey(event)
+  const mapKey = `${key.PK}/${key.SK}`
+  const stats = organizerStats.get(mapKey) ?? {
+    ...key,
+    cancelledRegistrations: 0,
+    count: 0,
+    date: event.startDate,
+    organizerId: event.organizer.id,
+    paidAmount: 0,
+    paidRegistrations: 0,
+    refundedAmount: 0,
+    refundedRegistrations: 0,
+    updatedAt,
+  }
+  stats.count = (stats.count ?? 0) + 1
+  stats.cancelledRegistrations = (stats.cancelledRegistrations ?? 0) + (registration.cancelled ? 1 : 0)
+  stats.paidAmount = (stats.paidAmount ?? 0) + (registration.paidAmount ?? 0)
+  stats.paidRegistrations = (stats.paidRegistrations ?? 0) + (registration.paidAmount ? 1 : 0)
+  stats.refundedAmount = (stats.refundedAmount ?? 0) + (registration.refundAmount ?? 0)
+  stats.refundedRegistrations = (stats.refundedRegistrations ?? 0) + (registration.refundAmount ? 1 : 0)
+  organizerStats.set(mapKey, stats)
+}
+
+const getYearlyCounts = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>, year: number) => {
+  const existing = yearlyStats.get(year)
+  if (existing) return existing
+
+  const counts = new Map(PARTICIPATION_TYPES.map((type) => [type, new Map<string, number>()]))
+  yearlyStats.set(year, counts)
+  return counts
+}
+
+const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>) => {
+  const records: EventStatsItem[] = []
+  for (const [year, countsByType] of yearlyStats) {
+    for (const type of PARTICIPATION_TYPES) {
+      const counts = countsForType(countsByType, type)
+      records.push({ count: counts.size, PK: `TOTALS#${year}`, SK: type })
+      for (const [entityId, count] of counts) records.push({ count, PK: `STAT#${year}#${type}`, SK: entityId })
+      if (type !== 'dog#handler') continue
+
+      const buckets = new Map<string, number>()
+      for (const count of counts.values()) {
+        const bucket = bucketForCount(count)
+        if (bucket) increment(buckets, bucket)
+      }
+      for (const [bucket, count] of buckets) records.push({ count, PK: `BUCKETS#${year}#dog#handler`, SK: bucket })
+    }
+  }
+  return records
+}
+
 /** Builds the complete desired stats-table contents without making DynamoDB writes. */
 export function buildStatsRecords(
   registrations: RegistrationStatsInput[],
@@ -71,57 +129,16 @@ export function buildStatsRecords(
     }
     years.add(year)
 
-    const key = eventStatsKey(event)
-    const existingOrganizerStats = organizerStats.get(`${key.PK}/${key.SK}`)
-    const stats = existingOrganizerStats ?? {
-      ...key,
-      cancelledRegistrations: 0,
-      count: 0,
-      date: event.startDate,
-      organizerId: event.organizer.id,
-      paidAmount: 0,
-      paidRegistrations: 0,
-      refundedAmount: 0,
-      refundedRegistrations: 0,
-      updatedAt,
-    }
-    stats.count = (stats.count ?? 0) + 1
-    stats.cancelledRegistrations = (stats.cancelledRegistrations ?? 0) + (registration.cancelled ? 1 : 0)
-    stats.paidAmount = (stats.paidAmount ?? 0) + (registration.paidAmount ?? 0)
-    stats.paidRegistrations = (stats.paidRegistrations ?? 0) + (registration.paidAmount ? 1 : 0)
-    stats.refundedAmount = (stats.refundedAmount ?? 0) + (registration.refundAmount ?? 0)
-    stats.refundedRegistrations = (stats.refundedRegistrations ?? 0) + (registration.refundAmount ? 1 : 0)
-    organizerStats.set(`${key.PK}/${key.SK}`, stats)
+    updateOrganizerStats(organizerStats, event, registration, updatedAt)
 
     if (!OFFICIAL_EVENT_TYPES.includes(event.eventType)) continue
 
-    let yearlyCounts = yearlyStats.get(year)
-    if (!yearlyCounts) {
-      yearlyCounts = new Map(PARTICIPATION_TYPES.map((type) => [type, new Map<string, number>()]))
-      yearlyStats.set(year, yearlyCounts)
-    }
+    const yearlyCounts = getYearlyCounts(yearlyStats, year)
     const identifiers = participationIdentifiers(registration)
     for (const type of PARTICIPATION_TYPES) increment(countsForType(yearlyCounts, type), identifiers[type])
   }
 
-  const records: EventStatsItem[] = [...organizerStats.values()]
-
-  for (const [year, countsByType] of yearlyStats) {
-    for (const type of PARTICIPATION_TYPES) {
-      const counts = countsForType(countsByType, type)
-      records.push({ count: counts.size, PK: `TOTALS#${year}`, SK: type })
-      for (const [entityId, count] of counts) records.push({ count, PK: `STAT#${year}#${type}`, SK: entityId })
-
-      if (type === 'dog#handler') {
-        const buckets = new Map<string, number>()
-        for (const count of counts.values()) {
-          const bucket = bucketForCount(count)
-          if (bucket) increment(buckets, bucket)
-        }
-        for (const [bucket, count] of buckets) records.push({ count, PK: `BUCKETS#${year}#dog#handler`, SK: bucket })
-      }
-    }
-  }
+  const records: EventStatsItem[] = [...organizerStats.values(), ...yearlyStatsRecords(yearlyStats)]
 
   for (const year of years) records.push({ PK: 'YEARS', SK: year.toString(), updatedAt })
   return { records, skippedCount }

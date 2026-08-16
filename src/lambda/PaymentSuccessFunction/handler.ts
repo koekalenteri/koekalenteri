@@ -111,26 +111,20 @@ const recordDuplicatePayment = async (
   })
 }
 
-const handleSuccessfulPayment = async (
+const applyPaymentToRegistration = async (
+  initialRegistration: JsonRegistration,
   eventId: string,
   registrationId: string,
   transaction: JsonTransaction,
   provider: string | undefined,
   transactionExists: boolean
 ) => {
-  let registration = await getRegistration(eventId, registrationId)
-  const editToken = await getRegistrationEditToken(registration)
-
-  const t = i18n.getFixedT(registration.language)
-  const paidAmount = transaction.amount / 100
-
+  let registration = initialRegistration
   let previouslyPaid = 0
   let appliedPayment = false
   let duplicatePayment = false
   const releasePaymentLock = await lockRegistrationPayments(registration.eventId)
   try {
-    // Serialize the uniqueness check with the creating -> ready transition so
-    // two payment callbacks cannot both observe that no ready duplicate exists.
     registration = await getRegistration(eventId, registrationId)
     if (registration.state === 'creating') {
       const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId, true)
@@ -142,32 +136,148 @@ const handleSuccessfulPayment = async (
         duplicatePayment = true
       }
     }
+    if (duplicatePayment) return { appliedPayment, duplicatePayment, previouslyPaid, registration }
 
-    if (!duplicatePayment) {
-      previouslyPaid = registration.paidAmount ?? 0
-      const confirmed = Boolean(registration.messagesSent?.picked || registration.confirmed)
-      const applied = await applySuccessfulPayment(
-        transaction,
-        eventId,
-        registrationId,
-        provider,
-        confirmed,
-        transactionExists,
-        previouslyPaid
-      )
-      appliedPayment = applied.applied
-      if (appliedPayment) {
-        registration.paidAmount = previouslyPaid + paidAmount
-        registration.paidAt = applied.appliedAt
-        registration.paymentStatus = 'SUCCESS'
-        registration.state = 'ready'
-        registration.updatedAt = registration.paidAt
-        if (confirmed) registration.confirmed = true
-      }
+    previouslyPaid = registration.paidAmount ?? 0
+    const confirmed = Boolean(registration.messagesSent?.picked || registration.confirmed)
+    const applied = await applySuccessfulPayment(
+      transaction,
+      eventId,
+      registrationId,
+      provider,
+      confirmed,
+      transactionExists,
+      previouslyPaid
+    )
+    appliedPayment = applied.applied
+    if (appliedPayment) {
+      registration.paidAmount = previouslyPaid + transaction.amount / 100
+      registration.paidAt = applied.appliedAt
+      registration.paymentStatus = 'SUCCESS'
+      registration.state = 'ready'
+      registration.updatedAt = registration.paidAt
+      if (confirmed) registration.confirmed = true
     }
+    return { appliedPayment, duplicatePayment, previouslyPaid, registration }
   } finally {
     await releasePaymentLock()
   }
+}
+
+interface ReceiptOptions {
+  appliedPayment: boolean
+  confirmedEvent: Awaited<ReturnType<typeof updateRegistrations>>
+  editToken: string
+  paidAmount: number
+  previouslyPaid: number
+  registration: JsonRegistration
+  transaction: JsonTransaction
+  workflow: JsonTransaction
+}
+
+const sendPaymentReceipt = async ({
+  appliedPayment,
+  confirmedEvent,
+  editToken,
+  paidAmount,
+  previouslyPaid,
+  registration,
+  transaction,
+  workflow,
+}: ReceiptOptions) => {
+  const t = i18n.getFixedT(registration.language)
+  const receiptTo = registration.payer?.email ? [registration.payer.email] : []
+  const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt', editToken)
+  const paymentDetails = getRegistrationPaymentDetails(confirmedEvent, registration)
+  const memberPrice = paymentDetails.isMember ? ` (${t('costForMembers')})` : ''
+  const customDescription = paymentDetails.costObject?.custom?.description
+  const costSegmentName =
+    paymentDetails.strategy === 'custom' && customDescription?.fi
+      ? customDescription[registration.language] || customDescription.fi
+      : t(getCostSegmentName(paymentDetails.strategy), paymentDetails.translationOptions)
+  const optionalCosts = paymentDetails.optionalCosts
+    .map(
+      (cost) =>
+        `${cost.description[registration.language] || cost.description.fi}${memberPrice} ${formatMoney(cost.cost)}`
+    )
+    .join(', ')
+  const workflowPreviouslyPaid = workflow.receiptPreviouslyPaid ?? (appliedPayment ? previouslyPaid : 0)
+  const totalPaid = workflow.receiptTotalPaid ?? (appliedPayment ? previouslyPaid + paidAmount : previouslyPaid)
+  await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
+  await sendTemplatedMail(
+    'receipt',
+    registration.language,
+    emailFrom,
+    receiptTo,
+    {
+      ...templateData,
+      ...transaction,
+      amount: formatMoney(paidAmount),
+      createdAt: t('dateFormat.long', { date: transaction.createdAt }),
+      optionalCosts,
+      previouslyPaid: workflowPreviouslyPaid ? formatMoney(workflowPreviouslyPaid) : undefined,
+      registrationCost: formatMoney(paymentDetails.cost),
+      registrationCostName: `${costSegmentName}${memberPrice}`,
+      totalPaid: formatMoney(totalPaid),
+    },
+    registrationEmailTags(registration, 'receipt')
+  )
+  await audit({
+    auditKey: registrationAuditKey(registration),
+    message: `Email: ${templateData.subject}, to: ${receiptTo.join(', ')}`,
+    user: transaction.user ?? 'anonymous',
+  })
+}
+
+const publishSuccessfulPayment = async (registration: JsonRegistration, registrationId: string) => {
+  const releaseGroupsLock = await lockRegistrationGroups(registration.eventId, 8)
+  try {
+    const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId, true)
+    const beforeReconciliation = readyRegistrations.map((item) => ({
+      ...item,
+      ...(item.group ? { group: { ...item.group } } : {}),
+    }))
+    const reconciled = await fixRegistrationGroups(readyRegistrations, { name: 'payment' })
+    const updatedRegistration =
+      reconciled.find((item) => item.id === registrationId) ??
+      (await getRegistration(registration.eventId, registrationId))
+    const confirmedEvent = await updateRegistrations(registration.eventId)
+    const groupPatches = createRegistrationPatches(reconciled, beforeReconciliation)
+    await publishRegistrationPatchesStrict(
+      registration.eventId,
+      [
+        createRegistrationPatch(updatedRegistration),
+        ...groupPatches.filter((patch) => patch.id !== updatedRegistration.id),
+      ],
+      confirmedEvent.organizer.id
+    )
+    return { confirmedEvent, registration: updatedRegistration }
+  } finally {
+    await releaseGroupsLock()
+  }
+}
+
+const handleSuccessfulPayment = async (
+  eventId: string,
+  registrationId: string,
+  transaction: JsonTransaction,
+  provider: string | undefined,
+  transactionExists: boolean
+) => {
+  const initialRegistration = await getRegistration(eventId, registrationId)
+  const editToken = await getRegistrationEditToken(initialRegistration)
+
+  const paidAmount = transaction.amount / 100
+  const payment = await applyPaymentToRegistration(
+    initialRegistration,
+    eventId,
+    registrationId,
+    transaction,
+    provider,
+    transactionExists
+  )
+  let { registration } = payment
+  const { appliedPayment, duplicatePayment, previouslyPaid } = payment
 
   // The provider captured this payment, and it is now recorded as a visible,
   // refundable duplicate. Acknowledge the callback to stop permanent retries.
@@ -189,54 +299,15 @@ const handleSuccessfulPayment = async (
 
     // send receipt
     if (!workflow.receiptSentAt) {
-      const receiptTo: string[] = []
-      if (registration.payer?.email) receiptTo.push(registration.payer?.email)
-
-      const templateData = registrationEmailTemplateData(
-        registration,
+      await sendPaymentReceipt({
+        appliedPayment,
         confirmedEvent,
-        frontendURL,
-        'receipt',
-        editToken
-      )
-      const paymentDetails = getRegistrationPaymentDetails(confirmedEvent, registration)
-      const memberPrice = paymentDetails.isMember ? ` (${t('costForMembers')})` : ''
-      const costSegmentName =
-        paymentDetails.strategy === 'custom' && paymentDetails.costObject?.custom?.description?.fi
-          ? paymentDetails.costObject.custom.description[registration.language] ||
-            paymentDetails.costObject?.custom?.description?.fi
-          : t(getCostSegmentName(paymentDetails.strategy), paymentDetails.translationOptions)
-      const registrationCostName = `${costSegmentName}${memberPrice}`
-      const registrationCost = `${formatMoney(paymentDetails.cost)}`
-      const optionalCosts = paymentDetails.optionalCosts
-        .map((o) => `${o.description[registration.language] || o.description.fi}${memberPrice} ${formatMoney(o.cost)}`)
-        .join(', ')
-      const workflowPreviouslyPaid = workflow.receiptPreviouslyPaid ?? (appliedPayment ? previouslyPaid : 0)
-      const totalPaid = workflow.receiptTotalPaid ?? (appliedPayment ? previouslyPaid + paidAmount : previouslyPaid)
-      await clearRegistrationEmailDeliveryStatus(eventId, registrationId)
-      await sendTemplatedMail(
-        'receipt',
-        registration.language,
-        emailFrom,
-        receiptTo,
-        {
-          ...templateData,
-          ...transaction,
-          amount: formatMoney(paidAmount),
-          createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-          optionalCosts,
-          previouslyPaid: workflowPreviouslyPaid ? formatMoney(workflowPreviouslyPaid) : undefined,
-          registrationCost,
-          registrationCostName,
-          totalPaid: formatMoney(totalPaid),
-        },
-        registrationEmailTags(registration, 'receipt')
-      )
-
-      await audit({
-        auditKey: registrationAuditKey(registration),
-        message: `Email: ${templateData.subject}, to: ${receiptTo.join(', ')}`,
-        user: transaction.user ?? 'anonymous',
+        editToken,
+        paidAmount,
+        previouslyPaid,
+        registration,
+        transaction,
+        workflow,
       })
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'receiptSentAt')
     }
@@ -276,26 +347,7 @@ const handleSuccessfulPayment = async (
       // Publication is deliberately last: a flaky admin socket must not block
       // the payer's receipt or confirmation email. Incremental refresh is the
       // admin-side recovery path if this strict publication needs a retry.
-      const releaseGroupsLock = await lockRegistrationGroups(registration.eventId, 8)
-      try {
-        const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId, true)
-        const beforeReconciliation = readyRegistrations.map((item) => ({
-          ...item,
-          ...(item.group ? { group: { ...item.group } } : {}),
-        }))
-        const reconciled = await fixRegistrationGroups(readyRegistrations, { name: 'payment' })
-        registration =
-          reconciled.find((item) => item.id === registrationId) ?? (await getRegistration(eventId, registrationId))
-        confirmedEvent = await updateRegistrations(registration.eventId)
-        const groupPatches = createRegistrationPatches(reconciled, beforeReconciliation)
-        await publishRegistrationPatchesStrict(
-          registration.eventId,
-          [createRegistrationPatch(registration), ...groupPatches.filter((patch) => patch.id !== registration.id)],
-          confirmedEvent.organizer.id
-        )
-      } finally {
-        await releaseGroupsLock()
-      }
+      ;({ confirmedEvent, registration } = await publishSuccessfulPayment(registration, registrationId))
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'postPaymentPublishedAt')
     }
 

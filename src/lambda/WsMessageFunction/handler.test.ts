@@ -178,22 +178,16 @@ describe('wsMessageHandler', () => {
     expect(result).toEqual({ body: { eventId: 'event-1', subscribed: true }, statusCode: 200 })
   })
 
-  it('returns 400 when subscribing to event without eventId', async () => {
+  it.each([
+    ['subscribing to an event without eventId', { action: 'subscribe', channel: 'event' }],
+    ['subscribing with an unknown channel', { action: 'subscribe', channel: 'unknown' }],
+    ['unsubscribing from an event without eventId', { action: 'unsubscribe', channel: 'event' }],
+    ['unsubscribing with an unknown channel', { action: 'unsubscribe', channel: 'unknown' }],
+  ])('returns 400 when %s', async (_description, message) => {
     mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
 
     const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'event' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
-
-    expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
-  })
-
-  it('returns 400 when subscribing with unknown channel', async () => {
-    mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
-
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'unknown' }),
+      body: JSON.stringify(message),
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
@@ -224,28 +218,6 @@ describe('wsMessageHandler', () => {
 
     expect(mockUnsubscribeFromEvent).toHaveBeenCalledWith({ connectionId: 'conn-1', eventId: 'event-1' })
     expect(result).toEqual({ body: { connectionId: 'conn-1', unsubscribed: true }, statusCode: 200 })
-  })
-
-  it('returns 400 when unsubscribing from event without eventId set', async () => {
-    mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
-
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'unsubscribe', channel: 'event' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
-
-    expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
-  })
-
-  it('returns 400 when unsubscribing with unknown channel', async () => {
-    mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
-
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'unsubscribe', channel: 'unknown' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
-
-    expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
   })
 
   it('returns LambdaError status when subscribeWebSocketToAdmin throws LambdaError', async () => {

@@ -1,7 +1,7 @@
 import type { AtomEffect } from 'recoil'
 import type { EmailTemplate, EmailTemplateId } from '../../../../types'
-import i18next from 'i18next'
 import { getEmailTemplates } from '../../../../api/email'
+import { compareByLocalizedString } from '../../../../lib/client/sort'
 import { exhaustiveStringTuple } from '../../../../lib/typeGuards'
 import { createCachedRemoteCollectionEffect } from '../cached/createCachedRemoteCollection'
 
@@ -42,7 +42,7 @@ export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = crea
   cacheKey: 'emailTemplates',
   fetch: fetchEmailTemplates,
   sort: (items) => {
-    items.sort((a, b) => a.id.localeCompare(b.id, i18next.language))
+    items.sort(compareByLocalizedString('id'))
     return items
   },
 })

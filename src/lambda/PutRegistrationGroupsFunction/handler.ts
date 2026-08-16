@@ -48,6 +48,7 @@ const auditSentMessages = async (
     ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
   ]
   const messageClass = messageClasses.length === 1 ? messageClasses[0] : undefined
+  const classDescription = messageClass ? ` luokkaan ${messageClass}` : ''
 
   await audit({
     auditKey: eventAuditKey(confirmedEvent),
@@ -61,7 +62,7 @@ const auditSentMessages = async (
           ],
         }
       : {}),
-    message: `${label}${messageClass ? ` luokkaan ${messageClass}` : ''} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
+    message: `${label}${classDescription} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
     messageKey: messageClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent',
     messageParams: {
       ...(messageClass ? { eventClass: messageClass } : {}),

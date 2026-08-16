@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type useAdminEventRegistrationInfo from '../../../../hooks/useAdminEventRegistrationsInfo'
 import type { ConfirmedEvent, EmailTemplateId, Registration } from '../../../../types'
 import Box from '@mui/material/Box'
@@ -30,6 +31,76 @@ const statusSx = {
   display: 'flex',
   justifyContent: 'flex-end',
   minHeight: 30,
+}
+
+const placeNotificationContent = (
+  blocked: boolean,
+  sent: boolean,
+  canSend: boolean,
+  selected: Registration[],
+  onOpenMessageDialog: Props['onOpenMessageDialog'],
+  t: TFunction
+) => {
+  if (sent) {
+    return (
+      <Typography variant="caption" color="info.main" sx={statusSx}>
+        {t('eventManagement.participantSelection.placeNotificationsSent')}
+      </Typography>
+    )
+  }
+  if (blocked) {
+    return (
+      <Typography variant="caption" color="text.secondary" sx={statusSx}>
+        {t('eventManagement.participantSelection.canSendAfterEntry')}
+      </Typography>
+    )
+  }
+  return (
+    <Button
+      size="small"
+      disabled={!canSend}
+      onClick={() => onOpenMessageDialog?.(selected, 'picked')}
+      color="primary"
+      variant={canSend ? 'contained' : 'outlined'}
+    >
+      {t('eventManagement.participantSelection.sendPlaceNotification')}
+    </Button>
+  )
+}
+
+const reserveNotificationContent = (
+  blocked: boolean,
+  sent: boolean,
+  canSend: boolean,
+  reserves: Registration[],
+  onOpenMessageDialog: Props['onOpenMessageDialog'],
+  t: TFunction
+) => {
+  if (sent) {
+    return (
+      <Typography variant="caption" color="info.main" sx={statusSx}>
+        {t('eventManagement.participantSelection.reserveNotificationsSent')}
+      </Typography>
+    )
+  }
+  if (blocked) {
+    return (
+      <Typography variant="caption" color="text.secondary" sx={statusSx}>
+        {t('eventManagement.participantSelection.reserveCanSendAfterEntry')}
+      </Typography>
+    )
+  }
+  return (
+    <Button
+      size="small"
+      disabled={!canSend}
+      onClick={() => onOpenMessageDialog?.(reserves, 'reserve')}
+      color="primary"
+      variant={canSend ? 'contained' : 'outlined'}
+    >
+      {t('eventManagement.participantSelection.sendReserveNotification')}
+    </Button>
+  )
 }
 
 const ParticipantSelection = ({
@@ -72,31 +143,22 @@ const ParticipantSelection = ({
                 reserves.length > 0 && reserves.every((registration) => registration.reserveNotified)
               const reserveNotificationsBlockedByEntry = !entryEnded && !classFinished
               const canSendReserveNotification = entryEnded && !classFinished && numbers.reserve > 0
-              let placeNotificationContent = (
-                <Button
-                  size="small"
-                  disabled={!canSendPlaceNotification}
-                  onClick={() => onOpenMessageDialog?.(selected, 'picked')}
-                  color="primary"
-                  variant={canSendPlaceNotification ? 'contained' : 'outlined'}
-                >
-                  {t('eventManagement.participantSelection.sendPlaceNotification')}
-                </Button>
+              const placeContent = placeNotificationContent(
+                placeConfirmationsBlockedByEntry,
+                placeNotificationsSent,
+                canSendPlaceNotification,
+                selected,
+                onOpenMessageDialog,
+                t
               )
-              if (placeConfirmationsBlockedByEntry) {
-                placeNotificationContent = (
-                  <Typography variant="caption" color="text.secondary" sx={statusSx}>
-                    {t('eventManagement.participantSelection.canSendAfterEntry')}
-                  </Typography>
-                )
-              }
-              if (placeNotificationsSent) {
-                placeNotificationContent = (
-                  <Typography variant="caption" color="info.main" sx={statusSx}>
-                    {t('eventManagement.participantSelection.placeNotificationsSent')}
-                  </Typography>
-                )
-              }
+              const reserveContent = reserveNotificationContent(
+                reserveNotificationsBlockedByEntry,
+                reserveNotificationsSent,
+                canSendReserveNotification,
+                reserves,
+                onOpenMessageDialog,
+                t
+              )
 
               return (
                 <Fragment key={eventClass}>
@@ -112,7 +174,7 @@ const ParticipantSelection = ({
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={{ borderBottom: 0 }}>
-                      {placeNotificationContent}
+                      {placeContent}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -127,25 +189,7 @@ const ParticipantSelection = ({
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={{ pt: 0 }}>
-                      {reserveNotificationsSent ? (
-                        <Typography variant="caption" color="info.main" sx={statusSx}>
-                          {t('eventManagement.participantSelection.reserveNotificationsSent')}
-                        </Typography>
-                      ) : reserveNotificationsBlockedByEntry ? (
-                        <Typography variant="caption" color="text.secondary" sx={statusSx}>
-                          {t('eventManagement.participantSelection.reserveCanSendAfterEntry')}
-                        </Typography>
-                      ) : (
-                        <Button
-                          size="small"
-                          disabled={!canSendReserveNotification}
-                          onClick={() => onOpenMessageDialog?.(reserves, 'reserve')}
-                          color="primary"
-                          variant={canSendReserveNotification ? 'contained' : 'outlined'}
-                        >
-                          {t('eventManagement.participantSelection.sendReserveNotification')}
-                        </Button>
-                      )}
+                      {reserveContent}
                     </TableCell>
                   </TableRow>
                 </Fragment>

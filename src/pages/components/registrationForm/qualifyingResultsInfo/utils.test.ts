@@ -224,7 +224,7 @@ describe('QualifyingResultsInfo utils', () => {
     })
 
     it('should return undefined for undefined result', () => {
-      expect(resultBorderColor(undefined)).toEqual(undefined)
+      expect(resultBorderColor(undefined)).toBeUndefined()
     })
   })
 })

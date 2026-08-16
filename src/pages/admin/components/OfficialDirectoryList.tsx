@@ -20,12 +20,12 @@ declare module '@mui/x-data-grid' {
 }
 
 interface OfficialDirectoryListProps<T extends GridValidRowModel> {
-  columns: GridColDef<T>[]
-  columnVisibilityModel?: GridColumnVisibilityModel
-  dataLabel: 'judges' | 'officials'
-  filterState: RecoilState<string>
-  onRefresh: () => Promise<void>
-  rowsState: RecoilValue<T[]>
+  readonly columns: GridColDef<T>[]
+  readonly columnVisibilityModel?: GridColumnVisibilityModel
+  readonly dataLabel: 'judges' | 'officials'
+  readonly filterState: RecoilState<string>
+  readonly onRefresh: () => Promise<void>
+  readonly rowsState: RecoilValue<T[]>
 }
 
 export default function OfficialDirectoryList<T extends GridValidRowModel>({

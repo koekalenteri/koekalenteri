@@ -37,6 +37,9 @@ const templateAuditLabelKeys: Partial<Record<RegistrationMessage['template'], st
   reserve: 'emailTemplate.reserve',
 }
 
+const updatesParticipantState = (template: RegistrationMessage['template']) =>
+  template === 'picked' || template === 'invitation'
+
 /**
  * Mark classes as having received the specified template
  */
@@ -111,7 +114,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     }
   }
 
-  if (template === 'picked' || template === 'invitation') {
+  if (updatesParticipantState(template)) {
     const allEventRegistrations = eventRegistrations || []
     const registrationsByClass = groupRegistrationsByClass(allEventRegistrations)
     const registrationsByClassAndGroup = groupRegistrationsByClassAndGroup(registrationsByClass)
@@ -124,6 +127,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
   ]
   const messageClass = messageClasses.length === 1 ? messageClasses[0] : undefined
+  const classDescription = messageClass ? ` luokkaan ${messageClass}` : ''
 
   await audit({
     auditKey: eventAuditKey(confirmedEvent),
@@ -137,7 +141,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
           ],
         }
       : {}),
-    message: `${templateAuditLabels[template] ?? template}${messageClass ? ` luokkaan ${messageClass}` : ''} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
+    message: `${templateAuditLabels[template] ?? template}${classDescription} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
     messageKey: messageClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent',
     messageParams: {
       ...(messageClass ? { eventClass: messageClass } : {}),
@@ -154,7 +158,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   // idempotency key must never be exposed to clients.
   const registrationPatches = registrations.map((registration) => createRegistrationPatch(registration))
   await publishRegistrationPatches(eventId, registrationPatches, confirmedEvent.organizer.id)
-  if (template === 'picked' || template === 'invitation') {
+  if (updatesParticipantState(template)) {
     await publishEventPatch(
       {
         classes: confirmedEvent.classes,

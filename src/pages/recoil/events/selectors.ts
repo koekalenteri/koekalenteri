@@ -1,6 +1,7 @@
 import type { PublicDogEvent, PublicJudge } from '../../../types'
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
+import { compareByLocalizedString } from '../../../lib/client/sort'
 import { unique, uniqueFn } from '../../../lib/utils'
 import { eventFilterAtom, eventsAtom } from './atoms'
 import {
@@ -146,7 +147,7 @@ const eventOrganizersSelector = selector({
     const events = get(eventsAtom)
     const organizers = events.map((event) => event.organizer).filter((organizer) => organizer?.id && organizer.name)
 
-    return uniqueFn(organizers, (a, b) => a.id === b.id).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    return uniqueFn(organizers, (a, b) => a.id === b.id).sort(compareByLocalizedString('name'))
   },
   key: 'eventOrganizers',
 })
@@ -161,9 +162,7 @@ export const filterOrganizersSelector = selector({
       ...events.map((event) => event.organizer?.id).filter((id): id is string => !!id),
     ])
 
-    return organizers
-      .filter((o) => usedOrganizerIds.includes(o.id))
-      .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    return organizers.filter((o) => usedOrganizerIds.includes(o.id)).sort(compareByLocalizedString('name'))
   },
   key: 'filterOrganizers',
 })
@@ -174,10 +173,11 @@ export const filterJudgesSelector = selector({
     const filter = get(eventFilterAtom)
     const judges = events.flatMap((event) => event.judges)
     const usedJudges = uniqueFn<PublicJudge>(judges, (a, b) => a.name === b.name).filter((j) => j.name) // remove empty
+    const compareByName = compareByLocalizedString('name')
     usedJudges.sort((a, b) => {
       const level = Number(filter.judge.includes(a.name)) - Number(filter.judge.includes(b.name))
 
-      return level === 0 ? a.name.localeCompare(b.name, i18next.language) : level
+      return level === 0 ? compareByName(a, b) : level
     })
 
     return usedJudges

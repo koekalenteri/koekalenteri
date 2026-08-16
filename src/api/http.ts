@@ -113,6 +113,29 @@ const isNetworkError = (error: unknown): boolean => {
 
 const isAbortError = (error: unknown): boolean => error instanceof Error && error.name === 'AbortError'
 
+const shouldRetryRequest = (init: HttpRequestInit, error: unknown): boolean =>
+  init.method?.toUpperCase() === 'GET' && !init.signal?.aborted && !(error instanceof APIError) && isNetworkError(error)
+
+const reportRequestError = (error: unknown) => {
+  if (isAbortError(error)) return
+
+  if (!(error instanceof APIError)) {
+    enqueueSnackbar(isNetworkError(error) ? i18n.t('error.connectionInterrupted') : `${error}`, errorSnackbarOptions)
+  }
+  reportError(error)
+}
+
+const retryRequest = async <T>(
+  path: string,
+  init: HttpRequestInit,
+  reviveDates: boolean,
+  returnStatus: boolean
+): Promise<T | HttpResponse<T> | undefined> => {
+  await new Promise((resolve) => setTimeout(resolve, NETWORK_RETRY_DELAY_MS))
+  if (init.signal?.aborted) return undefined
+  return httpWithTimeout<T>(path, init, reviveDates, returnStatus)
+}
+
 async function httpWithTimeout<T>(
   path: string,
   init: HttpRequestInit,
@@ -179,31 +202,16 @@ async function http<T>(
 
     // A network switch commonly rejects an otherwise safe read request. Retry it once;
     // mutations are deliberately left to their callers because their outcome may be unknown.
-    if (
-      init.method?.toUpperCase() === 'GET' &&
-      !init.signal?.aborted &&
-      !(err instanceof APIError) &&
-      isNetworkError(err)
-    ) {
-      await new Promise((resolve) => setTimeout(resolve, NETWORK_RETRY_DELAY_MS))
-
-      if (!init.signal?.aborted) {
-        try {
-          return await httpWithTimeout<T>(path, init, reviveDates, returnStatus)
-        } catch (retryError) {
-          err = retryError
-        }
+    if (shouldRetryRequest(init, err)) {
+      try {
+        const result = await retryRequest<T>(path, init, reviveDates, returnStatus)
+        if (result !== undefined) return result
+      } catch (retryError) {
+        err = retryError
       }
     }
 
-    if (!(err instanceof APIError) && !isAbortError(err)) {
-      enqueueSnackbar(isNetworkError(err) ? i18n.t('error.connectionInterrupted') : `${err}`, errorSnackbarOptions)
-    }
-
-    if (!isAbortError(err)) {
-      reportError(err)
-    }
-
+    reportRequestError(err)
     throw err
   }
 }

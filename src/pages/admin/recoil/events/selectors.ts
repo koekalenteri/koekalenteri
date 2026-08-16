@@ -1,6 +1,7 @@
 import type { ConfirmedEvent, DogEvent, PublicOrganizer } from '../../../../types'
 import i18next from 'i18next'
 import { DefaultValue, selector, selectorFamily } from 'recoil'
+import { compareByLocalizedString } from '../../../../lib/client/sort'
 import { isEventOver } from '../../../../lib/event'
 import { isConfirmedEvent } from '../../../../lib/typeGuards'
 import { uniqueFn } from '../../../../lib/utils'
@@ -94,7 +95,7 @@ export const adminEventOrganizersSelector = selector({
       .map((event) => event.organizer)
       .filter((organizer): organizer is PublicOrganizer => !!organizer?.id && !!organizer.name)
 
-    return uniqueFn(organizers, (a, b) => a.id === b.id).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    return uniqueFn(organizers, (a, b) => a.id === b.id).sort(compareByLocalizedString('name'))
   },
   key: 'adminEventOrganizers',
 })

@@ -3,6 +3,7 @@ import type { Official } from '../../../types'
 import i18next from 'i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { getUsers } from '../../../api/user'
+import { compareByLocalizedString } from '../../../lib/client/sort'
 import { validIdTokenSelector } from '../../recoil'
 import { createCachedRemoteCollectionEffect } from './cached/createCachedRemoteCollection'
 import { adminUsersAtom } from './user'
@@ -12,8 +13,10 @@ interface OfficialDirectoryEffectOptions<T extends Official> {
   fetch: (token: string) => Promise<T[]>
 }
 
-const sortOfficialDirectory = <T extends Official>(entries: T[]): T[] =>
-  entries.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+const sortOfficialDirectory = <T extends Official>(entries: T[]): T[] => {
+  entries.sort(compareByLocalizedString('name'))
+  return entries
+}
 
 export const createOfficialDirectoryEffect = <T extends Official>({
   cacheKey,

@@ -556,7 +556,7 @@ describe('RegistrationListPage', () => {
     jest.setSystemTime(new Date('2021-02-09T00:00:00.000+02:00')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 

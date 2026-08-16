@@ -71,14 +71,8 @@ export function registrationEmailTemplateData(
 ) {
   const t = i18n.getFixedT(registration.language)
 
-  return getRegistrationEmailTemplateData(
-    registration,
-    confirmedEvent,
-    origin,
-    context,
-    text,
-    t,
+  return getRegistrationEmailTemplateData(registration, confirmedEvent, origin, context, text, t, {
+    editToken,
     previousGroup,
-    editToken
-  )
+  })
 }
