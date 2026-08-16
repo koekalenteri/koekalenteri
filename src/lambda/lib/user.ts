@@ -6,20 +6,48 @@ import { nanoid } from 'nanoid'
 import { i18n } from '../../i18n/lambda'
 import { getChangedTopLevelKeys } from '../../lib/diff'
 import { validEmail } from '../../lib/email'
+import { scoreUser } from '../../lib/user'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { reverseName } from './string'
-import { pickCanonicalUserPreferLinked, preferCanonical } from './userCanonical'
 import { compressCanonicalMap, normalizeUserId } from './userRefs'
 
 const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
 
 const dynamoDB = new CustomDynamoClient(userLinkTable)
 
+type CanonicalUserCandidate = Pick<JsonUser, 'id' | 'roles' | 'officer' | 'judge' | 'admin'> & {
+  modifiedAt?: string
+}
+
+export const compareUsersForCanonical = (
+  a: CanonicalUserCandidate,
+  b: CanonicalUserCandidate,
+  linkedUserIds?: Set<string>
+) => {
+  const ds = scoreUser(b, linkedUserIds) - scoreUser(a, linkedUserIds)
+  if (ds !== 0) return ds
+  const ta = a.modifiedAt ? Date.parse(a.modifiedAt) : 0
+  const tb = b.modifiedAt ? Date.parse(b.modifiedAt) : 0
+  return tb - ta
+}
+
+export const pickCanonicalUserPreferLinked = (users: JsonUser[], linkedUserIds?: Set<string>): JsonUser => {
+  return [...users].sort((a, b) => compareUsersForCanonical(a, b, linkedUserIds))[0]
+}
+
+export const pickCanonicalUser = (users: JsonUser[]): JsonUser => {
+  return pickCanonicalUserPreferLinked(users)
+}
+
+export const preferCanonical = (a: JsonUser, b: JsonUser, linkedUserIds?: Set<string>) =>
+  pickCanonicalUserPreferLinked([a, b], linkedUserIds)
+
 export function dedupeUsersByEmail<
   T extends {
+    id: string
     email?: string
     admin?: boolean
     officer?: unknown[]
@@ -30,17 +58,9 @@ export function dedupeUsersByEmail<
 >(users: T[]): T[] {
   const byEmail = new Map<string, T>()
 
-  const score = (u: T) => {
-    const rolesCount = Object.keys(u.roles ?? {}).length
-    const officerCount = Array.isArray(u.officer) ? u.officer.length : 0
-    const judgeCount = Array.isArray(u.judge) ? u.judge.length : 0
-    const admin = u.admin ? 1000 : 0
-    return admin + rolesCount * 10 + officerCount + judgeCount
-  }
-
   const shouldReplaceExisting = (existing: T, candidate: T): boolean => {
-    const s1 = score(existing)
-    const s2 = score(candidate)
+    const s1 = scoreUser(existing)
+    const s2 = scoreUser(candidate)
     if (s2 > s1) return true
     if (s2 < s1) return false
     const t1 = existing.modifiedAt ? Date.parse(existing.modifiedAt) : 0
@@ -296,11 +316,11 @@ const updateExistingUserFromItem = (
   item: Official,
   dateString: string,
   eventTypesFiled: 'officer' | 'judge',
-  linkedUserIds?: Set<string>
+  linkedUserIds: Set<string>
 ): JsonUser | null => {
   const modifiedBy = 'system'
   const normalizedEmail = item.email.toLocaleLowerCase()
-  const keepExistingEmail = linkedUserIds?.has(existing.id) ?? false
+  const keepExistingEmail = linkedUserIds.has(existing.id)
   const nextEmail = keepExistingEmail ? existing.email : normalizedEmail
   const emailHistory = keepExistingEmail
     ? undefined
@@ -470,7 +490,7 @@ const matchIncomingItems = (
   const matchedExisting: JsonUser[] = []
   const newItems: Official[] = []
   for (const item of itemsWithEmail) {
-    const byKcId = typeof item.id === 'number' ? existingByKcId.get(item.id) : undefined
+    const byKcId = existingByKcId.get(item.id)
     const byEmail = existingByEmail.get(item.email)
     const existing = byKcId ?? byEmail
     if (existing) {

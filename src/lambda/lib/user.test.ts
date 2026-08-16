@@ -12,18 +12,13 @@ jest.unstable_mockModule('nanoid', () => {
 
 const mockEventReadAll = jest.fn<any>()
 const mockEventUpdate = jest.fn<any>()
+const mockUserReadAll = jest.fn<any>()
 const mockUserLinkReadAll = jest.fn<any>()
 const mockUserQuery = jest.fn<any>()
 const mockUserRead = jest.fn<any>()
 const mockUserWrite = jest.fn<any>()
 const mockUserUpdate = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
-
-jest.unstable_mockModule('../../i18n/lambda', () => ({
-  i18n: {
-    getFixedT: () => (key: string) => key,
-  },
-}))
 
 jest.unstable_mockModule('./email', () => ({
   sendTemplatedMail: (...args: any[]) => mockSendTemplatedMail(...args),
@@ -42,7 +37,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
     readAll = ({ table }: { table?: string } = {}) => {
       if (table?.includes('event')) return mockEventReadAll(table)
       if (table?.includes('user-link')) return mockUserLinkReadAll(table)
-      return Promise.resolve([])
+      return mockUserReadAll(table)
     }
 
     query = (...args: any[]) => mockUserQuery(...args)
@@ -61,9 +56,13 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 
 const {
   dedupeUsersByEmail,
+  compareUsersForCanonical,
   filterRelevantUsers,
   getAllUsers,
   findUserByEmail,
+  pickCanonicalUser,
+  pickCanonicalUserPreferLinked,
+  preferCanonical,
   updateUser,
   setUserRole,
   updateUsersFromOfficialsOrJudges,
@@ -121,6 +120,47 @@ const testUsers: JsonUser[] = [
   justUser,
 ]
 
+describe('canonical users', () => {
+  it('prefers higher score, then newer modifiedAt', () => {
+    const a: JsonUser = { ...defaults, email: 'a@example.com', id: 'a', name: 'A' }
+    const b: JsonUser = { ...defaults, email: 'b@example.com', id: 'b', name: 'B', roles: { org: 'admin' } }
+    expect(compareUsersForCanonical(a, b)).toBeGreaterThan(0)
+
+    const older: JsonUser = {
+      ...defaults,
+      email: 'o@example.com',
+      id: 'o',
+      modifiedAt: '2020-01-01T00:00:00.000Z',
+      name: 'Old',
+    }
+    const newer: JsonUser = {
+      ...defaults,
+      email: 'n@example.com',
+      id: 'n',
+      modifiedAt: '2021-01-01T00:00:00.000Z',
+      name: 'New',
+    }
+    expect(compareUsersForCanonical(older, newer)).toBeGreaterThan(0)
+  })
+
+  it('prefers linked users and supports convenience wrappers', () => {
+    const base: JsonUser = { ...defaults, email: 'u1@example.com', id: 'u1', name: 'u1' }
+    const rich: JsonUser = { ...defaults, email: 'u2@example.com', id: 'u2', name: 'u2', roles: { org: 'admin' } }
+
+    expect(pickCanonicalUserPreferLinked([base, rich], new Set(['u1'])).id).toBe('u1')
+    expect(pickCanonicalUser([base, rich]).id).toBe('u2')
+    expect(preferCanonical(base, rich).id).toBe('u2')
+  })
+
+  it('treats a missing modifiedAt as older than a present timestamp', () => {
+    const undated = { id: 'undated' }
+    const dated = { id: 'dated', modifiedAt: '2021-01-01T00:00:00.000Z' }
+
+    expect(compareUsersForCanonical(undated, dated)).toBeGreaterThan(0)
+    expect(compareUsersForCanonical(dated, undated)).toBeLessThan(0)
+  })
+})
+
 describe('dedupeUsersByEmail', () => {
   it('returns empty array for empty input', () => {
     expect(dedupeUsersByEmail([])).toEqual([])
@@ -141,6 +181,13 @@ describe('dedupeUsersByEmail', () => {
     const result = dedupeUsersByEmail([lower, upper])
     expect(result).toHaveLength(1)
     expect(result[0].id).toBe('high')
+  })
+
+  it('keeps the existing user when a later duplicate has a lower score', () => {
+    const higher = { admin: true, email: 'user@example.com', id: 'high' }
+    const lower = { email: 'USER@EXAMPLE.COM', id: 'low' }
+
+    expect(dedupeUsersByEmail([higher, lower])).toEqual([higher])
   })
 
   it('prefers admin user over non-admin with same email', () => {
@@ -210,6 +257,13 @@ describe('dedupeUsersByEmail', () => {
     expect(result[0].id).toBe('with-date')
   })
 
+  it('keeps a dated existing user when the tied candidate has no modifiedAt', () => {
+    const withDate = { email: 'x@example.com', id: 'with-date', modifiedAt: '2024-01-01T00:00:00.000Z' }
+    const noDate = { email: 'x@example.com', id: 'no-date' }
+
+    expect(dedupeUsersByEmail([withDate, noDate])).toEqual([withDate])
+  })
+
   it('deduplicates multiple groups independently', () => {
     const users = [
       { email: 'a@example.com', id: 'a1', roles: {} },
@@ -229,6 +283,7 @@ describe('lib/user', () => {
 
   afterEach(() => {
     jest.clearAllMocks()
+    mockUserReadAll.mockResolvedValue([])
     mockUserLinkReadAll.mockResolvedValue([])
   })
 
@@ -296,9 +351,16 @@ describe('lib/user', () => {
 
   describe('top-level user API helpers', () => {
     it('getAllUsers returns empty array when db returns undefined', async () => {
-      mockEventReadAll.mockResolvedValueOnce(undefined)
+      mockUserReadAll.mockResolvedValueOnce(undefined)
       const users = await getAllUsers()
       expect(users).toEqual([])
+    })
+
+    it('getAllUsers returns users read from the database', async () => {
+      const users = [{ ...defaults, email: 'reader@example.com', id: 'reader', name: 'Reader' }]
+      mockUserReadAll.mockResolvedValueOnce(users)
+
+      await expect(getAllUsers()).resolves.toEqual(users)
     })
 
     it('findUserByEmail returns undefined and warns when called without email', async () => {
@@ -397,6 +459,7 @@ describe('lib/user', () => {
           admin: true,
           link: 'https://app.example.com/login',
           orgName: 'Org One',
+          roleName: 'Yhdistyksen pääkäyttäjä',
           secretary: false,
         })
       )
@@ -418,6 +481,31 @@ describe('lib/user', () => {
       expect(mockUserUpdate).toHaveBeenCalled()
       expect(mockSendTemplatedMail).not.toHaveBeenCalled()
       expect(result.roles).toEqual({ org2: 'admin' })
+    })
+
+    it('setUserRole uses the unknown-organizer fallback when the organizer is missing', async () => {
+      const user: JsonUser = {
+        ...defaults,
+        email: 'fallback@example.com',
+        id: 'fallback-user',
+        name: 'Fallback User',
+      }
+      mockUserRead.mockResolvedValueOnce(undefined)
+
+      await setUserRole(user, 'missing-org', 'secretary', 'tester')
+
+      expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+        'access',
+        'fi',
+        expect.any(String),
+        ['fallback@example.com'],
+        expect.objectContaining({
+          admin: false,
+          orgName: 'Tuntematon',
+          roleName: 'Koesihteeri',
+          secretary: true,
+        })
+      )
     })
   })
 
@@ -537,6 +625,18 @@ describe('lib/user', () => {
       batchWrite: mockBatchWrite,
       readAll: mockReadAll,
     } as unknown as CustomDynamoClient
+
+    it('loadSyncContext falls back to empty users and links when reads return undefined', async () => {
+      mockReadAll.mockResolvedValueOnce(undefined)
+      mockUserLinkReadAll.mockResolvedValueOnce(undefined)
+
+      await expect(__testables.loadSyncContext(mockDB, [])).resolves.toEqual({
+        allUsers: [],
+        dateString: '2024-05-30T20:00:00.000Z',
+        itemsWithEmail: [],
+        linkedUserIds: new Set(),
+      })
+    })
 
     it('should do nothing with empty judges array', async () => {
       await updateUsersFromOfficialsOrJudges(mockDB, [], 'judge')
@@ -809,7 +909,7 @@ describe('lib/user', () => {
       )
     })
 
-    it('merges duplicate users by kcId (KL email changed) and updates event official/secretary references', async () => {
+    it('merges duplicate users by kcId when the event scan returns undefined', async () => {
       const canonical: JsonUser = {
         ...defaults,
         email: 'old@example.com',
@@ -830,30 +930,7 @@ describe('lib/user', () => {
 
       mockReadAll.mockResolvedValueOnce([canonical, dupe])
 
-      mockEventReadAll.mockResolvedValueOnce([
-        {
-          classes: [],
-          cost: 0,
-          createdAt: defaults.createdAt,
-          createdBy: defaults.createdBy,
-          description: '',
-          endDate: '2024-06-01T00:00:00.000Z',
-          eventType: 'NOME-A',
-          id: 'evt-1',
-          judges: [],
-          location: 'loc',
-          modifiedAt: defaults.modifiedAt,
-          modifiedBy: defaults.modifiedBy,
-          name: 'evt',
-          // Point at the *non-canonical* id so the sync must rewrite it.
-          official: { id: 'canon', name: 'Official Person' },
-          organizer: { id: 'org', name: 'org' },
-          places: 0,
-          secretary: { id: 'canon', name: 'Official Person' },
-          startDate: '2024-06-01T00:00:00.000Z',
-          state: 'draft',
-        },
-      ])
+      mockEventReadAll.mockResolvedValueOnce(undefined)
 
       const fromKl: Official = {
         district: 'district',
@@ -1021,6 +1098,27 @@ describe('lib/user', () => {
           official: { id: 'canon', name: 'Official Person' },
           organizer: { id: 'org', name: 'org' },
           places: 0,
+          secretary: { id: 'canon', name: 'Official Person' },
+          startDate: '2024-06-01T00:00:00.000Z',
+          state: 'draft',
+        },
+        {
+          classes: [],
+          cost: 0,
+          createdAt: defaults.createdAt,
+          createdBy: defaults.createdBy,
+          description: '',
+          endDate: '2024-06-01T00:00:00.000Z',
+          eventType: 'NOME-A',
+          id: 'evt-unrelated',
+          judges: [],
+          location: 'loc',
+          modifiedAt: defaults.modifiedAt,
+          modifiedBy: defaults.modifiedBy,
+          name: 'unrelated event',
+          official: { id: 'unrelated-user', name: 'Unrelated User' },
+          organizer: { id: 'org', name: 'org' },
+          places: 0,
           startDate: '2024-06-01T00:00:00.000Z',
           state: 'draft',
         },
@@ -1113,7 +1211,7 @@ describe('lib/user', () => {
       )
     })
 
-    it('keeps flow stable when only secretary candidate would be remapped', async () => {
+    it('remaps a duplicate secretary when the event has no official', async () => {
       const canonical: JsonUser = {
         ...defaults,
         admin: true,
@@ -1147,7 +1245,6 @@ describe('lib/user', () => {
           modifiedAt: defaults.modifiedAt,
           modifiedBy: defaults.modifiedBy,
           name: 'evt secretary only',
-          official: { id: 'official-keep', name: 'Official Keep' },
           organizer: { id: 'org', name: 'org' },
           places: 0,
           secretary: { id: 'dupe-sec', name: 'Secretary Person' },
@@ -1167,7 +1264,16 @@ describe('lib/user', () => {
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
 
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockEventUpdate).not.toHaveBeenCalled()
+      expect(mockEventUpdate).toHaveBeenCalledWith(
+        { id: 'evt-secretary-only' },
+        expect.objectContaining({
+          set: expect.objectContaining({
+            official: undefined,
+            secretary: expect.objectContaining({ id: 'canon-sec', name: 'Secretary Person' }),
+          }),
+        }),
+        'event-table-not-found-in-env'
+      )
     })
 
     it('logs and rethrows when batch write fails', async () => {
@@ -1301,10 +1407,15 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
 
-      // This fixture's inconsistent duplicate ids is enough to execute the path-compression loop.
-      // Event remap is not guaranteed for this synthetic case, but write path must still complete.
+      // The A -> B -> C chain is compressed before event references are rewritten.
       expect(mockBatchWrite).toHaveBeenCalled()
-      expect(mockEventUpdate).not.toHaveBeenCalled()
+      expect(mockEventUpdate).toHaveBeenCalledWith(
+        { id: 'evt-path-compress' },
+        expect.objectContaining({
+          set: expect.objectContaining({ official: expect.objectContaining({ id: 'C' }) }),
+        }),
+        'event-table-not-found-in-env'
+      )
     })
   })
 })
