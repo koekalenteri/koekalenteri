@@ -1,15 +1,13 @@
 import type { DeepPartial, Registration, RegistrationPerson } from '../../../types'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
-import Grid from '@mui/material/Grid'
 import Switch from '@mui/material/Switch'
-import TextField from '@mui/material/TextField'
-import { MuiTelInput } from 'mui-tel-input'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { useLocalStateGroup } from './hooks/useLocalStateGroup'
+import { PersonFields } from './PersonFields'
 
 interface Props {
   readonly admin?: boolean
@@ -24,7 +22,7 @@ interface Props {
 }
 
 export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, onOpenChange, open, orgId }: Props) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
 
   const handleChange = useCallback(
@@ -45,43 +43,12 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
     [cache, onChange, orgId, setCache]
   )
 
-  // Group local state for all form fields
-  const [formValues, updateField] = useLocalStateGroup(
+  const [roleValues, updateRole] = useLocalStateGroup(
     {
-      email: reg.owner?.email ?? '',
-      location: reg.owner?.location ?? '',
-      name: reg.owner?.name ?? '',
       ownerHandles: reg.ownerHandles ?? true,
       ownerPays: reg.ownerPays ?? true,
-      phone: reg.owner?.phone ?? '',
     },
-    (values) => {
-      // Handle field updates as a group
-      const { name, location, email, phone, ownerHandles, ownerPays } = values
-
-      // Update owner fields
-      if (
-        name !== reg.owner?.name ||
-        location !== reg.owner?.location ||
-        email !== reg.owner?.email ||
-        phone !== reg.owner?.phone
-      ) {
-        handleChange({
-          email,
-          location,
-          name,
-          phone,
-        })
-      }
-
-      // Update owner roles
-      if (ownerHandles !== reg.ownerHandles || ownerPays !== reg.ownerPays) {
-        handleChange({
-          ownerHandles,
-          ownerPays,
-        })
-      }
-    }
+    handleChange
   )
 
   useEffect(() => {
@@ -103,69 +70,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
       onOpenChange={onOpenChange}
     >
       <form>
-        <Grid container spacing={1}>
-          <Grid size={{ sm: 6, xs: 12 }}>
-            <TextField
-              disabled={disabled}
-              error={!reg.owner?.name}
-              fullWidth
-              id="owner_name"
-              label={t('contact.name')}
-              name="name"
-              onChange={(e) => updateField('name', e.target.value)}
-              value={formValues.name}
-              slotProps={{
-                input: { autoComplete: 'name' },
-              }}
-            />
-          </Grid>
-          <Grid size={{ sm: 6, xs: 12 }}>
-            <TextField
-              disabled={disabled}
-              error={!reg.owner?.location}
-              fullWidth
-              id="owner_city"
-              label={t('contact.city')}
-              name="city"
-              onChange={(e) => updateField('location', e.target.value)}
-              value={formValues.location}
-              slotProps={{
-                input: { autoComplete: 'address-level2' },
-              }}
-            />
-          </Grid>
-          <Grid size={{ sm: 6, xs: 12 }}>
-            <TextField
-              disabled={disabled}
-              error={!reg.owner?.email}
-              fullWidth
-              id="owner_email"
-              label={t('contact.email')}
-              name="email"
-              onChange={(e) => updateField('email', e.target.value.trim())}
-              value={formValues.email}
-              slotProps={{
-                input: { autoComplete: 'email' },
-              }}
-            />
-          </Grid>
-          <Grid size={{ sm: 6, xs: 12 }}>
-            <MuiTelInput
-              langOfCountryName={i18n.language}
-              defaultCountry="FI"
-              forceCallingCode
-              autoComplete="tel"
-              disabled={disabled}
-              error={!reg.owner?.phone}
-              fullWidth
-              id="owner_phone"
-              label={t('contact.phone')}
-              name="phone"
-              onChange={(value) => updateField('phone', value)}
-              value={formValues.phone}
-            />
-          </Grid>
-        </Grid>
+        <PersonFields disabled={disabled} idPrefix="owner" onChange={handleChange} person={reg.owner} />
       </form>
       <FormGroup>
         <FormControlLabel
@@ -173,8 +78,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
           control={
             <Switch
               role="switch"
-              checked={formValues.ownerHandles}
-              onChange={(e) => updateField('ownerHandles', e.target.checked)}
+              checked={roleValues.ownerHandles}
+              onChange={(e) => updateRole('ownerHandles', e.target.checked)}
             />
           }
           label={t('registration.ownerHandles')}
@@ -185,8 +90,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
           control={
             <Switch
               role="switch"
-              checked={formValues.ownerPays}
-              onChange={(e) => updateField('ownerPays', e.target.checked)}
+              checked={roleValues.ownerPays}
+              onChange={(e) => updateRole('ownerPays', e.target.checked)}
             />
           }
           label={t('registration.ownerPays')}

@@ -1,12 +1,9 @@
 import type { DeepPartial, Registration, RegistrationPerson } from '../../../types'
-import Grid from '@mui/material/Grid'
-import TextField from '@mui/material/TextField'
-import { MuiTelInput } from 'mui-tel-input'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'
 import { useDogCacheKey } from './hooks/useDogCacheKey'
-import { useLocalStateGroup } from './hooks/useLocalStateGroup'
+import { PersonFields } from './PersonFields'
 
 interface Props {
   readonly admin?: boolean
@@ -21,7 +18,7 @@ interface Props {
 }
 
 export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange, onOpenChange, open, orgId }: Props) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
   const handleChange = useCallback(
@@ -34,20 +31,6 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
       }
     },
     [cache, onChange, orgId, setCache]
-  )
-
-  // Group local state for all form fields with a single debounced update
-  const [formValues, updateField] = useLocalStateGroup(
-    {
-      email: reg.handler?.email ?? '',
-      location: reg.handler?.location ?? '',
-      name: reg.handler?.name ?? '',
-      phone: reg.handler?.phone ?? '',
-    },
-    (values) => {
-      // Handle all field updates as a group
-      handleChange(values)
-    }
   )
 
   useEffect(() => {
@@ -68,69 +51,7 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Grid container spacing={1}>
-        <Grid size={{ sm: 6, xs: 12 }}>
-          <TextField
-            disabled={disabled}
-            error={!reg.handler?.name}
-            fullWidth
-            id="handler_name"
-            label={t('contact.name')}
-            name="name"
-            onChange={(e) => updateField('name', e.target.value)}
-            value={formValues.name}
-            slotProps={{
-              input: { autoComplete: 'name' },
-            }}
-          />
-        </Grid>
-        <Grid size={{ sm: 6, xs: 12 }}>
-          <TextField
-            disabled={disabled}
-            error={!reg.handler?.location}
-            fullWidth
-            id="handler_city"
-            label={t('contact.city')}
-            name="city"
-            onChange={(e) => updateField('location', e.target.value)}
-            value={formValues.location}
-            slotProps={{
-              input: { autoComplete: 'address-level2' },
-            }}
-          />
-        </Grid>
-        <Grid size={{ sm: 6, xs: 12 }}>
-          <TextField
-            disabled={disabled}
-            error={!reg.handler?.email}
-            fullWidth
-            id="handler_email"
-            label={t('contact.email')}
-            name="email"
-            onChange={(e) => updateField('email', e.target.value.trim())}
-            value={formValues.email}
-            slotProps={{
-              input: { autoComplete: 'email' },
-            }}
-          />
-        </Grid>
-        <Grid size={{ sm: 6, xs: 12 }}>
-          <MuiTelInput
-            langOfCountryName={i18n.language}
-            defaultCountry="FI"
-            forceCallingCode
-            autoComplete="tel"
-            disabled={disabled}
-            error={!reg.handler?.phone}
-            fullWidth
-            id="handler_phone"
-            label={t('contact.phone')}
-            name="phone"
-            onChange={(value) => updateField('phone', value)}
-            value={formValues.phone}
-          />
-        </Grid>
-      </Grid>
+      <PersonFields disabled={disabled} idPrefix="handler" onChange={handleChange} person={reg.handler} />
     </CollapsibleSection>
   )
 }
