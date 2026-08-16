@@ -78,6 +78,18 @@ const persistEventWithRegistrations = async (
   return result
 }
 
+const auditEventChanges = async (
+  existing: JsonConfirmedEvent | undefined,
+  item: Patch<JsonConfirmedEvent>,
+  result: JsonDogEvent,
+  username: string
+) => {
+  const auditKey = eventAuditKey(result)
+  for (const auditMessage of getEventAuditMessages(existing, item)) {
+    await audit({ auditKey, ...auditMessage, user: username })
+  }
+}
+
 const putEventLambda = lambda('putEvent', async (event) => {
   const user = await authorize(event)
   if (!user) {
@@ -141,14 +153,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // Update registrations in case the secretary version was out of date.
   const result = await persistEventWithRegistrations(existing, data)
 
-  const auditKey = eventAuditKey(result)
-  for (const auditMessage of getEventAuditMessages(existing, item)) {
-    await audit({
-      auditKey,
-      ...auditMessage,
-      user: user.name,
-    })
-  }
+  await auditEventChanges(existing, item, result, user.name)
 
   // Do not expose the server-owned lock or its token in an admin response.
   const {

@@ -88,6 +88,15 @@ const getYearlyCounts = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<strin
   return counts
 }
 
+const dogHandlerBucketRecords = (year: number, counts: Map<string, number>): EventStatsItem[] => {
+  const buckets = new Map<string, number>()
+  for (const count of counts.values()) {
+    const bucket = bucketForCount(count)
+    if (bucket) increment(buckets, bucket)
+  }
+  return [...buckets].map(([bucket, count]) => ({ count, PK: `BUCKETS#${year}#dog#handler`, SK: bucket }))
+}
+
 const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>) => {
   const records: EventStatsItem[] = []
   for (const [year, countsByType] of yearlyStats) {
@@ -95,14 +104,7 @@ const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<st
       const counts = countsForType(countsByType, type)
       records.push({ count: counts.size, PK: `TOTALS#${year}`, SK: type })
       for (const [entityId, count] of counts) records.push({ count, PK: `STAT#${year}#${type}`, SK: entityId })
-      if (type !== 'dog#handler') continue
-
-      const buckets = new Map<string, number>()
-      for (const count of counts.values()) {
-        const bucket = bucketForCount(count)
-        if (bucket) increment(buckets, bucket)
-      }
-      for (const [bucket, count] of buckets) records.push({ count, PK: `BUCKETS#${year}#dog#handler`, SK: bucket })
+      if (type === 'dog#handler') records.push(...dogHandlerBucketRecords(year, counts))
     }
   }
   return records

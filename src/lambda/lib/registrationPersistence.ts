@@ -42,6 +42,17 @@ const reconcileRegistrationGroups = async (
   }
 }
 
+const saveRegistrationData = async (
+  data: JsonRegistration,
+  existing: JsonRegistration | undefined,
+  savedData: JsonRegistration
+): Promise<JsonRegistration> => {
+  if (savedData !== data) return savedData
+  if (existing) return patchRegistration(data.eventId, data.id, existing, data)
+  await saveRegistration(data)
+  return data
+}
+
 export const persistRegistrationWithGroups = async <T>(
   data: JsonRegistration,
   existing: JsonRegistration | undefined,
@@ -69,10 +80,7 @@ export const persistRegistrationWithGroups = async <T>(
     }
 
     releaseGroupsLock = data.state === 'ready' ? await lockRegistrationGroups(data.eventId, 8) : undefined
-    if (savedData === data) {
-      if (existing) savedData = await patchRegistration(data.eventId, data.id, existing, data)
-      else await saveRegistration(data)
-    }
+    savedData = await saveRegistrationData(data, existing, savedData)
     const reconciliationContext = await beforeReconciliation(savedData)
     return {
       ...(await reconcileRegistrationGroups(savedData, user)),
