@@ -29,7 +29,10 @@ const valueAtPath = (value: object, path: Difference['path']): unknown => {
   return current
 }
 
-const materializedPath = (operation: Difference, after: object): { path: Difference['path']; value: unknown } => {
+export const materializeDiffOperation = (
+  operation: Difference,
+  after: object
+): { path: Difference['path']; value: unknown } => {
   for (let length = 1; length <= operation.path.length; length++) {
     const path = operation.path.slice(0, length)
     const value = valueAtPath(after, path)
@@ -63,7 +66,7 @@ export const getNestedChanges = <T extends object>(
   const changes: NestedPatch = {}
 
   for (const operation of getDiffOperations(before, after)) {
-    const { path, value } = materializedPath(operation, normalizedAfter)
+    const { path, value } = materializeDiffOperation(operation, normalizedAfter)
     setNestedValue(changes, path, value)
   }
 

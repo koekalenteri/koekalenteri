@@ -1,4 +1,10 @@
-import { getChangedTopLevelKeys, getDiffOperations, getNestedChanges, objectsDiffer } from './diff'
+import {
+  getChangedTopLevelKeys,
+  getDiffOperations,
+  getNestedChanges,
+  materializeDiffOperation,
+  objectsDiffer,
+} from './diff'
 
 describe('diff helpers', () => {
   it('returns raw create, change, and remove operations', () => {
@@ -46,5 +52,20 @@ describe('diff helpers', () => {
     const after = { contact: { phones: [{ number: '456' }] } }
 
     expect(getNestedChanges(before, after)).toEqual({ contact: { phones: after.contact.phones } })
+  })
+
+  it('materializes diff operations with the canonical persisted path and value', () => {
+    const before = { contact: { phones: [{ number: '123' }], title: 'Secretary' } }
+    const after = { contact: { phones: [{ number: '456' }] } }
+    const [phoneChange, titleRemoval] = getDiffOperations(before, after)
+
+    expect(materializeDiffOperation(phoneChange, after)).toEqual({
+      path: ['contact', 'phones'],
+      value: after.contact.phones,
+    })
+    expect(materializeDiffOperation(titleRemoval, after)).toEqual({
+      path: ['contact', 'title'],
+      value: undefined,
+    })
   })
 })
