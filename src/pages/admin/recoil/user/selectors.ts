@@ -1,30 +1,9 @@
-import type { User, UserWithRoles } from '../../../../types'
+import type { User } from '../../../../types'
 import i18next from 'i18next'
-import { selector, selectorFamily, waitForAll } from 'recoil'
+import { selector, selectorFamily } from 'recoil'
 import { userHasAdminAccess } from '../../../../lib/user'
-import { unique } from '../../../../lib/utils'
 import { adminUserOrgIdsSelector, isAdminSelector, userSelector } from '../../../recoil'
-import { adminEventOrganizersSelector, adminFilteredEventsSelector } from '../events/selectors'
-import { adminEventOrganizerIdAtom, adminOrganizersAtom, adminUsersOrganizerIdAtom } from '../organizers/atoms'
-import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
-
-export const adminUsersOrganizersSelector = selector({
-  get: ({ get }) => {
-    const [users, orgs] = get(waitForAll([adminUsersAtom, adminOrganizersAtom]))
-
-    const orgIds = unique(users.filter((u): u is UserWithRoles => !!u.roles).flatMap((u) => Object.keys(u.roles)))
-
-    const filteredOrgs = orgs.filter((o) => orgIds.includes(o.id))
-    orgIds
-      .filter((id) => !filteredOrgs.some((o) => o.id === id))
-      .forEach((id) => {
-        filteredOrgs.push({ id, name: `(tuntematon/poistettu yhdistys: ${id})` })
-      })
-
-    return filteredOrgs
-  },
-  key: 'adminUserOrganizersSelector',
-})
+import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom, adminUsersOrganizerIdAtom } from './atoms'
 
 export const adminFilteredUsersSelector = selector({
   get: ({ get }) => {
@@ -88,46 +67,4 @@ export const adminCurrentUserSelector = selector({
     return userId ? get(adminUserSelector(userId)) : undefined
   },
   key: 'adminCurrentAdminUser',
-})
-
-export const adminUserOrganizersSelector = selector({
-  get: ({ get }) => {
-    const user = get(userSelector)
-    const list = get(adminOrganizersAtom)
-
-    return user?.admin ? list.filter((o) => o.paytrailMerchantId) : list.filter((o) => user?.roles?.[o.id])
-  },
-  key: 'adminUserOrganizers',
-})
-
-export const adminUserEventOrganizersSelector = selector({
-  get: ({ get }) => {
-    const user = get(userSelector)
-    const list = get(adminEventOrganizersSelector)
-
-    return user?.admin ? list : list.filter((o) => user?.roles?.[o.id])
-  },
-  key: 'adminUserEventOrganizers',
-})
-
-export const adminUserAdminOrganizersSelector = selector({
-  get: ({ get }) => {
-    const user = get(userSelector)
-    const organizers = get(adminOrganizersAtom)
-
-    return user?.admin ? organizers : organizers.filter((o) => user?.roles?.[o.id] === 'admin')
-  },
-  key: 'adminUserAdminOrganizers',
-})
-
-export const adminUserFilteredEventsSelector = selector({
-  get: ({ get }) => {
-    const user = get(userSelector)
-    const events = get(adminFilteredEventsSelector)
-    const orgId = get(adminEventOrganizerIdAtom)
-    const userEvents = user?.admin ? events : events.filter((e) => user?.roles?.[e.organizer.id])
-
-    return orgId ? userEvents.filter((e) => e.organizer.id === orgId) : userEvents
-  },
-  key: 'adminUserFilteredEvents',
 })

@@ -27,18 +27,6 @@ export const adminOrganizerColumnsAtom = atom<GridColumnVisibilityModel>({
   key: 'adminOrganizerColumns',
 })
 
-export const adminEventOrganizerIdAtom = atom<string>({
-  default: '',
-  effects: [logEffect, localStorageEffect],
-  key: 'adminEventOrganizerId',
-})
-
-export const adminUsersOrganizerIdAtom = atom<string>({
-  default: '',
-  effects: [logEffect, localStorageEffect],
-  key: 'adminUsersOrganizerId',
-})
-
 export const adminShowOnlyOrganizersWithUsersAtom = atom<boolean>({
   default: true,
   effects: [logEffect, localStorageEffect],

@@ -21,6 +21,12 @@ export const adminUserIdAtom = atom<string | undefined>({
   key: 'adminUserId',
 })
 
+export const adminUsersOrganizerIdAtom = atom<string>({
+  default: '',
+  effects: [logEffect, localStorageEffect],
+  key: 'adminUsersOrganizerId',
+})
+
 export const adminUsersColumnsAtom = atom<GridColumnVisibilityModel>({
   default: {
     district: false,

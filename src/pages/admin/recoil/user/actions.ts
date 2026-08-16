@@ -5,14 +5,12 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { getUsers, putAdmin, putRole, putUser } from '../../../../api/user'
 import { reportError } from '../../../../lib/client/error'
 import { validIdTokenSelector } from '../../../recoil'
-import { adminOrganizersAtom } from '../organizers'
 import { adminUsersAtom } from './atoms'
 
 export const useAdminUserActions = () => {
   const token = useRecoilValue(validIdTokenSelector)
   const { enqueueSnackbar } = useSnackbar()
   const [users, setUsers] = useRecoilState(adminUsersAtom)
-  const orgs = useRecoilValue(adminOrganizersAtom)
 
   const replaceUser = (user: User) => {
     const oldIndex = users.findIndex((u) => u.id === user.id)
@@ -40,18 +38,17 @@ export const useAdminUserActions = () => {
         reportError(e)
       }
     },
-    addUser: async (user: User) => {
+    addUser: async (user: User, organizerName: string) => {
       try {
         const added = await putUser(user, token)
         replaceUser(added)
         if (user.name === added.name) {
           enqueueSnackbar(`Käyttäjä '${added.name}' lisätty, sähköpostilla '${added.email}'`, { variant: 'info' })
         } else {
-          const orgId = Object.keys(user.roles ?? {})[0]
-          const org = orgs.find((o) => o.id === orgId)
-          enqueueSnackbar(`Käyttäjälle '${added.name}' ('${added.email}') lisätty oikeus yhdistykseen '${org?.name}'`, {
-            variant: 'info',
-          })
+          enqueueSnackbar(
+            `Käyttäjälle '${added.name}' ('${added.email}') lisätty oikeus yhdistykseen '${organizerName}'`,
+            { variant: 'info' }
+          )
         }
       } catch (e) {
         reportError(e)

@@ -2,6 +2,9 @@
 
 These flowcharts describes the relationship between atoms, selectors, effects and persistent storage.
 
+Selectors that combine state from multiple admin domains live in the parent `selectors.ts` module. Feature folders own
+their atoms, effects, actions, and selectors that depend only on that feature or shared application state.
+
 ## Events
 
 ```mermaid

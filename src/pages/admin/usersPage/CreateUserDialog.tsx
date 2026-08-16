@@ -30,12 +30,15 @@ export function CreateUserDialog({ onClose, open }: Props) {
   const onSave = useCallback(() => {
     if (!org || !role) return
     actions
-      .addUser({
-        email,
-        id: '',
-        name,
-        roles: { [org.id]: role },
-      })
+      .addUser(
+        {
+          email,
+          id: '',
+          name,
+          roles: { [org.id]: role },
+        },
+        org.name
+      )
       .then(
         () => onClose(),
         (err) => console.error(err)

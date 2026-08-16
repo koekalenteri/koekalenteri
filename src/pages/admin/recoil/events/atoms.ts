@@ -44,6 +44,12 @@ export const adminEventIdAtom = atom<string | undefined>({
   key: 'adminEventId',
 })
 
+export const adminEventOrganizerIdAtom = atom<string>({
+  default: '',
+  effects: [logEffect, localStorageEffect],
+  key: 'adminEventOrganizerId',
+})
+
 export const adminEventColumnsAtom = atom<GridColumnVisibilityModel>({
   default: { id: false },
   effects: [logEffect, localStorageEffect],

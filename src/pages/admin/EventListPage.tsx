@@ -35,7 +35,7 @@ import {
   adminShowPastEventsAtom,
   useAdminEventActions,
 } from './recoil'
-import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
+import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/selectors'
 
 export const canViewEvent = (event?: Pick<DogEvent, 'state'>): boolean => isConfirmedEvent(event)
 

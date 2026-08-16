@@ -22,7 +22,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
 import { isAdminSelector } from '../../recoil'
-import { adminUserAdminOrganizersSelector, useAdminUserActions } from '../recoil/user'
+import { adminUserAdminOrganizersSelector } from '../recoil/selectors'
+import { useAdminUserActions } from '../recoil/user'
 
 interface Props {
   readonly user: User | null | undefined
