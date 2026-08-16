@@ -10,6 +10,7 @@ import type {
   TestResult,
 } from '../../types'
 import { nanoid } from 'nanoid'
+import { isEntryOpen, isEventOver } from '../../lib/event'
 import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
 import { filterRelevantResults } from '../../lib/qualification'
 import {
@@ -19,7 +20,7 @@ import {
   isParticipantGroup,
   isPublicRegistrationOperationField,
 } from '../../lib/registration'
-import { isEntryOpen, isEventOver, isObject, patchMerge } from '../../lib/utils'
+import { isObject, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, auditStrict, registrationAuditKey } from '../lib/audit'

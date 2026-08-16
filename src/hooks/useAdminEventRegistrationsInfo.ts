@@ -1,13 +1,13 @@
 import type { ConfirmedEvent, EventState, Registration } from '../types'
 import { useMemo } from 'react'
-import { getEventStateForClass } from '../lib/event'
+import { eventDates, getEventStateForClass, placesForClass, uniqueClasses } from '../lib/event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getRegistrationClass,
   getRegistrationGroupKey,
 } from '../lib/registration'
-import { eventDates, placesForClass, unique, uniqueClasses } from '../lib/utils'
+import { unique } from '../lib/utils'
 
 interface EventClassInfoNumbers {
   places: number

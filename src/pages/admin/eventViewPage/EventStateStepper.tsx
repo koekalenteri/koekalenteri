@@ -10,8 +10,7 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import { useTranslation } from 'react-i18next'
-import { EVENT_PROGRESS_PHASES, getEventProgress } from '../../../lib/event'
-import { isEntryOpen } from '../../../lib/utils'
+import { EVENT_PROGRESS_PHASES, getEventProgress, isEntryOpen } from '../../../lib/event'
 
 const CLASS_PROGRESS_PHASES = new Set<EventProgressStep>(['picked', 'invited'])
 

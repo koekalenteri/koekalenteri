@@ -1,8 +1,9 @@
 import type { ConfirmedEvent, DogEvent, PublicOrganizer } from '../../../../types'
 import i18next from 'i18next'
 import { DefaultValue, selector, selectorFamily } from 'recoil'
+import { isEventOver } from '../../../../lib/event'
 import { isConfirmedEvent } from '../../../../lib/typeGuards'
-import { isEventOver, uniqueFn } from '../../../../lib/utils'
+import { uniqueFn } from '../../../../lib/utils'
 import {
   adminEventFilterTextAtom,
   adminEventIdAtom,

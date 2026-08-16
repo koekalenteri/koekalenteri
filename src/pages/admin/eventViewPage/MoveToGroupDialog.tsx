@@ -13,9 +13,9 @@ import RadioGroup from '@mui/material/RadioGroup'
 import { enqueueSnackbar } from 'notistack'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { getRegistrationGroupKey } from '../../../lib/registration'
-import { errorSnackbarOptions } from '../../../lib/snackbar'
 
 interface Props {
   open: boolean

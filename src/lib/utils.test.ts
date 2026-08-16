@@ -1,6 +1,17 @@
 import type { EventClass, EventState, PublicDogEvent } from '../types'
 import type { AnyObject } from './utils'
 import {
+  hasEntryEnded,
+  hasEntryStarted,
+  isEntryOpen,
+  isEntryUpcoming,
+  isEventOngoing,
+  placesForClass,
+  registrationDates,
+  uniqueClassDates,
+  uniqueClasses,
+} from './event'
+import {
   applyPatch,
   applyPatchesById,
   applyPatchOrInsert,
@@ -8,23 +19,14 @@ import {
   getChanges,
   getPatchChangedIds,
   hasChanges,
-  hasEntryEnded,
-  hasEntryStarted,
   isDateOnlyString,
   isDateString,
   isEmpty,
-  isEntryOpen,
-  isEntryUpcoming,
-  isEventOngoing,
   isObject,
   merge,
   parseDateOnlyString,
   parseJSON,
   patchMerge,
-  placesForClass,
-  registrationDates,
-  uniqueClassDates,
-  uniqueClasses,
 } from './utils'
 
 describe('utils', () => {

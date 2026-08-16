@@ -12,11 +12,32 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { reverseName } from './string'
-import { compressCanonicalMap, normalizeUserId } from './userRefs'
 
 const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
 
 const dynamoDB = new CustomDynamoClient(userLinkTable)
+
+const normalizeUserId = (id: string | number | undefined): string | undefined => {
+  if (id === undefined || id === null) return undefined
+  return String(id)
+}
+
+const compressCanonicalMap = (duplicateIdToCanonicalId: Map<string, string>) => {
+  const resolveFinalCanonicalId = (id: string): string => {
+    const seen = new Set<string>()
+    let current = id
+    while (duplicateIdToCanonicalId.has(current) && !seen.has(current)) {
+      seen.add(current)
+      current = duplicateIdToCanonicalId.get(current) as string
+    }
+    return current
+  }
+
+  for (const [duplicateId, canonicalId] of duplicateIdToCanonicalId.entries()) {
+    const resolved = resolveFinalCanonicalId(canonicalId)
+    if (resolved !== canonicalId) duplicateIdToCanonicalId.set(duplicateId, resolved)
+  }
+}
 
 type CanonicalUserCandidate = Pick<JsonUser, 'id' | 'roles' | 'officer' | 'judge' | 'admin'> & {
   modifiedAt?: string
@@ -596,11 +617,13 @@ export const updateUsersFromOfficialsOrJudges = async (
 
 // Expose internal helpers for unit testing (no runtime usage elsewhere)
 export const __testables = {
+  compressCanonicalMap,
   loadSyncContext,
   matchIncomingItems,
   mergeEventTypes,
   mergeRoles,
   mergeUsersByKcId,
+  normalizeUserId,
   planUserSync,
   toEventUser,
 }

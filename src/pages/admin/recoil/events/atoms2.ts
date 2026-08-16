@@ -1,6 +1,6 @@
 import type { DogEvent, RegistrationClass } from '../../../../types'
 import { atom, atomFamily, selector } from 'recoil'
-import { uniqueClasses } from '../../../../lib/utils'
+import { uniqueClasses } from '../../../../lib/event'
 import { logEffect, sessionStorageEffect } from '../../../recoil'
 import { adminCurrentEventSelector, adminEventSelector } from './selectors'
 

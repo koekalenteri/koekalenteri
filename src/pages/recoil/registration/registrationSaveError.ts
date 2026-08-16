@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next'
 import type { OptionsObject, SnackbarMessage } from 'notistack'
 import type { ContactInfo, Registration } from '../../../types'
 import { APIError } from '../../../api/http'
-import { errorSnackbarOptions } from '../../../lib/snackbar'
+import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { isObject, printContactInfo } from '../../../lib/utils'
 
 interface RegistrationSaveErrorOptions {

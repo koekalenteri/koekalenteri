@@ -18,9 +18,10 @@ import type {
   RegistrationTemplateContext,
   RegistrationTime,
 } from '../types'
+import { isEntryClosed } from './event'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
-import { isEntryClosed, isObject } from './utils'
+import { isObject } from './utils'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'

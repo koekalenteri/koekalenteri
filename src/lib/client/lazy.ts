@@ -4,12 +4,9 @@ const CHUNK_LOAD_ERROR_RE =
   /Loading (CSS )?chunk \d+ failed|Failed to fetch dynamically imported module|Importing a module script failed|Unable to preload CSS/
 
 export const isChunkLoadError = (error: unknown): boolean => {
-  if (!error || typeof error !== 'object') {
-    return false
-  }
+  if (!error || typeof error !== 'object') return false
 
   const { message, name } = error as { message?: unknown; name?: unknown }
-
   return name === 'ChunkLoadError' || (typeof message === 'string' && CHUNK_LOAD_ERROR_RE.test(message))
 }
 

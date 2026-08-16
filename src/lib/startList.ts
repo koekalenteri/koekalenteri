@@ -1,7 +1,6 @@
 import type { TFunction } from 'i18next'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
-import type { SpreadsheetCell } from './xlsx'
 import { zonedDateString } from '../i18n/dates'
 import { formatDogName } from './dog'
 
@@ -9,7 +8,7 @@ export function startListSpreadsheetRows(
   participants: PublicRegistration[],
   event: PublicConfirmedEvent,
   t: TFunction
-): SpreadsheetCell[][] {
+) {
   return [
     [
       t('startListExport.date'),

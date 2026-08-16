@@ -1,6 +1,6 @@
 import { utils, writeFileXLSX } from 'xlsx'
 
-export type SpreadsheetCell = Date | number | string | null | undefined
+type SpreadsheetCell = Date | number | string | null | undefined
 
 interface DownloadXlsxOptions {
   columnWidths?: number[]

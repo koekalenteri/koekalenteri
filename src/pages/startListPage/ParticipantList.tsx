@@ -10,6 +10,7 @@ import TableBody from '@mui/material/TableBody'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../i18n/dates'
+import { downloadXlsx } from '../../lib/client/xlsx'
 import { formatDogName } from '../../lib/dog'
 import {
   eventRegistrationDateKey,
@@ -19,7 +20,6 @@ import {
 import { startListFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
 import { startListSpreadsheetRows } from '../../lib/startList'
-import { downloadXlsx } from '../../lib/xlsx'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
 import { DateHeader } from './DateHeader'

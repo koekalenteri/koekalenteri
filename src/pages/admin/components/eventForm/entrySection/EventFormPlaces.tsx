@@ -10,14 +10,14 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useState } from 'react'
 import { formatDate } from '../../../../../i18n/dates'
+import { compareEventClass } from '../components/EventClasses'
 import {
   calculateTotalFromClasses,
   calculateTotalFromDays,
   distributePlacesAmongClasses,
   distributePlacesAmongDays,
   updatePlacesPerDayFromClasses,
-} from '../../../../../lib/places'
-import { compareEventClass } from '../components/EventClasses'
+} from '../places'
 import ClassPlacesTable from './eventFormPlaces/ClassPlacesTable'
 import DayPlacesTable from './eventFormPlaces/DayPlacesTable'
 

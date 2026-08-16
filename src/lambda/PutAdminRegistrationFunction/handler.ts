@@ -38,9 +38,10 @@ import {
   participantRegistrationResponse,
   patchRegistration,
   registrationConflictBody,
+  removeNewRegistrationWorkflowMetadata,
+  removeRegistrationCreationMetadata,
   saveRegistration,
 } from '../lib/registration'
-import { removeNewRegistrationWorkflowMetadata, removeRegistrationCreationMetadata } from '../lib/registrationMetadata'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
 import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 

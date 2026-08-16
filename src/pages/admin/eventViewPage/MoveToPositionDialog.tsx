@@ -11,8 +11,8 @@ import Select from '@mui/material/Select'
 import { enqueueSnackbar } from 'notistack'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { isParticipantGroup } from '../../../lib/registration'
-import { errorSnackbarOptions } from '../../../lib/snackbar'
 
 interface Props {
   open: boolean

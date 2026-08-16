@@ -10,9 +10,9 @@ import type { DragItem } from './types'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { rum } from '../../../../lib/client/rum'
+import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../../lib/registration'
-import { errorSnackbarOptions } from '../../../../lib/snackbar'
 import { determineChangesFromDrop } from './dnd'
 
 interface UseDnDHandlersArgs {

@@ -2,7 +2,7 @@ import i18n from 'i18next'
 import { enqueueSnackbar } from 'notistack'
 import { coalesceRequest } from '../lib/client/coalesceRequest'
 import { reportError } from '../lib/client/error'
-import { errorSnackbarOptions } from '../lib/snackbar'
+import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { isObject, parseJSON } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
 

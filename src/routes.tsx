@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router'
 import { Navigate } from 'react-router'
-import { reloadOnChunkLoadError } from './lib/lazy'
+import { reloadOnChunkLoadError } from './lib/client/lazy'
 import LoadingIndicator from './pages/components/LoadingIndicator'
 import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'

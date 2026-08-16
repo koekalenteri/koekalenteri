@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useRecoilState, useResetRecoilState } from 'recoil'
 import { APIError } from '../../../api/http'
-import { errorSnackbarOptions } from '../../../lib/snackbar'
+import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { getChanges, isEmptyObject, isObject } from '../../../lib/utils'
 import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../recoil'
 

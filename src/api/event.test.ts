@@ -3,7 +3,7 @@ import { parseISO } from 'date-fns'
 import fetchMock from 'jest-fetch-mock'
 import { emptyEvent } from '../__mockData__/emptyEvent'
 import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
-import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/utils'
+import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/event'
 import { API_BASE_URL } from '../routeConfig'
 import { getAdminEvents, getEvent, getEventAuditTrail, getEvents, putEvent } from './event'
 

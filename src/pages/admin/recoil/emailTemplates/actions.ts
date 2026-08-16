@@ -2,7 +2,7 @@ import type { EmailTemplate } from '../../../../types'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { putEmailTemplate } from '../../../../api/email'
-import { errorSnackbarOptions } from '../../../../lib/snackbar'
+import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
 import { validIdTokenSelector } from '../../../recoil'
 import { adminEmailTemplatesAtom } from './atoms'
 

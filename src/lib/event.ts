@@ -2,9 +2,13 @@ import type { TFunction } from 'i18next'
 import type {
   ConfirmedEvent,
   ConfirmedEventStates,
+  DeepPartial,
   DogEvent,
+  EventState,
   JsonDogEvent,
+  JsonPublicDogEvent,
   Patch,
+  PublicDogEvent,
   RegistrationClass,
   RegistrationDate,
   RegistrationTime,
@@ -13,10 +17,101 @@ import type {
   SanitizedPublicDogEvent,
 } from '../types'
 import { tz } from '@date-fns/tz'
-import { addDays, differenceInDays, eachDayOfInterval, isSameDay, isValid, nextSaturday, parseISO, sub } from 'date-fns'
-import { formatDate, TIME_ZONE, zonedDateString, zonedStartOfDay } from '../i18n/dates'
+import {
+  addDays,
+  differenceInDays,
+  eachDayOfInterval,
+  isSameDay,
+  isValid,
+  nextSaturday,
+  parseISO,
+  sub,
+  subDays,
+} from 'date-fns'
+import { formatDate, TIME_ZONE, zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isConfirmedEvent } from './typeGuards'
-import { hasEntryStarted, isEntryOpen, isEventOngoing, isEventOver, unique } from './utils'
+import { unique, uniqueDate } from './utils'
+
+type EventVitals = Partial<
+  Pick<PublicDogEvent | JsonPublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
+>
+
+export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
+
+export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = new Date()) =>
+  !!entryStartDate && entryStartDate > now && (isValidForEntry(state) || state === 'tentative')
+
+export const hasEntryStarted = ({ entryStartDate }: EventVitals, now = new Date()) =>
+  !!entryStartDate && zonedStartOfDay(entryStartDate) <= now
+
+export const hasEntryEnded = ({ entryEndDate }: EventVitals, now = new Date()) =>
+  !!entryEndDate && zonedEndOfDay(entryEndDate) < now
+
+export const isEntryOpen = ({ entryStartDate, entryEndDate, state }: EventVitals, now = new Date()) =>
+  !!entryStartDate &&
+  !!entryEndDate &&
+  zonedStartOfDay(entryStartDate) <= zonedEndOfDay(now) &&
+  zonedEndOfDay(entryEndDate) >= zonedEndOfDay(now) &&
+  isValidForEntry(state)
+
+export const isEntryClosing = (event: EventVitals, now = new Date()) =>
+  !!event.entryEndDate &&
+  isEntryOpen(event, now) &&
+  subDays(event.entryEndDate, 7) <= zonedEndOfDay(now) &&
+  isValidForEntry(event.state)
+
+export const isEntryClosed = ({ startDate, entryEndDate }: EventVitals, now = new Date()) =>
+  !!startDate && !!entryEndDate && zonedEndOfDay(entryEndDate) < now && zonedStartOfDay(startDate) > now
+
+export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now = new Date()) =>
+  !!startDate &&
+  !!endDate &&
+  zonedStartOfDay(startDate) <= zonedEndOfDay(now) &&
+  zonedEndOfDay(endDate) >= zonedEndOfDay(now) &&
+  isValidForEntry(state) &&
+  state !== 'confirmed'
+
+export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => !!endDate && zonedEndOfDay(endDate) < now
+
+export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' | 'endDate'> | null) => {
+  if (!event) return []
+  const classes = Array.isArray(event.classes) ? event.classes : []
+  return classes.length
+    ? uniqueDate(classes.map((eventClass) => eventClass.date ?? event.startDate))
+    : eachDayOfInterval({ end: event.endDate, start: event.startDate })
+}
+
+export const uniqueClasses = (event?: Pick<PublicDogEvent, 'classes'> | null) => {
+  const classes = event?.classes
+  return Array.isArray(classes) ? unique(classes.map((eventClass) => eventClass.class)) : []
+}
+
+export const placesForClass = (
+  event: DeepPartial<Pick<PublicDogEvent, 'places' | 'classes'>> | undefined | null,
+  eventClass: string
+) => {
+  if (!event) return 0
+
+  const classes = Array.isArray(event.classes) ? event.classes : []
+  return (
+    classes
+      .filter((item) => item.class === eventClass)
+      .reduce((total, item) => total + (Number(item.places) || 0), 0) ||
+    Number(event.places) ||
+    0
+  )
+}
+
+export const uniqueClassDates = (event: PublicDogEvent, eventClass: string) => {
+  if (eventClass === event.eventType) return eventDates(event)
+  const classes = Array.isArray(event.classes) ? event.classes : []
+  return uniqueDate(classes.filter((item) => item.class === eventClass).map((item) => item.date ?? event.startDate))
+}
+
+export const registrationDates = (event: PublicDogEvent, times: RegistrationTime[], eventClass?: string | null) =>
+  (eventClass ? uniqueClassDates(event, eventClass) : eventDates(event)).flatMap<RegistrationDate>((date) =>
+    times.map((time) => ({ date, time }))
+  )
 
 export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
 

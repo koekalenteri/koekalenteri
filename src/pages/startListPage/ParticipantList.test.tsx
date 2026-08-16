@@ -3,11 +3,11 @@ import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { downloadXlsx } from '../../lib/client/xlsx'
 import { startListSpreadsheetRows } from '../../lib/startList'
-import { downloadXlsx } from '../../lib/xlsx'
 import { ParticipantList } from './ParticipantList'
 
-jest.mock('../../lib/xlsx', () => ({ downloadXlsx: jest.fn() }))
+jest.mock('../../lib/client/xlsx', () => ({ downloadXlsx: jest.fn() }))
 
 const mockDownloadXlsx = jest.mocked(downloadXlsx)
 

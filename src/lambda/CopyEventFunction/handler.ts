@@ -5,8 +5,7 @@ import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId, saveRegistration } from '../lib/registration'
-import { removeRegistrationCreationMetadata } from '../lib/registrationMetadata'
+import { getRegistrationsByEventId, removeRegistrationCreationMetadata, saveRegistration } from '../lib/registration'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
   const { id, startDate }: { id: string; startDate: string } = parseJSONWithFallback(event.body)

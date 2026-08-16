@@ -1,5 +1,5 @@
+import { isEventOver } from '../../lib/event'
 import { getSentInvitationAttachment, isParticipantGroup } from '../../lib/registration'
-import { isEventOver } from '../../lib/utils'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getTransactionsByReference } from '../lib/payment'

@@ -35,6 +35,7 @@ jest.unstable_mockModule('../lib/auth', () => ({
 
 jest.unstable_mockModule('../../lib/event', () => ({
   getStartListPublishedClassMap: mockGetStartListPublishedClassMap,
+  isEntryClosed: jest.fn(),
   isStartListAvailable: mockIsStartListAvailable,
   isStartListAvailableForRegistration: mockIsStartListAvailableForRegistration,
   isStartListPublishedClassMap: mockIsStartListPublishedClassMap,

@@ -69,6 +69,28 @@ const {
   __testables,
 } = await import('./user')
 
+describe('user reference helpers', () => {
+  it('normalizes number/string ids and handles undefined', () => {
+    expect(__testables.normalizeUserId(123)).toBe('123')
+    expect(__testables.normalizeUserId('abc')).toBe('abc')
+    expect(__testables.normalizeUserId(undefined)).toBeUndefined()
+  })
+
+  it('performs canonical-id path compression', () => {
+    const map = new Map<string, string>([
+      ['A', 'B'],
+      ['B', 'C'],
+      ['X', 'Y'],
+    ])
+
+    __testables.compressCanonicalMap(map)
+
+    expect(map.get('A')).toBe('C')
+    expect(map.get('B')).toBe('C')
+    expect(map.get('X')).toBe('Y')
+  })
+})
+
 const defaults: Omit<JsonDbRecord, 'id'> = {
   createdAt: '2020-11-12T11:11:11.000Z',
   createdBy: 'system',

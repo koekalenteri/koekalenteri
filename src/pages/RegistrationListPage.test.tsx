@@ -17,11 +17,11 @@ import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
 import { RegistrationListPage } from './RegistrationListPage'
 
-jest.mock('../lib/navigation', () => ({
+jest.mock('../lib/client/navigation', () => ({
   redirectTo: jest.fn(),
 }))
 
-import { redirectTo } from '../lib/navigation'
+import { redirectTo } from '../lib/client/navigation'
 
 // Mock the API modules
 jest.mock('../api/user')
