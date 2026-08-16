@@ -1,10 +1,10 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { Judge } from '../../../types'
 import { useTranslation } from 'react-i18next'
+import OfficialCell from '../components/OfficialCell'
 import { createOfficialDirectoryColumns } from '../officialDirectoryColumns'
 import ActiveCell from './cells/ActiveCell'
 import LanguagesCell from './cells/LanguagesCell'
-import OfficialCell from './cells/OfficialCell'
 
 export default function useJudgeListColumns(): GridColDef<Judge>[] {
   const { t } = useTranslation()
