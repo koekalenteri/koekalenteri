@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid'
 import { calculateCost } from '../../lib/cost'
 import { isParticipantGroup } from '../../lib/registration'
 import { CONFIG } from '../config'
-import { getOrigin } from '../lib/api-gw'
+import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
@@ -158,7 +158,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
       customer,
       items,
       language,
-      origin: getOrigin(event),
+      origin: getFrontendOrigin(event),
       reference,
       stamp,
     })

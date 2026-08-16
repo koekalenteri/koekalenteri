@@ -1,4 +1,5 @@
-import { getOrigin, isAwsServiceError } from './api-gw'
+import { CONFIG } from '../config'
+import { getFrontendOrigin, getOrigin, isAwsServiceError } from './api-gw'
 
 describe('lib/api-gw', () => {
   describe('getOrigin', () => {
@@ -20,6 +21,35 @@ describe('lib/api-gw', () => {
       ${{ headers: { Origin: 'b', origin: 'a' } }} | ${'a'}
     `('when headers are $event.headers, it should return "$expected"', ({ event, expected }) => {
       expect(getOrigin(event)).toEqual(expected)
+    })
+  })
+
+  describe('getFrontendOrigin', () => {
+    const originalStageName = CONFIG.stageName
+
+    afterEach(() => {
+      CONFIG.stageName = originalStageName
+    })
+
+    it('accepts the exact local frontend origin in the dev stage', () => {
+      CONFIG.stageName = 'dev'
+
+      expect(getFrontendOrigin({ headers: { origin: 'http://localhost:3000' } })).toBe('http://localhost:3000')
+    })
+
+    it.each(['http://localhost:3001', 'https://localhost:3000', 'http://localhost:3000.attacker.example'])(
+      'rejects the non-allowlisted dev origin %s',
+      (origin) => {
+        CONFIG.stageName = 'dev'
+
+        expect(getFrontendOrigin({ headers: { origin } })).toBe(CONFIG.frontendURL)
+      }
+    )
+
+    it('rejects the local frontend origin outside the dev stage', () => {
+      CONFIG.stageName = 'prod'
+
+      expect(getFrontendOrigin({ headers: { origin: 'http://localhost:3000' } })).toBe(CONFIG.frontendURL)
     })
   })
 

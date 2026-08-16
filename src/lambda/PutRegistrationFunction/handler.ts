@@ -22,7 +22,7 @@ import {
 } from '../../lib/registration'
 import { isObject, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
-import { getOrigin } from '../lib/api-gw'
+import { getFrontendOrigin } from '../lib/api-gw'
 import { audit, auditStrict, registrationAuditKey } from '../lib/audit'
 import { getUsername } from '../lib/auth'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
@@ -292,7 +292,7 @@ const sendMessages = async (
 const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const username = await getUsername(event)
   const timestamp = new Date().toISOString()
-  const origin = getOrigin(event)
+  const linkOrigin = getFrontendOrigin(event)
   const patchRequest = isPatchRequest(event)
 
   const parsed: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(event.body)
@@ -341,7 +341,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
         const completed = await completeNewRegistration(
           duplicate,
           confirmedEvent,
-          origin,
+          linkOrigin,
           username,
           editToken,
           groupPatches
@@ -502,7 +502,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     const completed = await completeNewRegistration(
       savedData,
       confirmedEvent,
-      origin,
+      linkOrigin,
       username,
       responseEditToken,
       groupPatches
@@ -536,7 +536,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     savedData.handler?.email &&
     savedData.owner?.email
   ) {
-    await sendMessages(origin, context, savedData, confirmedEvent, existing, editToken)
+    await sendMessages(linkOrigin, context, savedData, confirmedEvent, existing, editToken)
   }
 
   return response(200, participantRegistrationResponse(savedData, editToken), event)

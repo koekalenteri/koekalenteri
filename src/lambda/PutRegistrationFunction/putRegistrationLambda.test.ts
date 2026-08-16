@@ -4,6 +4,7 @@ import { addDays, addMinutes } from 'date-fns'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
+import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
 import { ISO8601DateTimeRE } from '../test-utils/constants'
 import { constructAPIGwEvent } from '../test-utils/helpers'
@@ -222,7 +223,12 @@ describe('putRegistrationLabmda', () => {
       release: async () => undefined,
       token: 'test-token',
     })
-    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent(
+        { ...registrationWithStaticDates, id: undefined },
+        { headers: { origin: 'https://attacker.example' } }
+      )
+    )
 
     expect(mockSaveRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -240,6 +246,21 @@ describe('putRegistrationLabmda', () => {
       Template: 'registration-local-fi',
       TemplateData: expect.stringContaining('"subject":"Ilmoittautumisen vahvistus"'),
     })
+    expect(mockSES.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        TemplateData: expect.stringContaining(`"link":"${CONFIG.frontendURL}/r/`),
+      })
+    )
+    expect(mockSES.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        TemplateData: expect.stringContaining(`"paymentLink":"${CONFIG.frontendURL}/p/`),
+      })
+    )
+    expect(mockSES.send).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        TemplateData: expect.stringContaining('https://attacker.example'),
+      })
+    )
     expect(mockSES.send).toHaveBeenCalledTimes(1)
     expect(mockFixRegistrationGroups).toHaveBeenCalledTimes(1)
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
@@ -249,6 +270,41 @@ describe('putRegistrationLabmda', () => {
     )
 
     expect(res.statusCode).toEqual(200)
+  })
+
+  it('uses the local frontend for registration email links in the dev stage', async () => {
+    const originalStageName = CONFIG.stageName
+    CONFIG.stageName = 'dev'
+    mockGetEvent.mockResolvedValueOnce(
+      JSON.parse(JSON.stringify({ ...eventWithStaticDates, paymentTime: 'confirmation' }))
+    )
+    mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce({
+      registration: { ...registrationWithStaticDates, state: 'ready' },
+      release: async () => undefined,
+      token: 'test-token',
+    })
+
+    try {
+      await putRegistrationLabmda(
+        constructAPIGwEvent(
+          { ...registrationWithStaticDates, id: undefined },
+          { headers: { origin: 'http://localhost:3000' } }
+        )
+      )
+
+      expect(mockSES.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          TemplateData: expect.stringContaining('"link":"http://localhost:3000/r/'),
+        })
+      )
+      expect(mockSES.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          TemplateData: expect.stringContaining('"paymentLink":"http://localhost:3000/p/'),
+        })
+      )
+    } finally {
+      CONFIG.stageName = originalStageName
+    }
   })
 
   it('rejects a concurrent confirmation-time create that wins after the initial duplicate check', async () => {

@@ -1,5 +1,6 @@
 import type { CreatePaymentResponse, JsonConfirmedEvent, JsonRegistration, Organizer } from '../../types'
 import { jest } from '@jest/globals'
+import { CONFIG } from '../config'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // --- Mock setup ---
@@ -151,7 +152,7 @@ describe('paymentCreateLambda', () => {
     {
       headers: {
         Host: 'api.example.com',
-        origin: 'https://example.com',
+        origin: 'https://attacker.example',
       },
     }
   )
@@ -197,7 +198,7 @@ describe('paymentCreateLambda', () => {
         },
       ],
       language: 'FI',
-      origin: 'https://example.com',
+      origin: CONFIG.frontendURL,
       reference: 'event123:reg456',
       stamp: expect.any(String),
     })
@@ -227,6 +228,27 @@ describe('paymentCreateLambda', () => {
 
     expect(result.statusCode).toEqual(200)
     expect(JSON.parse(result.body)).toEqual(createMockPaymentResponse())
+  })
+
+  it('uses the local frontend for Paytrail redirects in the dev stage', async () => {
+    const originalStageName = CONFIG.stageName
+    CONFIG.stageName = 'dev'
+    const localEvent = constructAPIGwEvent(
+      { eventId: 'event123', registrationId: 'reg456' },
+      { headers: { Host: 'api.example.com', origin: 'http://localhost:3000' } }
+    )
+
+    try {
+      await paymentCreateLambda(localEvent)
+
+      expect(mockCreatePayment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          origin: 'http://localhost:3000',
+        })
+      )
+    } finally {
+      CONFIG.stageName = originalStageName
+    }
   })
 
   it('does not create another payment after a duplicate payment was captured', async () => {
@@ -277,7 +299,7 @@ describe('paymentCreateLambda', () => {
         },
       ],
       language: 'FI',
-      origin: 'https://example.com',
+      origin: CONFIG.frontendURL,
       reference: 'event123:reg456',
       stamp: expect.any(String),
     })
@@ -424,7 +446,7 @@ describe('paymentCreateLambda', () => {
         },
       ],
       language: 'FI',
-      origin: 'https://example.com',
+      origin: CONFIG.frontendURL,
       reference: 'event123:reg456',
       stamp: expect.any(String),
     })
