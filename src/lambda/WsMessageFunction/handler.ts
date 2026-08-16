@@ -1,13 +1,14 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { LambdaError, response } from '../lib/lambda'
-import {
-  subscribeWebSocketToAdmin,
-  subscribeWebSocketToEvent,
-  unsubscribeWebSocketFromAdmin,
-  unsubscribeWebSocketFromEvent,
-} from '../lib/ws/actions'
+import { publishEventViewers } from '../lib/ws/actions'
 import { authenticateWebSocketToken } from '../lib/ws/authentication'
 import { authenticateWebSocket, getWebSocketConnection } from '../lib/ws/connectionLifecycle'
+import {
+  subscribeToAdmin,
+  subscribeToEvent,
+  unsubscribeFromAdmin,
+  unsubscribeFromEvent,
+} from '../lib/ws/subscriptionService'
 
 interface WsMessage {
   action?: 'authenticate' | 'subscribe' | 'unsubscribe'
@@ -57,9 +58,9 @@ const handleSubscribeMessage = async (
   message: Extract<ValidWsMessage, { action: 'subscribe' }>,
   connection: NonNullable<Awaited<ReturnType<typeof getWebSocketConnection>>>
 ) => {
-  if (message.channel === 'admin') return subscribeWebSocketToAdmin(connection)
+  if (message.channel === 'admin') return subscribeToAdmin(connection)
 
-  return subscribeWebSocketToEvent(connection, message.eventId)
+  return subscribeToEvent(connection, message.eventId, publishEventViewers)
 }
 
 const handleUnsubscribeMessage = async (
@@ -69,7 +70,7 @@ const handleUnsubscribeMessage = async (
   event: APIGatewayEvent
 ) => {
   if (message.channel === 'admin') {
-    const result = await unsubscribeWebSocketFromAdmin(connectionId)
+    const result = await unsubscribeFromAdmin(connectionId)
     return response(200, { connectionId, ...result }, event)
   }
 
@@ -77,7 +78,7 @@ const handleUnsubscribeMessage = async (
     return response(400, 'Bad request', event)
   }
 
-  await unsubscribeWebSocketFromEvent(connection)
+  await unsubscribeFromEvent(connection, publishEventViewers)
   return response(200, { connectionId, unsubscribed: true }, event)
 }
 

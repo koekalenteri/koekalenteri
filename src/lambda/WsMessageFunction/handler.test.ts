@@ -8,6 +8,7 @@ const mockUnsubscribeFromEvent = jest.fn<any>()
 const mockGetWsConnection = jest.fn<any>()
 const mockAuthenticateToken = jest.fn<any>()
 const mockAuthenticateWebSocket = jest.fn<any>()
+const mockPublishEventViewers = jest.fn<any>()
 const mockResponse = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/ws/connectionLifecycle', () => ({
@@ -20,10 +21,14 @@ jest.unstable_mockModule('../lib/ws/authentication', () => ({
 }))
 
 jest.unstable_mockModule('../lib/ws/actions', () => ({
-  subscribeWebSocketToAdmin: mockSubscribeToAdmin,
-  subscribeWebSocketToEvent: mockSubscribeToEvent,
-  unsubscribeWebSocketFromAdmin: mockUnsubscribeFromAdmin,
-  unsubscribeWebSocketFromEvent: mockUnsubscribeFromEvent,
+  publishEventViewers: mockPublishEventViewers,
+}))
+
+jest.unstable_mockModule('../lib/ws/subscriptionService', () => ({
+  subscribeToAdmin: mockSubscribeToAdmin,
+  subscribeToEvent: mockSubscribeToEvent,
+  unsubscribeFromAdmin: mockUnsubscribeFromAdmin,
+  unsubscribeFromEvent: mockUnsubscribeFromEvent,
 }))
 
 jest.unstable_mockModule('../lib/lambda', () => ({
@@ -173,7 +178,8 @@ describe('wsMessageHandler', () => {
 
     expect(mockSubscribeToEvent).toHaveBeenCalledWith(
       { admin: false, connectionId: 'conn-1', memberOf: ['org-1'] },
-      'event-1'
+      'event-1',
+      mockPublishEventViewers
     )
     expect(result).toEqual({ body: { eventId: 'event-1', subscribed: true }, statusCode: 200 })
   })
@@ -216,11 +222,14 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
-    expect(mockUnsubscribeFromEvent).toHaveBeenCalledWith({ connectionId: 'conn-1', eventId: 'event-1' })
+    expect(mockUnsubscribeFromEvent).toHaveBeenCalledWith(
+      { connectionId: 'conn-1', eventId: 'event-1' },
+      mockPublishEventViewers
+    )
     expect(result).toEqual({ body: { connectionId: 'conn-1', unsubscribed: true }, statusCode: 200 })
   })
 
-  it('returns LambdaError status when subscribeWebSocketToAdmin throws LambdaError', async () => {
+  it('returns LambdaError status when subscribeToAdmin throws LambdaError', async () => {
     mockGetWsConnection.mockResolvedValueOnce({ admin: false, connectionId: 'conn-1', memberOf: [] })
     mockSubscribeToAdmin.mockRejectedValueOnce(new LambdaError(403, 'Forbidden'))
 
@@ -232,7 +241,7 @@ describe('wsMessageHandler', () => {
     expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 403 })
   })
 
-  it('returns LambdaError status when subscribeWebSocketToEvent throws LambdaError', async () => {
+  it('returns LambdaError status when subscribeToEvent throws LambdaError', async () => {
     mockGetWsConnection.mockResolvedValueOnce({ admin: false, connectionId: 'conn-1', memberOf: [] })
     mockSubscribeToEvent.mockRejectedValueOnce(new LambdaError(403, 'Forbidden'))
 

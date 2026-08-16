@@ -2,7 +2,7 @@ import type { AdminDataCollection, JsonDogEvent, JsonPublicDogEvent, JsonRegistr
 import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
 import { broadcast } from './broadcast'
-import { disconnectWebSocket } from './connectionLifecycle'
+import { removeConnection } from './connectionRepository'
 import { adminAudience, eventAudience, organizerAudience, publicAudience } from './connectionSelectors'
 import {
   buildConnectionCountPayload,
@@ -11,7 +11,6 @@ import {
   buildRegistrationPatchPayload,
   toEventViewers,
 } from './payloads'
-import { subscribeToAdmin, subscribeToEvent, unsubscribeFromAdmin, unsubscribeFromEvent } from './subscriptionService'
 
 type PublicEventPatch = Patch<JsonPublicDogEvent> & { eventId: string }
 type AdminEventPatch = Patch<JsonDogEvent> & { eventId: string }
@@ -20,7 +19,7 @@ const send = <T>(args: Omit<Parameters<typeof broadcast<T>>[0], 'onGoneConnectio
   broadcast<T>({
     ...args,
     onGoneConnection: async (id) => {
-      await disconnectWebSocket(id)
+      await removeConnection(id)
     },
   })
 
@@ -112,13 +111,3 @@ export const publishConnectionCounts = async (excludeConnectionIds: string[] = [
     publishAdminConnectionCount(excludeConnectionIds),
   ])
 }
-
-export const subscribeWebSocketToEvent = (connection: WebSocketConnection, eventId: string) =>
-  subscribeToEvent(connection, eventId, publishEventViewers)
-
-export const subscribeWebSocketToAdmin = (connection: WebSocketConnection) => subscribeToAdmin(connection)
-
-export const unsubscribeWebSocketFromEvent = (connection: WebSocketConnection) =>
-  unsubscribeFromEvent(connection, publishEventViewers)
-
-export const unsubscribeWebSocketFromAdmin = (connectionId: string) => unsubscribeFromAdmin(connectionId)

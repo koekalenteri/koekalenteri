@@ -56,7 +56,7 @@ Important fields:
 
 ## Module responsibilities
 
-- `actions.ts`: public API for publishing patches, publishing connection counts, and subscribing or unsubscribing WebSocket connections.
+- `actions.ts`: public API for publishing patches, viewer updates, and connection counts.
 - `authentication.ts`: verifies Cognito ID tokens and maps claims to application authorization.
 - `broadcast.ts`: sends payloads to recipients in bounded-concurrency batches and reports sent, gone, and failed counts.
 - `connectionLifecycle.ts`: handles connection creation, authentication updates, lookup, disconnect cleanup, and viewer notifications.
@@ -65,6 +65,7 @@ Important fields:
 - `connectionSelectors.ts`: builds public, admin, organizer, and event audiences from persisted connections.
 - `gatewaySender.ts`: wraps API Gateway Management API `PostToConnection` and normalizes send outcomes.
 - `payloads.ts`: constructs outbound payloads and derives distinct event viewers.
+- `subscriptionService.ts`: authorizes and persists admin and event subscriptions; the message handler composes viewer-update publishing into event subscription changes.
 - `types.ts`: shared WebSocket connection and payload types.
 
 ## Operational notes
