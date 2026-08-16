@@ -4,11 +4,10 @@ import {
   GROUP_KEY_RESERVE,
   getRegistrationGroupKey,
   isParticipantGroup,
-  isRegistrationClass,
 } from '../../lib/registration'
 import { applyRegistrationGroupMoves } from '../../lib/registrationGroups'
 import { getOrigin } from '../lib/api-gw'
-import { audit, eventAuditKey, registrationAuditKey } from '../lib/audit'
+import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { lockRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { getAuthorizedEvent } from '../lib/eventAuth'
@@ -16,6 +15,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import {
   createRegistrationPatches,
+  createSentRegistrationMessagesAudit,
   getCancelAuditMessage,
   getReadyRegistrationsByEventId,
   getRegistrationEditToken,
@@ -34,7 +34,7 @@ const regString = (r: JsonRegistration) =>
   `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler?.name} [${r.reserveNotified}]`
 
 const auditSentMessages = async (
-  confirmedEvent: JsonConfirmedEvent,
+  event: JsonConfirmedEvent,
   label: string,
   labelKey: string,
   registrations: JsonRegistration[],
@@ -43,36 +43,9 @@ const auditSentMessages = async (
   user: JsonUser
 ) => {
   if (!ok.length && !failed.length) return
-
-  const messageClasses = [
-    ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
-  ]
-  const messageClass = messageClasses.length === 1 ? messageClasses[0] : undefined
-  const classDescription = messageClass ? ` luokkaan ${messageClass}` : ''
-
-  await audit({
-    auditKey: eventAuditKey(confirmedEvent),
-    ...(failed.length
-      ? {
-          details: [
-            {
-              detailKey: 'audit.details.failedRecipients',
-              detailParams: { recipients: failed.join('\n') },
-            },
-          ],
-        }
-      : {}),
-    message: `${label}${classDescription} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
-    messageKey: messageClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent',
-    messageParams: {
-      ...(messageClass ? { eventClass: messageClass } : {}),
-      failed: failed.length,
-      ok: ok.length,
-      template: label,
-      templateKey: labelKey,
-    },
-    user: user.name,
-  })
+  await audit(
+    createSentRegistrationMessagesAudit({ event, failed, label, labelKey, ok, registrations, user: user.name })
+  )
 }
 
 const updateItems = async (oldItems: JsonRegistration[], moves: RegistrationGroupMove[], user: JsonUser) => {

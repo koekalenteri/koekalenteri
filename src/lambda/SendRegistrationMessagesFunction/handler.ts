@@ -2,7 +2,7 @@ import type { JsonConfirmedEvent, JsonRegistration, RegistrationMessage } from '
 import { isRegistrationClass } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
-import { audit, eventAuditKey } from '../lib/audit'
+import { audit } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getStateFromTemplate, markParticipants } from '../lib/event'
 import { assertEventOrganizerAccess } from '../lib/eventAuth'
@@ -10,6 +10,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
   createRegistrationPatch,
+  createSentRegistrationMessagesAudit,
   findClassesToMark,
   getReadyRegistrationsByEventId,
   groupRegistrationsByClass,
@@ -143,35 +144,17 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
 
   confirmedEvent = await updateMessageState(eventId, template, confirmedEvent, registrations, eventRegistrations || [])
 
-  const messageClasses = [
-    ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
-  ]
-  const messageClass = messageClasses.length === 1 ? messageClasses[0] : undefined
-  const classDescription = messageClass ? ` luokkaan ${messageClass}` : ''
-
-  await audit({
-    auditKey: eventAuditKey(confirmedEvent),
-    ...(failed.length
-      ? {
-          details: [
-            {
-              detailKey: 'audit.details.failedRecipients',
-              detailParams: { recipients: failed.join('\n') },
-            },
-          ],
-        }
-      : {}),
-    message: `${templateAuditLabels[template] ?? template}${classDescription} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
-    messageKey: messageClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent',
-    messageParams: {
-      ...(messageClass ? { eventClass: messageClass } : {}),
-      failed: failed.length,
-      ok: ok.length,
-      template: templateAuditLabels[template] ?? template,
-      templateKey: templateAuditLabelKeys[template] ?? '',
-    },
-    user: user.name,
-  })
+  await audit(
+    createSentRegistrationMessagesAudit({
+      event: confirmedEvent,
+      failed,
+      label: templateAuditLabels[template] ?? template,
+      labelKey: templateAuditLabelKeys[template] ?? '',
+      ok,
+      registrations,
+      user: user.name,
+    })
+  )
 
   // Registrations are also returned to the admin caller, so use the same
   // public patch shape for both channels. Workflow markers and the creation

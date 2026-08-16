@@ -15,13 +15,14 @@ import {
   getRegistrationClass,
   isParticipantGroup,
   isPredefinedReason,
+  isRegistrationClass,
   PUBLIC_REGISTRATION_FIELDS,
   PUBLIC_REGISTRATION_UPDATE_FIELDS,
 } from '../../lib/registration'
 import { isObject } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { audit, registrationAuditKey } from './audit'
+import { audit, eventAuditKey, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
 import { createDynamoLease } from './lease'
@@ -31,6 +32,56 @@ import { getRegistrationEditTokenSecret } from './secrets'
 const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
 const NEW_REGISTRATION_LEASE_DURATION_MS = 90 * 1000
+
+type SentRegistrationMessagesAudit = {
+  event: Pick<JsonConfirmedEvent, 'id'>
+  failed: string[]
+  label: string
+  labelKey: string
+  ok: string[]
+  registrations: Pick<JsonRegistration, 'class'>[]
+  user: string
+}
+
+export const createSentRegistrationMessagesAudit = ({
+  event,
+  failed,
+  label,
+  labelKey,
+  ok,
+  registrations,
+  user,
+}: SentRegistrationMessagesAudit) => {
+  const messageClasses = [
+    ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
+  ]
+  const messageClass = messageClasses.length === 1 ? messageClasses[0] : undefined
+  const classDescription = messageClass ? ` luokkaan ${messageClass}` : ''
+
+  return {
+    auditKey: eventAuditKey(event),
+    ...(failed.length
+      ? {
+          details: [
+            {
+              detailKey: 'audit.details.failedRecipients',
+              detailParams: { recipients: failed.join('\n') },
+            },
+          ],
+        }
+      : {}),
+    message: `${label}${classDescription} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
+    messageKey: messageClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent',
+    messageParams: {
+      ...(messageClass ? { eventClass: messageClass } : {}),
+      failed: failed.length,
+      ok: ok.length,
+      template: label,
+      templateKey: labelKey,
+    },
+    user,
+  }
+}
 
 const newRegistrationWorkflowFields = [
   'newRegistrationAuditAt',

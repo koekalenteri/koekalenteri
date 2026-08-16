@@ -33,6 +33,7 @@ jest.unstable_mockModule('@aws-sdk/client-ses', () => ({
 
 jest.unstable_mockModule('./audit', () => ({
   audit: mockAudit,
+  eventAuditKey: jest.fn<any>().mockImplementation((event: { id: string }) => `event:${event.id}`),
   registrationAuditKey: jest
     .fn<any>()
     .mockImplementation((reg: { eventId: string; id: string }) => `${reg.eventId}:${reg.id}`),
@@ -53,12 +54,74 @@ const {
   getReadyRegistrationsByEventId,
   groupRegistrationsByClass,
   groupRegistrationsByClassAndGroup,
+  createSentRegistrationMessagesAudit,
   sendTemplatedEmailToEventRegistrations,
   patchRegistration,
   participantRegistrationResponse,
   publicRegistrationPatch,
   removeRegistrationCreationMetadata,
 } = await import('./registration')
+
+describe('createSentRegistrationMessagesAudit', () => {
+  afterEach(() => jest.clearAllMocks())
+
+  it('creates a single-class message with failed recipient details', () => {
+    const record = createSentRegistrationMessagesAudit({
+      event: { id: 'event-id' },
+      failed: ['first@example.com', 'second@example.com'],
+      label: 'Koekutsu',
+      labelKey: 'emailTemplate.invitation',
+      ok: ['success@example.com'],
+      registrations: [{ class: 'ALO' }, { class: 'ALO' }],
+      user: 'Test User',
+    })
+
+    expect(record).toEqual({
+      auditKey: 'event:event-id',
+      details: [
+        {
+          detailKey: 'audit.details.failedRecipients',
+          detailParams: { recipients: 'first@example.com\nsecond@example.com' },
+        },
+      ],
+      message: 'Koekutsu luokkaan ALO lähetetty: onnistui 1, epäonnistui 2',
+      messageKey: 'audit.messages.classEmailSent',
+      messageParams: {
+        eventClass: 'ALO',
+        failed: 2,
+        ok: 1,
+        template: 'Koekutsu',
+        templateKey: 'emailTemplate.invitation',
+      },
+      user: 'Test User',
+    })
+  })
+
+  it('uses the event-level message for multiple classes and omits empty failure details', () => {
+    const record = createSentRegistrationMessagesAudit({
+      event: { id: 'event-id' },
+      failed: [],
+      label: 'Koepaikkailmoitus',
+      labelKey: 'emailTemplate.picked',
+      ok: ['success@example.com'],
+      registrations: [{ class: 'ALO' }, { class: 'AVO' }, { class: undefined }],
+      user: 'Test User',
+    })
+
+    expect(record).toEqual({
+      auditKey: 'event:event-id',
+      message: 'Koepaikkailmoitus lähetetty: onnistui 1, epäonnistui 0',
+      messageKey: 'audit.messages.emailSent',
+      messageParams: {
+        failed: 0,
+        ok: 1,
+        template: 'Koepaikkailmoitus',
+        templateKey: 'emailTemplate.picked',
+      },
+      user: 'Test User',
+    })
+  })
+})
 
 describe('removeRegistrationCreationMetadata', () => {
   it('removes the retry credential and every new-registration workflow field', () => {

@@ -21,6 +21,7 @@ const mockAudit = jest.fn()
 jest.unstable_mockModule('./audit', () => ({
   __esModule: true,
   audit: mockAudit,
+  eventAuditKey: jest.fn((event: { id: string }) => `event:${event.id}`),
   registrationAuditKey: jest.fn(() => 'audit-key'),
 }))
 
