@@ -66,13 +66,9 @@ export async function getEvent(id: string, _signal?: AbortSignal): Promise<DogEv
   })
 }
 
-export async function getEventAuditTrail(
-  _id: string,
-  _token: string,
-  _signal?: AbortSignal
-): Promise<AuditRecord[] | undefined> {
-  return []
-}
+export const getEventAuditTrail = jest.fn(
+  async (_id: string, _token: string, _signal?: AbortSignal): Promise<AuditRecord[] | undefined> => []
+)
 
 export async function putEvent(event: Patch<DogEvent>, _token?: string, _signal?: AbortSignal): Promise<DogEvent> {
   return new Promise((resolve, reject) => {

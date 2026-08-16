@@ -1,9 +1,10 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { Registration } from '../../../types'
-import { screen } from '@testing-library/react'
+import type { AuditRecord, Registration } from '../../../types'
+import { screen, waitFor } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 import { eventWithEntryClosed, eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
+import { getEventAuditTrail } from '../../../api/event'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { idTokenAtom } from '../../recoil'
@@ -13,16 +14,9 @@ const activeEventWithStaticDates = {
   ...eventWithStaticDates,
   endDate: new Date('2099-12-31'),
 }
-// Mock the API calls
 jest.mock('../../../api/event')
-jest.mock('../../../api/user')
 jest.mock('../recoil/events/effects', () => ({
   adminRemoteEventsEffect: () => undefined,
-}))
-
-// Mock the notistack enqueueSnackbar
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
 }))
 
 function getGroupKey(r: Registration, i: number) {
@@ -38,6 +32,7 @@ async function openInfoPanel(user: UserEvent) {
 describe('InfoPanel>', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.mocked(getEventAuditTrail).mockResolvedValue([])
     localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
   })
 
@@ -134,6 +129,28 @@ describe('InfoPanel>', () => {
       'true'
     )
     expect(screen.getByText('eventManagement.participantSelection.title')).not.toBeVisible()
+  })
+
+  it('shows a loading indicator while the audit trail is loading', async () => {
+    let resolveAuditTrail: ((value: AuditRecord[] | undefined) => void) | undefined
+    jest.mocked(getEventAuditTrail).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveAuditTrail = resolve
+        })
+    )
+    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
+      wrapper: RecoilRoot,
+    })
+
+    await openInfoPanel(user)
+    await user.click(screen.getByRole('tab', { name: 'eventManagement.tabs.auditTrail' }))
+
+    expect(screen.getByRole('progressbar')).toBeVisible()
+
+    resolveAuditTrail?.([])
+
+    await waitFor(() => expect(screen.queryByRole('progressbar')).not.toBeInTheDocument())
   })
 
   it('links to the authenticated unpublished start list preview when the start list is unavailable', async () => {

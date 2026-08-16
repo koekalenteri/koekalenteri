@@ -4,6 +4,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import MenuOpen from '@mui/icons-material/MenuOpen'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import Tab from '@mui/material/Tab'
@@ -54,6 +55,7 @@ const InfoPanel = ({
   const [classAttachmentKeys, setClassAttachmentKeys] = useState(event.invitationAttachments ?? {})
   const [attachmentHistory, setAttachmentHistory] = useState(event.invitationAttachmentHistory ?? {})
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
+  const [auditTrailLoading, setAuditTrailLoading] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [expanded, setExpanded] = useState(false)
@@ -141,14 +143,16 @@ const InfoPanel = ({
   }, [event.invitationAttachment, event.invitationAttachmentHistory, event.invitationAttachments])
 
   useEffect(() => {
-    if (!expanded || !token) return
+    if (!expanded || activeTab !== 1 || !token) return
+    setAuditTrailLoading(true)
     getEventAuditTrail(event.id, token)
       .then((trail) => setAuditTrail((current) => mergeAuditTrail(trail ?? [], current)))
       .catch((error) => {
         reportError(error)
         setAuditTrail([])
       })
-  }, [event.id, expanded, token])
+      .finally(() => setAuditTrailLoading(false))
+  }, [activeTab, event.id, expanded, token])
 
   if (!expanded) {
     return (
@@ -286,7 +290,11 @@ const InfoPanel = ({
           />
         </Box>
         <Box sx={{ display: activeTab === 1 ? 'flex' : 'none', flex: 1, minHeight: 0, p: 1.5 }}>
-          <AuditTrail auditTrail={auditTrail} fullHeight />
+          {auditTrailLoading ? (
+            <CircularProgress sx={{ m: 'auto' }} />
+          ) : (
+            <AuditTrail auditTrail={auditTrail} fullHeight />
+          )}
         </Box>
       </Box>
     </Drawer>
