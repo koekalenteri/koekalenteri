@@ -9,7 +9,13 @@ jest.mock('notistack', () => ({
 }))
 
 const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
-const mock5SecondFetch = () => new Promise<string>((resolve) => setTimeout(resolve, 5_000))
+const mockPendingFetch = (request: Request) =>
+  new Promise<string>((_resolve, reject) => {
+    const rejectWithAbort = () => reject(new DOMException('The operation was aborted.', 'AbortError'))
+
+    if (request.signal.aborted) rejectWithAbort()
+    else request.signal.addEventListener('abort', rejectWithAbort, { once: true })
+  })
 
 describe('http', () => {
   beforeEach(() => {
@@ -56,14 +62,25 @@ describe('http', () => {
     })
 
     it('retries a failed network request with a non-aborted signal', async () => {
-      fetchMock.mockRejectOnce(new TypeError('Failed to fetch'))
-      fetchMock.mockResponseOnce(JSON.stringify('ok'))
+      jest.useFakeTimers()
 
-      const controller = new AbortController()
-      await expect(http.get('/retry', { signal: controller.signal })).resolves.toEqual('ok')
+      try {
+        fetchMock.mockRejectOnce(new TypeError('Failed to fetch'))
+        fetchMock.mockResponseOnce(JSON.stringify('ok'))
 
-      expect(fetchMock).toHaveBeenCalledTimes(2)
-      expect(enqueueSnackbar).not.toHaveBeenCalled()
+        const controller = new AbortController()
+        const request = http.get('/retry', { signal: controller.signal })
+
+        await Promise.resolve()
+        await jest.advanceTimersByTimeAsync(400)
+        await expect(request).resolves.toEqual('ok')
+
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+        expect(enqueueSnackbar).not.toHaveBeenCalled()
+      } finally {
+        jest.runOnlyPendingTimers()
+        jest.useRealTimers()
+      }
     })
 
     it('does not retry API errors whose message looks like a network error', async () => {
@@ -152,7 +169,7 @@ describe('http', () => {
     })
 
     it('should abort on pre-aborted signal', async () => {
-      fetchMock.mockResponseOnce(mock5SecondFetch)
+      fetchMock.mockResponseOnce(mockPendingFetch)
 
       const controller = new AbortController()
       controller.abort('because')
@@ -164,7 +181,7 @@ describe('http', () => {
     })
 
     it('should abort on post-aborted signal', async () => {
-      fetchMock.mockResponseOnce(mock5SecondFetch)
+      fetchMock.mockResponseOnce(mockPendingFetch)
 
       const controller = new AbortController()
 

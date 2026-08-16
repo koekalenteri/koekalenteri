@@ -64,7 +64,9 @@ const config: Config = {
         '^.+\\.css$': '<rootDir>/config/jest/cssTransform.mjs',
         '^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)': '<rootDir>/config/jest/fileTransform.mjs',
       },
-      cache: false,
+      // The standard Babel transformer supplies a stable cache key, so frontend
+      // transforms can be safely reused between Jest runs.
+      cache: true,
       // Jest still runs tests in a CJS-ish execution environment. Some deps (e.g. nanoid v5)
       // are ESM-only and must be transformed.
       extensionsToTreatAsEsm: ['.ts', '.tsx'],
