@@ -26,11 +26,11 @@ import {
   useConfirmedEvent,
 } from './recoil'
 
-export const loader = async ({ params }: { params: Params<string> }) => {
+export const loader = async ({ params, request }: { params: Params<string>; request: Request }) => {
   const createPaymentWrap = async () => {
     if (params.id && params.registrationId) {
       try {
-        return await createPayment(params.id, params.registrationId)
+        return await createPayment(params.id, params.registrationId, params.editToken, request.signal)
       } catch (err) {
         // eat 403 & 404
         if (err instanceof APIError && (err.status === 403 || err.status === 404)) {

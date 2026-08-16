@@ -20,7 +20,7 @@ const rememberEditToken = <T extends Registration | undefined>(registration: T):
   return registration
 }
 
-const storedEditToken = (eventId?: string, id?: string): string | undefined => {
+export const getStoredRegistrationEditToken = (eventId?: string, id?: string): string | undefined => {
   if (typeof window === 'undefined') return undefined
   return eventId && id ? (window.sessionStorage.getItem(editTokenStorageKey(eventId, id)) ?? undefined) : undefined
 }
@@ -52,7 +52,7 @@ export async function getRegistration(
   editToken?: string,
   signal?: AbortSignal
 ): Promise<Registration | undefined> {
-  const resolvedEditToken = editToken ?? storedEditToken(eventId, id)
+  const resolvedEditToken = editToken ?? getStoredRegistrationEditToken(eventId, id)
   const registration = await http.get<Registration>(
     `/registration/${eventId}/${id}`,
     withToken({ signal }, resolvedEditToken)
@@ -82,7 +82,7 @@ export async function patchRegistration(
   editToken?: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  const resolvedEditToken = editToken ?? storedEditToken(registration.eventId, registration.id)
+  const resolvedEditToken = editToken ?? getStoredRegistrationEditToken(registration.eventId, registration.id)
   const saved = (
     await http.patch<RegistrationPatchRequest, Registration>(
       '/registration/',

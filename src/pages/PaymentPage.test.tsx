@@ -10,12 +10,13 @@ import { useParams } from 'react-router'
 import { RecoilRoot } from 'recoil'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 import mockResponse from '../api/__mocks__/paymentCreate.response.json'
+import { createPayment } from '../api/payment'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 import LoadingIndicator from './components/LoadingIndicator'
-import { Component as PaymentPage, PaymentPageWithData } from './PaymentPage'
+import { loader, Component as PaymentPage, PaymentPageWithData } from './PaymentPage'
 
 jest.mock('../api/event')
 jest.mock('../api/payment')
@@ -26,6 +27,7 @@ jest.mock('react-router', () => ({
   useParams: jest.fn(),
 }))
 const mockUseParams = useParams as jest.Mock
+const mockCreatePayment = createPayment as jest.MockedFunction<typeof createPayment>
 
 const { paymentStatus: _0, paidAt: _1, paidAmount: _2, ...testRegistration } = unpaidRegistrationWithStaticDatesAndClass
 
@@ -36,6 +38,19 @@ describe('PaymentPage', () => {
     jest.clearAllMocks()
   })
   afterAll(() => jest.useRealTimers())
+
+  it('passes the edit token and request signal when creating a payment', async () => {
+    mockCreatePayment.mockResolvedValueOnce({ status: 200 })
+    const request = new Request('https://example.test/p/event-1/registration-1/access/edit-token')
+
+    const result = await loader({
+      params: { editToken: 'edit-token', id: 'event-1', registrationId: 'registration-1' },
+      request,
+    })
+
+    await expect(result.response).resolves.toEqual({ status: 200 })
+    expect(mockCreatePayment).toHaveBeenCalledWith('event-1', 'registration-1', 'edit-token', request.signal)
+  })
 
   it('renders loading indicator while loader is pending', async () => {
     mockUseParams.mockImplementation(() => ({

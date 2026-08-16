@@ -1,6 +1,7 @@
 import type { CreatePaymentResponse, RefundPaymentResponse, VerifyPaymentResponse } from '../types'
 import { isObject } from '../lib/utils'
 import http, { APIError, withToken } from './http'
+import { getStoredRegistrationEditToken } from './registration'
 
 interface CreatePaymentResult {
   errorMessage?: string
@@ -34,10 +35,11 @@ export const createPayment = async (
   signal?: AbortSignal
 ): Promise<CreatePaymentResult> => {
   try {
+    const resolvedToken = token ?? getStoredRegistrationEditToken(eventId, registrationId)
     const { data: response, status } = await http.post<
       { eventId: string; registrationId: string },
       CreatePaymentResponse | undefined
-    >(`/payment/create`, { eventId, registrationId }, withToken({ signal }, token), false)
+    >(`/payment/create`, { eventId, registrationId }, withToken({ signal }, resolvedToken), false)
 
     return {
       response,

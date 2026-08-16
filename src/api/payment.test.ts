@@ -9,6 +9,7 @@ describe('payment', () => {
 
   beforeEach(() => {
     fetchMock.resetMocks()
+    sessionStorage.clear()
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
   })
 
@@ -27,6 +28,29 @@ describe('payment', () => {
       const res = await createPayment('test', 'test')
 
       expect(res).toEqual({ response: mockResponse, status: 200 })
+    })
+
+    it('should authorize payment creation with the registration edit token', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(mockResponse))
+
+      await createPayment('event-id', 'registration-id', 'edit-token')
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/payment/create'),
+        expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer edit-token' }) })
+      )
+    })
+
+    it('should authorize payment creation with the stored registration edit token', async () => {
+      sessionStorage.setItem('registration-edit-token:event-id:registration-id', 'stored-edit-token')
+      fetchMock.mockResponseOnce(JSON.stringify(mockResponse))
+
+      await createPayment('event-id', 'registration-id')
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/payment/create'),
+        expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer stored-edit-token' }) })
+      )
     })
 
     it('should preserve payment error message from backend', async () => {
