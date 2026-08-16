@@ -23,6 +23,7 @@ import {
   patchMerge,
   placesForClass,
   registrationDates,
+  uniqueClassDates,
   uniqueClasses,
 } from './utils'
 
@@ -122,6 +123,25 @@ describe('utils', () => {
   })
 
   describe('registrationDates', () => {
+    it('returns unique dates for the requested class', () => {
+      const first = new Date(2020, 1, 1)
+      const second = new Date(2020, 1, 2)
+      const event = {
+        classes: [
+          { class: 'ALO', date: first },
+          { class: 'ALO', date: first },
+          { class: 'ALO', date: second },
+          { class: 'VOI', date: second },
+        ],
+        endDate: second,
+        eventType: 'NOME-B',
+        startDate: first,
+      } as PublicDogEvent
+
+      expect(uniqueClassDates(event, 'ALO')).toEqual([first, second])
+      expect(uniqueClassDates(event, 'VOI')).toEqual([second])
+    })
+
     it('should return each possible registration date for event without classes', () => {
       const event = {
         classes: [] as EventClass[],

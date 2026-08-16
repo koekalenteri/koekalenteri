@@ -13,7 +13,6 @@ const mockSendTemplatedMail = jest.fn<any>()
 const mockRegistrationEmailTags = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
-const mockGetProviderName = jest.fn<any>()
 const mockDynamoRead = jest.fn<any>()
 const mockDynamoUpdate = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn<any>()
@@ -36,7 +35,6 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 
 jest.unstable_mockModule('../lib/payment', () => ({
   applySuccessfulRefund: mockApplySuccessfulRefund,
-  getProviderName: mockGetProviderName,
   parseParams: mockParseParams,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
@@ -136,7 +134,6 @@ describe('refundSuccessLambda', () => {
     mockApplySuccessfulRefund.mockResolvedValue({ applied: true, appliedAt: '2023-01-01T12:30:00.000Z' })
     mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
     mockSendTemplatedMail.mockResolvedValue(undefined)
-    mockGetProviderName.mockReturnValue('Paytrail')
     mockRegistrationEmailTags.mockImplementation((registration: any, template: any) => [
       { Name: 'eventId', Value: registration.eventId },
       { Name: 'registrationId', Value: registration.id },

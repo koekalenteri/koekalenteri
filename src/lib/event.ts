@@ -56,7 +56,7 @@ export type EventProgressStep =
   | Exclude<ConfirmedEventStates, 'completed'>
   | 'confirmed_entryOpen'
   | 'startListPublished'
-export type EventProgressPhase = EventProgressStep | 'confirmed_entryClosed'
+type EventProgressPhase = EventProgressStep | 'confirmed_entryClosed'
 
 export const EVENT_PROGRESS_PHASES: readonly EventProgressStep[] = [
   'confirmed',

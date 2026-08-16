@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { DogEvent, EventClass, EventState, RegistrationDate, RegistrationTime } from '../types'
+import type { ConfirmedEvent, DogEvent, EventClass, EventState, RegistrationDate, RegistrationTime } from '../types'
 import { TZDate } from '@date-fns/tz'
 import { addDays, differenceInDays } from 'date-fns'
 import { eventWithEntryClosing, eventWithParticipantsInvited } from '../__mockData__/events'
@@ -13,6 +13,7 @@ import {
   eventRegistrationDateKey,
   getEventClassesByDays,
   getEventDays,
+  getEventProgressPhase,
   getEventSeason,
   getEventStateForClass,
   getEventTitle,
@@ -36,6 +37,19 @@ describe('lib/event', () => {
     const t = ((key: string) => key) as unknown as TFunction<'translation'>
     const now = new Date()
     const event = (overrides: Partial<DogEvent>): DogEvent => ({ ...eventWithEntryClosing, ...overrides })
+
+    it('returns the current progress phase directly', () => {
+      const confirmedEvent: ConfirmedEvent = {
+        ...eventWithEntryClosing,
+        endDate: addDays(now, 3),
+        entryEndDate: addDays(now, -1),
+        entryStartDate: addDays(now, -3),
+        startDate: addDays(now, 2),
+        state: 'picked',
+      }
+
+      expect(getEventProgressPhase(confirmedEvent, now)).toBe('picked')
+    })
 
     it.each([
       {

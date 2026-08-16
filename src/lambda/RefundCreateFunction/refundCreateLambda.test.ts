@@ -1,9 +1,12 @@
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockGetApiHost = jest.fn<any>()
 const mockRefundPayment = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
@@ -51,10 +54,6 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 
 jest.unstable_mockModule('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 jest.unstable_mockModule('../utils/proxyEvent', () => ({
@@ -150,7 +149,7 @@ describe('refundCreateLambda', () => {
       user: { id: 'user123', name: 'Test User' },
     })
 
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       amount: 1000,
       handlingCost: 500,
       transactionId: 'transaction123',
@@ -203,7 +202,7 @@ describe('refundCreateLambda', () => {
   })
 
   it('throws error if amount is invalid', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       amount: 0,
       transactionId: 'transaction123',
     })
@@ -509,7 +508,7 @@ describe('refundCreateLambda', () => {
 
   it('creates a partial refund with complex cost structure', async () => {
     const partialRefundAmount = 500
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       amount: partialRefundAmount,
       handlingCost: 500,
       transactionId: 'transaction123',

@@ -1,5 +1,9 @@
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockPublishAdminDataInvalidation = jest.fn<any>()
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
@@ -9,7 +13,6 @@ const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetOrigin = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockSetUserRole = jest.fn<any>()
 const mockRead = jest.fn<any>()
 
@@ -24,10 +27,6 @@ jest.unstable_mockModule('../lib/auth', () => ({
 
 jest.unstable_mockModule('../lib/api-gw', () => ({
   getOrigin: mockGetOrigin,
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 jest.unstable_mockModule('../lib/user', () => ({
@@ -70,7 +69,7 @@ describe('setRoleLambda', () => {
 
     mockGetOrigin.mockReturnValue('https://example.com')
 
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       orgId: 'org789',
       role: 'secretary',
       userId: 'user456',
@@ -104,7 +103,7 @@ describe('setRoleLambda', () => {
   })
 
   it('returns 400 if orgId is missing', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       role: 'secretary',
       userId: 'user456',
     })
@@ -112,13 +111,12 @@ describe('setRoleLambda', () => {
     await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request', event)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
   it('returns 403 if trying to set own role', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       orgId: 'org789',
       role: 'secretary',
       userId: 'user123', // Same as authorized user
@@ -127,7 +125,6 @@ describe('setRoleLambda', () => {
     await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
     expect(mockRead).not.toHaveBeenCalled()
   })
@@ -145,7 +142,6 @@ describe('setRoleLambda', () => {
     await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
     expect(mockRead).not.toHaveBeenCalled()
   })
@@ -156,7 +152,6 @@ describe('setRoleLambda', () => {
     await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockRead).toHaveBeenCalledWith({ id: 'user456' })
     expect(mockResponse).toHaveBeenCalledWith(404, 'Not found', event)
     expect(mockSetUserRole).not.toHaveBeenCalled()
@@ -226,7 +221,7 @@ describe('setRoleLambda', () => {
   })
 
   it('removes user role when role is "none"', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       orgId: 'org789',
       role: 'none',
       userId: 'user456',
@@ -273,7 +268,7 @@ describe('setRoleLambda', () => {
   })
 
   it('logs warning when trying to set own roles', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       orgId: 'org789',
       role: 'secretary',
       userId: 'user123', // Same as authorized user

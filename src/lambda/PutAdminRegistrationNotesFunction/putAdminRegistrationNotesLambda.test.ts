@@ -1,12 +1,15 @@
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockUpdateRegistrationField = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn<any>()
 
@@ -34,10 +37,6 @@ jest.unstable_mockModule('../lib/audit', () => ({
 
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 jest.unstable_mockModule('../lib/registration', () => ({
@@ -69,7 +68,7 @@ describe('putAdminRegistrationNotesLambda', () => {
       user: { admin: false, id: 'user123', name: 'Test User' },
     })
 
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       eventId: 'event123',
       id: 'reg456',
       internalNotes: 'Test internal notes',
@@ -89,7 +88,6 @@ describe('putAdminRegistrationNotesLambda', () => {
     await putAdminRegistrationNotesLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).not.toHaveBeenCalled()
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
@@ -149,7 +147,7 @@ describe('putAdminRegistrationNotesLambda', () => {
   })
 
   it('throws error if eventId is missing', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       id: 'reg456',
       internalNotes: 'Test internal notes',
     })
@@ -165,7 +163,7 @@ describe('putAdminRegistrationNotesLambda', () => {
   })
 
   it('throws error if registration id is missing', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       eventId: 'event123',
       internalNotes: 'Test internal notes',
     })

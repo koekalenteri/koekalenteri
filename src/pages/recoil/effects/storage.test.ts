@@ -1,5 +1,4 @@
 import type { RecoilState } from 'recoil'
-import * as utilsLib from '../../../lib/utils'
 import { getStorageEffect, parseStorageJSON } from './storage'
 
 describe('storage', () => {
@@ -15,13 +14,9 @@ describe('storage', () => {
       expect(parseStorageJSON('null')).toBeNull()
     })
     it('should return undefined if parseJSON throws', () => {
-      const theError = new Error('test error')
       const warnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => undefined)
-      jest.spyOn(utilsLib, 'parseJSON').mockImplementationOnce(() => {
-        throw theError
-      })
-      expect(parseStorageJSON('{}')).toBeUndefined()
-      expect(warnSpy).toHaveBeenCalledWith('JSON parse error', theError)
+      expect(parseStorageJSON('{')).toBeUndefined()
+      expect(warnSpy).toHaveBeenCalledWith('JSON parse error', expect.any(SyntaxError))
       expect(warnSpy).toHaveBeenCalledTimes(1)
     })
   })

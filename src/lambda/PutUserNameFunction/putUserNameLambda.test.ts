@@ -1,5 +1,9 @@
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockPublishAdminDataInvalidation = jest.fn<any>()
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
@@ -8,7 +12,6 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockGetAndUpdateUserByEmail = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
@@ -19,10 +22,6 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: mockAuthorize,
   getAndUpdateUserByEmail: mockGetAndUpdateUserByEmail,
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 const { default: putUserNameLambda } = await import('./handler')
@@ -47,7 +46,7 @@ describe('putUserNameLambda', () => {
       roles: {},
     })
 
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       name: 'Test User',
     })
 
@@ -69,7 +68,7 @@ describe('putUserNameLambda', () => {
   })
 
   it('returns 400 if name is empty', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       name: '',
     })
 
@@ -81,7 +80,7 @@ describe('putUserNameLambda', () => {
   })
 
   it('returns 400 if name is only whitespace', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       name: '   ',
     })
 
@@ -93,7 +92,7 @@ describe('putUserNameLambda', () => {
   })
 
   it('returns 400 if name is missing', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({})
+    setEventBody(event, {})
 
     await putUserNameLambda(event)
 
@@ -104,7 +103,7 @@ describe('putUserNameLambda', () => {
 
   it('returns 400 if name is too long', async () => {
     const longName = 'a'.repeat(201)
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       name: longName,
     })
 
@@ -132,7 +131,7 @@ describe('putUserNameLambda', () => {
   })
 
   it('trims whitespace from name before updating', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       name: '  Test User  ',
     })
 
@@ -144,7 +143,7 @@ describe('putUserNameLambda', () => {
 
   it('accepts name at maximum length (200 characters)', async () => {
     const maxLengthName = 'a'.repeat(200)
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       name: maxLengthName,
     })
 

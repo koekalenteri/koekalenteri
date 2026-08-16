@@ -71,7 +71,7 @@ const PUBLIC_REGISTRATION_OPERATION_FIELD_NAMES: ReadonlySet<string> = new Set(P
 export const isPublicRegistrationOperationField = (field: unknown): field is PublicRegistrationField =>
   typeof field === 'string' && PUBLIC_REGISTRATION_OPERATION_FIELD_NAMES.has(field)
 
-export const REGISTRATION_ARRAY_FIELDS = [
+const REGISTRATION_ARRAY_FIELDS = [
   { path: ['dates'], required: true },
   { path: ['dog', 'results'], required: false },
   { path: ['optionalCosts'], required: false },
@@ -263,7 +263,7 @@ type InvitationAttachmentRegistration = Pick<
   'class' | 'eventType' | 'invitationAttachmentRead' | 'invitationAttachmentSent' | 'invitationRead' | 'messagesSent'
 >
 
-export type InvitationReadStatus = 'not-sent' | 'unread' | 'read-latest' | 'read-previous'
+type InvitationReadStatus = 'not-sent' | 'unread' | 'read-latest' | 'read-previous'
 
 export const getInvitationReadStatus = (
   registration: Pick<

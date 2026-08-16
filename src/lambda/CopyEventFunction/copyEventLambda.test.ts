@@ -1,10 +1,13 @@
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockAuthorize = jest.fn<any>()
 const mockAuthorizeEvent = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockSaveEvent = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockNanoid = jest.fn<any>()
 const mockWrite = jest.fn<any>()
 const mockResponse = jest.fn<any>()
@@ -16,9 +19,6 @@ jest.unstable_mockModule('../lib/eventAuth', () => ({
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
   saveEvent: mockSaveEvent,
-}))
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 jest.unstable_mockModule('nanoid', () => ({
   nanoid: mockNanoid,
@@ -59,13 +59,13 @@ describe('copyEventHandler', () => {
   })
 
   it('returns 401 if not authorized', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
     mockAuthorizeEvent.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
     await expect(copyEventHandler(event)).resolves.toEqual({ body: 'Unauthorized', statusCode: 401 })
   })
 
   it('does not copy an event when organizer authorization fails', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
     mockAuthorizeEvent.mockResolvedValueOnce({ res: { body: 'Forbidden', statusCode: 403 } })
 
     await expect(copyEventHandler(event)).resolves.toEqual({ body: 'Forbidden', statusCode: 403 })
@@ -76,7 +76,7 @@ describe('copyEventHandler', () => {
 
   it('rejects an invalid copy start date before reading the source event', async () => {
     mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
-    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: 'not-a-date' })
+    setEventBody(event, { id: 'event123', startDate: 'not-a-date' })
 
     await copyEventHandler(event)
 
@@ -86,7 +86,7 @@ describe('copyEventHandler', () => {
 
   it.each(['startDate', 'endDate'] as const)('rejects an invalid source event %s before saving', async (field) => {
     mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
-    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
     mockGetEvent.mockResolvedValueOnce({
       classes: [],
       endDate: '2025-06-12T00:00:00.000Z',
@@ -121,7 +121,7 @@ describe('copyEventHandler', () => {
       state: 'published',
     }
     mockAuthorize.mockResolvedValueOnce(user)
-    mockParseJSONWithFallback.mockReturnValueOnce(input)
+    setEventBody(event, input)
     mockGetEvent.mockResolvedValueOnce({ ...originalEvent })
     mockNanoid.mockReturnValueOnce('newid123')
 
@@ -171,7 +171,7 @@ describe('copyEventHandler', () => {
       state: 'published',
     }
     mockAuthorize.mockResolvedValueOnce(user)
-    mockParseJSONWithFallback.mockReturnValueOnce(input)
+    setEventBody(event, input)
     mockGetEvent.mockResolvedValueOnce({ ...originalEvent })
     mockNanoid.mockReturnValueOnce('newid123')
 
@@ -188,7 +188,7 @@ describe('copyEventHandler', () => {
   it('does not copy registration idempotency credentials or post-processing state', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)
-    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
     mockGetEvent.mockResolvedValueOnce({
       classes: [],
       endDate: '2025-06-12T00:00:00.000Z',
@@ -227,7 +227,7 @@ describe('copyEventHandler', () => {
   it('returns 500 if getEvent throws', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)
-    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
     mockGetEvent.mockRejectedValueOnce(new Error('fail'))
     let errorCaught = false
     try {
@@ -260,7 +260,7 @@ describe('copyEventHandler', () => {
       state: 'published',
     }
     mockAuthorize.mockResolvedValueOnce(user)
-    mockParseJSONWithFallback.mockReturnValueOnce(input)
+    setEventBody(event, input)
     mockGetEvent.mockResolvedValueOnce({ ...originalEvent })
     mockNanoid.mockReturnValueOnce('newid123')
     mockSaveEvent.mockRejectedValueOnce(new Error('fail'))

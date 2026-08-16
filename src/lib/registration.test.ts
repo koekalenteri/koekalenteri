@@ -14,6 +14,7 @@ import {
   getRegistrationGroupKey,
   getRegistrationGroupTime,
   getRegistrationNumberingGroupKey,
+  getSelectedAdditionalCosts,
   getSentInvitationAttachment,
   hasInvalidRegistrationArrayFields,
   hasPriority,
@@ -27,6 +28,29 @@ import {
 } from './registration'
 
 describe('lib/registration', () => {
+  describe('getSelectedAdditionalCosts', () => {
+    const first = { cost: 5, description: { fi: 'Ensimmäinen' } }
+    const second = { cost: 10, description: { fi: 'Toinen' } }
+    const event = {
+      cost: { normal: 30, optionalAdditionalCosts: [first, second] },
+      costMember: 25,
+      entryStartDate: new Date('2026-01-01'),
+    }
+    const registration = {
+      createdAt: new Date('2026-01-02'),
+      dog: { breedCode: '110' as const },
+      optionalCosts: [1, 99, 0],
+    }
+
+    it('returns selected existing costs in registration order', () => {
+      expect(getSelectedAdditionalCosts(event, registration)).toEqual([second, first])
+    })
+
+    it('returns no additional costs for a legacy numeric event cost', () => {
+      expect(getSelectedAdditionalCosts({ ...event, cost: 30 }, registration)).toEqual([])
+    })
+  })
+
   describe('isPublicRegistrationOperationField', () => {
     it.each(['results', 'dates', 'notes', 'cancelled'])('allows participant-editable field %s', (field) => {
       expect(isPublicRegistrationOperationField(field)).toBe(true)

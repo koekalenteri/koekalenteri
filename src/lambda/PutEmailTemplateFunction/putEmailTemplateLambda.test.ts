@@ -1,5 +1,9 @@
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockPublishAdminDataInvalidation = jest.fn<any>()
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
@@ -9,7 +13,6 @@ const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetUsername = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockMarkdownToTemplate = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockWrite = jest.fn<any>()
@@ -29,10 +32,6 @@ jest.unstable_mockModule('../lib/auth', () => ({
     return { user }
   },
   getUsername: mockGetUsername,
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 jest.unstable_mockModule('../utils/email/markdown', () => ({
@@ -133,7 +132,7 @@ describe('putEmailTemplateLambda', () => {
 
     mockGetUsername.mockResolvedValue('Admin User')
 
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       en: '# English Template\n\nThis is a test template in English.',
       fi: '# Finnish Template\n\nThis is a test template in Finnish.',
       id: 'test-template',
@@ -166,7 +165,6 @@ describe('putEmailTemplateLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
-    expect(mockParseJSONWithFallback).not.toHaveBeenCalled()
     expect(mockRead).not.toHaveBeenCalled()
     expect(mockMarkdownToTemplate).not.toHaveBeenCalled()
     expect(mockSend).not.toHaveBeenCalled()
@@ -194,7 +192,6 @@ describe('putEmailTemplateLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetUsername).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
 
     // Check if existing template was queried
     expect(mockRead).toHaveBeenCalledWith({ id: 'test-template' })

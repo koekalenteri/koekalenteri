@@ -1,5 +1,9 @@
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockPublishAdminDataInvalidation = jest.fn<any>()
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
@@ -9,7 +13,6 @@ const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetOrigin = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockGetAndUpdateUserByEmail = jest.fn<any>()
 const mockSetUserRole = jest.fn<any>()
 
@@ -25,10 +28,6 @@ jest.unstable_mockModule('../lib/auth', () => ({
 
 jest.unstable_mockModule('../lib/api-gw', () => ({
   getOrigin: mockGetOrigin,
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 jest.unstable_mockModule('../lib/user', () => ({
@@ -66,7 +65,7 @@ describe('putUserLambda', () => {
 
     mockGetOrigin.mockReturnValue('https://example.com')
 
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       email: 'test@example.com',
       name: 'Test User',
       roles: {
@@ -129,7 +128,7 @@ describe('putUserLambda', () => {
         org123: 'admin', // Admin for this org
       },
     })
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       email: 'test@example.com',
       name: 'Test User',
       roles: {
@@ -154,7 +153,7 @@ describe('putUserLambda', () => {
       },
     })
 
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       email: 'test@example.com',
       name: 'Test User',
       roles: {
@@ -202,7 +201,7 @@ describe('putUserLambda', () => {
   })
 
   it('handles empty roles object', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       email: 'test@example.com',
       name: 'Test User',
       roles: {},
@@ -221,7 +220,7 @@ describe('putUserLambda', () => {
   })
 
   it('handles undefined roles', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       email: 'test@example.com',
       name: 'Test User',
       // No roles property

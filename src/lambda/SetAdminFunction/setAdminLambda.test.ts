@@ -1,5 +1,9 @@
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockPublishAdminDataInvalidation = jest.fn<any>()
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
@@ -8,7 +12,6 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
 
@@ -19,10 +22,6 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: mockAuthorize,
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -53,7 +52,7 @@ describe('setAdminLambda', () => {
       name: 'Test Admin',
     })
 
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       admin: true,
       userId: 'user456',
     })
@@ -79,20 +78,19 @@ describe('setAdminLambda', () => {
   })
 
   it('returns 400 if userId is missing', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       admin: true,
     })
 
     await setAdminLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request', event)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
   it('returns 403 if trying to set own admin status', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       admin: false,
       userId: 'user123', // Same as authorized user
     })
@@ -100,7 +98,6 @@ describe('setAdminLambda', () => {
     await setAdminLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
     expect(mockRead).not.toHaveBeenCalled()
   })
@@ -115,7 +112,6 @@ describe('setAdminLambda', () => {
     await setAdminLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
     expect(mockRead).not.toHaveBeenCalled()
   })
@@ -126,7 +122,6 @@ describe('setAdminLambda', () => {
     await setAdminLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockRead).toHaveBeenCalledWith({ id: 'user456' })
     expect(mockResponse).toHaveBeenCalledWith(404, 'Not found', event)
     expect(mockUpdate).not.toHaveBeenCalled()
@@ -165,7 +160,7 @@ describe('setAdminLambda', () => {
   })
 
   it('revokes admin privileges successfully', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       admin: false,
       userId: 'user456',
     })

@@ -19,8 +19,6 @@ type EventVitals = Partial<
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 
-export const isEventUpcoming = ({ startDate }: EventVitals, now = new Date()) => !!startDate && startDate > now
-
 export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = new Date()) =>
   !!entryStartDate && entryStartDate > now && (isValidForEntry(state) || state === 'tentative')
 
@@ -145,8 +143,8 @@ export const parseJSON = (json: string, reviveDates: boolean = true) => {
 }
 
 export type AnyObject = Record<string, any>
-export type EmptyObject = Record<string, never>
-export type Entries<T> = {
+type EmptyObject = Record<string, never>
+type Entries<T> = {
   [K in keyof T]: [K, T[K]]
 }[keyof T][]
 type PatchWithId<T extends { id: string }> = Patch<T> & { id: string }

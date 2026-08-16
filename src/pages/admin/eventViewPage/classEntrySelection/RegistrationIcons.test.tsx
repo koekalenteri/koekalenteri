@@ -3,7 +3,6 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
-import * as registrationUtils from '../../../../lib/registration'
 import RegistrationIcons from './RegistrationIcons'
 
 // Helper function to create a mock registration with default values
@@ -42,8 +41,6 @@ describe('RegistrationIcons component', () => {
       refundStatus: undefined,
     })
 
-    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(false)
-
     render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
 
     // Tooltip target is the whole icon row (Stack renders to a div)
@@ -80,11 +77,8 @@ describe('RegistrationIcons component', () => {
       ],
     })
 
-    // Spy on the hasPriority function to return true
-    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(true)
-
     // Render the component
-    render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
+    render(<RegistrationIcons event={{ ...eventWithStaticDatesAnd3Classes, priority: ['member'] }} reg={mockReg} />)
 
     // The component should be rendered
     expect(screen.getByTestId('StarOutlinedIcon')).toBeInTheDocument()
@@ -102,9 +96,6 @@ describe('RegistrationIcons component', () => {
       paidAt: undefined,
       qualifyingResults: [],
     })
-
-    // Spy on the hasPriority function to return false
-    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(false)
 
     // Render the component
     render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
@@ -311,12 +302,8 @@ describe('RegistrationIcons component', () => {
       owner: { ...registrationWithStaticDates.owner!, membership: true },
     })
 
-    // Spy on the hasPriority function to return 0.5
-    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(0.5)
-    jest.spyOn(registrationUtils, 'priorityDescriptionKey').mockReturnValue('member')
-
     // Render the component
-    render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
+    render(<RegistrationIcons event={{ ...eventWithStaticDatesAnd3Classes, priority: ['member'] }} reg={mockReg} />)
 
     // The component should be rendered
     expect(screen.getByTestId('StarHalfOutlinedIcon')).toBeInTheDocument()
@@ -329,12 +316,8 @@ describe('RegistrationIcons component', () => {
       owner: { ...registrationWithStaticDates.owner!, membership: false },
     })
 
-    // Spy on the hasPriority function to return 0.5
-    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(0.5)
-    jest.spyOn(registrationUtils, 'priorityDescriptionKey').mockReturnValue('member')
-
     // Render the component
-    render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
+    render(<RegistrationIcons event={{ ...eventWithStaticDatesAnd3Classes, priority: ['member'] }} reg={mockReg} />)
 
     // The component should be rendered
     expect(screen.getByTestId('StarHalfOutlinedIcon')).toBeInTheDocument()

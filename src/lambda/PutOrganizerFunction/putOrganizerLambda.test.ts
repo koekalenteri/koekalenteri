@@ -1,5 +1,9 @@
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockPublishAdminDataInvalidation = jest.fn<any>()
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
@@ -8,7 +12,6 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockWrite = jest.fn<any>()
 
@@ -25,10 +28,6 @@ jest.unstable_mockModule('../lib/auth', () => ({
     if (!user.admin) return { res: mockResponse(403, 'Forbidden', event) ?? { statusCode: 403 }, user }
     return { user }
   },
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -61,7 +60,7 @@ describe('putOrganizerLambda', () => {
       name: 'Test User',
     })
 
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       email: 'test@example.com',
       id: 'org123',
       name: 'Test Organizer',
@@ -92,7 +91,7 @@ describe('putOrganizerLambda', () => {
   })
 
   it('returns 400 if organizer id is missing', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       email: 'test@example.com',
       name: 'Test Organizer',
     })
@@ -100,7 +99,6 @@ describe('putOrganizerLambda', () => {
     await putOrganizerLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockResponse).toHaveBeenCalledWith(400, 'no data', event)
     expect(mockRead).not.toHaveBeenCalled()
     expect(mockWrite).not.toHaveBeenCalled()
@@ -171,7 +169,7 @@ describe('putOrganizerLambda', () => {
       phone: '1234567890', // Additional field
     })
 
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       id: 'org123',
       name: 'Test Organizer',
       // email not provided in update

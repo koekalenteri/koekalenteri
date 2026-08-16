@@ -1,19 +1,6 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
 import { render, screen } from '@testing-library/react'
-import { judgeName } from '../../lib/judge'
 import { ClassHeader } from './ClassHeader'
-
-// Mock judgeName function
-jest.mock('../../lib/judge', () => ({
-  judgeName: jest.fn().mockImplementation((judge) => {
-    if (!judge) return ''
-    if (judge.id === 1) return 'Judge One'
-    if (judge.id === 2) return 'Judge Two'
-    if (judge.id === 3) return 'Judge Three'
-    if (judge.id === 4) return 'Judge Four'
-    return `${judge.name || ''}`
-  }),
-}))
 
 // Mock i18next
 jest.mock('react-i18next', () => ({
@@ -75,7 +62,7 @@ describe('ClassHeader', () => {
     )
 
     // Check that class is rendered
-    expect(screen.getByText('AVO')).toBeInTheDocument()
+    expect(screen.getByText(/^AVO Judge One$/)).toBeInTheDocument()
   })
 
   it('renders class header with multiple judges correctly', () => {
@@ -101,11 +88,10 @@ describe('ClassHeader', () => {
     )
 
     // Should show AVO class
-    expect(screen.getByText('AVO')).toBeInTheDocument()
+    expect(screen.getByText(/^AVO Judge Four$/)).toBeInTheDocument()
   })
 
   it('matches judges by local event date instead of the exact instant', () => {
-    jest.mocked(judgeName).mockClear()
     const eventClassDate = new Date('2026-10-01T21:00:00.000Z')
     const registrationDate = new Date('2026-10-01T22:00:00.000Z')
 
@@ -124,7 +110,7 @@ describe('ClassHeader', () => {
       </table>
     )
 
-    expect(judgeName).toHaveBeenCalledWith({ id: 1, name: 'Judge One' }, expect.any(Function))
+    expect(screen.getByText(/AVO Judge One/)).toBeInTheDocument()
   })
 
   it('renders a not published note', () => {

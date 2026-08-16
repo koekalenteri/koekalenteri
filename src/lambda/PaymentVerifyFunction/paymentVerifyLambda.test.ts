@@ -11,11 +11,8 @@ const mockVerifyParams = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
-const mockFormatMoney = jest.fn<any>()
-const mockGetProviderName = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn<any>()
 
@@ -47,23 +44,11 @@ jest.unstable_mockModule('../lib/audit', () => ({
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-jest.unstable_mockModule('../../lib/money', () => ({
-  formatMoney: mockFormatMoney,
-}))
-
-jest.unstable_mockModule('../../lib/payment', () => ({
-  getProviderName: mockGetProviderName,
-}))
-
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
     read: mockRead,
     update: mockUpdate,
   })),
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 const { default: paymentVerifyLambda } = await import('./handler')
@@ -84,14 +69,6 @@ describe('paymentVerifyLambda', () => {
     jest.clearAllMocks()
 
     // Default mock implementations
-    mockParseJSONWithFallback.mockReturnValue({
-      'checkout-amount': '5000',
-      'checkout-provider': 'paytrail',
-      'checkout-reference': 'event123:reg456',
-      'checkout-status': 'ok',
-      'checkout-transaction-id': 'tx123',
-    })
-
     mockParseParams.mockReturnValue({
       eventId: 'event123',
       provider: 'paytrail',
@@ -119,18 +96,11 @@ describe('paymentVerifyLambda', () => {
 
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
 
-    mockFormatMoney.mockReturnValue('50,00 €')
-
-    mockGetProviderName.mockReturnValue('Paytrail')
-
     mockUpdate.mockResolvedValue({})
   })
 
   it('verifies a successful payment correctly', async () => {
     const result = await paymentVerifyLambda(event)
-
-    // Verify body was parsed
-    expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
 
     // Verify params were parsed and verified
     expect(mockParseParams).toHaveBeenCalledWith({
@@ -218,7 +188,7 @@ describe('paymentVerifyLambda', () => {
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      message: 'Maksu epäonnistui (Paytrail), 50,00 €',
+      message: 'Maksu epäonnistui (Paytrail), 50,00\u00a0€',
       user: 'user123',
     })
 

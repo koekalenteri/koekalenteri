@@ -1,11 +1,14 @@
 import type { JsonConfirmedEvent, Registration } from '../../types'
 import { jest } from '@jest/globals'
 
+const setEventBody = (event: { body: string }, body: unknown) => {
+  event.body = JSON.stringify(body)
+}
+
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockGetOrigin = jest.fn<any>()
-const mockParseJSONWithFallback = jest.fn<any>()
 const mockSendTemplatedEmailToEventRegistrations = jest.fn<any>()
 const mockSetReserveNotified = jest.fn<any>()
 const mockGetReadyRegistrationsByEventId = jest.fn<any>()
@@ -47,10 +50,6 @@ jest.unstable_mockModule('../lib/audit', () => ({
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishEventPatch: mockPublishEventPatch,
   publishRegistrationPatches: mockPublishRegistrationPatches,
-}))
-
-jest.unstable_mockModule('../lib/json', () => ({
-  parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 import * as eventLib from '../lib/event'
@@ -127,7 +126,7 @@ describe('sendMessagesLambda', () => {
 
     mockGetOrigin.mockReturnValue('https://example.com')
 
-    mockParseJSONWithFallback.mockReturnValue({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
@@ -256,7 +255,7 @@ describe('sendMessagesLambda', () => {
   })
 
   it('does not add a class to the audit record when invitations span multiple classes', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456', 'reg789', 'reg012'],
@@ -280,7 +279,7 @@ describe('sendMessagesLambda', () => {
   })
 
   it('sends picked emails and marks participants as picked', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
@@ -329,7 +328,7 @@ describe('sendMessagesLambda', () => {
   })
 
   it('sends reserve emails and marks registrations as notified', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
@@ -358,7 +357,7 @@ describe('sendMessagesLambda', () => {
   })
 
   it('sends other template emails without marking participants', async () => {
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
@@ -464,7 +463,7 @@ describe('sendMessagesLambda', () => {
 
   it('does not mark participants when only one registration ID is provided with invitation template', async () => {
     // Modify the parsed JSON to have only one registration ID
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456'], // Only one registration ID
@@ -502,7 +501,7 @@ describe('sendMessagesLambda', () => {
 
   it('does not mark participants when only one registration ID is provided with picked template', async () => {
     // Modify the parsed JSON to have only one registration ID
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456'], // Only one registration ID
@@ -557,7 +556,7 @@ describe('sendMessagesLambda', () => {
     ]
 
     // Add reg999 to the requested IDs - it won't be returned since it's not ready
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456', 'reg789', 'reg999'],
@@ -666,7 +665,7 @@ describe('sendMessagesLambda', () => {
     ]
 
     mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(sameClassRegistrations)
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456'], // Only sending to one registration
@@ -713,7 +712,7 @@ describe('sendMessagesLambda', () => {
     ]
 
     mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(allReceivedRegistrations)
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456'], // Only sending to one registration
@@ -766,7 +765,7 @@ describe('sendMessagesLambda', () => {
     ]
 
     mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(mixedGroupRegistrations)
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456'], // Only sending to one registration
@@ -805,7 +804,7 @@ describe('sendMessagesLambda', () => {
     ]
 
     mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(noClassRegistrations)
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456'], // Only sending to one registration
@@ -821,7 +820,7 @@ describe('sendMessagesLambda', () => {
 
   it('uses the correct state when marking participants based on template', async () => {
     // Test with invitation template
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
@@ -836,7 +835,7 @@ describe('sendMessagesLambda', () => {
     jest.clearAllMocks()
 
     // Test with picked template
-    mockParseJSONWithFallback.mockReturnValueOnce({
+    setEventBody(event, {
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],

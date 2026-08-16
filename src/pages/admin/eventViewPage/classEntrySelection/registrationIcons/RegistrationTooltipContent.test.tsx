@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react'
-import * as registrationUtils from '../../../../../lib/registration'
 import RegistrationTooltipContent from './RegistrationTooltipContent'
 
 jest.mock('../../../../components/IconsTooltip', () => ({
@@ -15,6 +14,7 @@ describe('RegistrationTooltipContent', () => {
   const mockEvent = {
     id: 'event-1',
     name: 'Test Event',
+    priority: ['member'],
   } as any
 
   const mockRegistration = {
@@ -31,14 +31,6 @@ describe('RegistrationTooltipContent', () => {
     refundAt: undefined,
     refundStatus: undefined,
   } as any
-
-  beforeEach(() => {
-    jest.spyOn(registrationUtils, 'priorityDescriptionKey').mockReturnValue('member')
-  })
-
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
 
   it('should render priority tooltip when priority is true', () => {
     render(

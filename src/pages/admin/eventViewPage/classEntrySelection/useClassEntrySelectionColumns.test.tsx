@@ -330,9 +330,6 @@ describe('useClassEntrySectionColumns', () => {
   })
 
   it('should test the canRefund behavior', () => {
-    // Spy on canRefund and make it return false
-    const canRefundSpy = jest.spyOn(registrationUtils, 'canRefund').mockReturnValue(false)
-
     const refundRegistrationMock = jest.fn()
 
     const { result } = renderHook(() =>
@@ -359,9 +356,6 @@ describe('useClassEntrySectionColumns', () => {
     // Check that there's no refund action
     const refundAction = actions.find((action: ReactElement) => action.key === 'refund')
     expect(refundAction).toBeUndefined()
-
-    // Restore the original implementation
-    canRefundSpy.mockRestore()
   })
 
   it('should test the breed column with translation', () => {
@@ -530,7 +524,7 @@ describe('Action column in detail', () => {
       // Participant registration (not reserve/cancelled) with payment
       {
         cancelled: false,
-        expectedActions: ['moveToGroup', 'moveToPosition', 'moveToReserve', 'refund', 'edit', 'cancel', 'sendMessage'],
+        expectedActions: ['moveToGroup', 'moveToPosition', 'moveToReserve', 'edit', 'cancel', 'sendMessage'],
         // ensure it is treated as a participant (not reserve/cancelled)
         group: { key: 'P' },
         id: 'test-id-1',
@@ -570,15 +564,7 @@ describe('Action column in detail', () => {
       },
     ]
 
-    // Mock canRefund to return true for testing
-    const canRefundSpy = jest.spyOn(registrationUtils, 'canRefund')
-
     testCases.forEach((testCase) => {
-      // Set up canRefund to return appropriate value based on test case
-      canRefundSpy.mockImplementation(
-        () => testCase.paidAt !== undefined && (testCase.paidAmount ?? 0) > (testCase.refundAmount ?? 0)
-      )
-
       const actions = (actionsColumn as any)?.getActions({
         row: testCase,
       } as GridRenderCellParams<any, Registration>)
@@ -594,8 +580,6 @@ describe('Action column in detail', () => {
       // Check that no unexpected actions are present
       expect(actionKeys).toHaveLength(testCase.expectedActions.length)
     })
-
-    canRefundSpy.mockRestore()
   })
 
   it('should call move callbacks when move actions are clicked', () => {
@@ -659,8 +643,6 @@ describe('Action column in detail', () => {
       id: 'c-1',
     } as unknown as Registration
 
-    const canRefundSpy = jest.spyOn(registrationUtils, 'canRefund').mockReturnValue(true)
-
     const participantActions = getActions(participantRow)
     clickByKey(participantActions, 'moveToGroup')
     expect(moveToGroupMock).toHaveBeenCalledWith('p-1')
@@ -678,8 +660,6 @@ describe('Action column in detail', () => {
     const cancelledActions = getActions(cancelledRow)
     clickByKey(cancelledActions, 'moveToReserve')
     expect(moveToReserveMock).toHaveBeenCalledWith('c-1')
-
-    canRefundSpy.mockRestore()
   })
 
   it('should show loading spinner and disable move actions for pending move row', () => {

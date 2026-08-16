@@ -15,11 +15,6 @@ jest.mock('notistack', () => ({
   useSnackbar: jest.fn(),
 }))
 
-jest.mock('../../../lib/utils', () => ({
-  getChanges: jest.requireActual('../../../lib/utils').getChanges,
-  isEmptyObject: jest.requireActual('../../../lib/utils').isEmptyObject,
-}))
-
 jest.mock('../recoil/events/actions', () => ({
   useAdminEventActions: jest.fn(),
 }))
