@@ -12,10 +12,16 @@ const withRegistrationOverrides = (reg: Registration): Registration => ({
   payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
 })
 
+const withoutDerivedQualification = ({
+  qualifies: _qualifies,
+  qualifyingResults: _qualifyingResults,
+  ...registration
+}: Registration) => registration
+
 const registrationPatch = (saved: Registration, edited: Registration): RegistrationPatchRequest => ({
   eventId: edited.eventId,
   id: edited.id,
-  operations: createPatchOperations(saved, edited),
+  operations: createPatchOperations(withoutDerivedQualification(saved), withoutDerivedQualification(edited)),
 })
 
 export function useRegistrationActions() {

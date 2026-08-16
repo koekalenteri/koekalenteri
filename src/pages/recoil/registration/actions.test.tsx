@@ -1,4 +1,5 @@
 import type React from 'react'
+import type { ManualTestResult } from '../../../types'
 import { act, renderHook } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
@@ -73,6 +74,40 @@ describe('useRegistrationActions', () => {
       expect.objectContaining({ dog: expect.anything() })
     )
     expect(saved).toBe(editedRegistration)
+  })
+
+  it('does not send client-derived qualification fields when adding a result', async () => {
+    const savedRegistration = { ...registrationWithStaticDates, results: [] }
+    const manualResult: ManualTestResult = {
+      class: 'NOU',
+      date: new Date('2026-08-16T12:20:03.714Z'),
+      id: 'manual-result',
+      judge: 'Judge',
+      location: 'Location',
+      official: false,
+      regNo: registrationWithStaticDates.dog.regNo,
+      result: 'NOU1',
+      type: 'NOU',
+    }
+    const editedRegistration = {
+      ...savedRegistration,
+      qualifies: false,
+      qualifyingResults: [{ ...manualResult, qualifying: true }],
+      results: [manualResult],
+    }
+    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+
+    await act(async () => {
+      await result.current.save(editedRegistration, eventWithStaticDates, savedRegistration)
+    })
+
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith({
+      eventId: savedRegistration.eventId,
+      id: savedRegistration.id,
+      operations: [{ path: ['results', 0], type: 'CREATE', value: manualResult }],
+    })
   })
 
   it('handles 304 from save action as a successful no-op', async () => {
