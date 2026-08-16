@@ -82,7 +82,7 @@ async function updateExistingUser(
 
   const changedKeys = getChangedTopLevelKeys(existing, final)
   if (changedKeys.length > 0) {
-    console.log('updating user', { existing, final, userId: existing.id })
+    console.log('updating user', { changedKeys, userId: existing.id })
     // Only bump modifiedAt when something meaningful changed (not just lastSeen).
     // lastSeen updates on every login and must not invalidate dataVersions caches.
     const onlyLastSeenChanged = changedKeys.every((k) => k === 'lastSeen')
@@ -98,17 +98,15 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
   const claims = getAuthorizerClaims(event)
 
   if (!claims) {
-    console.log('no authorizer in requestContext', event?.requestContext)
+    console.log('no authorizer claims in request')
     return null
   }
 
   const cognitoUser = claims.sub
   if (!cognitoUser) {
-    console.log('no claims.sub in requestContext.autorizer', event?.requestContext?.authorizer)
+    console.log('no subject in authorizer claims')
     return null
   }
-
-  console.log('claims', claims)
 
   const link = await dynamoDB.read<UserLink>({ cognitoUser: String(cognitoUser) })
   const { name, email } = claims
@@ -132,7 +130,6 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
     if (existingByEmail) {
       console.warn('no user link found; linking cognito user to existing user by email', {
         cognitoUser,
-        email: normalizedEmail,
         userId: existingByEmail.id,
       })
 
@@ -182,8 +179,6 @@ export async function getAndUpdateUserByEmail(
 
   if (existing && existing.email !== email) {
     console.warn('getAndUpdateUserByEmail: existing user email differs from claims email', {
-      claimsEmail: email,
-      existingEmail: existing.email,
       userId: existing.id,
     })
   }
@@ -215,8 +210,7 @@ export async function getAndUpdateUserByEmail(
   }
   const changedKeys = getChangedTopLevelKeys(existing, final)
   if (changedKeys.length > 0) {
-    if (existing) console.log('updating user', { existing, final })
-    else console.log('creating user', { ...final })
+    console.log(existing ? 'updating user' : 'creating user', { changedKeys, userId: final.id })
     // Only bump modifiedAt when something meaningful changed (not just lastSeen).
     // lastSeen updates on every login and must not invalidate dataVersions caches.
     const onlyLastSeenChanged = existing !== undefined && changedKeys.every((k) => k === 'lastSeen')

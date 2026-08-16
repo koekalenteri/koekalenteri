@@ -94,7 +94,10 @@ const paytrailRequest = async <T extends object>(
     signature: calculateHmac(cfg.PAYTRAIL_SECRET, paytrailHeaders, body),
   }
 
-  console.log(headers, body)
+  console.log('Paytrail request', {
+    method,
+    path: transactionId ? path.replace(transactionId, ':transactionId') : path,
+  })
 
   let json: T | undefined
   let status = 500

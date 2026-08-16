@@ -16,17 +16,30 @@ describe('log', () => {
       })
 
       expect(debugProxyEvent).not.toThrow()
-      expect(errorSpy).toHaveBeenCalled()
+      expect(errorSpy).toHaveBeenCalledWith('Failed to log request metadata')
     })
 
-    it('should log event details', () => {
-      const evt = constructAPIGwEvent('message')
+    it('should log only explicitly allowed request metadata', () => {
+      const evt = constructAPIGwEvent(
+        { email: 'participant@example.com' },
+        {
+          headers: { Authorization: 'Bearer secret', Cookie: 'session=secret', signature: 'secret-signature' },
+          method: 'POST',
+          path: '/registrations',
+          query: { token: 'edit-secret' },
+        }
+      )
+      evt.requestContext.requestId = 'request-id'
+      evt.resource = '/registrations'
 
       debugProxyEvent(evt)
 
-      expect(debugSpy).toHaveBeenCalledWith('event.headers', {})
-      expect(debugSpy).toHaveBeenCalledWith('event.queryStringParameters', {})
-      expect(debugSpy).toHaveBeenCalledWith('event.body', '"message"')
+      expect(debugSpy).toHaveBeenCalledTimes(1)
+      expect(debugSpy).toHaveBeenCalledWith('request', {
+        httpMethod: 'POST',
+        requestId: 'request-id',
+        resource: '/registrations',
+      })
       expect(errorSpy).not.toHaveBeenCalled()
     })
   })

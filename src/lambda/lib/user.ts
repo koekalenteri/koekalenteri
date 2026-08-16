@@ -157,11 +157,10 @@ export const findUserByEmail = async (email?: string): Promise<JsonUser | undefi
     // If we got items back but none match exactly, highlight possible data-normalization issues.
     if (activeUsers?.length) {
       console.error('findUserByEmail: queried users but none matched normalized email', {
-        normalizedEmail,
-        returnedEmails: activeUsers.map((u) => u.email),
+        resultCount: activeUsers.length,
       })
     } else {
-      console.warn('findUserByEmail: user not found', { normalizedEmail })
+      console.warn('findUserByEmail: user not found')
     }
   }
 
@@ -360,7 +359,7 @@ const updateExistingUserFromItem = (
   }
   const changes = getChangedTopLevelKeys(existing, updated)
   if (changes.length > 0) {
-    console.log(`updating user from item: ${item.name}. changed props: ${changes.join(', ')}`)
+    console.log('updating user from official directory', { changedKeys: changes, userId: existing.id })
     return {
       ...updated,
       modifiedAt: dateString,
@@ -383,7 +382,7 @@ const buildUserUpdates = (
   const { itemByEmail, itemByKcId } = buildItemIndexMaps(itemsWithEmail)
 
   for (const item of newItems) {
-    console.log(`creating user from item: ${item.name}, email: ${item.email}`)
+    console.log('creating user from official directory', { sourceId: item.id })
     write.push(createNewUserFromItem(item, dateString, eventTypesFiled))
   }
 
@@ -593,11 +592,7 @@ const applyUserSyncPlan = async (dynamoDB: CustomDynamoClient, ctx: UserSyncCont
     try {
       await dynamoDB.batchWrite(write, userTable)
     } catch (e) {
-      console.error(e)
-      console.log('write:')
-      for (const user of write) {
-        console.log(user)
-      }
+      console.error('Failed to batch write user sync', { userCount: write.length })
       throw e
     }
   }

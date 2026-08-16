@@ -39,7 +39,7 @@ export async function sendTemplatedMail(
   }
   if (tags) params.Tags = tags
 
-  console.log(`Sending email ${from} -> ${to} (template=${template}) `)
+  console.log('Sending email', { recipientCount: to.length, template })
   return ses.send(new SendTemplatedEmailCommand(params))
 }
 

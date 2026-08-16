@@ -47,7 +47,7 @@ describe('auth', () => {
       const result = await authorize({ requestContext })
 
       expect(result).toBeNull()
-      expect(logSpy).toHaveBeenCalledWith('no authorizer in requestContext', requestContext)
+      expect(logSpy).toHaveBeenCalledWith('no authorizer claims in request')
     })
 
     it('should return null if missing cognitoUser', async () => {
@@ -55,7 +55,7 @@ describe('auth', () => {
       const result = await authorize(event)
 
       expect(result).toBeNull()
-      expect(logSpy).toHaveBeenCalledWith('no claims.sub in requestContext.autorizer', event.requestContext.authorizer)
+      expect(logSpy).toHaveBeenCalledWith('no subject in authorizer claims')
     })
 
     it('should parse JSON-string claims from ws custom authorizer context', async () => {
@@ -69,7 +69,7 @@ describe('auth', () => {
 
       await authorize(event)
 
-      expect(logSpy).toHaveBeenCalledWith('claims', claims)
+      expect(logSpy).not.toHaveBeenCalledWith('claims', claims)
       expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
     })
 
@@ -84,7 +84,7 @@ describe('auth', () => {
 
       expect(result).toBeNull()
       expect(warnSpy).toHaveBeenCalledWith('authorizer.claims was a non-JSON string')
-      expect(logSpy).toHaveBeenCalledWith('no authorizer in requestContext', event.requestContext)
+      expect(logSpy).toHaveBeenCalledWith('no authorizer claims in request')
     })
 
     it('should create link if not found', async () => {
@@ -98,7 +98,7 @@ describe('auth', () => {
 
       const result = await authorize(event)
 
-      expect(logSpy).toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
+      expect(logSpy).not.toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
       expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
       expect(mockWrite).toHaveBeenCalledWith(link, 'user-link-table-not-found-in-env')
       expect(logSpy).toHaveBeenCalledWith('added user link', link)
@@ -135,10 +135,10 @@ describe('auth', () => {
 
       const result = await authorize(event)
 
-      expect(warnSpy).toHaveBeenCalledWith(
-        'no user link found; linking cognito user to existing user by email',
-        expect.objectContaining({ cognitoUser, email: 'test@example.com', userId: 'existing-id' })
-      )
+      expect(warnSpy).toHaveBeenCalledWith('no user link found; linking cognito user to existing user by email', {
+        cognitoUser,
+        userId: 'existing-id',
+      })
 
       // First: mitigation lookup by normalized email.
       expect(findUserByEmail).toHaveBeenCalledWith('test@example.com')
@@ -173,7 +173,7 @@ describe('auth', () => {
 
       const result = await authorize(event)
 
-      expect(logSpy).toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
+      expect(logSpy).not.toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
       expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
       expect(mockWrite).not.toHaveBeenCalled()
       expect(logSpy).not.toHaveBeenCalledWith('added user link', link)
@@ -310,7 +310,10 @@ describe('auth', () => {
       }
 
       expect(findUserByEmail).toHaveBeenCalledWith('address@domain.com')
-      expect(logSpy).toHaveBeenCalledWith('creating user', expectedUser)
+      expect(logSpy).toHaveBeenCalledWith('creating user', {
+        changedKeys: Object.keys(expectedUser),
+        userId: 'test-id',
+      })
       expect(updateUser).toHaveBeenCalledWith(expectedUser)
     })
 
@@ -328,7 +331,10 @@ describe('auth', () => {
       }
 
       expect(findUserByEmail).toHaveBeenCalledWith('address@domain.com')
-      expect(logSpy).toHaveBeenCalledWith('creating user', expectedUser)
+      expect(logSpy).toHaveBeenCalledWith('creating user', {
+        changedKeys: Object.keys(expectedUser),
+        userId: 'test-id',
+      })
       expect(updateUser).toHaveBeenCalledWith(expectedUser)
     })
 
@@ -421,14 +427,9 @@ describe('auth', () => {
 
       await getAndUpdateUserByEmail('NEW@EXAMPLE.COM', {})
 
-      expect(warnSpy).toHaveBeenCalledWith(
-        'getAndUpdateUserByEmail: existing user email differs from claims email',
-        expect.objectContaining({
-          claimsEmail: 'new@example.com',
-          existingEmail: 'old@example.com',
-          userId: 'test-id',
-        })
-      )
+      expect(warnSpy).toHaveBeenCalledWith('getAndUpdateUserByEmail: existing user email differs from claims email', {
+        userId: 'test-id',
+      })
 
       // We do not overwrite stored email on login, but we do record the observed change in emailHistory.
       expect(updateUser).toHaveBeenCalledWith(

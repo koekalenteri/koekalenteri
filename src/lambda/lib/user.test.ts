@@ -405,9 +405,7 @@ describe('lib/user', () => {
           values: { ':email': 'missing@example.com' },
         })
       )
-      expect(warnSpy).toHaveBeenCalledWith('findUserByEmail: user not found', {
-        normalizedEmail: 'missing@example.com',
-      })
+      expect(warnSpy).toHaveBeenCalledWith('findUserByEmail: user not found')
       warnSpy.mockRestore()
     })
 
@@ -418,8 +416,7 @@ describe('lib/user', () => {
       await expect(findUserByEmail('target@example.com')).resolves.toBeUndefined()
 
       expect(errorSpy).toHaveBeenCalledWith('findUserByEmail: queried users but none matched normalized email', {
-        normalizedEmail: 'target@example.com',
-        returnedEmails: ['other@example.com'],
+        resultCount: 1,
       })
       errorSpy.mockRestore()
     })
@@ -714,7 +711,7 @@ describe('lib/user', () => {
       )
       expect(batchWriteArguments?.[1]).toBe('user-table-not-found-in-env')
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('creating user from item: surname firstname, email: other@example.com')
+      expect(logSpy).toHaveBeenCalledWith('creating user from official directory', { sourceId: 222 })
     })
 
     it('should update user from official', async () => {
@@ -767,9 +764,10 @@ describe('lib/user', () => {
         'user-table-not-found-in-env'
       )
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith(
-        'updating user from item: dredd official. changed props: email, emailHistory, officer, phone, kcEmail'
-      )
+      expect(logSpy).toHaveBeenCalledWith('updating user from official directory', {
+        changedKeys: ['email', 'emailHistory', 'officer', 'phone', 'kcEmail'],
+        userId: 'test-id',
+      })
     })
 
     it('should preserve email for linked user while updating other fields', async () => {
@@ -822,9 +820,10 @@ describe('lib/user', () => {
         ],
         'user-table-not-found-in-env'
       )
-      expect(logSpy).toHaveBeenCalledWith(
-        'updating user from item: dredd official. changed props: officer, phone, kcEmail'
-      )
+      expect(logSpy).toHaveBeenCalledWith('updating user from official directory', {
+        changedKeys: ['officer', 'phone', 'kcEmail'],
+        userId: 'test-id',
+      })
     })
 
     it('should add user from judge', async () => {
@@ -875,7 +874,7 @@ describe('lib/user', () => {
       )
       expect(batchWriteArguments?.[1]).toBe('user-table-not-found-in-env')
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('creating user from item: surname firstname, email: other@example.com')
+      expect(logSpy).toHaveBeenCalledWith('creating user from official directory', { sourceId: 222 })
     })
 
     it('should update user from judge', async () => {
@@ -926,9 +925,10 @@ describe('lib/user', () => {
         'user-table-not-found-in-env'
       )
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith(
-        'updating user from item: dredd judge. changed props: email, judge, phone, kcEmail'
-      )
+      expect(logSpy).toHaveBeenCalledWith('updating user from official directory', {
+        changedKeys: ['email', 'judge', 'phone', 'kcEmail'],
+        userId: 'test-id',
+      })
     })
 
     it('merges duplicate users by kcId when the event scan returns undefined', async () => {
@@ -1312,8 +1312,7 @@ describe('lib/user', () => {
 
       await expect(updateUsersFromOfficialsOrJudges(mockDB, [added], 'officer')).rejects.toThrow('batch write failed')
 
-      expect(errorSpy).toHaveBeenCalledWith(err)
-      expect(logSpy).toHaveBeenCalledWith('write:')
+      expect(errorSpy).toHaveBeenCalledWith('Failed to batch write user sync', { userCount: 1 })
 
       errorSpy.mockRestore()
     })

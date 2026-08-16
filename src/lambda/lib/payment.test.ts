@@ -44,6 +44,7 @@ const {
   formatPaytrailErrorMessage,
   paymentDescription,
   releaseTransactionCreation,
+  verifyParams,
 } = await import('./payment')
 const { calculateHmac } = await import('./paytrail')
 
@@ -83,6 +84,28 @@ describe('payment', () => {
 
   afterEach(() => {
     jest.useRealTimers()
+  })
+
+  describe('verifyParams', () => {
+    it('does not log callback parameters when the transaction id is missing', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      await expect(verifyParams({ signature: 'supplied-signature' })).rejects.toThrow(
+        'Missing checkout-transaction-id from params'
+      )
+
+      expect(consoleSpy).toHaveBeenCalledWith('Missing checkout-transaction-id from payment callback')
+    })
+
+    it('does not log the supplied signature or calculated HMAC when verification fails', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      await expect(verifyParams({ ...callbackParams, signature: 'supplied-signature' })).rejects.toThrow(
+        'Verifying payment signature failed'
+      )
+
+      expect(consoleSpy).toHaveBeenCalledWith('Verifying payment signature failed')
+    })
   })
 
   describe('paymentDescription', () => {

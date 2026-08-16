@@ -160,7 +160,7 @@ export const parseParams = (params: Partial<PaytrailCallbackParams>) => {
 
 export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   if (!params['checkout-transaction-id']) {
-    console.error('Missing checkout-transaction-id from params', { params })
+    console.error('Missing checkout-transaction-id from payment callback')
     throw new Error('Missing checkout-transaction-id from params')
   }
 
@@ -170,7 +170,7 @@ export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   const hmac = calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams)
 
   if (hmac !== signature) {
-    console.error('Verifying payment signature failed', { hmac, params, signature })
+    console.error('Verifying payment signature failed')
     throw new Error('Verifying payment signature failed')
   }
 }
