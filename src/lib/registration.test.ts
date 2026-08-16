@@ -3,6 +3,7 @@ import type { SortableRegistration } from './registration'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
   canRefund,
+  createRegistrationDraft,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getCurrentInvitationAttachment,
@@ -28,6 +29,32 @@ import {
 } from './registration'
 
 describe('lib/registration', () => {
+  describe('createRegistrationDraft', () => {
+    it('creates a participant draft with participant-only defaults', () => {
+      const registration = createRegistrationDraft('participant')
+
+      expect(registration).toEqual(
+        expect.objectContaining({
+          creationIdempotencyKey: expect.stringMatching(/^.{32}$/),
+          qualifies: false,
+          qualifyingResults: [],
+          state: 'creating',
+        })
+      )
+    })
+
+    it('creates an admin draft without participant-only defaults and with fresh nested data', () => {
+      const first = createRegistrationDraft('admin')
+      const second = createRegistrationDraft('admin')
+
+      expect(first).not.toHaveProperty('qualifies')
+      expect(first).not.toHaveProperty('state')
+      expect(first.creationIdempotencyKey).not.toBe(second.creationIdempotencyKey)
+      expect(first.dog).not.toBe(second.dog)
+      expect(first.owner).not.toBe(second.owner)
+    })
+  })
+
   describe('getSelectedAdditionalCosts', () => {
     const first = { cost: 5, description: { fi: 'Ensimmäinen' } }
     const second = { cost: 10, description: { fi: 'Toinen' } }

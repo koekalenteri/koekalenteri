@@ -18,6 +18,8 @@ import type {
   RegistrationTemplateContext,
   RegistrationTime,
 } from '../types'
+import { nanoid } from 'nanoid'
+import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { isEntryClosed } from './event'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
@@ -25,6 +27,31 @@ import { isObject } from './utils'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
+
+export const createRegistrationDraft = (mode: 'admin' | 'participant'): Registration => ({
+  agreeToTerms: false,
+  breeder: { ...emptyBreeder },
+  createdAt: new Date(),
+  createdBy: 'anonymous',
+  creationIdempotencyKey: nanoid(32),
+  dates: [],
+  dog: { ...emptyDog },
+  eventId: '',
+  eventType: '',
+  handler: { ...emptyPerson },
+  id: '',
+  language: 'fi',
+  modifiedAt: new Date(),
+  modifiedBy: 'anonymous',
+  notes: '',
+  owner: { ...emptyPerson },
+  ownerHandles: true,
+  ownerPays: true,
+  payer: { ...emptyPerson },
+  qualifyingResults: [],
+  reserve: 'DAY',
+  ...(mode === 'participant' ? ({ qualifies: false, state: 'creating' } satisfies Partial<Registration>) : {}),
+})
 
 type PublicRegistrationField = keyof JsonRegistration
 

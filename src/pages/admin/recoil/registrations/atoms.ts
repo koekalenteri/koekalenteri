@@ -1,7 +1,6 @@
 import type { Registration, RegistrationGroupMove } from '../../../../types'
-import { nanoid } from 'nanoid'
 import { atom, atomFamily } from 'recoil'
-import { emptyBreeder, emptyDog, emptyPerson } from '../../../../lib/data'
+import { createRegistrationDraft } from '../../../../lib/registration'
 import { localStorageEffect, logEffect } from '../../../recoil'
 import { adminRemoteRegistrationsEffect } from './effects'
 
@@ -37,29 +36,7 @@ export const adminPendingRegistrationGroupMovesAtom = atomFamily<RegistrationGro
   key: 'adminPendingRegistrationGroupMoves',
 })
 
-export const createAdminNewRegistration = (): Registration => ({
-  agreeToTerms: false,
-  breeder: { ...emptyBreeder },
-  createdAt: new Date(),
-  createdBy: 'anonymous',
-  creationIdempotencyKey: nanoid(32),
-  dates: [],
-  dog: { ...emptyDog },
-  eventId: '',
-  eventType: '',
-  handler: { ...emptyPerson },
-  id: '',
-  language: 'fi',
-  modifiedAt: new Date(),
-  modifiedBy: 'anonymous',
-  notes: '',
-  owner: { ...emptyPerson },
-  ownerHandles: true,
-  ownerPays: true,
-  payer: { ...emptyPerson },
-  qualifyingResults: [],
-  reserve: 'DAY',
-})
+export const createAdminNewRegistration = (): Registration => createRegistrationDraft('admin')
 
 export const adminNewRegistrationAtom = atom<Registration | undefined>({
   default: createAdminNewRegistration(),
