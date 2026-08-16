@@ -3,8 +3,7 @@
   "admin": "Administration",
   "all": "All",
   "app": {
-    "reload": "Reload",
-    "updateAvailable": "A new version is available. Reload to update."
+    "updated": "App updated: {{from}} → {{to}}"
   },
   "audit": {
     "after": "after",

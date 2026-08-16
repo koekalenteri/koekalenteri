@@ -3,8 +3,7 @@
   "admin": "Ylläpito",
   "all": "Kaikki",
   "app": {
-    "reload": "Lataa uudelleen",
-    "updateAvailable": "Uusi versio on saatavilla. Päivitä lataamalla sivu uudelleen."
+    "updated": "Sovellus päivitetty: {{from}} → {{to}}"
   },
   "audit": {
     "after": "jälkeen",

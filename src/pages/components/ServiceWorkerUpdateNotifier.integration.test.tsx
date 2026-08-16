@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { registerServiceWorker } from '../../serviceWorkerRegistration'
@@ -25,7 +25,7 @@ describe('ServiceWorkerUpdateNotifier integration', () => {
     }
   })
 
-  it('activates the waiting worker from the snackbar action', async () => {
+  it('activates the waiting worker automatically', async () => {
     jest.replaceProperty(process.env, 'NODE_ENV', 'production')
     const waitingWorker = { postMessage: jest.fn() } as unknown as ServiceWorker
     const registration = new EventTarget() as ServiceWorkerRegistration
@@ -40,10 +40,7 @@ describe('ServiceWorkerUpdateNotifier integration', () => {
     })
     Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: serviceWorker })
 
-    let snackbarOptions: { action?: unknown } | undefined
-    const enqueueSnackbar = jest.fn((_message, options) => {
-      snackbarOptions = options
-    })
+    const enqueueSnackbar = jest.fn()
     mockUseSnackbar.mockReturnValue({
       closeSnackbar: jest.fn(),
       enqueueSnackbar: enqueueSnackbar as unknown as ReturnType<typeof useSnackbar>['enqueueSnackbar'],
@@ -54,13 +51,7 @@ describe('ServiceWorkerUpdateNotifier integration', () => {
     registerServiceWorker()
     window.dispatchEvent(new Event('load'))
 
-    await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalledWith('app.updateAvailable', expect.any(Object)))
-
-    if (typeof snackbarOptions?.action !== 'function') throw new Error('Expected the update snackbar to have an action')
-
-    render(<>{snackbarOptions.action('service-worker-update')}</>)
-    fireEvent.click(screen.getByRole('button', { name: 'app.reload' }))
-
-    expect(waitingWorker.postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' })
+    await waitFor(() => expect(waitingWorker.postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' }))
+    expect(enqueueSnackbar).not.toHaveBeenCalled()
   })
 })

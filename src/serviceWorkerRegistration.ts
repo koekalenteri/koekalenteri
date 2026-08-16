@@ -1,4 +1,5 @@
 import { reportError } from './lib/client/error'
+import { appVersion } from './lib/version'
 
 type UpdateListener = (registration: ServiceWorkerRegistration, worker: ServiceWorker) => void
 
@@ -6,6 +7,33 @@ const updateListeners = new Set<UpdateListener>()
 let waitingUpdate: { registration: ServiceWorkerRegistration; worker: ServiceWorker } | undefined
 let activatingUpdate = false
 let watchingControllerChanges = false
+const updatedSessionKey = 'service-worker-updated'
+
+type VersionChange = {
+  from: string
+  to: string
+}
+
+const getServiceWorkerVersion = (worker: ServiceWorker) => {
+  if (typeof window.MessageChannel !== 'function') return Promise.resolve(appVersion)
+
+  return new Promise<string>((resolve) => {
+    const messageChannel = new window.MessageChannel()
+    let timeout: number
+    const finish = (version: string) => {
+      window.clearTimeout(timeout)
+      messageChannel.port1.close()
+      messageChannel.port2.close()
+      resolve(version)
+    }
+    timeout = window.setTimeout(() => finish(appVersion), 1000)
+
+    messageChannel.port1.onmessage = (event) => {
+      finish(typeof event.data?.version === 'string' ? event.data.version : appVersion)
+    }
+    worker.postMessage({ type: 'GET_VERSION' }, [messageChannel.port2])
+  })
+}
 
 const clearWaitingUpdate = () => {
   waitingUpdate = undefined
@@ -67,14 +95,54 @@ export const subscribeToServiceWorkerUpdates = (listener: UpdateListener) => {
   }
 }
 
-export const activateServiceWorkerUpdate = (registration: ServiceWorkerRegistration) => {
-  const worker = registration.waiting
+export const activateServiceWorkerUpdate = (registration: ServiceWorkerRegistration, updateWorker?: ServiceWorker) => {
+  const worker = updateWorker ?? registration.waiting
   if (!worker || activatingUpdate) return
 
   activatingUpdate = true
   clearWaitingUpdate()
-  navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload(), { once: true })
+  const updatedVersion = getServiceWorkerVersion(worker)
+  navigator.serviceWorker.addEventListener(
+    'controllerchange',
+    async () => {
+      try {
+        const versionChange: VersionChange = {
+          from: appVersion,
+          to: await updatedVersion,
+        }
+        window.sessionStorage.setItem(updatedSessionKey, JSON.stringify(versionChange))
+      } catch (error) {
+        reportError(error)
+      }
+      window.location.reload()
+    },
+    { once: true }
+  )
   worker.postMessage({ type: 'SKIP_WAITING' })
+}
+
+export const consumeServiceWorkerUpdated = () => {
+  try {
+    const storedVersionChange = window.sessionStorage.getItem(updatedSessionKey)
+    window.sessionStorage.removeItem(updatedSessionKey)
+    if (!storedVersionChange) return undefined
+
+    const versionChange: unknown = JSON.parse(storedVersionChange)
+    if (
+      typeof versionChange === 'object' &&
+      versionChange !== null &&
+      'from' in versionChange &&
+      typeof versionChange.from === 'string' &&
+      'to' in versionChange &&
+      typeof versionChange.to === 'string'
+    ) {
+      return versionChange
+    }
+    return undefined
+  } catch (error) {
+    reportError(error)
+    return undefined
+  }
 }
 
 export const unregisterServiceWorker = async () => {

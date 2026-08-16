@@ -39,6 +39,7 @@ describe('serviceWorkerRegistration', () => {
   beforeEach(() => {
     jest.resetModules()
     mockReportError.mockClear()
+    window.sessionStorage.clear()
   })
 
   afterEach(() => {
@@ -124,6 +125,14 @@ describe('serviceWorkerRegistration', () => {
     const laterListener = jest.fn()
     subscribeToServiceWorkerUpdates(laterListener)
     expect(laterListener).not.toHaveBeenCalled()
+  })
+
+  it('reports an applied update once', async () => {
+    window.sessionStorage.setItem('service-worker-updated', JSON.stringify({ from: '1.10.2', to: '1.10.3' }))
+    const { consumeServiceWorkerUpdated } = await import('./serviceWorkerRegistration')
+
+    expect(consumeServiceWorkerUpdated()).toEqual({ from: '1.10.2', to: '1.10.3' })
+    expect(consumeServiceWorkerUpdated()).toBeUndefined()
   })
 
   it('reports an update that finishes installing while the app is controlled', async () => {
