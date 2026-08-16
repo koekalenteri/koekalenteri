@@ -84,7 +84,7 @@ describe('useAdminRegistrationActions', () => {
   })
 
   it('handles save conflicts and leaves registration state unchanged', async () => {
-    jest.spyOn(registrationApi, 'putAdminRegistration').mockRejectedValueOnce(
+    jest.spyOn(registrationApi, 'postAdminRegistration').mockRejectedValueOnce(
       new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
         email: 'owner@example.com',
         error: 'emailSuppressed',
@@ -116,26 +116,23 @@ describe('useAdminRegistrationActions', () => {
     expect(result.current.registrations).toEqual([registrationWithStaticDates])
   })
 
-  it('sends only locally edited registration fields when given a form patch', async () => {
-    jest.spyOn(registrationApi, 'putAdminRegistration').mockResolvedValueOnce({
+  it('sends only locally edited registration fields as patch operations', async () => {
+    jest.spyOn(registrationApi, 'patchAdminRegistration').mockResolvedValueOnce({
       ...registrationWithStaticDates,
       notes: 'changed notes',
     })
     const { result } = renderHook(() => useAdminRegistrationActions(eventWithStaticDates.id), { wrapper })
 
     await act(async () => {
-      await result.current.save(registrationWithStaticDates, {
-        modifiedAt: registrationWithStaticDates.modifiedAt,
-        notes: 'changed notes',
-      })
+      await result.current.save({ ...registrationWithStaticDates, notes: 'changed notes' }, registrationWithStaticDates)
     })
 
-    expect(registrationApi.putAdminRegistration).toHaveBeenCalledWith(
+    expect(registrationApi.patchAdminRegistration).toHaveBeenCalledWith(
       {
         eventId: registrationWithStaticDates.eventId,
         id: registrationWithStaticDates.id,
         modifiedAt: registrationWithStaticDates.modifiedAt,
-        notes: 'changed notes',
+        operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
       },
       TEST_ID_TOKEN
     )

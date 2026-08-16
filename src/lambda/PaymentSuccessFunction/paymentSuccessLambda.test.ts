@@ -64,9 +64,6 @@ jest.unstable_mockModule('../lib/registration', () => ({
   createRegistrationPatches: mockCreateRegistrationPatches,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
-}))
-
-jest.unstable_mockModule('../lib/registrationAccess', () => ({
   getRegistrationEditToken: mockGetRegistrationEditToken,
 }))
 

@@ -1,14 +1,14 @@
 import { getEvent } from '../api/event'
-import { getRegistration, putRegistration } from '../api/registration'
+import { getRegistration, patchRegistration } from '../api/registration'
 import { deferredLoader } from './RegistrationInvitation'
 
 // Mock dependencies
 jest.mock('../api/event', () => ({ getEvent: jest.fn() }))
-jest.mock('../api/registration', () => ({ getRegistration: jest.fn(), putRegistration: jest.fn() }))
+jest.mock('../api/registration', () => ({ getRegistration: jest.fn(), patchRegistration: jest.fn() }))
 
 const mockGetEvent = getEvent as jest.Mock
 const mockGetRegistration = getRegistration as jest.Mock
-const mockPutRegistration = putRegistration as jest.Mock
+const mockPatchRegistration = patchRegistration as jest.Mock
 
 describe('RegistrationInvitation deferredLoader', () => {
   beforeEach(() => {
@@ -40,15 +40,16 @@ describe('RegistrationInvitation deferredLoader', () => {
 
     mockGetEvent.mockResolvedValueOnce(mockEvent)
     mockGetRegistration.mockResolvedValueOnce(mockRegistration)
-    mockPutRegistration.mockResolvedValueOnce(undefined)
+    mockPatchRegistration.mockResolvedValueOnce(undefined)
 
     await deferredLoader('event123', 'reg123', undefined)
 
-    expect(mockPutRegistration).toHaveBeenCalledWith(
-      expect.objectContaining({
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      {
+        eventId: 'event123',
         id: 'reg123',
-        invitationRead: true,
-      }),
+        operations: [{ path: ['invitationRead'], type: 'CHANGE', value: true }],
+      },
       undefined,
       undefined
     )
@@ -69,7 +70,7 @@ describe('RegistrationInvitation deferredLoader', () => {
 
     await deferredLoader('event123', 'reg123', undefined)
 
-    expect(mockPutRegistration).not.toHaveBeenCalled()
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
   it('marks the latest invitation as read when only an earlier attachment was read', async () => {
@@ -87,15 +88,16 @@ describe('RegistrationInvitation deferredLoader', () => {
 
     mockGetEvent.mockResolvedValueOnce(mockEvent)
     mockGetRegistration.mockResolvedValueOnce(mockRegistration)
-    mockPutRegistration.mockResolvedValueOnce(undefined)
+    mockPatchRegistration.mockResolvedValueOnce(undefined)
 
     await deferredLoader('event123', 'reg123', undefined)
 
-    expect(mockPutRegistration).toHaveBeenCalledWith(
-      expect.objectContaining({
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      {
+        eventId: 'event123',
         id: 'reg123',
-        invitationRead: true,
-      }),
+        operations: [],
+      },
       undefined,
       undefined
     )

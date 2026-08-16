@@ -6,6 +6,7 @@ import type {
   JsonDog,
   JsonTestResult,
   Language,
+  PatchOperation,
   Person,
   Replace,
   TestResult,
@@ -147,6 +148,19 @@ export interface Registration
   results?: Array<ManualTestResult>
   group?: RegistrationGroup
   invitationAttachmentUpdatedAt?: Date
+}
+
+export type RegistrationCreateRequest = Omit<Registration, 'editToken'> & { editToken?: never }
+
+export interface JsonRegistrationPatchRequest {
+  eventId: string
+  id: string
+  modifiedAt?: string
+  operations: PatchOperation[]
+}
+
+export interface RegistrationPatchRequest extends Omit<JsonRegistrationPatchRequest, 'modifiedAt'> {
+  modifiedAt?: Date
 }
 
 export interface JsonRegistrationWithGroup extends JsonRegistration {

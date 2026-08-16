@@ -238,7 +238,9 @@ describe('RegistrationListPage', () => {
     const confirmRequest = new Promise((resolve) =>
       setTimeout(() => resolve({ ...unpaidRegistrationWithStaticDates, confirmed: true }), 1000)
     )
-    const putRegistrationSpy = jest.spyOn(registrationApi, 'putRegistration').mockReturnValue(confirmRequest as never)
+    const patchRegistrationSpy = jest
+      .spyOn(registrationApi, 'patchRegistration')
+      .mockReturnValue(confirmRequest as never)
 
     jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
@@ -257,7 +259,7 @@ describe('RegistrationListPage', () => {
 
     expect(confirmButton).toBeDisabled()
 
-    expect(putRegistrationSpy).toHaveBeenCalledTimes(1)
+    expect(patchRegistrationSpy).toHaveBeenCalledTimes(1)
 
     jest.advanceTimersByTime(1000)
 
@@ -265,12 +267,12 @@ describe('RegistrationListPage', () => {
 
     expect(dialog).not.toBeVisible()
 
-    putRegistrationSpy.mockRestore()
+    patchRegistrationSpy.mockRestore()
   })
 
   it('handles 304 from confirm action as a successful no-op', async () => {
-    const putRegistrationSpy = jest
-      .spyOn(registrationApi, 'putRegistration')
+    const patchRegistrationSpy = jest
+      .spyOn(registrationApi, 'patchRegistration')
       .mockRejectedValue(new APIError(new Response(null, { status: 304, statusText: 'Not Modified' }), ''))
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
 
@@ -287,16 +289,16 @@ describe('RegistrationListPage', () => {
     await user.click(confirmButton)
     await flushPromises()
 
-    expect(putRegistrationSpy).toHaveBeenCalledTimes(1)
+    expect(patchRegistrationSpy).toHaveBeenCalledTimes(1)
     expect(dialog).not.toBeVisible()
     expect(consoleErrorSpy).not.toHaveBeenCalled()
 
     consoleErrorSpy.mockRestore()
-    putRegistrationSpy.mockRestore()
+    patchRegistrationSpy.mockRestore()
   })
 
   it('handles invitation read when on invitation route', async () => {
-    const putRegistrationSpy = jest.spyOn(registrationApi, 'putRegistration')
+    const patchRegistrationSpy = jest.spyOn(registrationApi, 'patchRegistration')
 
     jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/invitation')
@@ -308,9 +310,11 @@ describe('RegistrationListPage', () => {
     // Wait for the action to complete
     await flushPromises()
 
-    expect(putRegistrationSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'nou-registration', invitationRead: true })
-    )
+    expect(patchRegistrationSpy).toHaveBeenCalledWith({
+      eventId: 'test1',
+      id: 'nou-registration',
+      operations: [{ path: ['invitationRead'], type: 'CREATE', value: true }],
+    })
   })
 
   it('shows snackbar when on saved route with payment success', async () => {
@@ -539,6 +543,7 @@ describe('RegistrationListPage', () => {
     }
     jest.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(event)
     jest.spyOn(registrationApi, 'getRegistration').mockResolvedValueOnce(registration)
+    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({ ...registration, invitationRead: true })
 
     renderWithRouter(`/r/${event.id}/${registration.id}/invitation`)
     await flushPromises()

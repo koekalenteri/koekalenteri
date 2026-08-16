@@ -18,10 +18,11 @@ import {
   createRegistrationPatches,
   getCancelAuditMessage,
   getReadyRegistrationsByEventId,
+  getRegistrationEditToken,
+  participantRegistrationResponse,
   sendTemplatedEmailToEventRegistrations,
   updateReserveNotified,
 } from '../lib/registration'
-import { getRegistrationEditToken, participantRegistrationResponse } from '../lib/registrationAccess'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>

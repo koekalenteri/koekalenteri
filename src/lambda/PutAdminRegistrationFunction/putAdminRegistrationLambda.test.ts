@@ -777,6 +777,68 @@ describe('putAdminRegistrationLambda', () => {
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
+  it('applies dates and qualifying result patch operations as arrays', async () => {
+    const result = await putAdminRegistrationLambda({
+      ...event,
+      body: JSON.stringify({
+        eventId: 'event123',
+        id: 'reg456',
+        operations: [
+          { path: ['dates', 0], type: 'CREATE', value: { date: '2026-08-16', time: 'ap' } },
+          {
+            path: ['qualifyingResults', 0],
+            type: 'CREATE',
+            value: { date: '2026-08-01', official: true, result: 'ALO1' },
+          },
+        ],
+      }),
+      httpMethod: 'PATCH',
+    })
+
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({ dates: [], qualifyingResults: [] }),
+      expect.objectContaining({
+        dates: [{ date: '2026-08-16', time: 'ap' }],
+        qualifyingResults: [{ date: '2026-08-01', official: true, result: 'ALO1' }],
+      })
+    )
+    expect(Array.isArray(mockPatchRegistration.mock.calls[0]?.[3].dates)).toBe(true)
+    expect(Array.isArray(mockPatchRegistration.mock.calls[0]?.[3].qualifyingResults)).toBe(true)
+    expect(result.statusCode).toBe(200)
+  })
+
+  it.each([{ dates: {} }, { dog: { results: {} } }, { optionalCosts: {} }, { qualifyingResults: {} }, { results: {} }])(
+    'rejects legacy patches with object-shaped array fields: %p',
+    async (patch) => {
+      const result = await putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({ eventId: 'event123', id: 'reg456', ...patch }),
+        httpMethod: 'PATCH',
+      })
+
+      expect(result.statusCode).toBe(400)
+      expect(mockGetRegistration).not.toHaveBeenCalled()
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    }
+  )
+
+  it('rejects an operation that changes an array field into an object', async () => {
+    const result = await putAdminRegistrationLambda({
+      ...event,
+      body: JSON.stringify({
+        eventId: 'event123',
+        id: 'reg456',
+        operations: [{ path: ['dates'], type: 'CHANGE', value: {} }],
+      }),
+      httpMethod: 'PATCH',
+    })
+
+    expect(result.statusCode).toBe(400)
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
+  })
+
   it('rejects an update based on stale modification data', async () => {
     mockGetRegistration.mockResolvedValueOnce({
       ...JSON.parse(event.body),

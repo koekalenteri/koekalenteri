@@ -1,4 +1,4 @@
-import type { Patch, PublicDogEvent, Registration, RegistrationGroupMove } from '../../../../types'
+import type { PublicDogEvent, Registration, RegistrationGroupMove } from '../../../../types'
 import { useSnackbar } from 'notistack'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,13 +7,15 @@ import { createRefund } from '../../../../api/payment'
 import {
   getRegistrations,
   getRegistrationTransactions,
-  putAdminRegistration,
+  patchAdminRegistration,
+  postAdminRegistration,
   putAdminRegistrationNotes,
   putRegistrationGroups,
 } from '../../../../api/registration'
 import { reportError } from '../../../../lib/client/error'
 import { isTestEnv } from '../../../../lib/env'
 import { latestCollectionUpdate, reconcileCollection } from '../../../../lib/incremental'
+import { createPatchOperations } from '../../../../lib/patch'
 import { GROUP_KEY_CANCELLED } from '../../../../lib/registration'
 import { validIdTokenSelector } from '../../../recoil'
 import { showRegistrationSaveConflict } from '../../../recoil/registration/registrationSaveError'
@@ -353,27 +355,29 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
       return result
     },
-    async save(reg: Registration, formChanges?: Patch<Registration>) {
+    async save(reg: Registration, savedRegistration?: Registration) {
       if (!token) throw new Error('missing token')
       const regWithOverrides = {
         ...reg,
         handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
         payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
       }
-      const creationIdempotencyKey = !reg.id ? reg.creationIdempotencyKey : undefined
-      const request = formChanges
-        ? {
-            ...formChanges,
-            eventId: reg.eventId,
-            id: reg.id,
-            ...('owner' in formChanges || 'ownerHandles' in formChanges ? { handler: regWithOverrides.handler } : {}),
-            ...('owner' in formChanges || 'ownerPays' in formChanges ? { payer: regWithOverrides.payer } : {}),
-          }
-        : regWithOverrides
-      if (creationIdempotencyKey) request.creationIdempotencyKey = creationIdempotencyKey
       let saved: Registration
       try {
-        saved = await putAdminRegistration(request, token)
+        if (savedRegistration) {
+          saved = await patchAdminRegistration(
+            {
+              eventId: reg.eventId,
+              id: reg.id,
+              modifiedAt: savedRegistration.modifiedAt,
+              operations: createPatchOperations(savedRegistration, regWithOverrides),
+            },
+            token
+          )
+        } else {
+          const { editToken: _editToken, ...request } = regWithOverrides
+          saved = await postAdminRegistration(request, token)
+        }
       } catch (error) {
         if (event && showRegistrationSaveConflict(error, { enqueueSnackbar, event, registration: reg, t })) {
           return undefined

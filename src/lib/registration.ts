@@ -20,10 +20,33 @@ import type {
 } from '../types'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
-import { isEntryClosed } from './utils'
+import { isEntryClosed, isObject } from './utils'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
+
+export const REGISTRATION_ARRAY_FIELDS = [
+  { path: ['dates'], required: true },
+  { path: ['dog', 'results'], required: false },
+  { path: ['optionalCosts'], required: false },
+  { path: ['qualifyingResults'], required: true },
+  { path: ['results'], required: false },
+] as const
+
+const registrationFieldValue = (registration: unknown, path: readonly string[]) => {
+  let value = registration
+  for (const field of path) {
+    if (!isObject(value) || !Object.hasOwn(value, field)) return { exists: false, value: undefined }
+    value = value[field]
+  }
+  return { exists: true, value }
+}
+
+export const hasInvalidRegistrationArrayFields = (registration: unknown, requireRequired = false): boolean =>
+  REGISTRATION_ARRAY_FIELDS.some(({ path, required }) => {
+    const field = registrationFieldValue(registration, path)
+    return field.exists ? !Array.isArray(field.value) : requireRequired && required
+  })
 
 export const NOME_B_CH_qualificationStartDate2023 = new Date('2023-08-17T21:00:00Z')
 

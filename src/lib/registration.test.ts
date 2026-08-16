@@ -15,6 +15,7 @@ import {
   getRegistrationGroupTime,
   getRegistrationNumberingGroupKey,
   getSentInvitationAttachment,
+  hasInvalidRegistrationArrayFields,
   hasPriority,
   isMember,
   isPredefinedReason,
@@ -25,6 +26,32 @@ import {
 } from './registration'
 
 describe('lib/registration', () => {
+  describe('hasInvalidRegistrationArrayFields', () => {
+    it('accepts registration array fields as arrays', () => {
+      expect(
+        hasInvalidRegistrationArrayFields(
+          { dates: [], dog: { results: [] }, optionalCosts: [], qualifyingResults: [], results: [] },
+          true
+        )
+      ).toBe(false)
+    })
+
+    it.each([
+      { dates: {} },
+      { dog: { results: {} } },
+      { optionalCosts: {} },
+      { qualifyingResults: {} },
+      { results: {} },
+    ])('rejects an object-shaped array field: %p', (registration) => {
+      expect(hasInvalidRegistrationArrayFields(registration)).toBe(true)
+    })
+
+    it('requires mandatory arrays only when validating a complete registration', () => {
+      expect(hasInvalidRegistrationArrayFields({ notes: 'patch' })).toBe(false)
+      expect(hasInvalidRegistrationArrayFields({ notes: 'registration' }, true)).toBe(true)
+    })
+  })
+
   describe('getRegistrationClass', () => {
     it('prefers class and falls back to event type', () => {
       expect(getRegistrationClass({ class: 'ALO', eventType: 'NOME-B' })).toBe('ALO')

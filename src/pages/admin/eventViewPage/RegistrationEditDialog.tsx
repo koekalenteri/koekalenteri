@@ -60,7 +60,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
       open={open}
       registration={registration}
       savedRegistration={savedRegistration}
-      savePatch={{ ...registrationChanges, modifiedAt: initialRegistration.current?.modifiedAt }}
+      patchBase={initialRegistration.current}
       resetRegistration={resetRegistration}
       setRegistration={setRegistration}
       auditTrail={auditTrail}

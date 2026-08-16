@@ -8,8 +8,9 @@ import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await, Navigate, useLoaderData } from 'react-router'
 import { getEvent } from '../api/event'
-import { getRegistration, putRegistration } from '../api/registration'
+import { getRegistration, patchRegistration } from '../api/registration'
 import { invitationAttachmentFileName } from '../lib/fileName'
+import { createPatchOperations } from '../lib/patch'
 import { getInvitationReadStatus } from '../lib/registration'
 import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
@@ -45,8 +46,17 @@ export const deferredLoader = async (
   await i18n.changeLanguage(registration.language)
 
   if (getInvitationReadStatus(registration) !== 'read-latest') {
+    const updatedRegistration = { ...registration, invitationRead: true }
+    await patchRegistration(
+      {
+        eventId: registration.eventId,
+        id: registration.id,
+        operations: createPatchOperations(registration, updatedRegistration),
+      },
+      undefined,
+      signal
+    )
     registration.invitationRead = true
-    await putRegistration(registration, undefined, signal)
   }
 
   if (registration.invitationAttachment) {

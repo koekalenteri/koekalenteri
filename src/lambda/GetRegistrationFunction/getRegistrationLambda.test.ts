@@ -24,17 +24,12 @@ const mockGetRegistration = jest.fn(
 )
 
 import * as libRegistration from '../lib/registration'
-import * as libRegistrationAccess from '../lib/registrationAccess'
 
 const mockAuthorizeRegistrationRead = jest.fn(() => 'test-edit-token')
 
-jest.unstable_mockModule('../lib/registrationAccess', () => ({
-  ...libRegistrationAccess,
-  authorizeRegistrationRead: mockAuthorizeRegistrationRead,
-}))
-
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
+  authorizeRegistrationRead: mockAuthorizeRegistrationRead,
   getRegistration: mockGetRegistration,
 }))
 

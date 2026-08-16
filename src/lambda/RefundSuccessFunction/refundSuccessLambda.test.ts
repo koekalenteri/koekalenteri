@@ -45,6 +45,7 @@ jest.unstable_mockModule('../lib/payment', () => ({
 jest.unstable_mockModule('../lib/registration', () => ({
   clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
   getRegistration: mockGetRegistration,
+  getRegistrationEditToken: jest.fn(() => 'test-edit-token'),
 }))
 
 jest.unstable_mockModule('../lib/event', () => ({

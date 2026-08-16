@@ -84,16 +84,11 @@ const mockfindExistingRegistrationToEventForDog = jest.fn<
 >(async () => undefined)
 
 const libRegistration = await import('../lib/registration')
-const libRegistrationAccess = await import('../lib/registrationAccess')
 const mockAuthorizeRegistrationEdit = jest.fn(() => 'test-edit-token')
-
-jest.unstable_mockModule('../lib/registrationAccess', () => ({
-  ...libRegistrationAccess,
-  authorizeRegistrationEdit: mockAuthorizeRegistrationEdit,
-}))
 
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
+  authorizeRegistrationEdit: mockAuthorizeRegistrationEdit,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
@@ -314,7 +309,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).not.toHaveBeenCalled()
     const body = JSON.parse(res.body)
     expect(body.id).toBe(winner.id)
-    expect(body.editToken).toBe(await libRegistrationAccess.getRegistrationEditToken(winner))
+    expect(body.editToken).toBe(await libRegistration.getRegistrationEditToken(winner))
   })
 
   it('should reject new registration with suppressed email address', async () => {
@@ -865,6 +860,69 @@ describe('putRegistrationLabmda', () => {
       'org-1'
     )
     expect(res.statusCode).toEqual(200)
+  })
+
+  it('applies array patch operations without changing dates into an object', async () => {
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent(
+        {
+          eventId: existingJson.eventId,
+          id: existingJson.id,
+          operations: [{ path: ['dates', 0, 'time'], type: 'CHANGE', value: 'ip' }],
+        },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(res.statusCode).toEqual(200)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      existingJson.eventId,
+      existingJson.id,
+      existingJson,
+      expect.objectContaining({ dates: [{ ...existingJson.dates[0], time: 'ip' }] })
+    )
+    expect(Array.isArray(mockPatchRegistration.mock.calls[0]?.[3].dates)).toBe(true)
+  })
+
+  it('rejects patch operations for non-public fields', async () => {
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent(
+        {
+          eventId: existingJson.eventId,
+          id: existingJson.id,
+          operations: [{ path: ['qualifyingResults', 0], type: 'CREATE', value: { result: 'VOI1' } }],
+        },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(res.statusCode).toEqual(400)
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
+  })
+
+  it('rejects legacy patches with object-shaped dates', async () => {
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent(
+        {
+          dates: { 0: { time: 'ip' } },
+          eventId: registrationWithStaticDates.eventId,
+          id: registrationWithStaticDates.id,
+        },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(res.statusCode).toEqual(400)
+    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
   it('should do happy path for confirming registration', async () => {

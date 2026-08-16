@@ -29,6 +29,12 @@ export type Patch<T extends object> = {
   [P in keyof T]?: PatchValue<T[P]>
 }
 
+export type PatchPath = Array<string | number>
+
+export type PatchOperation =
+  | { path: PatchPath; type: 'REMOVE' }
+  | { path: PatchPath; type: 'CREATE' | 'CHANGE'; value: unknown }
+
 export type AtLeastOne<T> = [T, ...T[]]
 
 export type KeyofExcluding<T, E extends keyof T> = { [K in keyof T]: K extends E ? never : K }[keyof T]

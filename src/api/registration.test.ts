@@ -6,8 +6,10 @@ import {
   getRegistrations,
   getStartList,
   getStartListPreview,
-  putAdminRegistration,
-  putRegistration,
+  patchAdminRegistration,
+  patchRegistration,
+  postAdminRegistration,
+  postRegistration,
   putRegistrationGroups,
 } from './registration'
 
@@ -69,6 +71,11 @@ const mockRegistration: Registration = {
       type: 'test-type',
     },
   ],
+}
+
+const mockRegistrationCreateRequest = () => {
+  const { editToken: _editToken, ...registration } = mockRegistration
+  return { ...registration, id: '' }
 }
 
 fetchMock.enableMocks()
@@ -140,72 +147,75 @@ test('getRegistration sends participant edit token', async () => {
   )
 })
 
-test('putRegistration creates with POST', async () => {
+test('postRegistration creates with POST', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'
       ? Promise.resolve(JSON.stringify(mockRegistration))
       : Promise.reject(new Error(`${req.method} !== 'POST'`))
   )
 
-  const { id: _id, ...registration } = mockRegistration
-  const result = await putRegistration(registration)
+  const result = await postRegistration(mockRegistrationCreateRequest())
   expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/registration/`, expect.any(Object))
   expect(result.id).not.toBeUndefined()
 })
 
-test('putRegistration updates with PATCH', async () => {
+test('patchRegistration updates with PATCH', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'PATCH'
       ? Promise.resolve(JSON.stringify(mockRegistration))
       : Promise.reject(new Error(`${req.method} !== 'PATCH'`))
   )
 
-  const result = await putRegistration({ eventId: mockRegistration.eventId, id: mockRegistration.id, notes: 'patched' })
+  const result = await patchRegistration({
+    eventId: mockRegistration.eventId,
+    id: mockRegistration.id,
+    operations: [{ path: ['notes'], type: 'CHANGE', value: 'patched' }],
+  })
   expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/registration/`, expect.any(Object))
   expect(result.id).not.toBeUndefined()
 })
 
-test('putRegistration sends the edit token returned with the registration', async () => {
-  fetchMock.mockResponseOnce(JSON.stringify({ ...mockRegistration, editToken: 'participant-token' }))
-
-  await putRegistration({
-    editToken: 'participant-token',
-    eventId: mockRegistration.eventId,
-    id: mockRegistration.id,
-    notes: 'patched',
+test('postRegistration stores the edit token returned for the new registration', async () => {
+  fetchMock.mockResponseOnce(async (request) => {
+    expect(request.headers.has('Authorization')).toBe(false)
+    return JSON.stringify({ ...mockRegistration, editToken: 'participant-token' })
   })
 
-  expect(fetchMock).toHaveBeenCalledWith(
-    `${API_BASE_URL}/registration/`,
-    expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer participant-token' }) })
+  await postRegistration(mockRegistrationCreateRequest())
+
+  expect(sessionStorage.getItem(`registration-edit-token:${mockRegistration.eventId}:${mockRegistration.id}`)).toBe(
+    'participant-token'
   )
 })
 
-test('putAdminRegistration creates with POST', async () => {
+test('postAdminRegistration creates with POST', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'
       ? Promise.resolve(JSON.stringify(mockRegistration))
       : Promise.reject(new Error(`${req.method} !== 'POST'`))
   )
 
-  const { id: _id, ...registration } = mockRegistration
-  const result = await putAdminRegistration(registration, 'test-token')
+  const result = await postAdminRegistration(mockRegistrationCreateRequest(), 'test-token')
   expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/registration/`, expect.any(Object))
   expect(result.id).not.toBeUndefined()
 })
 
-test('putAdminRegistration updates with PATCH', async () => {
+test('patchAdminRegistration updates with PATCH', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'PATCH'
       ? Promise.resolve(JSON.stringify(mockRegistration))
       : Promise.reject(new Error(`${req.method} !== 'PATCH'`))
   )
 
-  const result = await putAdminRegistration(
-    { eventId: mockRegistration.eventId, id: mockRegistration.id, notes: 'patched' },
+  const result = await patchAdminRegistration(
+    {
+      eventId: mockRegistration.eventId,
+      id: mockRegistration.id,
+      operations: [{ path: ['notes'], type: 'CHANGE', value: 'patched' }],
+    },
     'test-token'
   )
   expect(fetchMock).toHaveBeenCalledTimes(1)

@@ -30,9 +30,9 @@ describe('useRegistrationActions', () => {
     jest.clearAllMocks()
   })
 
-  it('cancels registration with a minimal patch', async () => {
+  it('cancels registration with patch operations', async () => {
     const savedRegistration = { ...registrationWithStaticDates, cancelled: true, cancelReason: 'dog-heat' }
-    jest.spyOn(registrationApi, 'putRegistration').mockResolvedValueOnce(savedRegistration)
+    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(savedRegistration)
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
@@ -41,19 +41,21 @@ describe('useRegistrationActions', () => {
       saved = await result.current.cancel(registrationWithStaticDates, 'dog-heat')
     })
 
-    expect(registrationApi.putRegistration).toHaveBeenCalledWith({
-      cancelled: true,
-      cancelReason: 'dog-heat',
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith({
       eventId: registrationWithStaticDates.eventId,
       id: registrationWithStaticDates.id,
+      operations: [
+        { path: ['cancelled'], type: 'CREATE', value: true },
+        { path: ['cancelReason'], type: 'CREATE', value: 'dog-heat' },
+      ],
     })
     expect(saved).toBe(savedRegistration)
     expect(mockEnqueueSnackbar).toHaveBeenCalledWith('registration.cancelDialog.done', { variant: 'info' })
   })
 
-  it('saves edited registration with a minimal patch', async () => {
+  it('saves edited registration with patch operations', async () => {
     const editedRegistration = { ...registrationWithStaticDates, notes: 'changed notes' }
-    jest.spyOn(registrationApi, 'putRegistration').mockResolvedValueOnce(editedRegistration)
+    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
@@ -62,12 +64,12 @@ describe('useRegistrationActions', () => {
       saved = await result.current.save(editedRegistration, eventWithStaticDates, registrationWithStaticDates)
     })
 
-    expect(registrationApi.putRegistration).toHaveBeenCalledWith({
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith({
       eventId: registrationWithStaticDates.eventId,
       id: registrationWithStaticDates.id,
-      notes: 'changed notes',
+      operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
     })
-    expect(registrationApi.putRegistration).not.toHaveBeenCalledWith(
+    expect(registrationApi.patchRegistration).not.toHaveBeenCalledWith(
       expect.objectContaining({ dog: expect.anything() })
     )
     expect(saved).toBe(editedRegistration)
@@ -76,7 +78,7 @@ describe('useRegistrationActions', () => {
   it('handles 304 from save action as a successful no-op', async () => {
     const editedRegistration = { ...registrationWithStaticDates, notes: 'changed notes' }
     jest
-      .spyOn(registrationApi, 'putRegistration')
+      .spyOn(registrationApi, 'patchRegistration')
       .mockRejectedValueOnce(new APIError(new Response(null, { status: 304, statusText: 'Not Modified' }), ''))
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
@@ -86,16 +88,16 @@ describe('useRegistrationActions', () => {
       saved = await result.current.save(editedRegistration, eventWithStaticDates, registrationWithStaticDates)
     })
 
-    expect(registrationApi.putRegistration).toHaveBeenCalledWith({
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith({
       eventId: registrationWithStaticDates.eventId,
       id: registrationWithStaticDates.id,
-      notes: 'changed notes',
+      operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
     })
     expect(saved).toEqual(editedRegistration)
   })
 
   it('handles save conflicts and returns undefined', async () => {
-    jest.spyOn(registrationApi, 'putRegistration').mockRejectedValueOnce(
+    jest.spyOn(registrationApi, 'postRegistration').mockRejectedValueOnce(
       new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
         email: 'owner@example.com',
         error: 'emailSuppressed',

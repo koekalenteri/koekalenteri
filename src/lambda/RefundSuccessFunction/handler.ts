@@ -9,8 +9,7 @@ import { registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail
 import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { applySuccessfulRefund, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
-import { clearRegistrationEmailDeliveryStatus, getRegistration } from '../lib/registration'
-import { getRegistrationEditToken } from '../lib/registrationAccess'
+import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationEditToken } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 

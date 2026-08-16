@@ -2,6 +2,7 @@ import type {
   EmailTemplateId,
   JsonConfirmedEvent,
   JsonRegistration,
+  JsonRegistrationPatchRequest,
   JsonTestResult,
   ManualTestResult,
   Patch,
@@ -9,8 +10,14 @@ import type {
   TestResult,
 } from '../../types'
 import { nanoid } from 'nanoid'
+import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
 import { filterRelevantResults } from '../../lib/qualification'
-import { GROUP_KEY_RESERVE, getSentInvitationAttachment, isParticipantGroup } from '../../lib/registration'
+import {
+  GROUP_KEY_RESERVE,
+  getSentInvitationAttachment,
+  hasInvalidRegistrationArrayFields,
+  isParticipantGroup,
+} from '../../lib/registration'
 import { isEntryOpen, isEventOver, isObject, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
@@ -33,26 +40,25 @@ import {
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
 import {
+  authorizeRegistrationEdit,
   clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
   createRegistrationPatches,
+  DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
   getReadyRegistrationsByEventId,
   getRegistration,
   getRegistrationChanges,
+  getRegistrationEditToken,
   hasRegistrationChanges,
+  isPublicRegistrationOperationField,
+  participantRegistrationResponse,
   patchRegistration,
+  publicRegistrationPatch,
   registrationConflictBody,
   saveRegistration,
 } from '../lib/registration'
-import {
-  authorizeRegistrationEdit,
-  DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
-  getRegistrationEditToken,
-  participantRegistrationResponse,
-  publicRegistrationPatch,
-} from '../lib/registrationAccess'
 import { claimNewRegistrationPostProcessing, markNewRegistrationPhase } from '../lib/registrationPostProcessing'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
 import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
@@ -287,9 +293,21 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const origin = getOrigin(event)
   const patchRequest = isPatchRequest(event)
 
-  const parsed: Patch<JsonRegistration> = parseJSONWithFallback(event.body)
-  const registration = publicRegistrationPatch(parsed, Boolean(parsed.id))
-  normalizeRegistrationEmails(registration)
+  const parsed: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(event.body)
+  const operationRequest = patchRequest && isPatchOperationRequest(parsed) ? parsed : undefined
+  if (patchRequest && isObject(parsed) && Object.hasOwn(parsed, 'operations') && !operationRequest) {
+    return response(400, { message: 'Bad request: invalid patch operations' }, event)
+  }
+  if (!operationRequest && hasInvalidRegistrationArrayFields(parsed)) {
+    return response(400, { message: 'Bad request: registration array fields must be arrays' }, event)
+  }
+  if (operationRequest && (typeof operationRequest.eventId !== 'string' || typeof operationRequest.id !== 'string')) {
+    return response(400, { message: 'Bad request: invalid patch metadata' }, event)
+  }
+  let registration = operationRequest
+    ? ({ eventId: operationRequest.eventId, id: operationRequest.id } satisfies Patch<JsonRegistration>)
+    : publicRegistrationPatch(parsed, Boolean(parsed.id))
+  if (!operationRequest) normalizeRegistrationEmails(registration)
 
   if (patchRequest && (!registration.eventId || !registration.id)) {
     return response(400, { message: 'Bad request: PATCH requires eventId and id' }, event)
@@ -347,6 +365,31 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
         eventId: registration.eventId,
         id: registration.id,
       })
+
+  if (existing && operationRequest) {
+    if (operationRequest.operations.some(({ path }) => !isPublicRegistrationOperationField(path[0]))) {
+      return response(400, { message: 'Bad request: patch changes a protected registration field' }, event)
+    }
+    try {
+      const patchedRegistration = applyPatchOperations(existing, operationRequest.operations)
+      if (hasInvalidRegistrationArrayFields(patchedRegistration, true)) {
+        return response(400, { message: 'Bad request: registration array fields must be arrays' }, event)
+      }
+      registration = publicRegistrationPatch(patchedRegistration, true)
+    } catch (error) {
+      if (error instanceof InvalidPatchError) {
+        return response(400, { message: `Bad request: ${error.message}` }, event)
+      }
+      throw error
+    }
+    registration = {
+      ...registration,
+      ...(registration.handler ? { handler: { ...registration.handler } } : {}),
+      ...(registration.owner ? { owner: { ...registration.owner } } : {}),
+      ...(registration.payer ? { payer: { ...registration.payer } } : {}),
+    }
+    normalizeRegistrationEmails(registration)
+  }
 
   const update = !!existing
   const cancel = !existing?.cancelled && !!registration.cancelled

@@ -1,6 +1,14 @@
-import type { AuditRecord, ConfirmedEvent, Patch, Registration, RegistrationGroupMove } from '../../types'
+import type {
+  AuditRecord,
+  ConfirmedEvent,
+  Registration,
+  RegistrationCreateRequest,
+  RegistrationGroupMove,
+  RegistrationPatchRequest,
+} from '../../types'
 import { parseISO } from 'date-fns'
 import { mockRegistrationData } from '../../__mockData__/registrations'
+import { applyPatchOperations } from '../../lib/patch'
 import { mockEvents } from './event'
 
 export const mockRegistrations: { [key: string]: Registration[] } = {
@@ -77,7 +85,7 @@ export async function getRegistrations(
 export async function getRegistration(
   eventId: string,
   id: string,
-  _token?: string,
+  _editToken?: string,
   _signal?: AbortSignal
 ): Promise<Registration | undefined> {
   return new Promise((resolve, reject) => {
@@ -103,25 +111,38 @@ export const getRegistrationAuditTrail = async (
   })
 }
 
-export async function putRegistration(
-  registration: Patch<Registration>,
-  _token?: string,
+export async function postRegistration(
+  registration: RegistrationCreateRequest,
   _signal?: AbortSignal
 ): Promise<Registration> {
   const id = registration.id || 'test-registration'
-  const existing = registration.eventId
-    ? mockRegistrations[registration.eventId]?.find((item) => item.id === id)
-    : undefined
-
-  return Promise.resolve({ ...existing, ...registration, id } as Registration)
+  return Promise.resolve({ ...registration, id })
 }
 
-export async function putAdminRegistration(
-  registration: Patch<Registration>,
+export async function patchRegistration(
+  request: RegistrationPatchRequest,
+  _editToken?: string,
+  _signal?: AbortSignal
+): Promise<Registration> {
+  const registration = mockRegistrations[request.eventId]?.find((item) => item.id === request.id)
+  if (!registration) throw new Error(`Registration not found ${request.eventId}/${request.id}`)
+  return applyPatchOperations(registration, request.operations)
+}
+
+export async function postAdminRegistration(
+  registration: RegistrationCreateRequest,
   _token: string,
   _signal?: AbortSignal
 ): Promise<Registration> {
-  return Promise.resolve({ ...registration } as Registration)
+  return Promise.resolve({ ...registration })
+}
+
+export async function patchAdminRegistration(
+  request: RegistrationPatchRequest,
+  _token: string,
+  _signal?: AbortSignal
+): Promise<Registration> {
+  return patchRegistration(request)
 }
 
 export async function putRegistrationGroups(

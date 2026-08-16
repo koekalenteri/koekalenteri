@@ -3,8 +3,7 @@ import { isEventOver } from '../../lib/utils'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getTransactionsByReference } from '../lib/payment'
-import { getRegistration } from '../lib/registration'
-import { authorizeRegistrationRead, participantRegistrationResponse } from '../lib/registrationAccess'
+import { authorizeRegistrationRead, getRegistration, participantRegistrationResponse } from '../lib/registration'
 
 const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const eventId = getParam(event, 'eventId')

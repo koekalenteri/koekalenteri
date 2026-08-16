@@ -1,6 +1,8 @@
-import type { JsonConfirmedEvent, JsonRegistration, Patch } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
 import { nanoid } from 'nanoid'
-import { patchMerge } from '../../lib/utils'
+import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
+import { hasInvalidRegistrationArrayFields } from '../../lib/registration'
+import { isObject, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, auditStrict, registrationAuditKey } from '../lib/audit'
@@ -25,25 +27,42 @@ import {
   clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
   createRegistrationPatches,
+  DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
   findExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId,
   getRegistration,
   getRegistrationChanges,
+  getRegistrationEditToken,
+  participantRegistrationResponse,
   patchRegistration,
   registrationConflictBody,
   saveRegistration,
 } from '../lib/registration'
-import {
-  DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
-  getRegistrationEditToken,
-  participantRegistrationResponse,
-} from '../lib/registrationAccess'
 import { removeNewRegistrationWorkflowMetadata, removeRegistrationCreationMetadata } from '../lib/registrationMetadata'
 import { claimNewRegistrationPostProcessing, markNewRegistrationPhase } from '../lib/registrationPostProcessing'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
 import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 
 const { emailFrom } = CONFIG
+
+const PROTECTED_PATCH_FIELDS = new Set([
+  'createdAt',
+  'createdBy',
+  'creationIdempotencyKey',
+  'editToken',
+  'editTokenVersion',
+  'eventId',
+  'id',
+  'modifiedAt',
+  'modifiedBy',
+  'newRegistrationAuditAt',
+  'newRegistrationEmailSentAt',
+  'newRegistrationLease',
+  'newRegistrationProcessedAt',
+  'newRegistrationPublishedAt',
+  'newRegistrationStatsAt',
+  'updatedAt',
+])
 
 const completeNewAdminRegistration = async (
   registration: JsonRegistration,
@@ -118,11 +137,31 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   const patchRequest = isPatchRequest(event)
 
   let existing: JsonRegistration | undefined
-  const registration: Patch<JsonRegistration> = parseJSONWithFallback(event.body)
-  delete registration.editToken
-  removeNewRegistrationWorkflowMetadata(registration)
-  const clientModifiedAt = registration.modifiedAt
-  normalizeRegistrationEmails(registration)
+  const parsed: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(event.body)
+  const operationRequest = patchRequest && isPatchOperationRequest(parsed) ? parsed : undefined
+  if (patchRequest && isObject(parsed) && Object.hasOwn(parsed, 'operations') && !operationRequest) {
+    return response(400, { message: 'Bad request: invalid patch operations' }, event)
+  }
+  if (!operationRequest && hasInvalidRegistrationArrayFields(parsed)) {
+    return response(400, { message: 'Bad request: registration array fields must be arrays' }, event)
+  }
+  if (
+    operationRequest &&
+    (typeof operationRequest.eventId !== 'string' ||
+      typeof operationRequest.id !== 'string' ||
+      (operationRequest.modifiedAt !== undefined && typeof operationRequest.modifiedAt !== 'string'))
+  ) {
+    return response(400, { message: 'Bad request: invalid patch metadata' }, event)
+  }
+  let registration: Patch<JsonRegistration> = operationRequest
+    ? { eventId: operationRequest.eventId, id: operationRequest.id }
+    : parsed
+  const clientModifiedAt = operationRequest?.modifiedAt ?? registration.modifiedAt
+  if (!operationRequest) {
+    delete registration.editToken
+    removeNewRegistrationWorkflowMetadata(registration)
+    normalizeRegistrationEmails(registration)
+  }
 
   if (patchRequest && (!registration.eventId || !registration.id)) {
     return response(400, { message: 'Bad request: PATCH requires eventId and id' }, event)
@@ -141,6 +180,26 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     )
     if (existing?.modifiedAt && clientModifiedAt && existing.modifiedAt !== clientModifiedAt) {
       return response(409, { error: 'staleData', message: 'Registration has been modified since it was loaded' }, event)
+    }
+
+    if (operationRequest) {
+      if (operationRequest.operations.some(({ path }) => PROTECTED_PATCH_FIELDS.has(String(path[0])))) {
+        return response(400, { message: 'Bad request: patch changes a protected registration field' }, event)
+      }
+      try {
+        registration = applyPatchOperations(existing, operationRequest.operations)
+      } catch (error) {
+        if (error instanceof InvalidPatchError) {
+          return response(400, { message: `Bad request: ${error.message}` }, event)
+        }
+        throw error
+      }
+      if (registration.eventId !== operationRequest.eventId || registration.id !== operationRequest.id) {
+        return response(400, { message: 'Bad request: patch must not change registration identity' }, event)
+      }
+      if (hasInvalidRegistrationArrayFields(registration, true)) {
+        return response(400, { message: 'Bad request: registration array fields must be arrays' }, event)
+      }
     }
   } else {
     // Prevent double registrations when trying to insert new registration
@@ -181,6 +240,16 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     registration.state = 'ready'
   }
 
+  if (operationRequest) {
+    registration = {
+      ...registration,
+      ...(registration.handler ? { handler: { ...registration.handler } } : {}),
+      ...(registration.owner ? { owner: { ...registration.owner } } : {}),
+      ...(registration.payer ? { payer: { ...registration.payer } } : {}),
+    }
+    normalizeRegistrationEmails(registration)
+  }
+
   // modification info is always updated
   registration.modifiedAt = timestamp
   registration.modifiedBy = user.name
@@ -188,7 +257,11 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   let data = registration as JsonRegistration
   if (existing) {
-    data = patchRequest ? patchMerge(existing, registration) : ({ ...existing, ...registration } as JsonRegistration)
+    data = operationRequest
+      ? (registration as JsonRegistration)
+      : patchRequest
+        ? patchMerge(existing, registration)
+        : ({ ...existing, ...registration } as JsonRegistration)
   }
   await assertRegistrationEmailsNotSuppressed(data)
   const clearEmailDeliveryStatus = shouldClearRegistrationEmailDeliveryStatus(existing, data)

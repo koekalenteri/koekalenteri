@@ -22,8 +22,8 @@ import {
   createRegistrationPatches,
   getReadyRegistrationsByEventId,
   getRegistration,
+  getRegistrationEditToken,
 } from '../lib/registration'
-import { getRegistrationEditToken } from '../lib/registrationAccess'
 import { publishRegistrationPatchesStrict } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
