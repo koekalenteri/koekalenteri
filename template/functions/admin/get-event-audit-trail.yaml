@@ -4,7 +4,7 @@
       CodeUri: lambda/GetEventAuditTrailFunction
       Handler: handler.default
       Layers:
-        - !Ref CommonLayer
+        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - DynamoDBReadPolicy:

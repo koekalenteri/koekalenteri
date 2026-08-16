@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# rm -rf dist
+rm -rf -- dist/lambda
 
 mkdir -p dist/lambda
-mkdir -p dist/layer/nodejs
+mkdir -p dist/dependencies-layer/nodejs
 
 node scripts/layer-modules.mjs

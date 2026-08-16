@@ -4,7 +4,7 @@
       CodeUri: lambda/BackfillEventStatsFunction
       Handler: handler.default
       Layers:
-        - !Ref CommonLayer
+        - !Ref DependenciesLayer
       Tracing: Active
       Timeout: 900
       Policies:

@@ -160,13 +160,13 @@ jobs:
         run: npm run lint-backend && npm run lint-biome
       - name: Build
         run: npm run build-backend
+      - uses: aws-actions/setup-sam@v3
+        with:
+          use-installer: true
+      - name: Validate SAM template
+        run: sam validate --lint -t dist/template.yaml
       - name: Test
         run: npm run test-backend -- --coverage
-      - name: Upload build
-        uses: actions/upload-artifact@v7
-        with:
-          name: backend-build
-          path: dist/
       - name: Rename coverage
         run: |
           mkdir -p coverage

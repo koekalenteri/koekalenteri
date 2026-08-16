@@ -16,7 +16,7 @@ const paths = {
   projectLib: join(projectRoot, 'src', 'lib'),
   i18n: join(projectRoot, 'src', 'i18n'),
   nodeModules: join(projectRoot, 'node_modules'),
-  layerNodeModules: join(projectRoot, 'dist', 'layer', 'nodejs', 'node_modules'),
+  dependenciesLayerNodeModules: join(projectRoot, 'dist', 'dependencies-layer', 'nodejs', 'node_modules'),
 }
 
 const excludeFiles = ['src/i18n/index.ts', 'src/lambda/jest.config.ts']
@@ -107,7 +107,7 @@ function analyzeHandlerDependencies() {
   const supportFiles = [
     ...findTsFiles(paths.lib),
     ...findTsFiles(paths.utils),
-    ...findTsFiles(paths.projectLib),
+    ...findTsFiles(paths.projectLib).filter((file) => !file.startsWith(join(paths.projectLib, 'client'))),
     ...findTsFiles(paths.i18n),
   ]
 
@@ -163,22 +163,23 @@ function analyzeHandlerDependencies() {
 }
 
 async function copyPackagesToLayer(packages) {
-  console.log('\n=== Creating symbolic links in layer/nodejs/node_modules ===\n')
+  console.log('\n=== Creating symbolic links in dependencies-layer/nodejs/node_modules ===\n')
 
-  if (!existsSync(paths.layerNodeModules)) {
-    console.log(`Creating directory: ${paths.layerNodeModules}`)
-    mkdirSync(paths.layerNodeModules, { recursive: true })
+  if (existsSync(paths.dependenciesLayerNodeModules)) {
+    rmSync(paths.dependenciesLayerNodeModules, { recursive: true, force: true })
   }
+  console.log(`Creating directory: ${paths.dependenciesLayerNodeModules}`)
+  mkdirSync(paths.dependenciesLayerNodeModules, { recursive: true })
 
-  process.chdir(paths.layerNodeModules)
+  process.chdir(paths.dependenciesLayerNodeModules)
   const linked = []
 
   for (const pkg of packages) {
     const source = join(paths.nodeModules, pkg)
-    const target = join(paths.layerNodeModules, pkg)
+    const target = join(paths.dependenciesLayerNodeModules, pkg)
 
     if (pkg.startsWith('@')) {
-      const scopeDir = join(paths.layerNodeModules, pkg.split('/')[0])
+      const scopeDir = join(paths.dependenciesLayerNodeModules, pkg.split('/')[0])
       if (!existsSync(scopeDir)) mkdirSync(scopeDir, { recursive: true })
     }
 

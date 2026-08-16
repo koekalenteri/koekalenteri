@@ -4,7 +4,7 @@
       CodeUri: lambda/WsMessageFunction
       Handler: handler.default
       Layers:
-        - !Ref CommonLayer
+        - !Ref DependenciesLayer
       Tracing: PassThrough
       Policies:
         - DynamoDBCrudPolicy:

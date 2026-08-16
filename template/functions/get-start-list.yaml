@@ -4,7 +4,7 @@
       CodeUri: lambda/GetStartListFunction
       Handler: handler.default
       Layers:
-        - !Ref CommonLayer
+        - !Ref DependenciesLayer
       Tracing: PassThrough
       Policies:
         - DynamoDBReadPolicy:

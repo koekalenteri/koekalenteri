@@ -4,7 +4,7 @@
       CodeUri: lambda/RefundCancelFunction
       Handler: handler.default
       Layers:
-        - !Ref CommonLayer
+        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - Statement:

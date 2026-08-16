@@ -12,7 +12,7 @@ Globals:
       Application: serverless-web-app
     Environment:
       Variables:
-        NODE_PATH: /opt/nodejs/node_modules # needed for layer imports to work without custom build
+        NODE_PATH: /opt/nodejs/node_modules # resolve packages from the dependencies layer
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
         CUSTOM_DOMAIN: !Ref CustomDomain
         STACK_NAME: !Ref AWS::StackName

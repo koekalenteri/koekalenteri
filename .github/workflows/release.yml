@@ -94,9 +94,6 @@ jobs:
           fi
           echo "environment=koekalenteri-${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
           echo "stage=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
-      - name: SAM Validate
-        run: |
-          sam validate --lint -t dist/template.yaml
       - name: SAM Build
         run: |
           sam build --base-dir dist -t dist/template.yaml

@@ -1,10 +1,10 @@
-  CommonLayer:
+  DependenciesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-        LayerName: lambda-shared
-        Description: Shared resources between lambdas
-        ContentUri: layer/
-        CompatibleRuntimes:
-          - nodejs24.x
-        LicenseInfo: 'MIT'
-        RetentionPolicy: Retain
+      LayerName: lambda-dependencies
+      Description: NPM dependencies shared between lambdas
+      ContentUri: dependencies-layer/
+      CompatibleRuntimes:
+        - nodejs24.x
+      LicenseInfo: 'MIT'
+      RetentionPolicy: Retain
