@@ -1,7 +1,7 @@
 import type { JsonJudge, Judge, RequireAllKeys } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
-import { diff } from 'deep-object-diff'
+import { getChangedTopLevelKeys } from '../../lib/diff'
 import { CONFIG } from '../config'
 import { KLKieli } from '../types/KLAPI'
 import { capitalize } from './string'
@@ -95,7 +95,7 @@ export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: Partial
     const existing = existingJudges.find((j) => j.id === judge.id)
     if (!existing) continue
     const partial = partializeJudge(existing)
-    const changes = Object.keys(diff(partial, { ...partial, ...judge }))
+    const changes = getChangedTopLevelKeys(partial, { ...partial, ...judge })
     if (changes.length > 0) {
       console.log(`updating judge ${judge.id}: changes: ${changes.join(', ')}`)
       const updated: JsonJudge = {

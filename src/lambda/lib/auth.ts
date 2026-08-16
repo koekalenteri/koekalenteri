@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonUser } from '../../types'
-import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
+import { getChangedTopLevelKeys } from '../../lib/diff'
 import { CONFIG } from '../config'
 import { response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -80,7 +80,7 @@ async function updateExistingUser(
     ...(writeLastSeen ? { lastSeen: dateString } : {}),
   }
 
-  const changedKeys = Object.keys(diff(existing, final))
+  const changedKeys = getChangedTopLevelKeys(existing, final)
   if (changedKeys.length > 0) {
     console.log('updating user', { existing, final, userId: existing.id })
     // Only bump modifiedAt when something meaningful changed (not just lastSeen).
@@ -213,7 +213,7 @@ export async function getAndUpdateUserByEmail(
       : {}),
     ...(writeLastSeen ? { lastSeen: dateString } : {}),
   }
-  const changedKeys = Object.keys(diff(existing ?? {}, final))
+  const changedKeys = getChangedTopLevelKeys(existing, final)
   if (changedKeys.length > 0) {
     if (existing) console.log('updating user', { existing, final })
     else console.log('creating user', { ...final })

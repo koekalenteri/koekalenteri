@@ -2,9 +2,9 @@ import type { JsonDogEvent, JsonUser, Official, Organizer, UserRole } from '../.
 import type { UserLink } from './auth'
 import type { EmailHistoryEntry } from './emailHistory'
 import type { PartialJsonJudge } from './judge'
-import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
 import { i18n } from '../../i18n/lambda'
+import { getChangedTopLevelKeys } from '../../lib/diff'
 import { validEmail } from '../../lib/email'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -317,7 +317,7 @@ const updateExistingUserFromItem = (
     [eventTypesFiled]: item.eventTypes,
     ...(emailHistory ? { emailHistory } : {}),
   }
-  const changes = Object.keys(diff(existing, updated))
+  const changes = getChangedTopLevelKeys(existing, updated)
   if (changes.length > 0) {
     console.log(`updating user from item: ${item.name}. changed props: ${changes.join(', ')}`)
     return {

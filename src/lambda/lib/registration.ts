@@ -7,9 +7,9 @@ import type {
   RegistrationTemplateContext,
 } from '../../types'
 import { createHmac, timingSafeEqual } from 'node:crypto'
-import { diff } from 'deep-object-diff'
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
+import { getChangedTopLevelKeys, getNestedChanges, objectsDiffer } from '../../lib/diff'
 import {
   GROUP_KEY_RESERVE,
   getRegistrationClass,
@@ -474,13 +474,14 @@ export const getCancelAuditMessage = (data: JsonRegistration) => {
 
 export const getRegistrationChanges = (existing: JsonRegistration, data: JsonRegistration) => {
   const t = i18n.getFixedT('fi')
-  const changes: Partial<JsonRegistration> = diff(existing, data)
+  const changes = getNestedChanges(existing, data)
   console.debug('Audit changes', changes)
+  const changedKeys = new Set(getChangedTopLevelKeys(existing, data))
   const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
   const modified: string[] = []
 
   for (const key of keys) {
-    if (changes[key]) {
+    if (changedKeys.has(key)) {
       modified.push(t(`registration.${key}`))
     }
   }
@@ -495,7 +496,5 @@ const omitTechnicalRegistrationFields = (registration: JsonRegistration): Partia
 }
 
 export const hasRegistrationChanges = (existing: JsonRegistration, data: JsonRegistration) => {
-  const changes = diff(omitTechnicalRegistrationFields(existing), omitTechnicalRegistrationFields(data))
-
-  return Object.keys(changes).length > 0
+  return objectsDiffer(omitTechnicalRegistrationFields(existing), omitTechnicalRegistrationFields(data))
 }

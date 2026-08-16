@@ -1,12 +1,11 @@
 import type { DeepPartial, Dog } from '../../../types'
 import type { DogCachedInfo } from './atoms'
-import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
 import { useRecoilState } from 'recoil'
 import { getDog } from '../../../api/dog'
 import { emptyDog } from '../../../lib/data'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
-import { hasChanges, merge } from '../../../lib/utils'
+import { getChanges, hasChanges, merge } from '../../../lib/utils'
 import { useDogCache } from '../../components/registrationForm/hooks/useDogCache'
 import { dogAtom } from './atoms'
 
@@ -67,7 +66,7 @@ export function useDogActions(regNo: string) {
     },
     updateCache: (props: DeepPartial<DogCachedInfo>) => {
       const newCache = merge(cache ?? INIT_CACHE, props)
-      const newCacheDog = diff(dog ?? {}, newCache.dog ?? {})
+      const newCacheDog = getChanges(dog ?? {}, newCache.dog ?? {})
       if (hasChanges(newCache?.dog, newCacheDog)) {
         newCache.dog = newCacheDog
       }

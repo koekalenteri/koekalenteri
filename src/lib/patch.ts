@@ -1,5 +1,5 @@
 import type { PatchOperation, PatchPath } from '../types'
-import microdiff from 'microdiff'
+import { getDiffOperations } from './diff'
 
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
 
@@ -151,7 +151,7 @@ const applyOperationAtPath = (
 }
 
 export const createPatchOperations = (before: object, after: object): PatchOperation[] =>
-  microdiff(before, after, { cyclesFix: false }).flatMap<PatchOperation>((difference) => {
+  getDiffOperations(before, after).flatMap<PatchOperation>((difference) => {
     if (difference.type === 'REMOVE') return [{ path: difference.path, type: 'REMOVE' }]
     if (difference.value === undefined) {
       return difference.type === 'CHANGE' ? [{ path: difference.path, type: 'REMOVE' }] : []

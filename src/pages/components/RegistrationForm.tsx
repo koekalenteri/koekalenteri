@@ -26,10 +26,10 @@ import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { diff } from 'deep-object-diff'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { calculateCost } from '../../lib/cost'
+import { getDiffOperations } from '../../lib/diff'
 import { isDevEnv } from '../../lib/env'
 import { formatMoney } from '../../lib/money'
 import { hasChanges, merge } from '../../lib/utils'
@@ -137,7 +137,7 @@ export default function RegistrationForm({
         onChange?.(newState)
 
         if (isDevEnv()) {
-          console.debug('changed', diff(registration, newState))
+          console.debug('changed', getDiffOperations(registration, newState))
         }
       }
     },
@@ -207,7 +207,7 @@ export default function RegistrationForm({
 
     if (hasChanges(savedRegistration ?? registration, newState)) {
       if (isDevEnv()) {
-        console.log('changes', diff(savedRegistration ?? registration, newState))
+        console.log('changes', getDiffOperations(savedRegistration ?? registration, newState))
       }
       handleChange({ qualifies: filtered.qualifies, qualifyingResults: filtered.relevant })
     }

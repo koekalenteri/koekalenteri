@@ -1,10 +1,10 @@
 import type { DogEvent, Patch, RegistrationClass } from '../../../../types'
-import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
+import { getChangedTopLevelKeys } from '../../../../lib/diff'
 import {
   copyDogEvent,
   getStartListPublishedClassMap,
@@ -25,7 +25,7 @@ export const buildEventSavePatch = (
     return event
   }
 
-  const changedKeys = Object.keys(formChanges ?? diff(currentAdminEvent, event))
+  const changedKeys = formChanges ? Object.keys(formChanges) : getChangedTopLevelKeys(currentAdminEvent, event)
   const changes: Patch<DogEvent> = { id: event.id }
   for (const key of changedKeys) {
     const value =

@@ -1,7 +1,7 @@
 import type { JsonOfficial, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
-import { diff } from 'deep-object-diff'
+import { getChangedTopLevelKeys } from '../../lib/diff'
 import { CONFIG } from '../config'
 import { KLKieli } from '../types/KLAPI'
 import { capitalize } from './string'
@@ -78,7 +78,7 @@ export const updateOfficials = async (dynamoDB: CustomDynamoClient, officials: O
   for (const official of officials) {
     const existing = existingOfficials.find((j) => j.id === official.id)
     if (!existing) continue
-    const changes = Object.keys(diff(existing, { ...existing, ...official }))
+    const changes = getChangedTopLevelKeys(existing, { ...existing, ...official })
     if (changes.length > 0) {
       console.log(`updating official ${official.id}: changes: ${changes.join(', ')}`)
       const updated: JsonOfficial = {

@@ -10,8 +10,8 @@ import type {
   RegistrationTime,
 } from '../types'
 import { eachDayOfInterval, subDays } from 'date-fns'
-import { diff } from 'deep-object-diff'
 import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
+import { getNestedChanges, objectsDiffer } from './diff'
 
 type EventVitals = Partial<
   Pick<PublicDogEvent | JsonPublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
@@ -159,10 +159,9 @@ export const isObject = (o: unknown): o is AnyObject =>
 export const isEmptyObject = (o: unknown): o is EmptyObject => isObject(o) && isEmpty(o)
 
 export const getChanges = <T extends object>(a: T | undefined | null, b: T | undefined | null): Partial<T> =>
-  diff(a ?? {}, b ?? {}) as Partial<T>
+  getNestedChanges(a, b)
 
-export const hasChanges = (a: object | undefined | null, b: object | undefined | null): boolean =>
-  !isEmptyObject(getChanges(a, b))
+export const hasChanges = (a: object | undefined | null, b: object | undefined | null): boolean => objectsDiffer(a, b)
 
 export const clone = <T extends AnyObject>(a: T): T => ({ ...a })
 

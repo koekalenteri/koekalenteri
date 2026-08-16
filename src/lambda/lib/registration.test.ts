@@ -45,6 +45,7 @@ const {
   getLastEmailInfo,
   findClassesToMark,
   findExistingRegistrationToEventForDog,
+  getRegistrationChanges,
   hasRegistrationChanges,
   getRegistrationsByEventId,
   getReadyRegistrationsByEventId,
@@ -368,6 +369,19 @@ describe('registration', () => {
       } as JsonRegistration
 
       expect(hasRegistrationChanges(existing, updated)).toBe(true)
+    })
+  })
+
+  describe('getRegistrationChanges', () => {
+    it('returns stable audit labels for nested changes and removed fields', () => {
+      const existing = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[0])) as JsonRegistration
+      const { notes: _notes, ...withoutNotes } = existing
+      const updated = {
+        ...withoutNotes,
+        dog: { ...existing.dog, name: 'Changed name' },
+      } as JsonRegistration
+
+      expect(getRegistrationChanges(existing, updated)).toBe('Muutti: Koiran tiedot, Lisätiedot')
     })
   })
 

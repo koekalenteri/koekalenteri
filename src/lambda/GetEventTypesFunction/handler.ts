@@ -1,5 +1,5 @@
 import type { JsonEventType, JsonUser } from '../../types'
-import { diff } from 'deep-object-diff'
+import { objectsDiffer } from '../../lib/diff'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { collectionChangesSince, parseDateParam } from '../lib/incremental'
@@ -57,7 +57,7 @@ const refreshEventTypes = async (user: JsonUser) => {
 
   const updates = eventTypes.filter((et) => {
     const ex = existing?.find((ex) => ex.eventType === et.eventType)
-    return ex && Object.keys(diff(ex.description, et.description)).length > 0
+    return ex && objectsDiffer(ex.description, et.description)
   })
 
   for (const updated of updates) {
