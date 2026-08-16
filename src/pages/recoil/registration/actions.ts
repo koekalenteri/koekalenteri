@@ -61,11 +61,8 @@ export function useRegistrationActions() {
       return saved
     },
 
-    reload: async ({ eventId, id }: Pick<Registration, 'eventId' | 'id'>) => {
-      const reg = await getRegistration(eventId, id)
+    reload: async ({ eventId, id }: Pick<Registration, 'eventId' | 'id'>) => getRegistration(eventId, id),
 
-      return reg
-    },
     save: async (reg: Registration, event: ConfirmedEvent, savedRegistration?: Registration | null) => {
       const regWithOverrides = withRegistrationOverrides(reg)
       let saved: Registration

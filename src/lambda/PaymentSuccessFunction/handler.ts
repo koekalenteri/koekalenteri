@@ -24,7 +24,8 @@ import {
   getRegistration,
   getRegistrationEditToken,
 } from '../lib/registration'
-import { publishRegistrationPatchesStrict } from '../lib/ws/actions'
+import { publishParticipantRegistrationPatch, publishRegistrationPatchesStrict } from '../lib/ws/actions'
+import { buildParticipantPaymentPatch } from '../lib/ws/payloads'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
@@ -99,6 +100,13 @@ const recordDuplicatePayment = async (
     { set: { paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt } },
     registrationTable
   )
+  await publishParticipantRegistrationPatch(registration.eventId, registration.id, {
+    eventId: registration.eventId,
+    id: registration.id,
+    paymentStatus: 'DUPLICATE',
+    shouldPay: false,
+    updatedAt: duplicatePaymentAt,
+  })
   await audit({
     auditKey: registrationAuditKey(registration),
     message: `Päällekkäinen maksu (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}, toinen ilmoittautuminen: ${duplicateOfRegistrationId}`,
@@ -282,6 +290,14 @@ const handleSuccessfulPayment = async (
   // The provider captured this payment, and it is now recorded as a visible,
   // refundable duplicate. Acknowledge the callback to stop permanent retries.
   if (duplicatePayment) return true
+
+  // Notify the participant as soon as the payment has been persisted. Receipt,
+  // confirmation email, and admin-side reconciliation may continue afterwards.
+  await publishParticipantRegistrationPatch(
+    registration.eventId,
+    registrationId,
+    buildParticipantPaymentPatch(registration)
+  )
 
   const workflowClaim = await claimPostPaymentWorkflow(transaction.transactionId)
   // Another callback owns the idempotent post-payment phases. The payment

@@ -6,14 +6,17 @@ import { authenticateWebSocket, getWebSocketConnection } from '../lib/ws/connect
 import {
   subscribeToAdmin,
   subscribeToEvent,
+  subscribeToRegistration,
   unsubscribeFromAdmin,
   unsubscribeFromEvent,
+  unsubscribeFromRegistration,
 } from '../lib/ws/subscriptionService'
 
 interface WsMessage {
   action?: 'authenticate' | 'subscribe' | 'unsubscribe'
-  channel?: 'admin' | 'event'
+  channel?: 'admin' | 'event' | 'registration'
   eventId?: string
+  registrationId?: string
   token?: string
 }
 
@@ -21,7 +24,8 @@ type ValidWsMessage =
   | { action: 'authenticate'; token: string }
   | { action: 'subscribe'; channel: 'admin' }
   | { action: 'subscribe'; channel: 'event'; eventId: string }
-  | { action: 'unsubscribe'; channel: 'admin' | 'event' }
+  | { action: 'subscribe'; channel: 'registration'; editToken: string; eventId: string; registrationId: string }
+  | { action: 'unsubscribe'; channel: 'admin' | 'event' | 'registration' }
 
 const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
 
@@ -38,7 +42,26 @@ const parseObjectMessage = (message: WsMessage): ValidWsMessage | undefined => {
     return { action: 'subscribe', channel: 'event', eventId: message.eventId }
   }
 
-  if (message.action === 'unsubscribe' && (message.channel === 'admin' || message.channel === 'event')) {
+  if (
+    message.action === 'subscribe' &&
+    message.channel === 'registration' &&
+    isNonEmptyString(message.eventId) &&
+    isNonEmptyString(message.registrationId) &&
+    isNonEmptyString(message.token)
+  ) {
+    return {
+      action: 'subscribe',
+      channel: 'registration',
+      editToken: message.token,
+      eventId: message.eventId,
+      registrationId: message.registrationId,
+    }
+  }
+
+  if (
+    message.action === 'unsubscribe' &&
+    (message.channel === 'admin' || message.channel === 'event' || message.channel === 'registration')
+  ) {
     return { action: 'unsubscribe', channel: message.channel }
   }
 }
@@ -60,6 +83,10 @@ const handleSubscribeMessage = async (
 ) => {
   if (message.channel === 'admin') return subscribeToAdmin(connection)
 
+  if (message.channel === 'registration') {
+    return subscribeToRegistration(connection, message.eventId, message.registrationId, message.editToken)
+  }
+
   return subscribeToEvent(connection, message.eventId, publishEventViewers)
 }
 
@@ -71,6 +98,11 @@ const handleUnsubscribeMessage = async (
 ) => {
   if (message.channel === 'admin') {
     const result = await unsubscribeFromAdmin(connectionId)
+    return response(200, { connectionId, ...result }, event)
+  }
+
+  if (message.channel === 'registration') {
+    const result = await unsubscribeFromRegistration(connectionId)
     return response(200, { connectionId, ...result }, event)
   }
 

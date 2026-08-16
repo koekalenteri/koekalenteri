@@ -63,6 +63,18 @@ export const unsubscribeConnection = async (connectionId: string) => {
   await dynamoDB.update({ connectionId }, { remove: ['eventId'] })
 }
 
+export const subscribeRegistrationConnection = async (
+  connectionId: string,
+  registrationEventId: string,
+  registrationId: string
+) => {
+  await dynamoDB.update({ connectionId }, { set: { registrationEventId, registrationId } })
+}
+
+export const unsubscribeRegistrationConnection = async (connectionId: string) => {
+  await dynamoDB.update({ connectionId }, { remove: ['registrationEventId', 'registrationId'] })
+}
+
 export const removeConnection = async (connectionId: string) => {
   const existing = await getConnection(connectionId)
   if (!existing) return

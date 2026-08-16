@@ -8,6 +8,8 @@ export interface WebSocketConnection {
   eventId?: string
   expiresAt?: number
   memberOf?: string[]
+  registrationEventId?: string
+  registrationId?: string
   userEmail?: string
   userId?: string
   userName?: string

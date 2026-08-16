@@ -3,8 +3,10 @@ import { LambdaError } from '../lib/lambda'
 
 const mockSubscribeToAdmin = jest.fn<any>()
 const mockSubscribeToEvent = jest.fn<any>()
+const mockSubscribeToRegistration = jest.fn<any>()
 const mockUnsubscribeFromAdmin = jest.fn<any>()
 const mockUnsubscribeFromEvent = jest.fn<any>()
+const mockUnsubscribeFromRegistration = jest.fn<any>()
 const mockGetWsConnection = jest.fn<any>()
 const mockAuthenticateToken = jest.fn<any>()
 const mockAuthenticateWebSocket = jest.fn<any>()
@@ -27,8 +29,10 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 jest.unstable_mockModule('../lib/ws/subscriptionService', () => ({
   subscribeToAdmin: mockSubscribeToAdmin,
   subscribeToEvent: mockSubscribeToEvent,
+  subscribeToRegistration: mockSubscribeToRegistration,
   unsubscribeFromAdmin: mockUnsubscribeFromAdmin,
   unsubscribeFromEvent: mockUnsubscribeFromEvent,
+  unsubscribeFromRegistration: mockUnsubscribeFromRegistration,
 }))
 
 jest.unstable_mockModule('../lib/lambda', () => ({
@@ -182,6 +186,45 @@ describe('wsMessageHandler', () => {
       mockPublishEventViewers
     )
     expect(result).toEqual({ body: { eventId: 'event-1', subscribed: true }, statusCode: 200 })
+  })
+
+  it('subscribes to a registration channel with its edit token', async () => {
+    mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
+    mockSubscribeToRegistration.mockResolvedValueOnce({
+      eventId: 'event-1',
+      patch: { paymentStatus: 'SUCCESS' },
+      registrationId: 'registration-1',
+      scope: 'participant:registration-patch',
+      subscribed: true,
+    })
+
+    const result = await wsMessageHandler({
+      body: JSON.stringify({
+        action: 'subscribe',
+        channel: 'registration',
+        eventId: 'event-1',
+        registrationId: 'registration-1',
+        token: 'edit-token',
+      }),
+      requestContext: { connectionId: 'conn-1' },
+    } as any)
+
+    expect(mockSubscribeToRegistration).toHaveBeenCalledWith(
+      { connectionId: 'conn-1' },
+      'event-1',
+      'registration-1',
+      'edit-token'
+    )
+    expect(result).toEqual({
+      body: {
+        eventId: 'event-1',
+        patch: { paymentStatus: 'SUCCESS' },
+        registrationId: 'registration-1',
+        scope: 'participant:registration-patch',
+        subscribed: true,
+      },
+      statusCode: 200,
+    })
   })
 
   it.each([

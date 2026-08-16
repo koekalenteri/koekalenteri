@@ -17,7 +17,7 @@ import { LambdaError } from './lambda'
 import { calculateHmac, getPayment, HMAC_KEY_PREFIX, parsePaytrailErrorMessage } from './paytrail'
 import { getRegistration } from './registration'
 import { getPaytrailConfig } from './secrets'
-import { publishRegistrationPatches } from './ws/actions'
+import { publishParticipantRegistrationPatch, publishRegistrationPatches } from './ws/actions'
 
 const { registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
@@ -138,6 +138,12 @@ export const cancelTransaction = async <T extends JsonTransaction>({
       [{ eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt }],
       confirmedEvent.organizer.id
     )
+    await publishParticipantRegistrationPatch(eventId, registrationId, {
+      eventId,
+      id: registrationId,
+      [statusField]: 'CANCEL',
+      updatedAt,
+    })
   }
 
   await audit({

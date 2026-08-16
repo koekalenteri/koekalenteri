@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRegistrationSubscription } from '../hooks/useRegistrationSubscription'
 import { redirectTo } from '../lib/client/navigation'
 import { calculateCost } from '../lib/cost'
 import { getEventStateForClass } from '../lib/event'
@@ -31,6 +32,8 @@ interface Props {
   readonly invitation?: boolean
 }
 
+const PAYMENT_RELOAD_INTERVAL_MS = 30_000
+
 export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const params = useParams()
   const location = useLocation()
@@ -50,6 +53,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const [reloadCount, setReloadCount] = useState(0)
   const [paymentOpen, setPaymentOpen] = useState<boolean | null>(null)
   const actions = useRegistrationActions()
+  useRegistrationSubscription(registration, setRegistration)
   const paymentFlow = new URLSearchParams(location.search).get('payment')
   const paymentVerificationInProgress =
     paymentFlow === 'verifying' &&
@@ -188,7 +192,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       setRegistration(reg)
     }
 
-    const timeout = setTimeout(reload, 10_000)
+    const timeout = setTimeout(reload, PAYMENT_RELOAD_INTERVAL_MS)
 
     return () => clearTimeout(timeout)
   }, [actions, paymentVerificationInProgress, registration, reloadCount, setRegistration])

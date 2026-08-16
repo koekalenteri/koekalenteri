@@ -9,6 +9,7 @@ const mockRemoveConnection = jest.fn<any>().mockResolvedValue(undefined)
 const mockEventAudience = jest.fn<any>().mockReturnValue([])
 const mockOrganizerAudience = jest.fn<any>().mockReturnValue([])
 const mockPublicAudience = jest.fn<any>().mockReturnValue([])
+const mockRegistrationAudience = jest.fn<any>().mockReturnValue([])
 const mockAdminAudience = jest.fn<any>().mockReturnValue([])
 const mockBuildConnectionCountPayload = jest.fn((scope: string, count: number) => ({ count, scope }))
 const mockBuildEventPatchPayload = jest.fn((eventId: string, patch: object) => ({ eventId, ...patch }))
@@ -29,6 +30,7 @@ jest.unstable_mockModule('./connectionSelectors', () => ({
   eventAudience: mockEventAudience,
   organizerAudience: mockOrganizerAudience,
   publicAudience: mockPublicAudience,
+  registrationAudience: mockRegistrationAudience,
 }))
 
 jest.unstable_mockModule('./payloads', () => ({
@@ -45,6 +47,7 @@ const {
   publishEventPatch,
   publishRegistrationPatches,
   publishRegistrationPatchesStrict,
+  publishParticipantRegistrationPatch,
   publishAdminDataInvalidation,
   publishEventViewers,
   publishAdminConnectionCount,
@@ -185,6 +188,22 @@ describe('ws/actions', () => {
     await expect(publishRegistrationPatchesStrict('e1', [{ id: 'r1' }] as any, 'org-1')).rejects.toThrow(
       'Failed to publish registration patches to 1 WebSocket connection(s)'
     )
+  })
+
+  it('publishes participant registration patches only to matching subscribers', async () => {
+    const patch = { id: 'r1', paymentStatus: 'SUCCESS' as const }
+    await publishParticipantRegistrationPatch('e1', 'r1', patch)
+
+    const call = broadcastConfigurations[0] as { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
+    await call.audience()
+
+    expect(mockRegistrationAudience).toHaveBeenCalledWith('e1', 'r1')
+    expect(call.buildPayload()).toEqual({
+      eventId: 'e1',
+      patch,
+      registrationId: 'r1',
+      scope: 'participant:registration-patch',
+    })
   })
 
   it('publishAdminDataInvalidation sends collection names to the admin audience', async () => {

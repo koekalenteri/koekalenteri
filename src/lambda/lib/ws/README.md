@@ -5,7 +5,7 @@ This folder contains the Lambda-side WebSocket service layer. It keeps track of 
 ## Runtime flow
 
 1. `$connect` calls `connectWebSocket`, which stores the connection as a public connection and sets a DynamoDB TTL close to API Gateway's maximum WebSocket lifetime.
-2. `$default` messages are handled by `WsMessageFunction`. Clients can authenticate, subscribe to an admin channel, subscribe to a single event, or unsubscribe.
+2. `$default` messages are handled by `WsMessageFunction`. Clients can authenticate, subscribe to an admin channel, a single event, or an edit-token-authorized participant registration, or unsubscribe.
 3. Domain mutations call the publish helpers in `actions.ts`. These helpers resolve the right audience and broadcast JSON payloads to each connection.
 4. `$disconnect` removes the connection and publishes updated connection or event-viewer state when needed.
 5. Broadcasts that receive `GoneException` clean up stale connections through `disconnectWebSocket`.
@@ -19,8 +19,10 @@ All client messages are JSON objects sent to `$default`.
 | Authenticate | `{ "action": "authenticate", "token": "<cognito-id-token>" }` | Verifies the Cognito ID token, resolves application authorization, and stores `userId`, `memberOf`, `admin`, and token expiry on the connection. |
 | Subscribe to admin | `{ "action": "subscribe", "channel": "admin" }` | Marks the connection as admin-subscribed. The connection must be an admin or belong to at least one organizer. |
 | Subscribe to event | `{ "action": "subscribe", "channel": "event", "eventId": "<event-id>" }` | Subscribes the connection to one event's admin updates. The connection must be an admin or member of the event organizer. |
+| Subscribe to registration | `{ "action": "subscribe", "channel": "registration", "eventId": "<event-id>", "registrationId": "<registration-id>", "token": "<edit-token>" }` | Verifies the participant edit token, subscribes to payment updates for that registration, and returns its current payment state. |
 | Unsubscribe from admin | `{ "action": "unsubscribe", "channel": "admin" }` | Removes the admin-channel subscription and returns the connection to the public audience. |
 | Unsubscribe from event | `{ "action": "unsubscribe", "channel": "event" }` | Removes the current event subscription and publishes updated event viewers. |
+| Unsubscribe from registration | `{ "action": "unsubscribe", "channel": "registration" }` | Removes the current participant registration subscription. |
 
 Authentication is optional for public broadcasts, but required for admin and event subscriptions.
 
@@ -33,6 +35,7 @@ Outbound messages include a `scope` field so clients can route updates.
 | `public:event-patch` | Public connections, excluding admin recipients that already received the admin patch | Sanitized public event patch with `eventId`. |
 | `admin:event-patch` | Admin channel subscribers and event subscribers allowed to see the organizer's event | Admin event patch with `eventId`. |
 | `admin:event-registrations` | Admin channel subscribers and event subscribers allowed to see the organizer's event | `{ eventId, patch }` registration patch list. |
+| `participant:registration-patch` | Connections whose edit token was verified for the specific registration | `{ eventId, registrationId, patch }` with participant-visible payment state only. |
 | `admin:audit-record` | Authenticated subscribers of the specific event | `{ eventId, record }` newly written audit record. |
 | `admin:data-invalidation` | Admin channel subscribers | `{ collections }` names the reference-data collections clients must refetch through their authorized HTTP APIs. |
 | `admin:event-viewers` | Event subscribers allowed to see the organizer's event | `{ eventId, viewers }`, where `viewers` contains distinct subscribed user IDs. |
@@ -52,6 +55,7 @@ Important fields:
 - `admin`: application-wide admin flag.
 - `adminSubscribed`: whether the connection receives general admin broadcasts.
 - `eventId`: currently subscribed event. A connection can be subscribed to at most one event at a time.
+- `registrationEventId` and `registrationId`: participant registration whose payment updates the connection receives.
 - `expiresAt`: epoch-seconds expiry used by authorization checks and DynamoDB TTL.
 
 ## Module responsibilities
@@ -65,7 +69,7 @@ Important fields:
 - `connectionSelectors.ts`: builds public, admin, organizer, and event audiences from persisted connections.
 - `gatewaySender.ts`: wraps API Gateway Management API `PostToConnection` and normalizes send outcomes.
 - `payloads.ts`: constructs outbound payloads and derives distinct event viewers.
-- `subscriptionService.ts`: authorizes and persists admin and event subscriptions; the message handler composes viewer-update publishing into event subscription changes.
+- `subscriptionService.ts`: authorizes and persists admin, event, and participant registration subscriptions; the message handler composes viewer-update publishing into event subscription changes.
 - `types.ts`: shared WebSocket connection and payload types.
 
 ## Operational notes

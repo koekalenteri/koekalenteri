@@ -20,6 +20,16 @@ export const eventSubscriberAudience = async (eventId: string) =>
     (connection) => connection.eventId === eventId && !isConnectionExpired(connection)
   )
 
+export const registrationAudience = async (eventId: string, registrationId: string) => {
+  const connections = [...(await queryPublicConnections()), ...(await queryAdminConnections())]
+  return connections.filter(
+    (connection) =>
+      connection.registrationEventId === eventId &&
+      connection.registrationId === registrationId &&
+      !isConnectionExpired(connection)
+  )
+}
+
 const includeConnection = (connections: WebSocketConnection[], connection?: WebSocketConnection) => {
   if (!connection || connections.some(({ connectionId }) => connectionId === connection.connectionId))
     return connections

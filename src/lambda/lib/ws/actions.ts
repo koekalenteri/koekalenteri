@@ -3,7 +3,13 @@ import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
 import { broadcast } from './broadcast'
 import { removeConnection } from './connectionRepository'
-import { adminAudience, eventAudience, organizerAudience, publicAudience } from './connectionSelectors'
+import {
+  adminAudience,
+  eventAudience,
+  organizerAudience,
+  publicAudience,
+  registrationAudience,
+} from './connectionSelectors'
 import {
   buildConnectionCountPayload,
   buildEventPatchPayload,
@@ -74,6 +80,16 @@ export const publishRegistrationPatchesStrict = async (
   }
   return counts
 }
+
+export const publishParticipantRegistrationPatch = (
+  eventId: string,
+  registrationId: string,
+  patch: Patch<JsonRegistration>
+) =>
+  send({
+    audience: () => registrationAudience(eventId, registrationId),
+    buildPayload: () => ({ eventId, patch, registrationId, scope: 'participant:registration-patch' }),
+  })
 
 export const publishAdminDataInvalidation = (collections: AdminDataCollection[]) =>
   send({

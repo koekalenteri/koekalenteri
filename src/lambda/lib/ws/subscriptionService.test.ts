@@ -7,11 +7,20 @@ const mockCanReceiveAnyAdminEvent = jest.fn<any>()
 const mockGetConnection = jest.fn<any>()
 const mockSubscribeAdminChannel = jest.fn<any>()
 const mockSubscribeConnection = jest.fn<any>()
+const mockSubscribeRegistrationConnection = jest.fn<any>()
 const mockUnsubscribeAdminChannel = jest.fn<any>()
 const mockUnsubscribeConnection = jest.fn<any>()
+const mockUnsubscribeRegistrationConnection = jest.fn<any>()
+const mockGetRegistration = jest.fn<any>()
+const mockVerifyRegistrationEditToken = jest.fn<any>()
 
 jest.unstable_mockModule('../../lib/event', () => ({
   getEvent: mockGetEvent,
+}))
+
+jest.unstable_mockModule('../../lib/registration', () => ({
+  getRegistration: mockGetRegistration,
+  verifyRegistrationEditToken: mockVerifyRegistrationEditToken,
 }))
 
 jest.unstable_mockModule('./connectionPolicy', () => ({
@@ -23,13 +32,20 @@ jest.unstable_mockModule('./connectionRepository', () => ({
   getConnection: mockGetConnection,
   subscribeAdminChannel: mockSubscribeAdminChannel,
   subscribeConnection: mockSubscribeConnection,
+  subscribeRegistrationConnection: mockSubscribeRegistrationConnection,
   unsubscribeAdminChannel: mockUnsubscribeAdminChannel,
   unsubscribeConnection: mockUnsubscribeConnection,
+  unsubscribeRegistrationConnection: mockUnsubscribeRegistrationConnection,
 }))
 
-const { subscribeToAdmin, subscribeToEvent, unsubscribeFromAdmin, unsubscribeFromEvent } = await import(
-  './subscriptionService'
-)
+const {
+  subscribeToAdmin,
+  subscribeToEvent,
+  subscribeToRegistration,
+  unsubscribeFromAdmin,
+  unsubscribeFromEvent,
+  unsubscribeFromRegistration,
+} = await import('./subscriptionService')
 
 describe('ws/subscriptionService', () => {
   beforeEach(() => {
@@ -132,5 +148,30 @@ describe('ws/subscriptionService', () => {
     const result = await unsubscribeFromAdmin('c1')
     expect(mockUnsubscribeAdminChannel).toHaveBeenCalledWith('c1')
     expect(result).toEqual({ adminSubscribed: false })
+  })
+
+  it('subscribes to a registration only after validating its edit token', async () => {
+    const registration = { editTokenVersion: 1, eventId: 'e1', id: 'r1' }
+    mockGetRegistration.mockResolvedValueOnce(registration).mockResolvedValueOnce({
+      ...registration,
+      paymentStatus: 'SUCCESS',
+    })
+
+    await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).resolves.toEqual(
+      expect.objectContaining({
+        eventId: 'e1',
+        patch: expect.objectContaining({ eventId: 'e1', id: 'r1', paymentStatus: 'SUCCESS', shouldPay: false }),
+        registrationId: 'r1',
+        scope: 'participant:registration-patch',
+        subscribed: true,
+      })
+    )
+    expect(mockVerifyRegistrationEditToken).toHaveBeenCalledWith(registration, 'edit-token')
+    expect(mockSubscribeRegistrationConnection).toHaveBeenCalledWith('c1', 'e1', 'r1')
+  })
+
+  it('unsubscribes from a registration', async () => {
+    await expect(unsubscribeFromRegistration('c1')).resolves.toEqual({ unsubscribed: true })
+    expect(mockUnsubscribeRegistrationConnection).toHaveBeenCalledWith('c1')
   })
 })

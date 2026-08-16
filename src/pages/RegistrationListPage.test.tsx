@@ -31,6 +31,7 @@ jest.mock('../api/judge')
 jest.mock('../api/official')
 jest.mock('../api/organizer')
 jest.mock('../api/registration')
+jest.mock('../hooks/useRegistrationSubscription', () => ({ useRegistrationSubscription: jest.fn() }))
 
 // Mock the enqueueSnackbar function
 jest.mock('notistack', () => ({
@@ -406,7 +407,7 @@ describe('RegistrationListPage', () => {
     expect(dialog).toBeVisible()
   })
 
-  it('reloads pending payment', async () => {
+  it('polls pending payment as a bounded websocket fallback', async () => {
     const getRegistrationSpy = jest
       .spyOn(registrationApi, 'getRegistration')
       .mockResolvedValueOnce({
@@ -428,6 +429,9 @@ describe('RegistrationListPage', () => {
     expect(getRegistrationSpy).toHaveBeenCalledTimes(1)
 
     jest.advanceTimersByTime(10_000)
+    expect(getRegistrationSpy).toHaveBeenCalledTimes(1)
+
+    jest.advanceTimersByTime(20_000)
 
     expect(getRegistrationSpy).toHaveBeenCalledTimes(2)
     await flushPromises()
@@ -435,7 +439,7 @@ describe('RegistrationListPage', () => {
     getRegistrationSpy.mockRestore()
   })
 
-  it('reloads payment after successful payment return before backend status changes', async () => {
+  it('polls after a successful payment return as a bounded websocket fallback', async () => {
     const getRegistrationSpy = jest
       .spyOn(registrationApi, 'getRegistration')
       .mockResolvedValueOnce({
@@ -457,7 +461,7 @@ describe('RegistrationListPage', () => {
     expect(screen.queryByRole('button', { name: 'registration.cta.pay' })).not.toBeInTheDocument()
     expect(getRegistrationSpy).toHaveBeenCalledTimes(1)
 
-    jest.advanceTimersByTime(10_000)
+    jest.advanceTimersByTime(30_000)
     expect(getRegistrationSpy).toHaveBeenCalledTimes(2)
     await flushPromises()
 

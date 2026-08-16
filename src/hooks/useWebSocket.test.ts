@@ -407,6 +407,59 @@ describe('useWebSocket', () => {
     )
   })
 
+  it('subscribes to a participant registration and applies matching patches', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const listener = jest.fn()
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      result.current.subscribeRegistration('event-1', 'registration-1', 'edit-token', listener)
+    })
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(
+      JSON.stringify({
+        action: 'subscribe',
+        channel: 'registration',
+        eventId: 'event-1',
+        registrationId: 'registration-1',
+        token: 'edit-token',
+      })
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          eventId: 'event-1',
+          patch: { paymentStatus: 'SUCCESS' },
+          registrationId: 'registration-1',
+          scope: 'participant:registration-patch',
+        }),
+      })
+    })
+
+    expect(listener).toHaveBeenCalledWith({ paymentStatus: 'SUCCESS' })
+  })
+
+  it('ignores participant registration patches for another registration', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const listener = jest.fn()
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      result.current.subscribeRegistration('event-1', 'registration-1', 'edit-token', listener)
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          eventId: 'event-1',
+          patch: { paymentStatus: 'SUCCESS' },
+          registrationId: 'registration-2',
+          scope: 'participant:registration-patch',
+        }),
+      })
+    })
+
+    expect(listener).not.toHaveBeenCalled()
+  })
+
   it('should subscribe to admin channel when subscribeAdmin is called', async () => {
     mockWebSocketInstance.readyState = WebSocket.OPEN
     const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })

@@ -16,6 +16,7 @@ const mockGetRegistration =
     }>
   >()
 const mockPublishRegistrationPatches = jest.fn<() => Promise<unknown>>()
+const mockPublishParticipantRegistrationPatch = jest.fn<() => Promise<unknown>>()
 const mockRead = jest.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | undefined>>()
 const mockUpdate = jest.fn<() => Promise<unknown>>()
 const mockDocumentTransaction = jest.fn<CustomDynamoClient['documentTransaction']>()
@@ -26,7 +27,10 @@ jest.unstable_mockModule('./audit', () => ({
 }))
 jest.unstable_mockModule('./event', () => ({ getEvent: mockGetEvent }))
 jest.unstable_mockModule('./registration', () => ({ getRegistration: mockGetRegistration }))
-jest.unstable_mockModule('./ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
+jest.unstable_mockModule('./ws/actions', () => ({
+  publishParticipantRegistrationPatch: mockPublishParticipantRegistrationPatch,
+  publishRegistrationPatches: mockPublishRegistrationPatches,
+}))
 jest.unstable_mockModule('./secrets', () => ({
   getPaytrailConfig: jest.fn(() => Promise.resolve({ PAYTRAIL_SECRET: 'test-secret' })),
 }))
@@ -79,6 +83,7 @@ describe('payment', () => {
     mockUpdate.mockResolvedValue(undefined)
     mockGetEvent.mockResolvedValue({ organizer: { id: 'organizer-1' } })
     mockPublishRegistrationPatches.mockResolvedValue(undefined)
+    mockPublishParticipantRegistrationPatch.mockResolvedValue(undefined)
     mockAudit.mockResolvedValue(undefined)
   })
 
@@ -220,6 +225,12 @@ describe('payment', () => {
         [{ eventId: 'event-1', id: 'registration-1', paymentStatus: 'CANCEL', updatedAt: expect.any(String) }],
         'organizer-1'
       )
+      expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith('event-1', 'registration-1', {
+        eventId: 'event-1',
+        id: 'registration-1',
+        paymentStatus: 'CANCEL',
+        updatedAt: expect.any(String),
+      })
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:registration-1',
         message: 'paytrail: 5000',

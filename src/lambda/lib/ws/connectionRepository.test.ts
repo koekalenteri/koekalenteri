@@ -32,8 +32,10 @@ const {
   removeConnection,
   subscribeAdminChannel,
   subscribeConnection,
+  subscribeRegistrationConnection,
   unsubscribeAdminChannel,
   unsubscribeConnection,
+  unsubscribeRegistrationConnection,
 } = await import('./connectionRepository')
 
 describe('ws/connectionRepository', () => {
@@ -105,6 +107,22 @@ describe('ws/connectionRepository', () => {
   it('unsubscribeConnection removes only eventId and keeps audience unchanged', async () => {
     await unsubscribeConnection('c1')
     expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { remove: ['eventId'] })
+  })
+
+  it('stores and removes a participant registration subscription', async () => {
+    await subscribeRegistrationConnection('c1', 'e1', 'r1')
+    expect(mockUpdate).toHaveBeenNthCalledWith(
+      1,
+      { connectionId: 'c1' },
+      { set: { registrationEventId: 'e1', registrationId: 'r1' } }
+    )
+
+    await unsubscribeRegistrationConnection('c1')
+    expect(mockUpdate).toHaveBeenNthCalledWith(
+      2,
+      { connectionId: 'c1' },
+      { remove: ['registrationEventId', 'registrationId'] }
+    )
   })
 
   it('subscribeAdminChannel sets adminSubscribed and moves connection to admin audience', async () => {

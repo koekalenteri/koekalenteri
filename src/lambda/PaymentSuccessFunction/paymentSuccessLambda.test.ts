@@ -25,6 +25,7 @@ const mockEmailTo = jest.fn<any>()
 const mockRegistrationEmailTags = jest.fn<any>()
 const mockRegistrationEmailTemplateData = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn<any>()
+const mockPublishParticipantRegistrationPatch = jest.fn<any>()
 const mockGetRegistrationEditToken = jest.fn<any>().mockResolvedValue('test-edit-token')
 
 const phaseUpdate = (field: string) => [
@@ -101,6 +102,7 @@ jest.unstable_mockModule('../lib/email', () => ({
 }))
 
 jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishParticipantRegistrationPatch: mockPublishParticipantRegistrationPatch,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
 
@@ -255,6 +257,16 @@ describe('paymentSuccessLambda', () => {
       ],
       'org-1'
     )
+    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({
+        eventId: 'event123',
+        id: 'reg456',
+        paymentStatus: 'SUCCESS',
+        shouldPay: false,
+      })
+    )
 
     // Verify receipt email was sent
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
@@ -351,6 +363,13 @@ describe('paymentSuccessLambda', () => {
       { set: { paymentStatus: 'DUPLICATE', updatedAt: expect.any(String) } },
       'registration-table-not-found-in-env'
     )
+    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith('event123', 'reg456', {
+      eventId: 'event123',
+      id: 'reg456',
+      paymentStatus: 'DUPLICATE',
+      shouldPay: false,
+      updatedAt: expect.any(String),
+    })
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({ auditKey: 'event123:reg456', message: expect.stringContaining('Päällekkäinen maksu') })
     )

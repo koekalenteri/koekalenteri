@@ -3,6 +3,9 @@
     Properties:
       CodeUri: lambda/WsMessageFunction
       Handler: handler.default
+      Environment:
+        Variables:
+          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:secretsmanager:${RegistrationEditTokenSecret}:SecretString}}'
       Layers:
         - !Ref DependenciesLayer
       Tracing: PassThrough
@@ -11,6 +14,8 @@
             TableName: !Ref WsConnectionsTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
         - DynamoDBCrudPolicy:
             TableName: !Ref UserLinkTable
         - DynamoDBCrudPolicy:

@@ -2,6 +2,7 @@ import {
   buildConnectionCountPayload,
   buildEventPatchPayload,
   buildEventViewersPayload,
+  buildParticipantPaymentPatch,
   buildRegistrationPatchPayload,
   toEventViewers,
 } from './payloads'
@@ -23,6 +24,32 @@ describe('ws/payloads', () => {
   it('buildRegistrationPatchPayload wraps patch array with event id', () => {
     const patch = [{ dog: { name: 'Nelli' }, id: 'r1' }] as any
     expect(buildRegistrationPatchPayload('e1', patch)).toEqual({ eventId: 'e1', patch })
+  })
+
+  it('buildParticipantPaymentPatch exposes only participant payment state', () => {
+    expect(
+      buildParticipantPaymentPatch({
+        confirmed: true,
+        eventId: 'e1',
+        id: 'r1',
+        internalNotes: 'secret',
+        paidAmount: 50,
+        paidAt: '2026-08-16T10:00:00.000Z',
+        paymentStatus: 'SUCCESS',
+        state: 'ready',
+      })
+    ).toEqual({
+      confirmed: true,
+      eventId: 'e1',
+      id: 'r1',
+      messagesSent: undefined,
+      paidAmount: 50,
+      paidAt: '2026-08-16T10:00:00.000Z',
+      paymentStatus: 'SUCCESS',
+      shouldPay: false,
+      state: 'ready',
+      updatedAt: undefined,
+    })
   })
 
   it('buildEventViewersPayload returns admin scope payload', () => {

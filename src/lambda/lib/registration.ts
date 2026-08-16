@@ -159,16 +159,23 @@ const tokensMatch = (actual: string, expected: string): boolean => {
   return actualBuffer.length === expectedBuffer.length && timingSafeEqual(actualBuffer, expectedBuffer)
 }
 
-export const authorizeRegistrationEdit = async (
-  event: Pick<APIGatewayProxyEvent, 'headers'>,
-  registration: Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>
+export const verifyRegistrationEditToken = async (
+  registration: RegistrationEditTokenFields,
+  token: string
 ): Promise<string> => {
-  const token = getBearerToken(event)
   if (!token) throw new LambdaError(404, 'not found')
 
   const expected = await getRegistrationEditToken(registration)
   if (!tokensMatch(token, expected)) throw new LambdaError(404, 'not found')
   return token
+}
+
+export const authorizeRegistrationEdit = async (
+  event: Pick<APIGatewayProxyEvent, 'headers'>,
+  registration: Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>
+): Promise<string> => {
+  const token = getBearerToken(event)
+  return verifyRegistrationEditToken(registration, token)
 }
 
 export const authorizeRegistrationRead = async (

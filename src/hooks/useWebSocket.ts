@@ -97,8 +97,14 @@ const configureWebSocket = ({
 }
 
 const websocketMessageDiagnostics = (message: object) =>
-  'action' in message && message.action === 'authenticate' && 'token' in message && typeof message.token === 'string'
-    ? { ...message, token: getIdTokenDiagnostics(message.token) }
+  'token' in message && typeof message.token === 'string'
+    ? {
+        ...message,
+        token:
+          'action' in message && message.action === 'authenticate'
+            ? getIdTokenDiagnostics(message.token)
+            : { present: true },
+      }
     : message
 
 const isAdminDataCollection = (value: unknown): value is AdminDataCollection =>
@@ -203,7 +209,14 @@ interface WebSocketContextValue {
   viewers: EventViewer[]
   subscribeAdmin: () => void
   subscribeEvent: (eventId: string) => void
+  subscribeRegistration: (
+    eventId: string,
+    registrationId: string,
+    editToken: string,
+    listener: (patch: Patch<Registration>) => void
+  ) => void
   unsubscribeEvent: () => void
+  unsubscribeRegistration: () => void
   subscribeAuditRecords: (listener: (record: AuditRecord) => void) => () => void
 }
 
@@ -221,6 +234,12 @@ export const useWebSocket = () => {
   // Subscription state — persisted across reconnects
   const adminSubscribedRef = useRef(false)
   const eventIdRef = useRef<string | undefined>(undefined)
+  const registrationSubscriptionRef = useRef<{
+    editToken: string
+    eventId: string
+    listener: (patch: Patch<Registration>) => void
+    registrationId: string
+  }>()
   const rawViewersRef = useRef<EventViewer[]>([])
   const auditRecordListenersRef = useRef(new Set<(record: AuditRecord) => void>())
   const adminDataCursorsRef = useRef<Partial<Record<AdminDataCollection, number | null>>>({})
@@ -408,6 +427,19 @@ export const useWebSocket = () => {
       if (eventIdRef.current) {
         sendIfOpen({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }, socket)
       }
+      const registration = registrationSubscriptionRef.current
+      if (registration) {
+        sendIfOpen(
+          {
+            action: 'subscribe',
+            channel: 'registration',
+            eventId: registration.eventId,
+            registrationId: registration.registrationId,
+            token: registration.editToken,
+          },
+          socket
+        )
+      }
     },
     [sendIfOpen]
   )
@@ -441,6 +473,20 @@ export const useWebSocket = () => {
     rawViewersRef.current = []
     setViewers([])
     console.debug('ws:event unsubscribe state cleared', { eventId, sent })
+  }, [sendIfOpen])
+
+  const subscribeRegistration = useCallback(
+    (eventId: string, registrationId: string, editToken: string, listener: (patch: Patch<Registration>) => void) => {
+      registrationSubscriptionRef.current = { editToken, eventId, listener, registrationId }
+      sendIfOpen({ action: 'subscribe', channel: 'registration', eventId, registrationId, token: editToken })
+    },
+    [sendIfOpen]
+  )
+
+  const unsubscribeRegistration = useCallback(() => {
+    if (!registrationSubscriptionRef.current) return
+    sendIfOpen({ action: 'unsubscribe', channel: 'registration' })
+    registrationSubscriptionRef.current = undefined
   }, [sendIfOpen])
 
   const subscribeAuditRecords = useCallback((listener: (record: AuditRecord) => void) => {
@@ -508,6 +554,19 @@ export const useWebSocket = () => {
 
       if (handleCountMessage(data)) return
       if (handleAdminMessage(data, token)) return
+
+      const registrationSubscription = registrationSubscriptionRef.current
+      if (
+        registrationSubscription &&
+        data.scope === 'participant:registration-patch' &&
+        data.patch &&
+        typeof data.patch === 'object' &&
+        data.eventId === registrationSubscription.eventId &&
+        data.registrationId === registrationSubscription.registrationId
+      ) {
+        registrationSubscription.listener(data.patch)
+        return
+      }
 
       if (data.authenticated === true) {
         console.debug('ws: authentication succeeded', {
@@ -651,7 +710,9 @@ export const useWebSocket = () => {
     subscribeAdmin,
     subscribeAuditRecords,
     subscribeEvent,
+    subscribeRegistration,
     unsubscribeEvent,
+    unsubscribeRegistration,
     viewers,
   }
 }

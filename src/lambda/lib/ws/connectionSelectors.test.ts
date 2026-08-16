@@ -17,9 +17,14 @@ jest.unstable_mockModule('./connectionPolicy', () => ({
   isConnectionExpired: mockIsConnectionExpired,
 }))
 
-const { adminAudience, eventAudience, eventSubscriberAudience, organizerAudience, publicAudience } = await import(
-  './connectionSelectors'
-)
+const {
+  adminAudience,
+  eventAudience,
+  eventSubscriberAudience,
+  organizerAudience,
+  publicAudience,
+  registrationAudience,
+} = await import('./connectionSelectors')
 
 describe('ws/connectionSelectors', () => {
   beforeEach(() => {
@@ -88,6 +93,25 @@ describe('ws/connectionSelectors', () => {
     )
 
     await expect(eventSubscriberAudience('e1')).resolves.toEqual([{ connectionId: 'a', eventId: 'e1' }])
+  })
+
+  it('selects active registration subscribers from public and admin audiences', async () => {
+    mockQueryPublicConnections.mockResolvedValueOnce([
+      { connectionId: 'p1', registrationEventId: 'e1', registrationId: 'r1' },
+      { connectionId: 'other', registrationEventId: 'e1', registrationId: 'r2' },
+    ])
+    mockQueryAdminConnections.mockResolvedValueOnce([
+      { connectionId: 'a1', registrationEventId: 'e1', registrationId: 'r1' },
+      { connectionId: 'expired', registrationEventId: 'e1', registrationId: 'r1' },
+    ])
+    mockIsConnectionExpired.mockImplementation(
+      (connection: { connectionId: string }) => connection.connectionId === 'expired'
+    )
+
+    await expect(registrationAudience('e1', 'r1')).resolves.toEqual([
+      { connectionId: 'p1', registrationEventId: 'e1', registrationId: 'r1' },
+      { connectionId: 'a1', registrationEventId: 'e1', registrationId: 'r1' },
+    ])
   })
 
   it('includes provided subscribed connection when index query has not caught up', async () => {
