@@ -30,7 +30,6 @@
     "aws-rum-web": "^2.1.0",
     "busboy": "^1.6.0",
     "date-fns": "^4.4.0",
-    "deep-object-diff": "^1.1.9",
     "dnd-core": "^16.0.1",
     "handlebars": "^4.7.9",
     "i18next": "^25.10.10",

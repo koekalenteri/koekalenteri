@@ -220,4 +220,40 @@ describe('createPatch', () => {
       'a.e': { f: 4 },
     })
   })
+
+  it('uses dotted paths for fields added to and removed from existing parents', () => {
+    const existing = { contact: { name: 'Secretary', phone: '123' }, id: '1' }
+    const next = { contact: { email: 'new@example.com', name: 'Secretary' }, id: '1' }
+
+    expect(createPatch(next, existing)).toEqual({
+      changes: {
+        contact: { email: 'new@example.com', phone: undefined },
+      },
+      remove: ['contact.phone'],
+      set: { 'contact.email': 'new@example.com' },
+    })
+  })
+
+  it('treats a newly created undefined property as a remove operation', () => {
+    const existing: { id: string; optional?: string } = { id: '1' }
+    const next = { id: '1', optional: undefined }
+
+    expect(createPatch(next, existing)).toEqual({
+      changes: { optional: undefined },
+      remove: ['optional'],
+    })
+  })
+
+  it.each([
+    [['a'], ['a', 'b']],
+    [['a', 'b'], ['a']],
+  ])('replaces complete arrays for insertions and removals', (values, nextValues) => {
+    const existing = { id: '1', values }
+    const next = { id: '1', values: nextValues }
+
+    expect(createPatch(next, existing)).toEqual({
+      changes: { values: nextValues },
+      set: { values: nextValues },
+    })
+  })
 })
