@@ -1,5 +1,6 @@
 import type { CollectionResponse, IncrementalCollectionResponse, Judge } from '../types'
 import http, { withToken } from './http'
+import { getIncrementalCollection } from './incrementalCollection'
 
 const PATH = '/admin/judge/'
 
@@ -16,8 +17,7 @@ export async function getJudges(
   signal?: AbortSignal,
   since?: Date
 ): Promise<CollectionResponse<Judge>> {
-  const query = [refresh ? 'refresh' : '', since ? `since=${since.getTime()}` : ''].filter(Boolean).join('&')
-  return http.get<CollectionResponse<Judge>>(PATH + (query ? `?${query}` : ''), withToken({ signal }, token))
+  return getIncrementalCollection(PATH, token, refresh, signal, since)
 }
 
 export async function putJudge(judge: Judge, token: string, signal?: AbortSignal): Promise<Judge> {

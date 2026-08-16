@@ -1,13 +1,20 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { Judge } from '../../../types'
 import { useTranslation } from 'react-i18next'
-import { localeSortComparator } from '../../../lib/datagrid'
+import { createOfficialDirectoryColumns } from '../officialDirectoryColumns'
 import ActiveCell from './cells/ActiveCell'
 import LanguagesCell from './cells/LanguagesCell'
 import OfficialCell from './cells/OfficialCell'
 
 export default function useJudgeListColumns(): GridColDef<Judge>[] {
   const { t } = useTranslation()
+  const directoryColumns = createOfficialDirectoryColumns<Judge>(t, {
+    district: { headerName: 'Kennelpiiri' },
+    email: { flex: 2, minWidth: undefined },
+    eventTypes: { flex: 2 },
+    location: { flex: 1, width: undefined },
+    phone: { flex: 1, width: undefined },
+  })
 
   return [
     {
@@ -23,47 +30,7 @@ export default function useJudgeListColumns(): GridColDef<Judge>[] {
       renderCell: OfficialCell,
       width: 80,
     },
-    {
-      field: 'name',
-      flex: 1,
-      headerName: t('name'),
-      minWidth: 150,
-      sortComparator: localeSortComparator,
-    },
-    {
-      field: 'id',
-      flex: 0,
-      headerName: t('id'),
-      width: 80,
-    },
-    {
-      field: 'location',
-      flex: 1,
-      headerName: t('contact.city'),
-      sortComparator: localeSortComparator,
-    },
-    {
-      field: 'phone',
-      flex: 1,
-      headerName: t('contact.phone'),
-    },
-    {
-      field: 'email',
-      flex: 2,
-      headerName: t('contact.email'),
-    },
-    {
-      field: 'district',
-      flex: 1,
-      headerName: 'Kennelpiiri',
-      sortComparator: localeSortComparator,
-    },
-    {
-      field: 'eventTypes',
-      flex: 2,
-      headerName: t('eventTypes'),
-      valueGetter: (value: Judge['eventTypes']) => value?.join(', '),
-    },
+    ...directoryColumns,
     {
       field: 'languages',
       flex: 0,

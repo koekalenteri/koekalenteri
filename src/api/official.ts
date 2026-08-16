@@ -1,5 +1,5 @@
 import type { CollectionResponse, IncrementalCollectionResponse, Official } from '../types'
-import http, { withToken } from './http'
+import { getIncrementalCollection } from './incrementalCollection'
 
 const PATH = '/admin/official/'
 
@@ -16,6 +16,5 @@ export async function getOfficials(
   signal?: AbortSignal,
   since?: Date
 ): Promise<CollectionResponse<Official>> {
-  const query = [refresh ? 'refresh' : '', since ? `since=${since.getTime()}` : ''].filter(Boolean).join('&')
-  return http.get<CollectionResponse<Official>>(PATH + (query ? `?${query}` : ''), withToken({ signal }, token))
+  return getIncrementalCollection(PATH, token, refresh, signal, since)
 }

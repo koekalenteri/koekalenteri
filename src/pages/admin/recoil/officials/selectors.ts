@@ -1,21 +1,10 @@
-import i18next from 'i18next'
 import { selector } from 'recoil'
+import { filterOfficialDirectory } from '../officialDirectory'
 import { adminOfficialFilterAtom, adminOfficialsAtom } from './atoms'
 
 export const adminFilteredOfficialsSelector = selector({
   get: ({ get }) => {
-    const filter = get(adminOfficialFilterAtom).toLocaleLowerCase(i18next.language)
-    const list = get(adminOfficialsAtom)
-
-    if (!filter) {
-      return list
-    }
-    return list.filter((official) =>
-      [official.id, official.email, official.name, official.district, official.location, official.phone]
-        .join(' ')
-        .toLocaleLowerCase(i18next.language)
-        .includes(filter)
-    )
+    return filterOfficialDirectory(get(adminOfficialsAtom), get(adminOfficialFilterAtom))
   },
   key: 'adminFilteredOfficials',
 })

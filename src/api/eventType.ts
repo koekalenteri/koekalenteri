@@ -1,5 +1,6 @@
 import type { CollectionResponse, EventType, EventTypeData, IncrementalCollectionResponse } from '../types'
 import http, { withToken } from './http'
+import { getIncrementalCollection } from './incrementalCollection'
 
 const PATH = '/admin/eventType/'
 
@@ -16,8 +17,7 @@ export async function getEventTypes(
   signal?: AbortSignal,
   since?: Date
 ): Promise<CollectionResponse<EventType>> {
-  const query = [refresh ? 'refresh' : '', since ? `since=${since.getTime()}` : ''].filter(Boolean).join('&')
-  return http.get<CollectionResponse<EventType>>(PATH + (query ? `?${query}` : ''), withToken({ signal }, token))
+  return getIncrementalCollection(PATH, token, refresh, signal, since)
 }
 
 export async function putEventType(eventType: EventTypeData, token?: string, signal?: AbortSignal): Promise<EventType> {

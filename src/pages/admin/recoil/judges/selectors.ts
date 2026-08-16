@@ -1,5 +1,5 @@
-import i18next from 'i18next'
 import { selector } from 'recoil'
+import { filterOfficialDirectory } from '../officialDirectory'
 import { adminJudgeFilterAtom, adminJudgesAtom } from './atoms'
 
 export const adminActiveJudgesSelector = selector({
@@ -9,18 +9,7 @@ export const adminActiveJudgesSelector = selector({
 
 export const adminFilteredJudgesSelector = selector({
   get: ({ get }) => {
-    const filter = get(adminJudgeFilterAtom).toLocaleLowerCase(i18next.language)
-    const list = get(adminJudgesAtom)
-
-    if (!filter) {
-      return list
-    }
-    return list.filter((judge) =>
-      [judge.id, judge.email, judge.name, judge.location, judge.phone, judge.district, ...judge.eventTypes]
-        .join(' ')
-        .toLocaleLowerCase(i18next.language)
-        .includes(filter)
-    )
+    return filterOfficialDirectory(get(adminJudgesAtom), get(adminJudgeFilterAtom), true)
   },
   key: 'adminFilteredJudges',
 })

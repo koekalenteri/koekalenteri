@@ -1,14 +1,8 @@
-import type { AtomEffect } from 'recoil'
 import type { Official } from '../../../../types'
-import i18next from 'i18next'
 import { getOfficials } from '../../../../api/official'
-import { createCachedRemoteCollectionEffect } from '../cached/createCachedRemoteCollection'
+import { createOfficialDirectoryEffect } from '../officialDirectory'
 
-export const adminRemoteOfficialsEffect: AtomEffect<Official[]> = createCachedRemoteCollectionEffect({
+export const adminRemoteOfficialsEffect = createOfficialDirectoryEffect<Official>({
   cacheKey: 'officials',
   fetch: (token) => getOfficials(token),
-  sort: (officials) => {
-    officials.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-    return officials
-  },
 })
