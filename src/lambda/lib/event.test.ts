@@ -60,6 +60,8 @@ jest.unstable_mockModule('../../lib/registration', () => ({
     (group?: string) => Boolean(group) && group !== mockGroupKeyReserve && group !== mockGroupKeyCancelled
   ),
   isPredefinedReason: jest.fn(),
+  PUBLIC_REGISTRATION_FIELDS: [],
+  PUBLIC_REGISTRATION_UPDATE_FIELDS: [],
   sortRegistrationsByDateClassTimeAndNumber: mockSortRegistrationsByDateClassTimeAndNumber,
 }))
 

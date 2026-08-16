@@ -17,6 +17,7 @@ import {
   getSentInvitationAttachment,
   hasInvalidRegistrationArrayFields,
   isParticipantGroup,
+  isPublicRegistrationOperationField,
 } from '../../lib/registration'
 import { isEntryOpen, isEventOver, isObject, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
@@ -52,7 +53,6 @@ import {
   getRegistrationChanges,
   getRegistrationEditToken,
   hasRegistrationChanges,
-  isPublicRegistrationOperationField,
   participantRegistrationResponse,
   patchRegistration,
   publicRegistrationPatch,

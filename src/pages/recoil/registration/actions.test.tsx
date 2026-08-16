@@ -46,8 +46,8 @@ describe('useRegistrationActions', () => {
       eventId: registrationWithStaticDates.eventId,
       id: registrationWithStaticDates.id,
       operations: [
-        { path: ['cancelled'], type: 'CREATE', value: true },
         { path: ['cancelReason'], type: 'CREATE', value: 'dog-heat' },
+        { path: ['cancelled'], type: 'CREATE', value: true },
       ],
     })
     expect(saved).toBe(savedRegistration)
@@ -77,7 +77,12 @@ describe('useRegistrationActions', () => {
   })
 
   it('does not send client-derived qualification fields when adding a result', async () => {
-    const savedRegistration = { ...registrationWithStaticDates, results: [] }
+    const savedRegistration = {
+      ...registrationWithStaticDates,
+      results: [],
+      shouldPay: true,
+      updatedAt: new Date('2026-08-16T12:21:00.000Z'),
+    }
     const manualResult: ManualTestResult = {
       class: 'NOU',
       date: new Date('2026-08-16T12:20:03.714Z'),
@@ -91,9 +96,12 @@ describe('useRegistrationActions', () => {
     }
     const editedRegistration = {
       ...savedRegistration,
+      group: { key: 'reserve', number: 1 },
       qualifies: false,
       qualifyingResults: [{ ...manualResult, qualifying: true }],
       results: [manualResult],
+      shouldPay: undefined,
+      updatedAt: new Date('2026-08-16T12:19:41.030Z'),
     }
     jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
 

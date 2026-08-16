@@ -10,7 +10,14 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { diff } from 'deep-object-diff'
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
-import { GROUP_KEY_RESERVE, getRegistrationClass, isParticipantGroup, isPredefinedReason } from '../../lib/registration'
+import {
+  GROUP_KEY_RESERVE,
+  getRegistrationClass,
+  isParticipantGroup,
+  isPredefinedReason,
+  PUBLIC_REGISTRATION_FIELDS,
+  PUBLIC_REGISTRATION_UPDATE_FIELDS,
+} from '../../lib/registration'
 import { isObject } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -25,8 +32,6 @@ const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
 
 export const DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION = 1
-
-type PublicRegistrationField = keyof JsonRegistration
 
 export const deriveRegistrationEditToken = (
   registration: Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>,
@@ -80,46 +85,9 @@ export const authorizeRegistrationRead = async (
   return authorizeRegistrationEdit(event, registration)
 }
 
-const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<PublicRegistrationField> = [
-  'agreeToTerms',
-  'breeder',
-  'cancelReason',
-  'cancelled',
-  'class',
-  'creationIdempotencyKey',
-  'dates',
-  'dog',
-  'eventId',
-  'eventType',
-  'confirmed',
-  'handler',
-  'invitationRead',
-  'language',
-  'notes',
-  'optionalCosts',
-  'owner',
-  'ownerHandles',
-  'ownerPays',
-  'payer',
-  'reserve',
-  'results',
-  'selectedCost',
-]
-
-const PUBLIC_UPDATE_FIELDS = new Set<PublicRegistrationField>([...PUBLIC_REGISTRATION_FIELDS, 'id'])
-
-// The event type is fixed when the registration is created.
-PUBLIC_UPDATE_FIELDS.delete('eventType')
-// The idempotency secret is immutable once a registration exists.
-PUBLIC_UPDATE_FIELDS.delete('creationIdempotencyKey')
-const PUBLIC_UPDATE_FIELD_NAMES: ReadonlySet<string> = PUBLIC_UPDATE_FIELDS
-
-export const isPublicRegistrationOperationField = (field: unknown): field is PublicRegistrationField =>
-  typeof field === 'string' && field !== 'eventId' && field !== 'id' && PUBLIC_UPDATE_FIELD_NAMES.has(field)
-
 export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: boolean): Patch<JsonRegistration> => {
   const result: Patch<JsonRegistration> = {}
-  const fields: ReadonlyArray<PublicRegistrationField> = update ? [...PUBLIC_UPDATE_FIELDS] : PUBLIC_REGISTRATION_FIELDS
+  const fields = update ? PUBLIC_REGISTRATION_UPDATE_FIELDS : PUBLIC_REGISTRATION_FIELDS
   for (const field of fields) {
     if (Object.hasOwn(input, field)) Object.assign(result, { [field]: input[field] })
   }

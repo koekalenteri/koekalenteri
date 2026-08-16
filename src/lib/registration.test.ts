@@ -19,6 +19,7 @@ import {
   hasPriority,
   isMember,
   isPredefinedReason,
+  isPublicRegistrationOperationField,
   isRegistrationClass,
   priorityDescriptionKey,
   shouldSendInvitationToRegistration,
@@ -26,6 +27,19 @@ import {
 } from './registration'
 
 describe('lib/registration', () => {
+  describe('isPublicRegistrationOperationField', () => {
+    it.each(['results', 'dates', 'notes', 'cancelled'])('allows participant-editable field %s', (field) => {
+      expect(isPublicRegistrationOperationField(field)).toBe(true)
+    })
+
+    it.each(['qualifyingResults', 'updatedAt', 'shouldPay', 'group', 'eventId', 'id'])(
+      'rejects server-managed field %s',
+      (field) => {
+        expect(isPublicRegistrationOperationField(field)).toBe(false)
+      }
+    )
+  })
+
   describe('hasInvalidRegistrationArrayFields', () => {
     it('accepts registration array fields as arrays', () => {
       expect(

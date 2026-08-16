@@ -25,6 +25,52 @@ import { isEntryClosed, isObject } from './utils'
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
 
+type PublicRegistrationField = keyof JsonRegistration
+
+export const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<PublicRegistrationField> = [
+  'agreeToTerms',
+  'breeder',
+  'cancelReason',
+  'cancelled',
+  'class',
+  'creationIdempotencyKey',
+  'dates',
+  'dog',
+  'eventId',
+  'eventType',
+  'confirmed',
+  'handler',
+  'invitationRead',
+  'language',
+  'notes',
+  'optionalCosts',
+  'owner',
+  'ownerHandles',
+  'ownerPays',
+  'payer',
+  'reserve',
+  'results',
+  'selectedCost',
+]
+
+const PUBLIC_REGISTRATION_UPDATE_CANDIDATES: ReadonlyArray<PublicRegistrationField> = [
+  ...PUBLIC_REGISTRATION_FIELDS,
+  'id',
+]
+
+export const PUBLIC_REGISTRATION_UPDATE_FIELDS = PUBLIC_REGISTRATION_UPDATE_CANDIDATES.filter(
+  (field) => field !== 'eventType' && field !== 'creationIdempotencyKey'
+)
+
+export const PUBLIC_REGISTRATION_OPERATION_FIELDS = PUBLIC_REGISTRATION_UPDATE_FIELDS.filter(
+  (field) => field !== 'eventId' && field !== 'id'
+)
+
+const PUBLIC_REGISTRATION_OPERATION_FIELD_NAMES: ReadonlySet<string> = new Set(PUBLIC_REGISTRATION_OPERATION_FIELDS)
+
+export const isPublicRegistrationOperationField = (field: unknown): field is PublicRegistrationField =>
+  typeof field === 'string' && PUBLIC_REGISTRATION_OPERATION_FIELD_NAMES.has(field)
+
 export const REGISTRATION_ARRAY_FIELDS = [
   { path: ['dates'], required: true },
   { path: ['dog', 'results'], required: false },

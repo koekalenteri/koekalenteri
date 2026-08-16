@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../api/http'
 import { getRegistration, patchRegistration, postRegistration } from '../../../api/registration'
 import { createPatchOperations } from '../../../lib/patch'
+import { PUBLIC_REGISTRATION_OPERATION_FIELDS } from '../../../lib/registration'
 import { showRegistrationSaveConflict } from './registrationSaveError'
 
 const withRegistrationOverrides = (reg: Registration): Registration => ({
@@ -12,16 +13,18 @@ const withRegistrationOverrides = (reg: Registration): Registration => ({
   payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
 })
 
-const withoutDerivedQualification = ({
-  qualifies: _qualifies,
-  qualifyingResults: _qualifyingResults,
-  ...registration
-}: Registration) => registration
+const publicRegistrationOperationData = (registration: Registration): Partial<Registration> => {
+  const result: Partial<Registration> = {}
+  for (const field of PUBLIC_REGISTRATION_OPERATION_FIELDS) {
+    if (Object.hasOwn(registration, field)) Object.assign(result, { [field]: registration[field] })
+  }
+  return result
+}
 
 const registrationPatch = (saved: Registration, edited: Registration): RegistrationPatchRequest => ({
   eventId: edited.eventId,
   id: edited.id,
-  operations: createPatchOperations(withoutDerivedQualification(saved), withoutDerivedQualification(edited)),
+  operations: createPatchOperations(publicRegistrationOperationData(saved), publicRegistrationOperationData(edited)),
 })
 
 export function useRegistrationActions() {
