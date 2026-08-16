@@ -1,4 +1,5 @@
-import { type Completion, type CompletionContext, closeCompletion, startCompletion } from '@codemirror/autocomplete'
+import type { Completion, CompletionContext } from '@codemirror/autocomplete'
+import { closeCompletion, startCompletion } from '@codemirror/autocomplete'
 import { EditorSelection } from '@uiw/react-codemirror'
 import { getChild } from './TemplateEditor.utils'
 

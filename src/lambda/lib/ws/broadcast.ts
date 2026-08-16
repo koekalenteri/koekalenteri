@@ -1,5 +1,6 @@
+import type { SendOutcome } from './gatewaySender'
 import type { WebSocketConnection } from './types'
-import { type SendOutcome, sendToConnection } from './gatewaySender'
+import { sendToConnection } from './gatewaySender'
 
 type BroadcastArgs<TPayload> = {
   audience: () => Promise<WebSocketConnection[]>

@@ -1,4 +1,5 @@
 import type { SelectChangeEvent } from '@mui/material/Select'
+import type { MouseEvent } from 'react'
 import CancelIcon from '@mui/icons-material/Cancel'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
@@ -8,7 +9,7 @@ import InputLabel from '@mui/material/InputLabel'
 import ListItemText from '@mui/material/ListItemText'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
-import { type MouseEvent, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { unique } from '../../lib/utils'
 
 type Props = Readonly<{

@@ -2,6 +2,7 @@ import type { Theme } from '@mui/material'
 import type { SyntheticEvent } from 'react'
 import type { Organizer, PublicJudge, RegistrationClass } from '../../types'
 import type { DateValue } from '../components/DateRange'
+import type { FilterProps } from '../recoil'
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined'
 import { useMediaQuery } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
@@ -20,7 +21,7 @@ import { HEADER_HEIGHT } from '../../assets/Theme'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
 import SelectMulti from '../components/SelectMulti'
-import { type FilterProps, filterStrings } from '../recoil'
+import { filterStrings } from '../recoil'
 
 interface Props {
   readonly eventCount: number

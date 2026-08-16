@@ -1,4 +1,5 @@
-import microdiff, { type Difference } from 'microdiff'
+import type { Difference } from 'microdiff'
+import microdiff from 'microdiff'
 
 type DiffInput = object | null | undefined
 type NestedPatch = Record<string, unknown>
