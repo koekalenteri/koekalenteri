@@ -18,7 +18,7 @@ import {
   updateTransactionStatus,
 } from '../lib/payment'
 import { createPayment, PaytrailError } from '../lib/paytrail'
-import { getRegistration } from '../lib/registration'
+import { authorizeRegistrationEdit, getRegistration } from '../lib/registration'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
@@ -77,8 +77,9 @@ const inspectExistingTransactions = async (reference: string) => {
 const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   const { eventId, registrationId } = parseJSONWithFallback<{ eventId: string; registrationId: string }>(event.body)
 
-  const jsonEvent = await getEvent<JsonConfirmedEvent>(eventId)
   const registration = await getRegistration(eventId, registrationId)
+  await authorizeRegistrationEdit(event, registration)
+  const jsonEvent = await getEvent<JsonConfirmedEvent>(eventId)
 
   if (registration.cancelled) {
     return response<string>(404, 'Registration not found', event)

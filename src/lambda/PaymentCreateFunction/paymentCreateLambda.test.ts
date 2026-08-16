@@ -1,6 +1,7 @@
 import type { CreatePaymentResponse, JsonConfirmedEvent, JsonRegistration, Organizer } from '../../types'
 import { jest } from '@jest/globals'
 import { CONFIG } from '../config'
+import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // --- Mock setup ---
@@ -9,12 +10,21 @@ const mockGetEvent = jest.fn<() => Promise<JsonConfirmedEvent | undefined>>()
 const mockCreatePayment = jest.fn<() => Promise<CreatePaymentResponse | null>>()
 const mockGetTransactionsByReference = jest.fn<() => Promise<any[] | undefined>>()
 const mockUpdateTransactionStatus = jest.fn<() => Promise<boolean>>()
-const mockRead = jest.fn<() => Promise<JsonRegistration | Organizer | undefined>>()
+const mockRead =
+  jest.fn<(_key: Record<string, string>, _tableName: string) => Promise<JsonRegistration | Organizer | undefined>>()
 const mockWrite = jest.fn()
 const mockUpdate = jest.fn()
 const mockDocumentTransaction = jest.fn<() => Promise<unknown>>()
 const mockClaimTransactionCreation = jest.fn<() => Promise<boolean>>(() => Promise.resolve(true))
 const mockReleaseTransactionCreation = jest.fn<() => Promise<void>>(() => Promise.resolve())
+const mockAuthorizeRegistrationEdit = jest.fn<() => Promise<string>>(() => Promise.resolve('test-edit-token'))
+const mockGetRegistration = jest.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>(
+  async (eventId, registrationId) => {
+    const registration = await mockRead({ eventId, id: registrationId }, 'registration-table')
+    if (!registration || !('eventId' in registration)) throw new LambdaError(404, 'not found')
+    return registration
+  }
+)
 
 class MockPaytrailError extends Error {
   status: number
@@ -49,6 +59,11 @@ jest.unstable_mockModule('../lib/payment', () => ({
   paymentDescription: jest.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
   releaseTransactionCreation: mockReleaseTransactionCreation,
   updateTransactionStatus: mockUpdateTransactionStatus,
+}))
+
+jest.unstable_mockModule('../lib/registration', () => ({
+  authorizeRegistrationEdit: mockAuthorizeRegistrationEdit,
+  getRegistration: mockGetRegistration,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -175,6 +190,7 @@ describe('paymentCreateLambda', () => {
   it('creates a payment successfully for a member', async () => {
     const result = await paymentCreateLambda(event)
 
+    expect(mockAuthorizeRegistrationEdit).toHaveBeenCalledWith(event, createMockRegistration())
     expect(mockGetEvent).toHaveBeenCalledWith('event123')
     expect(mockRead).toHaveBeenCalledWith({ eventId: 'event123', id: 'reg456' }, expect.any(String))
     expect(mockRead).toHaveBeenCalledWith({ id: 'org789' }, expect.any(String))
@@ -249,6 +265,21 @@ describe('paymentCreateLambda', () => {
     } finally {
       CONFIG.stageName = originalStageName
     }
+  })
+
+  it('rejects requests without a valid registration edit token before inspecting payment state', async () => {
+    mockAuthorizeRegistrationEdit.mockRejectedValueOnce(new LambdaError(404, 'not found'))
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toBe(404)
+    expect(mockAuthorizeRegistrationEdit).toHaveBeenCalledWith(event, createMockRegistration())
+    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockRead).toHaveBeenCalledTimes(1)
+    expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
+    expect(mockClaimTransactionCreation).not.toHaveBeenCalled()
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+    expect(mockDocumentTransaction).not.toHaveBeenCalled()
   })
 
   it('does not create another payment after a duplicate payment was captured', async () => {
