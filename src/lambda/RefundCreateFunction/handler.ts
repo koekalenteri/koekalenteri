@@ -16,7 +16,8 @@ import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { LambdaError, lambda, response } from '../lib/lambda'
-import { PaytrailError, parsePaytrailErrorMessage, refundPayment } from '../lib/paytrail'
+import { claimTransactionCreation, formatPaytrailErrorMessage, releaseTransactionCreation } from '../lib/payment'
+import { PaytrailError, refundPayment } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
@@ -24,24 +25,6 @@ import { getApiHost } from '../utils/proxyEvent'
 const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 const STALE_REFUND_CREATION_AGE_MS = 5 * 60 * 1000
-
-const releaseRefundCreation = async (eventId: string, registrationId: string, stamp: string) => {
-  try {
-    await dynamoDB.documentTransaction([
-      {
-        Update: {
-          ConditionExpression: 'refundCreationStamp = :stamp',
-          ExpressionAttributeValues: { ':stamp': stamp },
-          Key: { eventId, id: registrationId },
-          TableName: registrationTable,
-          UpdateExpression: 'REMOVE refundCreationAt, refundCreationStamp',
-        },
-      },
-    ])
-  } catch (error) {
-    console.error('Failed to release refund creation claim', error)
-  }
-}
 
 const getData = async (transactionId: string, user: JsonUser, memberOf: string[]) => {
   const paymentTransaction = await dynamoDB.read<JsonPaymentTransaction>({ transactionId }, transactionTable)
@@ -63,9 +46,6 @@ const getData = async (transactionId: string, user: JsonUser, memberOf: string[]
 
   return { eventId, paymentTransaction, registration, registrationId }
 }
-
-const getPaytrailErrorMessage = (error: PaytrailError) =>
-  `Maksun palautus epäonnistui Paytrailissa (${error.status}): ${parsePaytrailErrorMessage(error.error)}`
 
 /**
  * refundCreate is called by client to refund a payment
@@ -109,28 +89,10 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     },
   ]
 
-  const refundCreationAt = new Date().toISOString()
-  try {
-    await dynamoDB.documentTransaction([
-      {
-        Update: {
-          ConditionExpression: 'attribute_not_exists(refundCreationAt) OR refundCreationAt < :staleBefore',
-          ExpressionAttributeValues: {
-            ':refundCreationAt': refundCreationAt,
-            ':staleBefore': new Date(Date.now() - STALE_REFUND_CREATION_AGE_MS).toISOString(),
-            ':stamp': stamp,
-          },
-          Key: { eventId, id: registrationId },
-          TableName: registrationTable,
-          UpdateExpression: 'SET refundCreationAt = :refundCreationAt, refundCreationStamp = :stamp',
-        },
-      },
-    ])
-  } catch (error) {
-    if ((error as Error).name === 'TransactionCanceledException') {
-      return response<string>(409, 'Refund already in progress', event)
-    }
-    throw error
+  if (
+    !(await claimTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp, STALE_REFUND_CREATION_AGE_MS))
+  ) {
+    return response<string>(409, 'Refund already in progress', event)
   }
 
   let result: RefundPaymentResponse | undefined
@@ -146,9 +108,9 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
       registration?.payer?.email
     )
   } catch (error: unknown) {
-    await releaseRefundCreation(eventId, registrationId, stamp)
+    await releaseTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
-      const message = getPaytrailErrorMessage(error)
+      const message = formatPaytrailErrorMessage('Maksun palautus', error)
       await audit({
         auditKey: registrationAuditKey(registration),
         message,
@@ -161,7 +123,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   }
 
   if (!result) {
-    await releaseRefundCreation(eventId, registrationId, stamp)
+    await releaseTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp)
     throw new LambdaError(500, 'refundPayment did not return a result')
   }
 

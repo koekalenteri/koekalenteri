@@ -10,11 +10,141 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { calculateHmac, getPayment, HMAC_KEY_PREFIX } from './paytrail'
+import { audit, registrationAuditKey } from './audit'
+import { getEvent } from './event'
+import { LambdaError } from './lambda'
+import { calculateHmac, getPayment, HMAC_KEY_PREFIX, type PaytrailError, parsePaytrailErrorMessage } from './paytrail'
+import { getRegistration } from './registration'
 import { getPaytrailConfig } from './secrets'
+import { publishRegistrationPatches } from './ws/actions'
 
 const { registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
+
+type CreationType = 'payment' | 'refund'
+type RegistrationStatusField = 'paymentStatus' | 'refundStatus'
+type TransactionClient = Pick<CustomDynamoClient, 'documentTransaction'>
+
+const creationFields = (type: CreationType) => ({
+  at: `${type}CreationAt`,
+  stamp: `${type}CreationStamp`,
+})
+
+export const claimTransactionCreation = async (
+  client: TransactionClient,
+  type: CreationType,
+  eventId: string,
+  registrationId: string,
+  stamp: string,
+  staleAgeMs: number
+) => {
+  const fields = creationFields(type)
+  const creationAt = new Date().toISOString()
+  const creationAtValue = `:${fields.at}`
+
+  try {
+    await client.documentTransaction([
+      {
+        Update: {
+          ConditionExpression: `attribute_not_exists(${fields.at}) OR ${fields.at} < :staleBefore`,
+          ExpressionAttributeValues: {
+            [creationAtValue]: creationAt,
+            ':staleBefore': new Date(Date.now() - staleAgeMs).toISOString(),
+            ':stamp': stamp,
+          },
+          Key: { eventId, id: registrationId },
+          TableName: registrationTable,
+          UpdateExpression: `SET ${fields.at} = ${creationAtValue}, ${fields.stamp} = :stamp`,
+        },
+      },
+    ])
+    return true
+  } catch (error) {
+    if ((error as Error).name === 'TransactionCanceledException') return false
+    throw error
+  }
+}
+
+export const releaseTransactionCreation = async (
+  client: TransactionClient,
+  type: CreationType,
+  eventId: string,
+  registrationId: string,
+  stamp: string
+) => {
+  const fields = creationFields(type)
+
+  try {
+    await client.documentTransaction([
+      {
+        Update: {
+          ConditionExpression: `${fields.stamp} = :stamp`,
+          ExpressionAttributeValues: { ':stamp': stamp },
+          Key: { eventId, id: registrationId },
+          TableName: registrationTable,
+          UpdateExpression: `REMOVE ${fields.at}, ${fields.stamp}`,
+        },
+      },
+    ])
+  } catch (error) {
+    console.error(`Failed to release ${type} creation claim`, error)
+  }
+}
+
+export const formatPaytrailErrorMessage = (operation: string, error: PaytrailError) =>
+  `${operation} epäonnistui Paytrailissa (${error.status}): ${parsePaytrailErrorMessage(error.error)}`
+
+interface CancelTransactionOptions<T extends JsonTransaction> {
+  auditMessage: (transaction: T, provider: string | undefined) => string
+  auditUser: (transaction: T) => string
+  params: Partial<PaytrailCallbackParams>
+  statusField: RegistrationStatusField
+  updateProvider?: boolean
+}
+
+export const cancelTransaction = async <T extends JsonTransaction>({
+  auditMessage,
+  auditUser,
+  params,
+  statusField,
+  updateProvider = false,
+}: CancelTransactionOptions<T>) => {
+  const { eventId, provider, registrationId, transactionId } = parseParams(params)
+
+  await verifyParams(params)
+
+  const transaction = await dynamoDB.read<T>({ transactionId })
+  if (!transaction) throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
+
+  const registration = await getRegistration(eventId, registrationId)
+  const updated = await updateTransactionStatus(transaction, 'fail', updateProvider ? provider : undefined)
+
+  if (!updated) {
+    console.log(`Transaction '${transactionId}' already marked as failed`)
+    return
+  }
+
+  if (registration[statusField] === 'PENDING') {
+    const updatedAt = new Date().toISOString()
+    await dynamoDB.update(
+      { eventId, id: registrationId },
+      { set: { [statusField]: 'CANCEL', updatedAt } },
+      registrationTable
+    )
+    const confirmedEvent = await getEvent(eventId)
+    await publishRegistrationPatches(
+      eventId,
+      [{ eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt }],
+      confirmedEvent.organizer.id
+    )
+  }
+
+  await audit({
+    auditKey: registrationAuditKey(registration),
+    message: auditMessage(transaction, provider),
+    user: auditUser(transaction),
+  })
+}
 
 export const parseParams = (params: Partial<PaytrailCallbackParams>) => {
   const [eventId, registrationId] = params['checkout-reference']?.split(':') ?? []

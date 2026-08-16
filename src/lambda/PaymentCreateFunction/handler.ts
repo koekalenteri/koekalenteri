@@ -9,8 +9,15 @@ import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import { getTransactionsByReference, paymentDescription, updateTransactionStatus } from '../lib/payment'
-import { createPayment, PaytrailError, parsePaytrailErrorMessage } from '../lib/paytrail'
+import {
+  claimTransactionCreation,
+  formatPaytrailErrorMessage,
+  getTransactionsByReference,
+  paymentDescription,
+  releaseTransactionCreation,
+  updateTransactionStatus,
+} from '../lib/payment'
+import { createPayment, PaytrailError } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -19,24 +26,6 @@ import { getApiHost } from '../utils/proxyEvent'
 const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 const STALE_PENDING_PAYMENT_AGE_MS = 5 * 60 * 1000
-
-const releasePaymentCreation = async (eventId: string, registrationId: string, stamp: string) => {
-  try {
-    await dynamoDB.documentTransaction([
-      {
-        Update: {
-          ConditionExpression: 'paymentCreationStamp = :stamp',
-          ExpressionAttributeValues: { ':stamp': stamp },
-          Key: { eventId, id: registrationId },
-          TableName: registrationTable,
-          UpdateExpression: 'REMOVE paymentCreationAt, paymentCreationStamp',
-        },
-      },
-    ])
-  } catch (error) {
-    console.error('Failed to release payment creation claim', error)
-  }
-}
 
 const isStalePendingPayment = (createdAt?: string, statusAt?: string) => {
   const timestamp = statusAt ?? createdAt
@@ -80,33 +69,6 @@ const inspectExistingTransactions = async (reference: string) => {
   }
 
   return { freshPendingTransaction, reusableNewTransaction }
-}
-
-const getPaytrailErrorMessage = (error: PaytrailError) =>
-  `Maksun luonti epäonnistui Paytrailissa (${error.status}): ${parsePaytrailErrorMessage(error.error)}`
-
-const claimPaymentCreation = async (eventId: string, registrationId: string, stamp: string) => {
-  try {
-    await dynamoDB.documentTransaction([
-      {
-        Update: {
-          ConditionExpression: 'attribute_not_exists(paymentCreationAt) OR paymentCreationAt < :staleBefore',
-          ExpressionAttributeValues: {
-            ':paymentCreationAt': new Date().toISOString(),
-            ':staleBefore': new Date(Date.now() - STALE_PENDING_PAYMENT_AGE_MS).toISOString(),
-            ':stamp': stamp,
-          },
-          Key: { eventId, id: registrationId },
-          TableName: registrationTable,
-          UpdateExpression: 'SET paymentCreationAt = :paymentCreationAt, paymentCreationStamp = :stamp',
-        },
-      },
-    ])
-    return true
-  } catch (error) {
-    if ((error as Error).name === 'TransactionCanceledException') return false
-    throw error
-  }
 }
 
 /**
@@ -182,7 +144,9 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const language = registration.language === 'en' ? 'EN' : 'FI'
 
-  if (!(await claimPaymentCreation(eventId, registrationId, stamp))) {
+  if (
+    !(await claimTransactionCreation(dynamoDB, 'payment', eventId, registrationId, stamp, STALE_PENDING_PAYMENT_AGE_MS))
+  ) {
     return response<string>(409, 'Payment already in progress', event)
   }
 
@@ -199,16 +163,20 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
       stamp,
     })
   } catch (error: unknown) {
-    await releasePaymentCreation(eventId, registrationId, stamp)
+    await releaseTransactionCreation(dynamoDB, 'payment', eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
-      return response(error.status, { error: error.error, message: getPaytrailErrorMessage(error) }, event)
+      return response(
+        error.status,
+        { error: error.error, message: formatPaytrailErrorMessage('Maksun luonti', error) },
+        event
+      )
     }
 
     throw error
   }
 
   if (!result) {
-    await releasePaymentCreation(eventId, registrationId, stamp)
+    await releaseTransactionCreation(dynamoDB, 'payment', eventId, registrationId, stamp)
     return response<undefined>(500, undefined, event)
   }
 

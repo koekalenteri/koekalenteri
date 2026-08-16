@@ -12,6 +12,8 @@ const mockRead = jest.fn<() => Promise<JsonRegistration | Organizer | undefined>
 const mockWrite = jest.fn()
 const mockUpdate = jest.fn()
 const mockDocumentTransaction = jest.fn<() => Promise<unknown>>()
+const mockClaimTransactionCreation = jest.fn<() => Promise<boolean>>(() => Promise.resolve(true))
+const mockReleaseTransactionCreation = jest.fn<() => Promise<void>>(() => Promise.resolve())
 
 class MockPaytrailError extends Error {
   status: number
@@ -24,6 +26,8 @@ class MockPaytrailError extends Error {
   }
 }
 
+const mockFormatPaytrailErrorMessage = jest.fn<(operation: string, error: MockPaytrailError) => string>()
+
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: mockAuthorize,
 }))
@@ -33,24 +37,16 @@ jest.unstable_mockModule('../lib/event', () => ({
 }))
 
 jest.unstable_mockModule('../lib/paytrail', () => ({
-  calculateHmac: jest.fn(),
   createPayment: mockCreatePayment,
-  HMAC_KEY_PREFIX: 'checkout-',
   PaytrailError: MockPaytrailError,
-  parsePaytrailErrorMessage: (error?: string) => {
-    if (!error) return 'Tuntematon virhe'
-    try {
-      const details = JSON.parse(error) as { message?: unknown }
-      return typeof details.message === 'string' ? details.message : error
-    } catch {
-      return error
-    }
-  },
 }))
 
 jest.unstable_mockModule('../lib/payment', () => ({
+  claimTransactionCreation: mockClaimTransactionCreation,
+  formatPaytrailErrorMessage: mockFormatPaytrailErrorMessage,
   getTransactionsByReference: mockGetTransactionsByReference,
   paymentDescription: jest.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
+  releaseTransactionCreation: mockReleaseTransactionCreation,
   updateTransactionStatus: mockUpdateTransactionStatus,
 }))
 
@@ -246,9 +242,7 @@ describe('paymentCreateLambda', () => {
   })
 
   it('rejects a concurrent payment creation before calling Paytrail', async () => {
-    const error = new Error('claim already exists')
-    error.name = 'TransactionCanceledException'
-    mockDocumentTransaction.mockRejectedValueOnce(error)
+    mockClaimTransactionCreation.mockResolvedValueOnce(false)
 
     const result = await paymentCreateLambda(event)
 
@@ -341,6 +335,9 @@ describe('paymentCreateLambda', () => {
     const paytrailMessage = 'API payment failed. Provider message: Something went wrong'
     const paytrailError = JSON.stringify({ message: paytrailMessage, status: 'error' })
     mockCreatePayment.mockRejectedValueOnce(new MockPaytrailError(400, paytrailError))
+    mockFormatPaytrailErrorMessage.mockReturnValueOnce(
+      `Maksun luonti epäonnistui Paytrailissa (400): ${paytrailMessage}`
+    )
 
     const result = await paymentCreateLambda(event)
 

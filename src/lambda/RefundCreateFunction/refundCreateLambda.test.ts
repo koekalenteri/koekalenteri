@@ -21,8 +21,8 @@ const mockDynamoClient = jest.fn(() => ({
   write: mockDynamoWrite,
 }))
 const mockNanoid = jest.fn<any>()
-const mockFormatMoney = jest.fn<any>()
-const mockGetProviderName = jest.fn<any>()
+const mockClaimTransactionCreation = jest.fn<() => Promise<boolean>>(() => Promise.resolve(true))
+const mockReleaseTransactionCreation = jest.fn<() => Promise<void>>(() => Promise.resolve())
 
 class MockPaytrailError extends Error {
   status: number
@@ -34,6 +34,8 @@ class MockPaytrailError extends Error {
     this.error = error
   }
 }
+
+const mockFormatPaytrailErrorMessage = jest.fn<(operation: string, error: MockPaytrailError) => string>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
@@ -61,15 +63,6 @@ jest.unstable_mockModule('../utils/proxyEvent', () => ({
 
 jest.unstable_mockModule('../lib/paytrail', () => ({
   PaytrailError: MockPaytrailError,
-  parsePaytrailErrorMessage: (error?: string) => {
-    if (!error) return 'Tuntematon virhe'
-    try {
-      const details = JSON.parse(error) as { message?: unknown }
-      return typeof details.message === 'string' ? details.message : error
-    } catch {
-      return error
-    }
-  },
   refundPayment: mockRefundPayment,
 }))
 
@@ -94,12 +87,10 @@ jest.unstable_mockModule('nanoid', () => ({
   nanoid: mockNanoid,
 }))
 
-jest.unstable_mockModule('../../lib/money', () => ({
-  formatMoney: mockFormatMoney,
-}))
-
-jest.unstable_mockModule('../../lib/payment', () => ({
-  getProviderName: mockGetProviderName,
+jest.unstable_mockModule('../lib/payment', () => ({
+  claimTransactionCreation: mockClaimTransactionCreation,
+  formatPaytrailErrorMessage: mockFormatPaytrailErrorMessage,
+  releaseTransactionCreation: mockReleaseTransactionCreation,
 }))
 
 const { default: refundCreateLambda } = await import('./handler')
@@ -186,8 +177,6 @@ describe('refundCreateLambda', () => {
 
     mockRefundPayment.mockResolvedValue(mockRefundResult)
 
-    mockFormatMoney.mockReturnValue('10,00 €')
-    mockGetProviderName.mockReturnValue('Paytrail')
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
   })
 
@@ -275,6 +264,9 @@ describe('refundCreateLambda', () => {
       'API refund failed and provider does not support email refunds. Provider message: Revert failed'
     const paytrailError = JSON.stringify({ message: paytrailMessage, status: 'error' })
     mockRefundPayment.mockRejectedValueOnce(new MockPaytrailError(400, paytrailError))
+    mockFormatPaytrailErrorMessage.mockReturnValueOnce(
+      `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`
+    )
 
     await refundCreateLambda(event)
 
@@ -360,9 +352,7 @@ describe('refundCreateLambda', () => {
   })
 
   it('rejects a concurrent refund creation before calling Paytrail', async () => {
-    const error = new Error('claim already exists')
-    error.name = 'TransactionCanceledException'
-    mockDocumentTransaction.mockRejectedValueOnce(error)
+    mockClaimTransactionCreation.mockResolvedValueOnce(false)
 
     await refundCreateLambda(event)
 
@@ -438,7 +428,7 @@ describe('refundCreateLambda', () => {
     // Verify audit was called
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      message: 'Palautus on kesken (Paytrail), 10,00 €',
+      message: 'Palautus on kesken (Paytrail), 10,00 €',
       user: 'Test User',
     })
 
@@ -479,7 +469,7 @@ describe('refundCreateLambda', () => {
     // Verify audit was called
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      message: 'Palautus on kesken (Paytrail), 10,00 €',
+      message: 'Palautus on kesken (Sähköposti + tilisiirto), 10,00 €',
       user: 'Test User',
     })
 

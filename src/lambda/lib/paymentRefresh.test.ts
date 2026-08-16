@@ -8,6 +8,7 @@ jest.unstable_mockModule('./paytrail', () => ({
   calculateHmac: jest.fn(),
   getPayment: mockGetPayment,
   HMAC_KEY_PREFIX: 'checkout-',
+  parsePaytrailErrorMessage: jest.fn(),
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({

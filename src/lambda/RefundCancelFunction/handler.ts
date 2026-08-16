@@ -1,24 +1,14 @@
-import type { JsonConfirmedEvent, JsonRefundTransaction } from '../../types'
+import type { JsonRefundTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { formatMoney } from '../../lib/money'
-import { CONFIG } from '../config'
-import { audit, registrationAuditKey } from '../lib/audit'
-import { getEvent } from '../lib/event'
-import { LambdaError, lambda, response } from '../lib/lambda'
-import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
-import { getRegistration } from '../lib/registration'
-import { publishRegistrationPatches } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const { registrationTable, transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
+import { lambda, response } from '../lib/lambda'
+import { cancelTransaction } from '../lib/payment'
 
 /**
  * refundCancel is called by payment provider, to update cancelled refund status
  */
 const refundCancelLambda = lambda('refundCancel', async (event) => {
   const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
-  const { eventId, registrationId, transactionId } = parseParams(params)
 
   if (!params['checkout-transaction-id']) {
     console.log(
@@ -27,45 +17,13 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
     return response(200, undefined, event)
   }
 
-  await verifyParams(params)
-
-  const transaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
-  if (!transaction) {
-    throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
-  }
-
-  const registration = await getRegistration(eventId, registrationId)
-
-  const updated = await updateTransactionStatus(transaction, 'fail')
-  if (updated) {
-    if (registration.refundStatus === 'PENDING') {
-      const updatedAt = new Date().toISOString()
-      await dynamoDB.update(
-        { eventId, id: registrationId },
-        {
-          set: {
-            refundStatus: 'CANCEL',
-            updatedAt,
-          },
-        },
-        registrationTable
-      )
-      const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-      await publishRegistrationPatches(
-        eventId,
-        [{ eventId, id: registrationId, refundStatus: 'CANCEL', updatedAt }],
-        confirmedEvent.organizer.id
-      )
-    }
-
-    await audit({
-      auditKey: registrationAuditKey(registration),
-      message: `Palautus epäonnistui (${transaction.provider}), ${formatMoney(transaction.amount / 100)}`,
-      user: transaction.user,
-    })
-  } else {
-    console.log(`Transaction '${transactionId}' already marked as failed`)
-  }
+  await cancelTransaction<JsonRefundTransaction>({
+    auditMessage: (transaction) =>
+      `Palautus epäonnistui (${transaction.provider}), ${formatMoney(transaction.amount / 100)}`,
+    auditUser: (transaction) => transaction.user,
+    params,
+    statusField: 'refundStatus',
+  })
 
   return response(200, undefined, event)
 })
