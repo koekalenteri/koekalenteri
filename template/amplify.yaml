@@ -43,7 +43,7 @@
           - pattern: '**'
             headers:
               - key: 'Content-Security-Policy'
-                value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://resources.paytrail.com https://flagcdn.com; font-src 'self' data:; connect-src 'self' https://*.execute-api.${AWS::Region}.amazonaws.com wss://*.execute-api.${AWS::Region}.amazonaws.com https://*.auth.${AWS::Region}.amazoncognito.com https://cognito-idp.${AWS::Region}.amazonaws.com https://cognito-identity.${AWS::Region}.amazonaws.com https://dataplane.rum.${AWS::Region}.amazonaws.com; form-action 'self' https:; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests"
+                value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://resources.paytrail.com https://flagcdn.com; font-src 'self' data:; connect-src 'self' https://*.execute-api.${AWS::Region}.amazonaws.com wss://*.execute-api.${AWS::Region}.amazonaws.com https://*.auth.${AWS::Region}.amazoncognito.com https://auth-${StageNameParam}.${CustomDomain} https://cognito-idp.${AWS::Region}.amazonaws.com https://cognito-identity.${AWS::Region}.amazonaws.com https://dataplane.rum.${AWS::Region}.amazonaws.com; form-action 'self' https:; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests"
       CustomRules:
         - Source: "/.well-known/apple-developer-merchantid-domain-association"
           Status: "200"
@@ -68,4 +68,3 @@
           Value: koekalenteri-amplify-console
         - Key: Branch
           Value: !Ref Branch
-
