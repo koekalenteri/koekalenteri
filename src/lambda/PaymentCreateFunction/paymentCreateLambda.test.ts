@@ -201,6 +201,7 @@ describe('paymentCreateLambda', () => {
       amount: 4000,
       apiHost: 'api.example.com/',
       customer: { email: 'test@example.com.local', firstName: 'Test', lastName: 'Payer', phone: '1234567890' },
+      editToken: 'test-edit-token',
       items: [
         {
           description: 'Test Type 1.–2.1. Test Location Test Event',
@@ -317,6 +318,7 @@ describe('paymentCreateLambda', () => {
       amount: 5000,
       apiHost: 'api.example.com/',
       customer: { email: 'test@example.com.local', firstName: 'Test', lastName: 'Payer', phone: '1234567890' },
+      editToken: 'test-edit-token',
       items: [
         {
           description: 'Test Type 1.–2.1. Test Location Test Event',
@@ -421,6 +423,7 @@ describe('paymentCreateLambda', () => {
       amount: 500, // (25 EUR - 20 EUR) * 100
       apiHost: expect.any(String),
       customer: expect.any(Object),
+      editToken: 'test-edit-token',
       items: expect.any(Array),
       language: 'FI',
       origin: expect.any(String),
@@ -464,6 +467,7 @@ describe('paymentCreateLambda', () => {
         lastName: 'Payer',
         phone: '1234567890',
       },
+      editToken: 'test-edit-token',
       items: [
         {
           description: 'Test Type 1.–2.1. Test Location Test Event',

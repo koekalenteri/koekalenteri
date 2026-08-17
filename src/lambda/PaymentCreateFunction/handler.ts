@@ -78,7 +78,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   const { eventId, registrationId } = parseJSONWithFallback<{ eventId: string; registrationId: string }>(event.body)
 
   const registration = await getRegistration(eventId, registrationId)
-  await authorizeRegistrationEdit(event, registration)
+  const editToken = await authorizeRegistrationEdit(event, registration)
   const jsonEvent = await getEvent<JsonConfirmedEvent>(eventId)
 
   if (registration.cancelled) {
@@ -157,6 +157,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
       amount,
       apiHost: getApiHost(event),
       customer,
+      editToken,
       items,
       language,
       origin: getFrontendOrigin(event),

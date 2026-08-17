@@ -8,6 +8,7 @@ import { Path } from '../routeConfig'
 
 export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url)
+  const returnEditToken = url.searchParams.get('editToken') ?? undefined
   const keys = Array.from(url.searchParams.keys())
     .filter((key) => key.startsWith('checkout-'))
     .concat('signature')
@@ -21,10 +22,11 @@ export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {
     const response = await verifyPayment(params)
 
     if (response?.eventId && response.registrationId) {
+      const editToken = response.editToken ?? returnEditToken
       const registration = {
         eventId: response.eventId,
         id: response.registrationId,
-        ...(response.editToken ? { editToken: response.editToken } : {}),
+        ...(editToken ? { editToken } : {}),
       }
       if (response.status === 'ok') {
         return redirect(`${Path.registrationOk(registration)}?payment=verifying`)

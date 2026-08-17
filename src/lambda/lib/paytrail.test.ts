@@ -15,6 +15,13 @@ describe('paytrail', () => {
     })
   })
 
+  it('preserves the edit token in payment redirect URLs', () => {
+    expect(createPaymentRedirectUrls('https://some-origin', 'edit token')).toEqual({
+      cancel: 'https://some-origin/p/cancel?editToken=edit%20token',
+      success: 'https://some-origin/p/success?editToken=edit%20token',
+    })
+  })
+
   it('createRefundCallbackUrls', () => {
     expect(createRefundCallbackUrls('some-host')).toEqual({
       cancel: 'https://some-host/refund/cancel',

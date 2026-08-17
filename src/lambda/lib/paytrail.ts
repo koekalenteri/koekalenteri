@@ -138,7 +138,16 @@ const createCallbackUrls = (baseUrl: string): CallbackUrl => ({
   success: `${baseUrl}/success`,
 })
 
-export const createPaymentRedirectUrls = (origin: string): CallbackUrl => createCallbackUrls(`${origin}/p`)
+export const createPaymentRedirectUrls = (origin: string, editToken?: string): CallbackUrl => {
+  const redirectUrls = createCallbackUrls(`${origin}/p`)
+  if (!editToken) return redirectUrls
+
+  const token = encodeURIComponent(editToken)
+  return {
+    cancel: `${redirectUrls.cancel}?editToken=${token}`,
+    success: `${redirectUrls.success}?editToken=${token}`,
+  }
+}
 
 export const createPaymentCallbackUrls = (host: string): CallbackUrl => createCallbackUrls(`https://${host}/payment`)
 
@@ -150,6 +159,7 @@ type CreatePaymentParams = {
   stamp: string
   items: PaymentItem[]
   customer: PaymentCustomer
+  editToken?: string
   language: 'FI' | 'EN' | 'SV'
 }
 
@@ -161,9 +171,10 @@ export const createPayment = async ({
   stamp,
   items,
   customer,
+  editToken,
   language,
 }: CreatePaymentParams): Promise<CreatePaymentResponse | undefined> => {
-  const redirectUrls = createPaymentRedirectUrls(origin)
+  const redirectUrls = createPaymentRedirectUrls(origin, editToken)
   const callbackUrls = createPaymentCallbackUrls(apiHost)
 
   const body: CreatePaymentRequest = {
