@@ -10,55 +10,6 @@ import {
 } from '../../../../lib/registration'
 import { uniqueDate } from '../../../../lib/utils'
 
-interface NouGroupRuleIssues {
-  duplicateHandlers: Array<{ count: number; email: string; name: string }>
-  femaleCount: number
-  genderBalance: boolean
-  maleCount: number
-}
-
-const normalizeHandlerEmail = (email: string) => email.trim().toLocaleLowerCase()
-
-/**
- * Check the rules that apply specifically to participant groups in a retriever
- * aptitude test. Empty configured groups are ignored until they have a dog.
- */
-export const getNouGroupRuleIssues = (
-  eventType: string,
-  registrations: Registration[]
-): NouGroupRuleIssues | undefined => {
-  if (eventType !== 'NOU' || registrations.length === 0) return undefined
-
-  const handlers = new Map<string, { count: number; email: string; name: string }>()
-  let femaleCount = 0
-  let maleCount = 0
-
-  for (const registration of registrations) {
-    if (registration.dog.gender === 'F') femaleCount++
-    if (registration.dog.gender === 'M') maleCount++
-
-    const handler = registration.ownerHandles ? registration.owner : registration.handler
-    if (!handler?.email) continue
-
-    const key = normalizeHandlerEmail(handler.email)
-    if (!key) continue
-
-    const current = handlers.get(key)
-    handlers.set(key, {
-      count: (current?.count ?? 0) + 1,
-      email: key,
-      name: current?.name ?? handler.name,
-    })
-  }
-
-  return {
-    duplicateHandlers: [...handlers.values()].filter(({ count }) => count > 1),
-    femaleCount,
-    genderBalance: femaleCount < 2 || maleCount < 2,
-    maleCount,
-  }
-}
-
 /**
  * Decide which visual list a registration belongs to.
  * - Cancelled always to cancelled
