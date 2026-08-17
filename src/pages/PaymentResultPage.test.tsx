@@ -55,4 +55,26 @@ describe('paymentResultLoader', () => {
 
     expect(response.headers.get('Location')).toBe('/p/event-1/registration-1/access/return-token')
   })
+
+  it('shows payment verification after a successful callback even when verification returns an error', async () => {
+    jest.mocked(verifyPayment).mockResolvedValue({
+      eventId: 'event-1',
+      registrationId: 'registration-1',
+      status: 'error',
+    })
+
+    const request = new Request('https://example.test/p/success?checkout-status=ok&editToken=return-token')
+    const args: LoaderFunctionArgs = {
+      context: {},
+      params: {},
+      pattern: '/p/success',
+      request,
+      url: new URL(request.url),
+    }
+    const response = await paymentResultLoader(args)
+
+    expect(response.headers.get('Location')).toBe(
+      '/r/event-1/registration-1/access/return-token/saved?payment=verifying'
+    )
+  })
 })

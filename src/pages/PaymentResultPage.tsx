@@ -28,7 +28,10 @@ export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {
         id: response.registrationId,
         ...(editToken ? { editToken } : {}),
       }
-      if (response.status === 'ok') {
+      // The payment provider has already reported a successful payment. If the
+      // subsequent verification has a transient error, still show the payment
+      // status page instead of offering payment again.
+      if (params['checkout-status'] === 'ok') {
         return redirect(`${Path.registrationOk(registration)}?payment=verifying`)
       }
       if (response.paymentStatus === 'fail') {
