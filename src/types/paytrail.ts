@@ -31,6 +31,7 @@ export interface RefundPaymentResponse {
 
 export interface VerifyPaymentResponse {
   status: 'ok' | 'error'
+  editToken?: string
   paymentStatus?: GetPaymentResponse['status']
   eventId?: string
   registrationId?: string

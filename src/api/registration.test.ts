@@ -177,19 +177,6 @@ test('patchRegistration updates with PATCH', async () => {
   expect(result.id).not.toBeUndefined()
 })
 
-test('postRegistration stores the edit token returned for the new registration', async () => {
-  fetchMock.mockResponseOnce(async (request) => {
-    expect(request.headers.has('Authorization')).toBe(false)
-    return JSON.stringify({ ...mockRegistration, editToken: 'participant-token' })
-  })
-
-  await postRegistration(mockRegistrationCreateRequest())
-
-  expect(sessionStorage.getItem(`registration-edit-token:${mockRegistration.eventId}:${mockRegistration.id}`)).toBe(
-    'participant-token'
-  )
-})
-
 test('postAdminRegistration creates with POST', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'

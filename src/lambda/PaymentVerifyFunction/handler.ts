@@ -8,7 +8,7 @@ import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { parseParams, verifyParams } from '../lib/payment'
-import { getRegistration } from '../lib/registration'
+import { getRegistration, getRegistrationEditToken } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -31,10 +31,10 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
     if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
     const status = paymentStatus === 'fail' ? 'error' : 'ok'
+    const registration = await getRegistration(eventId, registrationId)
+    const editToken = await getRegistrationEditToken(registration)
 
     if (status === 'error') {
-      const registration = await getRegistration(eventId, registrationId)
-
       if (registration.paymentStatus === 'PENDING') {
         const updatedAt = new Date().toISOString()
         await dynamoDB.update(
@@ -64,7 +64,7 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
       }
     }
 
-    return response<VerifyPaymentResponse>(200, { eventId, paymentStatus, registrationId, status }, event)
+    return response<VerifyPaymentResponse>(200, { editToken, eventId, paymentStatus, registrationId, status }, event)
   } catch (e) {
     console.error(e)
     return response<VerifyPaymentResponse>(200, { eventId, paymentStatus, registrationId, status: 'error' }, event)

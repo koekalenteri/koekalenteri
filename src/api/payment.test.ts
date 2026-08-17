@@ -9,7 +9,6 @@ describe('payment', () => {
 
   beforeEach(() => {
     fetchMock.resetMocks()
-    sessionStorage.clear()
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
   })
 
@@ -38,18 +37,6 @@ describe('payment', () => {
       expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/payment/create'),
         expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer edit-token' }) })
-      )
-    })
-
-    it('should authorize payment creation with the stored registration edit token', async () => {
-      sessionStorage.setItem('registration-edit-token:event-id:registration-id', 'stored-edit-token')
-      fetchMock.mockResponseOnce(JSON.stringify(mockResponse))
-
-      await createPayment('event-id', 'registration-id')
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/payment/create'),
-        expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer stored-edit-token' }) })
       )
     })
 

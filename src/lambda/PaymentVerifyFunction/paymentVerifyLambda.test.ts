@@ -9,6 +9,7 @@ const mockResponse = jest.fn<any>().mockImplementation((statusCode: number, body
 const mockParseParams = jest.fn<any>()
 const mockVerifyParams = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
+const mockGetRegistrationEditToken = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockRead = jest.fn<any>()
@@ -37,6 +38,7 @@ jest.unstable_mockModule('../lib/payment', () => ({
 
 jest.unstable_mockModule('../lib/registration', () => ({
   getRegistration: mockGetRegistration,
+  getRegistrationEditToken: mockGetRegistrationEditToken,
 }))
 
 jest.unstable_mockModule('../lib/audit', () => ({
@@ -93,6 +95,7 @@ describe('paymentVerifyLambda', () => {
       id: 'reg456',
       paymentStatus: 'PENDING',
     })
+    mockGetRegistrationEditToken.mockResolvedValue('edit-token')
 
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
 
@@ -121,8 +124,12 @@ describe('paymentVerifyLambda', () => {
     // Verify transaction was retrieved
     expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
 
-    // Verify registration was NOT retrieved for successful payment
-    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
+    expect(mockGetRegistrationEditToken).toHaveBeenCalledWith({
+      eventId: 'event123',
+      id: 'reg456',
+      paymentStatus: 'PENDING',
+    })
 
     // Verify registration payment status was NOT updated
     expect(mockUpdate).not.toHaveBeenCalled()
@@ -134,6 +141,7 @@ describe('paymentVerifyLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        editToken: 'edit-token',
         eventId: 'event123',
         paymentStatus: 'ok',
         registrationId: 'reg456',
@@ -196,6 +204,7 @@ describe('paymentVerifyLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        editToken: 'edit-token',
         eventId: 'event123',
         paymentStatus: 'fail',
         registrationId: 'reg456',
@@ -235,6 +244,7 @@ describe('paymentVerifyLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        editToken: 'edit-token',
         eventId: 'event123',
         paymentStatus: 'fail',
         registrationId: 'reg456',

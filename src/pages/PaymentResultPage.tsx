@@ -21,15 +21,18 @@ export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {
     const response = await verifyPayment(params)
 
     if (response?.eventId && response.registrationId) {
+      const registration = {
+        eventId: response.eventId,
+        id: response.registrationId,
+        ...(response.editToken ? { editToken: response.editToken } : {}),
+      }
       if (response.status === 'ok') {
-        return redirect(
-          `${Path.registrationOk({ eventId: response.eventId, id: response.registrationId })}?payment=verifying`
-        )
+        return redirect(`${Path.registrationOk(registration)}?payment=verifying`)
       }
       if (response.paymentStatus === 'fail') {
         enqueueSnackbar(t('registration.notifications.paymentFailed'), { variant: 'info' })
       }
-      return redirect(Path.payment({ eventId: response.eventId, id: response.registrationId }))
+      return redirect(Path.payment(registration))
     }
   } catch (e) {
     reportError(e)
