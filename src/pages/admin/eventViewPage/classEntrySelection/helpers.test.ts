@@ -1,7 +1,6 @@
-import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationPerson } from '../../../../types'
+import type { CustomCost, DogEvent, Registration, RegistrationGroup } from '../../../../types'
 import type { RegistrationWithGroups } from './types'
 import { parseISO } from 'date-fns'
-import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
 import {
@@ -12,93 +11,12 @@ import {
   buildSelectedAdditionalCostsByGroup,
   buildSelectedAdditionalCostsTotal,
   findMoveToPositionTargetGroup,
-  getNouGroupRuleIssues,
   listKey,
 } from './helpers'
 
 describe('helpers', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-  })
-
-  describe('getNouGroupRuleIssues', () => {
-    const handler: RegistrationPerson = {
-      email: 'handler@example.com',
-      membership: false,
-      name: 'Test Handler',
-    }
-    const registration: Registration = {
-      ...registrationWithStaticDates,
-      dates: [],
-      dog: { ...registrationWithStaticDates.dog, gender: 'M', regNo: 'dog-1' },
-      eventId: 'event-1',
-      handler,
-      id: 'registration-1',
-    }
-
-    it('reports gender balance and same-handler issues for NOU participant groups', () => {
-      const issues = getNouGroupRuleIssues('NOU', [
-        registration,
-        {
-          ...registration,
-          dog: { ...registration.dog, regNo: 'dog-2' },
-          handler: { ...handler, email: ' Handler@example.com ' },
-          id: 'registration-2',
-        },
-      ])
-
-      expect(issues).toEqual({
-        duplicateHandlers: [{ count: 2, email: 'handler@example.com', name: 'Test Handler' }],
-        femaleCount: 0,
-        genderBalance: true,
-        maleCount: 2,
-      })
-    })
-
-    it('uses the owner as handler when the owner handles the dog', () => {
-      const ownerHandler: RegistrationPerson = {
-        email: 'owner@example.com',
-        membership: false,
-        name: 'Owner Handler',
-      }
-      const issues = getNouGroupRuleIssues('NOU', [
-        {
-          ...registration,
-          owner: ownerHandler,
-          ownerHandles: true,
-        },
-        {
-          ...registration,
-          dog: { ...registration.dog, gender: 'F', regNo: 'dog-2' },
-          id: 'registration-2',
-          owner: { ...ownerHandler, email: 'OWNER@example.com' },
-          ownerHandles: true,
-        },
-      ])
-
-      expect(issues?.duplicateHandlers).toEqual([{ count: 2, email: 'owner@example.com', name: 'Owner Handler' }])
-    })
-
-    it('returns no issues for other event types or empty NOU groups', () => {
-      expect(getNouGroupRuleIssues('NOME-B', [registration])).toBeUndefined()
-      expect(getNouGroupRuleIssues('NOU', [])).toBeUndefined()
-    })
-
-    it('accepts a NOU group with at least two dogs of each gender and distinct handlers', () => {
-      const registrations = (['M', 'M', 'F', 'F'] as const).map((gender, index) => ({
-        ...registration,
-        dog: { ...registration.dog, gender, regNo: `dog-${index}` },
-        handler: { ...handler, email: `handler-${index}@example.com` },
-        id: `registration-${index}`,
-      }))
-
-      expect(getNouGroupRuleIssues('NOU', registrations)).toEqual({
-        duplicateHandlers: [],
-        femaleCount: 2,
-        genderBalance: false,
-        maleCount: 2,
-      })
-    })
   })
 
   describe('listKey', () => {

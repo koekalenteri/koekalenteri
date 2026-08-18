@@ -253,10 +253,6 @@
       "updated": "Updated {{date, dtshort2}}"
     },
     "close": "Close event management",
-    "groupRules": {
-      "duplicateHandler": "Handler {{name}} has {{count}} dogs in this group. The Judges Committee recommends placing dogs with the same handler in different groups, as familiar dogs may behave differently together than they would without each other during the social behaviour assessment.",
-      "genderBalance": "Please consider the group's gender balance when assessing social behaviour. Under the rules, a group must include at least two male and two female dogs, and dogs not participating in the test may be added when needed. If only dogs of one gender are being assessed, one non-participating dog of the opposite gender is sufficient. Dogs being assessed in this group: {{maleCount}} male and {{femaleCount}} female."
-    },
     "invitation": {
       "canSendAfterEntry": "Invitations can be sent after the entry period has ended",
       "canSendAfterPicked": "Invitations can be sent after participant notifications",
