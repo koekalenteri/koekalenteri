@@ -33,7 +33,10 @@ export function useRegistrationActions() {
 
   return {
     cancel: async (reg: Registration, reason: string) => {
-      const saved = await patchRegistration(registrationPatch(reg, { ...reg, cancelled: true, cancelReason: reason }))
+      const saved = await patchRegistration(
+        registrationPatch(reg, { ...reg, cancelled: true, cancelReason: reason }),
+        reg.editToken
+      )
       enqueueSnackbar(t('registration.cancelDialog.done'), { variant: 'info' })
       return saved
     },
@@ -42,7 +45,7 @@ export function useRegistrationActions() {
       const mod = { ...reg, confirmed: true }
       let saved: Registration
       try {
-        saved = await patchRegistration(registrationPatch(reg, mod))
+        saved = await patchRegistration(registrationPatch(reg, mod), reg.editToken)
       } catch (error) {
         if (error instanceof APIError && error.status === 304) {
           saved = mod
@@ -57,7 +60,7 @@ export function useRegistrationActions() {
     invitationRead: async (reg: Registration) => {
       if (reg.invitationRead) return reg
       const mod = { ...reg, invitationRead: true }
-      const saved = await patchRegistration(registrationPatch(reg, mod))
+      const saved = await patchRegistration(registrationPatch(reg, mod), reg.editToken)
       return saved
     },
 
@@ -68,7 +71,10 @@ export function useRegistrationActions() {
       let saved: Registration
       try {
         if (savedRegistration) {
-          saved = await patchRegistration(registrationPatch(savedRegistration, regWithOverrides))
+          saved = await patchRegistration(
+            registrationPatch(savedRegistration, regWithOverrides),
+            savedRegistration.editToken
+          )
         } else {
           const { editToken: _editToken, ...request } = regWithOverrides
           saved = await postRegistration(request)

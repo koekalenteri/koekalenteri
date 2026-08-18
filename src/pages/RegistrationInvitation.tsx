@@ -53,7 +53,7 @@ export const deferredLoader = async (
         id: registration.id,
         operations: createPatchOperations(registration, updatedRegistration),
       },
-      undefined,
+      registration.editToken ?? editToken,
       signal
     )
     registration.invitationRead = true

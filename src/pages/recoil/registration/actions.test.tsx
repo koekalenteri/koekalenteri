@@ -32,44 +32,73 @@ describe('useRegistrationActions', () => {
   })
 
   it('cancels registration with patch operations', async () => {
-    const savedRegistration = { ...registrationWithStaticDates, cancelled: true, cancelReason: 'dog-heat' }
+    const registration = { ...registrationWithStaticDates, editToken: 'participant-token' }
+    const savedRegistration = { ...registration, cancelled: true, cancelReason: 'dog-heat' }
     jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(savedRegistration)
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
     let saved: Awaited<ReturnType<typeof result.current.cancel>> | undefined
     await act(async () => {
-      saved = await result.current.cancel(registrationWithStaticDates, 'dog-heat')
+      saved = await result.current.cancel(registration, 'dog-heat')
     })
 
-    expect(registrationApi.patchRegistration).toHaveBeenCalledWith({
-      eventId: registrationWithStaticDates.eventId,
-      id: registrationWithStaticDates.id,
-      operations: [
-        { path: ['cancelReason'], type: 'CREATE', value: 'dog-heat' },
-        { path: ['cancelled'], type: 'CREATE', value: true },
-      ],
-    })
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith(
+      {
+        eventId: registration.eventId,
+        id: registration.id,
+        operations: [
+          { path: ['cancelReason'], type: 'CREATE', value: 'dog-heat' },
+          { path: ['cancelled'], type: 'CREATE', value: true },
+        ],
+      },
+      'participant-token'
+    )
     expect(saved).toBe(savedRegistration)
     expect(mockEnqueueSnackbar).toHaveBeenCalledWith('registration.cancelDialog.done', { variant: 'info' })
   })
 
+  it('confirms registration with the participant edit token', async () => {
+    const registration = { ...registrationWithStaticDates, editToken: 'participant-token' }
+    const confirmedRegistration = { ...registration, confirmed: true }
+    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(confirmedRegistration)
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+
+    await act(async () => {
+      await result.current.confirm(registration)
+    })
+
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith(
+      {
+        eventId: registration.eventId,
+        id: registration.id,
+        operations: [{ path: ['confirmed'], type: 'CREATE', value: true }],
+      },
+      'participant-token'
+    )
+  })
+
   it('saves edited registration with patch operations', async () => {
-    const editedRegistration = { ...registrationWithStaticDates, notes: 'changed notes' }
+    const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token' }
+    const editedRegistration = { ...savedRegistration, notes: 'changed notes' }
     jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
     let saved: Awaited<ReturnType<typeof result.current.save>> | undefined
     await act(async () => {
-      saved = await result.current.save(editedRegistration, eventWithStaticDates, registrationWithStaticDates)
+      saved = await result.current.save(editedRegistration, eventWithStaticDates, savedRegistration)
     })
 
-    expect(registrationApi.patchRegistration).toHaveBeenCalledWith({
-      eventId: registrationWithStaticDates.eventId,
-      id: registrationWithStaticDates.id,
-      operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
-    })
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith(
+      {
+        eventId: savedRegistration.eventId,
+        id: savedRegistration.id,
+        operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
+      },
+      'participant-token'
+    )
     expect(registrationApi.patchRegistration).not.toHaveBeenCalledWith(
       expect.objectContaining({ dog: expect.anything() })
     )
@@ -111,11 +140,14 @@ describe('useRegistrationActions', () => {
       await result.current.save(editedRegistration, eventWithStaticDates, savedRegistration)
     })
 
-    expect(registrationApi.patchRegistration).toHaveBeenCalledWith({
-      eventId: savedRegistration.eventId,
-      id: savedRegistration.id,
-      operations: [{ path: ['results', 0], type: 'CREATE', value: manualResult }],
-    })
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith(
+      {
+        eventId: savedRegistration.eventId,
+        id: savedRegistration.id,
+        operations: [{ path: ['results', 0], type: 'CREATE', value: manualResult }],
+      },
+      undefined
+    )
   })
 
   it('handles 304 from save action as a successful no-op', async () => {
@@ -131,11 +163,14 @@ describe('useRegistrationActions', () => {
       saved = await result.current.save(editedRegistration, eventWithStaticDates, registrationWithStaticDates)
     })
 
-    expect(registrationApi.patchRegistration).toHaveBeenCalledWith({
-      eventId: registrationWithStaticDates.eventId,
-      id: registrationWithStaticDates.id,
-      operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
-    })
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith(
+      {
+        eventId: registrationWithStaticDates.eventId,
+        id: registrationWithStaticDates.id,
+        operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
+      },
+      undefined
+    )
     expect(saved).toEqual(editedRegistration)
   })
 

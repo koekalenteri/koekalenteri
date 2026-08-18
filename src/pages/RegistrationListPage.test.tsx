@@ -311,11 +311,14 @@ describe('RegistrationListPage', () => {
     // Wait for the action to complete
     await flushPromises()
 
-    expect(patchRegistrationSpy).toHaveBeenCalledWith({
-      eventId: 'test1',
-      id: 'nou-registration',
-      operations: [{ path: ['invitationRead'], type: 'CREATE', value: true }],
-    })
+    expect(patchRegistrationSpy).toHaveBeenCalledWith(
+      {
+        eventId: 'test1',
+        id: 'nou-registration',
+        operations: [{ path: ['invitationRead'], type: 'CREATE', value: true }],
+      },
+      undefined
+    )
   })
 
   it('shows snackbar when on saved route with payment success', async () => {
