@@ -253,6 +253,10 @@
       "updated": "Päivitetty {{date, dtshort2}}"
     },
     "close": "Sulje tapahtuman hallinta",
+    "groupRules": {
+      "duplicateHandler": "Ohjaajalla {{name}} on tässä ryhmässä {{count}} koiraa. Tuomaritoimikunta suosittelee sijoittamaan saman ohjaajan koirat eri ryhmiin, sillä tutut koirat voivat käyttäytyä yhdessä eri tavoin kuin ilman toisiaan sosiaalisen käyttäytymisen osuudessa.",
+      "genderBalance": "Huomioi sosiaalisen käyttäytymisen arvioinnissa ryhmän sukupuolijakauma. Säännön mukaan ryhmässä on oltava vähintään kaksi urosta ja kaksi narttua, ja ryhmää voi tarvittaessa täydentää kokeen ulkopuolisilla koirilla. Jos arvosteltavana on vain yhtä sukupuolta olevia koiria, yksi kokeen ulkopuolinen vastakkaisen sukupuolen koira riittää. Arvosteltavina tässä ryhmässä: uroksia {{maleCount}} ja narttuja {{femaleCount}}."
+    },
     "invitation": {
       "canSendAfterEntry": "Koekutsut voi lähettää ilmoittautumisajan päätyttyä",
       "canSendAfterPicked": "Koekutsut voi lähettää koepaikkailmoitusten jälkeen",
