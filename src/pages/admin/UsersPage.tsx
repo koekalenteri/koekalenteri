@@ -2,7 +2,7 @@ import type { TooltipProps } from '@mui/material/Tooltip'
 import type { GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { User } from '../../types'
 import Accessibility from '@mui/icons-material/Accessibility'
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import StarsOutlined from '@mui/icons-material/StarsOutlined'
 import SupervisorAccount from '@mui/icons-material/SupervisorAccount'
@@ -15,7 +15,7 @@ import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { localeSortComparator } from '../../lib/datagrid'
+import { firstSelectedRow, localeSortComparator, rowSelectionModel } from '../../lib/datagrid'
 import { scoreUser } from '../../lib/user'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
@@ -94,7 +94,12 @@ const RoleInfo = ({ admin, judge, officer, roles }: User) => {
   const hasAnyRoles = roleStrings.length > 0
 
   const iconRow = (
-    <Stack direction="row" alignItems="center">
+    <Stack
+      direction="row"
+      sx={{
+        alignItems: 'center',
+      }}
+    >
       <RoleIcon admin={admin} orgRoleCount={orgRoleCount} />
       {judge ? <Accessibility fontSize="small" /> : <IconPlaceholder />}
       {officer ? <SupervisorAccount fontSize="small" /> : <IconPlaceholder />}
@@ -218,7 +223,8 @@ export default function UsersPage() {
   const editAction = useCallback(() => setRolesOpen(true), [])
   const handleSelectionModeChange = useCallback(
     (selection: GridRowSelectionModel) => {
-      const value = typeof selection[0] === 'string' ? selection[0] : undefined
+      const selected = firstSelectedRow(selection)
+      const value = typeof selected === 'string' ? selected : undefined
       setSelectedUserID(value)
     },
     [setSelectedUserID]
@@ -264,7 +270,13 @@ export default function UsersPage() {
           slotProps={{
             toolbar: {
               children: (
-                <Stack direction="row" mx={1} flex={1}>
+                <Stack
+                  direction="row"
+                  sx={{
+                    flex: 1,
+                    mx: 1,
+                  }}
+                >
                   <AutocompleteSingle
                     disabled={options.length < 2}
                     size="small"
@@ -292,7 +304,7 @@ export default function UsersPage() {
           rowHeight={50}
           rows={users}
           onRowSelectionModelChange={handleSelectionModeChange}
-          rowSelectionModel={selectedUserID ? [selectedUserID] : []}
+          rowSelectionModel={rowSelectionModel(selectedUserID ? [selectedUserID] : [])}
         />
       </FullPageFlex>
       <CreateUserDialog onClose={() => setCreateOpen(false)} open={createOpen} />

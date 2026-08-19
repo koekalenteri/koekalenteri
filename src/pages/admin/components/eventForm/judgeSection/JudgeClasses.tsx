@@ -11,7 +11,12 @@ interface Props extends Pick<SectionProps, 'event' | 'disabled' | 'onChange'> {
 
 const JudgeClasses = ({ disabled, event, index, judge, onChange }: Props) => {
   return (
-    <Grid flex={1} display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
+    <Grid
+      sx={{
+        display: event.eventType === 'NOWT' ? 'NONE' : undefined,
+        flex: 1,
+      }}
+    >
       <EventClasses
         id={`class${index}`}
         disabled={disabled}

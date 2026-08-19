@@ -1,8 +1,9 @@
+import type { ReactElement } from 'react'
 import { render, screen } from '@testing-library/react'
 import RegistrationTooltipContent from './RegistrationTooltipContent'
 
 jest.mock('../../../../components/IconsTooltip', () => ({
-  TooltipIcon: ({ condition, text, icon }: { condition: boolean; text: string; icon: JSX.Element }) =>
+  TooltipIcon: ({ condition, text, icon }: { condition: boolean; text: string; icon: ReactElement }) =>
     condition ? (
       <div data-testid="tooltip-icon" data-text={text}>
         {icon}

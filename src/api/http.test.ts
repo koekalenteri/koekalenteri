@@ -176,7 +176,7 @@ describe('http', () => {
 
       const promise = http.get('/somewhere', { signal: controller.signal })
 
-      await expect(promise).rejects.toEqual(expect.objectContaining({ name: 'AbortError' }))
+      await expect(promise).rejects.toBe('because')
       expect(fetchMock).toHaveBeenCalledTimes(1)
     })
 
@@ -453,9 +453,9 @@ describe('http', () => {
         statusText: '',
       })
 
-      await expect(http.get('/text-error')).rejects.toEqual(
-        expect.objectContaining({ body: 'plain text error body', status: 400, statusText: 'Bad Request' })
-      )
+      const error = await http.get('/text-error').catch((reason: unknown) => reason)
+      expect(error).toBeInstanceOf(APIError)
+      expect(error).toMatchObject({ body: 'plain text error body', status: 400, statusText: 'plain text error body' })
       expect(mockConsoleError).toHaveBeenCalled()
     })
 

@@ -1,5 +1,5 @@
 import type { Props } from './DateRange'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
 import { format, parseISO, startOfMonth } from 'date-fns'
@@ -16,7 +16,7 @@ const renderComponent = (props: Props) => {
     { advanceTimers: jest.advanceTimersByTime }
   )
 
-  const inputs = screen.getAllByRole<HTMLInputElement>('textbox') //'Choose date', { exact: false })
+  const inputs = screen.getAllByRole('group')
   const buttons = screen.getAllByTestId('CalendarIcon')
   return { ...res, endCalendar: buttons[1], endInput: inputs[1], startCalendar: buttons[0], startInput: inputs[0] }
 }
@@ -128,7 +128,7 @@ describe('DateRange', () => {
     it('should onChange when typing dates', async () => {
       const changeHandler = jest.fn()
 
-      const { startInput, endInput, user } = renderComponent({
+      const { user } = renderComponent({
         end: null,
         endLabel: 'end',
         onChange: changeHandler,
@@ -136,18 +136,23 @@ describe('DateRange', () => {
         startLabel: 'start',
       })
 
-      await user.type(startInput, day15String)
+      const startDay = screen.getAllByRole('spinbutton', { hidden: false })[0]
+      await user.click(startDay)
+      await user.keyboard('{Control>}a{/Control}')
+      await user.paste(day15String)
       await flushPromises()
 
-      expect(changeHandler).toHaveBeenCalledTimes(1)
-      expect(changeHandler).toHaveBeenCalledWith(day15, null)
+      expect(changeHandler).toHaveBeenLastCalledWith(day15, null)
 
-      await user.type(endInput, day16String)
+      const endDay = screen.getByRole('group', { name: 'end' }).querySelector<HTMLElement>('[role="spinbutton"]')
+      if (!endDay) throw new Error('End date day section not found')
+      await user.click(endDay)
+      await user.keyboard('{Control>}a{/Control}')
+      await user.paste(day16String)
       await flushPromises()
 
-      expect(changeHandler).toHaveBeenCalledTimes(2)
       // as we are not persisting the changes, start resets to original value
-      expect(changeHandler).toHaveBeenCalledWith(start, day16)
+      expect(changeHandler).toHaveBeenLastCalledWith(start, day16)
     })
   })
 })

@@ -1,8 +1,8 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
 import type { DogEvent } from '../../types'
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutlined'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { formatDistance } from '../../i18n/dates'
+import { firstSelectedRow, rowSelectionModel } from '../../lib/datagrid'
 import { isDevEnv } from '../../lib/env'
 import { hasEntryStarted, isEventDeletable } from '../../lib/event'
 import { isConfirmedEvent } from '../../lib/typeGuards'
@@ -110,7 +111,8 @@ export default function EventListPage() {
 
   const handleSelectionModeChange = useCallback(
     (selection: GridRowSelectionModel) => {
-      const value = typeof selection[0] === 'string' ? selection[0] : undefined
+      const selected = firstSelectedRow(selection)
+      const value = typeof selected === 'string' ? selected : undefined
       setSelectedEventID(value)
     },
     [setSelectedEventID]
@@ -176,12 +178,18 @@ export default function EventListPage() {
         onRowDoubleClick={handleDoubleClick}
         onRowSelectionModelChange={handleSelectionModeChange}
         rows={events}
-        rowSelectionModel={selectedEventID ? [selectedEventID] : []}
+        rowSelectionModel={rowSelectionModel(selectedEventID ? [selectedEventID] : [])}
         slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           toolbar: {
             children: (
-              <Stack direction="row" mx={1} flex={1}>
+              <Stack
+                direction="row"
+                sx={{
+                  flex: 1,
+                  mx: 1,
+                }}
+              >
                 <AutocompleteSingle
                   disabled={orgs.length < 2}
                   size="small"

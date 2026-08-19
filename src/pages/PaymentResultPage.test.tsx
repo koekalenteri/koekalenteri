@@ -1,4 +1,5 @@
 import type { LoaderFunctionArgs } from 'react-router'
+import { RouterContextProvider } from 'react-router'
 import { verifyPayment } from '../api/payment'
 import { paymentResultLoader } from './PaymentResultPage'
 
@@ -25,7 +26,7 @@ describe('paymentResultLoader', () => {
 
     const request = new Request('https://example.test/p/success?checkout-status=ok&signature=signature')
     const args: LoaderFunctionArgs = {
-      context: {},
+      context: new RouterContextProvider(),
       params: {},
       pattern: '/p/success',
       request,
@@ -45,7 +46,7 @@ describe('paymentResultLoader', () => {
 
     const request = new Request('https://example.test/p/cancel?checkout-status=fail&editToken=return-token')
     const args: LoaderFunctionArgs = {
-      context: {},
+      context: new RouterContextProvider(),
       params: {},
       pattern: '/p/cancel',
       request,
@@ -65,7 +66,7 @@ describe('paymentResultLoader', () => {
 
     const request = new Request('https://example.test/p/success?checkout-status=ok&editToken=return-token')
     const args: LoaderFunctionArgs = {
-      context: {},
+      context: new RouterContextProvider(),
       params: {},
       pattern: '/p/success',
       request,

@@ -76,7 +76,13 @@ export default function JudgesSection({
       error={error}
       helperText={helperText}
     >
-      <Grid container spacing={1} maxWidth={1280}>
+      <Grid
+        container
+        spacing={1}
+        sx={{
+          maxWidth: 1280,
+        }}
+      >
         {event.judges.map((judge, index) =>
           judge.official ? (
             <OfficialJudge

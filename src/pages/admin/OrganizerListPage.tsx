@@ -8,7 +8,7 @@ import Switch from '@mui/material/Switch'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { localeSortComparator } from '../../lib/datagrid'
+import { firstSelectedRow, localeSortComparator, rowSelectionModel } from '../../lib/datagrid'
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isAdminSelector } from '../recoil'
 import FullPageFlex from './components/FullPageFlex'
@@ -75,7 +75,8 @@ export default function OrganizerListPage() {
 
   const handleSelectionModeChange = useCallback(
     (selection: GridRowSelectionModel) => {
-      const value = typeof selection[0] === 'string' ? selection[0] : undefined
+      const selected = firstSelectedRow(selection)
+      const value = typeof selected === 'string' ? selected : undefined
       setSelectedID(value)
     },
     [setSelectedID]
@@ -114,12 +115,18 @@ export default function OrganizerListPage() {
           onRowDoubleClick={() => setEditOpen(true)}
           onRowSelectionModelChange={handleSelectionModeChange}
           rows={organizers}
-          rowSelectionModel={selectedID ? [selectedID] : []}
+          rowSelectionModel={rowSelectionModel(selectedID ? [selectedID] : [])}
           slots={{ toolbar: QuickSearchToolbar }}
           slotProps={{
             toolbar: {
               children: (
-                <Stack direction="row" mx={1} flex={1}>
+                <Stack
+                  direction="row"
+                  sx={{
+                    flex: 1,
+                    mx: 1,
+                  }}
+                >
                   <FormControlLabel
                     sx={{ m: 0, pl: 1 }}
                     checked={showWithUsers}

@@ -8,7 +8,11 @@ jest.mock('../../../../api/event', () => ({
 }))
 
 const event = (id: string, startDate: string, updatedAt: string): DogEvent =>
-  ({ id, startDate: new Date(startDate), updatedAt: new Date(updatedAt) }) as DogEvent
+  ({
+    id,
+    startDate: new Date(startDate),
+    updatedAt: new Date(updatedAt),
+  }) as DogEvent
 
 describe('reconcileAdminEvents', () => {
   it('merges changed and new events into the cached collection', () => {

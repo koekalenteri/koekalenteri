@@ -43,14 +43,30 @@ const placeNotificationContent = (
 ) => {
   if (sent) {
     return (
-      <Typography variant="caption" color="info.main" sx={statusSx}>
+      <Typography
+        variant="caption"
+        sx={[
+          {
+            color: 'info.main',
+          },
+          ...(Array.isArray(statusSx) ? statusSx : [statusSx]),
+        ]}
+      >
         {t('eventManagement.participantSelection.placeNotificationsSent')}
       </Typography>
     )
   }
   if (blocked) {
     return (
-      <Typography variant="caption" color="text.secondary" sx={statusSx}>
+      <Typography
+        variant="caption"
+        sx={[
+          {
+            color: 'text.secondary',
+          },
+          ...(Array.isArray(statusSx) ? statusSx : [statusSx]),
+        ]}
+      >
         {t('eventManagement.participantSelection.canSendAfterEntry')}
       </Typography>
     )
@@ -78,14 +94,30 @@ const reserveNotificationContent = (
 ) => {
   if (sent) {
     return (
-      <Typography variant="caption" color="info.main" sx={statusSx}>
+      <Typography
+        variant="caption"
+        sx={[
+          {
+            color: 'info.main',
+          },
+          ...(Array.isArray(statusSx) ? statusSx : [statusSx]),
+        ]}
+      >
         {t('eventManagement.participantSelection.reserveNotificationsSent')}
       </Typography>
     )
   }
   if (blocked) {
     return (
-      <Typography variant="caption" color="text.secondary" sx={statusSx}>
+      <Typography
+        variant="caption"
+        sx={[
+          {
+            color: 'text.secondary',
+          },
+          ...(Array.isArray(statusSx) ? statusSx : [statusSx]),
+        ]}
+      >
         {t('eventManagement.participantSelection.reserveCanSendAfterEntry')}
       </Typography>
     )
@@ -117,7 +149,15 @@ const ParticipantSelection = ({
 
   return (
     <Box sx={sectionSx}>
-      <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+      <Typography
+        variant="overline"
+        sx={{
+          color: 'text.secondary',
+          display: 'block',
+          pt: 1,
+          px: 1.5,
+        }}
+      >
         {t('eventManagement.participantSelection.title')}
       </Typography>
       <TableContainer>
@@ -164,7 +204,14 @@ const ParticipantSelection = ({
                 <Fragment key={eventClass}>
                   <TableRow>
                     <TableCell align="left" sx={{ borderBottom: 0 }}>
-                      <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                      <Typography
+                        variant="caption"
+                        noWrap
+                        sx={{
+                          fontWeight: 'bold',
+                          ml: 2,
+                        }}
+                      >
                         {eventClass}
                       </Typography>
                     </TableCell>
@@ -179,12 +226,24 @@ const ParticipantSelection = ({
                   </TableRow>
                   <TableRow>
                     <TableCell align="left" sx={{ pt: 0 }}>
-                      <Typography variant="caption" noWrap ml={2}>
+                      <Typography
+                        variant="caption"
+                        noWrap
+                        sx={{
+                          ml: 2,
+                        }}
+                      >
                         {t('eventManagement.participantSelection.reserve')}
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={{ pt: 0 }}>
-                      <Typography variant="caption" noWrap color="info.dark">
+                      <Typography
+                        variant="caption"
+                        noWrap
+                        sx={{
+                          color: 'info.dark',
+                        }}
+                      >
                         {numbers.reserve}
                       </Typography>
                     </TableCell>

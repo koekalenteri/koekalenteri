@@ -29,7 +29,11 @@ describe('position utility', () => {
     // Create a mock monitor
     const createMockMonitor = (clientY: number): DropTargetMonitor =>
       ({
-        getClientOffset: () => ({ x: 50, y: clientY }) as XYCoord,
+        getClientOffset: () =>
+          ({
+            x: 50,
+            y: clientY,
+          }) as XYCoord,
       }) as DropTargetMonitor
 
     it('should return "after" when in same group and dragIndex is hoverIndex - 1', () => {

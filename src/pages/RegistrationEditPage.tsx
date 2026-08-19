@@ -84,7 +84,13 @@ export default function RegistrationEditPage() {
         invitationAttachmentUpdatedAt={registration.invitationAttachmentUpdatedAt}
       />
       {registration.cancelled ? (
-        <Typography variant="h5" align="center" color="info.main">
+        <Typography
+          variant="h5"
+          align="center"
+          sx={{
+            color: 'info.main',
+          }}
+        >
           {t('registration.state.cancelled')}
         </Typography>
       ) : null}

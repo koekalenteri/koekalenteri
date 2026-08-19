@@ -15,7 +15,7 @@ exports[`EventList should render 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-7od903-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -306,10 +306,10 @@ exports[`EventList should render 1`] = `
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1ktmok0-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault css-16ftvk7-MuiChip-root"
                 >
                   <span
-                    class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+                    class="MuiChip-label css-eccknh-MuiChip-label"
                   >
                     priority.members
                   </span>

@@ -27,7 +27,7 @@ describe('EventNotFound', () => {
     const { container } = render(<EventNotFound />, { wrapper: Wrapper })
 
     // Check that the error icon is displayed
-    expect(screen.getByTestId('ErrorOutlineIcon')).toBeInTheDocument()
+    expect(screen.getByTestId('ErrorOutlinedIcon')).toBeInTheDocument()
 
     // Check that the error message is displayed
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()

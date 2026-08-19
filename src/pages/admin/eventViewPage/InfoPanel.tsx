@@ -254,14 +254,32 @@ const InfoPanel = ({
         >
           {OFFICIAL_EVENT_TYPES.includes(event.eventType) && (
             <Box sx={sectionSx}>
-              <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+              <Typography
+                variant="overline"
+                sx={{
+                  color: 'text.secondary',
+                  display: 'block',
+                  pt: 1,
+                  px: 1.5,
+                }}
+              >
                 Kokeen tiedot
               </Typography>
               <Box sx={{ display: 'flex', gap: 2, px: 2.5, py: 1 }}>
-                <Typography variant="caption" fontWeight="bold">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 'bold',
+                  }}
+                >
                   Koetunnus
                 </Typography>
-                <Typography variant="caption" fontStyle={event.kcId ? undefined : 'italic'}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontStyle: event.kcId ? undefined : 'italic',
+                  }}
+                >
                   {event.kcId ?? 'Ei haettua koetunnusta'}
                 </Typography>
               </Box>

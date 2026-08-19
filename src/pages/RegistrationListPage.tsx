@@ -253,11 +253,19 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
         <Grid
           container
           direction="row"
-          justifyContent="end"
-          width="100%"
-          sx={{ borderBottom: '2px solid', borderColor: 'background.hover' }}
+          sx={{
+            borderBottom: '2px solid',
+            borderColor: 'background.hover',
+            justifyContent: 'end',
+            width: '100%',
+          }}
         >
-          <Grid sx={{ pl: 1 }} flexGrow={1}>
+          <Grid
+            sx={{
+              flexGrow: 1,
+              pl: 1,
+            }}
+          >
             <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
             <Typography variant="h5">{t('entryList')}</Typography>
           </Grid>

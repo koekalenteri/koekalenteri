@@ -89,7 +89,12 @@ export const PaymentPageWithData = ({
 
   const renderNotice = (message: string) => (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
-      <Grid sx={{ pl: 1 }} flexGrow={1}>
+      <Grid
+        sx={{
+          flexGrow: 1,
+          pl: 1,
+        }}
+      >
         <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
         <Typography variant="h5">{message}</Typography>
       </Grid>
@@ -131,7 +136,12 @@ export const PaymentPageWithData = ({
 
   return (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
-      <Grid sx={{ pl: 1 }} flexGrow={1}>
+      <Grid
+        sx={{
+          flexGrow: 1,
+          pl: 1,
+        }}
+      >
         <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
         <Typography variant="h5">{t('paymentPage.choosePaymentMethod')}</Typography>
         <Typography variant="caption">

@@ -228,7 +228,13 @@ export const DogInfo = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Grid container spacing={1} alignItems="flex-start">
+      <Grid
+        container
+        spacing={1}
+        sx={{
+          alignItems: 'flex-start',
+        }}
+      >
         <Grid size={{ lg: 3, md: 6, sm: 7, xs: 12 }}>
           <DogSearch
             regNo={state.regNo}

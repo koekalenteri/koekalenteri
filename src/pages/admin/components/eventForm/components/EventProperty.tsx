@@ -117,12 +117,13 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
           error={!!error}
           helperText={helperText}
           slotProps={{
+            ...params.slotProps,
             input: {
-              ...params.InputProps,
+              ...params.slotProps.input,
               endAdornment: (
                 <>
                   {endAdornment}
-                  {params.InputProps.endAdornment}
+                  {params.slotProps.input.endAdornment}
                 </>
               ),
             },

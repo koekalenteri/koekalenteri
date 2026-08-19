@@ -116,7 +116,13 @@ export default function RegistrationDialogBase({
       }}
     >
       <DialogTitle id="reg-dialog-title">
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           {title} ({registration.language})
           <Typography variant="caption">
             <a target="_blank" href={Path.registration(registration)} rel="noopener">

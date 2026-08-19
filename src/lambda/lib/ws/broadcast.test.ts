@@ -67,7 +67,14 @@ describe('ws/broadcast', () => {
     })
 
     const result = await broadcast({
-      audience: async () => Array.from({ length: 5 }, (_, index) => ({ connectionId: `connection-${index}` }) as any),
+      audience: async () =>
+        Array.from(
+          { length: 5 },
+          (_, index) =>
+            ({
+              connectionId: `connection-${index}`,
+            }) as any
+        ),
       buildPayload: () => ({ type: 'test' }),
       concurrency: 2,
       send,

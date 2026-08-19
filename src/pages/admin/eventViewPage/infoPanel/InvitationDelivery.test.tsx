@@ -1,4 +1,4 @@
-import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
+import type { UserEvent } from '@testing-library/user-event'
 import type { Registration } from '../../../../types'
 import { screen, waitFor } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'

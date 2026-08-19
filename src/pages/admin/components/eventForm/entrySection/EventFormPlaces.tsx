@@ -134,8 +134,19 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
 
   return (
     <Box sx={{ border: '1px dashed #ddd', borderRadius: 1, p: 1 }}>
-      <Stack direction="column" alignItems="normal">
-        <Stack direction="row" justifyContent="space-between" alignItems="start">
+      <Stack
+        direction="column"
+        sx={{
+          alignItems: 'normal',
+        }}
+      >
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'start',
+            justifyContent: 'space-between',
+          }}
+        >
           <Typography variant="subtitle1">Koepaikkojen määrä</Typography>
           <FormControlLabel
             sx={{ m: 0 }}

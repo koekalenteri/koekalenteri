@@ -10,7 +10,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       class="MuiToolbar-root MuiToolbar-dense css-176he89-MuiToolbar-root"
     >
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorSecondary MuiIconButton-sizeMedium css-2tlue4-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorSecondary MuiIconButton-sizeMedium css-1cag0wk-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -28,13 +28,13 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       </button>
       <button
         aria-label="home"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1ypnpnx-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-72nbgk-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <img
             alt="Suomen noutajakoirajärjestö"
@@ -52,13 +52,13 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       </button>
       <button
         aria-label="admin"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1gkxqw0-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-7w0j3h-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -83,13 +83,13 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       />
       <button
         aria-label="languageMenu"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1ypnpnx-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-72nbgk-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -109,7 +109,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
           locale.fi
         </div>
         <span
-          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-1wyk03i-MuiButton-endIcon"
+          class="MuiButton-icon MuiButton-endIcon css-1w1lyga-MuiButton-endIcon"
         >
           <svg
             aria-hidden="true"
@@ -126,23 +126,23 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       </button>
       <button
         aria-label="user"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1ypnpnx-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-72nbgk-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
             class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-            data-testid="PersonOutlineIcon"
+            data-testid="PersonOutlinedIcon"
             focusable="false"
             viewBox="0 0 24 24"
           >
             <path
-              d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4m0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4"
+              d="M12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 10c2.7 0 5.8 1.29 6 2H6c.23-.72 3.31-2 6-2m0-12C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4m0 10c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"
             />
           </svg>
         </span>
@@ -152,7 +152,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
           Test User
         </div>
         <span
-          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-1wyk03i-MuiButton-endIcon"
+          class="MuiButton-icon MuiButton-endIcon css-1w1lyga-MuiButton-endIcon"
         >
           <svg
             aria-hidden="true"
@@ -169,13 +169,13 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       </button>
       <button
         aria-label="support"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1ypnpnx-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-72nbgk-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -195,7 +195,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
           support
         </div>
         <span
-          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-1wyk03i-MuiButton-endIcon"
+          class="MuiButton-icon MuiButton-endIcon css-1w1lyga-MuiButton-endIcon"
         >
           <svg
             aria-hidden="true"
@@ -213,7 +213,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
     </div>
   </header>
   <div
-    class="MuiBox-root css-1c84wtl"
+    class="MuiBox-root css-1shhp5i"
   >
     <div
       class="MuiBox-root css-1qumulf"
@@ -234,7 +234,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       class="MuiToolbar-root MuiToolbar-dense css-176he89-MuiToolbar-root"
     >
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorSecondary MuiIconButton-sizeMedium css-2tlue4-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorSecondary MuiIconButton-sizeMedium css-1cag0wk-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -252,13 +252,13 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       </button>
       <button
         aria-label="home"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1ypnpnx-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-72nbgk-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <img
             alt="Suomen noutajakoirajärjestö"
@@ -276,13 +276,13 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       </button>
       <button
         aria-label="admin"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1gkxqw0-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-7w0j3h-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -307,13 +307,13 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       />
       <button
         aria-label="languageMenu"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1ypnpnx-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-72nbgk-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -333,7 +333,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
           locale.fi
         </div>
         <span
-          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-1wyk03i-MuiButton-endIcon"
+          class="MuiButton-icon MuiButton-endIcon css-1w1lyga-MuiButton-endIcon"
         >
           <svg
             aria-hidden="true"
@@ -350,23 +350,23 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       </button>
       <button
         aria-label="user"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1ypnpnx-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-72nbgk-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
             class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-            data-testid="PersonOutlineIcon"
+            data-testid="PersonOutlinedIcon"
             focusable="false"
             viewBox="0 0 24 24"
           >
             <path
-              d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4m0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4"
+              d="M12 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2m0 10c2.7 0 5.8 1.29 6 2H6c.23-.72 3.31-2 6-2m0-12C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4m0 10c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"
             />
           </svg>
         </span>
@@ -376,7 +376,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
           Test User
         </div>
         <span
-          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-1wyk03i-MuiButton-endIcon"
+          class="MuiButton-icon MuiButton-endIcon css-1w1lyga-MuiButton-endIcon"
         >
           <svg
             aria-hidden="true"
@@ -393,13 +393,13 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       </button>
       <button
         aria-label="support"
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1ypnpnx-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorSecondary css-72nbgk-MuiButtonBase-root-MuiButton-root"
         data-navigation-button="true"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -419,7 +419,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
           support
         </div>
         <span
-          class="MuiButton-icon MuiButton-endIcon MuiButton-iconSizeMedium css-1wyk03i-MuiButton-endIcon"
+          class="MuiButton-icon MuiButton-endIcon css-1w1lyga-MuiButton-endIcon"
         >
           <svg
             aria-hidden="true"
@@ -437,7 +437,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
     </div>
   </header>
   <div
-    class="MuiBox-root css-1c84wtl"
+    class="MuiBox-root css-1shhp5i"
   >
     <div
       class="MuiBox-root css-1qumulf"

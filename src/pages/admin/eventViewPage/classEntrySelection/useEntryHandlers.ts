@@ -4,6 +4,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { SetterOrUpdater } from 'recoil'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
+import { firstSelectedRow } from '../../../../lib/datagrid'
 
 interface UseEntryHandlersArgs {
   setOpen?: Dispatch<SetStateAction<boolean>>
@@ -38,7 +39,8 @@ export const useEntryHandlers = ({
   }
 
   const handleSelectionModeChange = (selection: GridRowSelectionModel, _details: GridCallbackDetails) => {
-    const value = typeof selection[0] === 'string' ? selection[0] : undefined
+    const selected = firstSelectedRow(selection)
+    const value = typeof selected === 'string' ? selected : undefined
     if (!value) return
     const reg = registrations.find((r) => r.id === value)
     setSelectedRegistrationId?.(reg?.id)

@@ -85,7 +85,7 @@ export default function DateRange({
             actionBar: {
               actions: ['clear', 'cancel', 'accept'],
             },
-            day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultStart) }),
+            day: ({ day }) => ({ sx: dayStyle(day, !!start && isSameDay(day, start), defaultStart) }),
             textField: { error: startError, helperText: startHelperText, required },
             toolbar: {
               hidden: true,
@@ -108,7 +108,7 @@ export default function DateRange({
             actionBar: {
               actions: ['clear', 'cancel', 'accept'],
             },
-            day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultEnd) }),
+            day: ({ day }) => ({ sx: dayStyle(day, !!end && isSameDay(day, end), defaultEnd) }),
             textField: { error: endError, helperText: endHelperText, required },
             toolbar: {
               hidden: true,

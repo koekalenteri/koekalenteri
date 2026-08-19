@@ -29,7 +29,13 @@ export default function AdminHomePage() {
   return (
     <>
       <Header toggleMenu={toggleMenu} />
-      <Box sx={{ display: 'flex', height: '100%' }} minWidth={900}>
+      <Box
+        sx={{
+          display: 'flex',
+          height: '100%',
+          minWidth: 900,
+        }}
+      >
         <SideMenu open={menuOpen} onClose={closeMenu} />
         <Box
           sx={{

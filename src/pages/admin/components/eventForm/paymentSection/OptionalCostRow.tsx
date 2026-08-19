@@ -1,6 +1,6 @@
 import type { DogEventCost } from '../../../../../types/Cost'
 import type { PartialEvent } from '../types'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import FormHelperText from '@mui/material/FormHelperText'
 import IconButton from '@mui/material/IconButton'

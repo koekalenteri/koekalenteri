@@ -65,7 +65,13 @@ const DroppableDataGrid = (props: Props) => {
   }, [canDrop, isDragging, isOver])
 
   return (
-    <div ref={ref} className={className} style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}>
+    <div
+      ref={(node) => {
+        ref(node)
+      }}
+      className={className}
+      style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}
+    >
       <StyledDataGrid
         {...props}
         // NOTE: keep these AFTER `{...props}` so they can't be accidentally

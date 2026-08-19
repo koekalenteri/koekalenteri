@@ -6,7 +6,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-3q7fn3-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"
     >
@@ -206,7 +206,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                           <button
                             aria-expanded="false"
                             aria-haspopup="listbox"
-                            aria-label="Open flags menu"
+                            aria-label="Finland, Open flags menu"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                             tabindex="0"
                             type="button"
@@ -216,7 +216,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                               data-testid="FI"
                             >
                               <img
-                                alt="Finland"
+                                alt=""
                                 class="MuiTelInput-FlagImg"
                                 loading="lazy"
                                 src="https://flagcdn.com/w40/fi.webp"
@@ -234,7 +234,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                         <input
                           aria-invalid="true"
                           autocomplete="tel"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
                           id="owner_phone"
                           name="phone"
                           type="tel"
@@ -282,7 +282,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                       />
                     </span>
                     <span
-                      class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                      class="MuiSwitch-track css-pm6g3f-MuiSwitch-track"
                     />
                   </span>
                   <span
@@ -313,7 +313,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                       />
                     </span>
                     <span
-                      class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                      class="MuiSwitch-track css-pm6g3f-MuiSwitch-track"
                     />
                   </span>
                   <span

@@ -6,7 +6,13 @@ interface Props {
 }
 
 const CostInfoTableCaption = ({ text }: Props) => (
-  <Grid container mr={1} mt={1}>
+  <Grid
+    container
+    sx={{
+      mr: 1,
+      mt: 1,
+    }}
+  >
     <Grid size={{ xs: 12 }}>
       <InfoTableHeaderText>{text}</InfoTableHeaderText>
     </Grid>

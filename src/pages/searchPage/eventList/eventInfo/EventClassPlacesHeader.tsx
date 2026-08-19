@@ -18,13 +18,28 @@ export const EventClassPlacesHeader = ({ event }: { event: PublicDogEvent }) => 
           <InfoTableHeaderText>{t('event.classPlacesHeader.dates')}</InfoTableHeaderText>
         </Grid>
       ) : null}
-      <Grid size={{ xs: 2 }} textAlign="right">
+      <Grid
+        size={{ xs: 2 }}
+        sx={{
+          textAlign: 'right',
+        }}
+      >
         <InfoTableHeaderText>{t('event.classPlacesHeader.entries')}</InfoTableHeaderText>
       </Grid>
-      <Grid size={{ xs: 2 }} textAlign="right">
+      <Grid
+        size={{ xs: 2 }}
+        sx={{
+          textAlign: 'right',
+        }}
+      >
         <InfoTableHeaderText>{t('event.classPlacesHeader.places')}</InfoTableHeaderText>
       </Grid>
-      <Grid size={{ xs: 2 }} textAlign="right">
+      <Grid
+        size={{ xs: 2 }}
+        sx={{
+          textAlign: 'right',
+        }}
+      >
         <InfoTableHeaderText>{t('event.classPlacesHeader.members')}</InfoTableHeaderText>
       </Grid>
     </Grid>

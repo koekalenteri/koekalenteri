@@ -1,7 +1,7 @@
 import type { SnackbarKey } from 'notistack'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { Amplify } from 'aws-amplify'
 import { ConfirmProvider } from 'material-ui-confirm'

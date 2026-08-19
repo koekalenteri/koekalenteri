@@ -61,12 +61,29 @@ const EventHeader = ({ event }: Props) => {
   return (
     <>
       <Grid container columnSpacing={1} size={12}>
-        <Grid overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }} size="grow">
-          <Typography variant="caption" color="text.secondary">
+        <Grid
+          size="grow"
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            textWrap: 'nowrap',
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {event.organizer.name}
           </Typography>
         </Grid>
-        <Grid display={{ sm: 'block', xs: 'none' }} offset="auto">
+        <Grid
+          offset="auto"
+          sx={{
+            display: { sm: 'block', xs: 'none' },
+          }}
+        >
           {showPlaces ? <EventPlaces event={event} /> : null}
         </Grid>
       </Grid>
@@ -80,17 +97,24 @@ const EventHeader = ({ event }: Props) => {
       >
         <Grid>{t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}</Grid>
         <Grid
-          overflow={'hidden'}
-          textOverflow={'ellipsis'}
-          sx={{ textWrap: 'nowrap' }}
           size={{
             sm: 'auto',
             xs: 'grow',
           }}
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            textWrap: 'nowrap',
+          }}
         >
           {event.eventType}
         </Grid>
-        <Grid display={{ sm: 'none' }} offset="auto">
+        <Grid
+          offset="auto"
+          sx={{
+            display: { sm: 'none' },
+          }}
+        >
           {showPlaces ? <EventPlaces event={event} /> : null}
         </Grid>
       </Grid>
@@ -104,21 +128,25 @@ const EventHeader = ({ event }: Props) => {
       >
         <Grid>{event.location}</Grid>
         <Grid
-          overflow={'hidden'}
-          textOverflow={'ellipsis'}
-          sx={{ textWrap: 'nowrap' }}
           size={{
             sm: 'auto',
             xs: 'grow',
+          }}
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            textWrap: 'nowrap',
           }}
         >
           {event.name ? event.name : ''}
         </Grid>
         <Grid
-          alignContent="center"
           size="auto"
           offset={{
             sm: 'auto',
+          }}
+          sx={{
+            alignContent: 'center',
           }}
         >
           <Typography variant="body2" component="div">

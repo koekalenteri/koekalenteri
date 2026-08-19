@@ -6,7 +6,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
     class="MuiBox-root css-1rqkuwh"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-3q7fn3-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"
     >
@@ -68,13 +68,13 @@ exports[`EntryInfo should render with event with classes 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":rg:"
-                        id=":rg:-label"
+                        for="_r_g_"
+                        id="_r_g_-label"
                       >
                         registration.class
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-autocomplete="list"
@@ -82,8 +82,8 @@ exports[`EntryInfo should render with event with classes 1`] = `
                           aria-invalid="false"
                           autocapitalize="none"
                           autocomplete="off"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":rg:"
+                          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="_r_g_"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -141,13 +141,13 @@ exports[`EntryInfo should render with event with classes 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":rj:"
-                        id=":rj:-label"
+                        for="_r_j_"
+                        id="_r_j_-label"
                       >
                         registration.reserve
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-autocomplete="list"
@@ -155,8 +155,8 @@ exports[`EntryInfo should render with event with classes 1`] = `
                           aria-invalid="false"
                           autocapitalize="none"
                           autocomplete="off"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":rj:"
+                          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="_r_j_"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -214,28 +214,28 @@ exports[`EntryInfo should render with event with classes 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":rm:"
-                        id=":rm:-label"
+                        for="_r_m_"
+                        id="_r_m_-label"
                       >
                         registration.datesFilter
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-xips6k-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <div
-                          class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-194w1qn-MuiButtonBase-root-MuiChip-root"
-                          data-tag-index="0"
+                          class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-gkm1ak-MuiButtonBase-root-MuiChip-root"
+                          data-item-index="0"
                           role="button"
                           tabindex="-1"
                         >
                           <span
-                            class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            class="MuiChip-label css-1dybbl5-MuiChip-label"
                           >
                             dateFormat.wdshort date
                           </span>
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon css-1umw9bq-MuiSvgIcon-root"
                             data-testid="CancelIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -247,13 +247,13 @@ exports[`EntryInfo should render with event with classes 1`] = `
                         </div>
                         <input
                           aria-autocomplete="list"
-                          aria-describedby=":rm:-helper-text"
+                          aria-describedby="_r_m_-helper-text"
                           aria-expanded="false"
                           aria-invalid="false"
                           autocapitalize="none"
                           autocomplete="off"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":rm:"
+                          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="_r_m_"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -316,7 +316,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
                       </div>
                       <p
                         class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                        id=":rm:-helper-text"
+                        id="_r_m_-helper-text"
                       >
                         registration.datesFilterInfo
                       </p>
@@ -336,28 +336,28 @@ exports[`EntryInfo should render with event with classes 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":rq:"
-                        id=":rq:-label"
+                        for="_r_q_"
+                        id="_r_q_-label"
                       >
                         registration.dates
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-xips6k-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <div
-                          class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-194w1qn-MuiButtonBase-root-MuiChip-root"
-                          data-tag-index="0"
+                          class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-gkm1ak-MuiButtonBase-root-MuiChip-root"
+                          data-item-index="0"
                           role="button"
                           tabindex="-1"
                         >
                           <span
-                            class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            class="MuiChip-label css-1dybbl5-MuiChip-label"
                           >
                             dateFormat.weekday date registration.timeLong.ap
                           </span>
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon css-1umw9bq-MuiSvgIcon-root"
                             data-testid="CancelIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -369,13 +369,13 @@ exports[`EntryInfo should render with event with classes 1`] = `
                         </div>
                         <input
                           aria-autocomplete="list"
-                          aria-describedby=":rq:-helper-text"
+                          aria-describedby="_r_q_-helper-text"
                           aria-expanded="false"
                           aria-invalid="false"
                           autocapitalize="none"
                           autocomplete="off"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":rq:"
+                          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="_r_q_"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -438,7 +438,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
                       </div>
                       <p
                         class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                        id=":rq:-helper-text"
+                        id="_r_q_-helper-text"
                       >
                         registration.datesInfo
                       </p>
@@ -461,7 +461,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
     class="MuiBox-root css-1rqkuwh"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-3q7fn3-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"
     >
@@ -523,13 +523,13 @@ exports[`EntryInfo should render with event without classes 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="false"
-                        for=":r1:"
-                        id=":r1:-label"
+                        for="_r_1_"
+                        id="_r_1_-label"
                       >
                         registration.class
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-autocomplete="list"
@@ -537,8 +537,8 @@ exports[`EntryInfo should render with event without classes 1`] = `
                           aria-invalid="false"
                           autocapitalize="none"
                           autocomplete="off"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":r1:"
+                          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="_r_1_"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -596,13 +596,13 @@ exports[`EntryInfo should render with event without classes 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":r4:"
-                        id=":r4:-label"
+                        for="_r_4_"
+                        id="_r_4_-label"
                       >
                         registration.reserve
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-autocomplete="list"
@@ -610,8 +610,8 @@ exports[`EntryInfo should render with event without classes 1`] = `
                           aria-invalid="false"
                           autocapitalize="none"
                           autocomplete="off"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":r4:"
+                          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="_r_4_"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -669,28 +669,28 @@ exports[`EntryInfo should render with event without classes 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":r7:"
-                        id=":r7:-label"
+                        for="_r_7_"
+                        id="_r_7_-label"
                       >
                         registration.datesFilter
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-xips6k-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <div
-                          class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-194w1qn-MuiButtonBase-root-MuiChip-root"
-                          data-tag-index="0"
+                          class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-gkm1ak-MuiButtonBase-root-MuiChip-root"
+                          data-item-index="0"
                           role="button"
                           tabindex="-1"
                         >
                           <span
-                            class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            class="MuiChip-label css-1dybbl5-MuiChip-label"
                           >
                             dateFormat.wdshort date
                           </span>
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon css-1umw9bq-MuiSvgIcon-root"
                             data-testid="CancelIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -702,13 +702,13 @@ exports[`EntryInfo should render with event without classes 1`] = `
                         </div>
                         <input
                           aria-autocomplete="list"
-                          aria-describedby=":r7:-helper-text"
+                          aria-describedby="_r_7_-helper-text"
                           aria-expanded="false"
                           aria-invalid="false"
                           autocapitalize="none"
                           autocomplete="off"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":r7:"
+                          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="_r_7_"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -771,7 +771,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
                       </div>
                       <p
                         class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                        id=":r7:-helper-text"
+                        id="_r_7_-helper-text"
                       >
                         registration.datesFilterInfo
                       </p>
@@ -791,28 +791,28 @@ exports[`EntryInfo should render with event without classes 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":rb:"
-                        id=":rb:-label"
+                        for="_r_b_"
+                        id="_r_b_-label"
                       >
                         registration.dates
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-xips6k-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <div
-                          class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-194w1qn-MuiButtonBase-root-MuiChip-root"
-                          data-tag-index="0"
+                          class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-gkm1ak-MuiButtonBase-root-MuiChip-root"
+                          data-item-index="0"
                           role="button"
                           tabindex="-1"
                         >
                           <span
-                            class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                            class="MuiChip-label css-1dybbl5-MuiChip-label"
                           >
                             dateFormat.weekday date registration.timeLong.ap
                           </span>
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon css-1umw9bq-MuiSvgIcon-root"
                             data-testid="CancelIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -824,13 +824,13 @@ exports[`EntryInfo should render with event without classes 1`] = `
                         </div>
                         <input
                           aria-autocomplete="list"
-                          aria-describedby=":rb:-helper-text"
+                          aria-describedby="_r_b_-helper-text"
                           aria-expanded="false"
                           aria-invalid="false"
                           autocapitalize="none"
                           autocomplete="off"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":rb:"
+                          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="_r_b_"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -893,7 +893,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
                       </div>
                       <p
                         class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-er619e-MuiFormHelperText-root"
-                        id=":rb:-helper-text"
+                        id="_r_b_-helper-text"
                       >
                         registration.datesInfo
                       </p>

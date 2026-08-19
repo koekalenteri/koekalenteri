@@ -1,5 +1,5 @@
 import type { Element } from 'hast'
-import type { State } from 'mdast-util-to-hast/lib/state'
+import type { State } from 'mdast-util-to-hast'
 import { all, one, tableHandler, wrap } from './table'
 
 // Mock state for testing - using any for flexibility in tests

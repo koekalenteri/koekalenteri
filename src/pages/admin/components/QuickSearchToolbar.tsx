@@ -26,7 +26,16 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
   const { t } = useTranslation()
 
   return (
-    <Stack sx={{ p: 0.5, pb: 0 }} direction="row" justifyContent="space-between" spacing={1} alignItems="center">
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        p: 0.5,
+        pb: 0,
+      }}
+    >
       {props.columnSelector ? <GridToolbarColumnsButton /> : null}
       <GridToolbarContainer sx={{ p: 0 }}>
         <TextField

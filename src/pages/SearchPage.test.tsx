@@ -1,7 +1,7 @@
 import type { Locale } from 'date-fns'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { act, render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -68,7 +68,7 @@ describe('SearchPage', () => {
   it('filters by date/start', async () => {
     renderPage('/?s=2021-03-01', locales.fi)
     await flushPage()
-    expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeStart' })).toHaveTextContent('01.03.2021')
     expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
@@ -76,7 +76,7 @@ describe('SearchPage', () => {
     // start is required for fetching events
     const { container } = renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
     await flushPage()
-    expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeEnd' })).toHaveTextContent('01.03.2021')
     expect(screen.getAllByRole('article')).toHaveLength(4)
     expect(container).toMatchSnapshot()
   })
@@ -84,8 +84,8 @@ describe('SearchPage', () => {
   it('filters by date', async () => {
     const { container } = renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
     await flushPage()
-    expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.01.2021')
-    expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeStart' })).toHaveTextContent('01.01.2021')
+    expect(screen.getByRole('group', { name: 'daterangeEnd' })).toHaveTextContent('01.03.2021')
     expect(screen.getAllByRole('article')).toHaveLength(4)
     expect(container).toMatchSnapshot()
   })
@@ -93,8 +93,8 @@ describe('SearchPage', () => {
   it('filters by date - no-results', async () => {
     const { container } = renderPage('/?s=2021-03-01&e=2021-03-02', locales.fi)
     await flushPage()
-    expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
-    expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('02.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeStart' })).toHaveTextContent('01.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeEnd' })).toHaveTextContent('02.03.2021')
     expect(screen.getByText('noResults')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
   })

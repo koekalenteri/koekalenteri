@@ -282,8 +282,12 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       <Stack
         spacing={1}
         direction="row"
-        justifyContent="flex-end"
-        sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', p: 1 }}
+        sx={{
+          borderColor: '#bdbdbd',
+          borderTop: '1px solid',
+          justifyContent: 'flex-end',
+          p: 1,
+        }}
       >
         <AsyncButton
           color="primary"

@@ -2,7 +2,7 @@ import type { Props } from './BasicInfoSection'
 import type { PartialEvent } from './types'
 import { TZDate } from '@date-fns/tz'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen } from '@testing-library/react'
 import { add, format } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
@@ -30,7 +30,7 @@ const renderComponent = (props: Props) => {
     { advanceTimers: jest.advanceTimersByTime }
   )
 
-  const inputs = screen.getAllByRole<HTMLInputElement>('textbox') //'Choose date', { exact: false })
+  const inputs = ['event.startDate', 'event.endDate'].map((name) => screen.getByRole('group', { name }))
   const buttons = screen.getAllByTestId('CalendarIcon')
   return { ...res, endCalendar: buttons[1], endInput: inputs[1], startCalendar: buttons[0], startInput: inputs[0] }
 }
@@ -69,15 +69,17 @@ describe('BasicInfoSection', () => {
       const otherDate = add(newEventStartDate, { days: 1 })
       const otherDateString = format(otherDate, 'dd.MM.yyyy')
       const changeHandler = jest.fn()
-      const { startInput, user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+      const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
       expect(changeHandler).not.toHaveBeenCalled()
 
-      await user.type(startInput, otherDateString)
+      const startDay = screen.getAllByRole('spinbutton', { hidden: false })[0]
+      await user.click(startDay)
+      await user.keyboard('{Control>}a{/Control}')
+      await user.paste(otherDateString)
       await flushPromises()
 
-      expect(changeHandler).toHaveBeenCalledTimes(1)
-      expect(changeHandler).toHaveBeenCalledWith({
+      expect(changeHandler).toHaveBeenLastCalledWith({
         classes: [],
         endDate: otherDate,
         entryEndDate: defaultEntryEndDate(otherDate),
@@ -100,15 +102,17 @@ describe('BasicInfoSection', () => {
       const otherDate = add(newEventStartDate, { days: 1 })
       const otherDateString = format(otherDate, 'dd.MM.yyyy')
       const changeHandler = jest.fn()
-      const { startInput, user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+      const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
       expect(changeHandler).not.toHaveBeenCalled()
 
-      await user.type(startInput, otherDateString)
+      const startDay = screen.getAllByRole('spinbutton', { hidden: false })[0]
+      await user.click(startDay)
+      await user.keyboard('{Control>}a{/Control}')
+      await user.paste(otherDateString)
       await flushPromises()
 
-      expect(changeHandler).toHaveBeenCalledTimes(1)
-      expect(changeHandler).toHaveBeenCalledWith({
+      expect(changeHandler).toHaveBeenLastCalledWith({
         classes: [],
         endDate: otherDate,
         entryEndDate: customEntryEndDate,

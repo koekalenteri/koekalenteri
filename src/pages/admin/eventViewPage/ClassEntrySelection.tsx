@@ -11,16 +11,17 @@ import { enqueueSnackbar } from 'notistack'
 import { Fragment, useCallback, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import withScrolling from 'react-dnd-scrolling'
 import { useTranslation } from 'react-i18next'
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
+import { rowSelectionModel } from '../../../lib/datagrid'
 import { eventRegistrationDateKey, isEventOver } from '../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../lib/registration'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
+import DndScrollingContainer from './classEntrySelection/DndScrollingContainer'
 import DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import {
@@ -59,8 +60,6 @@ declare module '@mui/x-data-grid' {
     group: RegistrationDate
   }
 }
-
-const ScrollDiv = withScrolling('div')
 
 const ClassEntrySelection = ({
   event,
@@ -265,7 +264,7 @@ const ClassEntrySelection = ({
           }}
         />
       </Box>
-      <ScrollDiv
+      <DndScrollingContainer
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -292,7 +291,7 @@ const ClassEntrySelection = ({
                 columnHeaderHeight={0}
                 rows={registrationsByGroup[group.key] ?? []}
                 onRowSelectionModelChange={handleSelectionModeChange}
-                rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+                rowSelectionModel={rowSelectionModel(selectedRegistrationId ? [selectedRegistrationId] : [])}
                 onCellClick={handleCellClick}
                 onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
                 slots={{
@@ -313,7 +312,12 @@ const ClassEntrySelection = ({
                 onReject={handleReject(group)}
               />
               {issues && (issues.singleGender || issues.genderBalance || issues.duplicateHandlers.length > 0) ? (
-                <Stack gap={1} my={1}>
+                <Stack
+                  sx={{
+                    gap: 1,
+                    my: 1,
+                  }}
+                >
                   {issues.singleGender ? (
                     <Alert severity="warning">
                       {t(`eventManagement.groupRules.singleGender.${issues.maleCount > 0 ? 'male' : 'female'}`)}
@@ -335,7 +339,14 @@ const ClassEntrySelection = ({
                 </Stack>
               ) : null}
               {(selectedAdditionalCostsByGroup[group.key] ?? []).length > 0 ? (
-                <Stack key={`${group.key}add`} direction="row" justifyContent="flex-end" px={1}>
+                <Stack
+                  key={`${group.key}add`}
+                  direction="row"
+                  sx={{
+                    justifyContent: 'flex-end',
+                    px: 1,
+                  }}
+                >
                   <Typography variant="caption">
                     {selectedAdditionalCostsByGroup[group.key]
                       .map((sac) => `${sac.cost.description.fi} x ${sac.count}`)
@@ -347,14 +358,26 @@ const ClassEntrySelection = ({
           )
         })}
         {selectedAdditionalCostsTotal ? (
-          <Stack direction="row" justifyContent="flex-end" px={1}>
+          <Stack
+            direction="row"
+            sx={{
+              justifyContent: 'flex-end',
+              px: 1,
+            }}
+          >
             <Typography variant="caption" sx={{ borderTop: '1px solid #ccc' }}>
               {selectedAdditionalCostsTotal}
             </Typography>
           </Stack>
         ) : null}
 
-        <Stack direction="row" justifyContent="space-between" gap={2}>
+        <Stack
+          direction="row"
+          sx={{
+            gap: 2,
+            justifyContent: 'space-between',
+          }}
+        >
           <Typography variant="h6">Ilmoittautuneet</Typography>
           <UnlockArrange
             checked={unlockArrange}
@@ -379,7 +402,7 @@ const ClassEntrySelection = ({
           hideFooter={registrationsByGroup.reserve.length < 101}
           rows={registrationsByGroup.reserve}
           onRowSelectionModelChange={handleSelectionModeChange}
-          rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+          rowSelectionModel={rowSelectionModel(selectedRegistrationId ? [selectedRegistrationId] : [])}
           onCellClick={handleCellClick}
           onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
           onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
@@ -398,12 +421,12 @@ const ClassEntrySelection = ({
           hideFooter={registrationsByGroup.cancelled.length < 101}
           rows={registrationsByGroup.cancelled}
           onRowSelectionModelChange={handleSelectionModeChange}
-          rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+          rowSelectionModel={rowSelectionModel(selectedRegistrationId ? [selectedRegistrationId] : [])}
           onCellClick={handleCellClick}
           onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
           onDrop={handleDrop({ key: GROUP_KEY_CANCELLED, number: registrationsByGroup.cancelled.length + 1 })}
         />
-      </ScrollDiv>
+      </DndScrollingContainer>
 
       {selectedForAction && (
         <>

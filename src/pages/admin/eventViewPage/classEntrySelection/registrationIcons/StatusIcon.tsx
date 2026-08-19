@@ -1,8 +1,14 @@
+import type { ReactElement } from 'react'
 import { cloneElement } from 'react'
+
+interface IconProps {
+  fontSize?: 'small'
+  sx?: { opacity: number }
+}
 
 interface StatusIconProps {
   condition?: boolean
-  icon: JSX.Element
+  icon: ReactElement<IconProps>
   alwaysShow?: boolean
 }
 

@@ -56,7 +56,11 @@ export default function StartListPage() {
   if (!hasAccess) return null
 
   return (
-    <Box p={1}>
+    <Box
+      sx={{
+        p: 1,
+      }}
+    >
       <TableContainer component={Paper}>
         {groupKeys.map((groupKey) => {
           const reserve = groupKey === 'varalla'

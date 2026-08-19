@@ -22,7 +22,7 @@ exports[`PaymentPage renders properly 1`] = `
         </a>
       </div>
       <h5
-        class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h5 css-kc0zv6-MuiTypography-root"
       >
         paymentPage.choosePaymentMethod
       </h5>
@@ -1802,7 +1802,7 @@ exports[`PaymentPage renders properly 1`] = `
           class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
         />
         <p
-          class="MuiTypography-root MuiTypography-body1 css-c021hg-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 css-1a7ift-MuiTypography-root"
         >
           registration.paymentToBePaid amount
         </p>

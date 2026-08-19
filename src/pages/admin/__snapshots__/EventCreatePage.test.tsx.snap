@@ -19,13 +19,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
           <label
             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
             data-shrink="true"
-            for=":r1:"
-            id=":r1:-label"
+            for="_r_1_"
+            id="_r_1_-label"
           >
             event.state
           </label>
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
           >
             <input
               aria-autocomplete="list"
@@ -33,8 +33,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-              id=":r1:"
+              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+              id="_r_1_"
               role="combobox"
               spellcheck="false"
               type="text"
@@ -86,7 +86,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1ob384t-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -148,13 +148,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiFormControl-root css-1y4zsh1-MuiFormControl-root"
                           >
                             <div
-                              class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiPickersTextField-root Mui-required css-eqc3kq-MuiFormControl-root-MuiPickersTextField-root"
                             >
                               <label
                                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
-                                for=":r5:"
-                                id=":r5:-label"
+                                for="_r_5_"
+                                id="_r_5_-label"
                               >
                                 event.startDate
                                 <span
@@ -166,25 +166,117 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
+                                aria-invalid="false"
+                                aria-labelledby="_r_5_-label"
+                                class="MuiPickersInputBase-root MuiPickersOutlinedInput-root MuiPickersInputBase-colorPrimary MuiPickersInputBase-adornedEnd css-r9xk0u-MuiPickersInputBase-root-MuiPickersOutlinedInput-root"
+                                role="group"
                               >
-                                <input
-                                  aria-invalid="false"
-                                  autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                                  id=":r5:"
-                                  inputmode="text"
-                                  placeholder="DD.MM.YYYY"
-                                  required=""
-                                  type="text"
-                                  value="23.04.2021"
-                                />
+                                <div
+                                  class="MuiPickersSectionList-root MuiPickersInputBase-sectionsContainer css-1fb7els-MuiPickersSectionList-root-MuiPickersInputBase-sectionsContainer-MuiPickersOutlinedInput-sectionsContainer"
+                                  contenteditable="false"
+                                  tabindex="0"
+                                >
+                                  <span
+                                    class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                    data-sectionindex="0"
+                                  >
+                                    <span
+                                      class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    />
+                                    <span
+                                      aria-disabled="false"
+                                      aria-label="Day"
+                                      aria-readonly="false"
+                                      aria-valuemax="30"
+                                      aria-valuemin="1"
+                                      aria-valuenow="23"
+                                      aria-valuetext="23"
+                                      autocapitalize="none"
+                                      autocorrect="off"
+                                      class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                      contenteditable="true"
+                                      inputmode="numeric"
+                                      role="spinbutton"
+                                      spellcheck="false"
+                                      tabindex="0"
+                                    >
+                                      23
+                                    </span>
+                                    <span
+                                      class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    >
+                                      .
+                                    </span>
+                                  </span>
+                                  <span
+                                    class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                    data-sectionindex="1"
+                                  >
+                                    <span
+                                      class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    />
+                                    <span
+                                      aria-disabled="false"
+                                      aria-label="Month"
+                                      aria-readonly="false"
+                                      aria-valuemax="12"
+                                      aria-valuemin="1"
+                                      aria-valuenow="4"
+                                      aria-valuetext="huhtikuu"
+                                      autocapitalize="none"
+                                      autocorrect="off"
+                                      class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                      contenteditable="true"
+                                      inputmode="numeric"
+                                      role="spinbutton"
+                                      spellcheck="false"
+                                      tabindex="-1"
+                                    >
+                                      04
+                                    </span>
+                                    <span
+                                      class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    >
+                                      .
+                                    </span>
+                                  </span>
+                                  <span
+                                    class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                    data-sectionindex="2"
+                                  >
+                                    <span
+                                      class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    />
+                                    <span
+                                      aria-disabled="false"
+                                      aria-label="Year"
+                                      aria-readonly="false"
+                                      aria-valuemax="9999"
+                                      aria-valuemin="0"
+                                      aria-valuenow="2021"
+                                      autocapitalize="none"
+                                      autocorrect="off"
+                                      class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                      contenteditable="true"
+                                      inputmode="numeric"
+                                      role="spinbutton"
+                                      spellcheck="false"
+                                      tabindex="-1"
+                                    >
+                                      2021
+                                    </span>
+                                    <span
+                                      class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    />
+                                  </span>
+                                </div>
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                                 >
                                   <button
                                     aria-label="Choose date, selected date is 23. huhti 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                    data-mui-picker-open-button="true"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -203,18 +295,28 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </div>
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                  class="MuiPickersOutlinedInput-notchedOutline css-lqwr9g-MuiPickersOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-ex8a5f-MuiNotchedOutlined-root"
+                                    class="css-kg5swy"
                                   >
-                                    <span>
+                                    <span
+                                      class="css-w48gsk"
+                                    >
                                       event.startDate
                                        
                                       *
                                     </span>
                                   </legend>
                                 </fieldset>
+                                <input
+                                  aria-hidden="true"
+                                  class="MuiPickersInputBase-input MuiPickersOutlinedInput-input css-31lcvl-MuiPickersInputBase-input"
+                                  id="_r_5_"
+                                  required=""
+                                  tabindex="-1"
+                                  value="23.04.2021"
+                                />
                               </div>
                             </div>
                           </div>
@@ -222,13 +324,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiFormControl-root css-8q185u-MuiFormControl-root"
                           >
                             <div
-                              class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiPickersTextField-root Mui-required css-eqc3kq-MuiFormControl-root-MuiPickersTextField-root"
                             >
                               <label
                                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
-                                for=":r8:"
-                                id=":r8:-label"
+                                for="_r_8_"
+                                id="_r_8_-label"
                               >
                                 event.endDate
                                 <span
@@ -240,25 +342,117 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
+                                aria-invalid="false"
+                                aria-labelledby="_r_8_-label"
+                                class="MuiPickersInputBase-root MuiPickersOutlinedInput-root MuiPickersInputBase-colorPrimary MuiPickersInputBase-adornedEnd css-r9xk0u-MuiPickersInputBase-root-MuiPickersOutlinedInput-root"
+                                role="group"
                               >
-                                <input
-                                  aria-invalid="false"
-                                  autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                                  id=":r8:"
-                                  inputmode="text"
-                                  placeholder="DD.MM.YYYY"
-                                  required=""
-                                  type="text"
-                                  value="23.04.2021"
-                                />
+                                <div
+                                  class="MuiPickersSectionList-root MuiPickersInputBase-sectionsContainer css-1fb7els-MuiPickersSectionList-root-MuiPickersInputBase-sectionsContainer-MuiPickersOutlinedInput-sectionsContainer"
+                                  contenteditable="false"
+                                  tabindex="0"
+                                >
+                                  <span
+                                    class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                    data-sectionindex="0"
+                                  >
+                                    <span
+                                      class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    />
+                                    <span
+                                      aria-disabled="false"
+                                      aria-label="Day"
+                                      aria-readonly="false"
+                                      aria-valuemax="30"
+                                      aria-valuemin="1"
+                                      aria-valuenow="23"
+                                      aria-valuetext="23"
+                                      autocapitalize="none"
+                                      autocorrect="off"
+                                      class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                      contenteditable="true"
+                                      inputmode="numeric"
+                                      role="spinbutton"
+                                      spellcheck="false"
+                                      tabindex="0"
+                                    >
+                                      23
+                                    </span>
+                                    <span
+                                      class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    >
+                                      .
+                                    </span>
+                                  </span>
+                                  <span
+                                    class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                    data-sectionindex="1"
+                                  >
+                                    <span
+                                      class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    />
+                                    <span
+                                      aria-disabled="false"
+                                      aria-label="Month"
+                                      aria-readonly="false"
+                                      aria-valuemax="12"
+                                      aria-valuemin="1"
+                                      aria-valuenow="4"
+                                      aria-valuetext="huhtikuu"
+                                      autocapitalize="none"
+                                      autocorrect="off"
+                                      class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                      contenteditable="true"
+                                      inputmode="numeric"
+                                      role="spinbutton"
+                                      spellcheck="false"
+                                      tabindex="-1"
+                                    >
+                                      04
+                                    </span>
+                                    <span
+                                      class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    >
+                                      .
+                                    </span>
+                                  </span>
+                                  <span
+                                    class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                    data-sectionindex="2"
+                                  >
+                                    <span
+                                      class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    />
+                                    <span
+                                      aria-disabled="false"
+                                      aria-label="Year"
+                                      aria-readonly="false"
+                                      aria-valuemax="9999"
+                                      aria-valuemin="0"
+                                      aria-valuenow="2021"
+                                      autocapitalize="none"
+                                      autocorrect="off"
+                                      class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                      contenteditable="true"
+                                      inputmode="numeric"
+                                      role="spinbutton"
+                                      spellcheck="false"
+                                      tabindex="-1"
+                                    >
+                                      2021
+                                    </span>
+                                    <span
+                                      class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                    />
+                                  </span>
+                                </div>
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                                 >
                                   <button
                                     aria-label="Choose date, selected date is 23. huhti 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                    data-mui-picker-open-button="true"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -277,18 +471,28 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </div>
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                  class="MuiPickersOutlinedInput-notchedOutline css-lqwr9g-MuiPickersOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-ex8a5f-MuiNotchedOutlined-root"
+                                    class="css-kg5swy"
                                   >
-                                    <span>
+                                    <span
+                                      class="css-w48gsk"
+                                    >
                                       event.endDate
                                        
                                       *
                                     </span>
                                   </legend>
                                 </fieldset>
+                                <input
+                                  aria-hidden="true"
+                                  class="MuiPickersInputBase-input MuiPickersOutlinedInput-input css-31lcvl-MuiPickersInputBase-input"
+                                  id="_r_8_"
+                                  required=""
+                                  tabindex="-1"
+                                  value="23.04.2021"
+                                />
                               </div>
                             </div>
                           </div>
@@ -326,7 +530,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -335,7 +539,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="true"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="eventType"
                                   required=""
                                   role="combobox"
@@ -426,7 +630,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               event.classes
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-autocomplete="list"
@@ -434,7 +638,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 aria-invalid="false"
                                 autocapitalize="none"
                                 autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="class"
                                 role="combobox"
                                 spellcheck="false"
@@ -493,8 +697,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":ri:"
-                            id=":ri:-label"
+                            for="_r_i_"
+                            id="_r_i_-label"
                           >
                             event.name
                           </label>
@@ -504,7 +708,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":ri:"
+                              id="_r_i_"
                               type="text"
                               value=""
                             />
@@ -555,7 +759,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -564,7 +768,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="true"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="organizer"
                                   required=""
                                   role="combobox"
@@ -658,7 +862,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 event.location
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -666,7 +870,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="false"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="location"
                                   role="combobox"
                                   spellcheck="false"
@@ -732,7 +936,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 event.official
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -740,7 +944,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="false"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="official"
                                   role="combobox"
                                   spellcheck="false"
@@ -832,7 +1036,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -841,7 +1045,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="true"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="secretary"
                                   required=""
                                   role="combobox"
@@ -926,7 +1130,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1ob384t-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -989,13 +1193,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <label
                               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="false"
-                              for=":r14:"
-                              id=":r14:-label"
+                              for="_r_14_"
+                              id="_r_14_-label"
                             >
                               judge 1
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-autocomplete="list"
@@ -1003,8 +1207,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 aria-invalid="false"
                                 autocapitalize="none"
                                 autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r14:"
+                                class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                                id="_r_14_"
                                 role="combobox"
                                 spellcheck="false"
                                 type="text"
@@ -1067,7 +1271,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               Arvostelee luokat
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-autocomplete="list"
@@ -1075,7 +1279,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 aria-invalid="false"
                                 autocapitalize="none"
                                 autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id="class0"
                                 role="combobox"
@@ -1127,22 +1331,22 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qgtx4e-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary css-1g4om95-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
                           <span
-                            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                            class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                           >
                             <svg
                               aria-hidden="true"
                               class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                              data-testid="DeleteOutlineIcon"
+                              data-testid="DeleteOutlinedIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
                             >
                               <path
-                                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                                d="M16 9v10H8V9zm-1.5-6h-5l-1 1H5v2h14V4h-3.5zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2z"
                               />
                             </svg>
                           </span>
@@ -1154,12 +1358,12 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qgtx4e-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary css-1g4om95-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
@@ -1176,12 +1380,12 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         Lisää tuomari
                       </button>
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qgtx4e-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary css-1g4om95-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
@@ -1198,13 +1402,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         Lisää ulkomainen tuomari
                       </button>
                       <button
-                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-jhtf5m-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary css-16f9t49-MuiButtonBase-root-MuiButton-root"
                         disabled=""
                         tabindex="-1"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
@@ -1232,7 +1436,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1ob384t-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -1289,35 +1493,128 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           class="MuiFormControl-root css-1y4zsh1-MuiFormControl-root"
                         >
                           <div
-                            class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
+                            class="MuiFormControl-root MuiPickersTextField-root css-eqc3kq-MuiFormControl-root-MuiPickersTextField-root"
                           >
                             <label
                               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="true"
-                              for=":r1f:"
-                              id=":r1f:-label"
+                              for="_r_1f_"
+                              id="_r_1f_-label"
                             >
                               Ilmoittautumisaika alkaa
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
+                              aria-invalid="true"
+                              aria-labelledby="_r_1f_-label"
+                              class="MuiPickersInputBase-root MuiPickersOutlinedInput-root Mui-error MuiPickersInputBase-colorPrimary MuiPickersInputBase-adornedEnd css-r9xk0u-MuiPickersInputBase-root-MuiPickersOutlinedInput-root"
+                              role="group"
                             >
-                              <input
-                                aria-invalid="true"
-                                autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r1f:"
-                                inputmode="text"
-                                placeholder="DD.MM.YYYY"
-                                type="text"
-                                value="23.03.2021"
-                              />
+                              <div
+                                class="MuiPickersSectionList-root MuiPickersInputBase-sectionsContainer css-1fb7els-MuiPickersSectionList-root-MuiPickersInputBase-sectionsContainer-MuiPickersOutlinedInput-sectionsContainer"
+                                contenteditable="false"
+                                tabindex="0"
+                              >
+                                <span
+                                  class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                  data-sectionindex="0"
+                                >
+                                  <span
+                                    class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  />
+                                  <span
+                                    aria-disabled="false"
+                                    aria-label="Day"
+                                    aria-readonly="false"
+                                    aria-valuemax="31"
+                                    aria-valuemin="1"
+                                    aria-valuenow="23"
+                                    aria-valuetext="23"
+                                    autocapitalize="none"
+                                    autocorrect="off"
+                                    class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                    contenteditable="true"
+                                    inputmode="numeric"
+                                    role="spinbutton"
+                                    spellcheck="false"
+                                    tabindex="0"
+                                  >
+                                    23
+                                  </span>
+                                  <span
+                                    class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  >
+                                    .
+                                  </span>
+                                </span>
+                                <span
+                                  class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                  data-sectionindex="1"
+                                >
+                                  <span
+                                    class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  />
+                                  <span
+                                    aria-disabled="false"
+                                    aria-label="Month"
+                                    aria-readonly="false"
+                                    aria-valuemax="12"
+                                    aria-valuemin="1"
+                                    aria-valuenow="3"
+                                    aria-valuetext="maaliskuu"
+                                    autocapitalize="none"
+                                    autocorrect="off"
+                                    class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                    contenteditable="true"
+                                    inputmode="numeric"
+                                    role="spinbutton"
+                                    spellcheck="false"
+                                    tabindex="-1"
+                                  >
+                                    03
+                                  </span>
+                                  <span
+                                    class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  >
+                                    .
+                                  </span>
+                                </span>
+                                <span
+                                  class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                  data-sectionindex="2"
+                                >
+                                  <span
+                                    class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  />
+                                  <span
+                                    aria-disabled="false"
+                                    aria-label="Year"
+                                    aria-readonly="false"
+                                    aria-valuemax="9999"
+                                    aria-valuemin="0"
+                                    aria-valuenow="2021"
+                                    autocapitalize="none"
+                                    autocorrect="off"
+                                    class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                    contenteditable="true"
+                                    inputmode="numeric"
+                                    role="spinbutton"
+                                    spellcheck="false"
+                                    tabindex="-1"
+                                  >
+                                    2021
+                                  </span>
+                                  <span
+                                    class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  />
+                                </span>
+                              </div>
                               <div
                                 class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                               >
                                 <button
                                   aria-label="Choose date, selected date is 23. maalis 2021"
                                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                  data-mui-picker-open-button="true"
                                   tabindex="0"
                                   type="button"
                                 >
@@ -1336,16 +1633,25 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </div>
                               <fieldset
                                 aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                class="MuiPickersOutlinedInput-notchedOutline css-lqwr9g-MuiPickersOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-ex8a5f-MuiNotchedOutlined-root"
+                                  class="css-kg5swy"
                                 >
-                                  <span>
+                                  <span
+                                    class="css-w48gsk"
+                                  >
                                     Ilmoittautumisaika alkaa
                                   </span>
                                 </legend>
                               </fieldset>
+                              <input
+                                aria-hidden="true"
+                                class="MuiPickersInputBase-input MuiPickersOutlinedInput-input css-31lcvl-MuiPickersInputBase-input"
+                                id="_r_1f_"
+                                tabindex="-1"
+                                value="23.03.2021"
+                              />
                             </div>
                           </div>
                         </div>
@@ -1353,35 +1659,128 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           class="MuiFormControl-root css-8q185u-MuiFormControl-root"
                         >
                           <div
-                            class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
+                            class="MuiFormControl-root MuiPickersTextField-root css-eqc3kq-MuiFormControl-root-MuiPickersTextField-root"
                           >
                             <label
                               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="true"
-                              for=":r1i:"
-                              id=":r1i:-label"
+                              for="_r_1i_"
+                              id="_r_1i_-label"
                             >
                               Ilmoittautumisaika päättyy
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
+                              aria-invalid="false"
+                              aria-labelledby="_r_1i_-label"
+                              class="MuiPickersInputBase-root MuiPickersOutlinedInput-root MuiPickersInputBase-colorPrimary MuiPickersInputBase-adornedEnd css-r9xk0u-MuiPickersInputBase-root-MuiPickersOutlinedInput-root"
+                              role="group"
                             >
-                              <input
-                                aria-invalid="false"
-                                autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r1i:"
-                                inputmode="text"
-                                placeholder="DD.MM.YYYY"
-                                type="text"
-                                value="09.04.2021"
-                              />
+                              <div
+                                class="MuiPickersSectionList-root MuiPickersInputBase-sectionsContainer css-1fb7els-MuiPickersSectionList-root-MuiPickersInputBase-sectionsContainer-MuiPickersOutlinedInput-sectionsContainer"
+                                contenteditable="false"
+                                tabindex="0"
+                              >
+                                <span
+                                  class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                  data-sectionindex="0"
+                                >
+                                  <span
+                                    class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  />
+                                  <span
+                                    aria-disabled="false"
+                                    aria-label="Day"
+                                    aria-readonly="false"
+                                    aria-valuemax="30"
+                                    aria-valuemin="1"
+                                    aria-valuenow="9"
+                                    aria-valuetext="9"
+                                    autocapitalize="none"
+                                    autocorrect="off"
+                                    class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                    contenteditable="true"
+                                    inputmode="numeric"
+                                    role="spinbutton"
+                                    spellcheck="false"
+                                    tabindex="0"
+                                  >
+                                    09
+                                  </span>
+                                  <span
+                                    class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  >
+                                    .
+                                  </span>
+                                </span>
+                                <span
+                                  class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                  data-sectionindex="1"
+                                >
+                                  <span
+                                    class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  />
+                                  <span
+                                    aria-disabled="false"
+                                    aria-label="Month"
+                                    aria-readonly="false"
+                                    aria-valuemax="12"
+                                    aria-valuemin="1"
+                                    aria-valuenow="4"
+                                    aria-valuetext="huhtikuu"
+                                    autocapitalize="none"
+                                    autocorrect="off"
+                                    class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                    contenteditable="true"
+                                    inputmode="numeric"
+                                    role="spinbutton"
+                                    spellcheck="false"
+                                    tabindex="-1"
+                                  >
+                                    04
+                                  </span>
+                                  <span
+                                    class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  >
+                                    .
+                                  </span>
+                                </span>
+                                <span
+                                  class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                  data-sectionindex="2"
+                                >
+                                  <span
+                                    class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  />
+                                  <span
+                                    aria-disabled="false"
+                                    aria-label="Year"
+                                    aria-readonly="false"
+                                    aria-valuemax="9999"
+                                    aria-valuemin="0"
+                                    aria-valuenow="2021"
+                                    autocapitalize="none"
+                                    autocorrect="off"
+                                    class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                    contenteditable="true"
+                                    inputmode="numeric"
+                                    role="spinbutton"
+                                    spellcheck="false"
+                                    tabindex="-1"
+                                  >
+                                    2021
+                                  </span>
+                                  <span
+                                    class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                  />
+                                </span>
+                              </div>
                               <div
                                 class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                               >
                                 <button
                                   aria-label="Choose date, selected date is 9. huhti 2021"
                                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                  data-mui-picker-open-button="true"
                                   tabindex="0"
                                   type="button"
                                 >
@@ -1400,16 +1799,25 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </div>
                               <fieldset
                                 aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                class="MuiPickersOutlinedInput-notchedOutline css-lqwr9g-MuiPickersOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-ex8a5f-MuiNotchedOutlined-root"
+                                  class="css-kg5swy"
                                 >
-                                  <span>
+                                  <span
+                                    class="css-w48gsk"
+                                  >
                                     Ilmoittautumisaika päättyy
                                   </span>
                                 </legend>
                               </fieldset>
+                              <input
+                                aria-hidden="true"
+                                class="MuiPickersInputBase-input MuiPickersOutlinedInput-input css-31lcvl-MuiPickersInputBase-input"
+                                id="_r_1i_"
+                                tabindex="-1"
+                                value="09.04.2021"
+                              />
                             </div>
                           </div>
                         </div>
@@ -1431,7 +1839,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           class="MuiStack-root css-3jt9ux-MuiStack-root"
                         >
                           <div
-                            class="MuiStack-root css-3xtvj9-MuiStack-root"
+                            class="MuiStack-root css-1csl1g3-MuiStack-root"
                           >
                             <h6
                               class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -1516,9 +1924,9 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                     >
                                       <input
                                         aria-invalid="false"
-                                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                                         disabled=""
-                                        id=":r1l:"
+                                        id="_r_1l_"
                                         pattern="[0-9]{1,3}"
                                         style="padding: 4px; text-align: right;"
                                         type="text"
@@ -1564,7 +1972,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                     >
                                       <input
                                         aria-invalid="false"
-                                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                                        class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                                         id="event.places"
                                         pattern="[0-9]{1,3}"
                                         style="padding: 4px; text-align: right;"
@@ -1611,13 +2019,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r1n:"
-                            id=":r1n:-label"
+                            for="_r_1n_"
+                            id="_r_1n_-label"
                           >
                             Etusijat
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -1625,8 +2033,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r1n:"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              id="_r_1n_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -1682,7 +2090,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1ob384t-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -1748,8 +2156,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <div
                             aria-expanded="false"
                             aria-haspopup="listbox"
-                            aria-labelledby="payment-time-label payment-time"
-                            class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                            aria-labelledby="payment-time-label"
+                            class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-jbz0k-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
                             id="payment-time"
                             role="combobox"
                             tabindex="0"
@@ -1760,12 +2168,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             aria-hidden="true"
                             aria-invalid="false"
                             class="MuiSelect-nativeInput css-j0riat-MuiSelect-nativeInput"
+                            id="_r_1s_"
                             tabindex="-1"
                             value="registration"
                           />
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
                             data-testid="ArrowDropDownIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -1867,8 +2276,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <input
                                       aria-invalid="false"
-                                      class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                                      id=":r1s:"
+                                      class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                                      id="_r_1t_"
                                       name="cost.normal"
                                       pattern="[0-9]{1,3}"
                                       style="padding: 4px; text-align: right;"
@@ -1906,8 +2315,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <input
                                       aria-invalid="false"
-                                      class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                                      id=":r1t:"
+                                      class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                                      id="_r_1u_"
                                       name="costMember.normal"
                                       pattern="[0-9]{1,3}"
                                       style="padding: 4px; text-align: right;"
@@ -1945,12 +2354,12 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   <svg
                                     aria-hidden="true"
                                     class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                                    data-testid="DeleteOutlineIcon"
+                                    data-testid="DeleteOutlinedIcon"
                                     focusable="false"
                                     viewBox="0 0 24 24"
                                   >
                                     <path
-                                      d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                                      d="M16 9v10H8V9zm-1.5-6h-5l-1 1H5v2h14V4h-3.5zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2z"
                                     />
                                   </svg>
                                 </button>
@@ -1963,12 +2372,12 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiStack-root css-vznnu-MuiStack-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-asi9qs-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
                           <span
-                            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                            class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                           >
                             <svg
                               aria-hidden="true"
@@ -2046,12 +2455,12 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiStack-root css-vznnu-MuiStack-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-asi9qs-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
                           <span
-                            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                            class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                           >
                             <svg
                               aria-hidden="true"
@@ -2080,7 +2489,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1ob384t-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -2139,8 +2548,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r24:"
-                            id=":r24:-label"
+                            for="_r_25_"
+                            id="_r_25_-label"
                           >
                             event.headquarters.name
                           </label>
@@ -2150,7 +2559,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r24:"
+                              id="_r_25_"
                               type="text"
                               value=""
                             />
@@ -2178,8 +2587,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r25:"
-                            id=":r25:-label"
+                            for="_r_26_"
+                            id="_r_26_-label"
                           >
                             event.headquarters.address
                           </label>
@@ -2189,7 +2598,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r25:"
+                              id="_r_26_"
                               type="text"
                               value=""
                             />
@@ -2221,8 +2630,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r26:"
-                            id=":r26:-label"
+                            for="_r_27_"
+                            id="_r_27_-label"
                           >
                             event.headquarters.zipCode
                           </label>
@@ -2232,7 +2641,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r26:"
+                              id="_r_27_"
                               type="text"
                               value=""
                             />
@@ -2260,8 +2669,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r27:"
-                            id=":r27:-label"
+                            for="_r_28_"
+                            id="_r_28_-label"
                           >
                             event.headquarters.postalDistrict
                           </label>
@@ -2271,7 +2680,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r27:"
+                              id="_r_28_"
                               type="text"
                               value=""
                             />
@@ -2302,7 +2711,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1ob384t-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -2458,7 +2867,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r29:"
+                                id="_r_2a_"
                                 name="name"
                                 type="text"
                                 value=""
@@ -2489,7 +2898,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r2a:"
+                                id="_r_2b_"
                                 name="email"
                                 type="text"
                                 value=""
@@ -2520,7 +2929,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r2b:"
+                                id="_r_2c_"
                                 name="phone"
                                 type="text"
                                 value=""
@@ -2650,7 +3059,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r2c:"
+                                id="_r_2d_"
                                 name="name"
                                 type="text"
                                 value=""
@@ -2681,7 +3090,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r2d:"
+                                id="_r_2e_"
                                 name="email"
                                 type="text"
                                 value=""
@@ -2712,7 +3121,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r2e:"
+                                id="_r_2f_"
                                 name="phone"
                                 type="text"
                                 value=""
@@ -2748,7 +3157,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1ob384t-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -2803,14 +3212,14 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       >
                         <textarea
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":r2g:"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="_r_2h_"
                           rows="5"
                           style="height: 0px; overflow: hidden;"
                         />
                         <textarea
                           aria-hidden="true"
-                          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                           readonly=""
                           style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                           tabindex="-1"
@@ -2841,16 +3250,16 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
       </div>
     </div>
     <div
-      class="MuiStack-root css-11t2cgs-MuiStack-root"
+      class="MuiStack-root css-1jusjaf-MuiStack-root"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-10gbnq1-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-vmcegv-MuiButtonBase-root-MuiButton-root"
         disabled=""
         tabindex="-1"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -2867,12 +3276,12 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         save
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-asi9qs-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"

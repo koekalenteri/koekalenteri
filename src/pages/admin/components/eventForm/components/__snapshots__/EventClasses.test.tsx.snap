@@ -9,7 +9,7 @@ exports[`EventClasses should render with classes 1`] = `
       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <input
           aria-autocomplete="list"
@@ -17,7 +17,7 @@ exports[`EventClasses should render with classes 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -77,15 +77,15 @@ exports[`EventClasses should render with classes and value 1`] = `
       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-xips6k-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1g5axm5-MuiChip-root"
           data-item-index="0"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+            class="MuiChip-label css-eccknh-MuiChip-label"
           >
             ALO
           </span>
@@ -96,7 +96,7 @@ exports[`EventClasses should render with classes and value 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -156,26 +156,26 @@ exports[`EventClasses should render with classes and values 1`] = `
       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-xips6k-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1g5axm5-MuiChip-root"
           data-item-index="0"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+            class="MuiChip-label css-eccknh-MuiChip-label"
           >
             ALO
           </span>
         </div>
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1g5axm5-MuiChip-root"
           data-item-index="1"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+            class="MuiChip-label css-eccknh-MuiChip-label"
           >
             AVO x2
           </span>
@@ -186,7 +186,7 @@ exports[`EventClasses should render with classes and values 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -246,36 +246,36 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-xips6k-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1g5axm5-MuiChip-root"
           data-item-index="0"
           tabindex="-1"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-18or0uh-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar css-xw8tg2-MuiAvatar-root"
           >
             dateFormat.weekday date
           </div>
           <span
-            class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+            class="MuiChip-label css-eccknh-MuiChip-label"
           >
             ALO
           </span>
         </div>
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1g5axm5-MuiChip-root"
           data-item-index="1"
           tabindex="-1"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-18or0uh-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar css-xw8tg2-MuiAvatar-root"
           >
             dateFormat.weekday date
           </div>
           <span
-            class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+            class="MuiChip-label css-eccknh-MuiChip-label"
           >
             AVO x2
           </span>
@@ -288,7 +288,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -348,10 +348,16 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"
       style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
     >
+      <div
+        aria-atomic="true"
+        aria-live="polite"
+        class="MuiAutocomplete-status css-1pmokjn-MuiAutocomplete-status"
+        role="status"
+      />
       <ul
         aria-labelledby="-label"
         aria-multiselectable="true"
-        class="MuiAutocomplete-listbox css-19166iz-MuiAutocomplete-listbox"
+        class="MuiAutocomplete-listbox css-xddwwh-MuiAutocomplete-listbox"
         id="-listbox"
         role="listbox"
       >
@@ -479,26 +485,26 @@ exports[`EventClasses should render with classes and values, open 1`] = `
       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-xips6k-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1g5axm5-MuiChip-root"
           data-item-index="0"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+            class="MuiChip-label css-eccknh-MuiChip-label"
           >
             ALO
           </span>
         </div>
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1g5axm5-MuiChip-root"
           data-item-index="1"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+            class="MuiChip-label css-eccknh-MuiChip-label"
           >
             AVO x2
           </span>
@@ -511,7 +517,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -571,10 +577,16 @@ exports[`EventClasses should render with classes and values, open 1`] = `
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"
       style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
     >
+      <div
+        aria-atomic="true"
+        aria-live="polite"
+        class="MuiAutocomplete-status css-1pmokjn-MuiAutocomplete-status"
+        role="status"
+      />
       <ul
         aria-labelledby="-label"
         aria-multiselectable="true"
-        class="MuiAutocomplete-listbox css-19166iz-MuiAutocomplete-listbox"
+        class="MuiAutocomplete-listbox css-xddwwh-MuiAutocomplete-listbox"
         id="-listbox"
         role="listbox"
       >
@@ -659,7 +671,7 @@ exports[`EventClasses should render with minimal properties 1`] = `
       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <input
           aria-autocomplete="list"
@@ -667,7 +679,7 @@ exports[`EventClasses should render with minimal properties 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
           disabled=""
           id=""
           role="combobox"

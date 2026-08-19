@@ -39,7 +39,12 @@ describe('ServiceWorkerUpdateNotifier', () => {
     let translate = (key: string) => `fi:${key}`
 
     mockUseSnackbar.mockReturnValue({ closeSnackbar: jest.fn(), enqueueSnackbar })
-    mockUseTranslation.mockImplementation(() => ({ t: translate }) as ReturnType<typeof useTranslation>)
+    mockUseTranslation.mockImplementation(
+      () =>
+        ({
+          t: translate,
+        }) as ReturnType<typeof useTranslation>
+    )
     mockSubscribe.mockImplementation((listener) => {
       listener(registration, worker)
       return jest.fn()

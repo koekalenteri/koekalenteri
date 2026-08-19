@@ -9,6 +9,14 @@ import { registrationWithStaticDates } from '../../../../__mockData__/registrati
 import * as registrationUtils from '../../../../lib/registration'
 import { useClassEntrySelectionColumns } from './useClassEntrySelectionColumns'
 
+interface TestActionProps {
+  disabled?: boolean
+  icon: ReactElement
+  onClick?: () => void
+}
+
+type ActionElement = ReactElement<TestActionProps>
+
 const mockAvailableDates: RegistrationDate[] = [
   { date: eventWithStaticDatesAnd3Classes.startDate, time: 'ap' },
   { date: eventWithStaticDatesAnd3Classes.startDate, time: 'ip' },
@@ -87,14 +95,14 @@ describe('useClassEntrySectionColumns', () => {
     expect(actions.length).toBeGreaterThan(0)
 
     // Simulate clicking the edit action
-    const editAction = actions.find((action: ReactElement) => action.key === 'edit')
+    const editAction = actions.find((action: ActionElement) => action.key === 'edit')
     editAction?.props.onClick()
 
     // Check that the openEditDialog callback was called with the correct ID
     expect(openEditDialogMock).toHaveBeenCalledWith('test-id')
 
     // Simulate clicking the cancel action
-    const cancelAction = actions.find((action: ReactElement) => action.key === 'cancel')
+    const cancelAction = actions.find((action: ActionElement) => action.key === 'cancel')
     cancelAction?.props.onClick()
 
     // Check that the cancelRegistration callback was called with the correct ID
@@ -110,7 +118,7 @@ describe('useClassEntrySectionColumns', () => {
     const actionsColumn = result.current.entryColumns.find((column) => column.field === 'actions')
     const actions = (actionsColumn as any)?.getActions({
       row: { cancelled: false, group: { key: 'P' }, id: 'test-id' },
-    } as GridRenderCellParams<any, Registration>) as ReactElement[]
+    } as GridRenderCellParams<any, Registration>) as ActionElement[]
 
     expect(actions.find((action) => action.key === 'edit')?.props.disabled).toBe(true)
     expect(actions.find((action) => action.key === 'cancel')?.props.disabled).toBe(true)
@@ -145,7 +153,7 @@ describe('useClassEntrySectionColumns', () => {
     expect(actions).toBeDefined()
 
     // Check that there's no cancel action for cancelled registrations
-    expect(actions.every((action: ReactElement) => action.key !== 'cancel')).toBe(true)
+    expect(actions.every((action: ActionElement) => action.key !== 'cancel')).toBe(true)
   })
 
   it('should include refund action for registrations that can be refunded', () => {
@@ -176,7 +184,7 @@ describe('useClassEntrySectionColumns', () => {
     expect(actions).toBeDefined()
 
     // Check that there's a refund action
-    const refundAction = actions.find((action: ReactElement) => action.key === 'refund')
+    const refundAction = actions.find((action: ActionElement) => action.key === 'refund')
     expect(refundAction).not.toBeNull()
 
     // Simulate clicking the refund action
@@ -215,13 +223,13 @@ describe('useClassEntrySectionColumns', () => {
 
     // For a fully refunded registration, the refund action might not be present at all
     // or it might be present but disabled. Let's check both possibilities.
-    const refundAction = actions.find((action: ReactElement) => action.key === 'refund')
+    const refundAction = actions.find((action: ActionElement) => action.key === 'refund')
     if (refundAction) {
       // If present, it should be disabled
       expect(refundAction.props.disabled).toBeTruthy()
     } else {
       // If not present, that's also acceptable
-      expect(actions.map((action: ReactElement) => action.key)).not.toContain('refund')
+      expect(actions.map((action: ActionElement) => action.key)).not.toContain('refund')
     }
   })
 
@@ -354,7 +362,7 @@ describe('useClassEntrySectionColumns', () => {
     expect(actions).toBeDefined()
 
     // Check that there's no refund action
-    const refundAction = actions.find((action: ReactElement) => action.key === 'refund')
+    const refundAction = actions.find((action: ActionElement) => action.key === 'refund')
     expect(refundAction).toBeUndefined()
   })
 
@@ -572,7 +580,7 @@ describe('Action column in detail', () => {
       expect(actions).toBeDefined()
 
       // Check that the expected actions are present
-      const actionKeys = actions.map((a: ReactElement) => a.key)
+      const actionKeys = actions.map((a: ActionElement) => a.key)
       testCase.expectedActions.forEach((expectedAction) => {
         expect(actionKeys).toContain(expectedAction)
       })
@@ -611,12 +619,12 @@ describe('Action column in detail', () => {
     expect(actionsColumn).toBeDefined()
 
     const getActions = (row: Registration) =>
-      (actionsColumn as any)?.getActions({ row } as GridRenderCellParams<any, Registration>) as ReactElement[]
+      (actionsColumn as any)?.getActions({ row } as GridRenderCellParams<any, Registration>) as ActionElement[]
 
-    const clickByKey = (actions: ReactElement[], key: string) => {
+    const clickByKey = (actions: ActionElement[], key: string) => {
       const action = actions.find((a) => a.key === key)
       expect(action).toBeDefined()
-      action?.props.onClick()
+      action?.props.onClick?.()
     }
 
     // participant row
@@ -682,7 +690,7 @@ describe('Action column in detail', () => {
     const reserveActions = (actionsColumn as any)?.getActions({ row: reserveRow } as GridRenderCellParams<
       any,
       Registration
-    >) as ReactElement[]
+    >) as ActionElement[]
 
     const moveToParticipants = reserveActions.find((a) => a.key === 'moveToParticipants')
     const moveToPosition = reserveActions.find((a) => a.key === 'moveToPosition')
@@ -713,7 +721,7 @@ describe('Action column in detail', () => {
     const reserveActions = (actionsColumn as any)?.getActions({ row: reserveRow } as GridRenderCellParams<
       any,
       Registration
-    >) as ReactElement[]
+    >) as ActionElement[]
     const moveToPosition = reserveActions.find((a) => a.key === 'moveToPosition')
 
     expect(moveToPosition?.props.disabled).toBe(true)
@@ -740,7 +748,7 @@ describe('Action column in detail', () => {
     const participantActions = (actionsColumn as any)?.getActions({ row: participantRow } as GridRenderCellParams<
       any,
       Registration
-    >) as ReactElement[]
+    >) as ActionElement[]
     const moveToPosition = participantActions.find((a) => a.key === 'moveToPosition')
 
     expect(moveToPosition?.props.disabled).toBe(true)
@@ -769,10 +777,10 @@ describe('Action column in detail', () => {
 
     const participantActions = (entryActionsColumn as any)?.getActions({
       row: participantRow,
-    } as GridRenderCellParams<any, Registration>) as ReactElement[]
+    } as GridRenderCellParams<any, Registration>) as ActionElement[]
     const cancelledActions = (cancelledActionsColumn as any)?.getActions({
       row: cancelledRow,
-    } as GridRenderCellParams<any, Registration>) as ReactElement[]
+    } as GridRenderCellParams<any, Registration>) as ActionElement[]
 
     expect(participantActions.find((a) => a.key === 'moveToReserve')?.props.disabled).toBe(true)
     expect(cancelledActions.find((a) => a.key === 'moveToReserve')?.props.disabled).toBe(false)
@@ -795,7 +803,7 @@ describe('Action column in detail', () => {
       const actionsColumn = columns[index].find((column) => column.field === 'actions')
       expect(actionsColumn).toBeDefined()
       const movementActions = (
-        (actionsColumn as any).getActions({ row } as GridRenderCellParams<any, Registration>) as ReactElement[]
+        (actionsColumn as any).getActions({ row } as GridRenderCellParams<any, Registration>) as ActionElement[]
       ).filter((action) => String(action.key).startsWith('moveTo'))
 
       expect(movementActions.length).toBeGreaterThan(0)
@@ -832,7 +840,7 @@ describe('Action column in detail', () => {
     expect(actions).toBeDefined()
 
     // Check that the edit action exists
-    const editAction = actions.find((action: ReactElement) => action.key === 'edit')
+    const editAction = actions.find((action: ActionElement) => action.key === 'edit')
     expect(editAction).toBeDefined()
 
     // Simulate clicking the edit action - should not throw an error
