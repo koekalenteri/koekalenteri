@@ -80,6 +80,18 @@ checkBrowsers(paths.appPath, isInteractive)
         WARN_AFTER_BUNDLE_GZIP_SIZE,
         WARN_AFTER_CHUNK_GZIP_SIZE
       )
+      const analyzerStats = stats.toJson({ all: true })
+      analyzerStats.assets = Object.values(analyzerStats.namedChunkGroups ?? {})
+        .flatMap((chunkGroup) =>
+          (chunkGroup.assets ?? []).map((asset) => ({
+            ...asset,
+            chunks: chunkGroup.chunks ?? [],
+            info: asset.info ?? { javascriptModule: false },
+          }))
+        )
+        .filter(({ name }, index, assets) => assets.findIndex((asset) => asset.name === name) === index)
+      analyzerStats.children = []
+      fs.writeFileSync(path.join(paths.appBuild, 'stats.json'), JSON.stringify(analyzerStats))
       console.log()
 
       const appPackage = require(paths.appPackageJson)

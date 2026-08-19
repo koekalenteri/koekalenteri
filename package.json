@@ -58,7 +58,7 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "analyze": "source-map-explorer 'build/static/js/*.js' --no-border-checks",
+    "analyze": "npm run build-frontend && webpack-bundle-analyzer build/stats.json build --no-open --mode static",
     "prebuild-backend": "scripts/prebuild-backend.sh",
     "build-backend": "node scripts/build-backend.mjs",
     "build-backend-watch": "npm run build-backend -- --watch",
@@ -162,11 +162,11 @@
     "rimraf": "^6.1.3",
     "run-script-os": "^1.1.6",
     "semver": "^7.8.5",
-    "source-map-explorer": "^2.5.3",
     "source-map-loader": "^5.0.0",
     "style-loader": "^4.0.0",
     "typescript": "^5.9.3",
     "webpack": "^5.109.2",
+    "webpack-bundle-analyzer": "^5.3.1",
     "webpack-dev-server": "^5.2.6",
     "webpack-manifest-plugin": "^5.0.1",
     "workbox-precaching": "^7.4.1",
