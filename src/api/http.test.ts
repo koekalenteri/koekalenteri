@@ -172,7 +172,7 @@ describe('http', () => {
       fetchMock.mockResponseOnce(mockPendingFetch)
 
       const controller = new AbortController()
-      controller.abort('because')
+      controller.abort()
 
       const promise = http.get('/somewhere', { signal: controller.signal })
 
@@ -454,7 +454,7 @@ describe('http', () => {
       })
 
       await expect(http.get('/text-error')).rejects.toEqual(
-        expect.objectContaining({ body: 'plain text error body', status: 400, statusText: 'Bad Request' })
+        expect.objectContaining({ body: 'plain text error body', status: 400, statusText: 'plain text error body' })
       )
       expect(mockConsoleError).toHaveBeenCalled()
     })
