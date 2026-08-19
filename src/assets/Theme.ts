@@ -32,6 +32,20 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          '&.Mui-focusVisible:not([data-navigation-button])': {
+            '& .MuiTouchRipple-ripplePulsate': {
+              display: 'none',
+            },
+            boxShadow: 'none',
+            outline: '2px solid #1565c0',
+            outlineOffset: 2,
+          },
+        },
+      },
+    },
     MuiDataGrid: {
       defaultProps: {
         rowHeight: 40,
