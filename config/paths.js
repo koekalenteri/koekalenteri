@@ -1,9 +1,8 @@
 const path = require('path')
 const fs = require('fs')
-const getPublicUrlOrPath = require('react-dev-utils/getPublicUrlOrPath')
 
-// Make sure any symlinks in the project folder are resolved:
-// https://github.com/facebook/create-react-app/issues/637
+// Resolve paths from the physical project root so symlinks do not produce
+// inconsistent webpack cache and module paths.
 const appDirectory = fs.realpathSync(process.cwd())
 const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath)
 
@@ -13,11 +12,15 @@ const resolveApp = (relativePath) => path.resolve(appDirectory, relativePath)
 // single-page apps that may serve index.html for nested URLs like /todos/42.
 // We can't use a relative path in HTML because we don't want to load something
 // like /todos/42/static/js/bundle.7289d.js. We have to know the root.
-const publicUrlOrPath = getPublicUrlOrPath(
-  process.env.NODE_ENV === 'development',
-  require(resolveApp('package.json')).homepage,
-  process.env.PUBLIC_URL
-)
+const homepage = require(resolveApp('package.json')).homepage
+const configuredPublicUrl = process.env.PUBLIC_URL || homepage || '/'
+const publicUrlWithSlash = `${configuredPublicUrl.replace(/\/$/, '')}/`
+const publicUrlOrPath =
+  process.env.NODE_ENV === 'development'
+    ? new URL(publicUrlWithSlash, 'https://localhost').pathname
+    : process.env.PUBLIC_URL || configuredPublicUrl.startsWith('.')
+      ? publicUrlWithSlash
+      : new URL(publicUrlWithSlash, 'https://localhost').pathname
 
 const buildPath = process.env.BUILD_PATH || 'build'
 
@@ -46,7 +49,6 @@ const resolveModule = (resolveFn, filePath) => {
   return resolveFn(`${filePath}.js`)
 }
 
-// config after eject: we're in ./config/
 module.exports = {
   dotenv: resolveApp('.env'),
   appPath: resolveApp('.'),
@@ -58,7 +60,6 @@ module.exports = {
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
   testsSetup: resolveModule(resolveApp, 'src/setupTests'),
-  appNodeModules: resolveApp('node_modules'),
   appWebpackCache: resolveApp('node_modules/.cache'),
   appTsBuildInfoFile: resolveApp('node_modules/.cache/tsconfig.tsbuildinfo'),
   swSrc: resolveModule(resolveApp, 'src/service-worker'),

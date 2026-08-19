@@ -2,21 +2,11 @@ const fs = require('fs')
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin')
-const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
-const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
 const paths = require('./paths')
-const modules = require('./modules')
 const getClientEnvironment = require('./env')
-const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin')
-const ForkTsCheckerWebpackPlugin =
-  process.env.TSC_COMPILE_ON_ERROR === 'true'
-    ? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
-    : require('react-dev-utils/ForkTsCheckerWebpackPlugin')
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 const { EsbuildPlugin } = require('esbuild-loader')
 
@@ -24,20 +14,6 @@ const createEnvironmentHash = require('./webpack/persistentCache/createEnvironme
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false'
-
-const reactRefreshRuntimeEntry = require.resolve('react-refresh/runtime')
-const reactRefreshWebpackPluginRuntimeEntry = require.resolve('@pmmmwh/react-refresh-webpack-plugin')
-const babelRuntimeEntry = require.resolve('@babel/runtime/package.json')
-const babelRuntimeEntryHelpers = require.resolve('@babel/runtime/helpers/esm/assertThisInitialized', {
-  paths: [babelRuntimeEntry],
-})
-const babelRuntimeRegenerator = require.resolve('@babel/runtime/regenerator', {
-  paths: [babelRuntimeEntry],
-})
-
-// Some apps do not need the benefits of saving a web request, so not inlining the chunk
-// makes for a smoother build process.
-const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false'
 
 const imageInlineSizeLimit = parseInt(process.env.IMAGE_INLINE_SIZE_LIMIT || '10000')
 
@@ -306,17 +282,7 @@ module.exports = function (webpackEnv) {
       },
     },
     resolve: {
-      // This allows you to set a fallback for where webpack should look for modules.
-      // We placed these paths second because we want `node_modules` to "win"
-      // if there are any conflicts. This matches Node resolution mechanism.
-      // https://github.com/facebook/create-react-app/issues/253
-      modules: ['node_modules', paths.appNodeModules].concat(modules.additionalModulePaths || []),
-      // These are the reasonable defaults supported by the Node ecosystem.
-      // We also include JSX as a common component filename extension to support
-      // some tools, although we do not recommend using it, see:
-      // https://github.com/facebook/create-react-app/issues/290
-      // `web` extension prefixes have been added for better support
-      // for React Native Web.
+      // Resolve the source extensions used by this project.
       extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
       alias: {
         // Allows for better profiling with ReactDevTools
@@ -324,23 +290,7 @@ module.exports = function (webpackEnv) {
           'react-dom$': 'react-dom/profiling',
           'scheduler/tracing': 'scheduler/tracing-profiling',
         }),
-        ...(modules.webpackAliases || {}),
       },
-      plugins: [
-        // Prevents users from importing files from outside of src/ (or node_modules/).
-        // This often causes confusion because we only process files within src/ with babel.
-        // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
-        // please link the files into your node_modules/ and let module-resolution kick in.
-        // Make sure your source files are compiled, as they will not be processed in any way.
-        new ModuleScopePlugin(paths.appSrc, [
-          paths.appPackageJson,
-          reactRefreshRuntimeEntry,
-          reactRefreshWebpackPluginRuntimeEntry,
-          babelRuntimeEntry,
-          babelRuntimeEntryHelpers,
-          babelRuntimeRegenerator,
-        ]),
-      ],
     },
     module: {
       strictExportPresence: true,
@@ -413,7 +363,7 @@ module.exports = function (webpackEnv) {
               },
             },
             // Process application JS with Babel.
-            // The preset includes JSX, Flow, TypeScript, and some ESnext features.
+            // The preset handles JSX, TypeScript, and targeted JavaScript transforms.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
               include: paths.appSrc,
@@ -475,7 +425,7 @@ module.exports = function (webpackEnv) {
                 sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
                 modules: {
                   mode: 'local',
-                  getLocalIdent: getCSSModuleLocalIdent,
+                  localIdentName: '[name]__[local]___[hash:base64:5]',
                 },
               }),
             },
@@ -506,6 +456,7 @@ module.exports = function (webpackEnv) {
           {
             inject: true,
             template: paths.appHtml,
+            templateParameters: env.raw,
           },
           isEnvProduction
             ? {
@@ -525,19 +476,6 @@ module.exports = function (webpackEnv) {
             : undefined
         )
       ),
-      // Inlines the webpack runtime script. This script is too small to warrant
-      // a network request.
-      // https://github.com/facebook/create-react-app/issues/5358
-      isEnvProduction && shouldInlineRuntimeChunk && new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime-.+[.]js/]),
-      // Makes some environment variables available in index.html.
-      // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-      // <link rel="icon" href="%PUBLIC_URL%/favicon.ico">
-      // It will be an empty string unless you specify "homepage"
-      // in `package.json`, in which case it will be the pathname of that URL.
-      new InterpolateHtmlPlugin(HtmlWebpackPlugin, env.raw),
-      // This gives some necessary context to module not found errors, such as
-      // the requesting resource.
-      new ModuleNotFoundPlugin(paths.appPath),
       // Makes some environment variables available to the JS code, for example:
       // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
       // It is absolutely essential that NODE_ENV is set to production
@@ -595,49 +533,8 @@ module.exports = function (webpackEnv) {
               // Lazy route chunks and media continue to load on demand.
               exclude: [excludeNonShellAssets],
             })),
-      // TypeScript type checking
-      new ForkTsCheckerWebpackPlugin({
-        async: isEnvDevelopment,
-        typescript: {
-          configOverwrite: {
-            compilerOptions: {
-              sourceMap: isEnvProduction ? shouldUseSourceMap : isEnvDevelopment,
-              skipLibCheck: true,
-              inlineSourceMap: false,
-              declarationMap: false,
-              noEmit: true,
-              incremental: true,
-              tsBuildInfoFile: paths.appTsBuildInfoFile,
-            },
-          },
-          context: paths.appPath,
-          diagnosticOptions: {
-            syntactic: true,
-          },
-          mode: 'write-references',
-          // profile: true,
-        },
-        issue: {
-          // This one is specifically to match during CI tests,
-          // as micromatch doesn't match
-          // '../cra-template-typescript/template/src/App.tsx'
-          // otherwise.
-          include: [{ file: '../**/src/**/*.{ts,tsx}' }, { file: '**/src/**/*.{ts,tsx}' }],
-          exclude: [
-            { file: '**/src/lambda/**' },
-            { file: '**/src/**/__tests__/**' },
-            { file: '**/src/**/?(*.){spec|test}.*' },
-            { file: '**/src/setupProxy.*' },
-            { file: '**/src/setupTests.*' },
-          ],
-        },
-        logger: {
-          infrastructure: 'silent',
-        },
-      }),
     ].filter(Boolean),
-    // Turn off performance processing because we utilize
-    // our own hints via the FileSizeReporter
+    // Bundle-size limits are monitored separately from webpack compilation.
     performance: false,
   }
 }

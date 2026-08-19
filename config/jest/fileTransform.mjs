@@ -2,7 +2,6 @@ import camelcase from 'camelcase'
 import { basename, parse } from 'path'
 
 // This is a custom Jest transformer turning file imports into filenames.
-// http://facebook.github.io/jest/docs/en/webpack.html
 
 function process(src, filename) {
   const assetFilename = JSON.stringify(basename(filename))

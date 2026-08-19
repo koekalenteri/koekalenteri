@@ -1,7 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
-const chalk = require('react-dev-utils/chalk')
 const paths = require('./paths')
 
 // Ensure the certificate and key provided are valid and if not
@@ -12,23 +11,21 @@ function validateKeyAndCerts({ cert, key, keyFile, crtFile }) {
     // publicEncrypt will throw an error with an invalid cert
     encrypted = crypto.publicEncrypt(cert, Buffer.from('test'))
   } catch (err) {
-    throw new Error(`The certificate "${chalk.yellow(crtFile)}" is invalid.\n${err.message}`)
+    throw new Error(`The certificate "${crtFile}" is invalid.\n${err.message}`)
   }
 
   try {
     // privateDecrypt will throw an error with an invalid key
     crypto.privateDecrypt(key, encrypted)
   } catch (err) {
-    throw new Error(`The certificate key "${chalk.yellow(keyFile)}" is invalid.\n${err.message}`)
+    throw new Error(`The certificate key "${keyFile}" is invalid.\n${err.message}`)
   }
 }
 
 // Read file and throw an error if it doesn't exist
 function readEnvFile(file, type) {
   if (!fs.existsSync(file)) {
-    throw new Error(
-      `You specified ${chalk.cyan(type)} in your env, but the file "${chalk.yellow(file)}" can't be found.`
-    )
+    throw new Error(`You specified ${type} in your env, but the file "${file}" can't be found.`)
   }
   return fs.readFileSync(file)
 }
