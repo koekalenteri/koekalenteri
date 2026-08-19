@@ -22,12 +22,12 @@ exports[`SearchPage filters by date - no-results 1`] = `
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <div
-              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-jqt469-MuiButtonBase-root-MuiButton-root"
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-pnlvtm-MuiButtonBase-root-MuiButton-root"
               role="button"
               tabindex="0"
             >
               <span
-                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
               >
                 <svg
                   aria-hidden="true"
@@ -585,7 +585,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         class="MuiGrid-root MuiGrid-direction-xs-row css-11h75ux-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
@@ -632,12 +632,12 @@ exports[`SearchPage filters by date 1`] = `
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <div
-              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-jqt469-MuiButtonBase-root-MuiButton-root"
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-pnlvtm-MuiButtonBase-root-MuiButton-root"
               role="button"
               tabindex="0"
             >
               <span
-                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
               >
                 <svg
                   aria-hidden="true"
@@ -1189,7 +1189,7 @@ exports[`SearchPage filters by date 1`] = `
                         class="MuiGrid-root MuiGrid-direction-xs-row css-11h75ux-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
@@ -2607,12 +2607,12 @@ exports[`SearchPage filters by date/end 1`] = `
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <div
-              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-jqt469-MuiButtonBase-root-MuiButton-root"
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-pnlvtm-MuiButtonBase-root-MuiButton-root"
               role="button"
               tabindex="0"
             >
               <span
-                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
               >
                 <svg
                   aria-hidden="true"
@@ -3164,7 +3164,7 @@ exports[`SearchPage filters by date/end 1`] = `
                         class="MuiGrid-root MuiGrid-direction-xs-row css-11h75ux-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
@@ -4582,12 +4582,12 @@ exports[`SearchPage filters by event class 1`] = `
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <div
-              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-jqt469-MuiButtonBase-root-MuiButton-root"
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-pnlvtm-MuiButtonBase-root-MuiButton-root"
               role="button"
               tabindex="0"
             >
               <span
-                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
               >
                 <svg
                   aria-hidden="true"
@@ -5181,7 +5181,7 @@ exports[`SearchPage filters by event class 1`] = `
                         class="MuiGrid-root MuiGrid-direction-xs-row css-11h75ux-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
@@ -7018,12 +7018,12 @@ exports[`SearchPage filters by event type 1`] = `
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <div
-              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-jqt469-MuiButtonBase-root-MuiButton-root"
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-pnlvtm-MuiButtonBase-root-MuiButton-root"
               role="button"
               tabindex="0"
             >
               <span
-                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
               >
                 <svg
                   aria-hidden="true"
@@ -7595,7 +7595,7 @@ exports[`SearchPage filters by event type 1`] = `
                         class="MuiGrid-root MuiGrid-direction-xs-row css-11h75ux-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
@@ -9435,12 +9435,12 @@ exports[`SearchPage filters by organizer 1`] = `
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <div
-              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-jqt469-MuiButtonBase-root-MuiButton-root"
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-fullWidth css-pnlvtm-MuiButtonBase-root-MuiButton-root"
               role="button"
               tabindex="0"
             >
               <span
-                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
               >
                 <svg
                   aria-hidden="true"
@@ -10034,7 +10034,7 @@ exports[`SearchPage filters by organizer 1`] = `
                         class="MuiGrid-root MuiGrid-direction-xs-row css-11h75ux-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >

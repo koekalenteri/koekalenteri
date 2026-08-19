@@ -32,7 +32,7 @@ exports[`BasicInfoSection should render 1`] = `
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
         >
-          Tapahtuman perustiedot
+          eventInfo
         </p>
         <p
           class="MuiFormHelperText-root css-1snnebk-MuiFormHelperText-root"
@@ -212,76 +212,6 @@ exports[`BasicInfoSection should render 1`] = `
                             </fieldset>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row css-1rcic65-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiAutocomplete-root css-1tlcqt-MuiAutocomplete-root"
-                    >
-                      <div
-                        class="MuiBox-root css-91p3uw"
-                      >
-                        <div
-                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                        >
-                          <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
-                            for="kcId"
-                            id="kcId-label"
-                          >
-                            event.kcId
-                          </label>
-                          <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
-                          >
-                            <input
-                              aria-autocomplete="list"
-                              aria-expanded="false"
-                              aria-invalid="false"
-                              autocapitalize="none"
-                              autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id="kcId"
-                              role="combobox"
-                              spellcheck="false"
-                              type="text"
-                              value=""
-                            />
-                            <fieldset
-                              aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                            >
-                              <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
-                              >
-                                <span>
-                                  event.kcId
-                                </span>
-                              </legend>
-                            </fieldset>
-                          </div>
-                        </div>
-                        <button
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-h37wsq-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                            data-testid="HelpOutlinedIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
-                            />
-                          </svg>
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -469,10 +399,10 @@ exports[`BasicInfoSection should render 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="false"
-                        for=":rh:"
-                        id=":rh:-label"
+                        for=":re:"
+                        id=":re:-label"
                       >
-                        Tapahtuman nimi
+                        event.name
                       </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1blp12k-MuiInputBase-root-MuiOutlinedInput-root"
@@ -480,7 +410,7 @@ exports[`BasicInfoSection should render 1`] = `
                         <input
                           aria-invalid="false"
                           class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":rh:"
+                          id=":re:"
                           type="text"
                           value=""
                         />
@@ -492,7 +422,7 @@ exports[`BasicInfoSection should render 1`] = `
                             class="css-1n64csd-MuiNotchedOutlined-root"
                           >
                             <span>
-                              Tapahtuman nimi
+                              event.name
                             </span>
                           </legend>
                         </fieldset>

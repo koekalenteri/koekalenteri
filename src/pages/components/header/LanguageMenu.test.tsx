@@ -9,6 +9,7 @@ test('It should render the button', () => {
     </RecoilRoot>
   )
   expect(screen.getByTestId('LanguageIcon')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'languageMenu' })).toHaveAttribute('data-navigation-button')
 })
 
 test('It should render the menu', () => {

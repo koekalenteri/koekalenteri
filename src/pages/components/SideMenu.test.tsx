@@ -55,7 +55,16 @@ describe('SideMenu', () => {
       </ThemeProvider>
     )
 
-    await userEvent.click(await screen.findByText('Run migrations'))
+    const migrationButton = (await screen.findByText('Run migrations')).closest('button')
+    const eventsLink = screen.getByText('events').closest('a')
+
+    expect(migrationButton).toHaveClass('MuiListItemButton-root')
+    expect(migrationButton?.querySelector('button, [role="button"]')).toBeNull()
+    expect(eventsLink).toHaveClass('MuiListItemButton-root')
+    expect(eventsLink?.querySelector('button, [role="button"]')).toBeNull()
+
+    if (!migrationButton) throw new Error('Migration button not found')
+    await userEvent.click(migrationButton)
 
     await waitFor(() => expect(runMigrations).toHaveBeenCalledWith(TEST_ID_TOKEN))
     await waitFor(() =>

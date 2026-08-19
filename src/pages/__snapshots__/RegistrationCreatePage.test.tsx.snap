@@ -899,7 +899,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
                             disabled=""
                             tabindex="-1"
                             type="button"
@@ -2406,13 +2406,13 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       class="MuiStack-root css-1k3liqh-MuiStack-root"
                     >
                       <button
-                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-hlsh5p-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
                         disabled=""
                         tabindex="-1"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
@@ -2746,13 +2746,13 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
       class="MuiStack-root css-1tokk9g-MuiStack-root"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1l4qv32-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-10gbnq1-MuiButtonBase-root-MuiButton-root"
         disabled=""
         tabindex="-1"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -2769,12 +2769,12 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         registration.cta.confirmAndPay
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-hlsh5p-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -3704,7 +3704,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
                             disabled=""
                             tabindex="-1"
                             type="button"
@@ -5211,13 +5211,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       class="MuiStack-root css-1k3liqh-MuiStack-root"
                     >
                       <button
-                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-hlsh5p-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
                         disabled=""
                         tabindex="-1"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
@@ -5551,13 +5551,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
       class="MuiStack-root css-1tokk9g-MuiStack-root"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1l4qv32-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-10gbnq1-MuiButtonBase-root-MuiButton-root"
         disabled=""
         tabindex="-1"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -5574,12 +5574,12 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         registration.cta.confirmAndPay
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-hlsh5p-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"

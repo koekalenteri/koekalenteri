@@ -15,6 +15,7 @@ export default function AppBarButton(props: Props) {
   return (
     <Button
       aria-label={props.label}
+      data-navigation-button
       onClick={props.onClick}
       startIcon={props.startIcon}
       endIcon={props.endIcon}
