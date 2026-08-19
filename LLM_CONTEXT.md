@@ -3,7 +3,7 @@
 ## Project Overview
 - Open-source system for retriever hunt test calendars and registrations in Finland
 - **Backend**: AWS SAM, TypeScript Lambda, DynamoDB, API Gateway
-- **Frontend**: React, TypeScript, Recoil, React Router
+- **Frontend**: React, TypeScript, Jotai, React Router
 - **Tools**: i18next (localization), Jest (testing)
 
 ## Key Folders
@@ -15,7 +15,7 @@
 
 ## Core Patterns
 - Serverless microservices with granular Lambdas
-- Recoil atoms/selectors for frontend state
+- Jotai atoms and derived atoms for frontend state
 - Lambda handlers wrapped with shared `lambda` utility for error handling
 - Use `response` utility for all API responses
 - Throw `LambdaError` for domain-specific errors

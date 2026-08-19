@@ -3,9 +3,9 @@ import type { Registration } from '../../../types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import { locales } from '../../../i18n'
 import { clone } from '../../../lib/utils'
@@ -18,11 +18,11 @@ vi.mock('../../../api/registration')
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-      <RecoilRoot>
+      <Provider>
         <SnackbarProvider>
           <Suspense fallback={<div>loading...</div>}>{props.children}</Suspense>
         </SnackbarProvider>
-      </RecoilRoot>
+      </Provider>
     </LocalizationProvider>
   )
 }

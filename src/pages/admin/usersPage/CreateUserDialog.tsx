@@ -8,10 +8,10 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
+import { useAtomValue } from 'jotai'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
-import { adminUserAdminOrganizersSelector, useAdminUserActions } from '../recoil'
+import { adminUserAdminOrganizersAtom, useAdminUserActions } from '../state'
 
 interface Props {
   readonly onClose: () => void
@@ -21,7 +21,7 @@ interface Props {
 export function CreateUserDialog({ onClose, open }: Props) {
   const actions = useAdminUserActions()
   const { t } = useTranslation()
-  const organizers = useRecoilValue(adminUserAdminOrganizersSelector)
+  const organizers = useAtomValue(adminUserAdminOrganizersAtom)
   const [org, setOrg] = useState<Organizer | null>(organizers[0] ?? null)
   const [role, setRole] = useState<'admin' | 'secretary'>('secretary')
   const [email, setEmail] = useState<string>('')

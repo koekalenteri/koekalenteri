@@ -1,16 +1,16 @@
 import type { Language } from '../../../../types'
 import MenuItem from '@mui/material/MenuItem'
+import { useAtom } from 'jotai'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilState } from 'recoil'
-import { languageAtom } from '../../../recoil'
+import { languageAtom } from '../../../state'
 
 interface Props {
   readonly locale: Language
 }
 export function LanguageMenuItem({ locale }: Props) {
   const { t } = useTranslation()
-  const [language, setLanguage] = useRecoilState(languageAtom)
+  const [language, setLanguage] = useAtom(languageAtom)
 
   const handleClick = useCallback(() => setLanguage(locale), [locale, setLanguage])
 

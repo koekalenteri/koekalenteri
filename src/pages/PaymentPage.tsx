@@ -4,10 +4,10 @@ import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { Suspense, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await, useLoaderData, useParams } from 'react-router'
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
 import { printContactInfo } from '../lib/utils'
@@ -18,13 +18,7 @@ import { PaymentDetails } from './components/PaymentDetails'
 import { RegistrationDetails } from './components/RegistrationDetails'
 import { LoadingPage } from './LoadingPage'
 import { ProviderButton } from './paymentPage/ProviderButton'
-import {
-  createNewRegistration,
-  languageAtom,
-  newRegistrationAtom,
-  registrationSelector,
-  useConfirmedEvent,
-} from './recoil'
+import { createNewRegistration, languageAtom, newRegistrationAtom, registrationAtom, useConfirmedEvent } from './state'
 
 export const loader = async ({ params, request }: { params: Params<string>; request: Request }) => {
   const createPaymentWrap = async () => {
@@ -70,7 +64,7 @@ export const PaymentPageWithData = ({
   responseErrorMessage,
   responseStatus,
 }: Props) => {
-  const [language, setLanguage] = useRecoilState(languageAtom)
+  const [language, setLanguage] = useAtom(languageAtom)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -171,10 +165,10 @@ export const PaymentPageWithData = ({
 export function Component() {
   const { editToken, id, registrationId } = useParams()
   const event = useConfirmedEvent(id)
-  const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}:${editToken ?? ''}`))
+  const registration = useAtomValue(registrationAtom(`${id ?? ''}:${registrationId ?? ''}:${editToken ?? ''}`))
   const data: { response: Promise<{ errorMessage?: string; response?: CreatePaymentResponse; status: number }> } =
     useLoaderData()
-  const setRegistration = useSetRecoilState(newRegistrationAtom)
+  const setRegistration = useSetAtom(newRegistrationAtom)
   const resetRegistration = useCallback(() => setRegistration(createNewRegistration()), [setRegistration])
 
   useEffect(() => {

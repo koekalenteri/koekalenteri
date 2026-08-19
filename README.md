@@ -86,5 +86,5 @@ Koekalenteri backend is a bunch of lambda functions running on AWS.
 Koekalenteri frontend is written in [TypeScript](https://www.typescriptlang.org/) and is based on the following major libraries:
 
 * [React](https://reactjs.org/) - UI framework
-* [Recoil](https://recoiljs.org/) - State management
-  * State is documented in [src/pages/recoil](src/pages/recoil/README.md) and [src/pages/admin/recoil](src/pages/admin/recoil/README.md)
+* [Jotai](https://jotai.org/) - State management
+  * State is documented in [src/pages/state](src/pages/state/README.md) and [src/pages/admin/state](src/pages/admin/state/README.md)

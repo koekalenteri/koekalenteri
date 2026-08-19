@@ -7,8 +7,9 @@ import type {
   PublicDogEvent,
   Registration,
 } from '../types'
+import { useAtomValue } from 'jotai'
+import { unwrap, useAtomCallback } from 'jotai/utils'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
 import { getEmailTemplates } from '../api/email'
 import { getEventTypes } from '../api/eventType'
 import { getJudges } from '../api/judge'
@@ -20,22 +21,25 @@ import { sanitizeDogEvent } from '../lib/event'
 import { collectionResponseCursor, collectionSince, reconcileCollection } from '../lib/incremental'
 import { getIdTokenDiagnostics } from '../lib/token'
 import { applyPatch, applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
-import { adminEmailTemplatesAtom, fetchEmailTemplates } from '../pages/admin/recoil/emailTemplates'
-import { adminEventsAtom } from '../pages/admin/recoil/events'
-import { adminEventTypesAtom } from '../pages/admin/recoil/eventTypes'
-import { adminJudgesAtom } from '../pages/admin/recoil/judges'
-import { adminOfficialsAtom } from '../pages/admin/recoil/officials'
-import { adminOrganizersAtom } from '../pages/admin/recoil/organizers'
-import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
-import { adminUsersAtom } from '../pages/admin/recoil/user'
-import { websocketAdminUsersSelector } from '../pages/admin/recoil/user/selectors'
-import { validIdTokenSelector } from '../pages/recoil'
-import { eventsAtom } from '../pages/recoil/events/atoms'
-import { useMarkRecentlyUpdated } from '../pages/recoil/recentUpdates'
-import { userSelector } from '../pages/recoil/user/selectors'
+import { adminEmailTemplatesAtom, fetchEmailTemplates } from '../pages/admin/state/emailTemplates'
+import { adminEventsAtom } from '../pages/admin/state/events'
+import { adminEventTypesAtom } from '../pages/admin/state/eventTypes'
+import { adminJudgesAtom } from '../pages/admin/state/judges'
+import { adminOfficialsAtom } from '../pages/admin/state/officials'
+import { adminOrganizersAtom } from '../pages/admin/state/organizers'
+import { adminEventRegistrationsAtom } from '../pages/admin/state/registrations/atoms'
+import { adminUsersAtom } from '../pages/admin/state/user'
+import { websocketAdminUsersAtom } from '../pages/admin/state/user/derivedAtoms'
+import { validIdTokenAtom } from '../pages/state'
+import { eventsAtom } from '../pages/state/events/atoms'
+import { useMarkRecentlyUpdated } from '../pages/state/recentUpdates'
+import { userAtom } from '../pages/state/user/derivedAtoms'
 import { WS_API_URL } from '../routeConfig'
 
 const RECONNECT_INTERVAL = 1000
+const validIdTokenValueAtom = unwrap(validIdTokenAtom, (previous) => previous)
+const websocketAdminUsersValueAtom = unwrap(websocketAdminUsersAtom, (previous) => previous ?? [])
+const userValueAtom = unwrap(userAtom, (previous) => previous)
 
 interface WebSocketHandlers {
   connectionId: number
@@ -225,9 +229,9 @@ export const WebSocketContext = createContext<WebSocketContextValue | null>(null
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
 export const useWebSocket = () => {
-  const idTokenLoadable = useRecoilValueLoadable(validIdTokenSelector)
-  const adminUsersLoadable = useRecoilValueLoadable(websocketAdminUsersSelector)
-  const currentUserLoadable = useRecoilValueLoadable(userSelector)
+  const resolvedIdToken = useAtomValue(validIdTokenValueAtom)
+  const adminUsers = useAtomValue(websocketAdminUsersValueAtom)
+  const resolvedCurrentUser = useAtomValue(userValueAtom)
   const markRecentlyUpdated = useMarkRecentlyUpdated()
   const shouldReconnectRef = useRef(true)
 
@@ -250,28 +254,21 @@ export const useWebSocket = () => {
   const currentUserRef = useRef<{ id: string; name?: string } | undefined>(undefined)
   const authFailedTokenRef = useRef<string | undefined>(undefined)
 
-  const adminUsers = adminUsersLoadable.state === 'hasValue' ? adminUsersLoadable.contents : []
-  const currentUser =
-    currentUserLoadable.state === 'hasValue' && currentUserLoadable.contents?.id
-      ? currentUserLoadable.contents
-      : undefined
-
-  const idTokenReady = idTokenLoadable.state === 'hasValue' && typeof idTokenLoadable.contents !== 'object'
-  const idToken = idTokenReady ? idTokenLoadable.contents : idTokenRef.current
+  const currentUser = resolvedCurrentUser?.id ? resolvedCurrentUser : undefined
+  const idToken = resolvedIdToken
 
   idTokenRef.current = idToken
   adminUsersRef.current = adminUsers
   currentUserRef.current = currentUser
 
-  const setPublicEvents = useRecoilCallback(
-    ({ snapshot, set }) =>
-      (eventId: string, patch: Patch<PublicDogEvent>, options?: { insert?: boolean }) => {
-        const loadable = snapshot.getLoadable(eventsAtom)
-        if (loadable.state !== 'hasValue') return
+  const setPublicEvents = useAtomCallback(
+    useCallback(
+      (get, set, eventId: string, patch: Patch<PublicDogEvent>, options?: { insert?: boolean }) => {
+        const events = get(eventsAtom)
 
         if (patch.state === 'draft') {
-          const next = loadable.contents.filter((event) => event.id !== eventId)
-          if (next.length === loadable.contents.length) return
+          const next = events.filter((event) => event.id !== eventId)
+          if (next.length === events.length) return
 
           markRecentlyUpdated('public:event', eventId)
           set(eventsAtom, next)
@@ -279,32 +276,30 @@ export const useWebSocket = () => {
         }
 
         const insert = options?.insert ?? true
-        const next = insert
-          ? applyPatchOrInsert(loadable.contents, eventId, patch)
-          : applyPatch(loadable.contents, eventId, patch)
-        if (next !== loadable.contents) markRecentlyUpdated('public:event', eventId)
+        const next = insert ? applyPatchOrInsert(events, eventId, patch) : applyPatch(events, eventId, patch)
+        if (next !== events) markRecentlyUpdated('public:event', eventId)
         set(eventsAtom, next)
       },
-    [markRecentlyUpdated]
+      [markRecentlyUpdated]
+    )
   )
-  const setAdminEvents = useRecoilCallback(
-    ({ snapshot, set }) =>
-      (eventId: string, patch: Patch<DogEvent>) => {
-        const loadable = snapshot.getLoadable(adminEventsAtom)
-        if (loadable.state !== 'hasValue') return
-
-        const next = applyPatchOrInsert(loadable.contents, eventId, patch)
-        if (next !== loadable.contents) markRecentlyUpdated('admin:event', eventId)
+  const setAdminEvents = useAtomCallback(
+    useCallback(
+      async (get, set, eventId: string, patch: Patch<DogEvent>) => {
+        const events = await get(adminEventsAtom)
+        const next = applyPatchOrInsert(events, eventId, patch)
+        if (next !== events) markRecentlyUpdated('admin:event', eventId)
         set(adminEventsAtom, next)
       },
-    [markRecentlyUpdated]
+      [markRecentlyUpdated]
+    )
   )
-  const patchRegistrations = useRecoilCallback(
-    ({ snapshot, set }) =>
-      async (nextEventId: string, patch: Patch<Registration>[]) => {
+  const patchRegistrations = useAtomCallback(
+    useCallback(
+      async (get, set, nextEventId: string, patch: Patch<Registration>[]) => {
         let registrations: Registration[]
         try {
-          registrations = await snapshot.getPromise(adminEventRegistrationsAtom(nextEventId))
+          registrations = await get(adminEventRegistrationsAtom(nextEventId))
         } catch {
           return
         }
@@ -318,76 +313,75 @@ export const useWebSocket = () => {
 
         set(adminEventRegistrationsAtom(nextEventId), next)
       },
-    [markRecentlyUpdated]
+      [markRecentlyUpdated]
+    )
   )
-  const refreshAdminData = useRecoilCallback(
-    ({ snapshot, set }) =>
-      async (collections: AdminDataCollection[], token: string) => {
-        await Promise.all(
-          collections.map(async (collection) => {
-            switch (collection) {
-              case 'users': {
-                const current = await snapshot.getPromise(adminUsersAtom)
-                const since = collectionSince(current, adminDataCursorsRef.current.users)
-                const response = since ? await getUsers(token, undefined, since) : await getUsers(token)
-                adminDataCursorsRef.current.users = collectionResponseCursor(response)
-                set(adminUsersAtom, (latest) => reconcileCollection(latest, response))
-                break
-              }
-              case 'organizers':
-                set(adminOrganizersAtom, [...(await getAdminOrganizers(token))].sort(compareByLocalizedString('name')))
-                break
-              case 'judges': {
-                const current = await snapshot.getPromise(adminJudgesAtom)
-                const since = collectionSince(current, adminDataCursorsRef.current.judges)
-                const response = since ? await getJudges(token, undefined, undefined, since) : await getJudges(token)
-                adminDataCursorsRef.current.judges = collectionResponseCursor(response)
-                set(adminJudgesAtom, (latest) =>
-                  reconcileCollection(latest, response).sort(compareByLocalizedString('name'))
-                )
-                break
-              }
-              case 'officials': {
-                const current = await snapshot.getPromise(adminOfficialsAtom)
-                const since = collectionSince(current, adminDataCursorsRef.current.officials)
-                const response = since
-                  ? await getOfficials(token, undefined, undefined, since)
-                  : await getOfficials(token)
-                adminDataCursorsRef.current.officials = collectionResponseCursor(response)
-                set(adminOfficialsAtom, (latest) =>
-                  reconcileCollection(latest, response).sort(compareByLocalizedString('name'))
-                )
-                break
-              }
-              case 'eventTypes': {
-                const current = await snapshot.getPromise(adminEventTypesAtom)
-                const since = collectionSince(current, adminDataCursorsRef.current.eventTypes)
-                const response = since
-                  ? await getEventTypes(token, undefined, undefined, since)
-                  : await getEventTypes(token)
-                adminDataCursorsRef.current.eventTypes = collectionResponseCursor(response)
-                set(adminEventTypesAtom, (latest) =>
-                  reconcileCollection(latest, response, eventTypeKey).sort(compareByLocalizedString('eventType'))
-                )
-                break
-              }
-              case 'emailTemplates': {
-                const current = await snapshot.getPromise(adminEmailTemplatesAtom)
-                const since = collectionSince(current, adminDataCursorsRef.current.emailTemplates)
-                const response = since
-                  ? await getEmailTemplates(token, undefined, since)
-                  : await fetchEmailTemplates(token)
-                adminDataCursorsRef.current.emailTemplates = collectionResponseCursor(response)
-                set(adminEmailTemplatesAtom, (latest) =>
-                  reconcileCollection(latest, response).sort(compareByLocalizedString('id'))
-                )
-                break
-              }
+  const refreshAdminData = useAtomCallback(
+    useCallback(async (get, set, collections: AdminDataCollection[], token: string) => {
+      await Promise.all(
+        collections.map(async (collection) => {
+          switch (collection) {
+            case 'users': {
+              const current = await get(adminUsersAtom)
+              const since = collectionSince(current, adminDataCursorsRef.current.users)
+              const response = since ? await getUsers(token, undefined, since) : await getUsers(token)
+              adminDataCursorsRef.current.users = collectionResponseCursor(response)
+              set(adminUsersAtom, (latest) => reconcileCollection(latest, response))
+              break
             }
-          })
-        )
-      },
-    []
+            case 'organizers':
+              set(adminOrganizersAtom, [...(await getAdminOrganizers(token))].sort(compareByLocalizedString('name')))
+              break
+            case 'judges': {
+              const current = await get(adminJudgesAtom)
+              const since = collectionSince(current, adminDataCursorsRef.current.judges)
+              const response = since ? await getJudges(token, undefined, undefined, since) : await getJudges(token)
+              adminDataCursorsRef.current.judges = collectionResponseCursor(response)
+              set(adminJudgesAtom, (latest) =>
+                reconcileCollection(latest, response).sort(compareByLocalizedString('name'))
+              )
+              break
+            }
+            case 'officials': {
+              const current = await get(adminOfficialsAtom)
+              const since = collectionSince(current, adminDataCursorsRef.current.officials)
+              const response = since
+                ? await getOfficials(token, undefined, undefined, since)
+                : await getOfficials(token)
+              adminDataCursorsRef.current.officials = collectionResponseCursor(response)
+              set(adminOfficialsAtom, (latest) =>
+                reconcileCollection(latest, response).sort(compareByLocalizedString('name'))
+              )
+              break
+            }
+            case 'eventTypes': {
+              const current = await get(adminEventTypesAtom)
+              const since = collectionSince(current, adminDataCursorsRef.current.eventTypes)
+              const response = since
+                ? await getEventTypes(token, undefined, undefined, since)
+                : await getEventTypes(token)
+              adminDataCursorsRef.current.eventTypes = collectionResponseCursor(response)
+              set(adminEventTypesAtom, (latest) =>
+                reconcileCollection(latest, response, eventTypeKey).sort(compareByLocalizedString('eventType'))
+              )
+              break
+            }
+            case 'emailTemplates': {
+              const current = await get(adminEmailTemplatesAtom)
+              const since = collectionSince(current, adminDataCursorsRef.current.emailTemplates)
+              const response = since
+                ? await getEmailTemplates(token, undefined, since)
+                : await fetchEmailTemplates(token)
+              adminDataCursorsRef.current.emailTemplates = collectionResponseCursor(response)
+              set(adminEmailTemplatesAtom, (latest) =>
+                reconcileCollection(latest, response).sort(compareByLocalizedString('id'))
+              )
+              break
+            }
+          }
+        })
+      )
+    }, [])
   )
 
   const [publicCount, setPublicCount] = useState(0)
@@ -654,8 +648,6 @@ export const useWebSocket = () => {
   }, [connect])
 
   useEffect(() => {
-    if (!idTokenReady) return
-
     const previousToken = previousTokenRef.current
     const nextToken = idToken
 
@@ -702,7 +694,7 @@ export const useWebSocket = () => {
     if (WS_API_URL) {
       connect()
     }
-  }, [connect, idToken, idTokenReady])
+  }, [connect, idToken])
 
   return {
     adminCount,

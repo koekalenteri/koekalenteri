@@ -2,14 +2,14 @@ import type { GridRenderCellParams } from '@mui/x-data-grid'
 import type { ChangeEvent } from 'react'
 import type { Judge } from '../../../../types'
 import Switch from '@mui/material/Switch'
+import { useAtomValue } from 'jotai'
 import { useCallback } from 'react'
-import { useRecoilValue } from 'recoil'
-import { isAdminSelector } from '../../../recoil'
-import { useAdminJudgesActions } from '../../recoil'
+import { isAdminAtom } from '../../../state'
+import { useAdminJudgesActions } from '../../state'
 
 const ActiveCell = (props: GridRenderCellParams<Judge, boolean>) => {
   const actions = useAdminJudgesActions()
-  const isAdmin = useRecoilValue(isAdminSelector)
+  const isAdmin = useAtomValue(isAdminAtom)
 
   const toggleActive = useCallback(
     async (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {

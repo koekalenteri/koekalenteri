@@ -1,7 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Registration } from '../../../../types'
 import { screen, waitFor } from '@testing-library/react'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import {
   eventWithEntryOpen,
   eventWithParticipantsInvited,
@@ -14,7 +14,7 @@ import {
 } from '../../../../__mockData__/registrations'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/utils'
-import { adminEventsAtom } from '../../recoil'
+import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
 
 const activeEventWithStaticDates = {
@@ -29,9 +29,6 @@ const _activeEventWithStaticDatesAndClass = {
 // Mock the API calls
 vi.mock('../../../../api/event')
 vi.mock('../../../../api/user')
-vi.mock('../../recoil/events/effects', () => ({
-  adminRemoteEventsEffect: () => undefined,
-}))
 
 // Mock the notistack enqueueSnackbar
 vi.mock('notistack', () => ({
@@ -58,7 +55,7 @@ describe('InfoPanel>', () => {
 
   it('does not show an untracked legacy start list as published while entry is open', async () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithEntryOpen])}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithEntryOpen])}>{children}</Provider>
     )
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithEntryOpen} registrations={[]} />, { wrapper })
     await openInfoPanel(user)
@@ -70,9 +67,9 @@ describe('InfoPanel>', () => {
   it('shows a publish start list CTA when invitations are sent but the class start list is not published', async () => {
     const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
         {children}
-      </RecoilRoot>
+      </Provider>
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
@@ -123,7 +120,7 @@ describe('InfoPanel>', () => {
       state: 'confirmed' as const,
     }
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</Provider>
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
@@ -155,9 +152,9 @@ describe('InfoPanel>', () => {
   it('shows an unpublish start list CTA when invitations are sent and the class start list is published', async () => {
     const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
         {children}
-      </RecoilRoot>
+      </Provider>
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
@@ -208,7 +205,7 @@ describe('InfoPanel>', () => {
       },
     ]
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</Provider>
     )
     const { user } = renderWithUserEvents(
       <InfoPanel event={event} onSetStartListPublished={onSetStartListPublished} registrations={registrations} />,
@@ -241,7 +238,7 @@ describe('InfoPanel>', () => {
       },
     ]
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</Provider>
     )
     const { user } = renderWithUserEvents(
       <InfoPanel event={event} onSetStartListPublished={onSetStartListPublished} registrations={registrations} />,
@@ -261,9 +258,9 @@ describe('InfoPanel>', () => {
 
   it('shows a public start list CTA when every class start list is published', async () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
         {children}
-      </RecoilRoot>
+      </Provider>
     )
     const { user } = renderWithUserEvents(
       <InfoPanel

@@ -3,11 +3,11 @@ import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { mockRegistrations } from '../../api/__mocks__/registration'
 import theme from '../../assets/Theme'
 import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
-import { idTokenAtom } from '../recoil'
+import { idTokenAtom } from '../state'
 import StartListPage from './StartListPage'
 
 vi.mock('../../api/event')
@@ -30,7 +30,7 @@ describe('OrganizerListPage', () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
               <MemoryRouter initialEntries={['/testInvited']}>
@@ -40,7 +40,7 @@ describe('OrganizerListPage', () => {
               </MemoryRouter>
             </SnackbarProvider>
           </Suspense>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     await flushPromises()

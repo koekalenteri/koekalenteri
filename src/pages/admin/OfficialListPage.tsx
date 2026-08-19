@@ -2,7 +2,7 @@ import type { Theme } from '@mui/material'
 import { useMediaQuery } from '@mui/material'
 import OfficialDirectoryList from './components/OfficialDirectoryList'
 import { useOfficialListPageColumns } from './officialListPage/columns'
-import { adminFilteredOfficialsSelector, adminOfficialFilterAtom, useAdminOfficialsActions } from './recoil'
+import { adminFilteredOfficialsAtom, adminOfficialFilterAtom, useAdminOfficialsActions } from './state'
 
 export default function OfficialListPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
@@ -14,7 +14,7 @@ export default function OfficialListPage() {
       dataLabel="officials"
       filterState={adminOfficialFilterAtom}
       onRefresh={actions.refresh}
-      rowsState={adminFilteredOfficialsSelector}
+      rowsState={adminFilteredOfficialsAtom}
     />
   )
 }

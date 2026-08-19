@@ -1,7 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Registration } from '../../../../types'
 import { screen } from '@testing-library/react'
-import { RecoilRoot } from 'recoil'
+import { Provider } from 'jotai'
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../../__mockData__/events'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/utils'
@@ -19,9 +19,6 @@ const _activeEventWithStaticDatesAndClass = {
 // Mock the API calls
 vi.mock('../../../../api/event')
 vi.mock('../../../../api/user')
-vi.mock('../../recoil/events/effects', () => ({
-  adminRemoteEventsEffect: () => undefined,
-}))
 
 // Mock the notistack enqueueSnackbar
 vi.mock('notistack', () => ({
@@ -51,7 +48,7 @@ describe('InfoPanel>', () => {
     const { user } = renderWithUserEvents(
       <InfoPanel event={activeEventWithStaticDates} onCreateRegistration={onCreateRegistration} registrations={[]} />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)
@@ -66,7 +63,7 @@ describe('InfoPanel>', () => {
     const { user } = renderWithUserEvents(
       <InfoPanel event={eventWithStaticDates} onOpenDetails={onOpenDetails} registrations={[]} />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)

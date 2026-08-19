@@ -3,8 +3,8 @@ import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
 import { eventWithEntryNotYetOpen, eventWithStaticDates } from '../../../__mockData__/events'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
@@ -23,11 +23,11 @@ const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel
   renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <RecoilRoot>
+        <Provider>
           <Suspense fallback={<div>loading?...</div>}>
             <EventForm event={event} canSave onSave={onSave} onCancel={onCancel} onChange={onChange} />
           </Suspense>
-        </RecoilRoot>
+        </Provider>
       </LocalizationProvider>
     </ThemeProvider>,
     undefined,

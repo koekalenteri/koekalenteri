@@ -1,12 +1,12 @@
 import type { DogEvent } from '../../types'
 import type { DogEventCost } from '../../types/Cost'
 import { render, screen } from '@testing-library/react'
-import { RecoilRoot } from 'recoil'
-import { languageAtom } from '../recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { languageAtom } from '../state'
 import CostInfo from './CostInfo'
 
-// Mock the recoil state for language
-const mockRecoilState = (language: string = 'fi') => ({
+// Mock the state state for language
+const mockWritableAtom = (language: string = 'fi') => ({
   initializeState: ({ set }: any) => {
     set(languageAtom, language)
   },
@@ -16,7 +16,7 @@ describe('CostInfo', () => {
   const setup = (event: Pick<DogEvent, 'cost' | 'costMember'>, language: string = 'fi') =>
     render(<CostInfo event={event} />, {
       wrapper: ({ children }) => (
-        <RecoilRoot initializeState={mockRecoilState(language).initializeState}>{children}</RecoilRoot>
+        <Provider initializeState={mockWritableAtom(language).initializeState}>{children}</Provider>
       ),
     })
 

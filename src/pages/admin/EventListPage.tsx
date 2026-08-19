@@ -8,11 +8,12 @@ import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOu
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
+import { useAtom, useAtomValue } from 'jotai'
+import { useResetAtom } from 'jotai/utils'
 import { useConfirm } from 'material-ui-confirm'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { formatDistance } from '../../i18n/dates'
 import { isDevEnv } from '../../lib/env'
 import { hasEntryStarted, isEventDeletable } from '../../lib/event'
@@ -20,13 +21,13 @@ import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
-import { useRecentUpdateRowClassName } from '../recoil/recentUpdates'
+import { useRecentUpdateRowClassName } from '../state/recentUpdates'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import useEventListColumns from './eventListPage/columns'
 import {
-  adminCurrentEventSelector,
+  adminCurrentEventAtom,
   adminEventColumnsAtom,
   adminEventFilterTextAtom,
   adminEventIdAtom,
@@ -34,8 +35,8 @@ import {
   adminNewEventAtom,
   adminShowPastEventsAtom,
   useAdminEventActions,
-} from './recoil'
-import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/selectors'
+} from './state'
+import { adminUserEventOrganizersAtom, adminUserFilteredEventsAtom } from './state/derivedAtoms'
 
 export const canViewEvent = (event?: Pick<DogEvent, 'state'>): boolean => isConfirmedEvent(event)
 
@@ -51,21 +52,21 @@ export default function EventListPage() {
   const confirm = useConfirm()
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [showPast, setShowPast] = useRecoilState(adminShowPastEventsAtom)
-  const [searchText, setSearchText] = useRecoilState(adminEventFilterTextAtom)
-  const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
-  const [visibilityModel, setVisibilityModel] = useRecoilState(adminEventColumnsAtom)
-  const selectedEvent = useRecoilValue(adminCurrentEventSelector)
+  const [showPast, setShowPast] = useAtom(adminShowPastEventsAtom)
+  const [searchText, setSearchText] = useAtom(adminEventFilterTextAtom)
+  const [selectedEventID, setSelectedEventID] = useAtom(adminEventIdAtom)
+  const [visibilityModel, setVisibilityModel] = useAtom(adminEventColumnsAtom)
+  const selectedEvent = useAtomValue(adminCurrentEventAtom)
   const actions = useAdminEventActions()
   const columns = useEventListColumns()
-  const orgs = useRecoilValue(adminUserEventOrganizersSelector)
-  const [orgId, setOrgId] = useRecoilState(adminEventOrganizerIdAtom)
+  const orgs = useAtomValue(adminUserEventOrganizersAtom)
+  const [orgId, setOrgId] = useAtom(adminEventOrganizerIdAtom)
   const getRowClassName = useRecentUpdateRowClassName('admin:event')
   // order matters here, need to use dependencies before this one
-  const events = useRecoilValue(adminUserFilteredEventsSelector)
+  const events = useAtomValue(adminUserFilteredEventsAtom)
   const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
-  const newEvent = useRecoilValue(adminNewEventAtom)
-  const resetNewEvent = useResetRecoilState(adminNewEventAtom)
+  const newEvent = useAtomValue(adminNewEventAtom)
+  const resetNewEvent = useResetAtom(adminNewEventAtom)
 
   const deleteAction = useCallback(() => {
     confirm({

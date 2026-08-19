@@ -1,14 +1,14 @@
 import type { Registration, RegistrationClass } from '../../../types'
 import { render, screen } from '@testing-library/react'
-import { useRecoilState } from 'recoil'
+import { useAtom } from 'jotai'
 import { eventWithStaticDates } from '../../../__mockData__/events'
 import { emptyBreeder, emptyDog, emptyPerson } from '../../../lib/data'
-import { adminNewRegistrationAtom } from '../recoil'
+import { adminNewRegistrationAtom } from '../state'
 import RegistrationCreateDialog from './RegistrationCreateDialog'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 // Mock dependencies
-vi.mock('recoil')
+vi.mock('jotai', async () => ({ ...(await vi.importActual<typeof import('jotai')>('jotai')), useAtom: vi.fn() }))
 vi.mock('./RegistrationDialogBase', () => {
   const MockRegistrationDialogBase = vi.fn(({ open }: { open: boolean }) =>
     open ? <div data-testid="registration-dialog-base" /> : null
@@ -20,7 +20,7 @@ vi.mock('./RegistrationDialogBase', () => {
 })
 
 describe('RegistrationCreateDialog', () => {
-  const mockUseRecoilState = useRecoilState as import('vitest').Mock
+  const mockUseWritableAtom = useAtom as import('vitest').Mock
   const mockSetRegistration = vi.fn()
 
   const defaultRegistration: Registration = {
@@ -48,7 +48,7 @@ describe('RegistrationCreateDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUseRecoilState.mockReturnValue([defaultRegistration, mockSetRegistration])
+    mockUseWritableAtom.mockReturnValue([defaultRegistration, mockSetRegistration])
   })
 
   // 1. Rendering Tests
@@ -104,10 +104,10 @@ describe('RegistrationCreateDialog', () => {
   // 2. State Management Tests
 
   describe('State Management', () => {
-    it('should use Recoil state for registration', () => {
+    it('should use State state for registration', () => {
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} />)
 
-      expect(mockUseRecoilState).toHaveBeenCalledWith(adminNewRegistrationAtom)
+      expect(mockUseWritableAtom).toHaveBeenCalledWith(adminNewRegistrationAtom)
     })
 
     it('should pass registration state to RegistrationDialogBase', () => {
@@ -117,7 +117,7 @@ describe('RegistrationCreateDialog', () => {
         id: 'test-id',
       }
 
-      mockUseRecoilState.mockReturnValue([customRegistration, mockSetRegistration])
+      mockUseWritableAtom.mockReturnValue([customRegistration, mockSetRegistration])
 
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} />)
 
@@ -140,7 +140,7 @@ describe('RegistrationCreateDialog', () => {
     })
 
     it('should not update registration when registration is undefined', () => {
-      mockUseRecoilState.mockReturnValue([undefined, mockSetRegistration])
+      mockUseWritableAtom.mockReturnValue([undefined, mockSetRegistration])
 
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} />)
 
@@ -154,7 +154,7 @@ describe('RegistrationCreateDialog', () => {
         eventType: eventWithStaticDates.eventType,
       }
 
-      mockUseRecoilState.mockReturnValue([registration, mockSetRegistration])
+      mockUseWritableAtom.mockReturnValue([registration, mockSetRegistration])
 
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} />)
 
@@ -172,7 +172,7 @@ describe('RegistrationCreateDialog', () => {
         eventType: 'different-event-type',
       }
 
-      mockUseRecoilState.mockReturnValue([registration, mockSetRegistration])
+      mockUseWritableAtom.mockReturnValue([registration, mockSetRegistration])
 
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} />)
 
@@ -192,7 +192,7 @@ describe('RegistrationCreateDialog', () => {
         eventType: eventWithStaticDates.eventType,
       }
 
-      mockUseRecoilState.mockReturnValue([registration, mockSetRegistration])
+      mockUseWritableAtom.mockReturnValue([registration, mockSetRegistration])
 
       render(<RegistrationCreateDialog event={eventWithStaticDates} eventClass={eventClass} open={true} />)
 
@@ -213,7 +213,7 @@ describe('RegistrationCreateDialog', () => {
         eventType: eventWithStaticDates.eventType,
       }
 
-      mockUseRecoilState.mockReturnValue([registration, mockSetRegistration])
+      mockUseWritableAtom.mockReturnValue([registration, mockSetRegistration])
 
       render(<RegistrationCreateDialog event={eventWithStaticDates} eventClass={eventClass} open={true} />)
 
@@ -228,7 +228,7 @@ describe('RegistrationCreateDialog', () => {
       // Create an empty registration object (just the required fields to avoid TypeScript errors)
       const emptyRegistration = {} as Registration
 
-      mockUseRecoilState.mockReturnValue([emptyRegistration, mockSetRegistration])
+      mockUseWritableAtom.mockReturnValue([emptyRegistration, mockSetRegistration])
 
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} />)
 
@@ -240,7 +240,7 @@ describe('RegistrationCreateDialog', () => {
       // Create an empty registration object (just the required fields to avoid TypeScript errors)
       const emptyRegistration = {} as Registration
 
-      mockUseRecoilState.mockReturnValue([emptyRegistration, mockSetRegistration])
+      mockUseWritableAtom.mockReturnValue([emptyRegistration, mockSetRegistration])
 
       const eventClass: RegistrationClass = 'ALO'
 
@@ -258,7 +258,7 @@ describe('RegistrationCreateDialog', () => {
       // Create an empty registration object (just the required fields to avoid TypeScript errors)
       const emptyRegistration = {} as Registration
 
-      mockUseRecoilState.mockReturnValue([emptyRegistration, mockSetRegistration])
+      mockUseWritableAtom.mockReturnValue([emptyRegistration, mockSetRegistration])
 
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} />)
 
@@ -303,16 +303,16 @@ describe('RegistrationCreateDialog', () => {
       )
     })
 
-    // This test would require a more complex setup with actual Recoil state
+    // This test would require a more complex setup with actual State state
     // It's included here for completeness, but would need a different approach in a real test
-    it('should update when Recoil state changes', () => {
-      // This would require a custom test component that wraps the component with RecoilRoot
-      // and allows changing the Recoil state during the test
+    it('should update when State state changes', () => {
+      // This would require a custom test component that wraps the component with Provider
+      // and allows changing the State state during the test
 
-      // For now, we'll just verify that the component uses the Recoil state
+      // For now, we'll just verify that the component uses the State state
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} />)
 
-      expect(mockUseRecoilState).toHaveBeenCalled()
+      expect(mockUseWritableAtom).toHaveBeenCalled()
     })
   })
 })

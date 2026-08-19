@@ -1,16 +1,16 @@
+import { useSetAtom } from 'jotai'
 import { useEffect, useRef, useState } from 'react'
-import { useSetRecoilState } from 'recoil'
 import { getAuthSessionIdToken, isInvalidAuthSessionError } from '../lib/client/auth'
 import { reportError } from '../lib/client/error'
 import { isValidIdToken } from '../lib/token'
-import { idTokenAtom } from '../pages/recoil/user/atoms'
+import { idTokenAtom } from '../pages/state/user/atoms'
 
 const requiresInitialization = (idToken: string | undefined) => {
   return !idToken || !isValidIdToken(idToken)
 }
 
 export function useAuthSessionInitialization(idToken: string | undefined) {
-  const setIdToken = useSetRecoilState(idTokenAtom)
+  const setIdToken = useSetAtom(idTokenAtom)
   const initializationRef = useRef<Promise<string | undefined> | undefined>(undefined)
   const [initialized, setInitialized] = useState(() => !requiresInitialization(idToken))
 

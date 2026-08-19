@@ -3,10 +3,10 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { act, render, screen } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { createMatchMedia } from '../test-utils/utils'
@@ -23,7 +23,7 @@ const renderPage = (path: string, locale: Locale) =>
   render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
-        <RecoilRoot>
+        <Provider>
           <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
               <MemoryRouter initialEntries={[path]}>
@@ -31,7 +31,7 @@ const renderPage = (path: string, locale: Locale) =>
               </MemoryRouter>
             </SnackbarProvider>
           </Suspense>
-        </RecoilRoot>
+        </Provider>
       </LocalizationProvider>
     </ThemeProvider>
   )

@@ -1,13 +1,13 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { AuditRecord, Registration } from '../../../types'
 import { screen, waitFor } from '@testing-library/react'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
 import { getEventAuditTrail } from '../../../api/event'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../test-utils/utils'
-import { idTokenAtom } from '../../recoil'
+import { idTokenAtom } from '../../state'
 import InfoPanel from './InfoPanel'
 
 const activeEventWithStaticDates = {
@@ -15,9 +15,6 @@ const activeEventWithStaticDates = {
   endDate: new Date('2099-12-31'),
 }
 vi.mock('../../../api/event')
-vi.mock('../recoil/events/effects', () => ({
-  adminRemoteEventsEffect: () => undefined,
-}))
 
 function getGroupKey(r: Registration, i: number) {
   if (r.cancelled) return 'cancelled'
@@ -41,7 +38,7 @@ describe('InfoPanel>', () => {
   it('renders with no registrations', () => {
     const { container } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper: ({ children }) => (
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>{children}</RecoilRoot>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>{children}</Provider>
       ),
     })
 
@@ -54,7 +51,7 @@ describe('InfoPanel>', () => {
   it('renders with event with closed entry and registrations', () => {
     const { container } = renderWithUserEvents(
       <InfoPanel event={eventWithEntryClosed} registrations={registrationsToEventWithEntryClosed} />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
 
     expect(container).toMatchSnapshot()
@@ -73,7 +70,7 @@ describe('InfoPanel>', () => {
           },
         }))}
       />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
 
     expect(container).toMatchSnapshot()
@@ -81,7 +78,7 @@ describe('InfoPanel>', () => {
 
   it('shows status and task sections when opened', async () => {
     const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -118,7 +115,7 @@ describe('InfoPanel>', () => {
 
   it('shows the audit trail on its own tab', async () => {
     const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -140,7 +137,7 @@ describe('InfoPanel>', () => {
         })
     )
     const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
     await openInfoPanel(user)
@@ -155,7 +152,7 @@ describe('InfoPanel>', () => {
 
   it('links to the authenticated unpublished start list preview when the start list is unavailable', async () => {
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -170,7 +167,7 @@ describe('InfoPanel>', () => {
   it('shows the Kennel Club ID for official events', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel event={{ ...eventWithStaticDatesAndClass, kcId: 12345 }} registrations={[]} />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
     await openInfoPanel(user)
 
@@ -181,7 +178,7 @@ describe('InfoPanel>', () => {
 
   it('expands and collapses correctly', async () => {
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
     // Initially, only the drawer handle should be visible

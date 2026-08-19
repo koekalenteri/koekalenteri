@@ -6,10 +6,10 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
+import { useAtomValue } from 'jotai'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
-import { adminEventTypesAtom, useAdminEventTypeActions } from '../recoil'
+import { adminEventTypesAtom, useAdminEventTypeActions } from '../state'
 
 interface Props {
   readonly onClose: () => void
@@ -19,7 +19,7 @@ interface Props {
 export function CreateEventTypeDialog({ onClose, open }: Props) {
   const actions = useAdminEventTypeActions()
   const { t } = useTranslation()
-  const existing = useRecoilValue(adminEventTypesAtom)
+  const existing = useAtomValue(adminEventTypesAtom)
   const existingTypes = useMemo(() => existing.map((et) => et.eventType), [existing])
   const [eventType, setEventType] = useState<string>('')
   const [description, setDescription] = useState<EventType['description']>({ en: '', fi: '', sv: '' })

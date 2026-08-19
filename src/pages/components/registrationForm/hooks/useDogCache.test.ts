@@ -1,7 +1,7 @@
-import type { DogCache } from '../../../recoil/dog'
+import type { DogCache } from '../../../state/dog'
 import { renderHook } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { act } from 'react'
-import { RecoilRoot } from 'recoil'
 import { filterInvalid, useDogCache } from './useDogCache'
 
 vi.spyOn(localStorage, 'setItem')
@@ -13,7 +13,7 @@ describe('useDogCache', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should read from localStorage', () => {
-    renderHook(() => useDogCache('test'), { wrapper: RecoilRoot })
+    renderHook(() => useDogCache('test'), { wrapper: Provider })
     expect(localStorage.getItem).toHaveBeenCalledWith('dog-cache')
   })
 
@@ -22,7 +22,7 @@ describe('useDogCache', () => {
       result: {
         current: [, setCache],
       },
-    } = renderHook(() => useDogCache('TEST1234'), { wrapper: RecoilRoot })
+    } = renderHook(() => useDogCache('TEST1234'), { wrapper: Provider })
     act(() => {
       setCache({ dog: { dam: { name: 'Test Dam' } } })
     })
@@ -34,7 +34,7 @@ describe('useDogCache', () => {
       result: {
         current: [, setCache],
       },
-    } = renderHook(() => useDogCache(), { wrapper: RecoilRoot })
+    } = renderHook(() => useDogCache(), { wrapper: Provider })
     act(() => {
       setCache({ dog: { dam: { name: 'Test Dam' } } })
     })
@@ -46,7 +46,7 @@ describe('useDogCache', () => {
       result: {
         current: [, setCache],
       },
-    } = renderHook(() => useDogCache(''), { wrapper: RecoilRoot })
+    } = renderHook(() => useDogCache(''), { wrapper: Provider })
     act(() => {
       setCache({ dog: { dam: { name: 'Test Dam' } } })
     })

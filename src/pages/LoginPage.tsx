@@ -2,19 +2,19 @@ import { I18n } from '@aws-amplify/core'
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react'
 import Box from '@mui/material/Box'
 import { fetchAuthSession } from 'aws-amplify/auth'
+import { useAtomValue } from 'jotai'
 import { useEffect, useRef } from 'react'
-import { useRecoilValue } from 'recoil'
 import { reportError } from '../lib/client/error'
 import Header from './components/Header'
-import { languageAtom } from './recoil'
-import { useUserActions } from './recoil/user/actions'
+import { languageAtom } from './state'
+import { useUserActions } from './state/user/actions'
 
 import '@aws-amplify/ui-react/styles.css'
 
 export function Component() {
   const { route } = useAuthenticator((context) => [context.route])
   const { signIn } = useUserActions()
-  const language = useRecoilValue(languageAtom)
+  const language = useAtomValue(languageAtom)
   const authenticatedHandledRef = useRef(false)
 
   useEffect(() => {

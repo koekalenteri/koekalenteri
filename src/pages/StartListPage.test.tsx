@@ -1,10 +1,10 @@
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import { render, screen } from '@testing-library/react'
+import * as jotai from 'jotai'
 import * as router from 'react-router'
-import * as recoil from 'recoil'
-import * as pageRecoil from './recoil'
 import { StartListPage } from './StartListPage'
+import * as pageState from './state'
 
 // Mock react-router
 vi.mock('react-router', () => ({
@@ -12,17 +12,15 @@ vi.mock('react-router', () => ({
   useParams: vi.fn(),
 }))
 
-// Mock recoil
-vi.mock('recoil', () => ({
-  selectorFamily: vi.fn(() => 'mocked-selector'),
-  useRecoilValue: vi.fn(),
-  useRecoilValueLoadable: vi.fn(),
+vi.mock('jotai', async () => ({
+  ...(await vi.importActual<typeof import('jotai')>('jotai')),
+  useAtomValue: vi.fn(),
 }))
 
 // Mock the useConfirmedEvent hook
-vi.mock('./recoil', () => ({
+vi.mock('./state', async () => ({
   useConfirmedEvent: vi.fn(),
-  userSelector: 'user-selector',
+  userAtom: (await vi.importActual<typeof import('jotai')>('jotai')).atom(null),
 }))
 
 // Mock components
@@ -54,7 +52,7 @@ vi.mock('./components/LoadingIndicator', () => ({
 describe('StartListPage', () => {
   const mockUseLoaderData = router.useLoaderData as import('vitest').Mock
   const mockUseParams = router.useParams as import('vitest').Mock
-  const mockUseRecoilValueLoadable = recoil.useRecoilValueLoadable as import('vitest').Mock
+  const mockUseAtomValue = jotai.useAtomValue as import('vitest').Mock
   const mockEvent: PublicConfirmedEvent = {
     classes: [],
     cost: 0,
@@ -114,8 +112,8 @@ describe('StartListPage', () => {
   beforeEach(() => {
     mockUseParams.mockReturnValue({ id: 'event-1' })
     mockUseLoaderData.mockReturnValue(mockParticipants)
-    mockUseRecoilValueLoadable.mockReturnValue({ contents: null, state: 'hasValue' })
-    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue(mockEvent)
+    mockUseAtomValue.mockReturnValue(null)
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue(mockEvent)
   })
 
   it('renders event and participants when data is available', () => {
@@ -132,7 +130,7 @@ describe('StartListPage', () => {
   })
 
   it('shows export actions to a global admin', () => {
-    mockUseRecoilValueLoadable.mockReturnValue({ contents: { admin: true, roles: {} }, state: 'hasValue' })
+    mockUseAtomValue.mockReturnValue({ admin: true, roles: {} })
 
     render(<StartListPage />)
 
@@ -140,10 +138,7 @@ describe('StartListPage', () => {
   })
 
   it('shows export actions to a user with access to the event organizer', () => {
-    mockUseRecoilValueLoadable.mockReturnValue({
-      contents: { admin: false, roles: { 'org-1': 'secretary' } },
-      state: 'hasValue',
-    })
+    mockUseAtomValue.mockReturnValue({ admin: false, roles: { 'org-1': 'secretary' } })
 
     render(<StartListPage />)
 
@@ -151,10 +146,7 @@ describe('StartListPage', () => {
   })
 
   it('hides export actions from a user with access to another organizer', () => {
-    mockUseRecoilValueLoadable.mockReturnValue({
-      contents: { admin: false, roles: { 'org-2': 'admin' } },
-      state: 'hasValue',
-    })
+    mockUseAtomValue.mockReturnValue({ admin: false, roles: { 'org-2': 'admin' } })
 
     render(<StartListPage />)
 
@@ -162,7 +154,7 @@ describe('StartListPage', () => {
   })
 
   it('shows error message when event is not found', () => {
-    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue(null)
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue(null)
 
     render(<StartListPage />)
 
@@ -171,7 +163,7 @@ describe('StartListPage', () => {
   })
 
   it('shows loading indicator while event is loading', () => {
-    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue(undefined)
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue(undefined)
 
     render(<StartListPage />)
 
@@ -181,7 +173,7 @@ describe('StartListPage', () => {
 
   it('shows error message when participants list is empty', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [],
       startListPublished: false,
@@ -194,7 +186,7 @@ describe('StartListPage', () => {
 
   it('renders the list when participants are empty but the event has published classes', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
       startListPublished: { AVO: true },
@@ -207,7 +199,7 @@ describe('StartListPage', () => {
 
   it('shows error message when participants are empty and no class is published', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
       startListPublished: { AVO: false },
@@ -220,7 +212,7 @@ describe('StartListPage', () => {
 
   it('renders the list when at least one class is published and another is unpublished', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [
         { class: 'AVO', date: new Date('2023-01-01') },
@@ -236,7 +228,7 @@ describe('StartListPage', () => {
 
   it('renders the list when a class is invited and published even if the event is only confirmed', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [
         { class: 'AVO', date: new Date('2023-01-01'), state: 'invited' },

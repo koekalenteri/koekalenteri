@@ -1,10 +1,11 @@
 import type React from 'react'
 import { act, renderHook } from '@testing-library/react'
 import { fetchAuthSession } from 'aws-amplify/auth'
-import { RecoilRoot, useRecoilValue } from 'recoil'
+import { useAtomValue } from 'jotai'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { reportError } from '../lib/client/error'
-import { idTokenAtom } from '../pages/recoil/user/atoms'
-import { validIdTokenSelector } from '../pages/recoil/user/selectors'
+import { idTokenAtom } from '../pages/state/user/atoms'
+import { validIdTokenAtom } from '../pages/state/user/derivedAtoms'
 import { useAuthSessionRefresh } from './useAuthSessionRefresh'
 
 vi.mock('aws-amplify/auth', () => ({
@@ -37,7 +38,7 @@ describe('auth session refresh', () => {
   })
 
   it('does nothing without an id token', () => {
-    renderHook(() => useAuthSessionRefresh(undefined), { wrapper: RecoilRoot })
+    renderHook(() => useAuthSessionRefresh(undefined), { wrapper: Provider })
 
     vi.runOnlyPendingTimers()
 
@@ -52,12 +53,12 @@ describe('auth session refresh', () => {
     })
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</Provider>
     )
 
     const { result } = renderHook(
       () => {
-        const token = useRecoilValue(idTokenAtom)
+        const token = useAtomValue(idTokenAtom)
         useAuthSessionRefresh(token)
         return token
       },
@@ -82,12 +83,12 @@ describe('auth session refresh', () => {
     ;(fetchAuthSession as import('vitest').Mock).mockRejectedValueOnce(error)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</Provider>
     )
 
     const { result } = renderHook(
       () => {
-        const token = useRecoilValue(idTokenAtom)
+        const token = useAtomValue(idTokenAtom)
         useAuthSessionRefresh(token)
         return token
       },
@@ -113,12 +114,12 @@ describe('auth session refresh', () => {
     ;(fetchAuthSession as import('vitest').Mock).mockRejectedValueOnce(error)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</Provider>
     )
 
     const { result } = renderHook(
       () => {
-        const token = useRecoilValue(idTokenAtom)
+        const token = useAtomValue(idTokenAtom)
         useAuthSessionRefresh(token)
         return token
       },
@@ -143,12 +144,12 @@ describe('auth session refresh', () => {
     ;(fetchAuthSession as import('vitest').Mock).mockResolvedValueOnce({})
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</Provider>
     )
 
     const { result } = renderHook(
       () => {
-        const token = useRecoilValue(idTokenAtom)
+        const token = useAtomValue(idTokenAtom)
         useAuthSessionRefresh(token)
         return token
       },
@@ -176,13 +177,13 @@ describe('auth session refresh', () => {
     ;(fetchAuthSession as import('vitest').Mock).mockReturnValueOnce(refreshPromise)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, expiredToken)}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(idTokenAtom, expiredToken)}>{children}</Provider>
     )
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
-        const validToken = useRecoilValue(validIdTokenSelector)
+        const rawToken = useAtomValue(idTokenAtom)
+        const validToken = useAtomValue(validIdTokenAtom)
         useAuthSessionRefresh(rawToken)
         return { rawToken, validToken }
       },
@@ -215,13 +216,13 @@ describe('auth session refresh', () => {
     ;(fetchAuthSession as import('vitest').Mock).mockRejectedValueOnce(error)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</Provider>
     )
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
-        const validToken = useRecoilValue(validIdTokenSelector)
+        const rawToken = useAtomValue(idTokenAtom)
+        const validToken = useAtomValue(validIdTokenAtom)
         useAuthSessionRefresh(rawToken)
         return { rawToken, validToken }
       },
@@ -254,14 +255,14 @@ describe('auth session refresh', () => {
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</Provider>
     )
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
+        const rawToken = useAtomValue(idTokenAtom)
         useAuthSessionRefresh(rawToken)
-        return useRecoilValue(validIdTokenSelector)
+        return useAtomValue(validIdTokenAtom)
       },
       { wrapper }
     )
@@ -280,14 +281,14 @@ describe('auth session refresh', () => {
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
+      <Provider initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</Provider>
     )
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
+        const rawToken = useAtomValue(idTokenAtom)
         useAuthSessionRefresh(rawToken)
-        return useRecoilValue(validIdTokenSelector)
+        return useAtomValue(validIdTokenAtom)
       },
       { wrapper }
     )

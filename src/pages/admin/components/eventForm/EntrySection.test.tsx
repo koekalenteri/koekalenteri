@@ -2,10 +2,10 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen, within } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
 import { eventWithStaticDates } from '../../../../__mockData__/events'
 import theme from '../../../../assets/Theme'
 import { locales } from '../../../../i18n'
@@ -30,7 +30,7 @@ describe('EntrySection', () => {
     const { user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
                 <SnackbarProvider>
@@ -38,7 +38,7 @@ describe('EntrySection', () => {
                 </SnackbarProvider>
               </Suspense>
             </MemoryRouter>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,
@@ -78,7 +78,7 @@ describe('EntrySection', () => {
     const { user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
                 <SnackbarProvider>
@@ -86,7 +86,7 @@ describe('EntrySection', () => {
                 </SnackbarProvider>
               </Suspense>
             </MemoryRouter>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,
@@ -124,7 +124,7 @@ describe('EntrySection', () => {
     renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
                 <SnackbarProvider>
@@ -137,7 +137,7 @@ describe('EntrySection', () => {
                 </SnackbarProvider>
               </Suspense>
             </MemoryRouter>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,

@@ -3,14 +3,14 @@ import type { SyntheticEvent } from 'react'
 import type { RegistrationDate } from '../../../../../../types'
 import type { SectionProps } from '../../types'
 import Stack from '@mui/material/Stack'
+import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import { useAdminEventDatesOptions } from '../../../../../../hooks/useAdminEventDatesOptions'
 import { useAdminEventRegistrationDates } from '../../../../../../hooks/useAdminEventRegistrationDates'
 import { applyNewGroupsToDogEventDates } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
-import { adminEventTypeGroupsSelector } from '../../../../recoil'
+import { adminEventTypeGroupsAtom } from '../../../../state'
 
 type Props = Pick<SectionProps, 'disabled' | 'event' | 'onChange'>
 
@@ -18,7 +18,7 @@ export const EventGroups = ({ disabled, event, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()
   const options = useAdminEventDatesOptions(event)
   const defaultDates = useAdminEventRegistrationDates(event)
-  const typeGroups = useRecoilValue(adminEventTypeGroupsSelector(event.eventType))
+  const typeGroups = useAtomValue(adminEventTypeGroupsAtom(event.eventType))
   const defaultGroups = useMemo(() => typeGroups.filter((g) => g !== 'kp'), [typeGroups])
 
   const value: RegistrationDate[] = useMemo(

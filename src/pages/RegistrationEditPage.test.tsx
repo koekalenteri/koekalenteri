@@ -3,10 +3,10 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter, useParams } from 'react-router'
-import { RecoilRoot } from 'recoil'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
@@ -33,13 +33,13 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <RecoilRoot>
+        <Provider>
           <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
               <MemoryRouter>{children} </MemoryRouter>
             </SnackbarProvider>
           </Suspense>
-        </RecoilRoot>
+        </Provider>
       </LocalizationProvider>
     </ThemeProvider>
   )

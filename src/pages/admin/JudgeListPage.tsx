@@ -1,6 +1,6 @@
 import OfficialDirectoryList from './components/OfficialDirectoryList'
 import useJudgeListColumns from './judgeListPage/columns'
-import { adminFilteredJudgesSelector, adminJudgeFilterAtom, useAdminJudgesActions } from './recoil'
+import { adminFilteredJudgesAtom, adminJudgeFilterAtom, useAdminJudgesActions } from './state'
 
 export default function JudgeListPage() {
   const actions = useAdminJudgesActions()
@@ -10,7 +10,7 @@ export default function JudgeListPage() {
       dataLabel="judges"
       filterState={adminJudgeFilterAtom}
       onRefresh={actions.refresh}
-      rowsState={adminFilteredJudgesSelector}
+      rowsState={adminFilteredJudgesAtom}
     />
   )
 }

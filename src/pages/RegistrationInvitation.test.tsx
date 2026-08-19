@@ -3,9 +3,9 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
@@ -41,13 +41,13 @@ describe('RegistrationInvitation', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<LoadingPage />}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
@@ -79,13 +79,13 @@ describe('RegistrationInvitation', () => {
     render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<LoadingPage />}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
@@ -118,13 +118,13 @@ describe('RegistrationInvitation', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<LoadingPage />}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )

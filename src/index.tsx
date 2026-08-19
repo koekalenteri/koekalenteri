@@ -1,15 +1,14 @@
 import { ThemeProvider } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { StyledEngineProvider } from '@mui/material/styles'
+import { Provider } from 'jotai'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { RecoilEnv, RecoilRoot } from 'recoil'
 
 import './i18n'
 
 import App from './App'
 import theme from './assets/Theme'
-import { isDevEnv } from './lib/env'
 import { registerServiceWorker, unregisterServiceWorker } from './serviceWorkerRegistration'
 
 import './index.css'
@@ -20,22 +19,17 @@ if (!container) {
   throw new Error('root element not found!')
 }
 
-if (isDevEnv()) {
-  // Recoil: disable "duplicate atom key" checking / logging in development. (Tests will log these)
-  RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false
-}
-
 const root = createRoot(container)
 root.render(
   <StrictMode>
-    <RecoilRoot>
+    <Provider>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <App />
         </ThemeProvider>
       </StyledEngineProvider>
-    </RecoilRoot>
+    </Provider>
   </StrictMode>
 )
 

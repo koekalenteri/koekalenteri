@@ -7,29 +7,29 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { useRecoilValue } from 'recoil'
 import {
   getRegistrationClass,
   getRegistrationGroupTime,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { keysOf } from '../../lib/typeGuards'
-import { hasAdminAccessSelector, useUserActions } from '../recoil'
-import { adminEventRegistrationsAtom } from './recoil'
+import { hasAdminAccessAtom, useUserActions } from '../state'
 import StartListGroup from './startListPage/StartListGroup'
+import { adminEventRegistrationsAtom } from './state'
 
 type GroupedRegs = Record<string | number, Record<string, Record<RegistrationTime, Registration[]>>>
 
 export default function StartListPage() {
   const { t } = useTranslation()
   const actions = useUserActions()
-  const hasAccess = useRecoilValue(hasAdminAccessSelector)
+  const hasAccess = useAtomValue(hasAdminAccessAtom)
   const params = useParams()
   const eventId = params.id ?? ''
-  const allRegistrations = useRecoilValue(adminEventRegistrationsAtom(eventId))
+  const allRegistrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled).sort(sortRegistrationsByDateClassTimeAndNumber)
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
   const grouped = regsToPrint.reduce<GroupedRegs>((acc, reg) => {

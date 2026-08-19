@@ -3,12 +3,12 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { runMigrations } from '../../api/migrate'
 import { getUser } from '../../api/user'
 import theme from '../../assets/Theme'
 import { createMatchMedia, TEST_ID_TOKEN } from '../../test-utils/utils'
-import { idTokenAtom } from '../recoil'
+import { idTokenAtom } from '../state'
 import { SideMenu } from './SideMenu'
 
 const mockEnqueueSnackbar = vi.fn()
@@ -45,13 +45,13 @@ describe('SideMenu', () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<>loading...</>}>
               <SideMenu open onClose={vi.fn()} />
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
 

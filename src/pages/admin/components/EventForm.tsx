@@ -8,20 +8,20 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
+import { atom, useAtomValue } from 'jotai'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue, waitForAll } from 'recoil'
 import { isEventOver } from '../../../lib/event'
 import { merge } from '../../../lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import {
-  adminActiveEventTypesSelector,
-  adminActiveJudgesSelector,
+  adminActiveEventTypesAtom,
+  adminActiveJudgesAtom,
   adminEventTypeClassesAtom,
-  adminUserOrganizersSelector,
+  adminUserOrganizersAtom,
   adminUsersAtom,
-} from '../recoil'
+} from '../state'
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'
 import ContactInfoSection from './eventForm/ContactInfoSection'
@@ -42,19 +42,20 @@ interface Props {
 }
 
 const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed', 'cancelled']
+const eventFormOptionsAtom = atom(async (get) =>
+  Promise.all([
+    get(adminActiveEventTypesAtom),
+    get(adminActiveJudgesAtom),
+    Promise.resolve(get(adminEventTypeClassesAtom)),
+    get(adminUsersAtom),
+    get(adminUserOrganizersAtom),
+  ] as const)
+)
 
 export default function EventForm({ event, changes, canSave, disabled, onSave, onCancel, onChange }: Props) {
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers] = useRecoilValue(
-    waitForAll([
-      adminActiveEventTypesSelector,
-      adminActiveJudgesSelector,
-      adminEventTypeClassesAtom,
-      adminUsersAtom,
-      adminUserOrganizersSelector,
-    ])
-  )
+  const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers] = useAtomValue(eventFormOptionsAtom)
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,

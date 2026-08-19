@@ -1,18 +1,20 @@
 import type { ReactNode } from 'react'
-import type { MutableSnapshot } from 'recoil'
+import type { TestStore } from '../test-utils/AtomProvider'
 import type { PublicDogEvent, Registration, User } from '../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { unwrap } from 'jotai/utils'
 import { createElement } from 'react'
-import { RecoilRoot, useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getUsers } from '../api/user'
 import { applyPatch, applyPatchOrInsert } from '../lib/utils'
-import { adminEventsAtom } from '../pages/admin/recoil/events'
-import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
-import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
-import { canReadWebsocketAdminUsers } from '../pages/admin/recoil/user/selectors'
-import { idTokenAtom } from '../pages/recoil'
-import { eventsAtom } from '../pages/recoil/events/atoms'
-import { recentlyUpdatedAtom } from '../pages/recoil/recentUpdates'
+import { adminEventsAtom } from '../pages/admin/state/events'
+import { adminEventRegistrationsAtom } from '../pages/admin/state/registrations/atoms'
+import { adminUsersAtom } from '../pages/admin/state/user/atoms'
+import { canReadWebsocketAdminUsers } from '../pages/admin/state/user/derivedAtoms'
+import { idTokenAtom } from '../pages/state'
+import { eventsAtom } from '../pages/state/events/atoms'
+import { recentlyUpdatedAtom } from '../pages/state/recentUpdates'
 import {
   applyRegistrationPatches,
   applyRegistrations,
@@ -29,50 +31,45 @@ vi.mock('../api/user', async () => ({
   getUsers: vi.fn(),
 }))
 
-vi.mock('../pages/admin/recoil/events', async () => {
-  const { atom } = await vi.importActual<typeof import('recoil')>('recoil')
+vi.mock('../pages/admin/state/events', async () => {
+  const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
   return {
-    adminEventsAtom: atom({ default: [], key: 'adminEventsAtomTestWs' }),
+    adminEventsAtom: atom([]),
   }
 })
 
-vi.mock('../pages/admin/recoil/registrations/atoms', async () => {
-  const { atomFamily } = await vi.importActual<typeof import('recoil')>('recoil')
+vi.mock('../pages/admin/state/registrations/atoms', async () => {
+  const { atomFamily } = await vi.importActual<typeof import('jotai-family')>('jotai-family')
+  const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
   return {
-    adminEventRegistrationsAtom: atomFamily({ default: [], key: 'adminEventRegistrationsAtomTestWs' }),
+    adminEventRegistrationsAtom: atomFamily((_eventId: string) => atom([])),
   }
 })
 
-vi.mock('../pages/admin/recoil/user/atoms', async () => {
-  const { atom } = await vi.importActual<typeof import('recoil')>('recoil')
+vi.mock('../pages/admin/state/user/atoms', async () => {
+  const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
   return {
-    adminUsersAtom: atom({ default: [], key: 'adminUsersAtomTestWs' }),
+    adminUsersAtom: atom([]),
   }
 })
 
-vi.mock('../pages/recoil/user/selectors', async () => {
-  const { selector } = await vi.importActual<typeof import('recoil')>('recoil')
-  const { idTokenAtom } =
-    await vi.importActual<typeof import('../pages/recoil/user/atoms')>('../pages/recoil/user/atoms')
+vi.mock('../pages/state/user/derivedAtoms', async () => {
+  const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
+  const { idTokenAtom } = await vi.importActual<typeof import('../pages/state/user/atoms')>('../pages/state/user/atoms')
   return {
-    userSelector: selector({
-      get: () => ({ id: 'user-1', name: 'User One', roles: { 'org-1': 'secretary' } }),
-      key: 'userSelectorTestWs',
-    }),
-    validIdTokenSelector: selector({
-      get: ({ get }) => get(idTokenAtom),
-      key: 'validIdTokenSelectorTestWs',
-    }),
+    userAtom: atom(() => ({ id: 'user-1', name: 'User One', roles: { 'org-1': 'secretary' } })),
+    validIdTokenAtom: atom((get: (value: unknown) => string | undefined) => get(idTokenAtom)),
   }
 })
 
-vi.mock('../pages/recoil/events/atoms', async () => {
-  const { atom } = await vi.importActual<typeof import('recoil')>('recoil')
+vi.mock('../pages/state/events/atoms', async () => {
+  const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
   return {
-    eventsAtom: atom({ default: [], key: 'eventsAtomTestWs' }),
+    eventsAtom: atom([]),
   }
 })
 
+const event1RegistrationsValueAtom = unwrap(adminEventRegistrationsAtom('event-1'))
 let consoleDebugSpy: import('vitest').MockInstance
 
 describe('applyPatch', () => {
@@ -203,9 +200,9 @@ describe('useWebSocket', () => {
 
   function wrapperWithToken(token?: string) {
     return function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(idTokenAtom, token)
           set(adminUsersAtom, [
             { id: 'user-2', modifiedAt: new Date('2024-01-02T00:00:00.000Z'), name: 'User Two' },
@@ -288,7 +285,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket()
-        return useRecoilValue(adminUsersAtom)
+        return useAtomValue(adminUsersAtom)
       },
       { wrapper: wrapperWithToken('token-1') }
     )
@@ -648,9 +645,9 @@ describe('useWebSocket', () => {
       startDate: new Date('2026-01-01'),
     }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(idTokenAtom, 'id-token')
           set(adminEventsAtom, [event as any])
         },
@@ -660,8 +657,8 @@ describe('useWebSocket', () => {
       () => {
         useWebSocket()
         return {
-          events: useRecoilValue(adminEventsAtom),
-          recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
+          events: useAtomValue(adminEventsAtom),
+          recentlyUpdated: useAtomValue(recentlyUpdatedAtom),
         }
       },
       { wrapper }
@@ -694,9 +691,9 @@ describe('useWebSocket', () => {
       startDate: new Date('2026-01-01'),
     }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(idTokenAtom, 'id-token')
           set(adminEventsAtom, [event as any])
         },
@@ -705,7 +702,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket()
-        return useRecoilValue(adminEventsAtom)
+        return useAtomValue(adminEventsAtom)
       },
       { wrapper }
     )
@@ -730,9 +727,9 @@ describe('useWebSocket', () => {
 
   it('should insert new admin events from scoped admin event patch messages', async () => {
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(idTokenAtom, 'id-token')
           set(adminEventsAtom, [])
         },
@@ -741,7 +738,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket()
-        return useRecoilValue(adminEventsAtom)
+        return useAtomValue(adminEventsAtom)
       },
       { wrapper }
     )
@@ -769,9 +766,9 @@ describe('useWebSocket', () => {
   it('should update public events from scoped public event patch messages', async () => {
     const event = { entries: 1, id: 'event-1', name: 'Old Public Name' }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(eventsAtom, [event as any])
         },
       })
@@ -780,8 +777,8 @@ describe('useWebSocket', () => {
       () => {
         useWebSocket()
         return {
-          events: useRecoilValue(eventsAtom),
-          recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
+          events: useAtomValue(eventsAtom),
+          recentlyUpdated: useAtomValue(recentlyUpdatedAtom),
         }
       },
       { wrapper }
@@ -802,9 +799,9 @@ describe('useWebSocket', () => {
   it('should remove public events from scoped public draft event patch messages', async () => {
     const event = { entries: 1, id: 'event-1', name: 'Old Public Name', state: 'tentative' }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(eventsAtom, [event as any])
         },
       })
@@ -813,8 +810,8 @@ describe('useWebSocket', () => {
       () => {
         useWebSocket()
         return {
-          events: useRecoilValue(eventsAtom),
-          recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
+          events: useAtomValue(eventsAtom),
+          recentlyUpdated: useAtomValue(recentlyUpdatedAtom),
         }
       },
       { wrapper }
@@ -840,9 +837,9 @@ describe('useWebSocket', () => {
       organizer: { id: 'org-1', name: 'Organizer' },
     }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(eventsAtom, [event as any])
         },
       })
@@ -850,7 +847,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket()
-        return useRecoilValue(eventsAtom)
+        return useAtomValue(eventsAtom)
       },
       { wrapper }
     )
@@ -873,9 +870,9 @@ describe('useWebSocket', () => {
 
   it('should not insert partial public data from scoped admin event patch messages', async () => {
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(eventsAtom, [])
         },
       })
@@ -883,7 +880,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket()
-        return useRecoilValue(eventsAtom)
+        return useAtomValue(eventsAtom)
       },
       { wrapper }
     )
@@ -899,9 +896,9 @@ describe('useWebSocket', () => {
 
   it('should insert public data from full non-draft scoped admin event patch messages', async () => {
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(eventsAtom, [])
         },
       })
@@ -909,7 +906,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket()
-        return useRecoilValue(eventsAtom)
+        return useAtomValue(eventsAtom)
       },
       { wrapper }
     )
@@ -943,9 +940,9 @@ describe('useWebSocket', () => {
   it('should remove public events from scoped admin draft event patch messages', async () => {
     const event = { entries: 1, id: 'event-1', name: 'Old Public Name', state: 'tentative' }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(eventsAtom, [event as any])
         },
       })
@@ -953,7 +950,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket()
-        return useRecoilValue(eventsAtom)
+        return useAtomValue(eventsAtom)
       },
       { wrapper }
     )
@@ -972,9 +969,9 @@ describe('useWebSocket', () => {
   it('should not mark unchanged public event patches as recently updated', async () => {
     const event = { entries: 1, id: 'event-1', name: 'Old Public Name' }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(eventsAtom, [event as any])
         },
       })
@@ -982,7 +979,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket()
-        return useRecoilValue(recentlyUpdatedAtom)
+        return useAtomValue(recentlyUpdatedAtom)
       },
       { wrapper }
     )
@@ -998,9 +995,9 @@ describe('useWebSocket', () => {
 
   it('should insert new public events from scoped public event patch messages', async () => {
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(eventsAtom, [])
         },
       })
@@ -1008,7 +1005,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket()
-        return useRecoilValue(eventsAtom)
+        return useAtomValue(eventsAtom)
       },
       { wrapper }
     )
@@ -1036,9 +1033,9 @@ describe('useWebSocket', () => {
   it('should apply registration patches from websocket messages', async () => {
     const registration = { id: 'reg-1', notes: 'old' } as Registration
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(idTokenAtom, 'id-token')
           set(adminEventRegistrationsAtom('event-1'), [registration])
         },
@@ -1048,8 +1045,8 @@ describe('useWebSocket', () => {
       () => {
         useWebSocket()
         return {
-          recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
-          registrations: useRecoilValue(adminEventRegistrationsAtom('event-1')),
+          recentlyUpdated: useAtomValue(recentlyUpdatedAtom),
+          registrations: useAtomValue(adminEventRegistrationsAtom('event-1')),
         }
       },
       { wrapper }
@@ -1078,9 +1075,9 @@ describe('useWebSocket', () => {
       resolveRegistrations = resolve
     })
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
+      return createElement(Provider, {
         children,
-        initializeState: ({ set }: MutableSnapshot) => {
+        initializeState: ({ set }: TestStore) => {
           set(idTokenAtom, 'id-token')
           set(adminEventRegistrationsAtom('event-1'), registrationsPromise as unknown as Registration[])
         },
@@ -1090,7 +1087,7 @@ describe('useWebSocket', () => {
       () => {
         useWebSocket()
         return {
-          registrations: useRecoilValueLoadable(adminEventRegistrationsAtom('event-1')),
+          registrations: useAtomValue(event1RegistrationsValueAtom),
         }
       },
       { wrapper }
@@ -1112,8 +1109,7 @@ describe('useWebSocket', () => {
     })
 
     await waitFor(() => {
-      expect(result.current.registrations.state).toBe('hasValue')
-      expect(result.current.registrations.contents[0]?.confirmed).toBe(true)
+      expect(result.current.registrations?.[0]?.confirmed).toBe(true)
     })
   })
 
@@ -1149,16 +1145,16 @@ describe('useWebSocket', () => {
     expect(result.current.viewers).toEqual([])
   })
 
-  it('should not open a new WebSocket connection when Recoil state changes (e.g. adminUsersAtom update)', async () => {
+  it('should not open a new WebSocket connection when State state changes (e.g. adminUsersAtom update)', async () => {
     // Regression test: adminUsers / currentUser were previously listed in
-    // connect's useCallback deps.  Any Recoil update (e.g. adminUsersAtom
+    // connect's useCallback deps.  Any State update (e.g. adminUsersAtom
     // changing after an event save) produced a new array ref, gave connect a
     // new identity, triggered the useEffect, closed the existing socket and
     // opened a fresh one – causing duplicate WS broadcast messages to be
     // processed and logged multiple times per browser tab.
     const { result } = renderHook(
       () => {
-        const setUsers = useSetRecoilState(adminUsersAtom)
+        const setUsers = useSetAtom(adminUsersAtom)
         useWebSocket()
         return { setUsers }
       },
@@ -1195,7 +1191,7 @@ describe('useWebSocket', () => {
 
     const { result } = renderHook(
       () => {
-        const [token, setToken] = useRecoilState(idTokenAtom)
+        const [token, setToken] = useAtom(idTokenAtom)
         useWebSocket()
         return { setToken, token }
       },
@@ -1236,7 +1232,7 @@ describe('useWebSocket', () => {
 
     const { result } = renderHook(
       () => {
-        const [, setToken] = useRecoilState(idTokenAtom)
+        const [, setToken] = useAtom(idTokenAtom)
         useWebSocket()
         return { setToken }
       },
@@ -1284,7 +1280,7 @@ describe('useWebSocket', () => {
 
     const { result } = renderHook(
       () => {
-        const [token, setToken] = useRecoilState(idTokenAtom)
+        const [token, setToken] = useAtom(idTokenAtom)
         const websocket = useWebSocket()
         return { setToken, token, websocket }
       },
@@ -1314,7 +1310,7 @@ describe('useWebSocket', () => {
     )
   })
 
-  it('should keep event subscription when token loadable is temporarily loading during token refresh', async () => {
+  it('should keep event subscription while the token atom is pending during token refresh', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
     global.WebSocket = vi.fn(function MockWebSocket() {
       const instance = {
@@ -1334,7 +1330,7 @@ describe('useWebSocket', () => {
 
     const { result } = renderHook(
       () => {
-        const setToken = useSetRecoilState(idTokenAtom)
+        const setToken = useSetAtom(idTokenAtom)
         const websocket = useWebSocket()
         return { setToken, websocket }
       },

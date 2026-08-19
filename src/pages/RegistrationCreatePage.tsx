@@ -1,8 +1,8 @@
 import type { Registration } from '../types'
+import { useAtom, useAtomValue } from 'jotai'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import { useRecoilState, useRecoilValue } from 'recoil'
 import { rum } from '../lib/client/rum'
 import { isEntryOpen } from '../lib/event'
 import { hasChanges } from '../lib/utils'
@@ -10,8 +10,8 @@ import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
-import { createNewRegistration, newRegistrationAtom, spaAtom, useConfirmedEvent } from './recoil'
-import { useRegistrationActions } from './recoil/registration/actions'
+import { createNewRegistration, newRegistrationAtom, spaAtom, useConfirmedEvent } from './state'
+import { useRegistrationActions } from './state/registration/actions'
 
 export function Component() {
   const { t } = useTranslation()
@@ -19,9 +19,9 @@ export function Component() {
   const navigate = useNavigate()
   const params = useParams()
   const event = useConfirmedEvent(params.id)
-  const [registration, setRegistration] = useRecoilState(newRegistrationAtom)
+  const [registration, setRegistration] = useAtom(newRegistrationAtom)
   const resetRegistration = useCallback(() => setRegistration(createNewRegistration()), [setRegistration])
-  const spa = useRecoilValue(spaAtom)
+  const spa = useAtomValue(spaAtom)
   const actions = useRegistrationActions()
 
   const handleChange = useCallback(

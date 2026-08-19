@@ -47,6 +47,7 @@ export default defineConfig({
         resolve: {
           alias: {
             'react-i18next': new URL('./src/__mocks__/react-i18next/index.tsx', import.meta.url).pathname,
+            'test-utils': new URL('./src/test-utils', import.meta.url).pathname,
           },
         },
         test: {

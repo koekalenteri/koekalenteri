@@ -4,12 +4,12 @@ import type { RegistrationClass, RegistrationDate } from '../../../../../../type
 import type { SectionProps } from '../../types'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
+import { useAtomValue } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import { applyNewGroupsToDogEventClass } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
-import { adminEventTypeGroupsSelector } from '../../../../recoil'
+import { adminEventTypeGroupsAtom } from '../../../../state'
 
 interface Props extends Pick<SectionProps, 'disabled' | 'event' | 'onChange'> {
   eventClass: RegistrationClass
@@ -17,7 +17,7 @@ interface Props extends Pick<SectionProps, 'disabled' | 'event' | 'onChange'> {
 
 export const ClassGroups = ({ disabled, event, eventClass, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()
-  const typeGroups = useRecoilValue(adminEventTypeGroupsSelector(event.eventType))
+  const typeGroups = useAtomValue(adminEventTypeGroupsAtom(event.eventType))
   const defaultGroups = useMemo(() => typeGroups.filter((g) => g !== 'kp'), [typeGroups])
   const classes = useMemo(() => event.classes.filter((c) => c.class === eventClass), [event.classes, eventClass])
   const options = useMemo(

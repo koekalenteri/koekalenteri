@@ -1,17 +1,17 @@
 import { fetchAuthSession } from 'aws-amplify/auth'
+import { useSetAtom } from 'jotai'
 import { useEffect, useRef } from 'react'
-import { useSetRecoilState } from 'recoil'
 import { isInvalidAuthSessionError } from '../lib/client/auth'
 import { authDebug } from '../lib/client/authDiagnostics'
 import { reportError } from '../lib/client/error'
 import { getIdTokenDiagnostics, getJwtExpiresAt, ID_TOKEN_REFRESH_MARGIN_MS } from '../lib/token'
-import { idTokenAtom, tokenValidityRevisionAtom } from '../pages/recoil/user/atoms'
+import { idTokenAtom, tokenValidityRevisionAtom } from '../pages/state/user/atoms'
 
 const MIN_REPEATED_REFRESH_DELAY_MS = 30_000
 
 export function useAuthSessionRefresh(idToken: string | undefined) {
-  const setIdToken = useSetRecoilState(idTokenAtom)
-  const invalidateTokenValidity = useSetRecoilState(tokenValidityRevisionAtom)
+  const setIdToken = useSetAtom(idTokenAtom)
+  const invalidateTokenValidity = useSetAtom(tokenValidityRevisionAtom)
   const lastRefreshAtRef = useRef<number>()
 
   useEffect(() => {

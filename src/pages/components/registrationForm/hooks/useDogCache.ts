@@ -1,10 +1,10 @@
 import type { DeepPartial } from '../../../../types'
-import type { DogCache, DogCachedInfo } from '../../../recoil/dog'
+import type { DogCache, DogCachedInfo } from '../../../state/dog'
+import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
-import { useRecoilState } from 'recoil'
 import { isEmpty } from '../../../../lib/utils'
 import { validateRegNo } from '../../../../lib/validation'
-import { dogCacheAtom } from '../../../recoil/dog'
+import { dogCacheAtom } from '../../../state/dog'
 
 type Setter = (props: DeepPartial<DogCachedInfo>) => DeepPartial<DogCachedInfo> | undefined
 type HookResult = [DeepPartial<DogCachedInfo> | undefined, Setter]
@@ -15,7 +15,7 @@ type HookResult = [DeepPartial<DogCachedInfo> | undefined, Setter]
  * @param regNo - Dog registration number
  */
 export function useDogCache(regNo: string = ''): HookResult {
-  const [cache, setCache] = useRecoilState(dogCacheAtom)
+  const [cache, setCache] = useAtom(dogCacheAtom)
   const cached = useMemo(() => (regNo ? cache?.[regNo] : undefined), [cache, regNo])
   const setCached = useCallback<Setter>(
     (props) => {

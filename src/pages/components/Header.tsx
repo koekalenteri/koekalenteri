@@ -4,14 +4,14 @@ import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { Suspense, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { useRecoilValue } from 'recoil'
 import logo from '../../assets/snj-logo.png'
 import { isDevEnv } from '../../lib/env'
 import { Path } from '../../routeConfig'
-import { hasAdminAccessSelector } from '../recoil'
+import { hasAdminAccessAtom } from '../state'
 import AppBarButton from './header/AppBarButton'
 import HelpMenu from './header/HelpMenu'
 import LanguageMenu from './header/LanguageMenu'
@@ -24,7 +24,7 @@ interface Props {
 const Header = ({ toggleMenu }: Props) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const hasAdminAccess = useRecoilValue(hasAdminAccessSelector)
+  const hasAdminAccess = useAtomValue(hasAdminAccessAtom)
   const inAdmin = !!toggleMenu
   const headerBackgroundColor = isDevEnv() ? '#08821f' : undefined
 

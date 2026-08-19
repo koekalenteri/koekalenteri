@@ -4,8 +4,8 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
@@ -19,9 +19,9 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <RecoilRoot>
+        <Provider>
           <Suspense fallback={<div>loading...</div>}>{children}</Suspense>
-        </RecoilRoot>
+        </Provider>
       </LocalizationProvider>
     </ThemeProvider>
   )

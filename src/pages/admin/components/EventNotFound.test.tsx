@@ -1,9 +1,9 @@
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import i18n from 'i18next'
+import { Provider } from 'jotai'
 import { initReactI18next } from 'react-i18next'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
 import theme from '../../../assets/Theme'
 import { i18nInit } from '../../../i18n/config'
 import { Path } from '../../../routeConfig'
@@ -15,11 +15,11 @@ i18n.use(initReactI18next).init(i18nInit)
 
 // Create a wrapper component with all required providers
 const Wrapper = ({ children }: { children: React.ReactNode }) => (
-  <RecoilRoot>
+  <Provider>
     <ThemeProvider theme={theme}>
       <MemoryRouter>{children}</MemoryRouter>
     </ThemeProvider>
-  </RecoilRoot>
+  </Provider>
 )
 
 describe('EventNotFound', () => {

@@ -1,11 +1,11 @@
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
+import { useAtom } from 'jotai'
 import { useCallback } from 'react'
-import { useRecoilState } from 'recoil'
 import EventForm from '../components/EventForm'
 import useEventForm from '../hooks/useEventForm'
-import { adminEventSelector } from '../recoil'
+import { adminEventAtom } from '../state'
 
 interface Props {
   readonly eventId: string
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
-  const [storedEvent] = useRecoilState(adminEventSelector(eventId))
+  const [storedEvent] = useAtom(adminEventAtom(eventId))
 
   // Use the hook with custom options
   const {

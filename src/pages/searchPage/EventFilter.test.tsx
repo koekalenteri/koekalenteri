@@ -1,6 +1,6 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Judge, Organizer, RegistrationClass } from '../../types'
-import type { FilterProps } from '../recoil'
+import type { FilterProps } from '../state'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'

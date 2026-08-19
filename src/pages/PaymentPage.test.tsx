@@ -4,10 +4,10 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
+import { createStore, Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useParams } from 'react-router'
-import { RecoilRoot } from 'recoil'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 import mockResponse from '../api/__mocks__/paymentCreate.response.json'
 import { createPayment } from '../api/payment'
@@ -17,6 +17,7 @@ import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 import LoadingIndicator from './components/LoadingIndicator'
 import { loader, Component as PaymentPage, PaymentPageWithData } from './PaymentPage'
+import { createNewRegistration, newRegistrationAtom } from './state'
 
 vi.mock('../api/event')
 vi.mock('../api/payment')
@@ -78,13 +79,13 @@ describe('PaymentPage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
@@ -118,13 +119,13 @@ describe('PaymentPage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
@@ -136,9 +137,9 @@ describe('PaymentPage', () => {
   describe('PaymentPageWithData', () => {
     it('should show error message when event is not found', async () => {
       const { container } = render(
-        <RecoilRoot>
+        <Provider>
           <PaymentPageWithData registrationId="test-reg-id" event={null} registration={testRegistration} />
-        </RecoilRoot>
+        </Provider>
       )
 
       await flushPromises()
@@ -148,9 +149,9 @@ describe('PaymentPage', () => {
 
     it('should show error message when registration is not found', async () => {
       const { container } = render(
-        <RecoilRoot>
+        <Provider>
           <PaymentPageWithData registrationId="test-reg-id" event={{ id: 'test-id' } as any} registration={null} />
-        </RecoilRoot>
+        </Provider>
       )
 
       await flushPromises()
@@ -186,9 +187,9 @@ describe('PaymentPage', () => {
       ]
 
       const { container } = render(
-        <RecoilRoot>
+        <Provider>
           <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-        </RecoilRoot>
+        </Provider>
       )
 
       await flushPromises()
@@ -198,14 +199,14 @@ describe('PaymentPage', () => {
 
     it('should show error message when response.groups is not available', async () => {
       const { container } = render(
-        <RecoilRoot>
+        <Provider>
           <PaymentPageWithData
             registrationId="test-reg-id"
             event={{ id: 'test-id' } as any}
             registration={testRegistration}
             response={{} as CreatePaymentResponse}
           />
-        </RecoilRoot>
+        </Provider>
       )
 
       await flushPromises()
@@ -242,9 +243,9 @@ describe('PaymentPage', () => {
       const { container } = render(
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <RecoilRoot>
+            <Provider>
               <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-            </RecoilRoot>
+            </Provider>
           </LocalizationProvider>
         </ThemeProvider>
       )
@@ -286,9 +287,9 @@ describe('PaymentPage', () => {
       const { container } = render(
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <RecoilRoot>
+            <Provider>
               <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-            </RecoilRoot>
+            </Provider>
           </LocalizationProvider>
         </ThemeProvider>
       )
@@ -335,9 +336,9 @@ describe('PaymentPage', () => {
       const { container } = render(
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <RecoilRoot>
+            <Provider>
               <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-            </RecoilRoot>
+            </Provider>
           </LocalizationProvider>
         </ThemeProvider>
       )
@@ -384,9 +385,9 @@ describe('PaymentPage', () => {
       const { container } = render(
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <RecoilRoot>
+            <Provider>
               <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-            </RecoilRoot>
+            </Provider>
           </LocalizationProvider>
         </ThemeProvider>
       )
@@ -426,9 +427,9 @@ describe('PaymentPage', () => {
       const { container } = render(
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <RecoilRoot>
+            <Provider>
               <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-            </RecoilRoot>
+            </Provider>
           </LocalizationProvider>
         </ThemeProvider>
       )
@@ -443,11 +444,8 @@ describe('PaymentPage', () => {
   })
 
   it('should reset registration form on mount', async () => {
-    // Create a mock for the reset function
-    const mockResetRegistration = vi.fn()
-
-    // Mock the setter used by the factory-backed reset function.
-    vi.spyOn(require('recoil'), 'useSetRecoilState').mockReturnValue(mockResetRegistration)
+    const store = createStore()
+    store.set(newRegistrationAtom, testRegistration)
 
     mockUseParams.mockImplementation(() => ({
       id: testRegistration.eventId,
@@ -474,20 +472,23 @@ describe('PaymentPage', () => {
     render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider store={store}>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
 
     await flushPromises()
 
-    // The useEffect should call resetRegistration
-    expect(mockResetRegistration).toHaveBeenCalled()
+    expect(store.get(newRegistrationAtom)).toMatchObject({
+      ...createNewRegistration(),
+      creationIdempotencyKey: expect.any(String),
+    })
+    expect(store.get(newRegistrationAtom)).not.toMatchObject({ eventId: testRegistration.eventId })
   })
 })

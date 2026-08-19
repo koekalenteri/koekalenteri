@@ -2,12 +2,12 @@ import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter } from '../test-utils/utils'
 import { Component as LoginPage } from './LoginPage'
-import { idTokenAtom } from './recoil'
+import { idTokenAtom } from './state'
 
 vi.mock('@aws-amplify/ui-react', () => import('./global-mocks/auth/idle'))
 vi.mock('./components/Header', () => ({ default: () => <>HEADER</> }))
@@ -21,7 +21,7 @@ describe('LoginPage', () => {
       },
     ]
     const { container } = render(
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, undefined)}>
+      <Provider initializeState={({ set }) => set(idTokenAtom, undefined)}>
         <ThemeProvider theme={theme}>
           <SnackbarProvider
             anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
@@ -34,7 +34,7 @@ describe('LoginPage', () => {
             </Authenticator.Provider>
           </SnackbarProvider>
         </ThemeProvider>
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(container).toMatchSnapshot()

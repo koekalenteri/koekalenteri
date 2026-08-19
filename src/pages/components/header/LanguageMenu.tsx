@@ -3,17 +3,17 @@ import type { Language } from '../../../types'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import LanguageIcon from '@mui/icons-material/Language'
 import Menu from '@mui/material/Menu'
+import { useAtomValue } from 'jotai'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import { locales } from '../../../i18n'
-import { languageAtom } from '../../recoil'
+import { languageAtom } from '../../state'
 import AppBarButton from './AppBarButton'
 import { LanguageMenuItem } from './languageMenu/LanguageMenuItem'
 
 export default function LanguageMenu() {
   const { t } = useTranslation()
-  const language = useRecoilValue(languageAtom)
+  const language = useAtomValue(languageAtom)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 

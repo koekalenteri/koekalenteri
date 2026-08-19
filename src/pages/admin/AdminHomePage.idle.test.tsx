@@ -1,9 +1,9 @@
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
@@ -34,7 +34,7 @@ describe('AdminHomePage', () => {
     ]
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot>
+        <Provider>
           <SnackbarProvider>
             <Authenticator.Provider>
               <Suspense fallback={<div>loading...</div>}>
@@ -42,7 +42,7 @@ describe('AdminHomePage', () => {
               </Suspense>
             </Authenticator.Provider>
           </SnackbarProvider>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
 

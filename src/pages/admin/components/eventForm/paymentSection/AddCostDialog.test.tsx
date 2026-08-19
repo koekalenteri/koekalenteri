@@ -2,10 +2,10 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen, within } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
 import theme from '../../../../../assets/Theme'
 import { locales } from '../../../../../i18n'
 import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
@@ -15,7 +15,7 @@ const renderAddCostDialog = (props: any) => {
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <RecoilRoot>
+        <Provider>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
@@ -23,7 +23,7 @@ const renderAddCostDialog = (props: any) => {
               </SnackbarProvider>
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </LocalizationProvider>
     </ThemeProvider>,
     undefined,
@@ -282,7 +282,7 @@ describe('AddCostDialog', () => {
       rerender(
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <RecoilRoot>
+            <Provider>
               <MemoryRouter>
                 <Suspense fallback={<div>loading...</div>}>
                   <SnackbarProvider>
@@ -297,7 +297,7 @@ describe('AddCostDialog', () => {
                   </SnackbarProvider>
                 </Suspense>
               </MemoryRouter>
-            </RecoilRoot>
+            </Provider>
           </LocalizationProvider>
         </ThemeProvider>
       )

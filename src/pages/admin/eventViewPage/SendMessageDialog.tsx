@@ -23,11 +23,11 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 // @ts-expect-error handlebars 4.8 should fix this issue
 import Handlebars from 'handlebars/dist/cjs/handlebars.js'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { sendTemplatedEmail } from '../../../api/email'
 import { useRegistrationEmailTemplateData } from '../../../hooks/useRegistrationEmailTemplateData'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
@@ -36,9 +36,9 @@ import { getRegistrationClass } from '../../../lib/registration'
 import { Path } from '../../../routeConfig'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
-import { validIdTokenSelector } from '../../recoil'
-import { adminEmailTemplatesAtom, adminEventSelector } from '../recoil'
-import { useAdminRegistrationActions } from '../recoil/registrations/actions'
+import { validIdTokenAtom } from '../../state'
+import { adminEmailTemplatesAtom, adminEventAtom } from '../state'
+import { useAdminRegistrationActions } from '../state/registrations/actions'
 import ContactInfoGroup from './sendMessageDialog/ContactInfoGroup'
 
 interface Props {
@@ -81,10 +81,10 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const { enqueueSnackbar } = useSnackbar()
   const [contactInfo, setContactInfo] = useState(event.contactInfo)
   const [text, setText] = useState('')
-  const token = useRecoilValue(validIdTokenSelector)
-  const templates = useRecoilValue(adminEmailTemplatesAtom)
+  const token = useAtomValue(validIdTokenAtom)
+  const templates = useAtomValue(adminEmailTemplatesAtom)
   const actions = useAdminRegistrationActions(event.id)
-  const setEvent = useSetRecoilState(adminEventSelector(event.id))
+  const setEvent = useSetAtom(adminEventAtom(event.id))
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | undefined>(
     templates.find((t) => t.id === templateId)
   )

@@ -1,13 +1,13 @@
 import type { PublicDogEvent } from '../types'
-import { useRecoilValue } from 'recoil'
+import { useAtomValue } from 'jotai'
 import { getEventDays } from '../lib/event'
-import { adminEventTypeGroupsSelector } from '../pages/admin/recoil'
+import { adminEventTypeGroupsAtom } from '../pages/admin/state'
 
 export const useAdminEventDatesOptions = (
   event: Pick<PublicDogEvent, 'classes' | 'endDate' | 'startDate'> & Partial<Pick<PublicDogEvent, 'eventType'>>,
   eventClass?: string
 ) => {
-  const eventTypeGroups = useRecoilValue(adminEventTypeGroupsSelector(event.eventType))
+  const eventTypeGroups = useAtomValue(adminEventTypeGroupsAtom(event.eventType))
 
   if (event.classes?.length) {
     return event.classes

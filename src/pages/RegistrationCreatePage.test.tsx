@@ -7,7 +7,7 @@ import { screen } from '@testing-library/react'
 import { format } from 'date-fns'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
@@ -16,7 +16,7 @@ import { locales } from '../i18n'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
 import { ErrorPage } from './ErrorPage'
 import { Component as RegistrationCreatePage } from './RegistrationCreatePage'
-import { newRegistrationAtom } from './recoil'
+import { newRegistrationAtom } from './state'
 
 vi.mock('../api/user')
 vi.mock('../api/event')
@@ -63,13 +63,13 @@ describe('RegistrationCreatePage', () => {
     return renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot initializeState={registration ? ({ set }) => set(newRegistrationAtom, registration) : undefined}>
+          <Provider initializeState={registration ? ({ set }) => set(newRegistrationAtom, registration) : undefined}>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,

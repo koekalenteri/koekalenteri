@@ -1,24 +1,24 @@
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import CloudSync from '@mui/icons-material/CloudSync'
 import Stack from '@mui/material/Stack'
+import { useAtom, useAtomValue } from 'jotai'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilState, useRecoilValue } from 'recoil'
 import StyledDataGrid from '../components/StyledDataGrid'
-import { isAdminSelector } from '../recoil'
+import { isAdminAtom } from '../state'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import { CreateEventTypeDialog } from './eventTypeListPage/CreateEventTypeDialog'
 import { useEventTypeListPageColumns } from './eventTypeListPage/columns'
-import { adminEventTypeFilterAtom, adminFilteredEventTypesSelector, useAdminEventTypeActions } from './recoil'
+import { adminEventTypeFilterAtom, adminFilteredEventTypesAtom, useAdminEventTypeActions } from './state'
 
 export default function EventTypeListPage() {
   const { t } = useTranslation()
-  const eventTypes = useRecoilValue(adminFilteredEventTypesSelector)
-  const isAdmin = useRecoilValue(isAdminSelector)
+  const eventTypes = useAtomValue(adminFilteredEventTypesAtom)
+  const isAdmin = useAtomValue(isAdminAtom)
   const actions = useAdminEventTypeActions()
-  const [searchText, setSearchText] = useRecoilState(adminEventTypeFilterAtom)
+  const [searchText, setSearchText] = useAtom(adminEventTypeFilterAtom)
   const [createOpen, setCreateOpen] = useState(false)
 
   const columns = useEventTypeListPageColumns()

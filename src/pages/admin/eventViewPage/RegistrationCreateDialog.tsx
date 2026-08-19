@@ -1,7 +1,7 @@
 import type { DogEvent, RegistrationClass } from '../../../types'
+import { useAtom } from 'jotai'
 import { useCallback, useEffect } from 'react'
-import { useRecoilState } from 'recoil'
-import { adminNewRegistrationAtom, createAdminNewRegistration } from '../recoil'
+import { adminNewRegistrationAtom, createAdminNewRegistration } from '../state'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function RegistrationCreateDialog({ event, eventClass, open, onClose }: Props) {
-  const [registration, setRegistration] = useRecoilState(adminNewRegistrationAtom)
+  const [registration, setRegistration] = useAtom(adminNewRegistrationAtom)
   const resetRegistration = useCallback(() => {
     setRegistration(createAdminNewRegistration())
   }, [setRegistration])

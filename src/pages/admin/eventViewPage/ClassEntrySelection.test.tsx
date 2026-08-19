@@ -4,11 +4,11 @@ import { render } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
 import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
-import { idTokenAtom } from '../../recoil'
+import { idTokenAtom } from '../../state'
 import ClassEntrySelection from './ClassEntrySelection'
 
 vi.mock('../../../api/event')
@@ -17,13 +17,13 @@ vi.mock('../../../api/user')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
-    <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+    <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
       <SnackbarProvider>
         <ConfirmProvider>
           <Suspense fallback={<>loading...</>}>{props.children}</Suspense>
         </ConfirmProvider>
       </SnackbarProvider>
-    </RecoilRoot>
+    </Provider>
   )
 }
 

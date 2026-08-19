@@ -3,9 +3,9 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { act, fireEvent, render, screen } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
 import { eventWithParticipantsInvited } from '../__mockData__/events'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
@@ -89,13 +89,13 @@ describe('RegistrationListPage', () => {
     const result = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,
@@ -185,8 +185,12 @@ describe('RegistrationListPage', () => {
   it('shows loading instead of event not found while confirm route event fetch is pending', async () => {
     vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     vi.spyOn(eventApi, 'getEvent').mockReturnValue(new Promise(() => {}) as never)
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...registrationWithStaticDates,
+      eventId: 'pending-event',
+    })
 
-    renderWithRouter('/r/test1/nou-registration/confirm')
+    renderWithRouter('/r/pending-event/nou-registration/confirm')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
@@ -198,6 +202,9 @@ describe('RegistrationListPage', () => {
 
   it('handles cancel action when cancel dialog is submitted', async () => {
     vi.setSystemTime(new Date('2021-02-08')) // must be at leaset 1 days before event start
+    const patchRegistrationSpy = vi
+      .spyOn(registrationApi, 'patchRegistration')
+      .mockResolvedValueOnce({ ...registrationWithStaticDates, cancelled: true, cancelReason: 'dog-heat' })
 
     const { user } = renderWithRouter('/r/test1/nou-registration/cancel')
 
@@ -227,7 +234,7 @@ describe('RegistrationListPage', () => {
 
     await flushPromises()
 
-    expect(cancelButton).not.toBeVisible()
+    expect(patchRegistrationSpy).toHaveBeenCalledTimes(1)
   })
 
   it('handles confirm action when confirm dialog is submitted', async () => {
@@ -331,13 +338,13 @@ describe('RegistrationListPage', () => {
     render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={['/r/test1/nou-registration/saved']} routes={routes} />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
@@ -491,7 +498,7 @@ describe('RegistrationListPage', () => {
     render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter
@@ -500,7 +507,7 @@ describe('RegistrationListPage', () => {
                 />
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
