@@ -269,18 +269,25 @@ describe('paymentCreateLambda', () => {
   })
 
   it('rejects requests without a valid registration edit token before inspecting payment state', async () => {
-    mockAuthorizeRegistrationEdit.mockRejectedValueOnce(new LambdaError(404, 'not found'))
+    const error = new LambdaError(404, 'not found')
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockAuthorizeRegistrationEdit.mockRejectedValueOnce(error)
 
-    const result = await paymentCreateLambda(event)
+    try {
+      const result = await paymentCreateLambda(event)
 
-    expect(result.statusCode).toBe(404)
-    expect(mockAuthorizeRegistrationEdit).toHaveBeenCalledWith(event, createMockRegistration())
-    expect(mockGetEvent).not.toHaveBeenCalled()
-    expect(mockRead).toHaveBeenCalledTimes(1)
-    expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
-    expect(mockClaimTransactionCreation).not.toHaveBeenCalled()
-    expect(mockCreatePayment).not.toHaveBeenCalled()
-    expect(mockDocumentTransaction).not.toHaveBeenCalled()
+      expect(result.statusCode).toBe(404)
+      expect(errorSpy).toHaveBeenCalledWith(error)
+      expect(mockAuthorizeRegistrationEdit).toHaveBeenCalledWith(event, createMockRegistration())
+      expect(mockGetEvent).not.toHaveBeenCalled()
+      expect(mockRead).toHaveBeenCalledTimes(1)
+      expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
+      expect(mockClaimTransactionCreation).not.toHaveBeenCalled()
+      expect(mockCreatePayment).not.toHaveBeenCalled()
+      expect(mockDocumentTransaction).not.toHaveBeenCalled()
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   it('does not create another payment after a duplicate payment was captured', async () => {
