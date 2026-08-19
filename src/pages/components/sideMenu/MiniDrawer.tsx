@@ -49,7 +49,7 @@ const MiniDrawer = styled(Drawer)(({ theme, variant, open }) => {
       color: 'inherit',
       textDecoration: 'none',
     },
-    '& a.active > .MuiButtonBase-root': {
+    '& a.active.MuiButtonBase-root': {
       backgroundColor: theme.palette.background.selected,
     },
   }
