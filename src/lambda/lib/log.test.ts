@@ -1,12 +1,16 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 import { debugProxyEvent } from './log'
 
-const errorSpy = jest.spyOn(console, 'error')
-const debugSpy = jest.spyOn(console, 'debug')
+const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
 
 describe('log', () => {
-  afterEach(() => jest.resetAllMocks())
+  beforeEach(() => {
+    vi.resetAllMocks()
+    errorSpy.mockImplementation(() => undefined)
+    debugSpy.mockImplementation(() => undefined)
+  })
 
   describe('debugProxyEvent', () => {
     it('should not throw errors', () => {

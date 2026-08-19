@@ -1,17 +1,17 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockGetParam = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuditTrail = jest.fn<any>()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockGetParam = vi.fn()
+const mockGetEvent = vi.fn()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuditTrail = vi.fn()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(
@@ -25,11 +25,11 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/audit', () => ({
+vi.doMock('../lib/audit', () => ({
   auditTrail: mockAuditTrail,
 }))
 
@@ -43,7 +43,7 @@ describe('getAuditTrailLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuthorizeWithMemberOf.mockResolvedValue({
       memberOf: ['org1'],
       user: { id: 'user1', name: 'Test User' },
@@ -137,7 +137,7 @@ describe('getAuditTrailLambda', () => {
 
     // Simulate an error in auditTrail that's caught and returns an empty array
     const error = new Error('Database error')
-    console.error = jest.fn()
+    console.error = vi.fn()
     mockAuditTrail.mockImplementationOnce(async () => {
       console.error(error)
       return emptyAuditTrail

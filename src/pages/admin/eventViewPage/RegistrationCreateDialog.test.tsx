@@ -8,9 +8,11 @@ import RegistrationCreateDialog from './RegistrationCreateDialog'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 // Mock dependencies
-jest.mock('recoil')
-jest.mock('./RegistrationDialogBase', () => {
-  const MockRegistrationDialogBase = jest.fn(() => <div data-testid="registration-dialog-base" />)
+vi.mock('recoil')
+vi.mock('./RegistrationDialogBase', () => {
+  const MockRegistrationDialogBase = vi.fn(({ open }: { open: boolean }) =>
+    open ? <div data-testid="registration-dialog-base" /> : null
+  )
   return {
     __esModule: true,
     default: MockRegistrationDialogBase,
@@ -18,8 +20,8 @@ jest.mock('./RegistrationDialogBase', () => {
 })
 
 describe('RegistrationCreateDialog', () => {
-  const mockUseRecoilState = useRecoilState as jest.Mock
-  const mockSetRegistration = jest.fn()
+  const mockUseRecoilState = useRecoilState as import('vitest').Mock
+  const mockSetRegistration = vi.fn()
 
   const defaultRegistration: Registration = {
     agreeToTerms: false,
@@ -45,7 +47,7 @@ describe('RegistrationCreateDialog', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockUseRecoilState.mockReturnValue([defaultRegistration, mockSetRegistration])
   })
 
@@ -77,7 +79,7 @@ describe('RegistrationCreateDialog', () => {
     })
 
     it('should pass onClose prop to RegistrationDialogBase', () => {
-      const mockOnClose = jest.fn()
+      const mockOnClose = vi.fn()
 
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} onClose={mockOnClose} />)
 
@@ -274,7 +276,7 @@ describe('RegistrationCreateDialog', () => {
   describe('Integration', () => {
     // This test verifies that the component correctly integrates with RegistrationDialogBase
     it('should pass all required props to RegistrationDialogBase', () => {
-      const mockOnClose = jest.fn()
+      const mockOnClose = vi.fn()
       const eventClass: RegistrationClass = 'ALO'
 
       render(

@@ -1,19 +1,19 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockPublishAdminDataInvalidation = jest.fn<any>()
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+const mockPublishAdminDataInvalidation = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
 }))
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockReadAll = jest.fn<any>()
-const mockBatchWrite = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
-const mockAuthorize = jest.fn<any>()
-const mockNanoid = jest.fn<any>()
-const mockGetKLAPIConfig = jest.fn<any>()
-const mockLueYhdistykset = jest.fn<any>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockReadAll = vi.fn()
+const mockBatchWrite = vi.fn()
+const mockUpdate = vi.fn()
+const mockAuthorize = vi.fn()
+const mockNanoid = vi.fn()
+const mockGetKLAPIConfig = vi.fn()
+const mockLueYhdistykset = vi.fn()
 
 // Mock KLAPI class
 class MockKLAPI {
@@ -25,20 +25,20 @@ class MockKLAPI {
   }
 }
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     batchWrite: mockBatchWrite,
     readAll: mockReadAll,
     update: mockUpdate,
   })),
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
   authorizeAdmin: async (event: any) => {
     const user = await mockAuthorize(event)
@@ -48,15 +48,15 @@ jest.unstable_mockModule('../lib/auth', () => ({
   },
 }))
 
-jest.unstable_mockModule('nanoid', () => ({
+vi.doMock('nanoid', () => ({
   nanoid: mockNanoid,
 }))
 
-jest.unstable_mockModule('../lib/secrets', () => ({
+vi.doMock('../lib/secrets', () => ({
   getKLAPIConfig: mockGetKLAPIConfig,
 }))
 
-jest.unstable_mockModule('../lib/KLAPI', () => ({
+vi.doMock('../lib/KLAPI', () => ({
   default: MockKLAPI,
 }))
 
@@ -69,10 +69,10 @@ describe('getOrganizersLambda', () => {
     queryStringParameters: null,
   } as any
 
-  let consoleLogSpy: jest.SpiedFunction<any>
+  let consoleLogSpy: import('vitest').MockInstance<any>
 
   beforeAll(() => {
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
   })
 
   afterAll(() => {
@@ -80,7 +80,7 @@ describe('getOrganizersLambda', () => {
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('returns all organizers in regular mode', async () => {

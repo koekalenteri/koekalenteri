@@ -24,6 +24,7 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "target": "es6",
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom/vitest"],
     "useUnknownInCatchVariables": true,
   },
   "include": [

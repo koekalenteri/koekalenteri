@@ -9,8 +9,8 @@ import { DataMemoryRouter } from '../test-utils/utils'
 import { Component as LoginPage } from './LoginPage'
 import { idTokenAtom } from './recoil'
 
-jest.mock('@aws-amplify/ui-react', () => require('./global-mocks/auth/idle'))
-jest.mock('./components/Header', () => () => <>HEADER</>)
+vi.mock('@aws-amplify/ui-react', () => import('./global-mocks/auth/idle'))
+vi.mock('./components/Header', () => ({ default: () => <>HEADER</> }))
 
 describe('LoginPage', () => {
   it('should render the login page mock when user is not logged in', () => {

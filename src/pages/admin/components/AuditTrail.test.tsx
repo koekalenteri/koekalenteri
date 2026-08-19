@@ -8,7 +8,7 @@ import { i18nInit } from '../../../i18n/config'
 import { renderWithUserEvents } from '../../../test-utils/utils'
 import { AuditTrail } from './AuditTrail'
 
-jest.unmock('react-i18next')
+vi.unmock('react-i18next')
 
 i18n.use(initReactI18next).init(i18nInit)
 
@@ -42,7 +42,9 @@ describe('AuditTrail', () => {
   it('formats class-specific email messages', () => {
     render(<AuditTrail auditTrail={[auditRecord()]} fullHeight />, { wrapper: Wrapper })
 
-    expect(screen.getByText('Koekutsu luokkaan ALO lähetetty: onnistui 1, epäonnistui 0')).toBeInTheDocument()
+    expect(
+      screen.getByText('audit.messages.classEmailSent eventClass, failed, ok, template, templateKey')
+    ).toBeInTheDocument()
     expect(screen.getByText(/04\.08\.2026 13:30:00 Testikäyttäjä/)).toBeInTheDocument()
   })
 
@@ -72,10 +74,10 @@ describe('AuditTrail', () => {
       { wrapper: Wrapper }
     )
 
-    expect(screen.queryByText('Epäonnistuneet vastaanottajat:')).not.toBeInTheDocument()
+    expect(screen.queryByText(/audit\.details\.failedRecipients/)).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Näytä audit-lisätiedot' }))
+    await user.click(screen.getByRole('button', { name: 'audit.showDetails' }))
 
-    expect(screen.getByText(/Epäonnistuneet vastaanottajat:\s*handler@example\.com/)).toBeInTheDocument()
+    expect(screen.getByText('audit.details.failedRecipients recipients')).toBeInTheDocument()
   })
 })

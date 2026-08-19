@@ -1,31 +1,31 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 const broadcastConfigurations: unknown[] = []
-const mockBroadcast = jest.fn<any>((configuration: unknown) => {
+const mockBroadcast = vi.fn((configuration: unknown) => {
   broadcastConfigurations.push(configuration)
   return Promise.resolve({ attempted: 0, failed: 0, gone: 0, sent: 0 })
 })
-const mockRemoveConnection = jest.fn<any>().mockResolvedValue(undefined)
-const mockEventAudience = jest.fn<any>().mockReturnValue([])
-const mockOrganizerAudience = jest.fn<any>().mockReturnValue([])
-const mockPublicAudience = jest.fn<any>().mockReturnValue([])
-const mockRegistrationAudience = jest.fn<any>().mockReturnValue([])
-const mockAdminAudience = jest.fn<any>().mockReturnValue([])
-const mockBuildConnectionCountPayload = jest.fn((scope: string, count: number) => ({ count, scope }))
-const mockBuildEventPatchPayload = jest.fn((eventId: string, patch: object) => ({ eventId, ...patch }))
-const mockBuildEventViewersPayload = jest.fn((eventId: string, viewers: unknown[]) => ({ eventId, viewers }))
-const mockBuildRegistrationPatchPayload = jest.fn((eventId: string, patch: unknown[]) => ({ eventId, patch }))
-const mockToEventViewers = jest.fn((audience: unknown[]) => audience)
+const mockRemoveConnection = vi.fn().mockResolvedValue(undefined)
+const mockEventAudience = vi.fn().mockReturnValue([])
+const mockOrganizerAudience = vi.fn().mockReturnValue([])
+const mockPublicAudience = vi.fn().mockReturnValue([])
+const mockRegistrationAudience = vi.fn().mockReturnValue([])
+const mockAdminAudience = vi.fn().mockReturnValue([])
+const mockBuildConnectionCountPayload = vi.fn((scope: string, count: number) => ({ count, scope }))
+const mockBuildEventPatchPayload = vi.fn((eventId: string, patch: object) => ({ eventId, ...patch }))
+const mockBuildEventViewersPayload = vi.fn((eventId: string, viewers: unknown[]) => ({ eventId, viewers }))
+const mockBuildRegistrationPatchPayload = vi.fn((eventId: string, patch: unknown[]) => ({ eventId, patch }))
+const mockToEventViewers = vi.fn((audience: unknown[]) => audience)
 
-jest.unstable_mockModule('./broadcast', () => ({
+vi.doMock('./broadcast', () => ({
   broadcast: mockBroadcast,
 }))
 
-jest.unstable_mockModule('./connectionRepository', () => ({
+vi.doMock('./connectionRepository', () => ({
   removeConnection: mockRemoveConnection,
 }))
 
-jest.unstable_mockModule('./connectionSelectors', () => ({
+vi.doMock('./connectionSelectors', () => ({
   adminAudience: mockAdminAudience,
   eventAudience: mockEventAudience,
   organizerAudience: mockOrganizerAudience,
@@ -33,7 +33,7 @@ jest.unstable_mockModule('./connectionSelectors', () => ({
   registrationAudience: mockRegistrationAudience,
 }))
 
-jest.unstable_mockModule('./payloads', () => ({
+vi.doMock('./payloads', () => ({
   buildConnectionCountPayload: mockBuildConnectionCountPayload,
   buildEventPatchPayload: mockBuildEventPatchPayload,
   buildEventViewersPayload: mockBuildEventViewersPayload,

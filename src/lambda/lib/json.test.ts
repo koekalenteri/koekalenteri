@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { parseJSONWithFallback } from './json'
 
 describe('parseJSONWithFallback', () => {
@@ -8,7 +8,7 @@ describe('parseJSONWithFallback', () => {
   })
 
   it('should log and fallback with invalid json string', () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => null)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => null)
 
     expect(parseJSONWithFallback('koira', ['kissa'])).toEqual(['kissa'])
 

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RegistrationForm renders 1`] = `
+exports[`RegistrationForm > renders 1`] = `
 <div>
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-shnfc0-MuiPaper-root"
@@ -2481,7 +2481,7 @@ exports[`RegistrationForm renders 1`] = `
 </div>
 `;
 
-exports[`RegistrationForm renders with invalid dog information 1`] = `
+exports[`RegistrationForm > renders with invalid dog information 1`] = `
 <div>
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-shnfc0-MuiPaper-root"
@@ -3564,7 +3564,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-            style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+            style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
               class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -3702,7 +3702,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-            style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+            style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
               class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -4536,7 +4536,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-            style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+            style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
               class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"

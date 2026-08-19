@@ -1,24 +1,24 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockReadAll = jest.fn<any>()
-const mockQuery = jest.fn<any>()
-const mockSanitizeDogEvent = jest.fn<any>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockReadAll = vi.fn()
+const mockQuery = vi.fn()
+const mockSanitizeDogEvent = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     query: mockQuery,
     readAll: mockReadAll,
   })),
 }))
 
-jest.unstable_mockModule('../../lib/event', () => ({
+vi.doMock('../../lib/event', () => ({
   sanitizeDogEvent: mockSanitizeDogEvent,
 }))
 
@@ -31,7 +31,7 @@ describe('getEventsLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('returns sanitized non-draft events', async () => {
@@ -391,8 +391,8 @@ describe('getEventsLambda', () => {
   })
 
   it('queries current and next season for open-ended current-season ranges', async () => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
     mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
 
     const rangeEvent = {
@@ -423,12 +423,12 @@ describe('getEventsLambda', () => {
       },
     })
 
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('uses Helsinki timezone when deciding whether open-ended range is in current season', async () => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2026-12-31T22:30:00.000Z')) // 2027-01-01 in Helsinki
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-12-31T22:30:00.000Z')) // 2027-01-01 in Helsinki
     mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
 
     const rangeEvent = {
@@ -459,6 +459,6 @@ describe('getEventsLambda', () => {
       },
     })
 
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 })

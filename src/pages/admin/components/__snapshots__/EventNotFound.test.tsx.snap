@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`EventNotFound renders with error message 1`] = `
+exports[`EventNotFound > renders with error message 1`] = `
 <div>
   <div
     class="MuiBox-root css-15d58w2"
@@ -29,12 +29,12 @@ exports[`EventNotFound renders with error message 1`] = `
           <h1
             class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-kyi0tw-MuiTypography-root"
           >
-            Tapahtumaa ei löydy.
+            error.eventNotFound
           </h1>
           <p
             class="MuiTypography-root MuiTypography-body1 css-1gawtjx-MuiTypography-root"
           >
-            Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia.
+            error.eventMayHaveBeenDeleted
           </p>
           <a
             class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-10gbnq1-MuiButtonBase-root-MuiButton-root"
@@ -57,7 +57,7 @@ exports[`EventNotFound renders with error message 1`] = `
                 />
               </svg>
             </span>
-            Takaisin tapahtumalistaan
+            backToEventsList
           </a>
         </div>
       </div>

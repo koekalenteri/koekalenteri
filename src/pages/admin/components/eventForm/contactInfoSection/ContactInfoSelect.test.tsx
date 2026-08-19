@@ -6,13 +6,13 @@ describe('PersonContactInfo', () => {
   const defaults = { email: 'test email', name: 'test name', phone: 'test phone' }
 
   it('should render', () => {
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
     const { container } = render(<ContactInfoSelect defaults={defaults} name="official" onChange={changeHandler} />)
     expect(container).toMatchSnapshot()
   })
 
   it('should fire onChange when uncontrolled', async () => {
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
 
     const { user } = renderWithUserEvents(
       <ContactInfoSelect defaults={defaults} name="uncontrolled" onChange={changeHandler} />
@@ -81,7 +81,7 @@ describe('PersonContactInfo', () => {
 
   it('should fire onChange when controlled', async () => {
     const state = {}
-    const changeHandler = jest.fn((props) => Object.assign(state, props))
+    const changeHandler = vi.fn((props) => Object.assign(state, props))
 
     const { user } = renderWithUserEvents(
       <ContactInfoSelect defaults={defaults} name="controlled" show={state} onChange={changeHandler} />

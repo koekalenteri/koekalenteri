@@ -13,7 +13,7 @@ const renderComponent = (props: Props) => {
       <DateRange {...props} />
     </LocalizationProvider>,
     undefined,
-    { advanceTimers: jest.advanceTimersByTime }
+    { advanceTimers: vi.advanceTimersByTime }
   )
 
   const inputs = screen.getAllByRole<HTMLInputElement>('textbox') //'Choose date', { exact: false })
@@ -58,11 +58,11 @@ describe('DateRange', () => {
     const day15String = format(day15, 'dd.MM.yyyy')
     const day16String = format(day16, 'dd.MM.yyyy')
 
-    beforeAll(() => jest.useFakeTimers())
-    afterAll(() => jest.useRealTimers())
+    beforeAll(() => vi.useFakeTimers())
+    afterAll(() => vi.useRealTimers())
 
     it('should onChange when selecting dates by mouse', async () => {
-      const changeHandler = jest.fn()
+      const changeHandler = vi.fn()
 
       const { startCalendar, endCalendar, user } = renderComponent({
         end: null,
@@ -94,7 +94,7 @@ describe('DateRange', () => {
     })
 
     it('should not allow selecting dates outside of range', async () => {
-      const changeHandler = jest.fn()
+      const changeHandler = vi.fn()
       const range = {
         end: new Date(date.getFullYear(), date.getMonth(), 20),
         start: new Date(date.getFullYear(), date.getMonth(), 10),
@@ -126,7 +126,7 @@ describe('DateRange', () => {
     })
 
     it('should onChange when typing dates', async () => {
-      const changeHandler = jest.fn()
+      const changeHandler = vi.fn()
 
       const { startInput, endInput, user } = renderComponent({
         end: null,

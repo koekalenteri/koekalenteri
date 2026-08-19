@@ -1,14 +1,14 @@
-import fetchMock from 'jest-fetch-mock'
 import { enqueueSnackbar } from 'notistack'
 import { API_BASE_URL } from '../routeConfig'
+import fetchMock from '../test-utils/fetchMock'
 import http, { APIError, withToken } from './http'
 
 fetchMock.enableMocks()
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
-const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
+const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 const mockPendingFetch = (request: Request) =>
   new Promise<string>((_resolve, reject) => {
     const rejectWithAbort = () => reject(new DOMException('The operation was aborted.', 'AbortError'))
@@ -20,6 +20,7 @@ const mockPendingFetch = (request: Request) =>
 describe('http', () => {
   beforeEach(() => {
     fetchMock.resetMocks()
+    fetchMock.enableMocks()
     mockConsoleError.mockClear()
   })
 
@@ -39,7 +40,7 @@ describe('http', () => {
     })
 
     it('retries a failed network request once', async () => {
-      jest.useFakeTimers()
+      vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
       fetchMock.mockRejectOnce(new TypeError('Failed to fetch'))
       fetchMock.mockResponseOnce(JSON.stringify('ok'))
 
@@ -48,21 +49,21 @@ describe('http', () => {
       await Promise.resolve()
       expect(fetchMock).toHaveBeenCalledTimes(1)
 
-      await jest.advanceTimersByTimeAsync(399)
+      await vi.advanceTimersByTimeAsync(399)
       expect(fetchMock).toHaveBeenCalledTimes(1)
 
-      await jest.advanceTimersByTimeAsync(1)
+      await vi.advanceTimersByTimeAsync(1)
       await expect(request).resolves.toEqual('ok')
 
       expect(fetchMock).toHaveBeenCalledTimes(2)
       expect(enqueueSnackbar).not.toHaveBeenCalled()
 
-      jest.runOnlyPendingTimers()
-      jest.useRealTimers()
+      vi.runOnlyPendingTimers()
+      vi.useRealTimers()
     })
 
     it('retries a failed network request with a non-aborted signal', async () => {
-      jest.useFakeTimers()
+      vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
 
       try {
         fetchMock.mockRejectOnce(new TypeError('Failed to fetch'))
@@ -72,14 +73,14 @@ describe('http', () => {
         const request = http.get('/retry', { signal: controller.signal })
 
         await Promise.resolve()
-        await jest.advanceTimersByTimeAsync(400)
+        await vi.advanceTimersByTimeAsync(400)
         await expect(request).resolves.toEqual('ok')
 
         expect(fetchMock).toHaveBeenCalledTimes(2)
         expect(enqueueSnackbar).not.toHaveBeenCalled()
       } finally {
-        jest.runOnlyPendingTimers()
-        jest.useRealTimers()
+        vi.runOnlyPendingTimers()
+        vi.useRealTimers()
       }
     })
 
@@ -198,12 +199,12 @@ describe('http', () => {
 
       const promise = http.get('/somewhere')
 
-      expect(promise).rejects.toEqual(expect.objectContaining({ status, statusText: 'status text' }))
+      await expect(promise).rejects.toEqual(expect.objectContaining({ status, statusText: 'status text' }))
       expect(enqueueSnackbar).not.toHaveBeenCalled()
     })
 
     it('uses the configured default timeout', async () => {
-      jest.useFakeTimers()
+      vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
       let fetchSignal: AbortSignal | null | undefined
       const originalTimeout = Object.getOwnPropertyDescriptor(process.env, 'REACT_APP_HTTP_TIMEOUT_MS')
       Object.defineProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS', {
@@ -228,21 +229,21 @@ describe('http', () => {
           expect.objectContaining({ status: 408, statusText: `timeout loading ${API_BASE_URL}/test/` })
         )
 
-        await jest.advanceTimersByTimeAsync(59)
+        await vi.advanceTimersByTimeAsync(59)
         expect(fetchSignal?.aborted).toBe(false)
 
-        await jest.advanceTimersByTimeAsync(1)
+        await vi.advanceTimersByTimeAsync(1)
         await expectation
       } finally {
         if (originalTimeout) Object.defineProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS', originalTimeout)
         else Reflect.deleteProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS')
-        jest.runOnlyPendingTimers()
-        jest.useRealTimers()
+        vi.runOnlyPendingTimers()
+        vi.useRealTimers()
       }
     })
 
     it('supports a per-request timeout override', async () => {
-      jest.useFakeTimers()
+      vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
 
       fetchMock.mockImplementationOnce(
         () => new Promise((resolve) => setTimeout(() => resolve(new Response(JSON.stringify('ok'))), 20_000))
@@ -250,11 +251,11 @@ describe('http', () => {
 
       const promise = http.get('/slow', { timeoutMs: 30_000 })
 
-      await jest.advanceTimersByTimeAsync(20_000)
+      await vi.advanceTimersByTimeAsync(20_000)
       await expect(promise).resolves.toEqual('ok')
 
-      jest.runOnlyPendingTimers()
-      jest.useRealTimers()
+      vi.runOnlyPendingTimers()
+      vi.useRealTimers()
     })
 
     it('should throw 401 / The incoming token has expired', async () => {

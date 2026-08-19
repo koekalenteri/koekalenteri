@@ -42,25 +42,27 @@ export function DataMemoryRouter({
 }
 
 export const flushPromises = async (timers: boolean = true) => {
-  for (let i = 0; i <= 7; i++) {
-    await act(async () => {
-      if (timers) jest.runOnlyPendingTimers()
+  const timeoutIsFaked = 'clock' in globalThis.setTimeout
+  await act(async () => {
+    for (let i = 0; i <= 7; i++) {
+      if (timers && vi.isFakeTimers()) vi.runOnlyPendingTimers()
       await Promise.resolve()
-    })
-  }
+    }
+    if (timers && !timeoutIsFaked) await new Promise((resolve) => globalThis.setTimeout(resolve, 310))
+  })
 }
 
 export const createMatchMedia =
   (width: number) =>
   (query: string): MediaQueryList => ({
-    addEventListener: jest.fn(),
-    addListener: jest.fn(), // deprecated
-    dispatchEvent: jest.fn(),
+    addEventListener: vi.fn(),
+    addListener: vi.fn(), // deprecated
+    dispatchEvent: vi.fn(),
     matches: mediaQuery.match(query, { width }),
     media: query,
     onchange: null,
-    removeEventListener: jest.fn(),
-    removeListener: jest.fn(), // deprecated
+    removeEventListener: vi.fn(),
+    removeListener: vi.fn(), // deprecated
   })
 
 export function RecoilObserver<T>({
@@ -81,7 +83,9 @@ export function renderWithUserEvents(
   userEventOptions?: Options
 ): RenderResult & { user: UserEvent } {
   return {
-    user: userEvent.setup(userEventOptions),
+    user: userEvent.setup({
+      ...userEventOptions,
+    }),
     ...render(ui, options),
   }
 }

@@ -3,7 +3,7 @@ import type { PartialEvent } from './types'
 import { TZDate } from '@date-fns/tz'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { add, format } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 import { RecoilRoot } from 'recoil'
@@ -15,8 +15,8 @@ import { flushPromises, renderWithUserEvents } from '../../../../test-utils/util
 import { idTokenAtom } from '../../../recoil'
 import BasicInfoSection from './BasicInfoSection'
 
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
 const renderComponent = (props: Props) => {
@@ -26,8 +26,7 @@ const renderComponent = (props: Props) => {
         <BasicInfoSection {...props} />
       </RecoilRoot>
     </LocalizationProvider>,
-    undefined,
-    { advanceTimers: jest.advanceTimersByTime }
+    undefined
   )
 
   const inputs = screen.getAllByRole<HTMLInputElement>('textbox') //'Choose date', { exact: false })
@@ -37,7 +36,7 @@ const renderComponent = (props: Props) => {
 
 describe('BasicInfoSection', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should render', () => {
@@ -49,14 +48,12 @@ describe('BasicInfoSection', () => {
       judges: [],
       startDate: new TZDate('2022-06-01', TIME_ZONE),
     }
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
     const { container } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
     expect(container).toMatchSnapshot()
   })
 
   describe('interactions', () => {
-    beforeAll(() => jest.useFakeTimers())
-    afterAll(() => jest.useRealTimers())
     it('should update entry dates when event start date changes and entry dates are the defaults', async () => {
       const testEvent: PartialEvent = {
         classes: [],
@@ -68,15 +65,13 @@ describe('BasicInfoSection', () => {
       }
       const otherDate = add(newEventStartDate, { days: 1 })
       const otherDateString = format(otherDate, 'dd.MM.yyyy')
-      const changeHandler = jest.fn()
+      const changeHandler = vi.fn()
       const { startInput, user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
       expect(changeHandler).not.toHaveBeenCalled()
 
       await user.type(startInput, otherDateString)
-      await flushPromises()
-
-      expect(changeHandler).toHaveBeenCalledTimes(1)
+      await waitFor(() => expect(changeHandler).toHaveBeenCalledTimes(1))
       expect(changeHandler).toHaveBeenCalledWith({
         classes: [],
         endDate: otherDate,
@@ -99,15 +94,13 @@ describe('BasicInfoSection', () => {
       }
       const otherDate = add(newEventStartDate, { days: 1 })
       const otherDateString = format(otherDate, 'dd.MM.yyyy')
-      const changeHandler = jest.fn()
+      const changeHandler = vi.fn()
       const { startInput, user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
       expect(changeHandler).not.toHaveBeenCalled()
 
       await user.type(startInput, otherDateString)
-      await flushPromises()
-
-      expect(changeHandler).toHaveBeenCalledTimes(1)
+      await waitFor(() => expect(changeHandler).toHaveBeenCalledTimes(1))
       expect(changeHandler).toHaveBeenCalledWith({
         classes: [],
         endDate: otherDate,
@@ -118,7 +111,7 @@ describe('BasicInfoSection', () => {
     })
 
     it('should update local event state when a Kennel Club event is selected', async () => {
-      const searchEventKcIdChoices = jest.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
+      const searchEventKcIdChoices = vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
         choices: [
           {
             endDate: new TZDate('2026-07-02', TIME_ZONE),
@@ -131,7 +124,7 @@ describe('BasicInfoSection', () => {
           },
         ],
       })
-      const changeHandler = jest.fn()
+      const changeHandler = vi.fn()
       const testEvent: PartialEvent = {
         classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
         endDate: new TZDate('2026-06-01', TIME_ZONE),
@@ -187,7 +180,7 @@ describe('BasicInfoSection', () => {
     })
 
     it('should treat Kennel Club null end date as a one day event when selected', async () => {
-      jest.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
+      vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
         choices: [
           {
             contactInfo: {
@@ -211,7 +204,7 @@ describe('BasicInfoSection', () => {
           },
         ],
       })
-      const changeHandler = jest.fn()
+      const changeHandler = vi.fn()
       const testEvent: PartialEvent = {
         classes: [],
         endDate: new TZDate('2026-06-01', TIME_ZONE),
@@ -253,7 +246,7 @@ describe('BasicInfoSection', () => {
     })
 
     it('should clear an existing Kennel Club ID when remove is selected', async () => {
-      const changeHandler = jest.fn()
+      const changeHandler = vi.fn()
       const testEvent: PartialEvent = {
         classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
         endDate: new TZDate('2026-06-01', TIME_ZONE),
@@ -285,8 +278,8 @@ describe('BasicInfoSection', () => {
 
     it('should report Kennel Club event lookup failures', async () => {
       const error = new Error('lookup failed')
-      jest.spyOn(eventApi, 'searchEventKcIdChoices').mockRejectedValueOnce(error)
-      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      vi.spyOn(eventApi, 'searchEventKcIdChoices').mockRejectedValueOnce(error)
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       const testEvent: PartialEvent = {
         classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
         endDate: new TZDate('2026-06-01', TIME_ZONE),
@@ -298,7 +291,7 @@ describe('BasicInfoSection', () => {
       }
 
       try {
-        const { user } = renderComponent({ event: testEvent, onChange: jest.fn(), open: true })
+        const { user } = renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
 
         await user.click(screen.getByText('event.kcIdLookup'))
         await flushPromises()
@@ -311,7 +304,7 @@ describe('BasicInfoSection', () => {
     })
 
     it('should clear stale Kennel Club choices when a later lookup returns no matches', async () => {
-      const searchEventKcIdChoices = jest
+      const searchEventKcIdChoices = vi
         .spyOn(eventApi, 'searchEventKcIdChoices')
         .mockResolvedValueOnce({
           choices: [
@@ -328,7 +321,7 @@ describe('BasicInfoSection', () => {
         })
         .mockResolvedValueOnce({ choices: [] })
 
-      const changeHandler = jest.fn()
+      const changeHandler = vi.fn()
       const testEvent: PartialEvent = {
         classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
         endDate: new TZDate('2026-06-01', TIME_ZONE),

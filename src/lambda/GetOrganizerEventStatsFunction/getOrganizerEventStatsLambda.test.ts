@@ -1,22 +1,22 @@
 import type { APIGatewayProxyResult } from 'aws-lambda'
 import type { JsonUser } from '../../types'
 import type { authorizeWithMemberOf } from '../lib/auth'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // Mocks
-const mockReadAll: any = jest.fn()
-const mockQuery: any = jest.fn()
+const mockReadAll: any = vi.fn()
+const mockQuery: any = vi.fn()
 const mockDynamoDB = {
-  delete: jest.fn(),
+  delete: vi.fn(),
   query: mockQuery,
-  read: jest.fn(),
+  read: vi.fn(),
   readAll: mockReadAll,
-  update: jest.fn(),
-  write: jest.fn(),
+  update: vi.fn(),
+  write: vi.fn(),
 } as any
 
-const mockAuthorizeWithMemberOf = jest.fn<typeof authorizeWithMemberOf>()
+const mockAuthorizeWithMemberOf = vi.fn<typeof authorizeWithMemberOf>()
 
 const mockUser: JsonUser = {
   createdAt: '',
@@ -32,19 +32,19 @@ const mockAdminUser: JsonUser = {
   admin: true,
 }
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => mockDynamoDB),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => mockDynamoDB),
 }))
 const { default: getOrganizerEventStatsLambda } = await import('./handler')
 
 describe('getOrganizerEventStatsLambda', () => {
-  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+  vi.spyOn(console, 'debug').mockImplementation(() => undefined)
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   const baseStats = [

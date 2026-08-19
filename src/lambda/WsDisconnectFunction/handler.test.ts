@@ -1,15 +1,15 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockWsDisconnect = jest.fn<any>()
-const mockBroadcastConnectionCounts = jest.fn<any>()
+const mockWsDisconnect = vi.fn()
+const mockBroadcastConnectionCounts = vi.fn()
 
-jest.unstable_mockModule('../lib/ws/connectionLifecycle', () => ({
+vi.doMock('../lib/ws/connectionLifecycle', () => ({
   disconnectWebSocket: mockWsDisconnect,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishConnectionCounts: mockBroadcastConnectionCounts,
-  publishEventViewers: jest.fn(),
+  publishEventViewers: vi.fn(),
 }))
 
 const { default: wsDisconnectHandler } = await import('./handler')
@@ -22,7 +22,7 @@ describe('wsDisconnectHandler', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockWsDisconnect.mockResolvedValue(undefined)

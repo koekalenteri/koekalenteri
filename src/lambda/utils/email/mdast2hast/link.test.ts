@@ -1,16 +1,16 @@
 import type { Link } from 'mdast'
 import type { State } from 'mdast-util-to-hast/lib/state'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { linkHandler } from './link'
 
 describe('linkHandler', () => {
   it('calls handler for "a" selector without title', () => {
     const state = {
-      all: jest.fn(),
-      applyData: jest.fn(),
-      one: jest.fn(),
-      patch: jest.fn(),
-      wrap: jest.fn(),
+      all: vi.fn(),
+      applyData: vi.fn(),
+      one: vi.fn(),
+      patch: vi.fn(),
+      wrap: vi.fn(),
     }
 
     const node: Link = {
@@ -23,11 +23,11 @@ describe('linkHandler', () => {
 
   it('calls handler for "a" selector with title', () => {
     const state = {
-      all: jest.fn(),
-      applyData: jest.fn(),
-      one: jest.fn(),
-      patch: jest.fn(),
-      wrap: jest.fn(),
+      all: vi.fn(),
+      applyData: vi.fn(),
+      one: vi.fn(),
+      patch: vi.fn(),
+      wrap: vi.fn(),
     }
 
     const node: Link = {

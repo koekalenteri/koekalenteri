@@ -2,18 +2,18 @@ import type { User } from '../../types'
 import { getUser } from '../../api/user'
 import { getCurrentUser } from './currentUser'
 
-jest.mock('../../api/user', () => ({
-  getUser: jest.fn(),
+vi.mock('../../api/user', () => ({
+  getUser: vi.fn(),
 }))
 
 describe('current user request guard', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('coalesces concurrent requests with the same selector dependencies', async () => {
     const user = { id: 'user-1' } as User
-    jest.mocked(getUser).mockResolvedValue(user)
+    vi.mocked(getUser).mockResolvedValue(user)
 
     const first = getCurrentUser('id-token', 0)
     const second = getCurrentUser('id-token', 0)
@@ -25,7 +25,7 @@ describe('current user request guard', () => {
   })
 
   it('allows a new request when the token or explicit refresh revision changes', async () => {
-    jest.mocked(getUser).mockResolvedValue({ id: 'user-1' } as User)
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as User)
 
     await getCurrentUser('first-token', 0)
     await getCurrentUser('second-token', 0)
@@ -38,8 +38,8 @@ describe('current user request guard', () => {
   it('evicts a failed request so a later evaluation can retry', async () => {
     const error = new TypeError('Failed to fetch')
     const user = { id: 'user-1' } as User
-    jest.mocked(getUser).mockRejectedValueOnce(error).mockResolvedValueOnce(user)
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+    vi.mocked(getUser).mockRejectedValueOnce(error).mockResolvedValueOnce(user)
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     const first = getCurrentUser('id-token', 0)
     const concurrent = getCurrentUser('id-token', 0)

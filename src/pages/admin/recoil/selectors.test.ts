@@ -14,6 +14,10 @@ const users: User[] = [
 ]
 
 describe('admin cross-domain selectors', () => {
+  afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 20))
+  })
+
   it('lists organizers referenced by users and represents missing organizers', () => {
     const snapshot = snapshot_UNSTABLE(({ set }) => {
       set(adminOrganizersAtom, organizers)

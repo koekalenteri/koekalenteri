@@ -9,17 +9,17 @@ import { useDogActions } from './actions'
 import { dogAtom, dogCacheAtom } from './atoms'
 
 // Mock dependencies
-jest.mock('../../../api/dog', () => ({
-  getDog: jest.fn(),
+vi.mock('../../../api/dog', () => ({
+  getDog: vi.fn(),
 }))
 
-jest.mock('notistack', () => ({
+vi.mock('notistack', () => ({
   useSnackbar: () => ({
-    enqueueSnackbar: jest.fn(),
+    enqueueSnackbar: vi.fn(),
   }),
 }))
 
-const mockGetDog = getDog as jest.MockedFunction<typeof getDog>
+const mockGetDog = getDog as import('vitest').MockedFunction<typeof getDog>
 
 describe('useDogActions', () => {
   const testRegNo = 'TEST123/45'
@@ -30,7 +30,7 @@ describe('useDogActions', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Clear localStorage to avoid state persistence.
     localStorage.clear()
   })
@@ -259,7 +259,7 @@ describe('useDogActions', () => {
     })
 
     it('handles API error and returns cached dog', async () => {
-      const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       mockGetDog.mockRejectedValueOnce(new Error('API Error'))
 
@@ -530,7 +530,7 @@ describe('useDogActions', () => {
 
       // Spy on the setCache function
       const originalSetCache = result.current.updateCache
-      const mockUpdateCache = jest.fn((args) => {
+      const mockUpdateCache = vi.fn((args) => {
         capturedCache = { ...args }
         return originalSetCache(args)
       })

@@ -18,20 +18,20 @@ import {
 } from './atoms'
 import { adminEventRegistrationsSelector } from './selectors'
 
-const mockEnqueueSnackbar = jest.fn()
+const mockEnqueueSnackbar = vi.fn()
 
-jest.mock('notistack', () => ({
+vi.mock('notistack', () => ({
   SnackbarProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useSnackbar: () => ({ enqueueSnackbar: mockEnqueueSnackbar }),
 }))
 
-jest.mock('../../../../api/registration')
+vi.mock('../../../../api/registration')
 
-jest.mock('./effects', () => ({
+vi.mock('./effects', () => ({
   adminRemoteRegistrationsEffect: () => () => undefined,
 }))
 
-jest.mock('../events/effects', () => ({
+vi.mock('../events/effects', () => ({
   adminRemoteEventsEffect: () => undefined,
 }))
 
@@ -80,11 +80,11 @@ function groupQueueWrapper({ children }: { readonly children: React.ReactNode })
 
 describe('useAdminRegistrationActions', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('handles save conflicts and leaves registration state unchanged', async () => {
-    jest.spyOn(registrationApi, 'postAdminRegistration').mockRejectedValueOnce(
+    vi.spyOn(registrationApi, 'postAdminRegistration').mockRejectedValueOnce(
       new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
         email: 'owner@example.com',
         error: 'emailSuppressed',
@@ -117,7 +117,7 @@ describe('useAdminRegistrationActions', () => {
   })
 
   it('sends only locally edited registration fields as patch operations', async () => {
-    jest.spyOn(registrationApi, 'patchAdminRegistration').mockResolvedValueOnce({
+    vi.spyOn(registrationApi, 'patchAdminRegistration').mockResolvedValueOnce({
       ...registrationWithStaticDates,
       notes: 'changed notes',
     })
@@ -168,13 +168,13 @@ describe('useAdminRegistrationActions', () => {
   })
 
   it('coalesces stale refreshes and keeps request freshness separate from the server cursor', async () => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2026-07-24T12:00:00.000Z'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-07-24T12:00:00.000Z'))
     const eventId = eventWithStaticDates.id
     const cursor = new Date('2026-07-24T10:00:00.000Z')
     const fetchedAt = new Date('2026-07-24T11:00:00.000Z')
     const response = { cursor: cursor.getTime(), deletedIds: [], items: [] }
-    jest.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce(response)
+    vi.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce(response)
 
     const staleWrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <RecoilRoot
@@ -214,7 +214,7 @@ describe('useAdminRegistrationActions', () => {
     })
     expect(registrationApi.getRegistrations).toHaveBeenCalledTimes(1)
 
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('queues group moves by the latest registration classes', async () => {
@@ -222,7 +222,7 @@ describe('useAdminRegistrationActions', () => {
     const firstResponse = new Promise<Awaited<ReturnType<typeof registrationApi.putRegistrationGroups>>>((resolve) => {
       resolveFirst = resolve
     })
-    const putGroups = jest
+    const putGroups = vi
       .spyOn(registrationApi, 'putRegistrationGroups')
       .mockReturnValueOnce(firstResponse)
       .mockResolvedValueOnce(groupResponse)
@@ -254,9 +254,9 @@ describe('useAdminRegistrationActions', () => {
   })
 
   it('refreshes authoritative registrations after a group move failure', async () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-    jest.spyOn(registrationApi, 'putRegistrationGroups').mockRejectedValueOnce(new Error('network failure'))
-    const refresh = jest.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce([queuedRegistration] as never)
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.spyOn(registrationApi, 'putRegistrationGroups').mockRejectedValueOnce(new Error('network failure'))
+    const refresh = vi.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce([queuedRegistration] as never)
     const { result } = renderHook(
       () => ({
         actions: useAdminRegistrationActions(eventWithStaticDates.id),

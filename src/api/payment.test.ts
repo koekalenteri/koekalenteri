@@ -1,15 +1,16 @@
-import fetchMock from 'jest-fetch-mock'
+import fetchMock from '../test-utils/fetchMock'
 import mockResponse from './__mocks__/paymentCreate.response.json'
 import { createPayment } from './payment'
 
 fetchMock.enableMocks()
 
 describe('payment', () => {
-  let consoleErrorSpy: jest.SpyInstance
+  let consoleErrorSpy: import('vitest').MockInstance
 
   beforeEach(() => {
     fetchMock.resetMocks()
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    fetchMock.enableMocks()
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterEach(() => {

@@ -1,10 +1,17 @@
 import type { AwsRum } from 'aws-rum-web'
 import * as awsRum from 'aws-rum-web'
-import * as amplifyEnv from '../../amplify-env'
 import { rum } from './rum'
 
-jest.mock('aws-rum-web')
-jest.unmock('./rum')
+vi.mock('aws-rum-web')
+const rumApplicationId = vi.hoisted(() => ({ value: undefined as string | undefined }))
+vi.mock('../../amplify-env', () => ({
+  get RUM_APPLICATION_ID() {
+    return rumApplicationId.value
+  },
+  RUM_CONFIG: {},
+  RUM_REGION: 'eu-west-1',
+}))
+vi.unmock('./rum')
 
 describe('rum', () => {
   describe('rum', () => {
@@ -13,10 +20,10 @@ describe('rum', () => {
     })
 
     it('should return AwsRum instance', () => {
-      jest.replaceProperty(amplifyEnv, 'RUM_APPLICATION_ID', 'test')
+      rumApplicationId.value = 'test'
 
       const mockInstance = {}
-      jest.spyOn(awsRum, 'AwsRum').mockImplementation(() => mockInstance as unknown as AwsRum)
+      vi.spyOn(awsRum, 'AwsRum').mockImplementation(() => mockInstance as unknown as AwsRum)
 
       expect(rum()).toEqual(mockInstance)
       expect(rum()).toEqual(mockInstance)

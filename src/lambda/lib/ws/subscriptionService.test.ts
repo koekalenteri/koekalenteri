@@ -1,34 +1,34 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { LambdaError } from '../../lib/lambda'
 
-const mockGetEvent = jest.fn<any>()
-const mockIsConnectionExpired = jest.fn<any>()
-const mockCanReceiveAnyAdminEvent = jest.fn<any>()
-const mockGetConnection = jest.fn<any>()
-const mockSubscribeAdminChannel = jest.fn<any>()
-const mockSubscribeConnection = jest.fn<any>()
-const mockSubscribeRegistrationConnection = jest.fn<any>()
-const mockUnsubscribeAdminChannel = jest.fn<any>()
-const mockUnsubscribeConnection = jest.fn<any>()
-const mockUnsubscribeRegistrationConnection = jest.fn<any>()
-const mockGetRegistration = jest.fn<any>()
-const mockVerifyRegistrationEditToken = jest.fn<any>()
+const mockGetEvent = vi.fn()
+const mockIsConnectionExpired = vi.fn()
+const mockCanReceiveAnyAdminEvent = vi.fn()
+const mockGetConnection = vi.fn()
+const mockSubscribeAdminChannel = vi.fn()
+const mockSubscribeConnection = vi.fn()
+const mockSubscribeRegistrationConnection = vi.fn()
+const mockUnsubscribeAdminChannel = vi.fn()
+const mockUnsubscribeConnection = vi.fn()
+const mockUnsubscribeRegistrationConnection = vi.fn()
+const mockGetRegistration = vi.fn()
+const mockVerifyRegistrationEditToken = vi.fn()
 
-jest.unstable_mockModule('../../lib/event', () => ({
+vi.doMock('../../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../../lib/registration', () => ({
+vi.doMock('../../lib/registration', () => ({
   getRegistration: mockGetRegistration,
   verifyRegistrationEditToken: mockVerifyRegistrationEditToken,
 }))
 
-jest.unstable_mockModule('./connectionPolicy', () => ({
+vi.doMock('./connectionPolicy', () => ({
   canReceiveAnyAdminEvent: mockCanReceiveAnyAdminEvent,
   isConnectionExpired: mockIsConnectionExpired,
 }))
 
-jest.unstable_mockModule('./connectionRepository', () => ({
+vi.doMock('./connectionRepository', () => ({
   getConnection: mockGetConnection,
   subscribeAdminChannel: mockSubscribeAdminChannel,
   subscribeConnection: mockSubscribeConnection,
@@ -49,7 +49,7 @@ const {
 
 describe('ws/subscriptionService', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockIsConnectionExpired.mockReturnValue(false)
     mockCanReceiveAnyAdminEvent.mockReturnValue(true)
   })
@@ -76,7 +76,7 @@ describe('ws/subscriptionService', () => {
   it('subscribeToEvent throws 401 when connection is expired', async () => {
     mockIsConnectionExpired.mockReturnValueOnce(true)
 
-    await expect(subscribeToEvent({ connectionId: 'c1' } as any, 'e1', jest.fn<any>())).rejects.toEqual(
+    await expect(subscribeToEvent({ connectionId: 'c1' } as any, 'e1', vi.fn())).rejects.toEqual(
       new LambdaError(401, 'Connection expired')
     )
   })
@@ -85,13 +85,13 @@ describe('ws/subscriptionService', () => {
     mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
 
     await expect(
-      subscribeToEvent({ admin: false, connectionId: 'c1', memberOf: ['org-2'] } as any, 'e1', jest.fn<any>())
+      subscribeToEvent({ admin: false, connectionId: 'c1', memberOf: ['org-2'] } as any, 'e1', vi.fn())
     ).rejects.toEqual(new LambdaError(403, 'Forbidden'))
   })
 
   it('subscribeToEvent subscribes and publishes only current event when no previous event', async () => {
     mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
-    const publishEventViewers = jest.fn<any>().mockResolvedValue(undefined)
+    const publishEventViewers = vi.fn().mockResolvedValue(undefined)
 
     const result = await subscribeToEvent({ admin: true, connectionId: 'c1' } as any, 'e1', publishEventViewers)
 
@@ -107,7 +107,7 @@ describe('ws/subscriptionService', () => {
     mockGetEvent
       .mockResolvedValueOnce({ organizer: { id: 'org-new' } })
       .mockResolvedValueOnce({ organizer: { id: 'org-old' } })
-    const publishEventViewers = jest.fn<any>().mockResolvedValue(undefined)
+    const publishEventViewers = vi.fn().mockResolvedValue(undefined)
 
     await subscribeToEvent({ admin: true, connectionId: 'c1', eventId: 'e-old' } as any, 'e-new', publishEventViewers)
 
@@ -124,7 +124,7 @@ describe('ws/subscriptionService', () => {
 
   it('unsubscribeFromEvent unsubscribes and publishes when connection has event', async () => {
     mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
-    const publishEventViewers = jest.fn<any>().mockResolvedValue(undefined)
+    const publishEventViewers = vi.fn().mockResolvedValue(undefined)
 
     await unsubscribeFromEvent({ connectionId: 'c1', eventId: 'e1' } as any, publishEventViewers)
 
@@ -134,7 +134,7 @@ describe('ws/subscriptionService', () => {
   })
 
   it('unsubscribeFromEvent only unsubscribes when connection has no event', async () => {
-    const publishEventViewers = jest.fn<any>().mockResolvedValue(undefined)
+    const publishEventViewers = vi.fn().mockResolvedValue(undefined)
 
     await unsubscribeFromEvent({ connectionId: 'c1' } as any, publishEventViewers)
 

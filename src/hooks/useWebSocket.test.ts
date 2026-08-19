@@ -21,58 +21,59 @@ import {
   useWebSocket,
 } from './useWebSocket'
 
-jest.mock('../routeConfig', () => ({
+vi.mock('../routeConfig', async () => ({
   WS_API_URL: 'wss://example.invalid/ws',
 }))
 
-jest.mock('../api/user', () => ({
-  getUsers: jest.fn(),
+vi.mock('../api/user', async () => ({
+  getUsers: vi.fn(),
 }))
 
-jest.mock('../pages/admin/recoil/events', () => {
-  const { atom } = jest.requireActual('recoil')
+vi.mock('../pages/admin/recoil/events', async () => {
+  const { atom } = await vi.importActual<typeof import('recoil')>('recoil')
   return {
     adminEventsAtom: atom({ default: [], key: 'adminEventsAtomTestWs' }),
   }
 })
 
-jest.mock('../pages/admin/recoil/registrations/atoms', () => {
-  const { atomFamily } = jest.requireActual('recoil')
+vi.mock('../pages/admin/recoil/registrations/atoms', async () => {
+  const { atomFamily } = await vi.importActual<typeof import('recoil')>('recoil')
   return {
     adminEventRegistrationsAtom: atomFamily({ default: [], key: 'adminEventRegistrationsAtomTestWs' }),
   }
 })
 
-jest.mock('../pages/admin/recoil/user/atoms', () => {
-  const { atom } = jest.requireActual('recoil')
+vi.mock('../pages/admin/recoil/user/atoms', async () => {
+  const { atom } = await vi.importActual<typeof import('recoil')>('recoil')
   return {
     adminUsersAtom: atom({ default: [], key: 'adminUsersAtomTestWs' }),
   }
 })
 
-jest.mock('../pages/recoil/user/selectors', () => {
-  const { selector } = jest.requireActual('recoil')
-  const { idTokenAtom } = jest.requireActual('../pages/recoil/user/atoms')
+vi.mock('../pages/recoil/user/selectors', async () => {
+  const { selector } = await vi.importActual<typeof import('recoil')>('recoil')
+  const { idTokenAtom } =
+    await vi.importActual<typeof import('../pages/recoil/user/atoms')>('../pages/recoil/user/atoms')
   return {
     userSelector: selector({
       get: () => ({ id: 'user-1', name: 'User One', roles: { 'org-1': 'secretary' } }),
       key: 'userSelectorTestWs',
     }),
     validIdTokenSelector: selector({
-      get: ({ get }: { get: (value: unknown) => string | undefined }) => get(idTokenAtom),
+      get: ({ get }) => get(idTokenAtom),
       key: 'validIdTokenSelectorTestWs',
     }),
   }
 })
 
-jest.mock('../pages/recoil/events/atoms', () => {
-  const { atom } = jest.requireActual('recoil')
+vi.mock('../pages/recoil/events/atoms', async () => {
+  const { atom } = await vi.importActual<typeof import('recoil')>('recoil')
   return {
     eventsAtom: atom({ default: [], key: 'eventsAtomTestWs' }),
   }
 })
 
-let consoleDebugSpy: jest.SpyInstance
+let consoleDebugSpy: import('vitest').MockInstance
 
 describe('applyPatch', () => {
   const baseEvents = [
@@ -215,26 +216,26 @@ describe('useWebSocket', () => {
   }
 
   beforeEach(() => {
-    jest.useRealTimers()
-    consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {})
-    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.useRealTimers()
+    consoleDebugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
     // Create mock WebSocket instance
     mockWebSocketInstance = {
-      close: jest.fn(),
+      close: vi.fn(),
       onclose: null,
       onerror: null,
       onmessage: null,
       onopen: null,
-      send: jest.fn(),
+      send: vi.fn(),
     }
 
     // Mock WebSocket constructor
-    global.WebSocket = jest.fn(() => mockWebSocketInstance) as any
+    global.WebSocket = vi.fn(() => mockWebSocketInstance) as any
   })
 
   afterEach(() => {
     consoleDebugSpy.mockRestore()
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('should set up event handlers on the WebSocket instance', async () => {
@@ -270,8 +271,7 @@ describe('useWebSocket', () => {
 
   it('refetches invalidated admin reference data with the authenticated API', async () => {
     const freshUsers = [{ id: 'user-3', name: 'Fresh User' }] as User[]
-    jest
-      .mocked(getUsers)
+    vi.mocked(getUsers)
       .mockResolvedValueOnce({
         cursor: Date.parse('2024-01-03T00:00:00.000Z'),
         deletedIds: ['user-2'],
@@ -361,7 +361,7 @@ describe('useWebSocket', () => {
   it('should authenticate over websocket message when token is available', async () => {
     renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
 
-    await waitFor(() => expect(global.WebSocket).toHaveBeenCalledWith('wss://example.invalid/ws'))
+    expect(global.WebSocket).toHaveBeenCalledWith('wss://example.invalid/ws')
 
     act(() => {
       mockWebSocketInstance.onopen?.({} as Event)
@@ -373,10 +373,10 @@ describe('useWebSocket', () => {
   })
 
   it('should close and stop reconnecting when authentication fails', async () => {
-    jest.useFakeTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
     renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
 
-    await waitFor(() => expect(global.WebSocket).toHaveBeenCalledWith('wss://example.invalid/ws'))
+    expect(global.WebSocket).toHaveBeenCalledWith('wss://example.invalid/ws')
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
@@ -388,7 +388,7 @@ describe('useWebSocket', () => {
 
     act(() => {
       mockWebSocketInstance.onclose?.({} as CloseEvent)
-      jest.runOnlyPendingTimers()
+      vi.runOnlyPendingTimers()
     })
 
     expect(global.WebSocket).toHaveBeenCalledTimes(1)
@@ -409,7 +409,7 @@ describe('useWebSocket', () => {
 
   it('subscribes to a participant registration and applies matching patches', () => {
     mockWebSocketInstance.readyState = WebSocket.OPEN
-    const listener = jest.fn()
+    const listener = vi.fn()
     const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
 
     act(() => {
@@ -442,7 +442,7 @@ describe('useWebSocket', () => {
 
   it('ignores participant registration patches for another registration', () => {
     mockWebSocketInstance.readyState = WebSocket.OPEN
-    const listener = jest.fn()
+    const listener = vi.fn()
     const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
 
     act(() => {
@@ -472,7 +472,7 @@ describe('useWebSocket', () => {
   })
 
   it('should notify audit record subscribers', () => {
-    const listener = jest.fn()
+    const listener = vi.fn()
     const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
     result.current.subscribeAuditRecords(listener)
 
@@ -578,13 +578,13 @@ describe('useWebSocket', () => {
   })
 
   it('should close websocket and prevent reconnect on cleanup', () => {
-    jest.useFakeTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
     const { unmount } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
 
     unmount()
     act(() => {
       mockWebSocketInstance.onclose?.()
-      jest.runOnlyPendingTimers()
+      vi.runOnlyPendingTimers()
     })
 
     expect(mockWebSocketInstance.close).toHaveBeenCalledTimes(1)
@@ -592,12 +592,12 @@ describe('useWebSocket', () => {
   })
 
   it('should reconnect after close while mounted', () => {
-    jest.useFakeTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
     renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
 
     act(() => {
       mockWebSocketInstance.onclose?.()
-      jest.advanceTimersByTime(1000)
+      vi.advanceTimersByTime(1000)
     })
 
     expect(global.WebSocket).toHaveBeenCalledTimes(2)
@@ -1177,15 +1177,15 @@ describe('useWebSocket', () => {
 
   it('should reconnect and authenticate when token changes after initial connection', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = jest.fn(() => {
+    global.WebSocket = vi.fn(() => {
       const instance = {
-        close: jest.fn(),
+        close: vi.fn(),
         onclose: null as (() => void) | null,
         onerror: null as (() => void) | null,
         onmessage: null as ((e: { data: string }) => void) | null,
         onopen: null as (() => void) | null,
         readyState: WebSocket.OPEN,
-        send: jest.fn(),
+        send: vi.fn(),
       }
       wsInstances.push(instance)
       return instance
@@ -1218,15 +1218,15 @@ describe('useWebSocket', () => {
 
   it('ignores a late authentication failure from the socket that used the previous token', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = jest.fn(() => {
+    global.WebSocket = vi.fn(() => {
       const instance = {
-        close: jest.fn(),
+        close: vi.fn(),
         onclose: null as (() => void) | null,
         onerror: null as (() => void) | null,
         onmessage: null as ((e: { data: string }) => void) | null,
         onopen: null as (() => void) | null,
         readyState: WebSocket.OPEN,
-        send: jest.fn(),
+        send: vi.fn(),
       }
       wsInstances.push(instance)
       return instance
@@ -1255,10 +1255,10 @@ describe('useWebSocket', () => {
 
     expect(wsInstances[1].close).not.toHaveBeenCalled()
 
-    jest.useFakeTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
     act(() => {
       wsInstances[1].onclose?.()
-      jest.advanceTimersByTime(1000)
+      vi.advanceTimersByTime(1000)
     })
 
     expect(wsInstances).toHaveLength(3)
@@ -1266,15 +1266,15 @@ describe('useWebSocket', () => {
 
   it('should close authenticated socket and clear subscriptions when token is removed', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = jest.fn(() => {
+    global.WebSocket = vi.fn(() => {
       const instance = {
-        close: jest.fn(),
+        close: vi.fn(),
         onclose: null as (() => void) | null,
         onerror: null as (() => void) | null,
         onmessage: null as ((e: { data: string }) => void) | null,
         onopen: null as (() => void) | null,
         readyState: WebSocket.OPEN,
-        send: jest.fn(),
+        send: vi.fn(),
       }
       wsInstances.push(instance)
       return instance
@@ -1314,15 +1314,15 @@ describe('useWebSocket', () => {
 
   it('should keep event subscription when token loadable is temporarily loading during token refresh', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = jest.fn(() => {
+    global.WebSocket = vi.fn(() => {
       const instance = {
-        close: jest.fn(),
+        close: vi.fn(),
         onclose: null as (() => void) | null,
         onerror: null as (() => void) | null,
         onmessage: null as ((e: { data: string }) => void) | null,
         onopen: null as (() => void) | null,
         readyState: WebSocket.OPEN,
-        send: jest.fn(),
+        send: vi.fn(),
       }
       wsInstances.push(instance)
       return instance
@@ -1378,19 +1378,19 @@ describe('useWebSocket', () => {
     //   4. WS1.onclose fires asynchronously (close is async)
     //      Before the fix: shouldReconnect===true, schedules connect() → WS3
     //      After  the fix: wsRef.current (WS2) !== ws (WS1) → early return, no WS3
-    jest.useFakeTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
 
     // Override the shared mock so each construction returns a distinct instance
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = jest.fn(() => {
+    global.WebSocket = vi.fn(() => {
       const instance = {
-        close: jest.fn(),
+        close: vi.fn(),
         onclose: null as (() => void) | null,
         onerror: null as (() => void) | null,
         onmessage: null as ((e: { data: string }) => void) | null,
         onopen: null as (() => void) | null,
         readyState: WebSocket.CONNECTING,
-        send: jest.fn(),
+        send: vi.fn(),
       }
       wsInstances.push(instance)
       return instance
@@ -1405,7 +1405,7 @@ describe('useWebSocket', () => {
     // Legitimate close → reconnect timer fires → WS2 created
     act(() => {
       ws1OnClose?.()
-      jest.advanceTimersByTime(1000)
+      vi.advanceTimersByTime(1000)
     })
     expect(wsInstances).toHaveLength(2)
 
@@ -1413,7 +1413,7 @@ describe('useWebSocket', () => {
     // unmount arriving after WS2 is already in wsRef)
     act(() => {
       ws1OnClose?.()
-      jest.advanceTimersByTime(1000)
+      vi.advanceTimersByTime(1000)
     })
 
     // No third WebSocket should have been created

@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 import { renderWithUserEvents } from '../../../../test-utils/utils'
 import GroupHeader from './GroupHeader'
 
-jest.mock('./GroupColors', () => ({
+vi.mock('./GroupColors', () => ({
   __esModule: true,
   default: ({ available, selected, disableTooltip }: any) => (
     <div

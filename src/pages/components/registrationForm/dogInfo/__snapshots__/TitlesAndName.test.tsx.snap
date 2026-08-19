@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`TitlesAndName should render with disabled name 1`] = `
+exports[`TitlesAndName > should render with disabled name 1`] = `
 <div>
   <div
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
@@ -88,7 +88,7 @@ exports[`TitlesAndName should render with disabled name 1`] = `
 </div>
 `;
 
-exports[`TitlesAndName should render with disabled name and titles 1`] = `
+exports[`TitlesAndName > should render with disabled name and titles 1`] = `
 <div>
   <div
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
@@ -177,7 +177,7 @@ exports[`TitlesAndName should render with disabled name and titles 1`] = `
 </div>
 `;
 
-exports[`TitlesAndName should render with disabled titles 1`] = `
+exports[`TitlesAndName > should render with disabled titles 1`] = `
 <div>
   <div
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
@@ -265,7 +265,7 @@ exports[`TitlesAndName should render with disabled titles 1`] = `
 </div>
 `;
 
-exports[`TitlesAndName should render with minimal properties 1`] = `
+exports[`TitlesAndName > should render with minimal properties 1`] = `
 <div>
   <div
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"

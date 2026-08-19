@@ -3,16 +3,16 @@ import { getRegistration, patchRegistration } from '../api/registration'
 import { deferredLoader } from './RegistrationInvitation'
 
 // Mock dependencies
-jest.mock('../api/event', () => ({ getEvent: jest.fn() }))
-jest.mock('../api/registration', () => ({ getRegistration: jest.fn(), patchRegistration: jest.fn() }))
+vi.mock('../api/event', () => ({ getEvent: vi.fn() }))
+vi.mock('../api/registration', () => ({ getRegistration: vi.fn(), patchRegistration: vi.fn() }))
 
-const mockGetEvent = getEvent as jest.Mock
-const mockGetRegistration = getRegistration as jest.Mock
-const mockPatchRegistration = patchRegistration as jest.Mock
+const mockGetEvent = getEvent as import('vitest').Mock
+const mockGetRegistration = getRegistration as import('vitest').Mock
+const mockPatchRegistration = patchRegistration as import('vitest').Mock
 
 describe('RegistrationInvitation deferredLoader', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('throws error when id or registrationId is missing', async () => {
@@ -150,7 +150,7 @@ describe('RegistrationInvitation deferredLoader', () => {
   })
 
   it('handles API errors gracefully', async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
     mockGetEvent.mockRejectedValueOnce(new Error('API error'))
     mockGetRegistration.mockRejectedValueOnce(new Error('API error'))
 

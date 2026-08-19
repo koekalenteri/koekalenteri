@@ -7,12 +7,12 @@ import { reportError } from '../lib/client/error'
 import { idTokenAtom } from '../pages/recoil/user/atoms'
 import { useAuthSessionInitialization } from './useAuthSessionInitialization'
 
-jest.mock('aws-amplify/auth', () => ({
-  fetchAuthSession: jest.fn(),
+vi.mock('aws-amplify/auth', () => ({
+  fetchAuthSession: vi.fn(),
 }))
 
-jest.mock('../lib/client/error', () => ({
-  reportError: jest.fn(),
+vi.mock('../lib/client/error', () => ({
+  reportError: vi.fn(),
 }))
 
 const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
@@ -27,12 +27,12 @@ const wrapperWithToken =
 
 describe('auth session initialization', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     localStorage.clear()
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('uses a valid persisted token without querying Amplify', () => {
@@ -53,7 +53,7 @@ describe('auth session initialization', () => {
   it('restores a missing token from Amplify before completing initialization', async () => {
     const token = makeToken({ exp: Date.now() / 1000 + 3600 })
     let resolveSession: (value: Awaited<ReturnType<typeof fetchAuthSession>>) => void = () => undefined
-    jest.mocked(fetchAuthSession).mockReturnValueOnce(
+    vi.mocked(fetchAuthSession).mockReturnValueOnce(
       new Promise<Awaited<ReturnType<typeof fetchAuthSession>>>((resolve) => {
         resolveSession = resolve
       })
@@ -83,7 +83,7 @@ describe('auth session initialization', () => {
   it('refreshes an expired persisted token during initialization', async () => {
     const expiredToken = makeToken({ exp: Date.now() / 1000 - 1 })
     const freshToken = makeToken({ exp: Date.now() / 1000 + 3600 })
-    jest.mocked(fetchAuthSession).mockResolvedValueOnce({
+    vi.mocked(fetchAuthSession).mockResolvedValueOnce({
       tokens: { idToken: { toString: () => freshToken } },
     } as Awaited<ReturnType<typeof fetchAuthSession>>)
 
@@ -101,7 +101,7 @@ describe('auth session initialization', () => {
 
   it('replaces a malformed persisted token during initialization', async () => {
     const freshToken = makeToken({ exp: Date.now() / 1000 + 3600 })
-    jest.mocked(fetchAuthSession).mockResolvedValueOnce({
+    vi.mocked(fetchAuthSession).mockResolvedValueOnce({
       tokens: { idToken: { toString: () => freshToken } },
     } as Awaited<ReturnType<typeof fetchAuthSession>>)
 
@@ -119,8 +119,8 @@ describe('auth session initialization', () => {
 
   it('clears an expired token when the Amplify session is no longer valid', async () => {
     const expiredToken = makeToken({ exp: Date.now() / 1000 - 1 })
-    jest.mocked(fetchAuthSession).mockRejectedValueOnce({ name: 'NotAuthorizedException' })
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+    vi.mocked(fetchAuthSession).mockRejectedValueOnce({ name: 'NotAuthorizedException' })
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     const { result } = renderHook(
       () => {
@@ -137,8 +137,8 @@ describe('auth session initialization', () => {
   it('preserves an expired token after a transient initialization failure', async () => {
     const expiredToken = makeToken({ exp: Date.now() / 1000 - 1 })
     const error = new TypeError('Failed to fetch')
-    jest.mocked(fetchAuthSession).mockRejectedValueOnce(error)
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+    vi.mocked(fetchAuthSession).mockRejectedValueOnce(error)
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     const { result } = renderHook(
       () => {
@@ -153,7 +153,7 @@ describe('auth session initialization', () => {
   })
 
   it('coalesces StrictMode initialization into one Amplify request', async () => {
-    jest.mocked(fetchAuthSession).mockResolvedValueOnce({} as Awaited<ReturnType<typeof fetchAuthSession>>)
+    vi.mocked(fetchAuthSession).mockResolvedValueOnce({} as Awaited<ReturnType<typeof fetchAuthSession>>)
 
     const { result } = renderHook(
       () => {

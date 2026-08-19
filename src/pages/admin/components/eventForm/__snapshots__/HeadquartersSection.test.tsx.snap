@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`HeadquartersSection should render collapsed 1`] = `
+exports[`HeadquartersSection > should render collapsed 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -228,7 +228,7 @@ exports[`HeadquartersSection should render collapsed 1`] = `
 </div>
 `;
 
-exports[`HeadquartersSection should render open 1`] = `
+exports[`HeadquartersSection > should render open 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"

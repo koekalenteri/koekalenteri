@@ -1,12 +1,12 @@
 /** Detect whether we're running under Jest in either node or jsdom. */
 const isJestDefined = (): boolean => {
   const global = globalThis as unknown as {
-    jest?: unknown
+    vi?: unknown
     expect?: unknown
     describe?: unknown
   }
 
-  if (global.jest !== undefined) return true
+  if (global.vi !== undefined) return true
   if (global.expect !== undefined && global.describe !== undefined) return true
 
   const runtimeProcess = typeof process === 'undefined' ? undefined : process

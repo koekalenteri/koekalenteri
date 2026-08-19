@@ -4,39 +4,41 @@ import { getOfficials } from '../../../../api/official'
 import { getUsers } from '../../../../api/user'
 import { useAdminOfficialsActions } from './actions'
 
-jest.mock('../../../../api/official', () => ({
-  getOfficials: jest.fn(),
+vi.mock('../../../../api/official', async () => ({
+  getOfficials: vi.fn(),
 }))
 
-jest.mock('../../../../api/user', () => ({
-  getUsers: jest.fn(),
+vi.mock('../../../../api/user', async () => ({
+  getUsers: vi.fn(),
 }))
 
-jest.mock('recoil', () => {
-  const actual = jest.requireActual('recoil')
+vi.mock('recoil', async () => {
+  const actual = await vi.importActual<typeof import('recoil')>('recoil')
   return {
     ...actual,
-    useRecoilValue: jest.fn(),
-    useSetRecoilState: jest.fn(),
+    useRecoilValue: vi.fn(),
+    useSetRecoilState: vi.fn(),
   }
 })
 
 describe('useAdminOfficialsActions', () => {
-  const mockSetOfficials = jest.fn()
-  const mockSetUsers = jest.fn()
+  const mockSetOfficials = vi.fn()
+  const mockSetUsers = vi.fn()
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(useRecoilValue as jest.Mock).mockReturnValue('token-123')
-    ;(useSetRecoilState as jest.Mock).mockReturnValueOnce(mockSetOfficials).mockReturnValueOnce(mockSetUsers)
+    vi.clearAllMocks()
+    ;(useRecoilValue as import('vitest').Mock).mockReturnValue('token-123')
+    ;(useSetRecoilState as import('vitest').Mock)
+      .mockReturnValueOnce(mockSetOfficials)
+      .mockReturnValueOnce(mockSetUsers)
   })
 
   it('refresh sorts officials and reloads users', async () => {
-    ;(getOfficials as jest.Mock).mockResolvedValue([
+    ;(getOfficials as import('vitest').Mock).mockResolvedValue([
       { id: 2, name: 'Örn' },
       { id: 1, name: 'Aaro' },
     ])
-    ;(getUsers as jest.Mock).mockResolvedValue([{ id: 'u1', name: 'User One' }])
+    ;(getUsers as import('vitest').Mock).mockResolvedValue([{ id: 'u1', name: 'User One' }])
 
     const { result } = renderHook(() => useAdminOfficialsActions(), { wrapper: RecoilRoot })
 
@@ -54,7 +56,7 @@ describe('useAdminOfficialsActions', () => {
   })
 
   it('refresh throws when token is missing', async () => {
-    ;(useRecoilValue as jest.Mock).mockReturnValue(undefined)
+    ;(useRecoilValue as import('vitest').Mock).mockReturnValue(undefined)
 
     const { result } = renderHook(() => useAdminOfficialsActions(), { wrapper: RecoilRoot })
 

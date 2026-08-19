@@ -1,8 +1,4 @@
-// Run backend + frontend test suites as separate Jest processes.
-//
-// Motivation:
-// - Backend needs NODE_OPTIONS=--experimental-vm-modules for ESM support.
-// - Frontend breaks under that flag (e.g. CJS/ESM interop issues in deps like notistack).
+// Run backend + frontend Vitest projects in parallel processes.
 //
 // This script forwards any CLI filters (e.g. `npm test http`) to *both* test runners,
 // ensures that filters that match zero tests do not fail the overall command,
@@ -10,7 +6,7 @@
 
 const { spawn } = require('node:child_process')
 
-const args = process.argv.slice(2)
+const args = process.argv.slice(2).map((arg) => (arg === '--onlyChanged' ? '--changed' : arg))
 
 const spawnNode = (script, extraEnv = {}) =>
   spawn(process.execPath, [script, ...args], {
@@ -19,11 +15,7 @@ const spawnNode = (script, extraEnv = {}) =>
   })
 
 const childEnv = { CI: 'true' }
-const backendEnv = {
-  ...childEnv,
-  NODE_OPTIONS: '--experimental-vm-modules --no-warnings',
-  DOTENV_CONFIG_QUIET: 'true',
-}
+const backendEnv = { ...childEnv, DOTENV_CONFIG_QUIET: 'true' }
 const children = [
   spawnNode(require.resolve('./test-backend.js'), backendEnv),
   spawnNode(require.resolve('./test-frontend.js'), childEnv),
@@ -44,7 +36,7 @@ children.forEach((child) => {
   })
 })
 
-// Propagate termination signals so Ctrl-C stops both Jest processes.
+// Propagate termination signals so Ctrl-C stops both Vitest processes.
 ;['SIGINT', 'SIGTERM'].forEach((sig) => {
   process.on(sig, () => {
     children.forEach((c) => c.kill(sig))

@@ -42,12 +42,12 @@ describe('formatDateSpan', () => {
 
 describe('currentFinnishTime', () => {
   beforeAll(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2020-04-01T10:20:30Z'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2020-04-01T10:20:30Z'))
   })
 
   afterAll(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('formats correctly', () => {

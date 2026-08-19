@@ -21,13 +21,13 @@ import { idTokenAtom } from '../../recoil'
 import { adminEmailTemplatesAtom, adminEventsAtom } from '../recoil'
 import SendMessageDialog from './SendMessageDialog'
 
-jest.mock('../../../api/email')
-jest.mock('../../../api/event')
-jest.mock('../../../api/registration')
-jest.mock('../recoil/emailTemplates/effects', () => ({
+vi.mock('../../../api/email')
+vi.mock('../../../api/event')
+vi.mock('../../../api/registration')
+vi.mock('../recoil/emailTemplates/effects', () => ({
   adminRemoteEmailTemplatesEffect: () => undefined,
 }))
-jest.mock('../recoil/events/effects', () => ({
+vi.mock('../recoil/events/effects', () => ({
   adminRemoteEventsEffect: () => undefined,
 }))
 
@@ -83,18 +83,18 @@ const createWrapper =
   )
 
 describe('SendMessageDialog', () => {
-  let consoleError: jest.SpiedFunction<typeof console.error>
+  let consoleError: import('vitest').MockInstance<typeof console.error>
 
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
   beforeEach(() => {
-    consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
   })
   afterEach(() => {
     expect(consoleError).not.toHaveBeenCalled()
     consoleError.mockRestore()
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders hidden when open is false', async () => {
     const { container } = render(<SendMessageDialog registrations={[]} open={false} event={eventWithStaticDates} />, {

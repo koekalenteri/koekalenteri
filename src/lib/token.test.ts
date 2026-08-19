@@ -5,12 +5,12 @@ const makeToken = (payload: object) => `header.${encodeBase64Url(JSON.stringify(
 
 describe('token', () => {
   beforeEach(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2026-07-24T12:00:00.000Z'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-07-24T12:00:00.000Z'))
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('reads JWT expiration time', () => {

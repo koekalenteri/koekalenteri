@@ -17,13 +17,13 @@ import { LoadingPage } from './LoadingPage'
 import { Component as RegistrationInvitation } from './RegistrationInvitation'
 
 // Mock dependencies
-jest.mock('../api/event')
-jest.mock('../api/registration')
+vi.mock('../api/event')
+vi.mock('../api/registration')
 
 describe('RegistrationInvitation', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders loading indicator while loader is pending', async () => {
     const path = Path.invitation(registrationWithStaticDates)

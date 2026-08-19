@@ -17,19 +17,19 @@ import { idTokenAtom } from '../recoil'
 import EventListPage, { canViewEvent, getEventDoubleClickPath } from './EventListPage'
 import { adminEventIdAtom } from './recoil'
 
-jest.mock('../../api/event')
-jest.mock('../../api/judge')
-jest.mock('../../api/organizer')
-jest.mock('../../api/registration')
-jest.mock('../../api/user')
+vi.mock('../../api/event')
+vi.mock('../../api/judge')
+vi.mock('../../api/organizer')
+vi.mock('../../api/registration')
+vi.mock('../../api/user')
 
 describe('EventListPage', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { container, user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
@@ -46,7 +46,7 @@ describe('EventListPage', () => {
         </RecoilRoot>
       </ThemeProvider>,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
     expect(container).toMatchSnapshot()

@@ -3,20 +3,20 @@ import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 import AutocompleteSingle from './AutocompleteSingle'
 
 describe('AutocompleteSingle', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
 
   beforeEach(() => {
-    jest.spyOn(console, 'warn').mockImplementation(console.debug)
-    jest.spyOn(console, 'error').mockImplementation(console.debug)
+    vi.spyOn(console, 'warn').mockImplementation(console.debug)
+    vi.spyOn(console, 'error').mockImplementation(console.debug)
   })
 
   afterEach(() => {
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
     expect(console.warn).toHaveBeenCalledTimes(0)
     expect(console.error).toHaveBeenCalledTimes(0)
   })
 
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   describe('when options are strings', () => {
     it('should render with minimal information', () => {
@@ -88,7 +88,7 @@ describe('AutocompleteSingle', () => {
     })
 
     it('should call onChange', async () => {
-      const onChange = jest.fn()
+      const onChange = vi.fn()
       const { user } = renderWithUserEvents(
         <AutocompleteSingle
           id="test-onChange"
@@ -97,7 +97,7 @@ describe('AutocompleteSingle', () => {
           onChange={onChange}
         />,
         undefined,
-        { advanceTimers: jest.advanceTimersByTime }
+        { advanceTimers: vi.advanceTimersByTime }
       )
 
       const input = screen.getByRole('combobox')
@@ -119,7 +119,7 @@ describe('AutocompleteSingle', () => {
     it.each([undefined, null, '', 'test-a', 'test-b', 'test-c'])(
       'should not call onChange on initial render when value=%p',
       async (value) => {
-        const onChange = jest.fn()
+        const onChange = vi.fn()
         render(
           <AutocompleteSingle
             id="test-warn"
@@ -226,7 +226,7 @@ describe('AutocompleteSingle', () => {
     })
 
     it('should call onChange', async () => {
-      const onChange = jest.fn()
+      const onChange = vi.fn()
       const { user } = renderWithUserEvents(
         <AutocompleteSingle
           id="test-onChange"
@@ -236,7 +236,7 @@ describe('AutocompleteSingle', () => {
           onChange={onChange}
         />,
         undefined,
-        { advanceTimers: jest.advanceTimersByTime }
+        { advanceTimers: vi.advanceTimersByTime }
       )
 
       const input = screen.getByRole('combobox')

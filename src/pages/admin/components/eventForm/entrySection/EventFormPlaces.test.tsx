@@ -4,14 +4,14 @@ import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../../
 import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
 import EventFormPlaces from './EventFormPlaces'
 
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
 describe('EventFormPlaces', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render with minimal information', () => {
     const event: PartialEvent = {
@@ -47,12 +47,12 @@ describe('EventFormPlaces', () => {
   describe('with classes', () => {
     it('should call onChange', async () => {
       const event = { ...eventWithStaticDatesAndClass }
-      const onChange = jest.fn().mockImplementation((props) => {
+      const onChange = vi.fn().mockImplementation((props) => {
         Object.assign(event, props)
       })
 
       const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       })
       await flushPromises()
       expect(onChange).not.toHaveBeenCalled()
@@ -113,12 +113,12 @@ describe('EventFormPlaces', () => {
         classes: [],
         places: 10,
       }
-      const onChange = jest.fn().mockImplementation((props) => {
+      const onChange = vi.fn().mockImplementation((props) => {
         Object.assign(event, props)
       })
 
       const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       })
       await flushPromises()
       expect(onChange).not.toHaveBeenCalled()
@@ -182,12 +182,12 @@ describe('EventFormPlaces', () => {
           '2021-02-11': 10,
         },
       }
-      const onChange = jest.fn().mockImplementation((props) => {
+      const onChange = vi.fn().mockImplementation((props) => {
         Object.assign(event, props)
       })
 
       const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       })
       await flushPromises()
 
@@ -224,16 +224,16 @@ describe('EventFormPlaces', () => {
           '2021-02-11': 10,
         },
       }
-      const onChange = jest.fn().mockImplementation((props) => {
+      const onChange = vi.fn().mockImplementation((props) => {
         Object.assign(event, props)
       })
 
       renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       })
 
       // The useEffect should fix the places count
-      jest.runAllTimers()
+      vi.runAllTimers()
       await flushPromises()
 
       // Total should be corrected to match the sum of placesPerDay
@@ -252,12 +252,12 @@ describe('EventFormPlaces', () => {
         classes: [],
         places: 20,
       }
-      const onChange = jest.fn().mockImplementation((props) => {
+      const onChange = vi.fn().mockImplementation((props) => {
         Object.assign(event, props)
       })
 
       const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       })
       await flushPromises()
 
@@ -338,12 +338,12 @@ describe('EventFormPlaces', () => {
           '2021-02-11': 10,
         },
       }
-      const onChange = jest.fn().mockImplementation((props) => {
+      const onChange = vi.fn().mockImplementation((props) => {
         Object.assign(event, props)
       })
 
       const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       })
       await flushPromises()
 
@@ -377,12 +377,12 @@ describe('EventFormPlaces', () => {
           '2021-02-11': 10,
         },
       }
-      const onChange = jest.fn().mockImplementation((props) => {
+      const onChange = vi.fn().mockImplementation((props) => {
         Object.assign(event, props)
       })
 
       const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       })
       await flushPromises()
 
@@ -438,12 +438,12 @@ describe('EventFormPlaces', () => {
         classes: [],
         places: 25, // Uneven number to test distribution
       }
-      const onChange = jest.fn().mockImplementation((props) => {
+      const onChange = vi.fn().mockImplementation((props) => {
         Object.assign(event, props)
       })
 
       const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       })
       await flushPromises()
 

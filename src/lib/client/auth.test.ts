@@ -1,19 +1,19 @@
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { getAuthSessionIdToken, isInvalidAuthSessionError } from './auth'
 
-jest.mock('aws-amplify/auth', () => ({
-  fetchAuthSession: jest.fn(),
+vi.mock('aws-amplify/auth', () => ({
+  fetchAuthSession: vi.fn(),
 }))
 
 describe('client auth', () => {
   it('returns no id token for an unauthenticated session', async () => {
-    jest.mocked(fetchAuthSession).mockResolvedValue({} as Awaited<ReturnType<typeof fetchAuthSession>>)
+    vi.mocked(fetchAuthSession).mockResolvedValue({} as Awaited<ReturnType<typeof fetchAuthSession>>)
 
     await expect(getAuthSessionIdToken()).resolves.toBeUndefined()
   })
 
   it('returns the id token provided by Amplify', async () => {
-    jest.mocked(fetchAuthSession).mockResolvedValue({
+    vi.mocked(fetchAuthSession).mockResolvedValue({
       tokens: { idToken: { toString: () => 'refreshed-id-token' } },
     } as Awaited<ReturnType<typeof fetchAuthSession>>)
 
@@ -22,8 +22,8 @@ describe('client auth', () => {
 
   it('propagates an Amplify session initialization failure', async () => {
     const error = { name: 'NotAuthorizedException' }
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
-    jest.mocked(fetchAuthSession).mockRejectedValue(error)
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    vi.mocked(fetchAuthSession).mockRejectedValue(error)
 
     await expect(getAuthSessionIdToken()).rejects.toBe(error)
     expect(warnSpy).toHaveBeenCalledWith('auth: session initialization failed', expect.objectContaining({ error }))

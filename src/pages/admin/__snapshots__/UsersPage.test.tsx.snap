@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`OrganizerListPage renders 1`] = `
+exports[`OrganizerListPage > renders 1`] = `
 <div>
   <div
     class="MuiBox-root css-15d58w2"
@@ -789,7 +789,7 @@ exports[`OrganizerListPage renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: 920px; flex-basis: 35px; flex-shrink: 0;"
+              style="width: 920px; flex-shrink: 0; flex-basis: 35px;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -895,9 +895,9 @@ exports[`OrganizerListPage renders 1`] = `
                     role="gridcell"
                     style="--width: 150px;"
                     tabindex="-1"
-                    title="test@user.jest"
+                    title="test@user.vi"
                   >
-                    test@user.jest
+                    test@user.vi
                   </div>
                   <div
                     aria-colindex="5"

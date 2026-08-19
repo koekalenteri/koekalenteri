@@ -1,19 +1,19 @@
 import type { YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockResponse = jest.fn()
+const mockResponse = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: jest.fn((_name, fn) => fn),
+vi.doMock('../lib/lambda', () => ({
+  lambda: vi.fn((_name, fn) => fn),
   response: mockResponse,
 }))
 
 // Mock the stats functions
-const mockGetYearlyTotalStats = jest.fn<() => Promise<YearlyTotalStat[]>>()
-const mockGetAvailableYears = jest.fn<() => Promise<number[]>>()
-const mockGetDogHandlerBuckets = jest.fn<() => Promise<{ bucket: string; count: number }[]>>()
+const mockGetYearlyTotalStats = vi.fn<() => Promise<YearlyTotalStat[]>>()
+const mockGetAvailableYears = vi.fn<() => Promise<number[]>>()
+const mockGetDogHandlerBuckets = vi.fn<() => Promise<{ bucket: string; count: number }[]>>()
 
-jest.unstable_mockModule('../lib/stats', () => ({
+vi.doMock('../lib/stats', () => ({
   getAvailableYears: mockGetAvailableYears,
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
   getYearlyTotalStats: mockGetYearlyTotalStats,
@@ -23,7 +23,7 @@ describe('GetYearlyStatsFunction', () => {
   let handler: any
 
   beforeEach(async () => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Import the handler after mocking dependencies
     const module = await import('./handler')
     handler = module.default

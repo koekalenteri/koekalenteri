@@ -1,21 +1,21 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockGetParam = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockLambdaError = jest.fn<any>()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockGetParam = vi.fn()
+const mockGetEvent = vi.fn()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockLambdaError = vi.fn()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
   LambdaError: mockLambdaError,
   lambda: mockLambda,
@@ -32,7 +32,7 @@ describe('getAdminEventLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockLambdaError.mockImplementation((code: number, message: string) => {
       const error = new Error(message) as Error & { statusCode: number }
       error.statusCode = code

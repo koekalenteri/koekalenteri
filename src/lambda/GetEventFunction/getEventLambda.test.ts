@@ -1,22 +1,22 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockSanitizeDogEvent = jest.fn<any>()
+const mockGetParam = vi.fn()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockGetEvent = vi.fn()
+const mockSanitizeDogEvent = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../../lib/event', () => ({
+vi.doMock('../../lib/event', () => ({
   sanitizeDogEvent: mockSanitizeDogEvent,
 }))
 
@@ -30,7 +30,7 @@ describe('getEventLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('retrieves and returns a sanitized event', async () => {

@@ -15,10 +15,10 @@ import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { idTokenAtom } from '../../recoil'
 import RegistrationEditDialog from './RegistrationEditDialog'
 
-jest.mock('../../../api/email')
-jest.mock('../../../api/event')
-jest.mock('../../../api/registration')
-jest.mock('../../../api/user')
+vi.mock('../../../api/email')
+vi.mock('../../../api/event')
+vi.mock('../../../api/registration')
+vi.mock('../../../api/user')
 
 const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (
@@ -38,11 +38,11 @@ const Wrapper = ({ children }: { readonly children: ReactNode }) => {
 
 describe('RegistrationEditDialog', () => {
   beforeAll(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2024-03-20T12:30:00.000Z'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-03-20T12:30:00.000Z'))
   })
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders hidden when open is false', async () => {
     const { container } = render(

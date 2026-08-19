@@ -12,8 +12,8 @@ import { clone } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import MembershipInfo from './MembershipInfo'
 
-jest.mock('../../../api/dog')
-jest.mock('../../../api/registration')
+vi.mock('../../../api/dog')
+vi.mock('../../../api/registration')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
@@ -27,9 +27,9 @@ function Wrapper(props: { readonly children?: ReactNode }) {
   )
 }
 describe('MembershipInfo', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
     const { container } = render(<MembershipInfo reg={{}} orgId={'test'} />, { wrapper: Wrapper })
@@ -54,12 +54,12 @@ describe('MembershipInfo', () => {
     // biome-ignore lint/style/noNonNullAssertion: its a test
     reg.handler!.membership = false
 
-    const onChange = jest.fn((props) => Object.assign(reg, props))
+    const onChange = vi.fn((props) => Object.assign(reg, props))
     const { user } = renderWithUserEvents(
       <MembershipInfo reg={reg} orgId={'test'} onChange={onChange} />,
       { wrapper: Wrapper },
       {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       }
     )
 

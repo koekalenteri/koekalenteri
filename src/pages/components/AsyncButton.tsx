@@ -1,7 +1,7 @@
 import type { ButtonProps } from '@mui/material'
 import type { MouseEvent } from 'react'
 import Button from '@mui/material/Button'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 type ClickEvent = MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
 
@@ -12,15 +12,21 @@ interface Props extends Omit<ButtonProps, 'onClick'> {
 export const AsyncButton = (props: Props) => {
   const { disabled, onClick, ...rest } = props
   const [loading, setLoading] = useState(false)
+  const pending = useRef(false)
 
   const handleClick = useCallback(
     async (event: ClickEvent) => {
-      if (loading) return
+      if (pending.current || event.detail > 1) return
+      pending.current = true
       setLoading(true)
-      await onClick?.(event)
-      setLoading(false)
+      try {
+        await onClick?.(event)
+      } finally {
+        pending.current = false
+        setLoading(false)
+      }
     },
-    [loading, onClick]
+    [onClick]
   )
 
   return <Button disabled={loading || disabled} onClick={handleClick} {...rest} />

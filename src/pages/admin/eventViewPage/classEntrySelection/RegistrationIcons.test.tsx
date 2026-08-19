@@ -16,16 +16,16 @@ const createMockRegistration = (overrides: Partial<Registration> = {}): Registra
 
 describe('RegistrationIcons component', () => {
   beforeEach(() => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.useRealTimers()
-    jest.restoreAllMocks()
+    vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
   it('does not render an empty tooltip when there are no tooltip rows/icons', async () => {
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
 
     const mockReg = createMockRegistration({
       confirmed: false,
@@ -46,7 +46,7 @@ describe('RegistrationIcons component', () => {
     // Tooltip target is the whole icon row (Stack renders to a div)
     await user.hover(screen.getByTestId('StarBorderOutlinedIcon').closest('div')!)
     act(() => {
-      jest.runOnlyPendingTimers()
+      vi.runOnlyPendingTimers()
     })
 
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
@@ -137,7 +137,7 @@ describe('RegistrationIcons component', () => {
   })
 
   it('should render email delivery failure icon', async () => {
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     const mockReg = createMockRegistration({
       emailDeliveryStatus: {
         at: '2026-05-27T10:00:00.000Z',
@@ -154,10 +154,10 @@ describe('RegistrationIcons component', () => {
 
     await user.hover(screen.getByTestId('MailOutlineIcon').closest('div')!)
     act(() => {
-      jest.runOnlyPendingTimers()
+      vi.runOnlyPendingTimers()
     })
 
-    expect(screen.getByText(/Sähköpostin toimitus epäonnistui: handler@example.com/)).toBeInTheDocument()
+    expect(await screen.findByText(/Sähköpostin toimitus epäonnistui: handler@example.com/)).toBeInTheDocument()
   })
 
   it.each([

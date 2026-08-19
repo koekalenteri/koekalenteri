@@ -8,9 +8,9 @@ const date = parseISO('2023-01-17T12:00:00Z')
 const date2 = parseISO('2023-01-18T12:00:00Z')
 
 describe('EventClasses', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render with minimal properties', () => {
     const { container } = render(
@@ -103,7 +103,7 @@ describe('EventClasses', () => {
         showCount
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const input = screen.getByRole('combobox')
@@ -139,7 +139,7 @@ describe('EventClasses', () => {
         showCount
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const input = screen.getByRole('combobox')

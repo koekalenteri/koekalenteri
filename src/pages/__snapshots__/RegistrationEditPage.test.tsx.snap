@@ -1,11 +1,13 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RegistrationEditPage should render 1`] = `
+exports[`RegistrationEditPage > should render 1`] = `
 <div>
   <div
     class="MuiBox-root css-7sa5ll"
     role="button"
-  />
+  >
+    link
+  </div>
   <article
     class="MuiBox-root css-3xv5eg"
   >
@@ -677,7 +679,7 @@ exports[`RegistrationEditPage should render 1`] = `
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-            style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+            style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
               class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -1255,7 +1257,7 @@ exports[`RegistrationEditPage should render 1`] = `
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-            style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+            style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
               class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -1395,7 +1397,7 @@ exports[`RegistrationEditPage should render 1`] = `
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-            style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+            style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
               class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -1739,7 +1741,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 </div>
                 <div
                   class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                  style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                  style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                 >
                   <div
                     class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -2245,7 +2247,7 @@ exports[`RegistrationEditPage should render 1`] = `
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-            style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+            style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
               class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -2353,7 +2355,7 @@ exports[`RegistrationEditPage should render 1`] = `
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-            style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+            style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
               class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"

@@ -1,31 +1,31 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 const setEventBody = (event: { body: string }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockGetApiHost = jest.fn<any>()
-const mockRefundPayment = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockGetRegistration = jest.fn<any>()
-const mockAudit = jest.fn<any>()
-const mockRegistrationAuditKey = jest.fn<any>()
-const mockDynamoRead = jest.fn<any>()
-const mockDynamoWrite = jest.fn<any>()
-const mockDynamoUpdate = jest.fn<any>()
-const mockDocumentTransaction = jest.fn<any>()
-const mockDynamoClient = jest.fn(() => ({
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockGetApiHost = vi.fn()
+const mockRefundPayment = vi.fn()
+const mockGetEvent = vi.fn()
+const mockGetRegistration = vi.fn()
+const mockAudit = vi.fn()
+const mockRegistrationAuditKey = vi.fn()
+const mockDynamoRead = vi.fn()
+const mockDynamoWrite = vi.fn()
+const mockDynamoUpdate = vi.fn()
+const mockDocumentTransaction = vi.fn()
+const mockDynamoClient = vi.fn(() => ({
   documentTransaction: mockDocumentTransaction,
   read: mockDynamoRead,
   update: mockDynamoUpdate,
   write: mockDynamoWrite,
 }))
-const mockNanoid = jest.fn<any>()
-const mockClaimTransactionCreation = jest.fn<() => Promise<boolean>>(() => Promise.resolve(true))
-const mockReleaseTransactionCreation = jest.fn<() => Promise<void>>(() => Promise.resolve())
+const mockNanoid = vi.fn()
+const mockClaimTransactionCreation = vi.fn<() => Promise<boolean>>(() => Promise.resolve(true))
+const mockReleaseTransactionCreation = vi.fn<() => Promise<void>>(() => Promise.resolve())
 
 class MockPaytrailError extends Error {
   status: number
@@ -38,9 +38,9 @@ class MockPaytrailError extends Error {
   }
 }
 
-const mockFormatPaytrailErrorMessage = jest.fn<(operation: string, error: MockPaytrailError) => string>()
+const mockFormatPaytrailErrorMessage = vi.fn<(operation: string, error: MockPaytrailError) => string>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
     status: number
     constructor(status: number, message: string) {
@@ -52,41 +52,41 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../utils/proxyEvent', () => ({
+vi.doMock('../utils/proxyEvent', () => ({
   getApiHost: mockGetApiHost,
 }))
 
-jest.unstable_mockModule('../lib/paytrail', () => ({
+vi.doMock('../lib/paytrail', () => ({
   PaytrailError: MockPaytrailError,
   refundPayment: mockRefundPayment,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   getRegistration: mockGetRegistration,
 }))
 
-jest.unstable_mockModule('../lib/audit', () => ({
+vi.doMock('../lib/audit', () => ({
   audit: mockAudit,
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
   default: mockDynamoClient,
 }))
 
-jest.unstable_mockModule('nanoid', () => ({
+vi.doMock('nanoid', () => ({
   nanoid: mockNanoid,
 }))
 
-jest.unstable_mockModule('../lib/payment', () => ({
+vi.doMock('../lib/payment', () => ({
   claimTransactionCreation: mockClaimTransactionCreation,
   formatPaytrailErrorMessage: mockFormatPaytrailErrorMessage,
   releaseTransactionCreation: mockReleaseTransactionCreation,
@@ -141,7 +141,7 @@ describe('refundCreateLambda', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockAuthorizeWithMemberOf.mockResolvedValue({
@@ -220,7 +220,7 @@ describe('refundCreateLambda', () => {
 
   it('throws error if organizer does not have MerchantId', async () => {
     // Reset all mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Mock transaction read
     mockDynamoRead.mockImplementation((params: any, table: any) => {
@@ -239,7 +239,7 @@ describe('refundCreateLambda', () => {
 
   it('throws error if refundPayment does not return a result', async () => {
     // Reset all mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Mock transaction read
     mockDynamoRead.mockImplementation((params: any, table: any) => {
@@ -288,7 +288,7 @@ describe('refundCreateLambda', () => {
 
   it('creates a refund transaction with items', async () => {
     // Reset all mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Mock transaction read
     mockDynamoRead.mockImplementation((params: any, table: any) => {
@@ -361,7 +361,7 @@ describe('refundCreateLambda', () => {
 
   it('creates a refund transaction without items', async () => {
     // Reset all mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Mock a payment transaction without items
     mockDynamoRead.mockImplementation((params: any, table: any) => {
@@ -403,7 +403,7 @@ describe('refundCreateLambda', () => {
 
   it('creates audit entry for pending refunds', async () => {
     // Reset all mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Mock transaction read
     mockDynamoRead.mockImplementation((params: any, table: any) => {
@@ -444,7 +444,7 @@ describe('refundCreateLambda', () => {
 
   it('creates audit entry for email refunds', async () => {
     // Reset all mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Mock transaction read
     mockDynamoRead.mockImplementation((params: any, table: any) => {
@@ -485,7 +485,7 @@ describe('refundCreateLambda', () => {
 
   it('handles unsupported transaction with multiple items', async () => {
     // Reset all mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Mock transaction with multiple items
     mockDynamoRead.mockImplementation((params: any, table: any) => {

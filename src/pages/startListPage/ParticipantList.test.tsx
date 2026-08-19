@@ -7,12 +7,12 @@ import { downloadXlsx } from '../../lib/client/xlsx'
 import { startListSpreadsheetRows } from '../../lib/startList'
 import { ParticipantList } from './ParticipantList'
 
-jest.mock('../../lib/client/xlsx', () => ({ downloadXlsx: jest.fn() }))
+vi.mock('../../lib/client/xlsx', () => ({ downloadXlsx: vi.fn() }))
 
-const mockDownloadXlsx = jest.mocked(downloadXlsx)
+const mockDownloadXlsx = vi.mocked(downloadXlsx)
 
 // Mock the child components
-jest.mock('./DateHeader', () => ({
+vi.mock('./DateHeader', () => ({
   DateHeader: ({ date }: { date: Date }) => (
     <tr data-testid="date-header">
       <td>{date.toISOString()}</td>
@@ -20,7 +20,7 @@ jest.mock('./DateHeader', () => ({
   ),
 }))
 
-jest.mock('./ClassHeader', () => ({
+vi.mock('./ClassHeader', () => ({
   ClassHeader: ({ classValue, published = true }: { classValue: string; published?: boolean }) => (
     <tr data-testid="class-header">
       <td>
@@ -31,7 +31,7 @@ jest.mock('./ClassHeader', () => ({
   ),
 }))
 
-jest.mock('./TimeHeader', () => ({
+vi.mock('./TimeHeader', () => ({
   TimeHeader: ({ time }: { time: string }) => (
     <tr data-testid="time-header">
       <td>{time}</td>
@@ -39,7 +39,7 @@ jest.mock('./TimeHeader', () => ({
   ),
 }))
 
-jest.mock('./CancelledRegistration', () => ({
+vi.mock('./CancelledRegistration', () => ({
   CancelledRegistration: ({ groupNumber }: { groupNumber: number }) => (
     <tr data-testid="cancelled-registration">
       <td>{groupNumber}</td>
@@ -47,7 +47,7 @@ jest.mock('./CancelledRegistration', () => ({
   ),
 }))
 
-jest.mock('./RegistrationDetails', () => ({
+vi.mock('./RegistrationDetails', () => ({
   RegistrationDetails: ({ registration, index }: { registration: PublicRegistration; index: number }) => (
     <tr data-testid="registration-details">
       <td>
@@ -58,7 +58,7 @@ jest.mock('./RegistrationDetails', () => ({
 }))
 
 describe('ParticipantList', () => {
-  const writeText = jest.fn()
+  const writeText = vi.fn()
   const mockEvent: PublicConfirmedEvent = {
     classes: [
       {

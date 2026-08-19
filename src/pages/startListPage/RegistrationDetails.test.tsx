@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { RegistrationDetails } from './RegistrationDetails'
 
 // Mock i18next
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, _options?: any) => {
       if (key.includes('breedAbbr')) {

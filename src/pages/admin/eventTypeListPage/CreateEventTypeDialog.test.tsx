@@ -3,14 +3,14 @@ import { RecoilRoot } from 'recoil'
 import { adminEventTypesAtom } from '../recoil'
 import { CreateEventTypeDialog } from './CreateEventTypeDialog'
 
-jest.mock('../recoil', () => {
-  const { atom } = jest.requireActual('recoil')
-  const actual = jest.requireActual('../recoil')
+vi.mock('../recoil', async () => {
+  const { atom } = await vi.importActual<typeof import('recoil')>('recoil')
+  const actual = await vi.importActual<typeof import('../recoil')>('../recoil')
   return {
     ...actual,
     adminEventTypesAtom: atom({ default: [], key: 'adminEventTypesAtomTest' }),
     useAdminEventTypeActions: () => ({
-      save: jest.fn().mockResolvedValue(undefined),
+      save: vi.fn().mockResolvedValue(undefined),
     }),
   }
 })
@@ -19,7 +19,7 @@ describe('CreateEventTypeDialog', () => {
   it('renders translated save and cancel button labels', () => {
     render(
       <RecoilRoot initializeState={({ set }) => set(adminEventTypesAtom, [])}>
-        <CreateEventTypeDialog open onClose={jest.fn()} />
+        <CreateEventTypeDialog open onClose={vi.fn()} />
       </RecoilRoot>
     )
 

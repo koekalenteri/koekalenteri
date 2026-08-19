@@ -9,13 +9,13 @@ import { flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-u
 import { idTokenAtom } from '../recoil'
 import JudgeListPage from './JudgeListPage'
 
-jest.mock('../../api/judge')
-jest.mock('../../api/user')
+vi.mock('../../api/judge')
+vi.mock('../../api/user')
 
 describe('JudgeListPage', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
     const { container, user } = renderWithUserEvents(
@@ -31,7 +31,7 @@ describe('JudgeListPage', () => {
         </RecoilRoot>
       </ThemeProvider>,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
     expect(container).toMatchSnapshot()

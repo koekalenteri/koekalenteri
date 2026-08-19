@@ -9,13 +9,13 @@ import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../recoil'
 import OrganizerListPage from './OrganizerListPage'
 
-jest.mock('../../api/organizer')
-jest.mock('../../api/user')
+vi.mock('../../api/organizer')
+vi.mock('../../api/user')
 
 describe('OrganizerListPage', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
     const { container } = render(

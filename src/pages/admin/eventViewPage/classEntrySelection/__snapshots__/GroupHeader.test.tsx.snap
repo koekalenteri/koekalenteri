@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`GroupHeader renders 1`] = `
+exports[`GroupHeader > renders 1`] = `
 <div>
   <div
     class="MuiStack-root header css-2dwcah-MuiStack-root"

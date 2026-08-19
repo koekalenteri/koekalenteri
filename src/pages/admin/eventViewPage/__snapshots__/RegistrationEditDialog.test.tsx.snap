@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RegistrationEditDialog renders hidden when open is false 1`] = `<div />`;
+exports[`RegistrationEditDialog > renders hidden when open is false 1`] = `<div />`;
 
-exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
+exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -537,7 +537,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -1115,7 +1115,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -1255,7 +1255,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -1599,7 +1599,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         </div>
                         <div
                           class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                          style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                          style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                         >
                           <div
                             class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -2105,7 +2105,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -2213,7 +2213,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -2586,7 +2586,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                           <span
                             class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-fgvunj-MuiTypography-root"
                           >
-                            20.03.2024 14:42:00 test user
+                            20.03.2024 14:30:00 test user
                           </span>
                           <div
                             class="MuiBox-root css-edbksj"
@@ -2620,7 +2620,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
 </body>
 `;
 
-exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
+exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -3185,7 +3185,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -3781,7 +3781,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -3919,7 +3919,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -4256,7 +4256,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         </div>
                         <div
                           class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                          style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                          style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                         >
                           <div
                             class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -4753,7 +4753,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -4861,7 +4861,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </div>
                   <div
                     class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
-                    style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
+                    style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                   >
                     <div
                       class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
@@ -5230,7 +5230,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                           <span
                             class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-fgvunj-MuiTypography-root"
                           >
-                            20.03.2024 14:38:00 test user
+                            20.03.2024 14:30:00 test user
                           </span>
                           <div
                             class="MuiBox-root css-edbksj"

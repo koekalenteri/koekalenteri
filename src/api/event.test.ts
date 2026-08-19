@@ -1,15 +1,18 @@
 import type { DogEvent } from '../types'
 import { parseISO } from 'date-fns'
-import fetchMock from 'jest-fetch-mock'
 import { emptyEvent } from '../__mockData__/emptyEvent'
 import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/event'
 import { API_BASE_URL } from '../routeConfig'
+import fetchMock from '../test-utils/fetchMock'
 import { getAdminEvents, getEvent, getEventAuditTrail, getEvents, putEvent, searchEventKcIdChoices } from './event'
 
 fetchMock.enableMocks()
 
-beforeEach(() => fetchMock.resetMocks())
+beforeEach(() => {
+  fetchMock.resetMocks()
+  fetchMock.enableMocks()
+})
 
 test('getEvents', async () => {
   fetchMock.mockResponse((req) =>
@@ -226,13 +229,13 @@ test.each([
 )
 
 test('isEntryOpen with mocked date', () => {
-  jest.useFakeTimers()
+  vi.useFakeTimers()
 
-  jest.setSystemTime(zonedEndOfDay('2021-01-01'))
+  vi.setSystemTime(zonedEndOfDay('2021-01-01'))
   expect(isEntryOpen(event)).toEqual(false)
 
-  jest.setSystemTime(zonedStartOfDay('2021-01-02'))
+  vi.setSystemTime(zonedStartOfDay('2021-01-02'))
   expect(isEntryOpen(event)).toEqual(true)
 
-  jest.useRealTimers()
+  vi.useRealTimers()
 })

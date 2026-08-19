@@ -1,42 +1,42 @@
 import type { EmailTemplateId, JsonRegistration } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { eventWithALOClassInvited } from '../../__mockData__/events'
 import {
   jsonRegistrationsToEventWithALOInvited,
   registrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
 
-const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
-  delete: jest.fn(),
+const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
+  delete: vi.fn(),
   // @ts-expect-error types don't quite match
-  query: jest.fn(),
+  query: vi.fn(),
   // @ts-expect-error types don't quite match
-  read: jest.fn(),
-  update: jest.fn(),
-  write: jest.fn(),
+  read: vi.fn(),
+  update: vi.fn(),
+  write: vi.fn(),
 }
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => mockDynamoDB),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => mockDynamoDB),
 }))
 
-const mockSendTemplatedMail = jest.fn<any>()
-const mockAudit = jest.fn()
-const mockEmailTo = jest.fn()
-const mockSESSend = jest.fn<any>()
+const mockSendTemplatedMail = vi.fn()
+const mockAudit = vi.fn()
+const mockEmailTo = vi.fn()
+const mockSESSend = vi.fn()
 
-jest.unstable_mockModule('@aws-sdk/client-ses', () => ({
-  SESClient: jest.fn(() => ({ send: mockSESSend })),
-  SendTemplatedEmailCommand: jest.fn(({ Destination, Template }) => [Destination.ToAddresses, Template]),
+vi.doMock('@aws-sdk/client-ses', () => ({
+  SESClient: vi.fn(() => ({ send: mockSESSend })),
+  SendTemplatedEmailCommand: vi.fn(({ Destination, Template }) => [Destination.ToAddresses, Template]),
 }))
 
-jest.unstable_mockModule('./audit', () => ({
+vi.doMock('./audit', () => ({
   audit: mockAudit,
-  eventAuditKey: jest.fn<any>().mockImplementation((event: { id: string }) => `event:${event.id}`),
-  registrationAuditKey: jest
-    .fn<any>()
-    .mockImplementation((reg: { eventId: string; id: string }) => `${reg.eventId}:${reg.id}`),
+  eventAuditKey: vi.fn().mockImplementation((event: { id: string }) => `event:${event.id}`),
+  registrationAuditKey: vi
+    .fn<(reg: { eventId: string; id: string }) => string>()
+    .mockImplementation((reg) => `${reg.eventId}:${reg.id}`),
 }))
 
 const {
@@ -63,7 +63,7 @@ const {
 } = await import('./registration')
 
 describe('createSentRegistrationMessagesAudit', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   it('creates a single-class message with failed recipient details', () => {
     const record = createSentRegistrationMessagesAudit({
@@ -144,12 +144,12 @@ describe('registration post-processing', () => {
   const registration = jsonRegistrationsToEventWithALOInvited[0]
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers().setSystemTime(new Date('2026-07-27T12:00:00.000Z'))
+    vi.clearAllMocks()
+    vi.useFakeTimers().setSystemTime(new Date('2026-07-27T12:00:00.000Z'))
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('claims an expired or absent lease and reads the registration consistently', async () => {
@@ -229,7 +229,7 @@ describe('registration post-processing', () => {
 
 describe('registration', () => {
   beforeAll(() => {
-    jest.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
   })
   describe('getLastEmailInfo', () => {
     const reg = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[6]))
@@ -544,6 +544,7 @@ describe('registration', () => {
 
   describe('getRegistrationChanges', () => {
     it('returns stable audit labels for nested changes and removed fields', () => {
+      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
       const existing = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[0])) as JsonRegistration
       const { notes: _notes, ...withoutNotes } = existing
       const updated = {
@@ -551,13 +552,21 @@ describe('registration', () => {
         dog: { ...existing.dog, name: 'Changed name' },
       } as JsonRegistration
 
-      expect(getRegistrationChanges(existing, updated)).toBe('Muutti: Koiran tiedot, Lisätiedot')
+      try {
+        expect(getRegistrationChanges(existing, updated)).toBe('Muutti: Koiran tiedot, Lisätiedot')
+        expect(debugSpy).toHaveBeenCalledWith('Audit changes', {
+          dog: { name: 'Changed name' },
+          notes: undefined,
+        })
+      } finally {
+        debugSpy.mockRestore()
+      }
     })
   })
 
   describe('patchRegistration', () => {
     beforeEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('updates only changed fields and reloads the registration', async () => {
@@ -612,7 +621,7 @@ describe('registration', () => {
 
   describe('sendTemplatedEmailToEventRegistrations', () => {
     beforeEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
 
       // Setup default mock implementations
       mockEmailTo.mockImplementation((reg: any) => {
@@ -628,8 +637,8 @@ describe('registration', () => {
     })
 
     it('should send emails to all registrations successfully', async () => {
-      jest.useFakeTimers()
-      jest.setSystemTime(new Date('2023-01-01 12:00Z'))
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2023-01-01 12:00Z'))
       const result = await sendTemplatedEmailToEventRegistrations(
         'invitation',
         { ...JSON.parse(JSON.stringify(eventWithALOClassInvited)), invitationAttachments: { ALO: 'alo-attachment' } },
@@ -693,7 +702,7 @@ describe('registration', () => {
         }
       )
 
-      jest.useRealTimers()
+      vi.useRealTimers()
     })
 
     it('records the common invitation attachment when class attachment is not configured', async () => {
@@ -788,7 +797,7 @@ describe('registration', () => {
     })
 
     it('should handle failed email sending', async () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       // Make the second email fail
       mockSESSend.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('Email sending failed'))
 
@@ -861,8 +870,8 @@ describe('registration', () => {
     })
 
     it('should handle reserve template with group number', async () => {
-      jest.useFakeTimers()
-      jest.setSystemTime(new Date('2023-01-01 12:00Z'))
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2023-01-01 12:00Z'))
 
       await sendTemplatedEmailToEventRegistrations(
         'reserve',
@@ -897,7 +906,7 @@ describe('registration', () => {
         }
       )
 
-      jest.useRealTimers()
+      vi.useRealTimers()
     })
   })
 })

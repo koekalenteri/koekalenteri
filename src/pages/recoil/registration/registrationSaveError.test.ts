@@ -10,16 +10,16 @@ const registration = {
   },
 } as Registration
 
-const t = jest.fn()
+const t = vi.fn()
 const translate = t as unknown as TFunction
-const enqueueSnackbar = jest.fn()
+const enqueueSnackbar = vi.fn()
 
 const conflict = (body: Record<string, unknown>) =>
   new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), body)
 
 describe('showRegistrationSaveConflict', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     t.mockImplementation((key: string, options?: Record<string, unknown>) => `${key} ${JSON.stringify(options)}`)
   })
 

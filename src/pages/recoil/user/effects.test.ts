@@ -17,11 +17,11 @@ describe('user/effects', () => {
 
   it('logs id token changes without exposing either token', () => {
     let callback: (next: string, previous: string, reset: boolean) => void = () => undefined
-    const onSet = jest.fn((value) => {
+    const onSet = vi.fn((value) => {
       callback = value
     })
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => undefined)
-    jest.spyOn(envLib, 'isDevEnv').mockReturnValue(true)
+    const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+    vi.spyOn(envLib, 'isDevEnv').mockReturnValue(true)
     idTokenLogEffect({ onSet } as never)
     expect(onSet).toHaveBeenCalledWith(expect.any(Function))
 

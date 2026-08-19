@@ -1,24 +1,24 @@
 import type { AuditRecord, JsonAuditRecord, JsonConfirmedEvent } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockQuery = jest.fn<any>()
-const mockWrite = jest.fn<any>()
-const mockPublishAuditRecord = jest.fn<any>()
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+const mockQuery = vi.fn()
+const mockWrite = vi.fn()
+const mockPublishAuditRecord = vi.fn()
+vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: jest.fn(() => ({
+  default: vi.fn(() => ({
     query: mockQuery,
     write: mockWrite,
   })),
 }))
-jest.unstable_mockModule('./ws/auditPublisher', () => ({ publishAuditRecord: mockPublishAuditRecord }))
+vi.doMock('./ws/auditPublisher', () => ({ publishAuditRecord: mockPublishAuditRecord }))
 
 process.env.AUDIT_TABLE_NAME = 'audit-table-name'
 
 const { eventAuditKey, registrationAuditKey, getEventAuditMessages, audit, auditTrail } = await import('./audit')
 
 describe('audit', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   describe('registrationAuditKey', () => {
     it('combines eventId and registration id', () => {
@@ -155,7 +155,7 @@ describe('audit', () => {
 
     it('logs database error to console', async () => {
       const error = new Error('DB error')
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       mockWrite.mockRejectedValueOnce(error)
 
@@ -189,7 +189,7 @@ describe('audit', () => {
 
     it('logs database error to console and returns empty array', async () => {
       const error = new Error('DB error')
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       mockQuery.mockRejectedValueOnce(error)
 

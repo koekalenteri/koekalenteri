@@ -5,9 +5,9 @@ import DraggableRow from './DraggableRow'
 
 // DraggableRow uses `useGridApiContext()` to verify the row exists in grid state.
 // In unit tests we render it in isolation, so we provide a minimal DataGrid api.
-jest.mock('@mui/x-data-grid', () => {
-  const actual = jest.requireActual('@mui/x-data-grid')
-  const React = jest.requireActual('react')
+vi.mock('@mui/x-data-grid', async () => {
+  const actual = await vi.importActual<typeof import('@mui/x-data-grid')>('@mui/x-data-grid')
+  const React = await vi.importActual<typeof import('react')>('react')
 
   return {
     ...actual,
@@ -34,8 +34,8 @@ jest.mock('@mui/x-data-grid', () => {
   }
 })
 
-jest.mock('./position', () => ({
-  determinePosition: jest.fn().mockReturnValue('before'),
+vi.mock('./position', async () => ({
+  determinePosition: vi.fn().mockReturnValue('before'),
 }))
 
 describe('DraggableRow', () => {

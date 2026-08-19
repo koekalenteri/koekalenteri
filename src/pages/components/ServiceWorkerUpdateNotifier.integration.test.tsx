@@ -4,20 +4,20 @@ import { useTranslation } from 'react-i18next'
 import { registerServiceWorker } from '../../serviceWorkerRegistration'
 import ServiceWorkerUpdateNotifier from './ServiceWorkerUpdateNotifier'
 
-jest.mock('notistack', () => ({
-  useSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  useSnackbar: vi.fn(),
 }))
-jest.mock('react-i18next', () => ({
-  useTranslation: jest.fn(),
+vi.mock('react-i18next', () => ({
+  useTranslation: vi.fn(),
 }))
 
-const mockUseSnackbar = useSnackbar as jest.MockedFunction<typeof useSnackbar>
-const mockUseTranslation = useTranslation as jest.MockedFunction<typeof useTranslation>
+const mockUseSnackbar = useSnackbar as import('vitest').MockedFunction<typeof useSnackbar>
+const mockUseTranslation = useTranslation as import('vitest').MockedFunction<typeof useTranslation>
 const originalServiceWorker = Object.getOwnPropertyDescriptor(navigator, 'serviceWorker')
 
 describe('ServiceWorkerUpdateNotifier integration', () => {
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
     if (originalServiceWorker) {
       Object.defineProperty(navigator, 'serviceWorker', originalServiceWorker)
     } else {
@@ -26,8 +26,8 @@ describe('ServiceWorkerUpdateNotifier integration', () => {
   })
 
   it('activates the waiting worker automatically', async () => {
-    jest.replaceProperty(process.env, 'NODE_ENV', 'production')
-    const waitingWorker = { postMessage: jest.fn() } as unknown as ServiceWorker
+    vi.stubEnv('NODE_ENV', 'production')
+    const waitingWorker = { postMessage: vi.fn() } as unknown as ServiceWorker
     const registration = new EventTarget() as ServiceWorkerRegistration
     Object.defineProperties(registration, {
       installing: { configurable: true, value: null },
@@ -36,13 +36,13 @@ describe('ServiceWorkerUpdateNotifier integration', () => {
     const serviceWorker = new EventTarget() as ServiceWorkerContainer
     Object.defineProperties(serviceWorker, {
       controller: { configurable: true, value: {} },
-      register: { configurable: true, value: jest.fn().mockResolvedValue(registration) },
+      register: { configurable: true, value: vi.fn().mockResolvedValue(registration) },
     })
     Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: serviceWorker })
 
-    const enqueueSnackbar = jest.fn()
+    const enqueueSnackbar = vi.fn()
     mockUseSnackbar.mockReturnValue({
-      closeSnackbar: jest.fn(),
+      closeSnackbar: vi.fn(),
       enqueueSnackbar: enqueueSnackbar as unknown as ReturnType<typeof useSnackbar>['enqueueSnackbar'],
     })
     mockUseTranslation.mockReturnValue({ t: (key: string) => key } as ReturnType<typeof useTranslation>)

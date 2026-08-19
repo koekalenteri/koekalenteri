@@ -13,9 +13,9 @@ import { idTokenAtom } from './atoms'
 const NEW_TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.updated-signature'
 const FAILED_USER_TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.failed-user-signature'
 
-jest.mock('aws-amplify/auth', () => ({
+vi.mock('aws-amplify/auth', () => ({
   fetchAuthSession: async () => ({ tokens: { idToken: { toString: () => 'id-token' } } }),
-  signOut: jest.fn(),
+  signOut: vi.fn(),
 }))
 
 function wrapper({ children }: { readonly children: React.ReactNode }) {
@@ -35,16 +35,20 @@ function wrapper({ children }: { readonly children: React.ReactNode }) {
 
 describe('useUserActions', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     sessionStorage.clear()
     localStorage.clear()
     sessionStorage.setItem('loginPath', JSON.stringify('/current-page'))
-    ;(auth.signOut as jest.Mock).mockResolvedValue(undefined)
+    ;(auth.signOut as import('vitest').Mock).mockResolvedValue(undefined)
+  })
+
+  afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 20))
   })
 
   it('clears the local session immediately while aws sign out completes', async () => {
     let resolveSignOut: (() => void) | undefined
-    ;(auth.signOut as jest.Mock).mockImplementation(
+    ;(auth.signOut as import('vitest').Mock).mockImplementation(
       () =>
         new Promise<void>((resolve) => {
           resolveSignOut = resolve
@@ -87,7 +91,7 @@ describe('useUserActions', () => {
   })
 
   it('loads the signed-in user with the new token instead of the callback snapshot token', async () => {
-    const getUserSpy = jest.spyOn(userAPI, 'getUser').mockResolvedValue({
+    const getUserSpy = vi.spyOn(userAPI, 'getUser').mockResolvedValue({
       admin: false,
       email: 'new@example.com',
       id: 'user-1',
@@ -109,7 +113,7 @@ describe('useUserActions', () => {
   })
 
   it('does not navigate back to the login page after sign in', async () => {
-    jest.spyOn(userAPI, 'getUser').mockResolvedValue({
+    vi.spyOn(userAPI, 'getUser').mockResolvedValue({
       admin: false,
       email: 'new@example.com',
       id: 'user-1',
@@ -133,9 +137,9 @@ describe('useUserActions', () => {
 
   it('navigates away from login even when loading the user fails', async () => {
     const error = new Error('user lookup failed')
-    const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-    jest.spyOn(userAPI, 'getUser').mockRejectedValueOnce(error)
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.spyOn(userAPI, 'getUser').mockRejectedValueOnce(error)
     sessionStorage.setItem('loginPath', JSON.stringify(Path.login))
 
     const { result } = renderHook(

@@ -12,12 +12,12 @@ import { locales } from '../i18n'
 import { createMatchMedia } from '../test-utils/utils'
 import { SearchPage } from './SearchPage'
 
-jest.mock('../api/event')
-jest.mock('../api/eventType')
-jest.mock('../api/judge')
-jest.mock('../api/official')
-jest.mock('../api/organizer')
-jest.mock('../api/registration')
+vi.mock('../api/event')
+vi.mock('../api/eventType')
+vi.mock('../api/judge')
+vi.mock('../api/official')
+vi.mock('../api/organizer')
+vi.mock('../api/registration')
 
 const renderPage = (path: string, locale: Locale) =>
   render(
@@ -39,7 +39,7 @@ const renderPage = (path: string, locale: Locale) =>
 const flushPage = async () => {
   for (let i = 0; i <= 7; i++) {
     await act(async () => {
-      jest.runAllTicks()
+      vi.runAllTicks()
       await Promise.resolve()
     })
   }
@@ -50,14 +50,14 @@ describe('SearchPage', () => {
 
   beforeAll(() => {
     window.matchMedia = createMatchMedia(1680)
-    jest.useFakeTimers()
-    jest.setSystemTime(initialSystemTime)
+    vi.useFakeTimers()
+    vi.setSystemTime(initialSystemTime)
   })
   afterEach(() => {
-    jest.clearAllTimers()
-    jest.setSystemTime(initialSystemTime)
+    vi.clearAllTimers()
+    vi.setSystemTime(initialSystemTime)
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
     renderPage('', locales.fi)
@@ -142,7 +142,7 @@ describe('SearchPage', () => {
   })
 
   it('filters by entryOpen', async () => {
-    const consoleLog = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+    const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => undefined)
     try {
       renderPage('/?b=o', locales.fi)
       await flushPage()

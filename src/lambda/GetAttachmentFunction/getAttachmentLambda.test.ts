@@ -1,16 +1,16 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockDownloadFile = jest.fn<any>()
-const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockLambdaError = jest.fn<any>()
-const mockAllowOrigin = jest.fn<any>()
+const mockDownloadFile = vi.fn()
+const mockGetParam = vi.fn()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambdaError = vi.fn()
+const mockAllowOrigin = vi.fn()
 
-jest.unstable_mockModule('../lib/file', () => ({
+vi.doMock('../lib/file', () => ({
   downloadFile: mockDownloadFile,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   allowOrigin: mockAllowOrigin,
   getParam: mockGetParam,
   LambdaError: mockLambdaError,
@@ -44,7 +44,7 @@ describe('getAttachmentLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockLambdaError.mockImplementation((code: number, message: string) => {
       const error = new Error(message) as Error & { statusCode: number }
       error.statusCode = code

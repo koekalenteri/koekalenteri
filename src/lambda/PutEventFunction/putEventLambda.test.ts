@@ -1,54 +1,56 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
-jest.useFakeTimers()
-jest.setSystemTime(new Date('2025-03-22T12:45:33+0200'))
+vi.useFakeTimers()
+vi.setSystemTime(new Date('2025-03-22T12:45:33+0200'))
 
-jest.unstable_mockModule('nanoid', () => ({ nanoid: () => 'new-id' }))
+vi.doMock('nanoid', () => ({ nanoid: () => 'new-id' }))
 
-jest.unstable_mockModule('../lib/api-gw', () => ({
-  getOrigin: jest.fn(),
+vi.doMock('../lib/api-gw', () => ({
+  getOrigin: vi.fn(),
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: jest.fn(),
+vi.doMock('../lib/auth', () => ({
+  authorize: vi.fn(),
 }))
 
-const mockGetEventAuditMessages = jest.fn<any>()
-jest.unstable_mockModule('../lib/audit', () => ({
-  audit: jest.fn(),
-  eventAuditKey: jest.fn((event: Pick<JsonDogEvent, 'id'>) => `event:${event.id}`),
+const mockGetEventAuditMessages = vi.fn()
+vi.doMock('../lib/audit', () => ({
+  audit: vi.fn(),
+  eventAuditKey: vi.fn((event: Pick<JsonDogEvent, 'id'>) => `event:${event.id}`),
   getEventAuditMessages: mockGetEventAuditMessages,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
-  findQualificationStartDate: jest.fn(),
-  getEvent: jest.fn(),
-  patchEvent: jest.fn(),
-  saveEvent: jest.fn(),
-  updateRegistrations: jest.fn(),
+vi.doMock('../lib/event', () => ({
+  findQualificationStartDate: vi.fn(),
+  getEvent: vi.fn(),
+  patchEvent: vi.fn(),
+  saveEvent: vi.fn(),
+  updateRegistrations: vi.fn(),
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({ write: jest.fn() })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({ write: vi.fn() })),
 }))
 
 const { authorize } = await import('../lib/auth')
-const authorizeMock = authorize as jest.Mock<typeof authorize>
+const authorizeMock = authorize as import('vitest').Mock<typeof authorize>
 
 const { audit, eventAuditKey } = await import('../lib/audit')
-const auditMock = audit as jest.Mock<typeof audit>
-const eventAuditKeyMock = eventAuditKey as jest.Mock<typeof eventAuditKey>
+const auditMock = audit as import('vitest').Mock<typeof audit>
+const eventAuditKeyMock = eventAuditKey as import('vitest').Mock<typeof eventAuditKey>
 
 const { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } = await import(
   '../lib/event'
 )
-const findQualificationStartDateMock = findQualificationStartDate as jest.Mock<typeof findQualificationStartDate>
-const getEventMock = getEvent as jest.Mock<typeof getEvent>
-const patchEventMock = patchEvent as jest.Mock<typeof patchEvent>
-const saveEventMock = saveEvent as jest.Mock<typeof saveEvent>
-const updateRegistrationsMock = updateRegistrations as jest.Mock<typeof updateRegistrations>
+const findQualificationStartDateMock = findQualificationStartDate as import('vitest').Mock<
+  typeof findQualificationStartDate
+>
+const getEventMock = getEvent as import('vitest').Mock<typeof getEvent>
+const patchEventMock = patchEvent as import('vitest').Mock<typeof patchEvent>
+const saveEventMock = saveEvent as import('vitest').Mock<typeof saveEvent>
+const updateRegistrationsMock = updateRegistrations as import('vitest').Mock<typeof updateRegistrations>
 
 const { default: putEventLambda } = await import('./handler')
 
@@ -105,10 +107,10 @@ const mockEvent: JsonDogEvent = {
 const confirmedDates = { endDate: '2025-06-02', startDate: '2025-06-01' }
 
 describe('putEventLambda', () => {
-  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+  vi.spyOn(console, 'debug').mockImplementation(() => undefined)
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     patchEventMock.mockImplementation(async (_id, _existing, next) => next)
     mockGetEventAuditMessages.mockImplementation((_existing: unknown, item: Partial<JsonDogEvent>) => {
       if (!_existing) return [{ message: 'Tapahtuma luotu' }]
@@ -168,7 +170,7 @@ describe('putEventLambda', () => {
   })
 
   it('should return 403 when trying to delete non-deletable event', async () => {
-    jest.spyOn(console, 'log').mockImplementationOnce(() => undefined)
+    vi.spyOn(console, 'log').mockImplementationOnce(() => undefined)
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'invited' })
 

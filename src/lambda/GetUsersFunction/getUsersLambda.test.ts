@@ -1,21 +1,21 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockAuthorize = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn()
-const mockDedupeUsersByEmail = jest.fn<any>((users: any[]) => users)
-const mockFilterRelevantUsers = jest.fn()
-const mockGetAllUsers = jest.fn<any>()
-const mockUserIsMemberOf = jest.fn<any>()
+const mockAuthorize = vi.fn()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockDedupeUsersByEmail = vi.fn((users: any[]) => users)
+const mockFilterRelevantUsers = vi.fn()
+const mockGetAllUsers = vi.fn()
+const mockUserIsMemberOf = vi.fn()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
 }))
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
-jest.unstable_mockModule('../lib/user', () => ({
+vi.doMock('../lib/user', () => ({
   dedupeUsersByEmail: mockDedupeUsersByEmail,
   filterRelevantUsers: mockFilterRelevantUsers,
   getAllUsers: mockGetAllUsers,
@@ -26,10 +26,10 @@ const { default: getUsersHandler } = await import('./handler')
 
 describe('getUsersHandler', () => {
   const event = { body: '', headers: {} } as any
-  let errorSpy: jest.SpiedFunction<any>
+  let errorSpy: import('vitest').MockInstance<any>
 
   beforeAll(() => {
-    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
   })
 
   afterAll(() => {
@@ -37,7 +37,7 @@ describe('getUsersHandler', () => {
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('returns 401 if not authorized', async () => {

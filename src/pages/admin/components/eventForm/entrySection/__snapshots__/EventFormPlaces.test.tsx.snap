@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`EventFormPlaces should render with classes 1`] = `
+exports[`EventFormPlaces > should render with classes 1`] = `
 <div>
   <div
     class="MuiBox-root css-1c355sx"
@@ -241,7 +241,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
 </div>
 `;
 
-exports[`EventFormPlaces should render with minimal information 1`] = `
+exports[`EventFormPlaces > should render with minimal information 1`] = `
 <div>
   <div
     class="MuiBox-root css-1c355sx"
@@ -419,7 +419,7 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
 </div>
 `;
 
-exports[`EventFormPlaces should render with placesPerDay 1`] = `
+exports[`EventFormPlaces > should render with placesPerDay 1`] = `
 <div>
   <div
     class="MuiBox-root css-1c355sx"

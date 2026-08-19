@@ -125,7 +125,7 @@ describe('JudgeSection', () => {
       startDate: new Date('2022-06-01'),
     }
 
-    const changeHandler = jest.fn((props) => Object.assign(testEvent, props))
+    const changeHandler = vi.fn((props) => Object.assign(testEvent, props))
     const eventType: EventType = {
       createdAt: new Date(),
       createdBy: '',

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 import OtherViewers from './OtherViewers'
 
-jest.mock('../../recoil/user/selectors', () => ({
+vi.mock('../../recoil/user/selectors', () => ({
   userSelector: require('recoil').selector({
     get: () => ({ id: 'current-user', name: 'Current User' }),
     key: 'otherViewersTestUserSelector',

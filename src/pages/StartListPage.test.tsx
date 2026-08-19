@@ -1,33 +1,36 @@
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import { render, screen } from '@testing-library/react'
+import * as router from 'react-router'
+import * as recoil from 'recoil'
+import * as pageRecoil from './recoil'
 import { StartListPage } from './StartListPage'
 
 // Mock react-router
-jest.mock('react-router', () => ({
-  useLoaderData: jest.fn(),
-  useParams: jest.fn(),
+vi.mock('react-router', () => ({
+  useLoaderData: vi.fn(),
+  useParams: vi.fn(),
 }))
 
 // Mock recoil
-jest.mock('recoil', () => ({
-  selectorFamily: jest.fn(() => 'mocked-selector'),
-  useRecoilValue: jest.fn(),
-  useRecoilValueLoadable: jest.fn(),
+vi.mock('recoil', () => ({
+  selectorFamily: vi.fn(() => 'mocked-selector'),
+  useRecoilValue: vi.fn(),
+  useRecoilValueLoadable: vi.fn(),
 }))
 
 // Mock the useConfirmedEvent hook
-jest.mock('./recoil', () => ({
-  useConfirmedEvent: jest.fn(),
+vi.mock('./recoil', () => ({
+  useConfirmedEvent: vi.fn(),
   userSelector: 'user-selector',
 }))
 
 // Mock components
-jest.mock('./startListPage/EventHeader', () => ({
+vi.mock('./startListPage/EventHeader', () => ({
   EventHeader: ({ event }: { event: PublicConfirmedEvent }) => <div data-testid="event-header">{event.name}</div>,
 }))
 
-jest.mock('./startListPage/ParticipantList', () => ({
+vi.mock('./startListPage/ParticipantList', () => ({
   ParticipantList: ({
     participants,
     event,
@@ -43,15 +46,15 @@ jest.mock('./startListPage/ParticipantList', () => ({
   ),
 }))
 
-jest.mock('./components/LoadingIndicator', () => ({
+vi.mock('./components/LoadingIndicator', () => ({
   __esModule: true,
   default: () => <div role="progressbar" />,
 }))
 
 describe('StartListPage', () => {
-  const mockUseLoaderData = require('react-router').useLoaderData as jest.Mock
-  const mockUseParams = require('react-router').useParams as jest.Mock
-  const mockUseRecoilValueLoadable = require('recoil').useRecoilValueLoadable as jest.Mock
+  const mockUseLoaderData = router.useLoaderData as import('vitest').Mock
+  const mockUseParams = router.useParams as import('vitest').Mock
+  const mockUseRecoilValueLoadable = recoil.useRecoilValueLoadable as import('vitest').Mock
   const mockEvent: PublicConfirmedEvent = {
     classes: [],
     cost: 0,
@@ -112,7 +115,7 @@ describe('StartListPage', () => {
     mockUseParams.mockReturnValue({ id: 'event-1' })
     mockUseLoaderData.mockReturnValue(mockParticipants)
     mockUseRecoilValueLoadable.mockReturnValue({ contents: null, state: 'hasValue' })
-    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue(mockEvent)
+    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue(mockEvent)
   })
 
   it('renders event and participants when data is available', () => {
@@ -159,7 +162,7 @@ describe('StartListPage', () => {
   })
 
   it('shows error message when event is not found', () => {
-    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue(null)
+    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue(null)
 
     render(<StartListPage />)
 
@@ -168,7 +171,7 @@ describe('StartListPage', () => {
   })
 
   it('shows loading indicator while event is loading', () => {
-    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue(undefined)
+    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue(undefined)
 
     render(<StartListPage />)
 
@@ -178,7 +181,7 @@ describe('StartListPage', () => {
 
   it('shows error message when participants list is empty', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [],
       startListPublished: false,
@@ -191,7 +194,7 @@ describe('StartListPage', () => {
 
   it('renders the list when participants are empty but the event has published classes', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
       startListPublished: { AVO: true },
@@ -204,7 +207,7 @@ describe('StartListPage', () => {
 
   it('shows error message when participants are empty and no class is published', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
       startListPublished: { AVO: false },
@@ -217,7 +220,7 @@ describe('StartListPage', () => {
 
   it('renders the list when at least one class is published and another is unpublished', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [
         { class: 'AVO', date: new Date('2023-01-01') },
@@ -233,7 +236,7 @@ describe('StartListPage', () => {
 
   it('renders the list when a class is invited and published even if the event is only confirmed', () => {
     mockUseLoaderData.mockReturnValue([])
-    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+    ;(pageRecoil.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [
         { class: 'AVO', date: new Date('2023-01-01'), state: 'invited' },

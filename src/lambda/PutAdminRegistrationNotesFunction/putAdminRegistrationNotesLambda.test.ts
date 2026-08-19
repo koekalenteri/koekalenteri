@@ -1,19 +1,19 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 const setEventBody = (event: { body: string }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockAudit = jest.fn<any>()
-const mockRegistrationAuditKey = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockUpdateRegistrationField = jest.fn<any>()
-const mockPublishRegistrationPatches = jest.fn<any>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockAudit = vi.fn()
+const mockRegistrationAuditKey = vi.fn()
+const mockGetEvent = vi.fn()
+const mockUpdateRegistrationField = vi.fn()
+const mockPublishRegistrationPatches = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
     constructor(
       public statusCode: number,
@@ -26,24 +26,24 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../lib/audit', () => ({
+vi.doMock('../lib/audit', () => ({
   audit: mockAudit,
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   updateRegistrationField: mockUpdateRegistrationField,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
@@ -60,7 +60,7 @@ describe('putAdminRegistrationNotesLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockAuthorizeWithMemberOf.mockResolvedValue({

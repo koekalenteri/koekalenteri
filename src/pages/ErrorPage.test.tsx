@@ -7,8 +7,8 @@ import { ErrorPage } from './ErrorPage'
 
 describe('ErrorPage', () => {
   beforeEach(() => {
-    jest.spyOn(console, 'warn').mockImplementation(() => {})
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   it('should render 404', () => {

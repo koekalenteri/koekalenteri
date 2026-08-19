@@ -1,17 +1,17 @@
 import { gzipSync } from 'node:zlib'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { CONFIG } from '../config'
 
 // Mock the CONFIG object
-jest.mock('../config', () => ({
+vi.mock('../config', () => ({
   CONFIG: {
     stageName: '',
   },
 }))
 
 // Mock the getOrigin function
-jest.unstable_mockModule('../lib/api-gw', () => ({
-  getOrigin: jest.fn(),
+vi.doMock('../lib/api-gw', () => ({
+  getOrigin: vi.fn(),
 }))
 
 const { allowOrigin, getParam, isDevStage, isHttpMethod, isPatchRequest, isProdStage, isTestStage, response } =
@@ -37,7 +37,7 @@ describe('lambda', () => {
     })
 
     it('should not throw on malformed input and return default value instead', () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       expect(() => getParam({ pathParameters: { malformed: '%E0%A4%A' } }, 'malformed')).not.toThrow()
       expect(getParam({ pathParameters: { malformed: '%E0%A4%A' } }, 'malformed', 'def')).toEqual('def')
@@ -135,7 +135,7 @@ describe('lambda', () => {
     describe('allowOrigin', () => {
       // Save original stageName to restore after tests
       const originalStageName = CONFIG.stageName
-      const mockGetOrigin = apiGw.getOrigin as jest.Mock
+      const mockGetOrigin = apiGw.getOrigin as import('vitest').Mock
 
       beforeEach(() => {
         // Reset mocks before each test

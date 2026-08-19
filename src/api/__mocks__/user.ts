@@ -2,7 +2,7 @@ import type { User } from '../../types'
 
 const MOCK_ADMIN: User = {
   admin: true,
-  email: 'test@user.jest',
+  email: 'test@user.vi',
   id: 'asdf1234',
   name: 'Test User',
 }

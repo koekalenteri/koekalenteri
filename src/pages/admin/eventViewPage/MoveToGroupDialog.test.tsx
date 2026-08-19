@@ -9,17 +9,17 @@ import MoveToGroupDialog from './MoveToGroupDialog'
 
 type TestRegistrationGroup = RegistrationGroup & { date: Date }
 
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
 describe('MoveToGroupDialog', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
-    jest.runOnlyPendingTimers()
-    ;(enqueueSnackbar as jest.Mock).mockClear()
+    vi.runOnlyPendingTimers()
+    ;(enqueueSnackbar as import('vitest').Mock).mockClear()
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   const makeGroup = (date: Date, time: 'ap' | 'ip'): TestRegistrationGroup => ({
     date,
@@ -43,11 +43,11 @@ describe('MoveToGroupDialog', () => {
     const { baseElement } = render(
       <MoveToGroupDialog
         open={true}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         registration={registration}
         event={eventWithStaticDates as unknown as DogEvent}
         groups={groups}
-        onMove={jest.fn()}
+        onMove={vi.fn()}
       />
     )
     await flushPromises()
@@ -68,8 +68,8 @@ describe('MoveToGroupDialog', () => {
       group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time } as any,
     }
 
-    const onClose = jest.fn()
-    const onMove = jest.fn().mockResolvedValue(undefined)
+    const onClose = vi.fn()
+    const onMove = vi.fn().mockResolvedValue(undefined)
 
     renderWithUserEvents(
       <MoveToGroupDialog
@@ -81,7 +81,7 @@ describe('MoveToGroupDialog', () => {
         onMove={onMove}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await flushPromises()
@@ -109,8 +109,8 @@ describe('MoveToGroupDialog', () => {
       group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time } as any,
     }
 
-    const onClose = jest.fn()
-    const onMove = jest.fn().mockResolvedValue(undefined)
+    const onClose = vi.fn()
+    const onMove = vi.fn().mockResolvedValue(undefined)
 
     const { user } = renderWithUserEvents(
       <MoveToGroupDialog
@@ -122,7 +122,7 @@ describe('MoveToGroupDialog', () => {
         onMove={onMove}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await flushPromises()
@@ -141,7 +141,7 @@ describe('MoveToGroupDialog', () => {
   })
 
   it('shows error snackbar when move fails', async () => {
-    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
+    const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
     const groups: TestRegistrationGroup[] = [
       makeGroup(eventWithStaticDates.startDate, 'ap'),
@@ -157,8 +157,8 @@ describe('MoveToGroupDialog', () => {
       group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time } as any,
     }
 
-    const onClose = jest.fn()
-    const onMove = jest.fn().mockRejectedValue(new Error('move failed'))
+    const onClose = vi.fn()
+    const onMove = vi.fn().mockRejectedValue(new Error('move failed'))
 
     const { user } = renderWithUserEvents(
       <MoveToGroupDialog
@@ -170,7 +170,7 @@ describe('MoveToGroupDialog', () => {
         onMove={onMove}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await flushPromises()
@@ -201,11 +201,11 @@ describe('MoveToGroupDialog', () => {
     render(
       <MoveToGroupDialog
         open={true}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         registration={registration}
         event={eventWithStaticDates as unknown as DogEvent}
         groups={groups}
-        onMove={jest.fn()}
+        onMove={vi.fn()}
       />
     )
 
@@ -225,11 +225,11 @@ describe('MoveToGroupDialog', () => {
     render(
       <MoveToGroupDialog
         open={true}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         registration={registration}
         event={eventWithStaticDates as unknown as DogEvent}
         groups={groups}
-        onMove={jest.fn()}
+        onMove={vi.fn()}
       />
     )
 

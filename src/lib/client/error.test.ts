@@ -5,8 +5,8 @@ import * as rum from './rum'
 describe('error', () => {
   describe('reportError', () => {
     it('should call reportError on rum', () => {
-      const recordError = jest.fn()
-      jest.spyOn(rum, 'rum').mockImplementationOnce(() => ({ recordError }) as unknown as AwsRum)
+      const recordError = vi.fn()
+      vi.spyOn(rum, 'rum').mockImplementationOnce(() => ({ recordError }) as unknown as AwsRum)
 
       reportError('test')
 
@@ -15,8 +15,8 @@ describe('error', () => {
     })
 
     it('should ignore token expired errors', () => {
-      const recordError = jest.fn()
-      jest.spyOn(rum, 'rum').mockImplementationOnce(() => ({ recordError }) as unknown as AwsRum)
+      const recordError = vi.fn()
+      vi.spyOn(rum, 'rum').mockImplementationOnce(() => ({ recordError }) as unknown as AwsRum)
 
       reportError(new Error('401 The incoming token has expired'))
 
@@ -24,8 +24,8 @@ describe('error', () => {
     })
 
     it('should log to console, when rum is not available', () => {
-      const consoleError = jest.spyOn(console, 'error').mockImplementationOnce(jest.fn())
-      jest.spyOn(rum, 'rum').mockImplementationOnce(() => undefined)
+      const consoleError = vi.spyOn(console, 'error').mockImplementationOnce(vi.fn())
+      vi.spyOn(rum, 'rum').mockImplementationOnce(() => undefined)
 
       reportError('test')
 

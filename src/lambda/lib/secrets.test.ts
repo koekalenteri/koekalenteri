@@ -1,19 +1,19 @@
 import type { GetParametersCommandOutput } from '@aws-sdk/client-ssm'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 // Mock AWS SDK with proper typing
-const mockSend = jest.fn().mockImplementation(() => Promise.resolve({} as GetParametersCommandOutput))
+const mockSend = vi.fn().mockImplementation(() => Promise.resolve({} as GetParametersCommandOutput))
 
-jest.mock('@aws-sdk/client-ssm', () => ({
+vi.mock('@aws-sdk/client-ssm', () => ({
   __esModule: true,
-  GetParametersCommand: jest.fn().mockImplementation((params) => params),
-  SSMClient: jest.fn().mockImplementation(() => ({
+  GetParametersCommand: vi.fn().mockImplementation((params) => params),
+  SSMClient: vi.fn().mockImplementation(() => ({
     send: mockSend,
   })),
 }))
 
 // Mock CONFIG
-jest.unstable_mockModule('../config', () => ({
+vi.doMock('../config', () => ({
   __esModule: true,
   CONFIG: {
     stackName: 'test-stack',
@@ -25,12 +25,12 @@ const { getKLAPIConfig, getPaytrailConfig, getSSMParams, resetCache } = await im
 
 describe('secrets', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockSend.mockReset()
     // Reset the cache before each test
     resetCache()
     // Mock console.log to avoid cluttering test output
-    jest.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
   })
 
   describe('getSSMParams', () => {
@@ -206,7 +206,7 @@ describe('secrets', () => {
     it('should refresh cache after TTL expires', async () => {
       // Mock Date.now to control time
       let mockTime = 1000000
-      Date.now = jest.fn(() => mockTime)
+      Date.now = vi.fn(() => mockTime)
 
       // Setup mock responses
       mockSend.mockImplementationOnce(() =>

@@ -9,17 +9,17 @@ import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import AdminHomePage from './AdminHomePage'
 
-jest.mock('../../api/user', () => ({ getUser: () => undefined }))
-jest.mock('aws-amplify/auth', () => require('../global-mocks/auth/idle'))
-jest.mock('@aws-amplify/ui-react', () => require('../global-mocks/auth/idle'))
-jest.mock('../../hooks/useAdminSubscription', () => ({
-  useAdminSubscription: jest.fn(),
+vi.mock('../../api/user', () => ({ getUser: () => undefined }))
+vi.mock('aws-amplify/auth', () => import('../global-mocks/auth/idle'))
+vi.mock('@aws-amplify/ui-react', () => import('../global-mocks/auth/idle'))
+vi.mock('../../hooks/useAdminSubscription', () => ({
+  useAdminSubscription: vi.fn(),
 }))
 
 describe('AdminHomePage', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should redirect to login page if user is not logged in', async () => {
     const routes = [

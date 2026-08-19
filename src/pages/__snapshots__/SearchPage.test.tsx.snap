@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SearchPage filters by date - no-results 1`] = `
+exports[`SearchPage > filters by date - no-results 1`] = `
 <div>
   <nav
     class="MuiBox-root css-110zkxu"
@@ -610,7 +610,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
 </div>
 `;
 
-exports[`SearchPage filters by date 1`] = `
+exports[`SearchPage > filters by date 1`] = `
 <div>
   <nav
     class="MuiBox-root css-110zkxu"
@@ -2585,7 +2585,7 @@ exports[`SearchPage filters by date 1`] = `
 </div>
 `;
 
-exports[`SearchPage filters by date/end 1`] = `
+exports[`SearchPage > filters by date/end 1`] = `
 <div>
   <nav
     class="MuiBox-root css-110zkxu"
@@ -4560,7 +4560,7 @@ exports[`SearchPage filters by date/end 1`] = `
 </div>
 `;
 
-exports[`SearchPage filters by event class 1`] = `
+exports[`SearchPage > filters by event class 1`] = `
 <div>
   <nav
     class="MuiBox-root css-110zkxu"
@@ -6996,7 +6996,7 @@ exports[`SearchPage filters by event class 1`] = `
 </div>
 `;
 
-exports[`SearchPage filters by event type 1`] = `
+exports[`SearchPage > filters by event type 1`] = `
 <div>
   <nav
     class="MuiBox-root css-110zkxu"
@@ -9413,7 +9413,7 @@ exports[`SearchPage filters by event type 1`] = `
 </div>
 `;
 
-exports[`SearchPage filters by organizer 1`] = `
+exports[`SearchPage > filters by organizer 1`] = `
 <div>
   <nav
     class="MuiBox-root css-110zkxu"

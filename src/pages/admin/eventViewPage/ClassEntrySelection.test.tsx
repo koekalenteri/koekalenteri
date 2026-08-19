@@ -11,9 +11,9 @@ import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { idTokenAtom } from '../../recoil'
 import ClassEntrySelection from './ClassEntrySelection'
 
-jest.mock('../../../api/event')
-jest.mock('../../../api/registration')
-jest.mock('../../../api/user')
+vi.mock('../../../api/event')
+vi.mock('../../../api/registration')
+vi.mock('../../../api/user')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
@@ -28,9 +28,9 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 }
 
 describe('ClassEntrySelection', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
     const { container } = render(<ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="AVO" />, {
@@ -42,7 +42,7 @@ describe('ClassEntrySelection', () => {
 
   it('renders with cancelled registration(s)', async () => {
     const registrations: Registration[] = [registrationWithStaticDates, registrationWithStaticDatesCancelled].map(
-      (r) => ({ ...r, setGroup: jest.fn() })
+      (r) => ({ ...r, setGroup: vi.fn() })
     )
 
     const { container } = render(

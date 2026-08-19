@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`NoRowsOverlay renders 1`] = `
+exports[`NoRowsOverlay > renders 1`] = `
 <div>
   <div
     class="no-rows MuiBox-root css-1k75hwm"

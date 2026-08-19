@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`EntryStatus renders 1`] = `null`;
+exports[`EntryStatus > renders 1`] = `null`;
 
-exports[`EntryStatus renders 2`] = `
+exports[`EntryStatus > renders 2`] = `
 <p
   class="MuiTypography-root MuiTypography-body1 css-17spemx-MuiTypography-root"
 >
@@ -10,7 +10,7 @@ exports[`EntryStatus renders 2`] = `
 </p>
 `;
 
-exports[`EntryStatus renders 3`] = `
+exports[`EntryStatus > renders 3`] = `
 <p
   class="MuiTypography-root MuiTypography-body1 css-17spemx-MuiTypography-root"
 >
@@ -18,9 +18,9 @@ exports[`EntryStatus renders 3`] = `
 </p>
 `;
 
-exports[`EntryStatus renders 4`] = `null`;
+exports[`EntryStatus > renders 4`] = `null`;
 
-exports[`EntryStatus renders 5`] = `
+exports[`EntryStatus > renders 5`] = `
 <p
   class="MuiTypography-root MuiTypography-body1 css-17spemx-MuiTypography-root"
 >

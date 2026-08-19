@@ -1,30 +1,30 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockAudit = jest.fn<any>()
-const mockRegistrationAuditKey = jest.fn<any>()
-const mockDynamoUpdate = jest.fn<any>()
-const mockDynamoWrite = jest.fn<any>()
-const mockDynamoClient = jest.fn(() => ({
+const mockAudit = vi.fn()
+const mockRegistrationAuditKey = vi.fn()
+const mockDynamoUpdate = vi.fn()
+const mockDynamoWrite = vi.fn()
+const mockDynamoClient = vi.fn(() => ({
   update: mockDynamoUpdate,
   write: mockDynamoWrite,
 }))
-const mockGetEvent = jest.fn<any>()
-const mockPublishRegistrationPatches = jest.fn<any>()
+const mockGetEvent = vi.fn()
+const mockPublishRegistrationPatches = vi.fn()
 
-jest.unstable_mockModule('../lib/audit', () => ({
+vi.doMock('../lib/audit', () => ({
   audit: mockAudit,
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
   default: mockDynamoClient,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
@@ -32,7 +32,7 @@ const { default: sesNotificationLambda } = await import('./handler')
 
 describe('sesNotificationLambda', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
     mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
   })

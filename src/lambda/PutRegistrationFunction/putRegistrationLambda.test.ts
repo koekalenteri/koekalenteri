@@ -1,6 +1,6 @@
 import type { JsonDogEvent, JsonRegistration, Registration } from '../../types'
-import { jest } from '@jest/globals'
 import { addDays, addMinutes } from 'date-fns'
+import { vi } from 'vitest'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
@@ -10,34 +10,34 @@ import { ISO8601DateTimeRE } from '../test-utils/constants'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 const mockSES = {
-  send: jest.fn(),
+  send: vi.fn(),
 }
-jest.unstable_mockModule('@aws-sdk/client-ses', () => ({
-  SESClient: jest.fn(() => mockSES),
-  SendTemplatedEmailCommand: jest.fn((p) => p),
+vi.doMock('@aws-sdk/client-ses', () => ({
+  SESClient: vi.fn(() => mockSES),
+  SendTemplatedEmailCommand: vi.fn((p) => p),
 }))
 
-const mockGetEvent = jest.fn<(eventId: string) => Promise<JsonDogEvent>>()
-const mockApplyNewRegistrationStatsOnce = jest.fn()
-const mockUpdateEventStatsForRegistration = jest.fn()
-const mockUpdateRegistrations = jest.fn<any>()
-const mockPublishRegistrationPatches = jest.fn()
-const mockDynamoDBQuery = jest.fn<any>().mockResolvedValue([])
-const mockDynamoDBWrite = jest.fn()
-const mockDynamoDBUpdate = jest.fn()
-const mockFixRegistrationGroups = jest.fn<any>(async (registrations: JsonRegistration[]) => registrations)
-const mockLockRegistrationGroups = jest.fn<any>().mockResolvedValue(async () => undefined)
-const mockLockRegistrationPayments = jest.fn<any>().mockResolvedValue(async () => undefined)
-const mockGetReadyRegistrationsByEventId = jest.fn<any>().mockResolvedValue([])
-const mockRepairReadyRegistrationGroups = jest.fn<any>().mockResolvedValue([])
-const mockClaimNewRegistrationPostProcessing = jest.fn<any>().mockResolvedValue({
+const mockGetEvent = vi.fn<(eventId: string) => Promise<JsonDogEvent>>()
+const mockApplyNewRegistrationStatsOnce = vi.fn()
+const mockUpdateEventStatsForRegistration = vi.fn()
+const mockUpdateRegistrations = vi.fn()
+const mockPublishRegistrationPatches = vi.fn()
+const mockDynamoDBQuery = vi.fn().mockResolvedValue([])
+const mockDynamoDBWrite = vi.fn()
+const mockDynamoDBUpdate = vi.fn()
+const mockFixRegistrationGroups = vi.fn(async (registrations: JsonRegistration[]) => registrations)
+const mockLockRegistrationGroups = vi.fn().mockResolvedValue(async () => undefined)
+const mockLockRegistrationPayments = vi.fn().mockResolvedValue(async () => undefined)
+const mockGetReadyRegistrationsByEventId = vi.fn().mockResolvedValue([])
+const mockRepairReadyRegistrationGroups = vi.fn().mockResolvedValue([])
+const mockClaimNewRegistrationPostProcessing = vi.fn().mockResolvedValue({
   registration: registrationWithStaticDates,
   release: async () => undefined,
   token: 'test-token',
 })
-const mockMarkNewRegistrationPhase = jest.fn<any>()
+const mockMarkNewRegistrationPhase = vi.fn()
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
   getEvent: mockGetEvent,
   lockRegistrationGroups: mockLockRegistrationGroups,
@@ -46,27 +46,27 @@ jest.unstable_mockModule('../lib/event', () => ({
   updateRegistrations: mockUpdateRegistrations,
 }))
 
-jest.unstable_mockModule('../lib/stats', () => ({
+vi.doMock('../lib/stats', () => ({
   applyNewRegistrationStatsOnce: mockApplyNewRegistrationStatsOnce,
   updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     query: mockDynamoDBQuery,
     update: mockDynamoDBUpdate,
     write: mockDynamoDBWrite,
   })),
 }))
 
-const mockGetRegistration = jest.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()
-const mockSaveRegistration = jest.fn()
-const mockPatchRegistration = jest.fn<
+const mockGetRegistration = vi.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()
+const mockSaveRegistration = vi.fn()
+const mockPatchRegistration = vi.fn<
   (
     eventId: JsonRegistration['eventId'],
     id: JsonRegistration['id'],
@@ -74,15 +74,15 @@ const mockPatchRegistration = jest.fn<
     next: JsonRegistration
   ) => Promise<JsonRegistration>
 >(async (_eventId, _id, _existing, next) => next)
-const mockAssertRegistrationEmailsNotSuppressed = jest.fn<() => Promise<void>>()
-const mockfindExistingRegistrationToEventForDog = jest.fn<
+const mockAssertRegistrationEmailsNotSuppressed = vi.fn<() => Promise<void>>()
+const mockfindExistingRegistrationToEventForDog = vi.fn<
   (eventId: string, regNo: string) => Promise<JsonRegistration | undefined>
 >(async () => undefined)
 
 const libRegistration = await import('../lib/registration')
-const mockAuthorizeRegistrationEdit = jest.fn(() => 'test-edit-token')
+const mockAuthorizeRegistrationEdit = vi.fn(() => 'test-edit-token')
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   ...libRegistration,
   authorizeRegistrationEdit: mockAuthorizeRegistrationEdit,
   claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
@@ -94,7 +94,7 @@ jest.unstable_mockModule('../lib/registration', () => ({
   saveRegistration: mockSaveRegistration,
 }))
 
-jest.unstable_mockModule('../lib/emailSuppression', () => ({
+vi.doMock('../lib/emailSuppression', () => ({
   assertRegistrationEmailsNotSuppressed: mockAssertRegistrationEmailsNotSuppressed,
   normalizeRegistrationEmails: (registration: JsonRegistration) => {
     if (registration.owner?.email) registration.owner.email = registration.owner.email.trim().toLowerCase()
@@ -119,27 +119,27 @@ jest.unstable_mockModule('../lib/emailSuppression', () => ({
 const { default: putRegistrationLabmda } = await import('./handler')
 
 describe('putRegistrationLabmda', () => {
-  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
-  jest.spyOn(console, 'log').mockImplementation(() => undefined)
+  vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+  vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
   beforeAll(() => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
   beforeEach(() => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockUpdateRegistrations.mockResolvedValue({ organizer: { id: 'org-1' } })
   })
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAssertRegistrationEmailsNotSuppressed.mockResolvedValue(undefined)
     mockUpdateRegistrations.mockResolvedValue({ ...eventWithStaticDates, organizer: { id: 'org-1' } })
   })
   afterAll(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('should do happy path for new registration', async () => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...registration } = registrationWithStaticDates
     const res = await putRegistrationLabmda(
@@ -194,7 +194,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('rejects an update when edit-token authorization fails', async () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(JSON.parse(JSON.stringify(registrationWithStaticDates)))
     mockAuthorizeRegistrationEdit.mockImplementationOnce(() => {
@@ -215,7 +215,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should send email for new registration when paymentTime is confirmation', async () => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     const eventWithConfirmationPayment = { ...eventWithStaticDates, paymentTime: 'confirmation' }
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
     mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce({
@@ -366,8 +366,8 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should reject new registration with suppressed email address', async () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockAssertRegistrationEmailsNotSuppressed.mockRejectedValueOnce(
       new LambdaError(
@@ -400,7 +400,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should reject updated registration with suppressed email address', async () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -580,7 +580,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should notify secretary when cancelling from reserve and it was notified', async () => {
-    jest.setSystemTime(addMinutes(eventWithStaticDates.entryStartDate, 1))
+    vi.setSystemTime(addMinutes(eventWithStaticDates.entryStartDate, 1))
 
     const registration: Registration = {
       ...registrationWithStaticDates,
@@ -655,7 +655,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should notify secretary when cancelling from reserve and it was not notified', async () => {
-    jest.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
+    vi.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
 
     const registration: Registration = {
       ...registrationWithStaticDates,
@@ -730,7 +730,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should notify secretary when cancelling from participants', async () => {
-    jest.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
+    vi.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
 
     const registration: Registration = {
       ...registrationWithStaticDates,
@@ -1121,7 +1121,7 @@ describe('putRegistrationLabmda', () => {
 
   it('should not fail if secretary email fails', async () => {
     const error = new Error('test error')
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
     mockSES.send.mockImplementationOnce(() => Promise.resolve()) // first send is for user
     mockSES.send.mockImplementationOnce(() => Promise.reject(error)) // second send is for secretary
@@ -1193,7 +1193,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should return 404 if event is not found', async () => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockRejectedValueOnce(new LambdaError(404, `Event with id '${eventWithStaticDates.id}' was not found`))
 
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
@@ -1202,7 +1202,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should return 404 when updating a registration after the event has ended', async () => {
-    jest.setSystemTime(addDays(eventWithStaticDates.endDate, 1))
+    vi.setSystemTime(addDays(eventWithStaticDates.endDate, 1))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(JSON.parse(JSON.stringify(registrationWithStaticDates)))
 
@@ -1223,7 +1223,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('does not expose an existing registration for a duplicate submission', async () => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(
       JSON.parse(JSON.stringify(registrationWithStaticDates))
@@ -1236,7 +1236,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('returns a specific conflict for another creation while payment is in progress', async () => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
       ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
@@ -1260,7 +1260,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('resumes a duplicate creation only when its idempotency key matches', async () => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
       ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
@@ -1279,7 +1279,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('returns a concurrent idempotent retry while the original request holds the workflow lease', async () => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
       ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
@@ -1312,7 +1312,7 @@ describe('putRegistrationLabmda', () => {
 
   it('should return 410 when creating new registration before entry window opens', async () => {
     // Move current time 1 minute before entryStartDate
-    jest.setSystemTime(addMinutes(eventWithStaticDates.entryStartDate, -1))
+    vi.setSystemTime(addMinutes(eventWithStaticDates.entryStartDate, -1))
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
@@ -1330,7 +1330,7 @@ describe('putRegistrationLabmda', () => {
 
   it('should return 410 when creating new registration after entry window closes', async () => {
     // Move current time 1 minute after entryEndDate
-    jest.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
+    vi.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
@@ -1347,7 +1347,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should ignore client-supplied payment fields (paidAmount, paidAt, paymentStatus)', async () => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
 
     const existingJson = JSON.parse(
       JSON.stringify({

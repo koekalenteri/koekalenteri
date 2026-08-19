@@ -1,15 +1,15 @@
 import type { JsonUser, Organizer } from '../../types'
 import type { KLKoetapahtuma } from '../types/KLAPI'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
-jest.useFakeTimers()
+vi.useFakeTimers()
 const TEST_NOW = new Date('2026-06-01T12:00:00.000Z')
 
-const mockAuthorizeWithMemberOf = jest.fn<() => Promise<{ memberOf: string[]; user: JsonUser }>>()
-const mockRead = jest.fn<() => Promise<Organizer | undefined>>()
-const mockResponse = jest.fn<(status: number, body: unknown, event: unknown) => unknown>()
-const mockLueKoetapahtumat = jest.fn<() => Promise<{ error?: string; json?: KLKoetapahtuma[]; status: number }>>()
+const mockAuthorizeWithMemberOf = vi.fn<() => Promise<{ memberOf: string[]; user: JsonUser }>>()
+const mockRead = vi.fn<() => Promise<Organizer | undefined>>()
+const mockResponse = vi.fn<(status: number, body: unknown, event: unknown) => unknown>()
+const mockLueKoetapahtumat = vi.fn<() => Promise<{ error?: string; json?: KLKoetapahtuma[]; status: number }>>()
 
 class MockKLAPI {
   constructor() {
@@ -29,26 +29,26 @@ class MockLambdaError extends Error {
   }
 }
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../lib/KLAPI', () => ({
+vi.doMock('../lib/KLAPI', () => ({
   default: MockKLAPI,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   LambdaError: MockLambdaError,
-  lambda: jest.fn((_name, fn) => fn),
+  lambda: vi.fn((_name, fn) => fn),
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/secrets', () => ({
-  getKLAPIConfig: jest.fn(),
+vi.doMock('../lib/secrets', () => ({
+  getKLAPIConfig: vi.fn(),
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     read: mockRead,
   })),
 }))
@@ -89,9 +89,9 @@ const otherOrganizer: Organizer = {
 
 describe('searchEventKcIdChoicesLambda', () => {
   beforeEach(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(TEST_NOW)
-    jest.clearAllMocks()
+    vi.useFakeTimers()
+    vi.setSystemTime(TEST_NOW)
+    vi.clearAllMocks()
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-id'], user })
     mockRead.mockResolvedValue(organizer)
     mockLueKoetapahtumat.mockResolvedValue({
@@ -128,7 +128,7 @@ describe('searchEventKcIdChoicesLambda', () => {
     })
   })
 
-  afterEach(() => jest.useRealTimers())
+  afterEach(() => vi.useRealTimers())
 
   it('uses organizer table kcId for Kennel Club search', async () => {
     const event = constructAPIGwEvent(lookupRequest, { method: 'POST' })

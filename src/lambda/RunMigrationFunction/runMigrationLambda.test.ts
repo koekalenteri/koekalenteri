@@ -1,17 +1,17 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuthorize = jest.fn<any>()
-const mockReadAll = jest.fn<any>()
-const mockWrite = jest.fn<any>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuthorize = vi.fn()
+const mockReadAll = vi.fn()
+const mockWrite = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
   authorizeAdmin: async (event: any) => {
     const user = await mockAuthorize(event)
@@ -21,8 +21,8 @@ jest.unstable_mockModule('../lib/auth', () => ({
   },
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     readAll: mockReadAll,
     write: mockWrite,
   })),
@@ -42,7 +42,7 @@ describe('runMigrationLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({

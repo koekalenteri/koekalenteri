@@ -9,7 +9,7 @@ import { locales } from '../i18n'
 import { flushPromises } from '../test-utils/utils'
 import { SupportPage } from './SupportPage'
 
-jest.mock('./components/Header', () => () => <>header</>)
+vi.mock('./components/Header', () => ({ default: () => <>header</> }))
 
 const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (
@@ -22,9 +22,9 @@ const Wrapper = ({ children }: { readonly children: ReactNode }) => {
 }
 
 describe('SupportPage', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render', async () => {
     const { container } = render(<SupportPage />, { wrapper: Wrapper })

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`linkHandler calls handler for "a" selector with title 1`] = `
+exports[`linkHandler > calls handler for "a" selector with title 1`] = `
 {
   "children": undefined,
   "properties": {
@@ -12,7 +12,7 @@ exports[`linkHandler calls handler for "a" selector with title 1`] = `
 }
 `;
 
-exports[`linkHandler calls handler for "a" selector without title 1`] = `
+exports[`linkHandler > calls handler for "a" selector without title 1`] = `
 {
   "children": undefined,
   "properties": {

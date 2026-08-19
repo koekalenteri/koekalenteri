@@ -9,18 +9,19 @@ import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
+import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import EventViewPage from './EventViewPage'
 import { adminEventClassAtom, adminEventIdAtom } from './recoil'
 
-jest.mock('../../hooks/useEventSubscription', () => ({
-  useEventSubscription: jest.fn(() => ({ viewers: [] })),
+vi.mock('../../hooks/useEventSubscription', async () => ({
+  useEventSubscription: vi.fn(() => ({ viewers: [] })),
 }))
 
-jest.mock('../recoil/user/selectors', () => {
-  const { selector } = jest.requireActual('recoil')
+vi.mock('../recoil/user/selectors', async () => {
+  const { selector } = await vi.importActual<typeof import('recoil')>('recoil')
   return {
     userSelector: selector({
       get: () => ({ id: 'user1', name: 'Current User' }),
@@ -33,26 +34,24 @@ jest.mock('../recoil/user/selectors', () => {
   }
 })
 
-jest.mock('../../api/event')
-jest.mock('../../api/eventType')
-jest.mock('../../api/judge')
-jest.mock('../../api/official')
-jest.mock('../../api/organizer')
-jest.mock('../../api/registration')
-jest.mock('../../api/email')
-jest.mock('../../api/user')
+vi.mock('../../api/event')
+vi.mock('../../api/eventType')
+vi.mock('../../api/judge')
+vi.mock('../../api/official')
+vi.mock('../../api/organizer')
+vi.mock('../../api/registration')
+vi.mock('../../api/email')
+vi.mock('../../api/user')
 
 describe('EventViewPage', () => {
-  const { useEventSubscription } = jest.requireMock('../../hooks/useEventSubscription') as {
-    useEventSubscription: jest.Mock
-  }
+  const mockUseEventSubscription = vi.mocked(useEventSubscription)
 
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   beforeEach(() => {
-    useEventSubscription.mockReturnValue({ viewers: [] })
+    mockUseEventSubscription.mockReturnValue({ viewers: [] })
   })
 
   it('renders properly for event without classes', async () => {
@@ -149,7 +148,7 @@ describe('EventViewPage', () => {
   })
 
   it('shows other viewers and hides the current user from the viewer banner', async () => {
-    useEventSubscription.mockReturnValue({
+    mockUseEventSubscription.mockReturnValue({
       viewers: [
         { name: 'Current User', userId: 'user1' },
         { name: 'Viewer Two', userId: 'user2' },

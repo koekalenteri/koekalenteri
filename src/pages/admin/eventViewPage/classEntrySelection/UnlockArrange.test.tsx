@@ -19,28 +19,28 @@ describe('UnlockArrange', () => {
   })
 
   it('should render a switch with the correct label', () => {
-    renderWithUserEvents(<UnlockArrange checked={false} onChange={jest.fn()} />)
+    renderWithUserEvents(<UnlockArrange checked={false} onChange={vi.fn()} />)
 
     expect(screen.getByText('Järjestä varasijoja, vaikka varasijailmoitukset on jo lähetetty')).toBeInTheDocument()
     expect(screen.getByRole('switch')).toBeInTheDocument()
   })
 
   it('should render the switch in unchecked state when checked is false', () => {
-    renderWithUserEvents(<UnlockArrange checked={false} onChange={jest.fn()} />)
+    renderWithUserEvents(<UnlockArrange checked={false} onChange={vi.fn()} />)
 
     const checkbox = screen.getByRole('switch')
     expect(checkbox).not.toBeChecked()
   })
 
   it('should render the switch in checked state when checked is true', () => {
-    renderWithUserEvents(<UnlockArrange checked={true} onChange={jest.fn()} />)
+    renderWithUserEvents(<UnlockArrange checked={true} onChange={vi.fn()} />)
 
     const checkbox = screen.getByRole('switch')
     expect(checkbox).toBeChecked()
   })
 
   it('should call onChange with the new value when clicked', async () => {
-    const handleChange = jest.fn()
+    const handleChange = vi.fn()
     const { user } = renderWithUserEvents(<UnlockArrange checked={false} onChange={handleChange} />)
 
     const checkbox = screen.getByRole('switch')
@@ -50,20 +50,20 @@ describe('UnlockArrange', () => {
   })
 
   it('should not render the switch when disabled prop is true', () => {
-    renderWithUserEvents(<UnlockArrange checked={false} onChange={jest.fn()} disabled={true} />)
+    renderWithUserEvents(<UnlockArrange checked={false} onChange={vi.fn()} disabled={true} />)
 
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   })
 
   it('should not disable the switch when disabled prop is false', () => {
-    renderWithUserEvents(<UnlockArrange checked={false} onChange={jest.fn()} disabled={false} />)
+    renderWithUserEvents(<UnlockArrange checked={false} onChange={vi.fn()} disabled={false} />)
 
     const checkbox = screen.getByRole('switch')
     expect(checkbox).not.toBeDisabled()
   })
 
   it('should show the tooltip when hovering over the info icon', async () => {
-    const { user } = renderWithUserEvents(<UnlockArrange checked={false} onChange={jest.fn()} />)
+    const { user } = renderWithUserEvents(<UnlockArrange checked={false} onChange={vi.fn()} />)
 
     const infoIcon = screen.getByTestId('InfoOutlinedIcon')
     await user.hover(infoIcon)

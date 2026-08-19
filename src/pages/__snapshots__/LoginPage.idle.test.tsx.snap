@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`LoginPage should render the login page mock when user is not logged in 1`] = `
+exports[`LoginPage > should render the login page mock when user is not logged in 1`] = `
 <div>
   HEADER
   <div

@@ -1,26 +1,24 @@
 import type { JsonOfficial, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-jest.useFakeTimers()
-jest.setSystemTime(new Date('2024-05-30T20:00:00Z'))
-jest.unstable_mockModule('nanoid', () => ({ nanoid: () => 'test-id' }))
+vi.useFakeTimers()
+vi.setSystemTime(new Date('2024-05-30T20:00:00Z'))
+vi.doMock('nanoid', () => ({ nanoid: () => 'test-id' }))
 
 const { fetchOfficialsForEventTypes, updateOfficials } = await import('./official')
 
 describe('official', () => {
-  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('fetchOfficialsForEventTypes', () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-    const mockReadOfficials = jest
-      .fn<KLAPI['lueKoemuodonKoetoimitsijat']>()
-      .mockResolvedValue({ json: [], status: 200 })
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const mockReadOfficials = vi.fn<KLAPI['lueKoemuodonKoetoimitsijat']>().mockResolvedValue({ json: [], status: 200 })
     const mockKlapi = {
       lueKoemuodonKoetoimitsijat: mockReadOfficials,
     } as unknown as KLAPI
@@ -129,8 +127,8 @@ describe('official', () => {
   })
 
   describe('updateOfficials', () => {
-    const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
-    const mockBatchWrite = jest.fn()
+    const mockReadAll = vi.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
+    const mockBatchWrite = vi.fn()
     const mockDB = {
       batchWrite: mockBatchWrite,
       readAll: mockReadAll,

@@ -1,27 +1,27 @@
 import type { JsonConfirmedEvent, Registration } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 const setEventBody = (event: { body: string }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockGetOrigin = jest.fn<any>()
-const mockSendTemplatedEmailToEventRegistrations = jest.fn<any>()
-const mockSetReserveNotified = jest.fn<any>()
-const mockGetReadyRegistrationsByEventId = jest.fn<any>()
-const mockMarkParticipants = jest.fn<any>()
-const mockQuery = jest.fn<any>()
-const mockRead = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
-const mockAudit = jest.fn<any>()
-const mockEventAuditKey = jest.fn<any>()
-const mockPublishEventPatch = jest.fn<any>()
-const mockPublishRegistrationPatches = jest.fn<any>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockGetOrigin = vi.fn()
+const mockSendTemplatedEmailToEventRegistrations = vi.fn()
+const mockSetReserveNotified = vi.fn()
+const mockGetReadyRegistrationsByEventId = vi.fn()
+const mockMarkParticipants = vi.fn()
+const mockQuery = vi.fn()
+const mockRead = vi.fn()
+const mockUpdate = vi.fn()
+const mockAudit = vi.fn()
+const mockEventAuditKey = vi.fn()
+const mockPublishEventPatch = vi.fn()
+const mockPublishRegistrationPatches = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
     constructor(
       public statusCode: number,
@@ -34,20 +34,20 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../lib/api-gw', () => ({
+vi.doMock('../lib/api-gw', () => ({
   getOrigin: mockGetOrigin,
 }))
 
-jest.unstable_mockModule('../lib/audit', () => ({
+vi.doMock('../lib/audit', () => ({
   audit: mockAudit,
   eventAuditKey: mockEventAuditKey,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishEventPatch: mockPublishEventPatch,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
@@ -55,20 +55,20 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 import * as eventLib from '../lib/event'
 import * as regLib from '../lib/registration'
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   ...regLib,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   sendTemplatedEmailToEventRegistrations: mockSendTemplatedEmailToEventRegistrations,
   setReserveNotified: mockSetReserveNotified,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   ...eventLib,
   markParticipants: mockMarkParticipants,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     query: mockQuery,
     read: mockRead,
     update: mockUpdate,
@@ -115,7 +115,7 @@ describe('sendMessagesLambda', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     delete (mockEvent as Partial<JsonConfirmedEvent>).startListPublished
 
     // Default mock implementations
@@ -832,7 +832,7 @@ describe('sendMessagesLambda', () => {
     expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', expect.anything())
 
     // Reset mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Test with picked template
     setEventBody(event, {

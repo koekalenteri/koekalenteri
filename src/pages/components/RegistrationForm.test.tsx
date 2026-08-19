@@ -13,12 +13,12 @@ import { locales } from '../../i18n'
 import { createMatchMedia, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 import RegistrationForm from './RegistrationForm'
 
-jest.mock('../../api/event')
-jest.mock('../../api/eventType')
-jest.mock('../../api/judge')
-jest.mock('../../api/official')
-jest.mock('../../api/organizer')
-jest.mock('../../api/registration')
+vi.mock('../../api/event')
+vi.mock('../../api/eventType')
+vi.mock('../../api/judge')
+vi.mock('../../api/official')
+vi.mock('../../api/organizer')
+vi.mock('../../api/registration')
 
 function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
@@ -38,10 +38,10 @@ describe('RegistrationForm', () => {
   beforeAll(() => {
     // jsdom does not have matchMedia, so inject a polyfill
     window.matchMedia = createMatchMedia(window.innerWidth)
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
     const { container } = render(
@@ -68,12 +68,12 @@ describe('RegistrationForm', () => {
   it('should call onChange', async () => {
     const registration = { ...registrationWithStaticDates }
 
-    const onChange = jest.fn().mockImplementation((props) => Object.assign(registration, props))
+    const onChange = vi.fn().mockImplementation((props) => Object.assign(registration, props))
 
     const { user } = renderWithUserEvents(
       <RegistrationForm event={eventWithStaticDates} registration={registration} onChange={onChange} />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await flushPromises()
@@ -97,7 +97,7 @@ describe('RegistrationForm', () => {
       ownerPays: undefined,
     }
 
-    const onChange = jest.fn().mockImplementation((props) => Object.assign(registration, props))
+    const onChange = vi.fn().mockImplementation((props) => Object.assign(registration, props))
 
     render(<RegistrationForm event={eventWithStaticDates} registration={registration} onChange={onChange} />, {
       wrapper: Wrapper,
@@ -111,7 +111,7 @@ describe('RegistrationForm', () => {
   })
 
   it('should not call onSave multiple times', async () => {
-    const onSave = jest.fn()
+    const onSave = vi.fn()
 
     const { user } = renderWithUserEvents(
       <RegistrationForm
@@ -121,7 +121,7 @@ describe('RegistrationForm', () => {
         onSave={onSave}
       />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await flushPromises()
@@ -149,12 +149,12 @@ describe('RegistrationForm', () => {
       paidAt: undefined,
       selectedCost: 'normal' as const,
     }
-    const onChange = jest.fn().mockImplementation((props) => Object.assign(registration, props))
+    const onChange = vi.fn().mockImplementation((props) => Object.assign(registration, props))
 
     const { user } = renderWithUserEvents(
       <RegistrationForm event={event} registration={registration} onChange={onChange} />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await flushPromises()

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`markdown markdownToHtml should convert a template 1`] = `
+exports[`markdown > markdownToHtml > should convert a template 1`] = `
 "<h1>{{title}}</h1>
 <p>{{#unless reg.cancelled ~}}<br>
 <a href="{{link}}/edit">Edit registration</a><br>
@@ -99,7 +99,7 @@ p. {{event.official.phone}}<br>
 "
 `;
 
-exports[`markdown markdownToText should convert a template 1`] = `
+exports[`markdown > markdownToText > should convert a template 1`] = `
 {
   "subject": "{{subject}}: {{reg.eventType}} {{eventDate}} {{event.location}}",
   "text": "{{title}}

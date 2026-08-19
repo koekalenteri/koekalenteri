@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`EventProperty freeSolo=false should display options when typing and fire onChange when selecting an option or clearing input 1`] = `
+exports[`EventProperty > freeSolo=false > should display options when typing and fire onChange when selecting an option or clearing input 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1tlcqt-MuiAutocomplete-root"
@@ -94,7 +94,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 </div>
 `;
 
-exports[`EventProperty freeSolo=false should display options when typing and fire onChange when selecting an option or clearing input 2`] = `
+exports[`EventProperty > freeSolo=false > should display options when typing and fire onChange when selecting an option or clearing input 2`] = `
 <div>
   <div
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-1tlcqt-MuiAutocomplete-root"
@@ -189,7 +189,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 </div>
 `;
 
-exports[`EventProperty freeSolo=false should display options when typing and fire onChange when selecting an option or clearing input 3`] = `
+exports[`EventProperty > freeSolo=false > should display options when typing and fire onChange when selecting an option or clearing input 3`] = `
 <div>
   <div
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-1tlcqt-MuiAutocomplete-root"
@@ -284,7 +284,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 </div>
 `;
 
-exports[`EventProperty freeSolo=false should render with minimal information 1`] = `
+exports[`EventProperty > freeSolo=false > should render with minimal information 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1tlcqt-MuiAutocomplete-root"
@@ -397,7 +397,7 @@ exports[`EventProperty freeSolo=false should render with minimal information 1`]
 </div>
 `;
 
-exports[`EventProperty freeSolo=false should render with undefined property and options 1`] = `
+exports[`EventProperty > freeSolo=false > should render with undefined property and options 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1tlcqt-MuiAutocomplete-root"
@@ -491,7 +491,7 @@ exports[`EventProperty freeSolo=false should render with undefined property and 
 </div>
 `;
 
-exports[`EventProperty freeSolo=true should display options when typing and fire onChange when selecting an option or clearing input 1`] = `
+exports[`EventProperty > freeSolo=true > should display options when typing and fire onChange when selecting an option or clearing input 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1tlcqt-MuiAutocomplete-root"
@@ -585,7 +585,7 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
 </div>
 `;
 
-exports[`EventProperty freeSolo=true should display options when typing and fire onChange when selecting an option or clearing input 2`] = `
+exports[`EventProperty > freeSolo=true > should display options when typing and fire onChange when selecting an option or clearing input 2`] = `
 <div>
   <div
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasClearIcon css-1tlcqt-MuiAutocomplete-root"
@@ -679,7 +679,7 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
 </div>
 `;
 
-exports[`EventProperty freeSolo=true should display options when typing and fire onChange when selecting an option or clearing input 3`] = `
+exports[`EventProperty > freeSolo=true > should display options when typing and fire onChange when selecting an option or clearing input 3`] = `
 <div>
   <div
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasClearIcon css-1tlcqt-MuiAutocomplete-root"
@@ -774,7 +774,7 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
 </div>
 `;
 
-exports[`EventProperty freeSolo=true should render with minimal information 1`] = `
+exports[`EventProperty > freeSolo=true > should render with minimal information 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1tlcqt-MuiAutocomplete-root"
@@ -868,7 +868,7 @@ exports[`EventProperty freeSolo=true should render with minimal information 1`] 
 </div>
 `;
 
-exports[`EventProperty freeSolo=true should render with undefined property and options 1`] = `
+exports[`EventProperty > freeSolo=true > should render with undefined property and options 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root css-1tlcqt-MuiAutocomplete-root"

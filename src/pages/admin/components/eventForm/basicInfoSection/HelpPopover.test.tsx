@@ -3,7 +3,7 @@ import { renderWithUserEvents } from '../../../../../test-utils/utils'
 import HelpPopover from './HelpPopover'
 
 describe('HelpPopover', () => {
-  const onCloseMock = jest.fn()
+  const onCloseMock = vi.fn()
   const button = document.createElement('button')
 
   beforeEach(() => {

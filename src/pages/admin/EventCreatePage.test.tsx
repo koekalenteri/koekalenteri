@@ -14,18 +14,18 @@ import { flushPromises } from '../../test-utils/utils'
 import EventCreatePage from './EventCreatePage'
 import { adminNewEventAtom } from './recoil'
 
-jest.mock('../../api/event')
-jest.mock('../../api/eventType')
-jest.mock('../../api/judge')
-jest.mock('../../api/official')
-jest.mock('../../api/organizer')
-jest.mock('../../api/registration')
-jest.mock('../../api/user')
+vi.mock('../../api/event')
+vi.mock('../../api/eventType')
+vi.mock('../../api/judge')
+vi.mock('../../api/official')
+vi.mock('../../api/organizer')
+vi.mock('../../api/registration')
+vi.mock('../../api/user')
 
 describe('EventEditPage', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('initializes a new event with an unpublished start list', async () => {
     const event = await snapshot_UNSTABLE().getPromise(adminNewEventAtom)

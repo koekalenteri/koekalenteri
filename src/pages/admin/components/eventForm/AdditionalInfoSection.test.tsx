@@ -12,7 +12,7 @@ describe('AdditionalInfoSection', () => {
       judges: [],
       startDate: new Date('2022-06-01'),
     }
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
     const { container } = render(<AdditionalInfoSection event={testEvent} onChange={changeHandler} open />)
     expect(container).toMatchSnapshot()
   })
@@ -25,7 +25,7 @@ describe('AdditionalInfoSection', () => {
       judges: [],
       startDate: new Date('2022-06-01'),
     }
-    const changeHandler = jest.fn((props) => Object.assign(testEvent, props))
+    const changeHandler = vi.fn((props) => Object.assign(testEvent, props))
 
     const { user } = renderWithUserEvents(<AdditionalInfoSection event={testEvent} onChange={changeHandler} open />)
 

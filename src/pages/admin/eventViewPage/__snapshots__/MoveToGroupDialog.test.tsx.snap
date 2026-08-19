@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`MoveToGroupDialog renders 1`] = `
+exports[`MoveToGroupDialog > renders 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >

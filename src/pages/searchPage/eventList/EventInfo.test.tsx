@@ -6,7 +6,7 @@ import { emptyEvent } from '../../../__mockData__/emptyEvent'
 import { flushPromises } from '../../../test-utils/utils'
 import { EventInfo } from './EventInfo'
 
-jest.mock('../../../api/judge')
+vi.mock('../../../api/judge')
 
 const testEvent: DogEvent = {
   ...emptyEvent,
@@ -37,9 +37,9 @@ const testEvent: DogEvent = {
 }
 
 describe('EventInfo', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render event information', async () => {
     const event: DogEvent = { ...testEvent }

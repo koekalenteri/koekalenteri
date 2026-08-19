@@ -1,32 +1,32 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
 
-const mockSubscribeToAdmin = jest.fn<any>()
-const mockSubscribeToEvent = jest.fn<any>()
-const mockSubscribeToRegistration = jest.fn<any>()
-const mockUnsubscribeFromAdmin = jest.fn<any>()
-const mockUnsubscribeFromEvent = jest.fn<any>()
-const mockUnsubscribeFromRegistration = jest.fn<any>()
-const mockGetWsConnection = jest.fn<any>()
-const mockAuthenticateToken = jest.fn<any>()
-const mockAuthenticateWebSocket = jest.fn<any>()
-const mockPublishEventViewers = jest.fn<any>()
-const mockResponse = jest.fn<any>()
+const mockSubscribeToAdmin = vi.fn()
+const mockSubscribeToEvent = vi.fn()
+const mockSubscribeToRegistration = vi.fn()
+const mockUnsubscribeFromAdmin = vi.fn()
+const mockUnsubscribeFromEvent = vi.fn()
+const mockUnsubscribeFromRegistration = vi.fn()
+const mockGetWsConnection = vi.fn()
+const mockAuthenticateToken = vi.fn()
+const mockAuthenticateWebSocket = vi.fn()
+const mockPublishEventViewers = vi.fn()
+const mockResponse = vi.fn()
 
-jest.unstable_mockModule('../lib/ws/connectionLifecycle', () => ({
+vi.doMock('../lib/ws/connectionLifecycle', () => ({
   authenticateWebSocket: mockAuthenticateWebSocket,
   getWebSocketConnection: mockGetWsConnection,
 }))
 
-jest.unstable_mockModule('../lib/ws/authentication', () => ({
+vi.doMock('../lib/ws/authentication', () => ({
   authenticateWebSocketToken: mockAuthenticateToken,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishEventViewers: mockPublishEventViewers,
 }))
 
-jest.unstable_mockModule('../lib/ws/subscriptionService', () => ({
+vi.doMock('../lib/ws/subscriptionService', () => ({
   subscribeToAdmin: mockSubscribeToAdmin,
   subscribeToEvent: mockSubscribeToEvent,
   subscribeToRegistration: mockSubscribeToRegistration,
@@ -35,7 +35,7 @@ jest.unstable_mockModule('../lib/ws/subscriptionService', () => ({
   unsubscribeFromRegistration: mockUnsubscribeFromRegistration,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   LambdaError,
   response: mockResponse,
 }))
@@ -43,10 +43,11 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 const { default: wsMessageHandler } = await import('./handler')
 
 describe('wsMessageHandler', () => {
-  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
+    errorSpy.mockImplementation(() => undefined)
     mockResponse.mockImplementation((statusCode: number, body: unknown) => ({ body, statusCode }))
   })
 
@@ -281,6 +282,7 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
+    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: 'Forbidden', status: 403 }))
     expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 403 })
   })
 
@@ -293,6 +295,7 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
+    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: 'Forbidden', status: 403 }))
     expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 403 })
   })
 
@@ -305,6 +308,7 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
+    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'unexpected' }))
     expect(result).toEqual({ body: { error: 'Internal server error', ok: false, status: 500 }, statusCode: 500 })
   })
 })

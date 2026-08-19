@@ -1,24 +1,27 @@
 import i18n from 'i18next'
-import fetchMock from 'jest-fetch-mock'
 import { enqueueSnackbar } from 'notistack'
 import { API_BASE_URL } from '../routeConfig'
+import fetchMock from '../test-utils/fetchMock'
 import { getDog } from './dog'
 
 fetchMock.enableMocks()
 
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
-beforeEach(() => fetchMock.resetMocks())
+beforeEach(() => {
+  fetchMock.resetMocks()
+  fetchMock.enableMocks()
+})
 
 describe('getDog', () => {
   beforeAll(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterAll(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
   it('should fetch dog without refresh', async () => {
     fetchMock.mockResponse(JSON.stringify({ regNo: 'testReg' }))

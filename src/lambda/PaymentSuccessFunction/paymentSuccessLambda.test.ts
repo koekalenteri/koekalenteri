@@ -1,32 +1,32 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockParseParams = jest.fn<any>()
-const mockVerifyParams = jest.fn<any>()
-const mockUpdateTransactionStatus = jest.fn<any>()
-const mockApplySuccessfulPayment = jest.fn<any>()
-const mockClearRegistrationEmailDeliveryStatus = jest.fn<any>()
-const mockGetRegistration = jest.fn<any>()
-const mockCreateRegistrationPatches = jest.fn<any>(() => [])
-const mockAudit = jest.fn<any>()
-const mockRegistrationAuditKey = jest.fn<any>()
-const mockRead = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
-const mockWrite = jest.fn<any>()
-const mockUpdateRegistrations = jest.fn<any>()
-const mockFixRegistrationGroups = jest.fn<any>(async (registrations: any[]) => registrations)
-const mockLockRegistrationGroups = jest.fn<any>().mockResolvedValue(async () => undefined)
-const mockLockRegistrationPayments = jest.fn<any>().mockResolvedValue(async () => undefined)
-const mockGetReadyRegistrationsByEventId = jest.fn<any>().mockResolvedValue([])
-const mockGetFixedT = jest.fn<any>()
-const mockSendTemplatedMail = jest.fn<any>()
-const mockEmailTo = jest.fn<any>()
-const mockRegistrationEmailTags = jest.fn<any>()
-const mockRegistrationEmailTemplateData = jest.fn<any>()
-const mockPublishRegistrationPatches = jest.fn<any>()
-const mockPublishParticipantRegistrationPatch = jest.fn<any>()
-const mockGetRegistrationEditToken = jest.fn<any>().mockResolvedValue('test-edit-token')
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockParseParams = vi.fn()
+const mockVerifyParams = vi.fn()
+const mockUpdateTransactionStatus = vi.fn()
+const mockApplySuccessfulPayment = vi.fn()
+const mockClearRegistrationEmailDeliveryStatus = vi.fn()
+const mockGetRegistration = vi.fn()
+const mockCreateRegistrationPatches = vi.fn(() => [])
+const mockAudit = vi.fn()
+const mockRegistrationAuditKey = vi.fn()
+const mockRead = vi.fn()
+const mockUpdate = vi.fn()
+const mockWrite = vi.fn()
+const mockUpdateRegistrations = vi.fn()
+const mockFixRegistrationGroups = vi.fn(async (registrations: any[]) => registrations)
+const mockLockRegistrationGroups = vi.fn().mockResolvedValue(async () => undefined)
+const mockLockRegistrationPayments = vi.fn().mockResolvedValue(async () => undefined)
+const mockGetReadyRegistrationsByEventId = vi.fn().mockResolvedValue([])
+const mockGetFixedT = vi.fn()
+const mockSendTemplatedMail = vi.fn()
+const mockEmailTo = vi.fn()
+const mockRegistrationEmailTags = vi.fn()
+const mockRegistrationEmailTemplateData = vi.fn()
+const mockPublishRegistrationPatches = vi.fn()
+const mockPublishParticipantRegistrationPatch = vi.fn()
+const mockGetRegistrationEditToken = vi.fn().mockResolvedValue('test-edit-token')
 
 const phaseUpdate = (field: string) => [
   { transactionId: 'tx123' },
@@ -36,7 +36,7 @@ const phaseUpdate = (field: string) => [
   expect.objectContaining({ expression: '#postPaymentLease.#token = :token' }),
 ]
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
     status: number
     constructor(status: number, message: string) {
@@ -48,16 +48,16 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/payment', () => ({
+vi.doMock('../lib/payment', () => ({
   applySuccessfulPayment: mockApplySuccessfulPayment,
   parseParams: mockParseParams,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
 }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
-  createRegistrationPatch: jest.fn((registration: any, existing: any = {}) => ({
+  createRegistrationPatch: vi.fn((registration: any, existing: any = {}) => ({
     eventId: registration.eventId,
     id: registration.id,
     ...Object.fromEntries(Object.entries(registration).filter(([key, value]) => existing[key] !== value)),
@@ -68,40 +68,40 @@ jest.unstable_mockModule('../lib/registration', () => ({
   getRegistrationEditToken: mockGetRegistrationEditToken,
 }))
 
-jest.unstable_mockModule('../lib/audit', () => ({
+vi.doMock('../lib/audit', () => ({
   audit: mockAudit,
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     read: mockRead,
     update: mockUpdate,
     write: mockWrite,
   })),
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
   lockRegistrationGroups: mockLockRegistrationGroups,
   lockRegistrationPayments: mockLockRegistrationPayments,
   updateRegistrations: mockUpdateRegistrations,
 }))
 
-jest.unstable_mockModule('../../i18n/lambda', () => ({
+vi.doMock('../../i18n/lambda', () => ({
   i18n: {
     getFixedT: mockGetFixedT,
   },
 }))
 
-jest.unstable_mockModule('../lib/email', () => ({
+vi.doMock('../lib/email', () => ({
   emailTo: mockEmailTo,
   registrationEmailTags: mockRegistrationEmailTags,
   registrationEmailTemplateData: mockRegistrationEmailTemplateData,
   sendTemplatedMail: mockSendTemplatedMail,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishParticipantRegistrationPatch: mockPublishParticipantRegistrationPatch,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
@@ -122,7 +122,7 @@ describe('paymentSuccessLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockParseParams.mockReturnValue({

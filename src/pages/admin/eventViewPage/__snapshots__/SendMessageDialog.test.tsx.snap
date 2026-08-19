@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SendMessageDialog renders hidden when open is false 1`] = `<div />`;
+exports[`SendMessageDialog > renders hidden when open is false 1`] = `<div />`;
 
-exports[`SendMessageDialog renders with all parameters 1`] = `
+exports[`SendMessageDialog > renders with all parameters 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -558,7 +558,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
 </body>
 `;
 
-exports[`SendMessageDialog renders with minimal parameters 1`] = `
+exports[`SendMessageDialog > renders with minimal parameters 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >

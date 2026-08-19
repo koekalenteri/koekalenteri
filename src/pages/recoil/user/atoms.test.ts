@@ -39,6 +39,11 @@ describe('idTokenAtom', () => {
   })
 })
 
+afterEach(async () => {
+  // Recoil releases standalone snapshots on the next task.
+  await new Promise((resolve) => setTimeout(resolve, 20))
+})
+
 describe('languageAtom', () => {
   describe('should default to i18n.language', () => {
     it.each([

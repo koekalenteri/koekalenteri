@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CancelDialog should display additional info when reason is "dog-sick" 1`] = `
+exports[`CancelDialog > should display additional info when reason is %p dog-sick 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -169,7 +169,7 @@ exports[`CancelDialog should display additional info when reason is "dog-sick" 1
 </body>
 `;
 
-exports[`CancelDialog should display additional info when reason is "handler-sick" 1`] = `
+exports[`CancelDialog > should display additional info when reason is %p handler-sick 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -338,7 +338,7 @@ exports[`CancelDialog should display additional info when reason is "handler-sic
 </body>
 `;
 
-exports[`CancelDialog should display secretary contact info when disabled 1`] = `
+exports[`CancelDialog > should display secretary contact info when disabled 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -433,7 +433,7 @@ exports[`CancelDialog should display secretary contact info when disabled 1`] = 
 </body>
 `;
 
-exports[`CancelDialog should render for admin 1`] = `
+exports[`CancelDialog > should render for admin 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -600,7 +600,7 @@ exports[`CancelDialog should render for admin 1`] = `
 </body>
 `;
 
-exports[`CancelDialog should render for admin, with reason preselected 1`] = `
+exports[`CancelDialog > should render for admin, with reason preselected 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -761,7 +761,7 @@ exports[`CancelDialog should render for admin, with reason preselected 1`] = `
 </body>
 `;
 
-exports[`CancelDialog should render when not disabled 1`] = `
+exports[`CancelDialog > should render when not disabled 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >

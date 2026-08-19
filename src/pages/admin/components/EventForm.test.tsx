@@ -11,13 +11,13 @@ import { locales } from '../../../i18n'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import EventForm from './EventForm'
 
-jest.mock('../../../api/user')
-jest.mock('../../../api/event')
-jest.mock('../../../api/eventType')
-jest.mock('../../../api/judge')
-jest.mock('../../../api/official')
-jest.mock('../../../api/organizer')
-jest.mock('../../../api/registration')
+vi.mock('../../../api/user')
+vi.mock('../../../api/event')
+vi.mock('../../../api/eventType')
+vi.mock('../../../api/judge')
+vi.mock('../../../api/official')
+vi.mock('../../../api/organizer')
+vi.mock('../../../api/registration')
 
 const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel?: () => void, onChange?: () => void) =>
   renderWithUserEvents(
@@ -31,13 +31,13 @@ const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel
       </LocalizationProvider>
     </ThemeProvider>,
     undefined,
-    { advanceTimers: jest.advanceTimersByTime }
+    { advanceTimers: vi.advanceTimersByTime }
   )
 
 describe('EventForm', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render', async () => {
     const { container } = renderComponent(eventWithStaticDates)
@@ -46,9 +46,9 @@ describe('EventForm', () => {
   })
 
   it('should fire onSave and onCancel', async () => {
-    const saveHandler = jest.fn()
-    const cancelHandler = jest.fn()
-    const changeHandler = jest.fn()
+    const saveHandler = vi.fn()
+    const cancelHandler = vi.fn()
+    const changeHandler = vi.fn()
 
     const { user } = renderComponent(eventWithEntryNotYetOpen, saveHandler, cancelHandler, changeHandler)
     await flushPromises()
@@ -73,7 +73,7 @@ describe('EventForm', () => {
   })
 
   it('keeps an unsaved past event editable', async () => {
-    const saveHandler = jest.fn()
+    const saveHandler = vi.fn()
 
     renderComponent({ ...eventWithStaticDates, id: '' }, saveHandler)
     await flushPromises()
@@ -83,7 +83,7 @@ describe('EventForm', () => {
   })
 
   it('keeps a past draft editable', async () => {
-    const saveHandler = jest.fn()
+    const saveHandler = vi.fn()
 
     renderComponent({ ...eventWithStaticDates, state: 'draft' }, saveHandler)
     await flushPromises()
@@ -93,7 +93,7 @@ describe('EventForm', () => {
   })
 
   it('locks a saved non-draft past event', async () => {
-    const saveHandler = jest.fn()
+    const saveHandler = vi.fn()
 
     renderComponent(eventWithStaticDates, saveHandler)
     await flushPromises()

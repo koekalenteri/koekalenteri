@@ -2,21 +2,21 @@ import type { LoaderFunctionArgs } from 'react-router'
 import { verifyPayment } from '../api/payment'
 import { paymentResultLoader } from './PaymentResultPage'
 
-jest.mock('../api/payment', () => ({
-  verifyPayment: jest.fn(),
+vi.mock('../api/payment', () => ({
+  verifyPayment: vi.fn(),
 }))
 
-jest.mock('../lib/client/error', () => ({
-  reportError: jest.fn(),
+vi.mock('../lib/client/error', () => ({
+  reportError: vi.fn(),
 }))
 
 describe('paymentResultLoader', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('redirects to the completed registration with the verified edit token', async () => {
-    jest.mocked(verifyPayment).mockResolvedValue({
+    vi.mocked(verifyPayment).mockResolvedValue({
       editToken: 'edit-token',
       eventId: 'event-1',
       registrationId: 'registration-1',
@@ -37,7 +37,7 @@ describe('paymentResultLoader', () => {
   })
 
   it('uses the edit token in the return URL when verification cannot return one', async () => {
-    jest.mocked(verifyPayment).mockResolvedValue({
+    vi.mocked(verifyPayment).mockResolvedValue({
       eventId: 'event-1',
       registrationId: 'registration-1',
       status: 'error',
@@ -57,7 +57,7 @@ describe('paymentResultLoader', () => {
   })
 
   it('shows payment verification after a successful callback even when verification returns an error', async () => {
-    jest.mocked(verifyPayment).mockResolvedValue({
+    vi.mocked(verifyPayment).mockResolvedValue({
       eventId: 'event-1',
       registrationId: 'registration-1',
       status: 'error',

@@ -1,13 +1,13 @@
 import type { JsonRegistration } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
 
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockSendTemplatedMail = jest.fn<any>()
-const mockGetRegistration = jest.fn<any>()
-const mockSaveRegistration = jest.fn<any>()
-const mockPatchRegistration = jest.fn<
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockGetEvent = vi.fn()
+const mockSendTemplatedMail = vi.fn()
+const mockGetRegistration = vi.fn()
+const mockSaveRegistration = vi.fn()
+const mockPatchRegistration = vi.fn<
   (
     eventId: JsonRegistration['eventId'],
     id: JsonRegistration['id'],
@@ -15,13 +15,13 @@ const mockPatchRegistration = jest.fn<
     next: JsonRegistration
   ) => Promise<JsonRegistration>
 >(async (_eventId, _id, _existing, next) => next)
-const mockAssertRegistrationEmailsNotSuppressed = jest.fn<any>()
-const mockGetReadyRegistrationsByEventId = jest.fn<any>(async () => [])
-const mockFixRegistrationGroups = jest.fn<any>(async (regs: JsonRegistration[]) => regs)
-const mockLockRegistrationGroups = jest.fn<any>().mockResolvedValue(async () => undefined)
-const mockLockRegistrationPayments = jest.fn<any>().mockResolvedValue(async () => undefined)
-const mockRepairReadyRegistrationGroups = jest.fn<any>().mockResolvedValue([])
-const mockUpdateRegistrations = jest.fn<any>(async () => ({
+const mockAssertRegistrationEmailsNotSuppressed = vi.fn()
+const mockGetReadyRegistrationsByEventId = vi.fn(async () => [])
+const mockFixRegistrationGroups = vi.fn(async (regs: JsonRegistration[]) => regs)
+const mockLockRegistrationGroups = vi.fn().mockResolvedValue(async () => undefined)
+const mockLockRegistrationPayments = vi.fn().mockResolvedValue(async () => undefined)
+const mockRepairReadyRegistrationGroups = vi.fn().mockResolvedValue([])
+const mockUpdateRegistrations = vi.fn(async () => ({
   classes: [{ class: 'ALO', entries: 10 }],
   endDate: '2024-01-02',
   id: 'event123',
@@ -29,42 +29,42 @@ const mockUpdateRegistrations = jest.fn<any>(async () => ({
   organizer: { id: 'org-1' },
   startDate: '2024-01-01',
 }))
-const mockApplyNewRegistrationStatsOnce = jest.fn<any>()
-const mockUpdateEventStatsForRegistration = jest.fn<any>()
-const mockPublishRegistrationPatches = jest.fn<any>()
-const mockClaimNewRegistrationPostProcessing = jest.fn<any>().mockResolvedValue({
+const mockApplyNewRegistrationStatsOnce = vi.fn()
+const mockUpdateEventStatsForRegistration = vi.fn()
+const mockPublishRegistrationPatches = vi.fn()
+const mockClaimNewRegistrationPostProcessing = vi.fn().mockResolvedValue({
   registration: { eventId: 'event123', id: 'reg456', state: 'ready' },
   release: async () => undefined,
   token: 'test-token',
 })
-const mockMarkNewRegistrationPhase = jest.fn<any>()
+const mockMarkNewRegistrationPhase = vi.fn()
 
 const mockDynamoDB = {
-  batchWrite: jest.fn<any>(),
-  delete: jest.fn<any>(),
-  query: jest.fn<any>(),
-  read: jest.fn<any>(),
-  readAll: jest.fn<any>(),
-  update: jest.fn<any>(),
-  write: jest.fn<any>(),
+  batchWrite: vi.fn(),
+  delete: vi.fn(),
+  query: vi.fn(),
+  read: vi.fn(),
+  readAll: vi.fn(),
+  update: vi.fn(),
+  write: vi.fn(),
 }
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => mockDynamoDB),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => mockDynamoDB),
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
 const libEmail = await import('../lib/email')
 
-jest.unstable_mockModule('../lib/email', () => ({
+vi.doMock('../lib/email', () => ({
   ...libEmail,
   sendTemplatedMail: mockSendTemplatedMail,
 }))
 
-jest.unstable_mockModule('../lib/emailSuppression', () => ({
+vi.doMock('../lib/emailSuppression', () => ({
   assertRegistrationEmailsNotSuppressed: mockAssertRegistrationEmailsNotSuppressed,
   normalizeRegistrationEmails: (registration: JsonRegistration) => {
     if (registration.owner?.email) registration.owner.email = registration.owner.email.trim().toLowerCase()
@@ -86,13 +86,13 @@ jest.unstable_mockModule('../lib/emailSuppression', () => ({
   },
 }))
 
-const mockfindExistingRegistrationToEventForDog = jest.fn<
+const mockfindExistingRegistrationToEventForDog = vi.fn<
   (eventId: string, regNo: string) => Promise<JsonRegistration | undefined>
 >(async () => undefined)
 
 const libRegistration = await import('../lib/registration')
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   ...libRegistration,
   claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
@@ -103,7 +103,7 @@ jest.unstable_mockModule('../lib/registration', () => ({
   saveRegistration: mockSaveRegistration,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
   getEvent: mockGetEvent,
   lockRegistrationGroups: mockLockRegistrationGroups,
@@ -112,12 +112,12 @@ jest.unstable_mockModule('../lib/event', () => ({
   updateRegistrations: mockUpdateRegistrations,
 }))
 
-jest.unstable_mockModule('../lib/stats', () => ({
+vi.doMock('../lib/stats', () => ({
   applyNewRegistrationStatsOnce: mockApplyNewRegistrationStatsOnce,
   updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
@@ -125,7 +125,7 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 const { default: putAdminRegistrationLambda } = await import('./handler')
 
 describe('putAdminRegistrationLambda', () => {
-  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
   const event = {
     body: JSON.stringify({
       class: 'ALO',
@@ -153,7 +153,7 @@ describe('putAdminRegistrationLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockAuthorizeWithMemberOf.mockResolvedValue({
@@ -199,8 +199,8 @@ describe('putAdminRegistrationLambda', () => {
       startDate: '2024-01-01',
     })
 
-    jest.spyOn(console, 'debug').mockImplementation(() => {})
-    jest.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'debug').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
   })
 
   afterEach(() => {
@@ -374,7 +374,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('rejects a new registration with suppressed email address', async () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     mockAssertRegistrationEmailsNotSuppressed.mockRejectedValueOnce(
       new LambdaError(
         409,
@@ -420,7 +420,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('rejects an updated registration with suppressed email address', async () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     mockAssertRegistrationEmailsNotSuppressed.mockRejectedValueOnce(
       new LambdaError(
         409,

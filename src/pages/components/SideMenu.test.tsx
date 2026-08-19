@@ -11,31 +11,31 @@ import { createMatchMedia, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../recoil'
 import { SideMenu } from './SideMenu'
 
-const mockEnqueueSnackbar = jest.fn()
+const mockEnqueueSnackbar = vi.fn()
 
-jest.mock('../../api/migrate', () => ({
-  runMigrations: jest.fn(),
+vi.mock('../../api/migrate', async () => ({
+  runMigrations: vi.fn(),
 }))
-jest.mock('../../api/user', () => ({
-  getUser: jest.fn(),
+vi.mock('../../api/user', async () => ({
+  getUser: vi.fn(),
 }))
-jest.mock('notistack', () => ({
-  ...jest.requireActual('notistack'),
+vi.mock('notistack', async () => ({
+  ...(await vi.importActual<typeof import('notistack')>('notistack')),
   useSnackbar: () => ({ enqueueSnackbar: mockEnqueueSnackbar }),
 }))
 
 describe('SideMenu', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     window.matchMedia = createMatchMedia(1280)
-    ;(getUser as jest.Mock).mockResolvedValue({
+    ;(getUser as import('vitest').Mock).mockResolvedValue({
       admin: true,
       id: 'user-id',
     })
   })
 
   it('shows sticky migration results after admin runs migrations', async () => {
-    ;(runMigrations as jest.Mock).mockResolvedValue({
+    ;(runMigrations as import('vitest').Mock).mockResolvedValue({
       data: [
         { count: 3, name: 'populateUpdatedAtFromModifiedAt' },
         { count: 0, name: 'fixSeasonFromStartDate' },
@@ -48,7 +48,7 @@ describe('SideMenu', () => {
         <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<>loading...</>}>
-              <SideMenu open onClose={jest.fn()} />
+              <SideMenu open onClose={vi.fn()} />
             </Suspense>
           </MemoryRouter>
         </RecoilRoot>

@@ -5,28 +5,28 @@ import { getJudges, putJudge } from '../../../../api/judge'
 import { getUsers } from '../../../../api/user'
 import { useAdminJudgesActions } from './actions'
 
-jest.mock('../../../../api/judge', () => ({
-  getJudges: jest.fn(),
-  putJudge: jest.fn(),
+vi.mock('../../../../api/judge', async () => ({
+  getJudges: vi.fn(),
+  putJudge: vi.fn(),
 }))
 
-jest.mock('../../../../api/user', () => ({
-  getUsers: jest.fn(),
+vi.mock('../../../../api/user', async () => ({
+  getUsers: vi.fn(),
 }))
 
-jest.mock('recoil', () => {
-  const actual = jest.requireActual('recoil')
+vi.mock('recoil', async () => {
+  const actual = await vi.importActual<typeof import('recoil')>('recoil')
   return {
     ...actual,
-    useRecoilState: jest.fn(),
-    useRecoilValue: jest.fn(),
-    useSetRecoilState: jest.fn(),
+    useRecoilState: vi.fn(),
+    useRecoilValue: vi.fn(),
+    useSetRecoilState: vi.fn(),
   }
 })
 
 describe('useAdminJudgesActions', () => {
-  const mockSetJudges = jest.fn()
-  const mockSetUsers = jest.fn()
+  const mockSetJudges = vi.fn()
+  const mockSetUsers = vi.fn()
 
   const initialJudges = [
     { id: 1, name: 'Judge One' },
@@ -34,18 +34,18 @@ describe('useAdminJudgesActions', () => {
   ] as Judge[]
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(useRecoilState as jest.Mock).mockReturnValue([initialJudges, mockSetJudges])
-    ;(useSetRecoilState as jest.Mock).mockReturnValue(mockSetUsers)
-    ;(useRecoilValue as jest.Mock).mockReturnValue('token-123')
+    vi.clearAllMocks()
+    ;(useRecoilState as import('vitest').Mock).mockReturnValue([initialJudges, mockSetJudges])
+    ;(useSetRecoilState as import('vitest').Mock).mockReturnValue(mockSetUsers)
+    ;(useRecoilValue as import('vitest').Mock).mockReturnValue('token-123')
   })
 
   it('refresh sorts judges and reloads users', async () => {
-    ;(getJudges as jest.Mock).mockResolvedValue([
+    ;(getJudges as import('vitest').Mock).mockResolvedValue([
       { id: 2, name: 'Örn' },
       { id: 1, name: 'Aaro' },
     ])
-    ;(getUsers as jest.Mock).mockResolvedValue([{ id: 'u1', name: 'User One' }])
+    ;(getUsers as import('vitest').Mock).mockResolvedValue([{ id: 'u1', name: 'User One' }])
 
     const { result } = renderHook(() => useAdminJudgesActions(), { wrapper: RecoilRoot })
 
@@ -64,7 +64,7 @@ describe('useAdminJudgesActions', () => {
 
   it('save updates an existing judge', async () => {
     const updated = { id: 2, name: 'Judge Two Updated' } as Judge
-    ;(putJudge as jest.Mock).mockResolvedValue(updated)
+    ;(putJudge as import('vitest').Mock).mockResolvedValue(updated)
 
     const { result } = renderHook(() => useAdminJudgesActions(), { wrapper: RecoilRoot })
 

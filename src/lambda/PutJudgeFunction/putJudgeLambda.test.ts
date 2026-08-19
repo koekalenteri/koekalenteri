@@ -1,26 +1,26 @@
 import type { JsonUser } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockPublishAdminDataInvalidation = jest.fn<any>()
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+const mockPublishAdminDataInvalidation = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
 }))
 
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
-jest.unstable_mockModule('../lib/api-gw', () => ({
-  getOrigin: jest.fn(),
+vi.doMock('../lib/api-gw', () => ({
+  getOrigin: vi.fn(),
 }))
 
-const mockAuthorizeAdmin = jest.fn<any>()
-jest.unstable_mockModule('../lib/auth', () => ({ authorizeAdmin: mockAuthorizeAdmin }))
+const mockAuthorizeAdmin = vi.fn()
+vi.doMock('../lib/auth', () => ({ authorizeAdmin: mockAuthorizeAdmin }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({ write: jest.fn() })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({ write: vi.fn() })),
 }))
 
 const { default: putJudgeLambda, dynamoDB } = await import('./handler')
-const mockDynamoDB = dynamoDB as jest.Mocked<typeof dynamoDB>
+const mockDynamoDB = dynamoDB as import('vitest').Mocked<typeof dynamoDB>
 
 const mockUser: JsonUser = {
   createdAt: '',
@@ -33,7 +33,7 @@ const mockUser: JsonUser = {
 }
 
 describe('putJudgeLambda', () => {
-  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+  vi.spyOn(console, 'debug').mockImplementation(() => undefined)
 
   it('should return 401 if authorization fails', async () => {
     mockAuthorizeAdmin.mockResolvedValueOnce({ res: { statusCode: 401 } })

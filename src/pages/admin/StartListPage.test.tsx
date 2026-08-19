@@ -10,20 +10,20 @@ import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../recoil'
 import StartListPage from './StartListPage'
 
-jest.mock('../../api/event')
-jest.mock('../../api/organizer')
-jest.mock('../../api/registration')
-jest.mock('../../api/user')
+vi.mock('../../api/event')
+vi.mock('../../api/organizer')
+vi.mock('../../api/registration')
+vi.mock('../../api/user')
 
 const startListRegistrations = mockRegistrations.testInvited
 
 describe('OrganizerListPage', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
     mockRegistrations.testInvited = startListRegistrations
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
     mockRegistrations.testInvited = [...startListRegistrations].reverse()

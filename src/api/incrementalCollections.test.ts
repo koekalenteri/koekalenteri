@@ -1,5 +1,5 @@
-import fetchMock from 'jest-fetch-mock'
 import { API_BASE_URL } from '../routeConfig'
+import fetchMock from '../test-utils/fetchMock'
 import { getEmailTemplates } from './email'
 import { getEventTypes } from './eventType'
 import { getJudges } from './judge'
@@ -11,6 +11,7 @@ fetchMock.enableMocks()
 describe('incremental admin collections', () => {
   beforeEach(() => {
     fetchMock.resetMocks()
+    fetchMock.enableMocks()
     fetchMock.mockResponse(JSON.stringify({ cursor: 123, deletedIds: [], items: [] }))
   })
 

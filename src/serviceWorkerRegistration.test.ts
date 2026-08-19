@@ -1,6 +1,6 @@
-const mockReportError = jest.fn()
+const mockReportError = vi.fn()
 
-jest.mock('./lib/client/error', () => ({
+vi.mock('./lib/client/error', () => ({
   reportError: mockReportError,
 }))
 
@@ -14,7 +14,7 @@ const mockServiceWorkerContainer = (
   const container = new EventTarget() as ServiceWorkerContainer
   Object.defineProperties(container, {
     controller: { configurable: true, value: controller },
-    register: { configurable: true, value: jest.fn().mockResolvedValue(registration) },
+    register: { configurable: true, value: vi.fn().mockResolvedValue(registration) },
   })
   Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: container })
   return container
@@ -37,13 +37,13 @@ const mockInstallingWorker = () => {
 
 describe('serviceWorkerRegistration', () => {
   beforeEach(() => {
-    jest.resetModules()
+    vi.resetModules()
     mockReportError.mockClear()
     window.sessionStorage.clear()
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
     if (originalServiceWorker) {
       Object.defineProperty(navigator, 'serviceWorker', originalServiceWorker)
     } else {
@@ -57,7 +57,7 @@ describe('serviceWorkerRegistration', () => {
   })
 
   it('registers the generated service worker in deployed builds', async () => {
-    jest.replaceProperty(process.env, 'NODE_ENV', 'production')
+    vi.stubEnv('NODE_ENV', 'production')
     const registration = mockRegistration()
     const container = mockServiceWorkerContainer(registration)
     const { registerServiceWorker } = await import('./serviceWorkerRegistration')
@@ -70,7 +70,7 @@ describe('serviceWorkerRegistration', () => {
   })
 
   it('does not register on the hot-reload development server', async () => {
-    jest.replaceProperty(process.env, 'NODE_ENV', 'development')
+    vi.stubEnv('NODE_ENV', 'development')
     const registration = mockRegistration()
     const container = mockServiceWorkerContainer(registration)
     const { registerServiceWorker } = await import('./serviceWorkerRegistration')
@@ -83,11 +83,11 @@ describe('serviceWorkerRegistration', () => {
   })
 
   it('reports registration failures', async () => {
-    jest.replaceProperty(process.env, 'NODE_ENV', 'production')
+    vi.stubEnv('NODE_ENV', 'production')
     const error = new Error('registration failed')
     const registration = mockRegistration()
     const container = mockServiceWorkerContainer(registration)
-    const register = container.register as jest.Mock
+    const register = container.register as import('vitest').Mock
     register.mockRejectedValue(error)
     const { registerServiceWorker } = await import('./serviceWorkerRegistration')
 
@@ -100,14 +100,14 @@ describe('serviceWorkerRegistration', () => {
   })
 
   it('reports and activates a waiting update only when requested', async () => {
-    jest.replaceProperty(process.env, 'NODE_ENV', 'production')
-    const waitingWorker = { postMessage: jest.fn() } as unknown as ServiceWorker
+    vi.stubEnv('NODE_ENV', 'production')
+    const waitingWorker = { postMessage: vi.fn() } as unknown as ServiceWorker
     const registration = mockRegistration(waitingWorker)
     mockServiceWorkerContainer(registration)
     const { activateServiceWorkerUpdate, registerServiceWorker, subscribeToServiceWorkerUpdates } = await import(
       './serviceWorkerRegistration'
     )
-    const listener = jest.fn()
+    const listener = vi.fn()
     subscribeToServiceWorkerUpdates(listener)
 
     registerServiceWorker()
@@ -120,9 +120,13 @@ describe('serviceWorkerRegistration', () => {
     activateServiceWorkerUpdate(registration)
     activateServiceWorkerUpdate(registration)
     expect(waitingWorker.postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' })
-    expect(waitingWorker.postMessage).toHaveBeenCalledTimes(1)
+    expect(
+      (waitingWorker.postMessage as import('vitest').Mock).mock.calls.filter(
+        ([message]) => message.type === 'SKIP_WAITING'
+      )
+    ).toHaveLength(1)
 
-    const laterListener = jest.fn()
+    const laterListener = vi.fn()
     subscribeToServiceWorkerUpdates(laterListener)
     expect(laterListener).not.toHaveBeenCalled()
   })
@@ -136,12 +140,12 @@ describe('serviceWorkerRegistration', () => {
   })
 
   it('reports an update that finishes installing while the app is controlled', async () => {
-    jest.replaceProperty(process.env, 'NODE_ENV', 'production')
+    vi.stubEnv('NODE_ENV', 'production')
     const installingWorker = mockInstallingWorker()
     const registration = mockRegistration(null, installingWorker)
     mockServiceWorkerContainer(registration)
     const { registerServiceWorker, subscribeToServiceWorkerUpdates } = await import('./serviceWorkerRegistration')
-    const listener = jest.fn()
+    const listener = vi.fn()
     subscribeToServiceWorkerUpdates(listener)
 
     registerServiceWorker()
@@ -155,12 +159,12 @@ describe('serviceWorkerRegistration', () => {
   })
 
   it('does not report the service worker during its first install', async () => {
-    jest.replaceProperty(process.env, 'NODE_ENV', 'production')
+    vi.stubEnv('NODE_ENV', 'production')
     const installingWorker = mockInstallingWorker()
     const registration = mockRegistration(null, installingWorker)
     mockServiceWorkerContainer(registration, null)
     const { registerServiceWorker, subscribeToServiceWorkerUpdates } = await import('./serviceWorkerRegistration')
-    const listener = jest.fn()
+    const listener = vi.fn()
     subscribeToServiceWorkerUpdates(listener)
 
     registerServiceWorker()
@@ -175,15 +179,15 @@ describe('serviceWorkerRegistration', () => {
 
   it('unregisters the service worker for rollback builds', async () => {
     const registration = mockRegistration()
-    const unregister = jest.fn().mockResolvedValue(true)
+    const unregister = vi.fn().mockResolvedValue(true)
     Object.defineProperty(registration, 'unregister', { configurable: true, value: unregister })
     const container = mockServiceWorkerContainer(registration)
     Object.defineProperty(container, 'getRegistrations', {
       configurable: true,
-      value: jest.fn().mockResolvedValue([registration]),
+      value: vi.fn().mockResolvedValue([registration]),
     })
-    const cacheKeys = jest.fn().mockResolvedValue(['workbox-precache'])
-    const cacheDelete = jest.fn().mockResolvedValue(true)
+    const cacheKeys = vi.fn().mockResolvedValue(['workbox-precache'])
+    const cacheDelete = vi.fn().mockResolvedValue(true)
     Object.defineProperty(window, 'caches', {
       configurable: true,
       value: { delete: cacheDelete, keys: cacheKeys },

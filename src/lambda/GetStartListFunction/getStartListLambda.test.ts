@@ -1,17 +1,17 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockQuery = jest.fn<any>()
-const mockGetStartListPublishedClassMap = jest.fn<any>()
-const mockIsStartListAvailable = jest.fn<any>()
-const mockIsStartListAvailableForRegistration = jest.fn<any>()
-const mockIsStartListPublishedClassMap = jest.fn<any>()
+const mockGetParam = vi.fn()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockGetEvent = vi.fn()
+const mockQuery = vi.fn()
+const mockGetStartListPublishedClassMap = vi.fn()
+const mockIsStartListAvailable = vi.fn()
+const mockIsStartListAvailableForRegistration = vi.fn()
+const mockIsStartListPublishedClassMap = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(
@@ -25,24 +25,24 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../../lib/event', () => ({
+vi.doMock('../../lib/event', () => ({
   getStartListPublishedClassMap: mockGetStartListPublishedClassMap,
-  isEntryClosed: jest.fn(),
+  isEntryClosed: vi.fn(),
   isStartListAvailable: mockIsStartListAvailable,
   isStartListAvailableForRegistration: mockIsStartListAvailableForRegistration,
   isStartListPublishedClassMap: mockIsStartListPublishedClassMap,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     query: mockQuery,
   })),
 }))
@@ -57,7 +57,7 @@ describe('getStartListLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuthorizeWithMemberOf.mockResolvedValue({
       memberOf: ['org123'],
       user: { id: 'user123', roles: { org123: 'secretary' } },

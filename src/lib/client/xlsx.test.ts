@@ -2,23 +2,23 @@ import type { WorkSheet } from 'xlsx'
 import { utils, writeFileXLSX } from 'xlsx'
 import { downloadXlsx } from './xlsx'
 
-jest.mock('xlsx', () => ({
+vi.mock('xlsx', () => ({
   utils: {
-    aoa_to_sheet: jest.fn(),
-    book_append_sheet: jest.fn(),
-    book_new: jest.fn(),
+    aoa_to_sheet: vi.fn(),
+    book_append_sheet: vi.fn(),
+    book_new: vi.fn(),
   },
-  writeFileXLSX: jest.fn(),
+  writeFileXLSX: vi.fn(),
 }))
 
 describe('downloadXlsx', () => {
-  const mockAoaToSheet = jest.mocked(utils.aoa_to_sheet)
-  const mockBookAppendSheet = jest.mocked(utils.book_append_sheet)
-  const mockBookNew = jest.mocked(utils.book_new)
-  const mockWriteFileXLSX = jest.mocked(writeFileXLSX)
+  const mockAoaToSheet = vi.mocked(utils.aoa_to_sheet)
+  const mockBookAppendSheet = vi.mocked(utils.book_append_sheet)
+  const mockBookNew = vi.mocked(utils.book_new)
+  const mockWriteFileXLSX = vi.mocked(writeFileXLSX)
 
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('creates a workbook with formatted date cells and column widths', () => {

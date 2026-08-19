@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`MembershipInfo should render when owner handles and is member 1`] = `
+exports[`MembershipInfo > should render when owner handles and is member 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -127,7 +127,7 @@ exports[`MembershipInfo should render when owner handles and is member 1`] = `
 </div>
 `;
 
-exports[`MembershipInfo should render with minimal info 1`] = `
+exports[`MembershipInfo > should render with minimal info 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"

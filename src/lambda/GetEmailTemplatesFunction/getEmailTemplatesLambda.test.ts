@@ -1,21 +1,21 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockReadAll = jest.fn<any>()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockReadAll = vi.fn()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     readAll: mockReadAll,
   })),
 }))
@@ -29,7 +29,7 @@ describe('getEmailTemplatesLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1'], user: { id: 'user1', name: 'Test User' } })
   })
 

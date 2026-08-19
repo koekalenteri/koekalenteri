@@ -1,5 +1,5 @@
 import type { JsonPaymentTransaction } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 interface CancelOptions {
@@ -10,16 +10,16 @@ interface CancelOptions {
   updateProvider: boolean
 }
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn()
-const mockCancelTransaction = jest.fn<(options: CancelOptions) => Promise<void>>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockCancelTransaction = vi.fn<(options: CancelOptions) => Promise<void>>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/payment', () => ({
+vi.doMock('../lib/payment', () => ({
   cancelTransaction: mockCancelTransaction,
 }))
 
@@ -36,7 +36,7 @@ describe('paymentCancelLambda', () => {
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockCancelTransaction.mockResolvedValue(undefined)
     mockResponse.mockReturnValue({ statusCode: 200 })
   })

@@ -4,13 +4,13 @@ import { act } from 'react'
 import { RecoilRoot } from 'recoil'
 import { filterInvalid, useDogCache } from './useDogCache'
 
-jest.spyOn(Storage.prototype, 'setItem')
-jest.spyOn(Storage.prototype, 'getItem')
+vi.spyOn(localStorage, 'setItem')
+vi.spyOn(localStorage, 'getItem')
 
 describe('useDogCache', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should read from localStorage', () => {
     renderHook(() => useDogCache('test'), { wrapper: RecoilRoot })

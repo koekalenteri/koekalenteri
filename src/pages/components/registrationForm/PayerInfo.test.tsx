@@ -12,8 +12,8 @@ import { clone } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import { PayerInfo } from './PayerInfo'
 
-jest.mock('../../../api/dog')
-jest.mock('../../../api/registration')
+vi.mock('../../../api/dog')
+vi.mock('../../../api/registration')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
@@ -27,9 +27,9 @@ function Wrapper(props: { readonly children?: ReactNode }) {
   )
 }
 describe('PayerInfo', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
     const { container } = render(<PayerInfo reg={{}} />, { wrapper: Wrapper })
@@ -38,12 +38,12 @@ describe('PayerInfo', () => {
 
   it('should call onChange', async () => {
     const reg = clone<Registration>(registrationWithStaticDates)
-    const onChange = jest.fn((props) => Object.assign(reg, props))
+    const onChange = vi.fn((props) => Object.assign(reg, props))
     const { user } = renderWithUserEvents(
       <PayerInfo reg={reg} onChange={onChange} />,
       { wrapper: Wrapper },
       {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       }
     )
 

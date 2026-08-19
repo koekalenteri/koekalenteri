@@ -27,15 +27,15 @@ const _activeEventWithStaticDatesAndClass = {
 }
 
 // Mock the API calls
-jest.mock('../../../../api/event')
-jest.mock('../../../../api/user')
-jest.mock('../../recoil/events/effects', () => ({
+vi.mock('../../../../api/event')
+vi.mock('../../../../api/user')
+vi.mock('../../recoil/events/effects', () => ({
   adminRemoteEventsEffect: () => undefined,
 }))
 
 // Mock the notistack enqueueSnackbar
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
 function _getGroupKey(r: Registration, i: number) {
@@ -50,7 +50,7 @@ async function openInfoPanel(user: UserEvent) {
 
 describe('InfoPanel>', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
   })
 
@@ -68,7 +68,7 @@ describe('InfoPanel>', () => {
   })
 
   it('shows a publish start list CTA when invitations are sent but the class start list is not published', async () => {
-    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
         {children}
@@ -111,7 +111,7 @@ describe('InfoPanel>', () => {
   })
 
   it('allows publishing an invited class start list even when the event is only confirmed', async () => {
-    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
     const event = {
       ...eventWithParticipantsInvited,
       classes: eventWithParticipantsInvited.classes.map((eventClass) => ({
@@ -153,7 +153,7 @@ describe('InfoPanel>', () => {
   })
 
   it('shows an unpublish start list CTA when invitations are sent and the class start list is published', async () => {
-    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
         {children}
@@ -194,7 +194,7 @@ describe('InfoPanel>', () => {
   })
 
   it('shows a publish start list CTA for an event without classes', async () => {
-    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
     const event = {
       ...activeEventWithStaticDates,
       startListPublished: false,
@@ -227,7 +227,7 @@ describe('InfoPanel>', () => {
   })
 
   it('shows a hide start list CTA for a published event without classes', async () => {
-    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
     const event = {
       ...activeEventWithStaticDates,
       startListPublished: true,

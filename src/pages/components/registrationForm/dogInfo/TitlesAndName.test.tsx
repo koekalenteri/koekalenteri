@@ -3,9 +3,9 @@ import { flushPromises, renderWithUserEvents } from '../../../../test-utils/util
 import { TitlesAndName } from './TitlesAndName'
 
 describe('TitlesAndName', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render with minimal properties', () => {
     const { container } = render(<TitlesAndName id="id" nameLabel="name label" titlesLabel="titles label" />)
@@ -56,7 +56,7 @@ describe('TitlesAndName', () => {
   })
 
   it('should not call onChange on initial values', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     render(
       <TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="name" titles="titles" onChange={onChange} />
     )
@@ -72,11 +72,11 @@ describe('TitlesAndName', () => {
   })
 
   it('should provide both values in onChange event', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="name" titles="titles" onChange={onChange} />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const name = screen.getByRole('textbox', { name: 'name' })
@@ -96,7 +96,7 @@ describe('TitlesAndName', () => {
     const { user, rerender } = renderWithUserEvents(
       <TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="name" titles="titles" />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     const name = screen.getByRole('textbox', { name: 'name' })
     const titles = screen.getByRole('textbox', { name: 'titles' })
@@ -109,11 +109,11 @@ describe('TitlesAndName', () => {
   })
 
   it('should not call onChange after unmounted', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user, unmount } = renderWithUserEvents(
       <TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="name" titles="titles" onChange={onChange} />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     const name = screen.getByRole('textbox', { name: 'name' })
     await user.type(name, ' changed')

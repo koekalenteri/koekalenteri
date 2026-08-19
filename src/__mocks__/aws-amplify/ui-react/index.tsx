@@ -10,7 +10,7 @@ const AuthenticatorContext = createContext({
 
 const mockUser = {
   attributes: {
-    email: 'test@user.jest',
+    email: 'test@user.vi',
     name: 'Test User',
   },
   username: 'mock_user',

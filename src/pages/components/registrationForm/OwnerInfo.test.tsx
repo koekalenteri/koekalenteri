@@ -12,8 +12,8 @@ import { clone } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import { OwnerInfo } from './OwnerInfo'
 
-jest.mock('../../../api/dog')
-jest.mock('../../../api/registration')
+vi.mock('../../../api/dog')
+vi.mock('../../../api/registration')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
@@ -27,9 +27,9 @@ function Wrapper(props: { readonly children?: ReactNode }) {
   )
 }
 describe('OwnerInfo', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
     const { container } = render(<OwnerInfo reg={{}} orgId="test" />, { wrapper: Wrapper })
@@ -40,12 +40,12 @@ describe('OwnerInfo', () => {
     const reg = clone<Registration>(registrationWithStaticDates)
     reg.ownerHandles = undefined
     reg.ownerPays = undefined
-    const onChange = jest.fn((props) => Object.assign(reg, props))
+    const onChange = vi.fn((props) => Object.assign(reg, props))
     const { user } = renderWithUserEvents(
       <OwnerInfo reg={reg} onChange={onChange} orgId="test" />,
       { wrapper: Wrapper },
       {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       }
     )
 
@@ -179,12 +179,12 @@ describe('OwnerInfo', () => {
 
   it('should not call onChange when dog is not selected', async () => {
     const reg = {} // no registration number
-    const onChange = jest.fn((props) => Object.assign(reg, props))
+    const onChange = vi.fn((props) => Object.assign(reg, props))
     const { user } = renderWithUserEvents(
       <OwnerInfo reg={reg} onChange={onChange} orgId="test" />,
       { wrapper: Wrapper },
       {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       }
     )
 

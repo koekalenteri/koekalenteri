@@ -18,26 +18,26 @@ import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 import LoadingIndicator from './components/LoadingIndicator'
 import { loader, Component as PaymentPage, PaymentPageWithData } from './PaymentPage'
 
-jest.mock('../api/event')
-jest.mock('../api/payment')
-jest.mock('../api/registration')
+vi.mock('../api/event')
+vi.mock('../api/payment')
+vi.mock('../api/registration')
 
-jest.mock('react-router', () => ({
-  ...jest.requireActual('react-router'),
-  useParams: jest.fn(),
+vi.mock('react-router', async () => ({
+  ...(await vi.importActual<typeof import('react-router')>('react-router')),
+  useParams: vi.fn(),
 }))
-const mockUseParams = useParams as jest.Mock
-const mockCreatePayment = createPayment as jest.MockedFunction<typeof createPayment>
+const mockUseParams = useParams as import('vitest').Mock
+const mockCreatePayment = createPayment as import('vitest').MockedFunction<typeof createPayment>
 
 const { paymentStatus: _0, paidAt: _1, paidAmount: _2, ...testRegistration } = unpaidRegistrationWithStaticDatesAndClass
 
 describe('PaymentPage', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
-    jest.runOnlyPendingTimers()
-    jest.clearAllMocks()
+    vi.runOnlyPendingTimers()
+    vi.clearAllMocks()
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('passes the edit token and request signal when creating a payment', async () => {
     mockCreatePayment.mockResolvedValueOnce({ status: 200 })
@@ -444,10 +444,10 @@ describe('PaymentPage', () => {
 
   it('should reset registration form on mount', async () => {
     // Create a mock for the reset function
-    const mockResetRegistration = jest.fn()
+    const mockResetRegistration = vi.fn()
 
     // Mock the setter used by the factory-backed reset function.
-    jest.spyOn(require('recoil'), 'useSetRecoilState').mockReturnValue(mockResetRegistration)
+    vi.spyOn(require('recoil'), 'useSetRecoilState').mockReturnValue(mockResetRegistration)
 
     mockUseParams.mockImplementation(() => ({
       id: testRegistration.eventId,

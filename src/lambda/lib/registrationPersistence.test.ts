@@ -1,27 +1,27 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 
-const releaseGroups = jest.fn<() => Promise<void>>().mockResolvedValue(undefined)
-const releasePayments = jest.fn<() => Promise<void>>().mockResolvedValue(undefined)
-const mockFixRegistrationGroups = jest.fn<(registrations: JsonRegistration[]) => Promise<JsonRegistration[]>>()
-const mockLockRegistrationGroups = jest.fn<() => Promise<() => Promise<void>>>().mockResolvedValue(releaseGroups)
-const mockLockRegistrationPayments = jest.fn<() => Promise<() => Promise<void>>>().mockResolvedValue(releasePayments)
+const releaseGroups = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
+const releasePayments = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
+const mockFixRegistrationGroups = vi.fn<(registrations: JsonRegistration[]) => Promise<JsonRegistration[]>>()
+const mockLockRegistrationGroups = vi.fn<() => Promise<() => Promise<void>>>().mockResolvedValue(releaseGroups)
+const mockLockRegistrationPayments = vi.fn<() => Promise<() => Promise<void>>>().mockResolvedValue(releasePayments)
 
-jest.unstable_mockModule('./event', () => ({
+vi.doMock('./event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
   lockRegistrationGroups: mockLockRegistrationGroups,
   lockRegistrationPayments: mockLockRegistrationPayments,
 }))
 
-const mockFindExistingRegistrationToEventForDog = jest.fn<() => Promise<JsonRegistration | undefined>>()
-const mockGetReadyRegistrationsByEventId = jest.fn<() => Promise<JsonRegistration[]>>()
-const mockPatchRegistration = jest.fn<() => Promise<JsonRegistration>>()
-const mockSaveRegistration = jest.fn<() => Promise<void>>()
+const mockFindExistingRegistrationToEventForDog = vi.fn<() => Promise<JsonRegistration | undefined>>()
+const mockGetReadyRegistrationsByEventId = vi.fn<() => Promise<JsonRegistration[]>>()
+const mockPatchRegistration = vi.fn<() => Promise<JsonRegistration>>()
+const mockSaveRegistration = vi.fn<() => Promise<void>>()
 const registrationLib = await import('./registration')
 
-jest.unstable_mockModule('./registration', () => ({
+vi.doMock('./registration', () => ({
   ...registrationLib,
   findExistingRegistrationToEventForDog: mockFindExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
@@ -42,7 +42,7 @@ describe('persistRegistrationWithGroups', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockFindExistingRegistrationToEventForDog.mockResolvedValue(undefined)
     mockGetReadyRegistrationsByEventId.mockResolvedValue([])
     mockFixRegistrationGroups.mockImplementation(async (registrations) => {
@@ -97,7 +97,7 @@ describe('persistRegistrationWithGroups', () => {
   it('patches an existing registration and returns its inferred reconciliation context', async () => {
     const existing = { ...registration, notes: 'old' }
     const patched = { ...registration, notes: 'new' }
-    const beforeReconciliation = jest.fn(async () => confirmedEvent)
+    const beforeReconciliation = vi.fn(async () => confirmedEvent)
     mockPatchRegistration.mockResolvedValue(patched)
 
     const result = await persistRegistrationWithGroups(patched, existing, user, beforeReconciliation)

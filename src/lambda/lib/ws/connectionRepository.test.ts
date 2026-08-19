@@ -1,17 +1,17 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockReadAll = jest.fn<any>()
-const mockRead = jest.fn<any>()
-const mockWrite = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
-const mockDelete = jest.fn<any>()
-const mockQuery = jest.fn<any>()
+const mockReadAll = vi.fn()
+const mockRead = vi.fn()
+const mockWrite = vi.fn()
+const mockUpdate = vi.fn()
+const mockDelete = vi.fn()
+const mockQuery = vi.fn()
 
-jest.unstable_mockModule('../../config', () => ({
+vi.doMock('../../config', () => ({
   CONFIG: { wsConnectionsTable: 'ws-connections' },
 }))
 
-jest.unstable_mockModule('../../utils/CustomDynamoClient', () => ({
+vi.doMock('../../utils/CustomDynamoClient', () => ({
   default: class MockCustomDynamoClient {
     readAll = (...args: any[]) => mockReadAll(...args)
     read = (...args: any[]) => mockRead(...args)
@@ -40,7 +40,7 @@ const {
 
 describe('ws/connectionRepository', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('listConnections returns empty array for undefined db result', async () => {

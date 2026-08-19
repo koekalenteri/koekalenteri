@@ -1,29 +1,29 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 const setEventBody = (event: { body: string }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
-const mockPublishAdminDataInvalidation = jest.fn<any>()
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+const mockPublishAdminDataInvalidation = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
 }))
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuthorize = jest.fn<any>()
-const mockGetUsername = jest.fn<any>()
-const mockMarkdownToTemplate = jest.fn<any>()
-const mockRead = jest.fn<any>()
-const mockWrite = jest.fn<any>()
-const mockSend = jest.fn<any>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuthorize = vi.fn()
+const mockGetUsername = vi.fn()
+const mockMarkdownToTemplate = vi.fn()
+const mockRead = vi.fn()
+const mockWrite = vi.fn()
+const mockSend = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
   authorizeAdmin: async (event: any) => {
     const user = await mockAuthorize(event)
@@ -34,19 +34,19 @@ jest.unstable_mockModule('../lib/auth', () => ({
   getUsername: mockGetUsername,
 }))
 
-jest.unstable_mockModule('../utils/email/markdown', () => ({
+vi.doMock('../utils/email/markdown', () => ({
   markdownToTemplate: mockMarkdownToTemplate,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     read: mockRead,
     write: mockWrite,
   })),
 }))
 
 // Mock AWS SES client
-jest.unstable_mockModule('@aws-sdk/client-ses', () => {
+vi.doMock('@aws-sdk/client-ses', () => {
   // Create a mock SESServiceException base class
   class SESServiceException extends Error {
     $metadata: { httpStatusCode: number }
@@ -70,7 +70,7 @@ jest.unstable_mockModule('@aws-sdk/client-ses', () => {
   }
 
   // Mock CONFIG
-  jest.unstable_mockModule('../config', () => ({
+  vi.doMock('../config', () => ({
     CONFIG: {
       emailTemplateTable: 'email-template-table',
       stackName: 'stack-name',
@@ -78,17 +78,17 @@ jest.unstable_mockModule('@aws-sdk/client-ses', () => {
   }))
 
   return {
-    CreateTemplateCommand: jest.fn((params: any) => ({ ...params, command: 'CreateTemplateCommand' })),
-    SESClient: jest.fn(() => ({
+    CreateTemplateCommand: vi.fn((params: any) => ({ ...params, command: 'CreateTemplateCommand' })),
+    SESClient: vi.fn(() => ({
       send: mockSend,
     })),
     TemplateDoesNotExistException,
-    UpdateTemplateCommand: jest.fn((params: any) => ({ ...params, command: 'UpdateTemplateCommand' })),
+    UpdateTemplateCommand: vi.fn((params: any) => ({ ...params, command: 'UpdateTemplateCommand' })),
   }
 })
 
 // Mock setTimeout to avoid waiting in tests
-jest.spyOn(global, 'setTimeout').mockImplementation((callback: any) => {
+vi.spyOn(global, 'setTimeout').mockImplementation((callback: any) => {
   callback()
   return {} as any
 })
@@ -97,15 +97,15 @@ jest.spyOn(global, 'setTimeout').mockImplementation((callback: any) => {
 const mockTimestamp = '2023-01-01T12:00:00.000Z'
 const originalDateToISOString = Date.prototype.toISOString
 beforeAll(() => {
-  Date.prototype.toISOString = jest.fn(() => mockTimestamp)
+  Date.prototype.toISOString = vi.fn(() => mockTimestamp)
 })
 afterAll(() => {
   Date.prototype.toISOString = originalDateToISOString
 })
 
 // Mock console methods
-jest.spyOn(console, 'info').mockImplementation(() => {})
-jest.spyOn(console, 'error').mockImplementation(() => {})
+vi.spyOn(console, 'info').mockImplementation(() => {})
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
 const { default: putEmailTemplateLambda } = await import('./handler')
 
@@ -121,7 +121,7 @@ describe('putEmailTemplateLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({

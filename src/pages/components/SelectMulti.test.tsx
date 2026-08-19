@@ -26,7 +26,7 @@ const options = ['Option 1', 'Option 2', 'Option 3']
 
 describe('SelectMulti', () => {
   it('renders with default label', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { container } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={[]} onChange={onChange} />
@@ -38,7 +38,7 @@ describe('SelectMulti', () => {
   })
 
   it('renders with custom label', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={[]} onChange={onChange} label="Custom Label" />
@@ -49,7 +49,7 @@ describe('SelectMulti', () => {
   })
 
   it('renders with selected values', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={['Option 1', 'Option 3']} onChange={onChange} label="Test Label" />
@@ -66,7 +66,7 @@ describe('SelectMulti', () => {
   })
 
   it('calls handleChange with correct values', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={[]} onChange={onChange} label="Test Label" />
@@ -98,7 +98,7 @@ describe('SelectMulti', () => {
   })
 
   it('calls onChange when a chip is deleted', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={['Option 1', 'Option 2']} onChange={onChange} label="Test Label" />
@@ -116,7 +116,7 @@ describe('SelectMulti', () => {
   })
 
   it('stops propagation when chip delete is clicked', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={['Option 1']} onChange={onChange} label="Test Label" />
@@ -136,7 +136,7 @@ describe('SelectMulti', () => {
   })
 
   it('handles empty options array', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={[]} value={[]} onChange={onChange} label="Test Label" />
@@ -148,7 +148,7 @@ describe('SelectMulti', () => {
   })
 
   it('handles array conversion correctly', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={[]} onChange={onChange} label="Test Label" />
@@ -187,7 +187,7 @@ describe('SelectMulti', () => {
   it('closes after selection but allows multiple selections by reopening', async () => {
     let value: string[] = []
     // biome-ignore lint/suspicious/noAssignInExpressions: its a test
-    const onChange = jest.fn().mockImplementation((val) => (value = [...val]))
+    const onChange = vi.fn().mockImplementation((val) => (value = [...val]))
     const { user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <Wrapper options={options} value={value} onChange={onChange} label="Test Label" />
@@ -232,7 +232,7 @@ describe('SelectMulti', () => {
 
   it('allows deselection by clicking selected options in dropdown', async () => {
     // Setup component with already selected options
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <Wrapper options={options} value={['Option 1']} onChange={onChange} label="Test Label" />
@@ -256,7 +256,7 @@ describe('SelectMulti', () => {
   })
 
   it('prevents select opening when clicking delete icon', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={['Option 1']} onChange={onChange} label="Test Label" />
@@ -281,7 +281,7 @@ describe('SelectMulti', () => {
     // Setup with initial selection
     let value: string[] = ['Option 1']
     // biome-ignore lint/suspicious/noAssignInExpressions: its a test
-    const onChange = jest.fn().mockImplementation((val) => (value = [...val]))
+    const onChange = vi.fn().mockImplementation((val) => (value = [...val]))
     const { user, rerender } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={value} onChange={onChange} label="Test Label" />
@@ -355,7 +355,7 @@ describe('SelectMulti', () => {
   describe('Edge Cases', () => {
     it('renders long option text properly', () => {
       const longOptions = ['This is a very long option that should be properly handled by the component', 'Option 2']
-      const onChange = jest.fn()
+      const onChange = vi.fn()
 
       renderWithUserEvents(
         <ThemeProvider theme={theme}>
@@ -374,7 +374,7 @@ describe('SelectMulti', () => {
 
     it('handles a large number of options properly', async () => {
       const manyOptions = Array.from({ length: 50 }, (_, i) => `Option ${i + 1}`)
-      const onChange = jest.fn()
+      const onChange = vi.fn()
       const { user } = renderWithUserEvents(
         <ThemeProvider theme={theme}>
           <SelectMulti options={manyOptions} value={[]} onChange={onChange} label="Test Label" />
@@ -393,7 +393,7 @@ describe('SelectMulti', () => {
 
     it('handles options with special characters', () => {
       const specialOptions = ['Option with <tags>', 'Option with &amp;', 'Option with "quotes"']
-      const onChange = jest.fn()
+      const onChange = vi.fn()
 
       renderWithUserEvents(
         <ThemeProvider theme={theme}>
@@ -412,7 +412,7 @@ describe('SelectMulti', () => {
 
     it('handles duplicate option values correctly', async () => {
       const duplicateOptions = ['Option 1', 'Option 1', 'Option 2']
-      const onChange = jest.fn()
+      const onChange = vi.fn()
       const { user } = renderWithUserEvents(
         <ThemeProvider theme={theme}>
           <SelectMulti options={duplicateOptions} value={[]} onChange={onChange} label="Test Label" />
@@ -448,7 +448,7 @@ describe('SelectMulti', () => {
     })
 
     it('supports keyboard navigation', async () => {
-      const onChange = jest.fn()
+      const onChange = vi.fn()
       const { user } = renderWithUserEvents(
         <ThemeProvider theme={theme}>
           <SelectMulti options={options} value={[]} onChange={onChange} label="Test Label" />

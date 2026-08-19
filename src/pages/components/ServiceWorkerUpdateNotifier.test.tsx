@@ -8,41 +8,47 @@ import {
 } from '../../serviceWorkerRegistration'
 import ServiceWorkerUpdateNotifier from './ServiceWorkerUpdateNotifier'
 
-jest.mock('notistack', () => ({
-  useSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  useSnackbar: vi.fn(),
 }))
-jest.mock('react-i18next', () => ({
-  useTranslation: jest.fn(),
+vi.mock('react-i18next', () => ({
+  useTranslation: vi.fn(),
 }))
-jest.mock('../../serviceWorkerRegistration', () => ({
-  activateServiceWorkerUpdate: jest.fn(),
-  consumeServiceWorkerUpdated: jest.fn(),
-  subscribeToServiceWorkerUpdates: jest.fn(),
+vi.mock('../../serviceWorkerRegistration', () => ({
+  activateServiceWorkerUpdate: vi.fn(),
+  consumeServiceWorkerUpdated: vi.fn(),
+  subscribeToServiceWorkerUpdates: vi.fn(),
 }))
 
-const mockUseSnackbar = useSnackbar as jest.MockedFunction<typeof useSnackbar>
-const mockUseTranslation = useTranslation as jest.MockedFunction<typeof useTranslation>
-const mockActivateUpdate = activateServiceWorkerUpdate as jest.MockedFunction<typeof activateServiceWorkerUpdate>
-const mockConsumeUpdated = consumeServiceWorkerUpdated as jest.MockedFunction<typeof consumeServiceWorkerUpdated>
-const mockSubscribe = subscribeToServiceWorkerUpdates as jest.MockedFunction<typeof subscribeToServiceWorkerUpdates>
+const mockUseSnackbar = useSnackbar as import('vitest').MockedFunction<typeof useSnackbar>
+const mockUseTranslation = useTranslation as import('vitest').MockedFunction<typeof useTranslation>
+const mockActivateUpdate = activateServiceWorkerUpdate as import('vitest').MockedFunction<
+  typeof activateServiceWorkerUpdate
+>
+const mockConsumeUpdated = consumeServiceWorkerUpdated as import('vitest').MockedFunction<
+  typeof consumeServiceWorkerUpdated
+>
+const mockSubscribe = subscribeToServiceWorkerUpdates as import('vitest').MockedFunction<
+  typeof subscribeToServiceWorkerUpdates
+>
 
 describe('ServiceWorkerUpdateNotifier', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockConsumeUpdated.mockReturnValue(undefined)
   })
 
   it('activates only once for the same waiting worker when the translation changes', () => {
-    const enqueueSnackbar = jest.fn()
+    const enqueueSnackbar = vi.fn()
     const registration = {} as ServiceWorkerRegistration
     const worker = {} as ServiceWorker
     let translate = (key: string) => `fi:${key}`
 
-    mockUseSnackbar.mockReturnValue({ closeSnackbar: jest.fn(), enqueueSnackbar })
+    mockUseSnackbar.mockReturnValue({ closeSnackbar: vi.fn(), enqueueSnackbar })
     mockUseTranslation.mockImplementation(() => ({ t: translate }) as ReturnType<typeof useTranslation>)
     mockSubscribe.mockImplementation((listener) => {
       listener(registration, worker)
-      return jest.fn()
+      return vi.fn()
     })
 
     const { rerender } = render(<ServiceWorkerUpdateNotifier />)
@@ -57,17 +63,17 @@ describe('ServiceWorkerUpdateNotifier', () => {
   })
 
   it('activates successive workers on the same registration', () => {
-    const enqueueSnackbar = jest.fn()
+    const enqueueSnackbar = vi.fn()
     const registration = {} as ServiceWorkerRegistration
     const firstWorker = {} as ServiceWorker
     const secondWorker = {} as ServiceWorker
 
-    mockUseSnackbar.mockReturnValue({ closeSnackbar: jest.fn(), enqueueSnackbar })
+    mockUseSnackbar.mockReturnValue({ closeSnackbar: vi.fn(), enqueueSnackbar })
     mockUseTranslation.mockReturnValue({ t: (key: string) => key } as ReturnType<typeof useTranslation>)
     mockSubscribe.mockImplementation((listener) => {
       listener(registration, firstWorker)
       listener(registration, secondWorker)
-      return jest.fn()
+      return vi.fn()
     })
 
     render(<ServiceWorkerUpdateNotifier />)
@@ -76,13 +82,13 @@ describe('ServiceWorkerUpdateNotifier', () => {
   })
 
   it('notifies after an update has been applied', () => {
-    const enqueueSnackbar = jest.fn()
+    const enqueueSnackbar = vi.fn()
     mockConsumeUpdated.mockReturnValue({ from: '1.10.2', to: '1.10.3' })
-    mockUseSnackbar.mockReturnValue({ closeSnackbar: jest.fn(), enqueueSnackbar })
+    mockUseSnackbar.mockReturnValue({ closeSnackbar: vi.fn(), enqueueSnackbar })
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, string>) => `${key}:${options?.from}→${options?.to}`,
     } as ReturnType<typeof useTranslation>)
-    mockSubscribe.mockReturnValue(jest.fn())
+    mockSubscribe.mockReturnValue(vi.fn())
 
     render(<ServiceWorkerUpdateNotifier />)
 

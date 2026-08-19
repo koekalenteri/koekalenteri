@@ -1,29 +1,29 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 const setEventBody = (event: { body: string }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
-const mockAuthorize = jest.fn<any>()
-const mockAuthorizeEvent = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockSaveEvent = jest.fn<any>()
-const mockNanoid = jest.fn<any>()
-const mockWrite = jest.fn<any>()
-const mockResponse = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
+const mockAuthorize = vi.fn()
+const mockAuthorizeEvent = vi.fn()
+const mockGetEvent = vi.fn()
+const mockSaveEvent = vi.fn()
+const mockNanoid = vi.fn()
+const mockWrite = vi.fn()
+const mockResponse = vi.fn()
+const mockLambda = vi.fn((_name, fn) => fn)
 
-jest.unstable_mockModule('../lib/eventAuth', () => ({
+vi.doMock('../lib/eventAuth', () => ({
   authorizeEvent: mockAuthorizeEvent,
 }))
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
   saveEvent: mockSaveEvent,
 }))
-jest.unstable_mockModule('nanoid', () => ({
+vi.doMock('nanoid', () => ({
   nanoid: mockNanoid,
 }))
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
     constructor(
       public statusCode: number,
@@ -35,10 +35,10 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
-const mockQuery = jest.fn<any>()
+const mockQuery = vi.fn()
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(() => ({
     query: mockQuery,
     write: mockWrite,
   })),
@@ -50,7 +50,7 @@ describe('copyEventHandler', () => {
   const event = { body: '{}' } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockQuery.mockResolvedValue([])
     mockAuthorizeEvent.mockImplementation(async (_event: unknown, eventId: string) => ({
       item: await mockGetEvent(eventId),
@@ -126,7 +126,7 @@ describe('copyEventHandler', () => {
     mockNanoid.mockReturnValueOnce('newid123')
 
     const now = new Date('2025-06-02T12:00:00.000Z')
-    jest.useFakeTimers().setSystemTime(now)
+    vi.useFakeTimers().setSystemTime(now)
 
     await copyEventHandler(event)
 
@@ -152,7 +152,7 @@ describe('copyEventHandler', () => {
 
     expect(mockResponse).toHaveBeenCalled()
 
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('sets season using Finnish timezone when copying an event near year boundary', async () => {

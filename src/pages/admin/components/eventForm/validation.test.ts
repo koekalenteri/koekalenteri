@@ -523,8 +523,8 @@ describe('validation', () => {
     })
 
     it('logs to console in development environment', () => {
-      jest.spyOn(env, 'isDevEnv').mockReturnValue(true)
-      const consoleSpy = jest.spyOn(console, 'debug').mockImplementation(() => {})
+      vi.spyOn(env, 'isDevEnv').mockReturnValue(true)
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {})
       const event = { ...emptyEvent, eventType: 'SOME' as any, official: undefined, state: 'confirmed' as const } as any
       const errors = validateEvent(event)
 
