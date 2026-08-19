@@ -137,7 +137,16 @@ export default function CostInfo({ event }: Props) {
           </InfoTableContainerGrid>
         </>
       ) : null}
-      <Typography variant="caption" component="div" sx={{ mt: 1, px: 1.5, width: '100%' }} textAlign="right">
+      <Typography
+        variant="caption"
+        component="div"
+        sx={{
+          mt: 1,
+          px: 1.5,
+          textAlign: 'right',
+          width: '100%',
+        }}
+      >
         {t(`paymentTimeOptions.${paymentTime}`)}
       </Typography>
     </>

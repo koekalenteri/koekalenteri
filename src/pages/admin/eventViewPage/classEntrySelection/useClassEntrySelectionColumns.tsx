@@ -1,4 +1,4 @@
-import type { GridColDef } from '@mui/x-data-grid'
+import type { GridActionsCellItemProps, GridColDef } from '@mui/x-data-grid'
 import type { ReactElement } from 'react'
 import type { DogEvent, Registration, RegistrationDate } from '../../../../types'
 import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
@@ -45,6 +45,8 @@ interface RegistrationActionsOptions {
   t: (key: string) => any
 }
 
+type RegistrationAction = ReactElement<GridActionsCellItemProps>
+
 const spinnerOr = (icon: ReactElement, pending: boolean) => (pending ? <CircularProgress size={18} /> : icon)
 
 const getParticipantMovementActions = ({
@@ -54,8 +56,8 @@ const getParticipantMovementActions = ({
   isPendingMove,
   row,
   t,
-}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => {
-  const actions: ReactElement[] = []
+}: RegistrationActionsOptions & { isPendingMove: boolean }): RegistrationAction[] => {
+  const actions: RegistrationAction[] = []
 
   if (available.length > 1) {
     actions.push(
@@ -99,7 +101,7 @@ const getReserveMovementActions = ({
   isPendingMove,
   row,
   t,
-}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => [
+}: RegistrationActionsOptions & { isPendingMove: boolean }): RegistrationAction[] => [
   <GridActionsCellItem
     key="moveToParticipants"
     disabled={isPendingMove || Boolean(callbacks?.movementDisabled)}
@@ -123,7 +125,7 @@ const getCancelledMovementActions = ({
   isPendingMove,
   row,
   t,
-}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => [
+}: RegistrationActionsOptions & { isPendingMove: boolean }): RegistrationAction[] => [
   <GridActionsCellItem
     key="moveToReserve"
     disabled={isPendingMove || Boolean(callbacks?.movementDisabled)}
@@ -140,7 +142,7 @@ const getMovementActions = (options: RegistrationActionsOptions & { groupKey: st
   return getParticipantMovementActions(options)
 }
 
-const createRegistrationActions = (options: RegistrationActionsOptions): ReactElement[] => {
+const createRegistrationActions = (options: RegistrationActionsOptions): RegistrationAction[] => {
   const { callbacks, row, t } = options
   const actionsDisabled = Boolean(callbacks?.actionsDisabled)
   const groupKey = getRegistrationGroupKey(row)

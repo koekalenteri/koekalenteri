@@ -36,8 +36,20 @@ const Header = ({ event }: HeaderProps) => {
   return (
     <>
       <Grid container columnSpacing={1} size={12}>
-        <Grid overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }} size="grow">
-          <Typography variant="caption" color="text.secondary">
+        <Grid
+          size="grow"
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            textWrap: 'nowrap',
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {event.organizer.name}
           </Typography>
         </Grid>
@@ -77,7 +89,14 @@ export default function RegistrationEventInfo({
 
   return (
     <CollapsibleEvent eventId={event.id} header={<Header event={event} />}>
-      <Grid container justifyContent="space-between" alignItems="flex-start" columnSpacing={1}>
+      <Grid
+        container
+        columnSpacing={1}
+        sx={{
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+        }}
+      >
         <ItemWithCaption label={t('entryTime')}>
           {t('dateFormat.datespan', { end: event.entryEndDate, start: event.entryStartDate })}
           <EntryStatus event={event} />
@@ -118,7 +137,13 @@ export default function RegistrationEventInfo({
               {invitationAttachmentFileName(attachmentEvent)}
             </Link>
             {invitationAttachmentUpdatedAt && (
-              <Typography color="text.secondary" display="block" variant="caption">
+              <Typography
+                variant="caption"
+                sx={{
+                  color: 'text.secondary',
+                  display: 'block',
+                }}
+              >
                 {t('invitation.attachmentUpdated', { date: invitationAttachmentUpdatedAt })}
               </Typography>
             )}

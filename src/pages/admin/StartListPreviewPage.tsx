@@ -47,7 +47,11 @@ export default function StartListPreviewPage() {
   }
 
   return (
-    <Box p={1}>
+    <Box
+      sx={{
+        p: 1,
+      }}
+    >
       <EventHeader event={event} now={new Date()} />
       <ParticipantList participants={participants} event={event} includeUnpublished showExportActions />
     </Box>

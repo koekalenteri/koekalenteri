@@ -27,9 +27,9 @@ exports[`MoveToGroupDialog renders 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":r0:"
+        aria-labelledby="_r_0_"
         aria-modal="true"
-        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm MuiDialog-paperFullWidth css-16htz67-MuiPaper-root-MuiDialog-paper"
+        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperWidthSm MuiDialog-paperFullWidth css-1fy56kq-MuiPaper-root-MuiDialog-paper"
         data-mui-focusable=""
         role="dialog"
         style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
@@ -37,7 +37,7 @@ exports[`MoveToGroupDialog renders 1`] = `
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-rvoa5x-MuiTypography-root-MuiDialogTitle-root"
-          id=":r0:"
+          id="_r_0_"
         >
           registration.moveToGroupDialog.title name
         </h2>
@@ -65,7 +65,7 @@ exports[`MoveToGroupDialog renders 1`] = `
                   <input
                     checked=""
                     class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                    name=":r1:"
+                    name="_r_1_"
                     type="radio"
                     value="2021-02-10-ap"
                   />
@@ -111,7 +111,7 @@ exports[`MoveToGroupDialog renders 1`] = `
                   <input
                     class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                     disabled=""
-                    name=":r1:"
+                    name="_r_1_"
                     type="radio"
                     value="2021-02-10-ip"
                   />
@@ -155,14 +155,14 @@ exports[`MoveToGroupDialog renders 1`] = `
           class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-sizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >
             close
           </button>
           <button
-            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-74d805-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-74d805-MuiButtonBase-root-MuiButton-root"
             disabled=""
             tabindex="-1"
             type="button"

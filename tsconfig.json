@@ -12,7 +12,8 @@
       "esnext"
     ],
     "module": "es2022",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "noUncheckedSideEffectImports": false,
     "noEmit": true,
     "noErrorTruncation": true,
     "noFallthroughCasesInSwitch": true,
@@ -24,6 +25,7 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "target": "es6",
+    "types": ["node", "jest"],
     "useUnknownInCatchVariables": true,
   },
   "include": [

@@ -1,7 +1,7 @@
 import type { BreedCode } from '../../../../../types'
 import type { DogEventCost, DogEventCostKey } from '../../../../../types/Cost'
 import type { PartialEvent } from '../types'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import Box from '@mui/material/Box'
 import FormHelperText from '@mui/material/FormHelperText'

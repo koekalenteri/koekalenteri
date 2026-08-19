@@ -163,7 +163,13 @@ export default function EventViewPage() {
         onOpenMessageDialog={handleOpenMsgDialog}
       />
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <Tabs value={activeTab} onChange={handleTabChange}>
           {allClasses.map((eventClass) => (
             <Tab

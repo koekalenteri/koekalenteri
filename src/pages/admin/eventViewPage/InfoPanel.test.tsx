@@ -1,4 +1,4 @@
-import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
+import type { UserEvent } from '@testing-library/user-event'
 import type { AuditRecord, Registration } from '../../../types'
 import { screen, waitFor } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'

@@ -396,11 +396,27 @@ export default function RegistrationForm({
         </Box>
       </Box>
 
-      <Stack direction="row" justifyContent="flex-end" sx={{ p: 1 }}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: 'flex-end',
+          p: 1,
+        }}
+      >
         <PaymentDetails event={event} registration={registration} />
       </Stack>
-      <Stack direction="row" justifyContent="flex-end" sx={{ px: 2 }}>
-        <Typography fontWeight="bold">
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: 'flex-end',
+          px: 2,
+        }}
+      >
+        <Typography
+          sx={{
+            fontWeight: 'bold',
+          }}
+        >
           {t(
             event.paymentTime === 'confirmation' && !registration.confirmed
               ? 'registration.paymentToBePaidAfterConfirmation'
@@ -412,7 +428,14 @@ export default function RegistrationForm({
         </Typography>
       </Stack>
 
-      <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{ p: 1 }}>
+      <Stack
+        spacing={1}
+        direction="row"
+        sx={{
+          justifyContent: 'flex-end',
+          p: 1,
+        }}
+      >
         <AsyncButton
           color="primary"
           disabled={disabled || !changes || !valid}

@@ -34,9 +34,23 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
   })
 
   return (
-    <Stack direction="row" justifyContent="start">
-      <Box px={1}>
-        <Typography variant="body1" textAlign="right">
+    <Stack
+      direction="row"
+      sx={{
+        justifyContent: 'start',
+      }}
+    >
+      <Box
+        sx={{
+          px: 1,
+        }}
+      >
+        <Typography
+          variant="body1"
+          sx={{
+            textAlign: 'right',
+          }}
+        >
           {costDescription}
           {member} {formatMoney(details.cost)}
         </Typography>
@@ -47,7 +61,9 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
               // biome-ignore lint/suspicious/noArrayIndexKey: combining with description
               index
             }`}
-            textAlign="right"
+            sx={{
+              textAlign: 'right',
+            }}
           >
             {c.description[language]}
             {member}&nbsp;
@@ -56,14 +72,24 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
         ))}
         <Divider />
         {includeTotal ? (
-          <Typography variant="body1" textAlign="right">
+          <Typography
+            variant="body1"
+            sx={{
+              textAlign: 'right',
+            }}
+          >
             {t('costTotal')} {formatMoney(details.total)}
           </Typography>
         ) : null}
         {registration.paidAmount && registration.paidAmount > 0 ? (
           <>
             <Divider />
-            <Typography variant="body1" textAlign="right">
+            <Typography
+              variant="body1"
+              sx={{
+                textAlign: 'right',
+              }}
+            >
               Aiemmin maksettu {formatMoney(registration.paidAmount)}
             </Typography>
           </>
@@ -71,7 +97,13 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
         {includePayable ? (
           <>
             <Typography variant="subtitle2" color="textSecondary"></Typography>
-            <Typography variant="body1" textAlign="right" fontWeight="bold">
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: 'bold',
+                textAlign: 'right',
+              }}
+            >
               {t('registration.paymentToBePaid', {
                 amount: formatMoney(details.total - (registration.paidAmount ?? 0)),
               })}

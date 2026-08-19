@@ -110,7 +110,11 @@ export default function QualifyingResultsInfo({
       onOpenChange={onOpenChange}
     >
       <Grid container spacing={1}>
-        <Grid display={rankingPeriod?.min ? undefined : 'none'}>
+        <Grid
+          sx={{
+            display: rankingPeriod?.min ? undefined : 'none',
+          }}
+        >
           <Typography variant="caption">{`${t('registration.rankingTime')}: ${t('dateFormat.datespan', { end: rankingPeriod?.max, start: rankingPeriod?.min })}`}</Typography>
         </Grid>
         {qualifying.map((result) => (
@@ -126,7 +130,15 @@ export default function QualifyingResultsInfo({
             onRemove={handleRemoveResult}
           />
         ))}
-        <Stack direction="row" mt={1} ml={1} justifyContent="space-between" width="100%">
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: 'space-between',
+            ml: 1,
+            mt: 1,
+            width: '100%',
+          }}
+        >
           <Button
             startIcon={<AddOutlined />}
             disabled={disableResultInput}
@@ -136,11 +148,13 @@ export default function QualifyingResultsInfo({
             {t('registration.cta.addResult')}
           </Button>
           <Stack
-            display={totalPoints ? undefined : 'none'}
             direction="row"
-            gap={1}
-            justifyContent="end"
-            alignItems="center"
+            sx={{
+              alignItems: 'center',
+              display: totalPoints ? undefined : 'none',
+              gap: 1,
+              justifyContent: 'end',
+            }}
           >
             <Typography variant="caption">Karsintapisteet yht.:</Typography>
             <RankingPoints points={totalPoints} />

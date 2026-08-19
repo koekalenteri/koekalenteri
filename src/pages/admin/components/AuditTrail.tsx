@@ -135,7 +135,13 @@ interface AuditChangeItemProps {
 
 const AuditChangeItem = ({ change, first, formatter }: AuditChangeItemProps) => (
   <Box sx={{ mt: first ? 0 : 0.75 }}>
-    <Typography color="text.secondary" component="div" variant="caption">
+    <Typography
+      component="div"
+      variant="caption"
+      sx={{
+        color: 'text.secondary',
+      }}
+    >
       {formatter.changeLabel(change)}:
     </Typography>
     <AuditChangeValue text={formatter.changeLine('−', formatter.t('audit.before'), change.previous)} tone="error" />
@@ -158,10 +164,14 @@ const AuditDetailItem = ({ detail, formatter }: AuditDetailItemProps) => {
 
   return (
     <Typography
-      color="text.secondary"
       component="div"
       variant="caption"
-      sx={{ mt: 0.75, overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}
+      sx={{
+        color: 'text.secondary',
+        mt: 0.75,
+        overflowWrap: 'anywhere',
+        whiteSpace: 'pre-wrap',
+      }}
     >
       {text}
     </Typography>
@@ -180,7 +190,13 @@ const AuditTrailRow = ({ formatter, onToggle, open, row }: AuditTrailRowProps) =
 
   return (
     <Box sx={{ borderBottom: '1px solid', borderBottomColor: 'divider', py: 0.75 }}>
-      <Typography color="text.secondary" variant="caption" noWrap>
+      <Typography
+        variant="caption"
+        noWrap
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {`${formatDate(row.timestamp, 'dd.MM.yyyy HH:mm:ss')} ${row.user}`}
       </Typography>
       <Box sx={{ alignItems: 'flex-start', display: 'flex', mt: 0.25 }}>

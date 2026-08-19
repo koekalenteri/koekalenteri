@@ -97,8 +97,18 @@ export default function EntrySection(props: Props) {
       error={!!error}
       helperText={helperText}
     >
-      <Grid container spacing={1} maxWidth={900}>
-        <Grid width="100%">
+      <Grid
+        container
+        spacing={1}
+        sx={{
+          maxWidth: 900,
+        }}
+      >
+        <Grid
+          sx={{
+            width: '100%',
+          }}
+        >
           <DateRange
             startDisabled={disabled}
             startLabel="Ilmoittautumisaika alkaa"
@@ -119,13 +129,25 @@ export default function EntrySection(props: Props) {
             </FormHelperText>
           )}
         </Grid>
-        <Grid width="100%">
+        <Grid
+          sx={{
+            width: '100%',
+          }}
+        >
           <EventDates disabled={disabled} event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />
         </Grid>
-        <Grid width="100%">
+        <Grid
+          sx={{
+            width: '100%',
+          }}
+        >
           <EventFormPlaces disabled={disabled} {...props} />
         </Grid>
-        <Grid width="100%">
+        <Grid
+          sx={{
+            width: '100%',
+          }}
+        >
           <AutocompleteMulti
             disabled={disabled}
             disablePortal

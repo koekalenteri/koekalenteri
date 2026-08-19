@@ -234,12 +234,15 @@ export const useWebSocket = () => {
   // Subscription state — persisted across reconnects
   const adminSubscribedRef = useRef(false)
   const eventIdRef = useRef<string | undefined>(undefined)
-  const registrationSubscriptionRef = useRef<{
-    editToken: string
-    eventId: string
-    listener: (patch: Patch<Registration>) => void
-    registrationId: string
-  }>()
+  const registrationSubscriptionRef = useRef<
+    | {
+        editToken: string
+        eventId: string
+        listener: (patch: Patch<Registration>) => void
+        registrationId: string
+      }
+    | undefined
+  >(undefined)
   const rawViewersRef = useRef<EventViewer[]>([])
   const auditRecordListenersRef = useRef(new Set<(record: AuditRecord) => void>())
   const adminDataCursorsRef = useRef<Partial<Record<AdminDataCollection, number | null>>>({})

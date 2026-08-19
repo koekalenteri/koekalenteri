@@ -104,7 +104,7 @@ exports[`PersonContactInfo should render 1`] = `
         <input
           aria-invalid="false"
           class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-          id=":r0:"
+          id="_r_0_"
           name="name"
           type="text"
           value=""
@@ -135,7 +135,7 @@ exports[`PersonContactInfo should render 1`] = `
         <input
           aria-invalid="false"
           class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-          id=":r1:"
+          id="_r_1_"
           name="email"
           type="text"
           value=""
@@ -166,7 +166,7 @@ exports[`PersonContactInfo should render 1`] = `
         <input
           aria-invalid="false"
           class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-          id=":r2:"
+          id="_r_2_"
           name="phone"
           type="text"
           value=""

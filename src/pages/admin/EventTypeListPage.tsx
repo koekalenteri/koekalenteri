@@ -1,4 +1,4 @@
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutlined'
 import CloudSync from '@mui/icons-material/CloudSync'
 import Stack from '@mui/material/Stack'
 import { useCallback, useState } from 'react'

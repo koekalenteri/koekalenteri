@@ -9,7 +9,7 @@ exports[`EventNotFound renders with error message 1`] = `
       class="MuiBox-root css-u3luxh"
     >
       <div
-        class="MuiStack-root css-lxhjgb-MuiStack-root"
+        class="MuiStack-root css-104kz00-MuiStack-root"
       >
         <div
           class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation3 css-1tmy0w5-MuiPaper-root"
@@ -18,16 +18,16 @@ exports[`EventNotFound renders with error message 1`] = `
           <svg
             aria-hidden="true"
             class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-7y3rvo-MuiSvgIcon-root"
-            data-testid="ErrorOutlineIcon"
+            data-testid="ErrorOutlinedIcon"
             focusable="false"
             viewBox="0 0 24 24"
           >
             <path
-              d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 15h-2v-2h2zm0-4h-2V7h2z"
             />
           </svg>
           <h1
-            class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-kyi0tw-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-5ie8mc-MuiTypography-root"
           >
             Tapahtumaa ei löydy.
           </h1>
@@ -37,13 +37,13 @@ exports[`EventNotFound renders with error message 1`] = `
             Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia.
           </p>
           <a
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-10gbnq1-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-vmcegv-MuiButtonBase-root-MuiButton-root"
             data-discover="true"
             href="/admin/event"
             tabindex="0"
           >
             <span
-              class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+              class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
             >
               <svg
                 aria-hidden="true"

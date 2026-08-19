@@ -71,7 +71,7 @@ const config: Config = {
       // are ESM-only and must be transformed.
       extensionsToTreatAsEsm: ['.ts', '.tsx'],
       transformIgnorePatterns: [
-        'node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend|nanoid|notistack|mui-tel-input)/)',
+        'node_modules/(?!(react-router|react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend|nanoid|notistack|mui-tel-input)/)',
       ],
       moduleFileExtensions: ['web.js', 'js', 'web.ts', 'ts', 'web.tsx', 'tsx', 'json', 'web.jsx', 'jsx', 'node'],
       modulePaths: [],

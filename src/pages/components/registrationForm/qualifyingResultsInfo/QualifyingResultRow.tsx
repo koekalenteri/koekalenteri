@@ -1,5 +1,5 @@
 import type { EventResultRequirementsByDate, ManualTestResult, QualifyingResult, TestResult } from '../../../../types'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
@@ -107,7 +107,14 @@ export default function QualifyingResultRow({
   }, [onRemove, result])
 
   return (
-    <Grid container spacing={1} alignItems="center" width="100%">
+    <Grid
+      container
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+        width: '100%',
+      }}
+    >
       <Grid size={{ md: 2, sm: 3.5, xs: 6 }}>
         <AutocompleteSingle
           disabled={result.official || disabled}
@@ -182,8 +189,19 @@ export default function QualifyingResultRow({
           value={formValues.judge}
         />
       </Grid>
-      <Grid flex={1}>
-        <Stack direction="row" gap={1} justifyContent="end" alignItems="center">
+      <Grid
+        sx={{
+          flex: 1,
+        }}
+      >
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'center',
+            gap: 1,
+            justifyContent: 'end',
+          }}
+        >
           <Button
             sx={{ display: result.official ? 'none' : undefined }}
             disabled={disabled}

@@ -161,7 +161,11 @@ export default function BasicInfoSection({
     (e: ChangeEvent<HTMLInputElement>) => handleLookupCriteriaChange({ name: e.target.value }),
     [handleLookupCriteriaChange]
   )
-  const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
+  const isEqualId = useCallback(
+    (option?: { id?: number | string }, value?: string | { id?: number | string }) =>
+      typeof value !== 'string' && option?.id === value?.id,
+    []
+  )
   const getId = useCallback((o?: string | { id?: number | string }) => (typeof o === 'string' ? o : (o?.id ?? '')), [])
   const getKcId = useCallback((o?: number | string | null) => (o == null ? '' : `${o}`), [])
   const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : (o?.name ?? '')), [])
@@ -222,7 +226,13 @@ export default function BasicInfoSection({
         error={error}
         helperText={helperText}
       >
-        <Grid container spacing={1} maxWidth={1280}>
+        <Grid
+          container
+          spacing={1}
+          sx={{
+            maxWidth: 1280,
+          }}
+        >
           <Grid container spacing={1}>
             <Grid sx={{ width: 600 }}>
               <DateRange
@@ -242,7 +252,13 @@ export default function BasicInfoSection({
             </Grid>
             {isOfficialEventType && (
               <Grid sx={{ width: 520 }}>
-                <Stack direction="row" spacing={1} alignItems="flex-start">
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{
+                    alignItems: 'flex-start',
+                  }}
+                >
                   <EventProperty
                     id="kcId"
                     disabled

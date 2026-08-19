@@ -6,7 +6,7 @@ exports[`ErrorPage should render 404 1`] = `
     class="MuiBox-root css-r8ug1n"
   >
     <h1
-      class="MuiTypography-root MuiTypography-h1 css-sbeosn-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h1 css-gnrrir-MuiTypography-root"
     >
       404
     </h1>
@@ -37,7 +37,7 @@ exports[`ErrorPage should render 500 1`] = `
     class="MuiBox-root css-r8ug1n"
   >
     <h1
-      class="MuiTypography-root MuiTypography-h1 css-sbeosn-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h1 css-gnrrir-MuiTypography-root"
     >
       error.somethingWentWrong
     </h1>

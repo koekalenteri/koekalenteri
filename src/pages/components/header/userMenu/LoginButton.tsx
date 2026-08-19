@@ -1,4 +1,4 @@
-import PersonOutline from '@mui/icons-material/PersonOutline'
+import PersonOutline from '@mui/icons-material/PersonOutlined'
 import { useTranslation } from 'react-i18next'
 import { useUserActions } from '../../../recoil'
 import AppBarButton from '../AppBarButton'

@@ -67,7 +67,15 @@ const StartListPublishing = ({
 
   return (
     <Box sx={sectionSx}>
-      <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+      <Typography
+        variant="overline"
+        sx={{
+          color: 'text.secondary',
+          display: 'block',
+          pt: 1,
+          px: 1.5,
+        }}
+      >
         {t('eventManagement.startList.publishing')}
       </Typography>
       <TableContainer>
@@ -94,12 +102,28 @@ const StartListPublishing = ({
               return (
                 <TableRow key={className}>
                   <TableCell align="left">
-                    <Box ml={2}>
-                      <Typography variant="caption" noWrap fontWeight="bold">
+                    <Box
+                      sx={{
+                        ml: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        noWrap
+                        sx={{
+                          fontWeight: 'bold',
+                        }}
+                      >
                         {className}
                       </Typography>
                       {startListPublished && (
-                        <Typography variant="caption" color="info.main" display="block">
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: 'info.main',
+                            display: 'block',
+                          }}
+                        >
                           {t('eventManagement.startList.published')}
                         </Typography>
                       )}

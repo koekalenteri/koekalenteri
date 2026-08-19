@@ -9,7 +9,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
       class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="MuiStack-root css-3xtvj9-MuiStack-root"
+        class="MuiStack-root css-1csl1g3-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -100,9 +100,9 @@ exports[`EventFormPlaces should render with classes 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     disabled=""
-                    id=":r2:"
+                    id="_r_2_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -151,9 +151,9 @@ exports[`EventFormPlaces should render with classes 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     disabled=""
-                    id=":r3:"
+                    id="_r_3_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -205,7 +205,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     id="event.places"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
@@ -250,7 +250,7 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
       class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="MuiStack-root css-3xtvj9-MuiStack-root"
+        class="MuiStack-root css-1csl1g3-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -335,9 +335,9 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     disabled=""
-                    id=":r0:"
+                    id="_r_0_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -383,7 +383,7 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     id="event.places"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
@@ -428,7 +428,7 @@ exports[`EventFormPlaces should render with placesPerDay 1`] = `
       class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="MuiStack-root css-3xtvj9-MuiStack-root"
+        class="MuiStack-root css-1csl1g3-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -514,8 +514,8 @@ exports[`EventFormPlaces should render with placesPerDay 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r5:"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    id="_r_5_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -561,8 +561,8 @@ exports[`EventFormPlaces should render with placesPerDay 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r6:"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    id="_r_6_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -608,7 +608,7 @@ exports[`EventFormPlaces should render with placesPerDay 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     disabled=""
                     id="event.places"
                     pattern="[0-9]{1,3}"

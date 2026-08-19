@@ -23,7 +23,7 @@ exports[`OrganizerListPage renders 1`] = `
               colspan="9"
             >
               <h5
-                class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h5 css-kc0zv6-MuiTypography-root"
               >
                 dateFormat.wdshort date
               </h5>
@@ -557,7 +557,7 @@ exports[`OrganizerListPage renders 1`] = `
               colspan="9"
             >
               <h5
-                class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h5 css-kc0zv6-MuiTypography-root"
               >
                 varalla
               </h5>

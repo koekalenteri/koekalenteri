@@ -12,6 +12,4 @@ export const i18nInit: InitOptions = {
     en: { breed: enBreed, breedAbbr: enBreedAbbr, country: enCountry, translation: en },
     fi: { breed: fiBreed, breedAbbr: fiBreedAbbr, country: fiCountry, translation: fi },
   },
-  // suppress spam
-  showSupportNotice: false,
 }

@@ -38,7 +38,11 @@ export const StartListPage = () => {
   const showExportActions = currentUser?.admin === true || !!currentUser?.roles?.[event.organizer.id]
 
   return (
-    <Box p={1}>
+    <Box
+      sx={{
+        p: 1,
+      }}
+    >
       <EventHeader event={event} now={now} />
       <ParticipantList participants={participants} event={event} showExportActions={showExportActions} />
     </Box>

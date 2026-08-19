@@ -150,9 +150,9 @@ describe('RegistrationIcons component', () => {
 
     render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
 
-    expect(screen.getByTestId('MailOutlineIcon')).toBeInTheDocument()
+    expect(screen.getByTestId('MailOutlinedIcon')).toBeInTheDocument()
 
-    await user.hover(screen.getByTestId('MailOutlineIcon').closest('div')!)
+    await user.hover(screen.getByTestId('MailOutlinedIcon').closest('div')!)
     act(() => {
       jest.runOnlyPendingTimers()
     })

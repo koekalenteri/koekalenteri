@@ -40,6 +40,9 @@ const MiniDrawer = styled(Drawer)(({ theme, variant, open }) => {
     }),
     ...(mini && {
       ...miniMixin(theme),
+      '& .MuiDivider-wrapper, & .MuiListItemText-root': {
+        display: 'none',
+      },
       '& .MuiDrawer-paper': miniMixin(theme),
     }),
     '& .MuiButtonBase-root:hover': {

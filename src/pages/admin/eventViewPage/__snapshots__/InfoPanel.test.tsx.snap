@@ -4,12 +4,12 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
 <div>
   <button
     aria-label="eventManagement.open"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1py9kyb-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-lnven1-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
     <span
-      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+      class="MuiButton-icon MuiButton-startIcon css-1lxyhll-MuiButton-startIcon"
     >
       <svg
         aria-hidden="true"
@@ -32,12 +32,12 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
 <div>
   <button
     aria-label="eventManagement.open"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1py9kyb-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-lnven1-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
     <span
-      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+      class="MuiButton-icon MuiButton-startIcon css-1lxyhll-MuiButton-startIcon"
     >
       <svg
         aria-hidden="true"
@@ -60,12 +60,12 @@ exports[`InfoPanel> renders with no registrations 1`] = `
 <div>
   <button
     aria-label="eventManagement.open"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1py9kyb-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-lnven1-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
     <span
-      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+      class="MuiButton-icon MuiButton-startIcon css-1lxyhll-MuiButton-startIcon"
     >
       <svg
         aria-hidden="true"

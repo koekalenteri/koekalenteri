@@ -12,6 +12,7 @@ import Tabs from '@mui/material/Tabs'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { firstSelectedRow } from '../../lib/datagrid'
 import { hasChanges } from '../../lib/utils'
 import StyledDataGrid from '../components/StyledDataGrid'
 import FullPageFlex from './components/FullPageFlex'
@@ -49,7 +50,8 @@ export default function EmailTemplateListPage() {
   }, [storedTemplate, template])
 
   const handleSelectionModeChange = (selection: GridRowSelectionModel) => {
-    const value = typeof selection[0] === 'string' ? selection[0] : undefined
+    const selected = firstSelectedRow(selection)
+    const value = typeof selected === 'string' ? selected : undefined
     setSelectedTemplateId(value as EmailTemplateId)
   }
   const handleTabChange = (_event: SyntheticEvent, value: number) => setSelectedTab(value)
@@ -84,8 +86,22 @@ export default function EmailTemplateListPage() {
 
   return (
     <FullPageFlex>
-      <Stack direction="row" spacing={1} alignItems="stretch" flex={1} height="100%" width="100%">
-        <Box flex={1} maxWidth={300}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: 'stretch',
+          flex: 1,
+          height: '100%',
+          width: '100%',
+        }}
+      >
+        <Box
+          sx={{
+            flex: 1,
+            maxWidth: 300,
+          }}
+        >
           <StyledDataGrid
             columns={columns}
             onRowSelectionModelChange={handleSelectionModeChange}
@@ -122,12 +138,20 @@ export default function EmailTemplateListPage() {
                 hidden={selectedTab !== 1}
                 onChange={handleChange}
               />
-              <Box flex={0}>
+              <Box
+                sx={{
+                  flex: 0,
+                }}
+              >
                 <Stack
                   spacing={1}
                   direction="row"
-                  justifyContent="flex-end"
-                  sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', py: 1 }}
+                  sx={{
+                    borderColor: '#bdbdbd',
+                    borderTop: '1px solid',
+                    justifyContent: 'flex-end',
+                    py: 1,
+                  }}
                 >
                   <Button
                     color="primary"

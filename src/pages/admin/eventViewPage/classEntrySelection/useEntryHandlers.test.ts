@@ -118,7 +118,7 @@ describe('useEntryHandlers', () => {
     it('should set selected registration ID when valid selection is provided', () => {
       const { result } = renderHook(() => useEntryHandlers(defaultProps))
 
-      const selection: GridRowSelectionModel = ['reg1']
+      const selection: GridRowSelectionModel = { ids: new Set(['reg1']), type: 'include' }
       const details = {} as GridCallbackDetails
 
       result.current.handleSelectionModeChange(selection, details)
@@ -129,7 +129,7 @@ describe('useEntryHandlers', () => {
     it('should not set selected registration ID when selection is empty', () => {
       const { result } = renderHook(() => useEntryHandlers(defaultProps))
 
-      const selection: GridRowSelectionModel = []
+      const selection: GridRowSelectionModel = { ids: new Set(), type: 'include' }
       const details = {} as GridCallbackDetails
 
       result.current.handleSelectionModeChange(selection, details)
@@ -140,7 +140,7 @@ describe('useEntryHandlers', () => {
     it('should not set selected registration ID when registration is not found', () => {
       const { result } = renderHook(() => useEntryHandlers(defaultProps))
 
-      const selection: GridRowSelectionModel = ['nonexistent']
+      const selection: GridRowSelectionModel = { ids: new Set(['nonexistent']), type: 'include' }
       const details = {} as GridCallbackDetails
 
       result.current.handleSelectionModeChange(selection, details)

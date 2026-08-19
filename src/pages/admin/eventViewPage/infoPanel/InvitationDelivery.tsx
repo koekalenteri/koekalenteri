@@ -42,7 +42,12 @@ const InvitationAttachmentFile = ({ file, previousFiles }: InvitationAttachmentF
 
   if (!file) {
     return (
-      <Typography variant="caption" fontStyle="italic">
+      <Typography
+        variant="caption"
+        sx={{
+          fontStyle: 'italic',
+        }}
+      >
         {t('eventManagement.attachment.noFile')}
       </Typography>
     )
@@ -57,13 +62,25 @@ const InvitationAttachmentFile = ({ file, previousFiles }: InvitationAttachmentF
         </Link>
       </Box>
       {file.updatedAt && (
-        <Typography color="text.secondary" display="block" variant="caption">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+            display: 'block',
+          }}
+        >
           {t('eventManagement.attachment.updated', { date: file.updatedAt })}
         </Typography>
       )}
       {previousFiles.length > 0 && (
         <Box sx={{ pt: 0.5 }}>
-          <Typography color="text.secondary" display="block" variant="caption">
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              display: 'block',
+            }}
+          >
             {t('eventManagement.attachment.previouslySentPdfs')}
           </Typography>
           {previousFiles.map((previousFile) => (
@@ -140,7 +157,15 @@ const InvitationDelivery = ({
 
   return (
     <Box sx={sectionSx}>
-      <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+      <Typography
+        variant="overline"
+        sx={{
+          color: 'text.secondary',
+          display: 'block',
+          pt: 1,
+          px: 1.5,
+        }}
+      >
         {t('eventManagement.invitation.delivery')}
       </Typography>
       <TableContainer>
@@ -192,14 +217,25 @@ const InvitationDelivery = ({
                 <Fragment key={className}>
                   <TableRow>
                     <TableCell colSpan={3} sx={{ borderBottom: 0, pb: 0 }}>
-                      <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                      <Typography
+                        variant="caption"
+                        noWrap
+                        sx={{
+                          fontWeight: 'bold',
+                          ml: 2,
+                        }}
+                      >
                         {eventClass ? t('eventManagement.invitation.class', { className: eventClass }) : className}
                       </Typography>
                     </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell align="left" colSpan={2} sx={{ borderBottom: 0, pt: 0 }}>
-                      <Box ml={2}>
+                      <Box
+                        sx={{
+                          ml: 2,
+                        }}
+                      >
                         <InvitationAttachmentFile file={classAttachmentFile} previousFiles={previousAttachmentFiles} />
                       </Box>
                     </TableCell>
@@ -214,19 +250,38 @@ const InvitationDelivery = ({
                   </TableRow>
                   <TableRow>
                     <TableCell align="left" colSpan={2} sx={{ pt: eventClass ? 0 : undefined }}>
-                      <Box ml={2}>
+                      <Box
+                        sx={{
+                          ml: 2,
+                        }}
+                      >
                         {invitationsSent && (
-                          <Typography variant="caption" color="info.main">
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: 'info.main',
+                            }}
+                          >
                             {t('eventManagement.invitation.sent')}
                           </Typography>
                         )}
                         {!invitationsSent && classState === 'confirmed' && !classFinished && (
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: 'text.secondary',
+                            }}
+                          >
                             {t('eventManagement.invitation.canSendAfterPicked')}
                           </Typography>
                         )}
                         {!invitationsSent && classState !== 'confirmed' && !entryEnded && !classFinished && (
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: 'text.secondary',
+                            }}
+                          >
                             {t('eventManagement.invitation.canSendAfterEntry')}
                           </Typography>
                         )}

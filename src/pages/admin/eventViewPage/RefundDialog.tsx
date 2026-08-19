@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../api/http'
 import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
+import { rowSelectionModel } from '../../../lib/datagrid'
 import { formatMoney } from '../../../lib/money'
 import { GROUP_KEY_RESERVE } from '../../../lib/registration'
 import { isObject } from '../../../lib/utils'
@@ -71,7 +72,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   const okTransactions = useMemo(() => transactions.filter((t) => t.status === 'ok'), [transactions])
 
   const selectedTransactions = useMemo(
-    () => okTransactions.filter((t) => selection?.includes(t.transactionId)),
+    () => okTransactions.filter((t) => selection?.ids.has(t.transactionId)),
     [selection, okTransactions]
   )
 
@@ -113,7 +114,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     if (payments.length === 1) {
       const [payment] = payments
       if (payment.transactionId) {
-        setSelection([payment.transactionId])
+        setSelection(rowSelectionModel([payment.transactionId]))
       }
       if (!payment.items && handlingCost) {
         setHandlingCost(0)
@@ -337,7 +338,12 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
             <strong>{formatMoney(registration.refundHandlingCost ?? 0)}</strong>
           </DialogContentText>
         )}
-        <DialogContentText sx={{ my: 1 }} display={selectedTransactions.length ? undefined : 'none'}>
+        <DialogContentText
+          sx={{
+            display: selectedTransactions.length ? undefined : 'none',
+            my: 1,
+          }}
+        >
           {t(canHaveHandlingCosts ? 'registration.refundDialog.costsText' : 'registration.refundDialog.noCostsText')}
         </DialogContentText>
         <TextField

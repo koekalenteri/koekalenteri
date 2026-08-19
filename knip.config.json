@@ -2,9 +2,8 @@
   "workspaces": {
     ".": {
       "ignore": ["aws/split.js", "scripts/marshall.cjs", "scripts/precommit.js"],
-      "ignoreBinaries": ["sam", "scripts/prebuild-backend.sh"],
+      "ignoreBinaries": ["sam"],
       "ignoreDependencies": [
-        "@aws-amplify/core",
         "@codemirror/lang-html",
         "@emnapi/core",
         "@emnapi/runtime"
@@ -64,7 +63,11 @@
     }
   },
   "ignoreIssues": {
-    "src/pages/global-mocks/**": ["exports"]
+    "src/pages/global-mocks/**": ["exports"],
+    "src/rules.ts": ["exports"],
+    "src/types/Cost.ts": ["types"],
+    "src/types/Event.ts": ["types"],
+    "src/types/rules.ts": ["types"]
   },
   "tags": ["-lintignore"]
 }

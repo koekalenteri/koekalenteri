@@ -50,8 +50,21 @@ export const ClassGroups = ({ disabled, event, eventClass, onChange }: Readonly<
   )
 
   return (
-    <Stack direction="row" gap={1} alignItems="center" key={eventClass}>
-      <Box minWidth={40}>{eventClass}</Box>
+    <Stack
+      direction="row"
+      key={eventClass}
+      sx={{
+        alignItems: 'center',
+        gap: 1,
+      }}
+    >
+      <Box
+        sx={{
+          minWidth: 40,
+        }}
+      >
+        {eventClass}
+      </Box>
       <AutocompleteMulti
         disabled={disabled}
         label={t('registration.dates')}

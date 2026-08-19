@@ -100,11 +100,24 @@ export const Component = () => {
                 <Typography>{registration.handler?.name}</Typography>
               </Paper>
               {registration.invitationAttachmentUpdatedAt && (
-                <Typography color="text.secondary" sx={{ pt: 1 }} variant="caption">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                    pt: 1,
+                  }}
+                >
                   {t('invitation.attachmentUpdated', { date: registration.invitationAttachmentUpdatedAt })}
                 </Typography>
               )}
-              <Stack alignItems="start" sx={{ py: 1 }} gap={1} direction="row">
+              <Stack
+                direction="row"
+                sx={{
+                  alignItems: 'start',
+                  gap: 1,
+                  py: 1,
+                }}
+              >
                 <LinkButton target="_blank" to={url} text={t('invitation.open')} />
                 <LinkButton
                   download={invitationAttachmentFileName(registration)}

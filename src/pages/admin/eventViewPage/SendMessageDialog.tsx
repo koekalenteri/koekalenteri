@@ -203,7 +203,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         )}
       </DialogTitle>
       <DialogContent>
-        <Stack direction="row" justifyContent="space-between" spacing={2}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            justifyContent: 'space-between',
+          }}
+        >
           <Box sx={{ width: '40%' }}>
             <Accordion
               disableGutters
@@ -289,7 +295,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                       ))}
                     </Stack>
                   ) : (
-                    <Typography fontStyle="italic">Ei liitettyä tiedostoa</Typography>
+                    <Typography
+                      sx={{
+                        fontStyle: 'italic',
+                      }}
+                    >
+                      Ei liitettyä tiedostoa
+                    </Typography>
                   )}
                 </Paper>
               </>

@@ -188,10 +188,10 @@ exports[`EventInfo should render contact info 1`] = `
         class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-kypwnb-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault css-16ftvk7-MuiChip-root"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+            class="MuiChip-label css-eccknh-MuiChip-label"
           >
             priority.members
           </span>
@@ -404,10 +404,10 @@ exports[`EventInfo should render event information 1`] = `
         class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-kypwnb-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault css-16ftvk7-MuiChip-root"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
+            class="MuiChip-label css-eccknh-MuiChip-label"
           >
             priority.members
           </span>

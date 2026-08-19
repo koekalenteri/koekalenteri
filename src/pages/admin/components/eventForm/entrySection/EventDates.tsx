@@ -19,7 +19,11 @@ export const EventDates = ({ disabled, event, eventTypeClasses, onChange }: Read
   }
 
   return (
-    <Stack gap={1}>
+    <Stack
+      sx={{
+        gap: 1,
+      }}
+    >
       {classes.map((c) => (
         <ClassGroups key={c} disabled={disabled} event={event} eventClass={c} onChange={onChange} />
       ))}

@@ -67,10 +67,14 @@ const Header = ({ toggleMenu }: Props) => {
         ) : null}
         <Typography
           variant="h6"
-          color="#fdfdfd"
           noWrap
           component="div"
-          sx={{ flexGrow: 1, flexShrink: 10000, ml: 1 }}
+          sx={{
+            color: '#fdfdfd',
+            flexGrow: 1,
+            flexShrink: 10000,
+            ml: 1,
+          }}
         ></Typography>
         <Suspense>
           <LanguageMenu />
