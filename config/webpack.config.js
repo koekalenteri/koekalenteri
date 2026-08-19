@@ -7,7 +7,6 @@ const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin')
 const paths = require('./paths')
 const getClientEnvironment = require('./env')
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 const { EsbuildPlugin } = require('esbuild-loader')
 
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash')
@@ -67,8 +66,6 @@ module.exports = function (webpackEnv) {
   // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
   // Get environment variables to inject into our app.
   const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1))
-
-  const shouldUseReactRefresh = env.raw.FAST_REFRESH
 
   // common function to get style loaders
   const getStyleLoaders = (cssOptions, preProcessor) => {
@@ -371,9 +368,6 @@ module.exports = function (webpackEnv) {
               options: {
                 presets: [require.resolve('./babelPreset')],
 
-                plugins: [isEnvDevelopment && shouldUseReactRefresh && require.resolve('react-refresh/babel')].filter(
-                  Boolean
-                ),
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
                 // directory for faster rebuilds.
@@ -485,13 +479,6 @@ module.exports = function (webpackEnv) {
         ...env.stringified,
         __BUILD_TIMESTAMP__: JSON.stringify(Date.now()),
       }),
-      // Experimental hot reloading for React .
-      // https://github.com/facebook/react/tree/main/packages/react-refresh
-      isEnvDevelopment &&
-        shouldUseReactRefresh &&
-        new ReactRefreshWebpackPlugin({
-          overlay: false,
-        }),
       isEnvProduction &&
         new MiniCssExtractPlugin({
           // Options similar to the same options in webpackOptions.output

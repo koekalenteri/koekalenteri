@@ -57,8 +57,6 @@ function getClientEnvironment(publicUrl) {
         WDS_SOCKET_HOST: process.env.WDS_SOCKET_HOST,
         WDS_SOCKET_PATH: process.env.WDS_SOCKET_PATH,
         WDS_SOCKET_PORT: process.env.WDS_SOCKET_PORT,
-        // Whether React Refresh is enabled.
-        FAST_REFRESH: process.env.FAST_REFRESH !== 'false',
         // API url for preconnect link
         API_URL: process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080',
         WS_API_URL: process.env.REACT_APP_WS_API_URL ?? 'wss://127.0.0.1',
