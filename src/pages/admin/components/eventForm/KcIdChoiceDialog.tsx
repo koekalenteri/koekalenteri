@@ -45,7 +45,7 @@ export default function KcIdChoiceDialog({ choices, onClose, onSelect }: Props) 
                 <TableCell>{choice.location}</TableCell>
                 <TableCell>{choice.organizer}</TableCell>
                 <TableCell align="right">
-                  <Button size="small" onClick={() => onSelect(choice)}>
+                  <Button variant="contained" size="small" onClick={() => onSelect(choice)}>
                     {t('event.kcIdSelect')}
                   </Button>
                 </TableCell>
@@ -55,7 +55,9 @@ export default function KcIdChoiceDialog({ choices, onClose, onSelect }: Props) 
         </Table>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{t('close')}</Button>
+        <Button variant="outlined" onClick={onClose}>
+          {t('close')}
+        </Button>
       </DialogActions>
     </Dialog>
   )

@@ -153,6 +153,8 @@ describe('BasicInfoSection', () => {
 
       await user.click(screen.getByText('event.kcIdLookup'))
       expect(await screen.findByText('event.kcIdChoiceTitle')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'event.kcIdSelect' })).toHaveClass('MuiButton-contained')
+      expect(screen.getByRole('button', { name: 'close' })).toHaveClass('MuiButton-outlined')
       expect(searchEventKcIdChoices).toHaveBeenCalledWith(
         expect.objectContaining({
           classes: [{ class: 'ALO', date: testEvent.classes[0].date }],
