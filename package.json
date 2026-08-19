@@ -134,7 +134,7 @@
     "@types/preval.macro": "^3.0.0",
     "@types/react": "^18.3.21",
     "@types/react-dom": "^18.3.7",
-    "babel-jest": "^29.7.0",
+    "babel-jest": "^30.4.1",
     "babel-loader": "^10.1.1",
     "babel-preset-react-app": "^10.1.0",
     "camelcase": "^8.0.0",
