@@ -205,7 +205,7 @@
     "kcIdChoiceType": "Koe",
     "kcIdLookup": "Hae Kennelliitosta",
     "kcIdNotFound": "Koetunnusta ei löytynyt Kennelliitosta.",
-    "kcIdRemove": "Poista",
+    "kcIdRemove": "Poista koetunnus",
     "kcIdRemoved": "Koetunnus poistettu",
     "kcIdSearchFailed": "Koetunnuksen haku epäonnistui. Tarkista kokeen tiedot ja yritä uudelleen.",
     "kcIdSelect": "Valitse",

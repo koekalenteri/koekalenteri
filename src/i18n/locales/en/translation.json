@@ -205,7 +205,7 @@
     "kcIdChoiceType": "Event",
     "kcIdLookup": "Search from Kennel Club",
     "kcIdNotFound": "No Kennel Club ID was found.",
-    "kcIdRemove": "Remove",
+    "kcIdRemove": "Remove Kennel Club ID",
     "kcIdRemoved": "Kennel Club ID removed",
     "kcIdSearchFailed": "Failed to fetch Kennel Club ID. Check event details and try again.",
     "kcIdSelect": "Select",

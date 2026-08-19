@@ -264,11 +264,21 @@ describe('BasicInfoSection', () => {
         startDate: new TZDate('2026-06-01', TIME_ZONE),
       }
 
-      const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+      const { rerender, user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
       await user.click(screen.getByText('event.kcIdRemove'))
 
       expect(changeHandler.mock.calls.at(-1)?.[0]).toEqual({ kcId: null })
+
+      rerender(
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+            <BasicInfoSection {...{ event: { ...testEvent, kcId: null }, onChange: changeHandler, open: true }} />
+          </RecoilRoot>
+        </LocalizationProvider>
+      )
+
+      expect(screen.getByLabelText('event.kcId')).toHaveValue('')
     })
 
     it('should report Kennel Club event lookup failures', async () => {

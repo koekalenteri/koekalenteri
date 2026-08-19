@@ -8,7 +8,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import IconButton from '@mui/material/IconButton'
 import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
 import { validateEventField } from '../validation'
@@ -42,7 +42,7 @@ type EventPropertyProps<P extends Property, freeSolo extends boolean> = Omit<
 
 const getInputInitValue = <P extends Property, freeSolo extends boolean>(
   prop: string | PartialEvent[P] | null,
-  props: EventPropertyProps<P, freeSolo>
+  getOptionLabel?: EventPropertyProps<P, freeSolo>['getOptionLabel']
 ) => {
   if (prop === null) {
     return ''
@@ -50,8 +50,8 @@ const getInputInitValue = <P extends Property, freeSolo extends boolean>(
   if (typeof prop === 'string') {
     return prop
   }
-  if (props.getOptionLabel) {
-    return props.getOptionLabel(prop)
+  if (getOptionLabel) {
+    return getOptionLabel(prop)
   }
   if (typeof prop === 'number') {
     return `${prop}`
@@ -64,10 +64,14 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
   const { id, event, fields, helpClick, endAdornment, onChange, validateInput, mapValue, options, ...acProps } = props
   const value = event[id]
   const fixedValue = value ?? null
-  const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue, props))
+  const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue, props.getOptionLabel))
   const isRequired = fields?.required[id] ?? false
   const error = (isRequired || fixedValue) && validateEventField(event, id, true)
   const helperText: string = error ? t(`validation.event.${error.key}`, error.opts) : ''
+
+  useEffect(() => {
+    setInputValue(getInputInitValue(fixedValue, props.getOptionLabel))
+  }, [fixedValue, props.getOptionLabel])
 
   const handleChange = useCallback(
     (
