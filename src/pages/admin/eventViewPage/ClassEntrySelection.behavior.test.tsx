@@ -375,7 +375,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     )
     await flushPromises()
 
-    expect(screen.getByText('eventManagement.groupRules.genderBalance femaleCount, maleCount')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.groupRules.singleGender.male')).toBeInTheDocument()
     expect(screen.getByText('eventManagement.groupRules.duplicateHandler count, email, name')).toBeInTheDocument()
   })
 

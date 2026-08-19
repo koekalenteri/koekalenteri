@@ -14,6 +14,7 @@ interface NouGroupRuleIssues {
   duplicateHandlers: Array<{ count: number; email: string; name: string }>
   femaleCount: number
   genderBalance: boolean
+  singleGender: boolean
   maleCount: number
 }
 
@@ -54,8 +55,9 @@ export const getNouGroupRuleIssues = (
   return {
     duplicateHandlers: [...handlers.values()].filter(({ count }) => count > 1),
     femaleCount,
-    genderBalance: femaleCount < 2 || maleCount < 2,
+    genderBalance: femaleCount > 0 && maleCount > 0 && (femaleCount < 2 || maleCount < 2),
     maleCount,
+    singleGender: femaleCount === 0 || maleCount === 0,
   }
 }
 

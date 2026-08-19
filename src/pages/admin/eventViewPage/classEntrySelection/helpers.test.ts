@@ -50,8 +50,9 @@ describe('helpers', () => {
       expect(issues).toEqual({
         duplicateHandlers: [{ count: 2, email: 'handler@example.com', name: 'Test Handler' }],
         femaleCount: 0,
-        genderBalance: true,
+        genderBalance: false,
         maleCount: 2,
+        singleGender: true,
       })
     })
 
@@ -97,6 +98,23 @@ describe('helpers', () => {
         femaleCount: 2,
         genderBalance: false,
         maleCount: 2,
+        singleGender: false,
+      })
+    })
+
+    it('reports an insufficient balance when both genders are present but one has only one dog', () => {
+      const registrations = (['M', 'F'] as const).map((gender, index) => ({
+        ...registration,
+        dog: { ...registration.dog, gender, regNo: `dog-${index}` },
+        handler: { ...handler, email: `handler-${index}@example.com` },
+        id: `registration-${index}`,
+      }))
+
+      expect(getNouGroupRuleIssues('NOU', registrations)).toMatchObject({
+        femaleCount: 1,
+        genderBalance: true,
+        maleCount: 1,
+        singleGender: false,
       })
     })
   })

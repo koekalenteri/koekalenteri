@@ -312,8 +312,13 @@ const ClassEntrySelection = ({
                 onDrop={handleDrop(group)}
                 onReject={handleReject(group)}
               />
-              {issues && (issues.genderBalance || issues.duplicateHandlers.length > 0) ? (
+              {issues && (issues.singleGender || issues.genderBalance || issues.duplicateHandlers.length > 0) ? (
                 <Stack gap={1} my={1}>
+                  {issues.singleGender ? (
+                    <Alert severity="warning">
+                      {t(`eventManagement.groupRules.singleGender.${issues.maleCount > 0 ? 'male' : 'female'}`)}
+                    </Alert>
+                  ) : null}
                   {issues.genderBalance ? (
                     <Alert severity="warning">
                       {t('eventManagement.groupRules.genderBalance', {
