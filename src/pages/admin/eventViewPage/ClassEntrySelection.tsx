@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { SetterOrUpdater } from 'recoil'
 import type { CustomCost, DogEvent, EventClassState, EventState, Registration, RegistrationDate } from '../../../types'
 import type { DragItem, RegistrationWithGroups } from './classEntrySelection/types'
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -29,6 +30,7 @@ import {
   buildRegistrationsByGroup,
   buildSelectedAdditionalCostsByGroup,
   buildSelectedAdditionalCostsTotal,
+  getNouGroupRuleIssues,
 } from './classEntrySelection/helpers'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 import UnlockArrange from './classEntrySelection/UnlockArrange'
@@ -273,51 +275,72 @@ const ClassEntrySelection = ({
           width: '100%',
         }}
       >
-        {groups.map((group) => (
-          <Fragment key={group.key}>
-            <DroppableDataGrid
-              canDrop={(item: DragItem | undefined) => {
-                return !movementDisabled && (state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE)
-              }}
-              flex={registrationsByGroup[group.key]?.length}
-              key={group.key}
-              group={group.key}
-              columns={participantColumns}
-              hideFooter={(registrationsByGroup[group.key] ?? []).length < 101}
-              columnHeaderHeight={0}
-              rows={registrationsByGroup[group.key] ?? []}
-              onRowSelectionModelChange={handleSelectionModeChange}
-              rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
-              onCellClick={handleCellClick}
-              onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
-              slots={{
-                noRowsOverlay: NoRowsOverlay,
-                toolbar: GroupHeader,
-              }}
-              slotProps={{
-                row: {
-                  draggable: !movementDisabled,
-                  groupKey: group.key,
-                },
-                toolbar: {
-                  available: groups,
-                  group: group,
-                },
-              }}
-              onDrop={handleDrop(group)}
-              onReject={handleReject(group)}
-            />
-            {(selectedAdditionalCostsByGroup[group.key] ?? []).length > 0 ? (
-              <Stack key={`${group.key}add`} direction="row" justifyContent="flex-end" px={1}>
-                <Typography variant="caption">
-                  {selectedAdditionalCostsByGroup[group.key]
-                    .map((sac) => `${sac.cost.description.fi} x ${sac.count}`)
-                    .join(', ')}
-                </Typography>
-              </Stack>
-            ) : null}
-          </Fragment>
-        ))}
+        {groups.map((group) => {
+          const issues = getNouGroupRuleIssues(event.eventType, registrationsByGroup[group.key] ?? [])
+
+          return (
+            <Fragment key={group.key}>
+              <DroppableDataGrid
+                canDrop={(item: DragItem | undefined) => {
+                  return !movementDisabled && (state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE)
+                }}
+                flex={registrationsByGroup[group.key]?.length}
+                key={group.key}
+                group={group.key}
+                columns={participantColumns}
+                hideFooter={(registrationsByGroup[group.key] ?? []).length < 101}
+                columnHeaderHeight={0}
+                rows={registrationsByGroup[group.key] ?? []}
+                onRowSelectionModelChange={handleSelectionModeChange}
+                rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+                onCellClick={handleCellClick}
+                onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
+                slots={{
+                  noRowsOverlay: NoRowsOverlay,
+                  toolbar: GroupHeader,
+                }}
+                slotProps={{
+                  row: {
+                    draggable: !movementDisabled,
+                    groupKey: group.key,
+                  },
+                  toolbar: {
+                    available: groups,
+                    group: group,
+                  },
+                }}
+                onDrop={handleDrop(group)}
+                onReject={handleReject(group)}
+              />
+              {issues && (issues.genderBalance || issues.duplicateHandlers.length > 0) ? (
+                <Stack gap={1} my={1}>
+                  {issues.genderBalance ? (
+                    <Alert severity="warning">
+                      {t('eventManagement.groupRules.genderBalance', {
+                        femaleCount: issues.femaleCount,
+                        maleCount: issues.maleCount,
+                      })}
+                    </Alert>
+                  ) : null}
+                  {issues.duplicateHandlers.map((handler) => (
+                    <Alert key={handler.email} severity="warning">
+                      {t('eventManagement.groupRules.duplicateHandler', handler)}
+                    </Alert>
+                  ))}
+                </Stack>
+              ) : null}
+              {(selectedAdditionalCostsByGroup[group.key] ?? []).length > 0 ? (
+                <Stack key={`${group.key}add`} direction="row" justifyContent="flex-end" px={1}>
+                  <Typography variant="caption">
+                    {selectedAdditionalCostsByGroup[group.key]
+                      .map((sac) => `${sac.cost.description.fi} x ${sac.count}`)
+                      .join(', ')}
+                  </Typography>
+                </Stack>
+              ) : null}
+            </Fragment>
+          )
+        })}
         {selectedAdditionalCostsTotal ? (
           <Stack direction="row" justifyContent="flex-end" px={1}>
             <Typography variant="caption" sx={{ borderTop: '1px solid #ccc' }}>

@@ -349,6 +349,36 @@ describe('ClassEntrySelection behavior coverage', () => {
     expect(screen.getByTestId('move-position-max')).toHaveTextContent('1,2,3')
   })
 
+  it('shows NOU group rule warnings to the secretary', async () => {
+    const registrations: Registration[] = [
+      {
+        ...registrationWithStaticDates,
+        dog: { ...registrationWithStaticDates.dog, gender: 'M' },
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' },
+        id: 'participant-1',
+      },
+      {
+        ...registrationWithStaticDates,
+        dog: { ...registrationWithStaticDates.dog, gender: 'M', regNo: 'FI99999/21' },
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 2, time: 'ap' },
+        id: 'participant-2',
+      },
+    ]
+
+    render(
+      <ClassEntrySelection
+        event={{ ...activeEvent, eventType: 'NOU' }}
+        eventClass="ALO"
+        registrations={registrations}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+
+    expect(screen.getByText('eventManagement.groupRules.genderBalance femaleCount, maleCount')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.groupRules.duplicateHandler count, email, name')).toBeInTheDocument()
+  })
+
   it('uses only position 1 when there are no participant dogs yet', async () => {
     const registrations: Registration[] = [
       {
