@@ -39,7 +39,6 @@
     "mui-tel-input": "^9.0.1",
     "nanoid": "^5.1.16",
     "notistack": "^3.0.2",
-    "preval.macro": "^5.0.0",
     "react": "^18.3.1",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
@@ -110,6 +109,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
+    "@babel/plugin-transform-runtime": "^7.29.0",
+    "@babel/preset-env": "^7.29.5",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "^2.5.8",
     "@commitlint/cli": "^21.2.2",
@@ -131,12 +134,10 @@
     "@types/jest-axe": "^3.5.9",
     "@types/mdast": "^4.0.4",
     "@types/node": "^24.13.3",
-    "@types/preval.macro": "^3.0.0",
     "@types/react": "^18.3.21",
     "@types/react-dom": "^18.3.7",
     "babel-jest": "^30.4.1",
     "babel-loader": "^10.1.1",
-    "babel-preset-react-app": "^10.1.0",
     "camelcase": "^8.0.0",
     "concurrently": "^10.0.5",
     "css-loader": "^7.1.4",
@@ -175,7 +176,7 @@
   },
   "babel": {
     "presets": [
-      "react-app"
+      "./config/babelPreset.js"
     ]
   }
 }

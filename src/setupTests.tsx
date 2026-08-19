@@ -6,6 +6,8 @@
 import { TextDecoder, TextEncoder } from 'node:util'
 import { toHaveNoViolations } from 'jest-axe'
 
+Object.assign(globalThis, { __BUILD_TIMESTAMP__: 0 })
+
 // https://github.com/jsdom/jsdom/issues/3363
 // jest/jsdom runtime doesn't provide structuredClone in all configs.
 if (typeof globalThis.structuredClone !== 'function') {

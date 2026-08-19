@@ -1,14 +1,11 @@
 import Box from '@mui/material/Box'
 import { lightFormat } from 'date-fns'
-import preval from 'preval.macro'
 import pkg from '../../../package.json'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 
-const buildTimestamp = preval`module.exports = new Date().getTime();` as number
-
 export default function Version() {
-  const date = lightFormat(buildTimestamp, 'dd.MM.yyyy')
-  const time = lightFormat(buildTimestamp, 'HH:mm')
+  const date = lightFormat(__BUILD_TIMESTAMP__, 'dd.MM.yyyy')
+  const time = lightFormat(__BUILD_TIMESTAMP__, 'HH:mm')
   return (
     <Box
       sx={{

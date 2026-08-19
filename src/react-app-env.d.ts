@@ -1,3 +1,5 @@
+declare const __BUILD_TIMESTAMP__: number
+
 declare namespace NodeJS {
   interface ProcessEnv {
     readonly NODE_ENV: 'development' | 'production' | 'test'

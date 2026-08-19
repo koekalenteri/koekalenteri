@@ -27,7 +27,7 @@ const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false'
 
 const reactRefreshRuntimeEntry = require.resolve('react-refresh/runtime')
 const reactRefreshWebpackPluginRuntimeEntry = require.resolve('@pmmmwh/react-refresh-webpack-plugin')
-const babelRuntimeEntry = require.resolve('babel-preset-react-app')
+const babelRuntimeEntry = require.resolve('@babel/runtime/package.json')
 const babelRuntimeEntryHelpers = require.resolve('@babel/runtime/helpers/esm/assertThisInitialized', {
   paths: [babelRuntimeEntry],
 })
@@ -75,19 +75,6 @@ const excludeNonShellAssets = ({ asset, compilation }) => {
 // style files regexes
 const cssRegex = /\.css$/
 const cssModuleRegex = /\.module\.css$/
-
-const hasJsxRuntime = (() => {
-  if (process.env.DISABLE_NEW_JSX_TRANSFORM === 'true') {
-    return false
-  }
-
-  try {
-    require.resolve('react/jsx-runtime')
-    return true
-  } catch {
-    return false
-  }
-})()
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
@@ -432,15 +419,7 @@ module.exports = function (webpackEnv) {
               include: paths.appSrc,
               loader: require.resolve('babel-loader'),
               options: {
-                customize: require.resolve('babel-preset-react-app/webpack-overrides'),
-                presets: [
-                  [
-                    require.resolve('babel-preset-react-app'),
-                    {
-                      runtime: hasJsxRuntime ? 'automatic' : 'classic',
-                    },
-                  ],
-                ],
+                presets: [require.resolve('./babelPreset')],
 
                 plugins: [isEnvDevelopment && shouldUseReactRefresh && require.resolve('react-refresh/babel')].filter(
                   Boolean
@@ -564,7 +543,10 @@ module.exports = function (webpackEnv) {
       // It is absolutely essential that NODE_ENV is set to production
       // during a production build.
       // Otherwise React will be compiled in the very slow development mode.
-      new webpack.DefinePlugin(env.stringified),
+      new webpack.DefinePlugin({
+        ...env.stringified,
+        __BUILD_TIMESTAMP__: JSON.stringify(Date.now()),
+      }),
       // Experimental hot reloading for React .
       // https://github.com/facebook/react/tree/main/packages/react-refresh
       isEnvDevelopment &&
