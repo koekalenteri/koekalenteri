@@ -12,9 +12,11 @@ vi.doMock('./paytrail', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    update: mockDynamoUpdate,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      update: mockDynamoUpdate,
+    }
+  }),
 }))
 
 const { refreshTransactionStatusesFromPaytrail } = await import('./payment')

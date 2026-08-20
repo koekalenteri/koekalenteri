@@ -18,7 +18,9 @@ const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
 }
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => mockDynamoDB),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return mockDynamoDB
+  }),
 }))
 
 const mockSendTemplatedMail = vi.fn()
@@ -27,8 +29,12 @@ const mockEmailTo = vi.fn()
 const mockSESSend = vi.fn()
 
 vi.doMock('@aws-sdk/client-ses', () => ({
-  SESClient: vi.fn(() => ({ send: mockSESSend })),
-  SendTemplatedEmailCommand: vi.fn(({ Destination, Template }) => [Destination.ToAddresses, Template]),
+  SESClient: vi.fn(function MockSESClient() {
+    return { send: mockSESSend }
+  }),
+  SendTemplatedEmailCommand: vi.fn(function MockSendTemplatedEmailCommand({ Destination, Template }) {
+    return [Destination.ToAddresses, Template]
+  }),
 }))
 
 vi.doMock('./audit', () => ({

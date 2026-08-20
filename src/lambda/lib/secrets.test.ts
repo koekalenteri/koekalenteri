@@ -6,10 +6,12 @@ const mockSend = vi.fn().mockImplementation(() => Promise.resolve({} as GetParam
 
 vi.mock('@aws-sdk/client-ssm', () => ({
   __esModule: true,
-  GetParametersCommand: vi.fn().mockImplementation((params) => params),
-  SSMClient: vi.fn().mockImplementation(() => ({
-    send: mockSend,
-  })),
+  GetParametersCommand: vi.fn().mockImplementation(function MockGetParametersCommand(params) {
+    return params
+  }),
+  SSMClient: vi.fn().mockImplementation(function MockSSMClient() {
+    return { send: mockSend }
+  }),
 }))
 
 // Mock CONFIG

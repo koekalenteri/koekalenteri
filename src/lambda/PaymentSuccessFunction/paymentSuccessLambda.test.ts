@@ -74,11 +74,13 @@ vi.doMock('../lib/audit', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    read: mockRead,
-    update: mockUpdate,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      update: mockUpdate,
+      write: mockWrite,
+    }
+  }),
 }))
 
 vi.doMock('../lib/event', () => ({

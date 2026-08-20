@@ -17,12 +17,14 @@ const mockDynamoRead = vi.fn()
 const mockDynamoWrite = vi.fn()
 const mockDynamoUpdate = vi.fn()
 const mockDocumentTransaction = vi.fn()
-const mockDynamoClient = vi.fn(() => ({
-  documentTransaction: mockDocumentTransaction,
-  read: mockDynamoRead,
-  update: mockDynamoUpdate,
-  write: mockDynamoWrite,
-}))
+const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
+  return {
+    documentTransaction: mockDocumentTransaction,
+    read: mockDynamoRead,
+    update: mockDynamoUpdate,
+    write: mockDynamoWrite,
+  }
+})
 const mockNanoid = vi.fn()
 const mockClaimTransactionCreation = vi.fn<() => Promise<boolean>>(() => Promise.resolve(true))
 const mockReleaseTransactionCreation = vi.fn<() => Promise<void>>(() => Promise.resolve())

@@ -25,10 +25,12 @@ vi.doMock('../lib/auth', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    read: mockRead,
-    update: mockUpdate,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      update: mockUpdate,
+    }
+  }),
 }))
 
 const { default: setAdminLambda } = await import('./handler')

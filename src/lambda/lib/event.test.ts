@@ -9,12 +9,14 @@ const mockWrite = vi.fn()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: vi.fn(() => ({
-    query: mockQuery,
-    read: mockRead,
-    update: mockUpdate,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      query: mockQuery,
+      read: mockRead,
+      update: mockUpdate,
+      write: mockWrite,
+    }
+  }),
 }))
 
 const mockAudit = vi.fn()

@@ -9,7 +9,9 @@ vi.doMock('../lib/ws/actions', () => ({
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 vi.doMock('../lib/KLAPI', () => ({
-  default: vi.fn(() => ({})),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {}
+  }),
 }))
 
 vi.doMock('../lib/api-gw', () => ({
@@ -22,7 +24,9 @@ vi.doMock('../lib/auth', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({ readAll: vi.fn() })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return { readAll: vi.fn() }
+  }),
 }))
 
 const { authorize } = await import('../lib/auth')

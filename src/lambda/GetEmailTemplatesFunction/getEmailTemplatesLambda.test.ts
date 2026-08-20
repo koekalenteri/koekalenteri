@@ -15,9 +15,11 @@ vi.doMock('../lib/lambda', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    readAll: mockReadAll,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      readAll: mockReadAll,
+    }
+  }),
 }))
 
 const { default: getEmailTemplatesLambda } = await import('./handler')

@@ -4,10 +4,12 @@ const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
 const mockDynamoUpdate = vi.fn()
 const mockDynamoWrite = vi.fn()
-const mockDynamoClient = vi.fn(() => ({
-  update: mockDynamoUpdate,
-  write: mockDynamoWrite,
-}))
+const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
+  return {
+    update: mockDynamoUpdate,
+    write: mockDynamoWrite,
+  }
+})
 const mockGetEvent = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 

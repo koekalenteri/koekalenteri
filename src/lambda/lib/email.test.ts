@@ -3,8 +3,12 @@ import { vi } from 'vitest'
 const mockSend = vi.fn<() => Promise<void>>()
 
 vi.doMock('@aws-sdk/client-ses', () => ({
-  SESClient: vi.fn(() => ({ send: mockSend })),
-  SendTemplatedEmailCommand: vi.fn((input) => ({ input })),
+  SESClient: vi.fn(function MockSESClient() {
+    return { send: mockSend }
+  }),
+  SendTemplatedEmailCommand: vi.fn(function MockSendTemplatedEmailCommand(input) {
+    return { input }
+  }),
 }))
 
 const { sendTemplatedMail } = await import('./email')

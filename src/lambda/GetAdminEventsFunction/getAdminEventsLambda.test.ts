@@ -14,10 +14,12 @@ vi.doMock('../lib/lambda', () => ({
   response: mockResponse,
 }))
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    query: mockQuery,
-    readAll: mockReadAll,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      query: mockQuery,
+      readAll: mockReadAll,
+    }
+  }),
 }))
 
 const { default: getAdminEventsLambda } = await import('./handler')

@@ -50,7 +50,9 @@ const mockDynamoDB = {
 }
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => mockDynamoDB),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return mockDynamoDB
+  }),
 }))
 
 vi.doMock('../lib/auth', () => ({

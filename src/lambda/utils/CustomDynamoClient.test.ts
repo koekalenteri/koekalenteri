@@ -7,9 +7,9 @@ const mockSend = vi.fn((command: Record<string, any>) => {
   sentCommand = command
   return Promise.resolve({})
 })
-const mockDynamoDBClient = vi.fn().mockImplementation(() => ({
-  send: mockSend,
-}))
+const mockDynamoDBClient = vi.fn().mockImplementation(function MockDynamoDBClient() {
+  return { send: mockSend }
+})
 const mockFrom = vi.fn().mockImplementation((_client) => ({
   send: mockSend,
 }))
@@ -29,21 +29,39 @@ class MockTransactionCanceledException extends Error {
 vi.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
   TransactionCanceledException: MockTransactionCanceledException,
-  TransactWriteItemsCommand: vi.fn().mockImplementation((params) => params),
+  TransactWriteItemsCommand: vi.fn().mockImplementation(function TransactWriteItemsCommand(params) {
+    return params
+  }),
 }))
 
 vi.mock('@aws-sdk/lib-dynamodb', () => ({
-  BatchWriteCommand: vi.fn().mockImplementation((params) => params),
-  DeleteCommand: vi.fn().mockImplementation((params) => params),
+  BatchWriteCommand: vi.fn().mockImplementation(function BatchWriteCommand(params) {
+    return params
+  }),
+  DeleteCommand: vi.fn().mockImplementation(function DeleteCommand(params) {
+    return params
+  }),
   DynamoDBDocumentClient: {
     from: mockFrom,
   },
-  GetCommand: vi.fn().mockImplementation((params) => params),
-  PutCommand: vi.fn().mockImplementation((params) => params),
-  QueryCommand: vi.fn().mockImplementation((params) => params),
-  ScanCommand: vi.fn().mockImplementation((params) => params),
-  TransactWriteCommand: vi.fn().mockImplementation((params) => params),
-  UpdateCommand: vi.fn().mockImplementation((params) => params),
+  GetCommand: vi.fn().mockImplementation(function GetCommand(params) {
+    return params
+  }),
+  PutCommand: vi.fn().mockImplementation(function PutCommand(params) {
+    return params
+  }),
+  QueryCommand: vi.fn().mockImplementation(function QueryCommand(params) {
+    return params
+  }),
+  ScanCommand: vi.fn().mockImplementation(function ScanCommand(params) {
+    return params
+  }),
+  TransactWriteCommand: vi.fn().mockImplementation(function TransactWriteCommand(params) {
+    return params
+  }),
+  UpdateCommand: vi.fn().mockImplementation(function UpdateCommand(params) {
+    return params
+  }),
 }))
 
 // Import the class dynamically after mocking

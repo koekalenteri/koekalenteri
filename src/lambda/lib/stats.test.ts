@@ -22,14 +22,16 @@ const mockDocumentTransaction = vi.fn<CustomDynamoClient['documentTransaction']>
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: vi.fn(() => ({
-    documentTransaction: mockDocumentTransaction,
-    query: mockQuery,
-    read: mockRead,
-    readAll: mockReadAll,
-    update: mockUpdate,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      documentTransaction: mockDocumentTransaction,
+      query: mockQuery,
+      read: mockRead,
+      readAll: mockReadAll,
+      update: mockUpdate,
+      write: mockWrite,
+    }
+  }),
 }))
 
 const {

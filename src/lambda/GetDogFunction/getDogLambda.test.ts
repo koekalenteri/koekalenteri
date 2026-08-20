@@ -24,11 +24,15 @@ const mockKLAPI: import('vitest').Mocked<KLAPI> = {
 }
 
 vi.doMock('../lib/KLAPI', () => ({
-  default: vi.fn(() => mockKLAPI),
+  default: vi.fn(function MockKLAPI() {
+    return mockKLAPI
+  }),
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => mockDynamoDB),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return mockDynamoDB
+  }),
 }))
 
 const { default: getDogHandler, filterDogResults } = await import('./handler')

@@ -35,12 +35,14 @@ vi.doMock('./secrets', () => ({
   getPaytrailConfig: vi.fn(() => Promise.resolve({ PAYTRAIL_SECRET: 'test-secret' })),
 }))
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    documentTransaction: mockDocumentTransaction,
-    query: vi.fn(),
-    read: mockRead,
-    update: mockUpdate,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      documentTransaction: mockDocumentTransaction,
+      query: vi.fn(),
+      read: mockRead,
+      update: mockUpdate,
+    }
+  }),
 }))
 const {
   cancelTransaction,

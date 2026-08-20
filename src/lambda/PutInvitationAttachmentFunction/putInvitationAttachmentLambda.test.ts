@@ -37,9 +37,11 @@ vi.doMock('../lib/registration', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    update: mockUpdate,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      update: mockUpdate,
+    }
+  }),
 }))
 
 vi.doMock('../lib/ws/actions', () => ({

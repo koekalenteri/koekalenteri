@@ -230,7 +230,9 @@ describe('useWebSocket', () => {
     }
 
     // Mock WebSocket constructor
-    global.WebSocket = vi.fn(() => mockWebSocketInstance) as any
+    global.WebSocket = vi.fn(function MockWebSocket() {
+      return mockWebSocketInstance
+    }) as any
   })
 
   afterEach(() => {
@@ -1177,7 +1179,7 @@ describe('useWebSocket', () => {
 
   it('should reconnect and authenticate when token changes after initial connection', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(() => {
+    global.WebSocket = vi.fn(function MockWebSocket() {
       const instance = {
         close: vi.fn(),
         onclose: null as (() => void) | null,
@@ -1218,7 +1220,7 @@ describe('useWebSocket', () => {
 
   it('ignores a late authentication failure from the socket that used the previous token', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(() => {
+    global.WebSocket = vi.fn(function MockWebSocket() {
       const instance = {
         close: vi.fn(),
         onclose: null as (() => void) | null,
@@ -1266,7 +1268,7 @@ describe('useWebSocket', () => {
 
   it('should close authenticated socket and clear subscriptions when token is removed', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(() => {
+    global.WebSocket = vi.fn(function MockWebSocket() {
       const instance = {
         close: vi.fn(),
         onclose: null as (() => void) | null,
@@ -1314,7 +1316,7 @@ describe('useWebSocket', () => {
 
   it('should keep event subscription when token loadable is temporarily loading during token refresh', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(() => {
+    global.WebSocket = vi.fn(function MockWebSocket() {
       const instance = {
         close: vi.fn(),
         onclose: null as (() => void) | null,
@@ -1382,7 +1384,7 @@ describe('useWebSocket', () => {
 
     // Override the shared mock so each construction returns a distinct instance
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(() => {
+    global.WebSocket = vi.fn(function MockWebSocket() {
       const instance = {
         close: vi.fn(),
         onclose: null as (() => void) | null,

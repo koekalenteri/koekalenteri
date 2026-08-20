@@ -1,19 +1,18 @@
 import type { Locale } from 'date-fns'
 import type { Language } from '../types'
 import { tz } from '@date-fns/tz'
-import {
-  endOfDay,
-  format,
-  formatDistanceToNowStrict,
-  isSameDay,
-  isSameMonth,
-  isSameYear,
-  isValid,
-  parse,
-  parseISO,
-  startOfDay,
-} from 'date-fns'
-import { enGB as en, fi } from 'date-fns/locale'
+import { endOfDay } from 'date-fns/endOfDay'
+import { format } from 'date-fns/format'
+import { formatDistanceToNowStrict } from 'date-fns/formatDistanceToNowStrict'
+import { isSameDay } from 'date-fns/isSameDay'
+import { isSameMonth } from 'date-fns/isSameMonth'
+import { isSameYear } from 'date-fns/isSameYear'
+import { isValid } from 'date-fns/isValid'
+import { enGB as en } from 'date-fns/locale/en-GB'
+import { fi } from 'date-fns/locale/fi'
+import { parse } from 'date-fns/parse'
+import { parseISO } from 'date-fns/parseISO'
+import { startOfDay } from 'date-fns/startOfDay'
 
 type DateType = Date | number | string
 

@@ -16,7 +16,9 @@ const mockAuthorizeAdmin = vi.fn()
 vi.doMock('../lib/auth', () => ({ authorizeAdmin: mockAuthorizeAdmin }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({ write: vi.fn() })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return { write: vi.fn() }
+  }),
 }))
 
 const { default: putJudgeLambda, dynamoDB } = await import('./handler')

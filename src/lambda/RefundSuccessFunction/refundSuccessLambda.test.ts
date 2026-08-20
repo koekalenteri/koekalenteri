@@ -16,10 +16,12 @@ const mockRegistrationAuditKey = vi.fn()
 const mockDynamoRead = vi.fn()
 const mockDynamoUpdate = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
-const mockDynamoClient = vi.fn(() => ({
-  read: mockDynamoRead,
-  update: mockDynamoUpdate,
-}))
+const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
+  return {
+    read: mockDynamoRead,
+    update: mockDynamoUpdate,
+  }
+})
 
 vi.doMock('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
@@ -190,9 +192,6 @@ describe('refundSuccessLambda', () => {
   })
 
   it('processes successful refund with status "ok"', async () => {
-    const now = new Date()
-    vi.spyOn(global, 'Date').mockImplementation(() => now as any)
-
     await refundSuccessLambda(event)
 
     expect(mockApplySuccessfulRefund).toHaveBeenCalledWith(mockTransaction, 'event123', 'reg456', true)

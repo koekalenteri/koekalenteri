@@ -36,7 +36,9 @@ vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => mockDynamoDB),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return mockDynamoDB
+  }),
 }))
 const { default: getOrganizerEventStatsLambda } = await import('./handler')
 

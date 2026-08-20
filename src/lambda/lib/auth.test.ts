@@ -16,10 +16,12 @@ const mockWrite = vi.fn()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: vi.fn(() => ({
-    read: mockRead,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      write: mockWrite,
+    }
+  }),
 }))
 
 const logSpy = vi.spyOn(console, 'log').mockImplementation(() => null)

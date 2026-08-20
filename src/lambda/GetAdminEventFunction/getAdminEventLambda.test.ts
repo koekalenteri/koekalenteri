@@ -33,7 +33,7 @@ describe('getAdminEventLambda', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockLambdaError.mockImplementation((code: number, message: string) => {
+    mockLambdaError.mockImplementation(function MockLambdaError(code: number, message: string) {
       const error = new Error(message) as Error & { statusCode: number }
       error.statusCode = code
       return error

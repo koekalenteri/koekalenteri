@@ -6,10 +6,12 @@ const mockWrite = vi.fn()
 const mockPublishAuditRecord = vi.fn()
 vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: vi.fn(() => ({
-    query: mockQuery,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      query: mockQuery,
+      write: mockWrite,
+    }
+  }),
 }))
 vi.doMock('./ws/auditPublisher', () => ({ publishAuditRecord: mockPublishAuditRecord }))
 

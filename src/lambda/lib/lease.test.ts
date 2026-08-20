@@ -5,10 +5,12 @@ const mockUpdate = vi.fn()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: vi.fn(() => ({
-    read: mockRead,
-    update: mockUpdate,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      update: mockUpdate,
+    }
+  }),
 }))
 
 const { default: CustomDynamoClient } = await import('../utils/CustomDynamoClient')

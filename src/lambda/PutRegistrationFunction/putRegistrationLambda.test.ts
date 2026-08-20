@@ -13,8 +13,12 @@ const mockSES = {
   send: vi.fn(),
 }
 vi.doMock('@aws-sdk/client-ses', () => ({
-  SESClient: vi.fn(() => mockSES),
-  SendTemplatedEmailCommand: vi.fn((p) => p),
+  SESClient: vi.fn(function MockSESClient() {
+    return mockSES
+  }),
+  SendTemplatedEmailCommand: vi.fn(function MockSendTemplatedEmailCommand(p) {
+    return p
+  }),
 }))
 
 const mockGetEvent = vi.fn<(eventId: string) => Promise<JsonDogEvent>>()
@@ -57,11 +61,13 @@ vi.doMock('../lib/ws/actions', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    query: mockDynamoDBQuery,
-    update: mockDynamoDBUpdate,
-    write: mockDynamoDBWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      query: mockDynamoDBQuery,
+      update: mockDynamoDBUpdate,
+      write: mockDynamoDBWrite,
+    }
+  }),
 }))
 
 const mockGetRegistration = vi.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()

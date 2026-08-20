@@ -31,10 +31,12 @@ vi.doMock('../lib/auth', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    read: mockRead,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      write: mockWrite,
+    }
+  }),
 }))
 
 const { default: putOrganizerLambda } = await import('./handler')

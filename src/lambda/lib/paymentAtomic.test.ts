@@ -5,10 +5,12 @@ const mockDocumentTransaction = vi.fn()
 const mockRead = vi.fn()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    documentTransaction: mockDocumentTransaction,
-    read: mockRead,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      documentTransaction: mockDocumentTransaction,
+      read: mockRead,
+    }
+  }),
 }))
 
 const { applySuccessfulPayment, applySuccessfulRefund } = await import('./payment')

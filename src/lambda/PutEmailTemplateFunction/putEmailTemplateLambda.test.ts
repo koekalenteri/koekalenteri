@@ -39,10 +39,12 @@ vi.doMock('../utils/email/markdown', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    read: mockRead,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      write: mockWrite,
+    }
+  }),
 }))
 
 // Mock AWS SES client
@@ -78,12 +80,16 @@ vi.doMock('@aws-sdk/client-ses', () => {
   }))
 
   return {
-    CreateTemplateCommand: vi.fn((params: any) => ({ ...params, command: 'CreateTemplateCommand' })),
-    SESClient: vi.fn(() => ({
-      send: mockSend,
-    })),
+    CreateTemplateCommand: vi.fn(function MockCreateTemplateCommand(params: any) {
+      return { ...params, command: 'CreateTemplateCommand' }
+    }),
+    SESClient: vi.fn(function MockSESClient() {
+      return { send: mockSend }
+    }),
     TemplateDoesNotExistException,
-    UpdateTemplateCommand: vi.fn((params: any) => ({ ...params, command: 'UpdateTemplateCommand' })),
+    UpdateTemplateCommand: vi.fn(function MockUpdateTemplateCommand(params: any) {
+      return { ...params, command: 'UpdateTemplateCommand' }
+    }),
   }
 })
 

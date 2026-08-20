@@ -32,10 +32,12 @@ vi.doMock('../utils/proxyEvent', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    readAll: mockReadAll,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      readAll: mockReadAll,
+      write: mockWrite,
+    }
+  }),
 }))
 
 // Mock Date.toISOString to return a consistent timestamp for testing

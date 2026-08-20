@@ -12,10 +12,12 @@ vi.doMock('../lib/lambda', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    query: mockQuery,
-    readAll: mockReadAll,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      query: mockQuery,
+      readAll: mockReadAll,
+    }
+  }),
 }))
 
 vi.doMock('../../lib/event', () => ({

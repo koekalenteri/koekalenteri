@@ -3,6 +3,10 @@ import { reportError } from './error'
 import * as rum from './rum'
 
 describe('error', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   describe('reportError', () => {
     it('should call reportError on rum', () => {
       const recordError = vi.fn()

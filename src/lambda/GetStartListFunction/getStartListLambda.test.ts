@@ -42,9 +42,11 @@ vi.doMock('../../lib/event', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    query: mockQuery,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      query: mockQuery,
+    }
+  }),
 }))
 
 const { default: getStartListLambda } = await import('./handler')

@@ -16,7 +16,9 @@ const mockKLAPI: import('vitest').Mocked<KLAPI> = {
 }
 
 vi.doMock('../lib/KLAPI', () => ({
-  default: vi.fn(() => mockKLAPI),
+  default: vi.fn(function MockKLAPI() {
+    return mockKLAPI
+  }),
 }))
 
 vi.doMock('../lib/api-gw', () => ({
@@ -36,7 +38,9 @@ const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
 }
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => mockDynamoDB),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return mockDynamoDB
+  }),
 }))
 
 const { authorize } = await import('../lib/auth')

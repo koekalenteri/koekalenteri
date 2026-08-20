@@ -26,7 +26,9 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    maxWorkers: 2,
+    // CI runners have limited cores; capping workers there avoids coverage-shard
+    // instability. Locally, let Vitest use all available cores.
+    maxWorkers: process.env.CI ? 2 : undefined,
     passWithNoTests: true,
     testTimeout: 10_000,
     coverage,

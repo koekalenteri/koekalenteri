@@ -45,7 +45,9 @@ const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
 }
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => mockDynamoDB),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return mockDynamoDB
+  }),
 }))
 
 const libRegistration = await import('../lib/registration')

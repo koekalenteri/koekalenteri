@@ -31,11 +31,13 @@ vi.doMock('../lib/lambda', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    batchWrite: mockBatchWrite,
-    readAll: mockReadAll,
-    update: mockUpdate,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      batchWrite: mockBatchWrite,
+      readAll: mockReadAll,
+      update: mockUpdate,
+    }
+  }),
 }))
 
 vi.doMock('../lib/auth', () => ({

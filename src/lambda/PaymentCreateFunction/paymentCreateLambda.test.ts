@@ -67,12 +67,14 @@ vi.doMock('../lib/registration', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    documentTransaction: mockDocumentTransaction,
-    read: mockRead,
-    update: mockUpdate,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      documentTransaction: mockDocumentTransaction,
+      read: mockRead,
+      update: mockUpdate,
+      write: mockWrite,
+    }
+  }),
 }))
 
 const { default: paymentCreateLambda } = await import('./handler')

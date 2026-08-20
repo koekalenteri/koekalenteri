@@ -23,7 +23,13 @@ describe('rum', () => {
       rumApplicationId.value = 'test'
 
       const mockInstance = {}
-      vi.spyOn(awsRum, 'AwsRum').mockImplementation(() => mockInstance as unknown as AwsRum)
+      class MockAwsRum {
+        constructor() {
+          // biome-ignore lint/correctness/noConstructorReturn: its a test
+          return mockInstance
+        }
+      }
+      vi.spyOn(awsRum, 'AwsRum').mockImplementation(MockAwsRum as unknown as typeof AwsRum)
 
       expect(rum()).toEqual(mockInstance)
       expect(rum()).toEqual(mockInstance)

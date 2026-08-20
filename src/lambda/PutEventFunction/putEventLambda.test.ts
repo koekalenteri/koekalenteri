@@ -31,7 +31,9 @@ vi.doMock('../lib/event', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({ write: vi.fn() })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return { write: vi.fn() }
+  }),
 }))
 
 const { authorize } = await import('../lib/auth')

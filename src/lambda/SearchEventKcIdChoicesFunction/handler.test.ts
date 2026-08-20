@@ -48,9 +48,11 @@ vi.doMock('../lib/secrets', () => ({
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(() => ({
-    read: mockRead,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+    }
+  }),
 }))
 
 const { default: searchEventKcIdChoicesLambda } = await import('./handler')
