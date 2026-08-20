@@ -1,10 +1,11 @@
+import type { CoverageV8Options } from 'vitest/node'
 import { defineConfig } from 'vitest/config'
 
 const backendProject = process.argv.includes('--project=backend')
 
-const coverage = {
-  provider: 'v8' as const,
-  reporter: ['text', 'html', 'clover', 'json', 'lcov'] as const,
+const coverage: { provider: 'v8' } & CoverageV8Options = {
+  provider: 'v8',
+  reporter: ['text', 'html', 'clover', 'json', 'lcov'],
   include: backendProject ? ['src/lambda/**/*.ts'] : ['src/**/*.{js,jsx,ts,tsx}'],
   exclude: backendProject
     ? ['**/node_modules/**', '**/*.d.ts']
@@ -25,6 +26,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    maxWorkers: 2,
     passWithNoTests: true,
     testTimeout: 10_000,
     coverage,
@@ -33,6 +35,7 @@ export default defineConfig({
         test: {
           name: 'backend',
           globals: true,
+          testTimeout: 10_000,
           unstubEnvs: true,
           environment: 'node',
           include: ['src/lambda/**/*.{spec,test}.ts'],
@@ -53,7 +56,7 @@ export default defineConfig({
           globals: true,
           unstubEnvs: true,
           environment: 'jsdom',
-          maxWorkers: 2,
+          testTimeout: 10_000,
           include: ['src/**/__tests__/**/*.{js,jsx,ts,tsx}', 'src/**/*.{spec,test}.{js,jsx,ts,tsx}'],
           exclude: ['src/lambda/**'],
           setupFiles: ['react-app-polyfill/jsdom', './src/setupTests.tsx'],
