@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
@@ -41,7 +41,7 @@ describe('admin StatsPage', () => {
     )
     await flushPromises()
 
-    await waitFor(() => expect(screen.getByText('stats.title')).toBeInTheDocument())
+    await screen.findByText('stats.title')
     expect(screen.getByText('stats.admin.title')).toBeInTheDocument()
     // No organizerId/date-range args: the whole dataset is fetched once and filtered in memory.
     expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
@@ -66,7 +66,7 @@ describe('admin StatsPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    await waitFor(() => expect(screen.getByText('stats.title')).toBeInTheDocument())
+    await screen.findByText('stats.title')
     expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
 
     // Changing the selected organizer re-renders but must not trigger another network call.
@@ -114,6 +114,6 @@ describe('admin StatsPage', () => {
     )
     await flushPromises()
 
-    await waitFor(() => expect(screen.getByDisplayValue('Järjestäjä 1')).toBeInTheDocument())
+    await screen.findByDisplayValue('Järjestäjä 1')
   })
 })

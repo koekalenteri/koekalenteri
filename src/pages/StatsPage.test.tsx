@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
@@ -29,6 +29,6 @@ describe('StatsPage', () => {
     )
     await flushPromises()
 
-    await waitFor(() => expect(screen.getByText('stats.title')).toBeInTheDocument())
+    await screen.findByText('stats.title')
   })
 })

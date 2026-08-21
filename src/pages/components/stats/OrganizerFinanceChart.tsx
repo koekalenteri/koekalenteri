@@ -24,7 +24,7 @@ export default function OrganizerFinanceChart({ items }: Props) {
     refundedByMonth.set(key, (refundedByMonth.get(key) ?? 0) + (item.refundedAmount ?? 0))
   }
 
-  const months = [...paidByMonth.keys()].sort()
+  const months = [...paidByMonth.keys()].sort((a, b) => a.localeCompare(b))
 
   if (months.length === 0) {
     return (
