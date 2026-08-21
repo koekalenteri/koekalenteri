@@ -3,12 +3,12 @@ import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import { PersonFields } from './PersonFields'
 
 describe('PersonFields', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders and updates all contact fields', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <PersonFields
         idPrefix="person"
@@ -21,7 +21,7 @@ describe('PersonFields', () => {
         }}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const nameInput = screen.getByRole('textbox', { name: 'contact.name' })
@@ -61,7 +61,7 @@ describe('PersonFields', () => {
   })
 
   it('can omit the location field', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <PersonFields
         idPrefix="payer"
@@ -70,7 +70,7 @@ describe('PersonFields', () => {
         person={{ email: '', name: '', phone: '' }}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     expect(screen.queryByRole('textbox', { name: 'contact.city' })).not.toBeInTheDocument()

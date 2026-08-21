@@ -1,10 +1,10 @@
 import type { User } from '../../../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockReadEncryptedDataset = jest.fn<any>()
-const mockWriteEncryptedDataset = jest.fn<any>()
+const mockReadEncryptedDataset = vi.fn()
+const mockWriteEncryptedDataset = vi.fn()
 
-jest.mock('../../../../lib/client/encryptedStore', () => ({
+vi.mock('../../../../lib/client/encryptedStore', () => ({
   readEncryptedDataset: mockReadEncryptedDataset,
   writeEncryptedDataset: mockWriteEncryptedDataset,
 }))
@@ -14,8 +14,8 @@ let userSelector: typeof import('../../../recoil').userSelector
 let createCachedRemoteCollectionEffect: typeof import('./createCachedRemoteCollection').createCachedRemoteCollectionEffect
 
 beforeAll(async () => {
-  jest.resetModules()
-  jest.doMock('../../../../lib/client/encryptedStore', () => ({
+  vi.resetModules()
+  vi.doMock('../../../../lib/client/encryptedStore', () => ({
     readEncryptedDataset: mockReadEncryptedDataset,
     writeEncryptedDataset: mockWriteEncryptedDataset,
   }))
@@ -26,16 +26,16 @@ beforeAll(async () => {
     .createCachedRemoteCollectionEffect
 })
 
-const makeEffect = (fetch = jest.fn<any>()) => {
+const makeEffect = (fetch = vi.fn()) => {
   const effect = createCachedRemoteCollectionEffect<string>({
     cacheKey: 'judges',
     fetch,
   })
   let promise: Promise<string[]> | undefined
-  const setSelf = jest.fn<any>((value: Promise<string[]>) => {
+  const setSelf = vi.fn((value: Promise<string[]>) => {
     promise = value
   })
-  const getPromise = jest.fn<any>((recoilValue: unknown) => {
+  const getPromise = vi.fn((recoilValue: unknown) => {
     if (recoilValue === validIdTokenSelector) return Promise.resolve('token')
     if (recoilValue === userSelector) {
       return Promise.resolve({
@@ -60,7 +60,7 @@ const makeEffect = (fetch = jest.fn<any>()) => {
 
 describe('createCachedRemoteCollectionEffect', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockWriteEncryptedDataset.mockResolvedValue(undefined)
   })
 
@@ -84,7 +84,7 @@ describe('createCachedRemoteCollectionEffect', () => {
       data: ['cached'],
       modifiedAt: '2026-01-01T00:00:00.000Z',
     })
-    const fetch = jest.fn<any>().mockResolvedValueOnce(['fresh-a', 'fresh-b'])
+    const fetch = vi.fn().mockResolvedValueOnce(['fresh-a', 'fresh-b'])
     const { promise } = makeEffect(fetch)
 
     await expect(promise).resolves.toEqual(['fresh-a', 'fresh-b'])
@@ -102,7 +102,7 @@ describe('createCachedRemoteCollectionEffect', () => {
       data: ['cached-a', 'cached-b'],
       modifiedAt: '2026-01-02T00:00:00.000Z',
     })
-    const fetch = jest.fn<any>().mockResolvedValueOnce(['fresh'])
+    const fetch = vi.fn().mockResolvedValueOnce(['fresh'])
     const { promise } = makeEffect(fetch)
 
     await expect(promise).resolves.toEqual(['fresh'])
@@ -116,7 +116,7 @@ describe('createCachedRemoteCollectionEffect', () => {
 
   it('fetches when there is no cache', async () => {
     mockReadEncryptedDataset.mockResolvedValueOnce(undefined)
-    const fetch = jest.fn<any>().mockResolvedValueOnce(['fresh'])
+    const fetch = vi.fn().mockResolvedValueOnce(['fresh'])
     const { promise } = makeEffect(fetch)
 
     await expect(promise).resolves.toEqual(['fresh'])
@@ -130,7 +130,7 @@ describe('createCachedRemoteCollectionEffect', () => {
       data: ['cached'],
       modifiedAt: '2026-01-01T00:00:00.000Z',
     })
-    const fetch = jest.fn<any>().mockRejectedValueOnce(new Error('network'))
+    const fetch = vi.fn().mockRejectedValueOnce(new Error('network'))
     const { promise } = makeEffect(fetch)
 
     await expect(promise).resolves.toEqual(['cached'])
@@ -141,7 +141,7 @@ describe('createCachedRemoteCollectionEffect', () => {
 
   it('rejects when fetch fails and there is no cache', async () => {
     mockReadEncryptedDataset.mockResolvedValueOnce(undefined)
-    const fetch = jest.fn<any>().mockRejectedValueOnce(new Error('network'))
+    const fetch = vi.fn().mockRejectedValueOnce(new Error('network'))
     const { promise } = makeEffect(fetch)
 
     await expect(promise).rejects.toThrow('network')

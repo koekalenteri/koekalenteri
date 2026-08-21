@@ -38,7 +38,7 @@ describe('ContactInfoSection', () => {
   }
 
   it.each(variants)('renders with %j', (contactInfo: ContactInfo) => {
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
     const { container } = render(
       <ContactInfoSection
         contactInfo={contactInfo}

@@ -1,14 +1,16 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockRead = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
+const mockRead = vi.fn()
+const mockUpdate = vi.fn()
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: jest.fn(() => ({
-    read: mockRead,
-    update: mockUpdate,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      update: mockUpdate,
+    }
+  }),
 }))
 
 const { default: CustomDynamoClient } = await import('../utils/CustomDynamoClient')
@@ -28,12 +30,12 @@ describe('createDynamoLease', () => {
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers().setSystemTime(new Date('2026-08-16T12:00:00.000Z'))
+    vi.clearAllMocks()
+    vi.useFakeTimers().setSystemTime(new Date('2026-08-16T12:00:00.000Z'))
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('claims an available lease and rereads the item consistently', async () => {

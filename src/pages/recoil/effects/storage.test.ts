@@ -3,7 +3,7 @@ import { getStorageEffect, parseStorageJSON } from './storage'
 
 describe('storage', () => {
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   describe('parseStorageJSON', () => {
@@ -14,7 +14,7 @@ describe('storage', () => {
       expect(parseStorageJSON('null')).toBeNull()
     })
     it('should return undefined if parseJSON throws', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => undefined)
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementationOnce(() => undefined)
       expect(parseStorageJSON('{')).toBeUndefined()
       expect(warnSpy).toHaveBeenCalledWith('JSON parse error', expect.any(SyntaxError))
       expect(warnSpy).toHaveBeenCalledTimes(1)
@@ -22,13 +22,13 @@ describe('storage', () => {
   })
 
   describe('getStorageEffect', () => {
-    const mockStorage: jest.Mocked<Storage> = {
-      clear: jest.fn(),
-      getItem: jest.fn<string | null, [string]>(),
-      key: jest.fn<string | null, [number]>(),
+    const mockStorage: import('vitest').Mocked<Storage> = {
+      clear: vi.fn(),
+      getItem: vi.fn<(key: string) => string | null>(),
+      key: vi.fn<(index: number) => string | null>(),
       length: 0,
-      removeItem: jest.fn<void, [string]>(),
-      setItem: jest.fn<void, [string, string]>(),
+      removeItem: vi.fn<(key: string) => void>(),
+      setItem: vi.fn<(key: string, value: string) => void>(),
     }
     const node: RecoilState<any> = {
       __cTag: (): void => {
@@ -46,13 +46,13 @@ describe('storage', () => {
     const onSet = (param: (newValue: any, oldValue: any, reset: boolean) => void) => {
       onSetCallback = param
     }
-    const setSelf = jest.fn()
-    const resetSelf = jest.fn<void, []>()
+    const setSelf = vi.fn()
+    const resetSelf = vi.fn<() => void>()
     const effect = getStorageEffect(mockStorage)
 
     beforeEach(() => {
       onSetCallback = undefined
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('should initialize from storage', () => {
@@ -68,7 +68,7 @@ describe('storage', () => {
 
     it('should initialize with refined storage value and persist the refined value', () => {
       const refinedEffect = getStorageEffect(mockStorage, {
-        onRefined: jest.fn(),
+        onRefined: vi.fn(),
         refine: (value) => (Array.isArray(value) ? value.filter((item) => item?.valid) : undefined),
       })
       mockStorage.getItem.mockReturnValueOnce(JSON.stringify([{ valid: true }, { valid: false }]))
@@ -82,7 +82,7 @@ describe('storage', () => {
 
     it('should remove storage value when refinement rejects it', () => {
       const refinedEffect = getStorageEffect(mockStorage, {
-        onRefined: jest.fn(),
+        onRefined: vi.fn(),
         refine: (value) => (Array.isArray(value) ? value : undefined),
       })
       mockStorage.getItem.mockReturnValueOnce(JSON.stringify({ invalid: true }))
@@ -132,8 +132,8 @@ describe('storage', () => {
     })
 
     it('should not set velue when windows in not visible', () => {
-      const infoSpy = jest.spyOn(console, 'info').mockImplementation(() => undefined)
-      jest.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+      const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+      vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
       // @ts-expect-error providing only used properties
       effect({ node, onSet, resetSelf, setSelf, trigger: 'set' })
       expect(mockStorage.getItem).not.toHaveBeenCalled()
@@ -147,10 +147,10 @@ describe('storage', () => {
 
     it('should hook to storage event', () => {
       let handler: ((e: StorageEvent) => void) | undefined
-      const addSpy = jest.spyOn(window, 'addEventListener').mockImplementationOnce((type, listener) => {
+      const addSpy = vi.spyOn(window, 'addEventListener').mockImplementationOnce((type, listener) => {
         if (type === 'storage') handler = listener as typeof handler
       })
-      const removeSpy = jest.spyOn(window, 'removeEventListener').mockImplementationOnce(() => undefined)
+      const removeSpy = vi.spyOn(window, 'removeEventListener').mockImplementationOnce(() => undefined)
 
       // @ts-expect-error providing only used properties
       const cleanUp = effect({ node, onSet, resetSelf, setSelf, trigger: 'get' })
@@ -187,7 +187,7 @@ describe('storage', () => {
 
       // set invalid json
       // suppress console warn once
-      jest.spyOn(console, 'warn').mockImplementationOnce(() => undefined)
+      vi.spyOn(console, 'warn').mockImplementationOnce(() => undefined)
       // @ts-expect-error providing only used properties
       handler?.({ key: node.key, newValue: 'invalid json', storageArea: mockStorage })
       expect(resetSelf).toHaveBeenCalledTimes(3)

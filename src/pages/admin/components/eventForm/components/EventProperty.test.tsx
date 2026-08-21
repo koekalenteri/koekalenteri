@@ -15,16 +15,16 @@ const testEvent: PartialEvent = {
 }
 
 describe('EventProperty', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterAll(() => vi.useRealTimers())
 
   beforeEach(() => {
-    jest.spyOn(console, 'warn').mockImplementation(console.debug)
-    jest.spyOn(console, 'error').mockImplementation(console.debug)
+    vi.spyOn(console, 'warn').mockImplementation(console.debug)
+    vi.spyOn(console, 'error').mockImplementation(console.debug)
   })
 
   afterEach(() => {
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
     expect(console.warn).toHaveBeenCalledTimes(0)
     expect(console.error).toHaveBeenCalledTimes(0)
   })
@@ -43,12 +43,12 @@ describe('EventProperty', () => {
     })
 
     it('should fire onChange with no options', async () => {
-      const onChange = jest.fn()
+      const onChange = vi.fn()
 
       const { user } = renderWithUserEvents(
         <EventProperty id={'name'} options={[]} event={testEvent} freeSolo onChange={onChange} />,
         undefined,
-        { advanceTimers: jest.advanceTimersByTime }
+        { advanceTimers: vi.advanceTimersByTime }
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'input test')
@@ -63,7 +63,7 @@ describe('EventProperty', () => {
     })
 
     it('should be clearable with options', async () => {
-      const onChange = jest.fn()
+      const onChange = vi.fn()
 
       const { user } = renderWithUserEvents(
         <EventProperty
@@ -74,7 +74,7 @@ describe('EventProperty', () => {
           onChange={onChange}
         />,
         undefined,
-        { advanceTimers: jest.advanceTimersByTime }
+        { advanceTimers: vi.advanceTimersByTime }
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'NOWT')
@@ -89,7 +89,7 @@ describe('EventProperty', () => {
     })
 
     it('should fire onChange with options', async () => {
-      const onChange = jest.fn()
+      const onChange = vi.fn()
 
       const { user } = renderWithUserEvents(
         <EventProperty
@@ -100,7 +100,7 @@ describe('EventProperty', () => {
           onChange={onChange}
         />,
         undefined,
-        { advanceTimers: jest.advanceTimersByTime }
+        { advanceTimers: vi.advanceTimersByTime }
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'c')
@@ -115,7 +115,7 @@ describe('EventProperty', () => {
     })
 
     it('should display options when typing and fire onChange when selecting an option or clearing input', async () => {
-      const onChange = jest.fn()
+      const onChange = vi.fn()
 
       const { container, user } = renderWithUserEvents(
         <EventProperty
@@ -126,7 +126,7 @@ describe('EventProperty', () => {
           onChange={onChange}
         />,
         undefined,
-        { advanceTimers: jest.advanceTimersByTime }
+        { advanceTimers: vi.advanceTimersByTime }
       )
       expect(container).toMatchSnapshot()
 
@@ -158,12 +158,12 @@ describe('EventProperty', () => {
     })
 
     it('should display options when typing and fire onChange when selecting an option or clearing input', async () => {
-      const onChange = jest.fn((changes) => Object.assign(testEvent, changes))
+      const onChange = vi.fn((changes) => Object.assign(testEvent, changes))
 
       const { container, user } = renderWithUserEvents(
         <EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} onChange={onChange} />,
         undefined,
-        { advanceTimers: jest.advanceTimersByTime }
+        { advanceTimers: vi.advanceTimersByTime }
       )
       expect(container).toMatchSnapshot()
 

@@ -1,17 +1,17 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockGetParam = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockQuery = jest.fn<any>()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockGetParam = vi.fn()
+const mockGetEvent = vi.fn()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockQuery = vi.fn()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(
@@ -25,13 +25,15 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    query: mockQuery,
-  })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      query: mockQuery,
+    }
+  }),
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({ getEvent: mockGetEvent }))
+vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
 
 const { default: getAdminRegistrationsLambda } = await import('./handler')
 
@@ -43,7 +45,7 @@ describe('getAdminRegistrationsLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuthorizeWithMemberOf.mockResolvedValue({
       memberOf: ['org1'],
       user: { id: 'user1', name: 'Test User' },

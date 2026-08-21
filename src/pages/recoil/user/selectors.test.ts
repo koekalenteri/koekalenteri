@@ -9,15 +9,21 @@ const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').repla
 const makeToken = (payload: object) => `header.${encodeBase64Url(JSON.stringify(payload))}.signature`
 
 describe('recoil/user', () => {
-  afterEach(() => {
-    jest.restoreAllMocks()
-    jest.useRealTimers()
+  afterEach(async () => {
+    if ('clock' in globalThis.setTimeout) {
+      vi.advanceTimersByTime(20)
+      await Promise.resolve()
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    }
+    vi.restoreAllMocks()
+    vi.useRealTimers()
   })
 
   describe('validIdTokenSelector', () => {
     it('keeps the raw expired token but does not expose it to API consumers', async () => {
-      jest.useFakeTimers()
-      jest.setSystemTime(new Date('2026-07-24T12:00:00.000Z'))
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-07-24T12:00:00.000Z'))
       const token = makeToken({ exp: Date.now() / 1000 + 60 })
       const initialSnapshot = snapshot_UNSTABLE(({ set }) => set(idTokenAtom, token))
       const releaseInitialSnapshot = initialSnapshot.retain()
@@ -25,7 +31,7 @@ describe('recoil/user', () => {
       try {
         await expect(initialSnapshot.getPromise(validIdTokenSelector)).resolves.toBe(token)
 
-        jest.advanceTimersByTime(60_001)
+        vi.advanceTimersByTime(60_001)
         const expiredSnapshot = initialSnapshot.map(({ set }) => set(tokenValidityRevisionAtom, 1))
         const releaseExpiredSnapshot = expiredSnapshot.retain()
 
@@ -61,9 +67,9 @@ describe('recoil/user', () => {
       const release = initialSnapshot.retain()
 
       const err = new Error('api error')
-      jest.spyOn(userAPI, 'getUser').mockRejectedValueOnce(err)
-      const reportErrorSpy = jest.spyOn(error, 'reportError').mockImplementation(jest.fn())
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      vi.spyOn(userAPI, 'getUser').mockRejectedValueOnce(err)
+      const reportErrorSpy = vi.spyOn(error, 'reportError').mockImplementation(vi.fn())
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
       try {
         await expect(initialSnapshot.getPromise(userSelector)).resolves.toBeNull()
@@ -87,9 +93,9 @@ describe('recoil/user', () => {
       const release = initialSnapshot.retain()
 
       const err = new APIError(new Response(null, { status: 408, statusText: 'timeout loading /user' }), {})
-      jest.spyOn(userAPI, 'getUser').mockRejectedValueOnce(err)
-      const reportErrorSpy = jest.spyOn(error, 'reportError').mockImplementation(jest.fn())
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      vi.spyOn(userAPI, 'getUser').mockRejectedValueOnce(err)
+      const reportErrorSpy = vi.spyOn(error, 'reportError').mockImplementation(vi.fn())
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
       try {
         await expect(initialSnapshot.getPromise(userSelector)).resolves.toBeNull()

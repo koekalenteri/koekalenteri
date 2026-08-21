@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`AdditionalInfo should render with minimal info 1`] = `
+exports[`AdditionalInfo > should render with minimal info 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -102,7 +102,7 @@ exports[`AdditionalInfo should render with minimal info 1`] = `
 </div>
 `;
 
-exports[`AdditionalInfo should render with text 1`] = `
+exports[`AdditionalInfo > should render with text 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -206,7 +206,7 @@ exports[`AdditionalInfo should render with text 1`] = `
 </div>
 `;
 
-exports[`AdditionalInfo should rerender with new value 1`] = `
+exports[`AdditionalInfo > should rerender with new value 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"

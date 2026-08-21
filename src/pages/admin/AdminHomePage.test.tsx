@@ -10,17 +10,17 @@ import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils
 import { idTokenAtom } from '../recoil'
 import AdminHomePage from './AdminHomePage'
 
-jest.mock('../../api/user')
-jest.mock('../../hooks/useAdminSubscription', () => ({
-  useAdminSubscription: jest.fn(),
+vi.mock('../../api/user')
+vi.mock('../../hooks/useAdminSubscription', () => ({
+  useAdminSubscription: vi.fn(),
 }))
 
 describe('AdminHomePage', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders the page when user is logged in', async () => {
     const routes = [

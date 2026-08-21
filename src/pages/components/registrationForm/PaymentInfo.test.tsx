@@ -13,7 +13,7 @@ describe('PaymentInfo', () => {
   } as any
 
   it('does not auto-select cost when selectedCost is empty string', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
 
     render(
       <RecoilRoot>
@@ -39,7 +39,7 @@ describe('PaymentInfo', () => {
   })
 
   it('auto-selects cost when selectedCost is undefined', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
 
     render(
       <RecoilRoot>
@@ -65,7 +65,7 @@ describe('PaymentInfo', () => {
   })
 
   it('clears selected cost and optional costs in legacy segment', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
 
     render(
       <RecoilRoot>
@@ -92,7 +92,7 @@ describe('PaymentInfo', () => {
   })
 
   it('synchronizes registration language from recoil language when different', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
 
     render(
       <RecoilRoot>
@@ -109,7 +109,7 @@ describe('PaymentInfo', () => {
   })
 
   it('does not clear legacy selection when nothing is selected', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
 
     render(
       <RecoilRoot>
@@ -136,7 +136,7 @@ describe('PaymentInfo', () => {
   })
 
   it('renders optional additional costs section', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
 
     render(
       <RecoilRoot>
@@ -169,7 +169,7 @@ describe('PaymentInfo', () => {
   })
 
   it('returns null when registration is not minimal for cost rendering', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { container } = render(
       <RecoilRoot>
         <PaymentInfo event={baseEvent} cost={baseCost} registration={{ language: 'fi' } as any} onChange={onChange} />

@@ -14,13 +14,13 @@ const wrapper = ({ children }: { readonly children: ReactNode }) => createElemen
 
 describe('recent update hooks', () => {
   beforeEach(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'))
   })
 
   afterEach(() => {
-    act(() => jest.runOnlyPendingTimers())
-    jest.useRealTimers()
+    act(() => vi.runOnlyPendingTimers())
+    vi.useRealTimers()
   })
 
   it('marks an item as recently updated and clears it after the highlight duration', () => {
@@ -38,7 +38,7 @@ describe('recent update hooks', () => {
 
     expect(result.current.isUpdated).toBe(true)
 
-    act(() => jest.advanceTimersByTime(HIGHLIGHT_DURATION_MS))
+    act(() => vi.advanceTimersByTime(HIGHLIGHT_DURATION_MS))
 
     expect(result.current.isUpdated).toBe(false)
   })
@@ -54,16 +54,16 @@ describe('recent update hooks', () => {
 
     act(() => result.current.markRecentlyUpdated('admin:event', 'event-1'))
 
-    jest.setSystemTime(new Date('2026-01-01T00:00:01.000Z'))
+    vi.setSystemTime(new Date('2026-01-01T00:00:01.000Z'))
     act(() => {
-      jest.advanceTimersByTime(1000)
+      vi.advanceTimersByTime(1000)
       result.current.markRecentlyUpdated('admin:event', 'event-1')
     })
 
-    act(() => jest.advanceTimersByTime(HIGHLIGHT_DURATION_MS - 1000))
+    act(() => vi.advanceTimersByTime(HIGHLIGHT_DURATION_MS - 1000))
     expect(result.current.isUpdated).toBe(true)
 
-    act(() => jest.advanceTimersByTime(1000))
+    act(() => vi.advanceTimersByTime(1000))
     expect(result.current.isUpdated).toBe(false)
   })
 

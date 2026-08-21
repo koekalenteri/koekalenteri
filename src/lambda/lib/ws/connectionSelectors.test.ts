@@ -1,17 +1,17 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockQueryAdminConnections = jest.fn<any>()
-const mockQueryPublicConnections = jest.fn<any>()
-const mockCanReceiveAdminEvent = jest.fn<any>()
-const mockCanReceiveAnyAdminEvent = jest.fn<any>()
-const mockIsConnectionExpired = jest.fn<any>()
+const mockQueryAdminConnections = vi.fn()
+const mockQueryPublicConnections = vi.fn()
+const mockCanReceiveAdminEvent = vi.fn()
+const mockCanReceiveAnyAdminEvent = vi.fn()
+const mockIsConnectionExpired = vi.fn()
 
-jest.unstable_mockModule('./connectionRepository', () => ({
+vi.doMock('./connectionRepository', () => ({
   queryAdminConnections: mockQueryAdminConnections,
   queryPublicConnections: mockQueryPublicConnections,
 }))
 
-jest.unstable_mockModule('./connectionPolicy', () => ({
+vi.doMock('./connectionPolicy', () => ({
   canReceiveAdminEvent: mockCanReceiveAdminEvent,
   canReceiveAnyAdminEvent: mockCanReceiveAnyAdminEvent,
   isConnectionExpired: mockIsConnectionExpired,
@@ -28,7 +28,7 @@ const {
 
 describe('ws/connectionSelectors', () => {
   beforeEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
     mockQueryAdminConnections.mockResolvedValue([])
     mockQueryPublicConnections.mockResolvedValue([])
     mockIsConnectionExpired.mockReturnValue(false)

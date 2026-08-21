@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`TimeLeft renders with date 1`] = `
+exports[`TimeLeft > renders with date 1`] = `
 <p
   class="MuiTypography-root MuiTypography-body1 css-17spemx-MuiTypography-root"
 >
@@ -8,4 +8,4 @@ exports[`TimeLeft renders with date 1`] = `
 </p>
 `;
 
-exports[`TimeLeft renders without date 1`] = `null`;
+exports[`TimeLeft > renders without date 1`] = `null`;

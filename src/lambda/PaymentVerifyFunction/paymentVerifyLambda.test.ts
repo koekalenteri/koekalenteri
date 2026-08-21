@@ -1,56 +1,58 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>().mockImplementation((statusCode: number, body: any) => ({
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn().mockImplementation((statusCode: number, body: any) => ({
   body: JSON.stringify(body),
   headers: { 'Content-Type': 'application/json' },
   statusCode,
 }))
-const mockParseParams = jest.fn<any>()
-const mockVerifyParams = jest.fn<any>()
-const mockGetRegistration = jest.fn<any>()
-const mockGetRegistrationEditToken = jest.fn<any>()
-const mockAudit = jest.fn<any>()
-const mockRegistrationAuditKey = jest.fn<any>()
-const mockRead = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockPublishRegistrationPatches = jest.fn<any>()
+const mockParseParams = vi.fn()
+const mockVerifyParams = vi.fn()
+const mockGetRegistration = vi.fn()
+const mockGetRegistrationEditToken = vi.fn()
+const mockAudit = vi.fn()
+const mockRegistrationAuditKey = vi.fn()
+const mockRead = vi.fn()
+const mockUpdate = vi.fn()
+const mockGetEvent = vi.fn()
+const mockPublishRegistrationPatches = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {},
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
-jest.unstable_mockModule('../lib/payment', () => ({
+vi.doMock('../lib/payment', () => ({
   parseParams: mockParseParams,
   verifyParams: mockVerifyParams,
 }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   getRegistration: mockGetRegistration,
   getRegistrationEditToken: mockGetRegistrationEditToken,
 }))
 
-jest.unstable_mockModule('../lib/audit', () => ({
+vi.doMock('../lib/audit', () => ({
   audit: mockAudit,
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    read: mockRead,
-    update: mockUpdate,
-  })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      update: mockUpdate,
+    }
+  }),
 }))
 
 const { default: paymentVerifyLambda } = await import('./handler')
@@ -68,7 +70,7 @@ describe('paymentVerifyLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockParseParams.mockReturnValue({
@@ -256,7 +258,7 @@ describe('paymentVerifyLambda', () => {
 
   it('throws error if transaction is not found', async () => {
     mockRead.mockResolvedValueOnce(null)
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await paymentVerifyLambda(event)
 
@@ -283,7 +285,7 @@ describe('paymentVerifyLambda', () => {
   it('handles verification errors gracefully', async () => {
     const error = new Error('Verification failed')
     mockVerifyParams.mockRejectedValueOnce(error)
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await paymentVerifyLambda(event)
 
@@ -308,7 +310,7 @@ describe('paymentVerifyLambda', () => {
   it('handles other errors gracefully', async () => {
     const error = new Error('Unexpected error')
     mockRead.mockRejectedValueOnce(error)
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await paymentVerifyLambda(event)
 

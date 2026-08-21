@@ -1,27 +1,29 @@
 import type { JsonRefundTransaction } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockGetPayment = jest.fn<any>()
-const mockDynamoUpdate = jest.fn<any>()
+const mockGetPayment = vi.fn()
+const mockDynamoUpdate = vi.fn()
 
-jest.unstable_mockModule('./paytrail', () => ({
-  calculateHmac: jest.fn(),
+vi.doMock('./paytrail', () => ({
+  calculateHmac: vi.fn(),
   getPayment: mockGetPayment,
   HMAC_KEY_PREFIX: 'checkout-',
-  parsePaytrailErrorMessage: jest.fn(),
+  parsePaytrailErrorMessage: vi.fn(),
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    update: mockDynamoUpdate,
-  })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      update: mockDynamoUpdate,
+    }
+  }),
 }))
 
 const { refreshTransactionStatusesFromPaytrail } = await import('./payment')
 
 describe('refreshTransactionStatusesFromPaytrail', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('refreshes a failed refund transaction from Paytrail', async () => {

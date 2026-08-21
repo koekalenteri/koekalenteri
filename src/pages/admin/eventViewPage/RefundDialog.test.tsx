@@ -16,17 +16,17 @@ import { flushPromises } from '../../../test-utils/utils'
 import { RefundDailog as RefundDialog } from './RefundDialog'
 
 // Mock the useAdminRegistrationActions hook
-jest.mock('../recoil/registrations/actions', () => ({
+vi.mock('../recoil/registrations/actions', async () => ({
   useAdminRegistrationActions: () => ({
-    putInternalNotes: jest.fn().mockResolvedValue({}),
-    refund: jest.fn().mockImplementation(mockRefundImplementation),
-    transactions: jest.fn().mockResolvedValue(mockTransactions),
+    putInternalNotes: vi.fn().mockResolvedValue({}),
+    refund: vi.fn().mockImplementation(mockRefundImplementation),
+    transactions: vi.fn().mockResolvedValue(mockTransactions),
   }),
 }))
 
-jest.mock('notistack', () => ({
-  ...jest.requireActual('notistack'),
-  useSnackbar: jest.fn(),
+vi.mock('notistack', async () => ({
+  ...(await vi.importActual<typeof import('notistack')>('notistack')),
+  useSnackbar: vi.fn(),
 }))
 
 // Mock transaction data
@@ -67,7 +67,7 @@ const defaultMockTransactions: Transaction[] = [
 let mockTransactions = defaultMockTransactions
 
 // Mock refund implementation for different test scenarios
-let mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'ok' })
+let mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
 
 const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (
@@ -86,22 +86,22 @@ const Wrapper = ({ children }: { readonly children: ReactNode }) => {
 }
 
 describe('RefundDialog', () => {
-  const enqueueSnackbarMock = jest.fn()
+  const enqueueSnackbarMock = vi.fn()
   beforeAll(() => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
   beforeEach(() => {
     mockTransactions = defaultMockTransactions
-    ;(useSnackbar as jest.Mock).mockReturnValue({
+    ;(useSnackbar as import('vitest').Mock).mockReturnValue({
       enqueueSnackbar: enqueueSnackbarMock,
     })
   })
   afterEach(() => {
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
     enqueueSnackbarMock.mockClear()
     mockRefundImplementation.mockClear()
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders hidden when open is false', async () => {
     const { container } = render(<RefundDialog registration={registrationWithStaticDates} open={false} />, {
@@ -128,14 +128,14 @@ describe('RefundDialog', () => {
   })
 
   it('does not charge a handling cost by default for a reserve registration', async () => {
-    mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'ok' })
+    mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
 
     const registration = {
       ...registrationWithStaticDates,
       cancelled: true,
       group: { key: 'reserve', number: 1 },
     }
-    const onCloseMock = jest.fn()
+    const onCloseMock = vi.fn()
     render(<RefundDialog registration={registration} open={true} onClose={onCloseMock} />, {
       wrapper: Wrapper,
     })
@@ -151,7 +151,7 @@ describe('RefundDialog', () => {
   })
 
   it('charges the default handling cost for a non-reserve registration', async () => {
-    mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'ok' })
+    mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
 
     const registration = {
       ...registrationWithStaticDates,
@@ -170,7 +170,7 @@ describe('RefundDialog', () => {
   })
 
   it('does not charge another handling cost for a partial refund', async () => {
-    mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'ok' })
+    mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
 
     const registration = {
       ...registrationWithStaticDates,
@@ -265,7 +265,7 @@ describe('RefundDialog', () => {
   })
 
   it('handles successful refund with email provider', async () => {
-    mockRefundImplementation = jest.fn().mockResolvedValue({
+    mockRefundImplementation = vi.fn().mockResolvedValue({
       provider: 'email refund',
       status: 'ok',
     })
@@ -284,7 +284,7 @@ describe('RefundDialog', () => {
   })
 
   it('handles pending refund status', async () => {
-    mockRefundImplementation = jest.fn().mockResolvedValue({
+    mockRefundImplementation = vi.fn().mockResolvedValue({
       provider: 'nordea',
       status: 'pending',
     })
@@ -303,7 +303,7 @@ describe('RefundDialog', () => {
   })
 
   it('handles failed refund', async () => {
-    mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'fail' })
+    mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'fail' })
 
     render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
     await flushPromises()
@@ -319,7 +319,7 @@ describe('RefundDialog', () => {
   })
 
   it('handles 404 error', async () => {
-    mockRefundImplementation = jest
+    mockRefundImplementation = vi
       .fn()
       .mockRejectedValue(
         new APIError(new Response(null, { status: 404, statusText: 'Not Found' }), { error: 'Transaction not found' })
@@ -348,7 +348,7 @@ describe('RefundDialog', () => {
       },
     })
 
-    mockRefundImplementation = jest
+    mockRefundImplementation = vi
       .fn()
       .mockRejectedValue(
         new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), { error: errorBody })
@@ -375,7 +375,7 @@ describe('RefundDialog', () => {
   })
 
   it('handles other API errors', async () => {
-    mockRefundImplementation = jest.fn().mockRejectedValue(
+    mockRefundImplementation = vi.fn().mockRejectedValue(
       new APIError(new Response(null, { status: 500, statusText: 'Internal Server Error' }), {
         error: 'Internal server error',
       })
@@ -398,7 +398,7 @@ describe('RefundDialog', () => {
     const paytrailMessage =
       'API refund failed and provider does not support email refunds. Provider message: Revert failed'
 
-    mockRefundImplementation = jest.fn().mockRejectedValue(
+    mockRefundImplementation = vi.fn().mockRejectedValue(
       new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {
         error: JSON.stringify({ message: paytrailMessage, status: 'error' }),
         message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
@@ -421,7 +421,7 @@ describe('RefundDialog', () => {
     const paytrailMessage =
       'API refund failed and provider does not support email refunds. Provider message: Revert failed'
 
-    mockRefundImplementation = jest.fn().mockRejectedValue(
+    mockRefundImplementation = vi.fn().mockRejectedValue(
       new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {
         error: JSON.stringify({ message: paytrailMessage, status: 'error' }),
       })
@@ -448,7 +448,7 @@ describe('RefundDialog', () => {
     fireEvent.change(notesField, { target: { value: 'New internal notes' } })
 
     // Advance timers to trigger the debounced callback
-    jest.advanceTimersByTime(1100)
+    vi.advanceTimersByTime(1100)
 
     // Verify the notes were updated (this is implicit since we're mocking the API call)
     expect(notesField).toHaveValue('New internal notes')

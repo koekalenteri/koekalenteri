@@ -3,8 +3,8 @@ import { getAdminEvents } from '../../../../api/event'
 import { userSelector, validIdTokenSelector } from '../../../recoil'
 import { adminRemoteEventsEffect, reconcileAdminEvents } from './effects'
 
-jest.mock('../../../../api/event', () => ({
-  getAdminEvents: jest.fn(),
+vi.mock('../../../../api/event', () => ({
+  getAdminEvents: vi.fn(),
 }))
 
 const event = (id: string, startDate: string, updatedAt: string): DogEvent =>
@@ -23,7 +23,7 @@ describe('reconcileAdminEvents', () => {
 
 describe('adminRemoteEventsEffect', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     sessionStorage.clear()
   })
 
@@ -36,13 +36,13 @@ describe('adminRemoteEventsEffect', () => {
       'adminEvents:scope',
       JSON.stringify({ admin: false, id: 'user-1', roles: [['org', 'admin']] })
     )
-    jest.mocked(getAdminEvents).mockResolvedValueOnce([added])
+    vi.mocked(getAdminEvents).mockResolvedValueOnce([added])
 
     let setSelfValue: Promise<DogEvent[]> | undefined
-    const setSelf = jest.fn((value) => {
+    const setSelf = vi.fn((value) => {
       setSelfValue = value
     })
-    const getPromise = jest.fn((value) => {
+    const getPromise = vi.fn((value) => {
       if (value === validIdTokenSelector) return Promise.resolve('token')
       if (value === userSelector) return Promise.resolve(user)
       return Promise.resolve(undefined)
@@ -57,13 +57,13 @@ describe('adminRemoteEventsEffect', () => {
   it('does a full fetch when the cached authorization scope differs', async () => {
     sessionStorage.setItem('adminEvents', JSON.stringify([event('cached', '2026-02-01', '2026-01-02')]))
     sessionStorage.setItem('adminEvents:scope', JSON.stringify({ admin: false, id: 'another-user', roles: [] }))
-    jest.mocked(getAdminEvents).mockResolvedValueOnce([])
+    vi.mocked(getAdminEvents).mockResolvedValueOnce([])
 
     let setSelfValue: Promise<DogEvent[]> | undefined
-    const setSelf = jest.fn((value) => {
+    const setSelf = vi.fn((value) => {
       setSelfValue = value
     })
-    const getPromise = jest.fn((value) => {
+    const getPromise = vi.fn((value) => {
       if (value === validIdTokenSelector) return Promise.resolve('token')
       if (value === userSelector) return Promise.resolve({ admin: true, id: 'user-1' })
       return Promise.resolve(undefined)

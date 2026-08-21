@@ -12,8 +12,8 @@ import { locales } from '../../i18n'
 import { flushPromises } from '../../test-utils/utils'
 import RegistrationEventInfo from './RegistrationEventInfo'
 
-jest.mock('../../api/event')
-jest.mock('../../api/judge')
+vi.mock('../../api/event')
+vi.mock('../../api/judge')
 
 function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
@@ -28,9 +28,9 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 }
 
 describe('RegistrationEventInfo', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
     const { container } = render(

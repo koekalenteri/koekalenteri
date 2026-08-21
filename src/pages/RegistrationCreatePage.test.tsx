@@ -18,22 +18,22 @@ import { ErrorPage } from './ErrorPage'
 import { Component as RegistrationCreatePage } from './RegistrationCreatePage'
 import { newRegistrationAtom } from './recoil'
 
-jest.mock('../api/user')
-jest.mock('../api/event')
-jest.mock('../api/eventType')
-jest.mock('../api/judge')
-jest.mock('../api/official')
-jest.mock('../api/organizer')
-jest.mock('../api/registration')
+vi.mock('../api/user')
+vi.mock('../api/event')
+vi.mock('../api/eventType')
+vi.mock('../api/judge')
+vi.mock('../api/official')
+vi.mock('../api/organizer')
+vi.mock('../api/registration')
 
 describe('RegistrationCreatePage', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
     localStorage.clear()
     sessionStorage.clear()
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   const renderWithRouter = (path: string, registration?: Registration) => {
     const routes: RouteObject[] = [
@@ -73,12 +73,12 @@ describe('RegistrationCreatePage', () => {
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
   }
 
   it('should render with event/eventType/id path', async () => {
-    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
     const { eventType, id } = eventWithStaticDates
     const path = `/event/${eventType}/${id}`
 
@@ -88,7 +88,7 @@ describe('RegistrationCreatePage', () => {
   })
 
   it('should select the class on event/eventType/id/class path', async () => {
-    jest.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
+    vi.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
     const { eventType, id, classes } = eventWithStaticDatesAnd3Classes
     const path = `/event/${eventType}/${id}/${classes[1].class}`
 
@@ -99,7 +99,7 @@ describe('RegistrationCreatePage', () => {
   })
 
   it('should select the date on event/eventType/id/class/date path', async () => {
-    jest.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
+    vi.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
     const { eventType, id, classes } = eventWithStaticDatesAnd3Classes
     const date = format(classes[2].date ?? new Date(), 'dd.MM.')
     const path = `/event/${eventType}/${id}/${classes[2].class}/${date}`
@@ -114,9 +114,9 @@ describe('RegistrationCreatePage', () => {
     const { eventType, id } = eventWithConfirmationPayment
     const path = `/event/${eventType}/${id}`
 
-    jest.setSystemTime(eventWithConfirmationPayment.entryStartDate)
+    vi.setSystemTime(eventWithConfirmationPayment.entryStartDate)
 
-    jest.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(eventWithConfirmationPayment)
+    vi.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(eventWithConfirmationPayment)
     const { user } = renderWithRouter(path, { ...registrationWithStaticDates, agreeToTerms: true, id: '' })
     await flushPromises()
 
@@ -130,11 +130,11 @@ describe('RegistrationCreatePage', () => {
   })
 
   it('should throw 404 for non-existent event', async () => {
-    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
+    const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
     const path = `/event/qwerty/asdf`
 
-    jest.spyOn(eventApi, 'getEvent').mockRejectedValueOnce(new Error('not found'))
+    vi.spyOn(eventApi, 'getEvent').mockRejectedValueOnce(new Error('not found'))
     const { container } = renderWithRouter(path)
 
     await flushPromises()
@@ -144,13 +144,13 @@ describe('RegistrationCreatePage', () => {
   })
 
   it('should throw 410 when entry is not open', async () => {
-    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
+    const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-    jest.setSystemTime(eventWithStaticDates.startDate)
+    vi.setSystemTime(eventWithStaticDates.startDate)
     const { eventType, id } = eventWithStaticDates
     const path = `/event/${eventType}/${id}`
 
-    jest.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(eventWithStaticDates)
+    vi.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(eventWithStaticDates)
     const { container } = renderWithRouter(path)
 
     await flushPromises()

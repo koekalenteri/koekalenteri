@@ -1,16 +1,16 @@
 import type { TransactWriteItemWithoutTable } from './CustomDynamoClient'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 // Mock AWS SDK v3
 let sentCommand: Record<string, any> | undefined
-const mockSend = jest.fn<any>((command: Record<string, any>) => {
+const mockSend = vi.fn((command: Record<string, any>) => {
   sentCommand = command
   return Promise.resolve({})
 })
-const mockDynamoDBClient = jest.fn().mockImplementation(() => ({
-  send: mockSend,
-}))
-const mockFrom = jest.fn().mockImplementation((_client) => ({
+const mockDynamoDBClient = vi.fn().mockImplementation(function MockDynamoDBClient() {
+  return { send: mockSend }
+})
+const mockFrom = vi.fn().mockImplementation((_client) => ({
   send: mockSend,
 }))
 
@@ -26,24 +26,42 @@ class MockTransactionCanceledException extends Error {
   }
 }
 
-jest.mock('@aws-sdk/client-dynamodb', () => ({
+vi.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
   TransactionCanceledException: MockTransactionCanceledException,
-  TransactWriteItemsCommand: jest.fn().mockImplementation((params) => params),
+  TransactWriteItemsCommand: vi.fn().mockImplementation(function TransactWriteItemsCommand(params) {
+    return params
+  }),
 }))
 
-jest.mock('@aws-sdk/lib-dynamodb', () => ({
-  BatchWriteCommand: jest.fn().mockImplementation((params) => params),
-  DeleteCommand: jest.fn().mockImplementation((params) => params),
+vi.mock('@aws-sdk/lib-dynamodb', () => ({
+  BatchWriteCommand: vi.fn().mockImplementation(function BatchWriteCommand(params) {
+    return params
+  }),
+  DeleteCommand: vi.fn().mockImplementation(function DeleteCommand(params) {
+    return params
+  }),
   DynamoDBDocumentClient: {
     from: mockFrom,
   },
-  GetCommand: jest.fn().mockImplementation((params) => params),
-  PutCommand: jest.fn().mockImplementation((params) => params),
-  QueryCommand: jest.fn().mockImplementation((params) => params),
-  ScanCommand: jest.fn().mockImplementation((params) => params),
-  TransactWriteCommand: jest.fn().mockImplementation((params) => params),
-  UpdateCommand: jest.fn().mockImplementation((params) => params),
+  GetCommand: vi.fn().mockImplementation(function GetCommand(params) {
+    return params
+  }),
+  PutCommand: vi.fn().mockImplementation(function PutCommand(params) {
+    return params
+  }),
+  QueryCommand: vi.fn().mockImplementation(function QueryCommand(params) {
+    return params
+  }),
+  ScanCommand: vi.fn().mockImplementation(function ScanCommand(params) {
+    return params
+  }),
+  TransactWriteCommand: vi.fn().mockImplementation(function TransactWriteCommand(params) {
+    return params
+  }),
+  UpdateCommand: vi.fn().mockImplementation(function UpdateCommand(params) {
+    return params
+  }),
 }))
 
 // Import the class dynamically after mocking
@@ -54,11 +72,11 @@ describe('CustomDynamoClient', () => {
   const originalEnv = process.env
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Reset console mocks
-    jest.spyOn(console, 'log').mockImplementation(() => {})
-    jest.spyOn(console, 'info').mockImplementation(() => {})
-    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'info').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
     // Reset mockSend for each test
     mockSend.mockClear()
     sentCommand = undefined
@@ -824,7 +842,7 @@ describe('CustomDynamoClient', () => {
     })
 
     it('returns false when there is an error', async () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementationOnce(() => {})
+      const errorSpy = vi.spyOn(console, 'error').mockImplementationOnce(() => {})
       const client = new CustomDynamoClient('TestTable')
       const error = new Error('Failed to delete')
       mockSend.mockRejectedValueOnce(error)
@@ -972,8 +990,8 @@ describe('CustomDynamoClient', () => {
     })
 
     it('handles TransactionCanceledException', async () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       const client = new CustomDynamoClient('TestTable')
       const items = [{ Put: { Item: { id: { S: '1' } } } }]
@@ -994,8 +1012,8 @@ describe('CustomDynamoClient', () => {
     })
 
     it('handles TransactionCanceledException without reasons', async () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       const client = new CustomDynamoClient('TestTable')
       const items = [{ Put: { Item: { id: { S: '1' } } } }]
@@ -1012,7 +1030,7 @@ describe('CustomDynamoClient', () => {
     })
 
     it('handles unexpected errors in transaction', async () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const client = new CustomDynamoClient('TestTable')
       const items = [{ Put: { Item: { id: { S: '1' } } } }]

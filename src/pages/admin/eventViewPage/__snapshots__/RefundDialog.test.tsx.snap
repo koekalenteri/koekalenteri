@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RefundDialog renders hidden when open is false 1`] = `<div />`;
+exports[`RefundDialog > renders hidden when open is false 1`] = `<div />`;
 
-exports[`RefundDialog renders with open dialog 1`] = `
+exports[`RefundDialog > renders with open dialog 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -617,7 +617,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                 <div
                   class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                   role="presentation"
-                  style="width: 600px; flex-basis: 80px; flex-shrink: 0;"
+                  style="width: 600px; flex-shrink: 0; flex-basis: 80px;"
                 >
                   <div
                     class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"

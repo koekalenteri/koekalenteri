@@ -1,21 +1,17 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { broadcast } from './broadcast'
 
 describe('ws/broadcast', () => {
-  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
   afterAll(() => {
     logSpy.mockRestore()
   })
 
   it('sends to audience and returns counters', async () => {
-    const send = jest
-      .fn<any>()
-      .mockResolvedValueOnce('sent')
-      .mockResolvedValueOnce('gone')
-      .mockResolvedValueOnce('failed')
-    const onGoneConnection = jest.fn<any>().mockResolvedValue(undefined)
-    const log = jest.fn<any>()
+    const send = vi.fn().mockResolvedValueOnce('sent').mockResolvedValueOnce('gone').mockResolvedValueOnce('failed')
+    const onGoneConnection = vi.fn().mockResolvedValue(undefined)
+    const log = vi.fn()
 
     const result = await broadcast({
       audience: async () => [{ connectionId: 'a' } as any, { connectionId: 'b' } as any, { connectionId: 'c' } as any],
@@ -33,8 +29,8 @@ describe('ws/broadcast', () => {
   })
 
   it('builds payload separately for each recipient', async () => {
-    const send = jest.fn<any>().mockResolvedValue('sent')
-    const buildPayload = jest.fn((audience: Array<{ connectionId: string }>, recipient: { connectionId: string }) => ({
+    const send = vi.fn().mockResolvedValue('sent')
+    const buildPayload = vi.fn((audience: Array<{ connectionId: string }>, recipient: { connectionId: string }) => ({
       audience: audience.map((connection) => connection.connectionId),
       recipient: recipient.connectionId,
     }))
@@ -58,12 +54,12 @@ describe('ws/broadcast', () => {
   it('limits broadcast concurrency', async () => {
     let active = 0
     let maxActive = 0
-    const send = jest.fn<any>(async () => {
+    const send = vi.fn(async () => {
       active += 1
       maxActive = Math.max(maxActive, active)
       await Promise.resolve()
       active -= 1
-      return 'sent'
+      return 'sent' as const
     })
 
     const result = await broadcast({
@@ -79,11 +75,11 @@ describe('ws/broadcast', () => {
   })
 
   it('counts unexpected send rejections as failures', async () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const result = await broadcast({
       audience: async () => [{ connectionId: 'a' } as any],
       buildPayload: () => ({ type: 'test' }),
-      send: jest.fn<any>().mockRejectedValue(new Error('network failure')),
+      send: vi.fn().mockRejectedValue(new Error('network failure')),
     })
 
     expect(result).toEqual({ attempted: 1, failed: 1, gone: 0, sent: 0 })

@@ -16,19 +16,19 @@ import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils
 import { idTokenAtom } from '../recoil'
 import EventEditPage from './EventEditPage'
 
-jest.mock('../../api/user')
-jest.mock('../../api/event')
-jest.mock('../../api/eventType')
-jest.mock('../../api/judge')
-jest.mock('../../api/official')
-jest.mock('../../api/organizer')
-jest.mock('../../api/registration')
+vi.mock('../../api/user')
+vi.mock('../../api/event')
+vi.mock('../../api/eventType')
+vi.mock('../../api/judge')
+vi.mock('../../api/official')
+vi.mock('../../api/organizer')
+vi.mock('../../api/registration')
 
-const mockSubscribeEvent = jest.fn()
-const mockUnsubscribeEvent = jest.fn()
+const mockSubscribeEvent = vi.fn()
+const mockUnsubscribeEvent = vi.fn()
 let mockViewers: Array<{ name: string; userId: string }> = []
 
-jest.mock('../../hooks/useWebSocket', () => ({
+vi.mock('../../hooks/useWebSocket', () => ({
   useWebSocketContext: () => ({
     subscribeEvent: mockSubscribeEvent,
     unsubscribeEvent: mockUnsubscribeEvent,
@@ -37,21 +37,21 @@ jest.mock('../../hooks/useWebSocket', () => ({
 }))
 
 describe('EventEditPage', () => {
-  let consoleDebug: jest.SpiedFunction<typeof console.debug>
+  let consoleDebug: import('vitest').MockInstance<typeof console.debug>
 
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
   beforeEach(() => {
-    consoleDebug = jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+    consoleDebug = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
   })
   afterEach(() => {
     cleanup()
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
     consoleDebug.mockRestore()
     mockSubscribeEvent.mockClear()
     mockUnsubscribeEvent.mockClear()
     mockViewers = []
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders properly', async () => {
     const { i18n } = useTranslation()

@@ -1,36 +1,36 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 const setEventBody = (event: { body: string }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
-const mockPublishAdminDataInvalidation = jest.fn<any>()
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+const mockPublishAdminDataInvalidation = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
 }))
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuthorize = jest.fn<any>()
-const mockGetOrigin = jest.fn<any>()
-const mockGetAndUpdateUserByEmail = jest.fn<any>()
-const mockSetUserRole = jest.fn<any>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuthorize = vi.fn()
+const mockGetOrigin = vi.fn()
+const mockGetAndUpdateUserByEmail = vi.fn()
+const mockSetUserRole = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
   getAndUpdateUserByEmail: mockGetAndUpdateUserByEmail,
 }))
 
-jest.unstable_mockModule('../lib/api-gw', () => ({
+vi.doMock('../lib/api-gw', () => ({
   getOrigin: mockGetOrigin,
 }))
 
-jest.unstable_mockModule('../lib/user', () => ({
+vi.doMock('../lib/user', () => ({
   setUserRole: mockSetUserRole,
 }))
 
@@ -50,10 +50,10 @@ describe('putUserLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Spy on console methods to prevent logs from being displayed
-    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({

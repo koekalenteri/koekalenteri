@@ -1,13 +1,13 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockGetEvent = vi.fn()
 
-jest.unstable_mockModule('./auth', () => ({
+vi.doMock('./auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('./event', () => ({
+vi.doMock('./event', () => ({
   getEvent: mockGetEvent,
 }))
 
@@ -17,12 +17,12 @@ describe('authorizeEvent', () => {
   const request = {} as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('returns authentication failures without loading the event', async () => {
     const res = { body: 'Unauthorized', statusCode: 401 }
-    const getEventId = jest.fn(() => 'event1')
+    const getEventId = vi.fn(() => 'event1')
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res })
 
     await expect(authorizeEvent(request, getEventId)).resolves.toEqual({ res })

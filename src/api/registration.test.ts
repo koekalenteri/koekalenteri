@@ -1,6 +1,6 @@
 import type { Registration } from '../types'
-import fetchMock from 'jest-fetch-mock'
 import { API_BASE_URL } from '../routeConfig'
+import fetchMock from '../test-utils/fetchMock'
 import {
   getRegistration,
   getRegistrations,
@@ -82,6 +82,7 @@ fetchMock.enableMocks()
 
 beforeEach(() => {
   fetchMock.resetMocks()
+  fetchMock.enableMocks()
   sessionStorage.clear()
 })
 

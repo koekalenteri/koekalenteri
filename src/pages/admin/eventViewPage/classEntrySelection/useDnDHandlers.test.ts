@@ -6,27 +6,29 @@ import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registra
 import { determineChangesFromDrop } from './dnd'
 import { useDnDHandlers } from './useDnDHandlers'
 
+const { mockEnqueueSnackbar } = vi.hoisted(() => ({ mockEnqueueSnackbar: vi.fn() }))
+
 // Mock dependencies
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
 }))
 
-jest.mock('notistack', () => ({
+vi.mock('notistack', () => ({
   useSnackbar: () => ({
-    enqueueSnackbar: jest.fn(),
+    enqueueSnackbar: mockEnqueueSnackbar,
   }),
 }))
 
-jest.mock('../../../../lib/client/rum', () => ({
-  rum: jest.fn(() => ({
-    recordEvent: jest.fn(),
+vi.mock('../../../../lib/client/rum', () => ({
+  rum: vi.fn(() => ({
+    recordEvent: vi.fn(),
   })),
 }))
 
-jest.mock('./dnd', () => ({
-  determineChangesFromDrop: jest.fn(),
+vi.mock('./dnd', () => ({
+  determineChangesFromDrop: vi.fn(),
 }))
 
 describe('useDnDHandlers', () => {
@@ -57,10 +59,10 @@ describe('useDnDHandlers', () => {
     index: 0,
   }
 
-  const mockConfirm = jest.fn().mockResolvedValue({ confirmed: true })
-  const mockSetSelectedRegistrationId = jest.fn()
-  const mockSaveGroups = jest.fn().mockResolvedValue(undefined)
-  const mockOnCancelOpen = jest.fn()
+  const mockConfirm = vi.fn().mockResolvedValue({ confirmed: true })
+  const mockSetSelectedRegistrationId = vi.fn()
+  const mockSaveGroups = vi.fn().mockResolvedValue(undefined)
+  const mockOnCancelOpen = vi.fn()
 
   const defaultProps = {
     canArrangeReserve: true,
@@ -73,8 +75,8 @@ describe('useDnDHandlers', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    ;(determineChangesFromDrop as jest.Mock).mockReturnValue([])
+    vi.clearAllMocks()
+    ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue([])
   })
 
   describe('handleDrop', () => {
@@ -90,7 +92,7 @@ describe('useDnDHandlers', () => {
     })
 
     it('should show confirmation dialog when required', async () => {
-      const mockConfirmWithStructure = jest.fn().mockResolvedValue({ confirmed: true })
+      const mockConfirmWithStructure = vi.fn().mockResolvedValue({ confirmed: true })
 
       const props = {
         ...defaultProps,
@@ -116,7 +118,7 @@ describe('useDnDHandlers', () => {
     })
 
     it('should not proceed if confirmation is cancelled', async () => {
-      const mockCancelledConfirm = jest.fn().mockResolvedValue({ confirmed: false })
+      const mockCancelledConfirm = vi.fn().mockResolvedValue({ confirmed: false })
       const props = {
         ...defaultProps,
         confirm: mockCancelledConfirm,
@@ -139,7 +141,7 @@ describe('useDnDHandlers', () => {
 
     it('should include extra text in confirmation for invited state', async () => {
       // Mock confirm to return the expected structure
-      const mockConfirmWithStructure = jest.fn().mockResolvedValue({ confirmed: true })
+      const mockConfirmWithStructure = vi.fn().mockResolvedValue({ confirmed: true })
 
       const props = {
         ...defaultProps,
@@ -181,7 +183,7 @@ describe('useDnDHandlers', () => {
       const mockChanges: RegistrationGroupInfo[] = [
         { eventId: 'event1', group: { key: 'group2', number: 1 }, id: 'reg1' },
       ]
-      ;(determineChangesFromDrop as jest.Mock).mockReturnValue(mockChanges)
+      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue(mockChanges)
 
       const { result } = renderHook(() => useDnDHandlers(defaultProps))
 
@@ -196,7 +198,7 @@ describe('useDnDHandlers', () => {
       const mockChanges: RegistrationGroupInfo[] = [
         { cancelled: true, eventId: 'event1', group: { key: GROUP_KEY_CANCELLED, number: 1 }, id: 'reg1' },
       ]
-      ;(determineChangesFromDrop as jest.Mock).mockReturnValue(mockChanges)
+      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue(mockChanges)
 
       const { result } = renderHook(() => useDnDHandlers(defaultProps))
 
@@ -207,7 +209,7 @@ describe('useDnDHandlers', () => {
     })
 
     it('should not call saveGroups when no changes are returned', async () => {
-      ;(determineChangesFromDrop as jest.Mock).mockReturnValue([])
+      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue([])
 
       const { result } = renderHook(() => useDnDHandlers(defaultProps))
 
@@ -218,14 +220,6 @@ describe('useDnDHandlers', () => {
   })
 
   describe('handleReject', () => {
-    const mockEnqueueSnackbar = jest.fn()
-
-    beforeEach(() => {
-      jest.spyOn(require('notistack'), 'useSnackbar').mockImplementation(() => ({
-        enqueueSnackbar: mockEnqueueSnackbar,
-      }))
-    })
-
     it('should do nothing if registration is not found', () => {
       const { result } = renderHook(() => useDnDHandlers(defaultProps))
 
@@ -296,8 +290,8 @@ describe('useDnDHandlers', () => {
     })
 
     it('should record event and show error message when registration is not in the target group', () => {
-      const mockRumRecordEvent = jest.fn()
-      ;(rum as jest.Mock).mockReturnValue({
+      const mockRumRecordEvent = vi.fn()
+      ;(rum as import('vitest').Mock).mockReturnValue({
         recordEvent: mockRumRecordEvent,
       })
 

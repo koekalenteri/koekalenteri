@@ -4,13 +4,13 @@ import { flushPromises, renderWithUserEvents } from '../../../../../../test-util
 import ClassPlacesTable from './ClassPlacesTable'
 
 describe('ClassPlacesTable', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render correctly', () => {
-    const handleChange = jest.fn()
-    const handlePlacesChange = jest.fn()
+    const handleChange = vi.fn()
+    const handlePlacesChange = vi.fn()
 
     const { container } = render(
       <ClassPlacesTable
@@ -25,8 +25,8 @@ describe('ClassPlacesTable', () => {
   })
 
   it('should render with classesEnabled=false', () => {
-    const handleChange = jest.fn()
-    const handlePlacesChange = jest.fn()
+    const handleChange = vi.fn()
+    const handlePlacesChange = vi.fn()
 
     const { container } = render(
       <ClassPlacesTable
@@ -41,8 +41,8 @@ describe('ClassPlacesTable', () => {
   })
 
   it('should call handleChange when class places are changed', async () => {
-    const handleChange = jest.fn()
-    const handlePlacesChange = jest.fn()
+    const handleChange = vi.fn()
+    const handlePlacesChange = vi.fn()
 
     const { user } = renderWithUserEvents(
       <ClassPlacesTable
@@ -54,7 +54,7 @@ describe('ClassPlacesTable', () => {
       />,
       undefined,
       {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       }
     )
     await flushPromises()
@@ -72,8 +72,8 @@ describe('ClassPlacesTable', () => {
   })
 
   it('should call handlePlacesChange when total places are changed', async () => {
-    const handleChange = jest.fn()
-    const handlePlacesChange = jest.fn()
+    const handleChange = vi.fn()
+    const handlePlacesChange = vi.fn()
 
     const { user } = renderWithUserEvents(
       <ClassPlacesTable
@@ -85,7 +85,7 @@ describe('ClassPlacesTable', () => {
       />,
       undefined,
       {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       }
     )
     await flushPromises()

@@ -1,30 +1,32 @@
 import type { JsonUser } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-jest.useFakeTimers()
-jest.setSystemTime(new Date('2023-11-30T20:00:00Z'))
-jest.unstable_mockModule('nanoid', () => ({ nanoid: () => 'test-id' }))
+vi.useFakeTimers()
+vi.setSystemTime(new Date('2023-11-30T20:00:00Z'))
+vi.doMock('nanoid', () => ({ nanoid: () => 'test-id' }))
 
-jest.unstable_mockModule('../lib/user', () => ({
-  findUserByEmail: jest.fn(),
-  updateUser: jest.fn(),
-  userIsMemberOf: jest.fn(),
+vi.doMock('../lib/user', () => ({
+  findUserByEmail: vi.fn(),
+  updateUser: vi.fn(),
+  userIsMemberOf: vi.fn(),
 }))
 
-const mockRead = jest.fn(async (): Promise<any> => undefined)
-const mockWrite = jest.fn()
+const mockRead = vi.fn(async (): Promise<any> => undefined)
+const mockWrite = vi.fn()
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: jest.fn(() => ({
-    read: mockRead,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      write: mockWrite,
+    }
+  }),
 }))
 
-const logSpy = jest.spyOn(console, 'log').mockImplementation(() => null)
-const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null)
-const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => null)
+const logSpy = vi.spyOn(console, 'log').mockImplementation(() => null)
+const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null)
+const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => null)
 
 const { findUserByEmail, updateUser, userIsMemberOf } = await import('./user')
 const { authorize, authorizeAdmin, authorizeWithMemberOf, getAndUpdateUserByEmail, getUsername } = await import(
@@ -32,8 +34,11 @@ const { authorize, authorizeAdmin, authorizeWithMemberOf, getAndUpdateUserByEmai
 )
 
 describe('auth', () => {
-  afterEach(() => {
-    jest.resetAllMocks()
+  beforeEach(() => {
+    vi.resetAllMocks()
+    logSpy.mockImplementation(() => null)
+    warnSpy.mockImplementation(() => null)
+    errorSpy.mockImplementation(() => null)
   })
 
   describe('authorize', () => {
@@ -131,7 +136,7 @@ describe('auth', () => {
         name: 'existing name',
       } satisfies JsonUser
 
-      ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValue(existingUser)
+      ;(findUserByEmail as import('vitest').MockedFunction<typeof findUserByEmail>).mockResolvedValue(existingUser)
 
       const result = await authorize(event)
 
@@ -225,7 +230,7 @@ describe('auth', () => {
         name: 'existing name',
       } satisfies JsonUser
 
-      ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValue(existingUser)
+      ;(findUserByEmail as import('vitest').MockedFunction<typeof findUserByEmail>).mockResolvedValue(existingUser)
 
       const result = await authorize(event)
 
@@ -366,7 +371,7 @@ describe('auth', () => {
         modifiedBy: 'system',
         name: '',
       }
-      ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce(existingUser)
+      ;(findUserByEmail as import('vitest').MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce(existingUser)
 
       const result = await getAndUpdateUserByEmail('user@example.com', {}, false, true)
 
@@ -384,7 +389,7 @@ describe('auth', () => {
     `(
       'with oldName="$oldName", newName="$newName" should result to "$expected"',
       async ({ oldName, newName, expected }) => {
-        ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce({
+        ;(findUserByEmail as import('vitest').MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce({
           createdAt: '2023-11-30T20:00:00.000Z',
           createdBy: 'system',
           email: 'address@domain.com',
@@ -400,7 +405,7 @@ describe('auth', () => {
     )
 
     it('should update name when requested', async () => {
-      ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce({
+      ;(findUserByEmail as import('vitest').MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce({
         createdAt: '2023-11-30T20:00:00.000Z',
         createdBy: 'system',
         email: 'user@email.com',
@@ -415,7 +420,7 @@ describe('auth', () => {
     })
 
     it('should append emailHistory when existing email changes via login', async () => {
-      ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce({
+      ;(findUserByEmail as import('vitest').MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce({
         createdAt: '2023-11-30T20:00:00.000Z',
         createdBy: 'system',
         email: 'old@example.com',
@@ -505,7 +510,7 @@ describe('auth', () => {
 
       mockRead.mockResolvedValueOnce(link)
       mockRead.mockResolvedValueOnce(existingUser)
-      ;(userIsMemberOf as jest.MockedFunction<typeof userIsMemberOf>).mockReturnValue([])
+      ;(userIsMemberOf as import('vitest').MockedFunction<typeof userIsMemberOf>).mockReturnValue([])
 
       const result = await authorizeWithMemberOf(event)
 
@@ -535,7 +540,7 @@ describe('auth', () => {
 
       mockRead.mockResolvedValueOnce(link)
       mockRead.mockResolvedValueOnce(existingUser)
-      ;(userIsMemberOf as jest.MockedFunction<typeof userIsMemberOf>).mockReturnValue(['org-1'])
+      ;(userIsMemberOf as import('vitest').MockedFunction<typeof userIsMemberOf>).mockReturnValue(['org-1'])
 
       const result = await authorizeWithMemberOf(event)
 

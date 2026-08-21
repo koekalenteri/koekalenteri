@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ErrorPage should render 404 1`] = `
+exports[`ErrorPage > should render 404 1`] = `
 <div>
   <div
     class="MuiBox-root css-r8ug1n"
@@ -31,7 +31,7 @@ exports[`ErrorPage should render 404 1`] = `
 </div>
 `;
 
-exports[`ErrorPage should render 500 1`] = `
+exports[`ErrorPage > should render 500 1`] = `
 <div>
   <div
     class="MuiBox-root css-r8ug1n"

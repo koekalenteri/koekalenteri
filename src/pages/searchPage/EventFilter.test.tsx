@@ -68,7 +68,7 @@ const renderComponent = (
       </LocalizationProvider>
     </ThemeProvider>,
     undefined,
-    fakeTimers ? { advanceTimers: jest.advanceTimersByTime } : undefined
+    fakeTimers ? { advanceTimers: vi.advanceTimersByTime } : undefined
   )
 }
 
@@ -113,7 +113,7 @@ describe('EventFilter', () => {
   }
 
   it('should fire onChange for autocomplete fields', async () => {
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
     const { user } = renderComponent(
       { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: null },
       changeHandler
@@ -130,7 +130,7 @@ describe('EventFilter', () => {
   }, 20000)
 
   it('should fire onChange for switches', async () => {
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
     const { user } = renderComponent(
       { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: null },
       changeHandler
@@ -145,8 +145,8 @@ describe('EventFilter', () => {
   })
 
   it('should fire onChange for date picker and switches', async () => {
-    jest.useFakeTimers()
-    const changeHandler = jest.fn()
+    vi.useFakeTimers()
+    const changeHandler = vi.fn()
     const { user } = renderComponent(
       { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: null },
       changeHandler,
@@ -160,12 +160,12 @@ describe('EventFilter', () => {
     await user.click(day25)
 
     // DateRange uses a debounced onChange (100ms) via `useDebouncedCallback()`.
-    jest.advanceTimersByTime(150)
+    vi.advanceTimersByTime(150)
 
     await flushPromises()
 
     expect(changeHandler).toHaveBeenCalledTimes(1)
 
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 })

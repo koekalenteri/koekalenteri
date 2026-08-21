@@ -1,35 +1,39 @@
 import type { JsonUser } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockPublishAdminDataInvalidation = jest.fn<any>()
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+const mockPublishAdminDataInvalidation = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
 }))
 
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
-jest.unstable_mockModule('../lib/KLAPI', () => ({
-  default: jest.fn(() => ({})),
+vi.doMock('../lib/KLAPI', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {}
+  }),
 }))
 
-jest.unstable_mockModule('../lib/api-gw', () => ({
-  getOrigin: jest.fn(),
+vi.doMock('../lib/api-gw', () => ({
+  getOrigin: vi.fn(),
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: jest.fn(),
-  getAndUpdateUserByEmail: jest.fn(),
+vi.doMock('../lib/auth', () => ({
+  authorize: vi.fn(),
+  getAndUpdateUserByEmail: vi.fn(),
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({ readAll: jest.fn() })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return { readAll: vi.fn() }
+  }),
 }))
 
 const { authorize } = await import('../lib/auth')
-const authorizeMock = authorize as jest.Mock<typeof authorize>
+const authorizeMock = authorize as import('vitest').Mock<typeof authorize>
 
 const { default: getJudgesHandler, dynamoDB } = await import('./handler')
-const mockDynamoDB = dynamoDB as jest.Mocked<typeof dynamoDB>
+const mockDynamoDB = dynamoDB as import('vitest').Mocked<typeof dynamoDB>
 
 const mockUser: JsonUser = {
   createdAt: '',
@@ -42,7 +46,7 @@ const mockUser: JsonUser = {
 }
 
 describe('getJudgesLambda', () => {
-  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+  vi.spyOn(console, 'debug').mockImplementation(() => undefined)
 
   it('should return 401 if authorization fails', async () => {
     authorizeMock.mockResolvedValueOnce(null)

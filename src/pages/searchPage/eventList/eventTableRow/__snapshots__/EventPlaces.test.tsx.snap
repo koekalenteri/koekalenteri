@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`EventInfo render places for a class in event with multiple classes 1`] = `
+exports[`EventInfo > render places for a class in event with multiple classes 1`] = `
 <div>
   <div
     class="MuiBox-root css-s2uf1z"
@@ -10,7 +10,7 @@ exports[`EventInfo render places for a class in event with multiple classes 1`] 
 </div>
 `;
 
-exports[`EventInfo render places for event entry open but no entries 1`] = `
+exports[`EventInfo > render places for event entry open but no entries 1`] = `
 <div>
   <div
     class="MuiBox-root css-s2uf1z"
@@ -20,7 +20,7 @@ exports[`EventInfo render places for event entry open but no entries 1`] = `
 </div>
 `;
 
-exports[`EventInfo render places for event with single class and places defined only on event level 1`] = `
+exports[`EventInfo > render places for event with single class and places defined only on event level 1`] = `
 <div>
   <div
     class="MuiBox-root css-s2uf1z"

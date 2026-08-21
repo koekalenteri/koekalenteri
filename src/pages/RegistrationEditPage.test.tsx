@@ -13,21 +13,21 @@ import { locales } from '../i18n'
 import { flushPromises } from '../test-utils/utils'
 import RegistrationEditPage from './RegistrationEditPage'
 
-jest.mock('../api/user')
-jest.mock('../api/event')
-jest.mock('../api/eventType')
-jest.mock('../api/judge')
-jest.mock('../api/official')
-jest.mock('../api/organizer')
-jest.mock('../api/registration')
+vi.mock('../api/user')
+vi.mock('../api/event')
+vi.mock('../api/eventType')
+vi.mock('../api/judge')
+vi.mock('../api/official')
+vi.mock('../api/organizer')
+vi.mock('../api/registration')
 
-jest.mock('react-router', () => ({
-  ...jest.requireActual('react-router'),
-  Link: jest.fn().mockImplementation(() => <>link</>),
-  useNavigate: jest.fn(),
-  useParams: jest.fn(),
+vi.mock('react-router', async () => ({
+  ...(await vi.importActual<typeof import('react-router')>('react-router')),
+  Link: vi.fn().mockImplementation(() => <>link</>),
+  useNavigate: vi.fn(),
+  useParams: vi.fn(),
 }))
-const mockUseParams = useParams as jest.Mock
+const mockUseParams = useParams as import('vitest').Mock
 
 function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
@@ -46,9 +46,9 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 }
 
 describe('RegistrationEditPage', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render', async () => {
     const { eventId, id } = registrationWithStaticDates

@@ -3,8 +3,8 @@ import { act } from 'react'
 import { RecoilRoot } from 'recoil'
 import { useDogCacheKey } from './useDogCacheKey'
 
-jest.spyOn(Storage.prototype, 'setItem')
-jest.spyOn(Storage.prototype, 'getItem')
+vi.spyOn(localStorage, 'setItem')
+vi.spyOn(localStorage, 'getItem')
 
 describe('useDogCache', () => {
   it('should read from localStorage', () => {

@@ -1,11 +1,11 @@
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockBatchWrite = jest.fn<CustomDynamoClient['batchWrite']>()
-const mockDelete = jest.fn<CustomDynamoClient['delete']>()
-const mockReadAll = jest.fn<CustomDynamoClient['readAll']>()
+const mockBatchWrite = vi.fn<CustomDynamoClient['batchWrite']>()
+const mockDelete = vi.fn<CustomDynamoClient['delete']>()
+const mockReadAll = vi.fn<CustomDynamoClient['readAll']>()
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
   default: class {
     batchWrite = mockBatchWrite
     delete = mockDelete
@@ -13,7 +13,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   },
 }))
 
-jest.unstable_mockModule('../config', () => ({
+vi.doMock('../config', () => ({
   CONFIG: {
     eventStatsTable: 'event-stats-table',
     eventTable: 'event-table',
@@ -42,10 +42,10 @@ const registration = (id: string, eventId: string, overrides = {}) => ({
 })
 
 describe('BackfillEventStatsFunction', () => {
-  const mockLog = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+  const mockLog = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockDelete.mockResolvedValue(true)
     mockBatchWrite.mockResolvedValue(undefined)
   })

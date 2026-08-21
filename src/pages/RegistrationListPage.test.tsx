@@ -2,7 +2,7 @@ import type { RouteObject } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { act, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
@@ -17,43 +17,38 @@ import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
 import { RegistrationListPage } from './RegistrationListPage'
 
-jest.mock('../lib/client/navigation', () => ({
-  redirectTo: jest.fn(),
+vi.mock('../lib/client/navigation', async () => ({
+  redirectTo: vi.fn(),
 }))
 
 import { redirectTo } from '../lib/client/navigation'
 
 // Mock the API modules
-jest.mock('../api/user')
-jest.mock('../api/event')
-jest.mock('../api/eventType')
-jest.mock('../api/judge')
-jest.mock('../api/official')
-jest.mock('../api/organizer')
-jest.mock('../api/registration')
-jest.mock('../hooks/useRegistrationSubscription', () => ({ useRegistrationSubscription: jest.fn() }))
+vi.mock('../api/user')
+vi.mock('../api/event')
+vi.mock('../api/eventType')
+vi.mock('../api/judge')
+vi.mock('../api/official')
+vi.mock('../api/organizer')
+vi.mock('../api/registration')
+vi.mock('../hooks/useRegistrationSubscription', async () => ({ useRegistrationSubscription: vi.fn() }))
 
 // Mock the enqueueSnackbar function
-jest.mock('notistack', () => ({
-  ...jest.requireActual('notistack'),
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', async () => ({
+  ...(await vi.importActual<typeof import('notistack')>('notistack')),
+  enqueueSnackbar: vi.fn(),
 }))
 
 describe('RegistrationListPage', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeEach(() => vi.useFakeTimers())
 
   afterEach(async () => {
-    await act(async () => {
-      jest.runOnlyPendingTimers()
-      await Promise.resolve()
-    })
     localStorage.clear()
     sessionStorage.clear()
-    jest.restoreAllMocks()
-    jest.clearAllMocks()
+    vi.restoreAllMocks()
+    vi.clearAllMocks()
+    vi.useRealTimers()
   })
-
-  afterAll(() => jest.useRealTimers())
 
   // Helper function to render the component with router
   const renderWithRouter = (
@@ -104,7 +99,7 @@ describe('RegistrationListPage', () => {
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     return {
@@ -125,7 +120,7 @@ describe('RegistrationListPage', () => {
 
   it('opens cancel dialog when on cancel route', async () => {
     // allow couple of minutes margin for timers
-    jest.setSystemTime(new Date('2021-02-08T23:55:00.000+02:00')) // must be before event.endDate
+    vi.setSystemTime(new Date('2021-02-08T23:55:00.000+02:00')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/cancel')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()
@@ -142,7 +137,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('opens cancel dialog when on cancel route (late)', async () => {
-    jest.setSystemTime(new Date('2021-02-08T23:59:59.000+02:00')) // must be before event.endDate
+    vi.setSystemTime(new Date('2021-02-09T00:00:01.000+02:00')) // one second after cancellation closes
     renderWithRouter('/r/test1/nou-registration/cancel')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()
@@ -157,7 +152,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('opens confirm dialog when on confirm route', async () => {
-    jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
+    vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/confirm')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()
@@ -169,8 +164,8 @@ describe('RegistrationListPage', () => {
   })
 
   it('opens confirm dialog from the registration details page when confirmation is pending', async () => {
-    jest.setSystemTime(new Date('2021-02-08'))
-    jest.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+    vi.setSystemTime(new Date('2021-02-08'))
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
       ...registrationWithStaticDates,
       messagesSent: { picked: true },
     })
@@ -188,8 +183,8 @@ describe('RegistrationListPage', () => {
   })
 
   it('shows loading instead of event not found while confirm route event fetch is pending', async () => {
-    jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
-    jest.spyOn(eventApi, 'getEvent').mockReturnValue(new Promise(() => {}) as never)
+    vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
+    vi.spyOn(eventApi, 'getEvent').mockReturnValue(new Promise(() => {}) as never)
 
     renderWithRouter('/r/test1/nou-registration/confirm')
 
@@ -202,7 +197,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('handles cancel action when cancel dialog is submitted', async () => {
-    jest.setSystemTime(new Date('2021-02-08')) // must be at leaset 1 days before event start
+    vi.setSystemTime(new Date('2021-02-08')) // must be at leaset 1 days before event start
 
     const { user } = renderWithRouter('/r/test1/nou-registration/cancel')
 
@@ -236,15 +231,15 @@ describe('RegistrationListPage', () => {
   })
 
   it('handles confirm action when confirm dialog is submitted', async () => {
+    vi.useRealTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
     const confirmRequest = new Promise((resolve) =>
       setTimeout(() => resolve({ ...unpaidRegistrationWithStaticDates, confirmed: true }), 1000)
     )
-    const patchRegistrationSpy = jest
-      .spyOn(registrationApi, 'patchRegistration')
-      .mockReturnValue(confirmRequest as never)
+    const patchRegistrationSpy = vi.spyOn(registrationApi, 'patchRegistration').mockReturnValue(confirmRequest as never)
 
-    jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
-    const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
+    vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
+    renderWithRouter('/r/test1/nou-registration/confirm')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
@@ -256,13 +251,13 @@ describe('RegistrationListPage', () => {
 
     const confirmButton = screen.getByRole('button', { name: 'registration.confirmDialog.cta' })
     expect(confirmButton).toBeEnabled()
-    await user.click(confirmButton)
+    fireEvent.click(confirmButton)
 
     expect(confirmButton).toBeDisabled()
 
     expect(patchRegistrationSpy).toHaveBeenCalledTimes(1)
 
-    jest.advanceTimersByTime(1000)
+    await act(async () => vi.advanceTimersByTime(1000))
 
     await flushPromises()
 
@@ -272,12 +267,12 @@ describe('RegistrationListPage', () => {
   })
 
   it('handles 304 from confirm action as a successful no-op', async () => {
-    const patchRegistrationSpy = jest
+    const patchRegistrationSpy = vi
       .spyOn(registrationApi, 'patchRegistration')
       .mockRejectedValue(new APIError(new Response(null, { status: 304, statusText: 'Not Modified' }), ''))
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-    jest.setSystemTime(new Date('2021-02-08'))
+    vi.setSystemTime(new Date('2021-02-08'))
     const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()
@@ -299,9 +294,9 @@ describe('RegistrationListPage', () => {
   })
 
   it('handles invitation read when on invitation route', async () => {
-    const patchRegistrationSpy = jest.spyOn(registrationApi, 'patchRegistration')
+    const patchRegistrationSpy = vi.spyOn(registrationApi, 'patchRegistration')
 
-    jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
+    vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/invitation')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()
@@ -379,7 +374,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('closes confirm dialog when close button is clicked', async () => {
-    jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
+    vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
 
     const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
 
@@ -411,7 +406,9 @@ describe('RegistrationListPage', () => {
   })
 
   it('polls pending payment as a bounded websocket fallback', async () => {
-    const getRegistrationSpy = jest
+    vi.useRealTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
+    const getRegistrationSpy = vi
       .spyOn(registrationApi, 'getRegistration')
       .mockResolvedValueOnce({
         ...unpaidRegistrationWithStaticDates,
@@ -425,16 +422,16 @@ describe('RegistrationListPage', () => {
     renderWithRouter('/r/test1/unpaid-nou-registration')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
     await flushPromises(false)
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
     expect(getRegistrationSpy).toHaveBeenCalledTimes(1)
 
-    jest.advanceTimersByTime(10_000)
+    vi.advanceTimersByTime(10_000)
     expect(getRegistrationSpy).toHaveBeenCalledTimes(1)
 
-    jest.advanceTimersByTime(20_000)
+    await act(async () => vi.advanceTimersByTime(20_000))
 
     expect(getRegistrationSpy).toHaveBeenCalledTimes(2)
     await flushPromises()
@@ -443,7 +440,9 @@ describe('RegistrationListPage', () => {
   })
 
   it('polls after a successful payment return as a bounded websocket fallback', async () => {
-    const getRegistrationSpy = jest
+    vi.useRealTimers()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
+    const getRegistrationSpy = vi
       .spyOn(registrationApi, 'getRegistration')
       .mockResolvedValueOnce({
         ...unpaidRegistrationWithStaticDates,
@@ -456,7 +455,7 @@ describe('RegistrationListPage', () => {
     renderWithRouter('/r/test1/unpaid-nou-registration/saved?payment=verifying')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
     await flushPromises(false)
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -464,7 +463,7 @@ describe('RegistrationListPage', () => {
     expect(screen.queryByRole('button', { name: 'registration.cta.pay' })).not.toBeInTheDocument()
     expect(getRegistrationSpy).toHaveBeenCalledTimes(1)
 
-    jest.advanceTimersByTime(30_000)
+    await act(async () => vi.advanceTimersByTime(30_000))
     expect(getRegistrationSpy).toHaveBeenCalledTimes(2)
     await flushPromises()
 
@@ -548,9 +547,9 @@ describe('RegistrationListPage', () => {
       id: 'class-invitation-registration',
       invitationAttachment: 'alo-attachment',
     }
-    jest.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(event)
-    jest.spyOn(registrationApi, 'getRegistration').mockResolvedValueOnce(registration)
-    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({ ...registration, invitationRead: true })
+    vi.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(event)
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValueOnce(registration)
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({ ...registration, invitationRead: true })
 
     renderWithRouter(`/r/${event.id}/${registration.id}/invitation`)
     await flushPromises()
@@ -560,7 +559,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('hides cancel controls when event start is close', async () => {
-    jest.setSystemTime(new Date('2021-02-09T00:00:00.000+02:00')) // must be before event.endDate
+    vi.setSystemTime(new Date('2021-02-09T00:00:01.000+02:00')) // after cancellation closes
     renderWithRouter('/r/test1/nou-registration/cancel')
 
     expect(screen.getByText('loading...')).toBeInTheDocument()

@@ -29,11 +29,11 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 }
 
 describe('EntryInfo', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
   afterAll(() => {
-    jest.clearAllTimers()
-    jest.useRealTimers()
+    vi.clearAllTimers()
+    vi.useRealTimers()
   })
 
   it('should render with event without classes', async () => {
@@ -67,7 +67,7 @@ describe('EntryInfo', () => {
 
   it('should allow changing class', async () => {
     const reg = merge(registrationWithStaticDatesAndClass, {})
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     const { user } = renderWithUserEvents(
       <EntryInfo
@@ -78,7 +78,7 @@ describe('EntryInfo', () => {
         onChange={changeHandler}
       />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const classInput = screen.getByRole('combobox', { name: 'registration.class' })
@@ -100,7 +100,7 @@ describe('EntryInfo', () => {
 
   it('should clear class when event does not have classes', async () => {
     const reg = merge(registrationWithStaticDatesAndClass, {})
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
 
     render(
       <EntryInfo reg={reg} event={eventWithStaticDates} errorStates={{}} helperTexts={{}} onChange={changeHandler} />,
@@ -115,12 +115,12 @@ describe('EntryInfo', () => {
 
   it('should allow changing reserve option', async () => {
     const reg = merge(registrationWithStaticDates, {})
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     const { user } = renderWithUserEvents(
       <EntryInfo reg={reg} event={eventWithStaticDates} errorStates={{}} helperTexts={{}} onChange={changeHandler} />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const reserveInput = screen.getByRole('combobox', { name: 'registration.reserve' })
@@ -142,15 +142,15 @@ describe('EntryInfo', () => {
 
   it('should filter dates when multiple dates are available', async () => {
     const reg = merge(registrationWithStaticDates, {})
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     // ingnore react complaining about components with dublicate id
-    jest.spyOn(console, 'error').mockImplementation(() => null)
+    vi.spyOn(console, 'error').mockImplementation(() => null)
 
     const { user } = renderWithUserEvents(
       <EntryInfo reg={reg} event={eventWithStaticDates} errorStates={{}} helperTexts={{}} onChange={changeHandler} />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     // Check if date filter is visible
@@ -176,7 +176,7 @@ describe('EntryInfo', () => {
 
   it('should reset groups when switching from NOME-B to NOWT', async () => {
     const reg = merge(registrationWithStaticDatesAndClass, {})
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
     const nowtEvent = {
       ...eventWithStaticDatesAndClass,
       eventType: 'NOWT',
@@ -280,7 +280,7 @@ describe('EntryInfo', () => {
   })
 
   it('should handle open/close state', async () => {
-    const onOpenChange = jest.fn()
+    const onOpenChange = vi.fn()
     const { user } = renderWithUserEvents(
       <EntryInfo
         reg={registrationWithStaticDates}
@@ -291,7 +291,7 @@ describe('EntryInfo', () => {
         onOpenChange={onOpenChange}
       />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
 
@@ -323,7 +323,7 @@ describe('EntryInfo', () => {
 
   it('should override reg.class with className prop (valid RegistrationClass)', async () => {
     const reg = merge(registrationWithStaticDatesAndClass, { class: 'ALO' })
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     render(
       <EntryInfo
@@ -343,7 +343,7 @@ describe('EntryInfo', () => {
 
   it('should clear reg.class when className prop is not a RegistrationClass', async () => {
     const reg = merge(registrationWithStaticDatesAndClass, { class: 'ALO' })
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     render(
       <EntryInfo
@@ -363,7 +363,7 @@ describe('EntryInfo', () => {
 
   it('should pick first available class when current reg.class is not in event classes', async () => {
     const reg = merge(registrationWithStaticDatesAndClass, { class: 'VAL' as any })
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     render(
       <EntryInfo

@@ -1,46 +1,50 @@
 import type { JsonUser } from '../../types'
 import type KLAPI from '../lib/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockPublishAdminDataInvalidation = jest.fn<any>()
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+const mockPublishAdminDataInvalidation = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
 }))
 
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // @ts-expect-error partial mock
-const mockKLAPI: jest.Mocked<KLAPI> = {
-  lueKoemuodot: jest.fn(async () => ({ json: [], status: 200 })),
+const mockKLAPI: import('vitest').Mocked<KLAPI> = {
+  lueKoemuodot: vi.fn<KLAPI['lueKoemuodot']>(async () => ({ json: [], status: 200 })),
 }
 
-jest.unstable_mockModule('../lib/KLAPI', () => ({
-  default: jest.fn(() => mockKLAPI),
+vi.doMock('../lib/KLAPI', () => ({
+  default: vi.fn(function MockKLAPI() {
+    return mockKLAPI
+  }),
 }))
 
-jest.unstable_mockModule('../lib/api-gw', () => ({
-  getOrigin: jest.fn(),
+vi.doMock('../lib/api-gw', () => ({
+  getOrigin: vi.fn(),
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: jest.fn(),
-  getAndUpdateUserByEmail: jest.fn(),
+vi.doMock('../lib/auth', () => ({
+  authorize: vi.fn(),
+  getAndUpdateUserByEmail: vi.fn(),
 }))
 
-const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
-  batchWrite: jest.fn(),
+const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
+  batchWrite: vi.fn(),
   // @ts-expect-error types don't quite match
-  readAll: jest.fn(),
-  update: jest.fn(),
+  readAll: vi.fn(),
+  update: vi.fn(),
 }
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => mockDynamoDB),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return mockDynamoDB
+  }),
 }))
 
 const { authorize } = await import('../lib/auth')
-const authorizeMock = authorize as jest.Mock<typeof authorize>
+const authorizeMock = authorize as import('vitest').Mock<typeof authorize>
 
 const { default: getEventTypesLambda } = await import('./handler')
 
@@ -59,11 +63,11 @@ const mockAdminUser: JsonUser = {
 }
 
 describe('getEventTypesLambda', () => {
-  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
-  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+  vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should return 401 if authorization fails', async () => {

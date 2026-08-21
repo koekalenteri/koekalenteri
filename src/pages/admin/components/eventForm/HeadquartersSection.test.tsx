@@ -12,13 +12,13 @@ const testRenderHQ: Headquarters = {
 
 describe('HeadquartersSection', () => {
   it('should render open', () => {
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
     const { container } = render(<HeadquartersSection headquarters={testRenderHQ} onChange={changeHandler} open />)
     expect(container).toMatchSnapshot()
   })
 
   it('should render collapsed', () => {
-    const changeHandler = jest.fn()
+    const changeHandler = vi.fn()
     const { container } = render(
       <HeadquartersSection headquarters={testRenderHQ} onChange={changeHandler} open={false} />
     )
@@ -28,7 +28,7 @@ describe('HeadquartersSection', () => {
   it('should fire onChange', async () => {
     const testHQ: Partial<Headquarters> = {}
 
-    const changeHandler = jest.fn((props) => {
+    const changeHandler = vi.fn((props) => {
       Object.assign(testHQ, props.headquarters)
     })
 

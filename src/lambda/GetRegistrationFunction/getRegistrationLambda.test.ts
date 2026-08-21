@@ -1,6 +1,6 @@
 import type { JsonRegistration, JsonTransaction, PaymentStatus, PaymentTime, Registration } from '../../types'
-import { jest } from '@jest/globals'
 import { addDays } from 'date-fns'
+import { vi } from 'vitest'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
 import { LambdaError } from '../lib/lambda'
@@ -16,7 +16,7 @@ const mockEventWithInvitationAttachment = {
   invitationAttachments: { ALO: 'alo.pdf' },
 }
 
-const mockGetRegistration = jest.fn(
+const mockGetRegistration = vi.fn(
   (): Registration => ({
     ...registrationsToEventWithParticipantsInvited[0],
     paymentStatus: 'SUCCESS',
@@ -25,43 +25,43 @@ const mockGetRegistration = jest.fn(
 
 import * as libRegistration from '../lib/registration'
 
-const mockAuthorizeRegistrationRead = jest.fn(() => 'test-edit-token')
+const mockAuthorizeRegistrationRead = vi.fn(() => 'test-edit-token')
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   ...libRegistration,
   authorizeRegistrationRead: mockAuthorizeRegistrationRead,
   getRegistration: mockGetRegistration,
 }))
 
-const mockGetEvent = jest.fn(() => mockEventWithInvitationAttachment)
+const mockGetEvent = vi.fn(() => mockEventWithInvitationAttachment)
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-const mockGetTransactionsByReference = jest.fn(() => [] as JsonTransaction[])
+const mockGetTransactionsByReference = vi.fn(() => [] as JsonTransaction[])
 
-jest.unstable_mockModule('../lib/payment', () => ({
+vi.doMock('../lib/payment', () => ({
   getTransactionsByReference: mockGetTransactionsByReference,
 }))
 
 const { default: getRegistrationLambda } = await import('./handler')
 
 describe('getRegistration', () => {
-  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
-  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+  vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
   beforeAll(() => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
   beforeEach(() => {
-    jest.setSystemTime(new Date(mockEventWithInvitationAttachment.startDate))
+    vi.setSystemTime(new Date(mockEventWithInvitationAttachment.startDate))
   })
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
   afterAll(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it.each([
@@ -101,7 +101,7 @@ describe('getRegistration', () => {
   })
 
   it('does not disclose registrations after the event has ended', async () => {
-    jest.setSystemTime(addDays(new Date(mockEventWithInvitationAttachment.endDate), 1))
+    vi.setSystemTime(addDays(new Date(mockEventWithInvitationAttachment.endDate), 1))
 
     const res = await getRegistrationLambda(
       constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })

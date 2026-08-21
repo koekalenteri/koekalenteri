@@ -1,13 +1,13 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockCreateConnection = jest.fn<any>()
-const mockAuthenticateConnection = jest.fn<any>()
-const mockGetConnection = jest.fn<any>()
-const mockQueryPublicConnections = jest.fn<any>()
-const mockRemoveConnection = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
+const mockCreateConnection = vi.fn()
+const mockAuthenticateConnection = vi.fn()
+const mockGetConnection = vi.fn()
+const mockQueryPublicConnections = vi.fn()
+const mockRemoveConnection = vi.fn()
+const mockGetEvent = vi.fn()
 
-jest.unstable_mockModule('./connectionRepository', () => ({
+vi.doMock('./connectionRepository', () => ({
   authenticateConnection: mockAuthenticateConnection,
   createConnection: mockCreateConnection,
   getConnection: mockGetConnection,
@@ -15,18 +15,18 @@ jest.unstable_mockModule('./connectionRepository', () => ({
   removeConnection: mockRemoveConnection,
 }))
 
-jest.unstable_mockModule('../../lib/event', () => ({
+vi.doMock('../../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
 const { authenticateWebSocket, connectWebSocket, disconnectWebSocket } = await import('./connectionLifecycle')
 
 describe('ws/connectionLifecycle', () => {
-  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useRealTimers()
+    vi.clearAllMocks()
+    vi.useRealTimers()
     mockQueryPublicConnections.mockResolvedValue([])
   })
 
@@ -35,7 +35,7 @@ describe('ws/connectionLifecycle', () => {
   })
 
   it('connectWebSocket writes connection', async () => {
-    jest.useFakeTimers().setSystemTime(new Date('2026-05-23T19:00:00.000Z'))
+    vi.useFakeTimers().setSystemTime(new Date('2026-05-23T19:00:00.000Z'))
 
     await connectWebSocket({ connectionId: 'c1' } as any)
 
@@ -86,7 +86,7 @@ describe('ws/connectionLifecycle', () => {
   it('disconnectWebSocket removes and notifies viewers when subscribed', async () => {
     mockGetConnection.mockResolvedValueOnce({ connectionId: 'c1', eventId: 'e1' })
     mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
-    const notifyEventViewers = jest.fn<any>().mockResolvedValue(undefined)
+    const notifyEventViewers = vi.fn().mockResolvedValue(undefined)
 
     await disconnectWebSocket('c1', { notifyEventViewers })
 

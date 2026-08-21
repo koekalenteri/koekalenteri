@@ -1,175 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CancelDialog should display additional info when reason is "dog-sick" 1`] = `
-<body
-  style="padding-right: 1024px; overflow: hidden;"
->
-  <div
-    aria-hidden="true"
-  />
-  <div
-    class="MuiDialog-root MuiModal-root css-1424xw8-MuiModal-root-MuiDialog-root"
-    role="presentation"
-  >
-    <div
-      aria-hidden="true"
-      class="MuiBackdrop-root MuiModal-backdrop MuiDialog-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
-      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
-    />
-    <div
-      data-testid="sentinelStart"
-      tabindex="0"
-    />
-    <div
-      class="MuiDialog-container MuiDialog-scrollPaper css-19do60a-MuiDialog-container"
-      role="presentation"
-      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
-      tabindex="-1"
-    >
-      <div
-        aria-describedby="cancel-dialog-description"
-        aria-labelledby="cancel-dialog-title"
-        aria-modal="true"
-        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm css-10d30g3-MuiPaper-root-MuiDialog-paper"
-        data-mui-focusable=""
-        role="dialog"
-        style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
-        tabindex="-1"
-      >
-        <h2
-          class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-rvoa5x-MuiTypography-root-MuiDialogTitle-root"
-          id="cancel-dialog-title"
-        >
-          registration.cancelDialog.title
-        </h2>
-        <div
-          class="MuiDialogContent-root css-kw13he-MuiDialogContent-root"
-        >
-          <p
-            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-ujudvl-MuiTypography-root-MuiDialogContentText-root"
-            id="cancel-dialog-description"
-          >
-            registration.cancelDialog.text event, registration
-          </p>
-          <p
-            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-1mete47-MuiTypography-root-MuiDialogContentText-root"
-            id="cancel-dialog-description2"
-          >
-            registration.cancelDialog.confirmation
-          </p>
-          <div
-            class="MuiFormControl-root MuiFormControl-fullWidth css-8vktfn-MuiFormControl-root"
-          >
-            <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
-              data-shrink="true"
-              id="reason-label"
-            >
-              registration.cancelDialog.reason
-            </label>
-            <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiSelect-root css-sc8y68-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
-            >
-              <div
-                aria-expanded="false"
-                aria-haspopup="listbox"
-                aria-labelledby="reason-label reaseon"
-                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
-                id="reaseon"
-                role="combobox"
-                tabindex="0"
-              >
-                registration.cancelReason.dog-sick
-              </div>
-              <input
-                aria-hidden="true"
-                aria-invalid="false"
-                class="MuiSelect-nativeInput css-j0riat-MuiSelect-nativeInput"
-                tabindex="-1"
-                value="dog-sick"
-              />
-              <svg
-                aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
-                data-testid="ArrowDropDownIcon"
-                focusable="false"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M7 10l5 5 5-5z"
-                />
-              </svg>
-              <fieldset
-                aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-              >
-                <legend
-                  class="css-ex8a5f-MuiNotchedOutlined-root"
-                >
-                  <span>
-                    registration.cancelDialog.reason
-                  </span>
-                </legend>
-              </fieldset>
-            </div>
-            <p
-              class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-er619e-MuiFormHelperText-root"
-            >
-              registration.cancelReason.dog-sick-info
-                
-              <a
-                href="mailto://secretary@example.com"
-              >
-                secretary@example.com
-              </a>
-            </p>
-          </div>
-          <p
-            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-13w3vqb-MuiTypography-root-MuiDialogContentText-root"
-            id="cancel-dialog-description3"
-          >
-            Katso tarkemmat peruutusehdot
-             
-            <a
-              class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1orsvah-MuiTypography-root-MuiLink-root"
-              href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-              rel="noopener"
-              target="_blank"
-            >
-              säännöistä
-            </a>
-            .
-          </p>
-        </div>
-        <div
-          class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
-        >
-          <button
-            class="MuiButtonBase-root Mui-focusVisible MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-74d805-MuiButtonBase-root-MuiButton-root"
-            tabindex="0"
-            type="button"
-          >
-            registration.cancelDialog.cta
-          </button>
-          <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1blvszr-MuiButtonBase-root-MuiButton-root"
-            tabindex="0"
-            type="button"
-          >
-            close
-          </button>
-        </div>
-      </div>
-    </div>
-    <div
-      data-testid="sentinelEnd"
-      tabindex="0"
-    />
-  </div>
-</body>
-`;
-
-exports[`CancelDialog should display additional info when reason is "handler-sick" 1`] = `
+exports[`CancelDialog > should display additional info when reason is %p 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -338,7 +169,176 @@ exports[`CancelDialog should display additional info when reason is "handler-sic
 </body>
 `;
 
-exports[`CancelDialog should display secretary contact info when disabled 1`] = `
+exports[`CancelDialog > should display additional info when reason is %p 2`] = `
+<body
+  style="padding-right: 1024px; overflow: hidden;"
+>
+  <div
+    aria-hidden="true"
+  />
+  <div
+    class="MuiDialog-root MuiModal-root css-1424xw8-MuiModal-root-MuiDialog-root"
+    role="presentation"
+  >
+    <div
+      aria-hidden="true"
+      class="MuiBackdrop-root MuiModal-backdrop MuiDialog-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
+      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+    />
+    <div
+      data-testid="sentinelStart"
+      tabindex="0"
+    />
+    <div
+      class="MuiDialog-container MuiDialog-scrollPaper css-19do60a-MuiDialog-container"
+      role="presentation"
+      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      tabindex="-1"
+    >
+      <div
+        aria-describedby="cancel-dialog-description"
+        aria-labelledby="cancel-dialog-title"
+        aria-modal="true"
+        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm css-10d30g3-MuiPaper-root-MuiDialog-paper"
+        data-mui-focusable=""
+        role="dialog"
+        style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
+        tabindex="-1"
+      >
+        <h2
+          class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-rvoa5x-MuiTypography-root-MuiDialogTitle-root"
+          id="cancel-dialog-title"
+        >
+          registration.cancelDialog.title
+        </h2>
+        <div
+          class="MuiDialogContent-root css-kw13he-MuiDialogContent-root"
+        >
+          <p
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-ujudvl-MuiTypography-root-MuiDialogContentText-root"
+            id="cancel-dialog-description"
+          >
+            registration.cancelDialog.text event, registration
+          </p>
+          <p
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-1mete47-MuiTypography-root-MuiDialogContentText-root"
+            id="cancel-dialog-description2"
+          >
+            registration.cancelDialog.confirmation
+          </p>
+          <div
+            class="MuiFormControl-root MuiFormControl-fullWidth css-8vktfn-MuiFormControl-root"
+          >
+            <label
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
+              data-shrink="true"
+              id="reason-label"
+            >
+              registration.cancelDialog.reason
+            </label>
+            <div
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiSelect-root css-sc8y68-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
+            >
+              <div
+                aria-expanded="false"
+                aria-haspopup="listbox"
+                aria-labelledby="reason-label reaseon"
+                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                id="reaseon"
+                role="combobox"
+                tabindex="0"
+              >
+                registration.cancelReason.dog-sick
+              </div>
+              <input
+                aria-hidden="true"
+                aria-invalid="false"
+                class="MuiSelect-nativeInput css-j0riat-MuiSelect-nativeInput"
+                tabindex="-1"
+                value="dog-sick"
+              />
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
+                data-testid="ArrowDropDownIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M7 10l5 5 5-5z"
+                />
+              </svg>
+              <fieldset
+                aria-hidden="true"
+                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+              >
+                <legend
+                  class="css-ex8a5f-MuiNotchedOutlined-root"
+                >
+                  <span>
+                    registration.cancelDialog.reason
+                  </span>
+                </legend>
+              </fieldset>
+            </div>
+            <p
+              class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-er619e-MuiFormHelperText-root"
+            >
+              registration.cancelReason.dog-sick-info
+                
+              <a
+                href="mailto://secretary@example.com"
+              >
+                secretary@example.com
+              </a>
+            </p>
+          </div>
+          <p
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-13w3vqb-MuiTypography-root-MuiDialogContentText-root"
+            id="cancel-dialog-description3"
+          >
+            Katso tarkemmat peruutusehdot
+             
+            <a
+              class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1orsvah-MuiTypography-root-MuiLink-root"
+              href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
+              rel="noopener"
+              target="_blank"
+            >
+              säännöistä
+            </a>
+            .
+          </p>
+        </div>
+        <div
+          class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
+        >
+          <button
+            class="MuiButtonBase-root Mui-focusVisible MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-74d805-MuiButtonBase-root-MuiButton-root"
+            tabindex="0"
+            type="button"
+          >
+            registration.cancelDialog.cta
+          </button>
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1blvszr-MuiButtonBase-root-MuiButton-root"
+            tabindex="0"
+            type="button"
+          >
+            close
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      data-testid="sentinelEnd"
+      tabindex="0"
+    />
+  </div>
+</body>
+`;
+
+exports[`CancelDialog > should display secretary contact info when disabled 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -433,7 +433,7 @@ exports[`CancelDialog should display secretary contact info when disabled 1`] = 
 </body>
 `;
 
-exports[`CancelDialog should render for admin 1`] = `
+exports[`CancelDialog > should render for admin 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -600,7 +600,7 @@ exports[`CancelDialog should render for admin 1`] = `
 </body>
 `;
 
-exports[`CancelDialog should render for admin, with reason preselected 1`] = `
+exports[`CancelDialog > should render for admin, with reason preselected 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >
@@ -761,7 +761,7 @@ exports[`CancelDialog should render for admin, with reason preselected 1`] = `
 </body>
 `;
 
-exports[`CancelDialog should render when not disabled 1`] = `
+exports[`CancelDialog > should render when not disabled 1`] = `
 <body
   style="padding-right: 1024px; overflow: hidden;"
 >

@@ -7,13 +7,13 @@ import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../recoil'
 import Header from './Header'
 
-const mockSignOut = jest.fn()
+const mockSignOut = vi.fn()
 
-jest.mock('../../api/user', () => ({
-  getUser: jest.fn(),
+vi.mock('../../api/user', () => ({
+  getUser: vi.fn(),
 }))
 
-jest.mock('../recoil/user/actions', () => ({
+vi.mock('../recoil/user/actions', () => ({
   useUserActions: () => ({
     signOut: mockSignOut,
   }),
@@ -21,14 +21,14 @@ jest.mock('../recoil/user/actions', () => ({
 
 describe('Header', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('does not sign out when user lookup temporarily fails', async () => {
     const error = new Error('temporary user lookup failure')
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
-    ;(getUser as jest.Mock).mockRejectedValueOnce(error)
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    ;(getUser as import('vitest').Mock).mockRejectedValueOnce(error)
 
     try {
       render(

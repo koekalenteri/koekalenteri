@@ -3,7 +3,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import DroppableDataGrid, { canDropInGroup } from './DroppableDataGrid'
 
-jest.mock('../../../components/StyledDataGrid', () => ({
+vi.mock('../../../components/StyledDataGrid', () => ({
   __esModule: true,
   default: (props: any) => (
     <div data-testid="styled-data-grid" data-props={JSON.stringify(props)}>
@@ -12,7 +12,7 @@ jest.mock('../../../components/StyledDataGrid', () => ({
   ),
 }))
 
-jest.mock('./droppableDataGrid/DraggableRow', () => {
+vi.mock('./droppableDataGrid/DraggableRow', () => {
   const DraggableRow = () => <div data-testid="draggable-row" />
 
   DraggableRow.displayName = 'DraggableRow'
@@ -85,7 +85,7 @@ describe('DroppableDataGrid', () => {
 
   // Testing the canDrop function
   it('should determine canDrop based on group and custom canDrop function', () => {
-    const canDropMock = jest.fn().mockReturnValue(true)
+    const canDropMock = vi.fn().mockReturnValue(true)
 
     renderWithDnd(<DroppableDataGrid rows={[]} columns={[]} group="group1" canDrop={canDropMock} />)
 

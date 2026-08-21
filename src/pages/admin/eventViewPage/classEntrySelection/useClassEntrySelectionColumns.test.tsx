@@ -51,9 +51,9 @@ describe('useClassEntrySectionColumns', () => {
   })
 
   it('should include callback functions in action column when provided', () => {
-    const openEditDialogMock = jest.fn()
-    const cancelRegistrationMock = jest.fn()
-    const refundRegistrationMock = jest.fn()
+    const openEditDialogMock = vi.fn()
+    const cancelRegistrationMock = vi.fn()
+    const refundRegistrationMock = vi.fn()
 
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
@@ -118,8 +118,8 @@ describe('useClassEntrySectionColumns', () => {
   })
 
   it('should not include cancel action for cancelled registrations', () => {
-    const openEditDialogMock = jest.fn()
-    const cancelRegistrationMock = jest.fn()
+    const openEditDialogMock = vi.fn()
+    const cancelRegistrationMock = vi.fn()
 
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
@@ -149,7 +149,7 @@ describe('useClassEntrySectionColumns', () => {
   })
 
   it('should include refund action for registrations that can be refunded', () => {
-    const refundRegistrationMock = jest.fn()
+    const refundRegistrationMock = vi.fn()
 
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
@@ -187,7 +187,7 @@ describe('useClassEntrySectionColumns', () => {
   })
 
   it('should not include refund action when refund amount equals paid amount', () => {
-    const refundRegistrationMock = jest.fn()
+    const refundRegistrationMock = vi.fn()
 
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
@@ -330,7 +330,7 @@ describe('useClassEntrySectionColumns', () => {
   })
 
   it('should test the canRefund behavior', () => {
-    const refundRegistrationMock = jest.fn()
+    const refundRegistrationMock = vi.fn()
 
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
@@ -503,9 +503,9 @@ describe('Number column rendering in detail', () => {
 
 describe('Action column in detail', () => {
   it('should handle different combinations of actions', () => {
-    const openEditDialogMock = jest.fn()
-    const cancelRegistrationMock = jest.fn()
-    const refundRegistrationMock = jest.fn()
+    const openEditDialogMock = vi.fn()
+    const cancelRegistrationMock = vi.fn()
+    const refundRegistrationMock = vi.fn()
 
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
@@ -583,14 +583,14 @@ describe('Action column in detail', () => {
   })
 
   it('should call move callbacks when move actions are clicked', () => {
-    const openEditDialogMock = jest.fn()
-    const cancelRegistrationMock = jest.fn()
-    const refundRegistrationMock = jest.fn()
-    const moveToGroupMock = jest.fn()
-    const moveToPositionMock = jest.fn()
-    const moveToReserveMock = jest.fn()
-    const moveToParticipantsMock = jest.fn()
-    const sendMessageMock = jest.fn()
+    const openEditDialogMock = vi.fn()
+    const cancelRegistrationMock = vi.fn()
+    const refundRegistrationMock = vi.fn()
+    const moveToGroupMock = vi.fn()
+    const moveToPositionMock = vi.fn()
+    const moveToReserveMock = vi.fn()
+    const moveToParticipantsMock = vi.fn()
+    const sendMessageMock = vi.fn()
 
     // Force "hasGroups" branch so that "moveToGroup" is included for participants
     const { result } = renderHook(() =>

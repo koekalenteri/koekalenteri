@@ -11,7 +11,7 @@ import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../lib/registratio
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import ClassEntrySelection from './ClassEntrySelection'
 
-const mockSaveGroups = jest.fn().mockResolvedValue(undefined)
+const mockSaveGroups = vi.fn().mockResolvedValue(undefined)
 const activeEvent = {
   ...eventWithStaticDatesAnd3Classes,
   endDate: new Date('2099-12-31'),
@@ -24,39 +24,39 @@ const mockedGroups: RegistrationDate[] = [
 let mockLastCallbacks: any
 let mockDroppableProps: any[] = []
 
-jest.mock('../../../hooks/useAdminEventRegistrationDates', () => ({
+vi.mock('../../../hooks/useAdminEventRegistrationDates', () => ({
   useAdminEventRegistrationDates: () => mockedGroups,
 }))
 
-jest.mock('../../../hooks/useAdminEventRegistrationGroups', () => ({
+vi.mock('../../../hooks/useAdminEventRegistrationGroups', () => ({
   useAdminEventRegistrationGroups: () => mockedGroups,
 }))
 
-jest.mock('../recoil/registrations/actions', () => ({
+vi.mock('../recoil/registrations/actions', () => ({
   useAdminRegistrationActions: () => ({
     saveGroups: mockSaveGroups,
   }),
 }))
 
-jest.mock('./classEntrySelection/useEntryHandlers', () => ({
+vi.mock('./classEntrySelection/useEntryHandlers', () => ({
   useEntryHandlers: () => ({
-    handleCancel: jest.fn(),
-    handleCellClick: jest.fn(),
-    handleDoubleClick: jest.fn(),
-    handleOpen: jest.fn(),
-    handleRefund: jest.fn(),
-    handleSelectionModeChange: jest.fn(),
+    handleCancel: vi.fn(),
+    handleCellClick: vi.fn(),
+    handleDoubleClick: vi.fn(),
+    handleOpen: vi.fn(),
+    handleRefund: vi.fn(),
+    handleSelectionModeChange: vi.fn(),
   }),
 }))
 
-jest.mock('./classEntrySelection/useDnDHandlers', () => ({
+vi.mock('./classEntrySelection/useDnDHandlers', () => ({
   useDnDHandlers: () => ({
-    handleDrop: () => jest.fn(),
-    handleReject: () => jest.fn(),
+    handleDrop: () => vi.fn(),
+    handleReject: () => vi.fn(),
   }),
 }))
 
-jest.mock('./classEntrySelection/useClassEntrySelectionColumns', () => ({
+vi.mock('./classEntrySelection/useClassEntrySelectionColumns', () => ({
   useClassEntrySelectionColumns: (_available: unknown, _event: unknown, callbacks: unknown) => {
     mockLastCallbacks = callbacks
     return {
@@ -67,29 +67,29 @@ jest.mock('./classEntrySelection/useClassEntrySelectionColumns', () => ({
   },
 }))
 
-jest.mock('./classEntrySelection/DroppableDataGrid', () => (props: any) => {
-  mockDroppableProps.push(props)
-  return <div data-testid="droppable-grid" />
-})
-jest.mock('../../components/StyledDataGrid', () => () => <div data-testid="header-grid" />)
-jest.mock('./classEntrySelection/UnlockArrange', () => () => <div data-testid="unlock-arrange" />)
-jest.mock('./classEntrySelection/GroupHeader', () => () => <div />)
-jest.mock('./classEntrySelection/NoRowsOverlay', () => () => <div />)
-jest.mock('../../components/NullComponent', () => ({ NullComponent: () => <div /> }))
+vi.mock('./classEntrySelection/DroppableDataGrid', () => ({
+  default: (props: any) => {
+    mockDroppableProps.push(props)
+    return <div data-testid="droppable-grid" />
+  },
+}))
+vi.mock('../../components/StyledDataGrid', () => ({ default: () => <div data-testid="header-grid" /> }))
+vi.mock('./classEntrySelection/UnlockArrange', () => ({ default: () => <div data-testid="unlock-arrange" /> }))
+vi.mock('./classEntrySelection/GroupHeader', () => ({ default: () => <div /> }))
+vi.mock('./classEntrySelection/NoRowsOverlay', () => ({ default: () => <div /> }))
+vi.mock('../../components/NullComponent', () => ({ NullComponent: () => <div /> }))
 
-jest.mock(
-  './MoveToGroupDialog',
-  () => (props: any) =>
+vi.mock('./MoveToGroupDialog', () => ({
+  default: (props: any) =>
     props.open ? (
       <button onClick={() => props.onMove('2021-02-10-ip')} type="button">
         move-group
       </button>
-    ) : null
-)
+    ) : null,
+}))
 
-jest.mock(
-  './MoveToPositionDialog',
-  () => (props: any) =>
+vi.mock('./MoveToPositionDialog', () => ({
+  default: (props: any) =>
     props.open ? (
       <>
         <button onClick={() => props.onMove(2.5)} type="button">
@@ -97,10 +97,12 @@ jest.mock(
         </button>
         <div data-testid="move-position-max">{props.positions?.join(',')}</div>
       </>
-    ) : null
-)
+    ) : null,
+}))
 
-jest.mock('./SendMessageDialog', () => (props: any) => (props.open ? <div>send-message-open</div> : null))
+vi.mock('./SendMessageDialog', () => ({
+  default: (props: any) => (props.open ? <div>send-message-open</div> : null),
+}))
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
@@ -115,7 +117,7 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 }
 
 describe('ClassEntrySelection behavior coverage', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
 
   beforeEach(() => {
     mockSaveGroups.mockClear()
@@ -125,11 +127,11 @@ describe('ClassEntrySelection behavior coverage', () => {
 
   afterEach(async () => {
     await act(async () => {
-      jest.runOnlyPendingTimers()
+      vi.runOnlyPendingTimers()
     })
   })
 
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('executes move to reserve callback and saves reserve placement', async () => {
     const registrations: Registration[] = [
@@ -150,10 +152,10 @@ describe('ClassEntrySelection behavior coverage', () => {
         event={activeEvent}
         eventClass="ALO"
         registrations={registrations}
-        setOpen={jest.fn()}
-        setCancelOpen={jest.fn()}
-        setRefundOpen={jest.fn()}
-        setSelectedRegistrationId={jest.fn()}
+        setOpen={vi.fn()}
+        setCancelOpen={vi.fn()}
+        setRefundOpen={vi.fn()}
+        setSelectedRegistrationId={vi.fn()}
       />,
       { wrapper: Wrapper }
     )
@@ -172,8 +174,8 @@ describe('ClassEntrySelection behavior coverage', () => {
   })
 
   it('prevents moving registrations after the event has ended', async () => {
-    const setOpen = jest.fn()
-    const setCancelOpen = jest.fn()
+    const setOpen = vi.fn()
+    const setCancelOpen = vi.fn()
     const registration = {
       ...registrationWithStaticDates,
       group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' } as any,
@@ -252,7 +254,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     const { user } = renderWithUserEvents(
       <ClassEntrySelection event={activeEvent} eventClass="ALO" registrations={registrations} />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
 
@@ -337,7 +339,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     const { user } = renderWithUserEvents(
       <ClassEntrySelection event={activeEvent} eventClass="ALO" registrations={registrations} />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
 
@@ -391,7 +393,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     const { user } = renderWithUserEvents(
       <ClassEntrySelection event={activeEvent} eventClass="ALO" registrations={registrations} />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
 

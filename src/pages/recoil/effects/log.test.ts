@@ -3,7 +3,7 @@ import * as envLib from '../../../lib/env'
 import { logEffect } from './log'
 
 describe('log', () => {
-  const logSpy = jest.spyOn(console, 'debug')
+  const logSpy = vi.spyOn(console, 'debug')
   const node: RecoilState<any> = {
     __cTag: (): void => {
       throw new Error('Function not implemented.')
@@ -24,11 +24,11 @@ describe('log', () => {
   logEffect({ node, onSet })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should log to the console in development environment', () => {
-    jest.spyOn(envLib, 'isDevEnv').mockReturnValueOnce(true)
+    vi.spyOn(envLib, 'isDevEnv').mockReturnValueOnce(true)
 
     onSetCallback?.('new', 'old', false)
     expect(logSpy).toHaveBeenCalledWith('recoil', 'test-key', { newValue: 'new', oldValue: 'old', reset: false })
@@ -36,7 +36,7 @@ describe('log', () => {
   })
 
   it('should not log to the console in other environments', () => {
-    jest.spyOn(envLib, 'isDevEnv').mockReturnValueOnce(false)
+    vi.spyOn(envLib, 'isDevEnv').mockReturnValueOnce(false)
 
     onSetCallback?.('new', 'old', false)
     expect(logSpy).not.toHaveBeenCalled()

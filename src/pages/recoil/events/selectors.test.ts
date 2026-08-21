@@ -4,6 +4,10 @@ import { eventFilterAtom, eventsAtom } from './atoms'
 import { filteredEventsSelector, filterOrganizersSelector } from './selectors'
 
 describe('event selectors', () => {
+  afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 20))
+  })
+
   describe('filterOrganizersSelector', () => {
     it('ignores events without organizer data', () => {
       const snapshot = snapshot_UNSTABLE(({ set }) => {

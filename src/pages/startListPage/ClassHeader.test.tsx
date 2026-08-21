@@ -3,9 +3,9 @@ import { render, screen } from '@testing-library/react'
 import { ClassHeader } from './ClassHeader'
 
 // Mock i18next
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: jest.fn((key) => key),
+    t: vi.fn((key) => key),
   }),
 }))
 

@@ -1,31 +1,31 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
-const mockAuditTrail = jest.fn<any>()
-const mockEventAuditKey = jest.fn<any>()
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockLambdaError = jest.fn<any>()
-const mockResponse = jest.fn<any>()
+const mockAuditTrail = vi.fn()
+const mockEventAuditKey = vi.fn()
+const mockAuthorizeWithMemberOf = vi.fn()
+const mockGetEvent = vi.fn()
+const mockLambdaError = vi.fn()
+const mockResponse = vi.fn()
 
-jest.unstable_mockModule('../lib/audit', () => ({
+vi.doMock('../lib/audit', () => ({
   auditTrail: mockAuditTrail,
   eventAuditKey: mockEventAuditKey,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  getParam: jest.fn((event: APIGatewayProxyEvent, param: string) => event.pathParameters?.[param]),
+vi.doMock('../lib/lambda', () => ({
+  getParam: vi.fn((event: APIGatewayProxyEvent, param: string) => event.pathParameters?.[param]),
   LambdaError: mockLambdaError,
-  lambda: jest.fn((_name, handler) => handler),
+  lambda: vi.fn((_name, handler) => handler),
   response: mockResponse,
 }))
 
@@ -33,9 +33,9 @@ const { default: getEventAuditTrailLambda } = await import('./handler')
 
 describe('getEventAuditTrailLambda', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockEventAuditKey.mockImplementation((event: { id: string }) => `event:${event.id}`)
-    mockLambdaError.mockImplementation((code: number, message: string) => {
+    mockLambdaError.mockImplementation(function MockLambdaError(code: number, message: string) {
       const error = new Error(message) as Error & { statusCode: number }
       error.statusCode = code
       return error

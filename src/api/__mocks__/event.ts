@@ -66,7 +66,7 @@ export async function getEvent(id: string, _signal?: AbortSignal): Promise<DogEv
   })
 }
 
-export const getEventAuditTrail = jest.fn(
+export const getEventAuditTrail = vi.fn(
   async (_id: string, _token: string, _signal?: AbortSignal): Promise<AuditRecord[] | undefined> => []
 )
 

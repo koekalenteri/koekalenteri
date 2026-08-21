@@ -5,17 +5,17 @@ import { registrationWithStaticDates } from '../../../__mockData__/registrations
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import MoveToPositionDialog from './MoveToPositionDialog'
 
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
 describe('MoveToPositionDialog', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
   afterEach(async () => {
     await flushPromises()
-    ;(enqueueSnackbar as jest.Mock).mockClear()
+    ;(enqueueSnackbar as import('vitest').Mock).mockClear()
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
     const registration: Registration = {
@@ -26,10 +26,10 @@ describe('MoveToPositionDialog', () => {
     const { baseElement } = render(
       <MoveToPositionDialog
         open={true}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         registration={registration}
         positions={[1, 2, 3, 4]}
-        onMove={jest.fn()}
+        onMove={vi.fn()}
       />
     )
     await flushPromises(false)
@@ -37,7 +37,7 @@ describe('MoveToPositionDialog', () => {
   })
 
   it('calls onClose when close is clicked', async () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { key: 'participants', number: 1 } as any,
@@ -49,18 +49,18 @@ describe('MoveToPositionDialog', () => {
         onClose={onClose}
         registration={registration}
         positions={[1, 2, 3]}
-        onMove={jest.fn()}
+        onMove={vi.fn()}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await user.click(screen.getByRole('button', { name: 'close' }))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
   it('moves participant from smaller position to after the selected position', async () => {
-    const onClose = jest.fn()
-    const onMove = jest.fn().mockResolvedValue(undefined)
+    const onClose = vi.fn()
+    const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' } as any,
@@ -75,7 +75,7 @@ describe('MoveToPositionDialog', () => {
         onMove={onMove}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     // open MUI select + choose position 4
@@ -95,8 +95,8 @@ describe('MoveToPositionDialog', () => {
   })
 
   it('moves dated participant from position 1 to after position 2', async () => {
-    const onClose = jest.fn()
-    const onMove = jest.fn().mockResolvedValue(undefined)
+    const onClose = vi.fn()
+    const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' } as any,
@@ -111,7 +111,7 @@ describe('MoveToPositionDialog', () => {
         onMove={onMove}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
@@ -127,8 +127,8 @@ describe('MoveToPositionDialog', () => {
   })
 
   it('moves participant from larger position to before the selected position', async () => {
-    const onClose = jest.fn()
-    const onMove = jest.fn().mockResolvedValue(undefined)
+    const onClose = vi.fn()
+    const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 3, time: 'ap' } as any,
@@ -143,7 +143,7 @@ describe('MoveToPositionDialog', () => {
         onMove={onMove}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
@@ -159,8 +159,8 @@ describe('MoveToPositionDialog', () => {
   })
 
   it('moves non-participant before the selected participant position', async () => {
-    const onClose = jest.fn()
-    const onMove = jest.fn().mockResolvedValue(undefined)
+    const onClose = vi.fn()
+    const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { key: 'reserve', number: 1 } as any,
@@ -175,7 +175,7 @@ describe('MoveToPositionDialog', () => {
         onMove={onMove}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
@@ -191,10 +191,10 @@ describe('MoveToPositionDialog', () => {
   })
 
   it('shows error snackbar when move fails', async () => {
-    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
+    const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-    const onClose = jest.fn()
-    const onMove = jest.fn().mockRejectedValue(new Error('move failed'))
+    const onClose = vi.fn()
+    const onMove = vi.fn().mockRejectedValue(new Error('move failed'))
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { key: 'participants', number: 2 } as any,
@@ -209,7 +209,7 @@ describe('MoveToPositionDialog', () => {
         onMove={onMove}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
 
@@ -230,13 +230,13 @@ describe('MoveToPositionDialog', () => {
     const { user } = renderWithUserEvents(
       <MoveToPositionDialog
         open={true}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         registration={registration}
         positions={[1]}
-        onMove={jest.fn()}
+        onMove={vi.fn()}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
@@ -254,13 +254,13 @@ describe('MoveToPositionDialog', () => {
     const { user } = renderWithUserEvents(
       <MoveToPositionDialog
         open={true}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         registration={registration}
         positions={[2, 5]}
-        onMove={jest.fn()}
+        onMove={vi.fn()}
       />,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
@@ -280,10 +280,10 @@ describe('MoveToPositionDialog', () => {
     render(
       <MoveToPositionDialog
         open={true}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
         registration={registration}
         positions={[2, 5]}
-        onMove={jest.fn()}
+        onMove={vi.fn()}
       />
     )
 

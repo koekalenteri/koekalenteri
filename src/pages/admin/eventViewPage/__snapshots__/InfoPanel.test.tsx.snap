@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`InfoPanel> renders with event with closed entry and registrations 1`] = `
+exports[`InfoPanel> > renders with event with closed entry and registrations 1`] = `
 <div>
   <button
     aria-label="eventManagement.open"
@@ -28,7 +28,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
 </div>
 `;
 
-exports[`InfoPanel> renders with event with closed entry and registrations with groups 1`] = `
+exports[`InfoPanel> > renders with event with closed entry and registrations with groups 1`] = `
 <div>
   <button
     aria-label="eventManagement.open"
@@ -56,7 +56,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
 </div>
 `;
 
-exports[`InfoPanel> renders with no registrations 1`] = `
+exports[`InfoPanel> > renders with no registrations 1`] = `
 <div>
   <button
     aria-label="eventManagement.open"

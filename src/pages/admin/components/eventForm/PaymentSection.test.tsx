@@ -29,20 +29,20 @@ const renderPaymentSection = (testEvent: any, onChange: any, extraProps: Record<
       </LocalizationProvider>
     </ThemeProvider>,
     undefined,
-    { advanceTimers: jest.advanceTimersByTime }
+    { advanceTimers: vi.advanceTimersByTime }
   )
 }
 
 describe('PaymentSection', () => {
-  beforeEach(() => jest.useFakeTimers())
+  beforeEach(() => vi.useFakeTimers())
   afterEach(() => {
-    jest.runOnlyPendingTimers()
-    jest.useRealTimers()
+    vi.runOnlyPendingTimers()
+    vi.useRealTimers()
   })
 
   it('allows adding and modifying optional cost', async () => {
     const testEvent = { ...eventWithStaticDates }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -100,7 +100,7 @@ describe('PaymentSection', () => {
         optionalAdditionalCosts: [{ cost: 12, description: { en: 'original', fi: 'alkuperäinen' } }],
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -134,7 +134,7 @@ describe('PaymentSection', () => {
 
   it('allows adding and modifying early bird cost with days', async () => {
     const testEvent = { ...eventWithStaticDates }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -212,7 +212,7 @@ describe('PaymentSection', () => {
         normal: 123,
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -234,7 +234,7 @@ describe('PaymentSection', () => {
 
   it('allows adding and modifying custom costs with descriptions', async () => {
     const testEvent = { ...eventWithStaticDates }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -330,7 +330,7 @@ describe('PaymentSection', () => {
         normal: 10,
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -364,7 +364,7 @@ describe('PaymentSection', () => {
         normal: 10,
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -398,7 +398,7 @@ describe('PaymentSection', () => {
         normal: 10,
       },
     }
-    renderPaymentSection(testEvent, jest.fn())
+    renderPaymentSection(testEvent, vi.fn())
     await flushPromises()
 
     // Get all rows in the table body
@@ -429,7 +429,7 @@ describe('PaymentSection', () => {
         normal: 10,
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -480,7 +480,7 @@ describe('PaymentSection', () => {
 
   it('automatically sets payment time to registration when not defined', async () => {
     const testEvent = { ...eventWithStaticDates }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -492,7 +492,7 @@ describe('PaymentSection', () => {
 
   it('allows selecting payment time', async () => {
     const testEvent = { ...eventWithStaticDates, paymentTime: 'registration' }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -519,7 +519,7 @@ describe('PaymentSection', () => {
 
   it('does not set default payment time when already defined', async () => {
     const testEvent = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -538,7 +538,7 @@ describe('PaymentSection', () => {
         normal: 10,
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -566,7 +566,7 @@ describe('PaymentSection', () => {
         normal: 10,
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -597,7 +597,7 @@ describe('PaymentSection', () => {
         optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt 1', fi: 'Opt 1' } }],
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -621,7 +621,7 @@ describe('PaymentSection', () => {
 
   it('marks normal cost row as error from costMemberHigh validation list', async () => {
     const testEvent = { ...eventWithStaticDates }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     renderPaymentSection(testEvent, onChange, {
       errors: [false, { key: 'costMemberHigh', opts: { list: ['normal'] } }],
     })
@@ -640,7 +640,7 @@ describe('PaymentSection', () => {
       },
       costMember: undefined,
     }
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -675,7 +675,7 @@ describe('PaymentSection', () => {
       },
       costMember: undefined,
     }
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -697,7 +697,7 @@ describe('PaymentSection', () => {
       },
       costMember: undefined,
     }
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -727,7 +727,7 @@ describe('PaymentSection', () => {
       cost: { normal: 20 },
       costMember: { normal: 10 },
     }
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -758,7 +758,7 @@ describe('PaymentSection', () => {
       cost: { normal: 20 },
       costMember: undefined,
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -784,7 +784,7 @@ describe('PaymentSection', () => {
         normal: 10,
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -817,7 +817,7 @@ describe('PaymentSection', () => {
       },
     }
 
-    renderPaymentSection(testEvent, jest.fn())
+    renderPaymentSection(testEvent, vi.fn())
     await flushPromises()
 
     expect(screen.getByText(/costNames.normal/)).toBeInTheDocument()
@@ -835,7 +835,7 @@ describe('PaymentSection', () => {
         optionalAdditionalCosts: [],
       },
     }
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -856,7 +856,7 @@ describe('PaymentSection', () => {
       cost: 20,
       costMember: 10,
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -920,7 +920,7 @@ describe('PaymentSection', () => {
       cost: { earlyBird: undefined, normal: 20 },
       costMember: { earlyBird: undefined, normal: 10 },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent as any, onChange)
     await flushPromises()
 
@@ -945,7 +945,7 @@ describe('PaymentSection', () => {
       },
       costMember: 10,
     }
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderPaymentSection(testEvent as any, onChange)
     await flushPromises()
 
@@ -972,7 +972,7 @@ describe('PaymentSection', () => {
         optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt C', fi: 'Opt C' } }],
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -1001,7 +1001,7 @@ describe('PaymentSection', () => {
         normal: 10,
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -1036,7 +1036,7 @@ describe('PaymentSection', () => {
       cost: { earlyBird: undefined, normal: 20 },
       costMember: { earlyBird: { cost: 8, days: 7 }, normal: 10 },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent as any, onChange)
     await flushPromises()
 
@@ -1064,7 +1064,7 @@ describe('PaymentSection', () => {
         optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt D', fi: 'Opt D' } }],
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -1112,7 +1112,7 @@ describe('PaymentSection', () => {
       cost: { normal: 20 },
       costMember: { normal: 10 },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -1135,7 +1135,7 @@ describe('PaymentSection', () => {
       cost: { earlyBird: { cost: 15, days: 7 }, normal: 20 },
       costMember: { earlyBird: { cost: 8, days: 7 }, normal: 10 },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -1188,7 +1188,7 @@ describe('PaymentSection', () => {
       },
       costMember: 10,
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent as any, onChange)
     await flushPromises()
 
@@ -1223,7 +1223,7 @@ describe('PaymentSection', () => {
         optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt G', fi: 'Opt G' } }],
       },
     }
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderPaymentSection(testEvent as any, onChange)
     await flushPromises()
 
@@ -1265,7 +1265,7 @@ describe('PaymentSection', () => {
         optionalAdditionalCosts: [],
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -1303,7 +1303,7 @@ describe('PaymentSection', () => {
         optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt J', fi: 'Opt J' } }],
       },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
@@ -1343,7 +1343,7 @@ describe('PaymentSection', () => {
       },
       costMember: 10,
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent as any, onChange)
     await flushPromises()
 
@@ -1374,7 +1374,7 @@ describe('PaymentSection', () => {
       cost: { earlyBird: { cost: 0, days: 0 }, normal: 0 },
       costMember: { earlyBird: { cost: 8, days: 7 }, normal: 10 },
     }
-    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent as any, onChange)
     await flushPromises()
 

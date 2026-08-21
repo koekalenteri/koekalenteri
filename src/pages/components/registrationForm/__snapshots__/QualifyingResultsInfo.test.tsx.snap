@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
+exports[`QualifyingResultsInfo > should render a NOME-B ALO registraton 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -461,7 +461,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
 </div>
 `;
 
-exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manual results 1`] = `
+exports[`QualifyingResultsInfo > should render a NOME-B AVO registraton with manual results 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -1604,7 +1604,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
 </div>
 `;
 
-exports[`QualifyingResultsInfo should render with minimal input 1`] = `
+exports[`QualifyingResultsInfo > should render with minimal input 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"

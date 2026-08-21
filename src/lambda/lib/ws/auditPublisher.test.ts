@@ -1,23 +1,23 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 let broadcastConfiguration: unknown
-const mockBroadcast = jest.fn<any>((configuration: unknown) => {
+const mockBroadcast = vi.fn((configuration: unknown) => {
   broadcastConfiguration = configuration
   return Promise.resolve({ attempted: 0, failed: 0, gone: 0, sent: 0 })
 })
-const mockRemoveConnection = jest.fn<any>()
-const mockEventSubscriberAudience = jest.fn<any>().mockResolvedValue([])
+const mockRemoveConnection = vi.fn()
+const mockEventSubscriberAudience = vi.fn().mockResolvedValue([])
 
-jest.unstable_mockModule('./broadcast', () => ({ broadcast: mockBroadcast }))
-jest.unstable_mockModule('./connectionRepository', () => ({ removeConnection: mockRemoveConnection }))
-jest.unstable_mockModule('./connectionSelectors', () => ({ eventSubscriberAudience: mockEventSubscriberAudience }))
+vi.doMock('./broadcast', () => ({ broadcast: mockBroadcast }))
+vi.doMock('./connectionRepository', () => ({ removeConnection: mockRemoveConnection }))
+vi.doMock('./connectionSelectors', () => ({ eventSubscriberAudience: mockEventSubscriberAudience }))
 
 const { publishAuditRecord } = await import('./auditPublisher')
 
 describe('ws/auditPublisher', () => {
   beforeEach(() => {
     broadcastConfiguration = undefined
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it.each([

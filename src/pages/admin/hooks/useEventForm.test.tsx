@@ -7,33 +7,33 @@ import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } f
 import useEventForm from './useEventForm'
 
 // Mock dependencies
-jest.mock('react-router', () => ({
-  useNavigate: jest.fn(),
+vi.mock('react-router', async () => ({
+  useNavigate: vi.fn(),
 }))
 
-jest.mock('notistack', () => ({
-  useSnackbar: jest.fn(),
+vi.mock('notistack', async () => ({
+  useSnackbar: vi.fn(),
 }))
 
-jest.mock('../recoil/events/actions', () => ({
-  useAdminEventActions: jest.fn(),
+vi.mock('../recoil/events/actions', async () => ({
+  useAdminEventActions: vi.fn(),
 }))
 
-jest.mock('recoil', () => {
-  const originalModule = jest.requireActual('recoil')
+vi.mock('recoil', async () => {
+  const originalModule = await vi.importActual<typeof import('recoil')>('recoil')
   return {
     ...originalModule,
-    useRecoilState: jest.fn(),
-    useResetRecoilState: jest.fn(),
+    useRecoilState: vi.fn(),
+    useResetRecoilState: vi.fn(),
   }
 })
 
 describe('useEventForm', () => {
-  const mockNavigate = jest.fn()
-  const mockEnqueueSnackbar = jest.fn()
-  const mockSetEvent = jest.fn()
-  const mockResetEvent = jest.fn()
-  const mockSave = jest.fn()
+  const mockNavigate = vi.fn()
+  const mockEnqueueSnackbar = vi.fn()
+  const mockSetEvent = vi.fn()
+  const mockResetEvent = vi.fn()
+  const mockSave = vi.fn()
 
   const mockEvent: DogEvent = {
     classes: [],
@@ -66,14 +66,14 @@ describe('useEventForm', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Setup mocks
-    ;(useNavigate as jest.Mock).mockReturnValue(mockNavigate)
-    ;(useSnackbar as jest.Mock).mockReturnValue({ enqueueSnackbar: mockEnqueueSnackbar })
-    ;(useRecoilState as jest.Mock).mockReturnValue([mockEvent, mockSetEvent])
-    ;(useResetRecoilState as jest.Mock).mockReturnValue(mockResetEvent)
-    ;(useAdminEventActions as jest.Mock).mockReturnValue({
+    ;(useNavigate as import('vitest').Mock).mockReturnValue(mockNavigate)
+    ;(useSnackbar as import('vitest').Mock).mockReturnValue({ enqueueSnackbar: mockEnqueueSnackbar })
+    ;(useRecoilState as import('vitest').Mock).mockReturnValue([mockEvent, mockSetEvent])
+    ;(useResetRecoilState as import('vitest').Mock).mockReturnValue(mockResetEvent)
+    ;(useAdminEventActions as import('vitest').Mock).mockReturnValue({
       save: mockSave,
     })
   })
@@ -287,7 +287,7 @@ describe('useEventForm', () => {
   })
 
   it('should handle errors during save', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const error = new Error('Save failed')
     mockSave.mockRejectedValue(error)
 
@@ -308,7 +308,7 @@ describe('useEventForm', () => {
   })
 
   it('should not attempt to save if event is null', async () => {
-    ;(useRecoilState as jest.Mock).mockReturnValue([null, mockSetEvent])
+    ;(useRecoilState as import('vitest').Mock).mockReturnValue([null, mockSetEvent])
 
     const { result } = renderHook(() => useEventForm(), {
       wrapper: RecoilRoot,

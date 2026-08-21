@@ -1,14 +1,16 @@
 import type { JsonRefundTransaction, JsonTransaction } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockDocumentTransaction = jest.fn<any>()
-const mockRead = jest.fn<any>()
+const mockDocumentTransaction = vi.fn()
+const mockRead = vi.fn()
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    documentTransaction: mockDocumentTransaction,
-    read: mockRead,
-  })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      documentTransaction: mockDocumentTransaction,
+      read: mockRead,
+    }
+  }),
 }))
 
 const { applySuccessfulPayment, applySuccessfulRefund } = await import('./payment')
@@ -25,7 +27,7 @@ const payment: JsonTransaction = {
 
 describe('atomic payment registration updates', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockDocumentTransaction.mockResolvedValue({})
   })
 
@@ -52,7 +54,7 @@ describe('atomic payment registration updates', () => {
   })
 
   it('treats a conditional race as an idempotent retry after a consistent read', async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
     const error = new Error('conditional check failed')
     error.name = 'TransactionCanceledException'
     mockDocumentTransaction.mockRejectedValueOnce(error)

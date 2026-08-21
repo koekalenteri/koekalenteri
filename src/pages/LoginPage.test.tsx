@@ -6,30 +6,30 @@ import { reportError } from '../lib/client/error'
 import { Component as LoginPage } from './LoginPage'
 import { idTokenAtom } from './recoil'
 
-const mockSignIn = jest.fn()
+const mockSignIn = vi.fn()
 
-jest.mock('@aws-amplify/core', () => ({
+vi.mock('@aws-amplify/core', () => ({
   I18n: {
-    setLanguage: jest.fn(),
+    setLanguage: vi.fn(),
   },
 }))
 
-jest.mock('@aws-amplify/ui-react', () => ({
+vi.mock('@aws-amplify/ui-react', () => ({
   Authenticator: () => <div>AUTHENTICATOR</div>,
   useAuthenticator: () => ({ route: 'authenticated' }),
 }))
 
-jest.mock('aws-amplify/auth', () => ({
-  fetchAuthSession: jest.fn(() => Promise.resolve({})),
+vi.mock('aws-amplify/auth', () => ({
+  fetchAuthSession: vi.fn(() => Promise.resolve({})),
 }))
 
-jest.mock('../lib/client/error', () => ({
-  reportError: jest.fn(),
+vi.mock('../lib/client/error', () => ({
+  reportError: vi.fn(),
 }))
 
-jest.mock('./components/Header', () => () => <div>HEADER</div>)
+vi.mock('./components/Header', () => ({ default: () => <div>HEADER</div> }))
 
-jest.mock('./recoil/user/actions', () => ({
+vi.mock('./recoil/user/actions', () => ({
   useUserActions: () => ({
     signIn: (token: string) => mockSignIn(token),
   }),
@@ -54,11 +54,11 @@ const renderLoginPage = (idToken?: string) =>
   )
 
 describe('LoginPage', () => {
-  const mockFetchAuthSession = fetchAuthSession as jest.MockedFunction<typeof fetchAuthSession>
-  const mockReportError = reportError as jest.MockedFunction<typeof reportError>
+  const mockFetchAuthSession = fetchAuthSession as import('vitest').MockedFunction<typeof fetchAuthSession>
+  const mockReportError = reportError as import('vitest').MockedFunction<typeof reportError>
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     localStorage.clear()
   })
 

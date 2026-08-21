@@ -1,35 +1,37 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { RegistrationStatsInput } from './stats'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockQuery = jest.fn<any>()
-const mockRead = jest.fn<any>()
+const mockQuery = vi.fn()
+const mockRead = vi.fn()
 const updateResult: Awaited<ReturnType<CustomDynamoClient['update']>> = { $metadata: {} }
 const updateCalls: Parameters<CustomDynamoClient['update']>[] = []
-const mockUpdate = jest.fn<CustomDynamoClient['update']>((...args) => {
+const mockUpdate = vi.fn<CustomDynamoClient['update']>((...args) => {
   updateCalls.push(args)
   return Promise.resolve(updateResult)
 })
-const mockWrite = jest.fn<any>()
-const mockReadAll = jest.fn<any>()
+const mockWrite = vi.fn()
+const mockReadAll = vi.fn()
 const transactionResult: Awaited<ReturnType<CustomDynamoClient['documentTransaction']>> = { $metadata: {} }
 let documentTransaction: Parameters<CustomDynamoClient['documentTransaction']>[0] | undefined
-const mockDocumentTransaction = jest.fn<CustomDynamoClient['documentTransaction']>((transaction) => {
+const mockDocumentTransaction = vi.fn<CustomDynamoClient['documentTransaction']>((transaction) => {
   documentTransaction = transaction
   return Promise.resolve(transactionResult)
 })
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: jest.fn(() => ({
-    documentTransaction: mockDocumentTransaction,
-    query: mockQuery,
-    read: mockRead,
-    readAll: mockReadAll,
-    update: mockUpdate,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      documentTransaction: mockDocumentTransaction,
+      query: mockQuery,
+      read: mockRead,
+      readAll: mockReadAll,
+      update: mockUpdate,
+      write: mockWrite,
+    }
+  }),
 }))
 
 const {
@@ -55,8 +57,8 @@ describe('lib/stats', () => {
   afterEach(() => {
     documentTransaction = undefined
     updateCalls.length = 0
-    jest.clearAllMocks()
-    jest.restoreAllMocks()
+    vi.clearAllMocks()
+    vi.restoreAllMocks()
   })
 
   describe('eventStatsYear', () => {
@@ -149,7 +151,7 @@ describe('lib/stats', () => {
     })
 
     it('rebuilds the transaction after an optimistic entity-count conflict', async () => {
-      jest.spyOn(Math, 'random').mockReturnValue(0)
+      vi.spyOn(Math, 'random').mockReturnValue(0)
       mockDocumentTransaction
         .mockRejectedValueOnce({ name: 'TransactionCanceledException' })
         .mockResolvedValueOnce(undefined as never)
@@ -168,7 +170,7 @@ describe('lib/stats', () => {
     })
 
     it('survives a burst of optimistic entity-count conflicts', async () => {
-      jest.spyOn(Math, 'random').mockReturnValue(0)
+      vi.spyOn(Math, 'random').mockReturnValue(0)
       for (let attempt = 0; attempt < 8; attempt++) {
         mockDocumentTransaction.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
       }
@@ -625,7 +627,7 @@ describe('lib/stats', () => {
 
   describe('updateBucketStats', () => {
     beforeEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('decrements old bucket and increments new bucket when bucket changes', async () => {
@@ -682,7 +684,7 @@ describe('lib/stats', () => {
 
   describe('updateEntityStats', () => {
     beforeEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('updates entity stats and increments total for new entity', async () => {
@@ -873,7 +875,7 @@ describe('lib/stats', () => {
 
   describe('updateYearlyParticipationStats', () => {
     beforeEach(() => {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
     })
 
     it('updates stats for all entity types with hashed emails', async () => {

@@ -1,6 +1,6 @@
 import type { JsonRegistration, JsonRegistrationGroupInfo, JsonUser } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { eventWithALOClassInvited, eventWithParticipantsInvited } from '../../__mockData__/events'
 import {
   jsonRegistrationsToEventWithALOInvited,
@@ -26,49 +26,51 @@ const constructAPIGwEvent = (body: unknown, options?: Parameters<typeof construc
     options
   )
 
-jest.unstable_mockModule('../lib/api-gw', () => ({
-  getOrigin: jest.fn(),
-  isAwsServiceError: jest.fn(),
+vi.doMock('../lib/api-gw', () => ({
+  getOrigin: vi.fn(),
+  isAwsServiceError: vi.fn(),
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
-  authorizeWithMemberOf: jest.fn(),
+vi.doMock('../lib/auth', () => ({
+  authorizeWithMemberOf: vi.fn(),
 }))
 
-const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
+const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
   // @ts-expect-error types don't quite match
-  query: jest.fn(),
+  query: vi.fn(),
   // @ts-expect-error types don't quite match
-  read: jest.fn(),
-  update: jest.fn(),
-  write: jest.fn(),
+  read: vi.fn(),
+  update: vi.fn(),
+  write: vi.fn(),
 }
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => mockDynamoDB),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return mockDynamoDB
+  }),
 }))
 
 const libRegistration = await import('../lib/registration')
 
-const mockSend = jest.fn<any>(() => ({ failed: [], ok: [] }))
+const mockSend = vi.fn<(...args: any[]) => { failed: string[]; ok: string[] }>(() => ({ failed: [], ok: [] }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   ...libRegistration,
   sendTemplatedEmailToEventRegistrations: mockSend,
 }))
 
 const { authorizeWithMemberOf } = await import('../lib/auth')
-const authorizeWithMemberOfMock = authorizeWithMemberOf as jest.Mock<typeof authorizeWithMemberOf>
+const authorizeWithMemberOfMock = authorizeWithMemberOf as import('vitest').Mock<typeof authorizeWithMemberOf>
 
-const mockBroadcast = jest.fn()
-const mockBroadcastAdminEvent = jest.fn()
-const mockBroadcastEventRegistrations = jest.fn()
-const mockBroadcastPublicEvent = jest.fn()
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+const mockBroadcast = vi.fn()
+const mockBroadcastAdminEvent = vi.fn()
+const mockBroadcastEventRegistrations = vi.fn()
+const mockBroadcastPublicEvent = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
   __esModule: true,
   publishAdminEventPatch: mockBroadcastAdminEvent,
   publishConnectionCounts: mockBroadcast,
-  publishEventPatch: jest.fn(),
+  publishEventPatch: vi.fn(),
   publishPublicEvent: mockBroadcastPublicEvent,
   publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
@@ -87,12 +89,12 @@ const mockUser: JsonUser = {
 }
 
 describe('putRegistrationGroupsLambda', () => {
-  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
-  jest.spyOn(console, 'log').mockImplementation(() => undefined)
-  const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+  vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+  vi.spyOn(console, 'log').mockImplementation(() => undefined)
+  const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockSend.mockImplementation(() => ({ failed: [], ok: [] }))
   })
 

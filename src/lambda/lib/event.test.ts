@@ -1,36 +1,38 @@
 import type { JsonConfirmedEvent, JsonDogEvent, JsonRegistration, JsonUser } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { PRIORITY_MEMBER } from '../../lib/priority'
 
-const mockQuery = jest.fn<any>()
-const mockRead = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
-const mockWrite = jest.fn<any>()
+const mockQuery = vi.fn()
+const mockRead = vi.fn()
+const mockUpdate = vi.fn()
+const mockWrite = vi.fn()
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
-  default: jest.fn(() => ({
-    query: mockQuery,
-    read: mockRead,
-    update: mockUpdate,
-    write: mockWrite,
-  })),
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      query: mockQuery,
+      read: mockRead,
+      update: mockUpdate,
+      write: mockWrite,
+    }
+  }),
 }))
 
-const mockAudit = jest.fn()
-jest.unstable_mockModule('./audit', () => ({
+const mockAudit = vi.fn()
+vi.doMock('./audit', () => ({
   __esModule: true,
   audit: mockAudit,
-  eventAuditKey: jest.fn((event: { id: string }) => `event:${event.id}`),
-  registrationAuditKey: jest.fn(() => 'audit-key'),
+  eventAuditKey: vi.fn((event: { id: string }) => `event:${event.id}`),
+  registrationAuditKey: vi.fn(() => 'audit-key'),
 }))
 
-const mockBroadcast = jest.fn()
-const mockBroadcastAdminEvent = jest.fn()
-const mockBroadcastEventRegistrations = jest.fn()
-const mockBroadcastPublicEvent = jest.fn()
-const mockPublishEventPatch = jest.fn()
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+const mockBroadcast = vi.fn()
+const mockBroadcastAdminEvent = vi.fn()
+const mockBroadcastEventRegistrations = vi.fn()
+const mockBroadcastPublicEvent = vi.fn()
+const mockPublishEventPatch = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
   __esModule: true,
   publishAdminEventPatch: mockBroadcastAdminEvent,
   publishConnectionCounts: mockBroadcast,
@@ -60,15 +62,15 @@ const { LambdaError } = await import('./lambda')
 describe('lib/event', () => {
   describe('lockRegistrationGroups', () => {
     afterEach(() => {
-      jest.useRealTimers()
+      vi.useRealTimers()
     })
 
     it('retries acquisition with backoff and ignores release after lease takeover', async () => {
-      jest.useFakeTimers()
+      vi.useFakeTimers()
       mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' }).mockResolvedValueOnce(undefined)
 
       const lockPromise = lockRegistrationGroups('event-1', 1)
-      await jest.advanceTimersByTimeAsync(100)
+      await vi.advanceTimersByTimeAsync(100)
       const release = await lockPromise
 
       expect(mockUpdate).toHaveBeenCalledTimes(2)

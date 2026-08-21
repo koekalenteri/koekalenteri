@@ -17,15 +17,15 @@ const _activeEventWithStaticDatesAndClass = {
 }
 
 // Mock the API calls
-jest.mock('../../../../api/event')
-jest.mock('../../../../api/user')
-jest.mock('../../recoil/events/effects', () => ({
+vi.mock('../../../../api/event')
+vi.mock('../../../../api/user')
+vi.mock('../../recoil/events/effects', () => ({
   adminRemoteEventsEffect: () => undefined,
 }))
 
 // Mock the notistack enqueueSnackbar
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
 function _getGroupKey(r: Registration, i: number) {
@@ -40,14 +40,14 @@ async function openInfoPanel(user: UserEvent) {
 
 describe('InfoPanel>', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
   })
 
   afterAll(() => localStorage.removeItem('idToken'))
 
   it('runs the moved create registration action', async () => {
-    const onCreateRegistration = jest.fn()
+    const onCreateRegistration = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel event={activeEventWithStaticDates} onCreateRegistration={onCreateRegistration} registrations={[]} />,
       {
@@ -62,7 +62,7 @@ describe('InfoPanel>', () => {
   })
 
   it('runs the moved event details action', async () => {
-    const onOpenDetails = jest.fn()
+    const onOpenDetails = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel event={eventWithStaticDates} onOpenDetails={onOpenDetails} registrations={[]} />,
       {

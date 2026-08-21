@@ -9,24 +9,19 @@ process.env.DOTENV_CONFIG_QUIET = 'true'
 // Ensure environment variables are read.
 require('../config/env')
 
-const jest = require('jest')
-const argv = process.argv.slice(2)
+const { spawnSync } = require('node:child_process')
+const path = require('node:path')
+const argv = process.argv.slice(2).filter((arg) => arg !== '--runTestsByPath')
 
-argv.push('--selectProjects=frontend')
+if (process.env.CI && !argv.includes('--run')) argv.push('--run')
 
-// Allow filtered runs to succeed when no tests match.
-if (argv.indexOf('--passWithNoTests') === -1) {
-  argv.push('--passWithNoTests')
-}
+const vitestCli = path.join(path.dirname(require.resolve('vitest/package.json')), 'vitest.mjs')
+process.env.NODE_OPTIONS = [process.env.NODE_OPTIONS, '--localstorage-file=/tmp/koekalenteri-vitest-localstorage']
+  .filter(Boolean)
+  .join(' ')
+const result = spawnSync(process.execPath, [vitestCli, '--project=frontend', ...argv], {
+  stdio: 'inherit',
+  env: process.env,
+})
 
-// Watch unless on CI or explicitly running all tests
-if (
-  !process.env.CI &&
-  argv.indexOf('--watchAll') === -1 &&
-  argv.indexOf('--watchAll=false') === -1 &&
-  argv.indexOf('--watch=false') === -1
-) {
-  argv.push('--watch')
-}
-
-jest.run(argv)
+process.exit(result.status ?? (result.signal ? 1 : 0))

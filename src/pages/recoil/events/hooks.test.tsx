@@ -5,9 +5,9 @@ import { getEvents } from '../../../api/event'
 import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
 import { useFetchEvents } from './hooks'
 
-jest.mock('../../../api/event', () => ({
-  getEvent: jest.fn(),
-  getEvents: jest.fn(),
+vi.mock('../../../api/event', () => ({
+  getEvent: vi.fn(),
+  getEvents: vi.fn(),
 }))
 
 function makeEvent(id: string, startDate: string, endDate?: string): PublicDogEvent {
@@ -51,7 +51,7 @@ function wrapper({ children }: { readonly children: React.ReactNode }) {
 
 describe('useFetchEvents', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     localStorage.clear()
   })
 
@@ -63,7 +63,7 @@ describe('useFetchEvents', () => {
     const outside = makeEvent('outside', '2026-01-10T00:00:00.000Z', '2026-01-10T00:00:00.000Z')
     const changed = makeEvent('changed', '2026-01-05T00:00:00.000Z', '2026-01-05T00:00:00.000Z')
 
-    ;(getEvents as jest.Mock).mockResolvedValue({
+    ;(getEvents as import('vitest').Mock).mockResolvedValue({
       events: [changed],
       unchangedIds: ['kept'],
     })
@@ -100,7 +100,7 @@ describe('useFetchEvents', () => {
       name: 'Updated name',
     }
 
-    ;(getEvents as jest.Mock).mockResolvedValue({
+    ;(getEvents as import('vitest').Mock).mockResolvedValue({
       events: [changed],
       unchangedIds: [],
     })
@@ -137,7 +137,7 @@ describe('useFetchEvents', () => {
     const missingUnchanged = makeEvent('missing-unchanged', '2026-01-05T00:00:00.000Z', '2026-01-05T00:00:00.000Z')
     const lastSyncAt = Date.now() - 10 * 60 * 1000
 
-    ;(getEvents as jest.Mock)
+    ;(getEvents as import('vitest').Mock)
       .mockResolvedValueOnce({
         events: [changed],
         unchangedIds: ['cached', 'missing-unchanged'],
@@ -183,7 +183,7 @@ describe('useFetchEvents', () => {
     const fetched = makeEvent('fetched', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
 
     let resolveGetEvents!: (value: { events: (typeof fetched)[]; unchangedIds: string[] }) => void
-    ;(getEvents as jest.Mock).mockImplementation(
+    ;(getEvents as import('vitest').Mock).mockImplementation(
       () =>
         new Promise((resolve) => {
           resolveGetEvents = resolve as typeof resolveGetEvents
@@ -246,7 +246,7 @@ describe('useFetchEvents', () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')
 
-    ;(getEvents as jest.Mock).mockRejectedValue(new Error('network error'))
+    ;(getEvents as import('vitest').Mock).mockRejectedValue(new Error('network error'))
 
     const { result } = renderHook(
       () => ({
@@ -315,7 +315,7 @@ describe('useFetchEvents', () => {
     )
     localStorage.setItem('events', JSON.stringify([cached, { id: 'broken', name: 'Broken event' }]))
 
-    ;(getEvents as jest.Mock).mockResolvedValue({
+    ;(getEvents as import('vitest').Mock).mockResolvedValue({
       events: [fetched],
       unchangedIds: [],
     })
@@ -386,7 +386,7 @@ describe('useFetchEvents', () => {
     const end = new Date('2026-01-05T00:00:00.000Z')
     const fetched = makeEvent('fetched', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
 
-    ;(getEvents as jest.Mock).mockResolvedValue({
+    ;(getEvents as import('vitest').Mock).mockResolvedValue({
       events: [fetched],
       unchangedIds: [],
     })

@@ -28,15 +28,15 @@ const _activeEventWithStaticDatesAndClass = {
 }
 
 // Mock the API calls
-jest.mock('../../../../api/event')
-jest.mock('../../../../api/user')
-jest.mock('../../recoil/events/effects', () => ({
+vi.mock('../../../../api/event')
+vi.mock('../../../../api/user')
+vi.mock('../../recoil/events/effects', () => ({
   adminRemoteEventsEffect: () => undefined,
 }))
 
 // Mock the notistack enqueueSnackbar
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
 function _getGroupKey(r: Registration, i: number) {
@@ -51,7 +51,7 @@ async function openInfoPanel(user: UserEvent) {
 
 describe('InfoPanel>', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
   })
 

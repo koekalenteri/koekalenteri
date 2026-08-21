@@ -1,5 +1,5 @@
 import type { PublicDogEvent } from '../../../types'
-import { act, render, waitFor } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import { addDays } from 'date-fns'
 import { RecoilRoot } from 'recoil'
 import { getEvents } from '../../../api/event'
@@ -8,9 +8,9 @@ import { eventFilterAtom, eventMetadataAtom, eventsAtom } from './atoms'
 import { DateHandler } from './DateHandler'
 import { RANGE_INCREMENTAL_THROTTLE } from './hooks'
 
-jest.mock('../../../api/event', () => ({
-  getEvent: jest.fn(),
-  getEvents: jest.fn(),
+vi.mock('../../../api/event', () => ({
+  getEvent: vi.fn(),
+  getEvents: vi.fn(),
 }))
 
 function makeEvent(id: string, startDate: string, endDate?: string): PublicDogEvent {
@@ -69,21 +69,21 @@ function renderDateHandler(lastSyncAt: number, filterStart: Date | null = start)
 }
 
 describe('DateHandler visibility refresh', () => {
-  let visibilityStateSpy: jest.SpyInstance<DocumentVisibilityState>
+  let visibilityStateSpy: import('vitest').MockInstance<() => DocumentVisibilityState>
 
   beforeEach(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(initialSystemTime)
-    jest.clearAllMocks()
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
+    vi.setSystemTime(initialSystemTime)
+    vi.clearAllMocks()
     localStorage.clear()
-    visibilityStateSpy = jest.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible')
-    ;(getEvents as jest.Mock).mockResolvedValue({ events: [], unchangedIds: ['event-1'] })
+    visibilityStateSpy = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible')
+    ;(getEvents as import('vitest').Mock).mockResolvedValue({ events: [], unchangedIds: ['event-1'] })
   })
 
   afterEach(() => {
     visibilityStateSpy.mockRestore()
-    jest.clearAllTimers()
-    jest.useRealTimers()
+    vi.clearAllTimers()
+    vi.useRealTimers()
   })
 
   async function renderDateHandlerAndResetCalls(lastSyncAt: number) {
@@ -91,14 +91,14 @@ describe('DateHandler visibility refresh', () => {
     await act(async () => {
       await Promise.resolve()
     })
-    ;(getEvents as jest.Mock).mockClear()
+    ;(getEvents as import('vitest').Mock).mockClear()
   }
 
   it('does not refresh when the tab becomes visible and event metadata is still fresh', async () => {
     await renderDateHandlerAndResetCalls(Date.now())
 
     act(() => {
-      jest.setSystemTime(new Date(initialSystemTime.getTime() + RANGE_INCREMENTAL_THROTTLE - 1000))
+      vi.setSystemTime(new Date(initialSystemTime.getTime() + RANGE_INCREMENTAL_THROTTLE - 1000))
       document.dispatchEvent(new Event('visibilitychange'))
     })
 
@@ -109,13 +109,11 @@ describe('DateHandler visibility refresh', () => {
     await renderDateHandlerAndResetCalls(Date.now())
 
     await act(async () => {
-      jest.setSystemTime(new Date(initialSystemTime.getTime() + RANGE_INCREMENTAL_THROTTLE))
+      vi.setSystemTime(new Date(initialSystemTime.getTime() + RANGE_INCREMENTAL_THROTTLE))
       document.dispatchEvent(new Event('visibilitychange'))
     })
 
-    await waitFor(() => {
-      expect(getEvents).toHaveBeenCalledWith(start, end, initialSystemTime.getTime())
-    })
+    expect(getEvents).toHaveBeenCalledWith(start, end, initialSystemTime.getTime())
   })
 
   it('refreshes the default start when the zoned date changes', async () => {
@@ -124,18 +122,15 @@ describe('DateHandler visibility refresh', () => {
     const nextStart = zonedStartOfDay(addDays(initialSystemTime, 1))
     const nextDayDelay = nextStart.getTime() - initialSystemTime.getTime() + 1000
 
-    await waitFor(() => {
-      expect(getEvents).toHaveBeenCalledWith(initialStart, end, undefined)
-    })
-    ;(getEvents as jest.Mock).mockClear()
+    await act(async () => Promise.resolve())
+    expect(getEvents).toHaveBeenCalledWith(initialStart, end, undefined)
+    ;(getEvents as import('vitest').Mock).mockClear()
 
     await act(async () => {
-      jest.advanceTimersByTime(nextDayDelay)
+      vi.advanceTimersByTime(nextDayDelay)
       await Promise.resolve()
     })
 
-    await waitFor(() => {
-      expect(getEvents).toHaveBeenCalledWith(nextStart, end, expect.any(Number))
-    })
+    expect(getEvents).toHaveBeenCalledWith(nextStart, end, expect.any(Number))
   })
 })

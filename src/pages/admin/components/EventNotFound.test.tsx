@@ -9,7 +9,7 @@ import { i18nInit } from '../../../i18n/config'
 import { Path } from '../../../routeConfig'
 import EventNotFound from './EventNotFound'
 
-jest.unmock('react-i18next')
+vi.unmock('react-i18next')
 
 i18n.use(initReactI18next).init(i18nInit)
 
@@ -33,7 +33,7 @@ describe('EventNotFound', () => {
     expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
 
     // Check that the back button is displayed and links to the events list
-    const backButton = screen.getByRole('link', { name: /Takaisin tapahtumalistaan/i })
+    const backButton = screen.getByRole('link', { name: 'backToEventsList' })
     expect(backButton).toBeInTheDocument()
     expect(backButton).toHaveAttribute('href', Path.admin.events)
 
@@ -45,14 +45,14 @@ describe('EventNotFound', () => {
     render(<EventNotFound />, { wrapper: Wrapper })
 
     // Check that the deletion message is displayed
-    expect(screen.getByText(/Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia/i)).toBeInTheDocument()
+    expect(screen.getByText('error.eventMayHaveBeenDeleted')).toBeInTheDocument()
   })
 
   it('has a back button that links to the events list', () => {
     render(<EventNotFound />, { wrapper: Wrapper })
 
     // Check that the back button links to the events list
-    const backButton = screen.getByRole('link', { name: /Takaisin tapahtumalistaan/i })
+    const backButton = screen.getByRole('link', { name: 'backToEventsList' })
     expect(backButton).toHaveAttribute('href', Path.admin.events)
   })
 })

@@ -14,15 +14,15 @@ import { flushPromises, renderWithUserEvents } from '../../../../test-utils/util
 import EntrySection from './EntrySection'
 
 describe('EntrySection', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
-    jest.runOnlyPendingTimers()
-    jest.restoreAllMocks()
+    vi.runOnlyPendingTimers()
+    vi.restoreAllMocks()
   })
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('does not allow selecting registration dates before creation outside development', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const testEvent = {
       ...eventWithStaticDates,
       createdAt: new Date('2021-02-05'),
@@ -42,7 +42,7 @@ describe('EntrySection', () => {
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
 
@@ -68,8 +68,8 @@ describe('EntrySection', () => {
   })
 
   it('allows selecting past registration dates but hides the note when entry dates are not changed in development', async () => {
-    jest.spyOn(env, 'isDevEnv').mockReturnValue(true)
-    const onChange = jest.fn()
+    vi.spyOn(env, 'isDevEnv').mockReturnValue(true)
+    const onChange = vi.fn()
     const testEvent = {
       ...eventWithStaticDates,
       createdAt: new Date('2021-02-05'),
@@ -90,7 +90,7 @@ describe('EntrySection', () => {
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
 
@@ -114,8 +114,8 @@ describe('EntrySection', () => {
   })
 
   it('notes the dev-only allowance when changed entry dates are in the past', async () => {
-    jest.spyOn(env, 'isDevEnv').mockReturnValue(true)
-    const onChange = jest.fn()
+    vi.spyOn(env, 'isDevEnv').mockReturnValue(true)
+    const onChange = vi.fn()
     const testEvent = {
       ...eventWithStaticDates,
       createdAt: new Date('2021-02-05'),
@@ -141,7 +141,7 @@ describe('EntrySection', () => {
         </LocalizationProvider>
       </ThemeProvider>,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
 

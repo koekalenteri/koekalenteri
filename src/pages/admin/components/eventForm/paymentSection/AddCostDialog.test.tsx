@@ -27,21 +27,21 @@ const renderAddCostDialog = (props: any) => {
       </LocalizationProvider>
     </ThemeProvider>,
     undefined,
-    { advanceTimers: jest.advanceTimersByTime }
+    { advanceTimers: vi.advanceTimersByTime }
   )
 }
 
 describe('AddCostDialog', () => {
-  beforeEach(() => jest.useFakeTimers())
+  beforeEach(() => vi.useFakeTimers())
   afterEach(() => {
-    jest.runOnlyPendingTimers()
-    jest.useRealTimers()
+    vi.runOnlyPendingTimers()
+    vi.useRealTimers()
   })
 
   describe('optional mode', () => {
     it('should render dialog with description fields', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       renderAddCostDialog({
         availableKeys: [],
@@ -61,8 +61,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should disable Add button when Finnish description is empty', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       renderAddCostDialog({
         availableKeys: [],
@@ -82,8 +82,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should disable Add button when Finnish description is only whitespace', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: [],
@@ -107,8 +107,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should enable Add button when Finnish description has content', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: [],
@@ -132,8 +132,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should add optional cost with valid descriptions', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: [],
@@ -163,8 +163,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should trim descriptions before adding', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: [],
@@ -193,8 +193,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should mark Finnish description field as required', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       renderAddCostDialog({
         availableKeys: [],
@@ -212,8 +212,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should not mark English description field as required', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       renderAddCostDialog({
         availableKeys: [],
@@ -231,8 +231,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should close dialog without calling onAdd when Cancel is clicked', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: [],
@@ -256,8 +256,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should clear fields after adding', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user, rerender } = renderAddCostDialog({
         availableKeys: [],
@@ -314,8 +314,8 @@ describe('AddCostDialog', () => {
 
   describe('other mode', () => {
     it('should render with key selector', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       renderAddCostDialog({
         availableKeys: ['earlyBird', 'custom'],
@@ -334,8 +334,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should auto-select key when only one is available', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       renderAddCostDialog({
         availableKeys: ['earlyBird'],
@@ -353,8 +353,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should disable Add button when no key is selected', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       renderAddCostDialog({
         availableKeys: ['earlyBird', 'custom'],
@@ -372,8 +372,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should show description fields when custom key is selected', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: ['earlyBird', 'custom'],
@@ -399,8 +399,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should show breed selector when breed key is selected', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: ['breed', 'custom'],
@@ -425,8 +425,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should disable Add button for custom cost when Finnish description is empty', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       renderAddCostDialog({
         availableKeys: ['custom'],
@@ -444,8 +444,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should disable Add button for custom cost when Finnish description is only whitespace', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: ['custom'],
@@ -467,8 +467,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should add cost with custom description', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: ['custom'],
@@ -499,8 +499,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should add breed cost with breed codes', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: ['breed'],
@@ -531,8 +531,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should filter out existing breed codes from selector', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: ['breed'],
@@ -555,8 +555,8 @@ describe('AddCostDialog', () => {
     })
 
     it('should add earlyBird cost without additional data', async () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       const { user } = renderAddCostDialog({
         availableKeys: ['earlyBird'],
@@ -580,8 +580,8 @@ describe('AddCostDialog', () => {
 
   describe('closed state', () => {
     it('should not render when closed', () => {
-      const onClose = jest.fn()
-      const onAdd = jest.fn()
+      const onClose = vi.fn()
+      const onAdd = vi.fn()
 
       renderAddCostDialog({
         availableKeys: [],

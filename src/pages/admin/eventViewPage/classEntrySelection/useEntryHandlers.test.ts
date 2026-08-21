@@ -3,16 +3,18 @@ import type React from 'react'
 import { renderHook } from '@testing-library/react'
 import { useEntryHandlers } from './useEntryHandlers'
 
+const { mockEnqueueSnackbar } = vi.hoisted(() => ({ mockEnqueueSnackbar: vi.fn() }))
+
 // Mock dependencies
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, fallback: string) => fallback || key,
   }),
 }))
 
-jest.mock('notistack', () => ({
+vi.mock('notistack', () => ({
   useSnackbar: () => ({
-    enqueueSnackbar: jest.fn(),
+    enqueueSnackbar: mockEnqueueSnackbar,
   }),
 }))
 
@@ -20,17 +22,16 @@ jest.mock('notistack', () => ({
 Object.defineProperty(navigator, 'clipboard', {
   configurable: true,
   value: {
-    writeText: jest.fn(),
+    writeText: vi.fn(),
   },
 })
 
 describe('useEntryHandlers', () => {
   // Common test data
-  const mockSetOpen = jest.fn()
-  const mockSetCancelOpen = jest.fn()
-  const mockSetRefundOpen = jest.fn()
-  const mockSetSelectedRegistrationId = jest.fn()
-  const mockEnqueueSnackbar = jest.fn()
+  const mockSetOpen = vi.fn()
+  const mockSetCancelOpen = vi.fn()
+  const mockSetRefundOpen = vi.fn()
+  const mockSetSelectedRegistrationId = vi.fn()
   const mockRegistrations = [{ id: 'reg1' }, { id: 'reg2' }]
 
   const defaultProps = {
@@ -42,10 +43,7 @@ describe('useEntryHandlers', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.spyOn(require('notistack'), 'useSnackbar').mockImplementation(() => ({
-      enqueueSnackbar: mockEnqueueSnackbar,
-    }))
+    vi.clearAllMocks()
   })
 
   describe('handleOpen', () => {

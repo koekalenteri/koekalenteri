@@ -14,12 +14,13 @@ const event = (id: string, endDate: Date): DogEvent => ({
 
 describe('admin event selectors', () => {
   beforeEach(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2026-05-28T12:00:00.000+03:00'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-28T12:00:00.000+03:00'))
   })
 
-  afterEach(() => {
-    jest.useRealTimers()
+  afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    vi.useRealTimers()
   })
 
   it('keeps events ending today visible when past events are hidden', () => {

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { EventHeader } from './EventHeader'
 
 // Mock i18next
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: any) => {
       if (key === 'dateFormat.dtshort') {

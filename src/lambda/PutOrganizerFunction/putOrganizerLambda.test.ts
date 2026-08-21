@@ -1,26 +1,26 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 const setEventBody = (event: { body: string }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
-const mockPublishAdminDataInvalidation = jest.fn<any>()
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+const mockPublishAdminDataInvalidation = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
 }))
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuthorize = jest.fn<any>()
-const mockRead = jest.fn<any>()
-const mockWrite = jest.fn<any>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuthorize = vi.fn()
+const mockRead = vi.fn()
+const mockWrite = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
   authorizeAdmin: async (event: any) => {
     const user = await mockAuthorize(event)
@@ -30,11 +30,13 @@ jest.unstable_mockModule('../lib/auth', () => ({
   },
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    read: mockRead,
-    write: mockWrite,
-  })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+      write: mockWrite,
+    }
+  }),
 }))
 
 const { default: putOrganizerLambda } = await import('./handler')
@@ -51,7 +53,7 @@ describe('putOrganizerLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({

@@ -1,21 +1,21 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
 
-const mockWsConnect = jest.fn<any>()
-const mockBroadcastConnectionCounts = jest.fn<any>()
+const mockWsConnect = vi.fn()
+const mockBroadcastConnectionCounts = vi.fn()
 
-jest.unstable_mockModule('../lib/ws/connectionLifecycle', () => ({
+vi.doMock('../lib/ws/connectionLifecycle', () => ({
   connectWebSocket: mockWsConnect,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishConnectionCounts: mockBroadcastConnectionCounts,
 }))
 
 const { default: wsConnectHandler } = await import('./handler')
 
 describe('wsConnectHandler', () => {
-  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
   const event = {
     requestContext: {
@@ -24,7 +24,7 @@ describe('wsConnectHandler', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     mockWsConnect.mockResolvedValue(undefined)
     mockBroadcastConnectionCounts.mockResolvedValue(undefined)

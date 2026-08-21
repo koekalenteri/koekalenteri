@@ -3,9 +3,9 @@ import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import { AdditionalInfo } from './AdditionalInfo'
 
 describe('AdditionalInfo', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
     const { container } = render(<AdditionalInfo />)
@@ -24,9 +24,9 @@ describe('AdditionalInfo', () => {
   })
 
   it('should call onChange', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { user } = renderWithUserEvents(<AdditionalInfo notes="test" onChange={onChange} />, undefined, {
-      advanceTimers: jest.advanceTimersByTime,
+      advanceTimers: vi.advanceTimersByTime,
     })
 
     await flushPromises()

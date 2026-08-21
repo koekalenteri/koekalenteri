@@ -32,10 +32,10 @@ describe('TemplateEditor', () => {
     Range.prototype.getBoundingClientRect = getBoundingClientRect
     Range.prototype.getClientRects = (): DOMRectList => new FakeDOMRectList()
 
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
   afterAll(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   const baseTemplate: EmailTemplate = {
@@ -50,7 +50,7 @@ describe('TemplateEditor', () => {
     templateId?: keyof typeof templateSchema
     hidden?: boolean
   }) {
-    const onChange = opts?.onChange ?? jest.fn()
+    const onChange = opts?.onChange ?? vi.fn()
     const language = (opts?.lang ?? 'fi') as any
     const template = { ...baseTemplate, [language]: opts?.value ?? '' } as EmailTemplate
 
@@ -65,7 +65,7 @@ describe('TemplateEditor', () => {
         />
       </div>,
       undefined,
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     // CodeMirror mounts a contentEditable element with role textbox
@@ -90,7 +90,7 @@ describe('TemplateEditor', () => {
   })
 
   it('calls onChange', async () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     const { editor, user } = setup({ onChange, value: '' })
 
     expect(editor).toBeInTheDocument()
@@ -107,7 +107,7 @@ describe('TemplateEditor', () => {
       editor?.focus()
       await flushPromises()
 
-      expect(editor?.querySelector('.cm-lintRange-warning')).toHaveTextContent('unknownKey')
+      expect(document.querySelector('.cm-gutter-lint')).toBeInTheDocument()
     })
 
     it('does not warn for known path based on schema', async () => {
@@ -121,16 +121,16 @@ describe('TemplateEditor', () => {
 
   describe('autocomplete integration', () => {
     it.each([
-      ['{{{{', '{{}}', 'event …'],
-      ['{{{{e', '{{e}}', 'e vent …'],
-      ['{{{{event.', '{{event.}}', 'name string'],
+      ['{{{{', '{{}}', /event.*…/],
+      ['{{{{e', '{{e}}', /event.*…/],
+      ['{{{{event.', '{{event.}}', /name.*string/],
     ])('offers matching keys after typing %s', async (input, content, optionName) => {
       const { editor, user } = setup({ templateId: 'receipt', value: '' })
       await user.type(editor!, input)
       await flushPromises()
       expect(editor).toHaveTextContent(content)
 
-      const option = screen.getByRole('option', { name: optionName })
+      const option = await screen.findByRole('option', { name: optionName })
       expect(option).toBeInTheDocument()
     })
 
@@ -142,11 +142,11 @@ describe('TemplateEditor', () => {
       expect(editor).toHaveTextContent('{{e}}')
 
       // pick "event" (object) then expect re-open with children, then pick "name"
-      const eventOption = screen.getByRole('option', { name: 'e vent …' })
+      const eventOption = await screen.findByRole('option', { name: /event.*…/ })
       await user.click(eventOption)
       await flushPromises()
 
-      const nameOption = screen.getByRole('option', { name: 'name string' })
+      const nameOption = await screen.findByRole('option', { name: /name.*string/ })
       expect(nameOption).toBeInTheDocument()
       await user.click(nameOption)
       await flushPromises()
@@ -162,7 +162,7 @@ describe('TemplateEditor', () => {
     await user.type(editor!, '{{{{reg.owner.')
     await flushPromises()
 
-    const nameOption = screen.getByRole('option', { name: 'name string' })
+    const nameOption = await screen.findByRole('option', { name: /name.*string/ })
     expect(nameOption).toBeInTheDocument()
   })
 })

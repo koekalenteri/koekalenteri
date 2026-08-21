@@ -9,14 +9,14 @@ import { APIError } from '../../../api/http'
 import * as registrationApi from '../../../api/registration'
 import { useRegistrationActions } from './actions'
 
-const mockEnqueueSnackbar = jest.fn()
+const mockEnqueueSnackbar = vi.fn()
 
-jest.mock('notistack', () => ({
+vi.mock('notistack', () => ({
   SnackbarProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useSnackbar: () => ({ enqueueSnackbar: mockEnqueueSnackbar }),
 }))
 
-jest.mock('../../../api/registration')
+vi.mock('../../../api/registration')
 
 function wrapper({ children }: { readonly children: React.ReactNode }) {
   return (
@@ -28,13 +28,13 @@ function wrapper({ children }: { readonly children: React.ReactNode }) {
 
 describe('useRegistrationActions', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('cancels registration with patch operations', async () => {
     const registration = { ...registrationWithStaticDates, editToken: 'participant-token' }
     const savedRegistration = { ...registration, cancelled: true, cancelReason: 'dog-heat' }
-    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(savedRegistration)
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(savedRegistration)
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
@@ -61,7 +61,7 @@ describe('useRegistrationActions', () => {
   it('confirms registration with the participant edit token', async () => {
     const registration = { ...registrationWithStaticDates, editToken: 'participant-token' }
     const confirmedRegistration = { ...registration, confirmed: true }
-    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(confirmedRegistration)
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(confirmedRegistration)
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
@@ -82,7 +82,7 @@ describe('useRegistrationActions', () => {
   it('saves edited registration with patch operations', async () => {
     const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token' }
     const editedRegistration = { ...savedRegistration, notes: 'changed notes' }
-    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
@@ -132,7 +132,7 @@ describe('useRegistrationActions', () => {
       shouldPay: undefined,
       updatedAt: new Date('2026-08-16T12:19:41.030Z'),
     }
-    jest.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
@@ -152,9 +152,9 @@ describe('useRegistrationActions', () => {
 
   it('handles 304 from save action as a successful no-op', async () => {
     const editedRegistration = { ...registrationWithStaticDates, notes: 'changed notes' }
-    jest
-      .spyOn(registrationApi, 'patchRegistration')
-      .mockRejectedValueOnce(new APIError(new Response(null, { status: 304, statusText: 'Not Modified' }), ''))
+    vi.spyOn(registrationApi, 'patchRegistration').mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 304, statusText: 'Not Modified' }), '')
+    )
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
@@ -175,7 +175,7 @@ describe('useRegistrationActions', () => {
   })
 
   it('handles save conflicts and returns undefined', async () => {
-    jest.spyOn(registrationApi, 'postRegistration').mockRejectedValueOnce(
+    vi.spyOn(registrationApi, 'postRegistration').mockRejectedValueOnce(
       new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
         email: 'owner@example.com',
         error: 'emailSuppressed',

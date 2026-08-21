@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`UnlockArrange renders 1`] = `
+exports[`UnlockArrange > renders 1`] = `
 <div>
   <div
     class="MuiFormControl-root css-ecze7s-MuiFormControl-root"
@@ -45,7 +45,7 @@ exports[`UnlockArrange renders 1`] = `
 </div>
 `;
 
-exports[`UnlockArrange renders checked 1`] = `
+exports[`UnlockArrange > renders checked 1`] = `
 <div>
   <div
     class="MuiFormControl-root css-ecze7s-MuiFormControl-root"

@@ -9,7 +9,7 @@ import { eventWithEntryOpen } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { EventList } from './EventList'
 
-jest.mock('../../api/judge')
+vi.mock('../../api/judge')
 
 describe('EventList', () => {
   it('should render with empty result', () => {

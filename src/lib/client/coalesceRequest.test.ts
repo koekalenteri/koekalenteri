@@ -3,7 +3,7 @@ import { coalesceRequest } from './coalesceRequest'
 describe('coalesceRequest', () => {
   it('shares a request only while it is pending', async () => {
     let resolveRequest: (value: string) => void = () => undefined
-    const factory = jest
+    const factory = vi
       .fn()
       .mockImplementationOnce(
         () =>
@@ -28,7 +28,7 @@ describe('coalesceRequest', () => {
 
   it('removes failed requests so a later call can retry', async () => {
     const error = new TypeError('Failed to fetch')
-    const factory = jest.fn().mockRejectedValueOnce(error).mockResolvedValueOnce('recovered')
+    const factory = vi.fn().mockRejectedValueOnce(error).mockResolvedValueOnce('recovered')
 
     const first = coalesceRequest('users:current', factory)
     expect(coalesceRequest('users:current', factory)).toBe(first)
@@ -39,7 +39,7 @@ describe('coalesceRequest', () => {
   })
 
   it('does not combine requests with different keys', async () => {
-    const factory = jest.fn().mockResolvedValue('response')
+    const factory = vi.fn().mockResolvedValue('response')
 
     await Promise.all([coalesceRequest('users:first', factory), coalesceRequest('users:second', factory)])
 
@@ -48,7 +48,7 @@ describe('coalesceRequest', () => {
 
   it('turns a synchronous factory error into a rejected request and clears it', async () => {
     const error = new Error('synchronous failure')
-    const factory = jest.fn().mockImplementationOnce(() => {
+    const factory = vi.fn().mockImplementationOnce(() => {
       throw error
     })
     factory.mockResolvedValueOnce('recovered')

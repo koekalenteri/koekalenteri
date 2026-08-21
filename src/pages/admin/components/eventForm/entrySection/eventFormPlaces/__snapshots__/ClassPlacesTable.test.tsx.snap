@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ClassPlacesTable should render correctly 1`] = `
+exports[`ClassPlacesTable > should render correctly 1`] = `
 <div>
   <table
     class="MuiTable-root css-1nkh8i9-MuiTable-root"
@@ -190,7 +190,7 @@ exports[`ClassPlacesTable should render correctly 1`] = `
 </div>
 `;
 
-exports[`ClassPlacesTable should render with classesEnabled=false 1`] = `
+exports[`ClassPlacesTable > should render with classesEnabled=false 1`] = `
 <div>
   <table
     class="MuiTable-root css-1nkh8i9-MuiTable-root"

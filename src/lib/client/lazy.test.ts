@@ -34,7 +34,7 @@ describe('reloadOnChunkLoadError', () => {
   })
 
   it('reloads once and leaves the import promise pending for a chunk load error', async () => {
-    const reload = jest.fn()
+    const reload = vi.fn()
     const promise = reloadOnChunkLoadError(() => Promise.reject(new Error('Loading chunk 123 failed.')), reload)
 
     await Promise.resolve()
@@ -46,7 +46,7 @@ describe('reloadOnChunkLoadError', () => {
 
   it('rethrows chunk load errors after a reload has already been attempted', async () => {
     const error = new Error('Loading chunk 123 failed.')
-    const reload = jest.fn()
+    const reload = vi.fn()
     sessionStorage.setItem('koekalenteri:chunk-load-reloaded', 'true')
 
     await expect(reloadOnChunkLoadError(() => Promise.reject(error), reload)).rejects.toBe(error)
@@ -56,7 +56,7 @@ describe('reloadOnChunkLoadError', () => {
 
   it('rethrows non chunk load errors', async () => {
     const error = new Error('regular app error')
-    const reload = jest.fn()
+    const reload = vi.fn()
 
     await expect(reloadOnChunkLoadError(() => Promise.reject(error), reload)).rejects.toBe(error)
 

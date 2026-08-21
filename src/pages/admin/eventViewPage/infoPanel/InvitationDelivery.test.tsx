@@ -32,15 +32,15 @@ const activeEventWithStaticDatesAndClass = {
 }
 
 // Mock the API calls
-jest.mock('../../../../api/event')
-jest.mock('../../../../api/user')
-jest.mock('../../recoil/events/effects', () => ({
+vi.mock('../../../../api/event')
+vi.mock('../../../../api/user')
+vi.mock('../../recoil/events/effects', () => ({
   adminRemoteEventsEffect: () => undefined,
 }))
 
 // Mock the notistack enqueueSnackbar
-jest.mock('notistack', () => ({
-  enqueueSnackbar: jest.fn(),
+vi.mock('notistack', () => ({
+  enqueueSnackbar: vi.fn(),
 }))
 
 function _getGroupKey(r: Registration, i: number) {
@@ -55,7 +55,7 @@ async function openInfoPanel(user: UserEvent) {
 
 describe('InfoPanel>', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
   })
 
@@ -158,7 +158,7 @@ describe('InfoPanel>', () => {
   })
 
   it('allows resending class invitations when class attachment is added after common attachment was sent', async () => {
-    const onOpenMessageDialog = jest.fn()
+    const onOpenMessageDialog = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel
         event={{
@@ -201,7 +201,7 @@ describe('InfoPanel>', () => {
   })
 
   it('allows resending invitations when attachment has changed', async () => {
-    const onOpenMessageDialog = jest.fn()
+    const onOpenMessageDialog = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel
         event={{ ...eventWithParticipantsInvited, invitationAttachments: { ALO: 'new-alo-key' } }}
@@ -233,8 +233,8 @@ describe('InfoPanel>', () => {
   })
 
   it('does not couple start list publishing to sending invitations', async () => {
-    const onOpenMessageDialog = jest.fn()
-    const onSetStartListPublished = jest.fn()
+    const onOpenMessageDialog = vi.fn()
+    const onSetStartListPublished = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel
         event={{
@@ -274,7 +274,7 @@ describe('InfoPanel>', () => {
   })
 
   it('does not offer publishing while sending when the event-level start list is already published', async () => {
-    const onOpenMessageDialog = jest.fn()
+    const onOpenMessageDialog = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel
         event={{
@@ -312,11 +312,9 @@ describe('InfoPanel>', () => {
   })
 
   it('shows a clear error message when koekutsu upload returns 413', async () => {
-    jest
-      .spyOn(eventApi, 'putInvitationAttachment')
-      .mockRejectedValueOnce(
-        new APIError(new Response(null, { status: 413, statusText: 'Content Too Large' }), 'Content Too Large')
-      )
+    vi.spyOn(eventApi, 'putInvitationAttachment').mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 413, statusText: 'Content Too Large' }), 'Content Too Large')
+    )
 
     const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
@@ -337,7 +335,7 @@ describe('InfoPanel>', () => {
   })
 
   it('allows retrying koekutsu upload with the same file after a failed attempt', async () => {
-    const putInvitationAttachment = jest
+    const putInvitationAttachment = vi
       .spyOn(eventApi, 'putInvitationAttachment')
       .mockRejectedValueOnce(new Error('upload failed'))
       .mockResolvedValueOnce({
@@ -381,7 +379,7 @@ describe('InfoPanel>', () => {
   })
 
   it('uploads class-specific invitation attachment', async () => {
-    const putInvitationAttachment = jest.spyOn(eventApi, 'putInvitationAttachment').mockResolvedValueOnce({
+    const putInvitationAttachment = vi.spyOn(eventApi, 'putInvitationAttachment').mockResolvedValueOnce({
       invitationAttachmentHistory: {},
       key: 'alo-key',
       uploadedAt: new Date('2026-07-28T12:00:00.000Z'),

@@ -1,5 +1,5 @@
 import type React from 'react'
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { RecoilRoot, useRecoilValue } from 'recoil'
 import { reportError } from '../lib/client/error'
@@ -7,12 +7,12 @@ import { idTokenAtom } from '../pages/recoil/user/atoms'
 import { validIdTokenSelector } from '../pages/recoil/user/selectors'
 import { useAuthSessionRefresh } from './useAuthSessionRefresh'
 
-jest.mock('aws-amplify/auth', () => ({
-  fetchAuthSession: jest.fn(() => Promise.resolve({})),
+vi.mock('aws-amplify/auth', () => ({
+  fetchAuthSession: vi.fn(() => Promise.resolve({})),
 }))
 
-jest.mock('../lib/client/error', () => ({
-  reportError: jest.fn(),
+vi.mock('../lib/client/error', () => ({
+  reportError: vi.fn(),
 }))
 
 const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
@@ -20,26 +20,26 @@ const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').repla
 const makeToken = (payload: object) => `header.${encodeBase64Url(JSON.stringify(payload))}.signature`
 
 describe('auth session refresh', () => {
-  const mockReportError = reportError as jest.MockedFunction<typeof reportError>
-  let consoleWarnSpy: jest.SpiedFunction<typeof console.warn>
+  const mockReportError = reportError as import('vitest').MockedFunction<typeof reportError>
+  let consoleWarnSpy: import('vitest').MockInstance<typeof console.warn>
 
   beforeEach(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2026-06-29T12:00:00.000Z'))
-    jest.clearAllMocks()
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
+    vi.setSystemTime(new Date('2026-06-29T12:00:00.000Z'))
+    vi.clearAllMocks()
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     localStorage.clear()
   })
 
   afterEach(() => {
     consoleWarnSpy.mockRestore()
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('does nothing without an id token', () => {
     renderHook(() => useAuthSessionRefresh(undefined), { wrapper: RecoilRoot })
 
-    jest.runOnlyPendingTimers()
+    vi.runOnlyPendingTimers()
 
     expect(fetchAuthSession).not.toHaveBeenCalled()
   })
@@ -47,7 +47,7 @@ describe('auth session refresh', () => {
   it('refreshes the id token before it expires', async () => {
     const currentToken = makeToken({ exp: Date.now() / 1000 + 120 })
     const freshToken = makeToken({ exp: Date.now() / 1000 + 3600 })
-    ;(fetchAuthSession as jest.Mock).mockResolvedValueOnce({
+    ;(fetchAuthSession as import('vitest').Mock).mockResolvedValueOnce({
       tokens: { idToken: { toString: () => freshToken } },
     })
 
@@ -68,7 +68,7 @@ describe('auth session refresh', () => {
     expect(fetchAuthSession).not.toHaveBeenCalled()
 
     await act(async () => {
-      jest.advanceTimersByTime(60_000)
+      vi.advanceTimersByTime(60_000)
       await Promise.resolve()
     })
 
@@ -79,7 +79,7 @@ describe('auth session refresh', () => {
   it('clears the id token when refresh fails because the auth session is invalid', async () => {
     const currentToken = makeToken({ exp: Date.now() / 1000 + 120 })
     const error = { name: 'NotAuthorizedException' }
-    ;(fetchAuthSession as jest.Mock).mockRejectedValueOnce(error)
+    ;(fetchAuthSession as import('vitest').Mock).mockRejectedValueOnce(error)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
@@ -95,11 +95,11 @@ describe('auth session refresh', () => {
     )
 
     await act(async () => {
-      jest.advanceTimersByTime(60_000)
+      vi.advanceTimersByTime(60_000)
       await Promise.resolve()
     })
 
-    await waitFor(() => expect(result.current).toBeUndefined())
+    expect(result.current).toBeUndefined()
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       'auth: session is no longer refreshable',
       expect.objectContaining({ durationMs: expect.any(Number), error })
@@ -110,7 +110,7 @@ describe('auth session refresh', () => {
   it('keeps the id token when refresh fails transiently', async () => {
     const currentToken = makeToken({ exp: Date.now() / 1000 + 120 })
     const error = new TypeError('Failed to fetch')
-    ;(fetchAuthSession as jest.Mock).mockRejectedValueOnce(error)
+    ;(fetchAuthSession as import('vitest').Mock).mockRejectedValueOnce(error)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
@@ -126,11 +126,11 @@ describe('auth session refresh', () => {
     )
 
     await act(async () => {
-      jest.advanceTimersByTime(60_000)
+      vi.advanceTimersByTime(60_000)
       await Promise.resolve()
     })
 
-    await waitFor(() => expect(result.current).toBe(currentToken))
+    expect(result.current).toBe(currentToken)
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       'auth: session refresh failed transiently',
       expect.objectContaining({ durationMs: expect.any(Number), error })
@@ -140,7 +140,7 @@ describe('auth session refresh', () => {
 
   it('clears the id token when forced refresh returns no id token', async () => {
     const currentToken = makeToken({ exp: Date.now() / 1000 + 120 })
-    ;(fetchAuthSession as jest.Mock).mockResolvedValueOnce({})
+    ;(fetchAuthSession as import('vitest').Mock).mockResolvedValueOnce({})
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
@@ -156,11 +156,11 @@ describe('auth session refresh', () => {
     )
 
     await act(async () => {
-      jest.advanceTimersByTime(60_000)
+      vi.advanceTimersByTime(60_000)
       await Promise.resolve()
     })
 
-    await waitFor(() => expect(result.current).toBeUndefined())
+    expect(result.current).toBeUndefined()
     expect(consoleWarnSpy).toHaveBeenCalledWith(
       'auth: session refresh returned no id token',
       expect.objectContaining({ durationMs: expect.any(Number) })
@@ -173,7 +173,7 @@ describe('auth session refresh', () => {
     const refreshPromise = new Promise((resolve) => {
       resolveRefresh = resolve
     })
-    ;(fetchAuthSession as jest.Mock).mockReturnValueOnce(refreshPromise)
+    ;(fetchAuthSession as import('vitest').Mock).mockReturnValueOnce(refreshPromise)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(idTokenAtom, expiredToken)}>{children}</RecoilRoot>
@@ -192,7 +192,7 @@ describe('auth session refresh', () => {
     expect(result.current).toEqual({ rawToken: expiredToken, validToken: undefined })
 
     await act(async () => {
-      jest.runOnlyPendingTimers()
+      vi.runOnlyPendingTimers()
       await Promise.resolve()
     })
 
@@ -212,7 +212,7 @@ describe('auth session refresh', () => {
   it('invalidates the valid token when it expires after a transient refresh failure', async () => {
     const currentToken = makeToken({ exp: Date.now() / 1000 + 120 })
     const error = new TypeError('Failed to fetch')
-    ;(fetchAuthSession as jest.Mock).mockRejectedValueOnce(error)
+    ;(fetchAuthSession as import('vitest').Mock).mockRejectedValueOnce(error)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
@@ -229,13 +229,13 @@ describe('auth session refresh', () => {
     )
 
     await act(async () => {
-      jest.advanceTimersByTime(60_000)
+      vi.advanceTimersByTime(60_000)
       await Promise.resolve()
     })
     expect(result.current.validToken).toBe(currentToken)
 
     act(() => {
-      jest.advanceTimersByTime(60_001)
+      vi.advanceTimersByTime(60_001)
     })
 
     expect(result.current).toEqual({ rawToken: currentToken, validToken: undefined })
@@ -248,7 +248,7 @@ describe('auth session refresh', () => {
   it('rechecks token validity and refreshes when a background tab becomes visible', async () => {
     const currentToken = makeToken({ exp: Date.now() / 1000 + 30 })
     const freshToken = makeToken({ exp: Date.now() / 1000 + 3600 })
-    ;(fetchAuthSession as jest.Mock).mockResolvedValueOnce({
+    ;(fetchAuthSession as import('vitest').Mock).mockResolvedValueOnce({
       tokens: { idToken: { toString: () => freshToken } },
     })
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })

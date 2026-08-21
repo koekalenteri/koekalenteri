@@ -15,8 +15,8 @@ import { DogInfo } from './DogInfo'
 
 const eventDate = registrationWithStaticDates.dates[0].date
 
-jest.mock('../../../api/dog')
-jest.mock('../../../api/registration')
+vi.mock('../../../api/dog')
+vi.mock('../../../api/registration')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
@@ -31,11 +31,11 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 }
 
 describe('DogInfo', () => {
-  beforeEach(() => jest.useFakeTimers())
+  beforeEach(() => vi.useFakeTimers())
   afterEach(() => {
     localStorage.clear()
-    jest.runAllTimers()
-    jest.useRealTimers()
+    vi.runAllTimers()
+    vi.useRealTimers()
   })
 
   it('should render', async () => {
@@ -50,13 +50,13 @@ describe('DogInfo', () => {
 
   it('should allow changing dog', async () => {
     const reg = merge(registrationWithStaticDates, {})
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
     const newDog = registrationDogAged20MonthsAndNoResults
 
     const { user } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
@@ -95,9 +95,9 @@ describe('DogInfo', () => {
 
   it('should automatically fetch when selecting from cached dogs', async () => {
     const reg = {}
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
-    jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => {
+    vi.mocked(localStorage.getItem).mockImplementation((key: string) => {
       if (key === 'dog-cache') {
         return JSON.stringify({ 'TESTDOG-0020': {} })
       }
@@ -107,7 +107,7 @@ describe('DogInfo', () => {
     const { user } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
@@ -125,8 +125,8 @@ describe('DogInfo', () => {
   })
 
   it('should display friendly error when api call fails', async () => {
-    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 501 })
-    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 501 })
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
     const reg = {}
     const { user } = renderWithUserEvents(
@@ -134,7 +134,7 @@ describe('DogInfo', () => {
       {
         wrapper: Wrapper,
       },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const input = screen.getByRole('combobox', { name: 'dog.regNo' })
@@ -153,7 +153,7 @@ describe('DogInfo', () => {
   })
 
   it('should display friendly error when dog is not found', async () => {
-    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+    vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
 
     const reg = {}
     const { user } = renderWithUserEvents(
@@ -161,7 +161,7 @@ describe('DogInfo', () => {
       {
         wrapper: Wrapper,
       },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const input = screen.getByRole('combobox', { name: 'dog.regNo' })
@@ -187,13 +187,13 @@ describe('DogInfo', () => {
       dog: testDog,
     }
 
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
-    const refreshSpy = jest.spyOn(dogApi, 'getDog').mockResolvedValue(registrationDogAged20MonthsAndNoResults)
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
+    const refreshSpy = vi.spyOn(dogApi, 'getDog').mockResolvedValue(registrationDogAged20MonthsAndNoResults)
 
     const { user } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const button = screen.getByRole('button', { name: 'registration.cta.update' })
@@ -212,13 +212,13 @@ describe('DogInfo', () => {
   })
 
   it('should transition to manual mode when clicking button in notfound state', async () => {
-    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+    vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
 
     const reg = {}
     const { user } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     // First get to notfound state
@@ -248,15 +248,15 @@ describe('DogInfo', () => {
   })
 
   it('should reset form when clicking button in manual mode', async () => {
-    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+    vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
 
     const reg = {}
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     const { user } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     // First get to notfound state
@@ -299,15 +299,15 @@ describe('DogInfo', () => {
     }
 
     // Mock the API to return a dog without RFID
-    jest.spyOn(dogApi, 'getDog').mockResolvedValue(dogWithoutRfid)
+    vi.spyOn(dogApi, 'getDog').mockResolvedValue(dogWithoutRfid)
 
     const reg = {}
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     const { user } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     // Enter a registration number
@@ -356,15 +356,15 @@ describe('DogInfo', () => {
 
   it('should disable RFID field when dog is not found from API', async () => {
     // Mock the API to return a 404 error (dog not found)
-    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+    vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
 
     const reg = {}
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     const { user } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     // Enter a registration number
@@ -398,7 +398,7 @@ describe('DogInfo', () => {
     const { user } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const rfidField = screen.getByLabelText('dog.rfid')
@@ -419,17 +419,17 @@ describe('DogInfo', () => {
       },
     })
 
-    jest.spyOn(dogApi, 'getDog').mockResolvedValue({
+    vi.spyOn(dogApi, 'getDog').mockResolvedValue({
       ...registrationDogAged20MonthsAndNoResults,
       rfid: '981000000000001',
     })
 
-    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     const { user, rerender } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" onChange={changeHandler} />,
       { wrapper: Wrapper },
-      { advanceTimers: jest.advanceTimersByTime }
+      { advanceTimers: vi.advanceTimersByTime }
     )
 
     const rfidField = screen.getByLabelText('dog.rfid')

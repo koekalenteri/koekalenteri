@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`AutocompleteSingle when options are objects should render helperText 1`] = `
+exports[`AutocompleteSingle > when options are objects > should render helperText 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -81,7 +81,7 @@ exports[`AutocompleteSingle when options are objects should render helperText 1`
 </div>
 `;
 
-exports[`AutocompleteSingle when options are objects should render helperText with error state 1`] = `
+exports[`AutocompleteSingle > when options are objects > should render helperText with error state 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -162,7 +162,7 @@ exports[`AutocompleteSingle when options are objects should render helperText wi
 </div>
 `;
 
-exports[`AutocompleteSingle when options are objects should render with minimal information 1`] = `
+exports[`AutocompleteSingle > when options are objects > should render with minimal information 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -236,7 +236,7 @@ exports[`AutocompleteSingle when options are objects should render with minimal 
 </div>
 `;
 
-exports[`AutocompleteSingle when options are strings should render helperText 1`] = `
+exports[`AutocompleteSingle > when options are strings > should render helperText 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -317,7 +317,7 @@ exports[`AutocompleteSingle when options are strings should render helperText 1`
 </div>
 `;
 
-exports[`AutocompleteSingle when options are strings should render helperText with error state 1`] = `
+exports[`AutocompleteSingle > when options are strings > should render helperText with error state 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -398,7 +398,7 @@ exports[`AutocompleteSingle when options are strings should render helperText wi
 </div>
 `;
 
-exports[`AutocompleteSingle when options are strings should render with minimal information 1`] = `
+exports[`AutocompleteSingle > when options are strings > should render with minimal information 1`] = `
 <div>
   <div
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"

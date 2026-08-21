@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`EventStateInfo should render start list link for invited event 1`] = `
+exports[`EventStateInfo > should render start list link for invited event 1`] = `
 <div>
   <div
     class="MuiBox-root css-mro3c9"
@@ -18,7 +18,7 @@ exports[`EventStateInfo should render start list link for invited event 1`] = `
 </div>
 `;
 
-exports[`EventStateInfo should render start list link for started event 1`] = `
+exports[`EventStateInfo > should render start list link for started event 1`] = `
 <div>
   <div
     class="MuiBox-root css-mro3c9"
@@ -36,7 +36,7 @@ exports[`EventStateInfo should render start list link for started event 1`] = `
 </div>
 `;
 
-exports[`EventStateInfo should render state info for cancelled event 1`] = `
+exports[`EventStateInfo > should render state info for cancelled event 1`] = `
 <div>
   <span
     class="MuiBox-root css-1lejymi"
@@ -47,7 +47,7 @@ exports[`EventStateInfo should render state info for cancelled event 1`] = `
 </div>
 `;
 
-exports[`EventStateInfo should render state info for tenatative event 1`] = `
+exports[`EventStateInfo > should render state info for tenatative event 1`] = `
 <div>
   <span
     class="MuiBox-root css-1lejymi"
@@ -58,7 +58,7 @@ exports[`EventStateInfo should render state info for tenatative event 1`] = `
 </div>
 `;
 
-exports[`EventStateInfo should render text 1`] = `
+exports[`EventStateInfo > should render text 1`] = `
 <div>
   <span
     class="MuiBox-root css-1lejymi"

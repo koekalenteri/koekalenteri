@@ -1,24 +1,24 @@
 import type { CreatePaymentResponse, JsonConfirmedEvent, JsonRegistration, Organizer } from '../../types'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // --- Mock setup ---
-const mockAuthorize = jest.fn<() => Promise<{ id: string; name: string } | null>>()
-const mockGetEvent = jest.fn<() => Promise<JsonConfirmedEvent | undefined>>()
-const mockCreatePayment = jest.fn<() => Promise<CreatePaymentResponse | null>>()
-const mockGetTransactionsByReference = jest.fn<() => Promise<any[] | undefined>>()
-const mockUpdateTransactionStatus = jest.fn<() => Promise<boolean>>()
+const mockAuthorize = vi.fn<() => Promise<{ id: string; name: string } | null>>()
+const mockGetEvent = vi.fn<() => Promise<JsonConfirmedEvent | undefined>>()
+const mockCreatePayment = vi.fn<() => Promise<CreatePaymentResponse | null>>()
+const mockGetTransactionsByReference = vi.fn<() => Promise<any[] | undefined>>()
+const mockUpdateTransactionStatus = vi.fn<() => Promise<boolean>>()
 const mockRead =
-  jest.fn<(_key: Record<string, string>, _tableName: string) => Promise<JsonRegistration | Organizer | undefined>>()
-const mockWrite = jest.fn()
-const mockUpdate = jest.fn()
-const mockDocumentTransaction = jest.fn<() => Promise<unknown>>()
-const mockClaimTransactionCreation = jest.fn<() => Promise<boolean>>(() => Promise.resolve(true))
-const mockReleaseTransactionCreation = jest.fn<() => Promise<void>>(() => Promise.resolve())
-const mockAuthorizeRegistrationEdit = jest.fn<() => Promise<string>>(() => Promise.resolve('test-edit-token'))
-const mockGetRegistration = jest.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>(
+  vi.fn<(_key: Record<string, string>, _tableName: string) => Promise<JsonRegistration | Organizer | undefined>>()
+const mockWrite = vi.fn()
+const mockUpdate = vi.fn()
+const mockDocumentTransaction = vi.fn<() => Promise<unknown>>()
+const mockClaimTransactionCreation = vi.fn<() => Promise<boolean>>(() => Promise.resolve(true))
+const mockReleaseTransactionCreation = vi.fn<() => Promise<void>>(() => Promise.resolve())
+const mockAuthorizeRegistrationEdit = vi.fn<() => Promise<string>>(() => Promise.resolve('test-edit-token'))
+const mockGetRegistration = vi.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>(
   async (eventId, registrationId) => {
     const registration = await mockRead({ eventId, id: registrationId }, 'registration-table')
     if (!registration || !('eventId' in registration)) throw new LambdaError(404, 'not found')
@@ -37,42 +37,44 @@ class MockPaytrailError extends Error {
   }
 }
 
-const mockFormatPaytrailErrorMessage = jest.fn<(operation: string, error: MockPaytrailError) => string>()
+const mockFormatPaytrailErrorMessage = vi.fn<(operation: string, error: MockPaytrailError) => string>()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/paytrail', () => ({
+vi.doMock('../lib/paytrail', () => ({
   createPayment: mockCreatePayment,
   PaytrailError: MockPaytrailError,
 }))
 
-jest.unstable_mockModule('../lib/payment', () => ({
+vi.doMock('../lib/payment', () => ({
   claimTransactionCreation: mockClaimTransactionCreation,
   formatPaytrailErrorMessage: mockFormatPaytrailErrorMessage,
   getTransactionsByReference: mockGetTransactionsByReference,
-  paymentDescription: jest.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
+  paymentDescription: vi.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
   releaseTransactionCreation: mockReleaseTransactionCreation,
   updateTransactionStatus: mockUpdateTransactionStatus,
 }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   authorizeRegistrationEdit: mockAuthorizeRegistrationEdit,
   getRegistration: mockGetRegistration,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    documentTransaction: mockDocumentTransaction,
-    read: mockRead,
-    update: mockUpdate,
-    write: mockWrite,
-  })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      documentTransaction: mockDocumentTransaction,
+      read: mockRead,
+      update: mockUpdate,
+      write: mockWrite,
+    }
+  }),
 }))
 
 const { default: paymentCreateLambda } = await import('./handler')
@@ -173,8 +175,8 @@ describe('paymentCreateLambda', () => {
   )
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.spyOn(console, 'debug').mockImplementation(() => {})
+    vi.clearAllMocks()
+    vi.spyOn(console, 'debug').mockImplementation(() => {})
 
     // Default mock implementations
     mockGetEvent.mockResolvedValue(createMockConfirmedEvent())
@@ -270,7 +272,7 @@ describe('paymentCreateLambda', () => {
 
   it('rejects requests without a valid registration edit token before inspecting payment state', async () => {
     const error = new LambdaError(404, 'not found')
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     mockAuthorizeRegistrationEdit.mockRejectedValueOnce(error)
 
     try {

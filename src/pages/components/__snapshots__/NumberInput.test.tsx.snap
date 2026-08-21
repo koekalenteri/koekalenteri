@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`PlacesInput should render with positive number 1`] = `
+exports[`PlacesInput > should render with positive number 1`] = `
 <div>
   <div
     class="MuiFormControl-root MuiTextField-root css-1xp5r68-MuiFormControl-root-MuiTextField-root"
@@ -38,7 +38,7 @@ exports[`PlacesInput should render with positive number 1`] = `
 </div>
 `;
 
-exports[`PlacesInput should render with zero 1`] = `
+exports[`PlacesInput > should render with zero 1`] = `
 <div>
   <div
     class="MuiFormControl-root MuiTextField-root css-1xp5r68-MuiFormControl-root-MuiTextField-root"
@@ -76,7 +76,7 @@ exports[`PlacesInput should render with zero 1`] = `
 </div>
 `;
 
-exports[`PlacesInput should rerender with new value 1`] = `
+exports[`PlacesInput > should rerender with new value 1`] = `
 <div>
   <div
     class="MuiFormControl-root MuiTextField-root css-1xp5r68-MuiFormControl-root-MuiTextField-root"

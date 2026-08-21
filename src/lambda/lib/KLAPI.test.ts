@@ -1,5 +1,5 @@
 import type { KLAPIConfig } from '../types/KLAPI'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { KLKieli } from '../types/KLAPI'
 import KLAPI from './KLAPI'
 
@@ -9,34 +9,34 @@ const mockConfig: KLAPIConfig = {
   KL_API_URL: 'https://api.koiraklubi.fi',
 }
 
-const mockLoadConfig = jest.fn(async () => mockConfig)
+const mockLoadConfig = vi.fn(async () => mockConfig)
 
 const originalFetch = global.fetch
-global.fetch = jest.fn() as any
+global.fetch = vi.fn() as any
 
 describe('KLAPI', () => {
   let klapi: KLAPI
 
   beforeAll(() => {
-    jest.spyOn(console, 'log').mockImplementation(() => {})
-    jest.spyOn(console, 'warn').mockImplementation(() => {})
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterAll(() => {
     global.fetch = originalFetch
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   beforeEach(() => {
     klapi = new KLAPI(mockLoadConfig)
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('lueKoiranPerustiedot', () => {
     it('should return dog data on successful fetch', async () => {
       const mockDog = { kuollut: false, nimi: 'Testikoira', rekisterinumero: 'FI12345/21', rotu: 'Testirotu' }
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
+      ;(fetch as import('vitest').Mock<any>).mockResolvedValueOnce({
         json: async () => mockDog,
         ok: true,
         status: 200,
@@ -50,7 +50,7 @@ describe('KLAPI', () => {
 
     it('should return 404 if rekisterinumero is missing from response', async () => {
       const mockDog = { nimi: 'Testikoira', rotu: 'Testirotu' }
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
+      ;(fetch as import('vitest').Mock<any>).mockResolvedValueOnce({
         json: async () => mockDog,
         ok: true,
         status: 200,
@@ -64,7 +64,7 @@ describe('KLAPI', () => {
 
     it('should return 404 if dog is deceased', async () => {
       const mockDog = { kuollut: true, nimi: 'Testikoira', rekisterinumero: 'FI12345/21', rotu: 'Testirotu' }
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
+      ;(fetch as import('vitest').Mock<any>).mockResolvedValueOnce({
         json: async () => mockDog,
         ok: true,
         status: 200,
@@ -82,7 +82,7 @@ describe('KLAPI', () => {
     })
 
     it('should filter out undefined params', async () => {
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
+      ;(fetch as import('vitest').Mock<any>).mockResolvedValueOnce({
         json: async () => ({ rekisterinumero: 'FI12345/21' }),
         ok: true,
         status: 200,
@@ -106,7 +106,7 @@ describe('KLAPI', () => {
     })
 
     it('should call get with correct params', async () => {
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({ json: async () => [], ok: true, status: 200 })
+      ;(fetch as import('vitest').Mock<any>).mockResolvedValueOnce({ json: async () => [], ok: true, status: 200 })
       await klapi.lueKoiranKoetulokset({ Kieli: KLKieli.Suomi, Rekisterinumero: 'FI12345/21' })
       expect(fetch).toHaveBeenCalledWith(
         'https://api.koiraklubi.fi/Koira/Lue/Koetulokset?Kieli=1&Rekisterinumero=FI12345%2F21',
@@ -187,7 +187,7 @@ describe('KLAPI', () => {
     ]
 
     it.each(testCases)('should call get with correct path for $method', async ({ method, path, params }) => {
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({ json: async () => [], ok: true, status: 200 })
+      ;(fetch as import('vitest').Mock<any>).mockResolvedValueOnce({ json: async () => [], ok: true, status: 200 })
       // @ts-expect-error dynamic method call
       await klapi[method](params)
       expect(fetch).toHaveBeenCalledWith(expect.stringContaining(path), expect.any(Object))
@@ -196,14 +196,14 @@ describe('KLAPI', () => {
 
   describe('get error handling', () => {
     it('should handle fetch error', async () => {
-      ;(fetch as jest.Mock<any>).mockRejectedValueOnce(new Error('Network error'))
+      ;(fetch as import('vitest').Mock<any>).mockRejectedValueOnce(new Error('Network error'))
       const result = await klapi.lueKennelpiirit()
       expect(result.status).toBe(204) // default status
       expect(result.error).toBe('Network error')
     })
 
     it('should handle non-ok response', async () => {
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
+      ;(fetch as import('vitest').Mock<any>).mockResolvedValueOnce({
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
@@ -215,7 +215,7 @@ describe('KLAPI', () => {
     })
 
     it('should handle json parsing error', async () => {
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
+      ;(fetch as import('vitest').Mock<any>).mockResolvedValueOnce({
         json: async () => {
           throw new Error('Invalid JSON')
         },

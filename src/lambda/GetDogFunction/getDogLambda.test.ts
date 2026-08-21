@@ -1,50 +1,54 @@
 import type KLAPI from '../lib/KLAPI'
 import type { KLKoira } from '../types/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
-const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
-  delete: jest.fn(),
+const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
+  delete: vi.fn(),
   // @ts-expect-error types don't quite match
-  query: jest.fn(),
+  query: vi.fn(),
   // @ts-expect-error types don't quite match
-  read: jest.fn(),
-  // @ts-expect-error generic methods cannot be represented precisely by jest.Mocked
-  readAll: jest.fn(),
-  update: jest.fn(),
-  write: jest.fn(),
+  read: vi.fn(),
+  // @ts-expect-error generic methods cannot be represented precisely by import('vitest').Mocked
+  readAll: vi.fn(),
+  update: vi.fn(),
+  write: vi.fn(),
 }
 
 // @ts-expect-error partial mock
-const mockKLAPI: jest.Mocked<KLAPI> = {
-  lueKoiranKoetulokset: jest.fn(),
-  lueKoiranPerustiedot: jest.fn(),
+const mockKLAPI: import('vitest').Mocked<KLAPI> = {
+  lueKoiranKoetulokset: vi.fn(),
+  lueKoiranPerustiedot: vi.fn(),
 }
 
-jest.unstable_mockModule('../lib/KLAPI', () => ({
-  default: jest.fn(() => mockKLAPI),
+vi.doMock('../lib/KLAPI', () => ({
+  default: vi.fn(function MockKLAPI() {
+    return mockKLAPI
+  }),
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => mockDynamoDB),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return mockDynamoDB
+  }),
 }))
 
 const { default: getDogHandler, filterDogResults } = await import('./handler')
 
 describe('getDogHandler', () => {
-  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
-  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
-  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+  vi.spyOn(console, 'debug').mockImplementation(() => undefined)
+  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
   beforeAll(() => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2024-06-20T10:00:00.000Z'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2024-06-20T10:00:00.000Z'))
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockDynamoDB.readAll.mockResolvedValue([
       { active: true, eventType: 'NOU' },
       { active: true, eventType: 'NOME-B' },
@@ -54,7 +58,7 @@ describe('getDogHandler', () => {
   })
 
   afterAll(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('filters dog results using active event types without mutating the stored dog', () => {

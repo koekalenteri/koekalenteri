@@ -4,7 +4,7 @@ import { registerFormatters } from './formatters'
 describe('registerFormatters', () => {
   it('formats a Finnish short datetime with a two-letter weekday', () => {
     let format: (date: Date, language: string) => string = () => ''
-    const add = jest.fn((name, formatter) => {
+    const add = vi.fn((name, formatter) => {
       if (name === 'dtshort2') format = formatter
     })
     registerFormatters({ services: { formatter: { add } } } as unknown as i18n)
@@ -15,7 +15,7 @@ describe('registerFormatters', () => {
 
   it('formats an English short datetime with a three-letter weekday', () => {
     let format: (date: Date, language: string) => string = () => ''
-    const add = jest.fn((name, formatter) => {
+    const add = vi.fn((name, formatter) => {
       if (name === 'dtshort3') format = formatter
     })
     registerFormatters({ services: { formatter: { add } } } as unknown as i18n)

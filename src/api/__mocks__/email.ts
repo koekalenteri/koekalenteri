@@ -17,7 +17,7 @@ export async function putEmailTemplate(_template: EmailTemplate, _token?: string
   throw new Error('not implemented')
 }
 
-export const sendTemplatedEmail = jest.fn(
+export const sendTemplatedEmail = vi.fn(
   async (_message: RegistrationMessage, _token?: string, _signal?: AbortSignal) => ({
     classes: [],
     failed: [],

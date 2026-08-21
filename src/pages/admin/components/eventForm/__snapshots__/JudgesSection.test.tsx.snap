@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
+exports[`JudgeSection > should hide classes for NOWT event (KOE-317) 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -350,7 +350,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
 </div>
 `;
 
-exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357) 1`] = `
+exports[`JudgeSection > should not warn about judge 0 not beign available (KOE-357) 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -702,7 +702,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
 </div>
 `;
 
-exports[`JudgeSection should render properly with one judge selected 1`] = `
+exports[`JudgeSection > should render properly with one judge selected 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -1054,7 +1054,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
 </div>
 `;
 
-exports[`JudgeSection should render properly with three judges selected 1`] = `
+exports[`JudgeSection > should render properly with three judges selected 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -1842,7 +1842,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
 </div>
 `;
 
-exports[`JudgeSection should render properly with two judges selected 1`] = `
+exports[`JudgeSection > should render properly with two judges selected 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"

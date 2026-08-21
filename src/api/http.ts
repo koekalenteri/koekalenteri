@@ -111,7 +111,8 @@ const isNetworkError = (error: unknown): boolean => {
   return /connection|fetch|internet|load failed|network/i.test(error.message)
 }
 
-const isAbortError = (error: unknown): boolean => error instanceof Error && error.name === 'AbortError'
+const isAbortError = (error: unknown): boolean =>
+  typeof error === 'object' && error !== null && 'name' in error && error.name === 'AbortError'
 
 const shouldRetryRequest = (init: HttpRequestInit, error: unknown): boolean =>
   init.method?.toUpperCase() === 'GET' && !init.signal?.aborted && !(error instanceof APIError) && isNetworkError(error)

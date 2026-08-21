@@ -14,8 +14,8 @@ const activeEventWithStaticDates = {
   ...eventWithStaticDates,
   endDate: new Date('2099-12-31'),
 }
-jest.mock('../../../api/event')
-jest.mock('../recoil/events/effects', () => ({
+vi.mock('../../../api/event')
+vi.mock('../recoil/events/effects', () => ({
   adminRemoteEventsEffect: () => undefined,
 }))
 
@@ -31,8 +31,8 @@ async function openInfoPanel(user: UserEvent) {
 
 describe('InfoPanel>', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.mocked(getEventAuditTrail).mockResolvedValue([])
+    vi.clearAllMocks()
+    vi.mocked(getEventAuditTrail).mockResolvedValue([])
     localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
   })
 
@@ -133,7 +133,7 @@ describe('InfoPanel>', () => {
 
   it('shows a loading indicator while the audit trail is loading', async () => {
     let resolveAuditTrail: ((value: AuditRecord[] | undefined) => void) | undefined
-    jest.mocked(getEventAuditTrail).mockImplementation(
+    vi.mocked(getEventAuditTrail).mockImplementation(
       () =>
         new Promise((resolve) => {
           resolveAuditTrail = resolve

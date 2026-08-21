@@ -1,27 +1,29 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockVerifyParams = jest.fn<any>()
-const mockParseParams = jest.fn<any>()
-const mockGetRegistration = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockUpdateTransactionStatus = jest.fn<any>()
-const mockApplySuccessfulRefund = jest.fn<any>()
-const mockClearRegistrationEmailDeliveryStatus = jest.fn<any>()
-const mockSendTemplatedMail = jest.fn<any>()
-const mockRegistrationEmailTags = jest.fn<any>()
-const mockAudit = jest.fn<any>()
-const mockRegistrationAuditKey = jest.fn<any>()
-const mockDynamoRead = jest.fn<any>()
-const mockDynamoUpdate = jest.fn<any>()
-const mockPublishRegistrationPatches = jest.fn<any>()
-const mockDynamoClient = jest.fn(() => ({
-  read: mockDynamoRead,
-  update: mockDynamoUpdate,
-}))
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockVerifyParams = vi.fn()
+const mockParseParams = vi.fn()
+const mockGetRegistration = vi.fn()
+const mockGetEvent = vi.fn()
+const mockUpdateTransactionStatus = vi.fn()
+const mockApplySuccessfulRefund = vi.fn()
+const mockClearRegistrationEmailDeliveryStatus = vi.fn()
+const mockSendTemplatedMail = vi.fn()
+const mockRegistrationEmailTags = vi.fn()
+const mockAudit = vi.fn()
+const mockRegistrationAuditKey = vi.fn()
+const mockDynamoRead = vi.fn()
+const mockDynamoUpdate = vi.fn()
+const mockPublishRegistrationPatches = vi.fn()
+const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
+  return {
+    read: mockDynamoRead,
+    update: mockDynamoUpdate,
+  }
+})
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
     status: number
     constructor(status: number, message: string) {
@@ -33,39 +35,39 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/payment', () => ({
+vi.doMock('../lib/payment', () => ({
   applySuccessfulRefund: mockApplySuccessfulRefund,
   parseParams: mockParseParams,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
 }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
   getRegistration: mockGetRegistration,
-  getRegistrationEditToken: jest.fn(() => 'test-edit-token'),
+  getRegistrationEditToken: vi.fn(() => 'test-edit-token'),
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/email', () => ({
+vi.doMock('../lib/email', () => ({
   registrationEmailTags: mockRegistrationEmailTags,
-  registrationEmailTemplateData: jest.fn(() => ({})),
+  registrationEmailTemplateData: vi.fn(() => ({})),
   sendTemplatedMail: mockSendTemplatedMail,
 }))
 
-jest.unstable_mockModule('../lib/audit', () => ({
+vi.doMock('../lib/audit', () => ({
   audit: mockAudit,
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
   default: mockDynamoClient,
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
@@ -111,10 +113,10 @@ describe('refundSuccessLambda', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
-    jest.spyOn(console, 'log').mockImplementation(() => {})
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Default mock implementations
     mockVerifyParams.mockResolvedValue(undefined)
@@ -190,9 +192,6 @@ describe('refundSuccessLambda', () => {
   })
 
   it('processes successful refund with status "ok"', async () => {
-    const now = new Date()
-    jest.spyOn(global, 'Date').mockImplementation(() => now as any)
-
     await refundSuccessLambda(event)
 
     expect(mockApplySuccessfulRefund).toHaveBeenCalledWith(mockTransaction, 'event123', 'reg456', true)

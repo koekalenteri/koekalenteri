@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`EntryInfo should render with event with classes 1`] = `
+exports[`EntryInfo > should render with event with classes 1`] = `
 <div>
   <div
     class="MuiBox-root css-1rqkuwh"
@@ -455,7 +455,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
 </div>
 `;
 
-exports[`EntryInfo should render with event without classes 1`] = `
+exports[`EntryInfo > should render with event without classes 1`] = `
 <div>
   <div
     class="MuiBox-root css-1rqkuwh"

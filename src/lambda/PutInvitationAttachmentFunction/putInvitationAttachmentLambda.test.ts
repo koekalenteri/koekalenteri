@@ -1,48 +1,50 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockAuthorize = jest.fn<any>()
-const mockGetParam = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockParsePostFile = jest.fn<any>()
-const mockDeleteFile = jest.fn<any>()
-const mockGetRegistrationsByEventId = jest.fn<any>()
-const mockUploadFile = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
-const mockPublishAdminEventPatch = jest.fn<any>()
+const mockLambda = vi.fn((_name, fn) => fn)
+const mockResponse = vi.fn()
+const mockAuthorize = vi.fn()
+const mockGetParam = vi.fn()
+const mockGetEvent = vi.fn()
+const mockParsePostFile = vi.fn()
+const mockDeleteFile = vi.fn()
+const mockGetRegistrationsByEventId = vi.fn()
+const mockUploadFile = vi.fn()
+const mockUpdate = vi.fn()
+const mockPublishAdminEventPatch = vi.fn()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
   lambda: mockLambda,
   response: mockResponse,
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
+vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-jest.unstable_mockModule('../lib/file', () => ({
+vi.doMock('../lib/file', () => ({
   deleteFile: mockDeleteFile,
   parsePostFile: mockParsePostFile,
   uploadFile: mockUploadFile,
 }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
+vi.doMock('../lib/registration', () => ({
   getRegistrationsByEventId: mockGetRegistrationsByEventId,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    update: mockUpdate,
-  })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      update: mockUpdate,
+    }
+  }),
 }))
 
-jest.unstable_mockModule('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/actions', () => ({
   publishAdminEventPatch: mockPublishAdminEventPatch,
 }))
 
@@ -60,10 +62,10 @@ describe('putInvitationAttachmentLambda', () => {
   } as any
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Spy on console.error to prevent logs from being displayed
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
@@ -109,11 +111,11 @@ describe('putInvitationAttachmentLambda', () => {
     mockUpdate.mockResolvedValue({})
 
     // Mock nanoid to return a predictable value
-    jest.spyOn(global.Math, 'random').mockReturnValue(0.123456789)
+    vi.spyOn(global.Math, 'random').mockReturnValue(0.123456789)
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('returns 401 if not authorized', async () => {

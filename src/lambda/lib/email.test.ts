@@ -1,22 +1,26 @@
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-const mockSend = jest.fn<() => Promise<void>>()
+const mockSend = vi.fn<() => Promise<void>>()
 
-jest.unstable_mockModule('@aws-sdk/client-ses', () => ({
-  SESClient: jest.fn(() => ({ send: mockSend })),
-  SendTemplatedEmailCommand: jest.fn((input) => ({ input })),
+vi.doMock('@aws-sdk/client-ses', () => ({
+  SESClient: vi.fn(function MockSESClient() {
+    return { send: mockSend }
+  }),
+  SendTemplatedEmailCommand: vi.fn(function MockSendTemplatedEmailCommand(input) {
+    return { input }
+  }),
 }))
 
 const { sendTemplatedMail } = await import('./email')
 
 describe('email', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockSend.mockResolvedValue(undefined)
   })
 
   it('logs delivery metadata without sender or recipient addresses', async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
     await sendTemplatedMail('registration', 'fi', 'sender@example.com', ['first@example.com', 'second@example.com'], {})
 

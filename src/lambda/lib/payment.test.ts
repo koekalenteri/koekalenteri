@@ -1,13 +1,13 @@
 import type { JsonPaymentTransaction, JsonRefundTransaction } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { jsonEmptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
 
-const mockAudit = jest.fn<() => Promise<void>>()
-const mockGetEvent = jest.fn<() => Promise<{ organizer: { id: string } }>>()
+const mockAudit = vi.fn<() => Promise<void>>()
+const mockGetEvent = vi.fn<() => Promise<{ organizer: { id: string } }>>()
 const mockGetRegistration =
-  jest.fn<
+  vi.fn<
     () => Promise<{
       eventId: string
       id: string
@@ -15,32 +15,34 @@ const mockGetRegistration =
       refundStatus?: 'PENDING' | 'CANCEL'
     }>
   >()
-const mockPublishRegistrationPatches = jest.fn<() => Promise<unknown>>()
-const mockPublishParticipantRegistrationPatch = jest.fn<() => Promise<unknown>>()
-const mockRead = jest.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | undefined>>()
-const mockUpdate = jest.fn<() => Promise<unknown>>()
-const mockDocumentTransaction = jest.fn<CustomDynamoClient['documentTransaction']>()
+const mockPublishRegistrationPatches = vi.fn<() => Promise<unknown>>()
+const mockPublishParticipantRegistrationPatch = vi.fn<() => Promise<unknown>>()
+const mockRead = vi.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | undefined>>()
+const mockUpdate = vi.fn<() => Promise<unknown>>()
+const mockDocumentTransaction = vi.fn<CustomDynamoClient['documentTransaction']>()
 
-jest.unstable_mockModule('./audit', () => ({
+vi.doMock('./audit', () => ({
   audit: mockAudit,
   registrationAuditKey: (registration: { eventId: string; id: string }) => `${registration.eventId}:${registration.id}`,
 }))
-jest.unstable_mockModule('./event', () => ({ getEvent: mockGetEvent }))
-jest.unstable_mockModule('./registration', () => ({ getRegistration: mockGetRegistration }))
-jest.unstable_mockModule('./ws/actions', () => ({
+vi.doMock('./event', () => ({ getEvent: mockGetEvent }))
+vi.doMock('./registration', () => ({ getRegistration: mockGetRegistration }))
+vi.doMock('./ws/actions', () => ({
   publishParticipantRegistrationPatch: mockPublishParticipantRegistrationPatch,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
-jest.unstable_mockModule('./secrets', () => ({
-  getPaytrailConfig: jest.fn(() => Promise.resolve({ PAYTRAIL_SECRET: 'test-secret' })),
+vi.doMock('./secrets', () => ({
+  getPaytrailConfig: vi.fn(() => Promise.resolve({ PAYTRAIL_SECRET: 'test-secret' })),
 }))
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    documentTransaction: mockDocumentTransaction,
-    query: jest.fn(),
-    read: mockRead,
-    update: mockUpdate,
-  })),
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      documentTransaction: mockDocumentTransaction,
+      query: vi.fn(),
+      read: mockRead,
+      update: mockUpdate,
+    }
+  }),
 }))
 const {
   cancelTransaction,
@@ -72,7 +74,7 @@ const paymentTransaction: JsonPaymentTransaction = {
 
 describe('payment', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockDocumentTransaction.mockResolvedValue({ $metadata: {} })
     mockRead.mockResolvedValue(paymentTransaction)
     mockGetRegistration.mockResolvedValue({
@@ -88,12 +90,12 @@ describe('payment', () => {
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   describe('verifyParams', () => {
     it('does not log callback parameters when the transaction id is missing', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       await expect(verifyParams({ signature: 'supplied-signature' })).rejects.toThrow(
         'Missing checkout-transaction-id from params'
@@ -103,7 +105,7 @@ describe('payment', () => {
     })
 
     it('does not log the supplied signature or calculated HMAC when verification fails', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       await expect(verifyParams({ ...callbackParams, signature: 'supplied-signature' })).rejects.toThrow(
         'Verifying payment signature failed'
@@ -135,7 +137,7 @@ describe('payment', () => {
       ['payment', 'paymentCreationAt', 'paymentCreationStamp'],
       ['refund', 'refundCreationAt', 'refundCreationStamp'],
     ] as const)('claims a stale or unclaimed %s creation', async (type, creationAt, creationStamp) => {
-      jest.useFakeTimers().setSystemTime(new Date('2026-08-16T12:00:00.000Z'))
+      vi.useFakeTimers().setSystemTime(new Date('2026-08-16T12:00:00.000Z'))
       const client = { documentTransaction: mockDocumentTransaction }
 
       await expect(
@@ -189,7 +191,7 @@ describe('payment', () => {
       ])
 
       const failure = new Error('claim changed')
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       mockDocumentTransaction.mockRejectedValueOnce(failure)
       await expect(
         releaseTransactionCreation(client, 'refund', 'event-1', 'registration-1', 'stamp-1')
@@ -239,7 +241,7 @@ describe('payment', () => {
     })
 
     it('does not patch or audit a transaction already marked failed', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
       mockRead.mockResolvedValueOnce({
         ...paymentTransaction,
         provider: 'paytrail',

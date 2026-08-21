@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`AdminHomePage renders the child page content when user is logged in 1`] = `
+exports[`AdminHomePage > renders the child page content when user is logged in 1`] = `
 <div>
   <header
     class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAppBar-root MuiAppBar-colorPrimary MuiAppBar-positionFixed mui-fixed css-1r7udwb-MuiPaper-root-MuiAppBar-root"
@@ -39,7 +39,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
           <img
             alt="Suomen noutajakoirajärjestö"
             height="28"
-            src="snj-logo.png"
+            src="/src/assets/snj-logo.png"
             style="margin-bottom: -4px; margin-top: -4px;"
             width="20"
           />
@@ -224,7 +224,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
 </div>
 `;
 
-exports[`AdminHomePage renders the page when user is logged in 1`] = `
+exports[`AdminHomePage > renders the page when user is logged in 1`] = `
 <div>
   <header
     class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAppBar-root MuiAppBar-colorPrimary MuiAppBar-positionFixed mui-fixed css-1r7udwb-MuiPaper-root-MuiAppBar-root"
@@ -263,7 +263,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
           <img
             alt="Suomen noutajakoirajärjestö"
             height="28"
-            src="snj-logo.png"
+            src="/src/assets/snj-logo.png"
             style="margin-bottom: -4px; margin-top: -4px;"
             width="20"
           />

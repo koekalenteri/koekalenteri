@@ -165,6 +165,6 @@ export async function getStartList(eventId: string, _token?: string, _signal?: A
   })
 }
 
-export const getStartListPreview = jest.fn(
+export const getStartListPreview = vi.fn(
   async (eventId: string, _token: string, _signal?: AbortSignal): Promise<Registration[]> => getStartList(eventId)
 )

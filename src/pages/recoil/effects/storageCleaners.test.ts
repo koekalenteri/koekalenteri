@@ -5,7 +5,7 @@ import { cleanPre112, runCleaners } from './storageCleaners'
 
 describe('storageCleaners', () => {
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
     localStorage.clear()
   })
 
@@ -16,8 +16,8 @@ describe('storageCleaners', () => {
         localStorage.setItem(key, 'test')
       })
       localStorage.setItem('retained-key', 'test')
-      const removeSpy = jest.spyOn(Storage.prototype, 'removeItem')
-      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+      const removeSpy = vi.spyOn(localStorage, 'removeItem')
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
       cleanPre112()
       expect(removeSpy).toHaveBeenCalledTimes(testKeys.length)
@@ -31,16 +31,18 @@ describe('storageCleaners', () => {
 
   describe('runCleaners', () => {
     it('should do nothing in test env', () => {
-      const getSpy = jest.spyOn(Storage.prototype, 'getItem')
+      const getSpy = vi.spyOn(localStorage, 'getItem')
       runCleaners()
       expect(getSpy).not.toHaveBeenCalled()
     })
 
     it('should do nothing if version equals', () => {
-      jest.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
+      vi.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
       localStorage.setItem('version', versionLib.appVersion)
-      const getSpy = jest.spyOn(Storage.prototype, 'getItem')
-      const setSpy = jest.spyOn(Storage.prototype, 'setItem')
+      const getSpy = vi.spyOn(localStorage, 'getItem')
+      const setSpy = vi.spyOn(localStorage, 'setItem')
+      getSpy.mockClear()
+      setSpy.mockClear()
       runCleaners()
       expect(getSpy).toHaveBeenCalledWith('version')
       expect(getSpy).toHaveBeenCalledTimes(1)
@@ -48,10 +50,12 @@ describe('storageCleaners', () => {
     })
 
     it('should set the version but not run any already run cleaners', () => {
-      jest.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
+      vi.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
       localStorage.setItem('version', '9.9.9')
-      const getSpy = jest.spyOn(Storage.prototype, 'getItem')
-      const setSpy = jest.spyOn(Storage.prototype, 'setItem')
+      const getSpy = vi.spyOn(localStorage, 'getItem')
+      const setSpy = vi.spyOn(localStorage, 'setItem')
+      getSpy.mockClear()
+      setSpy.mockClear()
       runCleaners()
       expect(getSpy).toHaveBeenCalledWith('version')
       expect(getSpy).toHaveBeenCalledTimes(1)
@@ -61,11 +65,13 @@ describe('storageCleaners', () => {
 
     it('should also run any cleaners', () => {
       localStorage.setItem('registration/ids__123', 'test')
-      jest.spyOn(console, 'log').mockImplementation(() => undefined)
-      jest.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
-      jest.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
-      const getSpy = jest.spyOn(Storage.prototype, 'getItem')
-      const setSpy = jest.spyOn(Storage.prototype, 'setItem')
+      vi.spyOn(console, 'log').mockImplementation(() => undefined)
+      vi.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
+      vi.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
+      const getSpy = vi.spyOn(localStorage, 'getItem')
+      const setSpy = vi.spyOn(localStorage, 'setItem')
+      getSpy.mockClear()
+      setSpy.mockClear()
       runCleaners()
       expect(getSpy).toHaveBeenCalledWith('version')
       expect(getSpy).toHaveBeenCalledTimes(1)
@@ -75,8 +81,8 @@ describe('storageCleaners', () => {
     })
 
     it('should not wipe the encrypted store when the previous version is not earlier than the cache threshold', () => {
-      jest.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
-      const clearSpy = jest.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
+      vi.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
+      const clearSpy = vi.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
       const previousVersion = '9.9.9'
       localStorage.setItem('version', previousVersion)
       runCleaners()
@@ -85,9 +91,9 @@ describe('storageCleaners', () => {
     })
 
     it('should wipe the encrypted store when upgrading from an earlier version', () => {
-      jest.spyOn(console, 'log').mockImplementation(() => undefined)
-      jest.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
-      const clearSpy = jest.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
+      vi.spyOn(console, 'log').mockImplementation(() => undefined)
+      vi.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
+      const clearSpy = vi.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
       localStorage.setItem('version', '1.8.0')
       runCleaners()
       expect(clearSpy).toHaveBeenCalled()

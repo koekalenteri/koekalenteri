@@ -1,32 +1,32 @@
 import type { JsonDbRecord, JsonUser, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { PartialJsonJudge } from './judge'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
-jest.useFakeTimers()
-jest.setSystemTime(new Date('2024-05-30T20:00:00Z'))
-jest.unstable_mockModule('nanoid', () => {
+vi.useFakeTimers()
+vi.setSystemTime(new Date('2024-05-30T20:00:00Z'))
+vi.doMock('nanoid', () => {
   let i = 0
   return { nanoid: () => `test-id-${++i}` }
 })
 
-const mockEventReadAll = jest.fn<any>()
-const mockEventUpdate = jest.fn<any>()
-const mockUserReadAll = jest.fn<any>()
-const mockUserLinkReadAll = jest.fn<any>()
-const mockUserQuery = jest.fn<any>()
-const mockUserRead = jest.fn<any>()
-const mockUserWrite = jest.fn<any>()
-const mockUserUpdate = jest.fn<any>()
-const mockSendTemplatedMail = jest.fn<any>()
+const mockEventReadAll = vi.fn()
+const mockEventUpdate = vi.fn()
+const mockUserReadAll = vi.fn()
+const mockUserLinkReadAll = vi.fn()
+const mockUserQuery = vi.fn()
+const mockUserRead = vi.fn()
+const mockUserWrite = vi.fn()
+const mockUserUpdate = vi.fn()
+const mockSendTemplatedMail = vi.fn()
 
-jest.unstable_mockModule('./email', () => ({
+vi.doMock('./email', () => ({
   sendTemplatedMail: (...args: any[]) => mockSendTemplatedMail(...args),
 }))
 
 // `updateUsersFromOfficialsOrJudges()` creates a separate Dynamo client for events.
 // Mock it so tests stay fully in-memory.
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+vi.doMock('../utils/CustomDynamoClient', () => ({
   default: class MockCustomDynamoClient {
     table: string
 
@@ -301,10 +301,10 @@ describe('dedupeUsersByEmail', () => {
 })
 
 describe('lib/user', () => {
-  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockUserReadAll.mockResolvedValue([])
     mockUserLinkReadAll.mockResolvedValue([])
   })
@@ -386,14 +386,14 @@ describe('lib/user', () => {
     })
 
     it('findUserByEmail returns undefined and warns when called without email', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
       await expect(findUserByEmail(undefined)).resolves.toBeUndefined()
       expect(warnSpy).toHaveBeenCalledWith('findUserByEmail called without email')
       warnSpy.mockRestore()
     })
 
     it('findUserByEmail warns when user not found', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
       mockUserQuery.mockResolvedValueOnce([])
 
       await expect(findUserByEmail('Missing@Example.com ')).resolves.toBeUndefined()
@@ -410,7 +410,7 @@ describe('lib/user', () => {
     })
 
     it('findUserByEmail logs error when active users returned but exact normalized match missing', async () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       mockUserQuery.mockResolvedValueOnce([{ ...defaults, email: 'other@example.com', id: 'u1', name: 'Other' }])
 
       await expect(findUserByEmail('target@example.com')).resolves.toBeUndefined()
@@ -634,9 +634,9 @@ describe('lib/user', () => {
   })
 
   describe('updateUsersFromOfficialsOrJudges', () => {
-    const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
+    const mockReadAll = vi.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
     let batchWriteArguments: Parameters<CustomDynamoClient['batchWrite']> | undefined
-    const mockBatchWrite = jest.fn<CustomDynamoClient['batchWrite']>((...args) => {
+    const mockBatchWrite = vi.fn<CustomDynamoClient['batchWrite']>((...args) => {
       batchWriteArguments = args
       return Promise.resolve(undefined)
     })
@@ -1308,7 +1308,7 @@ describe('lib/user', () => {
       }
       const err = new Error('batch write failed')
       mockBatchWrite.mockRejectedValueOnce(err)
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
       await expect(updateUsersFromOfficialsOrJudges(mockDB, [added], 'officer')).rejects.toThrow('batch write failed')
 

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`DayPlacesTable should render correctly with totalEnabled=false 1`] = `
+exports[`DayPlacesTable > should render correctly with totalEnabled=false 1`] = `
 <div>
   <table
     class="MuiTable-root css-1nkh8i9-MuiTable-root"
@@ -175,7 +175,7 @@ exports[`DayPlacesTable should render correctly with totalEnabled=false 1`] = `
 </div>
 `;
 
-exports[`DayPlacesTable should render correctly with totalEnabled=true 1`] = `
+exports[`DayPlacesTable > should render correctly with totalEnabled=true 1`] = `
 <div>
   <table
     class="MuiTable-root css-1nkh8i9-MuiTable-root"

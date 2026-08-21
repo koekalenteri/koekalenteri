@@ -4,9 +4,9 @@ import { flushPromises, renderWithUserEvents } from '../../../../../../test-util
 import DayPlacesTable from './DayPlacesTable'
 
 describe('DayPlacesTable', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
 
   const eventWithPlacesPerDay = {
     ...eventWithStaticDates,
@@ -19,8 +19,8 @@ describe('DayPlacesTable', () => {
   }
 
   it('should render correctly with totalEnabled=true', () => {
-    const handleDayPlacesChange = jest.fn()
-    const handlePlacesChange = jest.fn()
+    const handleDayPlacesChange = vi.fn()
+    const handlePlacesChange = vi.fn()
 
     const { container } = render(
       <DayPlacesTable
@@ -35,8 +35,8 @@ describe('DayPlacesTable', () => {
   })
 
   it('should render correctly with totalEnabled=false', () => {
-    const handleDayPlacesChange = jest.fn()
-    const handlePlacesChange = jest.fn()
+    const handleDayPlacesChange = vi.fn()
+    const handlePlacesChange = vi.fn()
 
     const { container } = render(
       <DayPlacesTable
@@ -52,10 +52,10 @@ describe('DayPlacesTable', () => {
 
   it('should call handleDayPlacesChange when day places are changed', async () => {
     let changedDate: Date | undefined
-    const handleDayPlacesChange = jest.fn((date) => {
+    const handleDayPlacesChange = vi.fn((date) => {
       changedDate = date
     })
-    const handlePlacesChange = jest.fn()
+    const handlePlacesChange = vi.fn()
 
     const { user } = renderWithUserEvents(
       <DayPlacesTable
@@ -67,7 +67,7 @@ describe('DayPlacesTable', () => {
       />,
       undefined,
       {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       }
     )
     await flushPromises()
@@ -88,8 +88,8 @@ describe('DayPlacesTable', () => {
   })
 
   it('should call handlePlacesChange when total places are changed', async () => {
-    const handleDayPlacesChange = jest.fn()
-    const handlePlacesChange = jest.fn()
+    const handleDayPlacesChange = vi.fn()
+    const handlePlacesChange = vi.fn()
 
     const { user } = renderWithUserEvents(
       <DayPlacesTable
@@ -101,7 +101,7 @@ describe('DayPlacesTable', () => {
       />,
       undefined,
       {
-        advanceTimers: jest.advanceTimersByTime,
+        advanceTimers: vi.advanceTimersByTime,
       }
     )
     await flushPromises()
@@ -117,8 +117,8 @@ describe('DayPlacesTable', () => {
   })
 
   it('should disable day inputs when totalEnabled=true', () => {
-    const handleDayPlacesChange = jest.fn()
-    const handlePlacesChange = jest.fn()
+    const handleDayPlacesChange = vi.fn()
+    const handlePlacesChange = vi.fn()
 
     render(
       <DayPlacesTable
@@ -140,8 +140,8 @@ describe('DayPlacesTable', () => {
   })
 
   it('should disable total input when totalEnabled=false', () => {
-    const handleDayPlacesChange = jest.fn()
-    const handlePlacesChange = jest.fn()
+    const handleDayPlacesChange = vi.fn()
+    const handlePlacesChange = vi.fn()
 
     render(
       <DayPlacesTable
