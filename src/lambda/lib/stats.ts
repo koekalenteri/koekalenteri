@@ -1,6 +1,6 @@
 import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
-import type { EventStatsItem, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
+import type { JsonEventStatsItem, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
 import crypto from 'node:crypto'
 import { getEventSeason, OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
@@ -61,7 +61,7 @@ async function queryOrganizerStats(
   organizerId: string,
   from?: string,
   to?: string
-): Promise<Required<EventStatsItem>[]> {
+): Promise<Required<JsonEventStatsItem>[]> {
   const keyCondition = '#pk = :pk'
   const expressionNames: Record<string, string> = { '#pk': 'PK' }
   const expressionValues: Record<string, any> = { ':pk': `ORG#${organizerId}` }
@@ -74,7 +74,7 @@ async function queryOrganizerStats(
   const filterExpression = filterExpressions.length > 0 ? filterExpressions.join(' AND ') : undefined
 
   // Query for this organizerId with date filters
-  const items = await dynamoDB.query<Required<EventStatsItem>>({
+  const items = await dynamoDB.query<Required<JsonEventStatsItem>>({
     filterExpression,
     key: keyCondition,
     names: expressionNames,
@@ -87,7 +87,7 @@ async function queryOrganizerStats(
 /**
  * Query stats for all organizers with optional date filtering
  */
-async function queryAllOrganizerStats(from?: string, to?: string): Promise<Required<EventStatsItem>[]> {
+async function queryAllOrganizerStats(from?: string, to?: string): Promise<Required<JsonEventStatsItem>[]> {
   // Start with the base filter for all organizer records
   const filterExpressions: string[] = ['begins_with(#pk, :orgPrefix)']
   const expressionNames: Record<string, string> = { '#pk': 'PK' }
@@ -102,7 +102,7 @@ async function queryAllOrganizerStats(from?: string, to?: string): Promise<Requi
   const filterExpression = filterExpressions.join(' AND ')
 
   // Use readAll with filtering
-  const items = await dynamoDB.readAll<Required<EventStatsItem>>({
+  const items = await dynamoDB.readAll<Required<JsonEventStatsItem>>({
     filter: filterExpression,
     names: expressionNames,
     values: expressionValues,
@@ -120,8 +120,8 @@ export async function getOrganizerStats(
   organizerIds?: string[],
   from?: string,
   to?: string
-): Promise<EventStatsItem[]> {
-  let allStats: Required<EventStatsItem>[] = []
+): Promise<JsonEventStatsItem[]> {
+  let allStats: Required<JsonEventStatsItem>[] = []
 
   if (organizerIds?.length) {
     // Query for specific organizers
@@ -153,6 +153,25 @@ export async function getYearlyTotalStats(year: number): Promise<YearlyTotalStat
     count: item.count,
     type: item.SK as YearlyStatTypes,
     year,
+  }))
+}
+
+/**
+ * Get the per-entity participation breakdown for a specific year and type
+ */
+export async function getYearlyBreakdown(
+  year: number,
+  type: YearlyStatTypes
+): Promise<{ entityId: string; count: number }[]> {
+  const pk = `STAT#${year}#${type}`
+  const items = await dynamoDB.query<{ SK: string; count: number }>({
+    key: 'PK = :pk',
+    values: { ':pk': pk },
+  })
+
+  return (items || []).map((item) => ({
+    count: item.count,
+    entityId: item.SK,
   }))
 }
 

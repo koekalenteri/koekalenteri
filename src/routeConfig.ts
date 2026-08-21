@@ -31,6 +31,7 @@ export const Path = {
     root: ADMIN_ROOT,
     startList: (id: string = ':id') => `${ADMIN_EVENTS}/startlist/${id}`,
     startListPreview: (id: string = ':id') => `${ADMIN_EVENTS}/startlist-preview/${id}`,
+    stats: `${ADMIN_ROOT}/stats`,
     users: `${ADMIN_ROOT}/users`,
     viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
   },
@@ -52,4 +53,5 @@ export const Path = {
   registration: (registration: ParticipantRegistration) => participantPath('r', registration),
   registrationOk: (registration: ParticipantRegistration) => participantPath('r', registration, '/saved'),
   startList: (id: string = ':id') => `/startlist/${id}`,
+  stats: '/tilastot',
 }

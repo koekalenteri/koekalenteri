@@ -7,6 +7,7 @@ import HandymanOutlined from '@mui/icons-material/HandymanOutlined'
 import Logout from '@mui/icons-material/Logout'
 import MailOutline from '@mui/icons-material/MailOutline'
 import PersonOutline from '@mui/icons-material/PersonOutline'
+import QueryStatsOutlined from '@mui/icons-material/QueryStatsOutlined'
 import SupervisorAccount from '@mui/icons-material/SupervisorAccount'
 import Support from '@mui/icons-material/Support'
 import { useMediaQuery } from '@mui/material'
@@ -63,6 +64,7 @@ export function SideMenu({ open, onClose }: Props) {
         <DrawerItem to={Path.admin.judges} onClick={onClose} text={t('judges')} icon={<Accessibility />} />
         <DrawerItem to={Path.admin.officials} onClick={onClose} text={t('officials')} icon={<SupervisorAccount />} />
         <DrawerItem to={Path.admin.users} onClick={onClose} text={t('users')} icon={<PersonOutline />} />
+        <DrawerItem to={Path.admin.stats} onClick={onClose} text={t('stats.title')} icon={<QueryStatsOutlined />} />
       </DrawerList>
       <Divider />
       <DrawerList>

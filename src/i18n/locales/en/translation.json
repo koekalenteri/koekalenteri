@@ -679,6 +679,27 @@
     "time": "Time"
   },
   "startListNotPublished": "start list is not published yet",
+  "stats": {
+    "admin": {
+      "cancelledRegistrations": "Cancellations",
+      "paidAmount": "Paid",
+      "paidRegistrations": "Paid registrations",
+      "refundedAmount": "Refunded",
+      "title": "Financial statistics"
+    },
+    "count": "Count",
+    "dogHandlerParticipation": "Dog+handler participation counts",
+    "eventTypeDistribution": "Distribution by event type",
+    "noDataForYear": "No statistics for the selected year",
+    "participationCount": "Participations",
+    "participationTrend": "Participation trend",
+    "title": "Statistics",
+    "topBreeds": "Most popular breeds",
+    "uniqueBreeds": "Different breeds",
+    "uniqueDogs": "Different dogs",
+    "uniqueHandlers": "Different handlers",
+    "year": "Year"
+  },
   "support": "Support",
   "supportContact": "Send feedback",
   "templateId": "Message name",

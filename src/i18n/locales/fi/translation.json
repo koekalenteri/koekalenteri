@@ -679,6 +679,27 @@
     "time": "Aika"
   },
   "startListNotPublished": "starttilistaa ei ole vielä julkaistu",
+  "stats": {
+    "admin": {
+      "cancelledRegistrations": "Peruutukset",
+      "paidAmount": "Maksettu",
+      "paidRegistrations": "Maksetut ilmoittautumiset",
+      "refundedAmount": "Palautettu",
+      "title": "Talouden tilastot"
+    },
+    "count": "Määrä",
+    "dogHandlerParticipation": "Koira+ohjaaja -osallistumiskerrat",
+    "eventTypeDistribution": "Jakauma koemuodoittain",
+    "noDataForYear": "Ei tilastoja valitulle vuodelle",
+    "participationCount": "Osallistumiskertoja",
+    "participationTrend": "Osallistumisen kehitys",
+    "title": "Tilastot",
+    "topBreeds": "Suosituimmat rodut",
+    "uniqueBreeds": "Eri rotuja",
+    "uniqueDogs": "Eri koiria",
+    "uniqueHandlers": "Eri ohjaajia",
+    "year": "Vuosi"
+  },
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",
   "templateId": "Viestin nimi",

@@ -41,6 +41,7 @@ const {
   getYearlyTotalStats,
   getAvailableYears,
   getDogHandlerBuckets,
+  getYearlyBreakdown,
   calculateStatDeltas,
   bucketForCount,
   updateOrganizerEventStats,
@@ -468,6 +469,37 @@ describe('lib/stats', () => {
       mockQuery.mockResolvedValueOnce(null)
 
       const result = await getDogHandlerBuckets(2023)
+
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('getYearlyBreakdown', () => {
+    it('queries for the per-entity breakdown with correct key', async () => {
+      const year = 2024
+
+      mockQuery.mockResolvedValueOnce([
+        { count: 450, SK: 'NOU' },
+        { count: 120, SK: 'NOME-B' },
+      ])
+
+      const result = await getYearlyBreakdown(year, 'eventType')
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: 'PK = :pk',
+        values: { ':pk': 'STAT#2024#eventType' },
+      })
+
+      expect(result).toEqual([
+        { count: 450, entityId: 'NOU' },
+        { count: 120, entityId: 'NOME-B' },
+      ])
+    })
+
+    it('handles empty results', async () => {
+      mockQuery.mockResolvedValueOnce(null)
+
+      const result = await getYearlyBreakdown(2023, 'breed')
 
       expect(result).toEqual([])
     })

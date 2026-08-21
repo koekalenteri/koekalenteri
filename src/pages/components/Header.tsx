@@ -1,5 +1,6 @@
 import ManageAccountsOutlined from '@mui/icons-material/ManageAccountsOutlined'
 import Menu from '@mui/icons-material/Menu'
+import QueryStatsOutlined from '@mui/icons-material/QueryStatsOutlined'
 import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
@@ -7,7 +8,7 @@ import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { Suspense, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import logo from '../../assets/snj-logo.png'
 import { isDevEnv } from '../../lib/env'
 import { Path } from '../../routeConfig'
@@ -25,11 +26,13 @@ const Header = ({ toggleMenu }: Props) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const hasAdminAccess = useAtomValue(hasAdminAccessAtom)
+  const location = useLocation()
   const inAdmin = !!toggleMenu
   const headerBackgroundColor = isDevEnv() ? '#08821f' : undefined
 
   const handleHomeClick = useCallback(() => navigate(Path.home), [navigate])
   const handleAdminClick = useCallback(() => navigate(Path.admin.root), [navigate])
+  const handleStatsClick = useCallback(() => navigate(Path.stats), [navigate])
 
   return (
     <AppBar position="fixed" elevation={0} sx={{ bgcolor: headerBackgroundColor }}>
@@ -65,6 +68,14 @@ const Header = ({ toggleMenu }: Props) => {
             {t('admin')}
           </AppBarButton>
         ) : null}
+        <AppBarButton
+          active={location.pathname === Path.stats}
+          startIcon={<QueryStatsOutlined />}
+          onClick={handleStatsClick}
+          label="stats"
+        >
+          {t('stats.title')}
+        </AppBarButton>
         <Typography
           variant="h6"
           color="#fdfdfd"

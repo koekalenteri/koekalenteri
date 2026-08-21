@@ -1,3 +1,5 @@
+import type { ReplaceOptional } from './utility'
+
 interface OrganizerEventStats {
   organizerId: string
   eventId: string
@@ -20,9 +22,17 @@ export interface YearlyTotalStat {
   count: number
 }
 
-// DynamoDB item types for the unified table
-export interface EventStatsItem extends Partial<OrganizerEventStats> {
+export interface YearlyBreakdownEntry {
+  entityId: string
+  count: number
+}
+
+// DynamoDB item / wire shape for the unified table (dates as ISO strings)
+export interface JsonEventStatsItem extends Partial<OrganizerEventStats> {
   PK: string
   SK: string
   count?: number
 }
+
+// Frontend domain shape: http.get revives date-only strings into Date objects
+export type EventStatsItem = ReplaceOptional<JsonEventStatsItem, 'date', Date>

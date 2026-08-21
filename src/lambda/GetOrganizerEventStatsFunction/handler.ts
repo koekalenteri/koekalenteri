@@ -16,10 +16,20 @@ const getOrganizerEventStatsLambda = lambda(
     // Parse query params
     const from = event.queryStringParameters?.from
     const to = event.queryStringParameters?.to
+    const organizerId = event.queryStringParameters?.organizerId
 
     // Get stats based on user role
-    // If admin, get all stats; otherwise, filter by memberOf
-    const organizerIds = user.admin ? undefined : memberOf
+    // If a specific organizerId is requested, it must be one the user is a member of (unless admin).
+    // Otherwise: if admin, get all stats; if not, filter by memberOf.
+    let organizerIds: string[] | undefined
+    if (organizerId) {
+      if (!user.admin && !memberOf.includes(organizerId)) {
+        return response(403, 'Forbidden', event)
+      }
+      organizerIds = [organizerId]
+    } else {
+      organizerIds = user.admin ? undefined : memberOf
+    }
     const stats = await getOrganizerStats(organizerIds, from, to)
 
     return response(200, stats, event)

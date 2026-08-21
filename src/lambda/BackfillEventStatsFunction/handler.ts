@@ -1,6 +1,6 @@
 // Despite its deployed name, this manual function regenerates all statistics from registrations.
 import type { JsonConfirmedEvent } from '../../types'
-import type { EventStatsItem, YearlyStatTypes } from '../../types/Stats'
+import type { JsonEventStatsItem, YearlyStatTypes } from '../../types/Stats'
 import type { RegistrationStatsInput } from '../lib/stats'
 import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
@@ -51,7 +51,7 @@ const eventStatsKey = (event: EventStatsEvent): EventStatKey => ({
 })
 
 const updateOrganizerStats = (
-  organizerStats: Map<string, EventStatsItem>,
+  organizerStats: Map<string, JsonEventStatsItem>,
   event: EventStatsEvent,
   registration: RegistrationStatsInput,
   updatedAt: string
@@ -88,7 +88,7 @@ const getYearlyCounts = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<strin
   return counts
 }
 
-const dogHandlerBucketRecords = (year: number, counts: Map<string, number>): EventStatsItem[] => {
+const dogHandlerBucketRecords = (year: number, counts: Map<string, number>): JsonEventStatsItem[] => {
   const buckets = new Map<string, number>()
   for (const count of counts.values()) {
     const bucket = bucketForCount(count)
@@ -98,7 +98,7 @@ const dogHandlerBucketRecords = (year: number, counts: Map<string, number>): Eve
 }
 
 const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>) => {
-  const records: EventStatsItem[] = []
+  const records: JsonEventStatsItem[] = []
   for (const [year, countsByType] of yearlyStats) {
     for (const type of PARTICIPATION_TYPES) {
       const counts = countsForType(countsByType, type)
@@ -111,7 +111,7 @@ const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<st
 }
 
 interface StatsAccumulator {
-  organizerStats: Map<string, EventStatsItem>
+  organizerStats: Map<string, JsonEventStatsItem>
   yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
   years: Set<number>
 }
@@ -138,8 +138,8 @@ export function buildStatsRecords(
   registrations: RegistrationStatsInput[],
   eventsById: Map<string, EventStatsEvent>,
   updatedAt: string
-): { records: EventStatsItem[]; skippedCount: number } {
-  const organizerStats = new Map<string, EventStatsItem>()
+): { records: JsonEventStatsItem[]; skippedCount: number } {
+  const organizerStats = new Map<string, JsonEventStatsItem>()
   const yearlyStats = new Map<number, Map<YearlyStatTypes, Map<string, number>>>()
   const years = new Set<number>()
   const accumulator = { organizerStats, yearlyStats, years }
@@ -156,7 +156,7 @@ export function buildStatsRecords(
     addRegistrationStats(registration, event, year, updatedAt, accumulator)
   }
 
-  const records: EventStatsItem[] = [...organizerStats.values(), ...yearlyStatsRecords(yearlyStats)]
+  const records: JsonEventStatsItem[] = [...organizerStats.values(), ...yearlyStatsRecords(yearlyStats)]
 
   for (const year of years) records.push({ PK: 'YEARS', SK: year.toString(), updatedAt })
   return { records, skippedCount }
