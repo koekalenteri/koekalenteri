@@ -2,7 +2,11 @@ import { render } from 'vitest-browser-react'
 import BreedDistributionChart from './BreedDistributionChart'
 import { ChartFrame, yearEntry } from './statsVisualFixtures'
 
-const BREEDS = ['LAB', 'GOL', 'NSD', 'FCR', 'CHE', 'SPS', 'WEI', 'VIZ', 'BRT', 'CKS']
+// Real FCI breed codes, in the order the retriever trials actually see them: labrador,
+// golden, flat-coated, nova scotia, curly-coated, chesapeake, plus mixed/unregistered.
+// Fake three-letter codes would render as three-letter labels and hide what the legend does
+// with "chesapeakelahdennoutaja".
+const BREEDS = ['122', '111', '121', '312', '110', '263', '0']
 const years = [2021, 2022, 2023, 2024, 2025]
 
 const stats = years.map((year, yi) =>
@@ -24,6 +28,6 @@ it('stacks the top breeds per year with the remainder on top', async () => {
     </ChartFrame>
   )
 
-  await expect.element(screen.getByText('stats.breedDistribution')).toBeVisible()
+  await expect.element(screen.getByText('Rotujakauma')).toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('breed-distribution')
 })

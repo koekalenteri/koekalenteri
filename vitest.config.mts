@@ -47,7 +47,10 @@ export default defineConfig({
       {
         resolve: {
           alias: {
-            'react-i18next': new URL('./src/__mocks__/react-i18next/index.tsx', import.meta.url).pathname,
+            // Deliberately NOT aliasing react-i18next here, unlike the other projects: the mock
+            // echoes the key back, so every label would be three characters wide and a chart that
+            // overflows with real text would still screenshot clean. These run the real
+            // translations -- "chesapeakelahdennoutaja", not "263".
             'test-utils': new URL('./src/test-utils', import.meta.url).pathname,
           },
         },

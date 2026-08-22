@@ -28,7 +28,7 @@ it('stacks returning and new pairs, skipping the year that has nothing to compar
     </ChartFrame>
   )
 
-  await expect.element(screen.getByText('stats.retentionTitle')).toBeVisible()
+  await expect.element(screen.getByText('Uudet ja palaavat koirakot')).toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('retention')
 })
 
@@ -39,5 +39,5 @@ it('shows a placeholder when no year has retention data yet', async () => {
     </ChartFrame>
   )
 
-  await expect.element(screen.getByText('stats.noDataForYear')).toBeVisible()
+  await expect.element(screen.getByText('Ei tilastoja valitulle vuodelle')).toBeVisible()
 })

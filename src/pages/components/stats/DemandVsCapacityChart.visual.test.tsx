@@ -39,6 +39,6 @@ it('draws the waiting list above the places line only where demand exceeded capa
     </div>
   )
 
-  await expect.element(screen.getByText('stats.admin.demandTitle')).toBeVisible()
+  await expect.element(screen.getByText('Kysyntä suhteessa paikkoihin')).toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('demand-vs-capacity')
 })

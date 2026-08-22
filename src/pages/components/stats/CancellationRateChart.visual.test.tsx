@@ -19,6 +19,6 @@ it('plots the cancelled share per month as a percentage', async () => {
     </ChartFrame>
   )
 
-  await expect.element(screen.getByText('stats.admin.cancellationRateTitle')).toBeVisible()
+  await expect.element(screen.getByText('Peruutusprosentti')).toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('cancellation-rate')
 })

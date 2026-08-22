@@ -36,12 +36,12 @@ describe('BreedDistributionChart', () => {
         limit={2}
         stats={[
           year(2024, [
-            { count: 10, entityId: 'LAB' },
-            { count: 6, entityId: 'GOL' },
+            { count: 10, entityId: '122' },
+            { count: 6, entityId: '111' },
           ]),
           year(2025, [
-            { count: 12, entityId: 'LAB' },
-            { count: 8, entityId: 'GOL' },
+            { count: 12, entityId: '122' },
+            { count: 8, entityId: '111' },
           ]),
         ]}
       />
@@ -50,8 +50,8 @@ describe('BreedDistributionChart', () => {
     const { series, years } = chart()
     expect(years).toEqual([2024, 2025])
     expect(series).toEqual([
-      { data: [10, 12], label: 'LAB', stack: 'breeds' },
-      { data: [6, 8], label: 'GOL', stack: 'breeds' },
+      { data: [10, 12], label: '122', stack: 'breeds' },
+      { data: [6, 8], label: '111', stack: 'breeds' },
     ])
   })
 
@@ -61,9 +61,9 @@ describe('BreedDistributionChart', () => {
         limit={1}
         stats={[
           year(2024, [
-            { count: 10, entityId: 'LAB' },
-            { count: 6, entityId: 'GOL' },
-            { count: 3, entityId: 'NSD' },
+            { count: 10, entityId: '122' },
+            { count: 6, entityId: '111' },
+            { count: 3, entityId: '121' },
           ]),
         ]}
       />
@@ -71,7 +71,7 @@ describe('BreedDistributionChart', () => {
 
     const { colors, series } = chart()
     expect(series).toEqual([
-      { data: [10], label: 'LAB', stack: 'breeds' },
+      { data: [10], label: '122', stack: 'breeds' },
       { data: [9], label: 'stats.otherBreeds', stack: 'breeds' },
     ])
     // The remainder is not an entity, so it takes the neutral rather than a categorical hue.
@@ -85,22 +85,22 @@ describe('BreedDistributionChart', () => {
         limit={2}
         stats={[
           year(2024, [
-            { count: 20, entityId: 'LAB' },
-            { count: 1, entityId: 'GOL' },
+            { count: 20, entityId: '122' },
+            { count: 1, entityId: '111' },
           ]),
           year(2025, [
-            { count: 2, entityId: 'LAB' },
-            { count: 9, entityId: 'GOL' },
+            { count: 2, entityId: '122' },
+            { count: 9, entityId: '111' },
           ]),
         ]}
       />
     )
 
-    expect(chart().series.map((s: any) => s.label)).toEqual(['LAB', 'GOL'])
+    expect(chart().series.map((s: any) => s.label)).toEqual(['122', '111'])
   })
 
   it('omits the other series when every breed fits inside the limit', () => {
-    render(<BreedDistributionChart limit={5} stats={[year(2024, [{ count: 10, entityId: 'LAB' }])]} />)
+    render(<BreedDistributionChart limit={5} stats={[year(2024, [{ count: 10, entityId: '122' }])]} />)
 
     expect(chart().series).toHaveLength(1)
   })

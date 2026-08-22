@@ -18,7 +18,7 @@ it('sums a class across event types instead of repeating the month on the axis',
     </ChartFrame>
   )
 
-  await expect.element(screen.getByText('stats.admin.capacityTitle')).toBeVisible()
+  await expect.element(screen.getByText('Osallistujamäärä suhteessa paikkoihin')).toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('capacity-one-class-across-event-types')
 })
 
