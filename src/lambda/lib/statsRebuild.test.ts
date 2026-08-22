@@ -74,6 +74,7 @@ describe('statsRebuild', () => {
     [{ PK: 'ORG#organizer', SK: 'not-a-date#event' }, undefined],
     [{ PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' }, 2025],
     [{ PK: 'CAPACITY#NOU', SK: 'not-a-month#NOU' }, undefined],
+    [{ PK: 'JUDGE#2025', SK: '1' }, 2025],
   ])('extracts stats year from %o', (key, expected) => {
     expect(getEventStatsRecordYear(key)).toBe(expected)
   })
@@ -88,7 +89,7 @@ describe('statsRebuild', () => {
     expect(mockBatchWrite).not.toHaveBeenCalled()
   })
 
-  it('calculates final stats once, then clears and bulk writes each year in ascending order', async () => {
+  it('calculates final stats once, then bulk writes each year in ascending order and prunes only stale keys', async () => {
     const event2025 = event('event-2025', '2025-05-01')
     const event2026 = event('event-2026', '2026-05-01', 'other')
     const registration2025 = registration('registration-2025', event2025.id, {
@@ -113,7 +114,7 @@ describe('statsRebuild', () => {
 
     expect(mockReadAll).toHaveBeenNthCalledWith(1, {
       names: { '#state': 'state' },
-      projection: 'id, organizer, startDate, eventType, classes, places, #state',
+      projection: 'id, organizer, startDate, eventType, classes, places, #state, judges',
       table: 'event-table',
     })
     expect(mockReadAll).toHaveBeenNthCalledWith(2, {
@@ -123,8 +124,12 @@ describe('statsRebuild', () => {
       table: 'registration-table',
     })
     expect(mockReadAll).toHaveBeenNthCalledWith(3, { projection: 'PK, SK' })
-    expect(mockDelete).toHaveBeenNthCalledWith(1, stats[1])
-    expect(mockDelete).toHaveBeenNthCalledWith(2, stats[0])
+    // TOTALS#2024 has no counterpart in the rebuilt records, so it is pruned; TOTALS#2025 is
+    // regenerated in place and must never be deleted -- deleting it would blank the year for
+    // however long the write takes, and /stats caches that gap publicly.
+    expect(mockDelete).toHaveBeenCalledTimes(1)
+    expect(mockDelete).toHaveBeenCalledWith(stats[1])
+    expect(mockDelete).not.toHaveBeenCalledWith(stats[0])
     expect(mockBatchWrite).toHaveBeenCalledTimes(2)
     expect(mockBatchWrite).toHaveBeenNthCalledWith(
       1,
@@ -207,20 +212,22 @@ describe('statsRebuild', () => {
         {
           cancelledRegistrations: 0,
           eventCount: 1,
+          organizerId: 'organizer-1',
           PK: 'CAPACITY#NOME-B',
           places: 10,
           reserve: 1,
-          SK: '2025-06#ALO',
+          SK: '2025-06#ALO#organizer-1',
           starters: 1,
           updatedAt: '2025-01-01T00:00:00.000Z',
         },
         {
           cancelledRegistrations: 1,
           eventCount: 1,
+          organizerId: 'organizer-1',
           PK: 'CAPACITY#NOME-B',
           places: 8,
           reserve: 0,
-          SK: '2025-06#AVO',
+          SK: '2025-06#AVO#organizer-1',
           starters: 0,
           updatedAt: '2025-01-01T00:00:00.000Z',
         },
@@ -247,10 +254,11 @@ describe('statsRebuild', () => {
         {
           cancelledRegistrations: 0,
           eventCount: 1,
+          organizerId: 'organizer-1',
           PK: 'CAPACITY#NOU',
           places: 15,
           reserve: 0,
-          SK: '2025-04#NOU',
+          SK: '2025-04#NOU#organizer-1',
           starters: 1,
           updatedAt: '2025-01-01T00:00:00.000Z',
         },
@@ -272,7 +280,7 @@ describe('statsRebuild', () => {
     const { records } = buildStatsRecords([], new Map([[multiDay.id, multiDay]]), '2025-01-01T00:00:00.000Z')
 
     expect(records).toEqual(
-      expect.arrayContaining([expect.objectContaining({ PK: 'CAPACITY#NOWT', SK: '2025-07#VOI' })])
+      expect.arrayContaining([expect.objectContaining({ PK: 'CAPACITY#NOWT', SK: '2025-07#VOI#organizer-1' })])
     )
   })
 
@@ -299,7 +307,7 @@ describe('statsRebuild', () => {
 
     expect(records).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ PK: 'CAPACITY#NOME-B', places: 6, SK: '2025-06#ALO', starters: 1 }),
+        expect.objectContaining({ PK: 'CAPACITY#NOME-B', places: 6, SK: '2025-06#ALO#organizer-1', starters: 1 }),
       ])
     )
   })
@@ -326,9 +334,9 @@ describe('statsRebuild', () => {
     expect(capacity.reduce((total, record) => total + ('places' in record ? (record.places ?? 0) : 0), 0)).toBe(31)
     expect(capacity).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ places: 11, SK: '2025-09#ALO' }),
-        expect.objectContaining({ places: 10, SK: '2025-09#AVO' }),
-        expect.objectContaining({ places: 10, SK: '2025-09#VOI' }),
+        expect.objectContaining({ places: 11, SK: '2025-09#ALO#organizer-1' }),
+        expect.objectContaining({ places: 10, SK: '2025-09#AVO#organizer-1' }),
+        expect.objectContaining({ places: 10, SK: '2025-09#VOI#organizer-1' }),
       ])
     )
   })
@@ -351,8 +359,8 @@ describe('statsRebuild', () => {
 
     expect(records).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ places: 12, SK: '2025-09#ALO' }),
-        expect.objectContaining({ places: 8, SK: '2025-09#AVO' }),
+        expect.objectContaining({ places: 12, SK: '2025-09#ALO#organizer-1' }),
+        expect.objectContaining({ places: 8, SK: '2025-09#AVO#organizer-1' }),
       ])
     )
   })
@@ -376,7 +384,7 @@ describe('statsRebuild', () => {
     const { records } = buildStatsRecords(registrations, new Map([[nomeB.id, nomeB]]), '2025-01-01T00:00:00.000Z')
 
     expect(records).toEqual(
-      expect.arrayContaining([expect.objectContaining({ reserve: 2, SK: '2025-06#ALO', starters: 1 })])
+      expect.arrayContaining([expect.objectContaining({ reserve: 2, SK: '2025-06#ALO#organizer-1', starters: 1 })])
     )
   })
 
@@ -401,7 +409,7 @@ describe('statsRebuild', () => {
 
     expect(unattributedCapacityCount).toBe(0)
     expect(records.filter((record) => record.PK === 'CAPACITY#NOU')).toEqual([
-      expect.objectContaining({ places: 15, SK: '2025-04#NOU', starters: 1 }),
+      expect.objectContaining({ places: 15, SK: '2025-04#NOU#organizer-1', starters: 1 }),
     ])
   })
 
@@ -429,8 +437,8 @@ describe('statsRebuild', () => {
 
     expect(unattributedCapacityCount).toBe(1)
     expect(records.filter((record) => record.PK === 'CAPACITY#NOME-B')).toEqual([
-      expect.objectContaining({ places: 10, SK: '2025-06#ALO', starters: 0 }),
-      expect.objectContaining({ places: 8, SK: '2025-06#AVO', starters: 0 }),
+      expect.objectContaining({ places: 10, SK: '2025-06#ALO#organizer-1', starters: 0 }),
+      expect.objectContaining({ places: 8, SK: '2025-06#AVO#organizer-1', starters: 0 }),
     ])
   })
 
@@ -458,6 +466,91 @@ describe('statsRebuild', () => {
     )
 
     expect(records.filter((record) => record.PK.startsWith('CAPACITY#'))).toHaveLength(0)
+  })
+
+  describe('judge workload', () => {
+    it('counts one event per judge, independent of registrations', () => {
+      const nomeB: EventStatsEvent = {
+        ...event('nome-b-event', '2025-06-01'),
+        judges: [
+          { id: 1, name: 'Matti Meikäläinen' },
+          { id: 2, name: 'Maija Mallikas' },
+        ],
+      }
+
+      const { records } = buildStatsRecords([], new Map([[nomeB.id, nomeB]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual(
+        expect.arrayContaining([
+          { count: 1, name: 'Matti Meikäläinen', PK: 'JUDGE#2025', SK: '1', updatedAt: '2025-01-01T00:00:00.000Z' },
+          { count: 1, name: 'Maija Mallikas', PK: 'JUDGE#2025', SK: '2', updatedAt: '2025-01-01T00:00:00.000Z' },
+        ])
+      )
+    })
+
+    it('counts a judge only once per event even when assigned to several classes', () => {
+      const nomeB: EventStatsEvent = {
+        ...event('nome-b-event', '2025-06-01'),
+        classes: [
+          { class: 'ALO', date: '2025-06-01', judge: { id: 1, name: 'Matti Meikäläinen' } },
+          { class: 'AVO', date: '2025-06-01', judge: { id: 1, name: 'Matti Meikäläinen' } },
+        ],
+        judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+      }
+      const other: EventStatsEvent = {
+        ...event('other-event', '2025-07-01'),
+        judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+      }
+
+      const { records } = buildStatsRecords(
+        [],
+        new Map([
+          [nomeB.id, nomeB],
+          [other.id, other],
+        ]),
+        '2025-01-01T00:00:00.000Z'
+      )
+
+      expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
+        { count: 2, name: 'Matti Meikäläinen', PK: 'JUDGE#2025', SK: '1', updatedAt: '2025-01-01T00:00:00.000Z' },
+      ])
+    })
+
+    it('keys a judge without an id by name', () => {
+      const nomeB: EventStatsEvent = {
+        ...event('nome-b-event', '2025-06-01'),
+        judges: [{ name: 'Foreign Judge' }],
+      }
+
+      const { records } = buildStatsRecords([], new Map([[nomeB.id, nomeB]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
+        {
+          count: 1,
+          name: 'Foreign Judge',
+          PK: 'JUDGE#2025',
+          SK: 'Foreign Judge',
+          updatedAt: '2025-01-01T00:00:00.000Z',
+        },
+      ])
+    })
+
+    it('excludes draft, tentative and cancelled events, same as capacity', () => {
+      const draft: EventStatsEvent = {
+        ...event('draft-event', '2025-08-01'),
+        judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+        state: 'draft',
+      }
+
+      const { records } = buildStatsRecords([], new Map([[draft.id, draft]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.filter((record) => record.PK === 'JUDGE#2025')).toHaveLength(0)
+    })
+
+    it('is classified as its own partition, rebuildable like capacity and participation', () => {
+      expect(getStatsRecordPartition({ PK: 'JUDGE#2025', SK: '1' })).toBe('judges')
+      expect(REBUILDABLE_STATS_PARTITIONS).toContain('judges')
+    })
   })
 
   it('skips registrations whose events are missing or have invalid start dates', async () => {
@@ -497,6 +590,7 @@ describe('statsRebuild', () => {
     it.each([
       [{ PK: 'ORG#organizer-1', SK: '2025-06-01#event' }, 'organizer'],
       [{ PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' }, 'capacity'],
+      [{ PK: 'JUDGE#2025', SK: '1' }, 'judges'],
       [{ PK: 'STAT#2025#dog', SK: 'FI12345' }, 'participation'],
       [{ PK: 'TOTALS#2025', SK: 'dog' }, 'participation'],
       [{ PK: 'BUCKETS#2025#dog#handler', SK: '1' }, 'participation'],
@@ -584,5 +678,87 @@ describe('statsRebuild', () => {
 
     await expect(handler()).rejects.toThrow('Failed to delete stats record TOTALS#2025/dog')
     expect(mockBatchWrite).not.toHaveBeenCalled()
+  })
+
+  describe('event totals', () => {
+    it('counts committed official events with no registrations, so averages divide by events held', () => {
+      const withRegistrations = event('event-with-registrations', '2025-05-01')
+      const empty = event('event-empty', '2025-06-01')
+      const cancelled: EventStatsEvent = { ...event('event-cancelled', '2025-07-01'), state: 'cancelled' }
+      const unofficial = event('event-unofficial', '2025-08-01', 'other')
+      const eventsById = new Map(
+        [withRegistrations, empty, cancelled, unofficial].map((testEvent) => [testEvent.id, testEvent])
+      )
+
+      const { records } = buildStatsRecords([registration('one', withRegistrations.id)], eventsById, 'now')
+
+      // The registration-less event counts toward the total; cancelled and unofficial do not.
+      expect(records).toContainEqual({ count: 2, PK: 'TOTALS#2025', SK: 'event' })
+      expect(records).toContainEqual({ count: 0, PK: 'STAT#2025#event', SK: empty.id })
+      expect(records.some((record) => record.PK === 'STAT#2025#event' && record.SK === cancelled.id)).toBe(false)
+    })
+  })
+
+  describe('retention', () => {
+    const pair = (regNo: string, email: string) => ({ dog: { regNo }, handler: { email } })
+    const build = (years: { year: number; pairs: { dog: { regNo: string }; handler: { email: string } }[] }[]) => {
+      const events = years.map(({ year }) => event(`e${year}`, `${year}-05-01`))
+      const registrations = years.flatMap(({ year, pairs }) =>
+        pairs.map((p, i) => registration(`r${year}-${i}`, `e${year}`, p))
+      )
+      const { records } = buildStatsRecords(registrations, new Map(events.map((e) => [e.id, e])), 'now')
+      return records.filter((r) => r.PK.startsWith('RETENTION#'))
+    }
+
+    it('splits a year into pairs that competed the year before and pairs that did not', () => {
+      const records = build([
+        { pairs: [pair('FI1', 'a@example.com'), pair('FI2', 'b@example.com')], year: 2024 },
+        // FI1/a returns; FI2 comes back with a different handler, so it is a different pair.
+        {
+          pairs: [pair('FI1', 'a@example.com'), pair('FI2', 'c@example.com'), pair('FI3', 'd@example.com')],
+          year: 2025,
+        },
+      ])
+
+      expect(records).toEqual(
+        expect.arrayContaining([
+          { count: 2, PK: 'RETENTION#2025', SK: 'new' },
+          { count: 1, PK: 'RETENTION#2025', SK: 'returning' },
+        ])
+      )
+    })
+
+    it('writes nothing for the earliest year, which has nothing to compare against', () => {
+      // Otherwise every pair would count as new and the chart would show a spike that is only
+      // an artefact of where the data begins.
+      const records = build([{ pairs: [pair('FI1', 'a@example.com')], year: 2024 }])
+
+      expect(records).toEqual([])
+    })
+
+    it('writes nothing for a year whose predecessor had no events at all', () => {
+      const records = build([
+        { pairs: [pair('FI1', 'a@example.com')], year: 2023 },
+        { pairs: [pair('FI1', 'a@example.com')], year: 2025 },
+      ])
+
+      expect(records.filter((r) => r.PK === 'RETENTION#2025')).toEqual([])
+    })
+
+    it('writes nothing for a year whose predecessor had events but no registration data', () => {
+      // Event seeding creates the predecessor's yearlyStats entry with an empty pair set;
+      // retention against it would be the same misleading "everyone is new" as the earliest year.
+      const records = build([
+        { pairs: [], year: 2024 },
+        { pairs: [pair('FI1', 'a@example.com')], year: 2025 },
+      ])
+
+      expect(records.filter((r) => r.PK === 'RETENTION#2025')).toEqual([])
+    })
+
+    it('is classified as a participation record so the rebuild owns and re-creates it', () => {
+      expect(getStatsRecordPartition({ PK: 'RETENTION#2025', SK: 'new' })).toBe('participation')
+      expect(getEventStatsRecordYear({ PK: 'RETENTION#2025', SK: 'new' })).toBe(2025)
+    })
   })
 })

@@ -6,14 +6,19 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../i18n/dates'
 import AutocompleteSingle from '../components/AutocompleteSingle'
-import CapacityUtilizationChart from '../components/stats/CapacityUtilizationChart'
+import CancellationRateChart from '../components/stats/CancellationRateChart'
+import CapacityUtilizationChart, { ALL_CLASSES_ID } from '../components/stats/CapacityUtilizationChart'
+import DemandVsCapacityChart from '../components/stats/DemandVsCapacityChart'
+import JudgeWorkloadChart from '../components/stats/JudgeWorkloadChart'
 import OrganizerFinanceChart from '../components/stats/OrganizerFinanceChart'
 import YearSelector from '../components/stats/YearSelector'
 import FullPageFlex from './components/FullPageFlex'
 import {
+  ALL_EVENT_TYPES_ID,
   adminActiveEventTypesAtom,
   adminCapacityStatsAtom,
   adminCapacityStatsEventTypeAtom,
+  adminJudgeWorkloadAtom,
   adminOrganizerEventStatsAtom,
   adminStatsOrganizerIdAtom,
   adminStatsOrganizersAtom,
@@ -38,6 +43,7 @@ export default function StatsPage() {
   }, [orgs, organizerId, setOrganizerId])
 
   const allOrganizerStats = useAtomValue(adminOrganizerEventStatsAtom)
+  const judgeWorkload = useAtomValue(adminJudgeWorkloadAtom(year))
 
   // Derived from the stats already loaded rather than from /stats: the global year list would
   // cost four queries per year, and years with no events of your own are not selectable anyway.
@@ -61,11 +67,14 @@ export default function StatsPage() {
 
   const eventTypes = useAtomValue(adminActiveEventTypesAtom)
   const eventTypeOptions = useMemo(
-    () => eventTypes.map((et) => ({ id: et.eventType, name: et.description[i18n.language as Language] })),
-    [eventTypes, i18n.language]
+    () => [
+      { id: ALL_EVENT_TYPES_ID, name: t('all') },
+      ...eventTypes.map((et) => ({ id: et.eventType, name: et.description[i18n.language as Language] })),
+    ],
+    [eventTypes, i18n.language, t]
   )
   const [capacityEventType, setCapacityEventType] = useAtom(adminCapacityStatsEventTypeAtom)
-  const capacityStats = useAtomValue(adminCapacityStatsAtom(capacityEventType))
+  const capacityStats = useAtomValue(adminCapacityStatsAtom(`${capacityEventType}|${organizerId}`))
 
   const capacityClasses = useMemo(
     () => [...new Set(capacityStats.map((entry) => entry.class))].sort((a, b) => a.localeCompare(b)),
@@ -74,10 +83,14 @@ export default function StatsPage() {
   // Falls back to the first available class whenever the explicit pick isn't (or is no longer) valid.
   const [selectedCapacityClass, setSelectedCapacityClass] = useState<string>()
   const capacityClass =
-    selectedCapacityClass && capacityClasses.includes(selectedCapacityClass)
+    selectedCapacityClass &&
+    (selectedCapacityClass === ALL_CLASSES_ID || capacityClasses.includes(selectedCapacityClass))
       ? selectedCapacityClass
       : (capacityClasses[0] ?? '')
-  const capacityClassOptions = useMemo(() => capacityClasses.map((c) => ({ id: c, name: c })), [capacityClasses])
+  const capacityClassOptions = useMemo(
+    () => [{ id: ALL_CLASSES_ID, name: t('all') }, ...capacityClasses.map((c) => ({ id: c, name: c }))],
+    [capacityClasses, t]
+  )
 
   return (
     <FullPageFlex>
@@ -98,6 +111,8 @@ export default function StatsPage() {
         <YearSelector years={years} value={year} onChange={setYear} />
 
         <OrganizerFinanceChart items={organizerStats} />
+
+        <JudgeWorkloadChart data={judgeWorkload} />
 
         <Stack direction="row" spacing={2}>
           <AutocompleteSingle
@@ -121,7 +136,13 @@ export default function StatsPage() {
           />
         </Stack>
 
-        {capacityEventType && <CapacityUtilizationChart data={capacityStats} classKey={capacityClass} />}
+        {capacityEventType && (
+          <>
+            <CapacityUtilizationChart data={capacityStats} classKey={capacityClass} />
+            <DemandVsCapacityChart data={capacityStats} classKey={capacityClass} />
+            <CancellationRateChart data={capacityStats} classKey={capacityClass} />
+          </>
+        )}
       </Stack>
     </FullPageFlex>
   )

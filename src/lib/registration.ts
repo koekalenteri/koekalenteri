@@ -124,7 +124,7 @@ export const hasInvalidRegistrationArrayFields = (registration: unknown, require
 
 export const NOME_B_CH_qualificationStartDate2023 = new Date('2023-08-17T21:00:00Z')
 
-const REG_CLASSES = new Set<RegistrationClass>(['ALO', 'AVO', 'VOI'])
+export const REG_CLASSES = new Set<RegistrationClass>(['ALO', 'AVO', 'VOI'])
 
 export function getRegistrationClass(registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>): string
 export function getRegistrationClass(

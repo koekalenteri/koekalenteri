@@ -122,7 +122,9 @@ describe('auth', () => {
       const cognitoUser = 'cognito-user'
       const event = {
         requestContext: {
-          authorizer: { claims: { email: 'Test@Example.com', name: 'test-user', sub: cognitoUser } },
+          authorizer: {
+            claims: { email: 'Test@Example.com', email_verified: 'true', name: 'test-user', sub: cognitoUser },
+          },
         },
       } as any
 
@@ -152,6 +154,36 @@ describe('auth', () => {
       expect(mockWrite).toHaveBeenCalledWith({ cognitoUser, userId: 'existing-id' }, 'user-link-table-not-found-in-env')
       expect(result?.id).toBe('existing-id')
       expect(result?.email).toBe('test@example.com')
+    })
+
+    it('should refuse to link cognito user to an existing user when the email claim is not verified', async () => {
+      const cognitoUser = 'cognito-user'
+      const event = {
+        requestContext: {
+          authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
+        },
+      } as any
+
+      const existingUser = {
+        createdAt: '2023-11-30T20:00:00.000Z',
+        createdBy: 'system',
+        email: 'test@example.com',
+        id: 'existing-id',
+        modifiedAt: '2023-11-30T20:00:00.000Z',
+        modifiedBy: 'system',
+        name: 'existing name',
+      } satisfies JsonUser
+
+      ;(findUserByEmail as import('vitest').MockedFunction<typeof findUserByEmail>).mockResolvedValue(existingUser)
+
+      const result = await authorize(event)
+
+      expect(warnSpy).toHaveBeenCalledWith('refusing to link cognito user to existing user: email not verified', {
+        cognitoUser,
+        userId: 'existing-id',
+      })
+      expect(mockWrite).not.toHaveBeenCalled()
+      expect(result).toBeNull()
     })
 
     it('should return the user if link is found', async () => {
@@ -216,7 +248,7 @@ describe('auth', () => {
       const cognitoUser = 'cognito-user'
       const event = {
         requestContext: {
-          authorizer: { claims: { email: null, name: 'test-user', sub: cognitoUser } },
+          authorizer: { claims: { email: null, email_verified: true, name: 'test-user', sub: cognitoUser } },
         },
       } as any
 

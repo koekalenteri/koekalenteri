@@ -1,5 +1,5 @@
 import type { JsonUser } from '../../types'
-import { getOrigin } from '../lib/api-gw'
+import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
@@ -31,7 +31,9 @@ const putUserLambda = lambda('putUser', async (event) => {
 
   let newUser = await getAndUpdateUserByEmail(item.email, { name: item.name })
 
-  const origin = getOrigin(event)
+  // The origin ends up in the access-granted email as a link, so it must never
+  // be taken from the client-controlled Origin header as-is.
+  const origin = getFrontendOrigin(event)
   for (const orgId of Object.keys(item.roles ?? [])) {
     newUser = await setUserRole(newUser, orgId, item.roles?.[orgId] ?? 'none', user.name, origin)
   }

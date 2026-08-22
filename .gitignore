@@ -30,3 +30,6 @@ aws/*.csv
 stack.json
 
 report.html
+
+# Vitest browser-mode run artifacts (screenshot diffs of failed visual tests)
+.vitest-attachments/

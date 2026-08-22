@@ -30,10 +30,19 @@ const streamToBase64 = async (stream: StreamingBlobTypes): Promise<string> => {
   return Buffer.concat(chunks).toString('base64')
 }
 
+// Attachment keys are generated with nanoid(); reject anything else so this
+// unauthenticated endpoint can never read other objects from the bucket.
+const VALID_KEY = /^[\w-]{10,36}$/
+
 const getAttachmentLambda = lambda('getAttachment', async (event) => {
+  const key = getParam(event, 'key')
+  if (!VALID_KEY.test(key)) {
+    return notFoundResponse(event)
+  }
+
   let data: Awaited<ReturnType<typeof downloadFile>>
   try {
-    data = await downloadFile(getParam(event, 'key'))
+    data = await downloadFile(key)
   } catch (error) {
     if (isNotFoundError(error)) {
       return notFoundResponse(event)

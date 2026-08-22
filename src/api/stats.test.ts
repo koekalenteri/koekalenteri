@@ -1,6 +1,6 @@
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
-import { getAllYearlyStats, getCapacityStats, getOrganizerEventStats } from './stats'
+import { getAdminCapacityStats, getAllYearlyStats, getCapacityStats, getOrganizerEventStats } from './stats'
 
 fetchMock.enableMocks()
 
@@ -22,7 +22,7 @@ test('getAllYearlyStats', async () => {
   expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/stats`, expect.any(Object))
 })
 
-test('getCapacityStats sends eventType and date range', async () => {
+test('getCapacityStats sends eventType and date range, never an organizer', async () => {
   const body = { capacityStats: [{ month: '2025-06' }] }
   fetchMock.mockResponse((req) =>
     req.method === 'GET' ? Promise.resolve(JSON.stringify(body)) : Promise.reject(new Error(`${req.method} !== 'GET'`))
@@ -35,6 +35,21 @@ test('getCapacityStats sends eventType and date range', async () => {
   expect(fetchMock).toHaveBeenCalledWith(
     `${API_BASE_URL}/stats?eventType=NOME-B&from=2025-01&to=2025-12`,
     expect.any(Object)
+  )
+})
+
+test('getAdminCapacityStats sends token, eventType, organizerId and date range', async () => {
+  const body = { capacityStats: [{ month: '2025-06' }] }
+  fetchMock.mockResponse((req) =>
+    req.method === 'GET' ? Promise.resolve(JSON.stringify(body)) : Promise.reject(new Error(`${req.method} !== 'GET'`))
+  )
+
+  const result = await getAdminCapacityStats('token', 'NOME-B', 'organizer-1', '2025-01', '2025-12')
+
+  expect(result).toEqual(body.capacityStats)
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/stats?eventType=NOME-B&organizerId=organizer-1&from=2025-01&to=2025-12`,
+    expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer token' }) })
   )
 })
 
@@ -56,7 +71,7 @@ test('getOrganizerEventStats sends token, organizerId and date range', async () 
 
   expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(fetchMock).toHaveBeenCalledWith(
-    `${API_BASE_URL}/admin/organizer-event-stats?organizerId=org1&from=2024-01-01&to=2024-12-31`,
+    `${API_BASE_URL}/admin/stats?organizerId=org1&from=2024-01-01&to=2024-12-31`,
     expect.objectContaining({
       headers: expect.objectContaining({ Authorization: 'Bearer test-token' }),
     })
@@ -69,5 +84,5 @@ test('getOrganizerEventStats without organizerId or date range', async () => {
   await getOrganizerEventStats('test-token')
 
   expect(fetchMock).toHaveBeenCalledTimes(1)
-  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/organizer-event-stats`, expect.any(Object))
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/stats`, expect.any(Object))
 })

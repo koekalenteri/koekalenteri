@@ -1,7 +1,7 @@
-  GetOrganizerEventStatsFunction:
+  GetAdminStatsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambda/GetOrganizerEventStatsFunction
+      CodeUri: lambda/GetAdminStatsFunction
       Handler: handler.default
       Layers:
         - !Ref DependenciesLayer
@@ -14,17 +14,17 @@
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
       Events:
-        GetOrganizerEventStatsApi:
+        GetAdminStatsApi:
           Type: Api
           Properties:
-            Path: /admin/organizer-event-stats
+            Path: /admin/stats
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
 
-  GetOrganizerEventStatsFunctionLogGroup:
+  GetAdminStatsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetOrganizerEventStatsFunction]]
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAdminStatsFunction]]
       RetentionInDays: 30

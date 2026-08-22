@@ -3,6 +3,7 @@ import {
   getAvailableYears,
   getCapacityStats,
   getDogHandlerBuckets,
+  getRetentionStats,
   getYearlyBreakdown,
   getYearlyTotalStats,
 } from '../lib/stats'
@@ -14,19 +15,36 @@ const YEARLY_MAX_AGE = 300
 const CAPACITY_MAX_AGE = 3600
 
 async function getYearStats(year: number) {
-  const [totals, dogHandlerBuckets, breedBreakdown, eventTypeBreakdown] = await Promise.all([
+  const [totals, dogHandlerBuckets, breedBreakdown, eventTypeBreakdown, classBreakdown, retention] = await Promise.all([
     getYearlyTotalStats(year),
     getDogHandlerBuckets(year),
     getYearlyBreakdown(year, 'breed'),
     getYearlyBreakdown(year, 'eventType'),
+    getYearlyBreakdown(year, 'class'),
+    getRetentionStats(year),
   ])
 
-  return { breedBreakdown, dogHandlerBuckets, eventTypeBreakdown, totals, year }
+  // Omitted rather than zeroed for the earliest year: no comparison year exists, and a zero
+  // would read as "nobody returned".
+  return {
+    breedBreakdown,
+    classBreakdown,
+    dogHandlerBuckets,
+    eventTypeBreakdown,
+    ...(retention && { retention }),
+    totals,
+    year,
+  }
 }
 
 const getStatsLambda = lambda('getStatsLambda', async (event) => {
   // Optional year parameter (?year=2025) and, independently, an optional
   // eventType (+ from/to, yyyy-mm) parameter for monthly capacity stats.
+  //
+  // Deliberately no organizerId here: this route has no authorizer, so it only ever serves the
+  // nationwide total. Per-organizer figures go through /admin/capacity-stats, which checks
+  // admin-or-memberOf. Adding a filter here would publish one organizer's numbers to anyone,
+  // and the public cache headers below would keep serving them for an hour.
   const { eventType, from, to, year: yearParam } = event.queryStringParameters ?? {}
   const yearRequested = !!yearParam && !Number.isNaN(Number(yearParam))
 
@@ -34,7 +52,7 @@ const getStatsLambda = lambda('getStatsLambda', async (event) => {
     const year = Number(yearParam)
     const [yearStats, capacityStats] = await Promise.all([
       getYearStats(year),
-      eventType ? getCapacityStats(eventType, from, to) : undefined,
+      eventType ? getCapacityStats(eventType, undefined, from, to) : undefined,
     ])
     return response(200, { ...yearStats, ...(capacityStats && { capacityStats }) }, event, {
       maxAge: YEARLY_MAX_AGE,
@@ -44,7 +62,7 @@ const getStatsLambda = lambda('getStatsLambda', async (event) => {
   // Capacity stats without a year stand alone: falling through would run getYearStats()
   // (four queries) for every available year just to have the caller discard the result.
   if (eventType) {
-    const capacityStats = await getCapacityStats(eventType, from, to)
+    const capacityStats = await getCapacityStats(eventType, undefined, from, to)
     return response(200, { capacityStats }, event, { maxAge: CAPACITY_MAX_AGE })
   }
 

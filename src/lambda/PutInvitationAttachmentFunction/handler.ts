@@ -37,6 +37,12 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
     return response(400, 'no data', event)
   }
 
+  // The attachment is stored and served as application/pdf, so require a PDF.
+  if (!file.data.subarray(0, 5).equals(Buffer.from('%PDF-'))) {
+    console.error('uploaded file is not a PDF')
+    return response(400, 'file is not a PDF', event)
+  }
+
   const existingClassAttachments = existing.invitationAttachments ?? {}
   const oldAttachment = className ? existingClassAttachments[className] : existing.invitationAttachment
   const oldAttachmentIsReferenced = oldAttachment

@@ -583,17 +583,17 @@ describe('putEventLambda', () => {
       constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2024-12-31T22:00:00.000Z' })
     )
 
-    // Counters carry across; the old key is removed in the same transaction.
+    // Counters carry across (added, so a registration already counted under the new key is kept);
+    // the old key is removed in the same transaction.
     expect(mockStatsTransaction).toHaveBeenCalledWith([
       {
-        Put: expect.objectContaining({
-          Item: expect.objectContaining({
-            count: 7,
-            date: '2024-12-31T22:00:00.000Z',
-            PK: `ORG#${mockEvent.organizer.id}`,
-            paidAmount: 350,
-            SK: `2024-12-31T22:00:00.000Z#existing`,
+        Update: expect.objectContaining({
+          ExpressionAttributeValues: expect.objectContaining({
+            ':count': 7,
+            ':date': '2024-12-31T22:00:00.000Z',
+            ':paidAmount': 350,
           }),
+          Key: { PK: `ORG#${mockEvent.organizer.id}`, SK: `2024-12-31T22:00:00.000Z#existing` },
         }),
       },
       {

@@ -1,3 +1,4 @@
+import type { AllYearlyStatsResponse } from '../api/stats'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { Suspense } from 'react'
@@ -50,5 +51,54 @@ describe('StatsPage', () => {
 
     // The all-years response already contains 2024's breakdowns; one request covers the page.
     expect(getAllYearlyStats).toHaveBeenCalledTimes(1)
+  })
+
+  const renderPage = () =>
+    render(
+      <ThemeProvider theme={theme}>
+        <Provider>
+          <MemoryRouter initialEntries={['/tilastot']}>
+            <Suspense fallback={<div>loading...</div>}>
+              <StatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+
+  const payload = (retention?: { new: number; returning: number }): AllYearlyStatsResponse => ({
+    stats: [
+      { breedBreakdown: [], dogHandlerBuckets: [], eventTypeBreakdown: [], totals: [], year: 2024 },
+      {
+        breedBreakdown: [],
+        dogHandlerBuckets: [],
+        eventTypeBreakdown: [],
+        totals: [],
+        year: 2025,
+        ...(retention && { retention: { ...retention, year: 2025 } }),
+      },
+    ],
+    years: [2024, 2025],
+  })
+
+  it('shows the retention chart once any year has a retention record', async () => {
+    vi.mocked(getAllYearlyStats).mockResolvedValue(payload({ new: 40, returning: 160 }))
+
+    renderPage()
+    await flushPromises()
+
+    await screen.findByText('stats.retentionTitle')
+  })
+
+  it('hides the retention chart until a rebuild has written the records', async () => {
+    // The state right after deploy: RETENTION# rows do not exist yet, and an empty chart would
+    // be worse than none.
+    vi.mocked(getAllYearlyStats).mockResolvedValue(payload())
+
+    renderPage()
+    await flushPromises()
+
+    await screen.findByText('stats.title')
+    expect(screen.queryByText('stats.retentionTitle')).not.toBeInTheDocument()
   })
 })

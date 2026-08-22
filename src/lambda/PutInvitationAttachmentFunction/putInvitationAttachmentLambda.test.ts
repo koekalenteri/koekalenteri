@@ -96,7 +96,7 @@ describe('putInvitationAttachmentLambda', () => {
 
     mockParsePostFile.mockResolvedValue({
       contentType: 'application/pdf',
-      data: Buffer.from('test-file-content'),
+      data: Buffer.from('%PDF-1.7 test-file-content'),
       filename: 'test.pdf',
     })
 
@@ -183,6 +183,22 @@ describe('putInvitationAttachmentLambda', () => {
     expect(console.error).toHaveBeenCalledWith('no data')
   })
 
+  it('returns 400 if the file is not a PDF', async () => {
+    mockParsePostFile.mockResolvedValueOnce({
+      contentType: 'application/pdf',
+      data: Buffer.from('<html>not a pdf</html>'),
+      filename: 'test.pdf',
+    })
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(400, 'file is not a PDF', event)
+    expect(mockDeleteFile).not.toHaveBeenCalled()
+    expect(mockUploadFile).not.toHaveBeenCalled()
+
+    expect(console.error).toHaveBeenCalledWith('uploaded file is not a PDF')
+  })
+
   it('uploads new attachment and preserves the old one', async () => {
     await putInvitationAttachmentLambda(event)
 
@@ -198,7 +214,7 @@ describe('putInvitationAttachmentLambda', () => {
     // Verify new file was uploaded
     expect(mockUploadFile).toHaveBeenCalledWith(
       expect.any(String), // nanoid generated key
-      Buffer.from('test-file-content')
+      Buffer.from('%PDF-1.7 test-file-content')
     )
 
     // Verify event was updated with new attachment key
@@ -251,7 +267,7 @@ describe('putInvitationAttachmentLambda', () => {
     await putInvitationAttachmentLambda(event)
 
     expect(mockDeleteFile).not.toHaveBeenCalled()
-    expect(mockUploadFile).toHaveBeenCalledWith(expect.any(String), Buffer.from('test-file-content'))
+    expect(mockUploadFile).toHaveBeenCalledWith(expect.any(String), Buffer.from('%PDF-1.7 test-file-content'))
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'event123' },
       {
@@ -358,7 +374,7 @@ describe('putInvitationAttachmentLambda', () => {
     // Verify new file was uploaded
     expect(mockUploadFile).toHaveBeenCalledWith(
       expect.any(String), // nanoid generated key
-      Buffer.from('test-file-content')
+      Buffer.from('%PDF-1.7 test-file-content')
     )
 
     // Verify event was updated with new attachment key

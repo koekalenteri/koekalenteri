@@ -53,7 +53,7 @@ describe('getAttachmentLambda', () => {
   })
 
   it('returns an understandable 404 when the file has no content', async () => {
-    const fileKey = 'nonexistent-file.pdf'
+    const fileKey = 'nonexistent-file-key1'
     mockGetParam.mockReturnValueOnce(fileKey)
     mockDownloadFile.mockResolvedValueOnce({ Body: null })
     mockAllowOrigin.mockReturnValueOnce('*')
@@ -72,7 +72,7 @@ describe('getAttachmentLambda', () => {
   })
 
   it('returns an understandable 404 when S3 no longer contains the file', async () => {
-    const fileKey = 'deleted-file.pdf'
+    const fileKey = 'deleted-file-key1'
     mockGetParam.mockReturnValueOnce(fileKey)
     mockDownloadFile.mockRejectedValueOnce({
       $metadata: { httpStatusCode: 404 },
@@ -92,7 +92,7 @@ describe('getAttachmentLambda', () => {
   })
 
   it('returns file with inline disposition by default', async () => {
-    const fileKey = 'test-file.pdf'
+    const fileKey = 'V1StGXR8_Z5jdHi6B-myT'
     const fileName = 'test-file.pdf'
     const fileContent = 'PDF file content'
     const mockStream = new MockReadableStream(fileContent)
@@ -125,7 +125,7 @@ describe('getAttachmentLambda', () => {
   })
 
   it('returns file with attachment disposition when dl parameter is present', async () => {
-    const fileKey = 'test-file.pdf'
+    const fileKey = 'V1StGXR8_Z5jdHi6B-myT'
     const fileName = 'test-file.pdf'
     const fileContent = 'PDF file content'
     const mockStream = new MockReadableStream(fileContent)
@@ -162,7 +162,7 @@ describe('getAttachmentLambda', () => {
   })
 
   it('sanitizes filename in Content-Disposition header', async () => {
-    const fileKey = 'test-file.pdf'
+    const fileKey = 'V1StGXR8_Z5jdHi6B-myT'
     const fileName = 'test file with spaces & special chars.pdf'
     const fileContent = 'PDF file content'
     const mockStream = new MockReadableStream(fileContent)
@@ -180,8 +180,17 @@ describe('getAttachmentLambda', () => {
     expect(contentDisposition).toContain(`filename*=utf-8''${encodeURIComponent(fileName)}`)
   })
 
+  it('returns 404 for a key that is not a valid attachment key, without hitting S3', async () => {
+    mockGetParam.mockReturnValueOnce('some/other/object.txt')
+    mockAllowOrigin.mockReturnValueOnce('*')
+
+    await expect(getAttachmentLambda(event)).resolves.toMatchObject({ statusCode: 404 })
+
+    expect(mockDownloadFile).not.toHaveBeenCalled()
+  })
+
   it('passes through errors from downloadFile', async () => {
-    const fileKey = 'test-file.pdf'
+    const fileKey = 'V1StGXR8_Z5jdHi6B-myT'
     const error = new Error('S3 error')
 
     mockGetParam.mockReturnValueOnce(fileKey)
