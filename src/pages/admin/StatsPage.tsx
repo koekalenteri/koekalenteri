@@ -12,7 +12,6 @@ import DemandVsCapacityChart from '../components/stats/DemandVsCapacityChart'
 import JudgeWorkloadChart from '../components/stats/JudgeWorkloadChart'
 import OrganizerFinanceChart from '../components/stats/OrganizerFinanceChart'
 import YearSelector from '../components/stats/YearSelector'
-import FullPageFlex from './components/FullPageFlex'
 import {
   ALL_EVENT_TYPES_ID,
   adminActiveEventTypesAtom,
@@ -93,57 +92,55 @@ export default function StatsPage() {
   )
 
   return (
-    <FullPageFlex>
-      <Stack spacing={4} sx={{ overflow: 'auto', p: 1, width: '100%' }}>
-        <Typography variant="h4">{t('stats.title')}</Typography>
+    <Stack spacing={4} sx={{ p: 1, width: '100%' }}>
+      <Typography variant="h4">{t('stats.title')}</Typography>
 
+      <AutocompleteSingle
+        disabled={orgs.length < 2}
+        size="small"
+        options={options}
+        label={t('organization')}
+        getOptionLabel={(o) => o.name}
+        value={options.find((o) => o.id === organizerId) ?? null}
+        onChange={(o) => setOrganizerId(o?.id ?? '')}
+        sx={{ maxWidth: 300 }}
+      />
+
+      <YearSelector years={years} value={year} onChange={setYear} />
+
+      <OrganizerFinanceChart items={organizerStats} />
+
+      <JudgeWorkloadChart data={judgeWorkload} />
+
+      <Stack direction="row" spacing={2}>
         <AutocompleteSingle
-          disabled={orgs.length < 2}
           size="small"
-          options={options}
-          label={t('organization')}
+          options={eventTypeOptions}
+          label={t('stats.admin.eventType')}
           getOptionLabel={(o) => o.name}
-          value={options.find((o) => o.id === organizerId) ?? null}
-          onChange={(o) => setOrganizerId(o?.id ?? '')}
+          value={eventTypeOptions.find((o) => o.id === capacityEventType) ?? null}
+          onChange={(o) => setCapacityEventType(o?.id ?? '')}
           sx={{ maxWidth: 300 }}
         />
-
-        <YearSelector years={years} value={year} onChange={setYear} />
-
-        <OrganizerFinanceChart items={organizerStats} />
-
-        <JudgeWorkloadChart data={judgeWorkload} />
-
-        <Stack direction="row" spacing={2}>
-          <AutocompleteSingle
-            size="small"
-            options={eventTypeOptions}
-            label={t('stats.admin.eventType')}
-            getOptionLabel={(o) => o.name}
-            value={eventTypeOptions.find((o) => o.id === capacityEventType) ?? null}
-            onChange={(o) => setCapacityEventType(o?.id ?? '')}
-            sx={{ maxWidth: 300 }}
-          />
-          <AutocompleteSingle
-            disabled={capacityClassOptions.length < 2}
-            size="small"
-            options={capacityClassOptions}
-            label={t('stats.admin.class')}
-            getOptionLabel={(o) => o.name}
-            value={capacityClassOptions.find((o) => o.id === capacityClass) ?? null}
-            onChange={(o) => setSelectedCapacityClass(o?.id ?? '')}
-            sx={{ maxWidth: 300 }}
-          />
-        </Stack>
-
-        {capacityEventType && (
-          <>
-            <CapacityUtilizationChart data={capacityStats} classKey={capacityClass} />
-            <DemandVsCapacityChart data={capacityStats} classKey={capacityClass} />
-            <CancellationRateChart data={capacityStats} classKey={capacityClass} />
-          </>
-        )}
+        <AutocompleteSingle
+          disabled={capacityClassOptions.length < 2}
+          size="small"
+          options={capacityClassOptions}
+          label={t('stats.admin.class')}
+          getOptionLabel={(o) => o.name}
+          value={capacityClassOptions.find((o) => o.id === capacityClass) ?? null}
+          onChange={(o) => setSelectedCapacityClass(o?.id ?? '')}
+          sx={{ maxWidth: 300 }}
+        />
       </Stack>
-    </FullPageFlex>
+
+      {capacityEventType && (
+        <>
+          <CapacityUtilizationChart data={capacityStats} classKey={capacityClass} />
+          <DemandVsCapacityChart data={capacityStats} classKey={capacityClass} />
+          <CancellationRateChart data={capacityStats} classKey={capacityClass} />
+        </>
+      )}
+    </Stack>
   )
 }
