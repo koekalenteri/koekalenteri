@@ -40,3 +40,14 @@ export const getOrganizerEventStats = vi.fn(
 export const getCapacityStats = vi.fn(
   async (_eventType: string, _from?: string, _to?: string, _signal?: AbortSignal): Promise<CapacityStatsEntry[]> => []
 )
+
+export const getAdminCapacityStats = vi.fn(
+  async (
+    _token: string,
+    _eventType: string,
+    _organizerId?: string,
+    _from?: string,
+    _to?: string,
+    _signal?: AbortSignal
+  ): Promise<CapacityStatsEntry[]> => []
+)

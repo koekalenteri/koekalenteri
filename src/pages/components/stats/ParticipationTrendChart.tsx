@@ -33,8 +33,10 @@ export default function ParticipationTrendChart({ stats }: Props) {
             label: t('stats.uniqueHandlers'),
           },
           {
-            data: stats.map((stat) => totalFor(stat, 'breed')),
-            label: t('stats.uniqueBreeds'),
+            // Not unique breeds: that series sits an order of magnitude below the others, so it
+            // flattens the dog/handler lines it shares an axis with. Breeds get their own chart.
+            data: stats.map((stat) => totalFor(stat, 'dog#handler')),
+            label: t('stats.uniqueDogHandlers'),
           },
         ]}
       />

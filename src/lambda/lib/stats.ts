@@ -4,6 +4,7 @@ import type {
   CapacityStatsEntry,
   JsonCapacityStatsItem,
   JsonEventStatsItem,
+  RetentionStats,
   YearlyStatTypes,
   YearlyTotalStat,
 } from '../../types/Stats'
@@ -152,7 +153,11 @@ export async function getOrganizerStats(
 ): Promise<JsonEventStatsItem[]> {
   let allStats: Required<JsonEventStatsItem>[] = []
 
-  if (organizerIds?.length) {
+  // An explicit empty list means "no organizers the caller may see", not "all of them" -- a
+  // non-admin who belongs to no organization must get nothing, not every organizer's stats.
+  if (organizerIds?.length === 0) return []
+
+  if (organizerIds) {
     // Query for specific organizers
     for (const organizerId of organizerIds) {
       const items = await queryOrganizerStats(organizerId, from, to)
@@ -183,6 +188,22 @@ export async function getYearlyTotalStats(year: number): Promise<YearlyTotalStat
     type: item.SK as YearlyStatTypes,
     year,
   }))
+}
+
+/**
+ * Retention for a year: how many dog+handler pairs were new and how many also competed the year
+ * before. Written by the nightly rebuild, which is the only place both years' pair sets exist at
+ * once. Undefined for the earliest year on record, which has nothing to compare against.
+ */
+export async function getRetentionStats(year: number): Promise<RetentionStats | undefined> {
+  const items = await dynamoDB.query<{ SK: string; count: number }>({
+    key: 'PK = :pk',
+    values: { ':pk': `RETENTION#${year}` },
+  })
+  if (!items?.length) return undefined
+
+  const countFor = (sk: string) => items.find((item) => item.SK === sk)?.count ?? 0
+  return { new: countFor('new'), returning: countFor('returning'), year }
 }
 
 /**
@@ -240,10 +261,25 @@ export async function getAvailableYears(): Promise<number[]> {
 /**
  * Get monthly available-places-vs-actual-starters stats for one event type,
  * optionally bounded to a yyyy-mm month range. Uses a key condition (not a
- * filter) since SK = {yyyy-mm}#{class} sorts naturally within the partition;
- * the upper bound is padded past '#' so the whole `to` month is included.
+ * filter) since SK = {yyyy-mm}#{class}#{organizerId} sorts naturally within
+ * the partition; the upper bound is padded past '#' so the whole `to` month
+ * is included regardless of the class/organizer that follows it.
+ *
+ * One row per month/class comes back per organizer that ran events of this type, so the
+ * result is always summed into one entry per month/class. `organizerIds` narrows which
+ * organizers are counted; undefined means every organizer (the nationwide total the public
+ * endpoint serves). Callers that pass a list are responsible for having authorized it --
+ * per-organizer figures are only exposed through the admin endpoint.
  */
-export async function getCapacityStats(eventType: string, from?: string, to?: string): Promise<CapacityStatsEntry[]> {
+export async function getCapacityStats(
+  eventType: string,
+  organizerIds?: string[],
+  from?: string,
+  to?: string
+): Promise<CapacityStatsEntry[]> {
+  // An explicit empty list means "no organizers the caller may see", not "all of them".
+  if (organizerIds?.length === 0) return []
+
   // DynamoDB rejects an inverted BETWEEN with a ValidationException; the range is simply empty.
   if (from && to && from > to) return []
 
@@ -264,13 +300,25 @@ export async function getCapacityStats(eventType: string, from?: string, to?: st
     values[':to'] = `${to}#￿`
   }
 
+  let filterExpression: string | undefined
+  if (organizerIds) {
+    names['#organizerId'] = 'organizerId'
+    filterExpression = `#organizerId IN (${organizerIds
+      .map((id, index) => {
+        values[`:organizerId${index}`] = id
+        return `:organizerId${index}`
+      })
+      .join(', ')})`
+  }
+
   const items = await dynamoDB.query<JsonCapacityStatsItem>({
+    filterExpression,
     key: keyCondition,
     names,
     values,
   })
 
-  return (items || []).map((item) => {
+  const entries = (items || []).map((item) => {
     const [month, classKey] = item.SK.split('#')
     return {
       cancelledRegistrations: item.cancelledRegistrations ?? 0,
@@ -278,11 +326,29 @@ export async function getCapacityStats(eventType: string, from?: string, to?: st
       eventCount: item.eventCount ?? 0,
       eventType,
       month,
+      organizerId: item.organizerId ?? '',
       places: item.places ?? 0,
       reserve: item.reserve ?? 0,
       starters: item.starters ?? 0,
     }
   })
+  // Only meaningful when the result covers exactly one organizer; otherwise it is a total.
+  const resultOrganizerId = organizerIds?.length === 1 ? organizerIds[0] : ''
+  const totalsByMonthAndClass = new Map<string, CapacityStatsEntry>()
+  for (const entry of entries) {
+    const key = `${entry.month}#${entry.class}`
+    const total = totalsByMonthAndClass.get(key)
+    if (!total) {
+      totalsByMonthAndClass.set(key, { ...entry, organizerId: resultOrganizerId })
+      continue
+    }
+    total.cancelledRegistrations += entry.cancelledRegistrations
+    total.eventCount += entry.eventCount
+    total.places += entry.places
+    total.reserve += entry.reserve
+    total.starters += entry.starters
+  }
+  return [...totalsByMonthAndClass.values()]
 }
 
 /**
@@ -349,6 +415,9 @@ export async function updateOrganizerEventStats(
  * (it applies a blind ADD to the same key). The delete is conditioned on the `updatedAt` we
  * just read so that race cancels the transaction instead of silently discarding the concurrent
  * increment; a bounded retry then re-reads the fresh item and moves that instead.
+ *
+ * The same blind ADD can also land on `to` (a registration saved after the event's new key was
+ * already in effect), so the destination accumulates rather than overwrites.
  */
 export async function moveOrganizerEventStats(
   existing: OrganizerStatsEvent,
@@ -369,15 +438,36 @@ export async function moveOrganizerEventStats(
       // organizer's totals or drops it, and no scheduled job would notice either.
       await dynamoDB.documentTransaction([
         {
-          Put: {
-            Item: {
-              ...stats,
-              ...to,
-              date: updated.startDate,
-              organizerId: updated.organizer.id,
-              updatedAt: new Date().toISOString(),
+          // ADD, not Put: a registration for the *updated* event can already have created the
+          // destination item (its blind ADD uses the new key). A Put would overwrite that
+          // increment; accumulating into whatever is there merges the two instead.
+          Update: {
+            ExpressionAttributeNames: {
+              '#cancelledRegistrations': 'cancelledRegistrations',
+              '#count': 'count',
+              '#date': 'date',
+              '#organizerId': 'organizerId',
+              '#paidAmount': 'paidAmount',
+              '#paidRegistrations': 'paidRegistrations',
+              '#refundedAmount': 'refundedAmount',
+              '#refundedRegistrations': 'refundedRegistrations',
+              '#updatedAt': 'updatedAt',
             },
+            ExpressionAttributeValues: {
+              ':cancelledRegistrations': stats.cancelledRegistrations ?? 0,
+              ':count': stats.count ?? 0,
+              ':date': updated.startDate,
+              ':organizerId': updated.organizer.id,
+              ':paidAmount': stats.paidAmount ?? 0,
+              ':paidRegistrations': stats.paidRegistrations ?? 0,
+              ':refundedAmount': stats.refundedAmount ?? 0,
+              ':refundedRegistrations': stats.refundedRegistrations ?? 0,
+              ':updatedAt': new Date().toISOString(),
+            },
+            Key: to,
             TableName: CONFIG.eventStatsTable,
+            UpdateExpression:
+              'ADD #cancelledRegistrations :cancelledRegistrations, #count :count, #paidAmount :paidAmount, #paidRegistrations :paidRegistrations, #refundedAmount :refundedAmount, #refundedRegistrations :refundedRegistrations SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
           },
         },
         {

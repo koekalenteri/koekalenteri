@@ -60,14 +60,14 @@ export const REBUILDABLE_STATS_PARTITIONS: StatsPartition[] = ['participation', 
 export const getStatsRecordPartition = ({ PK }: EventStatKey): StatsPartition | undefined => {
   if (PK.startsWith('ORG#')) return 'organizer'
   if (PK.startsWith('CAPACITY#')) return 'capacity'
-  if (PK === 'YEARS' || /^(?:STAT|TOTALS|BUCKETS)#/.test(PK)) return 'participation'
+  if (PK === 'YEARS' || /^(?:STAT|TOTALS|BUCKETS|RETENTION)#/.test(PK)) return 'participation'
   return undefined
 }
 
 /** Returns the year represented by a stats-table key, if it is a stats record. */
 export function getEventStatsRecordYear({ PK, SK }: EventStatKey): number | undefined {
   const match =
-    /^(?:STAT|TOTALS|BUCKETS)#(\d{4})(?:#|$)/.exec(PK) || (PK === 'YEARS' ? /^(\d{4})$/.exec(SK) : undefined)
+    /^(?:STAT|TOTALS|BUCKETS|RETENTION)#(\d{4})(?:#|$)/.exec(PK) || (PK === 'YEARS' ? /^(\d{4})$/.exec(SK) : undefined)
   if (match) return Number(match[1])
 
   if (PK.startsWith('ORG#')) {
@@ -140,6 +140,34 @@ const dogHandlerBucketRecords = (year: number, counts: Map<string, number>): Jso
   return [...buckets].map(([bucket, count]) => ({ count, PK: `BUCKETS#${year}#dog#handler`, SK: bucket }))
 }
 
+/**
+ * How many dog+handler pairs of a year had also competed the year before.
+ *
+ * Only produced when the previous year is part of this rebuild: without it, every pair would
+ * look new, which says nothing about retention and everything about where the data starts. The
+ * earliest year therefore gets no record rather than a misleading one.
+ */
+const retentionRecords = (
+  year: number,
+  countsByType: Map<YearlyStatTypes, Map<string, number>>,
+  yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
+): JsonEventStatsItem[] => {
+  const previous = yearlyStats.get(year - 1)
+  if (!previous) return []
+
+  const previousPairs = countsForType(previous, 'dog#handler')
+  let returning = 0
+  let fresh = 0
+  for (const pair of countsForType(countsByType, 'dog#handler').keys()) {
+    if (previousPairs.has(pair)) returning++
+    else fresh++
+  }
+  return [
+    { count: fresh, PK: `RETENTION#${year}`, SK: 'new' },
+    { count: returning, PK: `RETENTION#${year}`, SK: 'returning' },
+  ]
+}
+
 const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>) => {
   const records: JsonEventStatsItem[] = []
   for (const [year, countsByType] of yearlyStats) {
@@ -149,6 +177,7 @@ const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<st
       for (const [entityId, count] of counts) records.push({ count, PK: `STAT#${year}#${type}`, SK: entityId })
       if (type === 'dog#handler') records.push(...dogHandlerBucketRecords(year, counts))
     }
+    records.push(...retentionRecords(year, countsByType, yearlyStats))
   }
   return records
 }
@@ -165,20 +194,23 @@ interface CapacityBucket {
   eventCount: number
   eventType: string
   month: string
+  organizerId: string
   places: number
   reserve: number
   starters: number
 }
 
-const capacityBucketKey = (eventType: string, month: string, classKey: string) => `${eventType}#${month}#${classKey}`
+const capacityBucketKey = (eventType: string, month: string, classKey: string, organizerId: string) =>
+  `${eventType}#${month}#${classKey}#${organizerId}`
 
 const getOrCreateCapacityBucket = (
   buckets: Map<string, CapacityBucket>,
   eventType: string,
   month: string,
-  classKey: string
+  classKey: string,
+  organizerId: string
 ): CapacityBucket => {
-  const key = capacityBucketKey(eventType, month, classKey)
+  const key = capacityBucketKey(eventType, month, classKey, organizerId)
   const existing = buckets.get(key)
   if (existing) return existing
 
@@ -188,6 +220,7 @@ const getOrCreateCapacityBucket = (
     eventCount: 0,
     eventType,
     month,
+    organizerId,
     places: 0,
     reserve: 0,
     starters: 0,
@@ -261,7 +294,7 @@ const seedCapacityFromEvents = (
       if (month === undefined) continue
       classMonths.set(classKey, month)
 
-      const bucket = getOrCreateCapacityBucket(buckets, event.eventType, month, classKey)
+      const bucket = getOrCreateCapacityBucket(buckets, event.eventType, month, classKey, event.organizer.id)
       bucket.places += placesByClass.get(classKey) ?? 0
       bucket.eventCount += 1
     }
@@ -298,7 +331,7 @@ const addCapacityRegistration = (
   const month = classKey && classMonths.get(classKey)
   if (!classKey || !month) return false
 
-  const bucket = getOrCreateCapacityBucket(buckets, event.eventType, month, classKey)
+  const bucket = getOrCreateCapacityBucket(buckets, event.eventType, month, classKey, event.organizer.id)
 
   if (registration.cancelled) {
     bucket.cancelledRegistrations += 1
@@ -314,10 +347,11 @@ const capacityStatsRecords = (buckets: Map<string, CapacityBucket>, updatedAt: s
   [...buckets.values()].map((bucket) => ({
     cancelledRegistrations: bucket.cancelledRegistrations,
     eventCount: bucket.eventCount,
+    organizerId: bucket.organizerId,
     PK: `CAPACITY#${bucket.eventType}`,
     places: bucket.places,
     reserve: bucket.reserve,
-    SK: `${bucket.month}#${bucket.classKey}`,
+    SK: `${bucket.month}#${bucket.classKey}#${bucket.organizerId}`,
     starters: bucket.starters,
     updatedAt,
   }))
@@ -482,11 +516,17 @@ export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITION
     for (const year of years) {
       const oldRecords = existingStatsByYear.get(year) ?? []
       const newRecords = recordsByYear.get(year) ?? []
+      // Write before deleting, and only delete keys the rebuild did not regenerate. Deleting
+      // first left a window where /stats served empty or partial data for the year -- which the
+      // public endpoint then caches for up to an hour. batchWrite overwrites in place, so every
+      // surviving key stays continuously readable and only genuinely-gone keys are removed.
+      const newKeys = new Set(newRecords.map((record) => `${record.PK}\u0000${record.SK}`))
+      const staleRecords = oldRecords.filter((record) => !newKeys.has(`${record.PK}\u0000${record.SK}`))
       // Keep each year independently regenerable if a manual run fails midway.
-      await deleteStatsRecords(oldRecords)
       if (newRecords.length > 0) await dynamoDB.batchWrite(newRecords)
+      await deleteStatsRecords(staleRecords)
       console.log(
-        `Regenerated ${year}: removed ${oldRecords.length} existing stats and wrote ${newRecords.length} records`
+        `Regenerated ${year}: wrote ${newRecords.length} records and removed ${staleRecords.length} stale stats`
       )
     }
 

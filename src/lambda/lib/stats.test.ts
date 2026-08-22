@@ -49,6 +49,7 @@ const {
   participationIdentifiers,
   eventStatsYear,
   getCapacityStats,
+  getRetentionStats,
   eventStatsMonth,
   moveOrganizerEventStats,
 } = await import('./stats')
@@ -369,19 +370,31 @@ describe('lib/stats', () => {
 
       expect(mockDocumentTransaction).toHaveBeenCalledWith([
         {
-          Put: expect.objectContaining({
-            Item: expect.objectContaining({
-              count: 7,
-              date: '2025-01-01T00:00:00.000Z',
-              organizerId: 'org1',
-              PK: 'ORG#org1',
-              paidAmount: 350,
-              SK: '2025-01-01T00:00:00.000Z#e5',
+          Update: expect.objectContaining({
+            ExpressionAttributeValues: expect.objectContaining({
+              ':count': 7,
+              ':date': '2025-01-01T00:00:00.000Z',
+              ':organizerId': 'org1',
+              ':paidAmount': 350,
             }),
+            Key: { PK: 'ORG#org1', SK: '2025-01-01T00:00:00.000Z#e5' },
           }),
         },
         { Delete: expect.objectContaining({ Key: { PK: 'ORG#org1', SK: '2024-06-15T00:00:00.000Z#e5' } }) },
       ])
+    })
+
+    it('accumulates into the destination instead of overwriting a concurrent registration there', async () => {
+      // A registration saved after the event's new key took effect applies a blind ADD to that
+      // key; a Put would drop it, so the move has to ADD its carried-over counters on top.
+      mockRead.mockResolvedValueOnce(stats)
+
+      await moveOrganizerEventStats(event, { ...event, startDate: '2025-01-01T00:00:00.000Z' })
+
+      const update = mockDocumentTransaction.mock.calls[0][0][0].Update
+      expect(update?.UpdateExpression).toMatch(/^ADD #cancelledRegistrations :cancelledRegistrations, #count :count,/)
+      expect(update?.UpdateExpression).toContain('SET #date = :date')
+      expect(update).not.toHaveProperty('ConditionExpression')
     })
 
     it('also moves the record across partitions when the organizer changes', async () => {
@@ -391,13 +404,9 @@ describe('lib/stats', () => {
 
       expect(mockDocumentTransaction).toHaveBeenCalledWith([
         {
-          Put: expect.objectContaining({
-            Item: expect.objectContaining({
-              count: 7,
-              organizerId: 'org2',
-              PK: 'ORG#org2',
-              SK: '2024-06-15T00:00:00.000Z#e5',
-            }),
+          Update: expect.objectContaining({
+            ExpressionAttributeValues: expect.objectContaining({ ':count': 7, ':organizerId': 'org2' }),
+            Key: { PK: 'ORG#org2', SK: '2024-06-15T00:00:00.000Z#e5' },
           }),
         },
         { Delete: expect.objectContaining({ Key: { PK: 'ORG#org1', SK: '2024-06-15T00:00:00.000Z#e5' } }) },
@@ -446,7 +455,11 @@ describe('lib/stats', () => {
       expect(mockRead).toHaveBeenCalledTimes(2)
       expect(mockDocumentTransaction).toHaveBeenCalledTimes(2)
       expect(mockDocumentTransaction).toHaveBeenLastCalledWith([
-        expect.objectContaining({ Put: expect.objectContaining({ Item: expect.objectContaining({ count: 8 }) }) }),
+        expect.objectContaining({
+          Update: expect.objectContaining({
+            ExpressionAttributeValues: expect.objectContaining({ ':count': 8 }),
+          }),
+        }),
         expect.objectContaining({
           Delete: expect.objectContaining({
             ExpressionAttributeValues: { ':expectedUpdatedAt': '2024-06-20T00:05:00.000Z' },
@@ -665,28 +678,40 @@ describe('lib/stats', () => {
 
   describe('getCapacityStats', () => {
     it('returns an empty range without querying when from is after to', async () => {
-      const result = await getCapacityStats('NOME-B', '2025-12', '2025-01')
+      const result = await getCapacityStats('NOME-B', undefined, '2025-12', '2025-01')
 
       expect(result).toEqual([])
       expect(mockQuery).not.toHaveBeenCalled()
     })
 
-    it('queries by event type with no range when from/to are omitted', async () => {
+    it('queries by event type with no range when from/to are omitted, summing every organizer per month/class', async () => {
       mockQuery.mockResolvedValueOnce([
         {
           cancelledRegistrations: 1,
           eventCount: 2,
+          organizerId: 'org-1',
           PK: 'CAPACITY#NOME-B',
           places: 20,
           reserve: 3,
-          SK: '2025-06#ALO',
+          SK: '2025-06#ALO#org-1',
           starters: 18,
+        },
+        {
+          cancelledRegistrations: 0,
+          eventCount: 1,
+          organizerId: 'org-2',
+          PK: 'CAPACITY#NOME-B',
+          places: 10,
+          reserve: 1,
+          SK: '2025-06#ALO#org-2',
+          starters: 9,
         },
       ])
 
       const result = await getCapacityStats('NOME-B')
 
       expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: undefined,
         key: '#pk = :pk',
         names: { '#pk': 'PK' },
         values: { ':pk': 'CAPACITY#NOME-B' },
@@ -695,9 +720,47 @@ describe('lib/stats', () => {
         {
           cancelledRegistrations: 1,
           class: 'ALO',
+          eventCount: 3,
+          eventType: 'NOME-B',
+          month: '2025-06',
+          organizerId: '',
+          places: 30,
+          reserve: 4,
+          starters: 27,
+        },
+      ])
+    })
+
+    it('filters to one organizer and keeps its id on the result', async () => {
+      mockQuery.mockResolvedValueOnce([
+        {
+          cancelledRegistrations: 1,
+          eventCount: 2,
+          organizerId: 'org-1',
+          PK: 'CAPACITY#NOME-B',
+          places: 20,
+          reserve: 3,
+          SK: '2025-06#ALO#org-1',
+          starters: 18,
+        },
+      ])
+
+      const result = await getCapacityStats('NOME-B', ['org-1'])
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: '#organizerId IN (:organizerId0)',
+        key: '#pk = :pk',
+        names: { '#organizerId': 'organizerId', '#pk': 'PK' },
+        values: { ':organizerId0': 'org-1', ':pk': 'CAPACITY#NOME-B' },
+      })
+      expect(result).toEqual([
+        {
+          cancelledRegistrations: 1,
+          class: 'ALO',
           eventCount: 2,
           eventType: 'NOME-B',
           month: '2025-06',
+          organizerId: 'org-1',
           places: 20,
           reserve: 3,
           starters: 18,
@@ -705,12 +768,52 @@ describe('lib/stats', () => {
       ])
     })
 
+    it('sums across several organizers and drops the now-meaningless organizer id', async () => {
+      mockQuery.mockResolvedValueOnce([
+        {
+          eventCount: 2,
+          organizerId: 'org-1',
+          PK: 'CAPACITY#NOME-B',
+          places: 20,
+          SK: '2025-06#ALO#org-1',
+          starters: 18,
+        },
+        {
+          eventCount: 1,
+          organizerId: 'org-2',
+          PK: 'CAPACITY#NOME-B',
+          places: 10,
+          SK: '2025-06#ALO#org-2',
+          starters: 9,
+        },
+      ])
+
+      const result = await getCapacityStats('NOME-B', ['org-1', 'org-2'])
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: '#organizerId IN (:organizerId0, :organizerId1)',
+        key: '#pk = :pk',
+        names: { '#organizerId': 'organizerId', '#pk': 'PK' },
+        values: { ':organizerId0': 'org-1', ':organizerId1': 'org-2', ':pk': 'CAPACITY#NOME-B' },
+      })
+      expect(result).toEqual([expect.objectContaining({ eventCount: 3, organizerId: '', places: 30, starters: 27 })])
+    })
+
+    it('returns nothing for an empty organizer list rather than querying every organizer', async () => {
+      // A non-admin who belongs to no organization must not fall through to the nationwide total.
+      const result = await getCapacityStats('NOME-B', [])
+
+      expect(mockQuery).not.toHaveBeenCalled()
+      expect(result).toEqual([])
+    })
+
     it('bounds the query with a padded upper bound so the whole "to" month is included', async () => {
       mockQuery.mockResolvedValueOnce([])
 
-      await getCapacityStats('NOU', '2025-01', '2025-06')
+      await getCapacityStats('NOU', undefined, '2025-01', '2025-06')
 
       expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: undefined,
         key: '#pk = :pk AND SK BETWEEN :from AND :to',
         names: { '#pk': 'PK' },
         values: { ':from': '2025-01', ':pk': 'CAPACITY#NOU', ':to': '2025-06#￿' },
@@ -719,16 +822,18 @@ describe('lib/stats', () => {
 
     it('supports an open-ended lower or upper bound', async () => {
       mockQuery.mockResolvedValueOnce([])
-      await getCapacityStats('NOU', '2025-01')
+      await getCapacityStats('NOU', undefined, '2025-01')
       expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: undefined,
         key: '#pk = :pk AND SK >= :from',
         names: { '#pk': 'PK' },
         values: { ':from': '2025-01', ':pk': 'CAPACITY#NOU' },
       })
 
       mockQuery.mockResolvedValueOnce([])
-      await getCapacityStats('NOU', undefined, '2025-06')
+      await getCapacityStats('NOU', undefined, undefined, '2025-06')
       expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: undefined,
         key: '#pk = :pk AND SK <= :to',
         names: { '#pk': 'PK' },
         values: { ':pk': 'CAPACITY#NOU', ':to': '2025-06#￿' },
@@ -959,6 +1064,28 @@ describe('lib/stats', () => {
         handler: emptyHash,
         owner: emptyHash,
       })
+    })
+  })
+
+  describe('getRetentionStats', () => {
+    it('reads the new/returning split for a year', async () => {
+      mockQuery.mockResolvedValueOnce([
+        { count: 40, SK: 'new' },
+        { count: 160, SK: 'returning' },
+      ])
+
+      const result = await getRetentionStats(2025)
+
+      expect(mockQuery).toHaveBeenCalledWith({ key: 'PK = :pk', values: { ':pk': 'RETENTION#2025' } })
+      expect(result).toEqual({ new: 40, returning: 160, year: 2025 })
+    })
+
+    it('returns undefined when the year has no record, rather than a zeroed one', async () => {
+      // The earliest year on record has nothing to compare against; zeros would read as
+      // "nobody returned" instead of "unknown".
+      mockQuery.mockResolvedValueOnce([])
+
+      await expect(getRetentionStats(2019)).resolves.toBeUndefined()
     })
   })
 })

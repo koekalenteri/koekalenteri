@@ -22,6 +22,16 @@ export interface YearlyTotalStat {
   count: number
 }
 
+/**
+ * Dog+handler pairs of a year split by whether they also competed the year before. Absent for
+ * the earliest year on record, where "new" would only mean "this is where the data begins".
+ */
+export interface RetentionStats {
+  year: number
+  new: number
+  returning: number
+}
+
 export interface YearlyBreakdownEntry {
   entityId: string
   count: number
@@ -45,6 +55,7 @@ export interface CapacityStatsEntry {
   month: string // yyyy-mm
   eventType: string
   class: string // RegistrationClass, or eventType for classless event types
+  organizerId: string
   places: number
   starters: number
   reserve: number
@@ -52,10 +63,11 @@ export interface CapacityStatsEntry {
   eventCount: number
 }
 
-// DynamoDB item / wire shape: PK = CAPACITY#{eventType}, SK = {yyyy-mm}#{class}
+// DynamoDB item / wire shape: PK = CAPACITY#{eventType}, SK = {yyyy-mm}#{class}#{organizerId}
 export interface JsonCapacityStatsItem {
   PK: string
   SK: string
+  organizerId: string
   places: number
   starters: number
   reserve: number

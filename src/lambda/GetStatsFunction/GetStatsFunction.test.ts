@@ -1,4 +1,10 @@
-import type { CapacityStatsEntry, YearlyBreakdownEntry, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
+import type {
+  CapacityStatsEntry,
+  RetentionStats,
+  YearlyBreakdownEntry,
+  YearlyStatTypes,
+  YearlyTotalStat,
+} from '../../types/Stats'
 import { vi } from 'vitest'
 
 const mockResponse = vi.fn()
@@ -13,12 +19,15 @@ const mockGetYearlyTotalStats = vi.fn<() => Promise<YearlyTotalStat[]>>()
 const mockGetAvailableYears = vi.fn<() => Promise<number[]>>()
 const mockGetDogHandlerBuckets = vi.fn<() => Promise<{ bucket: string; count: number }[]>>()
 const mockGetYearlyBreakdown = vi.fn<(year: number, type: YearlyStatTypes) => Promise<YearlyBreakdownEntry[]>>()
-const mockGetCapacityStats = vi.fn<(eventType: string, from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
+const mockGetRetentionStats = vi.fn<() => Promise<RetentionStats | undefined>>()
+const mockGetCapacityStats =
+  vi.fn<(eventType: string, organizerIds?: string[], from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
 
 vi.doMock('../lib/stats', () => ({
   getAvailableYears: mockGetAvailableYears,
   getCapacityStats: mockGetCapacityStats,
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
+  getRetentionStats: mockGetRetentionStats,
   getYearlyBreakdown: mockGetYearlyBreakdown,
   getYearlyTotalStats: mockGetYearlyTotalStats,
 }))
@@ -189,6 +198,7 @@ describe('GetStatsFunction', () => {
         eventCount: 2,
         eventType: 'NOME-B',
         month: '2024-06',
+        organizerId: '',
         places: 20,
         reserve: 3,
         starters: 18,
@@ -199,13 +209,41 @@ describe('GetStatsFunction', () => {
     const event = { queryStringParameters: { eventType: 'NOME-B', from: '2024-01', to: '2024-12', year: '2024' } }
     const result = await handler(event)
 
-    expect(mockGetCapacityStats).toHaveBeenCalledWith('NOME-B', '2024-01', '2024-12')
+    expect(mockGetCapacityStats).toHaveBeenCalledWith('NOME-B', undefined, '2024-01', '2024-12')
     expect(result.body).toEqual(
       expect.objectContaining({
         capacityStats,
         year,
       })
     )
+  })
+
+  it('includes retention for a year that has it', async () => {
+    mockGetYearlyTotalStats.mockResolvedValueOnce([])
+    mockGetDogHandlerBuckets.mockResolvedValueOnce([])
+    mockGetRetentionStats.mockResolvedValueOnce({ new: 40, returning: 160, year: 2024 })
+
+    const result = await handler({ queryStringParameters: { year: '2024' } })
+
+    expect(result.body).toEqual(expect.objectContaining({ retention: { new: 40, returning: 160, year: 2024 } }))
+  })
+
+  it('omits retention entirely for the earliest year rather than sending zeros', async () => {
+    mockGetYearlyTotalStats.mockResolvedValueOnce([])
+    mockGetDogHandlerBuckets.mockResolvedValueOnce([])
+    mockGetRetentionStats.mockResolvedValueOnce(undefined)
+
+    const result = await handler({ queryStringParameters: { year: '2019' } })
+
+    expect(result.body).not.toHaveProperty('retention')
+  })
+
+  it('ignores an organizerId query param so the unauthenticated route cannot leak one organizer', async () => {
+    mockGetCapacityStats.mockResolvedValueOnce([])
+
+    await handler({ queryStringParameters: { eventType: 'NOME-B', organizerId: 'org-1' } })
+
+    expect(mockGetCapacityStats).toHaveBeenCalledWith('NOME-B', undefined, undefined, undefined)
   })
 
   it('returns capacityStats alone when eventType is provided without a year', async () => {
@@ -216,6 +254,7 @@ describe('GetStatsFunction', () => {
         eventCount: 1,
         eventType: 'NOWT',
         month: '2024-03',
+        organizerId: '',
         places: 10,
         reserve: 0,
         starters: 9,
@@ -226,7 +265,7 @@ describe('GetStatsFunction', () => {
     const event = { queryStringParameters: { eventType: 'NOWT' } }
     const result = await handler(event)
 
-    expect(mockGetCapacityStats).toHaveBeenCalledWith('NOWT', undefined, undefined)
+    expect(mockGetCapacityStats).toHaveBeenCalledWith('NOWT', undefined, undefined, undefined)
     expect(result.body).toEqual({ capacityStats })
     expect(mockResponse).toHaveBeenCalledWith(200, { capacityStats }, event, { maxAge: 3600 })
     // The caller discards the yearly aggregates, so they must not be computed at all.
