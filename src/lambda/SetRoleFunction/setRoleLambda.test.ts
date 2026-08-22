@@ -12,7 +12,7 @@ vi.doMock('../lib/ws/actions', () => ({
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
-const mockGetOrigin = vi.fn()
+const mockGetFrontendOrigin = vi.fn()
 const mockSetUserRole = vi.fn()
 const mockRead = vi.fn()
 
@@ -26,7 +26,7 @@ vi.doMock('../lib/auth', () => ({
 }))
 
 vi.doMock('../lib/api-gw', () => ({
-  getOrigin: mockGetOrigin,
+  getFrontendOrigin: mockGetFrontendOrigin,
 }))
 
 vi.doMock('../lib/user', () => ({
@@ -69,7 +69,7 @@ describe('setRoleLambda', () => {
       },
     })
 
-    mockGetOrigin.mockReturnValue('https://example.com')
+    mockGetFrontendOrigin.mockReturnValue('https://example.com')
 
     setEventBody(event, {
       orgId: 'org789',
@@ -163,7 +163,7 @@ describe('setRoleLambda', () => {
     await setRoleLambda(event)
 
     // Verify origin was retrieved
-    expect(mockGetOrigin).toHaveBeenCalledWith(event)
+    expect(mockGetFrontendOrigin).toHaveBeenCalledWith(event)
 
     // Verify user was retrieved
     expect(mockRead).toHaveBeenCalledWith({ id: 'user456' })

@@ -1,6 +1,6 @@
 import type { JsonUser, UserRole } from '../../types'
 import { CONFIG } from '../config'
-import { getOrigin } from '../lib/api-gw'
+import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
@@ -16,7 +16,9 @@ const setRoleLambda = lambda('setRole', async (event) => {
     return response(401, 'Unauthorized', event)
   }
 
-  const origin = getOrigin(event)
+  // The origin ends up in the access-granted email as a link, so it must never
+  // be taken from the client-controlled Origin header as-is.
+  const origin = getFrontendOrigin(event)
   const item: { userId: string; orgId: string; role: UserRole | 'none' } = parseJSONWithFallback(event.body)
 
   if (!item?.orgId) {

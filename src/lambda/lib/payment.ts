@@ -8,6 +8,7 @@ import type {
 } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import type { PaytrailError } from './paytrail'
+import { timingSafeEqual } from 'node:crypto'
 import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -172,11 +173,11 @@ export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   }
 
   const cfg = await getPaytrailConfig()
-  const signature = params.signature
+  const signature = Buffer.from(params.signature ?? '')
   const hmacParams = Object.fromEntries(Object.entries(params).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX)))
-  const hmac = calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams)
+  const hmac = Buffer.from(calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams))
 
-  if (hmac !== signature) {
+  if (hmac.length !== signature.length || !timingSafeEqual(hmac, signature)) {
     console.error('Verifying payment signature failed')
     throw new Error('Verifying payment signature failed')
   }

@@ -110,6 +110,8 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
 
   const link = await dynamoDB.read<UserLink>({ cognitoUser: String(cognitoUser) })
   const { name, email } = claims
+  // Cognito passes booleans as strings in authorizer claims.
+  const emailVerified = claims.email_verified === true || claims.email_verified === 'true'
 
   if (link) {
     // IMPORTANT: When the cognito user is already linked, honor the link.
@@ -126,6 +128,16 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
     // of creating a new user (or failing later due to mismatched identities).
     const normalizedEmail = typeof email === 'string' ? normalizeEmail(email) : ''
     const existingByEmail = await findUserByEmail(normalizedEmail)
+
+    // Linking by email hands this cognito identity the existing user's roles,
+    // so an unverified email claim must never take over an existing account.
+    if (existingByEmail && !emailVerified) {
+      console.warn('refusing to link cognito user to existing user: email not verified', {
+        cognitoUser,
+        userId: existingByEmail.id,
+      })
+      return null
+    }
 
     if (existingByEmail) {
       console.warn('no user link found; linking cognito user to existing user by email', {

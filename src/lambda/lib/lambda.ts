@@ -56,8 +56,13 @@ export const isPatchRequest = (event: Partial<Pick<APIGatewayProxyEvent, 'httpMe
 
 export const allowOrigin = (event: APIGatewayProxyEvent) => {
   const origin = getOrigin(event)
-  if (origin?.endsWith('koekalenteri.snj.fi')) {
-    return origin
+  // Exact host or a subdomain (dot boundary), https only. A bare endsWith would
+  // also match unrelated hosts like evilkoekalenteri.snj.fi.
+  if (origin?.startsWith('https://')) {
+    const host = origin.slice('https://'.length)
+    if (host === 'koekalenteri.snj.fi' || host.endsWith('.koekalenteri.snj.fi')) {
+      return origin
+    }
   }
   if (origin === 'http://localhost:3000' && isDevStage()) {
     return origin

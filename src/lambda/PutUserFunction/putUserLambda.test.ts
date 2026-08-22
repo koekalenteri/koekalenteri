@@ -12,7 +12,7 @@ vi.doMock('../lib/ws/actions', () => ({
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
-const mockGetOrigin = vi.fn()
+const mockGetFrontendOrigin = vi.fn()
 const mockGetAndUpdateUserByEmail = vi.fn()
 const mockSetUserRole = vi.fn()
 
@@ -27,7 +27,7 @@ vi.doMock('../lib/auth', () => ({
 }))
 
 vi.doMock('../lib/api-gw', () => ({
-  getOrigin: mockGetOrigin,
+  getFrontendOrigin: mockGetFrontendOrigin,
 }))
 
 vi.doMock('../lib/user', () => ({
@@ -63,7 +63,7 @@ describe('putUserLambda', () => {
       roles: {},
     })
 
-    mockGetOrigin.mockReturnValue('https://example.com')
+    mockGetFrontendOrigin.mockReturnValue('https://example.com')
 
     setEventBody(event, {
       email: 'test@example.com',
