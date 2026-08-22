@@ -73,6 +73,32 @@ This command starts only the frontend.
 
 Note: You should configure .env (see .env_sample) to use backend in the cloud.
 
+### Chart visual tests
+
+The stats charts are covered by screenshot tests that run in a real browser, because jsdom
+reports no element sizes and a chart laid out there is not the chart anyone sees.
+
+```bash
+npm run test-charts
+```
+
+The first run needs a browser: `npx playwright install chromium`.
+
+Reference screenshots live in `src/**/__screenshots__/` and are **per platform** — Vitest names
+them `<name>-chromium-<platform>.png`. Both the `darwin` and `linux` images are committed so the
+tests pass locally and in CI. When a chart legitimately changes, delete the stale references and
+re-run to regenerate them, then regenerate the linux ones the same way CI sees them:
+
+```bash
+npm run test-charts-linux
+```
+
+That copies the working tree into the container (without `node_modules`, so the host's
+platform-specific binaries are left alone), installs and runs there, and copies the regenerated
+linux references back out.
+
+Review every regenerated image before committing it — that review is the actual test.
+
 ### Deploying
 
 Deployment is automated with GitHub actions.

@@ -32,6 +32,7 @@
     "src"
   ],
   "exclude": [
-    "src/lambda"
+    "src/lambda",
+    "src/**/*.visual.test.tsx"
   ]
 }
