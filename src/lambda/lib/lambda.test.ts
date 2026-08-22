@@ -213,6 +213,32 @@ describe('lambda', () => {
         })
       })
 
+      it('omits Cache-Control unless a maxAge is given', () => {
+        expect(response(200, {}, mockEvent).headers).not.toHaveProperty('Cache-Control')
+      })
+
+      it('marks a cacheable response public and varies on origin and encoding', () => {
+        const result = response(200, { message: 'Success' }, mockEvent, { maxAge: 300 })
+
+        expect(result.headers).toMatchObject({
+          'Cache-Control': 'public, max-age=300',
+          Vary: 'Origin, Accept-Encoding',
+        })
+      })
+
+      it('marks a private response as such', () => {
+        const result = response(200, {}, mockEvent, { maxAge: 60, private: true })
+
+        expect(result.headers?.['Cache-Control']).toBe('private, max-age=60')
+      })
+
+      it('never caches a non-success response', () => {
+        const result = response(500, { error: 'boom' }, mockEvent, { maxAge: 300 })
+
+        expect(result.headers).not.toHaveProperty('Cache-Control')
+        expect(result.headers).not.toHaveProperty('Vary')
+      })
+
       it('should compress large responses when gzip is accepted', () => {
         // Create a large response body
         const largeBody = { data: 'x'.repeat(5000) }

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
-import { getOrganizerEventStats } from '../../api/stats'
+import { getAllYearlyStats, getOrganizerEventStats } from '../../api/stats'
 import theme from '../../assets/Theme'
 import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../recoil'
@@ -13,6 +13,7 @@ import StatsPage from './StatsPage'
 vi.mock('../../api/stats')
 vi.mock('../../api/organizer')
 vi.mock('../../api/user')
+vi.mock('../../api/eventType')
 
 describe('admin StatsPage', () => {
   beforeAll(() => vi.useFakeTimers())
@@ -89,6 +90,34 @@ describe('admin StatsPage', () => {
     await flushPromises()
 
     expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
+  })
+
+  it('derives the selectable years from the organizer stats without fetching yearly stats', async () => {
+    vi.mocked(getOrganizerEventStats).mockResolvedValue([
+      { date: new Date('2022-05-20T21:00:00.000Z'), organizerId: '1', PK: 'ORG#1', SK: '2022-05-21#a' },
+      { date: new Date('2024-03-10T22:00:00.000Z'), organizerId: '1', PK: 'ORG#1', SK: '2024-03-11#b' },
+    ])
+
+    render(
+      <ThemeProvider theme={theme}>
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <StatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </RecoilRoot>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    await screen.findByText('stats.title')
+
+    // The years come from the stats already in memory; /stats is never called for them.
+    expect(getAllYearlyStats).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: '2022' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2024' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: `${new Date().getFullYear()}` })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '2023' })).not.toBeInTheDocument()
   })
 
   it('excludes organizations without any recorded stats from the filter, correcting a stale selection', async () => {

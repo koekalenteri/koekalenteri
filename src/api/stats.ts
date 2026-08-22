@@ -1,7 +1,7 @@
-import type { EventStatsItem, YearlyBreakdownEntry, YearlyTotalStat } from '../types/Stats'
+import type { CapacityStatsEntry, EventStatsItem, YearlyBreakdownEntry, YearlyTotalStat } from '../types/Stats'
 import http, { withToken } from './http'
 
-const PATH = '/yearly-stats'
+const PATH = '/stats'
 const ADMIN_PATH = '/admin/organizer-event-stats'
 
 export interface YearlyStatsResponse {
@@ -18,12 +18,21 @@ export interface AllYearlyStatsResponse {
   stats: YearlyStatsResponse[]
 }
 
-export async function getYearlyStats(year: number, signal?: AbortSignal): Promise<YearlyStatsResponse> {
-  return http.get<YearlyStatsResponse>(`${PATH}?year=${year}`, { signal })
-}
-
 export async function getAllYearlyStats(signal?: AbortSignal): Promise<AllYearlyStatsResponse> {
   return http.get<AllYearlyStatsResponse>(PATH, { signal })
+}
+
+export async function getCapacityStats(
+  eventType: string,
+  from?: string,
+  to?: string,
+  signal?: AbortSignal
+): Promise<CapacityStatsEntry[]> {
+  const params = new URLSearchParams({ eventType })
+  if (from) params.set('from', from)
+  if (to) params.set('to', to)
+  const result = await http.get<{ capacityStats?: CapacityStatsEntry[] }>(`${PATH}?${params.toString()}`, { signal })
+  return result.capacityStats ?? []
 }
 
 export async function getOrganizerEventStats(

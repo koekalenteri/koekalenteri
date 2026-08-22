@@ -1,11 +1,12 @@
+import type { YearlyStatsResponse } from '../api/stats'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useSearchParams } from 'react-router'
-import { useRecoilValue, waitForAll } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import { HEADER_HEIGHT } from '../assets/Theme'
 import { rum } from '../lib/client/rum'
 import Header from './components/Header'
@@ -14,9 +15,10 @@ import EventTypeBarChart from './components/stats/EventTypeBarChart'
 import ParticipationTrendChart from './components/stats/ParticipationTrendChart'
 import TopBreedsBarChart from './components/stats/TopBreedsBarChart'
 import YearSelector from './components/stats/YearSelector'
-import { allYearlyStatsAtom, yearlyStatsAtom } from './recoil'
+import { allYearlyStatsAtom } from './recoil'
 
 const CURRENT_YEAR = new Date().getFullYear()
+const EMPTY_YEAR_STATS: YearlyStatsResponse = { dogHandlerBuckets: [], totals: [], year: CURRENT_YEAR }
 
 export function Component() {
   const { t } = useTranslation()
@@ -28,7 +30,13 @@ export function Component() {
     rum()?.recordPageView(location.pathname)
   }, [location])
 
-  const [allStats, yearStats] = useRecoilValue(waitForAll([allYearlyStatsAtom, yearlyStatsAtom(selectedYear)]))
+  // The all-years response already carries every year's breakdowns, so picking the selected
+  // year out of it avoids a second request that would recompute what we just received.
+  const allStats = useRecoilValue(allYearlyStatsAtom)
+  const yearStats = useMemo(
+    () => allStats.stats.find((stats) => stats.year === selectedYear) ?? EMPTY_YEAR_STATS,
+    [allStats.stats, selectedYear]
+  )
   const years = allStats.years.includes(CURRENT_YEAR) ? allStats.years : [...allStats.years, CURRENT_YEAR]
 
   return (

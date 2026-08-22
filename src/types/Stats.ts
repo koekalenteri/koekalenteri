@@ -36,3 +36,30 @@ export interface JsonEventStatsItem extends Partial<OrganizerEventStats> {
 
 // Frontend domain shape: http.get revives date-only strings into Date objects
 export type EventStatsItem = ReplaceOptional<JsonEventStatsItem, 'date', Date>
+
+/**
+ * Monthly available-places-vs-actual-starters aggregate for one event type + class,
+ * used to gauge audience demand when planning future events.
+ */
+export interface CapacityStatsEntry {
+  month: string // yyyy-mm
+  eventType: string
+  class: string // RegistrationClass, or eventType for classless event types
+  places: number
+  starters: number
+  reserve: number
+  cancelledRegistrations: number
+  eventCount: number
+}
+
+// DynamoDB item / wire shape: PK = CAPACITY#{eventType}, SK = {yyyy-mm}#{class}
+export interface JsonCapacityStatsItem {
+  PK: string
+  SK: string
+  places: number
+  starters: number
+  reserve: number
+  cancelledRegistrations: number
+  eventCount: number
+  updatedAt: string
+}

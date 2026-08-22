@@ -1,8 +1,15 @@
 import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
-import type { JsonEventStatsItem, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
+import type {
+  CapacityStatsEntry,
+  JsonCapacityStatsItem,
+  JsonEventStatsItem,
+  YearlyStatTypes,
+  YearlyTotalStat,
+} from '../../types/Stats'
 import crypto from 'node:crypto'
-import { getEventSeason, OFFICIAL_EVENT_TYPES } from '../../lib/event'
+import { formatDate } from '../../i18n/dates'
+import { getEventSeason } from '../../lib/event'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -11,8 +18,20 @@ const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
 const NEW_REGISTRATION_STATS_MAX_ATTEMPTS = 12
 const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
 const NEW_REGISTRATION_STATS_RETRY_MAX_MS = 500
+const MOVE_ORGANIZER_STATS_MAX_ATTEMPTS = 8
 
 type StatsTransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
+
+const isTransactionCancelled = (error: unknown) => (error as { name?: string }).name === 'TransactionCanceledException'
+
+const waitForStatsRetry = (attempt: number) => {
+  const maximumDelay = Math.min(
+    NEW_REGISTRATION_STATS_RETRY_BASE_MS * 2 ** (attempt - 1),
+    NEW_REGISTRATION_STATS_RETRY_MAX_MS
+  )
+  const delay = Math.floor(Math.random() * maximumDelay)
+  return new Promise<void>((resolve) => setTimeout(resolve, delay))
+}
 
 export type RegistrationStatsInput = Pick<
   JsonRegistration,
@@ -27,6 +46,16 @@ export type RegistrationStatsInput = Pick<
 export function eventStatsYear({ startDate }: { startDate: string }): number | undefined {
   const season = getEventSeason(startDate)
   return /^\d{4}$/.test(season) ? Number(season) : undefined
+}
+
+/**
+ * Returns the yyyy-MM month of an instant in the event timezone. Dates are stored as UTC
+ * instants (a Finnish midnight is `...T21:00:00.000Z` the day before), so slicing the raw
+ * string would bucket every event starting on the 1st into the previous month.
+ */
+export function eventStatsMonth(date: string): string | undefined {
+  const month = formatDate(date, 'yyyy-MM')
+  return /^\d{4}-\d{2}$/.test(month) ? month : undefined
 }
 
 /**
@@ -209,6 +238,54 @@ export async function getAvailableYears(): Promise<number[]> {
 }
 
 /**
+ * Get monthly available-places-vs-actual-starters stats for one event type,
+ * optionally bounded to a yyyy-mm month range. Uses a key condition (not a
+ * filter) since SK = {yyyy-mm}#{class} sorts naturally within the partition;
+ * the upper bound is padded past '#' so the whole `to` month is included.
+ */
+export async function getCapacityStats(eventType: string, from?: string, to?: string): Promise<CapacityStatsEntry[]> {
+  // DynamoDB rejects an inverted BETWEEN with a ValidationException; the range is simply empty.
+  if (from && to && from > to) return []
+
+  const pk = `CAPACITY#${eventType}`
+  let keyCondition = '#pk = :pk'
+  const names: Record<string, string> = { '#pk': 'PK' }
+  const values: Record<string, string> = { ':pk': pk }
+
+  if (from && to) {
+    keyCondition += ' AND SK BETWEEN :from AND :to'
+    values[':from'] = from
+    values[':to'] = `${to}#￿`
+  } else if (from) {
+    keyCondition += ' AND SK >= :from'
+    values[':from'] = from
+  } else if (to) {
+    keyCondition += ' AND SK <= :to'
+    values[':to'] = `${to}#￿`
+  }
+
+  const items = await dynamoDB.query<JsonCapacityStatsItem>({
+    key: keyCondition,
+    names,
+    values,
+  })
+
+  return (items || []).map((item) => {
+    const [month, classKey] = item.SK.split('#')
+    return {
+      cancelledRegistrations: item.cancelledRegistrations ?? 0,
+      class: classKey,
+      eventCount: item.eventCount ?? 0,
+      eventType,
+      month,
+      places: item.places ?? 0,
+      reserve: item.reserve ?? 0,
+      starters: item.starters ?? 0,
+    }
+  })
+}
+
+/**
  * Calculate the deltas for various statistics based on registration changes
  */
 export function calculateStatDeltas(
@@ -225,6 +302,14 @@ export function calculateStatDeltas(
   }
 }
 
+/** Identifies an event's organizer stats record. Both key parts are editable event fields. */
+type OrganizerStatsEvent = Pick<JsonConfirmedEvent, 'id' | 'startDate'> & { organizer: { id: string } }
+
+export const organizerStatsKey = (event: OrganizerStatsEvent) => ({
+  PK: `ORG#${event.organizer.id}`,
+  SK: `${event.startDate}#${event.id}`,
+})
+
 /**
  * Update the organizer event stats in DynamoDB
  */
@@ -232,10 +317,7 @@ export async function updateOrganizerEventStats(
   event: JsonConfirmedEvent,
   deltas: ReturnType<typeof calculateStatDeltas>
 ): Promise<void> {
-  const key = {
-    PK: `ORG#${event.organizer.id}`,
-    SK: `${event.startDate}#${event.id}`,
-  }
+  const key = organizerStatsKey(event)
 
   await dynamoDB.update(key, {
     add: {
@@ -255,17 +337,67 @@ export async function updateOrganizerEventStats(
 }
 
 /**
- * Add the year to a separate record for easy querying of available years
+ * Moves an event's accumulated organizer stats when an edit changes the record's key.
+ *
+ * The key embeds both the organizer and the start date, so editing either would strand the
+ * counters under the old key: the orphan keeps showing up in the organizer's finance chart
+ * (and the event vanishes from its real date) until someone runs RebuildAllStatsFunction.
+ * ORG# is the one partition the nightly rebuild deliberately leaves alone, so nothing else
+ * repairs this. See src/lambda/lib/statsRebuild.ts.
+ *
+ * A registration write can land on `from` between the read below and the transaction commit
+ * (it applies a blind ADD to the same key). The delete is conditioned on the `updatedAt` we
+ * just read so that race cancels the transaction instead of silently discarding the concurrent
+ * increment; a bounded retry then re-reads the fresh item and moves that instead.
  */
-export async function updateYearRecord(year: number): Promise<void> {
-  await dynamoDB.update(
-    { PK: 'YEARS', SK: year.toString() },
-    {
-      set: {
-        updatedAt: new Date().toISOString(),
-      },
+export async function moveOrganizerEventStats(
+  existing: OrganizerStatsEvent,
+  updated: OrganizerStatsEvent
+): Promise<void> {
+  const from = organizerStatsKey(existing)
+  const to = organizerStatsKey(updated)
+  if (from.PK === to.PK && from.SK === to.SK) return
+
+  for (let attempt = 1; attempt <= MOVE_ORGANIZER_STATS_MAX_ATTEMPTS; attempt++) {
+    // No record yet means no registrations have been counted for this event; the first
+    // registration will simply create it under the new key.
+    const stats = await dynamoDB.read<JsonEventStatsItem>(from, undefined, true)
+    if (!stats) return
+
+    try {
+      // One transaction, because a half-finished move either double-counts the event in the
+      // organizer's totals or drops it, and no scheduled job would notice either.
+      await dynamoDB.documentTransaction([
+        {
+          Put: {
+            Item: {
+              ...stats,
+              ...to,
+              date: updated.startDate,
+              organizerId: updated.organizer.id,
+              updatedAt: new Date().toISOString(),
+            },
+            TableName: CONFIG.eventStatsTable,
+          },
+        },
+        {
+          Delete: {
+            ConditionExpression: stats.updatedAt
+              ? '#updatedAt = :expectedUpdatedAt'
+              : 'attribute_not_exists(#updatedAt)',
+            ExpressionAttributeNames: { '#updatedAt': 'updatedAt' },
+            ExpressionAttributeValues: stats.updatedAt ? { ':expectedUpdatedAt': stats.updatedAt } : undefined,
+            Key: from,
+            TableName: CONFIG.eventStatsTable,
+          },
+        },
+      ])
+      return
+    } catch (error) {
+      if (!isTransactionCancelled(error) || attempt === MOVE_ORGANIZER_STATS_MAX_ATTEMPTS) throw error
+      await waitForStatsRetry(attempt)
     }
-  )
+  }
 }
 
 /**
@@ -277,89 +409,6 @@ export function bucketForCount(count: number | undefined): string | undefined {
   if (count >= 5 && count <= 9) return '5-9'
   if (count >= 10) return '10+'
   return undefined
-}
-
-/**
- * Update bucket stats for dog#handler
- */
-export async function updateBucketStats(year: number, oldCount: number | undefined, newCount: number): Promise<void> {
-  const prevCount = oldCount ?? 0
-  const oldBucket = bucketForCount(prevCount)
-  const newBucket = bucketForCount(newCount)
-
-  if (oldBucket !== newBucket) {
-    if (oldBucket) {
-      await dynamoDB.update(
-        { PK: `BUCKETS#${year}#dog#handler`, SK: oldBucket },
-        {
-          add: {
-            count: -1,
-          },
-        }
-      )
-    }
-    if (newBucket) {
-      await dynamoDB.update(
-        { PK: `BUCKETS#${year}#dog#handler`, SK: newBucket },
-        {
-          add: {
-            count: 1,
-          },
-        }
-      )
-    }
-  }
-}
-
-/**
- * Update yearly participation stats for a specific entity type
- */
-export async function updateEntityStats(
-  year: number,
-  type: string,
-  entityId: string,
-  isDogHandler: boolean,
-  delta = 1
-): Promise<void> {
-  if (!entityId || delta === 0) return
-
-  // Step 1: Update the per-entity participation count and retrieve its previous value
-  const pk = `STAT#${year}#${type}`
-  const sk = entityId
-
-  const updateResult = await dynamoDB.update(
-    { PK: pk, SK: sk },
-    {
-      add: {
-        count: delta,
-      },
-    },
-    undefined,
-    'UPDATED_OLD'
-  )
-  const oldCount = updateResult?.Attributes?.count
-  const previousCount = oldCount ?? 0
-  const newCount = previousCount + delta
-
-  // Step 2: Update the unique-entity total when the count crosses zero
-  let totalDelta = 0
-  if (previousCount <= 0 && newCount > 0) totalDelta = 1
-  else if (previousCount > 0 && newCount <= 0) totalDelta = -1
-  if (totalDelta !== 0) {
-    await dynamoDB.update(
-      { PK: `TOTALS#${year}`, SK: type },
-      {
-        add: {
-          count: totalDelta,
-        },
-      }
-    )
-  }
-
-  // Step 3: Update bucket stats for dog#handler
-  if (isDogHandler) {
-    await updateBucketStats(year, oldCount, newCount)
-  }
 }
 
 /**
@@ -390,41 +439,6 @@ export const participationIdentifiers = (registration: RegistrationStatsInput): 
   }
 }
 
-type ParticipationSnapshot = {
-  entityId: string
-  isDogHandler: boolean
-  newCount: number
-  previousCount: number
-  type: YearlyStatTypes
-}
-
-const readParticipationSnapshots = async (
-  registration: RegistrationStatsInput,
-  year: number
-): Promise<ParticipationSnapshot[]> => {
-  const identifiers = participationIdentifiers(registration)
-
-  return Promise.all(
-    (Object.keys(identifiers) as YearlyStatTypes[]).map(async (type) => {
-      const entityId = identifiers[type]
-      const current = await dynamoDB.read<{ count?: number }>(
-        { PK: `STAT#${year}#${type}`, SK: entityId },
-        undefined,
-        true
-      )
-      const previousCount = current?.count ?? 0
-
-      return {
-        entityId,
-        isDogHandler: type === 'dog#handler',
-        newCount: previousCount + 1,
-        previousCount,
-        type,
-      }
-    })
-  )
-}
-
 const organizerStatsTransactionItem = (
   event: JsonConfirmedEvent,
   deltas: ReturnType<typeof calculateStatDeltas>,
@@ -453,101 +467,23 @@ const organizerStatsTransactionItem = (
       ':totalDelta': deltas.totalDelta,
       ':updatedAt': updatedAt,
     },
-    Key: { PK: `ORG#${event.organizer.id}`, SK: `${event.startDate}#${event.id}` },
+    Key: organizerStatsKey(event),
     TableName: CONFIG.eventStatsTable,
     UpdateExpression:
       'ADD #cancelledRegistrations :cancelledDelta, #count :totalDelta, #paidAmount :paidAmountDelta, #paidRegistrations :paidDelta, #refundedAmount :refundedAmountDelta, #refundedRegistrations :refundedDelta SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
   },
 })
 
-const participationCountItem = (snapshot: ParticipationSnapshot, year: number): StatsTransactionItem => {
-  const countExists = snapshot.previousCount !== 0
-  return {
-    Update: {
-      ConditionExpression: countExists ? '#count = :previousCount' : 'attribute_not_exists(#count) OR #count = :zero',
-      ExpressionAttributeNames: { '#count': 'count' },
-      ExpressionAttributeValues: {
-        ':delta': 1,
-        ...(countExists ? { ':previousCount': snapshot.previousCount } : { ':zero': 0 }),
-      },
-      Key: { PK: `STAT#${year}#${snapshot.type}`, SK: snapshot.entityId },
-      TableName: CONFIG.eventStatsTable,
-      UpdateExpression: 'ADD #count :delta',
-    },
-  }
-}
-
-const participationTotalItem = (snapshot: ParticipationSnapshot, year: number): StatsTransactionItem => ({
-  Update: {
-    ExpressionAttributeNames: { '#count': 'count' },
-    ExpressionAttributeValues: { ':delta': 1 },
-    Key: { PK: `TOTALS#${year}`, SK: snapshot.type },
-    TableName: CONFIG.eventStatsTable,
-    UpdateExpression: 'ADD #count :delta',
-  },
-})
-
-const participationBucketItems = (snapshot: ParticipationSnapshot, year: number): StatsTransactionItem[] => {
-  if (!snapshot.isDogHandler) return []
-  const oldBucket = bucketForCount(snapshot.previousCount)
-  const newBucket = bucketForCount(snapshot.newCount)
-  if (oldBucket === newBucket) return []
-
-  return (
-    [
-      [oldBucket, -1],
-      [newBucket, 1],
-    ] as const
-  ).flatMap(([bucket, delta]) =>
-    bucket
-      ? [
-          {
-            Update: {
-              ExpressionAttributeNames: { '#count': 'count' },
-              ExpressionAttributeValues: { ':delta': delta },
-              Key: { PK: `BUCKETS#${year}#dog#handler`, SK: bucket },
-              TableName: CONFIG.eventStatsTable,
-              UpdateExpression: 'ADD #count :delta',
-            },
-          },
-        ]
-      : []
-  )
-}
-
-const participationStatsTransactionItems = (
-  snapshots: ParticipationSnapshot[],
-  year: number
-): StatsTransactionItem[] => {
-  const items: StatsTransactionItem[] = []
-
-  for (const snapshot of snapshots) {
-    items.push(participationCountItem(snapshot, year))
-
-    if (snapshot.previousCount <= 0 && snapshot.newCount > 0) {
-      items.push(participationTotalItem(snapshot, year))
-    }
-    items.push(...participationBucketItems(snapshot, year))
-  }
-
-  return items
-}
-
-const isTransactionCancelled = (error: unknown) => (error as { name?: string }).name === 'TransactionCanceledException'
-
-const waitForStatsRetry = (attempt: number) => {
-  const maximumDelay = Math.min(
-    NEW_REGISTRATION_STATS_RETRY_BASE_MS * 2 ** (attempt - 1),
-    NEW_REGISTRATION_STATS_RETRY_MAX_MS
-  )
-  const delay = Math.floor(Math.random() * maximumDelay)
-  return new Promise<void>((resolve) => setTimeout(resolve, delay))
-}
-
 /**
- * Applies every initial registration statistic and its completion marker in a
- * single transaction. Optimistic entity-count conditions keep unique totals
- * and dog-handler buckets correct when registrations are created concurrently.
+ * Applies a new registration's organizer stats and its completion marker in one transaction.
+ *
+ * Participation stats (unique dogs/handlers/breeds) used to be applied here too, which needed
+ * a read-then-write snapshot pass; they are now recomputed wholesale by RebuildStatsFunction,
+ * leaving only the shared ORG# ADD and the registration's own completion marker. The ORG# item
+ * has no condition of its own, so a burst of registrations for the same event still cancels
+ * each other's transactions with a TransactionConflict — that contention is retried below.
+ * Only a genuine failure of *our own* condition (stats already applied, or the lease moved on
+ * to another attempt) is treated as terminal.
  */
 export const applyNewRegistrationStatsOnce = async (
   registration: JsonRegistration,
@@ -555,26 +491,16 @@ export const applyNewRegistrationStatsOnce = async (
   leaseToken: string
 ): Promise<void> => {
   const deltas = calculateStatDeltas(registration, undefined)
-  const year = eventStatsYear(event)
-  if (year === undefined) throw new Error(`Cannot derive stats year from event start date: ${event.startDate}`)
+  // Not used for the write itself, but an unparseable start date means the rebuild would skip
+  // this event entirely, so fail loudly here rather than recording stats nothing can reconcile.
+  if (eventStatsYear(event) === undefined) {
+    throw new Error(`Cannot derive stats year from event start date: ${event.startDate}`)
+  }
 
   for (let attempt = 1; attempt <= NEW_REGISTRATION_STATS_MAX_ATTEMPTS; attempt++) {
-    const snapshots = OFFICIAL_EVENT_TYPES.includes(event.eventType)
-      ? await readParticipationSnapshots(registration, year)
-      : []
     const updatedAt = new Date().toISOString()
     const transaction: StatsTransactionItem[] = [
       organizerStatsTransactionItem(event, deltas, updatedAt),
-      {
-        Update: {
-          ExpressionAttributeNames: { '#updatedAt': 'updatedAt' },
-          ExpressionAttributeValues: { ':updatedAt': updatedAt },
-          Key: { PK: 'YEARS', SK: year.toString() },
-          TableName: CONFIG.eventStatsTable,
-          UpdateExpression: 'SET #updatedAt = :updatedAt',
-        },
-      },
-      ...participationStatsTransactionItems(snapshots, year),
       {
         Update: {
           ConditionExpression:
@@ -609,35 +535,12 @@ export const applyNewRegistrationStatsOnce = async (
         throw error
       }
 
-      // Shared counters such as eventType and breed are expected to conflict
-      // during registration bursts. Full-jitter exponential backoff prevents
-      // every cancelled transaction from immediately colliding again.
+      // The organizer ADD has no condition of its own; the lease is still ours and the
+      // completion marker isn't set, so this cancellation was contention on the shared ORG#
+      // item, not a real failure. Full-jitter exponential backoff avoids every cancelled
+      // transaction immediately colliding again.
       await waitForStatsRetry(attempt)
     }
-  }
-}
-
-/**
- * Update yearly participation stats for official event types
- */
-export async function updateYearlyParticipationStats(
-  registration: RegistrationStatsInput,
-  year: number,
-  existingRegistration?: RegistrationStatsInput
-): Promise<void> {
-  const identifiers = participationIdentifiers(registration)
-  const existingIdentifiers = existingRegistration ? participationIdentifiers(existingRegistration) : undefined
-
-  for (const type of Object.keys(identifiers) as YearlyStatTypes[]) {
-    const entityId = identifiers[type]
-    const existingEntityId = existingIdentifiers?.[type]
-
-    if (entityId === existingEntityId) continue
-
-    if (existingEntityId) {
-      await updateEntityStats(year, type, existingEntityId, type === 'dog#handler', -1)
-    }
-    await updateEntityStats(year, type, entityId, type === 'dog#handler')
   }
 }
 
@@ -653,20 +556,12 @@ export const updateEventStatsForRegistration = async (
   event: JsonConfirmedEvent
 ): Promise<void> => {
   // Validate before any mutation so a retry cannot double-count organizer stats.
-  const year = eventStatsYear(event)
-  if (year === undefined) throw new Error(`Cannot derive stats year from event start date: ${event.startDate}`)
-
-  // Step 1: Calculate deltas for statistics and update organizer event stats.
-  const deltas = calculateStatDeltas(registration, existingRegistration)
-  await updateOrganizerEventStats(event, deltas)
-
-  // Step 2: Add year to a separate record for easy querying in the event timezone.
-  await updateYearRecord(year)
-
-  // Step 3: Update yearly participation stats (only for official event types)
-  if (!OFFICIAL_EVENT_TYPES.includes(event.eventType)) {
-    return
+  if (eventStatsYear(event) === undefined) {
+    throw new Error(`Cannot derive stats year from event start date: ${event.startDate}`)
   }
 
-  await updateYearlyParticipationStats(registration, year, existingRegistration)
+  // Organizer stats are the only partition maintained here; participation, capacity and the
+  // YEARS markers are recomputed nightly by RebuildStatsFunction.
+  const deltas = calculateStatDeltas(registration, existingRegistration)
+  await updateOrganizerEventStats(event, deltas)
 }

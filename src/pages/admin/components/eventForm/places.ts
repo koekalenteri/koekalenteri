@@ -2,6 +2,7 @@ import type { DeepPartial, EventClass } from '../../../../types'
 import type { PartialEvent } from './types'
 import { formatDate } from '../../../../i18n/dates'
 import { getEventDays } from '../../../../lib/event'
+import { splitEvenly } from '../../../../lib/utils'
 
 /** Calculate total places from classes. */
 export function calculateTotalFromClasses(classes: DeepPartial<EventClass>[]): number {
@@ -42,13 +43,10 @@ export function distributePlacesAmongDays(event: PartialEvent): Record<string, n
   const days = getEventDays(event)
   if (days.length === 0) return {}
 
-  const places = event.places ?? 0
+  const shares = splitEvenly(event.places ?? 0, days.length)
   const placesPerDay: Record<string, number> = {}
-  const placesPerDayValue = Math.floor(places / days.length)
-
   days.forEach((day, index) => {
-    const dateStr = formatDate(day, 'yyyy-MM-dd')
-    placesPerDay[dateStr] = placesPerDayValue + (index === 0 ? places % days.length : 0)
+    placesPerDay[formatDate(day, 'yyyy-MM-dd')] = shares[index]
   })
 
   return placesPerDay
@@ -60,12 +58,6 @@ export function distributePlacesAmongClasses(
 ): DeepPartial<EventClass>[] {
   if (!classes?.length) return []
 
-  const newClasses = classes.map((c) => ({ ...c }))
-  const placesPerClassValue = Math.floor(totalPlaces / newClasses.length)
-
-  newClasses.forEach((cls, index) => {
-    cls.places = Math.min(placesPerClassValue + (index === 0 ? totalPlaces % newClasses.length : 0), 200)
-  })
-
-  return newClasses
+  const shares = splitEvenly(totalPlaces, classes.length)
+  return classes.map((cls, index) => ({ ...cls, places: Math.min(shares[index], 200) }))
 }

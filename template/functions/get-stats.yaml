@@ -1,7 +1,7 @@
-  GetYearlyStatsFunction:
+  GetStatsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambda/GetYearlyStatsFunction
+      CodeUri: lambda/GetStatsFunction
       Handler: handler.default
       Layers:
         - !Ref DependenciesLayer
@@ -10,15 +10,15 @@
         - DynamoDBReadPolicy:
             TableName: !Ref EventStatsTable
       Events:
-        YearlyStatsApi:
+        StatsApi:
           Type: Api
           Properties:
-            Path: /yearly-stats
+            Path: /stats
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
-  GetYearlyStatsFunctionLogGroup:
+  GetStatsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetYearlyStatsFunction]]
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetStatsFunction]]
       RetentionInDays: 30

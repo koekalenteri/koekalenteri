@@ -1,9 +1,8 @@
 import type { EventStatsItem } from '../../../types/Stats'
-import Typography from '@mui/material/Typography'
-import { BarChart } from '@mui/x-charts/BarChart'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../../i18n/dates'
 import { CATEGORICAL_CHART_COLORS } from './chartColors'
+import StatsBarChart from './StatsBarChart'
 
 interface Props {
   readonly items: EventStatsItem[]
@@ -26,27 +25,19 @@ export default function OrganizerFinanceChart({ items }: Props) {
 
   const months = [...paidByMonth.keys()].sort((a, b) => a.localeCompare(b))
 
-  if (months.length === 0) {
-    return (
-      <>
-        <Typography variant="h6">{t('stats.admin.title')}</Typography>
-        <Typography color="text.secondary">{t('stats.noDataForYear')}</Typography>
-      </>
-    )
-  }
-
   return (
-    <>
-      <Typography variant="h6">{t('stats.admin.title')}</Typography>
-      <BarChart
-        height={320}
-        colors={[...CATEGORICAL_CHART_COLORS]}
-        xAxis={[{ data: months, scaleType: 'band' }]}
-        series={[
+    <StatsBarChart
+      title={t('stats.admin.title')}
+      emptyMessage={t('stats.noDataForYear')}
+      isEmpty={months.length === 0}
+      chartProps={{
+        colors: [...CATEGORICAL_CHART_COLORS],
+        series: [
           { data: months.map((month) => paidByMonth.get(month) ?? 0), label: t('stats.admin.paidAmount') },
           { data: months.map((month) => refundedByMonth.get(month) ?? 0), label: t('stats.admin.refundedAmount') },
-        ]}
-      />
-    </>
+        ],
+        xAxis: [{ data: months, scaleType: 'band' }],
+      }}
+    />
   )
 }

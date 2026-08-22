@@ -10,7 +10,6 @@
         "@emnapi/runtime"
       ],
       "entry": [
-        "src/lambda/BackfillEventStatsFunction/handler.ts",
         "src/lambda/CopyEventFunction/handler.ts",
         "src/lambda/GetAdminEventFunction/handler.ts",
         "src/lambda/GetAdminEventsFunction/handler.ts",
@@ -29,9 +28,9 @@
         "src/lambda/GetRegistrationFunction/handler.ts",
         "src/lambda/GetRegistrationTransactionsFunction/handler.ts",
         "src/lambda/GetStartListFunction/handler.ts",
+        "src/lambda/GetStatsFunction/handler.ts",
         "src/lambda/GetUserFunction/handler.ts",
         "src/lambda/GetUsersFunction/handler.ts",
-        "src/lambda/GetYearlyStatsFunction/handler.ts",
         "src/lambda/PaymentCancelFunction/handler.ts",
         "src/lambda/PaymentCreateFunction/handler.ts",
         "src/lambda/PaymentSuccessFunction/handler.ts",
@@ -48,6 +47,8 @@
         "src/lambda/PutRegistrationGroupsFunction/handler.ts",
         "src/lambda/PutUserFunction/handler.ts",
         "src/lambda/PutUserNameFunction/handler.ts",
+        "src/lambda/RebuildAllStatsFunction/handler.ts",
+        "src/lambda/RebuildStatsFunction/handler.ts",
         "src/lambda/RefundCancelFunction/handler.ts",
         "src/lambda/RefundCreateFunction/handler.ts",
         "src/lambda/RefundSuccessFunction/handler.ts",

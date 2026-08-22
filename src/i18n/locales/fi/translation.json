@@ -682,9 +682,15 @@
   "stats": {
     "admin": {
       "cancelledRegistrations": "Peruutukset",
+      "capacityTitle": "Osallistujamäärä suhteessa paikkoihin",
+      "class": "Luokka",
+      "eventType": "Koemuoto",
+      "noCapacityData": "Ei tilastoja valitulle koemuodolle",
       "paidAmount": "Maksettu",
       "paidRegistrations": "Maksetut ilmoittautumiset",
+      "places": "Paikkoja",
       "refundedAmount": "Palautettu",
+      "starters": "Osallistujia",
       "title": "Talouden tilastot"
     },
     "count": "Määrä",

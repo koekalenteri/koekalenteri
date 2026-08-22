@@ -1,4 +1,4 @@
-import type { YearlyBreakdownEntry, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
+import type { CapacityStatsEntry, YearlyBreakdownEntry, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
 import { vi } from 'vitest'
 
 const mockResponse = vi.fn()
@@ -13,9 +13,11 @@ const mockGetYearlyTotalStats = vi.fn<() => Promise<YearlyTotalStat[]>>()
 const mockGetAvailableYears = vi.fn<() => Promise<number[]>>()
 const mockGetDogHandlerBuckets = vi.fn<() => Promise<{ bucket: string; count: number }[]>>()
 const mockGetYearlyBreakdown = vi.fn<(year: number, type: YearlyStatTypes) => Promise<YearlyBreakdownEntry[]>>()
+const mockGetCapacityStats = vi.fn<(eventType: string, from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
 
 vi.doMock('../lib/stats', () => ({
   getAvailableYears: mockGetAvailableYears,
+  getCapacityStats: mockGetCapacityStats,
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
   getYearlyBreakdown: mockGetYearlyBreakdown,
   getYearlyTotalStats: mockGetYearlyTotalStats,
@@ -23,7 +25,7 @@ vi.doMock('../lib/stats', () => ({
 
 const breakdownFor = (year: number, type: YearlyStatTypes): YearlyBreakdownEntry[] => [{ count: year, entityId: type }]
 
-describe('GetYearlyStatsFunction', () => {
+describe('GetStatsFunction', () => {
   let handler: any
 
   beforeEach(async () => {
@@ -67,7 +69,7 @@ describe('GetYearlyStatsFunction', () => {
 
     // Verify response
     const expectedBody = { breedBreakdown, dogHandlerBuckets, eventTypeBreakdown, totals, year }
-    expect(mockResponse).toHaveBeenCalledWith(200, expectedBody, event)
+    expect(mockResponse).toHaveBeenCalledWith(200, expectedBody, event, { maxAge: 300 })
     expect(result.body).toEqual(expectedBody)
   })
 
@@ -123,7 +125,8 @@ describe('GetYearlyStatsFunction', () => {
         ],
         years,
       },
-      event
+      event,
+      { maxAge: 300 }
     )
   })
 
@@ -173,5 +176,92 @@ describe('GetYearlyStatsFunction', () => {
       ],
       years,
     })
+  })
+
+  it('includes capacityStats for the requested year when eventType is provided', async () => {
+    const year = 2024
+    mockGetYearlyTotalStats.mockResolvedValueOnce([])
+    mockGetDogHandlerBuckets.mockResolvedValueOnce([])
+    const capacityStats: CapacityStatsEntry[] = [
+      {
+        cancelledRegistrations: 1,
+        class: 'ALO',
+        eventCount: 2,
+        eventType: 'NOME-B',
+        month: '2024-06',
+        places: 20,
+        reserve: 3,
+        starters: 18,
+      },
+    ]
+    mockGetCapacityStats.mockResolvedValueOnce(capacityStats)
+
+    const event = { queryStringParameters: { eventType: 'NOME-B', from: '2024-01', to: '2024-12', year: '2024' } }
+    const result = await handler(event)
+
+    expect(mockGetCapacityStats).toHaveBeenCalledWith('NOME-B', '2024-01', '2024-12')
+    expect(result.body).toEqual(
+      expect.objectContaining({
+        capacityStats,
+        year,
+      })
+    )
+  })
+
+  it('returns capacityStats alone when eventType is provided without a year', async () => {
+    const capacityStats: CapacityStatsEntry[] = [
+      {
+        cancelledRegistrations: 0,
+        class: 'VOI',
+        eventCount: 1,
+        eventType: 'NOWT',
+        month: '2024-03',
+        places: 10,
+        reserve: 0,
+        starters: 9,
+      },
+    ]
+    mockGetCapacityStats.mockResolvedValueOnce(capacityStats)
+
+    const event = { queryStringParameters: { eventType: 'NOWT' } }
+    const result = await handler(event)
+
+    expect(mockGetCapacityStats).toHaveBeenCalledWith('NOWT', undefined, undefined)
+    expect(result.body).toEqual({ capacityStats })
+    expect(mockResponse).toHaveBeenCalledWith(200, { capacityStats }, event, { maxAge: 3600 })
+    // The caller discards the yearly aggregates, so they must not be computed at all.
+    expect(mockGetAvailableYears).not.toHaveBeenCalled()
+    expect(mockGetYearlyTotalStats).not.toHaveBeenCalled()
+    expect(mockGetDogHandlerBuckets).not.toHaveBeenCalled()
+    expect(mockGetYearlyBreakdown).not.toHaveBeenCalled()
+  })
+
+  it('fetches the years in parallel rather than one after another', async () => {
+    mockGetAvailableYears.mockResolvedValueOnce([2022, 2023, 2024])
+    let inFlight = 0
+    let maxInFlight = 0
+    mockGetYearlyTotalStats.mockImplementation(async () => {
+      inFlight++
+      maxInFlight = Math.max(maxInFlight, inFlight)
+      await Promise.resolve()
+      inFlight--
+      return []
+    })
+    mockGetDogHandlerBuckets.mockResolvedValue([])
+
+    const result = await handler({ queryStringParameters: {} })
+
+    expect(result.body.stats.map((stats: { year: number }) => stats.year)).toEqual([2022, 2023, 2024])
+    expect(maxInFlight).toBe(3)
+  })
+
+  it('omits capacityStats when eventType is not provided', async () => {
+    mockGetAvailableYears.mockResolvedValueOnce([])
+
+    const event = { queryStringParameters: {} }
+    const result = await handler(event)
+
+    expect(mockGetCapacityStats).not.toHaveBeenCalled()
+    expect(result.body.capacityStats).toBeUndefined()
   })
 })

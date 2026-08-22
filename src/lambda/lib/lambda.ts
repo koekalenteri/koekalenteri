@@ -65,10 +65,21 @@ export const allowOrigin = (event: APIGatewayProxyEvent) => {
   return 'https://koekalenteri.snj.fi'
 }
 
+interface ResponseOptions {
+  /**
+   * Seconds a client may reuse this response. Omitted (the default) means no Cache-Control at
+   * all, i.e. the response is revalidated every time. Only applied to successful responses.
+   */
+  maxAge?: number
+  /** Restrict caching to the requesting browser. Required for anything behind authentication. */
+  private?: boolean
+}
+
 export const response = <T = unknown>(
   statusCode: number,
   body: T,
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEvent,
+  { maxAge, private: isPrivate }: ResponseOptions = {}
 ): APIGatewayProxyResult => {
   const acceptEncoding = event.headers?.['Accept-Encoding'] ?? event.headers?.['accept-encoding'] ?? ''
 
@@ -79,6 +90,13 @@ export const response = <T = unknown>(
       'Content-Type': 'application/json',
     },
     statusCode: statusCode,
+  }
+
+  if (maxAge && statusCode >= 200 && statusCode < 300) {
+    result.headers['Cache-Control'] = `${isPrivate ? 'private' : 'public'}, max-age=${maxAge}`
+    // Access-Control-Allow-Origin echoes the caller's origin and the body is conditionally
+    // gzipped, so a cache that ignored these would hand out the wrong CORS header or encoding.
+    result.headers.Vary = 'Origin, Accept-Encoding'
   }
 
   if (result.body && acceptEncoding.includes('gzip') && result.body.length > 4096) {

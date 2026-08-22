@@ -45,13 +45,12 @@ const {
   calculateStatDeltas,
   bucketForCount,
   updateOrganizerEventStats,
-  updateYearRecord,
-  updateBucketStats,
-  updateEntityStats,
-  updateYearlyParticipationStats,
   hashStatValue,
   participationIdentifiers,
   eventStatsYear,
+  getCapacityStats,
+  eventStatsMonth,
+  moveOrganizerEventStats,
 } = await import('./stats')
 
 describe('lib/stats', () => {
@@ -73,6 +72,21 @@ describe('lib/stats', () => {
 
     it('returns undefined for an invalid date', () => {
       expect(eventStatsYear({ startDate: 'not-a-date' })).toBeUndefined()
+    })
+  })
+
+  describe('eventStatsMonth', () => {
+    it('derives the month for a regular event date', () => {
+      expect(eventStatsMonth('2025-06-15')).toBe('2025-06')
+    })
+
+    it('derives the month in the Finnish timezone', () => {
+      // 2025-06-01 00:00 Europe/Helsinki, stored as the previous day in UTC
+      expect(eventStatsMonth('2025-05-31T21:00:00.000Z')).toBe('2025-06')
+    })
+
+    it('returns undefined for an invalid date', () => {
+      expect(eventStatsMonth('not-a-date')).toBeUndefined()
     })
   })
 
@@ -102,28 +116,20 @@ describe('lib/stats', () => {
       expect(mockDocumentTransaction).toHaveBeenCalledWith(expect.any(Array))
       if (!documentTransaction) throw new Error('Expected a transaction')
       const transaction = documentTransaction
-      expect(transaction).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            Update: expect.objectContaining({
-              Key: { PK: 'ORG#organizer-1', SK: '2024-06-01#event-1' },
-              TableName: 'event-stats-table-not-found-in-env',
-            }),
+      // Only organizer stats and the marker: participation counters moved to the nightly
+      // rebuild, so nothing in this transaction contends with a concurrent registration.
+      expect(transaction).toHaveLength(2)
+      expect(transaction[0]).toEqual(
+        expect.objectContaining({
+          Update: expect.objectContaining({
+            Key: { PK: 'ORG#organizer-1', SK: '2024-06-01#event-1' },
+            TableName: 'event-stats-table-not-found-in-env',
           }),
-          expect.objectContaining({
-            Update: expect.objectContaining({
-              Key: { PK: 'TOTALS#2024', SK: 'dog' },
-              UpdateExpression: 'ADD #count :delta',
-            }),
-          }),
-          expect.objectContaining({
-            Update: expect.objectContaining({
-              Key: { PK: 'BUCKETS#2024#dog#handler', SK: '1' },
-              UpdateExpression: 'ADD #count :delta',
-            }),
-          }),
-        ])
+        })
       )
+      const partitionKeys = transaction.map((item) => String(item.Update?.Key?.PK))
+      expect(partitionKeys.some((pk) => /^(?:STAT|TOTALS|BUCKETS)#/.test(pk))).toBe(false)
+      expect(partitionKeys).not.toContain('YEARS')
       expect(transaction.at(-1)).toEqual({
         Update: expect.objectContaining({
           ConditionExpression:
@@ -151,7 +157,10 @@ describe('lib/stats', () => {
       expect(mockDocumentTransaction).toHaveBeenCalledTimes(1)
     })
 
-    it('rebuilds the transaction after an optimistic entity-count conflict', async () => {
+    it('retries a cancelled transaction caused by contention on the shared organizer counters', async () => {
+      // The ORG# item has no condition of its own, so a burst of registrations for the same
+      // event can cancel each other's transactions with TransactionConflict, not just via the
+      // registration's own condition. That's contention worth retrying, not a real failure.
       vi.spyOn(Math, 'random').mockReturnValue(0)
       mockDocumentTransaction
         .mockRejectedValueOnce({ name: 'TransactionCanceledException' })
@@ -170,7 +179,7 @@ describe('lib/stats', () => {
       expect(mockDocumentTransaction).toHaveBeenCalledTimes(2)
     })
 
-    it('survives a burst of optimistic entity-count conflicts', async () => {
+    it('survives a burst of contention on the shared organizer counters', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0)
       for (let attempt = 0; attempt < 8; attempt++) {
         mockDocumentTransaction.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
@@ -188,6 +197,31 @@ describe('lib/stats', () => {
       await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
 
       expect(mockDocumentTransaction).toHaveBeenCalledTimes(9)
+    })
+
+    it('gives up once the lease has moved on to another attempt', async () => {
+      mockDocumentTransaction.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
+      mockRead.mockImplementation(async (_key: unknown, table?: string) =>
+        table === 'registration-table-not-found-in-env'
+          ? ({
+              ...registration,
+              newRegistrationLease: { expiresAt: Date.now() + 1000, token: 'someone-elses-token' },
+            } as JsonRegistration)
+          : undefined
+      )
+
+      await expect(applyNewRegistrationStatsOnce(registration, event, 'lease-token')).rejects.toEqual({
+        name: 'TransactionCanceledException',
+      })
+      expect(mockDocumentTransaction).toHaveBeenCalledTimes(1)
+    })
+
+    it('rethrows a non-cancellation error untouched', async () => {
+      const failure = new Error('boom')
+      mockDocumentTransaction.mockRejectedValueOnce(failure)
+
+      await expect(applyNewRegistrationStatsOnce(registration, event, 'lease-token')).rejects.toThrow(failure)
+      expect(mockRead).not.toHaveBeenCalled()
     })
   })
 
@@ -225,16 +259,8 @@ describe('lib/stats', () => {
         }
       )
 
-      // Second call should add the year to the YEARS record
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        2,
-        { PK: 'YEARS', SK: '2024' },
-        {
-          set: {
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      // The YEARS marker is written by the nightly rebuild, not on the registration path.
+      expect(mockUpdate).toHaveBeenCalledTimes(1)
     })
 
     it('validates the event year before writing organizer stats', async () => {
@@ -286,19 +312,10 @@ describe('lib/stats', () => {
         }
       )
 
-      // Second call should add the year to the YEARS record
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        2,
-        { PK: 'YEARS', SK: '2024' },
-        {
-          set: {
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockUpdate).toHaveBeenCalledTimes(1)
     })
 
-    it('does not increment yearly participation for an edit with unchanged identifiers', async () => {
+    it('writes only organizer stats, leaving participation to the nightly rebuild', async () => {
       const existingReg = {
         dog: { breedCode: 'BC', regNo: 'DOG123' },
         eventType: 'NOME',
@@ -315,11 +332,152 @@ describe('lib/stats', () => {
 
       await updateEventStatsForRegistration(updatedReg, existingReg, event)
 
-      expect(mockUpdate).toHaveBeenCalledTimes(2)
+      expect(mockUpdate).toHaveBeenCalledTimes(1)
       expect(mockUpdate).toHaveBeenNthCalledWith(1, { PK: 'ORG#org1', SK: '2024-01-01#e5' }, expect.any(Object))
-      expect(mockUpdate).toHaveBeenNthCalledWith(2, { PK: 'YEARS', SK: '2024' }, expect.any(Object))
     })
   })
+  describe('moveOrganizerEventStats', () => {
+    const event = { id: 'e5', organizer: { id: 'org1' }, startDate: '2024-06-15T00:00:00.000Z' }
+    const stats = {
+      count: 7,
+      date: '2024-06-15T00:00:00.000Z',
+      organizerId: 'org1',
+      PK: 'ORG#org1',
+      paidAmount: 350,
+      SK: '2024-06-15T00:00:00.000Z#e5',
+    }
+
+    it('does nothing when neither the organizer nor the start date changed', async () => {
+      await moveOrganizerEventStats(event, { ...event })
+
+      expect(mockRead).not.toHaveBeenCalled()
+      expect(mockDocumentTransaction).not.toHaveBeenCalled()
+    })
+
+    it('does nothing when the event has no stats record yet', async () => {
+      mockRead.mockResolvedValueOnce(undefined)
+
+      await moveOrganizerEventStats(event, { ...event, startDate: '2025-01-01T00:00:00.000Z' })
+
+      expect(mockDocumentTransaction).not.toHaveBeenCalled()
+    })
+
+    it('carries the counters to the new start date and removes the old record', async () => {
+      mockRead.mockResolvedValueOnce(stats)
+
+      await moveOrganizerEventStats(event, { ...event, startDate: '2025-01-01T00:00:00.000Z' })
+
+      expect(mockDocumentTransaction).toHaveBeenCalledWith([
+        {
+          Put: expect.objectContaining({
+            Item: expect.objectContaining({
+              count: 7,
+              date: '2025-01-01T00:00:00.000Z',
+              organizerId: 'org1',
+              PK: 'ORG#org1',
+              paidAmount: 350,
+              SK: '2025-01-01T00:00:00.000Z#e5',
+            }),
+          }),
+        },
+        { Delete: expect.objectContaining({ Key: { PK: 'ORG#org1', SK: '2024-06-15T00:00:00.000Z#e5' } }) },
+      ])
+    })
+
+    it('also moves the record across partitions when the organizer changes', async () => {
+      mockRead.mockResolvedValueOnce(stats)
+
+      await moveOrganizerEventStats(event, { ...event, organizer: { id: 'org2' } })
+
+      expect(mockDocumentTransaction).toHaveBeenCalledWith([
+        {
+          Put: expect.objectContaining({
+            Item: expect.objectContaining({
+              count: 7,
+              organizerId: 'org2',
+              PK: 'ORG#org2',
+              SK: '2024-06-15T00:00:00.000Z#e5',
+            }),
+          }),
+        },
+        { Delete: expect.objectContaining({ Key: { PK: 'ORG#org1', SK: '2024-06-15T00:00:00.000Z#e5' } }) },
+      ])
+    })
+
+    it('reads the old record consistently so a just-counted registration is not missed', async () => {
+      mockRead.mockResolvedValueOnce(stats)
+
+      await moveOrganizerEventStats(event, { ...event, startDate: '2025-01-01T00:00:00.000Z' })
+
+      expect(mockRead).toHaveBeenCalledWith({ PK: 'ORG#org1', SK: '2024-06-15T00:00:00.000Z#e5' }, undefined, true)
+    })
+
+    it('conditions the delete on the updatedAt it just read', async () => {
+      mockRead.mockResolvedValueOnce({ ...stats, updatedAt: '2024-06-20T00:00:00.000Z' })
+
+      await moveOrganizerEventStats(event, { ...event, startDate: '2025-01-01T00:00:00.000Z' })
+
+      expect(mockDocumentTransaction).toHaveBeenCalledWith([
+        expect.anything(),
+        {
+          Delete: expect.objectContaining({
+            ConditionExpression: '#updatedAt = :expectedUpdatedAt',
+            ExpressionAttributeValues: { ':expectedUpdatedAt': '2024-06-20T00:00:00.000Z' },
+            Key: { PK: 'ORG#org1', SK: '2024-06-15T00:00:00.000Z#e5' },
+          }),
+        },
+      ])
+    })
+
+    it('re-reads and retries when a concurrent registration write races the move', async () => {
+      // A registration write landing on the old key between the read and the delete bumps its
+      // updatedAt, failing the delete's condition; the move must pick up that fresh increment
+      // instead of silently discarding it.
+      vi.spyOn(Math, 'random').mockReturnValue(0)
+      mockRead
+        .mockResolvedValueOnce({ ...stats, count: 7, updatedAt: '2024-06-20T00:00:00.000Z' })
+        .mockResolvedValueOnce({ ...stats, count: 8, updatedAt: '2024-06-20T00:05:00.000Z' })
+      mockDocumentTransaction
+        .mockRejectedValueOnce({ name: 'TransactionCanceledException' })
+        .mockResolvedValueOnce(undefined as never)
+
+      await moveOrganizerEventStats(event, { ...event, startDate: '2025-01-01T00:00:00.000Z' })
+
+      expect(mockRead).toHaveBeenCalledTimes(2)
+      expect(mockDocumentTransaction).toHaveBeenCalledTimes(2)
+      expect(mockDocumentTransaction).toHaveBeenLastCalledWith([
+        expect.objectContaining({ Put: expect.objectContaining({ Item: expect.objectContaining({ count: 8 }) }) }),
+        expect.objectContaining({
+          Delete: expect.objectContaining({
+            ExpressionAttributeValues: { ':expectedUpdatedAt': '2024-06-20T00:05:00.000Z' },
+          }),
+        }),
+      ])
+    })
+
+    it('gives up after exhausting the retry budget', async () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0)
+      mockRead.mockResolvedValue({ ...stats, updatedAt: '2024-06-20T00:00:00.000Z' })
+      mockDocumentTransaction.mockRejectedValue({ name: 'TransactionCanceledException' })
+
+      await expect(moveOrganizerEventStats(event, { ...event, startDate: '2025-01-01T00:00:00.000Z' })).rejects.toEqual(
+        { name: 'TransactionCanceledException' }
+      )
+      expect(mockDocumentTransaction).toHaveBeenCalledTimes(8)
+    })
+
+    it('rethrows a non-cancellation error untouched', async () => {
+      mockRead.mockResolvedValueOnce({ ...stats, updatedAt: '2024-06-20T00:00:00.000Z' })
+      const failure = new Error('boom')
+      mockDocumentTransaction.mockRejectedValueOnce(failure)
+
+      await expect(moveOrganizerEventStats(event, { ...event, startDate: '2025-01-01T00:00:00.000Z' })).rejects.toThrow(
+        failure
+      )
+      expect(mockRead).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('getOrganizerStats', () => {
     it('queries for specific organizer stats with date filters', async () => {
       const organizerIds = ['org1']
@@ -505,6 +663,87 @@ describe('lib/stats', () => {
     })
   })
 
+  describe('getCapacityStats', () => {
+    it('returns an empty range without querying when from is after to', async () => {
+      const result = await getCapacityStats('NOME-B', '2025-12', '2025-01')
+
+      expect(result).toEqual([])
+      expect(mockQuery).not.toHaveBeenCalled()
+    })
+
+    it('queries by event type with no range when from/to are omitted', async () => {
+      mockQuery.mockResolvedValueOnce([
+        {
+          cancelledRegistrations: 1,
+          eventCount: 2,
+          PK: 'CAPACITY#NOME-B',
+          places: 20,
+          reserve: 3,
+          SK: '2025-06#ALO',
+          starters: 18,
+        },
+      ])
+
+      const result = await getCapacityStats('NOME-B')
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: '#pk = :pk',
+        names: { '#pk': 'PK' },
+        values: { ':pk': 'CAPACITY#NOME-B' },
+      })
+      expect(result).toEqual([
+        {
+          cancelledRegistrations: 1,
+          class: 'ALO',
+          eventCount: 2,
+          eventType: 'NOME-B',
+          month: '2025-06',
+          places: 20,
+          reserve: 3,
+          starters: 18,
+        },
+      ])
+    })
+
+    it('bounds the query with a padded upper bound so the whole "to" month is included', async () => {
+      mockQuery.mockResolvedValueOnce([])
+
+      await getCapacityStats('NOU', '2025-01', '2025-06')
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: '#pk = :pk AND SK BETWEEN :from AND :to',
+        names: { '#pk': 'PK' },
+        values: { ':from': '2025-01', ':pk': 'CAPACITY#NOU', ':to': '2025-06#￿' },
+      })
+    })
+
+    it('supports an open-ended lower or upper bound', async () => {
+      mockQuery.mockResolvedValueOnce([])
+      await getCapacityStats('NOU', '2025-01')
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: '#pk = :pk AND SK >= :from',
+        names: { '#pk': 'PK' },
+        values: { ':from': '2025-01', ':pk': 'CAPACITY#NOU' },
+      })
+
+      mockQuery.mockResolvedValueOnce([])
+      await getCapacityStats('NOU', undefined, '2025-06')
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: '#pk = :pk AND SK <= :to',
+        names: { '#pk': 'PK' },
+        values: { ':pk': 'CAPACITY#NOU', ':to': '2025-06#￿' },
+      })
+    })
+
+    it('handles empty results', async () => {
+      mockQuery.mockResolvedValueOnce(null)
+
+      const result = await getCapacityStats('NOME-B')
+
+      expect(result).toEqual([])
+    })
+  })
+
   // Tests for previously untested functions
   describe('calculateStatDeltas', () => {
     it('calculates correct deltas for new registration', () => {
@@ -617,21 +856,6 @@ describe('lib/stats', () => {
     })
   })
 
-  describe('updateYearRecord', () => {
-    it('calls update with correct parameters', async () => {
-      await updateYearRecord(2024)
-
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { PK: 'YEARS', SK: '2024' },
-        {
-          set: {
-            updatedAt: expect.any(String),
-          },
-        }
-      )
-    })
-  })
-
   describe('bucketForCount', () => {
     it('returns correct bucket for counts less than 5', () => {
       expect(bucketForCount(1)).toBe('1')
@@ -654,173 +878,6 @@ describe('lib/stats', () => {
 
     it('returns undefined for undefined input', () => {
       expect(bucketForCount(undefined)).toBeUndefined()
-    })
-  })
-
-  describe('updateBucketStats', () => {
-    beforeEach(() => {
-      vi.clearAllMocks()
-    })
-
-    it('decrements old bucket and increments new bucket when bucket changes', async () => {
-      await updateBucketStats(2024, 2, 6)
-
-      // Should decrement the '2' bucket
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        1,
-        { PK: 'BUCKETS#2024#dog#handler', SK: '2' },
-        {
-          add: {
-            count: -1,
-          },
-        }
-      )
-
-      // Should increment the '5-9' bucket
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        2,
-        { PK: 'BUCKETS#2024#dog#handler', SK: '5-9' },
-        {
-          add: {
-            count: 1,
-          },
-        }
-      )
-    })
-
-    it('only increments new bucket when old count is undefined', async () => {
-      // @ts-expect-error partoal return value
-      mockUpdate.mockResolvedValueOnce({ Attributes: { count: undefined } })
-
-      await updateBucketStats(2024, undefined, 3)
-
-      // Should only increment the '3' bucket
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { PK: 'BUCKETS#2024#dog#handler', SK: '3' },
-        {
-          add: {
-            count: 1,
-          },
-        }
-      )
-    })
-
-    it('does nothing when bucket does not change', async () => {
-      await updateBucketStats(2024, 5, 6)
-
-      // Both are in the same bucket, so no updates should happen
-      expect(mockUpdate).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('updateEntityStats', () => {
-    beforeEach(() => {
-      vi.clearAllMocks()
-    })
-
-    it('updates entity stats and increments total for new entity', async () => {
-      await updateEntityStats(2024, 'dog', 'DOG123', false)
-
-      // First call should update the entity count
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        1,
-        { PK: 'STAT#2024#dog', SK: 'DOG123' },
-        {
-          add: {
-            count: 1,
-          },
-        },
-        undefined,
-        'UPDATED_OLD'
-      )
-
-      // Second call should increment the total count for this type
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        2,
-        { PK: 'TOTALS#2024', SK: 'dog' },
-        {
-          add: {
-            count: 1,
-          },
-        }
-      )
-    })
-
-    it('updates dog#handler entity stats and bucket stats', async () => {
-      // Reset the mock implementation to simulate an existing entity
-      // @ts-expect-error partoal return value
-      mockUpdate.mockResolvedValueOnce({ Attributes: { count: 2 } })
-
-      await updateEntityStats(2024, 'dog#handler', 'DOG123#HANDLER456', true)
-
-      // First call should update the entity count
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        1,
-        { PK: 'STAT#2024#dog#handler', SK: 'DOG123#HANDLER456' },
-        {
-          add: {
-            count: 1,
-          },
-        },
-        undefined,
-        'UPDATED_OLD'
-      )
-
-      // Should call updateBucketStats with oldCount=2, newCount=3
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        2,
-        { PK: 'BUCKETS#2024#dog#handler', SK: '2' },
-        {
-          add: {
-            count: -1,
-          },
-        }
-      )
-
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        3,
-        { PK: 'BUCKETS#2024#dog#handler', SK: '3' },
-        {
-          add: {
-            count: 1,
-          },
-        }
-      )
-    })
-
-    it('decrements the entity and unique total when its final participation is removed', async () => {
-      // @ts-expect-error partial return value
-      mockUpdate.mockResolvedValueOnce({ Attributes: { count: 1 } })
-
-      await updateEntityStats(2024, 'owner', 'OWNER123', false, -1)
-
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        1,
-        { PK: 'STAT#2024#owner', SK: 'OWNER123' },
-        {
-          add: {
-            count: -1,
-          },
-        },
-        undefined,
-        'UPDATED_OLD'
-      )
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        2,
-        { PK: 'TOTALS#2024', SK: 'owner' },
-        {
-          add: {
-            count: -1,
-          },
-        }
-      )
-    })
-
-    it('does nothing when entityId is empty', async () => {
-      await updateEntityStats(2024, 'dog', '', false)
-
-      expect(mockUpdate).not.toHaveBeenCalled()
     })
   })
 
@@ -902,138 +959,6 @@ describe('lib/stats', () => {
         handler: emptyHash,
         owner: emptyHash,
       })
-    })
-  })
-
-  describe('updateYearlyParticipationStats', () => {
-    beforeEach(() => {
-      vi.clearAllMocks()
-    })
-
-    it('updates stats for all entity types with hashed emails', async () => {
-      const registration = {
-        dog: { breedCode: 'BC', regNo: 'DOG123' },
-        eventType: 'NOME',
-        handler: { email: 'handler@example.com' },
-        owner: { email: 'owner@example.com' },
-      } as unknown as JsonRegistration
-
-      // Calculate expected hash values
-      const hashedHandlerEmail = hashStatValue(registration.handler?.email)
-      const hashedOwnerEmail = hashStatValue(registration.owner?.email)
-      const hashedRegNo = hashStatValue(registration.dog.regNo)
-
-      await updateYearlyParticipationStats(registration, 2024)
-
-      // Should call updateEntityStats for each entity type
-      expect(mockUpdate).toHaveBeenCalledTimes(13) // 6 entity types * 2 calls per type (entity + total) + handler#dog
-
-      // Verify calls for each entity type
-      const pkCalls = updateCalls.map((call) => call[0].PK)
-
-      expect(pkCalls).toContain('STAT#2024#eventType')
-      expect(pkCalls).toContain('STAT#2024#dog')
-      expect(pkCalls).toContain('STAT#2024#breed')
-      expect(pkCalls).toContain('STAT#2024#handler')
-      expect(pkCalls).toContain('STAT#2024#owner')
-      expect(pkCalls).toContain('STAT#2024#dog#handler')
-
-      // Verify the SK values for each entity type
-      const skValues = updateCalls.map((call) => call[0].SK)
-
-      expect(skValues).toContain('NOME')
-      expect(skValues).toContain(hashedRegNo)
-      expect(skValues).toContain('BC')
-      expect(skValues).toContain(hashedHandlerEmail)
-      expect(skValues).toContain(hashedOwnerEmail)
-      expect(skValues).toContain(`${hashedRegNo}#${hashedHandlerEmail}`)
-    })
-
-    it('uses "unknown" for missing breed code', async () => {
-      const registration = {
-        dog: { breedCode: null, regNo: 'DOG123' },
-        eventType: 'NOME',
-        handler: { email: 'handler@example.com' },
-        owner: { email: 'owner@example.com' },
-      } as unknown as JsonRegistration
-
-      // Calculate expected hash values
-      const hashedHandlerEmail = hashStatValue(registration.handler?.email)
-      const hashedRegNo = hashStatValue(registration.dog.regNo)
-
-      await updateYearlyParticipationStats(registration, 2024)
-
-      // Find the call for breed
-      const breedCall = updateCalls.find((call) => call[0].PK === 'STAT#2024#breed')
-
-      // Find the call for dog#handler to verify hashed email is used
-      const dogHandlerCall = updateCalls.find((call) => call[0].PK === 'STAT#2024#dog#handler')
-
-      expect(breedCall?.[0].SK).toBe('unknown')
-      expect(dogHandlerCall?.[0].SK).toBe(`${hashedRegNo}#${hashedHandlerEmail}`)
-    })
-
-    it('does not update participation stats when identifiers are unchanged', async () => {
-      const existingRegistration = {
-        dog: { breedCode: 'BC', regNo: 'DOG123' },
-        eventType: 'NOME',
-        handler: { email: 'handler@example.com' },
-        owner: { email: 'owner@example.com' },
-      } as unknown as JsonRegistration
-      const updatedRegistration = {
-        ...existingRegistration,
-        notes: 'Updated notes',
-      } as JsonRegistration
-
-      await updateYearlyParticipationStats(updatedRegistration, 2024, existingRegistration)
-
-      expect(mockUpdate).not.toHaveBeenCalled()
-    })
-
-    it('moves participation counts from every changed identifier to its replacement', async () => {
-      const existingRegistration = {
-        dog: { breedCode: 'BC', regNo: 'DOG123' },
-        eventType: 'NOME',
-        handler: { email: 'handler@example.com' },
-        owner: { email: 'owner@example.com' },
-      } as unknown as JsonRegistration
-      const updatedRegistration = {
-        dog: { breedCode: 'LR', regNo: 'DOG456' },
-        eventType: 'NOWT',
-        handler: { email: 'new-handler@example.com' },
-        owner: { email: 'new-owner@example.com' },
-      } as unknown as JsonRegistration
-
-      await updateYearlyParticipationStats(updatedRegistration, 2024, existingRegistration)
-
-      const entityUpdates = updateCalls
-        .filter(([key]) => key.PK.startsWith('STAT#2024#'))
-        .map(([key, updates]) => ({ count: updates.add?.count, key }))
-
-      const oldDog = hashStatValue(existingRegistration.dog.regNo)
-      const newDog = hashStatValue(updatedRegistration.dog.regNo)
-      const oldHandler = hashStatValue(existingRegistration.handler?.email)
-      const newHandler = hashStatValue(updatedRegistration.handler?.email)
-      const oldOwner = hashStatValue(existingRegistration.owner?.email)
-      const newOwner = hashStatValue(updatedRegistration.owner?.email)
-
-      expect(entityUpdates).toEqual(
-        expect.arrayContaining([
-          { count: -1, key: { PK: 'STAT#2024#breed', SK: 'BC' } },
-          { count: 1, key: { PK: 'STAT#2024#breed', SK: 'LR' } },
-          { count: -1, key: { PK: 'STAT#2024#dog', SK: oldDog } },
-          { count: 1, key: { PK: 'STAT#2024#dog', SK: newDog } },
-          { count: -1, key: { PK: 'STAT#2024#dog#handler', SK: `${oldDog}#${oldHandler}` } },
-          { count: 1, key: { PK: 'STAT#2024#dog#handler', SK: `${newDog}#${newHandler}` } },
-          { count: -1, key: { PK: 'STAT#2024#eventType', SK: 'NOME' } },
-          { count: 1, key: { PK: 'STAT#2024#eventType', SK: 'NOWT' } },
-          { count: -1, key: { PK: 'STAT#2024#handler', SK: oldHandler } },
-          { count: 1, key: { PK: 'STAT#2024#handler', SK: newHandler } },
-          { count: -1, key: { PK: 'STAT#2024#owner', SK: oldOwner } },
-          { count: 1, key: { PK: 'STAT#2024#owner', SK: newOwner } },
-        ])
-      )
-      expect(entityUpdates).toHaveLength(12)
     })
   })
 })

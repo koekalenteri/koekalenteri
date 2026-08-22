@@ -7,6 +7,7 @@ import { authorize } from '../lib/auth'
 import { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
+import { moveOrganizerEventStats } from '../lib/stats'
 
 const isUserForbidden = (
   user: JsonUser,
@@ -153,7 +154,13 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // Update registrations in case the secretary version was out of date.
   const result = await persistEventWithRegistrations(existing, data)
 
-  await auditEventChanges(existing, item, result, user.name)
+  // Organizer stats are keyed by organizer + start date, so an edit to either has to carry the
+  // already-counted registrations across rather than leave them under the old key. This and the
+  // audit trail touch different tables and don't depend on each other, so they run together.
+  await Promise.all([
+    existing ? moveOrganizerEventStats(existing, data) : undefined,
+    auditEventChanges(existing, item, result, user.name),
+  ])
 
   // Do not expose the server-owned lock or its token in an admin response.
   const {

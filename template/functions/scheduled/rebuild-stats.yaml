@@ -1,0 +1,95 @@
+  # Nightly rebuild of every stats partition that has no other writer (participation + capacity).
+  # ORG# is deliberately excluded: registration writes maintain it incrementally, and a
+  # delete-then-write pass over it would race them. See src/lambda/lib/statsRebuild.ts.
+  RebuildStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/RebuildStatsFunction
+      Handler: handler.default
+      Layers:
+        - !Ref DependenciesLayer
+      Tracing: Active
+      Timeout: 900
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventStatsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+      Events:
+        NightlyRebuild:
+          Type: Schedule
+          Properties:
+            # 01:00 UTC = 03:00 Helsinki in summer, 04:00 in winter — outside registration hours.
+            Schedule: 'cron(0 1 * * ? *)'
+            Description: Nightly rebuild of participation and capacity statistics
+            Enabled: true
+
+  RebuildStatsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RebuildStatsFunction]]
+      RetentionInDays: 30
+
+  # A batch rebuild that stops running freezes the stats silently, which the incremental path
+  # never did. Alarm on both outcomes: an erroring run, and no successful run in over 48h.
+  RebuildStatsFunctionErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Nightly stats rebuild failed
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref RebuildStatsFunction
+      Statistic: Sum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+
+  RebuildStatsFunctionMissingRunAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Nightly stats rebuild has not run successfully in 48 hours
+      Namespace: AWS/Lambda
+      MetricName: Invocations
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref RebuildStatsFunction
+      Statistic: Sum
+      Period: 172800
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: LessThanThreshold
+      TreatMissingData: breaching
+
+  # A registration the rebuild can't attribute to a capacity class (e.g. its class was renamed
+  # or removed after entry) is otherwise silently dropped from the capacity charts with no
+  # signal beyond the log line below. Unlike the alarms above, this doesn't fail the run.
+  RebuildStatsFunctionUnattributedCapacityMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterName: RebuildStatsFunctionUnattributedCapacity
+      FilterPattern: '"registrations it could not attribute to a capacity class"'
+      LogGroupName: !Ref RebuildStatsFunctionLogGroup
+      MetricTransformations:
+        - MetricName: UnattributedCapacityRegistrations
+          MetricNamespace: KoekalenteriApp
+          MetricValue: '1'
+
+  RebuildStatsFunctionUnattributedCapacityAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Nightly stats rebuild found registrations it could not attribute to a capacity class
+      AlarmName: !Sub '${AWS::StackName}-rebuild-stats-unattributed-capacity'
+      Namespace: KoekalenteriApp
+      MetricName: UnattributedCapacityRegistrations
+      Statistic: Sum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching

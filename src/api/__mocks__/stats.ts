@@ -1,4 +1,4 @@
-import type { EventStatsItem } from '../../types/Stats'
+import type { CapacityStatsEntry, EventStatsItem } from '../../types/Stats'
 import type { AllYearlyStatsResponse, YearlyStatsResponse } from '../stats'
 
 const mockYearStats: YearlyStatsResponse = {
@@ -18,17 +18,14 @@ const mockAllStats: AllYearlyStatsResponse = {
   years: [2024],
 }
 
-export async function getYearlyStats(_year: number, _signal?: AbortSignal): Promise<YearlyStatsResponse> {
-  return new Promise((resolve) => {
-    process.nextTick(() => resolve(mockYearStats))
-  })
-}
-
-export async function getAllYearlyStats(_signal?: AbortSignal): Promise<AllYearlyStatsResponse> {
-  return new Promise((resolve) => {
-    process.nextTick(() => resolve(mockAllStats))
-  })
-}
+// vi.fn (not plain functions) so tests can assert these are *not* called; vitest is
+// configured with clearMocks, which resets calls but keeps these implementations.
+export const getAllYearlyStats = vi.fn(
+  async (_signal?: AbortSignal): Promise<AllYearlyStatsResponse> =>
+    new Promise((resolve) => {
+      process.nextTick(() => resolve(mockAllStats))
+    })
+)
 
 export const getOrganizerEventStats = vi.fn(
   async (
@@ -38,4 +35,8 @@ export const getOrganizerEventStats = vi.fn(
     _to?: string,
     _signal?: AbortSignal
   ): Promise<EventStatsItem[]> => []
+)
+
+export const getCapacityStats = vi.fn(
+  async (_eventType: string, _from?: string, _to?: string, _signal?: AbortSignal): Promise<CapacityStatsEntry[]> => []
 )

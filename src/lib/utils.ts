@@ -186,3 +186,12 @@ export const getPatchChangedIds = <T extends { id: string }, P extends Patch<T>>
 
 export const printContactInfo = (info?: PublicContactInfo) =>
   [info?.name, info?.phone, info?.email].filter(Boolean).join(', ')
+
+/** Splits `total` evenly across `count` shares, giving the remainder to the first share. */
+export const splitEvenly = (total: number, count: number): number[] => {
+  if (count <= 0) return []
+
+  const share = Math.floor(total / count)
+  const remainder = total % count
+  return Array.from({ length: count }, (_, index) => share + (index === 0 ? remainder : 0))
+}
