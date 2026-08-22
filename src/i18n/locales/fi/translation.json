@@ -700,12 +700,12 @@
       "starters": "Osallistujia",
       "title": "Talouden tilastot"
     },
-    "avgRegistrationsPerEvent": "Ilmoittautumisia koetta kohden",
     "breedDistribution": "Rotujakauma",
     "classDistribution": "Jakauma luokittain",
     "count": "Määrä",
     "dogHandlerParticipation": "Koira+ohjaaja -osallistumiskerrat",
     "eventTypeDistribution": "Jakauma koemuodoittain",
+    "fillRate": "Täyttöaste",
     "newDogHandlers": "Uusia koirakoita",
     "noDataForYear": "Ei tilastoja valitulle vuodelle",
     "otherBreeds": "Muut",

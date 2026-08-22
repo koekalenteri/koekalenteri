@@ -10,15 +10,15 @@ import { useLocation, useSearchParams } from 'react-router'
 import { HEADER_HEIGHT } from '../assets/Theme'
 import { rum } from '../lib/client/rum'
 import Header from './components/Header'
-import AvgRegistrationsPerEventChart from './components/stats/AvgRegistrationsPerEventChart'
 import BreedDistributionChart from './components/stats/BreedDistributionChart'
 import ClassDistributionChart from './components/stats/ClassDistributionChart'
 import DogHandlerBucketChart from './components/stats/DogHandlerBucketChart'
 import EventTypeBarChart from './components/stats/EventTypeBarChart'
+import FillRateChart from './components/stats/FillRateChart'
 import ParticipationTrendChart from './components/stats/ParticipationTrendChart'
 import RetentionChart from './components/stats/RetentionChart'
 import YearSelector from './components/stats/YearSelector'
-import { allYearlyStatsAtom } from './state'
+import { allYearlyStatsAtom, capacityStatsAtom } from './state'
 
 const CURRENT_YEAR = new Date().getFullYear()
 const EMPTY_YEAR_STATS: YearlyStatsResponse = { dogHandlerBuckets: [], totals: [], year: CURRENT_YEAR }
@@ -36,6 +36,7 @@ export function Component() {
   // The all-years response already carries every year's breakdowns, so picking the selected
   // year out of it avoids a second request that would recompute what we just received.
   const allStats = useAtomValue(allYearlyStatsAtom)
+  const capacityStats = useAtomValue(capacityStatsAtom)
   const yearStats = useMemo(
     () => allStats.stats.find((stats) => stats.year === selectedYear) ?? EMPTY_YEAR_STATS,
     [allStats.stats, selectedYear]
@@ -53,7 +54,7 @@ export function Component() {
         <Stack spacing={4}>
           {allStats.stats.length > 0 ? <ParticipationTrendChart stats={allStats.stats} /> : null}
           {allStats.stats.some((stat) => stat.retention) ? <RetentionChart stats={allStats.stats} /> : null}
-          <AvgRegistrationsPerEventChart stats={allStats.stats} />
+          <FillRateChart data={capacityStats} />
 
           <YearSelector years={years} value={selectedYear} onChange={(year) => setSearchParams({ year: `${year}` })} />
 

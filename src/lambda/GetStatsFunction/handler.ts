@@ -1,7 +1,9 @@
+import { ALL_EVENT_TYPES_FOR_CAPACITY } from '../../types/Stats'
 import { lambda, response } from '../lib/lambda'
 import {
   getAvailableYears,
   getCapacityStats,
+  getCapacityStatsAllEventTypes,
   getDogHandlerBuckets,
   getRetentionStats,
   getYearlyBreakdown,
@@ -48,11 +50,16 @@ const getStatsLambda = lambda('getStatsLambda', async (event) => {
   const { eventType, from, to, year: yearParam } = event.queryStringParameters ?? {}
   const yearRequested = !!yearParam && !Number.isNaN(Number(yearParam))
 
+  const fetchCapacityStats = (type: string) =>
+    type === ALL_EVENT_TYPES_FOR_CAPACITY
+      ? getCapacityStatsAllEventTypes(from, to)
+      : getCapacityStats(type, undefined, from, to)
+
   if (yearRequested) {
     const year = Number(yearParam)
     const [yearStats, capacityStats] = await Promise.all([
       getYearStats(year),
-      eventType ? getCapacityStats(eventType, undefined, from, to) : undefined,
+      eventType ? fetchCapacityStats(eventType) : undefined,
     ])
     return response(200, { ...yearStats, ...(capacityStats && { capacityStats }) }, event, {
       maxAge: YEARLY_MAX_AGE,
@@ -62,7 +69,7 @@ const getStatsLambda = lambda('getStatsLambda', async (event) => {
   // Capacity stats without a year stand alone: falling through would run getYearStats()
   // (four queries) for every available year just to have the caller discard the result.
   if (eventType) {
-    const capacityStats = await getCapacityStats(eventType, undefined, from, to)
+    const capacityStats = await fetchCapacityStats(eventType)
     return response(200, { capacityStats }, event, { maxAge: CAPACITY_MAX_AGE })
   }
 

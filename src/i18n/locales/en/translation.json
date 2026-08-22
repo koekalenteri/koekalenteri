@@ -700,12 +700,12 @@
       "starters": "Starters",
       "title": "Financial statistics"
     },
-    "avgRegistrationsPerEvent": "Registrations per event",
     "breedDistribution": "Breed distribution",
     "classDistribution": "Distribution by class",
     "count": "Count",
     "dogHandlerParticipation": "Dog+handler participation counts",
     "eventTypeDistribution": "Distribution by event type",
+    "fillRate": "Fill rate",
     "newDogHandlers": "New pairs",
     "noDataForYear": "No statistics for the selected year",
     "otherBreeds": "Other",
