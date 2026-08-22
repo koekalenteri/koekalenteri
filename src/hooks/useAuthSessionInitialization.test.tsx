@@ -1,10 +1,11 @@
 import type React from 'react'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { fetchAuthSession } from 'aws-amplify/auth'
+import { useAtomValue } from 'jotai'
 import { StrictMode } from 'react'
-import { RecoilRoot, useRecoilValue } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { reportError } from '../lib/client/error'
-import { idTokenAtom } from '../pages/recoil/user/atoms'
+import { idTokenAtom } from '../pages/state/user/atoms'
 import { useAuthSessionInitialization } from './useAuthSessionInitialization'
 
 vi.mock('aws-amplify/auth', () => ({
@@ -21,7 +22,7 @@ const makeToken = (payload: object) => `header.${encodeBase64Url(JSON.stringify(
 const wrapperWithToken =
   (token: string | undefined, strict = false) =>
   ({ children }: { readonly children: React.ReactNode }) => {
-    const root = <RecoilRoot initializeState={({ set }) => set(idTokenAtom, token)}>{children}</RecoilRoot>
+    const root = <Provider initializeState={({ set }) => set(idTokenAtom, token)}>{children}</Provider>
     return strict ? <StrictMode>{root}</StrictMode> : root
   }
 
@@ -40,7 +41,7 @@ describe('auth session initialization', () => {
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
+        const rawToken = useAtomValue(idTokenAtom)
         return { initialized: useAuthSessionInitialization(rawToken), rawToken }
       },
       { wrapper: wrapperWithToken(token) }
@@ -61,7 +62,7 @@ describe('auth session initialization', () => {
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
+        const rawToken = useAtomValue(idTokenAtom)
         return { initialized: useAuthSessionInitialization(rawToken), rawToken }
       },
       { wrapper: wrapperWithToken(undefined) }
@@ -89,7 +90,7 @@ describe('auth session initialization', () => {
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
+        const rawToken = useAtomValue(idTokenAtom)
         return { initialized: useAuthSessionInitialization(rawToken), rawToken }
       },
       { wrapper: wrapperWithToken(expiredToken) }
@@ -107,7 +108,7 @@ describe('auth session initialization', () => {
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
+        const rawToken = useAtomValue(idTokenAtom)
         return { initialized: useAuthSessionInitialization(rawToken), rawToken }
       },
       { wrapper: wrapperWithToken('not-a-jwt') }
@@ -124,7 +125,7 @@ describe('auth session initialization', () => {
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
+        const rawToken = useAtomValue(idTokenAtom)
         return { initialized: useAuthSessionInitialization(rawToken), rawToken }
       },
       { wrapper: wrapperWithToken(expiredToken) }
@@ -142,7 +143,7 @@ describe('auth session initialization', () => {
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
+        const rawToken = useAtomValue(idTokenAtom)
         return { initialized: useAuthSessionInitialization(rawToken), rawToken }
       },
       { wrapper: wrapperWithToken(expiredToken) }
@@ -157,7 +158,7 @@ describe('auth session initialization', () => {
 
     const { result } = renderHook(
       () => {
-        const rawToken = useRecoilValue(idTokenAtom)
+        const rawToken = useAtomValue(idTokenAtom)
         return useAuthSessionInitialization(rawToken)
       },
       { wrapper: wrapperWithToken(undefined, true) }

@@ -1,13 +1,14 @@
 import type { DogEvent, Patch } from '../../../types'
+import { useAtom } from 'jotai'
+import { useResetAtom } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { useRecoilState, useResetRecoilState } from 'recoil'
 import { APIError } from '../../../api/http'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { getChanges, isEmptyObject, isObject } from '../../../lib/utils'
-import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../recoil'
+import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../state'
 
 type EventFormOptions = {
   eventId?: string
@@ -21,8 +22,8 @@ type EventFormOptions = {
 export default function useEventForm(options: EventFormOptions = {}) {
   const { eventId, storedEvent = null, onDoneRedirect } = options
 
-  const [event, setEvent] = useRecoilState(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
-  const resetEvent = useResetRecoilState(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
+  const [event, setEvent] = useAtom(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
+  const resetEvent = useResetAtom(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
   const initialEvent = useRef(event)
 
   const { t } = useTranslation()

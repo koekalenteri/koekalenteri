@@ -1,8 +1,11 @@
 import Alert from '@mui/material/Alert'
+import { useAtomValue } from 'jotai'
+import { unwrap } from 'jotai/utils'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValueLoadable } from 'recoil'
-import { userSelector } from '../../recoil/user/selectors'
+import { userAtom } from '../../state/user/derivedAtoms'
+
+const userValueAtom = unwrap(userAtom)
 
 type Viewer = {
   name: string
@@ -15,12 +18,12 @@ interface Props {
 
 export default function OtherViewers({ viewers }: Props) {
   const { t } = useTranslation()
-  const currentUserLoadable = useRecoilValueLoadable(userSelector)
+  const currentUser = useAtomValue(userValueAtom)
 
   const otherViewers = useMemo(() => {
-    const currentUserId = currentUserLoadable.state === 'hasValue' ? currentUserLoadable.contents?.id : undefined
+    const currentUserId = currentUser?.id
     return viewers.filter((viewer) => viewer.userId !== currentUserId)
-  }, [currentUserLoadable, viewers])
+  }, [currentUser, viewers])
 
   if (!otherViewers.length) return null
 

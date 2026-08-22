@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { RecoilRoot } from 'recoil'
+import { Provider } from 'jotai'
 import PaymentInfo from './PaymentInfo'
 
 describe('PaymentInfo', () => {
@@ -16,7 +16,7 @@ describe('PaymentInfo', () => {
     const onChange = vi.fn()
 
     render(
-      <RecoilRoot>
+      <Provider>
         <PaymentInfo
           event={baseEvent}
           cost={baseCost}
@@ -29,7 +29,7 @@ describe('PaymentInfo', () => {
           }
           onChange={onChange}
         />
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(onChange).not.toHaveBeenCalledWith({
@@ -42,7 +42,7 @@ describe('PaymentInfo', () => {
     const onChange = vi.fn()
 
     render(
-      <RecoilRoot>
+      <Provider>
         <PaymentInfo
           event={baseEvent}
           cost={baseCost}
@@ -55,7 +55,7 @@ describe('PaymentInfo', () => {
           }
           onChange={onChange}
         />
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(onChange).toHaveBeenCalledWith({
@@ -68,7 +68,7 @@ describe('PaymentInfo', () => {
     const onChange = vi.fn()
 
     render(
-      <RecoilRoot>
+      <Provider>
         <PaymentInfo
           event={baseEvent}
           cost={{ cost: { normal: 100 }, segment: 'legacy' } as any}
@@ -82,7 +82,7 @@ describe('PaymentInfo', () => {
           }
           onChange={onChange}
         />
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(onChange).toHaveBeenCalledWith({
@@ -91,18 +91,18 @@ describe('PaymentInfo', () => {
     })
   })
 
-  it('synchronizes registration language from recoil language when different', () => {
+  it('synchronizes registration language from state language when different', () => {
     const onChange = vi.fn()
 
     render(
-      <RecoilRoot>
+      <Provider>
         <PaymentInfo
           event={baseEvent}
           cost={{ cost: { normal: 100 }, segment: 'legacy' } as any}
           registration={{ dog: { breedCode: '110' }, language: 'en' } as any}
           onChange={onChange}
         />
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ language: expect.any(String) }))
@@ -112,7 +112,7 @@ describe('PaymentInfo', () => {
     const onChange = vi.fn()
 
     render(
-      <RecoilRoot>
+      <Provider>
         <PaymentInfo
           event={baseEvent}
           cost={{ cost: { normal: 100 }, segment: 'legacy' } as any}
@@ -126,7 +126,7 @@ describe('PaymentInfo', () => {
           }
           onChange={onChange}
         />
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(onChange).not.toHaveBeenCalledWith({
@@ -139,7 +139,7 @@ describe('PaymentInfo', () => {
     const onChange = vi.fn()
 
     render(
-      <RecoilRoot>
+      <Provider>
         <PaymentInfo
           event={baseEvent}
           cost={
@@ -162,7 +162,7 @@ describe('PaymentInfo', () => {
           }
           onChange={onChange}
         />
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(screen.getByText('costNames.optionalAdditionalCosts')).toBeInTheDocument()
@@ -171,9 +171,9 @@ describe('PaymentInfo', () => {
   it('returns null when registration is not minimal for cost rendering', () => {
     const onChange = vi.fn()
     const { container } = render(
-      <RecoilRoot>
+      <Provider>
         <PaymentInfo event={baseEvent} cost={baseCost} registration={{ language: 'fi' } as any} onChange={onChange} />
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(container).toBeEmptyDOMElement()

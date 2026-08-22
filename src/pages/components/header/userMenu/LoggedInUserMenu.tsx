@@ -10,7 +10,7 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useUserActions } from '../../../recoil/user/actions'
+import { useUserActions } from '../../../state/user/actions'
 import AppBarButton from '../AppBarButton'
 
 interface Props {

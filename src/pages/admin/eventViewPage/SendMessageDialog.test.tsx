@@ -7,7 +7,7 @@ import { render, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../__mockData__/events'
 import {
   registrationWithStaticDates,
@@ -17,19 +17,13 @@ import {
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
 import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
-import { idTokenAtom } from '../../recoil'
-import { adminEmailTemplatesAtom, adminEventsAtom } from '../recoil'
+import { idTokenAtom } from '../../state'
+import { adminEmailTemplatesAtom, adminEventsAtom } from '../state'
 import SendMessageDialog from './SendMessageDialog'
 
 vi.mock('../../../api/email')
 vi.mock('../../../api/event')
 vi.mock('../../../api/registration')
-vi.mock('../recoil/emailTemplates/effects', () => ({
-  adminRemoteEmailTemplatesEffect: () => undefined,
-}))
-vi.mock('../recoil/events/effects', () => ({
-  adminRemoteEventsEffect: () => undefined,
-}))
 
 const registrationTemplate: EmailTemplate = {
   createdAt: new Date('2023-01-01T00:00:00.000Z'),
@@ -64,7 +58,7 @@ const createWrapper =
   ({ emailTemplates = [] }: { readonly emailTemplates?: EmailTemplate[] } = {}) =>
   ({ children }: { readonly children: ReactNode }) => (
     <ThemeProvider theme={theme}>
-      <RecoilRoot
+      <Provider
         initializeState={({ set }) => {
           set(adminEmailTemplatesAtom, emailTemplates)
           set(adminEventsAtom, [eventWithStaticDates])
@@ -78,7 +72,7 @@ const createWrapper =
             </ConfirmProvider>
           </SnackbarProvider>
         </LocalizationProvider>
-      </RecoilRoot>
+      </Provider>
     </ThemeProvider>
   )
 

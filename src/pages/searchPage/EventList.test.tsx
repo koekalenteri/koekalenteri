@@ -2,8 +2,8 @@ import type { DogEvent } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
+import { Provider } from 'jotai'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithEntryOpen } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
@@ -15,9 +15,9 @@ describe('EventList', () => {
   it('should render with empty result', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot>
+        <Provider>
           <EventList events={[]} />
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     expect(container).toMatchSnapshot()
@@ -32,9 +32,9 @@ describe('EventList', () => {
     }
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot>
+        <Provider>
           <EventList events={[event]} />
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     expect(container).toMatchSnapshot()
@@ -44,9 +44,9 @@ describe('EventList', () => {
     render(
       <ThemeProvider theme={theme}>
         <MemoryRouter>
-          <RecoilRoot>
+          <Provider>
             <EventList events={[eventWithEntryOpen]} />
-          </RecoilRoot>
+          </Provider>
         </MemoryRouter>
       </ThemeProvider>
     )

@@ -3,12 +3,12 @@ import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import { getCostSegmentName, hasDifferentMemberPrice } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
 import { getRegistrationPaymentDetails } from '../../lib/payment'
-import { languageAtom } from '../recoil'
+import { languageAtom } from '../state'
 
 interface Props {
   readonly event: MinimalEventForCost
@@ -19,7 +19,7 @@ interface Props {
 
 export const PaymentDetails = ({ event, registration, includePayable, includeTotal }: Props) => {
   const { t } = useTranslation()
-  const language = useRecoilValue(languageAtom)
+  const language = useAtomValue(languageAtom)
   const details = getRegistrationPaymentDetails(event, registration)
   const costSegmentName = getCostSegmentName(details.strategy)
 

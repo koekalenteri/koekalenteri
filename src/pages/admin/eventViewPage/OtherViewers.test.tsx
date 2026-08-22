@@ -1,29 +1,26 @@
 import { render, screen } from '@testing-library/react'
-import { RecoilRoot } from 'recoil'
+import { Provider } from 'jotai'
 import OtherViewers from './OtherViewers'
 
-vi.mock('../../recoil/user/selectors', () => ({
-  userSelector: require('recoil').selector({
-    get: () => ({ id: 'current-user', name: 'Current User' }),
-    key: 'otherViewersTestUserSelector',
-  }),
+vi.mock('../../state/user/derivedAtoms', () => ({
+  userAtom: require('jotai').atom(() => ({ id: 'current-user', name: 'Current User' })),
 }))
 
 describe('OtherViewers', () => {
   it('returns null when there are no viewers', () => {
-    render(<OtherViewers viewers={[]} />, { wrapper: RecoilRoot })
+    render(<OtherViewers viewers={[]} />, { wrapper: Provider })
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('returns null when only the current user is viewing', () => {
-    render(<OtherViewers viewers={[{ name: 'Current User', userId: 'current-user' }]} />, { wrapper: RecoilRoot })
+    render(<OtherViewers viewers={[{ name: 'Current User', userId: 'current-user' }]} />, { wrapper: Provider })
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('shows one other viewer with i18n pluralization count', () => {
-    render(<OtherViewers viewers={[{ name: 'Viewer One', userId: 'viewer-1' }]} />, { wrapper: RecoilRoot })
+    render(<OtherViewers viewers={[{ name: 'Viewer One', userId: 'viewer-1' }]} />, { wrapper: Provider })
 
     expect(screen.getByRole('alert')).toHaveTextContent('event.viewerBanner_one count, names')
   })
@@ -37,7 +34,7 @@ describe('OtherViewers', () => {
           { name: 'Viewer Two', userId: 'viewer-2' },
         ]}
       />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
 
     expect(screen.getByRole('alert')).toHaveTextContent('event.viewerBanner_one count, names')

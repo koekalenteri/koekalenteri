@@ -5,11 +5,11 @@ import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
+import { useAtom } from 'jotai'
 import { useCallback } from 'react'
-import { useRecoilState } from 'recoil'
 import { recentUpdateSx } from '../../assets/highlight'
-import { openedEventAtom } from '../recoil'
-import { useIsRecentlyUpdated } from '../recoil/recentUpdates'
+import { openedEventAtom } from '../state'
+import { useIsRecentlyUpdated } from '../state/recentUpdates'
 
 interface Props {
   readonly eventId: string
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const CollapsibleEvent = ({ eventId, odd, header, children }: PropsWithChildren<Props>) => {
-  const [open, setOpen] = useRecoilState(openedEventAtom(eventId))
+  const [open, setOpen] = useAtom(openedEventAtom(eventId))
   const recentlyUpdated = useIsRecentlyUpdated('public:event', eventId)
 
   const handleClick = useCallback(() => setOpen(!open), [open, setOpen])

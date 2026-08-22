@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { act } from 'react'
-import { RecoilRoot } from 'recoil'
 import { useDogCacheKey } from './useDogCacheKey'
 
 vi.spyOn(localStorage, 'setItem')
@@ -8,7 +8,7 @@ vi.spyOn(localStorage, 'getItem')
 
 describe('useDogCache', () => {
   it('should read from localStorage', () => {
-    renderHook(() => useDogCacheKey('TEST1234', 'breeder'), { wrapper: RecoilRoot })
+    renderHook(() => useDogCacheKey('TEST1234', 'breeder'), { wrapper: Provider })
     expect(localStorage.getItem).toHaveBeenCalledWith('dog-cache')
   })
 
@@ -17,7 +17,7 @@ describe('useDogCache', () => {
       result: {
         current: [, setCache],
       },
-    } = renderHook(() => useDogCacheKey('TEST2222', 'breeder'), { wrapper: RecoilRoot })
+    } = renderHook(() => useDogCacheKey('TEST2222', 'breeder'), { wrapper: Provider })
     act(() => {
       setCache({ name: 'Breeder Name' })
     })

@@ -1,9 +1,10 @@
 import type { DogEvent } from '../../../types'
 import { act, renderHook } from '@testing-library/react'
+import { Provider, useAtom } from 'jotai'
+import { useResetAtom } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useNavigate } from 'react-router'
-import { RecoilRoot, useRecoilState, useResetRecoilState } from 'recoil'
-import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../recoil'
+import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../state'
 import useEventForm from './useEventForm'
 
 // Mock dependencies
@@ -15,18 +16,21 @@ vi.mock('notistack', async () => ({
   useSnackbar: vi.fn(),
 }))
 
-vi.mock('../recoil/events/actions', async () => ({
+vi.mock('../state/events/actions', async () => ({
   useAdminEventActions: vi.fn(),
 }))
 
-vi.mock('recoil', async () => {
-  const originalModule = await vi.importActual<typeof import('recoil')>('recoil')
+vi.mock('jotai', async () => {
+  const originalModule = await vi.importActual<typeof import('jotai')>('jotai')
   return {
     ...originalModule,
-    useRecoilState: vi.fn(),
-    useResetRecoilState: vi.fn(),
+    useAtom: vi.fn(),
   }
 })
+vi.mock('jotai/utils', async () => ({
+  ...(await vi.importActual<typeof import('jotai/utils')>('jotai/utils')),
+  useResetAtom: vi.fn(),
+}))
 
 describe('useEventForm', () => {
   const mockNavigate = vi.fn()
@@ -71,8 +75,8 @@ describe('useEventForm', () => {
     // Setup mocks
     ;(useNavigate as import('vitest').Mock).mockReturnValue(mockNavigate)
     ;(useSnackbar as import('vitest').Mock).mockReturnValue({ enqueueSnackbar: mockEnqueueSnackbar })
-    ;(useRecoilState as import('vitest').Mock).mockReturnValue([mockEvent, mockSetEvent])
-    ;(useResetRecoilState as import('vitest').Mock).mockReturnValue(mockResetEvent)
+    ;(useAtom as import('vitest').Mock).mockReturnValue([mockEvent, mockSetEvent])
+    ;(useResetAtom as import('vitest').Mock).mockReturnValue(mockResetEvent)
     ;(useAdminEventActions as import('vitest').Mock).mockReturnValue({
       save: mockSave,
     })
@@ -80,7 +84,7 @@ describe('useEventForm', () => {
 
   it('should initialize with correct state in create mode', () => {
     const { result } = renderHook(() => useEventForm(), {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
     expect(result.current.event).toBe(mockEvent)
@@ -99,22 +103,22 @@ describe('useEventForm', () => {
           storedEvent: mockEvent,
         }),
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
 
     expect(result.current.event).toBe(mockEvent)
     expect(result.current.changes).toEqual({})
     expect(result.current.canSave).toBe(false)
-    expect(useRecoilState).toHaveBeenCalledWith(adminEditableEventByIdAtom('test-event-id'))
+    expect(useAtom).toHaveBeenCalledWith(adminEditableEventByIdAtom('test-event-id'))
   })
 
   it('should use adminNewEventAtom when no eventId is provided', () => {
     renderHook(() => useEventForm(), {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
-    expect(useRecoilState).toHaveBeenCalledWith(adminNewEventAtom)
+    expect(useAtom).toHaveBeenCalledWith(adminNewEventAtom)
   })
 
   it('should update event and track changes when handleChange is called', () => {
@@ -124,7 +128,7 @@ describe('useEventForm', () => {
           storedEvent: mockStoredEvent,
         }),
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
 
@@ -151,7 +155,7 @@ describe('useEventForm', () => {
           storedEvent: mockEvent,
         }),
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
 
@@ -173,7 +177,7 @@ describe('useEventForm', () => {
           storedEvent: mockEvent,
         }),
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
 
@@ -193,7 +197,7 @@ describe('useEventForm', () => {
 
   it('should not track changes in create mode', () => {
     const { result } = renderHook(() => useEventForm(), {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
     const updatedEvent = { ...mockEvent, name: 'Updated Event Name' }
@@ -221,7 +225,7 @@ describe('useEventForm', () => {
           onDoneRedirect: '/events',
         }),
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
 
@@ -238,7 +242,7 @@ describe('useEventForm', () => {
   it('should save only locally edited fields with the original modification timestamp in edit mode', async () => {
     mockSave.mockResolvedValue({ ...mockEvent, name: 'Updated Event Name' })
     const { result } = renderHook(() => useEventForm({ eventId: mockEvent.id, storedEvent: mockStoredEvent }), {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
     act(() => {
@@ -260,7 +264,7 @@ describe('useEventForm', () => {
       .mockResolvedValueOnce({ ...mockEvent, modifiedAt: savedModifiedAt, name: 'First change' })
       .mockResolvedValueOnce({ ...mockEvent, modifiedAt: new Date('2025-01-02T13:00:00Z'), name: 'Second change' })
     const { result } = renderHook(() => useEventForm({ eventId: mockEvent.id, storedEvent: mockStoredEvent }), {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
     act(() => {
@@ -292,7 +296,7 @@ describe('useEventForm', () => {
     mockSave.mockRejectedValue(error)
 
     const { result } = renderHook(() => useEventForm(), {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
     await act(async () => {
@@ -308,10 +312,10 @@ describe('useEventForm', () => {
   })
 
   it('should not attempt to save if event is null', async () => {
-    ;(useRecoilState as import('vitest').Mock).mockReturnValue([null, mockSetEvent])
+    ;(useAtom as import('vitest').Mock).mockReturnValue([null, mockSetEvent])
 
     const { result } = renderHook(() => useEventForm(), {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
     await act(async () => {
@@ -328,7 +332,7 @@ describe('useEventForm', () => {
           onDoneRedirect: '/events',
         }),
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
 
@@ -342,7 +346,7 @@ describe('useEventForm', () => {
 
   it('should reset event but not navigate when no redirect is provided', () => {
     const { result } = renderHook(() => useEventForm(), {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
 
     act(() => {

@@ -4,6 +4,7 @@ exports[`EventViewPage > renders properly for event with classes 1`] = `
 <div>
   <h5
     class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
+    style=""
   >
     NOME-B
     , 
@@ -14,6 +15,7 @@ exports[`EventViewPage > renders properly for event with classes 1`] = `
   </h5>
   <div
     class="MuiBox-root css-jbranp"
+    style=""
   >
     <div
       aria-label="event.phase"
@@ -298,6 +300,7 @@ exports[`EventViewPage > renders properly for event with classes 1`] = `
   <button
     aria-label="eventManagement.open"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-cwol4f-MuiButtonBase-root-MuiButton-root"
+    style=""
     tabindex="0"
     type="button"
   >
@@ -320,6 +323,7 @@ exports[`EventViewPage > renders properly for event with classes 1`] = `
   </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
+    style=""
   >
     <div
       class="MuiTabs-root css-jhczcq-MuiTabs-root"
@@ -381,7 +385,7 @@ exports[`EventViewPage > renders properly for event with classes 1`] = `
   </div>
   <div
     role="tabpanel"
-    style="display: flex; flex-direction: column; min-height: 400px; width: 100%;"
+    style="display: flex !important; flex-direction: column; min-height: 400px; width: 100%;"
   >
     <h6
       class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
@@ -3698,7 +3702,7 @@ exports[`EventViewPage > renders properly for event with classes 1`] = `
                     aria-rowindex="2"
                     aria-selected="false"
                     class="MuiDataGrid-row MuiDataGrid-row--firstVisible MuiDataGrid-row--lastVisible"
-                    data-handler-id="T24"
+                    data-handler-id="T48"
                     data-id="nome-b-alo-registration"
                     data-rowindex="0"
                     role="row"
@@ -3983,7 +3987,7 @@ exports[`EventViewPage > renders properly for event with classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":rcm:"
+                          id=":rcr:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -4655,6 +4659,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
 <div>
   <h5
     class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
+    style=""
   >
     NOU
     , 
@@ -4665,6 +4670,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
   </h5>
   <div
     class="MuiBox-root css-jbranp"
+    style=""
   >
     <div
       aria-label="event.phase"
@@ -4949,6 +4955,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
   <button
     aria-label="eventManagement.open"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-cwol4f-MuiButtonBase-root-MuiButton-root"
+    style=""
     tabindex="0"
     type="button"
   >
@@ -4971,6 +4978,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
   </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
+    style=""
   >
     <div
       class="MuiTabs-root css-jhczcq-MuiTabs-root"
@@ -5022,7 +5030,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
   </div>
   <div
     role="tabpanel"
-    style="display: flex; flex-direction: column; min-height: 400px; width: 100%;"
+    style="display: flex !important; flex-direction: column; min-height: 400px; width: 100%;"
   >
     <h6
       class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
@@ -8339,7 +8347,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                     aria-rowindex="2"
                     aria-selected="false"
                     class="MuiDataGrid-row MuiDataGrid-row--firstVisible"
-                    data-handler-id="T6"
+                    data-handler-id="T22"
                     data-id="nou-registration"
                     data-rowindex="0"
                     role="row"
@@ -8624,7 +8632,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5c:"
+                          id=":r5e:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -8652,7 +8660,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                     aria-rowindex="3"
                     aria-selected="false"
                     class="MuiDataGrid-row"
-                    data-handler-id="T8"
+                    data-handler-id="T24"
                     data-id="unpaid-nou-registration"
                     data-rowindex="1"
                     role="row"
@@ -8937,7 +8945,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5h:"
+                          id=":r5j:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -8965,7 +8973,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                     aria-rowindex="4"
                     aria-selected="false"
                     class="MuiDataGrid-row"
-                    data-handler-id="T10"
+                    data-handler-id="T26"
                     data-id="unpaid-picked-nou-registration"
                     data-rowindex="2"
                     role="row"
@@ -9250,7 +9258,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5m:"
+                          id=":r5o:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -9278,7 +9286,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                     aria-rowindex="5"
                     aria-selected="false"
                     class="MuiDataGrid-row"
-                    data-handler-id="T12"
+                    data-handler-id="T28"
                     data-id="paid-and-picked-nou-registration"
                     data-rowindex="3"
                     role="row"
@@ -9563,7 +9571,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5r:"
+                          id=":r5t:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -9591,7 +9599,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                     aria-rowindex="6"
                     aria-selected="false"
                     class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
-                    data-handler-id="T14"
+                    data-handler-id="T30"
                     data-id="unpaid-nome-b-alo-registration"
                     data-rowindex="4"
                     role="row"
@@ -9876,7 +9884,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r60:"
+                          id=":r62:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -10497,7 +10505,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                     aria-rowindex="2"
                     aria-selected="false"
                     class="MuiDataGrid-row MuiDataGrid-row--firstVisible MuiDataGrid-row--lastVisible"
-                    data-handler-id="T16"
+                    data-handler-id="T33"
                     data-id="cancelled-registration"
                     data-rowindex="0"
                     role="row"
@@ -10793,7 +10801,7 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r73:"
+                          id=":r75:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -10856,6 +10864,7 @@ exports[`EventViewPage > uses the route event id instead of stale admin event se
 <div>
   <h5
     class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
+    style=""
   >
     NOME-B
     , 
@@ -10866,6 +10875,7 @@ exports[`EventViewPage > uses the route event id instead of stale admin event se
   </h5>
   <div
     class="MuiBox-root css-jbranp"
+    style=""
   >
     <div
       aria-label="event.phase"
@@ -11150,6 +11160,7 @@ exports[`EventViewPage > uses the route event id instead of stale admin event se
   <button
     aria-label="eventManagement.open"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-cwol4f-MuiButtonBase-root-MuiButton-root"
+    style=""
     tabindex="0"
     type="button"
   >
@@ -11172,6 +11183,7 @@ exports[`EventViewPage > uses the route event id instead of stale admin event se
   </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
+    style=""
   >
     <div
       class="MuiTabs-root css-jhczcq-MuiTabs-root"
@@ -11233,7 +11245,7 @@ exports[`EventViewPage > uses the route event id instead of stale admin event se
   </div>
   <div
     role="tabpanel"
-    style="display: flex; flex-direction: column; min-height: 400px; width: 100%;"
+    style="display: flex !important; flex-direction: column; min-height: 400px; width: 100%;"
   >
     <h6
       class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
@@ -14550,7 +14562,7 @@ exports[`EventViewPage > uses the route event id instead of stale admin event se
                     aria-rowindex="2"
                     aria-selected="false"
                     class="MuiDataGrid-row MuiDataGrid-row--firstVisible MuiDataGrid-row--lastVisible"
-                    data-handler-id="T32"
+                    data-handler-id="T64"
                     data-id="nome-b-alo-registration"
                     data-rowindex="0"
                     role="row"
@@ -14835,7 +14847,7 @@ exports[`EventViewPage > uses the route event id instead of stale admin event se
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":rj7:"
+                          id=":rjf:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"

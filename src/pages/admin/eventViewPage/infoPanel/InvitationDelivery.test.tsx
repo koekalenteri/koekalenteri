@@ -2,7 +2,7 @@ import type { UserEvent } from '@testing-library/user-event/dist/types/setup/set
 import type { Registration } from '../../../../types'
 import { screen, waitFor } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import {
   eventWithEntryClosed,
   eventWithEntryOpen,
@@ -19,7 +19,7 @@ import * as eventApi from '../../../../api/event'
 import { APIError } from '../../../../api/http'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/utils'
-import { adminEventsAtom } from '../../recoil'
+import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
 
 const activeEventWithStaticDates = {
@@ -34,9 +34,6 @@ const activeEventWithStaticDatesAndClass = {
 // Mock the API calls
 vi.mock('../../../../api/event')
 vi.mock('../../../../api/user')
-vi.mock('../../recoil/events/effects', () => ({
-  adminRemoteEventsEffect: () => undefined,
-}))
 
 // Mock the notistack enqueueSnackbar
 vi.mock('notistack', () => ({
@@ -63,7 +60,7 @@ describe('InfoPanel>', () => {
 
   it('shows invitation attachments before the send action', async () => {
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -79,7 +76,7 @@ describe('InfoPanel>', () => {
         event={{ ...eventWithParticipantsInvited, endDate: new Date(0) }}
         registrations={registrationsToEventWithParticipantsInvited}
       />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
     await openInfoPanel(user)
 
@@ -115,7 +112,7 @@ describe('InfoPanel>', () => {
       },
     ]
     const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -133,7 +130,7 @@ describe('InfoPanel>', () => {
           reserveNotified: index + 1,
         }))}
       />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
     await openInfoPanel(user)
 
@@ -149,7 +146,7 @@ describe('InfoPanel>', () => {
         event={{ ...eventWithParticipantsInvited, state: 'picked' }}
         registrations={registrationsToEventWithParticipantsInvited}
       />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
     await openInfoPanel(user)
 
@@ -177,7 +174,7 @@ describe('InfoPanel>', () => {
         onOpenMessageDialog={onOpenMessageDialog}
       />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)
@@ -214,7 +211,7 @@ describe('InfoPanel>', () => {
         onOpenMessageDialog={onOpenMessageDialog}
       />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)
@@ -252,7 +249,7 @@ describe('InfoPanel>', () => {
         onSetStartListPublished={onSetStartListPublished}
       />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)
@@ -291,7 +288,7 @@ describe('InfoPanel>', () => {
         onOpenMessageDialog={onOpenMessageDialog}
       />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)
@@ -317,7 +314,7 @@ describe('InfoPanel>', () => {
     )
 
     const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -345,9 +342,7 @@ describe('InfoPanel>', () => {
       })
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [activeEventWithStaticDates])}>
-        {children}
-      </RecoilRoot>
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [activeEventWithStaticDates])}>{children}</Provider>
     )
 
     const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
@@ -385,9 +380,9 @@ describe('InfoPanel>', () => {
       uploadedAt: new Date('2026-07-28T12:00:00.000Z'),
     })
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [activeEventWithStaticDatesAndClass])}>
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [activeEventWithStaticDatesAndClass])}>
         {children}
-      </RecoilRoot>
+      </Provider>
     )
     const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDatesAndClass} registrations={[]} />, {
       wrapper,
@@ -436,7 +431,7 @@ describe('InfoPanel>', () => {
     }
 
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithAttachment} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -471,7 +466,7 @@ describe('InfoPanel>', () => {
             : {}),
         }))}
       />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
     await openInfoPanel(user)
 
@@ -488,7 +483,7 @@ describe('InfoPanel>', () => {
         event={{ ...eventWithStaticDatesAndClass, invitationAttachment: 'common-attachment-key' }}
         registrations={[]}
       />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
     await openInfoPanel(user)
 
@@ -505,7 +500,7 @@ describe('InfoPanel>', () => {
         event={{ ...eventWithParticipantsInvited, invitationAttachment: 'common-attachment-key' }}
         registrations={registrationsToEventWithParticipantsInvited}
       />,
-      { wrapper: RecoilRoot }
+      { wrapper: Provider }
     )
     await openInfoPanel(user)
 

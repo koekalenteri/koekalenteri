@@ -215,10 +215,10 @@ module.exports = function (webpackEnv) {
             priority: 1,
             test: /[\\/]node_modules[\\/]notistack/,
           },
-          recoil: {
-            name: 'recoil',
+          jotai: {
+            name: 'jotai',
             priority: 1,
-            test: /[\\/]node_modules[\\/]recoil/,
+            test: /[\\/]node_modules[\\/]jotai/,
           },
           reactDom: {
             name: 'react-dom',

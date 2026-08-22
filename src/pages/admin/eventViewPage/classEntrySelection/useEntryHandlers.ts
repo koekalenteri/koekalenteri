@@ -1,7 +1,6 @@
 import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEvent } from '@mui/x-data-grid'
 import type React from 'react'
 import type { Dispatch, SetStateAction } from 'react'
-import type { SetterOrUpdater } from 'recoil'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 
@@ -9,7 +8,7 @@ interface UseEntryHandlersArgs {
   setOpen?: Dispatch<SetStateAction<boolean>>
   setCancelOpen?: Dispatch<SetStateAction<boolean>>
   setRefundOpen?: Dispatch<SetStateAction<boolean>>
-  setSelectedRegistrationId?: SetterOrUpdater<string | undefined>
+  setSelectedRegistrationId?: (update: SetStateAction<string | undefined>) => void
   registrations: Array<{ id: string }>
 }
 

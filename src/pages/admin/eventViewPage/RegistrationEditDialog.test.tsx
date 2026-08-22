@@ -6,13 +6,13 @@ import { render, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
 import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
-import { idTokenAtom } from '../../recoil'
+import { idTokenAtom } from '../../state'
 import RegistrationEditDialog from './RegistrationEditDialog'
 
 vi.mock('../../../api/email')
@@ -23,7 +23,7 @@ vi.mock('../../../api/user')
 const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (
     <ThemeProvider theme={theme}>
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+      <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <SnackbarProvider>
             <ConfirmProvider>
@@ -31,7 +31,7 @@ const Wrapper = ({ children }: { readonly children: ReactNode }) => {
             </ConfirmProvider>
           </SnackbarProvider>
         </LocalizationProvider>
-      </RecoilRoot>
+      </Provider>
     </ThemeProvider>
   )
 }

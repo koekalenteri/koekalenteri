@@ -9,27 +9,28 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
+import { useAtom, useAtomValue } from 'jotai'
+import { useResetAtom } from 'jotai/utils'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { hasChanges } from '../../lib/utils'
 import StyledDataGrid from '../components/StyledDataGrid'
 import FullPageFlex from './components/FullPageFlex'
 import { TemplateEditor } from './emailTemplateListPage/TemplateEditor'
 import {
   adminEditableTemplateByIdAtom,
-  adminEmailTemplateSelector,
+  adminEmailTemplateAtom,
   adminEmailTemplatesAtom,
   useAdminEmailTemplatesActions,
-} from './recoil'
+} from './state'
 
 export default function EmailTemplateListPage() {
-  const emailTemplates = useRecoilValue(adminEmailTemplatesAtom)
+  const emailTemplates = useAtomValue(adminEmailTemplatesAtom)
   const [selectedTab, setSelectedTab] = useState<number>(0)
   const [selectedTemplateId, setSelectedTemplateId] = useState<EmailTemplateId>()
-  const storedTemplate = useRecoilValue(adminEmailTemplateSelector(selectedTemplateId))
-  const [template, setTemplate] = useRecoilState(adminEditableTemplateByIdAtom(selectedTemplateId))
-  const resetTemplate = useResetRecoilState(adminEditableTemplateByIdAtom(selectedTemplateId))
+  const storedTemplate = useAtomValue(adminEmailTemplateAtom(selectedTemplateId))
+  const [template, setTemplate] = useAtom(adminEditableTemplateByIdAtom(selectedTemplateId))
+  const resetTemplate = useResetAtom(adminEditableTemplateByIdAtom(selectedTemplateId))
   const [changes, setChanges] = useState<boolean>(hasChanges(storedTemplate, template))
   const actions = useAdminEmailTemplatesActions()
 

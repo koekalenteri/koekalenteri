@@ -4,7 +4,7 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import {
   eventWithEntryClosed,
   eventWithEntryNotYetOpen,
@@ -12,10 +12,10 @@ import {
   eventWithParticipantsInvited,
 } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
-import { flushPromises, RecoilObserver, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
-import { idTokenAtom } from '../recoil'
+import { AtomObserver, flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { idTokenAtom } from '../state'
 import EventListPage, { canViewEvent, getEventDoubleClickPath } from './EventListPage'
-import { adminEventIdAtom } from './recoil'
+import { adminEventIdAtom } from './state'
 
 vi.mock('../../api/event')
 vi.mock('../../api/judge')
@@ -32,8 +32,8 @@ describe('EventListPage', () => {
     const onChange = vi.fn()
     const { container, user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
-          <RecoilObserver node={adminEventIdAtom} onChange={onChange} />
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <AtomObserver node={adminEventIdAtom} onChange={onChange} />
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
@@ -43,7 +43,7 @@ describe('EventListPage', () => {
               </SnackbarProvider>
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>,
       undefined,
       { advanceTimers: vi.advanceTimersByTime }

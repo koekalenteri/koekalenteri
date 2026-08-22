@@ -19,7 +19,7 @@ import { GROUP_KEY_RESERVE } from '../../../lib/registration'
 import { isObject } from '../../../lib/utils'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
-import { useAdminRegistrationActions } from '../recoil/registrations/actions'
+import { useAdminRegistrationActions } from '../state/registrations/actions'
 import { RefundFooter } from './refundDialog/RefundFooter'
 import { useRefundColumns } from './refundDialog/useRefundColumns'
 

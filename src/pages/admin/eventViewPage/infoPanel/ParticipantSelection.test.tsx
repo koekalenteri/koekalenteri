@@ -1,7 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Registration } from '../../../../types'
 import { screen } from '@testing-library/react'
-import { RecoilRoot } from 'recoil'
+import { Provider } from 'jotai'
 import {
   eventWithEntryClosed,
   eventWithEntryOpen,
@@ -30,9 +30,6 @@ const _activeEventWithStaticDatesAndClass = {
 // Mock the API calls
 vi.mock('../../../../api/event')
 vi.mock('../../../../api/user')
-vi.mock('../../recoil/events/effects', () => ({
-  adminRemoteEventsEffect: () => undefined,
-}))
 
 // Mock the notistack enqueueSnackbar
 vi.mock('notistack', () => ({
@@ -59,7 +56,7 @@ describe('InfoPanel>', () => {
 
   it('collapses when clicking outside the drawer', async () => {
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -81,7 +78,7 @@ describe('InfoPanel>', () => {
     const { user } = renderWithUserEvents(
       <InfoPanel event={eventWithEntryClosed} registrations={emptyRegistrations} />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)
@@ -106,7 +103,7 @@ describe('InfoPanel>', () => {
     const { user } = renderWithUserEvents(
       <InfoPanel event={eventWithEntryClosed} registrations={unconfirmedRegistrations} />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)
@@ -137,7 +134,7 @@ describe('InfoPanel>', () => {
       },
     ]
     const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -162,7 +159,7 @@ describe('InfoPanel>', () => {
       },
     ]
     const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -179,7 +176,7 @@ describe('InfoPanel>', () => {
     }
     const registrations = [registrationsToEventWithEntryClosed[0]]
     const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: RecoilRoot,
+      wrapper: Provider,
     })
     await openInfoPanel(user)
 
@@ -206,7 +203,7 @@ describe('InfoPanel>', () => {
         }))}
       />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)
@@ -231,7 +228,7 @@ describe('InfoPanel>', () => {
         }))}
       />,
       {
-        wrapper: RecoilRoot,
+        wrapper: Provider,
       }
     )
     await openInfoPanel(user)

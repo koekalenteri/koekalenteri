@@ -1,17 +1,17 @@
 import Box from '@mui/material/Box'
+import { useAtomValue } from 'jotai'
 import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
-import { useRecoilValue } from 'recoil'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import { useAdminSubscription } from '../../hooks/useAdminSubscription'
 import Header from '../components/Header'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { SideMenu } from '../components/SideMenu'
-import { hasAdminAccessSelector, useUserActions } from '../recoil'
+import { hasAdminAccessAtom, useUserActions } from '../state'
 
 export default function AdminHomePage() {
   const actions = useUserActions()
-  const hasAccess = useRecoilValue(hasAdminAccessSelector)
+  const hasAccess = useAtomValue(hasAdminAccessAtom)
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
 

@@ -5,16 +5,16 @@ import { styled } from '@mui/material'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { t } from 'i18next'
+import { useAtomValue } from 'jotai'
 import { useCallback } from 'react'
-import { useRecoilValue } from 'recoil'
-import { isAdminSelector } from '../../../recoil'
-import { useAdminJudgesActions } from '../../recoil'
+import { isAdminAtom } from '../../../state'
+import { useAdminJudgesActions } from '../../state'
 
 const LangToggle = styled(ToggleButton)({ paddingBottom: 1, paddingTop: 1 })
 
 const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
   const actions = useAdminJudgesActions()
-  const isAdmin = useRecoilValue(isAdminSelector)
+  const isAdmin = useAtomValue(isAdminAtom)
 
   const changeLanguges = useCallback(
     (_event: React.MouseEvent<HTMLElement, MouseEvent>, languages: string[]) => {

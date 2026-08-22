@@ -1,14 +1,14 @@
 import type { RenderOptions, RenderResult } from '@testing-library/react'
 import type { Options } from '@testing-library/user-event/dist/types/options'
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
+import type { Atom } from 'jotai'
 import type { RouteObject, RouterInit } from 'react-router'
-import type { RecoilValue } from 'recoil'
 import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import mediaQuery from 'css-mediaquery'
+import { useAtomValue } from 'jotai'
 import { act, useEffect } from 'react'
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router'
-import { useRecoilValue } from 'recoil'
 
 export const TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature'
 
@@ -65,14 +65,8 @@ export const createMatchMedia =
     removeListener: vi.fn(), // deprecated
   })
 
-export function RecoilObserver<T>({
-  node,
-  onChange,
-}: {
-  readonly node: RecoilValue<T>
-  readonly onChange: (value: T) => void
-}) {
-  const value = useRecoilValue(node)
+export function AtomObserver<T>({ node, onChange }: { readonly node: Atom<T>; readonly onChange: (value: T) => void }) {
+  const value = useAtomValue(node)
   useEffect(() => onChange(value), [onChange, value])
   return null
 }

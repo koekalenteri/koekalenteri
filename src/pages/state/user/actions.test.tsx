@@ -1,0 +1,166 @@
+import type React from 'react'
+import { act, renderHook } from '@testing-library/react'
+import * as auth from 'aws-amplify/auth'
+import { useAtomValue } from 'jotai'
+import { SnackbarProvider } from 'notistack'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import * as userAPI from '../../../api/user'
+import { Path } from '../../../routeConfig'
+import { TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { useUserActions } from './actions'
+import { idTokenAtom } from './atoms'
+
+const NEW_TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.updated-signature'
+const FAILED_USER_TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.failed-user-signature'
+
+vi.mock('aws-amplify/auth', () => ({
+  fetchAuthSession: async () => ({ tokens: { idToken: { toString: () => 'id-token' } } }),
+  signOut: vi.fn(),
+}))
+
+function wrapper({ children }: { readonly children: React.ReactNode }) {
+  return (
+    <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+      <SnackbarProvider>
+        <MemoryRouter initialEntries={['/current-page']}>
+          <Routes>
+            <Route path="/" element={children} />
+            <Route path="/current-page" element={children} />
+          </Routes>
+        </MemoryRouter>
+      </SnackbarProvider>
+    </Provider>
+  )
+}
+
+describe('useUserActions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    sessionStorage.clear()
+    localStorage.clear()
+    sessionStorage.setItem('loginPath', JSON.stringify('/current-page'))
+    ;(auth.signOut as import('vitest').Mock).mockResolvedValue(undefined)
+  })
+
+  afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 20))
+  })
+
+  it('clears the local session immediately while aws sign out completes', async () => {
+    let resolveSignOut: (() => void) | undefined
+    ;(auth.signOut as import('vitest').Mock).mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSignOut = resolve
+        })
+    )
+
+    const { result } = renderHook(() => ({ actions: useUserActions(), token: useAtomValue(idTokenAtom) }), {
+      wrapper,
+    })
+
+    let signOutPromise: Promise<void> | undefined
+
+    await act(async () => {
+      signOutPromise = result.current.actions.signOut(false)
+    })
+
+    expect(result.current.token).toBeUndefined()
+    expect(sessionStorage.getItem('loginPath')).toBeNull()
+
+    await act(async () => {
+      resolveSignOut?.()
+    })
+
+    await signOutPromise
+
+    expect(result.current.token).toBeUndefined()
+    expect(auth.signOut).toHaveBeenCalledTimes(1)
+  })
+
+  it('navigates to home after sign out completes', async () => {
+    const { result } = renderHook(() => ({ actions: useUserActions(), token: useAtomValue(idTokenAtom) }), {
+      wrapper,
+    })
+
+    await act(async () => {
+      await result.current.actions.signOut(false)
+    })
+
+    expect(result.current.token).toBeUndefined()
+  })
+
+  it('loads the signed-in user with the new token instead of the callback snapshot token', async () => {
+    const getUserSpy = vi.spyOn(userAPI, 'getUser').mockResolvedValue({
+      admin: false,
+      email: 'new@example.com',
+      id: 'user-1',
+      name: 'New User',
+      roles: {},
+    })
+
+    const { result } = renderHook(() => ({ actions: useUserActions(), token: useAtomValue(idTokenAtom) }), {
+      wrapper,
+    })
+
+    await act(async () => {
+      await result.current.actions.signIn(NEW_TEST_ID_TOKEN)
+    })
+
+    expect(result.current.token).toBe(NEW_TEST_ID_TOKEN)
+    expect(getUserSpy).toHaveBeenCalledWith(NEW_TEST_ID_TOKEN, undefined, 0)
+    expect(getUserSpy).not.toHaveBeenCalledWith(TEST_ID_TOKEN, expect.anything(), expect.anything())
+  })
+
+  it('does not navigate back to the login page after sign in', async () => {
+    vi.spyOn(userAPI, 'getUser').mockResolvedValue({
+      admin: false,
+      email: 'new@example.com',
+      id: 'user-1',
+      name: 'New User',
+      roles: {},
+    })
+    sessionStorage.setItem('loginPath', JSON.stringify(Path.login))
+
+    const { result } = renderHook(
+      () => ({ actions: useUserActions(), location: useLocation(), token: useAtomValue(idTokenAtom) }),
+      { wrapper }
+    )
+
+    await act(async () => {
+      await result.current.actions.signIn(NEW_TEST_ID_TOKEN)
+    })
+
+    expect(result.current.location.pathname).toBe(Path.home)
+    expect(sessionStorage.getItem('loginPath')).toBeNull()
+  })
+
+  it('navigates away from login even when loading the user fails', async () => {
+    const error = new Error('user lookup failed')
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.spyOn(userAPI, 'getUser').mockRejectedValueOnce(error)
+    sessionStorage.setItem('loginPath', JSON.stringify(Path.login))
+
+    const { result } = renderHook(
+      () => ({ actions: useUserActions(), location: useLocation(), token: useAtomValue(idTokenAtom) }),
+      { wrapper }
+    )
+
+    await act(async () => {
+      await result.current.actions.signIn(FAILED_USER_TEST_ID_TOKEN)
+    })
+
+    expect(result.current.location.pathname).toBe(Path.home)
+    expect(sessionStorage.getItem('loginPath')).toBeNull()
+    expect(consoleWarn).toHaveBeenCalledWith(
+      'auth: /user request failed',
+      expect.objectContaining({ error, refresh: 0 })
+    )
+    expect(consoleError).toHaveBeenCalledWith('reportError', error)
+
+    consoleWarn.mockRestore()
+    consoleError.mockRestore()
+  })
+})

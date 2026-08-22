@@ -6,9 +6,9 @@ import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
+import { useAtom, useAtomValue } from 'jotai'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router'
-import { useRecoilState, useRecoilValue } from 'recoil'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
@@ -28,14 +28,14 @@ import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
 import {
   adminBackgroundActionsRunningAtom,
-  adminConfirmedEventSelector,
+  adminConfirmedEventAtom,
   adminEventClassAtom,
   adminEventIdAtom,
-  adminEventRegistrationsSelector,
+  adminProjectedEventRegistrationsAtom,
   adminRegistrationIdAtom,
   useAdminEventActions,
-} from './recoil'
-import { useAdminRegistrationActions } from './recoil/registrations/actions'
+} from './state'
+import { useAdminRegistrationActions } from './state/registrations/actions'
 
 export default function EventViewPage() {
   const [open, setOpen] = useState(false)
@@ -48,14 +48,14 @@ export default function EventViewPage() {
   const params = useParams()
   const eventId = params.id ?? ''
   const { viewers } = useEventSubscription(eventId)
-  const [, setSelectedEventId] = useRecoilState(adminEventIdAtom)
-  const event = useRecoilValue(adminConfirmedEventSelector(eventId))
+  const [, setSelectedEventId] = useAtom(adminEventIdAtom)
+  const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const actions = useAdminRegistrationActions(eventId)
   const eventActions = useAdminEventActions()
 
-  const [selectedEventClass, setSelectedEventClass] = useRecoilState(adminEventClassAtom)
-  const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
-  const allRegistrations = useRecoilValue(adminEventRegistrationsSelector(eventId))
+  const [selectedEventClass, setSelectedEventClass] = useAtom(adminEventClassAtom)
+  const [selectedRegistrationId, setSelectedRegistrationId] = useAtom(adminRegistrationIdAtom)
+  const allRegistrations = useAtomValue(adminProjectedEventRegistrationsAtom(eventId))
   const selectedRegistration = useMemo(
     () => selectedRegistrationId && allRegistrations.find((r) => r.id === selectedRegistrationId),
     [allRegistrations, selectedRegistrationId]
@@ -68,7 +68,7 @@ export default function EventViewPage() {
     () => (selectedEventClass && allClasses.includes(selectedEventClass) ? selectedEventClass : allClasses[0]),
     [allClasses, selectedEventClass]
   )
-  const backgroundActionsRunning = useRecoilValue(adminBackgroundActionsRunningAtom)
+  const backgroundActionsRunning = useAtomValue(adminBackgroundActionsRunningAtom)
 
   const activeTab = useMemo(() => Math.max(allClasses.indexOf(currentEventClass), 0), [allClasses, currentEventClass])
 

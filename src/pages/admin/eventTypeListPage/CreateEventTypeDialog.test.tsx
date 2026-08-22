@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react'
-import { RecoilRoot } from 'recoil'
-import { adminEventTypesAtom } from '../recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { adminEventTypesAtom } from '../state'
 import { CreateEventTypeDialog } from './CreateEventTypeDialog'
 
-vi.mock('../recoil', async () => {
-  const { atom } = await vi.importActual<typeof import('recoil')>('recoil')
-  const actual = await vi.importActual<typeof import('../recoil')>('../recoil')
+vi.mock('../state', async () => {
+  const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
+  const actual = await vi.importActual<typeof import('../state')>('../state')
   return {
     ...actual,
-    adminEventTypesAtom: atom({ default: [], key: 'adminEventTypesAtomTest' }),
+    adminEventTypesAtom: atom([]),
     useAdminEventTypeActions: () => ({
       save: vi.fn().mockResolvedValue(undefined),
     }),
@@ -18,9 +18,9 @@ vi.mock('../recoil', async () => {
 describe('CreateEventTypeDialog', () => {
   it('renders translated save and cancel button labels', () => {
     render(
-      <RecoilRoot initializeState={({ set }) => set(adminEventTypesAtom, [])}>
+      <Provider initializeState={({ set }) => set(adminEventTypesAtom, [])}>
         <CreateEventTypeDialog open onClose={vi.fn()} />
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(screen.getByRole('button', { name: 'save' })).toBeInTheDocument()

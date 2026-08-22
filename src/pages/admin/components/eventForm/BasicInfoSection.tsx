@@ -19,10 +19,10 @@ import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
+import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import { normalizeEventKcIdChoice, searchEventKcIdChoices } from '../../../../api/event'
 import { zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../../i18n/dates'
 import {
@@ -35,7 +35,7 @@ import {
 import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
-import { idTokenAtom } from '../../../recoil'
+import { idTokenAtom } from '../../../state'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
 import KcIdChoiceDialog from './KcIdChoiceDialog'
@@ -72,7 +72,7 @@ export default function BasicInfoSection({
   selectedEventType,
 }: Props) {
   const { t } = useTranslation()
-  const token = useRecoilValue(idTokenAtom)
+  const token = useAtomValue(idTokenAtom)
   const [kcIdRefreshing, setKcIdRefreshing] = useState(false)
   const [kcIdChoices, setKcIdChoices] = useState<EventKcIdChoice[]>([])
   const typeOptions = eventClassOptions(event, getTypeClasses(event.eventType, eventTypeClasses))

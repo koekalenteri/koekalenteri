@@ -1,12 +1,13 @@
 import type { AuditRecord, DogEvent } from '../../../types'
+import { useAtom, useAtomValue } from 'jotai'
+import { useResetAtom } from 'jotai/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { getRegistrationAuditTrail } from '../../../api/registration'
 import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
 import { getChanges, isEmptyObject } from '../../../lib/utils'
-import { validIdTokenSelector } from '../../recoil'
-import { adminEditableEventRegistrationByEventIdAndIdAtom, adminEventRegistrationSelector } from '../recoil'
+import { validIdTokenAtom } from '../../state'
+import { adminEditableEventRegistrationByEventIdAndIdAtom, adminEventRegistrationAtom } from '../state'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
@@ -17,11 +18,11 @@ interface Props {
 }
 
 export default function RegistrationEditDialog({ event, registrationId, open, onClose }: Props) {
-  const savedRegistration = useRecoilValue(adminEventRegistrationSelector({ eventId: event.id, id: registrationId }))
+  const savedRegistration = useAtomValue(adminEventRegistrationAtom({ eventId: event.id, id: registrationId }))
   const key = { eventId: event.id, id: registrationId }
-  const [registration, setRegistration] = useRecoilState(adminEditableEventRegistrationByEventIdAndIdAtom(key))
-  const resetRegistration = useResetRecoilState(adminEditableEventRegistrationByEventIdAndIdAtom(key))
-  const token = useRecoilValue(validIdTokenSelector)
+  const [registration, setRegistration] = useAtom(adminEditableEventRegistrationByEventIdAndIdAtom(key))
+  const resetRegistration = useResetAtom(adminEditableEventRegistrationByEventIdAndIdAtom(key))
+  const token = useAtomValue(validIdTokenAtom)
   const initialRegistration = useRef(savedRegistration)
   if (!open) initialRegistration.current = savedRegistration
   if (!initialRegistration.current && savedRegistration) initialRegistration.current = savedRegistration

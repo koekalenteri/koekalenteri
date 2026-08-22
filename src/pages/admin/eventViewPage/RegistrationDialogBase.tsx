@@ -1,4 +1,4 @@
-import type { Resetter, SetterOrUpdater } from 'recoil'
+import type { SetStateAction } from 'jotai'
 import type { AuditRecord, ConfirmedEvent, DogEvent, Registration } from '../../../types'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
@@ -12,7 +12,7 @@ import { hasChanges } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import RegistrationForm from '../../components/RegistrationForm'
 import { AuditTrail } from '../components/AuditTrail'
-import { useAdminRegistrationActions } from '../recoil/registrations/actions'
+import { useAdminRegistrationActions } from '../state/registrations/actions'
 
 interface Props {
   readonly auditTrail?: AuditRecord[]
@@ -24,8 +24,8 @@ interface Props {
   readonly registration?: Registration
   readonly savedRegistration?: Registration
   readonly patchBase?: Registration
-  readonly resetRegistration: Resetter
-  readonly setRegistration: SetterOrUpdater<Registration | undefined>
+  readonly resetRegistration: () => void
+  readonly setRegistration: (update: SetStateAction<Registration | undefined>) => void
 }
 
 export default function RegistrationDialogBase({

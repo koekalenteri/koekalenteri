@@ -1,10 +1,10 @@
 import { render, waitFor } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getUser } from '../../api/user'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
-import { idTokenAtom } from '../recoil'
+import { idTokenAtom } from '../state'
 import Header from './Header'
 
 const mockSignOut = vi.fn()
@@ -13,7 +13,7 @@ vi.mock('../../api/user', () => ({
   getUser: vi.fn(),
 }))
 
-vi.mock('../recoil/user/actions', () => ({
+vi.mock('../state/user/actions', () => ({
   useUserActions: () => ({
     signOut: mockSignOut,
   }),
@@ -32,13 +32,13 @@ describe('Header', () => {
 
     try {
       render(
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={null}>
               <Header />
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       )
 
       await waitFor(() => expect(getUser).toHaveBeenCalledWith(TEST_ID_TOKEN, undefined, 0))

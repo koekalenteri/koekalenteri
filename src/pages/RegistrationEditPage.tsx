@@ -1,9 +1,10 @@
 import type { Registration } from '../types'
 import Typography from '@mui/material/Typography'
+import { useAtom, useAtomValue } from 'jotai'
+import { useResetAtom } from 'jotai/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { isEntryClosed, isEventOngoing, isEventOver } from '../lib/event'
 import { getRegistrationClass } from '../lib/registration'
 import { hasChanges } from '../lib/utils'
@@ -11,8 +12,8 @@ import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
 import { LoadingPage } from './LoadingPage'
-import { editableRegistrationByIdsAtom, registrationByIdsAtom, spaAtom, useConfirmedEvent } from './recoil'
-import { useRegistrationActions } from './recoil/registration/actions'
+import { editableRegistrationByIdsAtom, registrationByIdsAtom, spaAtom, useConfirmedEvent } from './state'
+import { useRegistrationActions } from './state/registration/actions'
 
 export default function RegistrationEditPage() {
   const { t } = useTranslation()
@@ -20,10 +21,10 @@ export default function RegistrationEditPage() {
   const params = useParams()
   const event = useConfirmedEvent(params.id)
   const ids = `${params.id ?? ''}:${params.registrationId ?? ''}:${params.editToken ?? ''}`
-  const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdsAtom(ids))
-  const [registration, setRegistration] = useRecoilState(editableRegistrationByIdsAtom(ids))
-  const resetRegistration = useResetRecoilState(editableRegistrationByIdsAtom(ids))
-  const spa = useRecoilValue(spaAtom)
+  const [savedRegistration, setSavedRegistration] = useAtom(registrationByIdsAtom(ids))
+  const [registration, setRegistration] = useAtom(editableRegistrationByIdsAtom(ids))
+  const resetRegistration = useResetAtom(editableRegistrationByIdsAtom(ids))
+  const spa = useAtomValue(spaAtom)
   const actions = useRegistrationActions()
   const disabled =
     !event || isEntryClosed(event) || isEventOngoing(event) || isEventOver(event) || savedRegistration?.cancelled

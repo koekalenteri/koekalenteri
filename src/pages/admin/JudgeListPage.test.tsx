@@ -3,10 +3,10 @@ import { screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
 import { flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
-import { idTokenAtom } from '../recoil'
+import { idTokenAtom } from '../state'
 import JudgeListPage from './JudgeListPage'
 
 vi.mock('../../api/judge')
@@ -20,7 +20,7 @@ describe('JudgeListPage', () => {
   it('renders', async () => {
     const { container, user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
@@ -28,7 +28,7 @@ describe('JudgeListPage', () => {
               </SnackbarProvider>
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>,
       undefined,
       { advanceTimers: vi.advanceTimersByTime }

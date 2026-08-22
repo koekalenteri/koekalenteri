@@ -7,7 +7,7 @@ import { coalesceRequest } from './coalesceRequest'
 let requestSequence = 0
 
 /**
- * Coalesces only concurrent /user requests. Recoil remains responsible for
+ * Coalesces only concurrent /user requests. State remains responsible for
  * longer-lived response caching and invalidation.
  */
 export const getCurrentUser = (token: string, refresh: number): Promise<User> =>

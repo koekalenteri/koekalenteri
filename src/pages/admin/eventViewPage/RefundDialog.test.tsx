@@ -4,10 +4,10 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider, useSnackbar } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import { APIError } from '../../../api/http'
 import theme from '../../../assets/Theme'
@@ -16,7 +16,7 @@ import { flushPromises } from '../../../test-utils/utils'
 import { RefundDailog as RefundDialog } from './RefundDialog'
 
 // Mock the useAdminRegistrationActions hook
-vi.mock('../recoil/registrations/actions', async () => ({
+vi.mock('../state/registrations/actions', async () => ({
   useAdminRegistrationActions: () => ({
     putInternalNotes: vi.fn().mockResolvedValue({}),
     refund: vi.fn().mockImplementation(mockRefundImplementation),
@@ -72,7 +72,7 @@ let mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
 const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (
     <ThemeProvider theme={theme}>
-      <RecoilRoot>
+      <Provider>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <SnackbarProvider>
             <ConfirmProvider>
@@ -80,7 +80,7 @@ const Wrapper = ({ children }: { readonly children: ReactNode }) => {
             </ConfirmProvider>
           </SnackbarProvider>
         </LocalizationProvider>
-      </RecoilRoot>
+      </Provider>
     </ThemeProvider>
   )
 }

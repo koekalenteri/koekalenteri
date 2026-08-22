@@ -1,22 +1,22 @@
 import type { PublicRegistration } from '../../types/Registration'
 import Box from '@mui/material/Box'
+import { useAtomValue } from 'jotai'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { useRecoilValue } from 'recoil'
 import { getStartListPreview } from '../../api/registration'
 import LoadingIndicator from '../components/LoadingIndicator'
-import { hasAdminAccessSelector, useConfirmedEvent, useUserActions, validIdTokenSelector } from '../recoil'
 import { EventHeader } from '../startListPage/EventHeader'
 import { ParticipantList } from '../startListPage/ParticipantList'
+import { hasAdminAccessAtom, useConfirmedEvent, useUserActions, validIdTokenAtom } from '../state'
 
 export default function StartListPreviewPage() {
   const { t } = useTranslation()
   const { id = '' } = useParams()
   const actions = useUserActions()
   const event = useConfirmedEvent(id)
-  const hasAccess = useRecoilValue(hasAdminAccessSelector)
-  const token = useRecoilValue(validIdTokenSelector)
+  const hasAccess = useAtomValue(hasAdminAccessAtom)
+  const token = useAtomValue(validIdTokenAtom)
   const [error, setError] = useState<unknown>()
   const [participants, setParticipants] = useState<PublicRegistration[]>()
 

@@ -5,34 +5,34 @@ import EditOutlined from '@mui/icons-material/EditOutlined'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
+import { useAtom, useAtomValue } from 'jotai'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilState, useRecoilValue } from 'recoil'
 import { localeSortComparator } from '../../lib/datagrid'
 import StyledDataGrid from '../components/StyledDataGrid'
-import { isAdminSelector } from '../recoil'
+import { isAdminAtom } from '../state'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import { EditOrganizerDialog } from './organizerListPage/EditOrganizerDialog'
 import {
-  adminCurrentOrganizerSelector,
-  adminFilteredOrganizersSelector,
+  adminCurrentOrganizerAtom,
+  adminFilteredOrganizersAtom,
   adminOrganizerColumnsAtom,
   adminOrganizerFilterAtom,
   adminOrganizerIdAtom,
   adminShowOnlyOrganizersWithUsersAtom,
   useAdminOrganizersActions,
-} from './recoil'
+} from './state'
 
 export default function OrganizerListPage() {
-  const [searchText, setSearchText] = useRecoilState(adminOrganizerFilterAtom)
-  const [selectedID, setSelectedID] = useRecoilState(adminOrganizerIdAtom)
-  const [visibilityModel, setVisibilityModel] = useRecoilState(adminOrganizerColumnsAtom)
-  const [showWithUsers, setShowWithUsers] = useRecoilState(adminShowOnlyOrganizersWithUsersAtom)
-  const organizers = useRecoilValue(adminFilteredOrganizersSelector)
-  const isAdmin = useRecoilValue(isAdminSelector)
-  const selectedOrganizer = useRecoilValue(adminCurrentOrganizerSelector)
+  const [searchText, setSearchText] = useAtom(adminOrganizerFilterAtom)
+  const [selectedID, setSelectedID] = useAtom(adminOrganizerIdAtom)
+  const [visibilityModel, setVisibilityModel] = useAtom(adminOrganizerColumnsAtom)
+  const [showWithUsers, setShowWithUsers] = useAtom(adminShowOnlyOrganizersWithUsersAtom)
+  const organizers = useAtomValue(adminFilteredOrganizersAtom)
+  const isAdmin = useAtomValue(isAdminAtom)
+  const selectedOrganizer = useAtomValue(adminCurrentOrganizerAtom)
   const actions = useAdminOrganizersActions()
   const [editOpen, setEditOpen] = useState(false)
 

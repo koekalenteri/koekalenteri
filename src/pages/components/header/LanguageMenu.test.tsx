@@ -1,12 +1,12 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { RecoilRoot } from 'recoil'
+import { Provider } from 'jotai'
 import LanguageMenu from './LanguageMenu'
 
 test('It should render the button', () => {
   render(
-    <RecoilRoot>
+    <Provider>
       <LanguageMenu />
-    </RecoilRoot>
+    </Provider>
   )
   expect(screen.getByTestId('LanguageIcon')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'languageMenu' })).toHaveAttribute('data-navigation-button')
@@ -14,9 +14,9 @@ test('It should render the button', () => {
 
 test('It should render the menu', () => {
   render(
-    <RecoilRoot>
+    <Provider>
       <LanguageMenu />
-    </RecoilRoot>
+    </Provider>
   )
 
   fireEvent.click(screen.getByTestId('LanguageIcon'))
@@ -29,9 +29,9 @@ test('It should render the menu', () => {
 
 test('It should change the language', () => {
   render(
-    <RecoilRoot>
+    <Provider>
       <LanguageMenu />
-    </RecoilRoot>
+    </Provider>
   )
 
   expect(localStorage.getItem('i18nextLng')).toBeNull() // toEqual('fi')

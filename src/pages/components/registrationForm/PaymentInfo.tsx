@@ -5,9 +5,9 @@ import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
+import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import {
   getCostSegmentName,
   getCostValue,
@@ -18,7 +18,7 @@ import {
 import { formatMoney } from '../../../lib/money'
 import { isMember } from '../../../lib/registration'
 import { isMinimalRegistrationForCost } from '../../../lib/typeGuards'
-import { languageAtom } from '../../recoil'
+import { languageAtom } from '../../state'
 import CollapsibleSection from '../CollapsibleSection'
 
 interface Props {
@@ -31,7 +31,7 @@ interface Props {
 
 const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) => {
   const { t } = useTranslation()
-  const language = useRecoilValue(languageAtom)
+  const language = useAtomValue(languageAtom)
   const appliedCost = cost.cost ?? event.cost
 
   const handleCostChange = (event: React.ChangeEvent<HTMLInputElement>) => {

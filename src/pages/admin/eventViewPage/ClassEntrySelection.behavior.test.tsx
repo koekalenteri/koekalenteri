@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
 import type { Registration, RegistrationDate } from '../../../types'
 import { act, render, screen } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
 import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../lib/registration'
@@ -32,7 +32,7 @@ vi.mock('../../../hooks/useAdminEventRegistrationGroups', () => ({
   useAdminEventRegistrationGroups: () => mockedGroups,
 }))
 
-vi.mock('../recoil/registrations/actions', () => ({
+vi.mock('../state/registrations/actions', () => ({
   useAdminRegistrationActions: () => ({
     saveGroups: mockSaveGroups,
   }),
@@ -106,13 +106,13 @@ vi.mock('./SendMessageDialog', () => ({
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
-    <RecoilRoot>
+    <Provider>
       <SnackbarProvider>
         <ConfirmProvider>
           <Suspense fallback={<>loading...</>}>{props.children}</Suspense>
         </ConfirmProvider>
       </SnackbarProvider>
-    </RecoilRoot>
+    </Provider>
   )
 }
 

@@ -1,34 +1,37 @@
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
-import { useRecoilState, useRecoilValue, useSetRecoilState, waitForAll } from 'recoil'
+import { EventFilter } from './searchPage/EventFilter'
+import { EventList } from './searchPage/EventList'
 import {
   DateHandler,
   deserializeFilter,
   eventFilterAtom,
   eventsLoadingAtom,
-  filterEventClassesSelector,
-  filterEventTypesSelector,
-  filteredEventsSelector,
-  filterJudgesSelector,
-  filterOrganizersSelector,
+  filterEventClassesAtom,
+  filterEventTypesAtom,
+  filteredEventsAtom,
+  filterJudgesAtom,
+  filterOrganizersAtom,
   spaAtom,
-} from './recoil'
-import { EventFilter } from './searchPage/EventFilter'
-import { EventList } from './searchPage/EventList'
+} from './state'
+
+const searchResultsAtom = atom(
+  (get) =>
+    [
+      get(filterOrganizersAtom),
+      get(filterJudgesAtom),
+      get(filterEventTypesAtom),
+      get(filterEventClassesAtom),
+      get(filteredEventsAtom),
+    ] as const
+)
 
 export function SearchPage() {
-  const [filter, setFilter] = useRecoilState(eventFilterAtom)
-  const setSpa = useSetRecoilState(spaAtom)
-  const [organizers, activeJudges, activeEventTypes, activeEventClasses, events] = useRecoilValue(
-    waitForAll([
-      filterOrganizersSelector,
-      filterJudgesSelector,
-      filterEventTypesSelector,
-      filterEventClassesSelector,
-      filteredEventsSelector,
-    ])
-  )
-  const loading = useRecoilValue(eventsLoadingAtom)
+  const [filter, setFilter] = useAtom(eventFilterAtom)
+  const setSpa = useSetAtom(spaAtom)
+  const [organizers, activeJudges, activeEventTypes, activeEventClasses, events] = useAtomValue(searchResultsAtom)
+  const loading = useAtomValue(eventsLoadingAtom)
   const location = useLocation()
 
   useEffect(() => setSpa(true), [setSpa])

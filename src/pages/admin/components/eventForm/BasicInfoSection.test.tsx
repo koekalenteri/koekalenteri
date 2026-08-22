@@ -6,13 +6,13 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen, waitFor } from '@testing-library/react'
 import { add, format } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import * as eventApi from '../../../../api/event'
 import { locales } from '../../../../i18n'
 import { TIME_ZONE, zonedDateString } from '../../../../i18n/dates'
 import { defaultEntryEndDate, defaultEntryStartDate, newEventStartDate } from '../../../../lib/event'
 import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
-import { idTokenAtom } from '../../../recoil'
+import { idTokenAtom } from '../../../state'
 import BasicInfoSection from './BasicInfoSection'
 
 vi.mock('notistack', () => ({
@@ -22,9 +22,9 @@ vi.mock('notistack', () => ({
 const renderComponent = (props: Props) => {
   const res = renderWithUserEvents(
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+      <Provider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
         <BasicInfoSection {...props} />
-      </RecoilRoot>
+      </Provider>
     </LocalizationProvider>,
     undefined
   )
@@ -267,9 +267,9 @@ describe('BasicInfoSection', () => {
 
       rerender(
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+          <Provider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
             <BasicInfoSection {...{ event: { ...testEvent, kcId: null }, onChange: changeHandler, open: true }} />
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       )
 

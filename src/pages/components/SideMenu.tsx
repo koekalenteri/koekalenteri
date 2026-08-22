@@ -12,15 +12,15 @@ import Support from '@mui/icons-material/Support'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
+import { useAtomValue } from 'jotai'
 import { useSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import { runMigrations } from '../../api/migrate'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { isAdminSelector, validIdTokenSelector } from '../recoil'
-import { useUserActions } from '../recoil/user/actions'
+import { isAdminAtom, validIdTokenAtom } from '../state'
+import { useUserActions } from '../state/user/actions'
 import DrawerItem from './sideMenu/DrawerItem'
 import DrawerList from './sideMenu/DrawerList'
 import MiniDrawer from './sideMenu/MiniDrawer'
@@ -38,8 +38,8 @@ export function SideMenu({ open, onClose }: Props) {
   const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'))
   const { t } = useTranslation()
   const actions = useUserActions()
-  const isAdmin = useRecoilValue(isAdminSelector)
-  const token = useRecoilValue(validIdTokenSelector)
+  const isAdmin = useAtomValue(isAdminAtom)
+  const token = useAtomValue(validIdTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
 
   const handleRunMigrations = useCallback(async () => {

@@ -12,27 +12,27 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import { styled } from '@mui/material/styles'
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
+import { useAtom, useAtomValue } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilState, useRecoilValue } from 'recoil'
 import { localeSortComparator } from '../../lib/datagrid'
 import { scoreUser } from '../../lib/user'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
-import { isOrgAdminSelector, userSelector } from '../recoil'
+import { isOrgAdminAtom, userAtom } from '../state'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import {
-  adminCurrentUserSelector,
-  adminFilteredUsersSelector,
+  adminCurrentUserAtom,
+  adminFilteredUsersAtom,
   adminUserFilterAtom,
   adminUserIdAtom,
   adminUsersColumnsAtom,
   adminUsersOrganizerIdAtom,
-  adminUsersOrganizersSelector,
+  adminUsersOrganizersAtom,
   useAdminUserActions,
-} from './recoil'
+} from './state'
 import { CreateUserDialog } from './usersPage/CreateUserDialog'
 import { EditUserRolesDialog } from './usersPage/EditUserRolesDialog'
 
@@ -73,7 +73,7 @@ const RoleIcon = ({ admin, orgRoleCount }: { admin?: boolean; orgRoleCount: numb
 
 const RoleInfo = ({ admin, judge, officer, roles }: User) => {
   const { t } = useTranslation()
-  const orgs = useRecoilValue(adminUsersOrganizersSelector)
+  const orgs = useAtomValue(adminUsersOrganizersAtom)
   const roleStrings: string[] = []
   const orgRoleCount = roles ? Object.keys(roles).length : 0
 
@@ -111,15 +111,15 @@ const RoleInfo = ({ admin, judge, officer, roles }: User) => {
 }
 
 export default function UsersPage() {
-  const [searchText, setSearchText] = useRecoilState(adminUserFilterAtom)
+  const [searchText, setSearchText] = useAtom(adminUserFilterAtom)
   const { t } = useTranslation()
 
-  const [visibilityModel, setVisibilityModel] = useRecoilState(adminUsersColumnsAtom)
+  const [visibilityModel, setVisibilityModel] = useAtom(adminUsersColumnsAtom)
 
-  const user = useRecoilValue(userSelector)
-  const isOrgAdmin = useRecoilValue(isOrgAdminSelector)
-  const orgs = useRecoilValue(adminUsersOrganizersSelector)
-  const [orgId, setOrgId] = useRecoilState(adminUsersOrganizerIdAtom)
+  const user = useAtomValue(userAtom)
+  const isOrgAdmin = useAtomValue(isOrgAdminAtom)
+  const orgs = useAtomValue(adminUsersOrganizersAtom)
+  const [orgId, setOrgId] = useAtom(adminUsersOrganizerIdAtom)
   const options = useMemo(() => {
     const userOrgs = user?.admin ? orgs : orgs.filter((o) => user?.roles?.[o.id])
     if (userOrgs.length === 1) {
@@ -127,10 +127,10 @@ export default function UsersPage() {
     }
     return [{ id: '', name: t('all') }, ...userOrgs]
   }, [orgs, user?.admin, user?.roles, t])
-  const users = useRecoilValue(adminFilteredUsersSelector)
+  const users = useAtomValue(adminFilteredUsersAtom)
 
-  const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
-  const selectedUser = useRecoilValue(adminCurrentUserSelector)
+  const [selectedUserID, setSelectedUserID] = useAtom(adminUserIdAtom)
+  const selectedUser = useAtomValue(adminCurrentUserAtom)
   const [createOpen, setCreateOpen] = useState(false)
   const [rolesOpen, setRolesOpen] = useState(false)
 

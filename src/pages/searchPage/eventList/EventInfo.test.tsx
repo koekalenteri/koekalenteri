@@ -1,7 +1,7 @@
 import type { DogEvent } from '../../../types'
 import { render, screen } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
 import { emptyEvent } from '../../../__mockData__/emptyEvent'
 import { flushPromises } from '../../../test-utils/utils'
 import { EventInfo } from './EventInfo'
@@ -44,11 +44,11 @@ describe('EventInfo', () => {
   it('should render event information', async () => {
     const event: DogEvent = { ...testEvent }
     const { container } = render(
-      <RecoilRoot>
+      <Provider>
         <Suspense fallback={<div>loading...</div>}>
           <EventInfo event={event} />
         </Suspense>
-      </RecoilRoot>
+      </Provider>
     )
     await flushPromises()
 
@@ -58,11 +58,11 @@ describe('EventInfo', () => {
   it('should render ranking period', async () => {
     const event: DogEvent = { ...testEvent, entryOrigEndDate: new Date('2021-02-02'), eventType: 'NOME-A SM' }
     render(
-      <RecoilRoot>
+      <Provider>
         <Suspense fallback={<div>loading...</div>}>
           <EventInfo event={event} />
         </Suspense>
-      </RecoilRoot>
+      </Provider>
     )
     await flushPromises()
 
@@ -78,11 +78,11 @@ describe('EventInfo', () => {
       },
     }
     const { container } = render(
-      <RecoilRoot>
+      <Provider>
         <Suspense fallback={<div>loading...</div>}>
           <EventInfo event={event} />
         </Suspense>
-      </RecoilRoot>
+      </Provider>
     )
     await flushPromises()
 
@@ -103,11 +103,11 @@ describe('EventInfo', () => {
       },
     }
     render(
-      <RecoilRoot>
+      <Provider>
         <Suspense fallback={<div>loading...</div>}>
           <EventInfo event={event} />
         </Suspense>
-      </RecoilRoot>
+      </Provider>
     )
     await flushPromises()
 

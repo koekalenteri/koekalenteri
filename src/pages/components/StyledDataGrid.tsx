@@ -4,7 +4,7 @@ import { styled } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useState } from 'react'
 import { recentUpdateFlash } from '../../assets/highlight'
-import { RECENTLY_UPDATED_ROW_CLASS_NAME } from '../recoil/recentUpdates'
+import { RECENTLY_UPDATED_ROW_CLASS_NAME } from '../state/recentUpdates'
 
 const DataGridWithDefaults = (props: DataGridProps) => {
   const [page, setPage] = useState(0)

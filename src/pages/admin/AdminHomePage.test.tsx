@@ -3,11 +3,11 @@ import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
-import { idTokenAtom } from '../recoil'
+import { idTokenAtom } from '../state'
 import AdminHomePage from './AdminHomePage'
 
 vi.mock('../../api/user')
@@ -35,7 +35,7 @@ describe('AdminHomePage', () => {
     ]
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <SnackbarProvider>
             <Authenticator.Provider>
               <Suspense fallback={<div>loading...</div>}>
@@ -43,7 +43,7 @@ describe('AdminHomePage', () => {
               </Suspense>
             </Authenticator.Provider>
           </SnackbarProvider>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
 
@@ -70,7 +70,7 @@ describe('AdminHomePage', () => {
     ]
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <SnackbarProvider>
             <Authenticator.Provider>
               <Suspense fallback={<div>loading...</div>}>
@@ -78,7 +78,7 @@ describe('AdminHomePage', () => {
               </Suspense>
             </Authenticator.Provider>
           </SnackbarProvider>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
 

@@ -1,16 +1,16 @@
 import type { SyntheticEvent } from 'react'
 import type { BreedCode, DeepPartial, DogGender, Registration } from '../../../types'
-import type { DogCachedInfo } from '../../recoil/dog'
+import type { DogCachedInfo } from '../../state/dog'
 import Grid from '@mui/material/Grid'
+import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import { emptyDog } from '../../../lib/data'
 import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh } from '../../../lib/dog'
 import { hasChanges } from '../../../lib/utils'
 import { validateRegNo } from '../../../lib/validation'
-import { useDogActions } from '../../recoil/dog'
-import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
+import { useDogActions } from '../../state/dog'
+import { cachedDogRegNumbersAtom } from '../../state/dog/derivedAtoms'
 import CollapsibleSection from '../CollapsibleSection'
 import { DogDetails } from './dogInfo/DogDetails'
 import { DogSearch } from './dogInfo/DogSearch'
@@ -91,7 +91,7 @@ export const DogInfo = ({
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
   const allowRefresh = shouldAllowRefresh(reg?.dog)
-  const cachedRegNos = useRecoilValue(cachedDogRegNumbersSelector)
+  const cachedRegNos = useAtomValue(cachedDogRegNumbersAtom)
   const actions = useDogActions(state.regNo)
 
   const handleChange = useCallback(

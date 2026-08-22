@@ -11,10 +11,10 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { getEventAuditTrail, putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
@@ -23,9 +23,9 @@ import { reportError } from '../../../lib/client/error'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { hasEntryEnded, isEventOver, OFFICIAL_EVENT_TYPES } from '../../../lib/event'
 import { invitationAttachmentFileName } from '../../../lib/fileName'
-import { validIdTokenSelector } from '../../recoil'
+import { validIdTokenAtom } from '../../state'
 import { AuditTrail } from '../components/AuditTrail'
-import { adminEventSelector } from '../recoil'
+import { adminEventAtom } from '../state'
 import EventActions from './infoPanel/EventActions'
 import InvitationDelivery from './infoPanel/InvitationDelivery'
 import ParticipantSelection from './infoPanel/ParticipantSelection'
@@ -52,14 +52,14 @@ const InfoPanel = ({
   onOpenMessageDialog,
 }: Props) => {
   const { t } = useTranslation()
-  const token = useRecoilValue(validIdTokenSelector)
+  const token = useAtomValue(validIdTokenAtom)
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
   const [classAttachmentKeys, setClassAttachmentKeys] = useState(event.invitationAttachments ?? {})
   const [attachmentHistory, setAttachmentHistory] = useState(event.invitationAttachmentHistory ?? {})
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
   const [auditTrailLoading, setAuditTrailLoading] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
-  const setEvent = useSetRecoilState(adminEventSelector(event.id))
+  const setEvent = useSetAtom(adminEventAtom(event.id))
   const [expanded, setExpanded] = useState(false)
   useAuditTrailSubscription(`event:${event.id}`, expanded, setAuditTrail)
   const { reserveByClass, numbersByClass, selectedByClass, stateByClass } = useAdminEventRegistrationInfo(

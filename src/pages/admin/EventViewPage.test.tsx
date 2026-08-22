@@ -6,7 +6,7 @@ import { render, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
@@ -14,23 +14,17 @@ import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import EventViewPage from './EventViewPage'
-import { adminEventClassAtom, adminEventIdAtom } from './recoil'
+import { adminEventClassAtom, adminEventIdAtom } from './state'
 
 vi.mock('../../hooks/useEventSubscription', async () => ({
   useEventSubscription: vi.fn(() => ({ viewers: [] })),
 }))
 
-vi.mock('../recoil/user/selectors', async () => {
-  const { selector } = await vi.importActual<typeof import('recoil')>('recoil')
+vi.mock('../state/user/derivedAtoms', async () => {
+  const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
   return {
-    userSelector: selector({
-      get: () => ({ id: 'user1', name: 'Current User' }),
-      key: 'userSelectorEventViewPageTest',
-    }),
-    validIdTokenSelector: selector({
-      get: () => 'id-token',
-      key: 'validIdTokenSelectorEventViewPageTest',
-    }),
+    userAtom: atom(() => ({ id: 'user1', name: 'Current User' })),
+    validIdTokenAtom: atom(() => 'id-token'),
   }
 })
 
@@ -65,7 +59,7 @@ describe('EventViewPage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <ConfirmProvider>
@@ -73,7 +67,7 @@ describe('EventViewPage', () => {
                 </ConfirmProvider>
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
@@ -92,7 +86,7 @@ describe('EventViewPage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <ConfirmProvider>
@@ -103,7 +97,7 @@ describe('EventViewPage', () => {
                 </ConfirmProvider>
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
@@ -122,7 +116,7 @@ describe('EventViewPage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot
+          <Provider
             initializeState={({ set }) => {
               set(adminEventIdAtom, 'stale-event-id')
               set(adminEventClassAtom, 'VOI')
@@ -138,7 +132,7 @@ describe('EventViewPage', () => {
                 </ConfirmProvider>
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )
@@ -165,7 +159,7 @@ describe('EventViewPage', () => {
     render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <Provider>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <ConfirmProvider>
@@ -173,7 +167,7 @@ describe('EventViewPage', () => {
                 </ConfirmProvider>
               </SnackbarProvider>
             </Suspense>
-          </RecoilRoot>
+          </Provider>
         </LocalizationProvider>
       </ThemeProvider>
     )

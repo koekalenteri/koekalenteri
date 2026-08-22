@@ -18,12 +18,12 @@ import TableFooter from '@mui/material/TableFooter'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
+import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
-import { isAdminSelector } from '../../recoil'
-import { adminUserAdminOrganizersSelector } from '../recoil/selectors'
-import { useAdminUserActions } from '../recoil/user'
+import { isAdminAtom } from '../../state'
+import { adminUserAdminOrganizersAtom } from '../state/derivedAtoms'
+import { useAdminUserActions } from '../state/user'
 
 interface Props {
   readonly user: User | null | undefined
@@ -34,8 +34,8 @@ interface Props {
 export function EditUserRolesDialog({ onClose, open, user }: Props) {
   const { t } = useTranslation()
   const actions = useAdminUserActions()
-  const isAdmin = useRecoilValue(isAdminSelector)
-  const organizers = useRecoilValue(adminUserAdminOrganizersSelector)
+  const isAdmin = useAtomValue(isAdminAtom)
+  const organizers = useAtomValue(adminUserAdminOrganizersAtom)
   const [org, setOrg] = useState<Organizer | null>(null)
   const [role, setRole] = useState<'admin' | 'secretary'>('secretary')
   const roles = user?.roles ?? {}

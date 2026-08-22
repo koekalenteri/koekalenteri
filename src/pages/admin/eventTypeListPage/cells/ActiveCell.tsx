@@ -3,7 +3,7 @@ import type { ChangeEvent } from 'react'
 import type { EventType } from '../../../../types'
 import Switch from '@mui/material/Switch'
 import { useCallback } from 'react'
-import { useAdminEventTypeActions } from '../../recoil'
+import { useAdminEventTypeActions } from '../../state'
 
 const ActiveCell = (props: GridRenderCellParams<EventType, boolean>) => {
   const actions = useAdminEventTypeActions()

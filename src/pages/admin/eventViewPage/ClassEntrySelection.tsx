@@ -1,5 +1,4 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { SetterOrUpdater } from 'recoil'
 import type { CustomCost, DogEvent, EventClassState, EventState, Registration, RegistrationDate } from '../../../types'
 import type { DragItem, RegistrationWithGroups } from './classEntrySelection/types'
 import Alert from '@mui/material/Alert'
@@ -20,7 +19,7 @@ import { eventRegistrationDateKey, isEventOver } from '../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../lib/registration'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
-import { useAdminRegistrationActions } from '../recoil/registrations/actions'
+import { useAdminRegistrationActions } from '../state/registrations/actions'
 import DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import {
@@ -49,7 +48,7 @@ interface Props {
   readonly setCancelOpen?: Dispatch<SetStateAction<boolean>>
   readonly setRefundOpen?: Dispatch<SetStateAction<boolean>>
   readonly selectedRegistrationId?: string
-  readonly setSelectedRegistrationId?: SetterOrUpdater<string | undefined>
+  readonly setSelectedRegistrationId?: (update: SetStateAction<string | undefined>) => void
   readonly state?: EventClassState | EventState
 }
 

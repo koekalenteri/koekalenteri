@@ -4,11 +4,11 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { Amplify } from 'aws-amplify'
+import { useAtomValue } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense, useCallback } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
-import { useRecoilValue } from 'recoil'
 import { AWSConfig } from './amplify-env'
 import { useAuthSessionInitialization } from './hooks/useAuthSessionInitialization'
 import { useAuthSessionRefresh } from './hooks/useAuthSessionRefresh'
@@ -18,7 +18,7 @@ import { reportError } from './lib/client/error'
 import ServiceWorkerUpdateNotifier from './pages/components/ServiceWorkerUpdateNotifier'
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { LoadingPage } from './pages/LoadingPage'
-import { idTokenAtom, languageAtom } from './pages/recoil'
+import { idTokenAtom, languageAtom } from './pages/state'
 import routes from './routes'
 
 try {
@@ -30,8 +30,8 @@ try {
 const router = createBrowserRouter(routes)
 
 function App() {
-  const language = useRecoilValue(languageAtom)
-  const idToken = useRecoilValue(idTokenAtom)
+  const language = useAtomValue(languageAtom)
+  const idToken = useAtomValue(idTokenAtom)
   const authSessionInitialized = useAuthSessionInitialization(idToken)
   const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
   useAuthSessionRefresh(authSessionInitialized ? idToken : undefined)

@@ -1,6 +1,6 @@
 import useEventListColumns from './columns'
 
-vi.mock('../recoil/judges/actions', () => ({
+vi.mock('../state/judges/actions', () => ({
   useJudgesActions: () => ({
     find: (id: number) => ({ id, name: `Judge ${id}` }),
   }),

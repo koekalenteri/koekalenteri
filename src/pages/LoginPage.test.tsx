@@ -1,10 +1,10 @@
 import { render, waitFor } from '@testing-library/react'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { StrictMode, Suspense } from 'react'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { reportError } from '../lib/client/error'
 import { Component as LoginPage } from './LoginPage'
-import { idTokenAtom } from './recoil'
+import { idTokenAtom } from './state'
 
 const mockSignIn = vi.fn()
 
@@ -29,7 +29,7 @@ vi.mock('../lib/client/error', () => ({
 
 vi.mock('./components/Header', () => ({ default: () => <div>HEADER</div> }))
 
-vi.mock('./recoil/user/actions', () => ({
+vi.mock('./state/user/actions', () => ({
   useUserActions: () => ({
     signIn: (token: string) => mockSignIn(token),
   }),
@@ -46,11 +46,11 @@ const authSession = (token: string) =>
 
 const renderLoginPage = (idToken?: string) =>
   render(
-    <RecoilRoot initializeState={({ set }) => set(idTokenAtom, idToken)}>
+    <Provider initializeState={({ set }) => set(idTokenAtom, idToken)}>
       <Suspense fallback={<div>loading</div>}>
         <LoginPage />
       </Suspense>
-    </RecoilRoot>
+    </Provider>
   )
 
 describe('LoginPage', () => {
@@ -70,11 +70,11 @@ describe('LoginPage', () => {
     await waitFor(() => expect(mockSignIn).toHaveBeenCalledTimes(1))
 
     rerender(
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, undefined)}>
+      <Provider initializeState={({ set }) => set(idTokenAtom, undefined)}>
         <Suspense fallback={<div>loading</div>}>
           <LoginPage />
         </Suspense>
-      </RecoilRoot>
+      </Provider>
     )
 
     expect(mockFetchAuthSession).toHaveBeenCalledTimes(1)
@@ -96,11 +96,11 @@ describe('LoginPage', () => {
 
     render(
       <StrictMode>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
           <Suspense fallback={<div>loading</div>}>
             <LoginPage />
           </Suspense>
-        </RecoilRoot>
+        </Provider>
       </StrictMode>
     )
 

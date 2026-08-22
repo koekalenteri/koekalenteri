@@ -2,12 +2,12 @@
 import type { BreedCode, DogEvent } from '../../types'
 import type { DogEventCost, DogEventCostSegment } from '../../types/Cost'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
-import { useRecoilValue } from 'recoil'
 import { getCostSegmentName, getCostValue, getEarlyBirdDates, mergeMemberCost } from '../../lib/cost'
 import { keysOf } from '../../lib/typeGuards'
-import { languageAtom } from '../recoil'
+import { languageAtom } from '../state'
 import CostInfoTableCaption from './costInfo/CostStrategiesHeader'
 import InfoTableContainerGrid from './InfoTableContainerGrid'
 import InfoTableNumberGrid from './InfoTableNumberGrid'
@@ -21,7 +21,7 @@ const segments: DogEventCostSegment[] = ['normal', 'earlyBird', 'breed', 'custom
 
 export default function CostInfo({ event }: Props) {
   const { t } = useTranslation()
-  const language = useRecoilValue(languageAtom)
+  const language = useAtomValue(languageAtom)
   const { cost, costMember, paymentTime = 'registration' } = event
 
   let normalizedCostMember: DogEventCost | number | undefined
