@@ -3,17 +3,24 @@ import { render, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { getAllYearlyStats, getOrganizerEventStats } from '../../api/stats'
+import { getAdminCapacityStats, getAllYearlyStats, getOrganizerEventStats } from '../../api/stats'
 import theme from '../../assets/Theme'
 import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import StatsPage from './StatsPage'
-import { adminStatsOrganizerIdAtom } from './state'
+import { adminCapacityStatsEventTypeAtom, adminStatsOrganizerIdAtom } from './state'
 
 vi.mock('../../api/stats')
 vi.mock('../../api/organizer')
 vi.mock('../../api/user')
-vi.mock('../../api/eventType')
+// The shared manual mock returns one event type with no `active` flag, which the picker filters
+// out; this page needs active ones to have anything to offer.
+vi.mock('../../api/eventType', () => ({
+  getEventTypes: async () => [
+    { active: true, description: { en: 'Field trial', fi: 'Taipumuskoe' }, eventType: 'NOME-B' },
+    { active: true, description: { en: 'Hunting test', fi: 'Metsästyskoe' }, eventType: 'NOWT' },
+  ],
+}))
 
 describe('admin StatsPage', () => {
   beforeAll(() => vi.useFakeTimers())
@@ -144,5 +151,58 @@ describe('admin StatsPage', () => {
     await flushPromises()
 
     await screen.findByDisplayValue('Järjestäjä 1')
+  })
+
+  it('builds the class filter from the fetched capacity stats and renders the capacity charts', async () => {
+    vi.mocked(getAdminCapacityStats).mockResolvedValue([
+      {
+        cancelledRegistrations: 2,
+        class: 'AVO',
+        eventCount: 1,
+        eventType: 'NOME-B',
+        month: '2025-06',
+        organizerId: '1',
+        places: 20,
+        reserve: 3,
+        starters: 18,
+      },
+      {
+        cancelledRegistrations: 1,
+        class: 'ALO',
+        eventCount: 1,
+        eventType: 'NOME-B',
+        month: '2025-06',
+        organizerId: '1',
+        places: 10,
+        reserve: 0,
+        starters: 9,
+      },
+    ])
+
+    render(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminCapacityStatsEventTypeAtom, 'NOME-B')
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <StatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    await screen.findByText('stats.title')
+    // All three capacity charts hang off the same fetched data.
+    expect(screen.getByText('stats.admin.capacityTitle')).toBeInTheDocument()
+    expect(screen.getByText('stats.admin.demandTitle')).toBeInTheDocument()
+    expect(screen.getByText('stats.admin.cancellationRateTitle')).toBeInTheDocument()
+    // Classes come from the data, sorted, and the selection falls back to the first one.
+    expect(screen.getByDisplayValue('ALO')).toBeInTheDocument()
   })
 })

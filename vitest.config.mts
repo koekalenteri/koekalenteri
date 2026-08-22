@@ -18,6 +18,11 @@ const coverage: { provider: 'v8' } & CoverageV8Options = {
         'src/types/**',
         'src/service-worker.js',
         'src/service-worker-unregister.js',
+        // Browser-mode chart tests and their scaffolding: exercised by the `charts` project,
+        // which runs separately and reports no coverage into this run.
+        'src/**/*.visual.test.tsx',
+        'src/pages/components/stats/statsVisualFixtures.tsx',
+        'src/setupChartTests.ts',
       ],
 }
 

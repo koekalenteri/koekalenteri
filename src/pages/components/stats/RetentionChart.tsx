@@ -27,7 +27,7 @@ export default function RetentionChart({ stats }: Props) {
       emptyMessage={t('stats.noDataForYear')}
       isEmpty={entries.length === 0}
       chartProps={{
-        colors: [...CATEGORICAL_CHART_COLORS.slice(0, 2)],
+        colors: CATEGORICAL_CHART_COLORS.slice(0, 2),
         series: [
           {
             data: entries.map((stat) => stat.retention?.returning ?? 0),
