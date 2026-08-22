@@ -58,7 +58,7 @@ describe('RegistrationEditPage', () => {
     const { eventId, id } = registrationWithStaticDates
     mockUseParams.mockImplementation(() => ({ id: eventId, registrationId: id }))
     const { container } = render(<RegistrationEditPage />, { wrapper: Wrapper })
-    // One pass resolves the page's chained recoil selectors; a second is needed for the
+    // One pass resolves the page's chained derived atoms; a second is needed for the
     // Collapse sections that only start their (now fake-timer-driven) exit transition once
     // that data has settled, matching the RegistrationListPage double-flush convention.
     await flushPromises()

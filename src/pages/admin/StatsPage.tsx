@@ -1,9 +1,9 @@
 import type { Language } from '../../types'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useAtom, useAtomValue } from 'jotai'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilState, useRecoilValue } from 'recoil'
 import { zonedDateString } from '../../i18n/dates'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import CapacityUtilizationChart from '../components/stats/CapacityUtilizationChart'
@@ -11,22 +11,22 @@ import OrganizerFinanceChart from '../components/stats/OrganizerFinanceChart'
 import YearSelector from '../components/stats/YearSelector'
 import FullPageFlex from './components/FullPageFlex'
 import {
-  adminActiveEventTypesSelector,
+  adminActiveEventTypesAtom,
   adminCapacityStatsAtom,
   adminCapacityStatsEventTypeAtom,
   adminOrganizerEventStatsAtom,
   adminStatsOrganizerIdAtom,
-  adminStatsOrganizersSelector,
+  adminStatsOrganizersAtom,
   adminStatsYearAtom,
-} from './recoil'
+} from './state'
 
 const CURRENT_YEAR = new Date().getFullYear()
 
 export default function StatsPage() {
   const { t, i18n } = useTranslation()
-  const [year, setYear] = useRecoilState(adminStatsYearAtom)
-  const [organizerId, setOrganizerId] = useRecoilState(adminStatsOrganizerIdAtom)
-  const orgs = useRecoilValue(adminStatsOrganizersSelector)
+  const [year, setYear] = useAtom(adminStatsYearAtom)
+  const [organizerId, setOrganizerId] = useAtom(adminStatsOrganizerIdAtom)
+  const orgs = useAtomValue(adminStatsOrganizersAtom)
   const options = useMemo(() => [{ id: '', name: t('all') }, ...orgs], [orgs, t])
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function StatsPage() {
     }
   }, [orgs, organizerId, setOrganizerId])
 
-  const allOrganizerStats = useRecoilValue(adminOrganizerEventStatsAtom)
+  const allOrganizerStats = useAtomValue(adminOrganizerEventStatsAtom)
 
   // Derived from the stats already loaded rather than from /stats: the global year list would
   // cost four queries per year, and years with no events of your own are not selectable anyway.
@@ -59,13 +59,13 @@ export default function StatsPage() {
     [allOrganizerStats, organizerId, year]
   )
 
-  const eventTypes = useRecoilValue(adminActiveEventTypesSelector)
+  const eventTypes = useAtomValue(adminActiveEventTypesAtom)
   const eventTypeOptions = useMemo(
     () => eventTypes.map((et) => ({ id: et.eventType, name: et.description[i18n.language as Language] })),
     [eventTypes, i18n.language]
   )
-  const [capacityEventType, setCapacityEventType] = useRecoilState(adminCapacityStatsEventTypeAtom)
-  const capacityStats = useRecoilValue(adminCapacityStatsAtom(capacityEventType))
+  const [capacityEventType, setCapacityEventType] = useAtom(adminCapacityStatsEventTypeAtom)
+  const capacityStats = useAtomValue(adminCapacityStatsAtom(capacityEventType))
 
   const capacityClasses = useMemo(
     () => [...new Set(capacityStats.map((entry) => entry.class))].sort((a, b) => a.localeCompare(b)),

@@ -2,7 +2,7 @@ import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getAllYearlyStats } from '../api/stats'
 import theme from '../assets/Theme'
 import { flushPromises } from '../test-utils/utils'
@@ -19,13 +19,13 @@ describe('StatsPage', () => {
   it('renders yearly stats once loaded', async () => {
     render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot>
+        <Provider>
           <MemoryRouter initialEntries={['/tilastot']}>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     await flushPromises()
@@ -36,13 +36,13 @@ describe('StatsPage', () => {
   it('takes the selected year out of the all-years payload instead of re-requesting it', async () => {
     render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot>
+        <Provider>
           <MemoryRouter initialEntries={['/tilastot?year=2024']}>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     await flushPromises()

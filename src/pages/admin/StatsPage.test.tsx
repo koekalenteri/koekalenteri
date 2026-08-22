@@ -2,13 +2,13 @@ import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { RecoilRoot } from 'recoil'
+import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getAllYearlyStats, getOrganizerEventStats } from '../../api/stats'
 import theme from '../../assets/Theme'
 import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
-import { idTokenAtom } from '../recoil'
-import { adminStatsOrganizerIdAtom } from './recoil'
+import { idTokenAtom } from '../state'
 import StatsPage from './StatsPage'
+import { adminStatsOrganizerIdAtom } from './state'
 
 vi.mock('../../api/stats')
 vi.mock('../../api/organizer')
@@ -26,7 +26,7 @@ describe('admin StatsPage', () => {
   it('fetches organizer stats once, unfiltered, and filters client-side by the selection', async () => {
     render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot
+        <Provider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
             set(adminStatsOrganizerIdAtom, '1')
@@ -37,7 +37,7 @@ describe('admin StatsPage', () => {
               <StatsPage />
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     await flushPromises()
@@ -57,13 +57,13 @@ describe('admin StatsPage', () => {
 
     const { rerender } = render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     await flushPromises()
@@ -73,7 +73,7 @@ describe('admin StatsPage', () => {
     // Changing the selected organizer re-renders but must not trigger another network call.
     rerender(
       <ThemeProvider theme={theme}>
-        <RecoilRoot
+        <Provider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
             set(adminStatsOrganizerIdAtom, '2')
@@ -84,7 +84,7 @@ describe('admin StatsPage', () => {
               <StatsPage />
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     await flushPromises()
@@ -100,13 +100,13 @@ describe('admin StatsPage', () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     await flushPromises()
@@ -127,7 +127,7 @@ describe('admin StatsPage', () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot
+        <Provider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
             set(adminStatsOrganizerIdAtom, '2')
@@ -138,7 +138,7 @@ describe('admin StatsPage', () => {
               <StatsPage />
             </Suspense>
           </MemoryRouter>
-        </RecoilRoot>
+        </Provider>
       </ThemeProvider>
     )
     await flushPromises()

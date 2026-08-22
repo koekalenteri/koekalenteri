@@ -1,4 +1,5 @@
 export * from './events'
 export * from './registration'
+export * from './stats'
 export * from './storage'
 export * from './user'
