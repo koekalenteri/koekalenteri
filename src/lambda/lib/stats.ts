@@ -1,5 +1,5 @@
 import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonEventType, JsonRegistration } from '../../types'
 import type {
   CapacityStatsEntry,
   JsonCapacityStatsItem,
@@ -351,6 +351,21 @@ export async function getCapacityStats(
     total.starters += entry.starters
   }
   return [...totalsByMonthAndClass.values()]
+}
+
+/**
+ * Nationwide capacity stats summed across every active event type. Backs the public fill-rate
+ * chart: a single type's places are set by competition rules, so only a cross-type aggregate
+ * says anything about actual demand.
+ */
+export async function getCapacityStatsAllEventTypes(from?: string, to?: string): Promise<CapacityStatsEntry[]> {
+  const eventTypes = await dynamoDB.readAll<JsonEventType>({ table: CONFIG.eventTypeTable })
+  const activeEventTypes = (eventTypes ?? []).filter((eventType) => eventType.active).map((et) => et.eventType)
+
+  const results = await Promise.all(
+    activeEventTypes.map((eventType) => getCapacityStats(eventType, undefined, from, to))
+  )
+  return results.flat()
 }
 
 /**

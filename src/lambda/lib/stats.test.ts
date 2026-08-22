@@ -1,7 +1,8 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonEventType, JsonRegistration } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { RegistrationStatsInput } from './stats'
 import { vi } from 'vitest'
+import { CONFIG } from '../config'
 
 const mockQuery = vi.fn()
 const mockRead = vi.fn()
@@ -49,6 +50,7 @@ const {
   participationIdentifiers,
   eventStatsYear,
   getCapacityStats,
+  getCapacityStatsAllEventTypes,
   getRetentionStats,
   getJudgeWorkload,
   eventStatsMonth,
@@ -873,6 +875,79 @@ describe('lib/stats', () => {
       mockQuery.mockResolvedValueOnce(null)
 
       const result = await getCapacityStats('NOME-B')
+
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('getCapacityStatsAllEventTypes', () => {
+    const eventType = (eventType: string, active: boolean): JsonEventType => ({ active, eventType }) as JsonEventType
+
+    it('sums capacity stats across every active event type, skipping inactive ones', async () => {
+      mockReadAll.mockResolvedValueOnce([
+        eventType('NOME-A', true),
+        eventType('NOME-B', true),
+        eventType('RETIRED', false),
+      ])
+      mockQuery
+        .mockResolvedValueOnce([
+          {
+            eventCount: 1,
+            organizerId: 'org-1',
+            PK: 'CAPACITY#NOME-A',
+            places: 20,
+            SK: '2025-06#ALO#org-1',
+            starters: 18,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            eventCount: 1,
+            organizerId: 'org-1',
+            PK: 'CAPACITY#NOME-B',
+            places: 10,
+            SK: '2025-06#ALO#org-1',
+            starters: 9,
+          },
+        ])
+
+      const result = await getCapacityStatsAllEventTypes()
+
+      expect(mockReadAll).toHaveBeenCalledWith({ table: CONFIG.eventTypeTable })
+      expect(mockQuery).toHaveBeenCalledTimes(2)
+      expect(result).toEqual([
+        expect.objectContaining({ eventType: 'NOME-A', places: 20, starters: 18 }),
+        expect.objectContaining({ eventType: 'NOME-B', places: 10, starters: 9 }),
+      ])
+    })
+
+    it('passes the from/to range through to each event type query', async () => {
+      mockReadAll.mockResolvedValueOnce([eventType('NOU', true)])
+      mockQuery.mockResolvedValueOnce([])
+
+      await getCapacityStatsAllEventTypes('2025-01', '2025-06')
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: undefined,
+        key: '#pk = :pk AND SK BETWEEN :from AND :to',
+        names: { '#pk': 'PK' },
+        values: { ':from': '2025-01', ':pk': 'CAPACITY#NOU', ':to': '2025-06#￿' },
+      })
+    })
+
+    it('returns nothing when there are no active event types', async () => {
+      mockReadAll.mockResolvedValueOnce([eventType('RETIRED', false)])
+
+      const result = await getCapacityStatsAllEventTypes()
+
+      expect(mockQuery).not.toHaveBeenCalled()
+      expect(result).toEqual([])
+    })
+
+    it('handles a missing event type list', async () => {
+      mockReadAll.mockResolvedValueOnce(null)
+
+      const result = await getCapacityStatsAllEventTypes()
 
       expect(result).toEqual([])
     })

@@ -48,6 +48,14 @@ export interface JsonEventStatsItem extends Partial<OrganizerEventStats> {
 export type EventStatsItem = ReplaceOptional<JsonEventStatsItem, 'date', Date>
 
 /**
+ * Sentinel `eventType` value for the public capacity endpoint: aggregates every active event
+ * type server-side instead of one specific type. A single type's places are set by competition
+ * rules, so its registrations-per-event figure mostly just reflects the rule rather than demand;
+ * summing across types before computing a rate is what makes the rate meaningful.
+ */
+export const ALL_EVENT_TYPES_FOR_CAPACITY = 'ALL'
+
+/**
  * Monthly available-places-vs-actual-starters aggregate for one event type + class,
  * used to gauge audience demand when planning future events.
  */

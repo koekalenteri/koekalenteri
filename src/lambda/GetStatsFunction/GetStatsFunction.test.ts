@@ -22,10 +22,12 @@ const mockGetYearlyBreakdown = vi.fn<(year: number, type: YearlyStatTypes) => Pr
 const mockGetRetentionStats = vi.fn<() => Promise<RetentionStats | undefined>>()
 const mockGetCapacityStats =
   vi.fn<(eventType: string, organizerIds?: string[], from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
+const mockGetCapacityStatsAllEventTypes = vi.fn<(from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
 
 vi.doMock('../lib/stats', () => ({
   getAvailableYears: mockGetAvailableYears,
   getCapacityStats: mockGetCapacityStats,
+  getCapacityStatsAllEventTypes: mockGetCapacityStatsAllEventTypes,
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
   getRetentionStats: mockGetRetentionStats,
   getYearlyBreakdown: mockGetYearlyBreakdown,
@@ -224,6 +226,33 @@ describe('GetStatsFunction', () => {
         year,
       })
     )
+  })
+
+  it('aggregates across every event type when eventType is the ALL sentinel', async () => {
+    const year = 2024
+    mockGetYearlyTotalStats.mockResolvedValueOnce([])
+    mockGetDogHandlerBuckets.mockResolvedValueOnce([])
+    const capacityStats: CapacityStatsEntry[] = [
+      {
+        cancelledRegistrations: 0,
+        class: 'ALO',
+        eventCount: 1,
+        eventType: 'NOME-A',
+        month: '2024-06',
+        organizerId: '',
+        places: 20,
+        reserve: 0,
+        starters: 18,
+      },
+    ]
+    mockGetCapacityStatsAllEventTypes.mockResolvedValueOnce(capacityStats)
+
+    const event = { queryStringParameters: { eventType: 'ALL', from: '2024-01', to: '2024-12', year: '2024' } }
+    const result = await handler(event)
+
+    expect(mockGetCapacityStatsAllEventTypes).toHaveBeenCalledWith('2024-01', '2024-12')
+    expect(mockGetCapacityStats).not.toHaveBeenCalled()
+    expect(result.body).toEqual(expect.objectContaining({ capacityStats, year }))
   })
 
   it('includes retention for a year that has it', async () => {
