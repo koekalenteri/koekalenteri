@@ -265,6 +265,38 @@ describe('getAdminStatsLambda', () => {
     })
   })
 
+  describe('judge workload (?judges)', () => {
+    it('returns judgeWorkload for the requested year without organizer scoping', async () => {
+      mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1'], user: mockUser })
+      mockQuery.mockResolvedValueOnce([{ count: 5, name: 'Matti Meikäläinen', SK: '1' }])
+
+      const event = constructAPIGwEvent({}, { query: { judges: '2025' } })
+      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+
+      expect(mockQuery).toHaveBeenCalledWith({ key: 'PK = :pk', values: { ':pk': 'JUDGE#2025' } })
+      expect(JSON.parse(result.body)).toEqual({
+        judgeWorkload: [{ count: 5, judgeId: '1', name: 'Matti Meikäläinen' }],
+      })
+      expect(result.statusCode).toBe(200)
+    })
+
+    // Number() alone would accept several of these ('0x7E9', '2025.5', 'Infinity'), and a
+    // truthiness guard would route '' and '0' to the organizer-stats response shape instead.
+    it.each(['not-a-year', '', '0', '-1', '2025.5', '0x7E9', 'Infinity'])(
+      'rejects the malformed year %j',
+      async (judges) => {
+        mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: mockUser })
+
+        const event = constructAPIGwEvent({}, { query: { judges } })
+        const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+
+        expect(result.statusCode).toBe(400)
+        expect(mockQuery).not.toHaveBeenCalled()
+        expect(mockReadAll).not.toHaveBeenCalled()
+      }
+    )
+  })
+
   // The empty-list guard in getOrganizerStats/getCapacityStats keys off `=== 0`, so an admin's
   // `undefined` passes straight through it. These pin that down: admin means everything, and an
   // admin with an empty memberOf is still an admin.

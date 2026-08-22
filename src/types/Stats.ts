@@ -14,7 +14,7 @@ interface OrganizerEventStats {
   updatedAt: string
 }
 
-export type YearlyStatTypes = 'eventType' | 'dog' | 'breed' | 'handler' | 'owner' | 'dog#handler'
+export type YearlyStatTypes = 'eventType' | 'dog' | 'breed' | 'handler' | 'owner' | 'dog#handler' | 'class' | 'event'
 
 export interface YearlyTotalStat {
   year: number
@@ -73,5 +73,21 @@ export interface JsonCapacityStatsItem {
   reserve: number
   cancelledRegistrations: number
   eventCount: number
+  updatedAt: string
+}
+
+/** How many events a judge officiated in one year, keyed by judge id (or name, for judges without one). */
+export interface JudgeWorkloadEntry {
+  judgeId: string
+  name: string
+  count: number
+}
+
+// DynamoDB item / wire shape: PK = JUDGE#{year}, SK = judgeId
+export interface JsonJudgeWorkloadItem {
+  PK: string
+  SK: string
+  name: string
+  count: number
   updatedAt: string
 }

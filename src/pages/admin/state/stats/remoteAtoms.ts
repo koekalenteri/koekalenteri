@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { getAdminCapacityStats, getOrganizerEventStats } from '../../../../api/stats'
+import { getAdminCapacityStats, getAdminJudgeWorkload, getOrganizerEventStats } from '../../../../api/stats'
 import { validIdTokenAtom } from '../../../state'
 import { adminActiveEventTypesAtom } from '../eventTypes/derivedAtoms'
 import { ALL_EVENT_TYPES_ID } from './atoms'
@@ -36,5 +36,14 @@ export const adminCapacityStatsAtom = atomFamily((key: string) =>
       return results.flat()
     }
     return getAdminCapacityStats(token, eventType, organizerId)
+  })
+)
+
+/** Per-judge event counts for one year. Not organizer-scoped, so keyed by year alone. */
+export const adminJudgeWorkloadAtom = atomFamily((year: number) =>
+  atom(async (get) => {
+    const token = get(validIdTokenAtom)
+    if (!token) return []
+    return getAdminJudgeWorkload(token, year)
   })
 )

@@ -9,6 +9,7 @@ import AutocompleteSingle from '../components/AutocompleteSingle'
 import CancellationRateChart from '../components/stats/CancellationRateChart'
 import CapacityUtilizationChart, { ALL_CLASSES_ID } from '../components/stats/CapacityUtilizationChart'
 import DemandVsCapacityChart from '../components/stats/DemandVsCapacityChart'
+import JudgeWorkloadChart from '../components/stats/JudgeWorkloadChart'
 import OrganizerFinanceChart from '../components/stats/OrganizerFinanceChart'
 import YearSelector from '../components/stats/YearSelector'
 import FullPageFlex from './components/FullPageFlex'
@@ -17,6 +18,7 @@ import {
   adminActiveEventTypesAtom,
   adminCapacityStatsAtom,
   adminCapacityStatsEventTypeAtom,
+  adminJudgeWorkloadAtom,
   adminOrganizerEventStatsAtom,
   adminStatsOrganizerIdAtom,
   adminStatsOrganizersAtom,
@@ -41,6 +43,7 @@ export default function StatsPage() {
   }, [orgs, organizerId, setOrganizerId])
 
   const allOrganizerStats = useAtomValue(adminOrganizerEventStatsAtom)
+  const judgeWorkload = useAtomValue(adminJudgeWorkloadAtom(year))
 
   // Derived from the stats already loaded rather than from /stats: the global year list would
   // cost four queries per year, and years with no events of your own are not selectable anyway.
@@ -108,6 +111,8 @@ export default function StatsPage() {
         <YearSelector years={years} value={year} onChange={setYear} />
 
         <OrganizerFinanceChart items={organizerStats} />
+
+        <JudgeWorkloadChart data={judgeWorkload} />
 
         <Stack direction="row" spacing={2}>
           <AutocompleteSingle

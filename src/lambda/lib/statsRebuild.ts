@@ -6,7 +6,12 @@
 // incrementally on registration writes, and a delete-then-write pass over it would race those
 // writes. Every other partition has exactly one writer — this module — so rebuilding is safe.
 import type { EventState, JsonDogEvent, JsonRegistration } from '../../types'
-import type { JsonCapacityStatsItem, JsonEventStatsItem, YearlyStatTypes } from '../../types/Stats'
+import type {
+  JsonCapacityStatsItem,
+  JsonEventStatsItem,
+  JsonJudgeWorkloadItem,
+  YearlyStatTypes,
+} from '../../types/Stats'
 import type { RegistrationStatsInput } from './stats'
 import { OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
 import { getRegistrationClass, isParticipantGroup } from '../../lib/registration'
@@ -20,11 +25,14 @@ interface EventStatKey {
   SK: string
 }
 
-export type EventStatsEvent = Pick<JsonDogEvent, 'classes' | 'eventType' | 'id' | 'places' | 'startDate' | 'state'> & {
-  organizer: { id: string }
-}
+// `judges` is optional: the projection can return items without the attribute, and the judge
+// workload seeding already treats a missing list as empty.
+export type EventStatsEvent = Pick<JsonDogEvent, 'classes' | 'eventType' | 'id' | 'places' | 'startDate' | 'state'> &
+  Partial<Pick<JsonDogEvent, 'judges'>> & {
+    organizer: { id: string }
+  }
 
-type CapacityRegistrationInput = RegistrationStatsInput & Pick<JsonRegistration, 'class' | 'group'>
+type CapacityRegistrationInput = RegistrationStatsInput & Pick<JsonRegistration, 'group'>
 
 const REGISTRATION_STATS_PROJECTION_NAMES = {
   '#class': 'class',
@@ -36,8 +44,17 @@ const REGISTRATION_STATS_PROJECTION_NAMES = {
 const REGISTRATION_STATS_PROJECTION =
   'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #owner.email, #class, #group.#key'
 const EVENT_STATS_PROJECTION_NAMES = { '#state': 'state' }
-const EVENT_STATS_PROJECTION = 'id, organizer, startDate, eventType, classes, places, #state'
-const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'owner', 'dog#handler']
+const EVENT_STATS_PROJECTION = 'id, organizer, startDate, eventType, classes, places, #state, judges'
+const PARTICIPATION_TYPES: YearlyStatTypes[] = [
+  'eventType',
+  'dog',
+  'breed',
+  'handler',
+  'owner',
+  'dog#handler',
+  'class',
+  'event',
+]
 // Draft/tentative/cancelled events aren't real committed capacity, so they're excluded from
 // capacity stats (unlike the organizer/participation stats above, which count every event
 // regardless of state). Events predating the state field are treated as committed.
@@ -51,15 +68,16 @@ const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
  * Which group of stats records a key belongs to. `organizer` is the only partition also written
  * incrementally on registration writes; the rest are owned solely by this module.
  */
-type StatsPartition = 'organizer' | 'participation' | 'capacity'
+type StatsPartition = 'organizer' | 'participation' | 'capacity' | 'judges'
 
-export const ALL_STATS_PARTITIONS: StatsPartition[] = ['organizer', 'participation', 'capacity']
+export const ALL_STATS_PARTITIONS: StatsPartition[] = ['organizer', 'participation', 'capacity', 'judges']
 /** Everything the scheduled rebuild owns: safe to delete and rewrite while the site is live. */
-export const REBUILDABLE_STATS_PARTITIONS: StatsPartition[] = ['participation', 'capacity']
+export const REBUILDABLE_STATS_PARTITIONS: StatsPartition[] = ['participation', 'capacity', 'judges']
 
 export const getStatsRecordPartition = ({ PK }: EventStatKey): StatsPartition | undefined => {
   if (PK.startsWith('ORG#')) return 'organizer'
   if (PK.startsWith('CAPACITY#')) return 'capacity'
+  if (PK.startsWith('JUDGE#')) return 'judges'
   if (PK === 'YEARS' || /^(?:STAT|TOTALS|BUCKETS|RETENTION)#/.test(PK)) return 'participation'
   return undefined
 }
@@ -67,7 +85,8 @@ export const getStatsRecordPartition = ({ PK }: EventStatKey): StatsPartition | 
 /** Returns the year represented by a stats-table key, if it is a stats record. */
 export function getEventStatsRecordYear({ PK, SK }: EventStatKey): number | undefined {
   const match =
-    /^(?:STAT|TOTALS|BUCKETS|RETENTION)#(\d{4})(?:#|$)/.exec(PK) || (PK === 'YEARS' ? /^(\d{4})$/.exec(SK) : undefined)
+    /^(?:STAT|TOTALS|BUCKETS|RETENTION|JUDGE)#(\d{4})(?:#|$)/.exec(PK) ||
+    (PK === 'YEARS' ? /^(\d{4})$/.exec(SK) : undefined)
   if (match) return Number(match[1])
 
   if (PK.startsWith('ORG#')) {
@@ -131,6 +150,27 @@ const getYearlyCounts = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<strin
   return counts
 }
 
+/**
+ * Seeds the per-year 'event' counts with every committed official event, so the TOTALS 'event'
+ * figure means "events held" rather than "events that got at least one registration". Without
+ * this, a year where half the events drew no entries shows the same registrations-per-event
+ * average as a year where every event filled. Draft/tentative/cancelled events are excluded the
+ * same way as for capacity: they were never committed capacity to fill.
+ */
+const seedEventCountsFromEvents = (
+  eventsById: Map<string, EventStatsEvent>,
+  yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
+): void => {
+  for (const event of eventsById.values()) {
+    if (!OFFICIAL_EVENT_TYPES.includes(event.eventType) || !countsTowardsCapacity(event)) continue
+    const year = eventStatsYear(event)
+    if (year === undefined) continue
+
+    const counts = countsForType(getYearlyCounts(yearlyStats, year), 'event')
+    if (!counts.has(event.id)) counts.set(event.id, 0)
+  }
+}
+
 const dogHandlerBucketRecords = (year: number, counts: Map<string, number>): JsonEventStatsItem[] => {
   const buckets = new Map<string, number>()
   for (const count of counts.values()) {
@@ -156,6 +196,10 @@ const retentionRecords = (
   if (!previous) return []
 
   const previousPairs = countsForType(previous, 'dog#handler')
+  // A previous year that exists only because events were seeded into its 'event' counts has no
+  // registration data to compare against; retention against it would be the same misleading
+  // "everyone is new" the earliest-year rule guards against.
+  if (previousPairs.size === 0) return []
   let returning = 0
   let fresh = 0
   for (const pair of countsForType(countsByType, 'dog#handler').keys()) {
@@ -356,6 +400,50 @@ const capacityStatsRecords = (buckets: Map<string, CapacityBucket>, updatedAt: s
     updatedAt,
   }))
 
+interface JudgeWorkloadBucket {
+  count: number
+  judgeId: string
+  name: string
+  year: number
+}
+
+/**
+ * How many events each judge officiated per year, counted straight from the events table --
+ * unlike participation, this needs no registration at all, just the event's own judge list.
+ * A judge assigned to several classes of the same event only counts once for that event.
+ */
+const seedJudgeWorkloadFromEvents = (
+  eventsById: Map<string, EventStatsEvent>,
+  buckets: Map<string, JudgeWorkloadBucket>
+): void => {
+  for (const event of eventsById.values()) {
+    if (!countsTowardsCapacity(event)) continue
+    const year = eventStatsYear(event)
+    if (year === undefined) continue
+
+    const seen = new Set<string>()
+    for (const judge of event.judges ?? []) {
+      const judgeId = judge.id !== undefined ? String(judge.id) : judge.name
+      if (!judgeId || seen.has(judgeId)) continue
+      seen.add(judgeId)
+
+      const key = `${year}#${judgeId}`
+      const bucket = buckets.get(key) ?? { count: 0, judgeId, name: judge.name, year }
+      bucket.count += 1
+      buckets.set(key, bucket)
+    }
+  }
+}
+
+const judgeWorkloadRecords = (buckets: Map<string, JudgeWorkloadBucket>, updatedAt: string): JsonJudgeWorkloadItem[] =>
+  [...buckets.values()].map((bucket) => ({
+    count: bucket.count,
+    name: bucket.name,
+    PK: `JUDGE#${bucket.year}`,
+    SK: bucket.judgeId,
+    updatedAt,
+  }))
+
 const addRegistrationStats = (
   registration: RegistrationStatsInput,
   event: EventStatsEvent,
@@ -407,7 +495,7 @@ export function buildStatsRecords(
   updatedAt: string,
   partitions: StatsPartition[] = ALL_STATS_PARTITIONS
 ): {
-  records: (JsonEventStatsItem | JsonCapacityStatsItem)[]
+  records: (JsonEventStatsItem | JsonCapacityStatsItem | JsonJudgeWorkloadItem)[]
   skippedCount: number
   unattributedCapacityCount: number
 } {
@@ -423,6 +511,11 @@ export function buildStatsRecords(
   const eventClassMonths = new Map<string, Map<string, string>>()
   if (wanted.has('capacity')) seedCapacityFromEvents(eventsById, capacityBuckets, eventClassMonths)
 
+  const judgeWorkloadBuckets = new Map<string, JudgeWorkloadBucket>()
+  if (wanted.has('judges')) seedJudgeWorkloadFromEvents(eventsById, judgeWorkloadBuckets)
+
+  if (wanted.has('participation')) seedEventCountsFromEvents(eventsById, yearlyStats)
+
   for (const registration of registrations) {
     const outcome = processRegistrationStats(
       registration,
@@ -437,10 +530,11 @@ export function buildStatsRecords(
     if (outcome.unattributedCapacity) unattributedCapacityCount++
   }
 
-  const records: (JsonEventStatsItem | JsonCapacityStatsItem)[] = [
+  const records: (JsonEventStatsItem | JsonCapacityStatsItem | JsonJudgeWorkloadItem)[] = [
     ...(wanted.has('organizer') ? organizerStats.values() : []),
     ...(wanted.has('participation') ? yearlyStatsRecords(yearlyStats) : []),
     ...(wanted.has('capacity') ? capacityStatsRecords(capacityBuckets, updatedAt) : []),
+    ...(wanted.has('judges') ? judgeWorkloadRecords(judgeWorkloadBuckets, updatedAt) : []),
   ]
 
   // The YEARS marker belongs to the participation partition (see getStatsRecordPartition).

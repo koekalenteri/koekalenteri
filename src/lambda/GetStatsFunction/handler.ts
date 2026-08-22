@@ -15,17 +15,26 @@ const YEARLY_MAX_AGE = 300
 const CAPACITY_MAX_AGE = 3600
 
 async function getYearStats(year: number) {
-  const [totals, dogHandlerBuckets, breedBreakdown, eventTypeBreakdown, retention] = await Promise.all([
+  const [totals, dogHandlerBuckets, breedBreakdown, eventTypeBreakdown, classBreakdown, retention] = await Promise.all([
     getYearlyTotalStats(year),
     getDogHandlerBuckets(year),
     getYearlyBreakdown(year, 'breed'),
     getYearlyBreakdown(year, 'eventType'),
+    getYearlyBreakdown(year, 'class'),
     getRetentionStats(year),
   ])
 
   // Omitted rather than zeroed for the earliest year: no comparison year exists, and a zero
   // would read as "nobody returned".
-  return { breedBreakdown, dogHandlerBuckets, eventTypeBreakdown, ...(retention && { retention }), totals, year }
+  return {
+    breedBreakdown,
+    classBreakdown,
+    dogHandlerBuckets,
+    eventTypeBreakdown,
+    ...(retention && { retention }),
+    totals,
+    year,
+  }
 }
 
 const getStatsLambda = lambda('getStatsLambda', async (event) => {

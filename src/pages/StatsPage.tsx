@@ -10,7 +10,9 @@ import { useLocation, useSearchParams } from 'react-router'
 import { HEADER_HEIGHT } from '../assets/Theme'
 import { rum } from '../lib/client/rum'
 import Header from './components/Header'
+import AvgRegistrationsPerEventChart from './components/stats/AvgRegistrationsPerEventChart'
 import BreedDistributionChart from './components/stats/BreedDistributionChart'
+import ClassDistributionChart from './components/stats/ClassDistributionChart'
 import DogHandlerBucketChart from './components/stats/DogHandlerBucketChart'
 import EventTypeBarChart from './components/stats/EventTypeBarChart'
 import ParticipationTrendChart from './components/stats/ParticipationTrendChart'
@@ -51,12 +53,16 @@ export function Component() {
         <Stack spacing={4}>
           {allStats.stats.length > 0 ? <ParticipationTrendChart stats={allStats.stats} /> : null}
           {allStats.stats.some((stat) => stat.retention) ? <RetentionChart stats={allStats.stats} /> : null}
+          <AvgRegistrationsPerEventChart stats={allStats.stats} />
 
           <YearSelector years={years} value={selectedYear} onChange={(year) => setSearchParams({ year: `${year}` })} />
 
           <Grid container spacing={4}>
             <Grid size={{ md: 6, xs: 12 }}>
               <EventTypeBarChart data={yearStats.eventTypeBreakdown} />
+            </Grid>
+            <Grid size={{ md: 6, xs: 12 }}>
+              <ClassDistributionChart data={yearStats.classBreakdown} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
               <DogHandlerBucketChart data={yearStats.dogHandlerBuckets} />

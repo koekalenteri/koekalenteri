@@ -74,6 +74,7 @@ describe('statsRebuild', () => {
     [{ PK: 'ORG#organizer', SK: 'not-a-date#event' }, undefined],
     [{ PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' }, 2025],
     [{ PK: 'CAPACITY#NOU', SK: 'not-a-month#NOU' }, undefined],
+    [{ PK: 'JUDGE#2025', SK: '1' }, 2025],
   ])('extracts stats year from %o', (key, expected) => {
     expect(getEventStatsRecordYear(key)).toBe(expected)
   })
@@ -113,7 +114,7 @@ describe('statsRebuild', () => {
 
     expect(mockReadAll).toHaveBeenNthCalledWith(1, {
       names: { '#state': 'state' },
-      projection: 'id, organizer, startDate, eventType, classes, places, #state',
+      projection: 'id, organizer, startDate, eventType, classes, places, #state, judges',
       table: 'event-table',
     })
     expect(mockReadAll).toHaveBeenNthCalledWith(2, {
@@ -467,6 +468,91 @@ describe('statsRebuild', () => {
     expect(records.filter((record) => record.PK.startsWith('CAPACITY#'))).toHaveLength(0)
   })
 
+  describe('judge workload', () => {
+    it('counts one event per judge, independent of registrations', () => {
+      const nomeB: EventStatsEvent = {
+        ...event('nome-b-event', '2025-06-01'),
+        judges: [
+          { id: 1, name: 'Matti Meikäläinen' },
+          { id: 2, name: 'Maija Mallikas' },
+        ],
+      }
+
+      const { records } = buildStatsRecords([], new Map([[nomeB.id, nomeB]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual(
+        expect.arrayContaining([
+          { count: 1, name: 'Matti Meikäläinen', PK: 'JUDGE#2025', SK: '1', updatedAt: '2025-01-01T00:00:00.000Z' },
+          { count: 1, name: 'Maija Mallikas', PK: 'JUDGE#2025', SK: '2', updatedAt: '2025-01-01T00:00:00.000Z' },
+        ])
+      )
+    })
+
+    it('counts a judge only once per event even when assigned to several classes', () => {
+      const nomeB: EventStatsEvent = {
+        ...event('nome-b-event', '2025-06-01'),
+        classes: [
+          { class: 'ALO', date: '2025-06-01', judge: { id: 1, name: 'Matti Meikäläinen' } },
+          { class: 'AVO', date: '2025-06-01', judge: { id: 1, name: 'Matti Meikäläinen' } },
+        ],
+        judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+      }
+      const other: EventStatsEvent = {
+        ...event('other-event', '2025-07-01'),
+        judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+      }
+
+      const { records } = buildStatsRecords(
+        [],
+        new Map([
+          [nomeB.id, nomeB],
+          [other.id, other],
+        ]),
+        '2025-01-01T00:00:00.000Z'
+      )
+
+      expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
+        { count: 2, name: 'Matti Meikäläinen', PK: 'JUDGE#2025', SK: '1', updatedAt: '2025-01-01T00:00:00.000Z' },
+      ])
+    })
+
+    it('keys a judge without an id by name', () => {
+      const nomeB: EventStatsEvent = {
+        ...event('nome-b-event', '2025-06-01'),
+        judges: [{ name: 'Foreign Judge' }],
+      }
+
+      const { records } = buildStatsRecords([], new Map([[nomeB.id, nomeB]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
+        {
+          count: 1,
+          name: 'Foreign Judge',
+          PK: 'JUDGE#2025',
+          SK: 'Foreign Judge',
+          updatedAt: '2025-01-01T00:00:00.000Z',
+        },
+      ])
+    })
+
+    it('excludes draft, tentative and cancelled events, same as capacity', () => {
+      const draft: EventStatsEvent = {
+        ...event('draft-event', '2025-08-01'),
+        judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+        state: 'draft',
+      }
+
+      const { records } = buildStatsRecords([], new Map([[draft.id, draft]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.filter((record) => record.PK === 'JUDGE#2025')).toHaveLength(0)
+    })
+
+    it('is classified as its own partition, rebuildable like capacity and participation', () => {
+      expect(getStatsRecordPartition({ PK: 'JUDGE#2025', SK: '1' })).toBe('judges')
+      expect(REBUILDABLE_STATS_PARTITIONS).toContain('judges')
+    })
+  })
+
   it('skips registrations whose events are missing or have invalid start dates', async () => {
     const invalidEvent = event('invalid-event', 'not-a-date')
     mockReadAll
@@ -504,6 +590,7 @@ describe('statsRebuild', () => {
     it.each([
       [{ PK: 'ORG#organizer-1', SK: '2025-06-01#event' }, 'organizer'],
       [{ PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' }, 'capacity'],
+      [{ PK: 'JUDGE#2025', SK: '1' }, 'judges'],
       [{ PK: 'STAT#2025#dog', SK: 'FI12345' }, 'participation'],
       [{ PK: 'TOTALS#2025', SK: 'dog' }, 'participation'],
       [{ PK: 'BUCKETS#2025#dog#handler', SK: '1' }, 'participation'],
@@ -593,6 +680,25 @@ describe('statsRebuild', () => {
     expect(mockBatchWrite).not.toHaveBeenCalled()
   })
 
+  describe('event totals', () => {
+    it('counts committed official events with no registrations, so averages divide by events held', () => {
+      const withRegistrations = event('event-with-registrations', '2025-05-01')
+      const empty = event('event-empty', '2025-06-01')
+      const cancelled: EventStatsEvent = { ...event('event-cancelled', '2025-07-01'), state: 'cancelled' }
+      const unofficial = event('event-unofficial', '2025-08-01', 'other')
+      const eventsById = new Map(
+        [withRegistrations, empty, cancelled, unofficial].map((testEvent) => [testEvent.id, testEvent])
+      )
+
+      const { records } = buildStatsRecords([registration('one', withRegistrations.id)], eventsById, 'now')
+
+      // The registration-less event counts toward the total; cancelled and unofficial do not.
+      expect(records).toContainEqual({ count: 2, PK: 'TOTALS#2025', SK: 'event' })
+      expect(records).toContainEqual({ count: 0, PK: 'STAT#2025#event', SK: empty.id })
+      expect(records.some((record) => record.PK === 'STAT#2025#event' && record.SK === cancelled.id)).toBe(false)
+    })
+  })
+
   describe('retention', () => {
     const pair = (regNo: string, email: string) => ({ dog: { regNo }, handler: { email } })
     const build = (years: { year: number; pairs: { dog: { regNo: string }; handler: { email: string } }[] }[]) => {
@@ -633,6 +739,17 @@ describe('statsRebuild', () => {
     it('writes nothing for a year whose predecessor had no events at all', () => {
       const records = build([
         { pairs: [pair('FI1', 'a@example.com')], year: 2023 },
+        { pairs: [pair('FI1', 'a@example.com')], year: 2025 },
+      ])
+
+      expect(records.filter((r) => r.PK === 'RETENTION#2025')).toEqual([])
+    })
+
+    it('writes nothing for a year whose predecessor had events but no registration data', () => {
+      // Event seeding creates the predecessor's yearlyStats entry with an empty pair set;
+      // retention against it would be the same misleading "everyone is new" as the earliest year.
+      const records = build([
+        { pairs: [], year: 2024 },
         { pairs: [pair('FI1', 'a@example.com')], year: 2025 },
       ])
 

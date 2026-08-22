@@ -4,6 +4,7 @@ import type {
   CapacityStatsEntry,
   JsonCapacityStatsItem,
   JsonEventStatsItem,
+  JudgeWorkloadEntry,
   RetentionStats,
   YearlyStatTypes,
   YearlyTotalStat,
@@ -11,6 +12,7 @@ import type {
 import crypto from 'node:crypto'
 import { formatDate } from '../../i18n/dates'
 import { getEventSeason } from '../../lib/event'
+import { getRegistrationClass } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -36,7 +38,7 @@ const waitForStatsRetry = (attempt: number) => {
 
 export type RegistrationStatsInput = Pick<
   JsonRegistration,
-  'cancelled' | 'eventId' | 'eventType' | 'id' | 'paidAmount' | 'refundAmount'
+  'cancelled' | 'class' | 'eventId' | 'eventType' | 'id' | 'paidAmount' | 'refundAmount'
 > & {
   dog?: Pick<JsonRegistration['dog'], 'breedCode' | 'regNo'>
   handler?: Pick<NonNullable<JsonRegistration['handler']>, 'email'>
@@ -352,6 +354,23 @@ export async function getCapacityStats(
 }
 
 /**
+ * Get per-judge event counts for a specific year: how many events each judge officiated.
+ * Written by the nightly rebuild from the events table alone, independent of registrations.
+ */
+export async function getJudgeWorkload(year: number): Promise<JudgeWorkloadEntry[]> {
+  const items = await dynamoDB.query<{ SK: string; name: string; count: number }>({
+    key: 'PK = :pk',
+    values: { ':pk': `JUDGE#${year}` },
+  })
+
+  return (items || []).map((item) => ({
+    count: item.count,
+    judgeId: item.SK,
+    name: item.name,
+  }))
+}
+
+/**
  * Calculate the deltas for various statistics based on registration changes
  */
 export function calculateStatDeltas(
@@ -521,8 +540,10 @@ export const participationIdentifiers = (registration: RegistrationStatsInput): 
 
   return {
     breed: registration.dog?.breedCode ?? 'unknown',
+    class: getRegistrationClass(registration),
     dog: hashedRegNo,
     'dog#handler': `${hashedRegNo}#${hashedHandlerEmail}`,
+    event: registration.eventId,
     eventType: registration.eventType,
     handler: hashedHandlerEmail,
     owner: hashedOwnerEmail,

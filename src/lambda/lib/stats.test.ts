@@ -50,6 +50,7 @@ const {
   eventStatsYear,
   getCapacityStats,
   getRetentionStats,
+  getJudgeWorkload,
   eventStatsMonth,
   moveOrganizerEventStats,
 } = await import('./stats')
@@ -676,6 +677,34 @@ describe('lib/stats', () => {
     })
   })
 
+  describe('getJudgeWorkload', () => {
+    it('queries per-judge event counts with correct key', async () => {
+      mockQuery.mockResolvedValueOnce([
+        { count: 12, name: 'Matti Meikäläinen', SK: '1' },
+        { count: 4, name: 'Foreign Judge', SK: 'Foreign Judge' },
+      ])
+
+      const result = await getJudgeWorkload(2024)
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: 'PK = :pk',
+        values: { ':pk': 'JUDGE#2024' },
+      })
+      expect(result).toEqual([
+        { count: 12, judgeId: '1', name: 'Matti Meikäläinen' },
+        { count: 4, judgeId: 'Foreign Judge', name: 'Foreign Judge' },
+      ])
+    })
+
+    it('handles empty results', async () => {
+      mockQuery.mockResolvedValueOnce(null)
+
+      const result = await getJudgeWorkload(2023)
+
+      expect(result).toEqual([])
+    })
+  })
+
   describe('getCapacityStats', () => {
     it('returns an empty range without querying when from is after to', async () => {
       const result = await getCapacityStats('NOME-B', undefined, '2025-12', '2025-01')
@@ -1023,6 +1052,7 @@ describe('lib/stats', () => {
       const ownerEmail = 'owner@example.com'
       const registration: RegistrationStatsInput = {
         cancelled: false,
+        class: 'AVO',
         dog: { breedCode: '122', regNo: dogRegNo },
         eventId: 'event-id',
         eventType: 'NOU',
@@ -1037,8 +1067,10 @@ describe('lib/stats', () => {
 
       expect(participationIdentifiers(registration)).toEqual({
         breed: '122',
+        class: 'AVO',
         dog,
         'dog#handler': `${dog}#${handler}`,
+        event: 'event-id',
         eventType: 'NOU',
         handler,
         owner: hashStatValue(ownerEmail),
@@ -1058,8 +1090,11 @@ describe('lib/stats', () => {
 
       expect(participationIdentifiers(registration)).toEqual({
         breed: 'unknown',
+        // No class on the registration: falls back to the event type, same as getRegistrationClass.
+        class: 'NOU',
         dog: emptyHash,
         'dog#handler': `${emptyHash}#${emptyHash}`,
+        event: 'event-id',
         eventType: 'NOU',
         handler: emptyHash,
         owner: emptyHash,

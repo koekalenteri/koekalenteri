@@ -1,6 +1,7 @@
 import type {
   CapacityStatsEntry,
   EventStatsItem,
+  JudgeWorkloadEntry,
   RetentionStats,
   YearlyBreakdownEntry,
   YearlyTotalStat,
@@ -17,6 +18,7 @@ export interface YearlyStatsResponse {
   // Optional: absent when talking to a backend deployed before these breakdowns were added.
   breedBreakdown?: YearlyBreakdownEntry[]
   eventTypeBreakdown?: YearlyBreakdownEntry[]
+  classBreakdown?: YearlyBreakdownEntry[]
   // Absent for the earliest year on record, and for backends deployed before retention existed.
   retention?: RetentionStats
 }
@@ -69,6 +71,19 @@ export async function getAdminCapacityStats(
     withToken({ signal }, token)
   )
   return result.capacityStats ?? []
+}
+
+/** Per-judge event counts for a year. Authenticated, but not organizer-scoped: judging isn't tied to one organizer. */
+export async function getAdminJudgeWorkload(
+  token: string,
+  year: number,
+  signal?: AbortSignal
+): Promise<JudgeWorkloadEntry[]> {
+  const result = await http.get<{ judgeWorkload?: JudgeWorkloadEntry[] }>(
+    `${ADMIN_PATH}?judges=${year}`,
+    withToken({ signal }, token)
+  )
+  return result.judgeWorkload ?? []
 }
 
 export async function getOrganizerEventStats(

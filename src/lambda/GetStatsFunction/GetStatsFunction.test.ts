@@ -61,6 +61,7 @@ describe('GetStatsFunction', () => {
     ]
     const breedBreakdown = breakdownFor(year, 'breed')
     const eventTypeBreakdown = breakdownFor(year, 'eventType')
+    const classBreakdown = breakdownFor(year, 'class')
 
     // Setup mocks
     mockGetYearlyTotalStats.mockResolvedValueOnce(totals)
@@ -75,9 +76,10 @@ describe('GetStatsFunction', () => {
     expect(mockGetDogHandlerBuckets).toHaveBeenCalledWith(year)
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'breed')
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'eventType')
+    expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'class')
 
     // Verify response
-    const expectedBody = { breedBreakdown, dogHandlerBuckets, eventTypeBreakdown, totals, year }
+    const expectedBody = { breedBreakdown, classBreakdown, dogHandlerBuckets, eventTypeBreakdown, totals, year }
     expect(mockResponse).toHaveBeenCalledWith(200, expectedBody, event, { maxAge: 300 })
     expect(result.body).toEqual(expectedBody)
   })
@@ -109,8 +111,10 @@ describe('GetStatsFunction', () => {
     expect(mockGetDogHandlerBuckets).toHaveBeenCalledWith(2024)
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(2023, 'breed')
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(2023, 'eventType')
+    expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(2023, 'class')
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(2024, 'breed')
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(2024, 'eventType')
+    expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(2024, 'class')
 
     // Verify response
     expect(mockResponse).toHaveBeenCalledWith(
@@ -119,6 +123,7 @@ describe('GetStatsFunction', () => {
         stats: [
           {
             breedBreakdown: breakdownFor(2023, 'breed'),
+            classBreakdown: breakdownFor(2023, 'class'),
             dogHandlerBuckets: buckets2023,
             eventTypeBreakdown: breakdownFor(2023, 'eventType'),
             totals: totals2023,
@@ -126,6 +131,7 @@ describe('GetStatsFunction', () => {
           },
           {
             breedBreakdown: breakdownFor(2024, 'breed'),
+            classBreakdown: breakdownFor(2024, 'class'),
             dogHandlerBuckets: buckets2024,
             eventTypeBreakdown: breakdownFor(2024, 'eventType'),
             totals: totals2024,
@@ -170,6 +176,7 @@ describe('GetStatsFunction', () => {
       stats: [
         {
           breedBreakdown: breakdownFor(2023, 'breed'),
+          classBreakdown: breakdownFor(2023, 'class'),
           dogHandlerBuckets: buckets2023,
           eventTypeBreakdown: breakdownFor(2023, 'eventType'),
           totals: totals2023,
@@ -177,6 +184,7 @@ describe('GetStatsFunction', () => {
         },
         {
           breedBreakdown: breakdownFor(2024, 'breed'),
+          classBreakdown: breakdownFor(2024, 'class'),
           dogHandlerBuckets: buckets2024,
           eventTypeBreakdown: breakdownFor(2024, 'eventType'),
           totals: totals2024,
