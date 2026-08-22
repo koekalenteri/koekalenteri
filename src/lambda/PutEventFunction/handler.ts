@@ -79,6 +79,47 @@ const persistEventWithRegistrations = async (
   return result
 }
 
+interface PutEventPreconditionError {
+  status: number
+  body: unknown
+}
+
+/** Checks that can run before looking up the previously stored event. */
+const checkPutEventRequestShape = (
+  patchRequest: boolean,
+  item: Patch<JsonConfirmedEvent>
+): PutEventPreconditionError | undefined => {
+  if (patchRequest && !item.id) {
+    return { body: { message: 'Bad request: PATCH requires id' }, status: 400 }
+  }
+
+  const invalidField = invalidArrayField(item)
+  if (invalidField) {
+    return { body: { message: `Bad request: ${invalidField} must be an array` }, status: 400 }
+  }
+}
+
+/** Checks that depend on the previously stored event, once it has been looked up. */
+const checkPutEventAgainstExisting = (
+  user: JsonUser,
+  item: Patch<JsonConfirmedEvent>,
+  existing: JsonConfirmedEvent | undefined,
+  clientModifiedAt: string | null | undefined
+): PutEventPreconditionError | undefined => {
+  if (isUserForbidden(user, existing, item)) {
+    return { body: 'Forbidden', status: 403 }
+  }
+
+  if (existing?.modifiedAt && clientModifiedAt && existing.modifiedAt !== clientModifiedAt) {
+    return { body: { error: 'staleData', message: 'Event has been modified since it was loaded' }, status: 409 }
+  }
+
+  if (item.deletedAt && !isEventDeletable(existing)) {
+    console.log('Event is not deletable', { existing, item })
+    return { body: 'Forbidden', status: 403 }
+  }
+}
+
 const auditEventChanges = async (
   existing: JsonConfirmedEvent | undefined,
   item: Patch<JsonConfirmedEvent>,
@@ -102,28 +143,17 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   const item: Patch<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
   const clientModifiedAt = item.modifiedAt
-  if (patchRequest && !item.id) {
-    return response(400, { message: 'Bad request: PATCH requires id' }, event)
-  }
 
-  const invalidField = invalidArrayField(item)
-  if (invalidField) {
-    return response(400, { message: `Bad request: ${invalidField} must be an array` }, event)
+  const requestShapeError = checkPutEventRequestShape(patchRequest, item)
+  if (requestShapeError) {
+    return response(requestShapeError.status, requestShapeError.body, event)
   }
 
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
 
-  if (isUserForbidden(user, existing, item)) {
-    return response(403, 'Forbidden', event)
-  }
-
-  if (existing?.modifiedAt && clientModifiedAt && existing.modifiedAt !== clientModifiedAt) {
-    return response(409, { error: 'staleData', message: 'Event has been modified since it was loaded' }, event)
-  }
-
-  if (item.deletedAt && !isEventDeletable(existing)) {
-    console.log('Event is not deletable', { existing, item })
-    return response(403, 'Forbidden', event)
+  const existingError = checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
+  if (existingError) {
+    return response(existingError.status, existingError.body, event)
   }
 
   if (!existing) {

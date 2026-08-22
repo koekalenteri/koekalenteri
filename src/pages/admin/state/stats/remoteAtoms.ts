@@ -8,7 +8,7 @@ import { validIdTokenAtom } from '../../../state'
  * Year/organizer filtering happens client-side so switching the filter never re-fetches.
  */
 export const adminOrganizerEventStatsAtom = atom(async (get) => {
-  const token = await get(validIdTokenAtom)
+  const token = get(validIdTokenAtom)
   return token ? getOrganizerEventStats(token) : []
 })
 

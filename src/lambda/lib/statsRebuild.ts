@@ -240,7 +240,7 @@ const classMonth = (event: EventStatsEvent, classKey: string): string | undefine
         eventClass.class === classKey && !!eventClass.date
     )
     .map((eventClass) => eventClass.date)
-    .sort()
+    .sort((a, b) => a.localeCompare(b))
   return eventStatsMonth(dates[0] ?? event.startDate) ?? eventStatsMonth(event.startDate)
 }
 
@@ -289,11 +289,12 @@ const addCapacityRegistration = (
   const registrationClass = getRegistrationClass(registration) ?? event.eventType
   // A class the event does not offer (removed after entry, or a classless entry on a classed
   // event) is only resolvable when the event has a single class to attribute it to.
-  const classKey = classMonths.has(registrationClass)
-    ? registrationClass
-    : classMonths.size === 1
-      ? [...classMonths.keys()][0]
-      : undefined
+  let classKey: string | undefined
+  if (classMonths.has(registrationClass)) {
+    classKey = registrationClass
+  } else if (classMonths.size === 1) {
+    classKey = [...classMonths.keys()][0]
+  }
   const month = classKey && classMonths.get(classKey)
   if (!classKey || !month) return false
 
@@ -339,6 +340,32 @@ const addRegistrationStats = (
   for (const type of PARTICIPATION_TYPES) increment(countsForType(yearlyCounts, type), identifiers[type])
 }
 
+/**
+ * Processes one registration into the accumulator/capacity buckets. Returns whether it had to be
+ * skipped (unresolvable event/year) and, when capacity is wanted, whether it couldn't be
+ * attributed to a capacity bucket.
+ */
+const processRegistrationStats = (
+  registration: CapacityRegistrationInput,
+  eventsById: Map<string, EventStatsEvent>,
+  updatedAt: string,
+  accumulator: StatsAccumulator,
+  wanted: Set<StatsPartition>,
+  capacityBuckets: Map<string, CapacityBucket>,
+  eventClassMonths: Map<string, Map<string, string>>
+): { skipped: boolean; unattributedCapacity: boolean } => {
+  const event = eventsById.get(registration.eventId)
+  const year = event && eventStatsYear(event)
+  if (!event || year === undefined) {
+    console.log(`Skipping registration ${registration.id}: event is missing or has an invalid start date`)
+    return { skipped: true, unattributedCapacity: false }
+  }
+  addRegistrationStats(registration, event, year, updatedAt, accumulator, wanted)
+  const unattributedCapacity =
+    wanted.has('capacity') && !addCapacityRegistration(registration, event, capacityBuckets, eventClassMonths)
+  return { skipped: false, unattributedCapacity }
+}
+
 /** Builds the desired contents of the given stats partitions without making DynamoDB writes. */
 export function buildStatsRecords(
   registrations: CapacityRegistrationInput[],
@@ -363,17 +390,17 @@ export function buildStatsRecords(
   if (wanted.has('capacity')) seedCapacityFromEvents(eventsById, capacityBuckets, eventClassMonths)
 
   for (const registration of registrations) {
-    const event = eventsById.get(registration.eventId)
-    const year = event && eventStatsYear(event)
-    if (!event || year === undefined) {
-      console.log(`Skipping registration ${registration.id}: event is missing or has an invalid start date`)
-      skippedCount++
-      continue
-    }
-    addRegistrationStats(registration, event, year, updatedAt, accumulator, wanted)
-    if (wanted.has('capacity')) {
-      if (!addCapacityRegistration(registration, event, capacityBuckets, eventClassMonths)) unattributedCapacityCount++
-    }
+    const outcome = processRegistrationStats(
+      registration,
+      eventsById,
+      updatedAt,
+      accumulator,
+      wanted,
+      capacityBuckets,
+      eventClassMonths
+    )
+    if (outcome.skipped) skippedCount++
+    if (outcome.unattributedCapacity) unattributedCapacityCount++
   }
 
   const records: (JsonEventStatsItem | JsonCapacityStatsItem)[] = [
