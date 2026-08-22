@@ -9,6 +9,8 @@
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventStatsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTypeTable
       Events:
         StatsApi:
           Type: Api
