@@ -1,7 +1,10 @@
-  BackfillEventStatsFunction:
+  # Manual invoke only. Rebuilds every stats partition including ORG#, which registration
+  # writes also maintain, so run it when writes are quiet. The nightly RebuildStatsFunction
+  # covers the partitions that can be rebuilt safely at any time.
+  RebuildAllStatsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambda/BackfillEventStatsFunction
+      CodeUri: lambda/RebuildAllStatsFunction
       Handler: handler.default
       Layers:
         - !Ref DependenciesLayer
@@ -15,8 +18,8 @@
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable
 
-  BackfillEventStatsFunctionLogGroup:
+  RebuildAllStatsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref BackfillEventStatsFunction]]
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RebuildAllStatsFunction]]
       RetentionInDays: 30

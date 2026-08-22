@@ -132,6 +132,51 @@ describe('getOrganizerEventStatsLambda', () => {
     expect(result.statusCode).toBe(200)
   })
 
+  it('filters stats by a single organizerId when requested by a member', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1', 'org2'], user: mockUser })
+    mockQuery.mockResolvedValueOnce([baseStats[0]])
+
+    const event = constructAPIGwEvent({}, { query: { organizerId: 'org1' } })
+    const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
+
+    expect(mockQuery).toHaveBeenCalledWith({
+      filterExpression: undefined,
+      key: '#pk = :pk',
+      names: { '#pk': 'PK' },
+      values: { ':pk': 'ORG#org1' },
+    })
+    expect(JSON.parse(result.body)).toEqual([baseStats[0]])
+    expect(result.statusCode).toBe(200)
+  })
+
+  it('forbids a non-admin user from requesting an organizerId they are not a member of', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1', 'org2'], user: mockUser })
+
+    const event = constructAPIGwEvent({}, { query: { organizerId: 'org3' } })
+    const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
+
+    expect(result.statusCode).toBe(403)
+    expect(mockQuery).not.toHaveBeenCalled()
+    expect(mockReadAll).not.toHaveBeenCalled()
+  })
+
+  it('allows an admin user to request any organizerId', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: mockAdminUser })
+    mockQuery.mockResolvedValueOnce([baseStats[2]])
+
+    const event = constructAPIGwEvent({}, { query: { organizerId: 'org3' } })
+    const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
+
+    expect(mockQuery).toHaveBeenCalledWith({
+      filterExpression: undefined,
+      key: '#pk = :pk',
+      names: { '#pk': 'PK' },
+      values: { ':pk': 'ORG#org3' },
+    })
+    expect(JSON.parse(result.body)).toEqual([baseStats[2]])
+    expect(result.statusCode).toBe(200)
+  })
+
   it('returns early if authorizeWithMemberOf returns a response (unauthorized)', async () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({ res: { body: 'Unauthorized', statusCode: 401 } })
     const event = constructAPIGwEvent({}, {})

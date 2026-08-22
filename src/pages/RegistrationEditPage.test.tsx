@@ -46,7 +46,11 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 }
 
 describe('RegistrationEditPage', () => {
-  beforeAll(() => vi.useFakeTimers())
+  // Also fake setTimeout/clearTimeout: MUI's Collapse sections resolve their exit transition via
+  // a real setTimeout (react-transition-group), and flushPromises only awaits it deterministically
+  // through vi.runOnlyPendingTimers() when timers are faked — otherwise it falls back to a real
+  // 310ms wait that races the transition under load, flaking the snapshot.
+  beforeAll(() => vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] }))
   afterEach(() => vi.runOnlyPendingTimers())
   afterAll(() => vi.useRealTimers())
 
@@ -54,6 +58,10 @@ describe('RegistrationEditPage', () => {
     const { eventId, id } = registrationWithStaticDates
     mockUseParams.mockImplementation(() => ({ id: eventId, registrationId: id }))
     const { container } = render(<RegistrationEditPage />, { wrapper: Wrapper })
+    // One pass resolves the page's chained derived atoms; a second is needed for the
+    // Collapse sections that only start their (now fake-timer-driven) exit transition once
+    // that data has settled, matching the RegistrationListPage double-flush convention.
+    await flushPromises()
     await flushPromises()
     expect(container).toMatchSnapshot()
   })

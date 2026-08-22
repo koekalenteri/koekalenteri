@@ -27,6 +27,7 @@ import {
   parseDateOnlyString,
   parseJSON,
   patchMerge,
+  splitEvenly,
 } from './utils'
 
 describe('utils', () => {
@@ -644,6 +645,24 @@ describe('utils', () => {
           { id: '2', notes: 'keep' },
         ])
       ).toEqual(['1'])
+    })
+  })
+
+  describe('splitEvenly', () => {
+    it('splits evenly when it divides exactly', () => {
+      expect(splitEvenly(9, 3)).toEqual([3, 3, 3])
+    })
+
+    it('gives the remainder to the first share', () => {
+      expect(splitEvenly(10, 3)).toEqual([4, 3, 3])
+    })
+
+    it('returns an empty array for zero shares', () => {
+      expect(splitEvenly(10, 0)).toEqual([])
+    })
+
+    it('returns zeros when total is zero', () => {
+      expect(splitEvenly(0, 3)).toEqual([0, 0, 0])
     })
   })
 })

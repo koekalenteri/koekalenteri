@@ -4,6 +4,7 @@ import type {
   ConfirmedEventStates,
   DeepPartial,
   DogEvent,
+  EventClass,
   EventState,
   JsonDogEvent,
   JsonPublicDogEvent,
@@ -81,7 +82,8 @@ export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' 
     : eachDayOfInterval({ end: event.endDate, start: event.startDate })
 }
 
-export const uniqueClasses = (event?: Pick<PublicDogEvent, 'classes'> | null) => {
+/** Only `class` is read, so this accepts both the `Date`- and `string`-dated event shapes. */
+export const uniqueClasses = (event?: { classes?: Array<Pick<EventClass, 'class'>> | null } | null) => {
   const classes = event?.classes
   return Array.isArray(classes) ? unique(classes.map((eventClass) => eventClass.class)) : []
 }

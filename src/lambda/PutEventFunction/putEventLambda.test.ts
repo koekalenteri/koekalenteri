@@ -30,9 +30,11 @@ vi.doMock('../lib/event', () => ({
   updateRegistrations: vi.fn(),
 }))
 
+const mockStatsRead = vi.fn()
+const mockStatsTransaction = vi.fn()
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
-    return { write: vi.fn() }
+    return { documentTransaction: mockStatsTransaction, read: mockStatsRead, write: vi.fn() }
   }),
 }))
 
@@ -563,6 +565,53 @@ describe('putEventLambda', () => {
       })
     )
     expect(res.statusCode).toEqual(200)
+  })
+
+  it('moves the organizer stats record when startDate changes', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
+    mockStatsRead.mockResolvedValueOnce({
+      count: 7,
+      date: '2024-06-15T00:00:00.000Z',
+      organizerId: mockEvent.organizer.id,
+      PK: `ORG#${mockEvent.organizer.id}`,
+      paidAmount: 350,
+      SK: `2024-06-15T00:00:00.000Z#existing`,
+    })
+
+    await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2024-12-31T22:00:00.000Z' })
+    )
+
+    // Counters carry across; the old key is removed in the same transaction.
+    expect(mockStatsTransaction).toHaveBeenCalledWith([
+      {
+        Put: expect.objectContaining({
+          Item: expect.objectContaining({
+            count: 7,
+            date: '2024-12-31T22:00:00.000Z',
+            PK: `ORG#${mockEvent.organizer.id}`,
+            paidAmount: 350,
+            SK: `2024-12-31T22:00:00.000Z#existing`,
+          }),
+        }),
+      },
+      {
+        Delete: expect.objectContaining({
+          Key: { PK: `ORG#${mockEvent.organizer.id}`, SK: `2024-06-15T00:00:00.000Z#existing` },
+        }),
+      },
+    ])
+  })
+
+  it('does not touch the organizer stats record when the key is unchanged', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
+
+    await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', name: 'Renamed but same dates' }))
+
+    expect(mockStatsRead).not.toHaveBeenCalled()
+    expect(mockStatsTransaction).not.toHaveBeenCalled()
   })
 
   it('should not update season when startDate is unchanged', async () => {

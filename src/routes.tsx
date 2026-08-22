@@ -185,6 +185,13 @@ const routes: RouteObject[] = [
           })),
         path: Path.admin.emailTemplates,
       },
+      {
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/StatsPage')).default,
+          })),
+        path: Path.admin.stats,
+      },
     ],
     errorElement: <ErrorPage />,
     hydrateFallbackElement: <LoadingIndicator />,
@@ -218,6 +225,12 @@ const routes: RouteObject[] = [
     hydrateFallbackElement: <LoadingIndicator />,
     loader: startListLoader,
     path: Path.startList(':id'),
+  },
+  {
+    errorElement: <ErrorPage />,
+    hydrateFallbackElement: <LoadingIndicator />,
+    lazy: () => reloadOnChunkLoadError(() => import('./pages/StatsPage')),
+    path: Path.stats,
   },
   {
     element: <SupportPage />,
