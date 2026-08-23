@@ -705,11 +705,12 @@
       "title": "Financial statistics",
       "titleInfo": "Amount paid and amount refunded per month, for the selected organization and year.",
       "trialStatsEvents": "Trials",
+      "trialStatsExport": "Download Excel",
       "trialStatsHandlers": "Handlers",
       "trialStatsPlaces": "Starting places",
       "trialStatsStarters": "Starts",
       "trialStatsTitle": "Trials, places and starts",
-      "trialStatsTitleInfo": "Number of trials organized by clubs, their starting places, starts and distinct handlers per year, broken down by event type.",
+      "trialStatsTitleInfo": "Number of trials organized by clubs, their starting places, starts and distinct handlers for the selected year, broken down by club and event type.",
       "trialStatsTotal": "Total"
     },
     "breedDistribution": "Breed distribution",

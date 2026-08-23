@@ -775,12 +775,28 @@ describe('lib/stats', () => {
   })
 
   describe('getTrialStats', () => {
-    it('queries trials/places/starts/handlers per event type with the correct key', async () => {
+    it('queries trials/places/starts/handlers per club + event type with the correct key', async () => {
       const year = 2024
 
       mockQuery.mockResolvedValueOnce([
-        { eventCount: 5, handlerCount: 40, places: 100, SK: 'NOU', starters: 90 },
-        { eventCount: 8, handlerCount: 60, places: 200, SK: 'ALL', starters: 180 },
+        {
+          eventCount: 5,
+          eventType: 'NOU',
+          handlerCount: 40,
+          organizerId: 'organizer-1',
+          places: 100,
+          SK: 'organizer-1#NOU',
+          starters: 90,
+        },
+        {
+          eventCount: 8,
+          eventType: 'ALL',
+          handlerCount: 60,
+          organizerId: 'ALL',
+          places: 200,
+          SK: 'ALL#ALL',
+          starters: 180,
+        },
       ])
 
       const result = await getTrialStats(year)
@@ -791,8 +807,8 @@ describe('lib/stats', () => {
       })
 
       expect(result).toEqual([
-        { eventCount: 5, eventType: 'NOU', handlerCount: 40, places: 100, starters: 90 },
-        { eventCount: 8, eventType: 'ALL', handlerCount: 60, places: 200, starters: 180 },
+        { eventCount: 5, eventType: 'NOU', handlerCount: 40, organizerId: 'organizer-1', places: 100, starters: 90 },
+        { eventCount: 8, eventType: 'ALL', handlerCount: 60, organizerId: 'ALL', places: 200, starters: 180 },
       ])
     })
 

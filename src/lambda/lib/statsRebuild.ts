@@ -18,7 +18,7 @@ import type { RegistrationStatsInput } from './stats'
 import { OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
 import { getRegistrationClass, isParticipantGroup } from '../../lib/registration'
 import { splitEvenly } from '../../lib/utils'
-import { ALL_EVENT_TYPES_FOR_CAPACITY } from '../../types/Stats'
+import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_TRIALS } from '../../types/Stats'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import {
@@ -496,28 +496,55 @@ interface TrialBucket {
   eventCount: number
   eventType: string
   handlerIds: Set<string>
+  organizerId: string
   places: number
   starters: number
   year: number
 }
 
-const trialBucketKey = (year: number, eventType: string) => `${year}#${eventType}`
+const trialBucketKey = (year: number, organizerId: string, eventType: string) => `${year}#${organizerId}#${eventType}`
 
-const getOrCreateTrialBucket = (buckets: Map<string, TrialBucket>, year: number, eventType: string): TrialBucket => {
-  const key = trialBucketKey(year, eventType)
+const getOrCreateTrialBucket = (
+  buckets: Map<string, TrialBucket>,
+  year: number,
+  organizerId: string,
+  eventType: string
+): TrialBucket => {
+  const key = trialBucketKey(year, organizerId, eventType)
   const existing = buckets.get(key)
   if (existing) return existing
 
-  const bucket: TrialBucket = { eventCount: 0, eventType, handlerIds: new Set(), places: 0, starters: 0, year }
+  const bucket: TrialBucket = {
+    eventCount: 0,
+    eventType,
+    handlerIds: new Set(),
+    organizerId,
+    places: 0,
+    starters: 0,
+    year,
+  }
   buckets.set(key, bucket)
   return bucket
 }
 
 /**
- * Seeds trial counts and starting places per year + event type from the events themselves,
- * independent of registrations -- an event with no entries yet still counts as organized.
- * Also accumulates into the `ALL_EVENT_TYPES_FOR_CAPACITY` bucket for that year, which is the
- * only place a cross-type total can be computed without double-counting.
+ * The three (organizer, eventType) combinations one event/registration contributes to: its own
+ * club + event type row, that club's cross-type subtotal, and the nationwide grand total. A
+ * nationwide-per-event-type-without-club row is deliberately not kept -- the per-club rows are
+ * the requested breakdown, and a flat per-club/type export already supports pivoting by type in
+ * a spreadsheet if that view is wanted.
+ */
+const trialBucketTargets = (organizerId: string, eventType: string): [string, string][] => [
+  [organizerId, eventType],
+  [organizerId, ALL_EVENT_TYPES_FOR_CAPACITY],
+  [ALL_ORGANIZERS_FOR_TRIALS, ALL_EVENT_TYPES_FOR_CAPACITY],
+]
+
+/**
+ * Seeds trial counts and starting places per year + club + event type from the events
+ * themselves, independent of registrations -- an event with no entries yet still counts as
+ * organized. Also accumulates into each club's cross-type subtotal and the nationwide grand
+ * total, which is the only place either can be computed without double-counting.
  */
 const seedTrialsFromEvents = (eventsById: Map<string, EventStatsEvent>, buckets: Map<string, TrialBucket>): void => {
   for (const event of eventsById.values()) {
@@ -526,8 +553,8 @@ const seedTrialsFromEvents = (eventsById: Map<string, EventStatsEvent>, buckets:
     if (year === undefined) continue
 
     const places = Number(event.places) || 0
-    for (const eventType of [event.eventType, ALL_EVENT_TYPES_FOR_CAPACITY]) {
-      const bucket = getOrCreateTrialBucket(buckets, year, eventType)
+    for (const [organizerId, eventType] of trialBucketTargets(event.organizer.id, event.eventType)) {
+      const bucket = getOrCreateTrialBucket(buckets, year, organizerId, eventType)
       bucket.eventCount += 1
       bucket.places += places
     }
@@ -535,9 +562,10 @@ const seedTrialsFromEvents = (eventsById: Map<string, EventStatsEvent>, buckets:
 }
 
 /**
- * Attributes one registration's start and handler to its year + event type trial bucket (and the
- * cross-type total). Only actual starters count as "participating" -- reserve entries never
- * started, and cancelled entries never had a real chance to.
+ * Attributes one registration's start and handler to its year + club + event type trial bucket
+ * (and that club's cross-type subtotal, and the grand total). Only actual starters count as
+ * "participating" -- reserve entries never started, and cancelled entries never had a real
+ * chance to.
  */
 const addTrialRegistration = (
   registration: CapacityRegistrationInput,
@@ -548,8 +576,8 @@ const addTrialRegistration = (
   if (!countsTowardsCapacity(event) || registration.cancelled || !isParticipantGroup(registration.group?.key)) return
 
   const handlerId = hashStatValue(registration.handler?.email)
-  for (const eventType of [event.eventType, ALL_EVENT_TYPES_FOR_CAPACITY]) {
-    const bucket = getOrCreateTrialBucket(buckets, year, eventType)
+  for (const [organizerId, eventType] of trialBucketTargets(event.organizer.id, event.eventType)) {
+    const bucket = getOrCreateTrialBucket(buckets, year, organizerId, eventType)
     bucket.starters += 1
     bucket.handlerIds.add(handlerId)
   }
@@ -558,10 +586,12 @@ const addTrialRegistration = (
 const trialsRecords = (buckets: Map<string, TrialBucket>, updatedAt: string): JsonTrialStatsItem[] =>
   [...buckets.values()].map((bucket) => ({
     eventCount: bucket.eventCount,
+    eventType: bucket.eventType,
     handlerCount: bucket.handlerIds.size,
+    organizerId: bucket.organizerId,
     PK: `TRIALS#${bucket.year}`,
     places: bucket.places,
-    SK: bucket.eventType,
+    SK: `${bucket.organizerId}#${bucket.eventType}`,
     starters: bucket.starters,
     updatedAt,
   }))

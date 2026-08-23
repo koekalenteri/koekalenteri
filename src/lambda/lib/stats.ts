@@ -423,12 +423,14 @@ export async function getJudgeWorkload(year: number): Promise<JudgeWorkloadEntry
 
 /**
  * Trials organized, their starting places, starts and distinct participating handlers for a
- * year, one entry per event type plus a cross-type total keyed by
- * `ALL_EVENT_TYPES_FOR_CAPACITY`. Written by the nightly rebuild.
+ * year, one entry per club + event type, plus each club's cross-type subtotal and the nationwide
+ * grand total (see `ALL_EVENT_TYPES_FOR_CAPACITY` / `ALL_ORGANIZERS_FOR_TRIALS`). Written by the
+ * nightly rebuild.
  */
 export async function getTrialStats(year: number): Promise<TrialStatsEntry[]> {
   const items = await dynamoDB.query<{
-    SK: string
+    eventType: string
+    organizerId: string
     eventCount: number
     places: number
     starters: number
@@ -440,8 +442,9 @@ export async function getTrialStats(year: number): Promise<TrialStatsEntry[]> {
 
   return (items || []).map((item) => ({
     eventCount: item.eventCount ?? 0,
-    eventType: item.SK,
+    eventType: item.eventType,
     handlerCount: item.handlerCount ?? 0,
+    organizerId: item.organizerId,
     places: item.places ?? 0,
     starters: item.starters ?? 0,
   }))

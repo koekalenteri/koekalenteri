@@ -1,3 +1,5 @@
+import DownloadOutlined from '@mui/icons-material/DownloadOutlined'
+import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -10,10 +12,13 @@ import { useAtomValue } from 'jotai'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router'
+import { downloadXlsx } from '../../lib/client/xlsx'
+import { trialStatsFileName } from '../../lib/fileName'
+import { buildTrialStatsTable, trialStatsSpreadsheetRows } from '../../lib/trialStats'
 import { Path } from '../../routeConfig'
-import { ALL_EVENT_TYPES_FOR_CAPACITY } from '../../types/Stats'
 import YearSelector from '../components/stats/YearSelector'
 import { allYearlyStatsAtom, isAdminAtom } from '../state'
+import { adminOrganizersAtom } from './state'
 
 const CURRENT_YEAR = new Date().getFullYear()
 
@@ -21,23 +26,25 @@ export default function TrialStatsPage() {
   const { t } = useTranslation()
   const isAdmin = useAtomValue(isAdminAtom)
   const allStats = useAtomValue(allYearlyStatsAtom)
+  const organizers = useAtomValue(adminOrganizersAtom)
   const [year, setYear] = useState(CURRENT_YEAR)
 
   const years = allStats.years.includes(CURRENT_YEAR) ? allStats.years : [...allStats.years, CURRENT_YEAR]
   const yearStats = allStats.stats.find((stats) => stats.year === year)
 
-  // The nightly rebuild also writes a cross-type total keyed by ALL_EVENT_TYPES_FOR_CAPACITY,
-  // whose handler count is deduplicated across event types -- summing the per-type rows would
-  // double-count a handler who competed in more than one event type the same year.
-  const { rows, total } = useMemo(() => {
-    const entries = yearStats?.trialStats ?? []
-    return {
-      rows: entries
-        .filter((entry) => entry.eventType !== ALL_EVENT_TYPES_FOR_CAPACITY)
-        .sort((a, b) => a.eventType.localeCompare(b.eventType)),
-      total: entries.find((entry) => entry.eventType === ALL_EVENT_TYPES_FOR_CAPACITY),
-    }
-  }, [yearStats])
+  const organizerNames = useMemo(
+    () => new Map(organizers.map((organizer) => [organizer.id, organizer.name])),
+    [organizers]
+  )
+
+  const { rows, grandTotal } = useMemo(
+    () =>
+      buildTrialStatsTable(
+        yearStats?.trialStats ?? [],
+        (organizerId) => organizerNames.get(organizerId) ?? organizerId
+      ),
+    [organizerNames, yearStats]
+  )
 
   if (!isAdmin) return <Navigate to={Path.admin.index} replace />
 
@@ -46,7 +53,24 @@ export default function TrialStatsPage() {
       <Typography variant="h4">{t('stats.admin.trialStatsTitle')}</Typography>
       <Typography color="text.secondary">{t('stats.admin.trialStatsTitleInfo')}</Typography>
 
-      <YearSelector years={years} value={year} onChange={setYear} />
+      <Stack alignItems="center" direction="row" flexWrap="wrap" gap={2}>
+        <YearSelector years={years} value={year} onChange={setYear} />
+        <Button
+          disabled={rows.length === 0}
+          onClick={() =>
+            downloadXlsx({
+              fileName: trialStatsFileName(year),
+              rows: trialStatsSpreadsheetRows(rows, grandTotal, t),
+              sheetName: t('stats.admin.trialStatsTitle'),
+            })
+          }
+          size="small"
+          startIcon={<DownloadOutlined />}
+          variant="outlined"
+        >
+          {t('stats.admin.trialStatsExport')}
+        </Button>
+      </Stack>
 
       {rows.length === 0 ? (
         <Typography color="text.secondary">{t('stats.noDataForYear')}</Typography>
@@ -54,6 +78,7 @@ export default function TrialStatsPage() {
         <Table size="small">
           <TableHead>
             <TableRow>
+              <TableCell>{t('organization')}</TableCell>
               <TableCell>{t('stats.admin.eventType')}</TableCell>
               <TableCell align="right">{t('stats.admin.trialStatsEvents')}</TableCell>
               <TableCell align="right">{t('stats.admin.trialStatsPlaces')}</TableCell>
@@ -63,30 +88,42 @@ export default function TrialStatsPage() {
           </TableHead>
           <TableBody>
             {rows.map((row) => (
-              <TableRow key={row.eventType}>
-                <TableCell>{row.eventType}</TableCell>
-                <TableCell align="right">{row.eventCount}</TableCell>
-                <TableCell align="right">{row.places}</TableCell>
-                <TableCell align="right">{row.starters}</TableCell>
-                <TableCell align="right">{row.handlerCount}</TableCell>
+              <TableRow key={`${row.organizerId}#${row.eventType}`}>
+                <TableCell sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>{row.organizerName}</TableCell>
+                <TableCell sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>
+                  {row.isSubtotal ? t('stats.admin.trialStatsTotal') : row.eventType}
+                </TableCell>
+                <TableCell align="right" sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>
+                  {row.eventCount}
+                </TableCell>
+                <TableCell align="right" sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>
+                  {row.places}
+                </TableCell>
+                <TableCell align="right" sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>
+                  {row.starters}
+                </TableCell>
+                <TableCell align="right" sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>
+                  {row.handlerCount}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
-          {total ? (
+          {grandTotal ? (
             <TableFooter>
               <TableRow>
                 <TableCell sx={{ fontWeight: 'bold' }}>{t('stats.admin.trialStatsTotal')}</TableCell>
+                <TableCell />
                 <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                  {total.eventCount}
+                  {grandTotal.eventCount}
                 </TableCell>
                 <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                  {total.places}
+                  {grandTotal.places}
                 </TableCell>
                 <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                  {total.starters}
+                  {grandTotal.starters}
                 </TableCell>
                 <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                  {total.handlerCount}
+                  {grandTotal.handlerCount}
                 </TableCell>
               </TableRow>
             </TableFooter>

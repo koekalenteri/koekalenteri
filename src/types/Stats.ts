@@ -120,12 +120,22 @@ export interface JsonJudgeWorkloadItem {
 }
 
 /**
- * Trials organized, their starting places, starts and distinct participating handlers for one
- * year + event type. `eventType` is `ALL_EVENT_TYPES_FOR_CAPACITY` for the cross-type total,
- * whose `handlerCount` is deduplicated across event types (summing the per-type entries would
- * double-count a handler who competed in more than one event type the same year).
+ * Sentinel `organizerId` value for a cross-club total row in trial stats -- mirrors
+ * `ALL_EVENT_TYPES_FOR_CAPACITY` for the organizer axis.
+ */
+export const ALL_ORGANIZERS_FOR_TRIALS = 'ALL'
+
+/**
+ * Trials organized by one club, their starting places, starts and distinct participating
+ * handlers for one year + event type. `eventType` is `ALL_EVENT_TYPES_FOR_CAPACITY` for a club's
+ * cross-type subtotal, and `organizerId` is `ALL_ORGANIZERS_FOR_TRIALS` for the nationwide grand
+ * total (itself only meaningful combined with `eventType === ALL_EVENT_TYPES_FOR_CAPACITY`).
+ * `handlerCount` is deduplicated within whatever this entry aggregates -- summing narrower
+ * entries would double-count a handler who competed for the same club in more than one event
+ * type, or for more than one club, the same year.
  */
 export interface TrialStatsEntry {
+  organizerId: string
   eventType: string
   eventCount: number
   places: number
@@ -133,10 +143,12 @@ export interface TrialStatsEntry {
   handlerCount: number
 }
 
-// DynamoDB item / wire shape: PK = TRIALS#{year}, SK = eventType (or ALL_EVENT_TYPES_FOR_CAPACITY)
+// DynamoDB item / wire shape: PK = TRIALS#{year}, SK = {organizerId}#{eventType} (unique, not parsed back)
 export interface JsonTrialStatsItem {
   PK: string
   SK: string
+  organizerId: string
+  eventType: string
   eventCount: number
   places: number
   starters: number

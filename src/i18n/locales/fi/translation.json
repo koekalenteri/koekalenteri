@@ -705,11 +705,12 @@
       "title": "Talouden tilastot",
       "titleInfo": "Maksettu ja palautettu summa kuukausittain, valitulle yhdistykselle ja vuodelle.",
       "trialStatsEvents": "Kokeita",
+      "trialStatsExport": "Lataa Excel",
       "trialStatsHandlers": "Ohjaajia",
       "trialStatsPlaces": "Starttipaikkoja",
       "trialStatsStarters": "Starttejä",
       "trialStatsTitle": "Kokeet, paikat ja startit",
-      "trialStatsTitleInfo": "Yhdistysten järjestämien kokeiden, niiden starttipaikkojen, starttien ja eri ohjaajien määrä vuosittain, koemuodoittain eriteltynä.",
+      "trialStatsTitleInfo": "Yhdistysten järjestämien kokeiden, niiden starttipaikkojen, starttien ja eri ohjaajien määrä valitulle vuodelle, yhdistyksittäin ja koemuodoittain eriteltynä.",
       "trialStatsTotal": "Yhteensä"
     },
     "breedDistribution": "Rotujakauma",

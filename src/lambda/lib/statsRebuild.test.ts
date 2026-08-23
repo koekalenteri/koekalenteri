@@ -76,7 +76,7 @@ describe('statsRebuild', () => {
     [{ PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' }, 2025],
     [{ PK: 'CAPACITY#NOU', SK: 'not-a-month#NOU' }, undefined],
     [{ PK: 'JUDGE#2025', SK: '1' }, 2025],
-    [{ PK: 'TRIALS#2025', SK: 'NOU' }, 2025],
+    [{ PK: 'TRIALS#2025', SK: 'organizer-1#NOU' }, 2025],
   ])('extracts stats year from %o', (key, expected) => {
     expect(getEventStatsRecordYear(key)).toBe(expected)
   })
@@ -567,7 +567,7 @@ describe('statsRebuild', () => {
   })
 
   describe('trial stats', () => {
-    it('seeds event count and places from events themselves, independent of registrations', () => {
+    it('seeds event count and places per club + event type, plus the club subtotal and grand total', () => {
       const nou = { ...event('nou-event', '2025-06-01', 'NOU'), places: 15 }
 
       const { records } = buildStatsRecords([], new Map([[nou.id, nou]]), '2025-01-01T00:00:00.000Z')
@@ -576,19 +576,36 @@ describe('statsRebuild', () => {
         expect.arrayContaining([
           {
             eventCount: 1,
+            eventType: 'NOU',
             handlerCount: 0,
+            organizerId: 'organizer-nou-event',
             PK: 'TRIALS#2025',
             places: 15,
-            SK: 'NOU',
+            SK: 'organizer-nou-event#NOU',
             starters: 0,
             updatedAt: '2025-01-01T00:00:00.000Z',
           },
-          expect.objectContaining({ eventCount: 1, PK: 'TRIALS#2025', places: 15, SK: 'ALL' }),
+          expect.objectContaining({
+            eventCount: 1,
+            eventType: 'ALL',
+            organizerId: 'organizer-nou-event',
+            PK: 'TRIALS#2025',
+            places: 15,
+            SK: 'organizer-nou-event#ALL',
+          }),
+          expect.objectContaining({
+            eventCount: 1,
+            eventType: 'ALL',
+            organizerId: 'ALL',
+            PK: 'TRIALS#2025',
+            places: 15,
+            SK: 'ALL#ALL',
+          }),
         ])
       )
     })
 
-    it('counts starters and distinct handlers, excluding reserve and cancelled', () => {
+    it('counts starters and distinct handlers per club + event type, excluding reserve and cancelled', () => {
       const nou = event('nou-event', '2025-06-01', 'NOU')
       const registrations = [
         registration('starter-1', nou.id, { eventType: 'NOU', group: { key: 'ap' }, handler: { email: 'a@x.fi' } }),
@@ -615,25 +632,32 @@ describe('statsRebuild', () => {
 
       expect(records).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ handlerCount: 1, PK: 'TRIALS#2025', SK: 'NOU', starters: 2 }),
+          expect.objectContaining({ handlerCount: 1, PK: 'TRIALS#2025', SK: 'organizer-nou-event#NOU', starters: 2 }),
         ])
       )
     })
 
-    it('deduplicates handlers across event types in the cross-type total', () => {
-      const nou = event('nou-event', '2025-06-01', 'NOU')
-      const nomeB = event('nome-b-event', '2025-06-02', 'NOME-B')
+    it('deduplicates handlers within a club across event types, and nationwide across clubs', () => {
+      // Same club, two event types, same handler: the club subtotal must dedupe to 1.
+      const nouAtClub1 = event('nou-event', '2025-06-01', 'NOU')
+      const nomeBAtClub1 = { ...event('nome-b-event', '2025-06-02', 'NOME-B'), organizer: nouAtClub1.organizer }
+      // A different club running the same event type with the same handler: only the grand
+      // total should dedupe across clubs -- each club's own rows must still show 1 starter.
+      const nouAtClub2 = { ...event('nou-event-2', '2025-06-03', 'NOU'), organizer: { id: 'organizer-2' } }
       const registrations = [
-        registration('nou-starter', nou.id, {
+        registration('club1-nou', nouAtClub1.id, {
           eventType: 'NOU',
           group: { key: 'ap' },
           handler: { email: 'a@x.fi' },
         }),
-        registration('nomeb-starter', nomeB.id, {
+        registration('club1-nomeb', nomeBAtClub1.id, {
           eventType: 'NOME-B',
           group: { key: 'ap' },
-          // Same handler, different event type: the per-type counts are 1 + 1, but the
-          // cross-type total must dedupe to 1.
+          handler: { email: 'a@x.fi' },
+        }),
+        registration('club2-nou', nouAtClub2.id, {
+          eventType: 'NOU',
+          group: { key: 'ap' },
           handler: { email: 'a@x.fi' },
         }),
       ]
@@ -641,17 +665,53 @@ describe('statsRebuild', () => {
       const { records } = buildStatsRecords(
         registrations,
         new Map([
-          [nou.id, nou],
-          [nomeB.id, nomeB],
+          [nouAtClub1.id, nouAtClub1],
+          [nomeBAtClub1.id, nomeBAtClub1],
+          [nouAtClub2.id, nouAtClub2],
         ]),
         '2025-01-01T00:00:00.000Z'
       )
 
       expect(records).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ handlerCount: 1, PK: 'TRIALS#2025', SK: 'NOU', starters: 1 }),
-          expect.objectContaining({ handlerCount: 1, PK: 'TRIALS#2025', SK: 'NOME-B', starters: 1 }),
-          expect.objectContaining({ eventCount: 2, handlerCount: 1, PK: 'TRIALS#2025', SK: 'ALL', starters: 2 }),
+          expect.objectContaining({
+            handlerCount: 1,
+            organizerId: 'organizer-nou-event',
+            PK: 'TRIALS#2025',
+            SK: 'organizer-nou-event#NOU',
+            starters: 1,
+          }),
+          expect.objectContaining({
+            handlerCount: 1,
+            organizerId: 'organizer-nou-event',
+            PK: 'TRIALS#2025',
+            SK: 'organizer-nou-event#NOME-B',
+            starters: 1,
+          }),
+          // Club 1 subtotal: same handler in both event types dedupes to 1, not 2.
+          expect.objectContaining({
+            handlerCount: 1,
+            organizerId: 'organizer-nou-event',
+            PK: 'TRIALS#2025',
+            SK: 'organizer-nou-event#ALL',
+            starters: 2,
+          }),
+          expect.objectContaining({
+            handlerCount: 1,
+            organizerId: 'organizer-2',
+            PK: 'TRIALS#2025',
+            SK: 'organizer-2#NOU',
+            starters: 1,
+          }),
+          // Grand total: same handler across three starts at two clubs dedupes to 1, not 3.
+          expect.objectContaining({
+            eventCount: 3,
+            handlerCount: 1,
+            organizerId: 'ALL',
+            PK: 'TRIALS#2025',
+            SK: 'ALL#ALL',
+            starters: 3,
+          }),
         ])
       )
     })
