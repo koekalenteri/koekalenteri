@@ -18,7 +18,10 @@
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable
       Events:
-        NightlyRebuild:
+        # Renamed from NightlyRebuild: switching Schedule -> ScheduleV2 changes the underlying
+        # resource type (AWS::Events::Rule -> AWS::Scheduler::Schedule), which CloudFormation
+        # cannot update in place. A new logical ID makes it a create+delete instead.
+        NightlyRebuildV2:
           Type: ScheduleV2
           Properties:
             # 01:00 UTC = 03:00 Helsinki in summer, 04:00 in winter — outside registration hours.
