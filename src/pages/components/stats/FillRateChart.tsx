@@ -2,6 +2,7 @@ import type { CapacityStatsEntry } from '../../../types/Stats'
 import Typography from '@mui/material/Typography'
 import { LineChart } from '@mui/x-charts/LineChart'
 import { useTranslation } from 'react-i18next'
+import ChartTitle from './ChartTitle'
 import { SINGLE_SERIES_CHART_COLOR } from './chartColors'
 
 interface Props {
@@ -42,7 +43,7 @@ export default function FillRateChart({ data }: Props) {
 
   return (
     <>
-      <Typography variant="h6">{t('stats.fillRate')}</Typography>
+      <ChartTitle title={t('stats.fillRate')} info={t('stats.fillRateInfo')} />
       {entries.length === 0 ? (
         <Typography color="text.secondary">{t('stats.noDataForYear')}</Typography>
       ) : (

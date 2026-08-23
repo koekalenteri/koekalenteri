@@ -44,6 +44,7 @@ export default function CancellationRateChart({ data, classKey }: Props) {
   return (
     <StatsBarChart
       title={t('stats.admin.cancellationRateTitle')}
+      info={t('stats.admin.cancellationRateTitleInfo')}
       emptyMessage={t('stats.admin.noCapacityData')}
       isEmpty={entries.length === 0}
       chartProps={{

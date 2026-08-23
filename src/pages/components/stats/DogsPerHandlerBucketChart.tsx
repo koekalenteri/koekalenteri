@@ -16,6 +16,7 @@ export default function DogsPerHandlerBucketChart({ data }: Props) {
   return (
     <StatsBarChart
       title={t('stats.dogsPerHandler')}
+      info={t('stats.dogsPerHandlerInfo')}
       emptyMessage={t('stats.noDataForYear')}
       isEmpty={buckets.length === 0}
       chartProps={{

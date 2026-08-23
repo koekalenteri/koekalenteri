@@ -3,6 +3,7 @@ import type { BreedCode } from '../../../types/Dog'
 import Typography from '@mui/material/Typography'
 import { BarChart } from '@mui/x-charts/BarChart'
 import { useTranslation } from 'react-i18next'
+import ChartTitle from './ChartTitle'
 import {
   CATEGORICAL_CHART_COLORS,
   CATEGORICAL_CHART_INK,
@@ -79,7 +80,7 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
 
   return (
     <>
-      <Typography variant="h6">{t('stats.breedDistribution')}</Typography>
+      <ChartTitle title={t('stats.breedDistribution')} info={t('stats.breedDistributionInfo')} />
       {isEmpty ? (
         <Typography color="text.secondary">{t('stats.noDataForYear')}</Typography>
       ) : (

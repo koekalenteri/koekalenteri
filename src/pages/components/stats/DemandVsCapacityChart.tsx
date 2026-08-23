@@ -14,6 +14,7 @@ import {
 } from '@mui/x-charts'
 import { useTranslation } from 'react-i18next'
 import { ALL_CLASSES_ID } from './CapacityUtilizationChart'
+import ChartTitle from './ChartTitle'
 import { CAPACITY_LINE_CHART_COLOR, CATEGORICAL_CHART_COLORS } from './chartColors'
 
 interface Props {
@@ -58,7 +59,7 @@ export default function DemandVsCapacityChart({ data, classKey }: Props) {
   if (entries.length === 0) {
     return (
       <>
-        <Typography variant="h6">{t('stats.admin.demandTitle')}</Typography>
+        <ChartTitle title={t('stats.admin.demandTitle')} info={t('stats.admin.demandTitleInfo')} />
         <Typography color="text.secondary">{t('stats.admin.noCapacityData')}</Typography>
       </>
     )

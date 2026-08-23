@@ -17,6 +17,7 @@ export default function EventTypeBarChart({ data = [] }: Props) {
   return (
     <StatsBarChart
       title={t('stats.eventTypeDistribution')}
+      info={t('stats.eventTypeDistributionInfo')}
       emptyMessage={t('stats.noDataForYear')}
       isEmpty={eventTypes.length === 0}
       chartProps={{

@@ -17,6 +17,7 @@ export default function DogHandlerBucketChart({ data }: Props) {
   return (
     <StatsBarChart
       title={t('stats.dogHandlerParticipation')}
+      info={t('stats.dogHandlerParticipationInfo')}
       emptyMessage={t('stats.noDataForYear')}
       isEmpty={buckets.length === 0}
       chartProps={{

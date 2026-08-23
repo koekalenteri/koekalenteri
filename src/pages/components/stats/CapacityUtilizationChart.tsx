@@ -37,6 +37,7 @@ export default function CapacityUtilizationChart({ data, classKey }: Props) {
   return (
     <StatsBarChart
       title={t('stats.admin.capacityTitle')}
+      info={t('stats.admin.capacityTitleInfo')}
       emptyMessage={t('stats.admin.noCapacityData')}
       isEmpty={entries.length === 0}
       chartProps={{

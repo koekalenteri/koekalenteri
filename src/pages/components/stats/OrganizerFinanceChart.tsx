@@ -28,6 +28,7 @@ export default function OrganizerFinanceChart({ items }: Props) {
   return (
     <StatsBarChart
       title={t('stats.admin.title')}
+      info={t('stats.admin.titleInfo')}
       emptyMessage={t('stats.noDataForYear')}
       isEmpty={months.length === 0}
       chartProps={{

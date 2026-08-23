@@ -1,7 +1,7 @@
 import type { YearlyStatsResponse } from '../../../api/stats'
-import Typography from '@mui/material/Typography'
 import { LineChart } from '@mui/x-charts/LineChart'
 import { useTranslation } from 'react-i18next'
+import ChartTitle from './ChartTitle'
 import { CATEGORICAL_CHART_COLORS } from './chartColors'
 
 interface Props {
@@ -18,7 +18,7 @@ export default function ParticipationTrendChart({ stats }: Props) {
 
   return (
     <>
-      <Typography variant="h6">{t('stats.participationTrend')}</Typography>
+      <ChartTitle title={t('stats.participationTrend')} info={t('stats.participationTrendInfo')} />
       <LineChart
         height={320}
         colors={[...CATEGORICAL_CHART_COLORS]}

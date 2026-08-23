@@ -19,6 +19,7 @@ export default function ClassDistributionChart({ data = [] }: Props) {
   return (
     <StatsBarChart
       title={t('stats.classDistribution')}
+      info={t('stats.classDistributionInfo')}
       emptyMessage={t('stats.noDataForYear')}
       isEmpty={classes.length === 0}
       chartProps={{

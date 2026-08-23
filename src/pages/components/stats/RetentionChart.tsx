@@ -24,6 +24,7 @@ export default function RetentionChart({ stats }: Props) {
   return (
     <StatsBarChart
       title={t('stats.retentionTitle')}
+      info={t('stats.retentionTitleInfo')}
       emptyMessage={t('stats.noDataForYear')}
       isEmpty={entries.length === 0}
       chartProps={{

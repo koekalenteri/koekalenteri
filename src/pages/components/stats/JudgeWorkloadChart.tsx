@@ -17,6 +17,7 @@ export default function JudgeWorkloadChart({ data }: Props) {
   return (
     <StatsBarChart
       title={t('stats.admin.judgeWorkloadTitle')}
+      info={t('stats.admin.judgeWorkloadTitleInfo')}
       emptyMessage={t('stats.admin.noJudgeData')}
       isEmpty={entries.length === 0}
       chartProps={{
