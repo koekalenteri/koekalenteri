@@ -7,6 +7,7 @@ import type {
   JsonEventStatsItem,
   JudgeWorkloadEntry,
   RetentionStats,
+  TrialStatsEntry,
   YearlyStatTypes,
   YearlyTotalStat,
 } from '../../types/Stats'
@@ -417,6 +418,32 @@ export async function getJudgeWorkload(year: number): Promise<JudgeWorkloadEntry
     count: item.count,
     judgeId: item.SK,
     name: item.name,
+  }))
+}
+
+/**
+ * Trials organized, their starting places, starts and distinct participating handlers for a
+ * year, one entry per event type plus a cross-type total keyed by
+ * `ALL_EVENT_TYPES_FOR_CAPACITY`. Written by the nightly rebuild.
+ */
+export async function getTrialStats(year: number): Promise<TrialStatsEntry[]> {
+  const items = await dynamoDB.query<{
+    SK: string
+    eventCount: number
+    places: number
+    starters: number
+    handlerCount: number
+  }>({
+    key: 'PK = :pk',
+    values: { ':pk': `TRIALS#${year}` },
+  })
+
+  return (items || []).map((item) => ({
+    eventCount: item.eventCount ?? 0,
+    eventType: item.SK,
+    handlerCount: item.handlerCount ?? 0,
+    places: item.places ?? 0,
+    starters: item.starters ?? 0,
   }))
 }
 

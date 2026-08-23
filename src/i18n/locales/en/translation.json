@@ -703,7 +703,14 @@
       "reserve": "On waiting list",
       "starters": "Starters",
       "title": "Financial statistics",
-      "titleInfo": "Amount paid and amount refunded per month, for the selected organization and year."
+      "titleInfo": "Amount paid and amount refunded per month, for the selected organization and year.",
+      "trialStatsEvents": "Trials",
+      "trialStatsHandlers": "Handlers",
+      "trialStatsPlaces": "Starting places",
+      "trialStatsStarters": "Starts",
+      "trialStatsTitle": "Trials, places and starts",
+      "trialStatsTitleInfo": "Number of trials organized by clubs, their starting places, starts and distinct handlers per year, broken down by event type.",
+      "trialStatsTotal": "Total"
     },
     "breedDistribution": "Breed distribution",
     "breedDistributionInfo": "Retriever breed mix per year, as a share of that year's participations: every bar sums to 100%, so a year with unusually high or low turnout doesn't change bar height, only the mix does. The most common breeds are shown individually by abbreviation (lb = Labrador Retriever, gr = Golden Retriever, fc = Flat Coated Retriever, ns = Nova Scotia Duck Tolling Retriever, cc = Curly Coated Retriever, ch = Chesapeake Bay Retriever) and keep the same colour across years; less common breeds are combined into \"Other\".",

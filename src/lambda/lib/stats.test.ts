@@ -55,6 +55,7 @@ const {
   getCapacityStatsAllEventTypes,
   getRetentionStats,
   getJudgeWorkload,
+  getTrialStats,
   eventStatsMonth,
   moveOrganizerEventStats,
 } = await import('./stats')
@@ -768,6 +769,37 @@ describe('lib/stats', () => {
       mockQuery.mockResolvedValueOnce(null)
 
       const result = await getJudgeWorkload(2023)
+
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('getTrialStats', () => {
+    it('queries trials/places/starts/handlers per event type with the correct key', async () => {
+      const year = 2024
+
+      mockQuery.mockResolvedValueOnce([
+        { eventCount: 5, handlerCount: 40, places: 100, SK: 'NOU', starters: 90 },
+        { eventCount: 8, handlerCount: 60, places: 200, SK: 'ALL', starters: 180 },
+      ])
+
+      const result = await getTrialStats(year)
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: 'PK = :pk',
+        values: { ':pk': 'TRIALS#2024' },
+      })
+
+      expect(result).toEqual([
+        { eventCount: 5, eventType: 'NOU', handlerCount: 40, places: 100, starters: 90 },
+        { eventCount: 8, eventType: 'ALL', handlerCount: 60, places: 200, starters: 180 },
+      ])
+    })
+
+    it('handles empty results', async () => {
+      mockQuery.mockResolvedValueOnce(null)
+
+      const result = await getTrialStats(2023)
 
       expect(result).toEqual([])
     })

@@ -2,6 +2,7 @@ import type {
   BreedStartRateEntry,
   CapacityStatsEntry,
   RetentionStats,
+  TrialStatsEntry,
   YearlyBreakdownEntry,
   YearlyStatTypes,
   YearlyTotalStat,
@@ -26,6 +27,7 @@ const mockGetRetentionStats = vi.fn<() => Promise<RetentionStats | undefined>>()
 const mockGetCapacityStats =
   vi.fn<(eventType: string, organizerIds?: string[], from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
 const mockGetCapacityStatsAllEventTypes = vi.fn<(from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
+const mockGetTrialStats = vi.fn<(year: number) => Promise<TrialStatsEntry[]>>()
 
 vi.doMock('../lib/stats', () => ({
   getAvailableYears: mockGetAvailableYears,
@@ -35,6 +37,7 @@ vi.doMock('../lib/stats', () => ({
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
   getDogsPerHandlerBuckets: mockGetDogsPerHandlerBuckets,
   getRetentionStats: mockGetRetentionStats,
+  getTrialStats: mockGetTrialStats,
   getYearlyBreakdown: mockGetYearlyBreakdown,
   getYearlyTotalStats: mockGetYearlyTotalStats,
 }))
@@ -55,6 +58,7 @@ describe('GetStatsFunction', () => {
     mockGetYearlyBreakdown.mockImplementation((year, type) => Promise.resolve(breakdownFor(year, type)))
     mockGetDogsPerHandlerBuckets.mockResolvedValue([])
     mockGetBreedStartBreakdown.mockResolvedValue([])
+    mockGetTrialStats.mockResolvedValue([])
   })
 
   it('returns stats for a specific year when year parameter is provided', async () => {
@@ -93,6 +97,7 @@ describe('GetStatsFunction', () => {
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'eventType')
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'class')
     expect(mockGetBreedStartBreakdown).toHaveBeenCalledWith(year)
+    expect(mockGetTrialStats).toHaveBeenCalledWith(year)
 
     // Verify response
     const expectedBody = {
@@ -103,6 +108,7 @@ describe('GetStatsFunction', () => {
       dogsPerHandlerBuckets,
       eventTypeBreakdown,
       totals,
+      trialStats: [],
       year,
     }
     expect(mockResponse).toHaveBeenCalledWith(200, expectedBody, event, { maxAge: 300 })
@@ -154,6 +160,7 @@ describe('GetStatsFunction', () => {
             dogsPerHandlerBuckets: [],
             eventTypeBreakdown: breakdownFor(2023, 'eventType'),
             totals: totals2023,
+            trialStats: [],
             year: 2023,
           },
           {
@@ -164,6 +171,7 @@ describe('GetStatsFunction', () => {
             dogsPerHandlerBuckets: [],
             eventTypeBreakdown: breakdownFor(2024, 'eventType'),
             totals: totals2024,
+            trialStats: [],
             year: 2024,
           },
         ],
@@ -211,6 +219,7 @@ describe('GetStatsFunction', () => {
           dogsPerHandlerBuckets: [],
           eventTypeBreakdown: breakdownFor(2023, 'eventType'),
           totals: totals2023,
+          trialStats: [],
           year: 2023,
         },
         {
@@ -221,6 +230,7 @@ describe('GetStatsFunction', () => {
           dogsPerHandlerBuckets: [],
           eventTypeBreakdown: breakdownFor(2024, 'eventType'),
           totals: totals2024,
+          trialStats: [],
           year: 2024,
         },
       ],

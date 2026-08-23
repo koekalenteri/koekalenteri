@@ -118,3 +118,28 @@ export interface JsonJudgeWorkloadItem {
   count: number
   updatedAt: string
 }
+
+/**
+ * Trials organized, their starting places, starts and distinct participating handlers for one
+ * year + event type. `eventType` is `ALL_EVENT_TYPES_FOR_CAPACITY` for the cross-type total,
+ * whose `handlerCount` is deduplicated across event types (summing the per-type entries would
+ * double-count a handler who competed in more than one event type the same year).
+ */
+export interface TrialStatsEntry {
+  eventType: string
+  eventCount: number
+  places: number
+  starters: number
+  handlerCount: number
+}
+
+// DynamoDB item / wire shape: PK = TRIALS#{year}, SK = eventType (or ALL_EVENT_TYPES_FOR_CAPACITY)
+export interface JsonTrialStatsItem {
+  PK: string
+  SK: string
+  eventCount: number
+  places: number
+  starters: number
+  handlerCount: number
+  updatedAt: string
+}

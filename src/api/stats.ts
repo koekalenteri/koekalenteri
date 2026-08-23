@@ -4,6 +4,7 @@ import type {
   EventStatsItem,
   JudgeWorkloadEntry,
   RetentionStats,
+  TrialStatsEntry,
   YearlyBreakdownEntry,
   YearlyTotalStat,
 } from '../types/Stats'
@@ -25,6 +26,8 @@ export interface YearlyStatsResponse {
   classBreakdown?: YearlyBreakdownEntry[]
   // Absent for the earliest year on record, and for backends deployed before retention existed.
   retention?: RetentionStats
+  // Absent for backends deployed before trial/place/start/handler stats existed.
+  trialStats?: TrialStatsEntry[]
 }
 
 export interface AllYearlyStatsResponse {

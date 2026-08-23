@@ -703,7 +703,14 @@
       "reserve": "Varasijoilla",
       "starters": "Osallistujia",
       "title": "Talouden tilastot",
-      "titleInfo": "Maksettu ja palautettu summa kuukausittain, valitulle yhdistykselle ja vuodelle."
+      "titleInfo": "Maksettu ja palautettu summa kuukausittain, valitulle yhdistykselle ja vuodelle.",
+      "trialStatsEvents": "Kokeita",
+      "trialStatsHandlers": "Ohjaajia",
+      "trialStatsPlaces": "Starttipaikkoja",
+      "trialStatsStarters": "Starttejä",
+      "trialStatsTitle": "Kokeet, paikat ja startit",
+      "trialStatsTitleInfo": "Yhdistysten järjestämien kokeiden, niiden starttipaikkojen, starttien ja eri ohjaajien määrä vuosittain, koemuodoittain eriteltynä.",
+      "trialStatsTotal": "Yhteensä"
     },
     "breedDistribution": "Rotujakauma",
     "breedDistributionInfo": "Noutajarotujen suhteellinen jakauma vuosittain: jokainen palkki vastaa 100 %:a kyseisen vuoden osallistumisista, joten osallistujamäärän vaihtelu vuosien välillä ei vaikuta palkin korkeuteen, vain rotujen väliseen suhteeseen. Yleisimmät rodut näytetään omina väreinään lyhenteillä lb = labradorinnoutaja, kn = kultainennoutaja, sk = sileäkarvainen noutaja, ns = novascotiannoutaja, kk = kiharakarvainen noutaja, ch = chesapeakelahdennoutaja, jotka pysyvät samoina joka vuosi; harvinaisemmat rodut on yhdistetty kohtaan ”Muut”.",

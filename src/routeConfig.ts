@@ -32,6 +32,7 @@ export const Path = {
     startList: (id: string = ':id') => `${ADMIN_EVENTS}/startlist/${id}`,
     startListPreview: (id: string = ':id') => `${ADMIN_EVENTS}/startlist-preview/${id}`,
     stats: `${ADMIN_ROOT}/stats`,
+    trialStats: `${ADMIN_ROOT}/trial-stats`,
     users: `${ADMIN_ROOT}/users`,
     viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
   },

@@ -192,6 +192,13 @@ const routes: RouteObject[] = [
           })),
         path: Path.admin.stats,
       },
+      {
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/TrialStatsPage')).default,
+          })),
+        path: Path.admin.trialStats,
+      },
     ],
     errorElement: <ErrorPage />,
     hydrateFallbackElement: <LoadingIndicator />,

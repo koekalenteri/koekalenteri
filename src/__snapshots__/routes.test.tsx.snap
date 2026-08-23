@@ -175,6 +175,10 @@ exports[`routes > should match a snapshot 1`] = `
         "lazy": [Function],
         "path": "/admin/stats",
       },
+      {
+        "lazy": [Function],
+        "path": "/admin/trial-stats",
+      },
     ],
     "errorElement": <ErrorPage />,
     "hydrateFallbackElement": <ForwardRef />,

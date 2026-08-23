@@ -88,6 +88,12 @@ export function SideMenu({ open, onClose }: Props) {
               text={t('emailTemplates')}
               icon={<MailOutline />}
             />
+            <DrawerItem
+              to={Path.admin.trialStats}
+              onClick={onClose}
+              text={t('stats.admin.trialStatsTitle')}
+              icon={<QueryStatsOutlined />}
+            />
             <DrawerItem onClick={handleRunMigrations} text="Run migrations" icon={<HandymanOutlined />} />
           </DrawerList>
         </>

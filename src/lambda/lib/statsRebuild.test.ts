@@ -76,6 +76,7 @@ describe('statsRebuild', () => {
     [{ PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' }, 2025],
     [{ PK: 'CAPACITY#NOU', SK: 'not-a-month#NOU' }, undefined],
     [{ PK: 'JUDGE#2025', SK: '1' }, 2025],
+    [{ PK: 'TRIALS#2025', SK: 'NOU' }, 2025],
   ])('extracts stats year from %o', (key, expected) => {
     expect(getEventStatsRecordYear(key)).toBe(expected)
   })
@@ -562,6 +563,105 @@ describe('statsRebuild', () => {
       const { records } = buildStatsRecords(registrations, new Map([[draft.id, draft]]), '2025-01-01T00:00:00.000Z')
 
       expect(records.filter((record) => record.PK === 'STAT#2025#breedStart')).toHaveLength(0)
+    })
+  })
+
+  describe('trial stats', () => {
+    it('seeds event count and places from events themselves, independent of registrations', () => {
+      const nou = { ...event('nou-event', '2025-06-01', 'NOU'), places: 15 }
+
+      const { records } = buildStatsRecords([], new Map([[nou.id, nou]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records).toEqual(
+        expect.arrayContaining([
+          {
+            eventCount: 1,
+            handlerCount: 0,
+            PK: 'TRIALS#2025',
+            places: 15,
+            SK: 'NOU',
+            starters: 0,
+            updatedAt: '2025-01-01T00:00:00.000Z',
+          },
+          expect.objectContaining({ eventCount: 1, PK: 'TRIALS#2025', places: 15, SK: 'ALL' }),
+        ])
+      )
+    })
+
+    it('counts starters and distinct handlers, excluding reserve and cancelled', () => {
+      const nou = event('nou-event', '2025-06-01', 'NOU')
+      const registrations = [
+        registration('starter-1', nou.id, { eventType: 'NOU', group: { key: 'ap' }, handler: { email: 'a@x.fi' } }),
+        registration('starter-2', nou.id, {
+          eventType: 'NOU',
+          group: { key: 'ap' },
+          // Same handler, a second dog: should not inflate the distinct handler count.
+          handler: { email: 'A@X.FI' },
+        }),
+        registration('reserve', nou.id, {
+          eventType: 'NOU',
+          group: { key: 'reserve' },
+          handler: { email: 'b@x.fi' },
+        }),
+        registration('cancelled', nou.id, {
+          cancelled: true,
+          eventType: 'NOU',
+          group: { key: 'ap' },
+          handler: { email: 'c@x.fi' },
+        }),
+      ]
+
+      const { records } = buildStatsRecords(registrations, new Map([[nou.id, nou]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ handlerCount: 1, PK: 'TRIALS#2025', SK: 'NOU', starters: 2 }),
+        ])
+      )
+    })
+
+    it('deduplicates handlers across event types in the cross-type total', () => {
+      const nou = event('nou-event', '2025-06-01', 'NOU')
+      const nomeB = event('nome-b-event', '2025-06-02', 'NOME-B')
+      const registrations = [
+        registration('nou-starter', nou.id, {
+          eventType: 'NOU',
+          group: { key: 'ap' },
+          handler: { email: 'a@x.fi' },
+        }),
+        registration('nomeb-starter', nomeB.id, {
+          eventType: 'NOME-B',
+          group: { key: 'ap' },
+          // Same handler, different event type: the per-type counts are 1 + 1, but the
+          // cross-type total must dedupe to 1.
+          handler: { email: 'a@x.fi' },
+        }),
+      ]
+
+      const { records } = buildStatsRecords(
+        registrations,
+        new Map([
+          [nou.id, nou],
+          [nomeB.id, nomeB],
+        ]),
+        '2025-01-01T00:00:00.000Z'
+      )
+
+      expect(records).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ handlerCount: 1, PK: 'TRIALS#2025', SK: 'NOU', starters: 1 }),
+          expect.objectContaining({ handlerCount: 1, PK: 'TRIALS#2025', SK: 'NOME-B', starters: 1 }),
+          expect.objectContaining({ eventCount: 2, handlerCount: 1, PK: 'TRIALS#2025', SK: 'ALL', starters: 2 }),
+        ])
+      )
+    })
+
+    it('excludes draft, tentative and cancelled events, same as capacity', () => {
+      const draft: EventStatsEvent = { ...event('draft-event', '2025-08-01', 'NOU'), state: 'draft' }
+
+      const { records } = buildStatsRecords([], new Map([[draft.id, draft]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.filter((record) => record.PK.startsWith('TRIALS#'))).toHaveLength(0)
     })
   })
 
