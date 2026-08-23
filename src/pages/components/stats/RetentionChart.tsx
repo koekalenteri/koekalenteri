@@ -41,7 +41,9 @@ export default function RetentionChart({ stats }: Props) {
             stack: 'pairs',
           },
         ],
-        xAxis: [{ data: entries.map((stat) => stat.year), scaleType: 'band' }],
+        xAxis: [
+          { data: entries.map((stat) => stat.year), scaleType: 'band', valueFormatter: (year: number) => `${year}` },
+        ],
       }}
     />
   )

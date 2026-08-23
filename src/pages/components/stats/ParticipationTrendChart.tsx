@@ -22,7 +22,7 @@ export default function ParticipationTrendChart({ stats }: Props) {
       <LineChart
         height={320}
         colors={[...CATEGORICAL_CHART_COLORS]}
-        xAxis={[{ data: years, scaleType: 'point' }]}
+        xAxis={[{ data: years, scaleType: 'point', valueFormatter: (year: number) => `${year}` }]}
         series={[
           {
             data: stats.map((stat) => totalFor(stat, 'dog')),

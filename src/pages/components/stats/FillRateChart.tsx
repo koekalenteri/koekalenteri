@@ -50,7 +50,13 @@ export default function FillRateChart({ data }: Props) {
         <LineChart
           height={320}
           colors={[SINGLE_SERIES_CHART_COLOR]}
-          xAxis={[{ data: entries.map((entry) => entry.year), scaleType: 'point' }]}
+          xAxis={[
+            {
+              data: entries.map((entry) => entry.year),
+              scaleType: 'point',
+              valueFormatter: (year: number) => `${year}`,
+            },
+          ]}
           yAxis={[{ valueFormatter: (value: number) => `${value} %` }]}
           series={[
             {

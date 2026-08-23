@@ -88,7 +88,7 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
           height={420}
           colors={[...CATEGORICAL_CHART_COLORS.slice(0, breedSeries.length), OTHER_BUCKET_CHART_COLOR]}
           series={series}
-          xAxis={[{ data: years, scaleType: 'band' }]}
+          xAxis={[{ data: years, scaleType: 'band', valueFormatter: (year: number) => `${year}` }]}
           barLabel={(item, context) => (context.bar.height >= MIN_LABEL_HEIGHT && item.value ? `${item.value}` : null)}
           sx={labelInk}
         />
