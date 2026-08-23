@@ -15,6 +15,8 @@ const run = (command, args, options = {}) => {
 
 run(npmCommand, ['run', 'lint-biome'])
 
+run(npmCommand, ['run', 'check-chart-screenshots'])
+
 run(npmCommand, ['run', 'knip'])
 
 run(npmCommand, ['test', '--', '--onlyChanged'], {

@@ -91,6 +91,7 @@
     "i18n-compare": "node scripts/compare-translations.js src/i18n/locales/fi/translation.json src/i18n/locales/en/translation.json",
     "i18n-sort": "node scripts/sort-translations.js src/i18n/locales/fi/translation.json && node scripts/sort-translations.js src/i18n/locales/en/translation.json",
     "knip": "knip --config knip.config.json",
+    "check-chart-screenshots": "node scripts/checkChartScreenshots.js",
     "prepare": "husky"
   },
   "prepare": "husky",
