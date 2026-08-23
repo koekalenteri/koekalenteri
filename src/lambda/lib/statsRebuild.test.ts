@@ -493,6 +493,78 @@ describe('statsRebuild', () => {
     expect(records.filter((record) => record.PK.startsWith('CAPACITY#'))).toHaveLength(0)
   })
 
+  describe('breed start rate', () => {
+    it('counts starters and reserve per breed, cancelled excluded entirely', () => {
+      const nomeB = event('nome-b-event', '2025-06-01', 'NOME-B')
+      const registrations = [
+        registration('starter', nomeB.id, { dog: { breedCode: '122' }, eventType: 'NOME-B', group: { key: 'ALO-ap' } }),
+        registration('reserve', nomeB.id, {
+          dog: { breedCode: '122' },
+          eventType: 'NOME-B',
+          group: { key: 'reserve' },
+        }),
+        registration('cancelled', nomeB.id, {
+          cancelled: true,
+          dog: { breedCode: '122' },
+          eventType: 'NOME-B',
+          group: { key: 'ALO-ap' },
+        }),
+        registration('other-breed', nomeB.id, {
+          dog: { breedCode: '111' },
+          eventType: 'NOME-B',
+          group: { key: 'reserve' },
+        }),
+      ]
+
+      const { records } = buildStatsRecords(registrations, new Map([[nomeB.id, nomeB]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records).toEqual(
+        expect.arrayContaining([
+          { PK: 'STAT#2025#breedStart', reserve: 1, SK: '122', starters: 1, updatedAt: '2025-01-01T00:00:00.000Z' },
+          { PK: 'STAT#2025#breedStart', reserve: 1, SK: '111', starters: 0, updatedAt: '2025-01-01T00:00:00.000Z' },
+        ])
+      )
+    })
+
+    it('falls back to "unknown" when the breed code is missing', () => {
+      const nomeB = event('nome-b-event', '2025-06-01', 'NOME-B')
+      const registrations = [registration('starter', nomeB.id, { eventType: 'NOME-B', group: { key: 'ALO-ap' } })]
+
+      const { records } = buildStatsRecords(registrations, new Map([[nomeB.id, nomeB]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records).toEqual(
+        expect.arrayContaining([
+          { PK: 'STAT#2025#breedStart', reserve: 0, SK: 'unknown', starters: 1, updatedAt: '2025-01-01T00:00:00.000Z' },
+        ])
+      )
+    })
+
+    it('excludes unofficial event types, same as breed participation counts', () => {
+      const other = event('other-event', '2025-06-01', 'other')
+      const registrations = [
+        registration('starter', other.id, { dog: { breedCode: '122' }, eventType: 'other', group: { key: 'ap' } }),
+      ]
+
+      const { records } = buildStatsRecords(registrations, new Map([[other.id, other]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.filter((record) => record.PK === 'STAT#2025#breedStart')).toHaveLength(0)
+    })
+
+    it('excludes draft, tentative and cancelled events, same as capacity', () => {
+      const draft: EventStatsEvent = {
+        ...event('draft-event', '2025-08-01', 'NOME-B'),
+        state: 'draft',
+      }
+      const registrations = [
+        registration('starter', draft.id, { dog: { breedCode: '122' }, eventType: 'NOME-B', group: { key: 'ap' } }),
+      ]
+
+      const { records } = buildStatsRecords(registrations, new Map([[draft.id, draft]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.filter((record) => record.PK === 'STAT#2025#breedStart')).toHaveLength(0)
+    })
+  })
+
   describe('judge workload', () => {
     it('counts one event per judge, independent of registrations', () => {
       const nomeB: EventStatsEvent = {

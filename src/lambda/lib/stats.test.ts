@@ -44,6 +44,7 @@ const {
   getDogHandlerBuckets,
   getDogsPerHandlerBuckets,
   getYearlyBreakdown,
+  getBreedStartBreakdown,
   calculateStatDeltas,
   bucketForCount,
   updateOrganizerEventStats,
@@ -708,6 +709,37 @@ describe('lib/stats', () => {
       mockQuery.mockResolvedValueOnce(null)
 
       const result = await getYearlyBreakdown(2023, 'breed')
+
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('getBreedStartBreakdown', () => {
+    it('queries starters/reserve per breed with the correct key', async () => {
+      const year = 2024
+
+      mockQuery.mockResolvedValueOnce([
+        { reserve: 3, SK: '122', starters: 12 },
+        { reserve: 1, SK: '111', starters: 5 },
+      ])
+
+      const result = await getBreedStartBreakdown(year)
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: 'PK = :pk',
+        values: { ':pk': 'STAT#2024#breedStart' },
+      })
+
+      expect(result).toEqual([
+        { entityId: '122', reserve: 3, starters: 12 },
+        { entityId: '111', reserve: 1, starters: 5 },
+      ])
+    })
+
+    it('handles empty results', async () => {
+      mockQuery.mockResolvedValueOnce(null)
+
+      const result = await getBreedStartBreakdown(2023)
 
       expect(result).toEqual([])
     })

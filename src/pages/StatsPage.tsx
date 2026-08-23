@@ -11,6 +11,7 @@ import { HEADER_HEIGHT } from '../assets/Theme'
 import { rum } from '../lib/client/rum'
 import Header from './components/Header'
 import BreedDistributionChart from './components/stats/BreedDistributionChart'
+import BreedStartRateChart from './components/stats/BreedStartRateChart'
 import ClassDistributionChart from './components/stats/ClassDistributionChart'
 import DogHandlerBucketChart from './components/stats/DogHandlerBucketChart'
 import DogsPerHandlerBucketChart from './components/stats/DogsPerHandlerBucketChart'
@@ -71,6 +72,9 @@ export function Component() {
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
               <DogsPerHandlerBucketChart data={yearStats.dogsPerHandlerBuckets ?? []} />
+            </Grid>
+            <Grid size={{ md: 6, xs: 12 }}>
+              <BreedStartRateChart data={yearStats.breedStartBreakdown} />
             </Grid>
             <Grid size={12}>
               {/* Spans every year rather than the selected one: the mix is more telling as a

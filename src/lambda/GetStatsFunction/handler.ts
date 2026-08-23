@@ -2,6 +2,7 @@ import { ALL_EVENT_TYPES_FOR_CAPACITY } from '../../types/Stats'
 import { lambda, response } from '../lib/lambda'
 import {
   getAvailableYears,
+  getBreedStartBreakdown,
   getCapacityStats,
   getCapacityStatsAllEventTypes,
   getDogHandlerBuckets,
@@ -23,6 +24,7 @@ async function getYearStats(year: number) {
     dogHandlerBuckets,
     dogsPerHandlerBuckets,
     breedBreakdown,
+    breedStartBreakdown,
     eventTypeBreakdown,
     classBreakdown,
     retention,
@@ -31,6 +33,7 @@ async function getYearStats(year: number) {
     getDogHandlerBuckets(year),
     getDogsPerHandlerBuckets(year),
     getYearlyBreakdown(year, 'breed'),
+    getBreedStartBreakdown(year),
     getYearlyBreakdown(year, 'eventType'),
     getYearlyBreakdown(year, 'class'),
     getRetentionStats(year),
@@ -40,6 +43,7 @@ async function getYearStats(year: number) {
   // would read as "nobody returned".
   return {
     breedBreakdown,
+    breedStartBreakdown,
     classBreakdown,
     dogHandlerBuckets,
     dogsPerHandlerBuckets,

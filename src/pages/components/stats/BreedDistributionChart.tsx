@@ -1,5 +1,4 @@
 import type { YearlyStatsResponse } from '../../../api/stats'
-import type { BreedCode } from '../../../types/Dog'
 import Typography from '@mui/material/Typography'
 import { BarChart } from '@mui/x-charts/BarChart'
 import { useTranslation } from 'react-i18next'
@@ -10,6 +9,7 @@ import {
   OTHER_BUCKET_CHART_COLOR,
   OTHER_BUCKET_CHART_INK,
 } from './chartColors'
+import { useBreedAbbreviation } from './useBreedAbbreviation'
 
 interface Props {
   readonly stats: YearlyStatsResponse[]
@@ -34,18 +34,7 @@ const OTHER_SERIES_ID = 'other'
  */
 export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
   const { t } = useTranslation()
-  const { t: breed } = useTranslation('breed')
-  const { t: breedAbbr } = useTranslation('breedAbbr')
-
-  // The abbreviation is stored per sex (e.g. "lbn"/"lbu"), but the chart counts a breed across
-  // both, so only the shared two-letter root applies; breeds outside the retriever set (the
-  // "unregistered/mixed" bucket) have no abbreviation, so those fall back to the full name
-  // rather than being cut down to a meaningless two letters.
-  const abbreviateBreed = (entityId: string) => {
-    const fullName = breed(entityId as BreedCode)
-    const abbr: string = breedAbbr(`${entityId}.M`, { defaultValue: '' })
-    return abbr ? abbr.slice(0, 2) : fullName
-  }
+  const abbreviateBreed = useBreedAbbreviation()
 
   const years = stats.map((stat) => stat.year)
 

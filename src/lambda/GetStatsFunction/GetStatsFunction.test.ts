@@ -1,4 +1,5 @@
 import type {
+  BreedStartRateEntry,
   CapacityStatsEntry,
   RetentionStats,
   YearlyBreakdownEntry,
@@ -20,6 +21,7 @@ const mockGetAvailableYears = vi.fn<() => Promise<number[]>>()
 const mockGetDogHandlerBuckets = vi.fn<() => Promise<{ bucket: string; count: number }[]>>()
 const mockGetDogsPerHandlerBuckets = vi.fn<() => Promise<{ bucket: string; count: number }[]>>()
 const mockGetYearlyBreakdown = vi.fn<(year: number, type: YearlyStatTypes) => Promise<YearlyBreakdownEntry[]>>()
+const mockGetBreedStartBreakdown = vi.fn<(year: number) => Promise<BreedStartRateEntry[]>>()
 const mockGetRetentionStats = vi.fn<() => Promise<RetentionStats | undefined>>()
 const mockGetCapacityStats =
   vi.fn<(eventType: string, organizerIds?: string[], from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
@@ -27,6 +29,7 @@ const mockGetCapacityStatsAllEventTypes = vi.fn<(from?: string, to?: string) => 
 
 vi.doMock('../lib/stats', () => ({
   getAvailableYears: mockGetAvailableYears,
+  getBreedStartBreakdown: mockGetBreedStartBreakdown,
   getCapacityStats: mockGetCapacityStats,
   getCapacityStatsAllEventTypes: mockGetCapacityStatsAllEventTypes,
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
@@ -51,6 +54,7 @@ describe('GetStatsFunction', () => {
     mockResponse.mockImplementation((status, body) => ({ body, status }))
     mockGetYearlyBreakdown.mockImplementation((year, type) => Promise.resolve(breakdownFor(year, type)))
     mockGetDogsPerHandlerBuckets.mockResolvedValue([])
+    mockGetBreedStartBreakdown.mockResolvedValue([])
   })
 
   it('returns stats for a specific year when year parameter is provided', async () => {
@@ -88,10 +92,12 @@ describe('GetStatsFunction', () => {
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'breed')
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'eventType')
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'class')
+    expect(mockGetBreedStartBreakdown).toHaveBeenCalledWith(year)
 
     // Verify response
     const expectedBody = {
       breedBreakdown,
+      breedStartBreakdown: [],
       classBreakdown,
       dogHandlerBuckets,
       dogsPerHandlerBuckets,
@@ -142,6 +148,7 @@ describe('GetStatsFunction', () => {
         stats: [
           {
             breedBreakdown: breakdownFor(2023, 'breed'),
+            breedStartBreakdown: [],
             classBreakdown: breakdownFor(2023, 'class'),
             dogHandlerBuckets: buckets2023,
             dogsPerHandlerBuckets: [],
@@ -151,6 +158,7 @@ describe('GetStatsFunction', () => {
           },
           {
             breedBreakdown: breakdownFor(2024, 'breed'),
+            breedStartBreakdown: [],
             classBreakdown: breakdownFor(2024, 'class'),
             dogHandlerBuckets: buckets2024,
             dogsPerHandlerBuckets: [],
@@ -197,6 +205,7 @@ describe('GetStatsFunction', () => {
       stats: [
         {
           breedBreakdown: breakdownFor(2023, 'breed'),
+          breedStartBreakdown: [],
           classBreakdown: breakdownFor(2023, 'class'),
           dogHandlerBuckets: buckets2023,
           dogsPerHandlerBuckets: [],
@@ -206,6 +215,7 @@ describe('GetStatsFunction', () => {
         },
         {
           breedBreakdown: breakdownFor(2024, 'breed'),
+          breedStartBreakdown: [],
           classBreakdown: breakdownFor(2024, 'class'),
           dogHandlerBuckets: buckets2024,
           dogsPerHandlerBuckets: [],
@@ -332,6 +342,7 @@ describe('GetStatsFunction', () => {
     expect(mockGetDogHandlerBuckets).not.toHaveBeenCalled()
     expect(mockGetDogsPerHandlerBuckets).not.toHaveBeenCalled()
     expect(mockGetYearlyBreakdown).not.toHaveBeenCalled()
+    expect(mockGetBreedStartBreakdown).not.toHaveBeenCalled()
   })
 
   it('fetches the years in parallel rather than one after another', async () => {

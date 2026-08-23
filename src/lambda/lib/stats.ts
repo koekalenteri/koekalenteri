@@ -1,6 +1,7 @@
 import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
 import type { JsonConfirmedEvent, JsonEventType, JsonRegistration } from '../../types'
 import type {
+  BreedStartRateEntry,
   CapacityStatsEntry,
   JsonCapacityStatsItem,
   JsonEventStatsItem,
@@ -224,6 +225,24 @@ export async function getYearlyBreakdown(
   return (items || []).map((item) => ({
     count: item.count,
     entityId: item.SK,
+  }))
+}
+
+/**
+ * Starters vs. reserve per breed for a year: what share of each breed's non-cancelled entries
+ * actually got a starting position. Written by the nightly rebuild, alongside breedBreakdown.
+ */
+export async function getBreedStartBreakdown(year: number): Promise<BreedStartRateEntry[]> {
+  const pk = `STAT#${year}#breedStart`
+  const items = await dynamoDB.query<{ SK: string; starters: number; reserve: number }>({
+    key: 'PK = :pk',
+    values: { ':pk': pk },
+  })
+
+  return (items || []).map((item) => ({
+    entityId: item.SK,
+    reserve: item.reserve ?? 0,
+    starters: item.starters ?? 0,
   }))
 }
 

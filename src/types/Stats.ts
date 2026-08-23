@@ -84,6 +84,25 @@ export interface JsonCapacityStatsItem {
   updatedAt: string
 }
 
+/**
+ * Starters vs. reserve for one breed in one year: what share of that breed's non-cancelled
+ * entries actually got a starting position. Cancelled registrations are excluded entirely.
+ */
+export interface BreedStartRateEntry {
+  entityId: string
+  starters: number
+  reserve: number
+}
+
+// DynamoDB item / wire shape: PK = STAT#{year}#breedStart, SK = breed code
+export interface JsonBreedStartStatsItem {
+  PK: string
+  SK: string
+  starters: number
+  reserve: number
+  updatedAt: string
+}
+
 /** How many events a judge officiated in one year, keyed by judge id (or name, for judges without one). */
 export interface JudgeWorkloadEntry {
   judgeId: string

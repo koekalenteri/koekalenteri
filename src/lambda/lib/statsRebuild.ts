@@ -7,6 +7,7 @@
 // writes. Every other partition has exactly one writer — this module — so rebuilding is safe.
 import type { EventState, JsonDogEvent, JsonRegistration } from '../../types'
 import type {
+  JsonBreedStartStatsItem,
   JsonCapacityStatsItem,
   JsonEventStatsItem,
   JsonJudgeWorkloadItem,
@@ -425,6 +426,62 @@ const capacityStatsRecords = (buckets: Map<string, CapacityBucket>, updatedAt: s
     updatedAt,
   }))
 
+interface BreedStartBucket {
+  breed: string
+  reserve: number
+  starters: number
+  year: number
+}
+
+const breedStartBucketKey = (year: number, breed: string) => `${year}#${breed}`
+
+const getOrCreateBreedStartBucket = (
+  buckets: Map<string, BreedStartBucket>,
+  year: number,
+  breed: string
+): BreedStartBucket => {
+  const key = breedStartBucketKey(year, breed)
+  const existing = buckets.get(key)
+  if (existing) return existing
+
+  const bucket: BreedStartBucket = { breed, reserve: 0, starters: 0, year }
+  buckets.set(key, bucket)
+  return bucket
+}
+
+/**
+ * Starters vs. reserve per breed: what share of a breed's non-cancelled entries actually got a
+ * starting position. Cancelled registrations are excluded entirely rather than counted as
+ * reserve -- a cancellation never had a real chance at either outcome, so folding it into the
+ * denominator would understate how selective a breed's real entries are. Scoped the same way as
+ * the breed participation counts this sits next to: official event types only.
+ */
+const addBreedStartRegistration = (
+  registration: CapacityRegistrationInput,
+  event: EventStatsEvent,
+  year: number,
+  buckets: Map<string, BreedStartBucket>
+): void => {
+  if (registration.cancelled || !countsTowardsCapacity(event) || !OFFICIAL_EVENT_TYPES.includes(event.eventType)) {
+    return
+  }
+  const bucket = getOrCreateBreedStartBucket(buckets, year, registration.dog?.breedCode ?? 'unknown')
+  if (isParticipantGroup(registration.group?.key)) {
+    bucket.starters += 1
+  } else {
+    bucket.reserve += 1
+  }
+}
+
+const breedStartRecords = (buckets: Map<string, BreedStartBucket>, updatedAt: string): JsonBreedStartStatsItem[] =>
+  [...buckets.values()].map((bucket) => ({
+    PK: `STAT#${bucket.year}#breedStart`,
+    reserve: bucket.reserve,
+    SK: bucket.breed,
+    starters: bucket.starters,
+    updatedAt,
+  }))
+
 interface JudgeWorkloadBucket {
   count: number
   judgeId: string
@@ -504,7 +561,8 @@ const processRegistrationStats = (
   accumulator: StatsAccumulator,
   wanted: Set<StatsPartition>,
   capacityBuckets: Map<string, CapacityBucket>,
-  eventClassMonths: Map<string, Map<string, string>>
+  eventClassMonths: Map<string, Map<string, string>>,
+  breedStartBuckets: Map<string, BreedStartBucket>
 ): { skipped: boolean; unattributedCapacity: boolean } => {
   const event = eventsById.get(registration.eventId)
   const year = event && eventStatsYear(event)
@@ -513,6 +571,7 @@ const processRegistrationStats = (
     return { skipped: true, unattributedCapacity: false }
   }
   addRegistrationStats(registration, event, year, updatedAt, accumulator, wanted)
+  if (wanted.has('participation')) addBreedStartRegistration(registration, event, year, breedStartBuckets)
   const unattributedCapacity =
     wanted.has('capacity') && !addCapacityRegistration(registration, event, capacityBuckets, eventClassMonths)
   return { skipped: false, unattributedCapacity }
@@ -525,7 +584,7 @@ export function buildStatsRecords(
   updatedAt: string,
   partitions: StatsPartition[] = ALL_STATS_PARTITIONS
 ): {
-  records: (JsonEventStatsItem | JsonCapacityStatsItem | JsonJudgeWorkloadItem)[]
+  records: (JsonEventStatsItem | JsonCapacityStatsItem | JsonJudgeWorkloadItem | JsonBreedStartStatsItem)[]
   skippedCount: number
   unattributedCapacityCount: number
 } {
@@ -547,6 +606,8 @@ export function buildStatsRecords(
 
   if (wanted.has('participation')) seedEventCountsFromEvents(eventsById, yearlyStats)
 
+  const breedStartBuckets = new Map<string, BreedStartBucket>()
+
   for (const registration of registrations) {
     const outcome = processRegistrationStats(
       registration,
@@ -555,15 +616,17 @@ export function buildStatsRecords(
       accumulator,
       wanted,
       capacityBuckets,
-      eventClassMonths
+      eventClassMonths,
+      breedStartBuckets
     )
     if (outcome.skipped) skippedCount++
     if (outcome.unattributedCapacity) unattributedCapacityCount++
   }
 
-  const records: (JsonEventStatsItem | JsonCapacityStatsItem | JsonJudgeWorkloadItem)[] = [
+  const records: (JsonEventStatsItem | JsonCapacityStatsItem | JsonJudgeWorkloadItem | JsonBreedStartStatsItem)[] = [
     ...(wanted.has('organizer') ? organizerStats.values() : []),
     ...(wanted.has('participation') ? yearlyStatsRecords(yearlyStats, handlerDogsByYear) : []),
+    ...(wanted.has('participation') ? breedStartRecords(breedStartBuckets, updatedAt) : []),
     ...(wanted.has('capacity') ? capacityStatsRecords(capacityBuckets, updatedAt) : []),
     ...(wanted.has('judges') ? judgeWorkloadRecords(judgeWorkloadBuckets, updatedAt) : []),
   ]

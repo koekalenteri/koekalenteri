@@ -1,4 +1,5 @@
 import type {
+  BreedStartRateEntry,
   CapacityStatsEntry,
   EventStatsItem,
   JudgeWorkloadEntry,
@@ -18,6 +19,8 @@ export interface YearlyStatsResponse {
   // Optional: absent when talking to a backend deployed before these breakdowns were added.
   dogsPerHandlerBuckets?: { bucket: string; count: number }[]
   breedBreakdown?: YearlyBreakdownEntry[]
+  // Absent for backends deployed before starter/reserve breed data existed.
+  breedStartBreakdown?: BreedStartRateEntry[]
   eventTypeBreakdown?: YearlyBreakdownEntry[]
   classBreakdown?: YearlyBreakdownEntry[]
   // Absent for the earliest year on record, and for backends deployed before retention existed.

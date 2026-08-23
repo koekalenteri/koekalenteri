@@ -707,6 +707,8 @@
     },
     "breedDistribution": "Rotujakauma",
     "breedDistributionInfo": "Noutajarotujen suhteellinen jakauma vuosittain: jokainen palkki vastaa 100 %:a kyseisen vuoden osallistumisista, joten osallistujamäärän vaihtelu vuosien välillä ei vaikuta palkin korkeuteen, vain rotujen väliseen suhteeseen. Yleisimmät rodut näytetään omina väreinään lyhenteillä lb = labradorinnoutaja, kn = kultainennoutaja, sk = sileäkarvainen noutaja, ns = novascotiannoutaja, kk = kiharakarvainen noutaja, ch = chesapeakelahdennoutaja, jotka pysyvät samoina joka vuosi; harvinaisemmat rodut on yhdistetty kohtaan ”Muut”.",
+    "breedStartRate": "Osallistujaprosentti roduittain",
+    "breedStartRateInfo": "Kuinka suuri osa kunkin rodun peruuttamattomista ilmoittautumisista sai osallistujapaikan valitulle vuodelle. Varasijalle jääneet lasketaan mukaan nimittäjään, mutta perutut ilmoittautumiset on jätetty kokonaan pois vertailusta.",
     "classDistribution": "Jakauma luokittain",
     "classDistributionInfo": "Osallistumiskertojen määrä luokittain valitulle vuodelle.",
     "count": "Määrä",
