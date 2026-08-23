@@ -22,15 +22,30 @@ const MIN_LABEL_HEIGHT = 18
 const OTHER_SERIES_ID = 'other'
 
 /**
- * Breed mix per year as a stacked bar per year: the distribution and how it shifts, in one read.
+ * Breed mix per year as a 100%-stacked bar: the distribution and how it shifts, in one read.
  *
  * The top breeds are chosen once from the all-year totals, not per year, so a breed keeps the
  * same colour in every bar — with a per-year ranking the palette would repaint itself whenever
  * two breeds swapped places, and the chart would say something it doesn't mean.
+ *
+ * Bars are normalised to a share of that year's participations rather than the raw count, so a
+ * year with unusually high or low turnout doesn't dwarf or shrink every bar next to it — only
+ * the mix, which is what this chart is for, changes the shape.
  */
 export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
+  const { t: breedAbbr } = useTranslation('breedAbbr')
+
+  // The abbreviation is stored per sex (e.g. "lbn"/"lbu"), but the chart counts a breed across
+  // both, so only the shared two-letter root applies; breeds outside the retriever set (the
+  // "unregistered/mixed" bucket) have no abbreviation, so those fall back to the full name
+  // rather than being cut down to a meaningless two letters.
+  const abbreviateBreed = (entityId: string) => {
+    const fullName = breed(entityId as BreedCode)
+    const abbr: string = breedAbbr(`${entityId}.M`, { defaultValue: '' })
+    return abbr ? abbr.slice(0, 2) : fullName
+  }
 
   const years = stats.map((stat) => stat.year)
 
@@ -51,7 +66,7 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
   const breedSeries = topBreeds.map((entityId) => ({
     data: stats.map((stat) => countFor(stat, entityId)),
     id: entityId,
-    label: breed(entityId as BreedCode),
+    label: abbreviateBreed(entityId),
     stack: 'breeds',
   }))
 
@@ -66,6 +81,17 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
     ? [...breedSeries, { data: otherPerYear, id: OTHER_SERIES_ID, label: t('stats.otherBreeds'), stack: 'breeds' }]
     : breedSeries
 
+  // Each year's segments are divided by that year's own total, so every bar sums to 100% no
+  // matter how many dogs took part — turnout stops driving bar height, only the mix does.
+  const yearTotals = years.map((_, i) => series.reduce((sum, s) => sum + (s.data[i] ?? 0), 0))
+  const toPercent = (count: number, i: number) =>
+    yearTotals[i] > 0 ? Math.round((count / yearTotals[i]) * 1000) / 10 : 0
+  const percentSeries = series.map((s) => ({
+    ...s,
+    data: s.data.map((count, i) => toPercent(count, i)),
+    valueFormatter: (value: number | null) => (value === null ? '–' : `${value} %`),
+  }))
+
   // Several palette slots sit under 3:1 against the chart surface, so segments big enough to
   // hold a number carry one rather than relying on colour alone. Each label takes the ink its
   // own fill can support — one blanket colour would be unreadable on half the stack.
@@ -76,6 +102,7 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
     ])
   )
 
+  const colors = [...CATEGORICAL_CHART_COLORS.slice(0, breedSeries.length), OTHER_BUCKET_CHART_COLOR]
   const isEmpty = series.length === 0 || years.length === 0
 
   return (
@@ -86,10 +113,13 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
       ) : (
         <BarChart
           height={420}
-          colors={[...CATEGORICAL_CHART_COLORS.slice(0, breedSeries.length), OTHER_BUCKET_CHART_COLOR]}
-          series={series}
+          colors={colors}
+          series={percentSeries}
           xAxis={[{ data: years, scaleType: 'band', valueFormatter: (year: number) => `${year}` }]}
-          barLabel={(item, context) => (context.bar.height >= MIN_LABEL_HEIGHT && item.value ? `${item.value}` : null)}
+          yAxis={[{ max: 100, min: 0, valueFormatter: (value: number) => `${value} %` }]}
+          barLabel={(item, context) =>
+            context.bar.height >= MIN_LABEL_HEIGHT && item.value ? `${item.value} %` : null
+          }
           sx={labelInk}
         />
       )}

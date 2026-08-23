@@ -49,9 +49,12 @@ describe('BreedDistributionChart', () => {
 
     const { series, years } = chart()
     expect(years).toEqual([2024, 2025])
+    // Labels are abbreviated (see abbreviateBreed); the mocked t() doesn't produce real
+    // abbreviations, but it does confirm the breed code, not the raw count, drives the label.
+    // Values are each year's share of that year's total (10/16, 6/16, then 12/20, 8/20).
     expect(series).toEqual([
-      { data: [10, 12], label: '122', stack: 'breeds' },
-      { data: [6, 8], label: '111', stack: 'breeds' },
+      { data: [62.5, 60], label: '12', stack: 'breeds' },
+      { data: [37.5, 40], label: '11', stack: 'breeds' },
     ])
   })
 
@@ -70,9 +73,10 @@ describe('BreedDistributionChart', () => {
     )
 
     const { colors, series } = chart()
+    // 10 of 19 total, and 6+3 of 19, as a percentage rounded to one decimal.
     expect(series).toEqual([
-      { data: [10], label: '122', stack: 'breeds' },
-      { data: [9], label: 'stats.otherBreeds', stack: 'breeds' },
+      { data: [52.6], label: '12', stack: 'breeds' },
+      { data: [47.4], label: 'stats.otherBreeds', stack: 'breeds' },
     ])
     // The remainder is not an entity, so it takes the neutral rather than a categorical hue.
     expect(colors).toEqual(['#2a78d6', '#8a8a85'])
@@ -96,7 +100,7 @@ describe('BreedDistributionChart', () => {
       />
     )
 
-    expect(chart().series.map((s: any) => s.label)).toEqual(['122', '111'])
+    expect(chart().series.map((s: any) => s.label)).toEqual(['12', '11'])
   })
 
   it('omits the other series when every breed fits inside the limit', () => {

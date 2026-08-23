@@ -706,7 +706,7 @@
       "titleInfo": "Amount paid and amount refunded per month, for the selected organization and year."
     },
     "breedDistribution": "Breed distribution",
-    "breedDistributionInfo": "Breed mix per year as a stacked bar. The most common breeds overall are shown individually and keep the same colour across years; less common breeds are combined into \"Other\".",
+    "breedDistributionInfo": "Retriever breed mix per year, as a share of that year's participations: every bar sums to 100%, so a year with unusually high or low turnout doesn't change bar height, only the mix does. The most common breeds are shown individually by abbreviation (lb = Labrador Retriever, gr = Golden Retriever, fc = Flat Coated Retriever, ns = Nova Scotia Duck Tolling Retriever, cc = Curly Coated Retriever, ch = Chesapeake Bay Retriever) and keep the same colour across years; less common breeds are combined into \"Other\".",
     "classDistribution": "Distribution by class",
     "classDistributionInfo": "Number of participations by competition class for the selected year.",
     "count": "Count",
