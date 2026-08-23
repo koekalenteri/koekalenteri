@@ -5,6 +5,7 @@ import {
   getCapacityStats,
   getCapacityStatsAllEventTypes,
   getDogHandlerBuckets,
+  getDogsPerHandlerBuckets,
   getRetentionStats,
   getYearlyBreakdown,
   getYearlyTotalStats,
@@ -17,9 +18,18 @@ const YEARLY_MAX_AGE = 300
 const CAPACITY_MAX_AGE = 3600
 
 async function getYearStats(year: number) {
-  const [totals, dogHandlerBuckets, breedBreakdown, eventTypeBreakdown, classBreakdown, retention] = await Promise.all([
+  const [
+    totals,
+    dogHandlerBuckets,
+    dogsPerHandlerBuckets,
+    breedBreakdown,
+    eventTypeBreakdown,
+    classBreakdown,
+    retention,
+  ] = await Promise.all([
     getYearlyTotalStats(year),
     getDogHandlerBuckets(year),
+    getDogsPerHandlerBuckets(year),
     getYearlyBreakdown(year, 'breed'),
     getYearlyBreakdown(year, 'eventType'),
     getYearlyBreakdown(year, 'class'),
@@ -32,6 +42,7 @@ async function getYearStats(year: number) {
     breedBreakdown,
     classBreakdown,
     dogHandlerBuckets,
+    dogsPerHandlerBuckets,
     eventTypeBreakdown,
     ...(retention && { retention }),
     totals,

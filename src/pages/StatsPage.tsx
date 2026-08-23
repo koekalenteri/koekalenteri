@@ -13,6 +13,7 @@ import Header from './components/Header'
 import BreedDistributionChart from './components/stats/BreedDistributionChart'
 import ClassDistributionChart from './components/stats/ClassDistributionChart'
 import DogHandlerBucketChart from './components/stats/DogHandlerBucketChart'
+import DogsPerHandlerBucketChart from './components/stats/DogsPerHandlerBucketChart'
 import EventTypeBarChart from './components/stats/EventTypeBarChart'
 import FillRateChart from './components/stats/FillRateChart'
 import ParticipationTrendChart from './components/stats/ParticipationTrendChart'
@@ -67,6 +68,9 @@ export function Component() {
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
               <DogHandlerBucketChart data={yearStats.dogHandlerBuckets} />
+            </Grid>
+            <Grid size={{ md: 6, xs: 12 }}>
+              <DogsPerHandlerBucketChart data={yearStats.dogsPerHandlerBuckets ?? []} />
             </Grid>
             <Grid size={12}>
               {/* Spans every year rather than the selected one: the mix is more telling as a

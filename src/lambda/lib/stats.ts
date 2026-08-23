@@ -244,6 +244,22 @@ export async function getDogHandlerBuckets(year: number): Promise<{ bucket: stri
 }
 
 /**
+ * Get dogs-per-handler buckets for a specific year: how many handlers ran 1 dog, 2 dogs, etc.
+ */
+export async function getDogsPerHandlerBuckets(year: number): Promise<{ bucket: string; count: number }[]> {
+  const pk = `BUCKETS#${year}#dogsPerHandler`
+  const items = await dynamoDB.query<{ SK: string; count: number }>({
+    key: 'PK = :pk',
+    values: { ':pk': pk },
+  })
+
+  return (items || []).map((item) => ({
+    bucket: item.SK,
+    count: item.count,
+  }))
+}
+
+/**
  * Get available years for which we have statistics
  */
 export async function getAvailableYears(): Promise<number[]> {

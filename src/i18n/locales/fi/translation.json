@@ -704,6 +704,7 @@
     "classDistribution": "Jakauma luokittain",
     "count": "Määrä",
     "dogHandlerParticipation": "Koira+ohjaaja -osallistumiskerrat",
+    "dogsPerHandler": "Koiria per ohjaaja",
     "eventTypeDistribution": "Jakauma koemuodoittain",
     "fillRate": "Täyttöaste",
     "newDogHandlers": "Uusia koirakoita",

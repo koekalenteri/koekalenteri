@@ -16,6 +16,7 @@ export interface YearlyStatsResponse {
   totals: YearlyTotalStat[]
   dogHandlerBuckets: { bucket: string; count: number }[]
   // Optional: absent when talking to a backend deployed before these breakdowns were added.
+  dogsPerHandlerBuckets?: { bucket: string; count: number }[]
   breedBreakdown?: YearlyBreakdownEntry[]
   eventTypeBreakdown?: YearlyBreakdownEntry[]
   classBreakdown?: YearlyBreakdownEntry[]

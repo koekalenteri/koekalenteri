@@ -180,6 +180,16 @@ const dogHandlerBucketRecords = (year: number, counts: Map<string, number>): Jso
   return [...buckets].map(([bucket, count]) => ({ count, PK: `BUCKETS#${year}#dog#handler`, SK: bucket }))
 }
 
+/** How many distinct dogs each handler ran that year, bucketed -- e.g. "38 handlers ran exactly 2 dogs". */
+const dogsPerHandlerBucketRecords = (year: number, handlerDogs: Map<string, Set<string>>): JsonEventStatsItem[] => {
+  const buckets = new Map<string, number>()
+  for (const dogs of handlerDogs.values()) {
+    const bucket = bucketForCount(dogs.size)
+    if (bucket) increment(buckets, bucket)
+  }
+  return [...buckets].map(([bucket, count]) => ({ count, PK: `BUCKETS#${year}#dogsPerHandler`, SK: bucket }))
+}
+
 /**
  * How many dog+handler pairs of a year had also competed the year before.
  *
@@ -212,7 +222,10 @@ const retentionRecords = (
   ]
 }
 
-const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>) => {
+const yearlyStatsRecords = (
+  yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>,
+  handlerDogsByYear: Map<number, Map<string, Set<string>>>
+) => {
   const records: JsonEventStatsItem[] = []
   for (const [year, countsByType] of yearlyStats) {
     for (const type of PARTICIPATION_TYPES) {
@@ -221,6 +234,8 @@ const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<st
       for (const [entityId, count] of counts) records.push({ count, PK: `STAT#${year}#${type}`, SK: entityId })
       if (type === 'dog#handler') records.push(...dogHandlerBucketRecords(year, counts))
     }
+    const handlerDogs = handlerDogsByYear.get(year)
+    if (handlerDogs) records.push(...dogsPerHandlerBucketRecords(year, handlerDogs))
     records.push(...retentionRecords(year, countsByType, yearlyStats))
   }
   return records
@@ -229,7 +244,17 @@ const yearlyStatsRecords = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<st
 interface StatsAccumulator {
   organizerStats: Map<string, JsonEventStatsItem>
   yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
+  handlerDogsByYear: Map<number, Map<string, Set<string>>>
   years: Set<number>
+}
+
+const getHandlerDogs = (handlerDogsByYear: Map<number, Map<string, Set<string>>>, year: number) => {
+  const existing = handlerDogsByYear.get(year)
+  if (existing) return existing
+
+  const handlerDogs = new Map<string, Set<string>>()
+  handlerDogsByYear.set(year, handlerDogs)
+  return handlerDogs
 }
 
 interface CapacityBucket {
@@ -460,6 +485,11 @@ const addRegistrationStats = (
   const yearlyCounts = getYearlyCounts(accumulator.yearlyStats, year)
   const identifiers = participationIdentifiers(registration)
   for (const type of PARTICIPATION_TYPES) increment(countsForType(yearlyCounts, type), identifiers[type])
+
+  const handlerDogs = getHandlerDogs(accumulator.handlerDogsByYear, year)
+  const dogsForHandler = handlerDogs.get(identifiers.handler) ?? new Set<string>()
+  dogsForHandler.add(identifiers.dog)
+  handlerDogs.set(identifiers.handler, dogsForHandler)
 }
 
 /**
@@ -502,8 +532,9 @@ export function buildStatsRecords(
   const wanted = new Set(partitions)
   const organizerStats = new Map<string, JsonEventStatsItem>()
   const yearlyStats = new Map<number, Map<YearlyStatTypes, Map<string, number>>>()
+  const handlerDogsByYear = new Map<number, Map<string, Set<string>>>()
   const years = new Set<number>()
-  const accumulator = { organizerStats, yearlyStats, years }
+  const accumulator = { handlerDogsByYear, organizerStats, yearlyStats, years }
   let skippedCount = 0
   let unattributedCapacityCount = 0
 
@@ -532,7 +563,7 @@ export function buildStatsRecords(
 
   const records: (JsonEventStatsItem | JsonCapacityStatsItem | JsonJudgeWorkloadItem)[] = [
     ...(wanted.has('organizer') ? organizerStats.values() : []),
-    ...(wanted.has('participation') ? yearlyStatsRecords(yearlyStats) : []),
+    ...(wanted.has('participation') ? yearlyStatsRecords(yearlyStats, handlerDogsByYear) : []),
     ...(wanted.has('capacity') ? capacityStatsRecords(capacityBuckets, updatedAt) : []),
     ...(wanted.has('judges') ? judgeWorkloadRecords(judgeWorkloadBuckets, updatedAt) : []),
   ]

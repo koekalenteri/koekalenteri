@@ -69,6 +69,7 @@ describe('statsRebuild', () => {
     [{ PK: 'STAT#2025#dog#handler', SK: 'id' }, 2025],
     [{ PK: 'TOTALS#2025', SK: 'dog' }, 2025],
     [{ PK: 'BUCKETS#2025#dog#handler', SK: '0-1' }, 2025],
+    [{ PK: 'BUCKETS#2025#dogsPerHandler', SK: '1' }, 2025],
     [{ PK: 'OTHER#2025', SK: 'id' }, undefined],
     [{ PK: 'YEARS', SK: 'not-a-year' }, undefined],
     [{ PK: 'ORG#organizer', SK: 'not-a-date#event' }, undefined],
@@ -146,6 +147,7 @@ describe('statsRebuild', () => {
         }),
         { count: 1, PK: 'TOTALS#2025', SK: 'dog' },
         { count: 1, PK: 'BUCKETS#2025#dog#handler', SK: '1' },
+        { count: 1, PK: 'BUCKETS#2025#dogsPerHandler', SK: '1' },
         expect.objectContaining({ PK: 'YEARS', SK: '2025' }),
       ])
     )
@@ -177,6 +179,29 @@ describe('statsRebuild', () => {
         { count: 2, PK: 'TOTALS#2025', SK: 'dog#handler' },
         { count: 1, PK: 'BUCKETS#2025#dog#handler', SK: '1' },
         { count: 1, PK: 'BUCKETS#2025#dog#handler', SK: '2' },
+        // Both handler a (1 distinct dog, run twice) and handler b (1 distinct dog) land in the '1' bucket.
+        { count: 2, PK: 'BUCKETS#2025#dogsPerHandler', SK: '1' },
+      ])
+    )
+  })
+
+  it('buckets handlers by how many distinct dogs they ran, not how many times they registered', () => {
+    const testEvent = event('event-2025', '2025-05-01')
+    const { records } = buildStatsRecords(
+      [
+        registration('one', testEvent.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } }),
+        registration('two', testEvent.id, { dog: { regNo: 'FI2' }, handler: { email: 'a@example.com' } }),
+        registration('three', testEvent.id, { dog: { regNo: 'FI3' }, handler: { email: 'b@example.com' } }),
+      ],
+      new Map([[testEvent.id, testEvent]]),
+      '2025-01-01T00:00:00.000Z'
+    )
+
+    expect(records).toEqual(
+      expect.arrayContaining([
+        // Handler a ran 2 distinct dogs; handler b ran 1.
+        { count: 1, PK: 'BUCKETS#2025#dogsPerHandler', SK: '1' },
+        { count: 1, PK: 'BUCKETS#2025#dogsPerHandler', SK: '2' },
       ])
     )
   })
@@ -594,6 +619,7 @@ describe('statsRebuild', () => {
       [{ PK: 'STAT#2025#dog', SK: 'FI12345' }, 'participation'],
       [{ PK: 'TOTALS#2025', SK: 'dog' }, 'participation'],
       [{ PK: 'BUCKETS#2025#dog#handler', SK: '1' }, 'participation'],
+      [{ PK: 'BUCKETS#2025#dogsPerHandler', SK: '1' }, 'participation'],
       [{ PK: 'YEARS', SK: '2025' }, 'participation'],
       [{ PK: 'NEW_STAT_FAMILY#2025', SK: 'id' }, undefined],
     ])('assigns %o to the %s partition', (key, expected) => {

@@ -704,6 +704,7 @@
     "classDistribution": "Distribution by class",
     "count": "Count",
     "dogHandlerParticipation": "Dog+handler participation counts",
+    "dogsPerHandler": "Dogs per handler",
     "eventTypeDistribution": "Distribution by event type",
     "fillRate": "Fill rate",
     "newDogHandlers": "New pairs",
