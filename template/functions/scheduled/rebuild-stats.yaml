@@ -19,12 +19,14 @@
             TableName: !Ref EventRegistrationTable
       Events:
         NightlyRebuild:
-          Type: Schedule
+          Type: ScheduleV2
           Properties:
             # 01:00 UTC = 03:00 Helsinki in summer, 04:00 in winter — outside registration hours.
-            Schedule: 'cron(0 1 * * ? *)'
+            ScheduleExpression: 'cron(0 1 * * ? *)'
             Description: Nightly rebuild of participation and capacity statistics
-            Enabled: true
+            State: ENABLED
+            FlexibleTimeWindow:
+              Mode: 'OFF'
 
   RebuildStatsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
