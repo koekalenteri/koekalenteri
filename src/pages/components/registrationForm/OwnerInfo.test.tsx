@@ -125,6 +125,12 @@ describe('OwnerInfo', () => {
     })
     onChange.mockClear()
 
+    await user.click(screen.getByText('registration.ownerIsMember'))
+    await flushPromises()
+
+    expectOwnerChange({ membership: true })
+    onChange.mockClear()
+
     const handlesSomeoneElse = screen.getAllByRole('radio', { name: 'registration.someoneElse' })[0]
     const paysSomeoneElse = screen.getAllByRole('radio', { name: 'registration.someoneElse' })[1]
 

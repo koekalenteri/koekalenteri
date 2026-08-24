@@ -19,6 +19,7 @@ interface Props {
 
 export default function OwnerRow({ disabled, idPrefix, owner, removable, onChange, onRemove }: Props) {
   const { t } = useTranslation()
+  const membershipId = `${idPrefix}_membership`
 
   const handleMembershipChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => onChange({ membership: e.target.checked }),
@@ -31,9 +32,10 @@ export default function OwnerRow({ disabled, idPrefix, owner, removable, onChang
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <FormControlLabel
           disabled={disabled}
-          control={<Checkbox checked={!!owner.membership} onChange={handleMembershipChange} />}
+          control={<Checkbox id={membershipId} checked={!!owner.membership} onChange={handleMembershipChange} />}
+          htmlFor={membershipId}
           label={t('registration.ownerIsMember')}
-          name={`${idPrefix}_membership`}
+          name={membershipId}
         />
         {removable && (
           <Button disabled={disabled} startIcon={<DeleteOutline />} onClick={onRemove} variant="outlined">

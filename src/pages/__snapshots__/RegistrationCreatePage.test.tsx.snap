@@ -1770,6 +1770,7 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
                       >
                         <label
                           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                          for="owner_0_membership"
                         >
                           <span
                             class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
@@ -1777,6 +1778,7 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
                             <input
                               class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
+                              id="owner_0_membership"
                               name="owner_0_membership"
                               type="checkbox"
                             />
@@ -4755,6 +4757,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                       >
                         <label
                           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                          for="owner_0_membership"
                         >
                           <span
                             class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
@@ -4762,6 +4765,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                             <input
                               class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
+                              id="owner_0_membership"
                               name="owner_0_membership"
                               type="checkbox"
                             />

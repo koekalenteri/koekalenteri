@@ -266,6 +266,7 @@ exports[`OwnerInfo > should render with minimal info 1`] = `
                   >
                     <label
                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                      for="owner_0_membership"
                     >
                       <span
                         class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
@@ -273,6 +274,7 @@ exports[`OwnerInfo > should render with minimal info 1`] = `
                         <input
                           class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                           data-indeterminate="false"
+                          id="owner_0_membership"
                           name="owner_0_membership"
                           type="checkbox"
                         />
