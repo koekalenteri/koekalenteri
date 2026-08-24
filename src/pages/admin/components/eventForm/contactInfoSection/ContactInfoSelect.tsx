@@ -6,6 +6,7 @@ import FormGroup from '@mui/material/FormGroup'
 import TextField from '@mui/material/TextField'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
 
 interface Props {
   readonly disabled?: boolean
@@ -23,6 +24,8 @@ export default function ContactInfoSelect({ disabled, name, show, defaults, onCh
     phone: show?.phone ?? '',
   })
 
+  const debouncedOnChange = useDebouncedCallback(onChange)
+
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const prop = event.target.name as keyof PublicContactInfo
@@ -31,9 +34,9 @@ export default function ContactInfoSelect({ disabled, name, show, defaults, onCh
         [prop]: event.target.value,
       }
       setState(value)
-      onChange(name, value)
+      debouncedOnChange(name, value)
     },
-    [name, onChange, state]
+    [debouncedOnChange, name, state]
   )
 
   const handleCheck = useCallback(

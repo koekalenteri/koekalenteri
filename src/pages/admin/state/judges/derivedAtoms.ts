@@ -1,9 +1,13 @@
 import { atom } from 'jotai'
+import { unwrap } from 'jotai/utils'
 import { filterOfficialDirectory } from '../officialDirectory'
 import { adminJudgeFilterAtom, adminJudgesAtom } from './atoms'
 
 export const adminActiveJudgesAtom = atom(async (get) => (await get(adminJudgesAtom)).filter((item) => item.active))
 
-export const adminFilteredJudgesAtom = atom(async (get) => {
-  return filterOfficialDirectory(await get(adminJudgesAtom), get(adminJudgeFilterAtom), true)
-})
+// unwrap keeps serving the previous list synchronously while a new filter/data promise settles,
+// instead of re-suspending (and remounting the page) on every filter keystroke.
+export const adminFilteredJudgesAtom = unwrap(
+  atom(async (get) => filterOfficialDirectory(await get(adminJudgesAtom), get(adminJudgeFilterAtom), true)),
+  (prev) => prev ?? []
+)

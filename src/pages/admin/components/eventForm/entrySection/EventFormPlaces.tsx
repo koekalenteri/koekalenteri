@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import type { DeepPartial, EventClass } from '../../../../../types'
-import type { SectionProps } from '../types'
+import type { EntryEvent, SectionProps } from '../types'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -21,7 +21,11 @@ import {
 import ClassPlacesTable from './eventFormPlaces/ClassPlacesTable'
 import DayPlacesTable from './eventFormPlaces/DayPlacesTable'
 
-export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: Readonly<SectionProps>) {
+interface Props extends Pick<SectionProps, 'disabled' | 'helperTexts' | 'onChange'> {
+  readonly event: EntryEvent
+}
+
+export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: Readonly<Props>) {
   const hasClasses = event.classes.length > 0
   const classPlaces = event.classes.reduce((total, c) => total + (c.places ?? 0), 0)
   const [totalEnabled, setTotalEnabled] = useState(

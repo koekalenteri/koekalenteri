@@ -109,7 +109,7 @@ describe('JudgeSection', () => {
   })
 
   it('should fire onChange', async () => {
-    const testEvent: PartialEvent = {
+    let testEvent: PartialEvent = {
       classes: [
         { class: 'ALO', date: new Date('2022-06-01') },
         { class: 'AVO', date: new Date('2022-06-01') },
@@ -125,7 +125,11 @@ describe('JudgeSection', () => {
       startDate: new Date('2022-06-01'),
     }
 
-    const changeHandler = vi.fn((props) => Object.assign(testEvent, props))
+    // JudgesSection is memoized, so `event` must get a new object reference on every change
+    // (as it does in real usage via EventForm's merge) rather than being mutated in place.
+    const changeHandler = vi.fn((props) => {
+      testEvent = { ...testEvent, ...props }
+    })
     const eventType: EventType = {
       createdAt: new Date(),
       createdBy: '',

@@ -1,7 +1,7 @@
 import type { ValidationError } from '../../../../i18n/validation'
 import type { BreedCode } from '../../../../types'
 import type { DogEventCost, DogEventCostKey } from '../../../../types/Cost'
-import type { PartialEvent, SectionProps } from './types'
+import type { PartialEvent, PaymentEvent, SectionProps } from './types'
 import AddIcon from '@mui/icons-material/Add'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -17,7 +17,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DOG_EVENT_COST_KEYS, setCostValue } from '../../../../lib/cost'
 import { keysOf } from '../../../../lib/typeGuards'
@@ -98,7 +98,11 @@ function CostTableSection({
   )
 }
 
-export default function PaymentSection({
+interface Props extends Readonly<Omit<SectionProps, 'event'>> {
+  readonly event: PaymentEvent
+}
+
+function PaymentSection({
   disabled: _disabled,
   errorStates,
   event,
@@ -107,7 +111,7 @@ export default function PaymentSection({
   open,
   onOpenChange,
   errors,
-}: Readonly<SectionProps>) {
+}: Props) {
   const { t } = useTranslation()
   const [dialogMode, setDialogMode] = useState<'optional' | 'other' | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -457,3 +461,5 @@ export default function PaymentSection({
     </CollapsibleSection>
   )
 }
+
+export default memo(PaymentSection)

@@ -31,6 +31,46 @@ export type FieldRequirements = {
   state: RequiredFieldState
   required: RequiredFields
 }
+export type JudgesEvent = Pick<PartialEvent, 'classes' | 'endDate' | 'eventType' | 'judges' | 'startDate'>
+
+export type BasicInfoEvent = Pick<
+  PartialEvent,
+  | 'classes'
+  | 'contactInfo'
+  | 'dates'
+  | 'endDate'
+  | 'entries'
+  | 'entryEndDate'
+  | 'entryStartDate'
+  | 'eventType'
+  | 'judges'
+  | 'kcId'
+  | 'location'
+  | 'name'
+  | 'official'
+  | 'organizer'
+  | 'placesPerDay'
+  | 'secretary'
+  | 'startDate'
+>
+
+export type PaymentEvent = Pick<PartialEvent, 'cost' | 'costMember' | 'entryStartDate' | 'paymentTime'>
+
+export type EntryEvent = Pick<
+  PartialEvent,
+  | 'classes'
+  | 'createdAt'
+  | 'dates'
+  | 'endDate'
+  | 'entryEndDate'
+  | 'entryStartDate'
+  | 'eventType'
+  | 'places'
+  | 'placesPerDay'
+  | 'priority'
+  | 'startDate'
+>
+
 export interface SectionProps {
   readonly event: PartialEvent
   readonly disabled?: boolean

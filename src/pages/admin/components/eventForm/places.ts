@@ -4,6 +4,9 @@ import { formatDate } from '../../../../i18n/dates'
 import { getEventDays } from '../../../../lib/event'
 import { splitEvenly } from '../../../../lib/utils'
 
+type ClassesEvent = Pick<PartialEvent, 'classes'>
+type DaysEvent = Pick<PartialEvent, 'endDate' | 'places' | 'startDate'>
+
 /** Calculate total places from classes. */
 export function calculateTotalFromClasses(classes: DeepPartial<EventClass>[]): number {
   return classes.reduce((acc, cur) => acc + (cur?.places ?? 0), 0)
@@ -15,7 +18,7 @@ export function calculateTotalFromDays(placesPerDay: Record<string, number | und
 }
 
 export function updatePlacesPerDayFromClasses(
-  event: PartialEvent,
+  event: ClassesEvent,
   newClasses?: DeepPartial<EventClass>[]
 ): Record<string, number> {
   const newPlacesPerDay: Record<string, number> = {}
@@ -39,7 +42,7 @@ export function updatePlacesPerDayFromClasses(
   return newPlacesPerDay
 }
 
-export function distributePlacesAmongDays(event: PartialEvent): Record<string, number> {
+export function distributePlacesAmongDays(event: DaysEvent): Record<string, number> {
   const days = getEventDays(event)
   if (days.length === 0) return {}
 

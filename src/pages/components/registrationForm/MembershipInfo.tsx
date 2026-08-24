@@ -5,10 +5,10 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocalState } from '../../../hooks/useLocalState'
 import { resolveOwnerSelection } from '../../../lib/registration'
 import CollapsibleSection from '../CollapsibleSection'
 import { useDogCacheKey } from './hooks/useDogCacheKey'
-import { useLocalState } from './hooks/useLocalState'
 
 interface Props {
   readonly reg: DeepPartial<Registration>

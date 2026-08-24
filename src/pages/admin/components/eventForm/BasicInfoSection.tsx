@@ -12,7 +12,7 @@ import type {
   User,
 } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
-import type { PartialEvent, SectionProps } from './types'
+import type { BasicInfoEvent, PartialEvent, SectionProps } from './types'
 import Sync from '@mui/icons-material/Sync'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
@@ -21,9 +21,10 @@ import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { normalizeEventKcIdChoice, searchEventKcIdChoices } from '../../../../api/event'
+import { useLocalState } from '../../../../hooks/useLocalState'
 import { zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../../i18n/dates'
 import {
   defaultEntryEndDate,
@@ -40,8 +41,8 @@ import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
 import KcIdChoiceDialog from './KcIdChoiceDialog'
 
-export interface Props extends Readonly<SectionProps> {
-  readonly event: PartialEvent
+export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
+  readonly event: BasicInfoEvent
   readonly eventTypes?: string[]
   readonly eventTypeClasses?: Record<string, RegistrationClass[]>
   readonly officials?: User[]
@@ -55,7 +56,7 @@ const getTypeClasses = (eventType?: string, eventTypeClasses?: Record<string, Re
     ? (eventTypeClasses?.[eventType ?? ''] ?? [])
     : (eventTypeClasses?.unofficialEvents ?? [])
 
-export default function BasicInfoSection({
+function BasicInfoSection({
   disabled,
   event,
   errorStates,
@@ -157,10 +158,8 @@ export default function BasicInfoSection({
       handleLookupCriteriaChange({ classes: [...values] }),
     [handleLookupCriteriaChange]
   )
-  const handleNameChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => handleLookupCriteriaChange({ name: e.target.value }),
-    [handleLookupCriteriaChange]
-  )
+  const [name, setName] = useLocalState(event.name ?? '', (value) => handleLookupCriteriaChange({ name: value }))
+  const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => setName(e.target.value), [setName])
   const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
   const getId = useCallback((o?: string | { id?: number | string }) => (typeof o === 'string' ? o : (o?.id ?? '')), [])
   const getKcId = useCallback((o?: number | string | null) => (o == null ? '' : `${o}`), [])
@@ -321,7 +320,7 @@ export default function BasicInfoSection({
                 disabled={disabled}
                 label={t('event.name')}
                 fullWidth
-                value={event.name ?? ''}
+                value={name}
                 onChange={handleNameChange}
               />
             </Grid>
@@ -395,6 +394,8 @@ export default function BasicInfoSection({
     </>
   )
 }
+
+export default memo(BasicInfoSection)
 
 function eventClassOptions(event: PartialEvent | undefined, typeClasses: RegistrationClass[]) {
   if (!event?.startDate || !event?.endDate) {

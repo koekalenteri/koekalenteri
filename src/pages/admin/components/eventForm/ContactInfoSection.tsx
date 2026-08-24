@@ -1,5 +1,6 @@
 import type { ContactInfo, DeepPartial, PublicContactInfo, User } from '../../../../types'
 import Grid from '@mui/material/Grid'
+import { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import ContactInfoSelect from './contactInfoSection/ContactInfoSelect'
@@ -16,7 +17,7 @@ interface Props {
   readonly onOpenChange?: (value: boolean) => void
 }
 
-export default function ContactInfoSection({
+function ContactInfoSection({
   contactInfo,
   disabled,
   error,
@@ -28,13 +29,16 @@ export default function ContactInfoSection({
   secretary,
 }: Props) {
   const { t } = useTranslation()
-  const handleChange = (name: string, props: Partial<PublicContactInfo>) =>
-    onChange({
-      contactInfo: {
-        ...contactInfo,
-        [name]: props,
-      },
-    })
+  const handleChange = useCallback(
+    (name: string, props: Partial<PublicContactInfo>) =>
+      onChange({
+        contactInfo: {
+          ...contactInfo,
+          [name]: props,
+        },
+      }),
+    [contactInfo, onChange]
+  )
 
   return (
     <CollapsibleSection
@@ -71,3 +75,5 @@ export default function ContactInfoSection({
     </CollapsibleSection>
   )
 }
+
+export default memo(ContactInfoSection)

@@ -11,21 +11,16 @@ export const adminEditableEventRegistrationByEventIdAndIdAtom = atomFamily(
       `adminEditableEventRegistration/eventId+Id__${ids.eventId}__${ids.id}`,
       undefined
     )
+    // Only await the initial hydration from adminEventRegistrationAtom. Once storedAtom holds a
+    // value, read synchronously instead of via an `async` getter: an async function always
+    // returns a new Promise identity on every call, and since storedAtom changes on every edit,
+    // that would make Suspense re-throw (and remount the whole page) on every edit.
     return atom(
-      async (get) => get(storedAtom) ?? (await get(adminEventRegistrationAtom(ids))),
-      async (
-        get,
-        set,
-        value:
-          | Registration
-          | undefined
-          | typeof RESET
-          | ((previous: Registration | undefined) => Registration | undefined)
-      ) => {
-        if (typeof value !== 'function') return set(storedAtom, value)
-        const previous = get(storedAtom) ?? (await get(adminEventRegistrationAtom(ids)))
-        return set(storedAtom, value(previous))
-      }
+      (get) => {
+        const stored = get(storedAtom)
+        return stored !== undefined ? stored : get(adminEventRegistrationAtom(ids))
+      },
+      (_get, set, value: Registration | undefined | typeof RESET) => set(storedAtom, value)
     )
   },
   (left, right) => left.eventId === right.eventId && left.id === right.id

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import useDebouncedCallback from '../../../../hooks/useDebouncedCallback'
+import useDebouncedCallback from './useDebouncedCallback'
 
 /**
  * Hook to manage local state for form inputs with debounced updates to parent

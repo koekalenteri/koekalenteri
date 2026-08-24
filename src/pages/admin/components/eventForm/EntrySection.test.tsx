@@ -128,12 +128,7 @@ describe('EntrySection', () => {
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
                 <SnackbarProvider>
-                  <EntrySection
-                    event={testEvent}
-                    changes={{ entryStartDate: testEvent.entryStartDate }}
-                    onChange={onChange}
-                    open
-                  />
+                  <EntrySection event={testEvent} entryDatesChanged onChange={onChange} open />
                 </SnackbarProvider>
               </Suspense>
             </MemoryRouter>

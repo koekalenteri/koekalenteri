@@ -1,7 +1,7 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
 import type { RegistrationClass, RegistrationDate } from '../../../../../../types'
-import type { SectionProps } from '../../types'
+import type { EntryEvent, SectionProps } from '../../types'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import { useAtomValue } from 'jotai'
@@ -11,7 +11,8 @@ import { applyNewGroupsToDogEventClass } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
 import { adminEventTypeGroupsAtom } from '../../../../state'
 
-interface Props extends Pick<SectionProps, 'disabled' | 'event' | 'onChange'> {
+interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
+  readonly event: EntryEvent
   eventClass: RegistrationClass
 }
 

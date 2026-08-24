@@ -1,5 +1,5 @@
 import type { DeepPartial, EventClass } from '../../../../../../types'
-import type { PartialEvent } from '../../types'
+import type { EntryEvent } from '../../types'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +10,7 @@ import BasePlacesTable from './BasePlacesTable'
 import PlacesDisplay from './PlacesDisplay'
 
 interface ClassPlacesTableProps {
-  event: PartialEvent
+  event: EntryEvent
   disabled: boolean
   classesEnabled: boolean
   handleChange: (cls: DeepPartial<EventClass>, value?: number) => void

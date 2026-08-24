@@ -1,4 +1,4 @@
-import type { SetStateAction } from 'jotai'
+import type { RESET } from 'jotai/utils'
 import type { AuditRecord, ConfirmedEvent, DogEvent, Registration } from '../../../types'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
@@ -26,7 +26,7 @@ interface Props {
   readonly savedRegistration?: Registration
   readonly patchBase?: Registration
   readonly resetRegistration: () => void
-  readonly setRegistration: (update: SetStateAction<Registration | undefined>) => void
+  readonly setRegistration: (value: Registration | undefined | typeof RESET) => void
 }
 
 export default function RegistrationDialogBase({

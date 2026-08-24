@@ -32,6 +32,13 @@ describe('admin cross-domain atoms', () => {
     store.set(adminShowOnlyOrganizersWithUsersAtom, true)
     store.set(adminUsersAtom, users)
 
-    await expect(store.get(adminFilteredOrganizersAtom)).resolves.toEqual([organizers[0]])
+    // adminFilteredOrganizersAtom is unwrapped so it never suspends: the first read triggers the
+    // async computation and returns the fallback, the resolved value lands on the next read.
+    store.get(adminFilteredOrganizersAtom)
+    for (let i = 0; i < 10; i++) {
+      await Promise.resolve()
+    }
+
+    expect(store.get(adminFilteredOrganizersAtom)).toEqual([organizers[0]])
   })
 })

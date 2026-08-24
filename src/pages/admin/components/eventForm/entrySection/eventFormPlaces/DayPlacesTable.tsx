@@ -1,4 +1,4 @@
-import type { PartialEvent } from '../../types'
+import type { EntryEvent } from '../../types'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,7 @@ import { NumberInput } from '../../../../../components/NumberInput'
 import BasePlacesTable from './BasePlacesTable'
 
 interface DayPlacesTableProps {
-  event: PartialEvent
+  event: EntryEvent
   disabled: boolean
   handleDayPlacesChange: (date: Date, value?: number) => void
   handlePlacesChange: (value?: number) => void

@@ -1,6 +1,7 @@
 import type { UserWithRoles } from '../../../types'
 import i18next from 'i18next'
 import { atom } from 'jotai'
+import { unwrap } from 'jotai/utils'
 import { unique } from '../../../lib/utils'
 import { userAtom } from '../../state'
 import { adminEventOrganizerIdAtom } from './events/atoms'
@@ -47,27 +48,35 @@ export const adminUserAdminOrganizersAtom = atom(async (get) => {
   return user?.admin ? organizers : organizers.filter((organizer) => user?.roles?.[organizer.id] === 'admin')
 })
 
-export const adminUserFilteredEventsAtom = atom(async (get) => {
-  const user = await get(userAtom)
-  const events = await get(adminFilteredEventsAtom)
-  const organizerId = get(adminEventOrganizerIdAtom)
-  const userEvents = user?.admin ? events : events.filter((event) => user?.roles?.[event.organizer.id])
+// unwrap keeps serving the previous list synchronously while a new filter/data promise settles,
+// instead of re-suspending (and remounting the page) on every filter keystroke.
+export const adminUserFilteredEventsAtom = unwrap(
+  atom(async (get) => {
+    const user = await get(userAtom)
+    const events = await get(adminFilteredEventsAtom)
+    const organizerId = get(adminEventOrganizerIdAtom)
+    const userEvents = user?.admin ? events : events.filter((event) => user?.roles?.[event.organizer.id])
 
-  return organizerId ? userEvents.filter((event) => event.organizer.id === organizerId) : userEvents
-})
+    return organizerId ? userEvents.filter((event) => event.organizer.id === organizerId) : userEvents
+  }),
+  (prev) => prev ?? []
+)
 
-export const adminFilteredOrganizersAtom = atom(async (get) => {
-  const filter = get(adminOrganizerFilterAtom).toLocaleLowerCase(i18next.language)
-  const organizers = await get(adminOrganizersAtom)
-  const onlyWithUsers = get(adminShowOnlyOrganizersWithUsersAtom)
-  const users = onlyWithUsers ? await get(adminUsersAtom) : []
-  const organizerIds = unique(users.flatMap((user) => Object.keys(user.roles ?? {}))).filter(Boolean)
+export const adminFilteredOrganizersAtom = unwrap(
+  atom(async (get) => {
+    const filter = get(adminOrganizerFilterAtom).toLocaleLowerCase(i18next.language)
+    const organizers = await get(adminOrganizersAtom)
+    const onlyWithUsers = get(adminShowOnlyOrganizersWithUsersAtom)
+    const users = onlyWithUsers ? await get(adminUsersAtom) : []
+    const organizerIds = unique(users.flatMap((user) => Object.keys(user.roles ?? {}))).filter(Boolean)
 
-  const result = organizerIds.length
-    ? organizers.filter((organizer) => organizerIds.includes(organizer.id))
-    : organizers
+    const result = organizerIds.length
+      ? organizers.filter((organizer) => organizerIds.includes(organizer.id))
+      : organizers
 
-  return filter
-    ? result.filter((organizer) => organizer.name.toLocaleLowerCase(i18next.language).includes(filter))
-    : result
-})
+    return filter
+      ? result.filter((organizer) => organizer.name.toLocaleLowerCase(i18next.language).includes(filter))
+      : result
+  }),
+  (prev) => prev ?? []
+)

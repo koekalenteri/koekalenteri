@@ -10,20 +10,12 @@ export const editableRegistrationByIdsAtom = atomFamily((ids: string | undefined
     `editableRegistration/ids__${ids}`,
     undefined
   )
+  // Only await the initial hydration from registrationAtom. Once storedAtom holds a value, read
+  // synchronously instead of via an `async` getter: an async function always returns a new
+  // Promise identity on every call, and since storedAtom changes on every keystroke while
+  // editing, that would make Suspense re-throw (and remount the whole page) on every keystroke.
   return atom(
-    async (get) => get(storedAtom) ?? (await get(registrationAtom(ids))),
-    async (
-      get,
-      set,
-      value:
-        | Registration
-        | undefined
-        | null
-        | typeof RESET
-        | ((previous: Registration | undefined | null) => Registration | undefined | null)
-    ) => {
-      if (typeof value !== 'function') return set(storedAtom, value)
-      return set(storedAtom, value(get(storedAtom) ?? (await get(registrationAtom(ids)))))
-    }
+    (get) => get(storedAtom) ?? get(registrationAtom(ids)),
+    (_get, set, value: Registration | undefined | null | typeof RESET) => set(storedAtom, value)
   )
 })

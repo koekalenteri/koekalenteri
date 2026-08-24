@@ -1,5 +1,5 @@
 import type { DogEventCost } from '../../../../../types/Cost'
-import type { PartialEvent } from '../types'
+import type { PaymentEvent } from '../types'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit'
 import FormHelperText from '@mui/material/FormHelperText'
@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { NumberInput } from '../../../../components/NumberInput'
 
 interface OptionalCostRowProps {
-  event: PartialEvent
+  event: PaymentEvent
   index: number
   error: boolean
   onRemove: (index: number) => void

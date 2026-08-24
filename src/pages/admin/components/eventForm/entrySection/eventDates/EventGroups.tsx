@@ -1,7 +1,7 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
 import type { RegistrationDate } from '../../../../../../types'
-import type { SectionProps } from '../../types'
+import type { EntryEvent, SectionProps } from '../../types'
 import Stack from '@mui/material/Stack'
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -12,7 +12,7 @@ import { applyNewGroupsToDogEventDates } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
 import { adminEventTypeGroupsAtom } from '../../../../state'
 
-type Props = Pick<SectionProps, 'disabled' | 'event' | 'onChange'>
+type Props = Pick<SectionProps, 'disabled' | 'onChange'> & { readonly event: EntryEvent }
 
 export const EventGroups = ({ disabled, event, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()

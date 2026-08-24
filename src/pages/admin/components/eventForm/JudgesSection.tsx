@@ -1,9 +1,9 @@
 import type { DeepPartial, DogEvent, EventType, Judge } from '../../../../types'
-import type { PartialEvent, SectionProps } from './types'
+import type { JudgesEvent, PartialEvent, SectionProps } from './types'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import { useEffect, useMemo } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import { OfficialJudge } from './judgeSection/OfficialJudge'
@@ -11,7 +11,8 @@ import { UnofficialJudge } from './judgeSection/UnofficialJudge'
 import { makeArray } from './judgeSection/utils'
 import { validateEventField } from './validation'
 
-interface Props extends Readonly<SectionProps> {
+interface Props extends Readonly<Omit<SectionProps, 'event'>> {
+  readonly event: JudgesEvent
   readonly judges: Judge[]
   readonly selectedEventType?: EventType
 }
@@ -30,16 +31,7 @@ const onlyValidJudges = (
   }
 }
 
-export default function JudgesSection({
-  event,
-  disabled,
-  judges,
-  fields,
-  onChange,
-  onOpenChange,
-  open,
-  selectedEventType,
-}: Props) {
+function JudgesSection({ event, disabled, judges, fields, onChange, onOpenChange, open, selectedEventType }: Props) {
   const { t } = useTranslation()
   const officialJudges = event.judges.filter((j) => j.official)
   const otherJudges = event.judges.filter((j) => !j.official)
@@ -146,3 +138,5 @@ export default function JudgesSection({
     </CollapsibleSection>
   )
 }
+
+export default memo(JudgesSection)

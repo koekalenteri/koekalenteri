@@ -1,5 +1,5 @@
 import type { EventType, Judge, PublicJudge } from '../../../../../types'
-import type { SectionProps } from '../types'
+import type { JudgesEvent, SectionProps } from '../types'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
@@ -8,7 +8,8 @@ import AutocompleteSingle from '../../../../components/AutocompleteSingle'
 import JudgeClasses from './JudgeClasses'
 import { filterClassesByJudgeId, filterJudges, updateJudge } from './utils'
 
-interface Props extends Pick<SectionProps, 'event' | 'disabled' | 'onChange'> {
+interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
+  readonly event: JudgesEvent
   readonly judges: Judge[]
   readonly selectedEventType?: EventType
   readonly judge: PublicJudge

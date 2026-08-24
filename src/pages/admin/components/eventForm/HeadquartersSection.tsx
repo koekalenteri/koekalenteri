@@ -3,7 +3,7 @@ import type { Headquarters } from '../../../../types'
 import type { SectionProps } from './types'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
-import { useCallback } from 'react'
+import { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 
@@ -11,7 +11,7 @@ interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly headquarters?: Partial<Headquarters>
 }
 
-export default function HeadquartersSection({
+function HeadquartersSection({
   headquarters,
   disabled,
   onChange,
@@ -98,3 +98,5 @@ export default function HeadquartersSection({
     </CollapsibleSection>
   )
 }
+
+export default memo(HeadquartersSection)

@@ -11,18 +11,15 @@ export const adminEditableTemplateByIdAtom = atomFamily((templateId: string | un
     undefined
   )
   return atom(
-    async (get) => get(storedAtom) ?? (await get(adminEmailTemplateAtom(templateId))),
-    async (
-      get,
-      set,
-      value:
-        | EmailTemplate
-        | undefined
-        | typeof RESET
-        | ((previous: EmailTemplate | undefined) => EmailTemplate | undefined)
-    ) => {
-      if (typeof value !== 'function') return set(storedAtom, value)
-      return set(storedAtom, value(get(storedAtom) ?? (await get(adminEmailTemplateAtom(templateId)))))
-    }
+    // Only await the initial hydration from adminEmailTemplateAtom. Once storedAtom holds a
+    // value, read synchronously instead of via an `async` getter: an async function always
+    // returns a new Promise identity on every call, and since storedAtom changes on every
+    // keystroke while editing, that would make Suspense re-throw (and remount the whole page)
+    // on every keystroke.
+    (get) => {
+      const stored = get(storedAtom)
+      return stored !== undefined ? stored : get(adminEmailTemplateAtom(templateId))
+    },
+    (_get, set, value: EmailTemplate | typeof RESET) => set(storedAtom, value)
   )
 })

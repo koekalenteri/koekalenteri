@@ -1,12 +1,13 @@
 import type { RegistrationClass } from '../../../../../types'
-import type { SectionProps } from '../types'
+import type { EntryEvent, SectionProps } from '../types'
 import Stack from '@mui/material/Stack'
 import { useMemo } from 'react'
 import { getUniqueEventClasses, OFFICIAL_EVENT_TYPES } from '../../../../../lib/event'
 import { ClassGroups } from './eventDates/ClassGroups'
 import { EventGroups } from './eventDates/EventGroups'
 
-interface Props extends Pick<SectionProps, 'disabled' | 'event' | 'onChange'> {
+interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
+  readonly event: EntryEvent
   readonly eventTypeClasses?: RegistrationClass[]
 }
 

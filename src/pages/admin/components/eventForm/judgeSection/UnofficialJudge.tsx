@@ -1,17 +1,19 @@
 import type { EventType, PublicJudge } from '../../../../../types'
-import type { SectionProps } from '../types'
+import type { JudgesEvent, SectionProps } from '../types'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
+import { useLocalState } from '../../../../../hooks/useLocalState'
 import { countries } from '../../../../../lib/data'
 import AutocompleteSingle from '../../../../components/AutocompleteSingle'
 import JudgeClasses from './JudgeClasses'
 import { filterClassesByJudgeId, updateJudge } from './utils'
 
-interface Props extends Pick<SectionProps, 'event' | 'disabled' | 'onChange'> {
+interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
+  readonly event: JudgesEvent
   readonly selectedEventType?: EventType
   readonly judge: PublicJudge
   readonly index: number
@@ -32,15 +34,12 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
     })
   }
 
+  const [name, setName] = useLocalState(judge.name, (value) => handleChange({ name: value }))
+
   return (
     <Grid key={`unofficial-${index}`} container spacing={1} alignItems="center" width="100%">
       <Grid sx={{ width: 300 }}>
-        <TextField
-          fullWidth
-          label={title}
-          value={judge.name}
-          onChange={(e) => handleChange({ name: e.target.value })}
-        />
+        <TextField fullWidth label={title} value={name} onChange={(e) => setName(e.target.value)} />
       </Grid>
       <JudgeClasses disabled={disabled} event={event} index={index} judge={judge} onChange={onChange} />
       <Grid sx={{ width: 200 }}>

@@ -1,6 +1,6 @@
 import type { BreedCode } from '../../../../../types'
 import type { DogEventCost, DogEventCostKey } from '../../../../../types/Cost'
-import type { PartialEvent } from '../types'
+import type { PaymentEvent } from '../types'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit'
 import Box from '@mui/material/Box'
@@ -14,7 +14,7 @@ import { NumberInput } from '../../../../components/NumberInput'
 
 interface CostRowProps {
   costKey: DogEventCostKey
-  event: PartialEvent
+  event: PaymentEvent
   breedCode?: BreedCode
   error?: boolean
   onEditDescription: (key: DogEventCostKey) => void

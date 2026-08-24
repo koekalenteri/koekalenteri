@@ -15,6 +15,16 @@ vi.mock('../eventTypes/derivedAtoms', () => ({ adminActiveEventTypesAtom: atom<u
 
 const mockGetAdminCapacityStats = vi.mocked(getAdminCapacityStats)
 
+// adminCapacityStatsAtom is unwrapped so it never suspends: the first read triggers the fetch
+// and returns the fallback, the resolved value lands on a later read once the promise settles.
+const resolveAtom = async <T>(store: ReturnType<typeof createStore>, anAtom: Parameters<typeof store.get>[0]) => {
+  store.get(anAtom)
+  for (let i = 0; i < 10; i++) {
+    await Promise.resolve()
+  }
+  return store.get(anAtom) as T
+}
+
 const entry = (eventType: string): CapacityStatsEntry => ({
   cancelledRegistrations: 0,
   class: 'ALO',
@@ -50,7 +60,7 @@ describe('adminCapacityStatsAtom', () => {
   it('fetches one event type from the admin endpoint with the organizer filter', async () => {
     const store = storeWith(['NOME-B'])
 
-    const result = await store.get(adminCapacityStatsAtom('NOME-B|org1'))
+    const result = await resolveAtom<CapacityStatsEntry[]>(store, adminCapacityStatsAtom('NOME-B|org1'))
 
     expect(mockGetAdminCapacityStats).toHaveBeenCalledExactlyOnceWith('token', 'NOME-B', 'org1')
     expect(result).toEqual([entry('NOME-B')])
@@ -61,7 +71,7 @@ describe('adminCapacityStatsAtom', () => {
     // select on its own has to be part of "all" as well.
     const store = storeWith(['NOME-B', 'NOWT', 'CUSTOM'])
 
-    const result = await store.get(adminCapacityStatsAtom(`${ALL_EVENT_TYPES_ID}|`))
+    const result = await resolveAtom<CapacityStatsEntry[]>(store, adminCapacityStatsAtom(`${ALL_EVENT_TYPES_ID}|`))
 
     expect(mockGetAdminCapacityStats.mock.calls.map((call) => call[1])).toEqual(['NOME-B', 'NOWT', 'CUSTOM'])
     expect(result).toEqual([entry('NOME-B'), entry('NOWT'), entry('CUSTOM')])
@@ -70,7 +80,7 @@ describe('adminCapacityStatsAtom', () => {
   it('passes an empty organizer through, meaning every organizer the caller belongs to', async () => {
     const store = storeWith(['NOME-B'])
 
-    await store.get(adminCapacityStatsAtom('NOME-B|'))
+    await resolveAtom(store, adminCapacityStatsAtom('NOME-B|'))
 
     expect(mockGetAdminCapacityStats).toHaveBeenCalledWith('token', 'NOME-B', '')
   })
@@ -78,14 +88,14 @@ describe('adminCapacityStatsAtom', () => {
   it('fetches nothing without an event type', async () => {
     const store = storeWith(['NOME-B'])
 
-    await expect(store.get(adminCapacityStatsAtom('|org1'))).resolves.toEqual([])
+    await expect(resolveAtom(store, adminCapacityStatsAtom('|org1'))).resolves.toEqual([])
     expect(mockGetAdminCapacityStats).not.toHaveBeenCalled()
   })
 
   it('fetches nothing without a token, rather than calling the admin endpoint unauthenticated', async () => {
     const store = storeWith(['NOME-B'], null)
 
-    await expect(store.get(adminCapacityStatsAtom('NOME-B|org1'))).resolves.toEqual([])
+    await expect(resolveAtom(store, adminCapacityStatsAtom('NOME-B|org1'))).resolves.toEqual([])
     expect(mockGetAdminCapacityStats).not.toHaveBeenCalled()
   })
 })

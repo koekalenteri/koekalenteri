@@ -2,12 +2,12 @@ import type { SyntheticEvent } from 'react'
 import type { Priority } from '../../../../lib/priority'
 import type { EventClass, RegistrationClass } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
-import type { SectionProps } from './types'
+import type { EntryEvent, SectionProps } from './types'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
 import { clamp, sub } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback, useEffect, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { isDevEnv } from '../../../../lib/env'
@@ -18,13 +18,16 @@ import DateRange from '../../../components/DateRange'
 import { EventDates } from './entrySection/EventDates'
 import EventFormPlaces from './entrySection/EventFormPlaces'
 
-interface Props extends Readonly<SectionProps> {
+interface Props extends Readonly<Omit<SectionProps, 'changes' | 'event'>> {
+  readonly event: EntryEvent
   readonly eventTypeClasses?: RegistrationClass[]
+  readonly entryDatesChanged?: boolean
 }
 
-export default function EntrySection(props: Props) {
+function EntrySection(props: Props) {
   const { t } = useTranslation(['translation', 'breed'])
-  const { changes, disabled, event, eventTypeClasses, fields, helperTexts, onChange, onOpenChange, open } = props
+  const { disabled, entryDatesChanged, event, eventTypeClasses, fields, helperTexts, onChange, onOpenChange, open } =
+    props
   const prioritySort = getPrioritySort(t)
   const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
@@ -52,7 +55,6 @@ export default function EntrySection(props: Props) {
       (!!event.entryEndDate && zonedEndOfDay(event.entryEndDate) < today)
     )
   }, [event.entryEndDate, event.entryStartDate])
-  const entryDatesChanged = changes && ('entryStartDate' in changes || 'entryEndDate' in changes)
 
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
@@ -142,3 +144,5 @@ export default function EntrySection(props: Props) {
     </CollapsibleSection>
   )
 }
+
+export default memo(EntrySection)

@@ -1,33 +1,24 @@
 import { render, screen } from '@testing-library/react'
-import { renderWithUserEvents } from '../../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
 import AdditionalInfoSection from './AdditionalInfoSection'
 
 describe('AdditionalInfoSection', () => {
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => vi.runOnlyPendingTimers())
+  afterAll(() => vi.useRealTimers())
+
   it('should render', () => {
-    const testEvent = {
-      classes: [],
-      description: 'Test!',
-      endDate: new Date('2022-06-02'),
-      id: 'test',
-      judges: [],
-      startDate: new Date('2022-06-01'),
-    }
     const changeHandler = vi.fn()
-    const { container } = render(<AdditionalInfoSection event={testEvent} onChange={changeHandler} open />)
+    const { container } = render(<AdditionalInfoSection description="Test!" onChange={changeHandler} open />)
     expect(container).toMatchSnapshot()
   })
 
   it('should fire onChange', async () => {
-    const testEvent = {
-      classes: [],
-      endDate: new Date('2022-06-02'),
-      id: 'test',
-      judges: [],
-      startDate: new Date('2022-06-01'),
-    }
-    const changeHandler = vi.fn((props) => Object.assign(testEvent, props))
+    const changeHandler = vi.fn()
 
-    const { user } = renderWithUserEvents(<AdditionalInfoSection event={testEvent} onChange={changeHandler} open />)
+    const { user } = renderWithUserEvents(<AdditionalInfoSection onChange={changeHandler} open />, undefined, {
+      advanceTimers: vi.advanceTimersByTime,
+    })
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
 
@@ -36,8 +27,12 @@ describe('AdditionalInfoSection', () => {
 
     await user.type(input, 'Testing!')
 
+    // typing updates local state immediately, without waiting for the debounced onChange
     expect(input).toHaveValue('Testing!')
-    expect(changeHandler).toHaveBeenCalledTimes(8)
+
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenCalledTimes(1)
     expect(changeHandler).toHaveBeenLastCalledWith({ description: 'Testing!' })
   })
 })

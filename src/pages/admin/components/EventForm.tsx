@@ -9,8 +9,9 @@ import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import { atom, useAtomValue } from 'jotai'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { objectsDiffer } from '../../../lib/diff'
 import { isEventOver } from '../../../lib/event'
 import { merge } from '../../../lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
@@ -69,7 +70,15 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
   const valid = errors.length === 0
   const allDisabled = disabled || (isEventOver(event) && !!event.id && event.state !== 'draft')
   const stateDisabled = allDisabled || !SELECTABLE_EVENT_STATES.includes(event.state ?? 'draft')
-  const fields = useMemo(() => requiredFields(event), [event])
+  // requiredFields only depends on event.state/eventType, so it rarely actually changes even
+  // though `event` gets a new reference on every edit. Keep the previous reference when the
+  // computed value is unchanged so memoized sections below don't re-render needlessly.
+  const fieldsRef = useRef<ReturnType<typeof requiredFields>>(undefined)
+  const nextFields = useMemo(() => requiredFields(event), [event])
+  if (!fieldsRef.current || objectsDiffer(fieldsRef.current, nextFields)) {
+    fieldsRef.current = nextFields
+  }
+  const fields = fieldsRef.current
   const officials = useMemo(() => users.filter((u) => u.officer), [users])
   const secretaries = useMemo(
     () =>
@@ -85,8 +94,112 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
     [event.eventType, eventTypeClasses]
   )
 
+  // Narrow slices of `event` for the sections below, memoized by the specific fields each
+  // section actually reads. `event`'s sub-fields keep their previous reference when untouched
+  // (see lib/utils#merge), so these only produce a new object when a relevant field changes —
+  // letting the memoized sections skip re-rendering on unrelated edits.
+  const basicInfoEvent = useMemo(
+    () => ({
+      classes: event.classes,
+      contactInfo: event.contactInfo,
+      dates: event.dates,
+      endDate: event.endDate,
+      entries: event.entries,
+      entryEndDate: event.entryEndDate,
+      entryStartDate: event.entryStartDate,
+      eventType: event.eventType,
+      judges: event.judges,
+      kcId: event.kcId,
+      location: event.location,
+      name: event.name,
+      official: event.official,
+      organizer: event.organizer,
+      placesPerDay: event.placesPerDay,
+      secretary: event.secretary,
+      startDate: event.startDate,
+    }),
+    [
+      event.classes,
+      event.contactInfo,
+      event.dates,
+      event.endDate,
+      event.entries,
+      event.entryEndDate,
+      event.entryStartDate,
+      event.eventType,
+      event.judges,
+      event.kcId,
+      event.location,
+      event.name,
+      event.official,
+      event.organizer,
+      event.placesPerDay,
+      event.secretary,
+      event.startDate,
+    ]
+  )
+  const judgesEvent = useMemo(
+    () => ({
+      classes: event.classes,
+      endDate: event.endDate,
+      eventType: event.eventType,
+      judges: event.judges,
+      startDate: event.startDate,
+    }),
+    [event.classes, event.endDate, event.eventType, event.judges, event.startDate]
+  )
+  const entryEvent = useMemo(
+    () => ({
+      classes: event.classes,
+      createdAt: event.createdAt,
+      dates: event.dates,
+      endDate: event.endDate,
+      entryEndDate: event.entryEndDate,
+      entryStartDate: event.entryStartDate,
+      eventType: event.eventType,
+      places: event.places,
+      placesPerDay: event.placesPerDay,
+      priority: event.priority,
+      startDate: event.startDate,
+    }),
+    [
+      event.classes,
+      event.createdAt,
+      event.dates,
+      event.endDate,
+      event.entryEndDate,
+      event.entryStartDate,
+      event.eventType,
+      event.places,
+      event.placesPerDay,
+      event.priority,
+      event.startDate,
+    ]
+  )
+  const paymentEvent = useMemo(
+    () => ({
+      cost: event.cost,
+      costMember: event.costMember,
+      entryStartDate: event.entryStartDate,
+      paymentTime: event.paymentTime,
+    }),
+    [event.cost, event.costMember, event.entryStartDate, event.paymentTime]
+  )
+  const entryDatesChanged = useMemo(
+    () => !!changes && ('entryStartDate' in changes || 'entryEndDate' in changes),
+    [changes]
+  )
+
+  // handleChange is passed as `onChange` to every memoized section below, so it must stay
+  // referentially stable across keystrokes. Reading `event` through a ref (instead of a
+  // dependency) keeps the callback identity stable even though `event` itself changes on
+  // every edit.
+  const eventRef = useRef(event)
+  eventRef.current = event
+
   const handleChange = useCallback(
     (props: Patch<DogEvent>) => {
+      const event = eventRef.current
       if (!event) {
         return
       }
@@ -108,10 +221,15 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
         newState.season = String(newState.startDate.getFullYear())
       }
 
-      setErrors(validateEvent(newState))
+      // Keep the previous errors reference when nothing actually changed, so the errorStates/
+      // helperTexts memo below (and any memoized section relying on them) can skip recomputing.
+      setErrors((prev) => {
+        const next = validateEvent(newState)
+        return objectsDiffer(prev, next) ? next : prev
+      })
       onChange?.(newState)
     },
-    [event, onChange]
+    [onChange]
   )
 
   const handleOpenChange = useCallback(
@@ -200,7 +318,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
         <BasicInfoSection
           disabled={allDisabled}
           errorStates={errorStates}
-          event={event}
+          event={basicInfoEvent}
           eventTypeClasses={eventTypeClasses}
           eventTypes={activeEventTypes.map((et) => et.eventType)}
           fields={fields}
@@ -216,7 +334,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
         <JudgesSection
           disabled={allDisabled}
           errorStates={errorStates}
-          event={event}
+          event={judgesEvent}
           fields={fields}
           helperTexts={helperTexts}
           judges={activeJudges}
@@ -227,9 +345,9 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
         />
         <EntrySection
           disabled={allDisabled}
-          changes={changes}
+          entryDatesChanged={entryDatesChanged}
           errorStates={errorStates}
-          event={event}
+          event={entryEvent}
           eventTypeClasses={selectedEventTypeClasses}
           fields={fields}
           helperTexts={helperTexts}
@@ -240,7 +358,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
         <PaymentSection
           disabled={allDisabled}
           errorStates={errorStates}
-          event={event}
+          event={paymentEvent}
           errors={errors}
           fields={fields}
           onChange={handleChange}
@@ -270,10 +388,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
         />
         <AdditionalInfoSection
           disabled={allDisabled}
-          errorStates={errorStates}
-          event={event}
-          fields={fields}
-          helperTexts={helperTexts}
+          description={event.description}
           onChange={handleChange}
           onOpenChange={handleInfoOpenChange}
           open={open.info}

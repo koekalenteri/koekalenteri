@@ -1,35 +1,43 @@
 import type { User } from '../../../../types'
 import i18next from 'i18next'
 import { atom } from 'jotai'
+import { unwrap } from 'jotai/utils'
 import { atomFamily } from 'jotai-family'
 import { userHasAdminAccess } from '../../../../lib/user'
 import { adminUserOrgIdsAtom, isAdminAtom, userAtom } from '../../../state'
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom, adminUsersOrganizerIdAtom } from './atoms'
 
-export const adminFilteredUsersAtom = atom(async (get) => {
-  const isAdmin = await get(isAdminAtom)
-  const filter = get(adminUserFilterAtom).toLocaleLowerCase(i18next.language)
-  const users = await get(adminUsersAtom)
-  const orgIds = await get(adminUserOrgIdsAtom)
-  const orgId = get(adminUsersOrganizerIdAtom)
+// unwrap keeps serving the previous list synchronously while a new filter/data promise settles,
+// instead of re-suspending (and remounting the page) on every filter keystroke.
+export const adminFilteredUsersAtom = unwrap(
+  atom(async (get) => {
+    const isAdmin = await get(isAdminAtom)
+    const filter = get(adminUserFilterAtom).toLocaleLowerCase(i18next.language)
+    const users = await get(adminUsersAtom)
+    const orgIds = await get(adminUserOrgIdsAtom)
+    const orgId = get(adminUsersOrganizerIdAtom)
 
-  let result = isAdmin ? users : users.filter((u) => u.roles && Object.keys(u.roles).some((id) => orgIds.includes(id)))
+    let result = isAdmin
+      ? users
+      : users.filter((u) => u.roles && Object.keys(u.roles).some((id) => orgIds.includes(id)))
 
-  if (orgId) {
-    result = result.filter((u) => u.roles?.[orgId])
-  }
+    if (orgId) {
+      result = result.filter((u) => u.roles?.[orgId])
+    }
 
-  if (filter) {
-    result = result.filter((user) =>
-      [user.id, user.email, user.name, user.location, user.phone]
-        .join(' ')
-        .toLocaleLowerCase(i18next.language)
-        .includes(filter)
-    )
-  }
+    if (filter) {
+      result = result.filter((user) =>
+        [user.id, user.email, user.name, user.location, user.phone]
+          .join(' ')
+          .toLocaleLowerCase(i18next.language)
+          .includes(filter)
+      )
+    }
 
-  return result
-})
+    return result
+  }),
+  (prev) => prev ?? []
+)
 
 export const canReadWebsocketAdminUsers = (
   user?: { id?: string; admin?: boolean; roles?: Record<string, unknown> } | null

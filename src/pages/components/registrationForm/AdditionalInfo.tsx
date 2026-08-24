@@ -3,8 +3,8 @@ import type { Registration } from '../../../types'
 import TextField from '@mui/material/TextField'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocalState } from '../../../hooks/useLocalState'
 import CollapsibleSection from '../CollapsibleSection'
-import { useLocalState } from './hooks/useLocalState'
 
 interface Props {
   readonly disabled?: boolean

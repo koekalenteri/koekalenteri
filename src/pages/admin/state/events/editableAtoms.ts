@@ -7,22 +7,33 @@ import { atomWithSessionStorage } from '../../../state'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 
 const storedEventClassAtom = atomWithSessionStorage<RegistrationClass | undefined>('adminEventClass', undefined)
+// Only await adminCurrentEventAtom for the initial default. Once storedEventClassAtom holds a
+// value, read synchronously instead of via an `async` getter: an async function always returns
+// a new Promise identity on every call, and since storedEventClassAtom changes whenever the
+// user picks a class, that would make Suspense re-throw (and remount the page) on every pick.
 export const adminEventClassAtom = atom(
-  async (get) => get(storedEventClassAtom) ?? uniqueClasses(await get(adminCurrentEventAtom))[0],
+  (get) => {
+    const stored = get(storedEventClassAtom)
+    if (stored !== undefined) return stored
+    const currentEvent = get(adminCurrentEventAtom)
+    return currentEvent instanceof Promise
+      ? currentEvent.then((event) => uniqueClasses(event)[0])
+      : uniqueClasses(currentEvent)[0]
+  },
   (_get, set, value: RegistrationClass) => set(storedEventClassAtom, value)
 )
 
 export const adminEditableEventByIdAtom = atomFamily((eventId: string) => {
   const storedAtom = atomWithSessionStorage<DogEvent | undefined>(`adminEditableEvent/Id__${eventId}`, undefined)
   return atom(
-    async (get) => get(storedAtom) ?? (await get(adminEventAtom(eventId))),
-    async (
-      get,
-      set,
-      value: DogEvent | undefined | typeof RESET | ((previous: DogEvent | undefined) => DogEvent | undefined)
-    ) => {
-      if (typeof value !== 'function') return set(storedAtom, value)
-      return set(storedAtom, value(get(storedAtom) ?? (await get(adminEventAtom(eventId)))))
-    }
+    // Only await the initial hydration from adminEventAtom. Once storedAtom holds a value,
+    // read synchronously instead of via an `async` getter: an async function always returns a
+    // new Promise identity on every call, and since storedAtom changes on every keystroke while
+    // editing, that would make Suspense re-throw (and remount the whole form) on every keystroke.
+    (get) => {
+      const stored = get(storedAtom)
+      return stored !== undefined ? stored : get(adminEventAtom(eventId))
+    },
+    (_get, set, value: DogEvent | typeof RESET) => set(storedAtom, value)
   )
 })

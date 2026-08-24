@@ -1,26 +1,30 @@
 import type { ChangeEvent } from 'react'
-import type { SectionProps } from './types'
+import type { DogEvent, Patch } from '../../../../types'
 import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
-import { useCallback } from 'react'
+import { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocalState } from '../../../../hooks/useLocalState'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 
-export default function AdditionalInfoSection({
-  disabled,
-  event,
-  onChange,
-  onOpenChange,
-  open,
-}: Readonly<SectionProps>) {
+interface Props {
+  readonly disabled?: boolean
+  readonly description?: string
+  readonly open?: boolean
+  readonly onChange?: (event: Patch<DogEvent>) => void
+  readonly onOpenChange?: (value: boolean) => void
+}
+
+function AdditionalInfoSection({ disabled, description: eventDescription, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
 
+  const [description, setDescription] = useLocalState(eventDescription ?? '', (value) =>
+    onChange?.({ description: value })
+  )
+
   const handleChange = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-      e.preventDefault()
-      onChange?.({ description: e.target.value })
-    },
-    [onChange]
+    (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => setDescription(e.target.value),
+    [setDescription]
   )
 
   return (
@@ -31,10 +35,12 @@ export default function AdditionalInfoSection({
           rows={5}
           fullWidth
           multiline
-          value={event.description}
+          value={description}
           onChange={handleChange}
         ></TextField>
       </Box>
     </CollapsibleSection>
   )
 }
+
+export default memo(AdditionalInfoSection)
