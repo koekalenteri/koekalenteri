@@ -34,6 +34,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
   useEffect(() => {
     if (!open || !token) return
     resetRegistration()
+    setAuditTrail([])
     getRegistrationAuditTrail(event.id, registrationId, token)
       .then((at) => setAuditTrail((current) => mergeAuditTrail(at ?? [], current)))
       .catch((e) => {

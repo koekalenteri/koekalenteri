@@ -147,6 +147,7 @@ const InfoPanel = ({
   useEffect(() => {
     if (!expanded || activeTab !== 1 || !token) return
     setAuditTrailLoading(true)
+    setAuditTrail([])
     getEventAuditTrail(event.id, token)
       .then((trail) => setAuditTrail((current) => mergeAuditTrail(trail ?? [], current)))
       .catch((error) => {
