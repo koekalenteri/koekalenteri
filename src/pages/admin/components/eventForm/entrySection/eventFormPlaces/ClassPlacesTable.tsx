@@ -5,25 +5,17 @@ import TableRow from '@mui/material/TableRow'
 import { useTranslation } from 'react-i18next'
 import { getEventClassesByDays, getUniqueEventClasses } from '../../../../../../lib/event'
 import { NumberInput } from '../../../../../components/NumberInput'
-import { calculateTotalFromClasses } from '../../places'
+import { calculateTotalFromClasses, isClassDateActive } from '../../places'
 import BasePlacesTable from './BasePlacesTable'
 import PlacesDisplay from './PlacesDisplay'
 
 interface ClassPlacesTableProps {
   event: EntryEvent
   disabled: boolean
-  classesEnabled: boolean
   handleChange: (cls: DeepPartial<EventClass>, value?: number) => void
-  handlePlacesChange: (value?: number) => void
 }
 
-export default function ClassPlacesTable({
-  event,
-  disabled,
-  classesEnabled,
-  handleChange,
-  handlePlacesChange,
-}: Readonly<ClassPlacesTableProps>) {
+export default function ClassPlacesTable({ event, disabled, handleChange }: Readonly<ClassPlacesTableProps>) {
   const { t } = useTranslation()
   const uniqueClasses = getUniqueEventClasses(event)
   const classesByDays = getEventClassesByDays(event)
@@ -34,7 +26,7 @@ export default function ClassPlacesTable({
   return (
     <BasePlacesTable headers={headers}>
       {classesByDays.map(({ day, classes }) => {
-        let dayTotal = 0
+        const dayTotal = calculateTotalFromClasses(classes)
         return (
           <TableRow key={day.toISOString()}>
             <TableCell component="th" scope="row">
@@ -42,12 +34,12 @@ export default function ClassPlacesTable({
             </TableCell>
             {uniqueClasses.map((c) => {
               const cls = classes.find((cl) => cl.class === c)
-              dayTotal += cls?.places ?? 0
+              const active = cls && isClassDateActive(cls)
               return (
                 <TableCell key={c} align="center">
-                  {cls ? (
+                  {active ? (
                     <NumberInput
-                      disabled={disabled || !classesEnabled}
+                      disabled={disabled}
                       value={cls.places || undefined}
                       onChange={(value) => handleChange(cls, value)}
                     />
@@ -76,12 +68,7 @@ export default function ClassPlacesTable({
           )
         })}
         <TableCell align="center">
-          <NumberInput
-            id="event.places"
-            disabled={disabled || classesEnabled}
-            value={event.places}
-            onChange={handlePlacesChange}
-          />
+          <PlacesDisplay value={calculateTotalFromClasses(event.classes)} />
         </TableCell>
       </TableRow>
     </BasePlacesTable>

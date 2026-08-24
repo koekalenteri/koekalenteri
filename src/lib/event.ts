@@ -89,19 +89,26 @@ export const uniqueClasses = (event?: { classes?: Array<Pick<EventClass, 'class'
 }
 
 export const placesForClass = (
-  event: DeepPartial<Pick<PublicDogEvent, 'places' | 'classes'>> | undefined | null,
+  event: DeepPartial<Pick<PublicDogEvent, 'places' | 'classes' | 'placesPerDay'>> | undefined | null,
   eventClass: string
 ) => {
   if (!event) return 0
 
-  const classes = Array.isArray(event.classes) ? event.classes : []
-  return (
-    classes
-      .filter((item) => item.class === eventClass)
-      .reduce((total, item) => total + (Number(item.places) || 0), 0) ||
-    Number(event.places) ||
-    0
-  )
+  const classItems = (Array.isArray(event.classes) ? event.classes : []).filter((item) => item.class === eventClass)
+  const classTotal = classItems.reduce((total, item) => total + (Number(item.places) || 0), 0)
+  if (classTotal) return classTotal
+
+  // No per-class places set (e.g. capacity is tracked per day instead) — fall back to the
+  // day totals for the dates this class runs on, then to the event-wide total.
+  const placesPerDay = event.placesPerDay
+  const dayTotal = placesPerDay
+    ? classItems.reduce((total, item) => {
+        const dateStr = item.date ? formatDate(item.date, 'yyyy-MM-dd') : undefined
+        return total + (dateStr ? Number(placesPerDay[dateStr]) || 0 : 0)
+      }, 0)
+    : 0
+
+  return dayTotal || Number(event.places) || 0
 }
 
 export const uniqueClassDates = (event: PublicDogEvent, eventClass: string) => {

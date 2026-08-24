@@ -4,11 +4,27 @@ import {
   calculateTotalFromClasses,
   calculateTotalFromDays,
   distributePlacesAmongClasses,
+  distributePlacesAmongClassesPerDay,
   distributePlacesAmongDays,
+  isClassDateActive,
   updatePlacesPerDayFromClasses,
 } from './places'
 
 describe('places', () => {
+  describe('isClassDateActive', () => {
+    it('treats undefined groups as active (feature not in use)', () => {
+      expect(isClassDateActive({})).toBe(true)
+    })
+
+    it('treats a non-empty groups array as active', () => {
+      expect(isClassDateActive({ groups: ['kp'] })).toBe(true)
+    })
+
+    it('treats an explicitly emptied groups array as inactive', () => {
+      expect(isClassDateActive({ groups: [] })).toBe(false)
+    })
+  })
+
   describe('calculateTotalFromClasses', () => {
     it('should calculate total places from classes', () => {
       const classes: DeepPartial<EventClass>[] = [
@@ -30,6 +46,18 @@ describe('places', () => {
 
     it('should return 0 for empty classes array', () => {
       expect(calculateTotalFromClasses([])).toBe(0)
+    })
+
+    it('should ignore class-day entries deselected via groups: []', () => {
+      // Regression: a class can be deselected for a specific day via the class-groups
+      // picker (groups: []) while still carrying a stray `places` value from before it
+      // was deselected. That value must not count toward the total.
+      const classes: DeepPartial<EventClass>[] = [
+        { class: 'ALO', groups: ['kp'], places: 5 },
+        { class: 'AVO', groups: ['kp'], places: 5 },
+        { class: 'VOI', groups: [], places: 3 }, // deselected for this day
+      ]
+      expect(calculateTotalFromClasses(classes)).toBe(10)
     })
   })
 
@@ -257,6 +285,96 @@ describe('places', () => {
       expect(result).toEqual([
         { class: 'ALO', places: 200 },
         { class: 'AVO', places: 200 },
+      ])
+    })
+
+    it('should skip class-day entries deselected via groups: [], zeroing their places', () => {
+      const classes: DeepPartial<EventClass>[] = [
+        { class: 'ALO', groups: ['kp'] },
+        { class: 'AVO', groups: [] }, // deselected
+        { class: 'VOI', groups: ['kp'] },
+      ]
+      const result = distributePlacesAmongClasses(classes, 20)
+      expect(result).toEqual([
+        { class: 'ALO', groups: ['kp'], places: 10 },
+        { class: 'AVO', groups: [], places: 0 },
+        { class: 'VOI', groups: ['kp'], places: 10 },
+      ])
+    })
+  })
+
+  describe('distributePlacesAmongClassesPerDay', () => {
+    it('should return empty array when there are no classes', () => {
+      expect(distributePlacesAmongClassesPerDay([], { '2023-01-01': 10 })).toStrictEqual([])
+    })
+
+    it('should split each day’s total evenly among that day’s classes', () => {
+      const classes: DeepPartial<EventClass>[] = [
+        { class: 'ALO', date: new Date('2023-01-01') },
+        { class: 'AVO', date: new Date('2023-01-01') },
+        { class: 'VOI', date: new Date('2023-01-02') },
+      ]
+      const result = distributePlacesAmongClassesPerDay(classes, {
+        '2023-01-01': 6,
+        '2023-01-02': 4,
+      })
+      expect(result).toEqual([
+        { class: 'ALO', date: new Date('2023-01-01'), places: 3 },
+        { class: 'AVO', date: new Date('2023-01-01'), places: 3 },
+        { class: 'VOI', date: new Date('2023-01-02'), places: 4 },
+      ])
+    })
+
+    it('should preserve per-day totals instead of flattening to a single grand total', () => {
+      // Regression: reusing distributePlacesAmongClasses (grand-total split) here would
+      // discard the day-specific numbers the user just set.
+      const classes: DeepPartial<EventClass>[] = [
+        { class: 'ALO', date: new Date('2023-01-01') },
+        { class: 'VOI', date: new Date('2023-01-02') },
+      ]
+      const result = distributePlacesAmongClassesPerDay(classes, {
+        '2023-01-01': 2,
+        '2023-01-02': 8,
+      })
+      expect(result).toEqual([
+        { class: 'ALO', date: new Date('2023-01-01'), places: 2 },
+        { class: 'VOI', date: new Date('2023-01-02'), places: 8 },
+      ])
+    })
+
+    it('should treat a missing day total as 0', () => {
+      const classes: DeepPartial<EventClass>[] = [{ class: 'ALO', date: new Date('2023-01-01') }]
+      const result = distributePlacesAmongClassesPerDay(classes, {})
+      expect(result).toEqual([{ class: 'ALO', date: new Date('2023-01-01'), places: 0 }])
+    })
+
+    it('should leave classes without a date unchanged', () => {
+      const classes: DeepPartial<EventClass>[] = [{ class: 'ALO' }]
+      const result = distributePlacesAmongClassesPerDay(classes, { '2023-01-01': 10 })
+      expect(result).toEqual([{ class: 'ALO' }])
+    })
+
+    it('should cap places at 200 per class', () => {
+      const classes: DeepPartial<EventClass>[] = [
+        { class: 'ALO', date: new Date('2023-01-01') },
+        { class: 'AVO', date: new Date('2023-01-01') },
+      ]
+      const result = distributePlacesAmongClassesPerDay(classes, { '2023-01-01': 500 })
+      expect(result).toEqual([
+        { class: 'ALO', date: new Date('2023-01-01'), places: 200 },
+        { class: 'AVO', date: new Date('2023-01-01'), places: 200 },
+      ])
+    })
+
+    it('should split a day’s total only among that day’s active classes, zeroing deselected ones', () => {
+      const classes: DeepPartial<EventClass>[] = [
+        { class: 'ALO', date: new Date('2023-01-01'), groups: ['kp'] },
+        { class: 'VOI', date: new Date('2023-01-01'), groups: [] }, // deselected for this day
+      ]
+      const result = distributePlacesAmongClassesPerDay(classes, { '2023-01-01': 10 })
+      expect(result).toEqual([
+        { class: 'ALO', date: new Date('2023-01-01'), groups: ['kp'], places: 10 },
+        { class: 'VOI', date: new Date('2023-01-01'), groups: [], places: 0 },
       ])
     })
   })

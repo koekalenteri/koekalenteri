@@ -227,7 +227,7 @@ describe('createPatch', () => {
 
     expect(createPatch(next, existing)).toEqual({
       changes: {
-        contact: { email: 'new@example.com', phone: undefined },
+        contact: { email: 'new@example.com', phone: null },
       },
       remove: ['contact.phone'],
       set: { 'contact.email': 'new@example.com' },

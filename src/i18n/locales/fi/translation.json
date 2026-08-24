@@ -219,6 +219,13 @@
     "organizer": "Järjestäjä",
     "phase": "Kokeen vaihe",
     "places": "Paikkoja",
+    "placesEditor": {
+      "locked": "Paikkamäärä on lukittu luokittain, koska luokkakohtaiset paikat on jo tallennettu tälle kokeelle",
+      "perClass": "Luokittain",
+      "perDay": "Päivittäin",
+      "title": "Koepaikkojen määrä",
+      "total": "Yhteensä"
+    },
     "priority": "Etusijat",
     "saved": "Muutokset tallennettu",
     "secretary": "Koesihteeri",

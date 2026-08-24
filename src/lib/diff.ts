@@ -42,7 +42,9 @@ export const materializeDiffOperation = (
 
   return {
     path: operation.path,
-    value: operation.type === 'REMOVE' ? undefined : operation.value,
+    // `null` (not `undefined`) so the removal survives JSON.stringify when this patch is sent
+    // over the wire — patchMerge/createPatch both already treat `null` as "delete this key".
+    value: operation.type === 'REMOVE' ? null : operation.value,
   }
 }
 

@@ -29,12 +29,14 @@ describe('diff helpers', () => {
     expect(getChangedTopLevelKeys(before, after)).toEqual(['first', 'second', 'third'])
   })
 
-  it('builds nested patches with undefined removal markers', () => {
+  it('builds nested patches with null removal markers', () => {
+    // `null`, not `undefined`, so the removal survives JSON.stringify when the patch is
+    // sent over the wire (JSON.stringify drops `undefined`-valued properties entirely).
     const before = { contact: { email: 'old@example.com', phone: '123' }, explicit: true }
     const after = { contact: { email: 'new@example.com' }, explicit: undefined }
 
     expect(getNestedChanges(before, after)).toEqual({
-      contact: { email: 'new@example.com', phone: undefined },
+      contact: { email: 'new@example.com', phone: null },
       explicit: undefined,
     })
   })
@@ -65,7 +67,7 @@ describe('diff helpers', () => {
     })
     expect(materializeDiffOperation(titleRemoval, after)).toEqual({
       path: ['contact', 'title'],
-      value: undefined,
+      value: null,
     })
   })
 })

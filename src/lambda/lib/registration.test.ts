@@ -592,7 +592,7 @@ describe('registration', () => {
         expect(getRegistrationChanges(existing, updated)).toBe('Muutti: Koiran tiedot, Lisätiedot')
         expect(debugSpy).toHaveBeenCalledWith('Audit changes', {
           dog: { name: 'Changed name' },
-          notes: undefined,
+          notes: null,
         })
       } finally {
         debugSpy.mockRestore()

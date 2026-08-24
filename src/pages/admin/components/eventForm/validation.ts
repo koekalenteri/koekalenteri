@@ -8,6 +8,7 @@ import { isDevEnv } from '../../../../lib/env'
 import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'
 import { keysOf } from '../../../../lib/typeGuards'
 import { unique } from '../../../../lib/utils'
+import { requiresClassPlaces } from './places'
 
 const STATE_INCLUSION: Record<EventState, EventState[]> = {
   cancelled: ['cancelled'],
@@ -198,7 +199,7 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
       return true
     }
     const list: string[] = []
-    if (required && event.eventType === 'NOME-B') {
+    if (required && requiresClassPlaces(event)) {
       for (const c of event.classes) {
         if (!c.places) {
           list.push(c.class)

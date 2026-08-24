@@ -1,11 +1,15 @@
 import type { PublicDogEvent } from '../../../../types'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { placesForClass } from '../../../../lib/event'
 import InfoTableContainerGrid from '../../../components/InfoTableContainerGrid'
 import InfoTableNumberGrid from '../../../components/InfoTableNumberGrid'
 import InfoTableTextGrid from '../../../components/InfoTableTextGrid'
 
-export type MinimalEvent = Pick<PublicDogEvent, 'classes' | 'startDate' | 'entries' | 'places' | 'members'>
+export type MinimalEvent = Pick<
+  PublicDogEvent,
+  'classes' | 'startDate' | 'entries' | 'places' | 'placesPerDay' | 'members'
+>
 
 export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; eventClass: string }) => {
   const { t } = useTranslation()
@@ -16,25 +20,21 @@ export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; e
 
     const entryStatus = classes.reduce(
       (acc, c) => {
-        acc.places += c.places ?? 0
-
         // entries and members are already summarized per class
         acc.entries = c.entries ?? 0
         acc.members = c.members ?? 0
         return acc
       },
-      { entries: 0, members: 0, places: 0 }
+      { entries: 0, members: 0, places: placesForClass(event, eventClass) }
     )
 
     if (event.classes.length <= 1) {
-      entryStatus.places = event.places
-
       entryStatus.entries = event.entries ?? entryStatus.entries
       entryStatus.members = event.members ?? 0
     }
 
     return { dates, entryStatus }
-  }, [event.classes, event.entries, event.members, event.places, event.startDate, eventClass])
+  }, [event, eventClass])
 
   return (
     <InfoTableContainerGrid>

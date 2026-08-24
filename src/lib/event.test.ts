@@ -30,6 +30,7 @@ import {
   newEventEntryEndDate,
   newEventEntryStartDate,
   newEventStartDate,
+  placesForClass,
   sanitizeDogEvent,
 } from './event'
 
@@ -916,5 +917,56 @@ describe('sanitizeDogEvent', () => {
     const sanitized = sanitizeDogEvent(event as any)
 
     expect(sanitized).toEqual({})
+  })
+})
+
+describe('placesForClass', () => {
+  it('returns 0 for a nullish event', () => {
+    expect(placesForClass(undefined, 'ALO')).toBe(0)
+    expect(placesForClass(null, 'ALO')).toBe(0)
+  })
+
+  it('sums the class-specific places when set', () => {
+    const event = {
+      classes: [
+        { class: 'ALO' as const, places: 5 },
+        { class: 'ALO' as const, places: 3 },
+        { class: 'AVO' as const, places: 100 },
+      ],
+      places: 999,
+    }
+    expect(placesForClass(event, 'ALO')).toBe(8)
+  })
+
+  it('falls back to the day totals for the class’s dates when no per-class places are set', () => {
+    // Regression: the search page showed 0 for every class when capacity was tracked
+    // per day (placesPerDay) instead of per class.
+    const event = {
+      classes: [
+        { class: 'ALO' as const, date: new Date('2026-11-07') },
+        { class: 'VOI' as const, date: new Date('2026-11-08') },
+      ],
+      places: 13,
+      placesPerDay: { '2026-11-07': 10, '2026-11-08': 3 },
+    }
+    expect(placesForClass(event, 'ALO')).toBe(10)
+    expect(placesForClass(event, 'VOI')).toBe(3)
+  })
+
+  it('sums day totals across all of a class’s dates', () => {
+    const event = {
+      classes: [
+        { class: 'ALO' as const, date: new Date('2026-11-07') },
+        { class: 'ALO' as const, date: new Date('2026-11-08') },
+      ],
+      places: 13,
+      placesPerDay: { '2026-11-07': 10, '2026-11-08': 3 },
+    }
+    expect(placesForClass(event, 'ALO')).toBe(13)
+  })
+
+  it('falls back to the event-wide total when there is no per-class or per-day data', () => {
+    const event = { classes: [{ class: 'ALO' as const }], places: 20 }
+    expect(placesForClass(event, 'ALO')).toBe(20)
   })
 })

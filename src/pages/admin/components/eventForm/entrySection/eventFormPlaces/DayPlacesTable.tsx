@@ -5,23 +5,17 @@ import { useTranslation } from 'react-i18next'
 import { formatDate } from '../../../../../../i18n/dates'
 import { getEventDays } from '../../../../../../lib/event'
 import { NumberInput } from '../../../../../components/NumberInput'
+import { calculateTotalFromDays } from '../../places'
 import BasePlacesTable from './BasePlacesTable'
+import PlacesDisplay from './PlacesDisplay'
 
 interface DayPlacesTableProps {
   event: EntryEvent
   disabled: boolean
   handleDayPlacesChange: (date: Date, value?: number) => void
-  handlePlacesChange: (value?: number) => void
-  totalEnabled: boolean
 }
 
-export default function DayPlacesTable({
-  event,
-  disabled,
-  handleDayPlacesChange,
-  handlePlacesChange,
-  totalEnabled,
-}: Readonly<DayPlacesTableProps>) {
+export default function DayPlacesTable({ event, disabled, handleDayPlacesChange }: Readonly<DayPlacesTableProps>) {
   const { t } = useTranslation()
   const eventDays = getEventDays(event)
 
@@ -39,11 +33,7 @@ export default function DayPlacesTable({
               {t('dateFormat.wdshort', { date: day })}
             </TableCell>
             <TableCell align="center">
-              <NumberInput
-                disabled={disabled || totalEnabled}
-                value={places}
-                onChange={(value) => handleDayPlacesChange(day, value)}
-              />
+              <NumberInput disabled={disabled} value={places} onChange={(value) => handleDayPlacesChange(day, value)} />
             </TableCell>
           </TableRow>
         )
@@ -53,12 +43,7 @@ export default function DayPlacesTable({
           Yhteensä
         </TableCell>
         <TableCell align="center">
-          <NumberInput
-            id="event.places"
-            disabled={disabled || !totalEnabled}
-            value={event.places}
-            onChange={handlePlacesChange}
-          />
+          <PlacesDisplay value={calculateTotalFromDays(event.placesPerDay)} />
         </TableCell>
       </TableRow>
     </BasePlacesTable>

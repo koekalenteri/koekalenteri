@@ -84,4 +84,36 @@ describe('EventStateInfo', () => {
     expect(screen.getByText('13')).toBeInTheDocument()
     expect(container.firstChild).toMatchSnapshot()
   })
+
+  it('should fall back to the class’s day totals when capacity is tracked per day, not per class', () => {
+    // Regression: an event with classes but no per-class places (capacity tracked per
+    // day instead) used to show 0 places for every class row.
+    const day1 = new Date('2026-11-07')
+    const day2 = new Date('2026-11-08')
+    const event: MinimalEvent = {
+      classes: [
+        { class: 'ALO', date: day1 },
+        { class: 'AVO', date: day1 },
+        { class: 'VOI', date: day2 },
+      ],
+      entries: 0,
+      members: 0,
+      places: 13,
+      placesPerDay: { '2026-11-07': 10, '2026-11-08': 3 },
+      startDate: day1,
+    }
+    render(
+      <>
+        <EventClassPlaces event={event} eventClass={'ALO'} />
+        <EventClassPlaces event={event} eventClass={'VOI'} />
+      </>,
+      {
+        wrapper: Wrapper,
+      }
+    )
+
+    // ALO runs on day1, whose total is 10; VOI runs on day2, whose total is 3
+    expect(screen.getByText('10')).toBeInTheDocument()
+    expect(screen.getByText('3')).toBeInTheDocument()
+  })
 })

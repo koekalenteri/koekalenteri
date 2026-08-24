@@ -1741,7 +1741,7 @@ exports[`SearchPage > filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -2074,7 +2074,7 @@ exports[`SearchPage > filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -2103,7 +2103,7 @@ exports[`SearchPage > filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -2132,7 +2132,7 @@ exports[`SearchPage > filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -3716,7 +3716,7 @@ exports[`SearchPage > filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -4049,7 +4049,7 @@ exports[`SearchPage > filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -4078,7 +4078,7 @@ exports[`SearchPage > filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -4107,7 +4107,7 @@ exports[`SearchPage > filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -5414,7 +5414,7 @@ exports[`SearchPage > filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -5443,7 +5443,7 @@ exports[`SearchPage > filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -5472,7 +5472,7 @@ exports[`SearchPage > filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -7828,7 +7828,7 @@ exports[`SearchPage > filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -8161,7 +8161,7 @@ exports[`SearchPage > filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -8190,7 +8190,7 @@ exports[`SearchPage > filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -8219,7 +8219,7 @@ exports[`SearchPage > filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    0
+                    10
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"

@@ -219,6 +219,13 @@
     "organizer": "Organizer",
     "phase": "Event phase",
     "places": "Places",
+    "placesEditor": {
+      "locked": "Places are locked to per-class because class-specific places have already been saved for this trial",
+      "perClass": "Per class",
+      "perDay": "Per day",
+      "title": "Number of trial places",
+      "total": "Total"
+    },
     "priority": "Priorities",
     "saved": "Changes saved",
     "secretary": "Secretary",

@@ -1,171 +1,173 @@
-import type { ChangeEvent } from 'react'
+import type { MouseEvent } from 'react'
 import type { DeepPartial, EventClass } from '../../../../../types'
 import type { EntryEvent, SectionProps } from '../types'
 import Box from '@mui/material/Box'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import FormHelperText from '@mui/material/FormHelperText'
 import Stack from '@mui/material/Stack'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { formatDate } from '../../../../../i18n/dates'
+import { getEventDays } from '../../../../../lib/event'
 import { compareEventClass } from '../components/EventClasses'
 import {
   calculateTotalFromClasses,
   calculateTotalFromDays,
   distributePlacesAmongClasses,
+  distributePlacesAmongClassesPerDay,
   distributePlacesAmongDays,
+  requiresClassPlaces,
   updatePlacesPerDayFromClasses,
 } from '../places'
 import ClassPlacesTable from './eventFormPlaces/ClassPlacesTable'
 import DayPlacesTable from './eventFormPlaces/DayPlacesTable'
+import TotalPlacesField from './eventFormPlaces/TotalPlacesField'
+
+type PlacesMode = 'total' | 'perDay' | 'perClass'
 
 interface Props extends Pick<SectionProps, 'disabled' | 'helperTexts' | 'onChange'> {
   readonly event: EntryEvent
 }
 
-export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: Readonly<Props>) {
-  const hasClasses = event.classes.length > 0
-  const classPlaces = event.classes.reduce((total, c) => total + (c.places ?? 0), 0)
-  const [totalEnabled, setTotalEnabled] = useState(
-    (!event.placesPerDay || Object.keys(event.placesPerDay).length === 0) && classPlaces === 0
-  )
+// "Per day" only makes sense as a distinct choice from "total" when the event spans more
+// than one day — for a single-day event the two are the same number, so it's hidden.
+function inferPlacesMode(
+  classPlaces: number,
+  placesPerDay: EntryEvent['placesPerDay'],
+  isMultiDay: boolean
+): PlacesMode {
+  if (classPlaces > 0) return 'perClass'
+  if (isMultiDay && placesPerDay && Object.keys(placesPerDay).length > 0) return 'perDay'
+  return 'total'
+}
 
-  const handleChange = (c: DeepPartial<EventClass>, value?: number) => {
+export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: Readonly<Props>) {
+  const { t } = useTranslation()
+  const hasClasses = event.classes.length > 0
+  const isMultiDay = getEventDays(event).length > 1
+  const classPlaces = calculateTotalFromClasses(event.classes)
+  const [mode, setMode] = useState<PlacesMode>(() => inferPlacesMode(classPlaces, event.placesPerDay, isMultiDay))
+
+  // A saved NOME-B trial that already has class-specific places locks into per-class mode, so
+  // switching away can't silently discard the per-class breakdown the event already relies on.
+  const locked = requiresClassPlaces(event) && !!event.createdAt && classPlaces > 0
+
+  const handleClassChange = (c: DeepPartial<EventClass>, value?: number) => {
     const newClasses = event.classes.map((ec) => structuredClone(ec))
     const cls = newClasses.find((ec) => compareEventClass(ec, c) === 0)
     if (cls) {
       cls.places = Math.max(0, Math.min(value ?? 0, 200))
     }
 
-    const total = calculateTotalFromClasses(newClasses)
-
-    // Update placesPerDay based on classes
-    const newPlacesPerDay = totalEnabled ? updatePlacesPerDayFromClasses({ ...event, classes: newClasses }) : undefined
-
     onChange?.({
       classes: newClasses,
-      places: total > 0 ? total : event.places,
-      placesPerDay: newPlacesPerDay,
+      places: calculateTotalFromClasses(newClasses),
+      placesPerDay: updatePlacesPerDayFromClasses({ ...event, classes: newClasses }),
     })
   }
 
-  const handlePlacesChange = useCallback(
-    (value?: number) => onChange?.({ places: Math.min(Math.max(value ?? 0, 0), 999), placesPerDay: {} }),
-    [onChange]
-  )
-
-  const handleDayPlacesChange = useCallback(
+  const handleDayChange = useCallback(
     (date: Date, value?: number) => {
       const dateStr = formatDate(date, 'yyyy-MM-dd')
       const newPlacesPerDay = event.placesPerDay ? { ...event.placesPerDay } : {}
 
       if (value && value > 0) {
-        newPlacesPerDay[dateStr] = Math.min(Math.max(value ?? 0, 0), 200)
+        newPlacesPerDay[dateStr] = Math.min(Math.max(value, 0), 200)
       } else {
         delete newPlacesPerDay[dateStr]
       }
 
-      const total = calculateTotalFromDays(newPlacesPerDay)
-      onChange?.({ places: total, placesPerDay: newPlacesPerDay })
+      onChange?.({ places: calculateTotalFromDays(newPlacesPerDay), placesPerDay: newPlacesPerDay })
     },
     [event.placesPerDay, onChange]
   )
 
-  const handleDetailedChange = useCallback(
-    (_e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      setTotalEnabled(!checked)
-
-      if (hasClasses) {
-        // For events with classes
-        const newClasses = event.classes.map((ec) => structuredClone(ec))
-
-        if (checked) {
-          // Distribute places among classes
-          const distributedClasses = distributePlacesAmongClasses(newClasses, event.places ?? 0)
-          distributedClasses.forEach((cls, i) => {
-            newClasses[i].places = cls.places
-          })
-
-          // Update placesPerDay based on classes
-          const newPlacesPerDay = updatePlacesPerDayFromClasses({ ...event, classes: newClasses })
-
-          onChange?.({
-            classes: newClasses,
-            placesPerDay: newPlacesPerDay,
-          })
-        } else {
-          // Reset class places
-          newClasses.forEach((cls) => {
-            cls.places = 0
-          })
-          onChange?.({ classes: newClasses, placesPerDay: {} })
-        }
-      } else if (checked && (!event.placesPerDay || Object.keys(event.placesPerDay).length === 0)) {
-        // Initialize placesPerDay with even distribution
-        const placesPerDay = distributePlacesAmongDays(event)
-        if (Object.keys(placesPerDay).length > 0) {
-          onChange?.({ placesPerDay })
-        }
-      } else if (!checked) {
-        // Reset placesPerDay
-        onChange?.({ placesPerDay: {} })
-      }
-    },
-    [event, hasClasses, onChange]
+  const handleTotalChange = useCallback(
+    (value?: number) => onChange?.({ places: Math.min(Math.max(value ?? 0, 0), 999) }),
+    [onChange]
   )
 
-  // Fix places count
+  const handleModeChange = useCallback(
+    (_e: MouseEvent<HTMLElement>, newMode: PlacesMode | null) => {
+      if (newMode === null || newMode === mode) return
+      setMode(newMode)
+
+      const zeroedClasses = () => event.classes.map((c) => ({ ...c, places: 0 }))
+
+      if (newMode === 'total') {
+        onChange?.({
+          placesPerDay: null,
+          ...(hasClasses ? { classes: zeroedClasses() } : {}),
+        })
+      } else if (newMode === 'perDay') {
+        const placesPerDay =
+          mode === 'perClass' ? updatePlacesPerDayFromClasses(event) : distributePlacesAmongDays(event)
+        onChange?.({
+          placesPerDay,
+          ...(hasClasses ? { classes: zeroedClasses() } : {}),
+        })
+      } else {
+        const classes =
+          mode === 'perDay'
+            ? distributePlacesAmongClassesPerDay(event.classes, event.placesPerDay ?? {})
+            : distributePlacesAmongClasses(event.classes, event.places ?? 0)
+        onChange?.({ classes })
+      }
+    },
+    [event, hasClasses, mode, onChange]
+  )
+
+  // Keep `places` in sync with the mode's source of truth (classes or placesPerDay) — e.g.
+  // after loading an event whose data drifted from an earlier bug or a direct API edit.
   useEffect(() => {
-    if (!totalEnabled) {
-      let total = 0
+    if (mode === 'total') return
 
-      if (hasClasses) {
-        // Calculate total from classes
-        total = calculateTotalFromClasses(event.classes)
-      } else if (event.placesPerDay) {
-        // Calculate total from placesPerDay
-        total = calculateTotalFromDays(event.placesPerDay)
-      }
+    const total =
+      mode === 'perClass' ? calculateTotalFromClasses(event.classes) : calculateTotalFromDays(event.placesPerDay)
 
-      if (total !== event.places) {
-        onChange?.({ places: total })
-        enqueueSnackbar(`Korjaus: Koepaikkojen määrä muutettu ${event.places} -> ${total}`, { variant: 'info' })
-      }
+    if (total !== event.places) {
+      onChange?.({ places: total })
+      enqueueSnackbar(`Korjaus: Koepaikkojen määrä muutettu ${event.places} -> ${total}`, { variant: 'info' })
     }
-  }, [event.classes, event.places, event.placesPerDay, hasClasses, onChange, totalEnabled])
+  }, [event.classes, event.places, event.placesPerDay, mode, onChange])
 
   return (
     <Box sx={{ border: '1px dashed #ddd', borderRadius: 1, p: 1 }}>
       <Stack direction="column" alignItems="normal">
-        <Stack direction="row" justifyContent="space-between" alignItems="start">
-          <Typography variant="subtitle1">Koepaikkojen määrä</Typography>
-          <FormControlLabel
-            sx={{ m: 0 }}
-            disabled={disabled}
-            control={<Checkbox sx={{ py: 0 }} size="small" checked={!totalEnabled} onChange={handleDetailedChange} />}
-            label="Eriteltynä"
-            name="detailedPlaces"
-          />
+        <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
+          <Typography variant="subtitle1">{t('event.placesEditor.title')}</Typography>
+          <ToggleButtonGroup exclusive size="small" disabled={disabled} value={mode} onChange={handleModeChange}>
+            <ToggleButton
+              value="total"
+              disabled={disabled || locked}
+              title={locked ? t('event.placesEditor.locked') : undefined}
+            >
+              {t('event.placesEditor.total')}
+            </ToggleButton>
+            {isMultiDay && (
+              <ToggleButton
+                value="perDay"
+                disabled={disabled || locked}
+                title={locked ? t('event.placesEditor.locked') : undefined}
+              >
+                {t('event.placesEditor.perDay')}
+              </ToggleButton>
+            )}
+            {hasClasses && <ToggleButton value="perClass">{t('event.placesEditor.perClass')}</ToggleButton>}
+          </ToggleButtonGroup>
         </Stack>
 
-        {hasClasses ? (
-          <ClassPlacesTable
-            event={event}
-            disabled={!!disabled}
-            classesEnabled={!totalEnabled}
-            handleChange={handleChange}
-            handlePlacesChange={handlePlacesChange}
-          />
-        ) : (
-          <DayPlacesTable
-            event={event}
-            disabled={!!disabled}
-            handleDayPlacesChange={handleDayPlacesChange}
-            handlePlacesChange={handlePlacesChange}
-            totalEnabled={totalEnabled}
-          />
+        {mode === 'total' && (
+          <TotalPlacesField disabled={!!disabled} value={event.places} onChange={handleTotalChange} />
+        )}
+        {mode === 'perDay' && (
+          <DayPlacesTable event={event} disabled={!!disabled} handleDayPlacesChange={handleDayChange} />
+        )}
+        {mode === 'perClass' && (
+          <ClassPlacesTable event={event} disabled={!!disabled} handleChange={handleClassChange} />
         )}
 
         <FormHelperText error>{helperTexts?.places}</FormHelperText>

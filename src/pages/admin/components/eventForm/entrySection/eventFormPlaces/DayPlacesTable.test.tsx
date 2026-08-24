@@ -18,34 +18,20 @@ describe('DayPlacesTable', () => {
     },
   }
 
-  it('should render correctly with totalEnabled=true', () => {
+  it('should render correctly', () => {
     const handleDayPlacesChange = vi.fn()
-    const handlePlacesChange = vi.fn()
 
     const { container } = render(
-      <DayPlacesTable
-        event={eventWithPlacesPerDay}
-        disabled={false}
-        handleDayPlacesChange={handleDayPlacesChange}
-        handlePlacesChange={handlePlacesChange}
-        totalEnabled={true}
-      />
+      <DayPlacesTable event={eventWithPlacesPerDay} disabled={false} handleDayPlacesChange={handleDayPlacesChange} />
     )
     expect(container).toMatchSnapshot()
   })
 
-  it('should render correctly with totalEnabled=false', () => {
+  it('should render with disabled=true', () => {
     const handleDayPlacesChange = vi.fn()
-    const handlePlacesChange = vi.fn()
 
     const { container } = render(
-      <DayPlacesTable
-        event={eventWithPlacesPerDay}
-        disabled={false}
-        handleDayPlacesChange={handleDayPlacesChange}
-        handlePlacesChange={handlePlacesChange}
-        totalEnabled={false}
-      />
+      <DayPlacesTable event={eventWithPlacesPerDay} disabled={true} handleDayPlacesChange={handleDayPlacesChange} />
     )
     expect(container).toMatchSnapshot()
   })
@@ -55,16 +41,9 @@ describe('DayPlacesTable', () => {
     const handleDayPlacesChange = vi.fn((date) => {
       changedDate = date
     })
-    const handlePlacesChange = vi.fn()
 
     const { user } = renderWithUserEvents(
-      <DayPlacesTable
-        event={eventWithPlacesPerDay}
-        disabled={false}
-        handleDayPlacesChange={handleDayPlacesChange}
-        handlePlacesChange={handlePlacesChange}
-        totalEnabled={false}
-      />,
+      <DayPlacesTable event={eventWithPlacesPerDay} disabled={false} handleDayPlacesChange={handleDayPlacesChange} />,
       undefined,
       {
         advanceTimers: vi.advanceTimersByTime,
@@ -73,7 +52,7 @@ describe('DayPlacesTable', () => {
     await flushPromises()
 
     const inputs = screen.getAllByRole('textbox')
-    expect(inputs).toHaveLength(3) // 2 days + total
+    expect(inputs).toHaveLength(2) // 2 days, total is now a read-only display
 
     // Change the first day places
     await user.clear(inputs[0])
@@ -87,78 +66,27 @@ describe('DayPlacesTable', () => {
     expect(changedDate?.toISOString().split('T')[0]).toBe('2021-02-10')
   })
 
-  it('should call handlePlacesChange when total places are changed', async () => {
+  it('should always render day inputs as enabled', () => {
     const handleDayPlacesChange = vi.fn()
-    const handlePlacesChange = vi.fn()
-
-    const { user } = renderWithUserEvents(
-      <DayPlacesTable
-        event={eventWithPlacesPerDay}
-        disabled={false}
-        handleDayPlacesChange={handleDayPlacesChange}
-        handlePlacesChange={handlePlacesChange}
-        totalEnabled={true}
-      />,
-      undefined,
-      {
-        advanceTimers: vi.advanceTimersByTime,
-      }
-    )
-    await flushPromises()
-
-    const inputs = screen.getAllByRole('textbox')
-    const totalInput = inputs[inputs.length - 1]
-
-    await user.clear(totalInput)
-    await user.type(totalInput, '15')
-    await flushPromises()
-
-    expect(handlePlacesChange).toHaveBeenCalledWith(15)
-  })
-
-  it('should disable day inputs when totalEnabled=true', () => {
-    const handleDayPlacesChange = vi.fn()
-    const handlePlacesChange = vi.fn()
 
     render(
-      <DayPlacesTable
-        event={eventWithPlacesPerDay}
-        disabled={false}
-        handleDayPlacesChange={handleDayPlacesChange}
-        handlePlacesChange={handlePlacesChange}
-        totalEnabled={true}
-      />
+      <DayPlacesTable event={eventWithPlacesPerDay} disabled={false} handleDayPlacesChange={handleDayPlacesChange} />
     )
 
     const inputs = screen.getAllByRole('textbox')
-    const [day1, day2, total] = inputs
-
-    // Day inputs should be disabled, total should be enabled
-    expect(day1).toBeDisabled()
-    expect(day2).toBeDisabled()
-    expect(total).toBeEnabled()
+    for (const input of inputs) {
+      expect(input).toBeEnabled()
+    }
   })
 
-  it('should disable total input when totalEnabled=false', () => {
+  it('should display the computed total, not an editable field', () => {
     const handleDayPlacesChange = vi.fn()
-    const handlePlacesChange = vi.fn()
 
     render(
-      <DayPlacesTable
-        event={eventWithPlacesPerDay}
-        disabled={false}
-        handleDayPlacesChange={handleDayPlacesChange}
-        handlePlacesChange={handlePlacesChange}
-        totalEnabled={false}
-      />
+      <DayPlacesTable event={eventWithPlacesPerDay} disabled={false} handleDayPlacesChange={handleDayPlacesChange} />
     )
 
-    const inputs = screen.getAllByRole('textbox')
-    const [day1, day2, total] = inputs
-
-    // Day inputs should be enabled, total should be disabled
-    expect(day1).toBeEnabled()
-    expect(day2).toBeEnabled()
-    expect(total).toBeDisabled()
+    expect(screen.getAllByRole('textbox')).toHaveLength(2)
+    expect(screen.getByText('10')).toBeInTheDocument()
   })
 })
