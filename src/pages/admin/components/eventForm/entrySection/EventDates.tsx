@@ -6,12 +6,20 @@ import { getUniqueEventClasses, OFFICIAL_EVENT_TYPES } from '../../../../../lib/
 import { ClassGroups } from './eventDates/ClassGroups'
 import { EventGroups } from './eventDates/EventGroups'
 
-interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
+interface Props extends Pick<SectionProps, 'disabled' | 'helperTexts' | 'onChange'> {
   readonly event: EntryEvent
   readonly eventTypeClasses?: RegistrationClass[]
+  readonly invalidClasses?: string[]
 }
 
-export const EventDates = ({ disabled, event, eventTypeClasses, onChange }: Readonly<Props>) => {
+export const EventDates = ({
+  disabled,
+  event,
+  eventTypeClasses,
+  helperTexts,
+  invalidClasses,
+  onChange,
+}: Readonly<Props>) => {
   const classes = useMemo(() => getUniqueEventClasses(event), [event])
   const isOfficial = useMemo(() => OFFICIAL_EVENT_TYPES.includes(event.eventType ?? ''), [event.eventType])
 
@@ -22,7 +30,15 @@ export const EventDates = ({ disabled, event, eventTypeClasses, onChange }: Read
   return (
     <Stack gap={1}>
       {classes.map((c) => (
-        <ClassGroups key={c} disabled={disabled} event={event} eventClass={c} onChange={onChange} />
+        <ClassGroups
+          key={c}
+          disabled={disabled}
+          error={invalidClasses?.includes(c)}
+          event={event}
+          eventClass={c}
+          helperText={invalidClasses?.includes(c) ? helperTexts?.classes : undefined}
+          onChange={onChange}
+        />
       ))}
     </Stack>
   )

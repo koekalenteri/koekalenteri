@@ -1,3 +1,4 @@
+import type { ConfirmedEvent } from '../../../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -6,7 +7,7 @@ import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { eventWithStaticDates } from '../../../../__mockData__/events'
+import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
 import theme from '../../../../assets/Theme'
 import { locales } from '../../../../i18n'
 import * as env from '../../../../lib/env'
@@ -143,5 +144,47 @@ describe('EntrySection', () => {
     expect(
       screen.getByText('Ilmoittautumisaika on menneisyydessä. Tämä on sallittu vain kehitysympäristössä.')
     ).toBeInTheDocument()
+  })
+
+  it('shows a missing NOWT day error only on the affected class group', async () => {
+    const testEvent: ConfirmedEvent = {
+      ...eventWithStaticDatesAnd3Classes,
+      classes: eventWithStaticDatesAnd3Classes.classes.map((eventClass) => ({ ...eventClass, groups: ['kp'] })),
+      eventType: 'NOWT',
+    }
+
+    renderWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider>
+            <MemoryRouter>
+              <Suspense fallback={<div>loading...</div>}>
+                <SnackbarProvider>
+                  <EntrySection
+                    event={testEvent}
+                    errors={[
+                      {
+                        key: 'classesGroups',
+                        opts: { field: 'classes', length: 1, list: ['VOI'] },
+                      },
+                    ]}
+                    helperTexts={{ classes: 'VOI needs an available day' }}
+                    open
+                  />
+                </SnackbarProvider>
+              </Suspense>
+            </MemoryRouter>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    const groupSelectors = screen.getAllByRole('combobox', { name: 'registration.dates' })
+    expect(groupSelectors).toHaveLength(3)
+    expect(groupSelectors[0]).toHaveAttribute('aria-invalid', 'false')
+    expect(groupSelectors[1]).toHaveAttribute('aria-invalid', 'false')
+    expect(groupSelectors[2]).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getAllByText('VOI needs an available day')).toHaveLength(1)
   })
 })

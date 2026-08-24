@@ -7,6 +7,7 @@ import { formatDate, TIME_ZONE } from '../i18n/dates'
 import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
+  applySingleDayNowtGroups,
   copyDogEvent,
   defaultEntryEndDate,
   defaultEntryStartDate,
@@ -532,6 +533,29 @@ describe('lib/event', () => {
     it('should return empty empty array as classes when classes is missing', () => {
       const date = new TZDate(2025, 2, 27, TIME_ZONE)
       expect(getEventClassesByDays({ endDate: date, startDate: date } as any)).toEqual([{ classes: [], day: date }])
+    })
+  })
+
+  describe('applySingleDayNowtGroups', () => {
+    const date = new TZDate(2024, 3, 1, TIME_ZONE)
+    const date2 = new TZDate(2024, 3, 2, TIME_ZONE)
+    const classes: EventClass[] = [
+      { class: 'ALO', date },
+      { class: 'AVO', date },
+    ]
+
+    it('selects kp for every class in a single-day NOWT event', () => {
+      expect(applySingleDayNowtGroups('NOWT', date, date, classes)).toEqual([
+        { class: 'ALO', date, groups: ['kp'] },
+        { class: 'AVO', date, groups: ['kp'] },
+      ])
+    })
+
+    it.each([
+      ['NOWT', date2],
+      ['NOME-B', date],
+    ])('does not change groups for %s ending on a different or non-NOWT date', (eventType, endDate) => {
+      expect(applySingleDayNowtGroups(eventType, date, endDate, classes)).toEqual(classes)
     })
   })
 

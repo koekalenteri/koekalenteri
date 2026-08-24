@@ -26,10 +26,24 @@ interface Props extends Readonly<Omit<SectionProps, 'changes' | 'event'>> {
 
 function EntrySection(props: Props) {
   const { t } = useTranslation(['translation', 'breed'])
-  const { disabled, entryDatesChanged, event, eventTypeClasses, fields, helperTexts, onChange, onOpenChange, open } =
-    props
+  const {
+    disabled,
+    entryDatesChanged,
+    errors,
+    event,
+    eventTypeClasses,
+    fields,
+    helperTexts,
+    onChange,
+    onOpenChange,
+    open,
+  } = props
   const prioritySort = getPrioritySort(t)
-  const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.places
+  const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.classes ?? helperTexts?.places
+  const classesGroupsError = errors?.find(
+    (validationError) => validationError && validationError.key === 'classesGroups'
+  )
+  const invalidClasses = classesGroupsError ? classesGroupsError.opts.list : undefined
   const helperText = error ? t('validation.event.errors') : ''
   const eventPriority = useMemo(
     () => priorityValuesToPriority(event.priority).sort(prioritySort),
@@ -122,7 +136,14 @@ function EntrySection(props: Props) {
           )}
         </Grid>
         <Grid width="100%">
-          <EventDates disabled={disabled} event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />
+          <EventDates
+            disabled={disabled}
+            event={event}
+            eventTypeClasses={eventTypeClasses}
+            helperTexts={helperTexts}
+            invalidClasses={invalidClasses}
+            onChange={onChange}
+          />
         </Grid>
         <Grid width="100%">
           <EventFormPlaces disabled={disabled} {...props} />

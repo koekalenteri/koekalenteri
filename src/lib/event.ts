@@ -357,6 +357,16 @@ export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' 
 export const getUniqueEventClasses = ({ classes }: Pick<DogEvent, 'classes'>) =>
   unique(classes?.map((c) => c?.class) ?? []).filter(Boolean)
 
+export const applySingleDayNowtGroups = <T extends object>(
+  eventType: string | undefined,
+  startDate: Date,
+  endDate: Date,
+  classes: readonly T[]
+): T[] =>
+  eventType === 'NOWT' && isSameDay(startDate, endDate)
+    ? classes.map((eventClass) => ({ ...eventClass, groups: ['kp'] }))
+    : [...classes]
+
 export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDate' | 'classes'>) =>
   getEventDays(event).map((day) => ({
     classes: event.classes?.filter((c) => isSameDay(c.date ?? event.startDate, day)) ?? [],

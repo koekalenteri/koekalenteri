@@ -125,6 +125,15 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
     if (!event.classes?.length) {
       return 'classes'
     }
+    if (event.eventType === 'NOWT') {
+      const list = unique(event.classes.map((eventClass) => eventClass.class)).filter(
+        (eventClass) =>
+          !event.classes.some((candidate) => candidate.class === eventClass && candidate.groups?.includes('kp'))
+      )
+      if (list.length) {
+        return { key: 'classesGroups', opts: { field: 'classes', length: list.length, list } }
+      }
+    }
     return false
   },
   contactInfo: (event, required) => {

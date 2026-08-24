@@ -14,9 +14,11 @@ import { adminEventTypeGroupsAtom } from '../../../../state'
 interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
   readonly event: EntryEvent
   eventClass: RegistrationClass
+  readonly error?: boolean
+  readonly helperText?: string
 }
 
-export const ClassGroups = ({ disabled, event, eventClass, onChange }: Readonly<Props>) => {
+export const ClassGroups = ({ disabled, error, event, eventClass, helperText, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()
   const typeGroups = useAtomValue(adminEventTypeGroupsAtom(event.eventType))
   const defaultGroups = useMemo(() => typeGroups.filter((g) => g !== 'kp'), [typeGroups])
@@ -55,6 +57,8 @@ export const ClassGroups = ({ disabled, event, eventClass, onChange }: Readonly<
       <Box minWidth={40}>{eventClass}</Box>
       <AutocompleteMulti
         disabled={disabled}
+        error={error}
+        helperText={helperText}
         label={t('registration.dates')}
         onChange={handleChange}
         isOptionEqualToValue={(o, v) => o.date?.valueOf() === v.date?.valueOf() && o.time === v.time}

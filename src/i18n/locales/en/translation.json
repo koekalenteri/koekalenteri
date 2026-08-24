@@ -799,6 +799,7 @@
   "validation": {
     "event": {
       "classes": "Classes are required for \"$t(event.states.{{state}})\" state event of {{type}} type.",
+      "classesGroups": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) must have at least one available day.",
       "classesJudge": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) is missing judge.",
       "classesMissing_one": "class",
       "classesMissing_other": "classes",

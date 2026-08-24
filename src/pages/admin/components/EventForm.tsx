@@ -347,6 +347,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
           disabled={allDisabled}
           entryDatesChanged={entryDatesChanged}
           errorStates={errorStates}
+          errors={errors}
           event={entryEvent}
           eventTypeClasses={selectedEventTypeClasses}
           fields={fields}

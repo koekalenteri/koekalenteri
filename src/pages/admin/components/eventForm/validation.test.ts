@@ -1,3 +1,4 @@
+import type { PartialEvent } from './types'
 import { emptyEvent } from '../../../../__mockData__/emptyEvent'
 import * as env from '../../../../lib/env'
 import { requiredFields, VALIDATORS, validateEvent, validateEventField } from './validation'
@@ -17,6 +18,36 @@ describe('validation', () => {
 
       it('returns false when required and has classes', () => {
         const event = { ...emptyEvent, classes: [{ class: 'ALO' }] } as any
+        expect(VALIDATORS.classes?.(event, true)).toBe(false)
+      })
+
+      it('requires at least one kp day for every NOWT class', () => {
+        const event: PartialEvent = {
+          ...emptyEvent,
+          classes: [
+            { class: 'ALO', date: emptyEvent.startDate, groups: ['kp'] },
+            { class: 'ALO', date: emptyEvent.endDate, groups: [] },
+            { class: 'AVO', date: emptyEvent.startDate, groups: [] },
+          ],
+          eventType: 'NOWT',
+        }
+
+        expect(VALIDATORS.classes?.(event, true)).toEqual({
+          key: 'classesGroups',
+          opts: { field: 'classes', length: 1, list: ['AVO'] },
+        })
+      })
+
+      it('accepts every NOWT class when each has at least one kp day', () => {
+        const event: PartialEvent = {
+          ...emptyEvent,
+          classes: [
+            { class: 'ALO', date: emptyEvent.startDate, groups: ['kp'] },
+            { class: 'AVO', date: emptyEvent.endDate, groups: ['kp'] },
+          ],
+          eventType: 'NOWT',
+        }
+
         expect(VALIDATORS.classes?.(event, true)).toBe(false)
       })
     })

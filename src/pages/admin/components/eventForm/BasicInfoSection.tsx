@@ -27,6 +27,7 @@ import { normalizeEventKcIdChoice, searchEventKcIdChoices } from '../../../../ap
 import { useLocalState } from '../../../../hooks/useLocalState'
 import { zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../../i18n/dates'
 import {
+  applySingleDayNowtGroups,
   defaultEntryEndDate,
   defaultEntryStartDate,
   isDetaultEntryEndDate,
@@ -155,8 +156,10 @@ function BasicInfoSection({
   )
   const handleClassesChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>
-      handleLookupCriteriaChange({ classes: [...values] }),
-    [handleLookupCriteriaChange]
+      handleLookupCriteriaChange({
+        classes: applySingleDayNowtGroups(event.eventType, event.startDate, event.endDate, values),
+      }),
+    [event.endDate, event.eventType, event.startDate, handleLookupCriteriaChange]
   )
   const [name, setName] = useLocalState(event.name ?? '', (value) => handleLookupCriteriaChange({ name: value }))
   const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => setName(e.target.value), [setName])
