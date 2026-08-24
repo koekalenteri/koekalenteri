@@ -12,7 +12,7 @@ import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import { useTranslation } from 'react-i18next'
 import { formatMoney } from '../../../../../lib/money'
-import { getInvitationReadStatus, priorityDescriptionKey } from '../../../../../lib/registration'
+import { getInvitationReadStatus, getRegistrationOwners, priorityDescriptionKey } from '../../../../../lib/registration'
 import { TooltipIcon } from '../../../../components/IconsTooltip'
 import { PriorityIcon } from '../../../../components/icons/PriorityIcon'
 import RankingPoints from '../../../../components/RankingPoints'
@@ -31,7 +31,7 @@ export const hasRegistrationTooltipContent = ({
   rankingPoints: number
 }): boolean => {
   if (priority) return true
-  if (reg.owner?.membership) return true
+  if (getRegistrationOwners(reg).some((owner) => owner?.membership)) return true
   if (reg.handler?.membership) return true
   if (reg.paidAt) return true
   if ((reg.optionalCosts ?? []).length > 0) return true
@@ -70,7 +70,8 @@ const RegistrationTooltipContent = ({
   // Get priority description
   const key = priority ? priorityDescriptionKey(event, reg) : null
   const descr = key && t(`priorityDescription.${key}`)
-  const halfInfo = reg.owner?.membership ? '(vain omistaja on jäsen)' : '(vain ohjaaja on jäsen)'
+  const ownerIsMember = getRegistrationOwners(reg).some((owner) => owner?.membership)
+  const halfInfo = ownerIsMember ? '(vain omistaja on jäsen)' : '(vain ohjaaja on jäsen)'
   const info50 = priority === 0.5 ? halfInfo : ''
   const priorityText = `Ilmoittautuja on etusijalla: ${descr} ${info50}`.trim()
   const additionalCosts = event.cost && typeof event.cost !== 'number' ? (event.cost.optionalAdditionalCosts ?? []) : []
@@ -113,7 +114,7 @@ const RegistrationTooltipContent = ({
       />
       <TooltipIcon
         key="owner-membership"
-        condition={!!reg.owner?.membership}
+        condition={ownerIsMember}
         icon={<PersonOutline fontSize="small" />}
         text={t('registration.ownerIsMember')}
       />

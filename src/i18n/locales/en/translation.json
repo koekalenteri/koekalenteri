@@ -486,11 +486,13 @@
     },
     "createdAt": "Registration time",
     "cta": {
+      "addOwner": "Add owner",
       "addResult": "Add result",
       "autofetch": "Fetch dog information",
       "confirmAndPay": "Confirm and proceed to payment",
       "confirmAndSendLink": "Confirm and send payment link",
       "confirmRegistration": "Confirm registration",
+      "deleteOwner": "Remove owner",
       "deleteResult": "Remove result",
       "error": "Input dog information manually",
       "fetch": "Fetch information",
@@ -567,7 +569,9 @@
     "owner": "Owner information",
     "ownerHandles": "Owner handles",
     "ownerIsMember": "Owner is a member of the organizing society",
+    "ownerNumber": "Owner {{number}}",
     "ownerPays": "Owner pays",
+    "owners": "Owner information",
     "paid": "Paid",
     "paidAndConfirmed": "Participation paid and confirmed.\nReceipt was sent to:\n{{to}}",
     "payer": "Payer information",
@@ -617,6 +621,7 @@
     "reserveHelp": "Select how short a notice you can still attend the trial if you get a place from the reserve list.",
     "saved_one": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "saved_other": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
+    "someoneElse": "Someone else",
     "state": {
       "cancelled": "This registration is cancelled"
     },
@@ -650,7 +655,9 @@
       "refunded_handlingCost": "The entry fee has been refunded. Refunded {{refundAmount}}, handling fee {{handlingCost}}, paid {{paidAmount}}",
       "refundPending": "The refund is being processed. Refunding {{refundAmount}}, paid {{paidAmount}}",
       "refundPending_handlingCost": "The refund is being processed. Refunding {{refundAmount}}, handling fee {{handlingCost}}, paid {{paidAmount}}"
-    }
+    },
+    "whoHandles": "Who handles?",
+    "whoPays": "Who pays?"
   },
   "registrations": "Registrations",
   "roles": "Roles",
@@ -818,6 +825,7 @@
       "dogResults": "Dog is missing required results for entry.",
       "dogSM": "Only dogs registered in Finland are eligible to enter the Finnish Championship test",
       "email": "The email address is invalid",
+      "nameFormat": "A name field can hold only one person (the characters & or / or the word \"ja\") \u2014 add each owner as a row of their own.",
       "phone": "The phone number is invalid",
       "required": "$t(registration.{{field}}) is incomplete",
       "reserve": "Select participation from reserve position",

@@ -4,14 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../api/http'
 import { getRegistration, patchRegistration, postRegistration } from '../../../api/registration'
 import { createPatchOperations } from '../../../lib/patch'
-import { PUBLIC_REGISTRATION_OPERATION_FIELDS } from '../../../lib/registration'
+import {
+  getRegistrationEmails,
+  PUBLIC_REGISTRATION_OPERATION_FIELDS,
+  withRegistrationOverrides,
+} from '../../../lib/registration'
 import { showRegistrationSaveConflict } from './registrationSaveError'
-
-const withRegistrationOverrides = (reg: Registration): Registration => ({
-  ...reg,
-  handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
-  payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
-})
 
 const publicRegistrationOperationData = (registration: Registration): Partial<Registration> => {
   const result: Partial<Registration> = {}
@@ -88,10 +86,7 @@ export function useRegistrationActions() {
           throw error
         }
       }
-      const emails = [saved.handler?.email]
-      if (saved.owner?.email !== saved.handler?.email) {
-        emails.push(saved.owner?.email)
-      }
+      const emails = getRegistrationEmails(saved)
       if (reg.paymentStatus === 'SUCCESS') {
         enqueueSnackbar(
           t(reg.id ? 'registration.modified' : 'registration.saved', {

@@ -115,7 +115,10 @@ export const defaultSchema = {
     language: 'string',
     notes: 'string',
     owner: { email: 'string', location: 'string', membership: 'boolean', name: 'string', phone: 'string' },
-    ownerHandles: 'boolean',
+    ownerHandles: 'boolean | string',
+    owners: [
+      { email: 'string', key: 'string', location: 'string', membership: 'boolean', name: 'string', phone: 'string' },
+    ],
     paidAt: 'Date',
     payer: { name: 'string' },
     reserve: 'string',

@@ -246,6 +246,48 @@ describe('getStartListLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, expectedPublicRegs, event)
   })
 
+  it('publishes ownerHandles for legacy booleans and for a key naming the first owner', async () => {
+    const eventId = 'event123'
+    const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
+    const reg = (number: number, extra: Record<string, unknown>) => ({
+      cancelled: false,
+      class: 'ALO',
+      dog: { name: `Dog ${number}`, regNo: `REG${number}` },
+      eventId,
+      group: { date: '2025-01-01', key: 'ALO', number },
+      ...extra,
+    })
+    const registrations = [
+      // Legacy record: the boolean refers to the single owner on file, even without an owner object.
+      reg(1, { ownerHandles: true }),
+      reg(2, { ownerHandles: 'owner-1', owners: [{ key: 'owner-1', name: 'Owner 2' }] }),
+      // A second owner handles, but the projection only names the first one.
+      reg(3, {
+        ownerHandles: 'owner-2',
+        owners: [
+          { key: 'owner-1', name: 'Owner 3' },
+          { key: 'owner-2', name: 'Co-owner 3' },
+        ],
+      }),
+      // A key matching no owner publishes false rather than guessing.
+      reg(4, { owner: { name: 'Owner 4' }, ownerHandles: 'gone', owners: [{ key: 'owner-1', name: 'Owner 4' }] }),
+    ]
+
+    mockGetParam.mockReturnValueOnce(eventId)
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockIsStartListAvailable.mockReturnValueOnce(true)
+    mockQuery.mockResolvedValueOnce(registrations)
+
+    await getStartListLambda(event)
+
+    expect(mockResponse.mock.calls[0][1].map((r: any) => [r.owner, r.ownerHandles])).toEqual([
+      ['', true],
+      ['Owner 2', true],
+      ['Owner 3', false],
+      ['Owner 4', false],
+    ])
+  })
+
   it('filters out registrations from classes where the start list is not published', async () => {
     const eventId = 'event123'
     const confirmedEvent = {

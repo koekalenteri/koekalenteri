@@ -24,6 +24,8 @@ import {
   isPublicRegistrationOperationField,
   isRegistrationClass,
   priorityDescriptionKey,
+  resolveOwnerPerson,
+  resolveOwnerSelection,
   shouldSendInvitationToRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
@@ -514,6 +516,49 @@ describe('lib/registration', () => {
       expect(isRegistrationClass('')).toBe(false)
       expect(isRegistrationClass(null)).toBe(false)
       expect(isRegistrationClass(undefined)).toBe(false)
+    })
+  })
+
+  describe('resolveOwnerSelection', () => {
+    const owners = [
+      { key: 'owner-1', name: 'First' },
+      { key: 'owner-2', name: 'Second' },
+    ]
+    const legacy = { name: 'Legacy' }
+
+    it('resolves no one when nothing is selected', () => {
+      expect(resolveOwnerSelection(owners, legacy, undefined)).toBeUndefined()
+      expect(resolveOwnerSelection(owners, legacy, false)).toBeUndefined()
+    })
+
+    it('resolves a legacy boolean to the first owner, falling back to the legacy owner', () => {
+      expect(resolveOwnerSelection(owners, legacy, true)).toBe(owners[0])
+      expect(resolveOwnerSelection(undefined, legacy, true)).toBe(legacy)
+    })
+
+    it('resolves a key to the owner it names', () => {
+      expect(resolveOwnerSelection(owners, legacy, 'owner-2')).toBe(owners[1])
+    })
+
+    it('resolves a key matching no owner to no one, rather than the legacy owner', () => {
+      expect(resolveOwnerSelection(owners, legacy, 'gone')).toBeUndefined()
+    })
+
+    it('resolves a key against the legacy owner when there is no owner list', () => {
+      expect(resolveOwnerSelection(undefined, legacy, 'owner-1')).toBe(legacy)
+      expect(resolveOwnerSelection([], legacy, 'owner-1')).toBe(legacy)
+    })
+  })
+
+  describe('resolveOwnerPerson', () => {
+    it('drops the client-only owner key', () => {
+      const owners = [{ email: 'first@example.com', key: 'owner-1', membership: false, name: 'First' }]
+
+      expect(resolveOwnerPerson(owners, undefined, 'owner-1')).toEqual({
+        email: 'first@example.com',
+        membership: false,
+        name: 'First',
+      })
     })
   })
 

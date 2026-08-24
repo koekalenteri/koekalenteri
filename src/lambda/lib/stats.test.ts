@@ -1238,7 +1238,6 @@ describe('lib/stats', () => {
     it('composes all yearly statistic identifiers', () => {
       const dogRegNo = 'FI123'
       const handlerEmail = 'handler@example.com'
-      const ownerEmail = 'owner@example.com'
       const registration: RegistrationStatsInput = {
         cancelled: false,
         class: 'AVO',
@@ -1247,7 +1246,6 @@ describe('lib/stats', () => {
         eventType: 'NOU',
         handler: { email: handlerEmail },
         id: 'registration-id',
-        owner: { email: ownerEmail },
         paidAmount: 0,
         refundAmount: 0,
       }
@@ -1262,7 +1260,6 @@ describe('lib/stats', () => {
         event: 'event-id',
         eventType: 'NOU',
         handler,
-        owner: hashStatValue(ownerEmail),
       })
     })
 
@@ -1286,7 +1283,6 @@ describe('lib/stats', () => {
         event: 'event-id',
         eventType: 'NOU',
         handler: emptyHash,
-        owner: emptyHash,
       })
     })
   })

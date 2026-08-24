@@ -120,9 +120,9 @@ describe('statsRebuild', () => {
       table: 'event-table',
     })
     expect(mockReadAll).toHaveBeenNthCalledWith(2, {
-      names: { '#class': 'class', '#group': 'group', '#handler': 'handler', '#key': 'key', '#owner': 'owner' },
+      names: { '#class': 'class', '#group': 'group', '#handler': 'handler', '#key': 'key' },
       projection:
-        'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #owner.email, #class, #group.#key',
+        'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #class, #group.#key',
       table: 'registration-table',
     })
     expect(mockReadAll).toHaveBeenNthCalledWith(3, { projection: 'PK, SK' })

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { emptyDog } from '../../../lib/data'
 import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh } from '../../../lib/dog'
+import { stripOwnerKey, withDefaultOwnerSelection } from '../../../lib/registration'
 import { hasChanges } from '../../../lib/utils'
 import { validateRegNo } from '../../../lib/validation'
 import { useDogActions } from '../../state/dog'
@@ -110,17 +111,17 @@ export const DogInfo = ({
       if (hasChanges(oldDog, dog)) {
         const changes: DeepPartial<Registration> = { dog: cache?.dog }
         if (reg?.dog?.regNo !== cache?.dog?.regNo) {
-          const {
-            ownerHandles,
-            ownerPays,
-            membership: ownerMembership,
-            ...owner
-          } = cache?.owner || { ownerHandles: true, ownerPays: true }
+          const owners = cache?.owner?.owners?.map(({ membership, ...owner }) => ({
+            ...owner,
+            membership: membership?.[orgId] ?? false,
+          }))
+          const [firstOwner] = owners ?? []
           changes.breeder = cache?.breeder
           changes.handler = cache?.handler && { ...cache?.handler, membership: cache?.handler?.membership?.[orgId] }
-          changes.owner = cache?.owner && { ...owner, membership: ownerMembership?.[orgId] }
-          changes.ownerHandles = ownerHandles
-          changes.ownerPays = ownerPays
+          changes.owner = firstOwner && stripOwnerKey(firstOwner)
+          changes.owners = owners
+          changes.ownerHandles = withDefaultOwnerSelection(cache?.owner?.ownerHandles)
+          changes.ownerPays = withDefaultOwnerSelection(cache?.owner?.ownerPays)
           changes.results = []
           replace = true
         }

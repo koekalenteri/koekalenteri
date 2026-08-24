@@ -137,8 +137,8 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   <label
                                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                                     data-shrink="false"
-                                    for=":r28:"
-                                    id=":r28:-label"
+                                    for=":r2b:"
+                                    id=":r2b:-label"
                                   >
                                     registration.class
                                   </label>
@@ -153,7 +153,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                       autocomplete="off"
                                       class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                       disabled=""
-                                      id=":r28:"
+                                      id=":r2b:"
                                       role="combobox"
                                       spellcheck="false"
                                       type="text"
@@ -212,8 +212,8 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   <label
                                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                                     data-shrink="true"
-                                    for=":r2b:"
-                                    id=":r2b:-label"
+                                    for=":r2e:"
+                                    id=":r2e:-label"
                                   >
                                     registration.reserve
                                   </label>
@@ -222,14 +222,14 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   >
                                     <input
                                       aria-autocomplete="list"
-                                      aria-describedby=":r2b:-helper-text"
+                                      aria-describedby=":r2e:-helper-text"
                                       aria-expanded="false"
                                       aria-invalid="false"
                                       autocapitalize="none"
                                       autocomplete="off"
                                       class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                       disabled=""
-                                      id=":r2b:"
+                                      id=":r2e:"
                                       role="combobox"
                                       spellcheck="false"
                                       type="text"
@@ -274,7 +274,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   </div>
                                   <p
                                     class="MuiFormHelperText-root Mui-disabled MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1ta8pfy-MuiFormHelperText-root"
-                                    id=":r2b:-helper-text"
+                                    id=":r2e:-helper-text"
                                   >
                                     registration.reserveHelp
                                   </p>
@@ -294,8 +294,8 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   <label
                                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                                     data-shrink="true"
-                                    for=":r2e:"
-                                    id=":r2e:-label"
+                                    for=":r2h:"
+                                    id=":r2h:-label"
                                   >
                                     registration.datesFilter
                                   </label>
@@ -312,111 +312,6 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                         class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                                       >
                                         dateFormat.wdshort date
-                                      </span>
-                                      <svg
-                                        aria-hidden="true"
-                                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
-                                        data-testid="CancelIcon"
-                                        focusable="false"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-                                        />
-                                      </svg>
-                                    </div>
-                                    <input
-                                      aria-autocomplete="list"
-                                      aria-describedby=":r2e:-helper-text"
-                                      aria-expanded="false"
-                                      aria-invalid="false"
-                                      autocapitalize="none"
-                                      autocomplete="off"
-                                      class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                                      disabled=""
-                                      id=":r2e:"
-                                      role="combobox"
-                                      spellcheck="false"
-                                      type="text"
-                                      value=""
-                                    />
-                                    <div
-                                      class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
-                                    >
-                                      <button
-                                        aria-label="Open"
-                                        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                        disabled=""
-                                        tabindex="-1"
-                                        title="Open"
-                                        type="button"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                                          data-testid="ArrowDropDownIcon"
-                                          focusable="false"
-                                          viewBox="0 0 24 24"
-                                        >
-                                          <path
-                                            d="M7 10l5 5 5-5z"
-                                          />
-                                        </svg>
-                                      </button>
-                                    </div>
-                                    <fieldset
-                                      aria-hidden="true"
-                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                                    >
-                                      <legend
-                                        class="css-ex8a5f-MuiNotchedOutlined-root"
-                                      >
-                                        <span>
-                                          registration.datesFilter
-                                        </span>
-                                      </legend>
-                                    </fieldset>
-                                  </div>
-                                  <p
-                                    class="MuiFormHelperText-root Mui-disabled MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                                    id=":r2e:-helper-text"
-                                  >
-                                    registration.datesFilterInfo
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                            <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
-                            >
-                              <div
-                                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
-                                data-testid="registration.dates"
-                              >
-                                <div
-                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                                >
-                                  <label
-                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                                    data-shrink="true"
-                                    for=":r2h:"
-                                    id=":r2h:-label"
-                                  >
-                                    registration.dates
-                                  </label>
-                                  <div
-                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
-                                  >
-                                    <div
-                                      class="MuiButtonBase-root MuiChip-root MuiChip-filled Mui-disabled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-o79jym-MuiButtonBase-root-MuiChip-root"
-                                      data-tag-index="0"
-                                      role="button"
-                                      tabindex="-1"
-                                    >
-                                      <span
-                                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                                      >
-                                        dateFormat.weekday date registration.timeLong.ap
                                       </span>
                                       <svg
                                         aria-hidden="true"
@@ -477,7 +372,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                         class="css-ex8a5f-MuiNotchedOutlined-root"
                                       >
                                         <span>
-                                          registration.dates
+                                          registration.datesFilter
                                         </span>
                                       </legend>
                                     </fieldset>
@@ -485,6 +380,111 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   <p
                                     class="MuiFormHelperText-root Mui-disabled MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
                                     id=":r2h:-helper-text"
+                                  >
+                                    registration.datesFilterInfo
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
+                            >
+                              <div
+                                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
+                                data-testid="registration.dates"
+                              >
+                                <div
+                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                                >
+                                  <label
+                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                    data-shrink="true"
+                                    for=":r2k:"
+                                    id=":r2k:-label"
+                                  >
+                                    registration.dates
+                                  </label>
+                                  <div
+                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
+                                  >
+                                    <div
+                                      class="MuiButtonBase-root MuiChip-root MuiChip-filled Mui-disabled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-o79jym-MuiButtonBase-root-MuiChip-root"
+                                      data-tag-index="0"
+                                      role="button"
+                                      tabindex="-1"
+                                    >
+                                      <span
+                                        class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                                      >
+                                        dateFormat.weekday date registration.timeLong.ap
+                                      </span>
+                                      <svg
+                                        aria-hidden="true"
+                                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                                        data-testid="CancelIcon"
+                                        focusable="false"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
+                                        />
+                                      </svg>
+                                    </div>
+                                    <input
+                                      aria-autocomplete="list"
+                                      aria-describedby=":r2k:-helper-text"
+                                      aria-expanded="false"
+                                      aria-invalid="false"
+                                      autocapitalize="none"
+                                      autocomplete="off"
+                                      class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                                      disabled=""
+                                      id=":r2k:"
+                                      role="combobox"
+                                      spellcheck="false"
+                                      type="text"
+                                      value=""
+                                    />
+                                    <div
+                                      class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
+                                    >
+                                      <button
+                                        aria-label="Open"
+                                        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                        disabled=""
+                                        tabindex="-1"
+                                        title="Open"
+                                        type="button"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                          data-testid="ArrowDropDownIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M7 10l5 5 5-5z"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </div>
+                                    <fieldset
+                                      aria-hidden="true"
+                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                    >
+                                      <legend
+                                        class="css-ex8a5f-MuiNotchedOutlined-root"
+                                      >
+                                        <span>
+                                          registration.dates
+                                        </span>
+                                      </legend>
+                                    </fieldset>
+                                  </div>
+                                  <p
+                                    class="MuiFormHelperText-root Mui-disabled MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
+                                    id=":r2k:-helper-text"
                                   >
                                     registration.datesInfo
                                   </p>
@@ -650,8 +650,8 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                 <label
                                   class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                                   data-shrink="true"
-                                  for=":r2o:"
-                                  id=":r2o:-label"
+                                  for=":r2r:"
+                                  id=":r2r:-label"
                                 >
                                   dog.rfid
                                 </label>
@@ -662,7 +662,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                     aria-invalid="false"
                                     class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                                     disabled=""
-                                    id=":r2o:"
+                                    id=":r2r:"
                                     type="text"
                                     value="1234567890123457"
                                   />
@@ -781,8 +781,8 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   <label
                                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                                     data-shrink="true"
-                                    for=":r2r:"
-                                    id=":r2r:-label"
+                                    for=":r2u:"
+                                    id=":r2u:-label"
                                   >
                                     dog.dob
                                   </label>
@@ -794,7 +794,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                       autocomplete="off"
                                       class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                       disabled=""
-                                      id=":r2r:"
+                                      id=":r2u:"
                                       inputmode="text"
                                       placeholder="DD.MM.YYYY"
                                       type="text"
@@ -852,8 +852,8 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   <label
                                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                                     data-shrink="true"
-                                    for=":r2u:"
-                                    id=":r2u:-label"
+                                    for=":r31:"
+                                    id=":r31:-label"
                                   >
                                     dog.gender
                                   </label>
@@ -868,7 +868,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                       autocomplete="off"
                                       class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                       disabled=""
-                                      id=":r2u:"
+                                      id=":r31:"
                                       role="combobox"
                                       spellcheck="false"
                                       type="text"
@@ -927,8 +927,8 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   <label
                                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                                     data-shrink="true"
-                                    for=":r31:"
-                                    id=":r31:-label"
+                                    for=":r34:"
+                                    id=":r34:-label"
                                   >
                                     dog.breed
                                   </label>
@@ -943,7 +943,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                       autocomplete="off"
                                       class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                       disabled=""
-                                      id=":r31:"
+                                      id=":r34:"
                                       role="combobox"
                                       spellcheck="false"
                                       type="text"
@@ -1245,7 +1245,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
                     >
-                      registration.owner
+                      registration.owners
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
@@ -1266,283 +1266,503 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                         <div
                           class="MuiBox-root css-1xs22px"
                         >
-                          <form>
+                          <div
+                            class="MuiStack-root css-1ucnu3w-MuiStack-root"
+                          >
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
+                              class="MuiStack-root css-hwnj0i-MuiStack-root"
                             >
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                               >
                                 <div
-                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                 >
-                                  <label
-                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                                    data-shrink="true"
-                                    for="owner_name"
-                                    id="owner_name-label"
-                                  >
-                                    contact.name
-                                  </label>
                                   <div
-                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
+                                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                                   >
-                                    <input
-                                      aria-invalid="false"
-                                      autocomplete="name"
-                                      class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                      disabled=""
-                                      id="owner_name"
-                                      name="name"
-                                      type="text"
-                                      value="Owner Name"
-                                    />
-                                    <fieldset
-                                      aria-hidden="true"
-                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                    <label
+                                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                      data-shrink="true"
+                                      for="owner_0_name"
+                                      id="owner_0_name-label"
                                     >
-                                      <legend
-                                        class="css-ex8a5f-MuiNotchedOutlined-root"
-                                      >
-                                        <span>
-                                          contact.name
-                                        </span>
-                                      </legend>
-                                    </fieldset>
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
-                              >
-                                <div
-                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                                >
-                                  <label
-                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                                    data-shrink="true"
-                                    for="owner_city"
-                                    id="owner_city-label"
-                                  >
-                                    contact.city
-                                  </label>
-                                  <div
-                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
-                                  >
-                                    <input
-                                      aria-invalid="false"
-                                      autocomplete="address-level2"
-                                      class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                      disabled=""
-                                      id="owner_city"
-                                      name="city"
-                                      type="text"
-                                      value="Owner Location"
-                                    />
-                                    <fieldset
-                                      aria-hidden="true"
-                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                                    >
-                                      <legend
-                                        class="css-ex8a5f-MuiNotchedOutlined-root"
-                                      >
-                                        <span>
-                                          contact.city
-                                        </span>
-                                      </legend>
-                                    </fieldset>
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
-                              >
-                                <div
-                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                                >
-                                  <label
-                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                                    data-shrink="true"
-                                    for="owner_email"
-                                    id="owner_email-label"
-                                  >
-                                    contact.email
-                                  </label>
-                                  <div
-                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
-                                  >
-                                    <input
-                                      aria-invalid="false"
-                                      autocomplete="email"
-                                      class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                      disabled=""
-                                      id="owner_email"
-                                      name="email"
-                                      type="text"
-                                      value="owner@example.com"
-                                    />
-                                    <fieldset
-                                      aria-hidden="true"
-                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                                    >
-                                      <legend
-                                        class="css-ex8a5f-MuiNotchedOutlined-root"
-                                      >
-                                        <span>
-                                          contact.email
-                                        </span>
-                                      </legend>
-                                    </fieldset>
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
-                              >
-                                <div
-                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                                >
-                                  <label
-                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                                    data-shrink="true"
-                                    for="owner_phone"
-                                    id="owner_phone-label"
-                                  >
-                                    contact.phone
-                                  </label>
-                                  <div
-                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-1ru13j9-MuiInputBase-root-MuiOutlinedInput-root"
-                                  >
+                                      contact.name
+                                    </label>
                                     <div
-                                      class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1be8vlw-MuiInputAdornment-root"
+                                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
                                     >
-                                      <span
-                                        aria-hidden="true"
-                                        class="notranslate"
-                                      >
-                                        ​
-                                      </span>
-                                      <button
-                                        aria-expanded="false"
-                                        aria-haspopup="listbox"
-                                        aria-label="Open flags menu"
-                                        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                                      <input
+                                        aria-invalid="false"
+                                        autocomplete="name"
+                                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                                         disabled=""
-                                        tabindex="-1"
-                                        type="button"
+                                        id="owner_0_name"
+                                        name="name"
+                                        type="text"
+                                        value="Owner Name"
+                                      />
+                                      <fieldset
+                                        aria-hidden="true"
+                                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                      >
+                                        <legend
+                                          class="css-ex8a5f-MuiNotchedOutlined-root"
+                                        >
+                                          <span>
+                                            contact.name
+                                          </span>
+                                        </legend>
+                                      </fieldset>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
+                                >
+                                  <div
+                                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                                  >
+                                    <label
+                                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                      data-shrink="true"
+                                      for="owner_0_city"
+                                      id="owner_0_city-label"
+                                    >
+                                      contact.city
+                                    </label>
+                                    <div
+                                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
+                                    >
+                                      <input
+                                        aria-invalid="false"
+                                        autocomplete="address-level2"
+                                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
+                                        disabled=""
+                                        id="owner_0_city"
+                                        name="city"
+                                        type="text"
+                                        value="Owner Location"
+                                      />
+                                      <fieldset
+                                        aria-hidden="true"
+                                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                      >
+                                        <legend
+                                          class="css-ex8a5f-MuiNotchedOutlined-root"
+                                        >
+                                          <span>
+                                            contact.city
+                                          </span>
+                                        </legend>
+                                      </fieldset>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
+                                >
+                                  <div
+                                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                                  >
+                                    <label
+                                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                      data-shrink="true"
+                                      for="owner_0_email"
+                                      id="owner_0_email-label"
+                                    >
+                                      contact.email
+                                    </label>
+                                    <div
+                                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
+                                    >
+                                      <input
+                                        aria-invalid="false"
+                                        autocomplete="email"
+                                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
+                                        disabled=""
+                                        id="owner_0_email"
+                                        name="email"
+                                        type="text"
+                                        value="owner@example.com"
+                                      />
+                                      <fieldset
+                                        aria-hidden="true"
+                                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                      >
+                                        <legend
+                                          class="css-ex8a5f-MuiNotchedOutlined-root"
+                                        >
+                                          <span>
+                                            contact.email
+                                          </span>
+                                        </legend>
+                                      </fieldset>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
+                                >
+                                  <div
+                                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                                  >
+                                    <label
+                                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                      data-shrink="true"
+                                      for="owner_0_phone"
+                                      id="owner_0_phone-label"
+                                    >
+                                      contact.phone
+                                    </label>
+                                    <div
+                                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-1ru13j9-MuiInputBase-root-MuiOutlinedInput-root"
+                                    >
+                                      <div
+                                        class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1be8vlw-MuiInputAdornment-root"
                                       >
                                         <span
-                                          class="MuiTelInput-Flag css-70qvj9"
-                                          data-testid="FI"
+                                          aria-hidden="true"
+                                          class="notranslate"
                                         >
-                                          <img
-                                            alt="Finland"
-                                            class="MuiTelInput-FlagImg"
-                                            loading="lazy"
-                                            src="https://flagcdn.com/w40/fi.webp"
-                                            width="26"
-                                          />
+                                          ​
                                         </span>
-                                      </button>
-                                      <p
-                                        class="MuiTypography-root MuiTypography-body1 css-gph175-MuiTypography-root"
+                                        <button
+                                          aria-expanded="false"
+                                          aria-haspopup="listbox"
+                                          aria-label="Open flags menu"
+                                          class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                                          disabled=""
+                                          tabindex="-1"
+                                          type="button"
+                                        >
+                                          <span
+                                            class="MuiTelInput-Flag css-70qvj9"
+                                            data-testid="FI"
+                                          >
+                                            <img
+                                              alt="Finland"
+                                              class="MuiTelInput-FlagImg"
+                                              loading="lazy"
+                                              src="https://flagcdn.com/w40/fi.webp"
+                                              width="26"
+                                            />
+                                          </span>
+                                        </button>
+                                        <p
+                                          class="MuiTypography-root MuiTypography-body1 css-gph175-MuiTypography-root"
+                                        >
+                                          +
+                                          358
+                                        </p>
+                                      </div>
+                                      <input
+                                        aria-invalid="false"
+                                        autocomplete="tel"
+                                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
+                                        disabled=""
+                                        id="owner_0_phone"
+                                        name="phone"
+                                        type="tel"
+                                        value="40 12345"
+                                      />
+                                      <fieldset
+                                        aria-hidden="true"
+                                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                       >
-                                        +
-                                        358
-                                      </p>
+                                        <legend
+                                          class="css-ex8a5f-MuiNotchedOutlined-root"
+                                        >
+                                          <span>
+                                            contact.phone
+                                          </span>
+                                        </legend>
+                                      </fieldset>
                                     </div>
-                                    <input
-                                      aria-invalid="false"
-                                      autocomplete="tel"
-                                      class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
-                                      disabled=""
-                                      id="owner_phone"
-                                      name="phone"
-                                      type="tel"
-                                      value="40 12345"
-                                    />
-                                    <fieldset
-                                      aria-hidden="true"
-                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                                    >
-                                      <legend
-                                        class="css-ex8a5f-MuiNotchedOutlined-root"
-                                      >
-                                        <span>
-                                          contact.phone
-                                        </span>
-                                      </legend>
-                                    </fieldset>
                                   </div>
+                                </div>
+                              </div>
+                              <div
+                                class="MuiStack-root css-3y1137-MuiStack-root"
+                              >
+                                <label
+                                  class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                >
+                                  <span
+                                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                                  >
+                                    <input
+                                      class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                      data-indeterminate="false"
+                                      disabled=""
+                                      name="owner_0_membership"
+                                      type="checkbox"
+                                    />
+                                    <svg
+                                      aria-hidden="true"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                      data-testid="CheckBoxOutlineBlankIcon"
+                                      focusable="false"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                                      />
+                                    </svg>
+                                  </span>
+                                  <span
+                                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
+                                  >
+                                    registration.ownerIsMember
+                                  </span>
+                                </label>
+                              </div>
+                            </div>
+                            <button
+                              class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-a5nan9-MuiButtonBase-root-MuiButton-root"
+                              disabled=""
+                              tabindex="-1"
+                              type="button"
+                            >
+                              <span
+                                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                  data-testid="AddOutlinedIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
+                                  />
+                                </svg>
+                              </span>
+                              registration.cta.addOwner
+                            </button>
+                            <div
+                              class="MuiStack-root css-1hu89ii-MuiStack-root"
+                            >
+                              <div
+                                class="MuiFormControl-root css-1iw3t7y-MuiFormControl-root"
+                              >
+                                <label
+                                  class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-disabled css-1i1any7-MuiFormLabel-root"
+                                  id="owner-handles-label"
+                                >
+                                  registration.whoHandles
+                                </label>
+                                <div
+                                  aria-labelledby="owner-handles-label"
+                                  class="MuiFormGroup-root MuiRadioGroup-root css-1mac7pt-MuiFormGroup-root"
+                                  role="radiogroup"
+                                >
+                                  <label
+                                    class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                  >
+                                    <span
+                                      class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-disabled MuiRadio-root MuiRadio-colorPrimary css-1x0b2u0-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                                    >
+                                      <input
+                                        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                        disabled=""
+                                        name=":r3j:"
+                                        type="radio"
+                                        value="owner-1"
+                                      />
+                                      <span
+                                        class="css-9oxshb-MuiRadioButtonIcon-root"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-iy8fvg-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonUncheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                                          />
+                                        </svg>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-cpa8b4-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonCheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
+                                    >
+                                      Owner Name
+                                    </span>
+                                  </label>
+                                  <label
+                                    class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                  >
+                                    <span
+                                      class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked Mui-disabled MuiRadio-root MuiRadio-colorPrimary css-1x0b2u0-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                                    >
+                                      <input
+                                        checked=""
+                                        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                        disabled=""
+                                        name=":r3j:"
+                                        type="radio"
+                                        value=""
+                                      />
+                                      <span
+                                        class="css-9oxshb-MuiRadioButtonIcon-root"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-iy8fvg-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonUncheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                                          />
+                                        </svg>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1pqw2bl-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonCheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
+                                    >
+                                      registration.someoneElse
+                                    </span>
+                                  </label>
+                                </div>
+                              </div>
+                              <div
+                                class="MuiFormControl-root css-1iw3t7y-MuiFormControl-root"
+                              >
+                                <label
+                                  class="MuiFormLabel-root MuiFormLabel-colorPrimary Mui-disabled css-1i1any7-MuiFormLabel-root"
+                                  id="owner-pays-label"
+                                >
+                                  registration.whoPays
+                                </label>
+                                <div
+                                  aria-labelledby="owner-pays-label"
+                                  class="MuiFormGroup-root MuiRadioGroup-root css-1mac7pt-MuiFormGroup-root"
+                                  role="radiogroup"
+                                >
+                                  <label
+                                    class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                  >
+                                    <span
+                                      class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-disabled MuiRadio-root MuiRadio-colorPrimary css-1x0b2u0-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                                    >
+                                      <input
+                                        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                        disabled=""
+                                        name=":r3k:"
+                                        type="radio"
+                                        value="owner-1"
+                                      />
+                                      <span
+                                        class="css-9oxshb-MuiRadioButtonIcon-root"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-iy8fvg-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonUncheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                                          />
+                                        </svg>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-cpa8b4-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonCheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
+                                    >
+                                      Owner Name
+                                    </span>
+                                  </label>
+                                  <label
+                                    class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                  >
+                                    <span
+                                      class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked Mui-disabled MuiRadio-root MuiRadio-colorPrimary css-1x0b2u0-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                                    >
+                                      <input
+                                        checked=""
+                                        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                        disabled=""
+                                        name=":r3k:"
+                                        type="radio"
+                                        value=""
+                                      />
+                                      <span
+                                        class="css-9oxshb-MuiRadioButtonIcon-root"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-iy8fvg-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonUncheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                                          />
+                                        </svg>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1pqw2bl-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonCheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
+                                    >
+                                      registration.someoneElse
+                                    </span>
+                                  </label>
                                 </div>
                               </div>
                             </div>
-                          </form>
-                          <div
-                            class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
-                          >
-                            <label
-                              class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
-                            >
-                              <span
-                                class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
-                              >
-                                <span
-                                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
-                                  role="switch"
-                                >
-                                  <input
-                                    class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
-                                    disabled=""
-                                    name="ownerHandles"
-                                    role="switch"
-                                    type="checkbox"
-                                  />
-                                  <span
-                                    class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
-                                  />
-                                </span>
-                                <span
-                                  class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
-                                />
-                              </span>
-                              <span
-                                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
-                              >
-                                registration.ownerHandles
-                              </span>
-                            </label>
-                            <label
-                              class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
-                            >
-                              <span
-                                class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
-                              >
-                                <span
-                                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
-                                  role="switch"
-                                >
-                                  <input
-                                    class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
-                                    disabled=""
-                                    name="ownerPays"
-                                    role="switch"
-                                    type="checkbox"
-                                  />
-                                  <span
-                                    class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
-                                  />
-                                </span>
-                                <span
-                                  class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
-                                />
-                              </span>
-                              <span
-                                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
-                              >
-                                registration.ownerPays
-                              </span>
-                            </label>
                           </div>
                         </div>
                       </div>
@@ -2230,8 +2450,8 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                             <label
                               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="true"
-                              for=":r3t:"
-                              id=":r3t:-label"
+                              for=":r43:"
+                              id=":r43:-label"
                             >
                               registration.notes
                             </label>
@@ -2242,7 +2462,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
-                                id=":r3t:"
+                                id=":r43:"
                                 name="notes"
                                 rows="4"
                                 style="height: 0px; overflow: hidden;"
@@ -2328,37 +2548,6 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                           <div
                             class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
                           >
-                            <label
-                              class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
-                            >
-                              <span
-                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                              >
-                                <input
-                                  class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                  data-indeterminate="false"
-                                  disabled=""
-                                  name="ownerIsMember"
-                                  type="checkbox"
-                                />
-                                <svg
-                                  aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                                  data-testid="CheckBoxOutlineBlankIcon"
-                                  focusable="false"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                                  />
-                                </svg>
-                              </span>
-                              <span
-                                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
-                              >
-                                registration.ownerIsMember
-                              </span>
-                            </label>
                             <label
                               class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                             >
@@ -3909,7 +4098,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
                     >
-                      registration.owner
+                      registration.owners
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
@@ -3930,276 +4119,492 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                         <div
                           class="MuiBox-root css-1xs22px"
                         >
-                          <form>
+                          <div
+                            class="MuiStack-root css-1ucnu3w-MuiStack-root"
+                          >
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
+                              class="MuiStack-root css-hwnj0i-MuiStack-root"
                             >
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                               >
                                 <div
-                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                 >
-                                  <label
-                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                                    data-shrink="true"
-                                    for="owner_name"
-                                    id="owner_name-label"
-                                  >
-                                    contact.name
-                                  </label>
                                   <div
-                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
+                                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                                   >
-                                    <input
-                                      aria-invalid="false"
-                                      autocomplete="name"
-                                      class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                      id="owner_name"
-                                      name="name"
-                                      type="text"
-                                      value="Owner Name"
-                                    />
-                                    <fieldset
-                                      aria-hidden="true"
-                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                    <label
+                                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                      data-shrink="true"
+                                      for="owner_0_name"
+                                      id="owner_0_name-label"
                                     >
-                                      <legend
-                                        class="css-ex8a5f-MuiNotchedOutlined-root"
-                                      >
-                                        <span>
-                                          contact.name
-                                        </span>
-                                      </legend>
-                                    </fieldset>
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
-                              >
-                                <div
-                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                                >
-                                  <label
-                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                                    data-shrink="true"
-                                    for="owner_city"
-                                    id="owner_city-label"
-                                  >
-                                    contact.city
-                                  </label>
-                                  <div
-                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
-                                  >
-                                    <input
-                                      aria-invalid="false"
-                                      autocomplete="address-level2"
-                                      class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                      id="owner_city"
-                                      name="city"
-                                      type="text"
-                                      value="Owner Location"
-                                    />
-                                    <fieldset
-                                      aria-hidden="true"
-                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                                    >
-                                      <legend
-                                        class="css-ex8a5f-MuiNotchedOutlined-root"
-                                      >
-                                        <span>
-                                          contact.city
-                                        </span>
-                                      </legend>
-                                    </fieldset>
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
-                              >
-                                <div
-                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                                >
-                                  <label
-                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                                    data-shrink="true"
-                                    for="owner_email"
-                                    id="owner_email-label"
-                                  >
-                                    contact.email
-                                  </label>
-                                  <div
-                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
-                                  >
-                                    <input
-                                      aria-invalid="false"
-                                      autocomplete="email"
-                                      class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                                      id="owner_email"
-                                      name="email"
-                                      type="text"
-                                      value="owner@example.com"
-                                    />
-                                    <fieldset
-                                      aria-hidden="true"
-                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                                    >
-                                      <legend
-                                        class="css-ex8a5f-MuiNotchedOutlined-root"
-                                      >
-                                        <span>
-                                          contact.email
-                                        </span>
-                                      </legend>
-                                    </fieldset>
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
-                              >
-                                <div
-                                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                                >
-                                  <label
-                                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                                    data-shrink="true"
-                                    for="owner_phone"
-                                    id="owner_phone-label"
-                                  >
-                                    contact.phone
-                                  </label>
-                                  <div
-                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-1ru13j9-MuiInputBase-root-MuiOutlinedInput-root"
-                                  >
+                                      contact.name
+                                    </label>
                                     <div
-                                      class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1be8vlw-MuiInputAdornment-root"
+                                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
                                     >
-                                      <span
+                                      <input
+                                        aria-invalid="false"
+                                        autocomplete="name"
+                                        class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
+                                        id="owner_0_name"
+                                        name="name"
+                                        type="text"
+                                        value="Owner Name"
+                                      />
+                                      <fieldset
                                         aria-hidden="true"
-                                        class="notranslate"
+                                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                       >
-                                        ​
-                                      </span>
-                                      <button
-                                        aria-expanded="false"
-                                        aria-haspopup="listbox"
-                                        aria-label="Open flags menu"
-                                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                                        tabindex="0"
-                                        type="button"
+                                        <legend
+                                          class="css-ex8a5f-MuiNotchedOutlined-root"
+                                        >
+                                          <span>
+                                            contact.name
+                                          </span>
+                                        </legend>
+                                      </fieldset>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
+                                >
+                                  <div
+                                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                                  >
+                                    <label
+                                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                      data-shrink="true"
+                                      for="owner_0_city"
+                                      id="owner_0_city-label"
+                                    >
+                                      contact.city
+                                    </label>
+                                    <div
+                                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
+                                    >
+                                      <input
+                                        aria-invalid="false"
+                                        autocomplete="address-level2"
+                                        class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
+                                        id="owner_0_city"
+                                        name="city"
+                                        type="text"
+                                        value="Owner Location"
+                                      />
+                                      <fieldset
+                                        aria-hidden="true"
+                                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                      >
+                                        <legend
+                                          class="css-ex8a5f-MuiNotchedOutlined-root"
+                                        >
+                                          <span>
+                                            contact.city
+                                          </span>
+                                        </legend>
+                                      </fieldset>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
+                                >
+                                  <div
+                                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                                  >
+                                    <label
+                                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                      data-shrink="true"
+                                      for="owner_0_email"
+                                      id="owner_0_email-label"
+                                    >
+                                      contact.email
+                                    </label>
+                                    <div
+                                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
+                                    >
+                                      <input
+                                        aria-invalid="false"
+                                        autocomplete="email"
+                                        class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
+                                        id="owner_0_email"
+                                        name="email"
+                                        type="text"
+                                        value="owner@example.com"
+                                      />
+                                      <fieldset
+                                        aria-hidden="true"
+                                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                                      >
+                                        <legend
+                                          class="css-ex8a5f-MuiNotchedOutlined-root"
+                                        >
+                                          <span>
+                                            contact.email
+                                          </span>
+                                        </legend>
+                                      </fieldset>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
+                                >
+                                  <div
+                                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                                  >
+                                    <label
+                                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                      data-shrink="true"
+                                      for="owner_0_phone"
+                                      id="owner_0_phone-label"
+                                    >
+                                      contact.phone
+                                    </label>
+                                    <div
+                                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-1ru13j9-MuiInputBase-root-MuiOutlinedInput-root"
+                                    >
+                                      <div
+                                        class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1be8vlw-MuiInputAdornment-root"
                                       >
                                         <span
-                                          class="MuiTelInput-Flag css-70qvj9"
-                                          data-testid="FI"
+                                          aria-hidden="true"
+                                          class="notranslate"
                                         >
-                                          <img
-                                            alt="Finland"
-                                            class="MuiTelInput-FlagImg"
-                                            loading="lazy"
-                                            src="https://flagcdn.com/w40/fi.webp"
-                                            width="26"
-                                          />
+                                          ​
                                         </span>
-                                      </button>
-                                      <p
-                                        class="MuiTypography-root MuiTypography-body1 css-gph175-MuiTypography-root"
+                                        <button
+                                          aria-expanded="false"
+                                          aria-haspopup="listbox"
+                                          aria-label="Open flags menu"
+                                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                                          tabindex="0"
+                                          type="button"
+                                        >
+                                          <span
+                                            class="MuiTelInput-Flag css-70qvj9"
+                                            data-testid="FI"
+                                          >
+                                            <img
+                                              alt="Finland"
+                                              class="MuiTelInput-FlagImg"
+                                              loading="lazy"
+                                              src="https://flagcdn.com/w40/fi.webp"
+                                              width="26"
+                                            />
+                                          </span>
+                                        </button>
+                                        <p
+                                          class="MuiTypography-root MuiTypography-body1 css-gph175-MuiTypography-root"
+                                        >
+                                          +
+                                          358
+                                        </p>
+                                      </div>
+                                      <input
+                                        aria-invalid="false"
+                                        autocomplete="tel"
+                                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
+                                        id="owner_0_phone"
+                                        name="phone"
+                                        type="tel"
+                                        value="40 12345"
+                                      />
+                                      <fieldset
+                                        aria-hidden="true"
+                                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                       >
-                                        +
-                                        358
-                                      </p>
+                                        <legend
+                                          class="css-ex8a5f-MuiNotchedOutlined-root"
+                                        >
+                                          <span>
+                                            contact.phone
+                                          </span>
+                                        </legend>
+                                      </fieldset>
                                     </div>
-                                    <input
-                                      aria-invalid="false"
-                                      autocomplete="tel"
-                                      class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
-                                      id="owner_phone"
-                                      name="phone"
-                                      type="tel"
-                                      value="40 12345"
-                                    />
-                                    <fieldset
-                                      aria-hidden="true"
-                                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                                    >
-                                      <legend
-                                        class="css-ex8a5f-MuiNotchedOutlined-root"
-                                      >
-                                        <span>
-                                          contact.phone
-                                        </span>
-                                      </legend>
-                                    </fieldset>
                                   </div>
+                                </div>
+                              </div>
+                              <div
+                                class="MuiStack-root css-3y1137-MuiStack-root"
+                              >
+                                <label
+                                  class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                >
+                                  <span
+                                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                                  >
+                                    <input
+                                      class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                      data-indeterminate="false"
+                                      name="owner_0_membership"
+                                      type="checkbox"
+                                    />
+                                    <svg
+                                      aria-hidden="true"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                      data-testid="CheckBoxOutlineBlankIcon"
+                                      focusable="false"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                                      />
+                                    </svg>
+                                  </span>
+                                  <span
+                                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                                  >
+                                    registration.ownerIsMember
+                                  </span>
+                                </label>
+                              </div>
+                            </div>
+                            <button
+                              class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-a5nan9-MuiButtonBase-root-MuiButton-root"
+                              tabindex="0"
+                              type="button"
+                            >
+                              <span
+                                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                  data-testid="AddOutlinedIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
+                                  />
+                                </svg>
+                              </span>
+                              registration.cta.addOwner
+                            </button>
+                            <div
+                              class="MuiStack-root css-1hu89ii-MuiStack-root"
+                            >
+                              <div
+                                class="MuiFormControl-root css-1iw3t7y-MuiFormControl-root"
+                              >
+                                <label
+                                  class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
+                                  id="owner-handles-label"
+                                >
+                                  registration.whoHandles
+                                </label>
+                                <div
+                                  aria-labelledby="owner-handles-label"
+                                  class="MuiFormGroup-root MuiRadioGroup-root css-1mac7pt-MuiFormGroup-root"
+                                  role="radiogroup"
+                                >
+                                  <label
+                                    class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                  >
+                                    <span
+                                      class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                                    >
+                                      <input
+                                        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                        name=":r1i:"
+                                        type="radio"
+                                        value="owner-1"
+                                      />
+                                      <span
+                                        class="css-9oxshb-MuiRadioButtonIcon-root"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-iy8fvg-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonUncheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                                          />
+                                        </svg>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-cpa8b4-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonCheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                                    >
+                                      Owner Name
+                                    </span>
+                                  </label>
+                                  <label
+                                    class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                  >
+                                    <span
+                                      class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                                    >
+                                      <input
+                                        checked=""
+                                        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                        name=":r1i:"
+                                        type="radio"
+                                        value=""
+                                      />
+                                      <span
+                                        class="css-9oxshb-MuiRadioButtonIcon-root"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-iy8fvg-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonUncheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                                          />
+                                        </svg>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1pqw2bl-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonCheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                                    >
+                                      registration.someoneElse
+                                    </span>
+                                  </label>
+                                </div>
+                              </div>
+                              <div
+                                class="MuiFormControl-root css-1iw3t7y-MuiFormControl-root"
+                              >
+                                <label
+                                  class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
+                                  id="owner-pays-label"
+                                >
+                                  registration.whoPays
+                                </label>
+                                <div
+                                  aria-labelledby="owner-pays-label"
+                                  class="MuiFormGroup-root MuiRadioGroup-root css-1mac7pt-MuiFormGroup-root"
+                                  role="radiogroup"
+                                >
+                                  <label
+                                    class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                  >
+                                    <span
+                                      class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                                    >
+                                      <input
+                                        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                        name=":r1j:"
+                                        type="radio"
+                                        value="owner-1"
+                                      />
+                                      <span
+                                        class="css-9oxshb-MuiRadioButtonIcon-root"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-iy8fvg-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonUncheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                                          />
+                                        </svg>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-cpa8b4-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonCheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                                    >
+                                      Owner Name
+                                    </span>
+                                  </label>
+                                  <label
+                                    class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                                  >
+                                    <span
+                                      class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                                    >
+                                      <input
+                                        checked=""
+                                        class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                        name=":r1j:"
+                                        type="radio"
+                                        value=""
+                                      />
+                                      <span
+                                        class="css-9oxshb-MuiRadioButtonIcon-root"
+                                      >
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-iy8fvg-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonUncheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                                          />
+                                        </svg>
+                                        <svg
+                                          aria-hidden="true"
+                                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1pqw2bl-MuiSvgIcon-root-MuiRadioButtonIcon-root"
+                                          data-testid="RadioButtonCheckedIcon"
+                                          focusable="false"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            d="M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
+                                          />
+                                        </svg>
+                                      </span>
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                                    >
+                                      registration.someoneElse
+                                    </span>
+                                  </label>
                                 </div>
                               </div>
                             </div>
-                          </form>
-                          <div
-                            class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
-                          >
-                            <label
-                              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
-                            >
-                              <span
-                                class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
-                              >
-                                <span
-                                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
-                                  role="switch"
-                                >
-                                  <input
-                                    class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
-                                    name="ownerHandles"
-                                    role="switch"
-                                    type="checkbox"
-                                  />
-                                  <span
-                                    class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
-                                  />
-                                </span>
-                                <span
-                                  class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
-                                />
-                              </span>
-                              <span
-                                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
-                              >
-                                registration.ownerHandles
-                              </span>
-                            </label>
-                            <label
-                              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
-                            >
-                              <span
-                                class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
-                              >
-                                <span
-                                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
-                                  role="switch"
-                                >
-                                  <input
-                                    class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
-                                    name="ownerPays"
-                                    role="switch"
-                                    type="checkbox"
-                                  />
-                                  <span
-                                    class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
-                                  />
-                                </span>
-                                <span
-                                  class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
-                                />
-                              </span>
-                              <span
-                                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
-                              >
-                                registration.ownerPays
-                              </span>
-                            </label>
                           </div>
                         </div>
                       </div>
@@ -4878,8 +5283,8 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                             <label
                               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="true"
-                              for=":r1v:"
-                              id=":r1v:-label"
+                              for=":r22:"
+                              id=":r22:-label"
                             >
                               registration.notes
                             </label>
@@ -4889,7 +5294,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                               <textarea
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r1v:"
+                                id=":r22:"
                                 name="notes"
                                 rows="4"
                                 style="height: 0px; overflow: hidden;"
@@ -4975,36 +5380,6 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                           <div
                             class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
                           >
-                            <label
-                              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
-                            >
-                              <span
-                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                              >
-                                <input
-                                  class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                  data-indeterminate="false"
-                                  name="ownerIsMember"
-                                  type="checkbox"
-                                />
-                                <svg
-                                  aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                                  data-testid="CheckBoxOutlineBlankIcon"
-                                  focusable="false"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                                  />
-                                </svg>
-                              </span>
-                              <span
-                                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
-                              >
-                                registration.ownerIsMember
-                              </span>
-                            </label>
                             <label
                               class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                             >

@@ -32,7 +32,7 @@ import { sendTemplatedEmail } from '../../../api/email'
 import { useRegistrationEmailTemplateData } from '../../../hooks/useRegistrationEmailTemplateData'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { invitationAttachmentFileName } from '../../../lib/fileName'
-import { getRegistrationClass } from '../../../lib/registration'
+import { getRegistrationClass, getRegistrationEmails } from '../../../lib/registration'
 import { Path } from '../../../routeConfig'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
@@ -318,8 +318,6 @@ export default function SendMessageDialog({ event, registrations, templateId, op
 }
 
 function listEmails(r: Registration): string {
-  if (r.ownerHandles || r.owner?.email === r.handler?.email) {
-    return r.owner?.email ?? ''
-  }
-  return [r.owner?.email, r.handler?.email].filter(Boolean).join(', ')
+  // Mirrors the backend recipient logic (emailTo).
+  return getRegistrationEmails(r).join(', ')
 }

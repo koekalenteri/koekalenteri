@@ -44,7 +44,6 @@ export type RegistrationStatsInput = Pick<
 > & {
   dog?: Pick<JsonRegistration['dog'], 'breedCode' | 'regNo'>
   handler?: Pick<NonNullable<JsonRegistration['handler']>, 'email'>
-  owner?: Pick<NonNullable<JsonRegistration['owner']>, 'email'>
 }
 
 /** Returns the calendar year of an instant in the event timezone. */
@@ -615,7 +614,6 @@ export function hashStatValue(value: string | undefined = ''): string {
 
 export const participationIdentifiers = (registration: RegistrationStatsInput): Record<YearlyStatTypes, string> => {
   const hashedHandlerEmail = hashStatValue(registration.handler?.email)
-  const hashedOwnerEmail = hashStatValue(registration.owner?.email)
   const hashedRegNo = hashStatValue(registration.dog?.regNo)
 
   return {
@@ -626,7 +624,6 @@ export const participationIdentifiers = (registration: RegistrationStatsInput): 
     event: registration.eventId,
     eventType: registration.eventType,
     handler: hashedHandlerEmail,
-    owner: hashedOwnerEmail,
   }
 }
 

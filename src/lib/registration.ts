@@ -14,6 +14,7 @@ import type {
   PublicDogEvent,
   Registration,
   RegistrationClass,
+  RegistrationOwner,
   RegistrationPerson,
   RegistrationTemplateContext,
   RegistrationTime,
@@ -23,10 +24,32 @@ import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { isEntryClosed } from './event'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
-import { isObject } from './utils'
+import { isObject, unique } from './utils'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
+
+/** Key of the sole owner when there is no sibling to disambiguate from (fresh drafts, legacy records). */
+export const DEFAULT_OWNER_KEY = 'owner-1'
+
+/**
+ * Owner list `key` as the form assigns it: a stored key is kept, while keyless (legacy/API-written)
+ * entries get a deterministic position-based key. The form derives keys the same way, so the same
+ * row resolves to the same key whether it came from storage or from an in-progress edit.
+ */
+export const ownerKeyAt = (owner: unknown, index: number): string =>
+  (owner as { key?: string } | undefined)?.key ?? `owner-${index + 1}`
+
+/** Owners of a registration: the `owners` list when present, falling back to the legacy single `owner`. */
+export const getRegistrationOwners = <O, L>(registration?: { owners?: O[]; owner?: L }): (O | L)[] =>
+  registration?.owners?.length ? registration.owners : registration?.owner ? [registration.owner] : []
+
+/** Display-formats a registration's owner names as a single comma-separated string. */
+export const formatOwnerNames = (registration?: { owners?: { name?: string }[]; owner?: { name?: string } }): string =>
+  getRegistrationOwners(registration)
+    .map((owner) => owner?.name)
+    .filter(Boolean)
+    .join(', ')
 
 export const createRegistrationDraft = (mode: 'admin' | 'participant'): Registration => ({
   agreeToTerms: false,
@@ -47,6 +70,7 @@ export const createRegistrationDraft = (mode: 'admin' | 'participant'): Registra
   owner: { ...emptyPerson },
   ownerHandles: true,
   ownerPays: true,
+  owners: [{ ...emptyPerson, key: DEFAULT_OWNER_KEY }],
   payer: { ...emptyPerson },
   qualifyingResults: [],
   reserve: 'DAY',
@@ -75,6 +99,7 @@ export const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<PublicRegistrationField> 
   'owner',
   'ownerHandles',
   'ownerPays',
+  'owners',
   'payer',
   'reserve',
   'results',
@@ -103,6 +128,7 @@ const REGISTRATION_ARRAY_FIELDS = [
   { path: ['dates'], required: true },
   { path: ['dog', 'results'], required: false },
   { path: ['optionalCosts'], required: false },
+  { path: ['owners'], required: false },
   { path: ['qualifyingResults'], required: true },
   { path: ['results'], required: false },
 ] as const
@@ -143,6 +169,7 @@ const REFUNDABLE_GROUP_KEYS = new Set<string>([GROUP_KEY_CANCELLED, GROUP_KEY_RE
 
 type RegistrationPriorityFields = Pick<Registration, 'priorityByInvitation' | 'ownerHandles'> & {
   owner?: Pick<RegistrationPerson, 'membership'>
+  owners?: (Pick<RegistrationPerson, 'membership'> & { key?: string })[]
   handler?: Pick<RegistrationPerson, 'membership'>
   dog?: Pick<Registration['dog'], 'breedCode'>
   qualifyingResults?: Registration['qualifyingResults'] | JsonRegistration['qualifyingResults']
@@ -153,8 +180,107 @@ type PriorityCheckFn<T, E extends PublicDogEvent | JsonPublicDogEvent = PublicDo
   registration: RegistrationPriorityFields
 ) => T
 
+const anyOwnerHasMembership = (registration?: MinimalRegistrationForMembership): boolean =>
+  getRegistrationOwners(registration).some((owner) => owner?.membership)
+
 export const isMember = (registration?: MinimalRegistrationForMembership): boolean =>
-  Boolean((!registration?.ownerHandles && registration?.handler?.membership) || registration?.owner?.membership)
+  Boolean(anyOwnerHasMembership(registration) || (!registration?.ownerHandles && registration?.handler?.membership))
+
+/** An unset `ownerHandles`/`ownerPays` selection defaults to the (first) owner. */
+export const withDefaultOwnerSelection = (selection: boolean | string | undefined): boolean | string =>
+  selection ?? true
+
+/**
+ * Resolves which person a `ownerHandles`/`ownerPays` selection refers to: a specific owner by
+ * `key` when multiple owners are on file, or the legacy single owner for older records / booleans.
+ */
+export function resolveOwnerSelection<O extends { key?: string }, L>(
+  owners: O[] | undefined,
+  legacyOwner: L,
+  selection: boolean | string | undefined
+): O | L | undefined {
+  if (!selection) return undefined
+  // A key only means something against an owner list; a key that matches nobody resolves to no one
+  // rather than silently falling back to the first/legacy owner.
+  if (typeof selection === 'string') {
+    if (!owners?.length) return legacyOwner
+    return owners.find((o) => o.key === selection)
+  }
+  return owners?.[0] ?? legacyOwner
+}
+
+/**
+ * Drops the client-only owner list `key`, for persisting anywhere a plain unkeyed
+ * `RegistrationPerson` is expected (`owner`, `handler`, `payer`).
+ */
+export const stripOwnerKey = <O extends { key?: string }>(owner: O): Omit<O, 'key'> => {
+  const { key: _key, ...person } = owner
+  return person
+}
+
+/**
+ * Like {@link resolveOwnerSelection}, but returns a plain person without the owner list `key`,
+ * for persisting as `handler`/`payer` (which are not keyed).
+ */
+export const resolveOwnerPerson = (
+  owners: RegistrationOwner[] | undefined,
+  legacyOwner: RegistrationPerson | undefined,
+  selection: boolean | string | undefined
+): RegistrationPerson | undefined => {
+  const resolved = resolveOwnerSelection(owners, legacyOwner, selection)
+  if (!resolved) return undefined
+  return stripOwnerKey(resolved as RegistrationOwner)
+}
+
+const getOverridePerson = <O extends { key?: string }, L, F>(
+  owners: O[] | undefined,
+  legacyOwner: L,
+  selection: boolean | string | undefined,
+  fallback: F
+): O | L | F | undefined => resolveOwnerSelection(owners, legacyOwner, selection) ?? fallback
+
+/** The person who handles the dog: the owner the `ownerHandles` selection names, or the separate handler. */
+export const getHandlingPerson = <O extends { key?: string }, L, H>(registration: {
+  owners?: O[]
+  owner?: L
+  ownerHandles?: boolean | string
+  handler?: H
+}): O | L | H | undefined =>
+  getOverridePerson(registration.owners, registration.owner, registration.ownerHandles, registration.handler)
+
+/** The person who pays: the owner the `ownerPays` selection names, or the separate payer. */
+export const getPayingPerson = <O extends { key?: string }, L, P>(registration: {
+  owners?: O[]
+  owner?: L
+  ownerPays?: boolean | string
+  payer?: P
+}): O | L | P | undefined =>
+  getOverridePerson(registration.owners, registration.owner, registration.ownerPays, registration.payer)
+
+/**
+ * Everyone a registration's email is addressed to: the handling person plus all owners, deduplicated.
+ * The backend `emailTo` addresses the same set, so anything reporting recipients to the user must
+ * use this rather than a single owner.
+ */
+export const getRegistrationEmails = (registration: {
+  owners?: { email?: string; key?: string }[]
+  owner?: { email?: string }
+  ownerHandles?: boolean | string
+  handler?: { email?: string }
+}): string[] =>
+  unique(
+    [
+      getHandlingPerson(registration)?.email,
+      ...getRegistrationOwners(registration).map((owner) => owner?.email),
+    ].filter((email): email is string => Boolean(email))
+  )
+
+/** Applies the `ownerHandles`/`ownerPays` selections for saving: the selected owner is persisted as handler/payer. */
+export const withRegistrationOverrides = (reg: Registration): Registration => ({
+  ...reg,
+  handler: resolveOwnerPerson(reg.owners, reg.owner, reg.ownerHandles) ?? reg.handler,
+  payer: resolveOwnerPerson(reg.owners, reg.owner, reg.ownerPays) ?? reg.payer,
+})
 
 const hasMembershipPriority: PriorityCheckFn<boolean> = (event, registration) =>
   Boolean(event.priority?.includes(PRIORITY_MEMBER) && isMember(registration))
@@ -183,9 +309,14 @@ const hasNomeBSMPriority: PriorityCheckFn<false | 'b-sm.2' | 'b-sm.3'> = (event,
 }
 
 export const hasPriority: PriorityCheckFn<true | false | 0.5> = (event, registration) => {
-  if (hasMembershipPriority(event, registration)) {
-    if (registration.handler?.membership && registration.owner?.membership) return true
-    return 0.5
+  if (event.priority?.includes(PRIORITY_MEMBER)) {
+    const anyOwnerIsMember = anyOwnerHasMembership(registration)
+    const registrationIsMember =
+      anyOwnerIsMember || (!registration.ownerHandles && Boolean(registration.handler?.membership))
+    if (registrationIsMember) {
+      const handlingPerson = getHandlingPerson(registration)
+      return handlingPerson?.membership && anyOwnerIsMember ? true : 0.5
+    }
   }
   if (
     hasInvitationPriority(event, registration) ||

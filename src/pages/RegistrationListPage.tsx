@@ -11,7 +11,7 @@ import { useRegistrationSubscription } from '../hooks/useRegistrationSubscriptio
 import { redirectTo } from '../lib/client/navigation'
 import { calculateCost } from '../lib/cost'
 import { getEventStateForClass } from '../lib/event'
-import { getRegistrationClass } from '../lib/registration'
+import { getRegistrationClass, getRegistrationEmails } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 import CancelDialog from './components/CancelDialog'
@@ -150,10 +150,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           { style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' }, variant: 'success' }
         )
       } else if (registration?.paymentStatus === 'SUCCESS') {
-        const emails = [registration.handler?.email]
-        if (registration.owner && registration.owner?.email !== registration.handler?.email) {
-          emails.push(registration.owner.email)
-        }
+        const emails = getRegistrationEmails(registration)
 
         enqueueSnackbar(
           t('registration.saved', {

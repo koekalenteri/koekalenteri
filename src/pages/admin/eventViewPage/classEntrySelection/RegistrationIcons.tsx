@@ -10,7 +10,7 @@ import PersonOutline from '@mui/icons-material/PersonOutline'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import Stack from '@mui/material/Stack'
 import { useMemo } from 'react'
-import { getInvitationReadStatus, hasPriority } from '../../../../lib/registration'
+import { getInvitationReadStatus, hasPriority, isMember } from '../../../../lib/registration'
 import { IconsTooltip } from '../../../components/IconsTooltip'
 import { PriorityIcon } from '../../../components/icons/PriorityIcon'
 import RankingPoints from '../../../components/RankingPoints'
@@ -51,10 +51,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
       <Stack direction="row" alignItems="center" mt="3px">
         {/* Keep the icons column width in useClassEntrySelectionColumns in sync when adding icons here. */}
         <StatusIcon condition={!!priority} icon={<PriorityIcon dim priority={priority} fontSize="small" />} />
-        <StatusIcon
-          condition={reg.handler?.membership || reg.owner?.membership}
-          icon={<PersonOutline fontSize="small" />}
-        />
+        <StatusIcon condition={isMember(reg)} icon={<PersonOutline fontSize="small" />} />
         <PaymentIcon reg={reg} />
         <StatusIcon condition={(reg.optionalCosts?.length ?? 0) > 0} icon={<AddTaskOutlinedIcon fontSize="small" />} />
         <StatusIcon condition={reg.confirmed} icon={<CheckOutlined fontSize="small" />} />

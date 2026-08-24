@@ -49,22 +49,12 @@ const REGISTRATION_STATS_PROJECTION_NAMES = {
   '#group': 'group',
   '#handler': 'handler',
   '#key': 'key',
-  '#owner': 'owner',
 }
 const REGISTRATION_STATS_PROJECTION =
-  'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #owner.email, #class, #group.#key'
+  'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #class, #group.#key'
 const EVENT_STATS_PROJECTION_NAMES = { '#state': 'state' }
 const EVENT_STATS_PROJECTION = 'id, organizer, startDate, eventType, classes, places, #state, judges'
-const PARTICIPATION_TYPES: YearlyStatTypes[] = [
-  'eventType',
-  'dog',
-  'breed',
-  'handler',
-  'owner',
-  'dog#handler',
-  'class',
-  'event',
-]
+const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'dog#handler', 'class', 'event']
 // Draft/tentative/cancelled events aren't real committed capacity, so they're excluded from
 // capacity stats (unlike the organizer/participation stats above, which count every event
 // regardless of state). Events predating the state field are treated as committed.

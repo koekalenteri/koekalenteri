@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
 import { nanoid } from 'nanoid'
 import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
-import { hasInvalidRegistrationArrayFields } from '../../lib/registration'
+import { getRegistrationOwners, hasInvalidRegistrationArrayFields } from '../../lib/registration'
 import { isObject, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
@@ -11,6 +11,7 @@ import { authorizeWithMemberOf } from '../lib/auth'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import {
   assertRegistrationEmailsNotSuppressed,
+  cloneRegistrationPeople,
   normalizeRegistrationEmails,
   shouldClearRegistrationEmailDeliveryStatus,
 } from '../lib/emailSuppression'
@@ -19,6 +20,7 @@ import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
 import {
+  applyOwnerOverrides,
   claimNewRegistrationPostProcessing,
   clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
@@ -92,16 +94,8 @@ const mergeAdminRegistration = (
   return { ...existing, ...registration } as JsonRegistration
 }
 
-const normalizePatchedAdminRegistration = (registration: Patch<JsonRegistration>): Patch<JsonRegistration> => {
-  const normalized = {
-    ...registration,
-    ...(registration.handler ? { handler: { ...registration.handler } } : {}),
-    ...(registration.owner ? { owner: { ...registration.owner } } : {}),
-    ...(registration.payer ? { payer: { ...registration.payer } } : {}),
-  }
-  normalizeRegistrationEmails(normalized)
-  return normalized
-}
+const normalizePatchedAdminRegistration = (registration: Patch<JsonRegistration>): Patch<JsonRegistration> =>
+  normalizeRegistrationEmails(cloneRegistrationPeople(registration))
 
 const completeNewAdminRegistration = async (
   registration: JsonRegistration,
@@ -131,7 +125,11 @@ const completeNewAdminRegistration = async (
       )
       await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationAuditAt')
     }
-    if (saved.handler?.email && saved.owner?.email && !saved.newRegistrationEmailSentAt) {
+    if (
+      saved.handler?.email &&
+      getRegistrationOwners(saved).some((owner) => owner?.email) &&
+      !saved.newRegistrationEmailSentAt
+    ) {
       const editToken = await getRegistrationEditToken(saved)
       const to = emailTo(saved)
       const templateData = registrationEmailTemplateData(saved, event, origin, '', editToken)
@@ -282,7 +280,7 @@ const finalizeAdminRegistrationUpdate = async ({
   const message = getAuditMessage(updatedData, existing)
   if (message) await audit({ auditKey: registrationAuditKey(updatedData), message, user: user.name })
 
-  if (!updatedData.handler?.email || !updatedData.owner?.email) return
+  if (!updatedData.handler?.email || !getRegistrationOwners(updatedData).some((owner) => owner?.email)) return
 
   const to = emailTo(updatedData)
   const templateData = registrationEmailTemplateData(updatedData, confirmedEvent, origin, 'update', editToken)
@@ -358,6 +356,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   registration.updatedAt = timestamp
 
   const data = mergeAdminRegistration(existing, registration, operationRequest, patchRequest)
+  applyOwnerOverrides(data)
   await assertRegistrationEmailsNotSuppressed(data)
   const clearEmailDeliveryStatus = shouldClearRegistrationEmailDeliveryStatus(existing, data)
   if (clearEmailDeliveryStatus) {

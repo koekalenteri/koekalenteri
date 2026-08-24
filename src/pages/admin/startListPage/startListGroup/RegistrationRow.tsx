@@ -2,6 +2,7 @@ import type { Registration } from '../../../../types'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { useTranslation } from 'react-i18next'
+import { formatOwnerNames, getRegistrationOwners } from '../../../../lib/registration'
 
 interface RegistrationRowProps {
   reg: Registration
@@ -11,6 +12,7 @@ interface RegistrationRowProps {
 
 const RegistrationRow = ({ reg, reserve, nameLen }: RegistrationRowProps) => {
   const { t } = useTranslation()
+  const owners = getRegistrationOwners(reg)
 
   return (
     <TableRow key={reg.id}>
@@ -27,8 +29,8 @@ const RegistrationRow = ({ reg, reserve, nameLen }: RegistrationRowProps) => {
           : ''}
       </TableCell>
       <TableCell>{reg.dog.name?.slice(0, nameLen).padEnd(nameLen) ?? ''}</TableCell>
-      <TableCell>{reg.owner?.name}</TableCell>
-      <TableCell align="center">{reg.owner?.membership ? '✘' : ''}</TableCell>
+      <TableCell>{formatOwnerNames(reg)}</TableCell>
+      <TableCell align="center">{owners.some((owner) => owner?.membership) ? '✘' : ''}</TableCell>
       <TableCell>{reg.handler?.name}</TableCell>
       <TableCell align="center">{reg.handler?.membership ? '✘' : ''}</TableCell>
       <TableCell>{reg.handler?.phone ?? '-ei puhelinta-'}</TableCell>

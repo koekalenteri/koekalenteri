@@ -3,8 +3,9 @@ import type { DogCachedInfo } from '../../state/dog'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { resolveOwnerSelection } from '../../../lib/registration'
 import CollapsibleSection from '../CollapsibleSection'
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { useLocalState } from './hooks/useLocalState'
@@ -18,70 +19,33 @@ interface Props {
 
 const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
   const { t } = useTranslation()
-  const [ownerCache, setOwnerCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
   const [handlerCache, setHandlerCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
-  // Local state for checkboxes with debounced updates
-  const [ownerIsMember, setOwnerIsMember] = useLocalState(reg.owner?.membership ?? false, (value) =>
-    handleChange({ owner: { membership: value } })
-  )
+  const handlingOwner = resolveOwnerSelection(reg.owners, reg.owner, reg.ownerHandles)
 
+  // Local state for checkbox with debounced updates. useLocalState re-syncs itself when the
+  // derived value changes from props — syncing through the setter here would fire the debounced
+  // onChange for prop-driven changes too, rewriting the handler (and its cache) without the user
+  // ever touching the checkbox.
   const [handlerIsMember, setHandlerIsMember] = useLocalState(
-    reg.ownerHandles ? (reg.owner?.membership ?? false) : (reg.handler?.membership ?? false),
-    (value) => handleChange({ handler: { membership: value } })
+    reg.ownerHandles ? (handlingOwner?.membership ?? false) : (reg.handler?.membership ?? false),
+    (value) => handleChange(value)
   )
 
-  // Update local state when props change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: set* functions need not to be added
-  useEffect(() => {
-    setOwnerIsMember(reg.owner?.membership ?? false)
-    setHandlerIsMember(reg.ownerHandles ? (reg.owner?.membership ?? false) : (reg.handler?.membership ?? false))
-  }, [reg.owner?.membership, reg.handler?.membership, reg.ownerHandles])
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: fu biome
   const handleChange = useCallback(
-    (props: DeepPartial<Pick<Registration, 'owner' | 'handler'>>) => {
-      const changes = {}
-      let cachedOwner: DeepPartial<DogCachedInfo['owner']> | undefined
-      let cachedHandler: DeepPartial<DogCachedInfo['handler']> | undefined
+    (membership: boolean) => {
+      // The registration's current handler wins over the cached person; only membership is learned here.
+      const cachedHandler: DeepPartial<DogCachedInfo['handler']> | undefined = setHandlerCache({
+        ...handlerCache,
+        ...reg.handler,
+        membership: { ...handlerCache?.membership, [orgId]: membership },
+      })
 
-      if (props.owner) {
-        const membership =
-          props.owner?.membership === undefined
-            ? ownerCache?.membership
-            : { ...ownerCache?.membership, [orgId]: props.owner.membership }
-        cachedOwner = setOwnerCache({
-          ...reg.owner,
-          ownerHandles: reg.ownerHandles,
-          ownerPays: reg.ownerPays,
-          ...ownerCache,
-          ...props.owner,
-          membership,
-        })
-      }
-
-      if (props.handler) {
-        const membership =
-          props.handler?.membership === undefined
-            ? handlerCache?.membership
-            : { ...handlerCache?.membership, [orgId]: props.handler.membership }
-        cachedHandler = setHandlerCache({ ...reg.handler, ...handlerCache, ...props.handler, membership })
-      }
-
-      if (cachedOwner) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { ownerHandles, ownerPays, ...owner } = cachedOwner
-        Object.assign(changes, { owner: { ...owner, membership: owner.membership?.[orgId] } })
-      }
       if (cachedHandler) {
-        Object.assign(changes, { handler: { ...cachedHandler, membership: cachedHandler.membership?.[orgId] } })
-      }
-
-      if (Object.keys(changes).length) {
-        onChange?.(changes)
+        onChange?.({ handler: { ...cachedHandler, membership: cachedHandler.membership?.[orgId] } })
       }
     },
-    [handlerCache, onChange, orgId, ownerCache, setHandlerCache, setOwnerCache]
+    [handlerCache, onChange, orgId, reg.handler, setHandlerCache]
   )
 
   const open = !!reg.dog?.regNo
@@ -95,18 +59,7 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
     >
       <FormGroup>
         <FormControlLabel
-          control={
-            <Checkbox
-              disabled={disabled}
-              checked={ownerIsMember}
-              onChange={(e) => setOwnerIsMember(e.target.checked)}
-            />
-          }
-          label={t('registration.ownerIsMember')}
-          name="ownerIsMember"
-        />
-        <FormControlLabel
-          disabled={disabled || reg.ownerHandles}
+          disabled={disabled || !!reg.ownerHandles}
           control={<Checkbox checked={handlerIsMember} onChange={(e) => setHandlerIsMember(e.target.checked)} />}
           label={t('registration.handlerIsMember')}
           name="handlerIsMember"

@@ -57,8 +57,11 @@ export interface JsonRegistration extends JsonDbRecord {
   messagesSent?: Partial<Record<EmailTemplateId, boolean>>
   notes: string
   owner?: RegistrationPerson
-  ownerHandles?: boolean
-  ownerPays?: boolean
+  owners?: RegistrationOwner[]
+  /** `true` = legacy single-owner record; a string is the `key` of the handling owner in `owners`. */
+  ownerHandles?: boolean | string
+  /** `true` = legacy single-owner record; a string is the `key` of the paying owner in `owners`. */
+  ownerPays?: boolean | string
   optionalCosts?: number[]
   paidAmount?: number
   paidAt?: string
@@ -175,6 +178,7 @@ export interface JsonPublicRegistration {
   handler: string
   owner: string
   breeder: string
+  /** True when the handler is the owner named in `owner`; owner keys are resolved before publication. */
   ownerHandles?: boolean
 }
 
@@ -218,6 +222,11 @@ export interface RegistrationPerson extends Person {
   membership: boolean
 }
 
+export interface RegistrationOwner extends RegistrationPerson {
+  /** Client-generated stable key, used to select this owner as handler/payer among multiple owners. */
+  key: string
+}
+
 export type RegistrationBreeder = Omit<Person, 'email' | 'phone'>
 
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
@@ -227,5 +236,6 @@ export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'DUPLICATE' | 'PENDING' | 'NE
 export interface MinimalRegistrationForMembership {
   handler?: Pick<RegistrationPerson, 'membership'>
   owner?: Pick<RegistrationPerson, 'membership'>
-  ownerHandles?: NonNullable<Registration['ownerHandles']>
+  owners?: Pick<RegistrationPerson, 'membership'>[]
+  ownerHandles?: boolean | string
 }

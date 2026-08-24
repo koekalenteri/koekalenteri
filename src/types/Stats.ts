@@ -14,7 +14,7 @@ interface OrganizerEventStats {
   updatedAt: string
 }
 
-export type YearlyStatTypes = 'eventType' | 'dog' | 'breed' | 'handler' | 'owner' | 'dog#handler' | 'class' | 'event'
+export type YearlyStatTypes = 'eventType' | 'dog' | 'breed' | 'handler' | 'dog#handler' | 'class' | 'event'
 
 export interface YearlyTotalStat {
   year: number

@@ -1070,6 +1070,52 @@ describe('validation', () => {
   })
 
   describe('validateRegistration', () => {
+    const nameFormatEvent = {
+      classes: [],
+      eventType: 'NOU',
+      startDate: new Date('2020-10-15'),
+    } as any
+
+    const regWithOwnerNamed = (name: string): Registration =>
+      ({
+        agreeToTerms: true,
+        dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
+        dog: testDog,
+        ownerHandles: 'owner-1',
+        ownerPays: 'owner-1',
+        owners: [{ email: 'owner@example.com', key: 'owner-1', name }],
+        reserve: 'ANY',
+      }) as unknown as Registration
+
+    const nameFormatErrors = (reg: Registration, saved?: Registration) =>
+      validateRegistration(reg, nameFormatEvent, saved).filter((e) => e.key === 'nameFormat')
+
+    it('rejects an owner name that holds more than one person', () => {
+      expect(nameFormatErrors(regWithOwnerNamed('Matti ja Maija Meikäläinen'))).toHaveLength(1)
+    })
+
+    it('grandfathers an already saved owner name, so the registration stays editable', () => {
+      const saved = regWithOwnerNamed('Matti ja Maija Meikäläinen')
+
+      expect(nameFormatErrors({ ...saved }, saved)).toHaveLength(0)
+    })
+
+    it('grandfathers a legacy keyless owner name once the form has assigned it a key', () => {
+      // Pre-1.10.7 records carry only the keyless `owner` mirror; editing any field in the row makes
+      // the form write an `owners` list keyed `owner-1`, which must still match the saved name.
+      const name = 'Matti ja Maija Meikäläinen'
+      const saved = { ...regWithOwnerNamed(name), owner: { email: 'owner@example.com', name }, owners: undefined }
+      const edited = regWithOwnerNamed(name)
+
+      expect(nameFormatErrors(edited, saved as unknown as Registration)).toHaveLength(0)
+    })
+
+    it('rejects a changed owner name even when the saved one was grandfathered', () => {
+      const saved = regWithOwnerNamed('Matti ja Maija Meikäläinen')
+
+      expect(nameFormatErrors(regWithOwnerNamed('Pekka ja Liisa Virtanen'), saved)).toHaveLength(1)
+    })
+
     it('should skip fields in NOT_VALIDATED list', () => {
       const mockEvent = {
         classes: [],
@@ -1234,9 +1280,12 @@ describe('validation', () => {
     it('should validate handler correctly', () => {
       const mockEvent = { eventType: 'NOU', startDate: new Date() } as any
 
-      // Test with ownerHandles = true
+      const owner = { email: 'owner@example.com', location: 'somewhere', name: 'Owner', phone: '+35840123456' }
+
+      // Test with ownerHandles = true and an owner to stand in for the handler
       const reg1 = {
         handler: { email: '', name: '' }, // Invalid handler, but should be ignored
+        owner,
         ownerHandles: true,
       } as any
       const result1 = validateRegistration(reg1, mockEvent)
@@ -1257,13 +1306,34 @@ describe('validation', () => {
       } as any
       const result3 = validateRegistration(reg3, mockEvent)
       expect(result3.some((e) => e.opts?.field === 'handler')).toBe(false)
+
+      // A key that resolves to an owner stands in for the handler
+      const reg4 = {
+        handler: { email: '', name: '' },
+        ownerHandles: 'owner-1',
+        owners: [{ ...owner, key: 'owner-1' }],
+      } as any
+      const result4 = validateRegistration(reg4, mockEvent)
+      expect(result4.some((e) => e.opts?.field === 'handler')).toBe(false)
+
+      // A stale key that names no owner must not skip handler validation
+      const reg5 = {
+        handler: { email: '', name: '' },
+        ownerHandles: 'gone',
+        owners: [{ ...owner, key: 'owner-1' }],
+      } as any
+      const result5 = validateRegistration(reg5, mockEvent)
+      expect(result5.some((e) => e.opts?.field === 'handler')).toBe(true)
     })
 
     it('should validate payer correctly', () => {
       const mockEvent = { eventType: 'NOU', startDate: new Date() } as any
 
-      // Test with ownerPays = true
+      const owner = { email: 'owner@example.com', location: 'somewhere', name: 'Owner', phone: '+35840123456' }
+
+      // Test with ownerPays = true and an owner to stand in for the payer
       const reg1 = {
+        owner,
         ownerPays: true,
         payer: { email: '', name: '' }, // Invalid payer, but should be ignored
       } as any

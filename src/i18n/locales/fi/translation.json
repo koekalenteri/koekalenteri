@@ -486,11 +486,13 @@
     },
     "createdAt": "Ilmoittautumisaika",
     "cta": {
+      "addOwner": "Lisää omistaja",
       "addResult": "Lisää tulos",
       "autofetch": "Hae koiran tiedot",
       "confirmAndPay": "Vahvista ja siirry maksamaan",
       "confirmAndSendLink": "Vahvista ja lähetä maksulinkki",
       "confirmRegistration": "Vahvista ilmoittautuminen",
+      "deleteOwner": "Poista omistaja",
       "deleteResult": "Poista tulos",
       "error": "Syötä tiedot käsin",
       "fetch": "Hae koiran tiedot",
@@ -567,7 +569,9 @@
     "owner": "Omistajan tiedot",
     "ownerHandles": "Omistaja ohjaa",
     "ownerIsMember": "Omistaja on järjestävän yhdistyksen jäsen",
+    "ownerNumber": "Omistaja {{number}}",
     "ownerPays": "Omistaja maksaa",
+    "owners": "Omistajien tiedot",
     "paid": "Maksettu",
     "paidAndConfirmed": "Osallistumismaksu maksettu ja osallistuminen vahvistettu.\nKuitti on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "payer": "Maksajan tiedot",
@@ -617,6 +621,7 @@
     "reserveHelp": "Valitse kuinka lyhyellä varoitusajalla pystyt vielä saapumaan koepaikalle, mikäli saat koepaikan varasijalta.",
     "saved_one": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "saved_other": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
+    "someoneElse": "Joku muu",
     "state": {
       "cancelled": "Tämä ilmoittautuminen on peruttu"
     },
@@ -650,7 +655,9 @@
       "refunded_handlingCost": "Ilmoittautumismaksua on palautettu. Palautettu {{refundAmount}}, käsittelykulu {{handlingCost}}, maksoi {{paidAmount}}",
       "refundPending": "Palautuksen käsittely on kesken. Palautetaan {{refundAmount}}, maksoi {{paidAmount}}",
       "refundPending_handlingCost": "Palautuksen käsittely on kesken. Palautetaan {{refundAmount}}, käsittelykulu {{handlingCost}}, maksoi {{paidAmount}}"
-    }
+    },
+    "whoHandles": "Kuka ohjaa?",
+    "whoPays": "Kuka maksaa?"
   },
   "registrations": "Ilmoittautumiset",
   "roles": "Roolit",
@@ -818,6 +825,7 @@
       "dogResults": "Tulosten perusteella koiralla ei ole oikeutta osallistua valittuun koeluokkaan.",
       "dogSM": "SM-kokeeseen ovat oikeutettuja ilmoittautumaan vain Suomessa rekisteröidyt koirat",
       "email": "Sähköpostiosoite on virheellinen",
+      "nameFormat": "Nimikenttään ei voi kirjoittaa useampaa henkilöä (merkit & tai / tai sana \"ja\") — lisää jokainen omistaja omana rivinään listaan.",
       "phone": "Puhelinnumero on virheellinen",
       "required": "$t(registration.{{field}}) ovat puutteelliset",
       "reserve": "Valitse osallistutko varasijalta",

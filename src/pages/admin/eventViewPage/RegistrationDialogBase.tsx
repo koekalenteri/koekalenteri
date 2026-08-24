@@ -6,8 +6,9 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useSnackbar } from 'notistack'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
+import { getHandlingPerson } from '../../../lib/registration'
 import { hasChanges } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import RegistrationForm from '../../components/RegistrationForm'
@@ -73,23 +74,11 @@ export default function RegistrationDialogBase({
     onClose?.()
   }, [onClose, resetRegistration])
 
-  const title = useMemo(() => {
-    const prefix = registration?.cancelled ? 'PERUTTU: ' : ''
-    if (registration?.dog?.name) {
-      const handlerName = registration?.ownerHandles ? registration?.owner?.name : (registration?.handler?.name ?? '')
-      if (handlerName) {
-        return `${prefix}${registration?.dog?.name} / ${handlerName}`
-      }
-      return `${prefix}${registration?.dog?.name}`
-    }
-    return ''
-  }, [
-    registration?.cancelled,
-    registration?.dog?.name,
-    registration?.handler?.name,
-    registration?.owner?.name,
-    registration?.ownerHandles,
-  ])
+  const prefix = registration?.cancelled ? 'PERUTTU: ' : ''
+  const handlerName = registration ? (getHandlingPerson(registration)?.name ?? '') : ''
+  const title = registration?.dog?.name
+    ? `${prefix}${registration.dog.name}${handlerName ? ` / ${handlerName}` : ''}`
+    : ''
 
   if (!registration) {
     return null

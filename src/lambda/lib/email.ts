@@ -9,7 +9,7 @@ import type {
 } from '../../types'
 import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
 import { i18n } from '../../i18n/lambda'
-import { getRegistrationEmailTemplateData } from '../../lib/registration'
+import { getRegistrationEmailTemplateData, getRegistrationOwners } from '../../lib/registration'
 import { CONFIG } from '../config'
 
 const ses = new SESClient()
@@ -54,8 +54,8 @@ export function registrationEmailTags(registration: JsonRegistration, template: 
 export function emailTo(registration: JsonRegistration) {
   const to: string[] = []
   if (registration.handler?.email) to.push(registration.handler.email)
-  if (registration.owner?.email && registration.owner?.email !== registration.handler?.email) {
-    to.push(registration.owner.email)
+  for (const owner of getRegistrationOwners(registration)) {
+    if (owner?.email && !to.includes(owner.email)) to.push(owner.email)
   }
   return to
 }

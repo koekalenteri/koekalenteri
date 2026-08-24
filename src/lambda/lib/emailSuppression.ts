@@ -1,4 +1,5 @@
 import type { JsonEmailSuppression, JsonRegistration, Patch } from '../../types'
+import { getRegistrationOwners } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { normalizeEmail } from './email'
@@ -9,15 +10,31 @@ const dynamoDB = new CustomDynamoClient(CONFIG.emailSuppressionTable)
 const getRegistrationEmails = (registration: JsonRegistration) =>
   Array.from(
     new Set(
-      [registration.owner?.email, registration.handler?.email, registration.payer?.email]
+      [
+        ...getRegistrationOwners(registration).map((owner) => owner?.email),
+        registration.handler?.email,
+        registration.payer?.email,
+      ]
         .filter((email): email is string => !!email)
         .map(normalizeEmail)
     )
   )
 
+/** Shallow-clones the person-shaped fields so normalization cannot mutate the caller's objects. */
+export const cloneRegistrationPeople = <T extends Patch<JsonRegistration>>(registration: T): T => ({
+  ...registration,
+  ...(registration.handler ? { handler: { ...registration.handler } } : {}),
+  ...(registration.owner ? { owner: { ...registration.owner } } : {}),
+  ...(registration.owners ? { owners: registration.owners.map((owner) => ({ ...owner })) } : {}),
+  ...(registration.payer ? { payer: { ...registration.payer } } : {}),
+})
+
 export const normalizeRegistrationEmails = <T extends Patch<JsonRegistration>>(registration: T): T => {
   if (registration.owner?.email) {
     registration.owner.email = normalizeEmail(registration.owner.email)
+  }
+  for (const owner of registration.owners ?? []) {
+    if (owner?.email) owner.email = normalizeEmail(owner.email)
   }
   if (registration.handler?.email) {
     registration.handler.email = normalizeEmail(registration.handler.email)

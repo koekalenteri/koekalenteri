@@ -9,16 +9,21 @@ interface DogCachedHandlerPerson extends DogCachedBasePerson {
 }
 
 interface DogCachedOwnerPerson extends DogCachedBasePerson {
-  ownerHandles: boolean
-  ownerPays: boolean
+  key: string
   membership: Record<string, boolean>
+}
+
+interface DogCachedOwners {
+  ownerHandles?: boolean | string
+  ownerPays?: boolean | string
+  owners: DogCachedOwnerPerson[]
 }
 
 export interface DogCachedInfo {
   breeder: RegistrationBreeder
   dog: Dog
   handler: DogCachedHandlerPerson
-  owner: DogCachedOwnerPerson
+  owner: DogCachedOwners
   payer: RegistrationPerson
   results: ManualTestResult[]
   manual?: boolean

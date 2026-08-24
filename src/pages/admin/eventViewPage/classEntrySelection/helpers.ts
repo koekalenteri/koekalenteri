@@ -5,6 +5,7 @@ import { eventRegistrationDateKey } from '../../../../lib/event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
+  getHandlingPerson,
   getRegistrationGroupKey,
   isParticipantGroup,
 } from '../../../../lib/registration'
@@ -38,7 +39,7 @@ export const getNouGroupRuleIssues = (
     if (registration.dog.gender === 'F') femaleCount++
     if (registration.dog.gender === 'M') maleCount++
 
-    const handler = registration.ownerHandles ? registration.owner : registration.handler
+    const handler = getHandlingPerson(registration)
     if (!handler?.email) continue
 
     const key = normalizeHandlerEmail(handler.email)

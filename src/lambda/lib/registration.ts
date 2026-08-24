@@ -18,6 +18,8 @@ import {
   isRegistrationClass,
   PUBLIC_REGISTRATION_FIELDS,
   PUBLIC_REGISTRATION_UPDATE_FIELDS,
+  resolveOwnerPerson,
+  resolveOwnerSelection,
 } from '../../lib/registration'
 import { isObject } from '../../lib/utils'
 import { CONFIG } from '../config'
@@ -214,6 +216,21 @@ export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: 
     if (result.invitationRead !== true) delete result.invitationRead
   }
   return result
+}
+
+/**
+ * Keeps `handler`/`payer` in sync with the `ownerHandles`/`ownerPays` selection server-side.
+ * The client mirrors this before saving, but a public/admin patch can change the selection
+ * fields without going through that client code, so it must also be enforced here.
+ */
+export const applyOwnerOverrides = (data: JsonRegistration): void => {
+  // Assign only when the selection actually resolves: writing `undefined` would *create* the key on
+  // a record that has none, which `hasRegistrationChanges` reports as a change and so defeats the
+  // no-op 304 short-circuit.
+  const handler = resolveOwnerPerson(data.owners, data.owner, data.ownerHandles)
+  if (handler) data.handler = handler
+  const payer = resolveOwnerPerson(data.owners, data.owner, data.ownerPays)
+  if (payer) data.payer = payer
 }
 
 export const participantRegistrationResponse = <T extends Partial<JsonRegistration>>(
@@ -584,11 +601,17 @@ export const getRegistrationChanges = (existing: JsonRegistration, data: JsonReg
   const changes = getNestedChanges(existing, data)
   console.debug('Audit changes', changes)
   const changedKeys = new Set(getChangedTopLevelKeys(existing, data))
-  const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
+  const keys = ['class', 'dog', 'breeder', 'owners', 'handler', 'qualifyingResults', 'notes'] as const
   const modified: string[] = []
+  // The client mirrors the ownerHandles-selected owner into `handler`, so editing that owner's data
+  // also changes `handler`; report it once, under `owners`, rather than as two separate edits.
+  const handlerIsMirroredOwner = Boolean(resolveOwnerSelection(data.owners, data.owner, data.ownerHandles))
 
   for (const key of keys) {
-    if (changedKeys.has(key)) {
+    if (key === 'handler' && handlerIsMirroredOwner && (changedKeys.has('owners') || changedKeys.has('owner'))) continue
+    // The client mirrors `owners[0]` into `owner`, so an owner edit changes both keys but is one
+    // logical change; report it once, under the list label.
+    if (changedKeys.has(key) || (key === 'owners' && changedKeys.has('owner'))) {
       modified.push(t(`registration.${key}`))
     }
   }

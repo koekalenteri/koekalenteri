@@ -16,6 +16,7 @@ import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from
 import { filterRelevantResults } from '../../lib/qualification'
 import {
   GROUP_KEY_RESERVE,
+  getRegistrationOwners,
   getSentInvitationAttachment,
   hasInvalidRegistrationArrayFields,
   isParticipantGroup,
@@ -29,6 +30,7 @@ import { getUsername } from '../lib/auth'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import {
   assertRegistrationEmailsNotSuppressed,
+  cloneRegistrationPeople,
   normalizeRegistrationEmails,
   shouldClearRegistrationEmailDeliveryStatus,
 } from '../lib/emailSuppression'
@@ -36,6 +38,7 @@ import { getEvent, repairReadyRegistrationGroups, updateRegistrations } from '..
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
 import {
+  applyOwnerOverrides,
   authorizeRegistrationEdit,
   claimNewRegistrationPostProcessing,
   clearRegistrationEmailDeliveryStatus,
@@ -199,7 +202,7 @@ const completeNewRegistration = async (
     if (
       (context || confirmedEvent.paymentTime === 'confirmation') &&
       saved.handler?.email &&
-      saved.owner?.email &&
+      getRegistrationOwners(saved).some((owner) => owner?.email) &&
       !saved.newRegistrationEmailSentAt
     ) {
       await sendMessages(origin, context, saved, confirmedEvent, undefined, editToken)
@@ -408,14 +411,7 @@ const applyPublicPatchRequest = (
     throw new InvalidPatchError('registration array fields must be arrays')
   }
   const registration = publicRegistrationPatch(patchedRegistration, true)
-  const cloned = {
-    ...registration,
-    ...(registration.handler ? { handler: { ...registration.handler } } : {}),
-    ...(registration.owner ? { owner: { ...registration.owner } } : {}),
-    ...(registration.payer ? { payer: { ...registration.payer } } : {}),
-  }
-  normalizeRegistrationEmails(cloned)
-  return cloned
+  return normalizeRegistrationEmails(cloneRegistrationPeople(registration))
 }
 
 const parsePublicRegistrationRequest = (body: string | null, patchRequest: boolean) => {
@@ -477,7 +473,9 @@ const finalizeRegistrationUpdate = async ({
 
   const context = getEmailContext(update, cancel, confirm, invitation)
   const shouldSend =
-    (context || confirmedEvent.paymentTime === 'confirmation') && savedData.handler?.email && savedData.owner?.email
+    (context || confirmedEvent.paymentTime === 'confirmation') &&
+    savedData.handler?.email &&
+    getRegistrationOwners(savedData).some((owner) => owner?.email)
   if (shouldSend) await sendMessages(linkOrigin, context, savedData, confirmedEvent, existing, editToken)
 }
 
@@ -529,6 +527,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   if ('invalid' in built) return response(400, { message: `Bad request: ${built.invalid}` }, event)
   const { cancel, confirm, data, invitation, update } = built
 
+  applyOwnerOverrides(data)
   resolveQualification(data, confirmedEvent)
 
   if (existing && !hasRegistrationChanges(existing, data)) {

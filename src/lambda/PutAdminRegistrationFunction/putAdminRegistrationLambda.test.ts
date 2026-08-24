@@ -68,6 +68,13 @@ vi.doMock('../lib/email', () => ({
 
 vi.doMock('../lib/emailSuppression', () => ({
   assertRegistrationEmailsNotSuppressed: mockAssertRegistrationEmailsNotSuppressed,
+  cloneRegistrationPeople: (registration: JsonRegistration) => ({
+    ...registration,
+    ...(registration.handler ? { handler: { ...registration.handler } } : {}),
+    ...(registration.owner ? { owner: { ...registration.owner } } : {}),
+    ...(registration.owners ? { owners: registration.owners.map((owner) => ({ ...owner })) } : {}),
+    ...(registration.payer ? { payer: { ...registration.payer } } : {}),
+  }),
   normalizeRegistrationEmails: (registration: JsonRegistration) => {
     if (registration.owner?.email) registration.owner.email = registration.owner.email.trim().toLowerCase()
     if (registration.handler?.email) registration.handler.email = registration.handler.email.trim().toLowerCase()

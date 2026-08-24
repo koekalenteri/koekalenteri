@@ -17,7 +17,7 @@ import { reportError } from '../../../../lib/client/error'
 import { isTestEnv } from '../../../../lib/env'
 import { latestCollectionUpdate, reconcileCollection } from '../../../../lib/incremental'
 import { createPatchOperations } from '../../../../lib/patch'
-import { GROUP_KEY_CANCELLED } from '../../../../lib/registration'
+import { GROUP_KEY_CANCELLED, withRegistrationOverrides } from '../../../../lib/registration'
 import { validIdTokenAtom } from '../../../state'
 import { showRegistrationSaveConflict } from '../../../state/registration/registrationSaveError'
 import { adminEventAtom } from '../events'
@@ -324,11 +324,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
     },
     async save(reg: Registration, savedRegistration?: Registration) {
       if (!token) throw new Error('missing token')
-      const regWithOverrides = {
-        ...reg,
-        handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
-        payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
-      }
+      const regWithOverrides = withRegistrationOverrides(reg)
       let saved: Registration
       try {
         if (savedRegistration) {

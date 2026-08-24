@@ -56,38 +56,33 @@ describe('OwnerInfo', () => {
     const locationInput = screen.getByRole('textbox', { name: 'contact.city' })
     const emailInput = screen.getByRole('textbox', { name: 'contact.email' })
     const phoneInput = screen.getByRole('textbox', { name: 'contact.phone' })
-    const handlerCheckbox = screen.getAllByRole('switch', { name: 'registration.ownerHandles' })[1]
-    const payerCheckbox = screen.getAllByRole('switch', { name: 'registration.ownerPays' })[1]
+
+    const expectOwnerChange = (owner: Record<string, unknown>) => {
+      const expected = expect.objectContaining(owner)
+      expect(onChange).toHaveBeenLastCalledWith({ owner: expected, owners: [expected] })
+    }
 
     await user.clear(input)
     await flushPromises()
 
-    expect(onChange).toHaveBeenLastCalledWith({
-      owner: {
-        email: 'owner@example.com',
-        location: 'Owner Location',
-        membership: false,
-        name: '',
-        phone: '+3584012345',
-      },
-      ownerHandles: true,
-      ownerPays: true,
+    expectOwnerChange({
+      email: 'owner@example.com',
+      location: 'Owner Location',
+      membership: false,
+      name: '',
+      phone: '+3584012345',
     })
     onChange.mockClear()
 
     await user.type(input, 'test owner')
     await flushPromises()
 
-    expect(onChange).toHaveBeenLastCalledWith({
-      owner: {
-        email: 'owner@example.com',
-        location: 'Owner Location',
-        membership: false,
-        name: 'test owner',
-        phone: '+3584012345',
-      },
-      ownerHandles: true,
-      ownerPays: true,
+    expectOwnerChange({
+      email: 'owner@example.com',
+      location: 'Owner Location',
+      membership: false,
+      name: 'test owner',
+      phone: '+3584012345',
     })
     onChange.mockClear()
 
@@ -95,16 +90,12 @@ describe('OwnerInfo', () => {
     await user.type(locationInput, 'test city')
     await flushPromises()
 
-    expect(onChange).toHaveBeenLastCalledWith({
-      owner: {
-        email: 'owner@example.com',
-        location: 'test city',
-        membership: false,
-        name: 'test owner',
-        phone: '+3584012345',
-      },
-      ownerHandles: true,
-      ownerPays: true,
+    expectOwnerChange({
+      email: 'owner@example.com',
+      location: 'test city',
+      membership: false,
+      name: 'test owner',
+      phone: '+3584012345',
     })
     onChange.mockClear()
 
@@ -112,16 +103,12 @@ describe('OwnerInfo', () => {
     await user.type(emailInput, 'test@exmaple.com \n')
     await flushPromises()
 
-    expect(onChange).toHaveBeenLastCalledWith({
-      owner: {
-        email: 'test@exmaple.com',
-        location: 'test city',
-        membership: false,
-        name: 'test owner',
-        phone: '+3584012345',
-      },
-      ownerHandles: true,
-      ownerPays: true,
+    expectOwnerChange({
+      email: 'test@exmaple.com',
+      location: 'test city',
+      membership: false,
+      name: 'test owner',
+      phone: '+3584012345',
     })
     onChange.mockClear()
 
@@ -129,49 +116,28 @@ describe('OwnerInfo', () => {
     await user.type(phoneInput, '40123456')
     await flushPromises()
 
-    expect(onChange).toHaveBeenLastCalledWith({
-      owner: {
-        email: 'test@exmaple.com',
-        location: 'test city',
-        membership: false,
-        name: 'test owner',
-        phone: '+358 40 123456',
-      },
-      ownerHandles: true,
-      ownerPays: true,
+    expectOwnerChange({
+      email: 'test@exmaple.com',
+      location: 'test city',
+      membership: false,
+      name: 'test owner',
+      phone: '+358 40 123456',
     })
     onChange.mockClear()
 
-    await user.click(handlerCheckbox)
+    const handlesSomeoneElse = screen.getAllByRole('radio', { name: 'registration.someoneElse' })[0]
+    const paysSomeoneElse = screen.getAllByRole('radio', { name: 'registration.someoneElse' })[1]
+
+    await user.click(handlesSomeoneElse)
     await flushPromises()
 
-    expect(onChange).toHaveBeenLastCalledWith({
-      owner: {
-        email: 'test@exmaple.com',
-        location: 'test city',
-        membership: false,
-        name: 'test owner',
-        phone: '+358 40 123456',
-      },
-      ownerHandles: false,
-      ownerPays: true,
-    })
+    expect(onChange).toHaveBeenLastCalledWith({ ownerHandles: false })
     onChange.mockClear()
 
-    await user.click(payerCheckbox)
+    await user.click(paysSomeoneElse)
     await flushPromises()
 
-    expect(onChange).toHaveBeenLastCalledWith({
-      owner: {
-        email: 'test@exmaple.com',
-        location: 'test city',
-        membership: false,
-        name: 'test owner',
-        phone: '+358 40 123456',
-      },
-      ownerHandles: false,
-      ownerPays: false,
-    })
+    expect(onChange).toHaveBeenLastCalledWith({ ownerPays: false })
     onChange.mockClear()
 
     await flushPromises()

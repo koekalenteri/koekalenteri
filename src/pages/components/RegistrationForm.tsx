@@ -33,6 +33,13 @@ import { getDiffOperations } from '../../lib/diff'
 import { isDevEnv } from '../../lib/env'
 import { formatMoney } from '../../lib/money'
 import { filterRelevantResults } from '../../lib/qualification'
+import {
+  formatOwnerNames,
+  getHandlingPerson,
+  getPayingPerson,
+  resolveOwnerSelection,
+  withDefaultOwnerSelection,
+} from '../../lib/registration'
 import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
 import { AsyncButton } from './AsyncButton'
@@ -80,7 +87,7 @@ export default function RegistrationForm({
 }: Props) {
   const { t, i18n } = useTranslation()
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const [errors, setErrors] = useState(validateRegistration(registration, event))
+  const [errors, setErrors] = useState(() => validateRegistration(registration, event, savedRegistration))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
   const [rankingPeriod, setRankingPeriod] = useState<{ min?: Date; max?: Date }>({})
 
@@ -156,10 +163,10 @@ export default function RegistrationForm({
             breeder: false,
             dog: false,
             entry: false,
-            handler: registration.ownerHandles,
+            handler: !!registration.ownerHandles,
             info: false,
             owner: false,
-            payer: registration.ownerPays,
+            payer: !!registration.ownerPays,
             qr: false,
             [id]: value,
           }
@@ -195,7 +202,7 @@ export default function RegistrationForm({
   }, [large])
 
   useEffect(() => {
-    setErrors(validateRegistration(registration, event))
+    setErrors(validateRegistration(registration, event, savedRegistration))
 
     const filtered = filterRelevantResults(
       event,
@@ -222,13 +229,22 @@ export default function RegistrationForm({
   }, [i18n.language, handleChange, registration.language, registration.id])
 
   useEffect(() => {
-    const ownerHandles = registration.ownerHandles ?? true
-    const ownerPays = registration.ownerPays ?? true
+    // An unset selection defaults to the (first) owner; a key that resolves to no owner (stale
+    // cache, concurrent owner-list change) is remapped the same way, so the form never holds a
+    // selection that names nobody.
+    const normalizeSelection = (selection: boolean | string | undefined): boolean | string => {
+      if (typeof selection === 'string') {
+        return resolveOwnerSelection(registration.owners, registration.owner, selection) ? selection : true
+      }
+      return withDefaultOwnerSelection(selection)
+    }
+    const ownerHandles = normalizeSelection(registration.ownerHandles)
+    const ownerPays = normalizeSelection(registration.ownerPays)
 
     if (registration.ownerHandles !== ownerHandles || registration.ownerPays !== ownerPays) {
       handleChange({ ownerHandles, ownerPays })
     }
-  }, [handleChange, registration.ownerHandles, registration.ownerPays])
+  }, [handleChange, registration.ownerHandles, registration.ownerPays, registration.owners, registration.owner])
 
   return (
     <Paper
@@ -449,11 +465,11 @@ function getSectionHelperTexts(
   t: TFunction<'translation', undefined>
 ): { [Property in keyof Registration]?: string } {
   return {
-    breeder: `${registration.breeder?.name || ''}`,
+    breeder: registration.breeder?.name || '',
     dog: registration.dog?.regNo ? `${registration.dog.regNo} - ${registration.dog.name}` : '',
-    handler: registration.ownerHandles ? t('registration.ownerHandles') : `${registration.handler?.name || ''}`,
-    owner: `${registration.owner?.name || ''}`,
-    payer: registration.ownerPays ? t('registration.ownerPays') : `${registration.payer?.name || ''}`,
+    handler: getHandlingPerson(registration)?.name || '',
+    owner: formatOwnerNames(registration),
+    payer: getPayingPerson(registration)?.name || '',
     qualifyingResults: t('registration.qualifyingResultsInfo', {
       class: registration.class,
       eventType: registration.eventType,

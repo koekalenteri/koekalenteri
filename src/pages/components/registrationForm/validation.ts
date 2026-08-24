@@ -8,6 +8,8 @@ import type {
   TestResult,
 } from '../../../types'
 import { differenceInMonths } from 'date-fns'
+import { validName } from '../../../lib/name'
+import { getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '../../../lib/registration'
 import { REQUIREMENTS } from '../../../rules'
 import { validatePerson } from './personValidation'
 
@@ -21,12 +23,26 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
   class: (reg, _req, evt) => evt.classes.length > 0 && !reg.class,
   dates: (reg) => reg.dates.length === 0,
   dog: (reg, _req, evt) => validateDog(evt, reg),
-  handler: (reg) => (reg.ownerHandles ? false : validatePerson(reg.handler)),
+  // The selection must resolve to an actual owner to stand in for the handler/payer; a stale key
+  // that names nobody must not skip validation, or an unvalidated person would be persisted.
+  handler: (reg) =>
+    resolveOwnerSelection(reg.owners, reg.owner, reg.ownerHandles) ? false : validatePerson(reg.handler),
   id: () => false,
   notes: () => false,
   optionalCosts: () => false,
-  owner: (reg) => validatePerson(reg.owner),
-  payer: (reg) => (reg.ownerPays ? false : validatePerson(reg.payer, false)),
+  owner: (reg) => {
+    const owners = getRegistrationOwners(reg)
+    if (!owners.length) return validatePerson(undefined)
+    for (const owner of owners) {
+      const result = validatePerson(owner)
+      if (result) return result
+    }
+    return false
+  },
+  // Validated through `owner` above.
+  owners: () => false,
+  payer: (reg) =>
+    resolveOwnerSelection(reg.owners, reg.owner, reg.ownerPays) ? false : validatePerson(reg.payer, false),
   reserve: (reg) => (reg.reserve ? false : 'reserve'),
   results: () => false,
   selectedCost: () => false,
@@ -54,7 +70,35 @@ const NOT_VALIDATED = new Set<keyof Registration>([
   'deletedBy',
 ])
 
-export function validateRegistration(registration: Registration, event: PublicConfirmedEvent) {
+/**
+ * An owner row must name a single person; co-owners get their own rows. Names that are already
+ * stored this way are grandfathered, so a legacy registration stays editable — the rule only
+ * applies to names the user is entering or changing now.
+ */
+function validateOwnerNames(
+  registration: Registration,
+  savedRegistration?: Registration | null
+): ValidationResult<Registration, 'registration'> {
+  // Grandfathering is keyed by owner identity, not by name string: a name that merely matches some
+  // other saved owner's name (e.g. after removing one owner and adding a new one with the same
+  // text) must still be validated as new input. A legacy record's owners are keyless, so both sides
+  // derive keys with `ownerKeyAt`, exactly as the form does — otherwise the first edit of a legacy
+  // registration would look up a key the saved side does not have and re-validate an old name.
+  const savedNamesByKey = new Map(
+    getRegistrationOwners(savedRegistration ?? undefined).map((owner, index) => [ownerKeyAt(owner, index), owner?.name])
+  )
+  const invalid = getRegistrationOwners(registration).some(
+    (owner, index) =>
+      owner?.name && savedNamesByKey.get(ownerKeyAt(owner, index)) !== owner.name && !validName(owner.name)
+  )
+  return invalid ? { key: 'nameFormat', opts: { field: 'owner' } } : false
+}
+
+export function validateRegistration(
+  registration: Registration,
+  event: PublicConfirmedEvent,
+  savedRegistration?: Registration | null
+) {
   const errors = []
   let field: keyof Registration
   for (field in registration) {
@@ -62,6 +106,8 @@ export function validateRegistration(registration: Registration, event: PublicCo
     const result = validateRegistrationField(registration, field, event)
     if (result) errors.push(result)
   }
+  const nameFormat = validateOwnerNames(registration, savedRegistration)
+  if (nameFormat) errors.push(nameFormat)
   return errors
 }
 
