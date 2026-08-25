@@ -1,5 +1,5 @@
 import type { DogEvent, Patch, RegistrationClass } from '../../../../types'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -56,6 +56,30 @@ export const buildStartListPublishedPatch = (
   id: event.id,
   startListPublished: published,
 })
+
+/** Save without subscribing the form controller to asynchronous event collections. */
+export const adminSaveEventAtom = atom(
+  null,
+  async (get, set, { event, formChanges }: { event: Patch<DogEvent>; formChanges?: Patch<DogEvent> }) => {
+    const currentAdminEvent = await get(adminCurrentEventAtom)
+    const saved = await putEvent(buildEventSavePatch(event, currentAdminEvent, formChanges), get(validIdTokenAtom))
+
+    set(adminEventIdAtom, saved.id)
+    await set(adminCurrentEventAtom, saved)
+
+    const publicEvents = await get(eventsAtom)
+    const index = publicEvents.findIndex((candidate) => candidate.id === saved.id)
+    const publicEvent = sanitizeDogEvent(saved)
+    if (index >= 0) {
+      const next = [...publicEvents]
+      next.splice(index, 1, publicEvent)
+      set(eventsAtom, next)
+    } else {
+      set(eventsAtom, [...publicEvents, publicEvent])
+    }
+    return saved
+  }
+)
 
 export const useAdminEventActions = () => {
   const token = useAtomValue(validIdTokenAtom)

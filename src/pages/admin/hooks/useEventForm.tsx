@@ -1,5 +1,5 @@
 import type { DogEvent, Patch } from '../../../types'
-import { useAtom } from 'jotai'
+import { useAtom, useSetAtom } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback, useRef, useState } from 'react'
@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router'
 import { APIError } from '../../../api/http'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { getChanges, isEmptyObject, isObject } from '../../../lib/utils'
-import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../state'
+import { adminEditableEventByIdAtom, adminNewEventAtom, adminSaveEventAtom } from '../state'
 
 type EventFormOptions = {
   eventId?: string
@@ -29,7 +29,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
-  const actions = useAdminEventActions()
+  const saveEvent = useSetAtom(adminSaveEventAtom)
 
   const createMode = !storedEvent
   const [changes, setChanges] = useState<Patch<DogEvent>>(getChanges(storedEvent ?? initialEvent.current, event))
@@ -53,9 +53,10 @@ export default function useEventForm(options: EventFormOptions = {}) {
     }
 
     try {
-      const saved = storedEvent
-        ? await actions.save(event, { ...changes, modifiedAt: initialEvent.current.modifiedAt })
-        : await actions.save(event)
+      const saved = await saveEvent({
+        event,
+        formChanges: storedEvent ? { ...changes, modifiedAt: initialEvent.current.modifiedAt } : undefined,
+      })
       if (saved) {
         initialEvent.current = saved
         setChanges({})
@@ -80,7 +81,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
       }
       console.error(error)
     }
-  }, [actions, changes, enqueueSnackbar, event, navigate, onDoneRedirect, resetEvent, storedEvent, t])
+  }, [changes, enqueueSnackbar, event, navigate, onDoneRedirect, resetEvent, saveEvent, storedEvent, t])
 
   const handleCancel = useCallback(() => {
     resetEvent()

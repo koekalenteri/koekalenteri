@@ -4,8 +4,10 @@ import { Provider, useAtom } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useNavigate } from 'react-router'
-import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../state'
+import { adminEditableEventByIdAtom, adminNewEventAtom } from '../state'
 import useEventForm from './useEventForm'
+
+const { mockSave } = vi.hoisted(() => ({ mockSave: vi.fn() }))
 
 // Mock dependencies
 vi.mock('react-router', async () => ({
@@ -16,9 +18,16 @@ vi.mock('notistack', async () => ({
   useSnackbar: vi.fn(),
 }))
 
-vi.mock('../state/events/actions', async () => ({
-  useAdminEventActions: vi.fn(),
-}))
+vi.mock('../state/events/actions', async () => {
+  const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
+  return {
+    adminSaveEventAtom: atom(
+      null,
+      (_get, _set, { event, formChanges }: { event: DogEvent; formChanges?: Partial<DogEvent> }) =>
+        formChanges ? mockSave(event, formChanges) : mockSave(event)
+    ),
+  }
+})
 
 vi.mock('jotai', async () => {
   const originalModule = await vi.importActual<typeof import('jotai')>('jotai')
@@ -37,7 +46,6 @@ describe('useEventForm', () => {
   const mockEnqueueSnackbar = vi.fn()
   const mockSetEvent = vi.fn()
   const mockResetEvent = vi.fn()
-  const mockSave = vi.fn()
 
   const mockEvent: DogEvent = {
     classes: [],
@@ -77,9 +85,6 @@ describe('useEventForm', () => {
     ;(useSnackbar as import('vitest').Mock).mockReturnValue({ enqueueSnackbar: mockEnqueueSnackbar })
     ;(useAtom as import('vitest').Mock).mockReturnValue([mockEvent, mockSetEvent])
     ;(useResetAtom as import('vitest').Mock).mockReturnValue(mockResetEvent)
-    ;(useAdminEventActions as import('vitest').Mock).mockReturnValue({
-      save: mockSave,
-    })
   })
 
   it('should initialize with correct state in create mode', () => {
