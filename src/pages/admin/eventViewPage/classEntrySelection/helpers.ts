@@ -19,7 +19,7 @@ interface NouGroupRuleIssues {
   maleCount: number
 }
 
-const normalizeHandlerEmail = (email: string) => email.trim().toLocaleLowerCase()
+const normalizeHandlerText = (value: string) => value.trim().toLocaleLowerCase()
 
 /**
  * Check the rules that apply specifically to participant groups in a retriever
@@ -40,15 +40,20 @@ export const getNouGroupRuleIssues = (
     if (registration.dog.gender === 'M') maleCount++
 
     const handler = getHandlingPerson(registration)
-    if (!handler?.email) continue
+    if (!handler?.email || !handler.name) continue
 
-    const key = normalizeHandlerEmail(handler.email)
-    if (!key) continue
+    const email = normalizeHandlerText(handler.email)
+    const name = normalizeHandlerText(handler.name)
+    if (!email || !name) continue
+
+    // Same email alone isn't enough to call two entries the same handler: a shared inbox
+    // (e.g. a kennel address) can be used by different people. Require both to match.
+    const key = `${email}|${name}`
 
     const current = handlers.get(key)
     handlers.set(key, {
       count: (current?.count ?? 0) + 1,
-      email: key,
+      email: current?.email ?? handler.email.trim(),
       name: current?.name ?? handler.name,
     })
   }

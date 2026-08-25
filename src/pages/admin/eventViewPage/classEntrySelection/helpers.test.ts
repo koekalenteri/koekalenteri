@@ -80,6 +80,20 @@ describe('helpers', () => {
       expect(issues?.duplicateHandlers).toEqual([{ count: 2, email: 'owner@example.com', name: 'Owner Handler' }])
     })
 
+    it('does not treat a shared email with different handler names as the same handler', () => {
+      const issues = getNouGroupRuleIssues('NOU', [
+        registration,
+        {
+          ...registration,
+          dog: { ...registration.dog, regNo: 'dog-2' },
+          handler: { ...handler, name: 'Another Handler' },
+          id: 'registration-2',
+        },
+      ])
+
+      expect(issues?.duplicateHandlers).toEqual([])
+    })
+
     it('returns no issues for other event types or empty NOU groups', () => {
       expect(getNouGroupRuleIssues('NOME-B', [registration])).toBeUndefined()
       expect(getNouGroupRuleIssues('NOU', [])).toBeUndefined()
