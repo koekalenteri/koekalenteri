@@ -15,8 +15,7 @@ export const objectsDiffer = (before: DiffInput, after: DiffInput): boolean =>
 export const getChangedTopLevelKeys = (before: DiffInput, after: DiffInput): string[] => {
   const keys = new Set<string>()
   for (const operation of getDiffOperations(before, after)) {
-    const key = operation.path[0]
-    if (key !== undefined) keys.add(String(key))
+    keys.add(String(operation.path[0]))
   }
   return [...keys]
 }
@@ -38,6 +37,19 @@ export const materializeDiffOperation = (
     const path = operation.path.slice(0, length)
     const value = valueAtPath(after, path)
     if (Array.isArray(value)) return { path, value }
+
+    // DynamoDB update paths cannot distinguish a numeric map key (for example a
+    // breed code such as cost.breed["110"]) from an array index. Replace the
+    // containing map instead of emitting the invalid path cost.breed[110].
+    const nextSegment = operation.path[length]
+    if (
+      nextSegment !== undefined &&
+      String(Number(nextSegment)) === String(nextSegment) &&
+      value !== null &&
+      typeof value === 'object'
+    ) {
+      return { path, value }
+    }
   }
 
   return {

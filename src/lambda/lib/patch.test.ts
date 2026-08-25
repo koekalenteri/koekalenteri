@@ -221,6 +221,30 @@ describe('createPatch', () => {
     })
   })
 
+  it('replaces maps with numeric keys instead of treating those keys as array indexes', () => {
+    const existing = {
+      cost: { breed: { '110': 5 }, normal: 12 },
+      costMember: { breed: { '110': 5 }, normal: 0 },
+      id: '1',
+    }
+    const next = {
+      cost: { breed: { '110': 0, '111': 0 }, normal: 12 },
+      costMember: { breed: { '110': 0, '111': 0 }, normal: 0 },
+      id: '1',
+    }
+
+    expect(createPatch(next, existing)).toEqual({
+      changes: {
+        cost: { breed: next.cost.breed },
+        costMember: { breed: next.costMember.breed },
+      },
+      set: {
+        'cost.breed': next.cost.breed,
+        'costMember.breed': next.costMember.breed,
+      },
+    })
+  })
+
   it('uses dotted paths for fields added to and removed from existing parents', () => {
     const existing = { contact: { name: 'Secretary', phone: '123' }, id: '1' }
     const next = { contact: { email: 'new@example.com', name: 'Secretary' }, id: '1' }

@@ -15,6 +15,10 @@ describe('diff helpers', () => {
     ])
   })
 
+  it('normalizes nullish root inputs to empty objects', () => {
+    expect(getDiffOperations(null, undefined)).toEqual([])
+  })
+
   it('compares undefined, null, and dates', () => {
     expect(objectsDiffer({ value: null }, { value: null })).toBe(false)
     expect(objectsDiffer({ value: undefined }, {})).toBe(true)
@@ -54,6 +58,27 @@ describe('diff helpers', () => {
     const after = { contact: { phones: [{ number: '456' }] } }
 
     expect(getNestedChanges(before, after)).toEqual({ contact: { phones: after.contact.phones } })
+  })
+
+  it.each([
+    [{ breed: { '110': 5 } }, { breed: { '110': 0 } }],
+    [{ breed: { '110': 5 } }, { breed: { '110': 5, '111': 0 } }],
+    [{ breed: { '110': 5, '111': 0 } }, { breed: { '110': 5 } }],
+  ])('materializes the containing map when numeric map keys are changed, added, or removed', (before, after) => {
+    expect(getNestedChanges(before, after)).toEqual({ breed: after.breed })
+  })
+
+  it('does not treat numeric-looking keys with leading zeroes as array indexes', () => {
+    const before = { breed: { '011': 5 } }
+    const after = { breed: { '011': 0 } }
+
+    expect(getNestedChanges(before, after)).toEqual({ breed: { '011': 0 } })
+  })
+
+  it.each([null, 'not-an-object'])('falls through when a numeric segment has a %s parent', (parent) => {
+    expect(
+      materializeDiffOperation({ oldValue: 1, path: ['parent', '110'], type: 'CHANGE', value: 2 }, { parent } as object)
+    ).toEqual({ path: ['parent', '110'], value: 2 })
   })
 
   it('materializes diff operations with the canonical persisted path and value', () => {
