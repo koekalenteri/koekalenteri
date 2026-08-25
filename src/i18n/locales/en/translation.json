@@ -833,7 +833,7 @@
       "dogResults": "Dog is missing required results for entry.",
       "dogSM": "Only dogs registered in Finland are eligible to enter the Finnish Championship test",
       "email": "The email address is invalid",
-      "nameFormat": "A name field can hold only one person (the characters & or / or the word \"ja\") \u2014 add each owner as a row of their own.",
+      "nameFormat": "A name field can hold only one person — add each owner as a row of their own.",
       "phone": "The phone number is invalid",
       "required": "$t(registration.{{field}}) is incomplete",
       "reserve": "Select participation from reserve position",
