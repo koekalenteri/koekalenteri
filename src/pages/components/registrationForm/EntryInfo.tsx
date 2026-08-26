@@ -169,11 +169,12 @@ export function EntryInfo({
   // Helper to get valid dates based on class
   const getValidDates = useCallback(
     (classValue?: RegistrationClass | null) => {
-      const availableDates =
-        classValue || !showDatesAndTimes ? registrationDates(event, groups, classValue) : datesAndTimes
+      // datesAndTimes is derived from reg.class, so it is stale only while a class change is
+      // pending (classValue set) — then the new class's dates are computed from the event.
+      const availableDates = classValue ? registrationDates(event, groups, classValue) : datesAndTimes
       return availableDates.filter(isValidRegistrationDate)
     },
-    [event, groups, isValidRegistrationDate, showDatesAndTimes, datesAndTimes]
+    [event, groups, isValidRegistrationDate, datesAndTimes]
   )
 
   // Helper to handle date filtering

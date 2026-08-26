@@ -218,6 +218,48 @@ describe('EntryInfo', () => {
     })
   })
 
+  it('should update dates to match the new class in a single-group (NOWT) event', async () => {
+    const nowtEvent = {
+      ...eventWithStaticDatesAnd3Classes,
+      eventType: 'NOWT',
+      id: 'nowt-event-3-classes',
+    }
+    const reg = {
+      ...registrationWithStaticDatesAndClass,
+      class: undefined,
+      dates: [],
+      eventId: nowtEvent.id,
+      eventType: nowtEvent.eventType,
+    }
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
+    const renderEntryInfo = () => (
+      <EntryInfo reg={reg} event={nowtEvent} errorStates={{}} helperTexts={{}} onChange={changeHandler} />
+    )
+
+    const { user, rerender } = renderWithUserEvents(
+      renderEntryInfo(),
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+    rerender(renderEntryInfo())
+    await flushPromises()
+
+    expect(reg.class).toBe('ALO')
+    expect(reg.dates).toEqual([{ date: nowtEvent.startDate, time: 'kp' }])
+
+    const classInput = screen.getByRole('combobox', { name: 'registration.class' })
+    await user.click(classInput)
+    await flushPromises()
+    await user.click(screen.getByText('VOI'))
+    await flushPromises()
+    rerender(renderEntryInfo())
+    await flushPromises()
+
+    expect(reg.class).toBe('VOI')
+    expect(reg.dates).toEqual([{ date: nowtEvent.endDate, time: 'kp' }])
+  })
+
   it('should show error states when provided', async () => {
     render(
       <EntryInfo
