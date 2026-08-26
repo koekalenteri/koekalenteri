@@ -31,6 +31,7 @@ import {
   newEventEntryStartDate,
   newEventStartDate,
   placesForClass,
+  registrationDatesOutsideClass,
   sanitizeDogEvent,
 } from './event'
 
@@ -968,5 +969,60 @@ describe('placesForClass', () => {
   it('falls back to the event-wide total when there is no per-class or per-day data', () => {
     const event = { classes: [{ class: 'ALO' as const }], places: 20 }
     expect(placesForClass(event, 'ALO')).toBe(20)
+  })
+})
+
+describe('registrationDatesOutsideClass', () => {
+  // 2026-09-25T21:00Z is 26.9. and 2026-09-26T21:00Z is 27.9. in the event time zone
+  const event = {
+    classes: [
+      { class: 'ALO', date: '2026-09-25T21:00:00.000Z' },
+      { class: 'AVO', date: '2026-09-25T21:00:00.000Z' },
+      { class: 'VOI', date: '2026-09-26T21:00:00.000Z' },
+    ],
+    endDate: '2026-09-27T20:59:59.999Z',
+    startDate: '2026-09-25T21:00:00.000Z',
+  }
+
+  it('returns an empty array for empty or missing dates', () => {
+    expect(registrationDatesOutsideClass(event, 'VOI', [])).toEqual([])
+    expect(registrationDatesOutsideClass(event, 'VOI', undefined)).toEqual([])
+  })
+
+  it('accepts dates that fall on the class days', () => {
+    expect(registrationDatesOutsideClass(event, 'VOI', [{ date: '2026-09-26T21:00:00.000Z', time: 'kp' }])).toEqual([])
+    expect(registrationDatesOutsideClass(event, 'ALO', [{ date: '2026-09-25T21:00:00.000Z', time: 'kp' }])).toEqual([])
+  })
+
+  it('returns the dates that fall outside the class days', () => {
+    const dates = [{ date: '2026-09-25T21:00:00.000Z', time: 'kp' }]
+    expect(registrationDatesOutsideClass(event, 'VOI', dates)).toEqual(dates)
+  })
+
+  it('accepts Date-typed dates too', () => {
+    const dateEvent = {
+      classes: [{ class: 'VOI', date: new Date('2026-09-26T21:00:00.000Z') }],
+      endDate: new Date('2026-09-27T20:59:59.999Z'),
+      startDate: new Date('2026-09-25T21:00:00.000Z'),
+    }
+    const mismatch = [{ date: new Date('2026-09-25T21:00:00.000Z') }]
+    expect(registrationDatesOutsideClass(dateEvent, 'VOI', mismatch)).toEqual(mismatch)
+    expect(registrationDatesOutsideClass(dateEvent, 'VOI', [{ date: new Date('2026-09-26T21:00:00.000Z') }])).toEqual(
+      []
+    )
+  })
+
+  it('falls back to the whole event range when the event has no classes for the registration', () => {
+    const noClasses = { classes: [], endDate: event.endDate, startDate: event.startDate }
+    expect(registrationDatesOutsideClass(noClasses, undefined, [{ date: '2026-09-25T21:00:00.000Z' }])).toEqual([])
+    expect(registrationDatesOutsideClass(noClasses, undefined, [{ date: '2026-09-26T21:00:00.000Z' }])).toEqual([])
+    const outside = [{ date: '2026-09-27T21:00:00.000Z' }]
+    expect(registrationDatesOutsideClass(noClasses, undefined, outside)).toEqual(outside)
+  })
+
+  it('falls back to the whole event range when the registration class is not in the event', () => {
+    expect(registrationDatesOutsideClass(event, 'VAL', [{ date: '2026-09-25T21:00:00.000Z' }])).toEqual([])
+    const outside = [{ date: '2026-09-24T21:00:00.000Z' }]
+    expect(registrationDatesOutsideClass(event, 'VAL', outside)).toEqual(outside)
   })
 })

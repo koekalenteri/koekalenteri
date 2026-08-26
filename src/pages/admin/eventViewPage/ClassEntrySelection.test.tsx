@@ -54,4 +54,39 @@ describe('ClassEntrySelection', () => {
     await flushPromises()
     expect(container).toMatchSnapshot()
   })
+
+  it('shows a warning icon for a registration whose dates are not on the class days', async () => {
+    // VOI runs on the event's end date; the registration picks the start date instead
+    const registrations: Registration[] = [
+      {
+        ...registrationWithStaticDates,
+        class: 'VOI',
+        dates: [{ date: eventWithStaticDatesAnd3Classes.startDate, time: 'kp' }],
+      },
+    ]
+
+    const { container } = render(
+      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="VOI" registrations={registrations} />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+    expect(container.querySelector('[data-testid="WarningAmberOutlinedIcon"]')).toBeInTheDocument()
+  })
+
+  it('does not show a warning icon when the dates are on the class days', async () => {
+    const registrations: Registration[] = [
+      {
+        ...registrationWithStaticDates,
+        class: 'VOI',
+        dates: [{ date: eventWithStaticDatesAnd3Classes.endDate, time: 'kp' }],
+      },
+    ]
+
+    const { container } = render(
+      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="VOI" registrations={registrations} />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+    expect(container.querySelector('[data-testid="WarningAmberOutlinedIcon"]')).not.toBeInTheDocument()
+  })
 })

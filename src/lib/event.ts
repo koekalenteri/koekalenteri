@@ -117,6 +117,35 @@ export const uniqueClassDates = (event: PublicDogEvent, eventClass: string) => {
   return uniqueDate(classes.filter((item) => item.class === eventClass).map((item) => item.date ?? event.startDate))
 }
 
+/**
+ * The registration's dates that don't fall on any day its class runs on — or, when the event has
+ * no classes for it, on any day of the event. Days are compared in the event time zone; accepts
+ * both the Date- and string-dated shapes.
+ */
+export const registrationDatesOutsideClass = <T extends { date: Date | string }>(
+  event: {
+    classes?: Array<{ class: string; date?: Date | string }> | null
+    endDate: Date | string
+    startDate: Date | string
+  },
+  regClass: string | undefined | null,
+  dates: readonly T[] | undefined
+): T[] => {
+  if (!dates?.length) return []
+  const classes = Array.isArray(event.classes) ? event.classes : []
+  const classItems = regClass ? classes.filter((item) => item.class === regClass) : classes
+  if (classItems.length) {
+    const classDays = new Set(classItems.map((item) => formatDate(item.date ?? event.startDate, 'yyyy-MM-dd')))
+    return dates.filter((rd) => !classDays.has(formatDate(rd.date, 'yyyy-MM-dd')))
+  }
+  const firstDay = formatDate(event.startDate, 'yyyy-MM-dd')
+  const lastDay = formatDate(event.endDate, 'yyyy-MM-dd')
+  return dates.filter((rd) => {
+    const day = formatDate(rd.date, 'yyyy-MM-dd')
+    return day < firstDay || day > lastDay
+  })
+}
+
 export const registrationDates = (event: PublicDogEvent, times: RegistrationTime[], eventClass?: string | null) =>
   (eventClass ? uniqueClassDates(event, eventClass) : eventDates(event)).flatMap<RegistrationDate>((date) =>
     times.map((time) => ({ date, time }))

@@ -7,10 +7,13 @@ import EmailOutlined from '@mui/icons-material/EmailOutlined'
 import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
 import LowPriorityOutlined from '@mui/icons-material/LowPriorityOutlined'
 import SwapHorizOutlined from '@mui/icons-material/SwapHorizOutlined'
+import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined'
 import CircularProgress from '@mui/material/CircularProgress'
+import Tooltip from '@mui/material/Tooltip'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { registrationDatesOutsideClass } from '../../../../lib/event'
 import {
   canRefund,
   GROUP_KEY_CANCELLED,
@@ -212,12 +215,26 @@ export function useClassEntrySelectionColumns(
         field: 'dates',
         headerName: '',
         minWidth: 56,
-        renderCell: (p) => (
-          <>
-            <DragIndicatorOutlined />
-            <GroupColors available={available} selected={p.row.dates} />
-          </>
-        ),
+        renderCell: (p) => {
+          const outside = p.row.cancelled ? [] : registrationDatesOutsideClass(event, p.row.class, p.row.dates)
+          return (
+            <>
+              <DragIndicatorOutlined />
+              {outside.length ? (
+                <Tooltip
+                  title={t(p.row.class ? 'eventManagement.datesOutsideClass' : 'eventManagement.datesOutsideEvent', {
+                    class: p.row.class,
+                    dates: outside.map((rd) => t('dateFormat.date', { date: rd.date })).join(', '),
+                  })}
+                >
+                  <WarningAmberOutlined color="warning" />
+                </Tooltip>
+              ) : (
+                <GroupColors available={available} selected={p.row.dates} />
+              )}
+            </>
+          )
+        },
         width: 56,
       },
       {

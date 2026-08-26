@@ -11,7 +11,8 @@ import type {
   TestResult,
 } from '../../types'
 import { nanoid } from 'nanoid'
-import { isEntryOpen, isEventOver } from '../../lib/event'
+import { formatDate } from '../../i18n/dates'
+import { isEntryOpen, isEventOver, registrationDatesOutsideClass } from '../../lib/event'
 import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
 import { filterRelevantResults } from '../../lib/qualification'
 import {
@@ -22,7 +23,7 @@ import {
   isParticipantGroup,
   isPublicRegistrationOperationField,
 } from '../../lib/registration'
-import { isObject, patchMerge } from '../../lib/utils'
+import { isObject, patchMerge, unique } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { audit, auditStrict, registrationAuditKey } from '../lib/audit'
@@ -92,6 +93,23 @@ const getAuditMessage = (
   if (!existing) return 'Ilmoittautui'
 
   return getRegistrationChanges(existing, data)
+}
+
+/**
+ * Audit message for a registration whose chosen dates don't fall on its class's (or the event's)
+ * days. The registration is still accepted — the secretary can fix the dates — but the mismatch
+ * is recorded in the registration's audit trail.
+ */
+const getDateMismatchAuditMessage = (
+  registration: JsonRegistration,
+  confirmedEvent: JsonConfirmedEvent
+): string | undefined => {
+  const mismatches = registrationDatesOutsideClass(confirmedEvent, registration.class, registration.dates)
+  if (!mismatches.length) return undefined
+
+  const days = unique(mismatches.map((rd) => formatDate(rd.date, 'd.M.yyyy'))).join(', ')
+  const target = registration.class ? `luokan ${registration.class}` : 'tapahtuman'
+  return `Valitut päivät (${days}) eivät ole ${target} päiviä`
 }
 
 const toTestResult = (result: JsonTestResult): TestResult => ({ ...result, date: new Date(result.date) })
@@ -195,6 +213,10 @@ const completeNewRegistration = async (
         { auditKey: registrationAuditKey(saved), message: 'Ilmoittautui', user: username },
         saved.createdAt
       )
+      const mismatchMessage = getDateMismatchAuditMessage(saved, confirmedEvent)
+      if (mismatchMessage) {
+        await audit({ auditKey: registrationAuditKey(saved), message: mismatchMessage, user: username })
+      }
       await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationAuditAt')
     }
 
@@ -470,6 +492,15 @@ const finalizeRegistrationUpdate = async ({
   }
   const message = getAuditMessage(cancel, confirm, savedData, existing)
   if (message) await audit({ auditKey: registrationAuditKey(savedData), message, user: username })
+
+  const datesChanged =
+    existing.class !== savedData.class || JSON.stringify(existing.dates) !== JSON.stringify(savedData.dates)
+  if (datesChanged && !savedData.cancelled) {
+    const mismatchMessage = getDateMismatchAuditMessage(savedData, confirmedEvent)
+    if (mismatchMessage) {
+      await audit({ auditKey: registrationAuditKey(savedData), message: mismatchMessage, user: username })
+    }
+  }
 
   const context = getEmailContext(update, cancel, confirm, invitation)
   const shouldSend =

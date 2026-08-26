@@ -1,7 +1,7 @@
 import type { JsonDogEvent, JsonRegistration, Registration } from '../../types'
 import { addDays, addMinutes } from 'date-fns'
 import { vi } from 'vitest'
-import { eventWithStaticDates } from '../../__mockData__/events'
+import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
@@ -204,6 +204,38 @@ describe('putRegistrationLabmda', () => {
     const responseRegistration = JSON.parse(res.body)
     expect(responseRegistration.editToken).toMatch(/^[A-Za-z0-9_-]{43}$/)
     expect(responseRegistration.editTokenVersion).toBeUndefined()
+  })
+
+  it('audits a warning when a new registration has dates outside its class days', async () => {
+    vi.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDatesAnd3Classes)))
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...registration } = registrationWithStaticDates
+    // VOI runs on the event's end date; the registration picks the start date instead
+    const mismatching = {
+      ...registration,
+      class: 'VOI',
+      dates: [{ date: eventWithStaticDatesAnd3Classes.startDate, time: 'kp' }],
+      eventId: eventWithStaticDatesAnd3Classes.id,
+      eventType: eventWithStaticDatesAnd3Classes.eventType,
+    }
+    mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce({
+      registration: JSON.parse(JSON.stringify({ ...mismatching, id: 'mismatch-reg' })),
+      release: async () => undefined,
+      token: 'test-token',
+    })
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent(mismatching))
+
+    expect(res.statusCode).toEqual(200)
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Ilmoittautui' }),
+      'audit-table-not-found-in-env'
+    )
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Valitut päivät (10.2.2021) eivät ole luokan VOI päiviä' }),
+      'audit-table-not-found-in-env'
+    )
+    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
   })
 
   it('rejects an update when edit-token authorization fails', async () => {
