@@ -89,7 +89,7 @@ export function SideMenu({ open, onClose }: Props) {
               icon={<MailOutline />}
             />
             <DrawerItem
-              to={Path.admin.trialStats}
+              to={Path.admin.organizerStats}
               onClick={onClose}
               text={t('stats.admin.trialStatsTitle')}
               icon={<QueryStatsOutlined />}

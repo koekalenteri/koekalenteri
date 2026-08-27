@@ -489,11 +489,14 @@ const breedStartRecords = (buckets: Map<string, BreedStartBucket>, updatedAt: st
   }))
 
 interface TrialBucket {
+  cancelledRegistrations: number
   eventCount: number
   eventType: string
   handlerIds: Set<string>
+  memberStarters: number
   organizerId: string
   places: number
+  reserve: number
   starters: number
   year: number
 }
@@ -511,11 +514,14 @@ const getOrCreateTrialBucket = (
   if (existing) return existing
 
   const bucket: TrialBucket = {
+    cancelledRegistrations: 0,
     eventCount: 0,
     eventType,
     handlerIds: new Set(),
+    memberStarters: 0,
     organizerId,
     places: 0,
+    reserve: 0,
     starters: 0,
     year,
   }
@@ -559,9 +565,10 @@ const seedTrialsFromEvents = (eventsById: Map<string, EventStatsEvent>, buckets:
 
 /**
  * Attributes one registration's start and handler to its year + club + event type trial bucket
- * (and that club's cross-type subtotal, and the grand total). Only actual starters count as
- * "participating" -- reserve entries never started, and cancelled entries never had a real
- * chance to.
+ * (and that club's cross-type subtotal, and the grand total). Reserve and cancelled entries are
+ * counted separately rather than dropped, and a starter's handler/owner membership feeds
+ * `memberStarters` -- only actual starters count toward `handlerIds`, since reserve and cancelled
+ * entries never started.
  */
 const addTrialRegistration = (
   registration: CapacityRegistrationInput,
@@ -569,24 +576,34 @@ const addTrialRegistration = (
   year: number,
   buckets: Map<string, TrialBucket>
 ): void => {
-  if (!countsTowardsCapacity(event) || registration.cancelled || !isParticipantGroup(registration.group?.key)) return
+  if (!countsTowardsCapacity(event)) return
 
   const handlerId = hashStatValue(registration.handler?.email)
   for (const [organizerId, eventType] of trialBucketTargets(event.organizer.id, event.eventType)) {
     const bucket = getOrCreateTrialBucket(buckets, year, organizerId, eventType)
-    bucket.starters += 1
-    bucket.handlerIds.add(handlerId)
+    if (registration.cancelled) {
+      bucket.cancelledRegistrations += 1
+    } else if (isParticipantGroup(registration.group?.key)) {
+      bucket.starters += 1
+      bucket.handlerIds.add(handlerId)
+      if (isMember(registration)) bucket.memberStarters += 1
+    } else {
+      bucket.reserve += 1
+    }
   }
 }
 
 const trialsRecords = (buckets: Map<string, TrialBucket>, updatedAt: string): JsonTrialStatsItem[] =>
   [...buckets.values()].map((bucket) => ({
+    cancelledRegistrations: bucket.cancelledRegistrations,
     eventCount: bucket.eventCount,
     eventType: bucket.eventType,
     handlerCount: bucket.handlerIds.size,
+    memberStarters: bucket.memberStarters,
     organizerId: bucket.organizerId,
     PK: `TRIALS#${bucket.year}`,
     places: bucket.places,
+    reserve: bucket.reserve,
     SK: `${bucket.organizerId}#${bucket.eventType}`,
     starters: bucket.starters,
     updatedAt,

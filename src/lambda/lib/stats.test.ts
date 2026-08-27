@@ -813,8 +813,28 @@ describe('lib/stats', () => {
       })
 
       expect(result).toEqual([
-        { eventCount: 5, eventType: 'NOU', handlerCount: 40, organizerId: 'organizer-1', places: 100, starters: 90 },
-        { eventCount: 8, eventType: 'ALL', handlerCount: 60, organizerId: 'ALL', places: 200, starters: 180 },
+        {
+          cancelledRegistrations: 0,
+          eventCount: 5,
+          eventType: 'NOU',
+          handlerCount: 40,
+          memberStarters: 0,
+          organizerId: 'organizer-1',
+          places: 100,
+          reserve: 0,
+          starters: 90,
+        },
+        {
+          cancelledRegistrations: 0,
+          eventCount: 8,
+          eventType: 'ALL',
+          handlerCount: 60,
+          memberStarters: 0,
+          organizerId: 'ALL',
+          places: 200,
+          reserve: 0,
+          starters: 180,
+        },
       ])
     })
 

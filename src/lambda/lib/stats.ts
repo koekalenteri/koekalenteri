@@ -436,17 +436,23 @@ export async function getTrialStats(year: number): Promise<TrialStatsEntry[]> {
     places: number
     starters: number
     handlerCount: number
+    reserve: number
+    cancelledRegistrations: number
+    memberStarters: number
   }>({
     key: 'PK = :pk',
     values: { ':pk': `TRIALS#${year}` },
   })
 
   return (items || []).map((item) => ({
+    cancelledRegistrations: item.cancelledRegistrations ?? 0,
     eventCount: item.eventCount ?? 0,
     eventType: item.eventType,
     handlerCount: item.handlerCount ?? 0,
+    memberStarters: item.memberStarters ?? 0,
     organizerId: item.organizerId,
     places: item.places ?? 0,
+    reserve: item.reserve ?? 0,
     starters: item.starters ?? 0,
   }))
 }

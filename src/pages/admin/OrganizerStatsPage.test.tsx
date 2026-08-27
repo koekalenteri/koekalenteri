@@ -11,7 +11,7 @@ import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_TRIALS } from '../../types/Stats'
 import { idTokenAtom } from '../state'
-import TrialStatsPage from './TrialStatsPage'
+import OrganizerStatsPage from './OrganizerStatsPage'
 
 vi.mock('../../api/stats')
 vi.mock('../../api/user')
@@ -40,21 +40,21 @@ const renderAsAdmin = () =>
       <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
         <MemoryRouter>
           <Suspense fallback={<div>loading...</div>}>
-            <TrialStatsPage />
+            <OrganizerStatsPage />
           </Suspense>
         </MemoryRouter>
       </Provider>
     </ThemeProvider>
   )
 
-describe('TrialStatsPage', () => {
+describe('OrganizerStatsPage', () => {
   beforeAll(() => vi.useFakeTimers())
   afterEach(() => vi.runOnlyPendingTimers())
   afterAll(() => vi.useRealTimers())
 
   it('redirects to the admin index for a user who is not a site admin', async () => {
     const routes = [
-      { element: <TrialStatsPage />, path: Path.admin.trialStats },
+      { element: <OrganizerStatsPage />, path: Path.admin.organizerStats },
       { element: <>Admin Index</>, path: Path.admin.index },
     ]
 
@@ -62,7 +62,7 @@ describe('TrialStatsPage', () => {
       <ThemeProvider theme={theme}>
         <Provider>
           <Suspense fallback={<div>loading...</div>}>
-            <DataMemoryRouter initialEntries={[Path.admin.trialStats]} routes={routes} />
+            <DataMemoryRouter initialEntries={[Path.admin.organizerStats]} routes={routes} />
           </Suspense>
         </Provider>
       </ThemeProvider>
@@ -75,30 +75,59 @@ describe('TrialStatsPage', () => {
   it('renders one row per club + event type, a subtotal per club, and a nationwide grand total', async () => {
     vi.mocked(getAllYearlyStats).mockResolvedValue(
       payload([
-        { eventCount: 5, eventType: 'NOU', handlerCount: 40, organizerId: '2', places: 100, starters: 90 },
         {
+          cancelledRegistrations: 3,
+          eventCount: 5,
+          eventType: 'NOU',
+          handlerCount: 40,
+          memberStarters: 50,
+          organizerId: '2',
+          places: 100,
+          reserve: 10,
+          starters: 90,
+        },
+        {
+          cancelledRegistrations: 3,
           eventCount: 5,
           eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
           handlerCount: 40,
+          memberStarters: 50,
           organizerId: '2',
           places: 100,
+          reserve: 10,
           starters: 90,
         },
-        { eventCount: 3, eventType: 'NOME-B', handlerCount: 15, organizerId: '1', places: 30, starters: 20 },
         {
+          cancelledRegistrations: 2,
           eventCount: 3,
-          eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
+          eventType: 'NOME-B',
           handlerCount: 15,
+          memberStarters: 12,
           organizerId: '1',
           places: 30,
+          reserve: 4,
           starters: 20,
         },
         {
+          cancelledRegistrations: 2,
+          eventCount: 3,
+          eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
+          handlerCount: 15,
+          memberStarters: 12,
+          organizerId: '1',
+          places: 30,
+          reserve: 4,
+          starters: 20,
+        },
+        {
+          cancelledRegistrations: 5,
           eventCount: 8,
           eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
           handlerCount: 54,
+          memberStarters: 62,
           organizerId: ALL_ORGANIZERS_FOR_TRIALS,
           places: 130,
+          reserve: 14,
           starters: 110,
         },
       ])
@@ -120,6 +149,9 @@ describe('TrialStatsPage', () => {
     expect(club1Row).toHaveTextContent('30')
     expect(club1Row).toHaveTextContent('20')
     expect(club1Row).toHaveTextContent('15')
+    expect(club1Row).toHaveTextContent('4')
+    expect(club1Row).toHaveTextContent('2')
+    expect(club1Row).toHaveTextContent('12')
 
     const club2Row = screen.getByText('NOU').closest('tr')
     expect(club2Row).toHaveTextContent('Järjestäjä 2')
@@ -127,6 +159,9 @@ describe('TrialStatsPage', () => {
     expect(club2Row).toHaveTextContent('100')
     expect(club2Row).toHaveTextContent('90')
     expect(club2Row).toHaveTextContent('40')
+    expect(club2Row).toHaveTextContent('10')
+    expect(club2Row).toHaveTextContent('3')
+    expect(club2Row).toHaveTextContent('50')
 
     // Each club's subtotal row repeats its own totals under "Yhteensä" -- only one event type
     // each in this fixture, so the subtotal numbers match the single row above it.
@@ -138,6 +173,9 @@ describe('TrialStatsPage', () => {
     expect(grandTotalRow).toHaveTextContent('130')
     expect(grandTotalRow).toHaveTextContent('110')
     expect(grandTotalRow).toHaveTextContent('54')
+    expect(grandTotalRow).toHaveTextContent('14')
+    expect(grandTotalRow).toHaveTextContent('5')
+    expect(grandTotalRow).toHaveTextContent('62')
 
     // The cross-type/cross-club sentinel values are never shown as literal event types or club names.
     expect(screen.queryByText(ALL_EVENT_TYPES_FOR_CAPACITY)).not.toBeInTheDocument()

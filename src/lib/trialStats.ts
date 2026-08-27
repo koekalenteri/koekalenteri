@@ -63,6 +63,9 @@ export function trialStatsSpreadsheetRows(
       t('stats.admin.trialStatsPlaces'),
       t('stats.admin.trialStatsStarters'),
       t('stats.admin.trialStatsHandlers'),
+      t('stats.admin.trialStatsReserve'),
+      t('stats.admin.trialStatsCancelled'),
+      t('stats.admin.trialStatsMembers'),
     ],
     ...rows.map((row) => [
       row.organizerName,
@@ -71,9 +74,24 @@ export function trialStatsSpreadsheetRows(
       row.places,
       row.starters,
       row.handlerCount,
+      row.reserve ?? 0,
+      row.cancelledRegistrations ?? 0,
+      row.memberStarters ?? 0,
     ]),
     ...(grandTotal
-      ? [[totalLabel, '', grandTotal.eventCount, grandTotal.places, grandTotal.starters, grandTotal.handlerCount]]
+      ? [
+          [
+            totalLabel,
+            '',
+            grandTotal.eventCount,
+            grandTotal.places,
+            grandTotal.starters,
+            grandTotal.handlerCount,
+            grandTotal.reserve ?? 0,
+            grandTotal.cancelledRegistrations ?? 0,
+            grandTotal.memberStarters ?? 0,
+          ],
+        ]
       : []),
   ]
 }

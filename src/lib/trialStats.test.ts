@@ -7,9 +7,12 @@ const t = ((key: string) =>
   ({
     organization: 'Organization',
     'stats.admin.eventType': 'Event type',
+    'stats.admin.trialStatsCancelled': 'Cancelled',
     'stats.admin.trialStatsEvents': 'Trials',
     'stats.admin.trialStatsHandlers': 'Handlers',
+    'stats.admin.trialStatsMembers': 'Members',
     'stats.admin.trialStatsPlaces': 'Places',
+    'stats.admin.trialStatsReserve': 'Reserve',
     'stats.admin.trialStatsStarters': 'Starts',
     'stats.admin.trialStatsTotal': 'Total',
   })[key] ?? key) as TFunction
@@ -87,37 +90,65 @@ describe('buildTrialStatsTable', () => {
 describe('trialStatsSpreadsheetRows', () => {
   it('builds a header row, one row per table row, and a trailing grand total row', () => {
     const entries: TrialStatsEntry[] = [
-      { eventCount: 1, eventType: 'NOU', handlerCount: 5, organizerId: '1', places: 10, starters: 8 },
       {
+        cancelledRegistrations: 1,
         eventCount: 1,
-        eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
+        eventType: 'NOU',
         handlerCount: 5,
+        memberStarters: 3,
         organizerId: '1',
         places: 10,
+        reserve: 2,
         starters: 8,
       },
       {
+        cancelledRegistrations: 1,
         eventCount: 1,
         eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
         handlerCount: 5,
+        memberStarters: 3,
+        organizerId: '1',
+        places: 10,
+        reserve: 2,
+        starters: 8,
+      },
+      {
+        cancelledRegistrations: 1,
+        eventCount: 1,
+        eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
+        handlerCount: 5,
+        memberStarters: 3,
         organizerId: ALL_ORGANIZERS_FOR_TRIALS,
         places: 10,
+        reserve: 2,
         starters: 8,
       },
     ]
     const { grandTotal, rows } = buildTrialStatsTable(entries, organizerName)
 
     expect(trialStatsSpreadsheetRows(rows, grandTotal, t)).toEqual([
-      ['Organization', 'Event type', 'Trials', 'Places', 'Starts', 'Handlers'],
-      ['Club One', 'NOU', 1, 10, 8, 5],
-      ['Club One', 'Total', 1, 10, 8, 5],
-      ['Total', '', 1, 10, 8, 5],
+      ['Organization', 'Event type', 'Trials', 'Places', 'Starts', 'Handlers', 'Reserve', 'Cancelled', 'Members'],
+      ['Club One', 'NOU', 1, 10, 8, 5, 2, 1, 3],
+      ['Club One', 'Total', 1, 10, 8, 5, 2, 1, 3],
+      ['Total', '', 1, 10, 8, 5, 2, 1, 3],
+    ])
+  })
+
+  it('defaults the new optional columns to zero when absent from an entry', () => {
+    const entries: TrialStatsEntry[] = [
+      { eventCount: 1, eventType: 'NOU', handlerCount: 5, organizerId: '1', places: 10, starters: 8 },
+    ]
+    const { grandTotal, rows } = buildTrialStatsTable(entries, organizerName)
+
+    expect(trialStatsSpreadsheetRows(rows, grandTotal, t)).toEqual([
+      ['Organization', 'Event type', 'Trials', 'Places', 'Starts', 'Handlers', 'Reserve', 'Cancelled', 'Members'],
+      ['Club One', 'NOU', 1, 10, 8, 5, 0, 0, 0],
     ])
   })
 
   it('omits the trailing total row when there is no grand total', () => {
     expect(trialStatsSpreadsheetRows([], undefined, t)).toEqual([
-      ['Organization', 'Event type', 'Trials', 'Places', 'Starts', 'Handlers'],
+      ['Organization', 'Event type', 'Trials', 'Places', 'Starts', 'Handlers', 'Reserve', 'Cancelled', 'Members'],
     ])
   })
 })

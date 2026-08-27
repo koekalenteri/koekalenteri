@@ -575,12 +575,15 @@ describe('statsRebuild', () => {
       expect(records).toEqual(
         expect.arrayContaining([
           {
+            cancelledRegistrations: 0,
             eventCount: 1,
             eventType: 'NOU',
             handlerCount: 0,
+            memberStarters: 0,
             organizerId: 'organizer-nou-event',
             PK: 'TRIALS#2025',
             places: 15,
+            reserve: 0,
             SK: 'organizer-nou-event#NOU',
             starters: 0,
             updatedAt: '2025-01-01T00:00:00.000Z',
@@ -605,7 +608,7 @@ describe('statsRebuild', () => {
       )
     })
 
-    it('counts starters and distinct handlers per club + event type, excluding reserve and cancelled', () => {
+    it('counts starters and distinct handlers per club + event type, tallying reserve and cancelled separately', () => {
       const nou = event('nou-event', '2025-06-01', 'NOU')
       const registrations = [
         registration('starter-1', nou.id, { eventType: 'NOU', group: { key: 'ap' }, handler: { email: 'a@x.fi' } }),
@@ -632,7 +635,44 @@ describe('statsRebuild', () => {
 
       expect(records).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ handlerCount: 1, PK: 'TRIALS#2025', SK: 'organizer-nou-event#NOU', starters: 2 }),
+          expect.objectContaining({
+            cancelledRegistrations: 1,
+            handlerCount: 1,
+            memberStarters: 0,
+            PK: 'TRIALS#2025',
+            reserve: 1,
+            SK: 'organizer-nou-event#NOU',
+            starters: 2,
+          }),
+        ])
+      )
+    })
+
+    it('counts starters whose handler is a club member', () => {
+      const nou = event('nou-event', '2025-06-01', 'NOU')
+      const registrations = [
+        registration('member', nou.id, {
+          eventType: 'NOU',
+          group: { key: 'ap' },
+          handler: { email: 'a@x.fi', membership: true },
+        }),
+        registration('non-member', nou.id, {
+          eventType: 'NOU',
+          group: { key: 'ap' },
+          handler: { email: 'b@x.fi', membership: false },
+        }),
+      ]
+
+      const { records } = buildStatsRecords(registrations, new Map([[nou.id, nou]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            memberStarters: 1,
+            PK: 'TRIALS#2025',
+            SK: 'organizer-nou-event#NOU',
+            starters: 2,
+          }),
         ])
       )
     })

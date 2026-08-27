@@ -195,9 +195,9 @@ const routes: RouteObject[] = [
       {
         lazy: () =>
           reloadOnChunkLoadError(async () => ({
-            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/TrialStatsPage')).default,
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/OrganizerStatsPage')).default,
           })),
-        path: Path.admin.trialStats,
+        path: Path.admin.organizerStats,
       },
     ],
     errorElement: <ErrorPage />,

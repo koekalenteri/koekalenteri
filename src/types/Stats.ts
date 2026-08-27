@@ -143,6 +143,11 @@ export interface TrialStatsEntry {
   places: number
   starters: number
   handlerCount: number
+  /** On the waiting list: not cancelled, and not placed in a participant (starting) group. */
+  reserve?: number
+  cancelledRegistrations?: number
+  /** Of `starters`, how many had an owner or handler who was a club member. */
+  memberStarters?: number
 }
 
 // DynamoDB item / wire shape: PK = TRIALS#{year}, SK = {organizerId}#{eventType} (unique, not parsed back)
@@ -155,5 +160,8 @@ export interface JsonTrialStatsItem {
   places: number
   starters: number
   handlerCount: number
+  reserve?: number
+  cancelledRegistrations?: number
+  memberStarters?: number
   updatedAt: string
 }

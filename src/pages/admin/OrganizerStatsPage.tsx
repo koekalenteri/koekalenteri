@@ -22,7 +22,7 @@ import { adminOrganizersAtom } from './state'
 
 const CURRENT_YEAR = new Date().getFullYear()
 
-export default function TrialStatsPage() {
+export default function OrganizerStatsPage() {
   const { t } = useTranslation()
   const isAdmin = useAtomValue(isAdminAtom)
   const allStats = useAtomValue(allYearlyStatsAtom)
@@ -84,6 +84,9 @@ export default function TrialStatsPage() {
               <TableCell align="right">{t('stats.admin.trialStatsPlaces')}</TableCell>
               <TableCell align="right">{t('stats.admin.trialStatsStarters')}</TableCell>
               <TableCell align="right">{t('stats.admin.trialStatsHandlers')}</TableCell>
+              <TableCell align="right">{t('stats.admin.trialStatsReserve')}</TableCell>
+              <TableCell align="right">{t('stats.admin.trialStatsCancelled')}</TableCell>
+              <TableCell align="right">{t('stats.admin.trialStatsMembers')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -105,6 +108,15 @@ export default function TrialStatsPage() {
                 <TableCell align="right" sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>
                   {row.handlerCount}
                 </TableCell>
+                <TableCell align="right" sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>
+                  {row.reserve ?? 0}
+                </TableCell>
+                <TableCell align="right" sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>
+                  {row.cancelledRegistrations ?? 0}
+                </TableCell>
+                <TableCell align="right" sx={row.isSubtotal ? { fontWeight: 'bold' } : undefined}>
+                  {row.memberStarters ?? 0}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -124,6 +136,15 @@ export default function TrialStatsPage() {
                 </TableCell>
                 <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                   {grandTotal.handlerCount}
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                  {grandTotal.reserve ?? 0}
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                  {grandTotal.cancelledRegistrations ?? 0}
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                  {grandTotal.memberStarters ?? 0}
                 </TableCell>
               </TableRow>
             </TableFooter>
