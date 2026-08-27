@@ -1,7 +1,7 @@
 import { isDevEnv, isProdEnv, isTestEnv, stackName } from './env'
 
-const jestDefined = () => true
-const jestUndefined = () => false
+const testRunnerDefined = () => true
+const testRunnerUndefined = () => false
 
 describe('env', () => {
   afterEach(() => {
@@ -13,28 +13,28 @@ describe('env', () => {
       vi.stubEnv('NODE_ENV', 'development')
       vi.stubEnv('REACT_APP_API_BASE_URL', '')
 
-      expect(isDevEnv(jestUndefined)).toBe(true)
+      expect(isDevEnv(testRunnerUndefined)).toBe(true)
     })
 
     it('returns true when REACT_APP_API_BASE_URL ends with /dev and vi is undefined', () => {
       vi.stubEnv('NODE_ENV', 'production')
       vi.stubEnv('REACT_APP_API_BASE_URL', 'https://api.example.com/dev')
 
-      expect(isDevEnv(jestUndefined)).toBe(true)
+      expect(isDevEnv(testRunnerUndefined)).toBe(true)
     })
 
     it('returns false when vi is defined, even if NODE_ENV is development', () => {
       vi.stubEnv('NODE_ENV', 'development')
       vi.stubEnv('REACT_APP_API_BASE_URL', 'https://api.example.com/dev')
 
-      expect(isDevEnv(jestDefined)).toBe(false)
+      expect(isDevEnv(testRunnerDefined)).toBe(false)
     })
 
     it('returns false when neither condition is met', () => {
       vi.stubEnv('NODE_ENV', 'production')
       vi.stubEnv('REACT_APP_API_BASE_URL', 'https://api.example.com/prod')
 
-      expect(isDevEnv(jestUndefined)).toBe(false)
+      expect(isDevEnv(testRunnerUndefined)).toBe(false)
     })
   })
 
@@ -43,21 +43,21 @@ describe('env', () => {
       vi.stubEnv('NODE_ENV', 'test')
       vi.stubEnv('REACT_APP_API_BASE_URL', '')
 
-      expect(isTestEnv(jestUndefined)).toBe(true)
+      expect(isTestEnv(testRunnerUndefined)).toBe(true)
     })
 
     it('returns true when vi is defined', () => {
       vi.stubEnv('NODE_ENV', 'production')
       vi.stubEnv('REACT_APP_API_BASE_URL', 'https://api.example.com/prod')
 
-      expect(isTestEnv(jestDefined)).toBe(true)
+      expect(isTestEnv(testRunnerDefined)).toBe(true)
     })
 
     it('returns false when neither condition is met', () => {
       vi.stubEnv('NODE_ENV', 'production')
       vi.stubEnv('REACT_APP_API_BASE_URL', '')
 
-      expect(isTestEnv(jestUndefined)).toBe(false)
+      expect(isTestEnv(testRunnerUndefined)).toBe(false)
     })
   })
 
@@ -83,35 +83,35 @@ describe('env', () => {
       vi.stubEnv('NODE_ENV', 'development')
       vi.stubEnv('REACT_APP_API_BASE_URL', '')
 
-      expect(stackName(jestUndefined)).toBe('koekalenteri-dev')
+      expect(stackName(testRunnerUndefined)).toBe('koekalenteri-dev')
     })
 
     it('returns koekalenteri-dev when API URL ends with /dev', () => {
       vi.stubEnv('NODE_ENV', 'production')
       vi.stubEnv('REACT_APP_API_BASE_URL', 'https://api.example.com/dev')
 
-      expect(stackName(jestUndefined)).toBe('koekalenteri-dev')
+      expect(stackName(testRunnerUndefined)).toBe('koekalenteri-dev')
     })
 
     it('returns koekalenteri-test when in test environment', () => {
       vi.stubEnv('NODE_ENV', 'test')
       vi.stubEnv('REACT_APP_API_BASE_URL', '')
 
-      expect(stackName(jestUndefined)).toBe('koekalenteri-test')
+      expect(stackName(testRunnerUndefined)).toBe('koekalenteri-test')
     })
 
     it('returns koekalenteri-test when vi is defined', () => {
       vi.stubEnv('NODE_ENV', 'production')
       vi.stubEnv('REACT_APP_API_BASE_URL', '')
 
-      expect(stackName(jestDefined)).toBe('koekalenteri-test')
+      expect(stackName(testRunnerDefined)).toBe('koekalenteri-test')
     })
 
     it('returns koekalenteri-prod when in production environment', () => {
       vi.stubEnv('NODE_ENV', 'production')
       vi.stubEnv('REACT_APP_API_BASE_URL', '')
 
-      expect(stackName(jestUndefined)).toBe('koekalenteri-prod')
+      expect(stackName(testRunnerUndefined)).toBe('koekalenteri-prod')
     })
   })
 })

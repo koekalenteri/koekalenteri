@@ -19,7 +19,7 @@ const paths = {
   dependenciesLayerNodeModules: join(projectRoot, 'dist', 'dependencies-layer', 'nodejs', 'node_modules'),
 }
 
-const excludeFiles = ['src/i18n/index.ts', 'src/lambda/jest.config.ts']
+const excludeFiles = ['src/i18n/index.ts']
 const dependencies = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8')).dependencies
 
 function findTsFiles(dir) {

@@ -4,7 +4,7 @@
 - Open-source system for retriever hunt test calendars and registrations in Finland
 - **Backend**: AWS SAM, TypeScript Lambda, DynamoDB, API Gateway
 - **Frontend**: React, TypeScript, Jotai, React Router
-- **Tools**: i18next (localization), Jest (testing)
+- **Tools**: i18next (localization), Vitest (testing)
 
 ## Key Folders
 - `src/lambda/`: AWS Lambda handlers
@@ -32,11 +32,11 @@
 - Fully test every new or changed function in `src/lambda/lib/`, including its
   normal path, edge cases, and error or invalid-input behavior where applicable.
 - UI changes should follow existing styling conventions
-- In Jest mock assertions, prefer call matchers such as `toHaveBeenCalledWith`,
+- In Vitest mock assertions, prefer call matchers such as `toHaveBeenCalledWith`,
   `toHaveBeenNthCalledWith`, and `toHaveBeenCalledTimes` over reading
   `mock.calls` directly.
 - Do not use type assertions (especially `as any` or `as unknown as`) to silence
   errors in production or test code. Model values and mocks with their real
   signatures, narrow unknown values safely, or express behavior directly with
-  Jest matchers. Any unavoidable boundary conversion needs a specific comment
+  Vitest matchers. Any unavoidable boundary conversion needs a specific comment
   explaining why it is safe.

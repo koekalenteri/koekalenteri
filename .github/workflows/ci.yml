@@ -171,8 +171,8 @@ jobs:
       - name: Rename coverage
         run: |
           mkdir -p coverage
-          # Jest 30 multi-project config writes coverage to <repo>/coverage by default.
-          # Older config wrote it under src/lambda/coverage. Support both.
+          # Vitest writes coverage to <repo>/coverage. Support the former location too
+          # so the failure diagnostics remain useful for old cached workspaces.
           if [ -f src/lambda/coverage/lcov.info ]; then
             mv src/lambda/coverage/lcov.info coverage/lcov.info
           elif [ -f coverage/lcov.info ]; then

@@ -8,7 +8,7 @@ require('../config/env')
 
 const { spawnSync } = require('node:child_process')
 const path = require('node:path')
-const argv = process.argv.slice(2).filter((arg) => arg !== '--runTestsByPath')
+const argv = process.argv.slice(2)
 
 if (process.env.CI && !argv.includes('--run')) argv.push('--run')
 
