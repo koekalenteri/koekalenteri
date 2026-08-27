@@ -6,11 +6,13 @@ import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getAllYearlyStats } from '../api/stats'
 import theme from '../assets/Theme'
-import { flushPromises } from '../test-utils/utils'
+import { flushPromises, TEST_ID_TOKEN } from '../test-utils/utils'
 import { Component as StatsPage } from './StatsPage'
+import { idTokenAtom } from './state'
 
 vi.mock('./components/Header', () => ({ default: () => <>header</> }))
 vi.mock('../api/stats')
+vi.mock('../api/user')
 
 describe('StatsPage', () => {
   beforeAll(() => vi.useFakeTimers())
@@ -20,7 +22,7 @@ describe('StatsPage', () => {
   it('renders yearly stats once loaded', async () => {
     render(
       <ThemeProvider theme={theme}>
-        <Provider>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter initialEntries={['/tilastot']}>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
@@ -31,13 +33,13 @@ describe('StatsPage', () => {
     )
     await flushPromises()
 
-    await screen.findByText('stats.title')
+    await screen.findByText('stats.title', { exact: false })
   })
 
   it('takes the selected year out of the all-years payload instead of re-requesting it', async () => {
     render(
       <ThemeProvider theme={theme}>
-        <Provider>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter initialEntries={['/tilastot?year=2024']}>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
@@ -47,7 +49,7 @@ describe('StatsPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    await screen.findByText('stats.title')
+    await screen.findByText('stats.title', { exact: false })
 
     // The all-years response already contains 2024's breakdowns; one request covers the page.
     expect(getAllYearlyStats).toHaveBeenCalledTimes(1)
@@ -56,7 +58,7 @@ describe('StatsPage', () => {
   const renderPage = () =>
     render(
       <ThemeProvider theme={theme}>
-        <Provider>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter initialEntries={['/tilastot']}>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
@@ -98,7 +100,7 @@ describe('StatsPage', () => {
     renderPage()
     await flushPromises()
 
-    await screen.findByText('stats.title')
+    await screen.findByText('stats.title', { exact: false })
     expect(screen.queryByText('stats.retentionTitle')).not.toBeInTheDocument()
   })
 })

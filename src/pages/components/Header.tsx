@@ -68,14 +68,16 @@ const Header = ({ toggleMenu }: Props) => {
             {t('admin')}
           </AppBarButton>
         ) : null}
-        <AppBarButton
-          active={location.pathname === Path.stats}
-          startIcon={<QueryStatsOutlined />}
-          onClick={handleStatsClick}
-          label="stats"
-        >
-          {t('stats.title')}
-        </AppBarButton>
+        {hasAdminAccess ? (
+          <AppBarButton
+            active={location.pathname === Path.stats}
+            startIcon={<QueryStatsOutlined />}
+            onClick={handleStatsClick}
+            label="stats"
+          >
+            {t('stats.title')} {t('stats.beta')}
+          </AppBarButton>
+        ) : null}
         <Typography
           variant="h6"
           color="#fdfdfd"

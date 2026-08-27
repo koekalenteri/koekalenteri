@@ -104,6 +104,8 @@ exports[`AdminHomePage > renders the child page content when user is logged in 1
           class="MuiBox-root css-13tqxrv"
         >
           stats.title
+           
+          stats.beta
         </div>
       </button>
       <div
@@ -356,6 +358,8 @@ exports[`AdminHomePage > renders the page when user is logged in 1`] = `
           class="MuiBox-root css-13tqxrv"
         >
           stats.title
+           
+          stats.beta
         </div>
       </button>
       <div

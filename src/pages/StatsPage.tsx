@@ -20,7 +20,7 @@ import FillRateChart from './components/stats/FillRateChart'
 import ParticipationTrendChart from './components/stats/ParticipationTrendChart'
 import RetentionChart from './components/stats/RetentionChart'
 import YearSelector from './components/stats/YearSelector'
-import { allYearlyStatsAtom, capacityStatsAtom } from './state'
+import { allYearlyStatsAtom, capacityStatsAtom, hasAdminAccessAtom, useUserActions } from './state'
 
 const CURRENT_YEAR = new Date().getFullYear()
 const EMPTY_YEAR_STATS: YearlyStatsResponse = { dogHandlerBuckets: [], totals: [], year: CURRENT_YEAR }
@@ -30,10 +30,16 @@ export function Component() {
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedYear = Number(searchParams.get('year')) || CURRENT_YEAR
+  const actions = useUserActions()
+  const hasAccess = useAtomValue(hasAdminAccessAtom)
 
   useEffect(() => {
     rum()?.recordPageView(location.pathname)
   }, [location])
+
+  useEffect(() => {
+    if (!hasAccess) actions.login()
+  }, [actions, hasAccess])
 
   // The all-years response already carries every year's breakdowns, so picking the selected
   // year out of it avoids a second request that would recompute what we just received.
@@ -45,12 +51,14 @@ export function Component() {
   )
   const years = allStats.years.includes(CURRENT_YEAR) ? allStats.years : [...allStats.years, CURRENT_YEAR]
 
+  if (!hasAccess) return null
+
   return (
     <>
       <Header />
       <Box sx={{ mt: HEADER_HEIGHT, overflow: 'auto', p: 2 }}>
         <Typography variant="h4" gutterBottom>
-          {t('stats.title')}
+          {t('stats.title')} {t('stats.beta')}
         </Typography>
 
         <Stack spacing={4}>
