@@ -1280,7 +1280,7 @@ describe('lib/stats', () => {
         dog: { breedCode: '122', regNo: dogRegNo },
         eventId: 'event-id',
         eventType: 'NOU',
-        handler: { email: handlerEmail },
+        handler: { email: handlerEmail, membership: false },
         id: 'registration-id',
         paidAmount: 0,
         refundAmount: 0,
