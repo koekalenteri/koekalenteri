@@ -14,7 +14,7 @@ import type {
 import crypto from 'node:crypto'
 import { formatDate } from '../../i18n/dates'
 import { getEventSeason } from '../../lib/event'
-import { getRegistrationClass } from '../../lib/registration'
+import { getRegistrationClass, isMember, isParticipantGroup } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -40,10 +40,12 @@ const waitForStatsRetry = (attempt: number) => {
 
 export type RegistrationStatsInput = Pick<
   JsonRegistration,
-  'cancelled' | 'class' | 'eventId' | 'eventType' | 'id' | 'paidAmount' | 'refundAmount'
+  'cancelled' | 'class' | 'eventId' | 'eventType' | 'group' | 'id' | 'ownerHandles' | 'paidAmount' | 'refundAmount'
 > & {
   dog?: Pick<JsonRegistration['dog'], 'breedCode' | 'regNo'>
-  handler?: Pick<NonNullable<JsonRegistration['handler']>, 'email'>
+  handler?: Pick<NonNullable<JsonRegistration['handler']>, 'email' | 'membership'>
+  owner?: Pick<NonNullable<JsonRegistration['owner']>, 'membership'>
+  owners?: Pick<NonNullable<JsonRegistration['owners']>[number], 'membership'>[]
 }
 
 /** Returns the calendar year of an instant in the event timezone. */
@@ -449,6 +451,14 @@ export async function getTrialStats(year: number): Promise<TrialStatsEntry[]> {
   }))
 }
 
+/** On the waiting list: not cancelled, and not placed in a participant (starting) group. */
+const isReserve = (registration: RegistrationStatsInput): boolean =>
+  !registration.cancelled && !isParticipantGroup(registration.group?.key)
+
+/** A starter (non-cancelled, non-reserve) whose owner or handler is a club member. */
+const isMemberStarter = (registration: RegistrationStatsInput): boolean =>
+  !registration.cancelled && isParticipantGroup(registration.group?.key) && isMember(registration)
+
 /**
  * Calculate the deltas for various statistics based on registration changes
  */
@@ -458,10 +468,15 @@ export function calculateStatDeltas(
 ) {
   return {
     cancelledDelta: (registration.cancelled ? 1 : 0) - (existingRegistration?.cancelled ? 1 : 0),
+    memberDelta:
+      (isMemberStarter(registration) ? 1 : 0) -
+      (existingRegistration ? Number(isMemberStarter(existingRegistration)) : 0),
     paidAmountDelta: (registration.paidAmount ?? 0) - (existingRegistration?.paidAmount ?? 0),
     paidDelta: (registration.paidAmount ? 1 : 0) - (existingRegistration?.paidAmount ? 1 : 0),
     refundedAmountDelta: (registration.refundAmount ?? 0) - (existingRegistration?.refundAmount ?? 0),
     refundedDelta: (registration.refundAmount ? 1 : 0) - (existingRegistration?.refundAmount ? 1 : 0),
+    reserveDelta:
+      (isReserve(registration) ? 1 : 0) - (existingRegistration ? Number(isReserve(existingRegistration)) : 0),
     totalDelta: existingRegistration ? 0 : 1,
   }
 }
@@ -487,10 +502,12 @@ export async function updateOrganizerEventStats(
     add: {
       cancelledRegistrations: deltas.cancelledDelta,
       count: deltas.totalDelta,
+      memberRegistrations: deltas.memberDelta,
       paidAmount: deltas.paidAmountDelta,
       paidRegistrations: deltas.paidDelta,
       refundedAmount: deltas.refundedAmountDelta,
       refundedRegistrations: deltas.refundedDelta,
+      reserveRegistrations: deltas.reserveDelta,
     },
     set: {
       date: event.startDate,
@@ -544,28 +561,32 @@ export async function moveOrganizerEventStats(
               '#cancelledRegistrations': 'cancelledRegistrations',
               '#count': 'count',
               '#date': 'date',
+              '#memberRegistrations': 'memberRegistrations',
               '#organizerId': 'organizerId',
               '#paidAmount': 'paidAmount',
               '#paidRegistrations': 'paidRegistrations',
               '#refundedAmount': 'refundedAmount',
               '#refundedRegistrations': 'refundedRegistrations',
+              '#reserveRegistrations': 'reserveRegistrations',
               '#updatedAt': 'updatedAt',
             },
             ExpressionAttributeValues: {
               ':cancelledRegistrations': stats.cancelledRegistrations ?? 0,
               ':count': stats.count ?? 0,
               ':date': updated.startDate,
+              ':memberRegistrations': stats.memberRegistrations ?? 0,
               ':organizerId': updated.organizer.id,
               ':paidAmount': stats.paidAmount ?? 0,
               ':paidRegistrations': stats.paidRegistrations ?? 0,
               ':refundedAmount': stats.refundedAmount ?? 0,
               ':refundedRegistrations': stats.refundedRegistrations ?? 0,
+              ':reserveRegistrations': stats.reserveRegistrations ?? 0,
               ':updatedAt': new Date().toISOString(),
             },
             Key: to,
             TableName: CONFIG.eventStatsTable,
             UpdateExpression:
-              'ADD #cancelledRegistrations :cancelledRegistrations, #count :count, #paidAmount :paidAmount, #paidRegistrations :paidRegistrations, #refundedAmount :refundedAmount, #refundedRegistrations :refundedRegistrations SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
+              'ADD #cancelledRegistrations :cancelledRegistrations, #count :count, #memberRegistrations :memberRegistrations, #paidAmount :paidAmount, #paidRegistrations :paidRegistrations, #refundedAmount :refundedAmount, #refundedRegistrations :refundedRegistrations, #reserveRegistrations :reserveRegistrations SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
           },
         },
         {
@@ -637,28 +658,32 @@ const organizerStatsTransactionItem = (
       '#cancelledRegistrations': 'cancelledRegistrations',
       '#count': 'count',
       '#date': 'date',
+      '#memberRegistrations': 'memberRegistrations',
       '#organizerId': 'organizerId',
       '#paidAmount': 'paidAmount',
       '#paidRegistrations': 'paidRegistrations',
       '#refundedAmount': 'refundedAmount',
       '#refundedRegistrations': 'refundedRegistrations',
+      '#reserveRegistrations': 'reserveRegistrations',
       '#updatedAt': 'updatedAt',
     },
     ExpressionAttributeValues: {
       ':cancelledDelta': deltas.cancelledDelta,
       ':date': event.startDate,
+      ':memberDelta': deltas.memberDelta,
       ':organizerId': event.organizer.id,
       ':paidAmountDelta': deltas.paidAmountDelta,
       ':paidDelta': deltas.paidDelta,
       ':refundedAmountDelta': deltas.refundedAmountDelta,
       ':refundedDelta': deltas.refundedDelta,
+      ':reserveDelta': deltas.reserveDelta,
       ':totalDelta': deltas.totalDelta,
       ':updatedAt': updatedAt,
     },
     Key: organizerStatsKey(event),
     TableName: CONFIG.eventStatsTable,
     UpdateExpression:
-      'ADD #cancelledRegistrations :cancelledDelta, #count :totalDelta, #paidAmount :paidAmountDelta, #paidRegistrations :paidDelta, #refundedAmount :refundedAmountDelta, #refundedRegistrations :refundedDelta SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
+      'ADD #cancelledRegistrations :cancelledDelta, #count :totalDelta, #memberRegistrations :memberDelta, #paidAmount :paidAmountDelta, #paidRegistrations :paidDelta, #refundedAmount :refundedAmountDelta, #refundedRegistrations :refundedDelta, #reserveRegistrations :reserveDelta SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
   },
 })
 

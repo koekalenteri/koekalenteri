@@ -9,6 +9,8 @@ interface OrganizerEventStats {
   cancelledRegistrations: number
   paidRegistrations: number
   refundedRegistrations: number
+  /** Non-cancelled starters (not on the waiting list) whose owner or handler is a club member. */
+  memberRegistrations: number
   paidAmount: number
   refundedAmount: number
   updatedAt: string

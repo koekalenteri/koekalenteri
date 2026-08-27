@@ -245,7 +245,8 @@ describe('lib/stats', () => {
 
       await updateEventStatsForRegistration(reg, undefined, event)
 
-      // First call should update the organizer event stats
+      // First call should update the organizer event stats. No group means the registration is
+      // not in a starting group, so it counts as reserve rather than a starter.
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
@@ -253,10 +254,12 @@ describe('lib/stats', () => {
           add: {
             cancelledRegistrations: 0,
             count: 1,
+            memberRegistrations: 0,
             paidAmount: 10,
             paidRegistrations: 1,
             refundedAmount: 0,
             refundedRegistrations: 0,
+            reserveRegistrations: 1,
           },
           set: {
             date: '2024-01-01',
@@ -298,7 +301,8 @@ describe('lib/stats', () => {
 
       await updateEventStatsForRegistration(updatedReg, existingReg, event)
 
-      // First call should update the organizer event stats
+      // First call should update the organizer event stats. The registration was reserve
+      // (no group) before the update and cancelled after, so reserve drops by one.
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
@@ -306,10 +310,12 @@ describe('lib/stats', () => {
           add: {
             cancelledRegistrations: 1,
             count: 0,
+            memberRegistrations: 0,
             paidAmount: 5,
             paidRegistrations: 0,
             refundedAmount: 2,
             refundedRegistrations: 1,
+            reserveRegistrations: -1,
           },
           set: {
             date: '2024-01-01',
@@ -1080,10 +1086,12 @@ describe('lib/stats', () => {
 
       expect(deltas).toEqual({
         cancelledDelta: 0,
+        memberDelta: 0,
         paidAmountDelta: 50,
         paidDelta: 1,
         refundedAmountDelta: 0,
         refundedDelta: 0,
+        reserveDelta: 1,
         totalDelta: 1,
       })
     })
@@ -1105,10 +1113,12 @@ describe('lib/stats', () => {
 
       expect(deltas).toEqual({
         cancelledDelta: 1,
+        memberDelta: 0,
         paidAmountDelta: 0,
         paidDelta: 0,
         refundedAmountDelta: 25,
         refundedDelta: 1,
+        reserveDelta: -1,
         totalDelta: 0,
       })
     })
@@ -1130,10 +1140,12 @@ describe('lib/stats', () => {
 
       expect(deltas).toEqual({
         cancelledDelta: 0,
+        memberDelta: 0,
         paidAmountDelta: 50,
         paidDelta: 1,
         refundedAmountDelta: 0,
         refundedDelta: 0,
+        reserveDelta: 0,
         totalDelta: 0,
       })
     })
@@ -1149,10 +1161,12 @@ describe('lib/stats', () => {
 
       const deltas = {
         cancelledDelta: 0,
+        memberDelta: 1,
         paidAmountDelta: 50,
         paidDelta: 1,
         refundedAmountDelta: 0,
         refundedDelta: 0,
+        reserveDelta: 0,
         totalDelta: 1,
       }
 
@@ -1164,10 +1178,12 @@ describe('lib/stats', () => {
           add: {
             cancelledRegistrations: 0,
             count: 1,
+            memberRegistrations: 1,
             paidAmount: 50,
             paidRegistrations: 1,
             refundedAmount: 0,
             refundedRegistrations: 0,
+            reserveRegistrations: 0,
           },
           set: {
             date: '2024-06-15',

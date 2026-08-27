@@ -16,7 +16,7 @@ import type {
 } from '../../types/Stats'
 import type { RegistrationStatsInput } from './stats'
 import { OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
-import { getRegistrationClass, isParticipantGroup } from '../../lib/registration'
+import { getRegistrationClass, isMember, isParticipantGroup } from '../../lib/registration'
 import { splitEvenly } from '../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_TRIALS } from '../../types/Stats'
 import { CONFIG } from '../config'
@@ -49,9 +49,10 @@ const REGISTRATION_STATS_PROJECTION_NAMES = {
   '#group': 'group',
   '#handler': 'handler',
   '#key': 'key',
+  '#owner': 'owner',
 }
 const REGISTRATION_STATS_PROJECTION =
-  'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #class, #group.#key'
+  'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key'
 const EVENT_STATS_PROJECTION_NAMES = { '#state': 'state' }
 const EVENT_STATS_PROJECTION = 'id, organizer, startDate, eventType, classes, places, #state, judges'
 const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'dog#handler', 'class', 'event']
@@ -126,15 +127,20 @@ const updateOrganizerStats = (
     cancelledRegistrations: 0,
     count: 0,
     date: event.startDate,
+    memberRegistrations: 0,
     organizerId: event.organizer.id,
     paidAmount: 0,
     paidRegistrations: 0,
     refundedAmount: 0,
     refundedRegistrations: 0,
+    reserveRegistrations: 0,
     updatedAt,
   }
+  const isStarter = !registration.cancelled && isParticipantGroup(registration.group?.key)
   stats.count = (stats.count ?? 0) + 1
   stats.cancelledRegistrations = (stats.cancelledRegistrations ?? 0) + (registration.cancelled ? 1 : 0)
+  stats.reserveRegistrations = (stats.reserveRegistrations ?? 0) + (!registration.cancelled && !isStarter ? 1 : 0)
+  stats.memberRegistrations = (stats.memberRegistrations ?? 0) + (isStarter && isMember(registration) ? 1 : 0)
   stats.paidAmount = (stats.paidAmount ?? 0) + (registration.paidAmount ?? 0)
   stats.paidRegistrations = (stats.paidRegistrations ?? 0) + (registration.paidAmount ? 1 : 0)
   stats.refundedAmount = (stats.refundedAmount ?? 0) + (registration.refundAmount ?? 0)

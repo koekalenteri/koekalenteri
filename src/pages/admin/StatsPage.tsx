@@ -10,7 +10,9 @@ import CancellationRateChart from '../components/stats/CancellationRateChart'
 import CapacityUtilizationChart, { ALL_CLASSES_ID } from '../components/stats/CapacityUtilizationChart'
 import DemandVsCapacityChart from '../components/stats/DemandVsCapacityChart'
 import JudgeWorkloadChart from '../components/stats/JudgeWorkloadChart'
+import MemberShareChart from '../components/stats/MemberShareChart'
 import OrganizerFinanceChart from '../components/stats/OrganizerFinanceChart'
+import OrganizerRegistrationsChart from '../components/stats/OrganizerRegistrationsChart'
 import YearSelector from '../components/stats/YearSelector'
 import {
   ALL_EVENT_TYPES_ID,
@@ -109,6 +111,10 @@ export default function StatsPage() {
       <YearSelector years={years} value={year} onChange={setYear} />
 
       <OrganizerFinanceChart items={organizerStats} />
+
+      <OrganizerRegistrationsChart items={organizerStats} />
+
+      <MemberShareChart items={organizerStats} />
 
       <JudgeWorkloadChart data={judgeWorkload} />
 
