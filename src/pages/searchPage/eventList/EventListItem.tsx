@@ -19,6 +19,7 @@ interface Props {
 
 const EventHeader = ({ event }: Props) => {
   const { t } = useTranslation()
+  const cancelledSx = event.state === 'cancelled' ? { textDecoration: 'line-through' } : undefined
 
   const infoText = useMemo(() => {
     if (isEntryOpen(event)) return t('dateFormat.datespan', { end: event.entryEndDate, start: event.entryStartDate })
@@ -77,6 +78,7 @@ const EventHeader = ({ event }: Props) => {
           sm: 'auto',
           xs: 12,
         }}
+        sx={cancelledSx}
       >
         <Grid>{t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}</Grid>
         <Grid
@@ -102,11 +104,11 @@ const EventHeader = ({ event }: Props) => {
           xs: 12,
         }}
       >
-        <Grid>{event.location}</Grid>
+        <Grid sx={cancelledSx}>{event.location}</Grid>
         <Grid
           overflow={'hidden'}
           textOverflow={'ellipsis'}
-          sx={{ textWrap: 'nowrap' }}
+          sx={{ ...cancelledSx, textWrap: 'nowrap' }}
           size={{
             sm: 'auto',
             xs: 'grow',
@@ -141,7 +143,12 @@ const EventHeader = ({ event }: Props) => {
 }
 
 export const EventListItem = ({ event, odd }: Props) => (
-  <CollapsibleEvent eventId={event.id} header={<EventHeader event={event} />} odd={odd}>
+  <CollapsibleEvent
+    cancelled={event.state === 'cancelled'}
+    eventId={event.id}
+    header={<EventHeader event={event} />}
+    odd={odd}
+  >
     <EventInfo event={event}></EventInfo>
   </CollapsibleEvent>
 )

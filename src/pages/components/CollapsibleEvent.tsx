@@ -12,12 +12,13 @@ import { openedEventAtom } from '../state'
 import { useIsRecentlyUpdated } from '../state/recentUpdates'
 
 interface Props {
+  readonly cancelled?: boolean
   readonly eventId: string
   readonly header: ReactNode
   readonly odd?: boolean
 }
 
-export const CollapsibleEvent = ({ eventId, odd, header, children }: PropsWithChildren<Props>) => {
+export const CollapsibleEvent = ({ eventId, odd, cancelled, header, children }: PropsWithChildren<Props>) => {
   const [open, setOpen] = useAtom(openedEventAtom(eventId))
   const recentlyUpdated = useIsRecentlyUpdated('public:event', eventId)
 
@@ -33,6 +34,7 @@ export const CollapsibleEvent = ({ eventId, odd, header, children }: PropsWithCh
         pr: 1,
         py: 1,
         width: '100%',
+        ...(cancelled ? { opacity: 0.6 } : {}),
         ...(recentlyUpdated ? recentUpdateSx : {}),
       }}
       component="article"
