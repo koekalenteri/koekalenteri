@@ -30,6 +30,7 @@ export default function KcIdChoiceDialog({ choices, onClose, onSelect }: Props) 
             <TableRow>
               <TableCell>{t('event.kcIdChoiceId')}</TableCell>
               <TableCell>{t('event.kcIdChoiceType')}</TableCell>
+              <TableCell>{t('event.kcIdChoiceClasses')}</TableCell>
               <TableCell>{t('event.kcIdChoiceTime')}</TableCell>
               <TableCell>{t('event.kcIdChoiceLocation')}</TableCell>
               <TableCell>{t('event.kcIdChoiceOrganizer')}</TableCell>
@@ -41,6 +42,7 @@ export default function KcIdChoiceDialog({ choices, onClose, onSelect }: Props) 
               <TableRow key={choice.id}>
                 <TableCell>{choice.id}</TableCell>
                 <TableCell>{[choice.eventType, choice.name].filter(Boolean).join(' ')}</TableCell>
+                <TableCell>{choice.classes.join(', ')}</TableCell>
                 <TableCell>{formatDateSpan(choice)}</TableCell>
                 <TableCell>{choice.location}</TableCell>
                 <TableCell>{choice.organizer}</TableCell>

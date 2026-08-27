@@ -149,6 +149,7 @@ describe('searchEventKcIdChoicesLambda', () => {
       {
         choices: [
           {
+            classes: ['ALO'],
             endDate: '2026-07-02',
             eventType: 'NOME-B',
             id: 222,
@@ -325,6 +326,7 @@ describe('searchEventKcIdChoicesLambda', () => {
       {
         choices: [
           expect.objectContaining({
+            classes: ['VOI'],
             contactInfo: {
               secretary: {
                 email: 'nome.maija@gmail.com',

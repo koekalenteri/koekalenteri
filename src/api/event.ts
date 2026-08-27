@@ -14,6 +14,7 @@ export type PublicEventsDeltaResponse = {
 export type PublicEventsResponse = PublicDogEvent[] | PublicEventsDeltaResponse
 
 export type EventKcIdChoice = {
+  classes: string[]
   contactInfo?: DogEvent['contactInfo']
   cost?: DogEvent['cost']
   description?: DogEvent['description']

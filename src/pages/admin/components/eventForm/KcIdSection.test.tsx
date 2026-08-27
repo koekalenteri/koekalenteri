@@ -83,6 +83,7 @@ describe('KcIdSection', () => {
     const searchEventKcIdChoices = vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
       choices: [
         {
+          classes: ['ALO', 'AVO'],
           endDate: new TZDate('2026-07-02', TIME_ZONE),
           eventType: 'NOME-B',
           id: 222,
@@ -137,6 +138,7 @@ describe('KcIdSection', () => {
     const searchEventKcIdChoices = vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
       choices: [
         {
+          classes: ['ALO', 'AVO'],
           endDate: new TZDate('2026-07-02', TIME_ZONE),
           eventType: 'NOME-B',
           id: 222,
@@ -146,6 +148,7 @@ describe('KcIdSection', () => {
           startDate: new TZDate('2026-07-01', TIME_ZONE),
         },
         {
+          classes: ['VOI'],
           endDate: new TZDate('2026-08-02', TIME_ZONE),
           eventType: 'NOME-B',
           id: 333,
@@ -172,6 +175,8 @@ describe('KcIdSection', () => {
     await user.click(screen.getByText('event.kcIdLookup'))
     expect(await screen.findByText('event.kcIdChoiceTitle')).toBeInTheDocument()
     expect(searchEventKcIdChoices).toHaveBeenCalledTimes(1)
+    expect(screen.getByText('ALO, AVO')).toBeInTheDocument()
+    expect(screen.getByText('VOI')).toBeInTheDocument()
 
     const selectButtons = screen.getAllByRole('button', { name: 'event.kcIdSelect' })
     expect(selectButtons[0]).toHaveClass('MuiButton-contained')
