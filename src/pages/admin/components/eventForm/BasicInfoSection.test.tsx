@@ -5,19 +5,13 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen, waitFor } from '@testing-library/react'
 import { add, format } from 'date-fns'
-import { enqueueSnackbar } from 'notistack'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import * as eventApi from '../../../../api/event'
 import { locales } from '../../../../i18n'
-import { TIME_ZONE, zonedDateString } from '../../../../i18n/dates'
+import { TIME_ZONE } from '../../../../i18n/dates'
 import { defaultEntryEndDate, defaultEntryStartDate, newEventStartDate } from '../../../../lib/event'
-import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
+import { renderWithUserEvents } from '../../../../test-utils/utils'
 import { idTokenAtom } from '../../../state'
 import BasicInfoSection from './BasicInfoSection'
-
-vi.mock('notistack', () => ({
-  enqueueSnackbar: vi.fn(),
-}))
 
 const renderComponent = (props: Props) => {
   const res = renderWithUserEvents(
@@ -110,240 +104,33 @@ describe('BasicInfoSection', () => {
       })
     })
 
-    it('should update local event state when a Kennel Club event is selected', async () => {
-      const searchEventKcIdChoices = vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
-        choices: [
-          {
-            endDate: new TZDate('2026-07-02', TIME_ZONE),
-            eventType: 'NOME-B',
-            id: 222,
-            location: 'Espoo',
-            name: 'Toinen koe',
-            organizer: 'Järjestäjä',
-            startDate: new TZDate('2026-07-01', TIME_ZONE),
-          },
-        ],
-      })
-      const changeHandler = vi.fn()
-      const testEvent: PartialEvent = {
-        classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-        endDate: new TZDate('2026-06-01', TIME_ZONE),
-        entryEndDate: defaultEntryEndDate(new TZDate('2026-06-01', TIME_ZONE)),
-        entryStartDate: defaultEntryStartDate(new TZDate('2026-06-01', TIME_ZONE)),
-        eventType: 'NOME-B',
-        id: 'test',
-        judges: [],
-        organizer: { id: 'org-id', name: 'Organizer' },
-        placesPerDay: {
-          '2026-06-01': 5,
-          '2026-06-02': 6,
-          '2026-06-03': 7,
-        },
-        startDate: new TZDate('2026-06-01', TIME_ZONE),
-      }
-
-      const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
-
-      await user.click(screen.getByText('event.kcIdLookup'))
-      expect(await screen.findByText('event.kcIdChoiceTitle')).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'event.kcIdSelect' })).toHaveClass('MuiButton-contained')
-      expect(screen.getByRole('button', { name: 'close' })).toHaveClass('MuiButton-outlined')
-      expect(searchEventKcIdChoices).toHaveBeenCalledWith(
-        expect.objectContaining({
-          classes: [{ class: 'ALO', date: testEvent.classes[0].date }],
-          endDate: testEvent.endDate,
-          eventType: 'NOME-B',
-          organizer: { id: 'org-id' },
-          startDate: testEvent.startDate,
-        }),
-        'id-token'
-      )
-
-      await user.click(screen.getByText('event.kcIdSelect'))
-
-      expect(changeHandler).toHaveBeenCalledWith(
-        expect.objectContaining({
-          eventType: 'NOME-B',
-          kcId: 222,
-          location: 'Espoo',
-          season: '2026',
-        })
-      )
-      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].startDate)).toEqual('2026-07-01')
-      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].endDate)).toEqual('2026-07-02')
-      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].entryStartDate)).toEqual('2026-05-20')
-      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].entryEndDate)).toEqual('2026-06-10')
-      expect(changeHandler.mock.calls.at(-1)?.[0].placesPerDay).toEqual({
-        '2026-07-01': 5,
-        '2026-07-02': 6,
-      })
-    })
-
-    it('should treat Kennel Club null end date as a one day event when selected', async () => {
-      vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
-        choices: [
-          {
-            contactInfo: {
-              secretary: {
-                email: 'nome.maija@gmail.com',
-                name: 'Parviainen Niina',
-                phone: '358400512651',
-              },
-            },
-            cost: 55,
-            description: 'Osallistumismaksu sisältää keittolounaan.',
-            endDate: new Date('0001-01-01T00:00:00'),
-            entryEndDate: new TZDate('2026-06-07', TIME_ZONE),
-            entryStartDate: new TZDate('2026-05-17', TIME_ZONE),
-            eventType: 'NOWT SM',
-            id: 453830,
-            location: 'Jyväskylä, Korpilahti',
-            name: '',
-            organizer: 'KESKI-SUOMEN NOUTAJAKOIRAYHDISTYS RY.',
-            startDate: new TZDate('2026-06-28', TIME_ZONE),
-          },
-        ],
-      })
-      const changeHandler = vi.fn()
+    it('should lock the event dates while a Kennel Club ID is set and reopen them once it is removed', () => {
       const testEvent: PartialEvent = {
         classes: [],
-        endDate: new TZDate('2026-06-01', TIME_ZONE),
-        entryEndDate: defaultEntryEndDate(new TZDate('2026-06-01', TIME_ZONE)),
-        entryStartDate: defaultEntryStartDate(new TZDate('2026-06-01', TIME_ZONE)),
-        eventType: 'NOWT',
-        id: 'test',
-        judges: [],
-        organizer: { id: 'org-id', name: 'Organizer' },
-        startDate: new TZDate('2026-06-01', TIME_ZONE),
-      }
-
-      const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
-
-      await user.click(screen.getByText('event.kcIdLookup'))
-      expect(await screen.findByText('2026-06-28')).toBeInTheDocument()
-
-      await user.click(screen.getByText('event.kcIdSelect'))
-
-      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].startDate)).toEqual('2026-06-28')
-      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].endDate)).toEqual('2026-06-28')
-      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].entryStartDate)).toEqual('2026-05-17')
-      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].entryEndDate)).toEqual('2026-06-07')
-      expect(changeHandler.mock.calls.at(-1)?.[0]).toEqual(
-        expect.objectContaining({
-          contactInfo: {
-            secretary: {
-              email: 'nome.maija@gmail.com',
-              name: 'Parviainen Niina',
-              phone: '358400512651',
-            },
-          },
-          cost: 55,
-          description: 'Osallistumismaksu sisältää keittolounaan.',
-          eventType: 'NOWT SM',
-          location: 'Jyväskylä, Korpilahti',
-        })
-      )
-    })
-
-    it('should clear an existing Kennel Club ID when remove is selected', async () => {
-      const changeHandler = vi.fn()
-      const testEvent: PartialEvent = {
-        classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-        endDate: new TZDate('2026-06-01', TIME_ZONE),
-        eventType: 'NOME-B',
-        id: 'test',
+        endDate: newEventStartDate,
         judges: [],
         kcId: 222,
-        name: 'Koe',
-        organizer: { id: 'org-id', name: 'Organizer' },
-        startDate: new TZDate('2026-06-01', TIME_ZONE),
+        startDate: newEventStartDate,
       }
+      const { rerender, startInput, endInput } = renderComponent({
+        event: testEvent,
+        onChange: vi.fn(),
+        open: true,
+      })
 
-      const { rerender, user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
-
-      await user.click(screen.getByText('event.kcIdRemove'))
-
-      expect(changeHandler.mock.calls.at(-1)?.[0]).toEqual({ kcId: null })
+      expect(startInput).toBeDisabled()
+      expect(endInput).toBeDisabled()
 
       rerender(
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
-            <BasicInfoSection {...{ event: { ...testEvent, kcId: null }, onChange: changeHandler, open: true }} />
+            <BasicInfoSection {...{ event: { ...testEvent, kcId: null }, onChange: vi.fn(), open: true }} />
           </Provider>
         </LocalizationProvider>
       )
 
-      expect(screen.getByLabelText('event.kcId')).toHaveValue('')
-    })
-
-    it('should report Kennel Club event lookup failures', async () => {
-      const error = new Error('lookup failed')
-      vi.spyOn(eventApi, 'searchEventKcIdChoices').mockRejectedValueOnce(error)
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-      const testEvent: PartialEvent = {
-        classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-        endDate: new TZDate('2026-06-01', TIME_ZONE),
-        eventType: 'NOME-B',
-        id: 'test',
-        judges: [],
-        organizer: { id: 'org-id', name: 'Organizer' },
-        startDate: new TZDate('2026-06-01', TIME_ZONE),
-      }
-
-      try {
-        const { user } = renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
-
-        await user.click(screen.getByText('event.kcIdLookup'))
-        await flushPromises()
-
-        expect(consoleError).toHaveBeenCalledWith(error)
-        expect(enqueueSnackbar).toHaveBeenCalledWith('event.kcIdSearchFailed', { variant: 'error' })
-      } finally {
-        consoleError.mockRestore()
-      }
-    })
-
-    it('should clear stale Kennel Club choices when a later lookup returns no matches', async () => {
-      const searchEventKcIdChoices = vi
-        .spyOn(eventApi, 'searchEventKcIdChoices')
-        .mockResolvedValueOnce({
-          choices: [
-            {
-              endDate: new TZDate('2026-07-02', TIME_ZONE),
-              eventType: 'NOME-B',
-              id: 222,
-              location: 'Espoo',
-              name: 'Toinen koe',
-              organizer: 'Järjestäjä',
-              startDate: new TZDate('2026-07-01', TIME_ZONE),
-            },
-          ],
-        })
-        .mockResolvedValueOnce({ choices: [] })
-
-      const changeHandler = vi.fn()
-      const testEvent: PartialEvent = {
-        classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-        endDate: new TZDate('2026-06-01', TIME_ZONE),
-        eventType: 'NOME-B',
-        id: 'test',
-        judges: [],
-        organizer: { id: 'org-id', name: 'Organizer' },
-        startDate: new TZDate('2026-06-01', TIME_ZONE),
-      }
-
-      const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
-
-      await user.click(screen.getByText('event.kcIdLookup'))
-      expect(await screen.findByText('222')).toBeInTheDocument()
-
-      await user.click(screen.getByText('event.kcIdLookup'))
-      await flushPromises()
-
-      expect(searchEventKcIdChoices).toHaveBeenCalledTimes(2)
-      expect(screen.queryByText('222')).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: 'event.kcIdSelect' })).not.toBeInTheDocument()
-      expect(changeHandler).not.toHaveBeenCalled()
+      expect(startInput).toBeEnabled()
+      expect(endInput).toBeEnabled()
     })
   })
 })

@@ -4,7 +4,14 @@ import { getEventSeason, isEntryOpen, isEventDeletable } from '../../lib/event'
 import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
-import { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } from '../lib/event'
+import {
+  findEventWithKcId,
+  findQualificationStartDate,
+  getEvent,
+  patchEvent,
+  saveEvent,
+  updateRegistrations,
+} from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
 import { moveOrganizerEventStats } from '../lib/stats'
@@ -154,6 +161,17 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const existingError = checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
   if (existingError) {
     return response(existingError.status, existingError.body, event)
+  }
+
+  if (item.kcId != null && item.kcId !== existing?.kcId) {
+    const conflict = await findEventWithKcId(item.kcId, existing?.id)
+    if (conflict) {
+      return response(
+        409,
+        { error: 'kcIdConflict', message: 'Kennel Club ID is already linked to another event' },
+        event
+      )
+    }
   }
 
   if (!existing) {

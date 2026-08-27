@@ -23,6 +23,7 @@ vi.doMock('../lib/audit', () => ({
 }))
 
 vi.doMock('../lib/event', () => ({
+  findEventWithKcId: vi.fn(),
   findQualificationStartDate: vi.fn(),
   getEvent: vi.fn(),
   patchEvent: vi.fn(),
@@ -45,9 +46,9 @@ const { audit, eventAuditKey } = await import('../lib/audit')
 const auditMock = audit as import('vitest').Mock<typeof audit>
 const eventAuditKeyMock = eventAuditKey as import('vitest').Mock<typeof eventAuditKey>
 
-const { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } = await import(
-  '../lib/event'
-)
+const { findEventWithKcId, findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } =
+  await import('../lib/event')
+const findEventWithKcIdMock = findEventWithKcId as import('vitest').Mock<typeof findEventWithKcId>
 const findQualificationStartDateMock = findQualificationStartDate as import('vitest').Mock<
   typeof findQualificationStartDate
 >
@@ -325,6 +326,47 @@ describe('putEventLambda', () => {
       message: 'Event has been modified since it was loaded',
     })
     expect(patchEventMock).not.toHaveBeenCalled()
+  })
+
+  it('should reject a kcId already linked to another event', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce(mockEvent)
+    findEventWithKcIdMock.mockResolvedValueOnce({ id: 'other-event' })
+
+    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', kcId: 12345 }))
+
+    expect(findEventWithKcIdMock).toHaveBeenCalledWith(12345, 'existing')
+    expect(res.statusCode).toEqual(409)
+    expect(JSON.parse(res.body)).toEqual({
+      error: 'kcIdConflict',
+      message: 'Kennel Club ID is already linked to another event',
+    })
+    expect(patchEventMock).not.toHaveBeenCalled()
+  })
+
+  it('should allow saving a kcId that is not used by any other event', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce(mockEvent)
+    findEventWithKcIdMock.mockResolvedValueOnce(undefined)
+    patchEventMock.mockResolvedValueOnce({ ...mockEvent, kcId: 12345 })
+
+    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', kcId: 12345 }))
+
+    expect(findEventWithKcIdMock).toHaveBeenCalledWith(12345, 'existing')
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('should not check for kcId conflicts when kcId is unchanged', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, kcId: 12345 })
+    patchEventMock.mockResolvedValueOnce({ ...mockEvent, eventType: 'TEST', kcId: 12345 })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing', kcId: 12345 })
+    )
+
+    expect(findEventWithKcIdMock).not.toHaveBeenCalled()
+    expect(res.statusCode).toEqual(200)
   })
 
   it('should audit start list class publishing without a generic change message', async () => {

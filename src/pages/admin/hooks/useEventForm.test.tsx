@@ -4,6 +4,8 @@ import { Provider, useAtom } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useNavigate } from 'react-router'
+import { APIError } from '../../../api/http'
+import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { adminEditableEventByIdAtom, adminNewEventAtom } from '../state'
 import useEventForm from './useEventForm'
 
@@ -310,6 +312,27 @@ describe('useEventForm', () => {
 
     expect(mockSave).toHaveBeenCalledWith(mockEvent)
     expect(consoleErrorSpy).toHaveBeenCalledWith(error)
+    expect(mockResetEvent).not.toHaveBeenCalled()
+    expect(mockNavigate).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('should show a conflict snackbar when the kcId is already linked to another event', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const error = new APIError({ status: 409, statusText: '' } as Response, { error: 'kcIdConflict' })
+    mockSave.mockRejectedValue(error)
+
+    const { result } = renderHook(() => useEventForm(), {
+      wrapper: Provider,
+    })
+
+    await act(async () => {
+      await result.current.handleSave()
+    })
+
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('event.kcIdConflict', errorSnackbarOptions)
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
     expect(mockResetEvent).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
 

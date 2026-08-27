@@ -12,7 +12,7 @@ import { atom, useAtomValue } from 'jotai'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { objectsDiffer } from '../../../lib/diff'
-import { isEventOver } from '../../../lib/event'
+import { isEventOver, OFFICIAL_EVENT_TYPES } from '../../../lib/event'
 import { merge } from '../../../lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
@@ -29,6 +29,7 @@ import ContactInfoSection from './eventForm/ContactInfoSection'
 import EntrySection from './eventForm/EntrySection'
 import HeadquartersSection from './eventForm/HeadquartersSection'
 import JudgesSection from './eventForm/JudgesSection'
+import KcIdSection from './eventForm/KcIdSection'
 import PaymentSection from './eventForm/PaymentSection'
 import { requiredFields, validateEvent } from './eventForm/validation'
 
@@ -65,6 +66,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
     hq: md,
     info: md,
     judges: md,
+    kcId: md,
     payment: md,
   })
   const valid = errors.length === 0
@@ -246,6 +248,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
             hq: false,
             info: false,
             judges: false,
+            kcId: false,
             payment: false,
             [id]: value,
           }
@@ -260,6 +263,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
   )
   const handleBasicOpenChange = useCallback((value: boolean) => handleOpenChange('basic', value), [handleOpenChange])
   const handleJudgesOpenChange = useCallback((value: boolean) => handleOpenChange('judges', value), [handleOpenChange])
+  const handleKcIdOpenChange = useCallback((value: boolean) => handleOpenChange('kcId', value), [handleOpenChange])
   const handleEntryOpenChange = useCallback((value: boolean) => handleOpenChange('entry', value), [handleOpenChange])
   const handlePaymentOpenChange = useCallback(
     (value: boolean) => handleOpenChange('payment', value),
@@ -331,6 +335,17 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
           secretaries={secretaries}
           selectedEventType={selectedEventType}
         />
+        {OFFICIAL_EVENT_TYPES.includes(event.eventType ?? '') && (
+          <KcIdSection
+            disabled={allDisabled}
+            errorStates={errorStates}
+            event={basicInfoEvent}
+            fields={fields}
+            onChange={handleChange}
+            onOpenChange={handleKcIdOpenChange}
+            open={open.kcId}
+          />
+        )}
         <JudgesSection
           disabled={allDisabled}
           errorStates={errorStates}

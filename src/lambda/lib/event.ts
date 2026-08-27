@@ -41,6 +41,19 @@ export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string
   return jsonEvent
 }
 
+export const findEventWithKcId = async (
+  kcId: number,
+  excludeId?: string
+): Promise<Pick<JsonDogEvent, 'id'> | undefined> => {
+  const matches = await dynamoDB.readAll<Pick<JsonDogEvent, 'id'>>({
+    filter: 'kcId = :kcId',
+    projection: 'id',
+    table: eventTable,
+    values: { ':kcId': kcId },
+  })
+  return matches?.find((match) => match.id !== excludeId)
+}
+
 export const findQualificationStartDate = async (
   eventType: string,
   entryEndDate: string

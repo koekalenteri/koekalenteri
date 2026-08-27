@@ -70,14 +70,15 @@ export default function useEventForm(options: EventFormOptions = {}) {
         variant: 'info',
       })
     } catch (error) {
-      if (
-        error instanceof APIError &&
-        error.status === 409 &&
-        isObject(error.body) &&
-        error.body.error === 'staleData'
-      ) {
-        enqueueSnackbar(t('event.staleData'), errorSnackbarOptions)
-        return
+      if (error instanceof APIError && error.status === 409 && isObject(error.body)) {
+        if (error.body.error === 'staleData') {
+          enqueueSnackbar(t('event.staleData'), errorSnackbarOptions)
+          return
+        }
+        if (error.body.error === 'kcIdConflict') {
+          enqueueSnackbar(t('event.kcIdConflict'), errorSnackbarOptions)
+          return
+        }
       }
       console.error(error)
     }

@@ -1,0 +1,103 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`KcIdSection > should render 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-137nj4n"
+  >
+    <button
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+        data-testid="KeyboardArrowDownIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
+        />
+      </svg>
+    </button>
+    <div
+      class="MuiBox-root css-d5pwdd"
+    >
+      <div
+        class="MuiBox-root css-14pnx07"
+      >
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
+        >
+          event.kcIdSectionTitle
+        </p>
+        <p
+          class="MuiFormHelperText-root css-1snnebk-MuiFormHelperText-root"
+        >
+          event.kcIdSectionInfo
+        </p>
+      </div>
+      <div
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
+        style="min-height: 0px;"
+      >
+        <div
+          class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
+        >
+          <div
+            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
+          >
+            <div
+              class="MuiBox-root css-1xs22px"
+            >
+              <div
+                class="MuiStack-root css-1sos3zc-MuiStack-root"
+              >
+                <div
+                  class="MuiBox-root css-z7s4me"
+                >
+                  <div
+                    class="MuiTypography-root MuiTypography-caption css-1374baf-MuiTypography-root"
+                  >
+                    event.kcId
+                  </div>
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-zsblli-MuiTypography-root"
+                  >
+                    event.kcIdEmpty
+                  </p>
+                </div>
+                <button
+                  class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-1nkm392-MuiButtonBase-root-MuiButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <span
+                    class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                      data-testid="SyncIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8m0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4z"
+                      />
+                    </svg>
+                  </span>
+                  event.kcIdLookup
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
