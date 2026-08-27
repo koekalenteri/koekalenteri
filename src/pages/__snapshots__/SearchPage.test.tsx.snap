@@ -2074,7 +2074,7 @@ exports[`SearchPage > filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -2103,7 +2103,7 @@ exports[`SearchPage > filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -2132,13 +2132,30 @@ exports[`SearchPage > filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
                     0
                   </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-8 css-19x59cl-MuiGrid-root"
+                  >
+                    event.classPlacesHeader.total
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
+                  >
+                    10
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
+                  />
                 </div>
               </div>
             </div>
@@ -4049,7 +4066,7 @@ exports[`SearchPage > filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -4078,7 +4095,7 @@ exports[`SearchPage > filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -4107,13 +4124,30 @@ exports[`SearchPage > filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
                     0
                   </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-8 css-19x59cl-MuiGrid-root"
+                  >
+                    event.classPlacesHeader.total
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
+                  >
+                    10
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
+                  />
                 </div>
               </div>
             </div>
@@ -5414,7 +5448,7 @@ exports[`SearchPage > filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -5443,7 +5477,7 @@ exports[`SearchPage > filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -5472,13 +5506,30 @@ exports[`SearchPage > filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
                     0
                   </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-8 css-19x59cl-MuiGrid-root"
+                  >
+                    event.classPlacesHeader.total
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
+                  >
+                    10
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
+                  />
                 </div>
               </div>
             </div>
@@ -8161,7 +8212,7 @@ exports[`SearchPage > filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -8190,7 +8241,7 @@ exports[`SearchPage > filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -8219,13 +8270,30 @@ exports[`SearchPage > filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
-                    10
+                    –
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
                   >
                     0
                   </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-8 css-19x59cl-MuiGrid-root"
+                  >
+                    event.classPlacesHeader.total
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
+                  >
+                    10
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
+                  />
                 </div>
               </div>
             </div>

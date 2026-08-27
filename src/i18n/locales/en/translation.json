@@ -168,7 +168,8 @@
       "entries": "entries",
       "members": "priorized",
       "name": "class",
-      "places": "places"
+      "places": "places",
+      "total": "places in total"
     },
     "classProgress": "{{completed}}/{{total}}{{classes}}",
     "contactInfo": "Contact information",

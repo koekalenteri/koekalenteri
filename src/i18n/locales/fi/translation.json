@@ -168,7 +168,8 @@
       "entries": "ilmoja",
       "members": "etusijalla",
       "name": "luokka",
-      "places": "paikkoja"
+      "places": "paikkoja",
+      "total": "paikkoja yhteensä"
     },
     "classProgress": "{{completed}}/{{total}}{{classes}}",
     "contactInfo": "Yhteystiedot",

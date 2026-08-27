@@ -1,7 +1,7 @@
 import type { PublicDogEvent } from '../../../../types'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { placesForClass } from '../../../../lib/event'
+import { hasExplicitPlacesForClass, placesForClass, uniqueClasses } from '../../../../lib/event'
 import InfoTableContainerGrid from '../../../components/InfoTableContainerGrid'
 import InfoTableNumberGrid from '../../../components/InfoTableNumberGrid'
 import InfoTableTextGrid from '../../../components/InfoTableTextGrid'
@@ -14,7 +14,7 @@ export type MinimalEvent = Pick<
 export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; eventClass: string }) => {
   const { t } = useTranslation()
 
-  const { dates, entryStatus } = useMemo(() => {
+  const { dates, entryStatus, showPlaces } = useMemo(() => {
     const classes = event.classes.filter((c) => c.class === eventClass)
     const dates = classes.map((c) => c.date ?? event.startDate ?? new Date())
 
@@ -33,7 +33,12 @@ export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; e
       entryStatus.members = event.members ?? 0
     }
 
-    return { dates, entryStatus }
+    // With a single class, the event-wide total genuinely is this class's total. With several
+    // classes and no explicit per-class/per-day split, the places are a shared pool — showing
+    // a number on this row would misleadingly imply it's this class's own capacity.
+    const showPlaces = uniqueClasses(event).length <= 1 || hasExplicitPlacesForClass(event, eventClass)
+
+    return { dates, entryStatus, showPlaces }
   }, [event, eventClass])
 
   return (
@@ -45,7 +50,7 @@ export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; e
         </InfoTableTextGrid>
       ) : null}
       <InfoTableNumberGrid size={{ xs: 2 }}>{entryStatus.entries}</InfoTableNumberGrid>
-      <InfoTableNumberGrid size={{ xs: 2 }}>{entryStatus.places}</InfoTableNumberGrid>
+      <InfoTableNumberGrid size={{ xs: 2 }}>{showPlaces ? entryStatus.places : '–'}</InfoTableNumberGrid>
       <InfoTableNumberGrid size={{ xs: 2 }}>{entryStatus.members}</InfoTableNumberGrid>
     </InfoTableContainerGrid>
   )

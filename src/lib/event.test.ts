@@ -20,6 +20,7 @@ import {
   getEventTitle,
   getStartListPublishedClassMap,
   getUniqueEventClasses,
+  hasExplicitPlacesForClass,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEventDeletable,
@@ -969,6 +970,46 @@ describe('placesForClass', () => {
   it('falls back to the event-wide total when there is no per-class or per-day data', () => {
     const event = { classes: [{ class: 'ALO' as const }], places: 20 }
     expect(placesForClass(event, 'ALO')).toBe(20)
+  })
+
+  it('returns 0 rather than the event-wide total when there are several classes and no breakdown', () => {
+    // Regression: the "total" places mode zeroes out every class's own `places`, so attributing
+    // the whole event's total to each class independently would multiply it by the class count.
+    const event = {
+      classes: [{ class: 'ALO' as const }, { class: 'AVO' as const }, { class: 'VOI' as const }],
+      places: 20,
+    }
+    expect(placesForClass(event, 'ALO')).toBe(0)
+    expect(placesForClass(event, 'AVO')).toBe(0)
+    expect(placesForClass(event, 'VOI')).toBe(0)
+  })
+})
+
+describe('hasExplicitPlacesForClass', () => {
+  it('returns false for a nullish event', () => {
+    expect(hasExplicitPlacesForClass(undefined, 'ALO')).toBe(false)
+    expect(hasExplicitPlacesForClass(null, 'ALO')).toBe(false)
+  })
+
+  it('returns true when the class has its own places', () => {
+    const event = { classes: [{ class: 'ALO' as const, places: 5 }] }
+    expect(hasExplicitPlacesForClass(event, 'ALO')).toBe(true)
+  })
+
+  it('returns true when the class has a day total via placesPerDay', () => {
+    const event = {
+      classes: [{ class: 'ALO' as const, date: new Date('2026-11-07') }],
+      placesPerDay: { '2026-11-07': 10 },
+    }
+    expect(hasExplicitPlacesForClass(event, 'ALO')).toBe(true)
+  })
+
+  it('returns false when neither the class nor its days have an explicit total', () => {
+    const event = {
+      classes: [{ class: 'ALO' as const, date: new Date('2026-11-07') }],
+      placesPerDay: { '2026-11-08': 10 },
+    }
+    expect(hasExplicitPlacesForClass(event, 'ALO')).toBe(false)
   })
 })
 

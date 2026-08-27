@@ -88,18 +88,13 @@ export const uniqueClasses = (event?: { classes?: Array<Pick<EventClass, 'class'
   return Array.isArray(classes) ? unique(classes.map((eventClass) => eventClass.class)) : []
 }
 
-export const placesForClass = (
-  event: DeepPartial<Pick<PublicDogEvent, 'places' | 'classes' | 'placesPerDay'>> | undefined | null,
+const classAndDayTotals = (
+  event: DeepPartial<Pick<PublicDogEvent, 'classes' | 'placesPerDay'>>,
   eventClass: string
 ) => {
-  if (!event) return 0
-
   const classItems = (Array.isArray(event.classes) ? event.classes : []).filter((item) => item.class === eventClass)
   const classTotal = classItems.reduce((total, item) => total + (Number(item.places) || 0), 0)
-  if (classTotal) return classTotal
 
-  // No per-class places set (e.g. capacity is tracked per day instead) — fall back to the
-  // day totals for the dates this class runs on, then to the event-wide total.
   const placesPerDay = event.placesPerDay
   const dayTotal = placesPerDay
     ? classItems.reduce((total, item) => {
@@ -108,7 +103,35 @@ export const placesForClass = (
       }, 0)
     : 0
 
-  return dayTotal || Number(event.places) || 0
+  return { classTotal, dayTotal }
+}
+
+/** Whether this class has its own places, rather than inheriting the event-wide total. */
+export const hasExplicitPlacesForClass = (
+  event: DeepPartial<Pick<PublicDogEvent, 'classes' | 'placesPerDay'>> | undefined | null,
+  eventClass: string
+) => {
+  if (!event) return false
+  const { classTotal, dayTotal } = classAndDayTotals(event, eventClass)
+  return classTotal > 0 || dayTotal > 0
+}
+
+export const placesForClass = (
+  event: DeepPartial<Pick<PublicDogEvent, 'places' | 'classes' | 'placesPerDay'>> | undefined | null,
+  eventClass: string
+) => {
+  if (!event) return 0
+
+  const { classTotal, dayTotal } = classAndDayTotals(event, eventClass)
+  if (classTotal) return classTotal
+  if (dayTotal) return dayTotal
+
+  // The event-wide total is only this class's total when the event has a single class —
+  // otherwise it's a shared pool, not per-class capacity, so showing it per class would be misleading.
+  const distinctClasses = new Set(
+    (Array.isArray(event.classes) ? event.classes : []).map((item) => item.class).filter(Boolean)
+  )
+  return distinctClasses.size <= 1 ? Number(event.places) || 0 : 0
 }
 
 export const uniqueClassDates = (event: PublicDogEvent, eventClass: string) => {

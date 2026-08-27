@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedEndOfDay } from '../../../i18n/dates'
-import { isEntryOpen } from '../../../lib/event'
+import { hasExplicitPlacesForClass, isEntryOpen } from '../../../lib/event'
 import { judgeName } from '../../../lib/judge'
 import { printContactInfo, unique } from '../../../lib/utils'
 import { getRankingPeriod } from '../../../rules_ch'
@@ -15,6 +15,7 @@ import { PriorityChips } from '../../components/PriorityChips'
 import { TimeLeft } from '../../components/TimeLeft'
 import { EventClassPlaces } from './eventInfo/EventClassPlaces'
 import { EventClassPlacesHeader } from './eventInfo/EventClassPlacesHeader'
+import { EventClassPlacesTotal } from './eventInfo/EventClassPlacesTotal'
 
 interface Props {
   readonly event: PublicDogEvent
@@ -37,6 +38,9 @@ export const EventInfo = ({ event }: Props) => {
     () => (event.classes.length ? unique(event.classes.map((c) => c.class)) : [event.eventType]),
     [event.classes, event.eventType]
   )
+  // With several classes and no explicit per-class/per-day split, `places` is a shared pool —
+  // shown once here instead of (misleadingly) on every class row.
+  const showPlacesTotal = classes.length > 1 && classes.some((c) => !hasExplicitPlacesForClass(event, c))
   const judges = useMemo(
     () => event.judges.map((j) => `${judgeName(j, t)}${judgeClasses(j, event)}`).filter(Boolean),
     [event, t]
@@ -64,6 +68,7 @@ export const EventInfo = ({ event }: Props) => {
           {classes.map((c) => (
             <EventClassPlaces key={c} event={event} eventClass={c} />
           ))}
+          {showPlacesTotal ? <EventClassPlacesTotal places={event.places} /> : null}
         </ItemWithCaption>
       ) : null}
       {judges.length ? (

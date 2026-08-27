@@ -1,8 +1,11 @@
 import type { EventClass, EventState, PublicDogEvent } from '../types'
 import type { AnyObject } from './utils'
 import {
+  eventDates,
   hasEntryEnded,
   hasEntryStarted,
+  isEntryClosed,
+  isEntryClosing,
   isEntryOpen,
   isEntryUpcoming,
   isEventOngoing,
@@ -40,6 +43,40 @@ describe('utils', () => {
 
     it('returns an empty array for malformed classes', () => {
       expect(uniqueClasses({ classes: {} } as unknown as PublicDogEvent)).toEqual([])
+    })
+
+    it('returns an empty array for a nullish event', () => {
+      expect(uniqueClasses(undefined)).toEqual([])
+      expect(uniqueClasses(null)).toEqual([])
+    })
+  })
+
+  describe('eventDates', () => {
+    it('returns an empty array for a nullish event', () => {
+      expect(eventDates(undefined)).toEqual([])
+      expect(eventDates(null)).toEqual([])
+    })
+
+    it('returns each day of the event when it has no classes', () => {
+      expect(
+        eventDates({ classes: [] as EventClass[], endDate: new Date(2020, 1, 3), startDate: new Date(2020, 1, 1) })
+      ).toEqual([new Date(2020, 1, 1), new Date(2020, 1, 2), new Date(2020, 1, 3)])
+    })
+
+    it('returns the unique class dates when the event has classes', () => {
+      const first = new Date(2020, 1, 1)
+      const second = new Date(2020, 1, 2)
+      expect(
+        eventDates({
+          classes: [
+            { class: 'ALO', date: first },
+            { class: 'AVO', date: first },
+            { class: 'VOI', date: second },
+          ],
+          endDate: second,
+          startDate: first,
+        } as PublicDogEvent)
+      ).toEqual([first, second])
     })
   })
 
@@ -143,6 +180,17 @@ describe('utils', () => {
 
       expect(uniqueClassDates(event, 'ALO')).toEqual([first, second])
       expect(uniqueClassDates(event, 'VOI')).toEqual([second])
+    })
+
+    it('falls back to the event dates for a classless event, keyed by its event type', () => {
+      const event = {
+        classes: [] as EventClass[],
+        endDate: new Date(2020, 1, 2),
+        eventType: 'NOU',
+        startDate: new Date(2020, 1, 1),
+      } as PublicDogEvent
+
+      expect(uniqueClassDates(event, 'NOU')).toEqual([new Date(2020, 1, 1), new Date(2020, 1, 2)])
     })
 
     it('should return each possible registration date for event without classes', () => {
@@ -308,6 +356,97 @@ describe('utils', () => {
     })
   })
 
+  describe('isEntryClosing', () => {
+    const now = new Date('2026-07-16T12:00:00+03:00')
+    const entryStartDate = new Date('2026-07-01T12:00:00+03:00')
+
+    it('returns false without an entryEndDate', () => {
+      expect(isEntryClosing({ entryStartDate, state: 'confirmed' }, now)).toBe(false)
+    })
+
+    it('returns false when entry is not open (invalid state)', () => {
+      expect(
+        isEntryClosing(
+          {
+            endDate: new Date('2026-07-21T12:00:00+03:00'),
+            entryEndDate: new Date('2026-07-20T12:00:00+03:00'),
+            entryStartDate,
+            startDate: new Date('2026-07-21T12:00:00+03:00'),
+            state: 'cancelled',
+          },
+          now
+        )
+      ).toBe(false)
+    })
+
+    it('returns true when the entry end date is within 7 days and entry is open', () => {
+      expect(
+        isEntryClosing(
+          {
+            endDate: new Date('2026-07-21T12:00:00+03:00'),
+            entryEndDate: new Date('2026-07-20T12:00:00+03:00'),
+            entryStartDate,
+            startDate: new Date('2026-07-21T12:00:00+03:00'),
+            state: 'confirmed',
+          },
+          now
+        )
+      ).toBe(true)
+    })
+
+    it('returns false when the entry end date is more than 7 days away', () => {
+      expect(
+        isEntryClosing(
+          {
+            endDate: new Date('2026-07-31T12:00:00+03:00'),
+            entryEndDate: new Date('2026-07-30T12:00:00+03:00'),
+            entryStartDate,
+            startDate: new Date('2026-07-31T12:00:00+03:00'),
+            state: 'confirmed',
+          },
+          now
+        )
+      ).toBe(false)
+    })
+  })
+
+  describe('isEntryClosed', () => {
+    const now = new Date('2026-07-16T12:00:00+03:00')
+
+    it('returns false without a startDate or entryEndDate', () => {
+      expect(isEntryClosed({}, now)).toBe(false)
+      expect(isEntryClosed({ startDate: new Date('2026-07-20T12:00:00+03:00') }, now)).toBe(false)
+      expect(isEntryClosed({ entryEndDate: new Date('2026-07-10T12:00:00+03:00') }, now)).toBe(false)
+    })
+
+    it('returns true between the entry end date and the event start date', () => {
+      expect(
+        isEntryClosed(
+          { entryEndDate: new Date('2026-07-10T12:00:00+03:00'), startDate: new Date('2026-07-20T12:00:00+03:00') },
+          now
+        )
+      ).toBe(true)
+    })
+
+    it('returns false once the event has started', () => {
+      expect(
+        isEntryClosed(
+          { entryEndDate: new Date('2026-07-01T12:00:00+03:00'), startDate: new Date('2026-07-10T12:00:00+03:00') },
+          now
+        )
+      ).toBe(false)
+    })
+
+    it('returns false before the entry end date', () => {
+      expect(
+        isEntryClosed(
+          { entryEndDate: new Date('2026-07-20T12:00:00+03:00'), startDate: new Date('2026-07-25T12:00:00+03:00') },
+          now
+        )
+      ).toBe(false)
+    })
+  })
+
   describe('isEntryUpcoming', () => {
     const now = new Date(1700000000000)
     const future = new Date(1700000001000)
@@ -418,7 +557,7 @@ describe('utils', () => {
       ${10}  | ${[{ class: 'ALO', places: 11 }, { class: 'AVO', places: 12 }, { class: 'VOI', places: 13 }]} | ${'ALO'} | ${11}
       ${10}  | ${[{ class: 'ALO', places: 11 }, { class: 'AVO', places: 12 }, { class: 'VOI', places: 13 }]} | ${'AVO'} | ${12}
       ${10}  | ${[{ class: 'ALO', places: 11 }, { class: 'AVO', places: 12 }, { class: 'VOI', places: 13 }]} | ${'VOI'} | ${13}
-      ${10}  | ${[{ class: 'ALO', places: 11 }, { class: 'AVO', places: 12 }, { class: 'VOI', places: 13 }]} | ${'HUI'} | ${10}
+      ${10}  | ${[{ class: 'ALO', places: 11 }, { class: 'AVO', places: 12 }, { class: 'VOI', places: 13 }]} | ${'HUI'} | ${0}
     `(
       'should return $expected for class $cls when places is $places and $classes is $classes',
       ({ places, classes, cls, expected }) => {
