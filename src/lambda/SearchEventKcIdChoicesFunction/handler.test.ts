@@ -307,6 +307,7 @@ describe('searchEventKcIdChoicesLambda', () => {
           rajoitukset: [{ lisätiedot: 'SM järjestämisohje', rajoituksenTyyppi: 'Muu määrää koskeva rajoitus' }],
           tapahtuma: '',
           tarkenne: '',
+          tila: 'Hyväksytty',
           tilinumero: 'FI86 1281 3000 2014 69',
           tyyppi: 'SM-koe tai muu mestaruusottelu',
           viitenumero: '1012',
@@ -340,13 +341,63 @@ describe('searchEventKcIdChoicesLambda', () => {
             entryStartDate: '2026-05-17T00:00:00',
             eventType: 'NOWT SM',
             id: 453830,
+            judge: 'Fontell Ari-Pekka',
             location: 'Jyväskylä, Korpilahti',
             name: '',
             organizer: 'KESKI-SUOMEN NOUTAJAKOIRAYHDISTYS RY.',
             startDate: '2026-06-28T00:00:00',
+            status: 'Hyväksytty',
           }),
         ],
       },
+      event
+    )
+  })
+
+  it('falls back to tapahtuma for the name when tarkenne is null', async () => {
+    mockLueKoetapahtumat.mockResolvedValueOnce({
+      json: [
+        {
+          aika: '2026-07-01',
+          id: 222,
+          ilmoitauttumisLinkki: '',
+          ilmoittautumisenAlku: '',
+          ilmoittautumisenLoppu: '',
+          kennelpiiri: '',
+          koemuoto: 'Noutajien B-koe',
+          koetoimitsija: '',
+          lisatiedot: '',
+          luokat: ['ALO'],
+          lyhenne: 'NOME-B',
+          osanottomaksu: '',
+          paikka: 'Keskuspuisto',
+          paikkakunta: 'Espoo',
+          päättyy: '2026-07-02',
+          rajoitukset: [],
+          tapahtuma: 'Koe',
+          tarkenne: null,
+          tininumero: '',
+          tyyppi: '',
+          viitenumero: '',
+          www: '',
+          yhdistys: 'Org',
+          ylituomari: '',
+        },
+      ],
+      status: 200,
+    })
+    const event = constructAPIGwEvent(lookupRequest, { method: 'POST' })
+
+    await searchEventKcIdChoicesLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      { choices: [expect.objectContaining({ id: 222, name: 'Koe' })] },
+      event
+    )
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      { choices: [expect.not.objectContaining({ judge: expect.anything(), status: expect.anything() })] },
       event
     )
   })

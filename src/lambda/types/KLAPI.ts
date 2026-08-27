@@ -136,7 +136,7 @@ export type KLKoetapahtuma = {
   yhdistys: string
   lyhenne: string
   koemuoto: string
-  tarkenne: string
+  tarkenne: string | null
   tapahtuma: string
   luokat: Array<string | { id_Tapahtuma?: number; luokka: string }>
   aika: string //Date
@@ -148,7 +148,7 @@ export type KLKoetapahtuma = {
   ylituomari: string
   koetoimitsija: string
   kilpailunjohtaja?: string
-  ilmoittautumiset: string
+  ilmoittautumiset?: string
   ilmoittautumiset_Nimi?: string
   ilmoittautumiset_Puhelin?: string
   ilmoittautumiset_Sähköposti?: string
@@ -168,6 +168,8 @@ export type KLKoetapahtuma = {
   www: string
   ilmoittautumisLinkki?: string
   ilmoitauttumisLinkki?: string
+  tila?: string
+  id_Tila?: number
 }
 
 export type KLKennelpiiri = {

@@ -427,6 +427,7 @@ export function sanitizeDogEvent(
     deletedBy: _deletedBy,
     headquarters: _headquarters,
     kcId: _kcId,
+    kcEvent: _kcEvent,
     invitationAttachment: _invitationAttachment,
     invitationAttachmentHistory: _invitationAttachmentHistory,
     invitationAttachments: _invitationAttachments,

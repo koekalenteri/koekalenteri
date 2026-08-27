@@ -121,16 +121,18 @@ describe('KcIdSection', () => {
       'id-token'
     )
     expect(screen.queryByText('event.kcIdChoiceTitle')).not.toBeInTheDocument()
-    expect(changeHandler).toHaveBeenCalledWith(
-      expect.objectContaining({
+    // exact top-level match: linking must not touch the event's own fields (that's the whole
+    // point of the snapshot) — only kcEvent/kcId are set, nothing else
+    expect(changeHandler).toHaveBeenLastCalledWith({
+      kcEvent: expect.objectContaining({
+        classes: ['ALO', 'AVO'],
         eventType: 'NOME-B',
-        kcId: 222,
         location: 'Espoo',
-        season: '2026',
-      })
-    )
-    expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].startDate)).toEqual('2026-07-01')
-    expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].endDate)).toEqual('2026-07-02')
+      }),
+      kcId: 222,
+    })
+    expect(zonedDateString(changeHandler.mock.lastCall?.[0].kcEvent.startDate)).toEqual('2026-07-01')
+    expect(zonedDateString(changeHandler.mock.lastCall?.[0].kcEvent.endDate)).toEqual('2026-07-02')
     expect(enqueueSnackbar).toHaveBeenCalledWith('event.kcIdSelected id', { variant: 'success' })
   })
 
@@ -185,7 +187,10 @@ describe('KcIdSection', () => {
     await user.click(selectButtons[0])
     await flushPromises()
 
-    expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ kcId: 222 }))
+    expect(changeHandler).toHaveBeenLastCalledWith({
+      kcEvent: expect.objectContaining({ classes: ['ALO', 'AVO'], eventType: 'NOME-B', location: 'Espoo' }),
+      kcId: 222,
+    })
     expect(screen.queryByText('event.kcIdChoiceTitle')).not.toBeInTheDocument()
   })
 
@@ -225,7 +230,7 @@ describe('KcIdSection', () => {
 
     await user.click(screen.getByText('event.kcIdRemove'))
 
-    expect(changeHandler.mock.calls.at(-1)?.[0]).toEqual({ kcId: null })
+    expect(changeHandler).toHaveBeenLastCalledWith({ kcEvent: null, kcId: null })
 
     rerender(
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
@@ -284,5 +289,99 @@ describe('KcIdSection', () => {
     } finally {
       consoleError.mockRestore()
     }
+  })
+
+  describe('drift warnings', () => {
+    const kcEvent = {
+      classes: ['ALO'],
+      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      eventType: 'NOME-B',
+      judge: 'Tuomari Testi',
+      location: 'Espoo',
+      startDate: new TZDate('2026-06-01', TIME_ZONE),
+    }
+    const baseEvent: PartialEvent = {
+      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
+      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      eventType: 'NOME-B',
+      id: 'test',
+      judges: [{ id: 1, name: 'Tuomari Testi' }],
+      kcEvent,
+      kcId: 222,
+      location: 'Espoo',
+      organizer: { id: 'org-id', name: 'Organizer' },
+      startDate: new TZDate('2026-06-01', TIME_ZONE),
+    }
+
+    it('should show no warnings when the event matches the linked Kennel Club event', () => {
+      renderComponent({ event: baseEvent, onChange: vi.fn(), open: true })
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('should show no warnings when a koetunnus is set without a stored snapshot', () => {
+      renderComponent({ event: { ...baseEvent, kcEvent: undefined }, onChange: vi.fn(), open: true })
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('should warn when the event type differs from the linked Kennel Club event', () => {
+      renderComponent({ event: { ...baseEvent, eventType: 'NOWT' }, onChange: vi.fn(), open: true })
+
+      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(screen.getByText('event.kcIdWarningType eventType, kcEventType')).toBeInTheDocument()
+    })
+
+    it('should warn when the classes differ from the linked Kennel Club event', () => {
+      renderComponent({
+        event: {
+          ...baseEvent,
+          classes: [
+            { class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) },
+            { class: 'AVO', date: new TZDate('2026-06-01', TIME_ZONE) },
+          ],
+        },
+        onChange: vi.fn(),
+        open: true,
+      })
+
+      expect(screen.getByText('event.kcIdWarningClasses classes, kcClasses')).toBeInTheDocument()
+    })
+
+    it('should warn when the dates differ from the linked Kennel Club event', () => {
+      renderComponent({
+        event: { ...baseEvent, endDate: new TZDate('2026-06-02', TIME_ZONE) },
+        onChange: vi.fn(),
+        open: true,
+      })
+
+      expect(screen.getByText('event.kcIdWarningDates dates, kcDates')).toBeInTheDocument()
+    })
+
+    it('should warn when the location differs from the linked Kennel Club event', () => {
+      renderComponent({ event: { ...baseEvent, location: 'Vantaa' }, onChange: vi.fn(), open: true })
+
+      expect(screen.getByText('event.kcIdWarningLocation kcLocation, location')).toBeInTheDocument()
+    })
+
+    it('should warn when the Kennel Club head judge is not among the event judges', () => {
+      renderComponent({
+        event: { ...baseEvent, judges: [{ id: 1, name: 'Joku Muu' }] },
+        onChange: vi.fn(),
+        open: true,
+      })
+
+      expect(screen.getByText('event.kcIdWarningJudge kcJudge')).toBeInTheDocument()
+    })
+
+    it('should not warn about judges when the Kennel Club event has no head judge on record', () => {
+      renderComponent({
+        event: { ...baseEvent, judges: [{ id: 1, name: 'Joku Muu' }], kcEvent: { ...kcEvent, judge: undefined } },
+        onChange: vi.fn(),
+        open: true,
+      })
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
   })
 })

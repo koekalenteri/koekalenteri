@@ -44,6 +44,7 @@ export type BasicInfoEvent = Pick<
   | 'entryStartDate'
   | 'eventType'
   | 'judges'
+  | 'kcEvent'
   | 'kcId'
   | 'location'
   | 'name'

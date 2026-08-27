@@ -34,6 +34,7 @@ export default function KcIdChoiceDialog({ choices, onClose, onSelect }: Props) 
               <TableCell>{t('event.kcIdChoiceTime')}</TableCell>
               <TableCell>{t('event.kcIdChoiceLocation')}</TableCell>
               <TableCell>{t('event.kcIdChoiceOrganizer')}</TableCell>
+              <TableCell>{t('event.kcIdChoiceStatus')}</TableCell>
               <TableCell />
             </TableRow>
           </TableHead>
@@ -46,6 +47,7 @@ export default function KcIdChoiceDialog({ choices, onClose, onSelect }: Props) 
                 <TableCell>{formatDateSpan(choice)}</TableCell>
                 <TableCell>{choice.location}</TableCell>
                 <TableCell>{choice.organizer}</TableCell>
+                <TableCell>{choice.status}</TableCell>
                 <TableCell align="right">
                   <Button variant="contained" size="small" onClick={() => onSelect(choice)}>
                     {t('event.kcIdSelect')}

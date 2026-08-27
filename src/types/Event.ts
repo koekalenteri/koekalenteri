@@ -50,6 +50,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   invitationAttachments?: Record<string, string>
   judges: Array<PublicJudge>
   kcId?: number
+  kcEvent?: JsonKcEventInfo
   location: string
   members?: number
   name: string
@@ -74,17 +75,31 @@ type EventEntryDates = 'entryStartDate' | 'entryEndDate'
 type EventOptionalDates = EventEntryDates | 'entryOrigEndDate' | 'qualificationStartDate'
 type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
 
+export type JsonKcEventInfo = {
+  classes: string[]
+  eventType: string
+  startDate: string
+  endDate: string
+  location: string
+  judge?: string
+}
+export type KcEventInfo = Replace<JsonKcEventInfo, 'startDate' | 'endDate', Date>
+
 export type DogEvent = DbRecord &
   Replace<
     Replace<
       ReplaceOptional<
         ReplaceOptional<
-          Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
-          EventOptionalDates,
-          Date
+          ReplaceOptional<
+            Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
+            EventOptionalDates,
+            Date
+          >,
+          'dates',
+          RegistrationDate[]
         >,
-        'dates',
-        RegistrationDate[]
+        'kcEvent',
+        KcEventInfo
       >,
       EventRequiredDates,
       Date
@@ -103,6 +118,7 @@ type NonPublicDogEventProperties =
   | 'invitationAttachmentHistory'
   | 'invitationAttachments'
   | 'kcId'
+  | 'kcEvent'
   | 'official'
   | 'secretary'
   | 'createdBy'

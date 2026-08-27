@@ -103,34 +103,5 @@ describe('BasicInfoSection', () => {
         startDate: otherDate,
       })
     })
-
-    it('should lock the event dates while a Kennel Club ID is set and reopen them once it is removed', () => {
-      const testEvent: PartialEvent = {
-        classes: [],
-        endDate: newEventStartDate,
-        judges: [],
-        kcId: 222,
-        startDate: newEventStartDate,
-      }
-      const { rerender, startInput, endInput } = renderComponent({
-        event: testEvent,
-        onChange: vi.fn(),
-        open: true,
-      })
-
-      expect(startInput).toBeDisabled()
-      expect(endInput).toBeDisabled()
-
-      rerender(
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <Provider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
-            <BasicInfoSection {...{ event: { ...testEvent, kcId: null }, onChange: vi.fn(), open: true }} />
-          </Provider>
-        </LocalizationProvider>
-      )
-
-      expect(startInput).toBeEnabled()
-      expect(endInput).toBeEnabled()
-    })
   })
 })

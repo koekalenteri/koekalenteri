@@ -19,6 +19,7 @@ export type EventKcIdChoice = {
   cost?: DogEvent['cost']
   description?: DogEvent['description']
   id: number
+  judge?: string
   name: string
   eventType: string
   startDate: Date
@@ -27,6 +28,7 @@ export type EventKcIdChoice = {
   entryEndDate?: Date
   organizer: string
   location: string
+  status?: string
 }
 
 export type SearchEventKcIdChoicesResponse = {

@@ -1,24 +1,19 @@
+import type { TFunction } from 'i18next'
 import type { EventKcIdChoice } from '../../../../api/event'
-import type { DogEvent, EventClass, Patch } from '../../../../types'
-import type { BasicInfoEvent, PartialEvent, SectionProps } from './types'
+import type { DogEvent, Patch } from '../../../../types'
+import type { BasicInfoEvent, SectionProps } from './types'
 import Sync from '@mui/icons-material/Sync'
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { add, differenceInDays, isAfter, isSameDay } from 'date-fns'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { normalizeEventKcIdChoice, searchEventKcIdChoices } from '../../../../api/event'
-import { zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../../i18n/dates'
-import {
-  defaultEntryEndDate,
-  defaultEntryStartDate,
-  isDetaultEntryEndDate,
-  isDetaultEntryStartDate,
-} from '../../../../lib/event'
+import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import { idTokenAtom } from '../../../state'
 import KcIdChoiceDialog from './KcIdChoiceDialog'
@@ -37,6 +32,7 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
   const canEditKcId = Boolean(selectedOrganizerId) && !disabled
   const error = (errorStates && errorStates.kcId) || false
   const helperText = error ? t('validation.event.errors') : t('event.kcIdSectionInfo')
+  const warnings = useMemo(() => computeKcWarnings(event, t), [event, t])
 
   const handleKcIdRefresh = useCallback(async () => {
     if (!selectedOrganizerId) return
@@ -62,7 +58,7 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
       )
       if (result.choices.length === 1) {
         const choice = normalizeEventKcIdChoice(result.choices[0])
-        onChange?.(applyKcChoice(event, choice))
+        onChange?.(applyKcChoice(choice))
         enqueueSnackbar(t('event.kcIdSelected', { id: choice.id }), { variant: 'success' })
       } else if (result.choices.length > 1) {
         setKcIdChoices(result.choices.map(normalizeEventKcIdChoice))
@@ -79,14 +75,14 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
   const handleKcIdChoiceClose = useCallback(() => setKcIdChoices([]), [])
   const handleKcIdChoice = useCallback(
     (choice: EventKcIdChoice) => {
-      onChange?.(applyKcChoice(event, choice))
+      onChange?.(applyKcChoice(choice))
       setKcIdChoices([])
       enqueueSnackbar(t('event.kcIdSelected', { id: choice.id }), { variant: 'success' })
     },
-    [event, onChange, t]
+    [onChange, t]
   )
   const handleKcIdRemove = useCallback(() => {
-    onChange?.({ kcId: null })
+    onChange?.({ kcEvent: null, kcId: null })
     enqueueSnackbar(t('event.kcIdRemoved'), { variant: 'success' })
   }, [onChange, t])
 
@@ -141,6 +137,13 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
             </Typography>
           )}
         </Stack>
+        {warnings.length > 0 && (
+          <Alert severity="warning" sx={{ mt: 1 }}>
+            {warnings.map((warning) => (
+              <div key={warning}>{warning}</div>
+            ))}
+          </Alert>
+        )}
       </CollapsibleSection>
       <KcIdChoiceDialog choices={kcIdChoices} onClose={handleKcIdChoiceClose} onSelect={handleKcIdChoice} />
     </>
@@ -156,79 +159,58 @@ function formatDateSpan(start?: Date, end?: Date) {
   return startDate === endDate ? startDate : `${startDate} - ${endDate}`
 }
 
-function updateClassDates(event: PartialEvent, start: Date, end: Date) {
-  const result: EventClass[] = []
-  for (const c of event.classes) {
-    const date = zonedStartOfDay(add(start, { days: differenceInDays(c.date ?? event.startDate, event.startDate) }))
-    if (!isAfter(date, end)) {
-      result.push({ ...c, date })
-    }
-  }
-  return result
+function joinSorted(values: readonly (string | undefined)[] | undefined) {
+  return [...new Set((values ?? []).filter((v): v is string => Boolean(v)))].sort().join(', ')
 }
 
-function shiftDate(date: Date, oldStartDate: Date, newStartDate: Date) {
-  return zonedStartOfDay(add(newStartDate, { days: differenceInDays(date, oldStartDate) }))
-}
+function computeKcWarnings(event: BasicInfoEvent, t: TFunction) {
+  const kcEvent = event.kcEvent
+  if (!event.kcId || !kcEvent) return []
 
-function applyKcChoice(event: PartialEvent, choice: EventKcIdChoice): Patch<DogEvent> {
-  choice = normalizeEventKcIdChoice(choice)
-  const startDate = zonedStartOfDay(choice.startDate)
-  const endDate = zonedEndOfDay(choice.endDate)
-  let entryStartDate = choice.entryStartDate ? zonedStartOfDay(choice.entryStartDate) : event.entryStartDate
-  let entryEndDate = choice.entryEndDate ? zonedEndOfDay(choice.entryEndDate) : event.entryEndDate
-  if (!isSameDay(startDate, event.startDate)) {
-    if (isDetaultEntryStartDate(entryStartDate, event.startDate)) {
-      entryStartDate = defaultEntryStartDate(startDate)
-    }
-    if (isDetaultEntryEndDate(entryEndDate, event.startDate)) {
-      entryEndDate = defaultEntryEndDate(startDate)
+  const warnings: string[] = []
+
+  if (kcEvent.eventType && event.eventType !== kcEvent.eventType) {
+    warnings.push(t('event.kcIdWarningType', { eventType: event.eventType, kcEventType: kcEvent.eventType }))
+  }
+
+  const classes = joinSorted(event.classes?.map((c) => c?.class))
+  const kcClasses = joinSorted(kcEvent.classes)
+  if (kcClasses && classes !== kcClasses) {
+    warnings.push(t('event.kcIdWarningClasses', { classes, kcClasses }))
+  }
+
+  const dates = formatDateSpan(event.startDate, event.endDate)
+  const kcDates = formatDateSpan(kcEvent.startDate, kcEvent.endDate)
+  if (kcDates && dates !== kcDates) {
+    warnings.push(t('event.kcIdWarningDates', { dates, kcDates }))
+  }
+
+  if (kcEvent.location && event.location !== kcEvent.location) {
+    warnings.push(t('event.kcIdWarningLocation', { kcLocation: kcEvent.location, location: event.location }))
+  }
+
+  if (kcEvent.judge) {
+    const judgeNames = new Set((event.judges ?? []).map((j) => j?.name?.trim().toLocaleLowerCase('fi')).filter(Boolean))
+    if (!judgeNames.has(kcEvent.judge.trim().toLocaleLowerCase('fi'))) {
+      warnings.push(t('event.kcIdWarningJudge', { kcJudge: kcEvent.judge }))
     }
   }
-  const classes = updateClassDates(event, startDate, endDate)
-  const dates = event.dates
-    ?.map((date) => ({
-      ...date,
-      date: shiftDate(date.date, event.startDate, startDate),
-    }))
-    .filter((date) => !isAfter(date.date, endDate))
-  const placesPerDayStartDate = zonedParseDate(zonedDateString(event.startDate))
-  const placesPerDay = event.placesPerDay
-    ? Object.fromEntries(
-        Object.entries(event.placesPerDay)
-          .map(
-            ([date, places]) =>
-              [zonedDateString(shiftDate(zonedParseDate(date), placesPerDayStartDate, startDate)), places] as const
-          )
-          .filter(([date]) => !isAfter(zonedStartOfDay(date), endDate))
-      )
-    : undefined
-  const contactInfo = choice.contactInfo
-    ? {
-        ...event.contactInfo,
-        ...(choice.contactInfo.official
-          ? { official: { ...event.contactInfo?.official, ...choice.contactInfo.official } }
-          : undefined),
-        ...(choice.contactInfo.secretary
-          ? { secretary: { ...event.contactInfo?.secretary, ...choice.contactInfo.secretary } }
-          : undefined),
-      }
-    : undefined
+
+  return warnings
+}
+
+function applyKcChoice(choice: EventKcIdChoice): Patch<DogEvent> {
+  const normalized = normalizeEventKcIdChoice(choice)
 
   return {
-    classes,
-    contactInfo,
-    cost: choice.cost,
-    dates,
-    description: choice.description,
-    endDate,
-    entryEndDate,
-    entryStartDate,
-    eventType: choice.eventType,
-    kcId: choice.id,
-    location: choice.location,
-    placesPerDay,
-    season: String(startDate.getFullYear()),
-    startDate,
+    kcEvent: {
+      classes: normalized.classes,
+      endDate: zonedEndOfDay(normalized.endDate),
+      eventType: normalized.eventType,
+      judge: normalized.judge,
+      location: normalized.location,
+      startDate: zonedStartOfDay(normalized.startDate),
+    },
+    kcId: normalized.id,
   }
 }

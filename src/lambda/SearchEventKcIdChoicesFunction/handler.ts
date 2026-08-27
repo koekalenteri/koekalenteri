@@ -112,6 +112,8 @@ const toChoice = (klEvent: KLKoetapahtuma) => {
     ...(description ? { description } : undefined),
     ...(entryEndDate ? { entryEndDate } : undefined),
     ...(entryStartDate ? { entryStartDate } : undefined),
+    ...(clean(klEvent.ylituomari) ? { judge: clean(klEvent.ylituomari) } : undefined),
+    ...(clean(klEvent.tila) ? { status: clean(klEvent.tila) } : undefined),
     classes: [...new Set((klEvent.luokat ?? []).map(klClass))],
     endDate: klEvent.päättyy,
     eventType: toEventType(klEvent),

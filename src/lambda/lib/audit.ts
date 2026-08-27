@@ -64,6 +64,7 @@ const eventAuditExcludedFields = new Set<string>([
   'id',
   'createdAt',
   'createdBy',
+  'kcEvent',
   'modifiedAt',
   'modifiedBy',
   'startListPublished',

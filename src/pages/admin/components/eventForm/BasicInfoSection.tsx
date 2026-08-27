@@ -5,7 +5,6 @@ import type {
   EventClass,
   EventType,
   Organizer,
-  Patch,
   Person,
   RegistrationClass,
   User,
@@ -92,11 +91,6 @@ function BasicInfoSection({
     [event.eventType, officials, selectedEventType?.official]
   )
   const hasEntries = (event.entries ?? 0) > 0
-  const hasKcId = Boolean(event.kcId)
-  const handleLookupCriteriaChange = useCallback(
-    (props: Patch<DogEvent>) => onChange?.(hasKcId ? { ...props, kcId: null } : props),
-    [hasKcId, onChange]
-  )
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) => {
       start = zonedStartOfDay(start ?? event.startDate)
@@ -135,18 +129,18 @@ function BasicInfoSection({
         official && (event.judges.length === 0 || !event.judges[0].official)
           ? [{ id: 0, name: '', official: true }, ...event.judges]
           : event.judges
-      handleLookupCriteriaChange({ classes, eventType, judges })
+      onChange?.({ classes, eventType, judges })
     },
-    [event.classes, event.judges, eventTypeClasses, handleLookupCriteriaChange]
+    [event.classes, event.judges, eventTypeClasses, onChange]
   )
   const handleClassesChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>
-      handleLookupCriteriaChange({
+      onChange?.({
         classes: applySingleDayNowtGroups(event.eventType, event.startDate, event.endDate, values),
       }),
-    [event.endDate, event.eventType, event.startDate, handleLookupCriteriaChange]
+    [event.endDate, event.eventType, event.startDate, onChange]
   )
-  const [name, setName] = useLocalState(event.name ?? '', (value) => handleLookupCriteriaChange({ name: value }))
+  const [name, setName] = useLocalState(event.name ?? '', (value) => onChange?.({ name: value }))
   const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => setName(e.target.value), [setName])
   const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
   const getId = useCallback((o?: string | { id?: number | string }) => (typeof o === 'string' ? o : (o?.id ?? '')), [])
@@ -171,11 +165,11 @@ function BasicInfoSection({
               startLabel={t('event.startDate')}
               endLabel={t('event.endDate')}
               start={event.startDate}
-              startDisabled={hasEntries || disabled || hasKcId}
+              startDisabled={hasEntries || disabled}
               startError={errorStates?.startDate}
               startHelperText={helperTexts?.startDate}
               end={event.endDate}
-              endDisabled={disabled || hasKcId}
+              endDisabled={disabled}
               endError={errorStates?.endDate}
               endHelperText={helperTexts?.endDate}
               required
@@ -228,7 +222,7 @@ function BasicInfoSection({
               id="organizer"
               isOptionEqualToValue={isEqualId}
               mapValue={(v: Organizer) => (v ? { id: v.id, name: v.name } : v)}
-              onChange={handleLookupCriteriaChange}
+              onChange={onChange}
               options={organizers ?? []}
               renderOption={(props, option) => {
                 if (!option) return null
@@ -247,7 +241,7 @@ function BasicInfoSection({
               fields={fields}
               freeSolo
               id="location"
-              onChange={handleLookupCriteriaChange}
+              onChange={onChange}
               options={[]}
             />
           </Grid>
