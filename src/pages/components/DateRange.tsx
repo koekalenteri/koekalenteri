@@ -37,6 +37,7 @@ function dayStyle(date: Date, selected: boolean, defaultDate?: Date) {
 const coerceToDateValue = (
   d: DateValue,
   range: { start?: Date; end?: Date } | undefined,
+  otherEnd: { min?: DateValue; max?: DateValue },
   fallback: DateValue
 ): DateValue => {
   if (!d) return d
@@ -44,6 +45,8 @@ const coerceToDateValue = (
   if (!isValid(d)) return fallback
   if (range?.start && d < range.start) return fallback
   if (range?.end && d > range.end) return fallback
+  if (otherEnd.min && d < otherEnd.min) return fallback
+  if (otherEnd.max && d > otherEnd.max) return fallback
 
   return d
 }
@@ -66,8 +69,12 @@ export default function DateRange({
   onChange,
 }: Props) {
   const { t } = useTranslation()
-  const startChanged = useDebouncedCallback((date: DateValue) => onChange?.(coerceToDateValue(date, range, start), end))
-  const endChanged = useDebouncedCallback((date: DateValue) => onChange?.(start, coerceToDateValue(date, range, end)))
+  const startChanged = useDebouncedCallback((date: DateValue) =>
+    onChange?.(coerceToDateValue(date, range, {}, start), end)
+  )
+  const endChanged = useDebouncedCallback((date: DateValue) =>
+    onChange?.(start, coerceToDateValue(date, range, { min: start }, end))
+  )
 
   return (
     <Box sx={{ width: '100%' }}>

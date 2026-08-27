@@ -149,5 +149,26 @@ describe('DateRange', () => {
       // as we are not persisting the changes, start resets to original value
       expect(changeHandler).toHaveBeenCalledWith(start, day16)
     })
+
+    it('should not allow setting the end date before the current start date', async () => {
+      const changeHandler = vi.fn()
+
+      const { endInput, user } = renderComponent({
+        end: day16,
+        endLabel: 'end',
+        onChange: changeHandler,
+        start: day15,
+        startLabel: 'start',
+      })
+
+      const earlierDate = new Date(date.getFullYear(), date.getMonth(), 1)
+      const earlierDateString = format(earlierDate, 'dd.MM.yyyy')
+
+      await user.type(endInput, earlierDateString)
+      await flushPromises()
+
+      // the invalid, out-of-order value is rejected: end falls back to its previous value
+      expect(changeHandler).toHaveBeenCalledWith(day15, day16)
+    })
   })
 })
