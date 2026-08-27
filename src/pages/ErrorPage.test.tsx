@@ -9,6 +9,14 @@ describe('ErrorPage', () => {
   beforeEach(() => {
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
+    // React (in dev mode) re-throws render errors via a real dispatched DOM event so devtools
+    // shows the original stack. JSDOM's default reporting for an unhandled one prints straight
+    // to stderr, bypassing the console.error spy above -- preventDefault silences that.
+    window.addEventListener('error', preventDefault)
+  })
+
+  afterEach(() => {
+    window.removeEventListener('error', preventDefault)
   })
 
   it('should render 404', () => {
@@ -46,4 +54,8 @@ describe('ErrorPage', () => {
 
 function ErrorThrowingComponent(): JSX.Element {
   throw new Error('TEST ERROR')
+}
+
+function preventDefault(event: Event) {
+  event.preventDefault()
 }
