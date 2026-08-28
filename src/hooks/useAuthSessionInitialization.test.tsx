@@ -153,6 +153,46 @@ describe('auth session initialization', () => {
     expect(reportError).toHaveBeenCalledWith(error)
   })
 
+  it('stops blocking initialization when the Amplify session lookup hangs, and still applies it if it later resolves', async () => {
+    const token = makeToken({ exp: Date.now() / 1000 + 3600 })
+    let resolveSession: (value: Awaited<ReturnType<typeof fetchAuthSession>>) => void = () => undefined
+    vi.mocked(fetchAuthSession).mockReturnValueOnce(
+      new Promise<Awaited<ReturnType<typeof fetchAuthSession>>>((resolve) => {
+        resolveSession = resolve
+      })
+    )
+
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+    try {
+      const { result } = renderHook(
+        () => {
+          const rawToken = useAtomValue(idTokenAtom)
+          return { initialized: useAuthSessionInitialization(rawToken), rawToken }
+        },
+        { wrapper: wrapperWithToken(undefined) }
+      )
+
+      expect(result.current).toEqual({ initialized: false, rawToken: undefined })
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(8_000)
+      })
+
+      expect(result.current).toEqual({ initialized: true, rawToken: undefined })
+
+      await act(async () => {
+        resolveSession({
+          tokens: { idToken: { toString: () => token } },
+        } as Awaited<ReturnType<typeof fetchAuthSession>>)
+        await Promise.resolve()
+      })
+
+      expect(result.current).toEqual({ initialized: true, rawToken: token })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('coalesces StrictMode initialization into one Amplify request', async () => {
     vi.mocked(fetchAuthSession).mockResolvedValueOnce({} as Awaited<ReturnType<typeof fetchAuthSession>>)
 
