@@ -19,6 +19,7 @@ export const Path = {
   admin: {
     editEvent: (id: string = ':id') => `${ADMIN_EVENTS}/edit/${id}`,
     emailTemplates: `${ADMIN_ROOT}/templates`,
+    eventBreakdown: `${ADMIN_ROOT}/event-breakdown`,
 
     events: `${ADMIN_EVENTS}`,
     eventTypes: `${ADMIN_ROOT}/types`,
@@ -26,7 +27,6 @@ export const Path = {
     judges: `${ADMIN_ROOT}/judge`,
     newEvent: `${ADMIN_EVENTS}/create`,
     officials: `${ADMIN_ROOT}/officials`,
-    organizerStats: `${ADMIN_ROOT}/trial-stats`,
 
     orgs: `${ADMIN_ROOT}/organizations`,
     root: ADMIN_ROOT,

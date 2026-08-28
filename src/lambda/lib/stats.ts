@@ -3,11 +3,11 @@ import type { JsonConfirmedEvent, JsonEventType, JsonRegistration } from '../../
 import type {
   BreedStartRateEntry,
   CapacityStatsEntry,
+  EventBreakdownEntry,
   JsonCapacityStatsItem,
   JsonEventStatsItem,
   JudgeWorkloadEntry,
   RetentionStats,
-  TrialStatsEntry,
   YearlyStatTypes,
   YearlyTotalStat,
 } from '../../types/Stats'
@@ -423,12 +423,12 @@ export async function getJudgeWorkload(year: number): Promise<JudgeWorkloadEntry
 }
 
 /**
- * Trials organized, their starting places, starts and distinct participating handlers for a
+ * Events organized, their starting places, starts and distinct participating handlers for a
  * year, one entry per club + event type, plus each club's cross-type subtotal and the nationwide
- * grand total (see `ALL_EVENT_TYPES_FOR_CAPACITY` / `ALL_ORGANIZERS_FOR_TRIALS`). Written by the
+ * grand total (see `ALL_EVENT_TYPES_FOR_CAPACITY` / `ALL_ORGANIZERS_FOR_EVENTS`). Written by the
  * nightly rebuild.
  */
-export async function getTrialStats(year: number): Promise<TrialStatsEntry[]> {
+export async function getEventBreakdown(year: number): Promise<EventBreakdownEntry[]> {
   const items = await dynamoDB.query<{
     eventType: string
     organizerId: string
@@ -441,7 +441,7 @@ export async function getTrialStats(year: number): Promise<TrialStatsEntry[]> {
     memberStarters: number
   }>({
     key: 'PK = :pk',
-    values: { ':pk': `TRIALS#${year}` },
+    values: { ':pk': `BREAKDOWN#${year}` },
   })
 
   return (items || []).map((item) => ({

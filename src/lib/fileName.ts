@@ -20,4 +20,4 @@ export const startListFileName = (item: Pick<ConfirmedEvent, 'eventType' | 'star
   return `${parts.join('-')}.xlsx`
 }
 
-export const trialStatsFileName = (year: number): string => `kokeet-${year}.xlsx`
+export const eventBreakdownFileName = (year: number): string => `kokeet-${year}.xlsx`

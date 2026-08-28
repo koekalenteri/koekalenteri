@@ -9,16 +9,16 @@ import type { EventState, JsonDogEvent, JsonRegistration } from '../../types'
 import type {
   JsonBreedStartStatsItem,
   JsonCapacityStatsItem,
+  JsonEventBreakdownItem,
   JsonEventStatsItem,
   JsonJudgeWorkloadItem,
-  JsonTrialStatsItem,
   YearlyStatTypes,
 } from '../../types/Stats'
 import type { RegistrationStatsInput } from './stats'
 import { OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
 import { getRegistrationClass, isMember, isParticipantGroup } from '../../lib/registration'
 import { splitEvenly } from '../../lib/utils'
-import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_TRIALS } from '../../types/Stats'
+import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS } from '../../types/Stats'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import {
@@ -69,17 +69,23 @@ const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
  * Which group of stats records a key belongs to. `organizer` is the only partition also written
  * incrementally on registration writes; the rest are owned solely by this module.
  */
-type StatsPartition = 'organizer' | 'participation' | 'capacity' | 'judges' | 'trials'
+type StatsPartition = 'organizer' | 'participation' | 'capacity' | 'judges' | 'eventBreakdown'
 
-export const ALL_STATS_PARTITIONS: StatsPartition[] = ['organizer', 'participation', 'capacity', 'judges', 'trials']
+export const ALL_STATS_PARTITIONS: StatsPartition[] = [
+  'organizer',
+  'participation',
+  'capacity',
+  'judges',
+  'eventBreakdown',
+]
 /** Everything the scheduled rebuild owns: safe to delete and rewrite while the site is live. */
-export const REBUILDABLE_STATS_PARTITIONS: StatsPartition[] = ['participation', 'capacity', 'judges', 'trials']
+export const REBUILDABLE_STATS_PARTITIONS: StatsPartition[] = ['participation', 'capacity', 'judges', 'eventBreakdown']
 
 export const getStatsRecordPartition = ({ PK }: EventStatKey): StatsPartition | undefined => {
   if (PK.startsWith('ORG#')) return 'organizer'
   if (PK.startsWith('CAPACITY#')) return 'capacity'
   if (PK.startsWith('JUDGE#')) return 'judges'
-  if (PK.startsWith('TRIALS#')) return 'trials'
+  if (PK.startsWith('BREAKDOWN#')) return 'eventBreakdown'
   if (PK === 'YEARS' || /^(?:STAT|TOTALS|BUCKETS|RETENTION)#/.test(PK)) return 'participation'
   return undefined
 }
@@ -87,7 +93,7 @@ export const getStatsRecordPartition = ({ PK }: EventStatKey): StatsPartition | 
 /** Returns the year represented by a stats-table key, if it is a stats record. */
 export function getEventStatsRecordYear({ PK, SK }: EventStatKey): number | undefined {
   const match =
-    /^(?:STAT|TOTALS|BUCKETS|RETENTION|JUDGE|TRIALS)#(\d{4})(?:#|$)/.exec(PK) ||
+    /^(?:STAT|TOTALS|BUCKETS|RETENTION|JUDGE|BREAKDOWN)#(\d{4})(?:#|$)/.exec(PK) ||
     (PK === 'YEARS' ? /^(\d{4})$/.exec(SK) : undefined)
   if (match) return Number(match[1])
 
@@ -488,7 +494,7 @@ const breedStartRecords = (buckets: Map<string, BreedStartBucket>, updatedAt: st
     updatedAt,
   }))
 
-interface TrialBucket {
+interface EventBreakdownBucket {
   cancelledRegistrations: number
   eventCount: number
   eventType: string
@@ -501,19 +507,20 @@ interface TrialBucket {
   year: number
 }
 
-const trialBucketKey = (year: number, organizerId: string, eventType: string) => `${year}#${organizerId}#${eventType}`
+const eventBreakdownBucketKey = (year: number, organizerId: string, eventType: string) =>
+  `${year}#${organizerId}#${eventType}`
 
-const getOrCreateTrialBucket = (
-  buckets: Map<string, TrialBucket>,
+const getOrCreateEventBreakdownBucket = (
+  buckets: Map<string, EventBreakdownBucket>,
   year: number,
   organizerId: string,
   eventType: string
-): TrialBucket => {
-  const key = trialBucketKey(year, organizerId, eventType)
+): EventBreakdownBucket => {
+  const key = eventBreakdownBucketKey(year, organizerId, eventType)
   const existing = buckets.get(key)
   if (existing) return existing
 
-  const bucket: TrialBucket = {
+  const bucket: EventBreakdownBucket = {
     cancelledRegistrations: 0,
     eventCount: 0,
     eventType,
@@ -536,27 +543,30 @@ const getOrCreateTrialBucket = (
  * the requested breakdown, and a flat per-club/type export already supports pivoting by type in
  * a spreadsheet if that view is wanted.
  */
-const trialBucketTargets = (organizerId: string, eventType: string): [string, string][] => [
+const eventBreakdownBucketTargets = (organizerId: string, eventType: string): [string, string][] => [
   [organizerId, eventType],
   [organizerId, ALL_EVENT_TYPES_FOR_CAPACITY],
-  [ALL_ORGANIZERS_FOR_TRIALS, ALL_EVENT_TYPES_FOR_CAPACITY],
+  [ALL_ORGANIZERS_FOR_EVENTS, ALL_EVENT_TYPES_FOR_CAPACITY],
 ]
 
 /**
- * Seeds trial counts and starting places per year + club + event type from the events
+ * Seeds event counts and starting places per year + club + event type from the events
  * themselves, independent of registrations -- an event with no entries yet still counts as
  * organized. Also accumulates into each club's cross-type subtotal and the nationwide grand
  * total, which is the only place either can be computed without double-counting.
  */
-const seedTrialsFromEvents = (eventsById: Map<string, EventStatsEvent>, buckets: Map<string, TrialBucket>): void => {
+const seedEventBreakdownFromEvents = (
+  eventsById: Map<string, EventStatsEvent>,
+  buckets: Map<string, EventBreakdownBucket>
+): void => {
   for (const event of eventsById.values()) {
     if (!countsTowardsCapacity(event)) continue
     const year = eventStatsYear(event)
     if (year === undefined) continue
 
     const places = Number(event.places) || 0
-    for (const [organizerId, eventType] of trialBucketTargets(event.organizer.id, event.eventType)) {
-      const bucket = getOrCreateTrialBucket(buckets, year, organizerId, eventType)
+    for (const [organizerId, eventType] of eventBreakdownBucketTargets(event.organizer.id, event.eventType)) {
+      const bucket = getOrCreateEventBreakdownBucket(buckets, year, organizerId, eventType)
       bucket.eventCount += 1
       bucket.places += places
     }
@@ -564,23 +574,23 @@ const seedTrialsFromEvents = (eventsById: Map<string, EventStatsEvent>, buckets:
 }
 
 /**
- * Attributes one registration's start and handler to its year + club + event type trial bucket
- * (and that club's cross-type subtotal, and the grand total). Reserve and cancelled entries are
+ * Attributes one registration's start and handler to its year + club + event type breakdown
+ * bucket (and that club's cross-type subtotal, and the grand total). Reserve and cancelled entries are
  * counted separately rather than dropped, and a starter's handler/owner membership feeds
  * `memberStarters` -- only actual starters count toward `handlerIds`, since reserve and cancelled
  * entries never started.
  */
-const addTrialRegistration = (
+const addEventBreakdownRegistration = (
   registration: CapacityRegistrationInput,
   event: EventStatsEvent,
   year: number,
-  buckets: Map<string, TrialBucket>
+  buckets: Map<string, EventBreakdownBucket>
 ): void => {
   if (!countsTowardsCapacity(event)) return
 
   const handlerId = hashStatValue(registration.handler?.email)
-  for (const [organizerId, eventType] of trialBucketTargets(event.organizer.id, event.eventType)) {
-    const bucket = getOrCreateTrialBucket(buckets, year, organizerId, eventType)
+  for (const [organizerId, eventType] of eventBreakdownBucketTargets(event.organizer.id, event.eventType)) {
+    const bucket = getOrCreateEventBreakdownBucket(buckets, year, organizerId, eventType)
     if (registration.cancelled) {
       bucket.cancelledRegistrations += 1
     } else if (isParticipantGroup(registration.group?.key)) {
@@ -593,7 +603,10 @@ const addTrialRegistration = (
   }
 }
 
-const trialsRecords = (buckets: Map<string, TrialBucket>, updatedAt: string): JsonTrialStatsItem[] =>
+const eventBreakdownRecords = (
+  buckets: Map<string, EventBreakdownBucket>,
+  updatedAt: string
+): JsonEventBreakdownItem[] =>
   [...buckets.values()].map((bucket) => ({
     cancelledRegistrations: bucket.cancelledRegistrations,
     eventCount: bucket.eventCount,
@@ -601,7 +614,7 @@ const trialsRecords = (buckets: Map<string, TrialBucket>, updatedAt: string): Js
     handlerCount: bucket.handlerIds.size,
     memberStarters: bucket.memberStarters,
     organizerId: bucket.organizerId,
-    PK: `TRIALS#${bucket.year}`,
+    PK: `BREAKDOWN#${bucket.year}`,
     places: bucket.places,
     reserve: bucket.reserve,
     SK: `${bucket.organizerId}#${bucket.eventType}`,
@@ -690,7 +703,7 @@ const processRegistrationStats = (
   capacityBuckets: Map<string, CapacityBucket>,
   eventClassMonths: Map<string, Map<string, string>>,
   breedStartBuckets: Map<string, BreedStartBucket>,
-  trialBuckets: Map<string, TrialBucket>
+  eventBreakdownBuckets: Map<string, EventBreakdownBucket>
 ): { skipped: boolean; unattributedCapacity: boolean } => {
   const event = eventsById.get(registration.eventId)
   const year = event && eventStatsYear(event)
@@ -700,7 +713,7 @@ const processRegistrationStats = (
   }
   addRegistrationStats(registration, event, year, updatedAt, accumulator, wanted)
   if (wanted.has('participation')) addBreedStartRegistration(registration, event, year, breedStartBuckets)
-  if (wanted.has('trials')) addTrialRegistration(registration, event, year, trialBuckets)
+  if (wanted.has('eventBreakdown')) addEventBreakdownRegistration(registration, event, year, eventBreakdownBuckets)
   const unattributedCapacity =
     wanted.has('capacity') && !addCapacityRegistration(registration, event, capacityBuckets, eventClassMonths)
   return { skipped: false, unattributedCapacity }
@@ -718,7 +731,7 @@ export function buildStatsRecords(
     | JsonCapacityStatsItem
     | JsonJudgeWorkloadItem
     | JsonBreedStartStatsItem
-    | JsonTrialStatsItem
+    | JsonEventBreakdownItem
   )[]
   skippedCount: number
   unattributedCapacityCount: number
@@ -743,8 +756,8 @@ export function buildStatsRecords(
 
   const breedStartBuckets = new Map<string, BreedStartBucket>()
 
-  const trialBuckets = new Map<string, TrialBucket>()
-  if (wanted.has('trials')) seedTrialsFromEvents(eventsById, trialBuckets)
+  const eventBreakdownBuckets = new Map<string, EventBreakdownBucket>()
+  if (wanted.has('eventBreakdown')) seedEventBreakdownFromEvents(eventsById, eventBreakdownBuckets)
 
   for (const registration of registrations) {
     const outcome = processRegistrationStats(
@@ -756,7 +769,7 @@ export function buildStatsRecords(
       capacityBuckets,
       eventClassMonths,
       breedStartBuckets,
-      trialBuckets
+      eventBreakdownBuckets
     )
     if (outcome.skipped) skippedCount++
     if (outcome.unattributedCapacity) unattributedCapacityCount++
@@ -767,14 +780,14 @@ export function buildStatsRecords(
     | JsonCapacityStatsItem
     | JsonJudgeWorkloadItem
     | JsonBreedStartStatsItem
-    | JsonTrialStatsItem
+    | JsonEventBreakdownItem
   )[] = [
     ...(wanted.has('organizer') ? organizerStats.values() : []),
     ...(wanted.has('participation') ? yearlyStatsRecords(yearlyStats, handlerDogsByYear) : []),
     ...(wanted.has('participation') ? breedStartRecords(breedStartBuckets, updatedAt) : []),
     ...(wanted.has('capacity') ? capacityStatsRecords(capacityBuckets, updatedAt) : []),
     ...(wanted.has('judges') ? judgeWorkloadRecords(judgeWorkloadBuckets, updatedAt) : []),
-    ...(wanted.has('trials') ? trialsRecords(trialBuckets, updatedAt) : []),
+    ...(wanted.has('eventBreakdown') ? eventBreakdownRecords(eventBreakdownBuckets, updatedAt) : []),
   ]
 
   // The YEARS marker belongs to the participation partition (see getStatsRecordPartition).

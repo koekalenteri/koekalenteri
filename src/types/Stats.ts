@@ -122,21 +122,21 @@ export interface JsonJudgeWorkloadItem {
 }
 
 /**
- * Sentinel `organizerId` value for a cross-club total row in trial stats -- mirrors
+ * Sentinel `organizerId` value for a cross-club total row in the event breakdown -- mirrors
  * `ALL_EVENT_TYPES_FOR_CAPACITY` for the organizer axis.
  */
-export const ALL_ORGANIZERS_FOR_TRIALS = 'ALL'
+export const ALL_ORGANIZERS_FOR_EVENTS = 'ALL'
 
 /**
- * Trials organized by one club, their starting places, starts and distinct participating
+ * Events organized by one club, their starting places, starts and distinct participating
  * handlers for one year + event type. `eventType` is `ALL_EVENT_TYPES_FOR_CAPACITY` for a club's
- * cross-type subtotal, and `organizerId` is `ALL_ORGANIZERS_FOR_TRIALS` for the nationwide grand
+ * cross-type subtotal, and `organizerId` is `ALL_ORGANIZERS_FOR_EVENTS` for the nationwide grand
  * total (itself only meaningful combined with `eventType === ALL_EVENT_TYPES_FOR_CAPACITY`).
  * `handlerCount` is deduplicated within whatever this entry aggregates -- summing narrower
  * entries would double-count a handler who competed for the same club in more than one event
  * type, or for more than one club, the same year.
  */
-export interface TrialStatsEntry {
+export interface EventBreakdownEntry {
   organizerId: string
   eventType: string
   eventCount: number
@@ -150,8 +150,8 @@ export interface TrialStatsEntry {
   memberStarters?: number
 }
 
-// DynamoDB item / wire shape: PK = TRIALS#{year}, SK = {organizerId}#{eventType} (unique, not parsed back)
-export interface JsonTrialStatsItem {
+// DynamoDB item / wire shape: PK = BREAKDOWN#{year}, SK = {organizerId}#{eventType} (unique, not parsed back)
+export interface JsonEventBreakdownItem {
   PK: string
   SK: string
   organizerId: string

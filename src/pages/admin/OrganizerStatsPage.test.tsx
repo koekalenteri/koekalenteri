@@ -1,193 +1,208 @@
-import type { AllYearlyStatsResponse } from '../../api/stats'
-import type { TrialStatsEntry } from '../../types/Stats'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { getAllYearlyStats } from '../../api/stats'
+import { getAdminCapacityStats, getAllYearlyStats, getOrganizerEventStats } from '../../api/stats'
 import theme from '../../assets/Theme'
-import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
-import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_TRIALS } from '../../types/Stats'
+import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import OrganizerStatsPage from './OrganizerStatsPage'
+import { adminCapacityStatsEventTypeAtom, adminStatsOrganizerIdAtom } from './state'
 
 vi.mock('../../api/stats')
-vi.mock('../../api/user')
 vi.mock('../../api/organizer')
-
-const YEAR = new Date().getFullYear()
-
-// From src/api/__mocks__/organizer.ts: '1' -> 'Järjestäjä 1', '2' -> 'Järjestäjä 2'.
-const payload = (trialStats?: TrialStatsEntry[]): AllYearlyStatsResponse => ({
-  stats: [
-    {
-      breedBreakdown: [],
-      dogHandlerBuckets: [],
-      eventTypeBreakdown: [],
-      totals: [],
-      trialStats,
-      year: YEAR,
-    },
+vi.mock('../../api/user')
+// The shared manual mock returns one event type with no `active` flag, which the picker filters
+// out; this page needs active ones to have anything to offer.
+vi.mock('../../api/eventType', () => ({
+  getEventTypes: async () => [
+    { active: true, description: { en: 'Field trial', fi: 'Taipumuskoe' }, eventType: 'NOME-B' },
+    { active: true, description: { en: 'Hunting test', fi: 'Metsästyskoe' }, eventType: 'NOWT' },
   ],
-  years: [YEAR],
-})
-
-const renderAsAdmin = () =>
-  render(
-    <ThemeProvider theme={theme}>
-      <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
-        <MemoryRouter>
-          <Suspense fallback={<div>loading...</div>}>
-            <OrganizerStatsPage />
-          </Suspense>
-        </MemoryRouter>
-      </Provider>
-    </ThemeProvider>
-  )
+}))
 
 describe('OrganizerStatsPage', () => {
   beforeAll(() => vi.useFakeTimers())
-  afterEach(() => vi.runOnlyPendingTimers())
+  afterEach(() => {
+    vi.runOnlyPendingTimers()
+    localStorage.clear()
+  })
   afterAll(() => vi.useRealTimers())
 
-  it('redirects to the admin index for a user who is not a site admin', async () => {
-    const routes = [
-      { element: <OrganizerStatsPage />, path: Path.admin.organizerStats },
-      { element: <>Admin Index</>, path: Path.admin.index },
-    ]
-
+  it('fetches organizer stats once, unfiltered, and filters client-side by the selection', async () => {
     render(
       <ThemeProvider theme={theme}>
-        <Provider>
-          <Suspense fallback={<div>loading...</div>}>
-            <DataMemoryRouter initialEntries={[Path.admin.organizerStats]} routes={routes} />
-          </Suspense>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminStatsOrganizerIdAtom, '1')
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <OrganizerStatsPage />
+            </Suspense>
+          </MemoryRouter>
         </Provider>
       </ThemeProvider>
     )
     await flushPromises()
 
-    expect(await screen.findByText('Admin Index')).toBeInTheDocument()
+    await screen.findByText('stats.admin.overviewTitle')
+    expect(screen.getByText('stats.admin.title')).toBeInTheDocument()
+    // No organizerId/date-range args: the whole dataset is fetched once and filtered in memory.
+    expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
+    expect(getOrganizerEventStats).toHaveBeenCalledWith(TEST_ID_TOKEN)
   })
 
-  it('renders one row per club + event type, a subtotal per club, and a nationwide grand total', async () => {
-    vi.mocked(getAllYearlyStats).mockResolvedValue(
-      payload([
-        {
-          cancelledRegistrations: 3,
-          eventCount: 5,
-          eventType: 'NOU',
-          handlerCount: 40,
-          memberStarters: 50,
-          organizerId: '2',
-          places: 100,
-          reserve: 10,
-          starters: 90,
-        },
-        {
-          cancelledRegistrations: 3,
-          eventCount: 5,
-          eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
-          handlerCount: 40,
-          memberStarters: 50,
-          organizerId: '2',
-          places: 100,
-          reserve: 10,
-          starters: 90,
-        },
-        {
-          cancelledRegistrations: 2,
-          eventCount: 3,
-          eventType: 'NOME-B',
-          handlerCount: 15,
-          memberStarters: 12,
-          organizerId: '1',
-          places: 30,
-          reserve: 4,
-          starters: 20,
-        },
-        {
-          cancelledRegistrations: 2,
-          eventCount: 3,
-          eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
-          handlerCount: 15,
-          memberStarters: 12,
-          organizerId: '1',
-          places: 30,
-          reserve: 4,
-          starters: 20,
-        },
-        {
-          cancelledRegistrations: 5,
-          eventCount: 8,
-          eventType: ALL_EVENT_TYPES_FOR_CAPACITY,
-          handlerCount: 54,
-          memberStarters: 62,
-          organizerId: ALL_ORGANIZERS_FOR_TRIALS,
-          places: 130,
-          reserve: 14,
-          starters: 110,
-        },
-      ])
+  it('does not re-fetch when the organizer filter changes', async () => {
+    vi.mocked(getOrganizerEventStats).mockResolvedValue([
+      { organizerId: '1', PK: 'ORG#1', SK: '2024-01-01#event' },
+      { organizerId: '2', PK: 'ORG#2', SK: '2024-01-01#event' },
+    ])
+
+    const { rerender } = render(
+      <ThemeProvider theme={theme}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <OrganizerStatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
     )
+    await flushPromises()
+    await screen.findByText('stats.admin.overviewTitle')
+    expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
 
-    renderAsAdmin()
+    // Changing the selected organizer re-renders but must not trigger another network call.
+    rerender(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminStatsOrganizerIdAtom, '2')
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <OrganizerStatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
     await flushPromises()
 
-    await screen.findByText('stats.admin.trialStatsTitle')
-
-    const rows = screen.getAllByRole('row')
-    // Header + (club 1's event-type row + subtotal) + (club 2's event-type row + subtotal) + grand total footer row.
-    expect(rows).toHaveLength(6)
-
-    // Clubs are ordered by name: "Järjestäjä 1" before "Järjestäjä 2".
-    const club1Row = screen.getByText('NOME-B').closest('tr')
-    expect(club1Row).toHaveTextContent('Järjestäjä 1')
-    expect(club1Row).toHaveTextContent('3')
-    expect(club1Row).toHaveTextContent('30')
-    expect(club1Row).toHaveTextContent('20')
-    expect(club1Row).toHaveTextContent('15')
-    expect(club1Row).toHaveTextContent('4')
-    expect(club1Row).toHaveTextContent('2')
-    expect(club1Row).toHaveTextContent('12')
-
-    const club2Row = screen.getByText('NOU').closest('tr')
-    expect(club2Row).toHaveTextContent('Järjestäjä 2')
-    expect(club2Row).toHaveTextContent('5')
-    expect(club2Row).toHaveTextContent('100')
-    expect(club2Row).toHaveTextContent('90')
-    expect(club2Row).toHaveTextContent('40')
-    expect(club2Row).toHaveTextContent('10')
-    expect(club2Row).toHaveTextContent('3')
-    expect(club2Row).toHaveTextContent('50')
-
-    // Each club's subtotal row repeats its own totals under "Yhteensä" -- only one event type
-    // each in this fixture, so the subtotal numbers match the single row above it.
-    const subtotalRows = screen.getAllByText('stats.admin.trialStatsTotal')
-    expect(subtotalRows).toHaveLength(3) // two club subtotals + the grand total row
-
-    const grandTotalRow = subtotalRows[2].closest('tr')
-    expect(grandTotalRow).toHaveTextContent('8')
-    expect(grandTotalRow).toHaveTextContent('130')
-    expect(grandTotalRow).toHaveTextContent('110')
-    expect(grandTotalRow).toHaveTextContent('54')
-    expect(grandTotalRow).toHaveTextContent('14')
-    expect(grandTotalRow).toHaveTextContent('5')
-    expect(grandTotalRow).toHaveTextContent('62')
-
-    // The cross-type/cross-club sentinel values are never shown as literal event types or club names.
-    expect(screen.queryByText(ALL_EVENT_TYPES_FOR_CAPACITY)).not.toBeInTheDocument()
-    expect(screen.queryByText(ALL_ORGANIZERS_FOR_TRIALS)).not.toBeInTheDocument()
+    expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
   })
 
-  it('shows the empty state when there is no data for the selected year', async () => {
-    vi.mocked(getAllYearlyStats).mockResolvedValue(payload(undefined))
+  it('derives the selectable years from the organizer stats without fetching yearly stats', async () => {
+    vi.mocked(getOrganizerEventStats).mockResolvedValue([
+      { date: new Date('2022-05-20T21:00:00.000Z'), organizerId: '1', PK: 'ORG#1', SK: '2022-05-21#a' },
+      { date: new Date('2024-03-10T22:00:00.000Z'), organizerId: '1', PK: 'ORG#1', SK: '2024-03-11#b' },
+    ])
 
-    renderAsAdmin()
+    render(
+      <ThemeProvider theme={theme}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <OrganizerStatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    await screen.findByText('stats.admin.overviewTitle')
+
+    // The years come from the stats already in memory; /stats is never called for them.
+    expect(getAllYearlyStats).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: '2022' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2024' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: `${new Date().getFullYear()}` })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '2023' })).not.toBeInTheDocument()
+  })
+
+  it('excludes organizations without any recorded stats from the filter, correcting a stale selection', async () => {
+    // Only organizer '1' has any recorded stats; '2' exists (see api/__mocks__/organizer) but has none,
+    // so it must be excluded from the filter and the selection corrected to the only valid choice.
+    vi.mocked(getOrganizerEventStats).mockResolvedValue([{ organizerId: '1', PK: 'ORG#1', SK: '2024-01-01#event' }])
+
+    render(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminStatsOrganizerIdAtom, '2')
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <OrganizerStatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
     await flushPromises()
 
-    await screen.findByText('stats.noDataForYear')
+    await screen.findByDisplayValue('Järjestäjä 1')
+  })
+
+  it('builds the class filter from the fetched capacity stats and renders the capacity charts', async () => {
+    vi.mocked(getAdminCapacityStats).mockResolvedValue([
+      {
+        cancelledRegistrations: 2,
+        class: 'AVO',
+        eventCount: 1,
+        eventType: 'NOME-B',
+        month: '2025-06',
+        organizerId: '1',
+        places: 20,
+        reserve: 3,
+        starters: 18,
+      },
+      {
+        cancelledRegistrations: 1,
+        class: 'ALO',
+        eventCount: 1,
+        eventType: 'NOME-B',
+        month: '2025-06',
+        organizerId: '1',
+        places: 10,
+        reserve: 0,
+        starters: 9,
+      },
+    ])
+
+    render(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminCapacityStatsEventTypeAtom, 'NOME-B')
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <OrganizerStatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    await screen.findByText('stats.admin.overviewTitle')
+    // All three capacity charts hang off the same fetched data.
+    expect(screen.getByText('stats.admin.capacityTitle')).toBeInTheDocument()
+    expect(screen.getByText('stats.admin.demandTitle')).toBeInTheDocument()
+    expect(screen.getByText('stats.admin.cancellationRateTitle')).toBeInTheDocument()
+    // Classes come from the data, sorted, and the selection falls back to the first one.
+    expect(screen.getByDisplayValue('ALO')).toBeInTheDocument()
   })
 })

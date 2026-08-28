@@ -7,8 +7,8 @@ import {
   getCapacityStatsAllEventTypes,
   getDogHandlerBuckets,
   getDogsPerHandlerBuckets,
+  getEventBreakdown,
   getRetentionStats,
-  getTrialStats,
   getYearlyBreakdown,
   getYearlyTotalStats,
 } from '../lib/stats'
@@ -29,7 +29,7 @@ async function getYearStats(year: number) {
     eventTypeBreakdown,
     classBreakdown,
     retention,
-    trialStats,
+    eventBreakdown,
   ] = await Promise.all([
     getYearlyTotalStats(year),
     getDogHandlerBuckets(year),
@@ -39,7 +39,7 @@ async function getYearStats(year: number) {
     getYearlyBreakdown(year, 'eventType'),
     getYearlyBreakdown(year, 'class'),
     getRetentionStats(year),
-    getTrialStats(year),
+    getEventBreakdown(year),
   ])
 
   // Omitted rather than zeroed for the earliest year: no comparison year exists, and a zero
@@ -52,8 +52,8 @@ async function getYearStats(year: number) {
     dogsPerHandlerBuckets,
     eventTypeBreakdown,
     ...(retention && { retention }),
+    eventBreakdown,
     totals,
-    trialStats,
     year,
   }
 }

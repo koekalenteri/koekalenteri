@@ -1,8 +1,8 @@
 import type {
   BreedStartRateEntry,
   CapacityStatsEntry,
+  EventBreakdownEntry,
   RetentionStats,
-  TrialStatsEntry,
   YearlyBreakdownEntry,
   YearlyStatTypes,
   YearlyTotalStat,
@@ -27,7 +27,7 @@ const mockGetRetentionStats = vi.fn<() => Promise<RetentionStats | undefined>>()
 const mockGetCapacityStats =
   vi.fn<(eventType: string, organizerIds?: string[], from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
 const mockGetCapacityStatsAllEventTypes = vi.fn<(from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
-const mockGetTrialStats = vi.fn<(year: number) => Promise<TrialStatsEntry[]>>()
+const mockGetEventBreakdown = vi.fn<(year: number) => Promise<EventBreakdownEntry[]>>()
 
 vi.doMock('../lib/stats', () => ({
   getAvailableYears: mockGetAvailableYears,
@@ -36,8 +36,8 @@ vi.doMock('../lib/stats', () => ({
   getCapacityStatsAllEventTypes: mockGetCapacityStatsAllEventTypes,
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
   getDogsPerHandlerBuckets: mockGetDogsPerHandlerBuckets,
+  getEventBreakdown: mockGetEventBreakdown,
   getRetentionStats: mockGetRetentionStats,
-  getTrialStats: mockGetTrialStats,
   getYearlyBreakdown: mockGetYearlyBreakdown,
   getYearlyTotalStats: mockGetYearlyTotalStats,
 }))
@@ -58,7 +58,7 @@ describe('GetStatsFunction', () => {
     mockGetYearlyBreakdown.mockImplementation((year, type) => Promise.resolve(breakdownFor(year, type)))
     mockGetDogsPerHandlerBuckets.mockResolvedValue([])
     mockGetBreedStartBreakdown.mockResolvedValue([])
-    mockGetTrialStats.mockResolvedValue([])
+    mockGetEventBreakdown.mockResolvedValue([])
   })
 
   it('returns stats for a specific year when year parameter is provided', async () => {
@@ -97,7 +97,7 @@ describe('GetStatsFunction', () => {
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'eventType')
     expect(mockGetYearlyBreakdown).toHaveBeenCalledWith(year, 'class')
     expect(mockGetBreedStartBreakdown).toHaveBeenCalledWith(year)
-    expect(mockGetTrialStats).toHaveBeenCalledWith(year)
+    expect(mockGetEventBreakdown).toHaveBeenCalledWith(year)
 
     // Verify response
     const expectedBody = {
@@ -106,9 +106,9 @@ describe('GetStatsFunction', () => {
       classBreakdown,
       dogHandlerBuckets,
       dogsPerHandlerBuckets,
+      eventBreakdown: [],
       eventTypeBreakdown,
       totals,
-      trialStats: [],
       year,
     }
     expect(mockResponse).toHaveBeenCalledWith(200, expectedBody, event, { maxAge: 300 })
@@ -158,9 +158,9 @@ describe('GetStatsFunction', () => {
             classBreakdown: breakdownFor(2023, 'class'),
             dogHandlerBuckets: buckets2023,
             dogsPerHandlerBuckets: [],
+            eventBreakdown: [],
             eventTypeBreakdown: breakdownFor(2023, 'eventType'),
             totals: totals2023,
-            trialStats: [],
             year: 2023,
           },
           {
@@ -169,9 +169,9 @@ describe('GetStatsFunction', () => {
             classBreakdown: breakdownFor(2024, 'class'),
             dogHandlerBuckets: buckets2024,
             dogsPerHandlerBuckets: [],
+            eventBreakdown: [],
             eventTypeBreakdown: breakdownFor(2024, 'eventType'),
             totals: totals2024,
-            trialStats: [],
             year: 2024,
           },
         ],
@@ -217,9 +217,9 @@ describe('GetStatsFunction', () => {
           classBreakdown: breakdownFor(2023, 'class'),
           dogHandlerBuckets: buckets2023,
           dogsPerHandlerBuckets: [],
+          eventBreakdown: [],
           eventTypeBreakdown: breakdownFor(2023, 'eventType'),
           totals: totals2023,
-          trialStats: [],
           year: 2023,
         },
         {
@@ -228,9 +228,9 @@ describe('GetStatsFunction', () => {
           classBreakdown: breakdownFor(2024, 'class'),
           dogHandlerBuckets: buckets2024,
           dogsPerHandlerBuckets: [],
+          eventBreakdown: [],
           eventTypeBreakdown: breakdownFor(2024, 'eventType'),
           totals: totals2024,
-          trialStats: [],
           year: 2024,
         },
       ],

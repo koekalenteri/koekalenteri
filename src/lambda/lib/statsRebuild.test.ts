@@ -76,7 +76,7 @@ describe('statsRebuild', () => {
     [{ PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' }, 2025],
     [{ PK: 'CAPACITY#NOU', SK: 'not-a-month#NOU' }, undefined],
     [{ PK: 'JUDGE#2025', SK: '1' }, 2025],
-    [{ PK: 'TRIALS#2025', SK: 'organizer-1#NOU' }, 2025],
+    [{ PK: 'BREAKDOWN#2025', SK: 'organizer-1#NOU' }, 2025],
   ])('extracts stats year from %o', (key, expected) => {
     expect(getEventStatsRecordYear(key)).toBe(expected)
   })
@@ -566,7 +566,7 @@ describe('statsRebuild', () => {
     })
   })
 
-  describe('trial stats', () => {
+  describe('event breakdown', () => {
     it('seeds event count and places per club + event type, plus the club subtotal and grand total', () => {
       const nou = { ...event('nou-event', '2025-06-01', 'NOU'), places: 15 }
 
@@ -581,7 +581,7 @@ describe('statsRebuild', () => {
             handlerCount: 0,
             memberStarters: 0,
             organizerId: 'organizer-nou-event',
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             places: 15,
             reserve: 0,
             SK: 'organizer-nou-event#NOU',
@@ -592,7 +592,7 @@ describe('statsRebuild', () => {
             eventCount: 1,
             eventType: 'ALL',
             organizerId: 'organizer-nou-event',
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             places: 15,
             SK: 'organizer-nou-event#ALL',
           }),
@@ -600,7 +600,7 @@ describe('statsRebuild', () => {
             eventCount: 1,
             eventType: 'ALL',
             organizerId: 'ALL',
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             places: 15,
             SK: 'ALL#ALL',
           }),
@@ -639,7 +639,7 @@ describe('statsRebuild', () => {
             cancelledRegistrations: 1,
             handlerCount: 1,
             memberStarters: 0,
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             reserve: 1,
             SK: 'organizer-nou-event#NOU',
             starters: 2,
@@ -669,7 +669,7 @@ describe('statsRebuild', () => {
         expect.arrayContaining([
           expect.objectContaining({
             memberStarters: 1,
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             SK: 'organizer-nou-event#NOU',
             starters: 2,
           }),
@@ -717,14 +717,14 @@ describe('statsRebuild', () => {
           expect.objectContaining({
             handlerCount: 1,
             organizerId: 'organizer-nou-event',
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             SK: 'organizer-nou-event#NOU',
             starters: 1,
           }),
           expect.objectContaining({
             handlerCount: 1,
             organizerId: 'organizer-nou-event',
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             SK: 'organizer-nou-event#NOME-B',
             starters: 1,
           }),
@@ -732,14 +732,14 @@ describe('statsRebuild', () => {
           expect.objectContaining({
             handlerCount: 1,
             organizerId: 'organizer-nou-event',
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             SK: 'organizer-nou-event#ALL',
             starters: 2,
           }),
           expect.objectContaining({
             handlerCount: 1,
             organizerId: 'organizer-2',
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             SK: 'organizer-2#NOU',
             starters: 1,
           }),
@@ -748,7 +748,7 @@ describe('statsRebuild', () => {
             eventCount: 3,
             handlerCount: 1,
             organizerId: 'ALL',
-            PK: 'TRIALS#2025',
+            PK: 'BREAKDOWN#2025',
             SK: 'ALL#ALL',
             starters: 3,
           }),
@@ -761,7 +761,7 @@ describe('statsRebuild', () => {
 
       const { records } = buildStatsRecords([], new Map([[draft.id, draft]]), '2025-01-01T00:00:00.000Z')
 
-      expect(records.filter((record) => record.PK.startsWith('TRIALS#'))).toHaveLength(0)
+      expect(records.filter((record) => record.PK.startsWith('BREAKDOWN#'))).toHaveLength(0)
     })
   })
 

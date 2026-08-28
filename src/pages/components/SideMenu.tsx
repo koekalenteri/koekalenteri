@@ -64,7 +64,12 @@ export function SideMenu({ open, onClose }: Props) {
         <DrawerItem to={Path.admin.judges} onClick={onClose} text={t('judges')} icon={<Accessibility />} />
         <DrawerItem to={Path.admin.officials} onClick={onClose} text={t('officials')} icon={<SupervisorAccount />} />
         <DrawerItem to={Path.admin.users} onClick={onClose} text={t('users')} icon={<PersonOutline />} />
-        <DrawerItem to={Path.admin.stats} onClick={onClose} text={t('stats.title')} icon={<QueryStatsOutlined />} />
+        <DrawerItem
+          to={Path.admin.stats}
+          onClick={onClose}
+          text={t('stats.admin.overviewTitle')}
+          icon={<QueryStatsOutlined />}
+        />
       </DrawerList>
       <Divider />
       <DrawerList>
@@ -89,9 +94,9 @@ export function SideMenu({ open, onClose }: Props) {
               icon={<MailOutline />}
             />
             <DrawerItem
-              to={Path.admin.organizerStats}
+              to={Path.admin.eventBreakdown}
               onClick={onClose}
-              text={t('stats.admin.trialStatsTitle')}
+              text={t('stats.admin.eventBreakdownTitle')}
               icon={<QueryStatsOutlined />}
             />
             <DrawerItem onClick={handleRunMigrations} text="Run migrations" icon={<HandymanOutlined />} />

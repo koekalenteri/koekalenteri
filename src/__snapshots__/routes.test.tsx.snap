@@ -177,7 +177,7 @@ exports[`routes > should match a snapshot 1`] = `
       },
       {
         "lazy": [Function],
-        "path": "/admin/trial-stats",
+        "path": "/admin/event-breakdown",
       },
     ],
     "errorElement": <ErrorPage />,
