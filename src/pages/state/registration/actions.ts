@@ -39,7 +39,7 @@ export function useRegistrationActions() {
       return saved
     },
 
-    confirm: async (reg: Registration) => {
+    confirm: async (reg: Registration, event: ConfirmedEvent) => {
       const mod = { ...reg, confirmed: true }
       let saved: Registration
       try {
@@ -47,6 +47,8 @@ export function useRegistrationActions() {
       } catch (error) {
         if (error instanceof APIError && error.status === 304) {
           saved = mod
+        } else if (showRegistrationSaveConflict(error, { enqueueSnackbar, event, registration: reg, t })) {
+          return undefined
         } else {
           throw error
         }

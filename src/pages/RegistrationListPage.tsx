@@ -88,13 +88,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     if (confirmPending) {
       return
     }
-    if (allDisabled || !registration || registration.confirmed || registration.cancelled) {
+    if (allDisabled || !event || !registration || registration.confirmed || registration.cancelled) {
       setConfirmOpen(false)
       return
     }
     setConfirmPending(true)
     try {
-      const saved = await actions.confirm(registration)
+      const saved = await actions.confirm(registration, event)
+      if (!saved) return
       setRegistration(saved)
       setConfirmOpen(false)
     } catch (error_) {
@@ -102,7 +103,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     } finally {
       setConfirmPending(false)
     }
-  }, [actions, allDisabled, confirmPending, registration, setRegistration])
+  }, [actions, allDisabled, confirmPending, event, registration, setRegistration])
 
   const handlePayment = useCallback(async () => {
     if (allDisabled || !registration || registration.cancelled) {

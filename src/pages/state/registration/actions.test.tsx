@@ -66,7 +66,7 @@ describe('useRegistrationActions', () => {
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
     await act(async () => {
-      await result.current.confirm(registration)
+      await result.current.confirm(registration, eventWithStaticDates)
     })
 
     expect(registrationApi.patchRegistration).toHaveBeenCalledWith(
