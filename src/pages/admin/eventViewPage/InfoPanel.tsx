@@ -21,7 +21,7 @@ import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrat
 import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
-import { hasEntryEnded, isEventOver } from '../../../lib/event'
+import { hasEntryEnded, isEventOngoing, isEventOver } from '../../../lib/event'
 import { invitationAttachmentFileName } from '../../../lib/fileName'
 import { validIdTokenAtom } from '../../state'
 import { AuditTrail } from '../components/AuditTrail'
@@ -68,6 +68,8 @@ const InfoPanel = ({
   )
   const entryEnded = hasEntryEnded(event)
   const eventFinished = isEventOver(event)
+  // Nothing to score until the dogs are running.
+  const eventStarted = eventFinished || isEventOngoing(event)
   const eventWithCurrentAttachments = useMemo(
     () => ({ ...event, invitationAttachment: attachmentKey, invitationAttachments: classAttachmentKeys }),
     [attachmentKey, classAttachmentKeys, event]
@@ -301,6 +303,7 @@ const InfoPanel = ({
           <EventActions
             eventFinished={eventFinished}
             eventId={event.id}
+            eventStarted={eventStarted}
             eventType={event.eventType}
             onCreateRegistration={onCreateRegistration}
             onOpenDetails={onOpenDetails}

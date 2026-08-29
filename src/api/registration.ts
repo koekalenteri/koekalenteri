@@ -1,7 +1,9 @@
+import type { SubmittedEventResult, SubmittedTask } from '../lib/results'
 import type {
   AuditRecord,
   CollectionResponse,
   ConfirmedEvent,
+  EventResult,
   IncrementalCollectionResponse,
   PublicRegistration,
   Registration,
@@ -164,3 +166,41 @@ export const getRegistrationTransactions = async (
   signal?: AbortSignal
 ): Promise<Transaction[] | undefined> =>
   http.get<Transaction[]>(`/admin/registration/transactions/${eventId}/${id}`, withToken({ signal }, token))
+
+/** One dog's result as entered. Totals are derived on the server, never sent. */
+interface EventResultSubmission {
+  id: string
+  /** Tasks go up without provenance: the server assigns it, since it decides what a competing edit is. */
+  eventResult: Omit<SubmittedEventResult, 'tasks'> & { tasks?: SubmittedTask[] }
+  /** Scopes the submission to one post, so a parallel post's scores are merged rather than replaced. */
+  stationId?: string
+  /** The version this edit was made against: the post's own when scoped, the whole result otherwise. */
+  basedOn?: string | Date
+}
+
+interface StoredEventResult {
+  id: string
+  eventResult: EventResult
+}
+
+interface EventResultsResponse {
+  saved: StoredEventResult[]
+  /** Already stored — what a retry over a bad connection gets back. */
+  unchanged: StoredEventResult[]
+  conflicts: { id: string; stationId?: string; stored: EventResult; submitted: EventResult }[]
+}
+
+export async function putEventResults(
+  eventId: string,
+  results: EventResultSubmission[],
+  token: string,
+  signal?: AbortSignal
+): Promise<EventResultsResponse> {
+  return (
+    await http.post<EventResultSubmission[], EventResultsResponse>(
+      `/admin/event-results/${eventId}`,
+      results,
+      withToken({ signal }, token)
+    )
+  ).data
+}

@@ -1,4 +1,5 @@
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined'
@@ -12,6 +13,8 @@ import { Path } from '../../../../routeConfig'
 import { actionButtonSx, sectionSx } from './styles'
 
 interface Props {
+  /** Results can only be entered once there is something to score. */
+  readonly eventStarted: boolean
   readonly eventFinished: boolean
   readonly eventId: string
   readonly eventType: string
@@ -19,7 +22,14 @@ interface Props {
   readonly onOpenDetails?: () => void
 }
 
-const EventActions = ({ eventFinished, eventId, eventType, onCreateRegistration, onOpenDetails }: Props) => {
+const EventActions = ({
+  eventFinished,
+  eventStarted,
+  eventId,
+  eventType,
+  onCreateRegistration,
+  onOpenDetails,
+}: Props) => {
   const { t } = useTranslation()
 
   return (
@@ -58,6 +68,16 @@ const EventActions = ({ eventFinished, eventId, eventType, onCreateRegistration,
             {t('eventManagement.stations')}
           </Button>
         )}
+        <Button
+          disabled={!eventStarted}
+          fullWidth
+          href={Path.admin.results(eventId)}
+          startIcon={<EditNoteOutlined />}
+          sx={actionButtonSx}
+          variant="outlined"
+        >
+          {t('eventManagement.results')}
+        </Button>
         <Button
           fullWidth
           href={Path.admin.startList(eventId)}

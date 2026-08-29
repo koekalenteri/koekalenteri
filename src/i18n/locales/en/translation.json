@@ -325,6 +325,7 @@
       "sendReserveNotification": "Send reserve notification",
       "title": "Participant selection"
     },
+    "results": "Enter results",
     "showEventDetails": "Show event details",
     "startList": {
       "hide": "Hide start list",
@@ -705,6 +706,35 @@
     "whoPays": "Who pays?"
   },
   "registrations": "Registrations",
+  "results": {
+    "alreadySaved": "The results were already saved",
+    "column": {
+      "dog": "Dog",
+      "handler": "Handler",
+      "number": "#",
+      "result": "Result",
+      "task": "Task {{number}}"
+    },
+    "conflicts_one": "{{count}} result changed elsewhere. Check it and save again.",
+    "conflicts_other": "{{count}} results changed elsewhere. Check them and save again.",
+    "runningTotal": "{{points}} / {{maxPoints}}",
+    "saved": "Results saved",
+    "scope": "Show",
+    "scopeAll": "Whole round",
+    "title": "Results",
+    "zeroFault": "Reason for zero",
+    "zeroFaults": {
+      "abandonedRetrieve": "Abandoned the retrieve",
+      "dummyNotFound": "Dummy not found",
+      "eyeWipe": "Eye-wipe",
+      "huntingWithDummy": "Hunting with the dummy in its mouth",
+      "outOfControl": "Ran out of the handler's control",
+      "persistentNoise": "Persistent whining or barking",
+      "refusedWater": "Refused to work in water",
+      "swappedDummy": "Swapped the dummy",
+      "unauthorizedRun": "Unauthorised run-in"
+    }
+  },
   "roles": "Roles",
   "save": "Save",
   "search": {

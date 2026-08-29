@@ -1,4 +1,4 @@
-import type { SubmittedEventResult } from '../../lib/results'
+import type { SubmittedEventResult, SubmittedTask } from '../../lib/results'
 import type { JsonConfirmedEvent, JsonEventResult, JsonEventResultTask, JsonRegistration, Patch } from '../../types'
 import {
   mergeStationTasks,
@@ -17,7 +17,7 @@ import { publishRegistrationPatches } from '../lib/ws/actions'
 
 interface ResultSubmission {
   id: string
-  eventResult: SubmittedEventResult
+  eventResult: Omit<SubmittedEventResult, 'tasks'> & { tasks?: SubmittedTask[] }
   /**
    * Scopes the submission to one post. A station secretary scores their own post while the others are
    * being scored in parallel, so their save replaces that post's tasks and leaves the rest of the round
@@ -58,7 +58,7 @@ interface EventResultConflict {
  * as a competing edit, so it must come from the server that accepted the write.
  */
 const stampProvenance = (
-  tasks: JsonEventResultTask[] | undefined,
+  tasks: SubmittedTask[] | undefined,
   updatedAt: string,
   updatedBy: string
 ): JsonEventResultTask[] | undefined => tasks?.map((task) => ({ ...task, updatedAt, updatedBy }))
@@ -128,17 +128,18 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
     const stored = registration.eventResult
     const { stationId } = submission
     const submittedTasks = stampProvenance(submission.eventResult.tasks, timestamp, user.name)
+    const submitted: SubmittedEventResult = { ...submission.eventResult, tasks: submittedTasks }
 
     // A retry from the field is the common case, not an edge case: the venue's connection drops, the
     // secretary saves again, and the first attempt turns out to have landed. Comparing content rather
     // than version makes that read as already stored, not as someone else's competing edit.
     const alreadyStored = stationId
       ? sameStationTasks(stored?.tasks, submittedTasks, stationId)
-      : sameEventResult(stored, resolveFor(confirmedEvent, registration, submission.eventResult, timestamp, user.name))
+      : sameEventResult(stored, resolveFor(confirmedEvent, registration, submitted, timestamp, user.name))
 
     if (alreadyStored) {
       unchanged.push({
-        eventResult: stored ?? resolveFor(confirmedEvent, registration, submission.eventResult, timestamp, user.name),
+        eventResult: stored ?? resolveFor(confirmedEvent, registration, submitted, timestamp, user.name),
         id: submission.id,
       })
       continue
@@ -153,7 +154,7 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
         id: submission.id,
         ...(stationId ? { stationId } : {}),
         stored: stored as JsonEventResult,
-        submitted: resolveFor(confirmedEvent, registration, submission.eventResult, timestamp, user.name),
+        submitted: resolveFor(confirmedEvent, registration, submitted, timestamp, user.name),
       })
       continue
     }
@@ -162,13 +163,7 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
     // already recorded for the same dog.
     const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, stationId) : submittedTasks
 
-    const eventResult = resolveFor(
-      confirmedEvent,
-      registration,
-      { ...submission.eventResult, tasks },
-      timestamp,
-      user.name
-    )
+    const eventResult = resolveFor(confirmedEvent, registration, { ...submitted, tasks }, timestamp, user.name)
 
     await updateRegistrationField(eventId, submission.id, 'eventResult', eventResult)
     await audit({

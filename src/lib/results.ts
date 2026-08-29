@@ -64,7 +64,7 @@ export const taskEntryCeiling = (task: Pick<JsonEventResultTask, 'recalled'> & {
   task.recalled ? Math.floor(task.maxPoints / 2) : task.maxPoints
 
 /** One scored slot in a class's round. */
-interface RoundTask {
+export interface RoundTask {
   stationId: string
   /** 0-based position among that post's tasks. */
   index: number
@@ -94,7 +94,8 @@ export const classRound = (
  */
 export const toScoredTasks = (
   round: readonly RoundTask[],
-  scored: readonly JsonEventResultTask[] | undefined
+  // Provenance is irrelevant to a score, so this accepts a task on its way in as readily as one stored.
+  scored: readonly Pick<JsonEventResultTask, 'stationId' | 'index' | 'points'>[] | undefined
 ): ScoredTask[] =>
   round.map((task) => ({
     maxPoints: task.maxPoints,
@@ -192,6 +193,9 @@ export const eventResultPrefix = (eventType: string, eventClass?: string): strin
 export const formatEventResult = (code: ResultCode, eventType: string, eventClass?: string): string =>
   `${eventResultPrefix(eventType, eventClass)}${code}`
 
+/** A task as it arrives from a client: provenance is the server's to assign, not the client's to claim. */
+export type SubmittedTask = Omit<JsonEventResultTask, 'updatedAt' | 'updatedBy'>
+
 /** What the secretary submits for one dog. Totals are never taken from the client. */
 export interface SubmittedEventResult {
   tasks?: JsonEventResultTask[]
@@ -262,10 +266,14 @@ export const resolveEventResult = (
 export const sameEventResult = (a?: JsonEventResult, b?: JsonEventResult): boolean => {
   if (!a || !b) return a === b
 
-  const { updatedAt: _a, updatedBy: _b, ...left } = a
-  const { updatedAt: _c, updatedBy: _d, ...right } = b
+  // Strip provenance from the tasks as well as the result. A resubmission is stamped afresh before it
+  // is compared, so leaving the task stamps in would make every retry look like a new result.
+  const bare = ({ updatedAt: _at, updatedBy: _by, tasks, ...rest }: JsonEventResult) => ({
+    ...rest,
+    ...(tasks ? { tasks: tasks.map(({ updatedAt: _a, updatedBy: _b, ...task }) => task) } : {}),
+  })
 
-  return !objectsDiffer(left, right)
+  return !objectsDiffer(bare(a), bare(b))
 }
 
 /**

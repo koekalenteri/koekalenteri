@@ -153,6 +153,13 @@ const routes: RouteObject[] = [
       {
         lazy: () =>
           reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventResultsPage')).default,
+          })),
+        path: Path.admin.results(':id'),
+      },
+      {
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
             Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/OrganizerListPage')).default,
           })),
         path: Path.admin.orgs,

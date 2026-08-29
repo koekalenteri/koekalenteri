@@ -325,6 +325,7 @@
       "sendReserveNotification": "Lähetä varasijailmoitus",
       "title": "Osallistujien valinta"
     },
+    "results": "Syötä tulokset",
     "showEventDetails": "Näytä tapahtuman tiedot",
     "startList": {
       "hide": "Piilota starttilista",
@@ -705,6 +706,35 @@
     "whoPays": "Kuka maksaa?"
   },
   "registrations": "Ilmoittautumiset",
+  "results": {
+    "alreadySaved": "Tulokset olivat jo tallennettuna",
+    "column": {
+      "dog": "Koira",
+      "handler": "Ohjaaja",
+      "number": "#",
+      "result": "Tulos",
+      "task": "Tehtävä {{number}}"
+    },
+    "conflicts_one": "{{count}} tulos on muuttunut muualla. Tarkista ja tallenna uudelleen.",
+    "conflicts_other": "{{count}} tulosta on muuttunut muualla. Tarkista ja tallenna uudelleen.",
+    "runningTotal": "{{points}} / {{maxPoints}}",
+    "saved": "Tulokset tallennettu",
+    "scope": "Näytä",
+    "scopeAll": "Koko kierros",
+    "title": "Tulokset",
+    "zeroFault": "Nollan syy",
+    "zeroFaults": {
+      "abandonedRetrieve": "Noudon jättäminen kesken",
+      "dummyNotFound": "Löytymättä jäänyt dami",
+      "eyeWipe": "Eye-wipe",
+      "huntingWithDummy": "Etsiminen dami suussa",
+      "outOfControl": "Karkaaminen ohjaajan hallinnasta",
+      "persistentNoise": "Toistuva vinkuminen tai haukkuminen",
+      "refusedWater": "Kieltäytyminen vesityöskentelystä",
+      "swappedDummy": "Damin vaihtaminen",
+      "unauthorizedRun": "Luvaton lähtö noutoon"
+    }
+  },
   "roles": "Roolit",
   "save": "Tallenna",
   "search": {
