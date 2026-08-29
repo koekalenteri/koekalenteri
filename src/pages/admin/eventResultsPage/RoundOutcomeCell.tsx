@@ -43,7 +43,7 @@ const stationOf = (edit: ResultEdit) => edit.elimination?.stationId ?? edit.reti
  * finish — even though the rules treat them differently: every elimination is a dash, while a handler's
  * own withdrawal is a dash only if the judge holds the dog could still have placed.
  */
-export const RoundOutcomeCell = ({ value, disabled, stations, stationId, onChange }: Props) => {
+export const RoundOutcome = ({ value, disabled, stations, stationId, onChange }: Props) => {
   const { t } = useTranslation()
   const outcome = outcomeOf(value)
   // A post's own view already knows where it happened; the whole-round view has to ask.
@@ -88,64 +88,69 @@ export const RoundOutcomeCell = ({ value, disabled, stations, stationId, onChang
   )
 
   return (
-    <TableCell>
-      <Stack spacing={0.5}>
+    <Stack spacing={0.5}>
+      <TextField
+        disabled={disabled}
+        label={t('results.outcome')}
+        onChange={handleOutcome}
+        select
+        size="small"
+        sx={{ minWidth: 190 }}
+        value={outcome}
+      >
+        <MenuItem value={SCORED}>{t('results.outcomeScored')}</MenuItem>
+        <ListSubheader>{t('results.outcomeEliminated')}</ListSubheader>
+        {ELIMINATING_FAULTS.map((fault) => (
+          <MenuItem key={fault} value={fault}>
+            {t(`results.eliminatingFaults.${fault}`)}
+          </MenuItem>
+        ))}
+        <ListSubheader>{t('results.outcomeRetired')}</ListSubheader>
+        <MenuItem value={INJURY}>{t('results.retirement.injury')}</MenuItem>
+        <MenuItem value={HANDLER_CHOICE}>{t('results.retirement.handlerChoice')}</MenuItem>
+      </TextField>
+
+      {/* An elimination happens somewhere, and which post is worth keeping rather than losing. */}
+      {outcome !== SCORED && stations.length > 0 && !stationId && (
         <TextField
           disabled={disabled}
-          label={t('results.outcome')}
-          onChange={handleOutcome}
+          label={t('results.outcomeAt')}
+          onChange={handleWhere}
           select
           size="small"
           sx={{ minWidth: 190 }}
-          value={outcome}
+          value={where}
         >
-          <MenuItem value={SCORED}>{t('results.outcomeScored')}</MenuItem>
-          <ListSubheader>{t('results.outcomeEliminated')}</ListSubheader>
-          {ELIMINATING_FAULTS.map((fault) => (
-            <MenuItem key={fault} value={fault}>
-              {t(`results.eliminatingFaults.${fault}`)}
+          <MenuItem value="">{t('results.outcomeAtUnknown')}</MenuItem>
+          {stations.map((station) => (
+            <MenuItem key={station.id} value={station.id}>
+              {t('event.station')} {station.number}
             </MenuItem>
           ))}
-          <ListSubheader>{t('results.outcomeRetired')}</ListSubheader>
-          <MenuItem value={INJURY}>{t('results.retirement.injury')}</MenuItem>
-          <MenuItem value={HANDLER_CHOICE}>{t('results.retirement.handlerChoice')}</MenuItem>
         </TextField>
+      )}
 
-        {/* An elimination happens somewhere, and which post is worth keeping rather than losing. */}
-        {outcome !== SCORED && stations.length > 0 && !stationId && (
-          <TextField
-            disabled={disabled}
-            label={t('results.outcomeAt')}
-            onChange={handleWhere}
-            select
-            size="small"
-            sx={{ minWidth: 190 }}
-            value={where}
-          >
-            <MenuItem value="">{t('results.outcomeAtUnknown')}</MenuItem>
-            {stations.map((station) => (
-              <MenuItem key={station.id} value={station.id}>
-                {t('event.station')} {station.number}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-
-        {/* §5.8.1 asks this only of a handler's own withdrawal; an injured dog always takes the dash. */}
-        {outcome === HANDLER_CHOICE && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={Boolean(value.retirement?.couldStillHavePlaced)}
-                disabled={disabled}
-                onChange={handleContention}
-                size="small"
-              />
-            }
-            label={t('results.couldStillHavePlaced')}
-          />
-        )}
-      </Stack>
-    </TableCell>
+      {/* §5.8.1 asks this only of a handler's own withdrawal; an injured dog always takes the dash. */}
+      {outcome === HANDLER_CHOICE && (
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={Boolean(value.retirement?.couldStillHavePlaced)}
+              disabled={disabled}
+              onChange={handleContention}
+              size="small"
+            />
+          }
+          label={t('results.couldStillHavePlaced')}
+        />
+      )}
+    </Stack>
   )
 }
+
+/** The same control in a table row. */
+export const RoundOutcomeCell = (props: Props) => (
+  <TableCell>
+    <RoundOutcome {...props} />
+  </TableCell>
+)

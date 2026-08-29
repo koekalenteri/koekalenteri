@@ -732,6 +732,7 @@
       "refusedRetrieve": "Kieltäytyminen noudosta"
     },
     "judge": "Tuomari",
+    "openStationView": "Rastinäkymä",
     "outcome": "Kierros",
     "outcomeAt": "Missä",
     "outcomeAtUnknown": "Ei tiedossa",

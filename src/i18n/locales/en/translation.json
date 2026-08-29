@@ -732,6 +732,7 @@
       "refusedRetrieve": "Refused to retrieve"
     },
     "judge": "Judge",
+    "openStationView": "Post view",
     "outcome": "Round",
     "outcomeAt": "Where",
     "outcomeAtUnknown": "Not known",

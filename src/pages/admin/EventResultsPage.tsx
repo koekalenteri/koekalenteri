@@ -3,6 +3,7 @@ import type { ConflictChoice, ResultConflict } from './eventResultsPage/Conflict
 import type { ResultEdit } from './eventResultsPage/types'
 import Save from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
@@ -14,11 +15,12 @@ import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
 import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
 import { classRound, scoresAtPosts, stationVersion } from '../../lib/results'
+import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
@@ -180,6 +182,11 @@ export default function EventResultsPage() {
             <Tab key={item} label={item} value={item} />
           ))}
         </Tabs>
+        {scoped && (
+          <Button component={Link} size="small" to={Path.admin.stationResults(eventId, scope)} variant="outlined">
+            {t('results.openStationView')}
+          </Button>
+        )}
         {stations.length > 0 && (
           <TextField
             label={t('results.scope')}
