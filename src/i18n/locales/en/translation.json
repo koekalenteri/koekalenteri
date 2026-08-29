@@ -272,6 +272,14 @@
       "tentative_info": "Tentative",
       "tentative_save": "Event was published as tentative"
     },
+    "station": "Station",
+    "stationAdd": "Add station",
+    "stationJudges": "Judges",
+    "stationRemove": "Remove station",
+    "stationsInfo": "Stations are fixed posts that the classes rotate through during the day. Each class's tasks are defined separately.",
+    "stationsSaved": "Stations saved",
+    "stationsSectionTitle": "Stations",
+    "stationTasks": "Tasks",
     "statusText": "",
     "viewerBanner_one": "{{names}} is also viewing this event.",
     "viewerBanner_other": "{{names}} are also viewing this event."
@@ -328,6 +336,7 @@
       "saveFailed": "Saving the start list publication status failed. Try again.",
       "secretary": "Secretary's start list"
     },
+    "stations": "Configure stations",
     "tabs": {
       "ariaLabel": "Event management tabs",
       "auditTrail": "Audit trail",

@@ -14,13 +14,18 @@ type EventFormOptions = {
   eventId?: string
   storedEvent?: DogEvent | null
   onDoneRedirect?: string
+  /**
+   * Replaces the default notice, which reports the event's own state ("published", "saved as draft").
+   * A page that edits one part of an event should say what it saved instead.
+   */
+  savedMessage?: string
 }
 
 /**
  * A hook that handles common event form operations for both create and edit scenarios
  */
 export default function useEventForm(options: EventFormOptions = {}) {
-  const { eventId, storedEvent = null, onDoneRedirect } = options
+  const { eventId, storedEvent = null, onDoneRedirect, savedMessage } = options
 
   const [event, setEvent] = useAtom(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
   const resetEvent = useResetAtom(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
@@ -35,6 +40,11 @@ export default function useEventForm(options: EventFormOptions = {}) {
   const [changes, setChanges] = useState<Patch<DogEvent>>(getChanges(storedEvent ?? initialEvent.current, event))
   const [canSave, setCanSave] = useState<boolean>(createMode || !isEmptyObject(changes))
 
+  /**
+   * Despite the `Patch` type, this replaces the stored event outright — a caller handing it a real
+   * patch wipes every field the patch does not mention, the id included, and the form then reports the
+   * event as missing. Callers must merge into the current event first, as EventForm does.
+   */
   const handleChange = useCallback(
     (newState: Patch<DogEvent>) => {
       const newChanges = getChanges(storedEvent ?? initialEvent.current, newState as DogEvent)
@@ -66,9 +76,12 @@ export default function useEventForm(options: EventFormOptions = {}) {
       if (onDoneRedirect) {
         navigate(onDoneRedirect)
       }
-      enqueueSnackbar(t(`event.states.${saved?.state ?? 'draft'}`, { context: 'save', defaultValue: '' }), {
-        variant: 'info',
-      })
+      enqueueSnackbar(
+        savedMessage ?? t(`event.states.${saved?.state ?? 'draft'}`, { context: 'save', defaultValue: '' }),
+        {
+          variant: 'info',
+        }
+      )
     } catch (error) {
       if (error instanceof APIError && error.status === 409 && isObject(error.body)) {
         if (error.body.error === 'staleData') {
@@ -82,7 +95,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
       }
       console.error(error)
     }
-  }, [changes, enqueueSnackbar, event, navigate, onDoneRedirect, resetEvent, saveEvent, storedEvent, t])
+  }, [changes, enqueueSnackbar, event, navigate, onDoneRedirect, resetEvent, saveEvent, savedMessage, storedEvent, t])
 
   const handleCancel = useCallback(() => {
     resetEvent()

@@ -1,13 +1,14 @@
-import type { EventClassTask, JsonEventResultTask } from '../types'
+import type { JsonEventResultTask } from '../types'
 import type { ScoredTask } from './results'
 import {
   availableResultCodes,
+  classRound,
   deriveNowtResult,
   eventResultPrefix,
   formatEventResult,
-  invalidTaskTotals,
   nowtTotals,
   taskEntryCeiling,
+  taskMaxPoints,
   toScoredTasks,
 } from './results'
 
@@ -61,6 +62,12 @@ describe('deriveNowtResult', () => {
     expect(deriveNowtResult({ tasks: round(20, 20, 15, 9) })).toBe('2')
   })
 
+  it('gates only the first prize on the per-post floor', () => {
+    // 50 of 80 is 62.5 %, and two posts sit at 5 of 20 — well under half. Second and third prizes go
+    // on the total alone, so this is a third prize rather than a zero.
+    expect(deriveNowtResult({ tasks: round(20, 20, 5, 5) })).toBe('3')
+  })
+
   it('uses the ratio rather than a rounded percentage at the boundary', () => {
     // 51 of 80 is 63.75 %, which rounds to 64 % but must not reach the 65 % second prize.
     expect(deriveNowtResult({ tasks: round(13, 13, 13, 12) })).toBe('3')
@@ -110,6 +117,17 @@ describe('deriveNowtResult', () => {
   })
 })
 
+describe('taskMaxPoints', () => {
+  it('gives a lone task the whole post', () => {
+    expect(taskMaxPoints(1)).toBe(20)
+  })
+
+  it('splits a post evenly between two tasks, so the parts cannot fail to add up', () => {
+    expect(taskMaxPoints(2) * 2).toBe(taskMaxPoints(1))
+    expect(taskMaxPoints(2)).toBe(10)
+  })
+})
+
 describe('taskEntryCeiling', () => {
   it('leaves an uninterrupted task at its full maximum', () => {
     expect(taskEntryCeiling({ maxPoints: 20 })).toBe(20)
@@ -131,38 +149,85 @@ describe('taskEntryCeiling', () => {
   })
 })
 
-describe('toScoredTasks', () => {
-  const tasks: EventClassTask[] = [
-    { id: 'a', maxPoints: 10, number: 1, stationId: 'post-1' },
-    { id: 'b', maxPoints: 10, number: 2, stationId: 'post-1' },
-    { id: 'c', maxPoints: 20, number: 3, stationId: 'post-2' },
-  ]
+describe('classRound', () => {
+  it('expands each post into its own slots, in course order', () => {
+    expect(
+      classRound([
+        { id: 'post-1', tasks: 2 },
+        { id: 'post-2', tasks: 1 },
+      ])
+    ).toEqual([
+      { index: 0, maxPoints: 10, stationId: 'post-1' },
+      { index: 1, maxPoints: 10, stationId: 'post-1' },
+      { index: 0, maxPoints: 20, stationId: 'post-2' },
+    ])
+  })
 
-  const scored = (taskId: string, points: number | null): JsonEventResultTask => ({
+  it('lets one class split a post differently from the course as built', () => {
+    const stations = [{ id: 'post-1', tasks: 1 as const }]
+
+    expect(classRound(stations, [{ stationId: 'post-1', tasks: 2 }])).toEqual([
+      { index: 0, maxPoints: 10, stationId: 'post-1' },
+      { index: 1, maxPoints: 10, stationId: 'post-1' },
+    ])
+  })
+
+  it('follows the post where the class has no entry of its own', () => {
+    const stations = [{ id: 'post-1', tasks: 2 as const }]
+
+    expect(classRound(stations, [{ stationId: 'other', tasks: 1 }])).toEqual(classRound(stations))
+  })
+
+  it('always adds up to the posts it came from, however they are split', () => {
+    const stations = [
+      { id: 'post-1', tasks: 2 as const },
+      { id: 'post-2', tasks: 1 as const },
+      { id: 'post-3', tasks: 2 as const },
+      { id: 'post-4', tasks: 1 as const },
+    ]
+
+    expect(nowtTotals(toScoredTasks(classRound(stations), [])).maxPoints).toBe(80)
+  })
+})
+
+describe('toScoredTasks', () => {
+  const round = classRound([
+    { id: 'post-1', tasks: 2 },
+    { id: 'post-2', tasks: 1 },
+  ])
+
+  const scored = (stationId: string, index: number, points: number | null): JsonEventResultTask => ({
+    index,
     points,
-    taskId,
+    stationId,
     updatedAt: '2026-08-29T10:00:00.000Z',
     updatedBy: 'secretary',
   })
 
-  it('joins entries onto the layout', () => {
-    expect(toScoredTasks(tasks, [scored('a', 9), scored('b', 8), scored('c', 18)])).toEqual([
+  it('joins entries onto the round', () => {
+    expect(toScoredTasks(round, [scored('post-1', 0, 9), scored('post-1', 1, 8), scored('post-2', 0, 18)])).toEqual([
       { maxPoints: 10, points: 9, stationId: 'post-1' },
       { maxPoints: 10, points: 8, stationId: 'post-1' },
       { maxPoints: 20, points: 18, stationId: 'post-2' },
     ])
   })
 
+  it('tells the two tasks of one post apart', () => {
+    const result = toScoredTasks(round, [scored('post-1', 1, 8)])
+
+    expect(result.map((item) => item.points)).toEqual([null, 8, null])
+  })
+
   it('reads a task with no entry as unscored instead of dropping it from the maximum', () => {
-    const result = toScoredTasks(tasks, [scored('a', 9)])
+    const result = toScoredTasks(round, [scored('post-1', 0, 9)])
 
     expect(result.map((item) => item.points)).toEqual([9, null, null])
     expect(nowtTotals(result).maxPoints).toBe(40)
   })
 
-  it('ignores entries for tasks the layout no longer holds', () => {
-    expect(toScoredTasks([tasks[0]], [scored('a', 9), scored('removed', 20)])).toEqual([
-      { maxPoints: 10, points: 9, stationId: 'post-1' },
+  it('ignores entries for posts the round no longer holds', () => {
+    expect(toScoredTasks(classRound([{ id: 'post-1', tasks: 1 }]), [scored('removed', 0, 20)])).toEqual([
+      { maxPoints: 20, points: null, stationId: 'post-1' },
     ])
   })
 })
@@ -202,35 +267,5 @@ describe('formatEventResult', () => {
   it('composes a pass or fail for an event type without classes', () => {
     expect(formatEventResult('1', 'NOU')).toBe('NOU1')
     expect(formatEventResult('0', 'NKM')).toBe('NKM0')
-  })
-})
-
-describe('invalidTaskTotals', () => {
-  const stations = [
-    { id: 'post-1', maxPoints: 20 },
-    { id: 'post-2', maxPoints: 20 },
-  ]
-
-  it('accepts a post split into two halves', () => {
-    expect(
-      invalidTaskTotals(stations, [
-        { id: 'a', maxPoints: 10, number: 1, stationId: 'post-1' },
-        { id: 'b', maxPoints: 10, number: 2, stationId: 'post-1' },
-        { id: 'c', maxPoints: 20, number: 3, stationId: 'post-2' },
-      ])
-    ).toEqual([])
-  })
-
-  it('reports a split that does not add up to the post', () => {
-    expect(
-      invalidTaskTotals(stations, [
-        { id: 'a', maxPoints: 20, number: 1, stationId: 'post-1' },
-        { id: 'b', maxPoints: 10, number: 2, stationId: 'post-1' },
-      ])
-    ).toEqual(['post-1'])
-  })
-
-  it('ignores a post that carries no tasks for this class', () => {
-    expect(invalidTaskTotals(stations, [{ id: 'c', maxPoints: 20, number: 1, stationId: 'post-2' }])).toEqual([])
   })
 })

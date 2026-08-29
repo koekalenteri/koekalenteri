@@ -79,34 +79,39 @@ type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
 
 /**
  * A physical scoring post ("rasti"). Judges are stationed at a post and it persists through the day
- * while classes rotate past it, so the tasks it sets belong to the class rather than to the post.
+ * while the classes rotate past it, each running its own exercise there.
  *
- * `maxPoints` is 20 in current practice, but the rules never state that, so it is stored rather than
- * assumed. Read the denominator and the per-post prize floor from it; never hardcode 20 or 10.
+ * `tasks` is the course as built, which a class may override through `JsonEventClassStation`. A post is
+ * always worth `STATION_MAX_POINTS` and its tasks split that evenly, so what varies is the number of
+ * tasks, never the maximum — deriving each task's ceiling from the split rather than storing it means a
+ * post's tasks cannot fail to add up to the post.
  */
 export type JsonEventStation = {
   id: string
-  /** Display order, "Rasti 1". */
+  /** Posts are never named, only numbered 1..n within their own day. */
   number: number
-  name?: string
   date: string
-  judge?: PublicJudge | PublicJudge[]
-  maxPoints: number
+  /**
+   * Several judges may work one post (§5.7). Always an array: `classes[].judge` carries a legacy
+   * single-judge shape, but this field is new and has no such history to accommodate.
+   */
+  judges?: PublicJudge[]
+  /** One task worth the post's full points, or two worth half each. */
+  tasks: 1 | 2
 }
 export type EventStation = Replace<JsonEventStation, 'date', Date>
 
 /**
- * One scored task ("tehtävä") within a class's round, run at a post. A post sets either one task
- * worth its full `maxPoints` or two that split it — two tasks never double a post's worth. The
- * tasks of one post must therefore sum to that post's `maxPoints`.
+ * How many tasks one class runs at a post, where that differs from the post's own layout.
+ *
+ * A course is normally built once and every class runs it as laid out, so this is an override rather
+ * than a requirement: absent an entry, the class follows `JsonEventStation.tasks`. Keeping the two
+ * separate leaves room for a class to split a post the others do not, without duplicating the whole
+ * course per class.
  */
-export type EventClassTask = {
-  id: string
-  /** Order within the class's round. */
-  number: number
+export type JsonEventClassStation = {
   stationId: string
-  name?: string
-  maxPoints: number
+  tasks: 1 | 2
 }
 
 export type JsonKcEventInfo = {
@@ -183,8 +188,8 @@ export type JsonEventClass = {
   entries?: number
   members?: number
   state?: EventClassState
-  /** The class's scored round. Each post carries different tasks for each class passing through it. */
-  tasks?: EventClassTask[]
+  /** Posts this class splits differently from the course as built. Absent entries follow the post. */
+  stations?: JsonEventClassStation[]
 }
 export type EventClass = Replace<JsonEventClass, 'date', Date>
 

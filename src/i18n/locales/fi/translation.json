@@ -272,6 +272,14 @@
       "tentative_info": "Alustava",
       "tentative_save": "Tapahtuma on julkaistu alustavana"
     },
+    "station": "Rasti",
+    "stationAdd": "Lisää rasti",
+    "stationJudges": "Tuomarit",
+    "stationRemove": "Poista rasti",
+    "stationsInfo": "Rastit ovat kiinteitä suorituspaikkoja, joiden läpi luokat kiertävät päivän aikana. Kunkin luokan tehtävät määritellään erikseen.",
+    "stationsSaved": "Rastit tallennettu",
+    "stationsSectionTitle": "Rastit",
+    "stationTasks": "Tehtäviä",
     "statusText": "",
     "viewerBanner_one": "Myös {{names}} katsoo tätä tapahtumaa.",
     "viewerBanner_other": "Myös {{names}} katsovat tätä tapahtumaa."
@@ -328,6 +336,7 @@
       "saveFailed": "Starttilistan julkaisutilan tallennus epäonnistui. Yritä uudelleen.",
       "secretary": "Sihteerin starttilista"
     },
+    "stations": "Määritä rastit",
     "tabs": {
       "ariaLabel": "Tapahtuman hallinnan välilehdet",
       "auditTrail": "Muutoshistoria",

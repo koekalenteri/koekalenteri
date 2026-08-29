@@ -301,6 +301,7 @@ const InfoPanel = ({
           <EventActions
             eventFinished={eventFinished}
             eventId={event.id}
+            eventType={event.eventType}
             onCreateRegistration={onCreateRegistration}
             onOpenDetails={onOpenDetails}
           />

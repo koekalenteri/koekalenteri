@@ -1,4 +1,4 @@
-import type { EventClassTask, EventResultRetirement, JsonEventResultTask, NowtEliminatingFault } from '../types'
+import type { EventResultRetirement, JsonEventClassStation, JsonEventResultTask, NowtEliminatingFault } from '../types'
 
 /**
  * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog was
@@ -15,6 +15,20 @@ type ResultCode = '1' | '2' | '3' | '0' | '-'
  * 81 % and has earned a *first* prize — comparing raw points would score it a second.
  */
 const NOWT_PRIZE_THRESHOLD_PERCENT = { 1: 80, 2: 65, 3: 50 } as const
+
+/**
+ * A post is always worth 20, whether it sets one task of 20 or two of 10. The rules never state this,
+ * so a change of convention stays a change to this one value.
+ */
+const STATION_MAX_POINTS = 20
+
+/** A post's points split evenly between its tasks, so the parts always add up to the whole. */
+export const taskMaxPoints = (tasks: 1 | 2): number => STATION_MAX_POINTS / tasks
+
+/** Event types scored at posts. Everything else is judged qualitatively and has no tasks. */
+const POST_SCORED_EVENT_TYPES = ['NOWT', 'NOWT SM']
+
+export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.includes(eventType ?? '')
 
 /** One task as scored for one dog, joined to its definition in the class's round. */
 export interface ScoredTask {
@@ -41,17 +55,42 @@ interface NowtResultInput {
 export const taskEntryCeiling = (task: Pick<JsonEventResultTask, 'recalled'> & { maxPoints: number }): number =>
   task.recalled ? Math.floor(task.maxPoints / 2) : task.maxPoints
 
+/** One scored slot in a class's round. */
+interface RoundTask {
+  stationId: string
+  /** 0-based position among that post's tasks. */
+  index: number
+  maxPoints: number
+}
+
 /**
- * Join a class's round to one dog's entries, driven by the layout so an unscored task reads as `null`
+ * The scored slots a class runs, in course order.
+ *
+ * A class follows the course as built unless it has its own entry for a post. Expanding the split here
+ * rather than storing each slot means a post's tasks cannot fail to add up to the post.
+ */
+export const classRound = (
+  stations: readonly { id: string; tasks: 1 | 2 }[],
+  classStations?: readonly JsonEventClassStation[]
+): RoundTask[] =>
+  stations.flatMap((station) => {
+    const tasks = classStations?.find((entry) => entry.stationId === station.id)?.tasks ?? station.tasks
+    const maxPoints = taskMaxPoints(tasks)
+
+    return Array.from({ length: tasks }, (_unused, index) => ({ index, maxPoints, stationId: station.id }))
+  })
+
+/**
+ * Join a class's round to one dog's entries, driven by the round so an unscored task reads as `null`
  * rather than vanishing from the total.
  */
 export const toScoredTasks = (
-  tasks: readonly EventClassTask[],
+  round: readonly RoundTask[],
   scored: readonly JsonEventResultTask[] | undefined
 ): ScoredTask[] =>
-  tasks.map((task) => ({
+  round.map((task) => ({
     maxPoints: task.maxPoints,
-    points: scored?.find((entry) => entry.taskId === task.id)?.points ?? null,
+    points: scored?.find((entry) => entry.stationId === task.stationId && entry.index === task.index)?.points ?? null,
     stationId: task.stationId,
   }))
 
@@ -144,21 +183,3 @@ export const eventResultPrefix = (eventType: string, eventClass?: string): strin
 
 export const formatEventResult = (code: ResultCode, eventType: string, eventClass?: string): string =>
   `${eventResultPrefix(eventType, eventClass)}${code}`
-
-/**
- * Posts whose tasks do not add up to the post's own maximum. A split that sums to 30 rather than 20
- * silently distorts every percentage in the class, and nothing downstream would catch it, so the event
- * form should refuse to save a layout this reports on.
- */
-export const invalidTaskTotals = (
-  stations: readonly { id: string; maxPoints: number }[],
-  tasks: readonly EventClassTask[]
-): string[] =>
-  stations
-    .filter((station) => {
-      const stationTasks = tasks.filter((task) => task.stationId === station.id)
-      if (stationTasks.length === 0) return false
-
-      return stationTasks.reduce((sum, task) => sum + task.maxPoints, 0) !== station.maxPoints
-    })
-    .map((station) => station.id)

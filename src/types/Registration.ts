@@ -53,9 +53,11 @@ export interface EventResultRetirement {
   couldStillHavePlaced?: boolean
 }
 
-/** One task's score for one dog. */
+/** One task's score for one dog. A task is identified by its post and its position within it. */
 export interface JsonEventResultTask {
-  taskId: string
+  stationId: string
+  /** 0-based position among that post's tasks. */
+  index: number
   /** `null` while unscored. `0` is a real score and bars every prize; it is not the same as unscored. */
   points: number | null
   /**
