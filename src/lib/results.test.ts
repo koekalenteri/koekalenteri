@@ -1,5 +1,5 @@
-import type { JsonEventResultTask } from '../types'
-import type { ScoredTask } from './results'
+import type { JsonEventResult, JsonEventResultTask } from '../types'
+import type { ScoredTask, SubmittedEventResult } from './results'
 import {
   availableResultCodes,
   classRound,
@@ -7,6 +7,8 @@ import {
   eventResultPrefix,
   formatEventResult,
   nowtTotals,
+  resolveEventResult,
+  sameEventResult,
   taskEntryCeiling,
   taskMaxPoints,
   toScoredTasks,
@@ -267,5 +269,116 @@ describe('formatEventResult', () => {
   it('composes a pass or fail for an event type without classes', () => {
     expect(formatEventResult('1', 'NOU')).toBe('NOU1')
     expect(formatEventResult('0', 'NKM')).toBe('NKM0')
+  })
+})
+
+describe('resolveEventResult', () => {
+  const nowt = {
+    eventClass: 'AVO',
+    eventType: 'NOWT',
+    stations: [
+      { id: 'post-1', tasks: 1 as const },
+      { id: 'post-2', tasks: 1 as const },
+      { id: 'post-3', tasks: 1 as const },
+      { id: 'post-4', tasks: 1 as const },
+    ],
+  }
+
+  const entered = (stationId: string, points: number | null): JsonEventResultTask => ({
+    index: 0,
+    points,
+    stationId,
+    updatedAt: '2026-08-29T10:00:00.000Z',
+    updatedBy: 'secretary',
+  })
+
+  const fullRound = (...points: number[]) => points.map((value, index) => entered(`post-${index + 1}`, value))
+
+  it('derives the totals and composes the result', () => {
+    expect(resolveEventResult({ tasks: fullRound(17, 18, 16, 14) }, nowt)).toMatchObject({
+      maxPoints: 80,
+      percentage: 81.25,
+      points: 65,
+      result: 'AVO1',
+    })
+  })
+
+  it('ignores a total the client tried to supply', () => {
+    const result = resolveEventResult(
+      // A client claiming a perfect round must not be believed over its own task scores.
+      { points: 80, tasks: fullRound(10, 10, 10, 10) } as SubmittedEventResult,
+      nowt
+    )
+
+    expect(result.points).toBe(40)
+    expect(result.result).toBe('AVO3')
+  })
+
+  it('lets the secretary override the derived prize', () => {
+    // The rules leave the judge discretion the derivation cannot see.
+    expect(resolveEventResult({ resultCode: '2', tasks: fullRound(17, 18, 16, 14) }, nowt).result).toBe('AVO2')
+  })
+
+  it('publishes no percentage for a voided round', () => {
+    const result = resolveEventResult({ eliminatedBy: 'hardMouth', tasks: [entered('post-1', 17)] }, nowt)
+
+    expect(result.result).toBe('AVO-')
+    expect(result.percentage).toBeUndefined()
+    expect(result.points).toBeUndefined()
+  })
+
+  it('leaves the result open while the round is half entered', () => {
+    const result = resolveEventResult({ tasks: fullRound(17, 18) }, nowt)
+
+    expect(result.result).toBeUndefined()
+    // The running total is still worth showing, even before a prize can be decided.
+    expect(result.points).toBe(35)
+  })
+
+  it('takes a qualitative type at its word and derives nothing', () => {
+    const result = resolveEventResult({ resultCode: '1' }, { eventClass: 'ALO', eventType: 'NOME-B' })
+
+    expect(result).toEqual({ result: 'ALO1' })
+  })
+
+  it('composes a classless type from its event type', () => {
+    expect(resolveEventResult({ resultCode: '0' }, { eventType: 'NOU' }).result).toBe('NOU0')
+  })
+
+  it('honours a class that splits a post differently from the course', () => {
+    const result = resolveEventResult(
+      { tasks: [entered('post-1', 9), { ...entered('post-1', 8), index: 1 }] },
+      {
+        classStations: [{ stationId: 'post-1', tasks: 2 }],
+        eventClass: 'ALO',
+        eventType: 'NOWT',
+        stations: [{ id: 'post-1', tasks: 1 }],
+      }
+    )
+
+    expect(result).toMatchObject({ maxPoints: 20, points: 17 })
+  })
+})
+
+describe('sameEventResult', () => {
+  const result = (updatedAt: string, updatedBy: string): JsonEventResult => ({
+    points: 65,
+    result: 'AVO1',
+    updatedAt,
+    updatedBy,
+  })
+
+  it('ignores who wrote it down and when', () => {
+    // A retry landing after the first attempt succeeded is the same result, not a competing one.
+    expect(sameEventResult(result('2026-09-12T10:00:00.000Z', 'a'), result('2026-09-12T11:00:00.000Z', 'b'))).toBe(true)
+  })
+
+  it('sees a different outcome', () => {
+    expect(sameEventResult(result('x', 'a'), { ...result('x', 'a'), result: 'AVO2' })).toBe(false)
+  })
+
+  it('treats a missing result as different from any result', () => {
+    expect(sameEventResult(undefined, result('x', 'a'))).toBe(false)
+    expect(sameEventResult(undefined, undefined)).toBe(true)
   })
 })

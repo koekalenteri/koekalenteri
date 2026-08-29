@@ -1,11 +1,19 @@
-import type { EventResultRetirement, JsonEventClassStation, JsonEventResultTask, NowtEliminatingFault } from '../types'
+import type {
+  EventResultRetirement,
+  JsonEventClassStation,
+  JsonEventResult,
+  JsonEventResultTask,
+  NowtEliminatingFault,
+  PublicJudge,
+} from '../types'
+import { objectsDiffer } from './diff'
 
 /**
  * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog was
  * judged and did not place, `-` says there was no completed round to judge. Both differ again from an
  * absent result, which says nothing has been recorded yet.
  */
-type ResultCode = '1' | '2' | '3' | '0' | '-'
+export type ResultCode = '1' | '2' | '3' | '0' | '-'
 
 /**
  * Prize thresholds as percentages of the round's maximum (NOWT rules §5.8.1).
@@ -183,3 +191,79 @@ export const eventResultPrefix = (eventType: string, eventClass?: string): strin
 
 export const formatEventResult = (code: ResultCode, eventType: string, eventClass?: string): string =>
   `${eventResultPrefix(eventType, eventClass)}${code}`
+
+/** What the secretary submits for one dog. Totals are never taken from the client. */
+export interface SubmittedEventResult {
+  tasks?: JsonEventResultTask[]
+  /**
+   * The only source of a result for qualitative event types, and an override for NOWT — the rules leave
+   * the judge discretion the derivation cannot model.
+   */
+  resultCode?: ResultCode
+  cert?: boolean
+  resCert?: boolean
+  eliminatedBy?: NowtEliminatingFault
+  retirement?: EventResultRetirement
+  judge?: PublicJudge
+  notes?: string
+}
+
+interface EventResultContext {
+  eventType: string
+  eventClass?: string
+  stations?: readonly { id: string; tasks: 1 | 2 }[]
+  classStations?: readonly JsonEventClassStation[]
+}
+
+/**
+ * Turn a submission into the result that gets stored, deriving everything derivable.
+ *
+ * Totals are recomputed here rather than trusted, so the same module decides the prize whether the
+ * question is asked by the entry screen as scores are typed or by the server as they are saved. Those
+ * two disagreeing is the failure this exists to prevent.
+ */
+export const resolveEventResult = (
+  submitted: SubmittedEventResult,
+  { eventType, eventClass, stations = [], classStations }: EventResultContext
+): Omit<JsonEventResult, 'updatedAt' | 'updatedBy'> => {
+  const { tasks, resultCode, ...rest } = submitted
+  const voided = Boolean(submitted.eliminatedBy) || Boolean(submitted.retirement)
+
+  if (!scoresAtPosts(eventType)) {
+    // Nothing to derive: a qualitative type is whatever the judge decided.
+    return {
+      ...rest,
+      ...(resultCode ? { result: formatEventResult(resultCode, eventType, eventClass) } : {}),
+    }
+  }
+
+  const scored = toScoredTasks(classRound(stations, classStations), tasks)
+  const code = resultCode ?? deriveNowtResult({ ...submitted, tasks: scored })
+
+  // A voided round has no total worth publishing: two thirds of a round is not a worse performance
+  // than a whole one, and a percentage beside dogs who ran everything invites the wrong comparison.
+  const totals = voided ? undefined : nowtTotals(scored)
+
+  return {
+    ...rest,
+    ...(tasks ? { tasks } : {}),
+    ...(totals ? { maxPoints: totals.maxPoints, percentage: totals.percentage, points: totals.points } : {}),
+    ...(code ? { result: formatEventResult(code, eventType, eventClass) } : {}),
+  }
+}
+
+/**
+ * Whether two stored results say the same thing about the dog.
+ *
+ * `updatedAt` and `updatedBy` record who wrote it down and when, not what happened, so they are left
+ * out: a retry that lands after the first attempt already succeeded must read as the same result, not
+ * as a competing one.
+ */
+export const sameEventResult = (a?: JsonEventResult, b?: JsonEventResult): boolean => {
+  if (!a || !b) return a === b
+
+  const { updatedAt: _a, updatedBy: _b, ...left } = a
+  const { updatedAt: _c, updatedBy: _d, ...right } = b
+
+  return !objectsDiffer(left, right)
+}

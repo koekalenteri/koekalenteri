@@ -47,6 +47,7 @@
         "src/lambda/PutAdminRegistrationNotesFunction/handler.ts",
         "src/lambda/PutEmailTemplateFunction/handler.ts",
         "src/lambda/PutEventFunction/handler.ts",
+        "src/lambda/PutEventResultsFunction/handler.ts",
         "src/lambda/PutEventTypeFunction/handler.ts",
         "src/lambda/PutInvitationAttachmentFunction/handler.ts",
         "src/lambda/PutJudgeFunction/handler.ts",
