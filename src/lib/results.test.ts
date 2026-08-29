@@ -97,8 +97,10 @@ describe('deriveNowtResult', () => {
 
   describe('voided rounds', () => {
     it('records every eliminating fault as a dash rather than a zero', () => {
-      expect(deriveNowtResult({ eliminatedBy: 'hardMouth', tasks: round(17, null, null, null) })).toBe('-')
-      expect(deriveNowtResult({ eliminatedBy: 'harshHandling', tasks: round(17, null, null, null) })).toBe('-')
+      expect(deriveNowtResult({ elimination: { fault: 'hardMouth' }, tasks: round(17, null, null, null) })).toBe('-')
+      expect(deriveNowtResult({ elimination: { fault: 'harshHandling' }, tasks: round(17, null, null, null) })).toBe(
+        '-'
+      )
     })
 
     it('records an injured dog as a dash without asking about contention', () => {
@@ -113,11 +115,11 @@ describe('deriveNowtResult', () => {
     })
 
     it('settles an exclusion before the zero rule, so the dog is not reported as having failed on merit', () => {
-      expect(deriveNowtResult({ eliminatedBy: 'aggression', tasks: round(0, 18, 16, 14) })).toBe('-')
+      expect(deriveNowtResult({ elimination: { fault: 'aggression' }, tasks: round(0, 18, 16, 14) })).toBe('-')
     })
 
     it('settles a voided round before completeness, so an unfinished scorecard still resolves', () => {
-      expect(deriveNowtResult({ eliminatedBy: 'gunShyness', tasks: [] })).toBe('-')
+      expect(deriveNowtResult({ elimination: { fault: 'gunShyness' }, tasks: [] })).toBe('-')
     })
   })
 })
@@ -323,7 +325,7 @@ describe('resolveEventResult', () => {
   })
 
   it('publishes no percentage for a voided round', () => {
-    const result = resolveEventResult({ eliminatedBy: 'hardMouth', tasks: [entered('post-1', 17)] }, nowt)
+    const result = resolveEventResult({ elimination: { fault: 'hardMouth' }, tasks: [entered('post-1', 17)] }, nowt)
 
     expect(result.result).toBe('AVO-')
     expect(result.percentage).toBeUndefined()

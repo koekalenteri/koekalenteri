@@ -1,6 +1,6 @@
 import type { EventResult, EventStation } from '../../types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
-import type { TaskEdit } from './eventResultsPage/types'
+import type { ResultEdit } from './eventResultsPage/types'
 import Save from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
 import MenuItem from '@mui/material/MenuItem'
@@ -24,6 +24,7 @@ import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
+import { emptyEdit } from './eventResultsPage/types'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom } from './state'
 
 /** The whole round, or one post's slice of it. */
@@ -45,7 +46,7 @@ export default function EventResultsPage() {
   )
   const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])
   const [scope, setScope] = useState<string>(WHOLE_ROUND)
-  const [edits, setEdits] = useState<Record<string, TaskEdit[]>>({})
+  const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
   const [conflicts, setConflicts] = useState<ResultConflict[]>([])
   const [choices, setChoices] = useState<Record<string, ConflictChoice>>({})
 
@@ -77,18 +78,18 @@ export default function EventResultsPage() {
   )
 
   const handleChange = useCallback(
-    (registrationId: string, tasks: TaskEdit[]) => setEdits((prev) => ({ ...prev, [registrationId]: tasks })),
+    (registrationId: string, edit: ResultEdit) => setEdits((prev) => ({ ...prev, [registrationId]: edit })),
     []
   )
 
   const submissionFor = useCallback(
-    (id: string, tasks: TaskEdit[], overrideBase?: EventResult) => {
+    (id: string, edit: ResultEdit, overrideBase?: EventResult) => {
       const stored = overrideBase ?? registrations.find((reg) => reg.id === id)?.eventResult
 
       return {
         // The version this edit was made against, so the server can tell a second writer from a retry.
         basedOn: scoped ? stationVersion(stored?.tasks, scope) : stored?.updatedAt,
-        eventResult: { tasks },
+        eventResult: { elimination: edit.elimination, retirement: edit.retirement, tasks: edit.tasks },
         id,
         ...(scoped ? { stationId: scope } : {}),
       }
@@ -105,7 +106,7 @@ export default function EventResultsPage() {
   )
 
   const handleSave = useCallback(async () => {
-    const submissions = Object.entries(edits).map(([id, tasks]) => submissionFor(id, tasks))
+    const submissions = Object.entries(edits).map(([id, edit]) => submissionFor(id, edit))
     if (submissions.length === 0) return
 
     try {
@@ -118,7 +119,7 @@ export default function EventResultsPage() {
       if (!isResultConflictBody(body)) throw error
 
       // Whatever did not conflict is already written; keep only the disputed dogs on screen.
-      setEdits((prev) => Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? []])))
+      setEdits((prev) => Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? emptyEdit])))
       setConflicts(body.conflicts)
       setChoices({})
     }
@@ -128,7 +129,9 @@ export default function EventResultsPage() {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that
     // beat it, so this save is no longer a conflict.
     const mine = conflicts.filter((conflict) => choices[conflict.id] === 'mine')
-    const submissions = mine.map((conflict) => submissionFor(conflict.id, edits[conflict.id] ?? [], conflict.stored))
+    const submissions = mine.map((conflict) =>
+      submissionFor(conflict.id, edits[conflict.id] ?? emptyEdit, conflict.stored)
+    )
 
     if (submissions.length) {
       const response = await putEventResults(eventId, submissions, token ?? '')
@@ -190,6 +193,8 @@ export default function EventResultsPage() {
           onChange={handleChange}
           registrations={rows}
           round={round}
+          stationId={scoped ? scope : undefined}
+          stations={stations}
         />
       </Box>
 

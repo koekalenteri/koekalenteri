@@ -515,4 +515,26 @@ describe('putEventResultsLambda', () => {
       expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({ result: 'NOU1' })
     })
   })
+
+  it('keeps the post an elimination happened at', async () => {
+    await putEventResultsLambda(
+      apiEvent([
+        {
+          eventResult: {
+            elimination: { fault: 'hardMouth', stationId: 'post-3' },
+            tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
+          },
+          id: 'reg-1',
+        },
+      ])
+    )
+
+    const stored = mockUpdateRegistrationField.mock.calls[0][3]
+
+    // Which post threw the dog out is worth knowing, and it is lost the moment only the fault is kept.
+    expect(stored.elimination).toEqual({ fault: 'hardMouth', stationId: 'post-3' })
+    expect(stored.result).toBe('AVO-')
+    // A voided round has no total to publish, even though a post had already scored it.
+    expect(stored.points).toBeUndefined()
+  })
 })

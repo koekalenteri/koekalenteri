@@ -1,6 +1,6 @@
 import type { RoundTask } from '../../../lib/results'
-import type { NowtZeroFault, Registration } from '../../../types'
-import type { TaskEdit } from './types'
+import type { EventStation, NowtZeroFault, Registration } from '../../../types'
+import type { ResultEdit } from './types'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -11,7 +11,9 @@ import TableRow from '@mui/material/TableRow'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ResultCell } from './ResultCell'
+import { RoundOutcomeCell } from './RoundOutcomeCell'
 import { TaskCell } from './TaskCell'
+import { emptyEdit, isVoided } from './types'
 
 interface Props {
   readonly registrations: Registration[]
@@ -21,9 +23,12 @@ interface Props {
   readonly fullRound?: RoundTask[]
   readonly eventType: string
   readonly eventClass?: string
-  readonly edits: Record<string, TaskEdit[]>
+  readonly stations: EventStation[]
+  /** Set when the view covers one post only. */
+  readonly stationId?: string
+  readonly edits: Record<string, ResultEdit>
   readonly disabled?: boolean
-  readonly onChange: (registrationId: string, tasks: TaskEdit[]) => void
+  readonly onChange: (registrationId: string, edit: ResultEdit) => void
 }
 
 const taskKey = (task: { stationId: string; index: number }) => `${task.stationId}#${task.index}`
@@ -32,7 +37,18 @@ const taskKey = (task: { stationId: string; index: number }) => `${task.stationI
  * One table serving both the event secretary and a station secretary. They differ only in which slots
  * are in scope — the whole round, or one post's one or two — so the difference is a prop, not a screen.
  */
-function ResultsTable({ registrations, round, fullRound, eventType, eventClass, edits, disabled, onChange }: Props) {
+function ResultsTable({
+  registrations,
+  round,
+  fullRound,
+  eventType,
+  eventClass,
+  stations,
+  stationId,
+  edits,
+  disabled,
+  onChange,
+}: Props) {
   const { t } = useTranslation()
 
   return (
@@ -48,18 +64,24 @@ function ResultsTable({ registrations, round, fullRound, eventType, eventClass, 
                 {t('results.column.task', { number: index + 1 })}
               </TableCell>
             ))}
+            <TableCell>{t('results.column.outcome')}</TableCell>
             <TableCell align="right">{t('results.column.result')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {registrations.map((registration) => {
-            const tasks = edits[registration.id] ?? []
+            const edit = edits[registration.id] ?? emptyEdit
+            const { tasks } = edit
+            const voided = isVoided(edit)
 
             const setTask = (task: RoundTask, points: number | null, zeroFault?: NowtZeroFault) =>
-              onChange(registration.id, [
-                ...tasks.filter((item) => taskKey(item) !== taskKey(task)),
-                { index: task.index, points, stationId: task.stationId, ...(zeroFault ? { zeroFault } : {}) },
-              ])
+              onChange(registration.id, {
+                ...edit,
+                tasks: [
+                  ...tasks.filter((item) => taskKey(item) !== taskKey(task)),
+                  { index: task.index, points, stationId: task.stationId, ...(zeroFault ? { zeroFault } : {}) },
+                ],
+              })
 
             return (
               <TableRow hover key={registration.id}>
@@ -68,19 +90,26 @@ function ResultsTable({ registrations, round, fullRound, eventType, eventClass, 
                 <TableCell>{registration.handler?.name}</TableCell>
                 {round.map((task) => (
                   <TaskCell
-                    disabled={disabled}
+                    disabled={disabled || voided}
                     key={taskKey(task)}
                     onChange={setTask}
                     task={task}
                     value={tasks.find((item) => taskKey(item) === taskKey(task))}
                   />
                 ))}
+                <RoundOutcomeCell
+                  disabled={disabled}
+                  stationId={stationId}
+                  stations={stations}
+                  onChange={(next) => onChange(registration.id, next)}
+                  value={edit}
+                />
                 <ResultCell
+                  edit={edit}
                   eventClass={eventClass}
                   eventType={eventType}
                   round={fullRound}
                   stored={registration.eventResult}
-                  tasks={tasks}
                 />
               </TableRow>
             )

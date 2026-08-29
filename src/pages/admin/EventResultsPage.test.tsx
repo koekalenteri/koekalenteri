@@ -71,6 +71,16 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
   })
 
+  it('offers a way to record a round that was not scored', async () => {
+    const { i18n } = useTranslation()
+    renderPage(i18n.language as Language)
+    await flushPromises()
+
+    // A dog that is eliminated or withdrawn is common rather than exceptional, so the column exists
+    // for every event type — the points grid alone could not record it.
+    expect(screen.getByText('results.column.outcome')).toBeInTheDocument()
+  })
+
   it('offers no scope selector for an event type that is not scored at posts', async () => {
     const { i18n } = useTranslation()
     renderPage(i18n.language as Language)
@@ -115,5 +125,23 @@ describe('conflict handling', () => {
 
     expect(error.status).toBe(409)
     expect(error.body).toMatchObject({ conflicts: [{ id: 'reg-1' }] })
+  })
+})
+
+describe('a round that was not scored', () => {
+  it('is a dash rather than a zero, whichever fault ended it', async () => {
+    const { deriveNowtResult } = await import('../../lib/results')
+    const tasks = [{ maxPoints: 20, points: 17, stationId: 'post-1' }]
+
+    expect(deriveNowtResult({ elimination: { fault: 'harshHandling' }, tasks })).toBe('-')
+    expect(deriveNowtResult({ retirement: { cause: 'injury' }, tasks })).toBe('-')
+  })
+
+  it("turns a handler's withdrawal on whether the dog was still in contention", async () => {
+    const { deriveNowtResult } = await import('../../lib/results')
+    const tasks = [{ maxPoints: 20, points: 17, stationId: 'post-1' }]
+
+    expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: true }, tasks })).toBe('-')
+    expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: false }, tasks })).toBe('0')
   })
 })

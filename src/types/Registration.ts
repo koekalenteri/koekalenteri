@@ -43,6 +43,18 @@ export type NowtZeroFault =
  */
 export type NowtEliminatingFault = 'aggression' | 'gunShyness' | 'refusedRetrieve' | 'hardMouth' | 'harshHandling'
 
+/**
+ * A round ended by a hylkäävä virhe (§5.7.2). Every one of these is a dash rather than a zero.
+ *
+ * The post is recorded because an elimination happens somewhere: which post a dog was thrown out at is
+ * worth knowing, and it is lost the moment only the fault is kept.
+ */
+export interface EventResultElimination {
+  fault: NowtEliminatingFault
+  /** Absent for event types with no posts. */
+  stationId?: string
+}
+
 /** Why a round ended before it was scored. Only a handler's own withdrawal is conditional. */
 export interface EventResultRetirement {
   cause: 'handlerChoice' | 'injury'
@@ -51,6 +63,8 @@ export interface EventResultRetirement {
    * have placed, and a zero otherwise. An injured dog always takes the dash.
    */
   couldStillHavePlaced?: boolean
+  /** Where it happened. An injury in particular is worth locating, not just counting. */
+  stationId?: string
 }
 
 /** One task's score for one dog. A task is identified by its post and its position within it. */
@@ -102,7 +116,7 @@ export interface JsonEventResult {
   result?: string
   cert?: boolean
   resCert?: boolean
-  eliminatedBy?: NowtEliminatingFault
+  elimination?: EventResultElimination
   retirement?: EventResultRetirement
   /** The judging judge, for event types that do not score at posts. */
   judge?: PublicJudge

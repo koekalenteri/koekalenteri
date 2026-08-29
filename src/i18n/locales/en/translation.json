@@ -712,6 +712,7 @@
       "dog": "Dog",
       "handler": "Handler",
       "number": "#",
+      "outcome": "Round",
       "result": "Result",
       "task": "Task {{number}}"
     },
@@ -722,6 +723,24 @@
     "conflicts_one": "{{count}} result changed elsewhere. Check it and save again.",
     "conflicts_other": "{{count}} results changed elsewhere. Check them and save again.",
     "conflictTitle": "Conflicting results",
+    "couldStillHavePlaced": "Could still have placed",
+    "eliminatingFaults": {
+      "aggression": "Aggressive behaviour",
+      "gunShyness": "Gun shyness",
+      "hardMouth": "Hard mouth",
+      "harshHandling": "Disciplined the dog at the venue",
+      "refusedRetrieve": "Refused to retrieve"
+    },
+    "outcome": "Round",
+    "outcomeAt": "Where",
+    "outcomeAtUnknown": "Not known",
+    "outcomeEliminated": "Eliminating fault",
+    "outcomeRetired": "Stopped",
+    "outcomeScored": "Completed",
+    "retirement": {
+      "handlerChoice": "Handler withdrew",
+      "injury": "Dog was injured"
+    },
     "runningTotal": "{{points}} / {{maxPoints}}",
     "saved": "Results saved",
     "scope": "Show",

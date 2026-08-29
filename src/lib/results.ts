@@ -1,9 +1,9 @@
 import type {
+  EventResultElimination,
   EventResultRetirement,
   JsonEventClassStation,
   JsonEventResult,
   JsonEventResultTask,
-  NowtEliminatingFault,
   PublicJudge,
 } from '../types'
 import { objectsDiffer } from './diff'
@@ -49,7 +49,7 @@ export interface ScoredTask {
 
 interface NowtResultInput {
   tasks: readonly ScoredTask[]
-  eliminatedBy?: NowtEliminatingFault
+  elimination?: EventResultElimination
   retirement?: EventResultRetirement
 }
 
@@ -146,8 +146,8 @@ const everyPostAtLeastHalf = (tasks: readonly ScoredTask[]): boolean => {
  * an early zero override an exclusion, reporting a dog as having failed on merit when it was in fact
  * thrown out.
  */
-export const deriveNowtResult = ({ tasks, eliminatedBy, retirement }: NowtResultInput): ResultCode | undefined => {
-  if (eliminatedBy) return '-'
+export const deriveNowtResult = ({ tasks, elimination, retirement }: NowtResultInput): ResultCode | undefined => {
+  if (elimination) return '-'
   if (retirement?.cause === 'injury') return '-'
   if (retirement?.cause === 'handlerChoice') return retirement.couldStillHavePlaced ? '-' : '0'
 
@@ -206,7 +206,7 @@ export interface SubmittedEventResult {
   resultCode?: ResultCode
   cert?: boolean
   resCert?: boolean
-  eliminatedBy?: NowtEliminatingFault
+  elimination?: EventResultElimination
   retirement?: EventResultRetirement
   judge?: PublicJudge
   notes?: string
@@ -231,7 +231,7 @@ export const resolveEventResult = (
   { eventType, eventClass, stations = [], classStations }: EventResultContext
 ): Omit<JsonEventResult, 'updatedAt' | 'updatedBy'> => {
   const { tasks, resultCode, ...rest } = submitted
-  const voided = Boolean(submitted.eliminatedBy) || Boolean(submitted.retirement)
+  const voided = Boolean(submitted.elimination) || Boolean(submitted.retirement)
 
   if (!scoresAtPosts(eventType)) {
     // Nothing to derive: a qualitative type is whatever the judge decided.

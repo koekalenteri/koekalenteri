@@ -712,6 +712,7 @@
       "dog": "Koira",
       "handler": "Ohjaaja",
       "number": "#",
+      "outcome": "Kierros",
       "result": "Tulos",
       "task": "Tehtävä {{number}}"
     },
@@ -722,6 +723,24 @@
     "conflicts_one": "{{count}} tulos on muuttunut muualla. Tarkista ja tallenna uudelleen.",
     "conflicts_other": "{{count}} tulosta on muuttunut muualla. Tarkista ja tallenna uudelleen.",
     "conflictTitle": "Ristiriitaiset tulokset",
+    "couldStillHavePlaced": "Olisi vielä voinut palkintosijoille",
+    "eliminatingFaults": {
+      "aggression": "Aggressiivinen käyttäytyminen",
+      "gunShyness": "Laukausarkuus",
+      "hardMouth": "Kovasuisuus",
+      "harshHandling": "Koiran kurittaminen koepaikalla",
+      "refusedRetrieve": "Kieltäytyminen noudosta"
+    },
+    "outcome": "Kierros",
+    "outcomeAt": "Missä",
+    "outcomeAtUnknown": "Ei tiedossa",
+    "outcomeEliminated": "Hylkäävä virhe",
+    "outcomeRetired": "Keskeytys",
+    "outcomeScored": "Suoritti",
+    "retirement": {
+      "handlerChoice": "Ohjaaja keskeytti",
+      "injury": "Koira loukkaantui"
+    },
     "runningTotal": "{{points}} / {{maxPoints}}",
     "saved": "Tulokset tallennettu",
     "scope": "Näytä",
