@@ -1,4 +1,4 @@
-import type { EventResult, EventStation } from '../../types'
+import type { EventResult, EventStation, PublicJudge } from '../../types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import type { ResultEdit } from './eventResultsPage/types'
 import Save from '@mui/icons-material/Save'
@@ -22,6 +22,7 @@ import { classRound, scoresAtPosts, stationVersion } from '../../lib/results'
 import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
+import { makeArray } from './components/eventForm/judgeSection/utils'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { emptyEdit } from './eventResultsPage/types'
@@ -47,6 +48,7 @@ export default function EventResultsPage() {
   const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])
   const [scope, setScope] = useState<string>(WHOLE_ROUND)
   const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
+  const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
   const [conflicts, setConflicts] = useState<ResultConflict[]>([])
   const [choices, setChoices] = useState<Record<string, ConflictChoice>>({})
 
@@ -75,6 +77,19 @@ export default function EventResultsPage() {
   const round = useMemo(
     () => (scoped ? fullRound.filter((task) => task.stationId === scope) : fullRound),
     [fullRound, scope, scoped]
+  )
+
+  // A post names its own judges; where it names none, the class's judge stands for it.
+  const classJudges = useMemo(
+    () => makeArray(event?.classes?.find((item) => item.class === eventClass)?.judge),
+    [event?.classes, eventClass]
+  )
+  const judgesFor = useCallback(
+    (id: string) => {
+      const own = stations.find((station) => station.id === id)?.judges ?? []
+      return (own.length ? own : classJudges).filter((judge): judge is PublicJudge => Boolean(judge?.id))
+    },
+    [classJudges, stations]
   )
 
   const handleChange = useCallback(
@@ -191,6 +206,9 @@ export default function EventResultsPage() {
           eventType={event.eventType}
           fullRound={scoped ? undefined : fullRound}
           onChange={handleChange}
+          defaultJudges={defaultJudges}
+          judgesFor={judgesFor}
+          onJudgeChange={(id, judge) => setDefaultJudges((prev) => ({ ...prev, [id]: judge }))}
           registrations={rows}
           round={round}
           stationId={scoped ? scope : undefined}

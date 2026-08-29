@@ -731,6 +731,7 @@
       "harshHandling": "Koiran kurittaminen koepaikalla",
       "refusedRetrieve": "Kieltäytyminen noudosta"
     },
+    "judge": "Tuomari",
     "outcome": "Kierros",
     "outcomeAt": "Missä",
     "outcomeAtUnknown": "Ei tiedossa",

@@ -145,3 +145,16 @@ describe('a round that was not scored', () => {
     expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: false }, tasks })).toBe('0')
   })
 })
+
+describe('judge attribution', () => {
+  it('carries the judge onto the score rather than asking again for every dog', async () => {
+    const { mergeStationTasks } = await import('../../lib/results')
+    const judge = { id: 1, name: 'Lappalainen Mika', official: true }
+
+    // A post is manned by the same person all day, so the previous dog's judge is the likely answer
+    // for the next one — the AC asks for it to be offered, not typed again.
+    const scored = [{ index: 0, judge, points: 17, stationId: 'post-1', updatedAt: 'x', updatedBy: 'y' }]
+
+    expect(mergeStationTasks(undefined, scored, 'post-1')[0].judge).toEqual(judge)
+  })
+})

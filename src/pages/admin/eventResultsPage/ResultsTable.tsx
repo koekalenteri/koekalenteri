@@ -1,6 +1,6 @@
 import type { RoundTask } from '../../../lib/results'
-import type { EventStation, NowtZeroFault, Registration } from '../../../types'
-import type { ResultEdit } from './types'
+import type { EventStation, NowtZeroFault, PublicJudge, Registration } from '../../../types'
+import type { ResultEdit, TaskEdit } from './types'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -26,6 +26,11 @@ interface Props {
   readonly stations: EventStation[]
   /** Set when the view covers one post only. */
   readonly stationId?: string
+  /** Who may have judged at a given post. */
+  readonly judgesFor: (stationId: string) => PublicJudge[]
+  /** The judge last chosen at each post, carried to the next dog. */
+  readonly defaultJudges: Record<string, PublicJudge | undefined>
+  readonly onJudgeChange: (stationId: string, judge?: PublicJudge) => void
   readonly edits: Record<string, ResultEdit>
   readonly disabled?: boolean
   readonly onChange: (registrationId: string, edit: ResultEdit) => void
@@ -45,6 +50,9 @@ function ResultsTable({
   eventClass,
   stations,
   stationId,
+  judgesFor,
+  defaultJudges,
+  onJudgeChange,
   edits,
   disabled,
   onChange,
@@ -74,14 +82,31 @@ function ResultsTable({
             const { tasks } = edit
             const voided = isVoided(edit)
 
-            const setTask = (task: RoundTask, points: number | null, zeroFault?: NowtZeroFault) =>
+            const writeTask = (task: RoundTask, changes: Partial<TaskEdit>) => {
+              const existing = tasks.find((item) => taskKey(item) === taskKey(task))
+              // Scoring a task attributes it to whoever is showing, so the secretary only touches the
+              // judge control when it actually changes.
+              const judge =
+                changes.judge ?? existing?.judge ?? defaultJudges[task.stationId] ?? judgesFor(task.stationId)[0]
+
               onChange(registration.id, {
                 ...edit,
                 tasks: [
                   ...tasks.filter((item) => taskKey(item) !== taskKey(task)),
-                  { index: task.index, points, stationId: task.stationId, ...(zeroFault ? { zeroFault } : {}) },
+                  {
+                    index: task.index,
+                    points: existing?.points ?? null,
+                    stationId: task.stationId,
+                    ...existing,
+                    ...changes,
+                    ...(judge ? { judge } : {}),
+                  },
                 ],
               })
+            }
+
+            const setTask = (task: RoundTask, points: number | null, zeroFault?: NowtZeroFault) =>
+              writeTask(task, { points, zeroFault })
 
             return (
               <TableRow hover key={registration.id}>
@@ -90,11 +115,17 @@ function ResultsTable({
                 <TableCell>{registration.handler?.name}</TableCell>
                 {round.map((task) => (
                   <TaskCell
+                    defaultJudge={defaultJudges[task.stationId]}
                     disabled={disabled || voided}
+                    judges={judgesFor(task.stationId)}
                     key={taskKey(task)}
                     onChange={setTask}
+                    onJudgeChange={(item, judge) => {
+                      onJudgeChange(item.stationId, judge)
+                      writeTask(item, { judge })
+                    }}
                     task={task}
-                    value={tasks.find((item) => taskKey(item) === taskKey(task))}
+                    value={tasks.find((entry) => taskKey(entry) === taskKey(task))}
                   />
                 ))}
                 <RoundOutcomeCell
