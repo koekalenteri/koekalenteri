@@ -1139,13 +1139,25 @@ describe('publishing results', () => {
       expect(canPublishResults('invited', { ...runningToday, endDate: nextWeek, startDate: nextWeek })).toBe(false)
     })
 
-    it('lets the event state veto the calendar', () => {
+    it('lets the event state veto the calendar, but only where the event never happened', () => {
       const today = new Date()
 
       // A cancelled event whose classes kept an earlier state must not become publishable by date alone.
       expect(canPublishResults('invited', { endDate: today, startDate: today, state: 'cancelled' })).toBe(false)
-      // Nothing is picked while the event is merely confirmed, so nothing can carry a result either.
+      expect(canPublishResults('invited', { endDate: today, startDate: today, state: 'draft' })).toBe(false)
+
+      // 'confirmed' is not such a state: an event left in it was still held. Once its dates have
+      // passed the stepper reads it as ended, and its results are publishable — otherwise a small
+      // event that never sends the emails that would advance its state could never publish at all.
+      const lastYear = addDays(today, -365)
+      expect(canPublishResults('confirmed', { endDate: lastYear, startDate: lastYear, state: 'confirmed' })).toBe(true)
+
+      // Its own day is the one gap, and it is the stepper's: isEventOngoing excludes 'confirmed', so
+      // the stepper does not read this event as running either. The gate follows that single truth
+      // rather than second-guessing it — publishing opens once the day is over.
       expect(canPublishResults('confirmed', { endDate: today, startDate: today, state: 'confirmed' })).toBe(false)
+      // An event whose invitations went out reaches 'invited', which the stepper does read as running.
+      expect(canPublishResults('invited', { endDate: today, startDate: today, state: 'invited' })).toBe(true)
     })
   })
 

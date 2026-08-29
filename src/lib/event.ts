@@ -218,13 +218,17 @@ export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent[
 /**
  * Nothing to publish before the dogs have run, unlike a start list, which exists beforehand.
  *
- * The stored state is set by hand, and on the morning of a test nobody goes to the event form to
- * advance it — so the calendar counts too, exactly as the progress indicator already counts it. Without
- * this an event sitting in 'picked' or 'invited' on its own start date reads as running on the progress
- * bar while the publish button stays greyed out, and the secretary has no way to tell why.
+ * The stored state cannot get here on its own: the event form offers only draft/tentative/confirmed/
+ * cancelled, and the backend advances a class no further than 'picked' or 'invited', as the side effect
+ * of sending those emails. Nothing anywhere sets 'started', so gating on the state alone would leave
+ * this permanently false for every real event.
  *
- * The event's own state still decides whether it counts at all: a cancelled event whose classes kept an
- * earlier state must not become publishable just because its date has passed.
+ * The phase therefore comes from getTemporalPhaseIndex — the same derivation the progress stepper
+ * shows — rather than a second reading of the dates that could drift from it. A confirmed event whose
+ * dates have passed has ended, and its results are publishable.
+ *
+ * The event's own state still decides whether it counts at all: the temporal reading ignores state, so
+ * without this a cancelled event would become publishable merely by growing old.
  */
 export const canPublishResults = (
   state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state'],
@@ -234,12 +238,7 @@ export const canPublishResults = (
   state === 'started' ||
   state === 'ended' ||
   state === 'completed' ||
-  (!!event?.startDate &&
-    isValidForEntry(event.state) &&
-    // Matches isEventOngoing: until the workflow moves past 'confirmed' there are no picked
-    // participants, and so nothing that could carry a result.
-    state !== 'confirmed' &&
-    zonedStartOfDay(event.startDate) <= zonedEndOfDay(now))
+  (!!event && isValidForEntry(event.state) && getTemporalPhaseIndex(event, now) >= getProgressPhaseIndex('started'))
 
 const isResultsPublishedClassMap = (
   resultsPublished: JsonDogEvent['resultsPublished']
@@ -305,7 +304,7 @@ const getStateProgressPhaseIndex = (state: ConfirmedEventStates, entryStarted: b
   return getProgressPhaseIndex(state)
 }
 
-const getTemporalPhaseIndex = (event: ConfirmedEvent, now: Date): number => {
+const getTemporalPhaseIndex = (event: EventVitals, now: Date): number => {
   if (isEventOver(event, now)) return getProgressPhaseIndex('ended')
   if (isEventOngoing(event, now)) return getProgressPhaseIndex('started')
   return -1
