@@ -715,8 +715,13 @@
       "result": "Tulos",
       "task": "Tehtävä {{number}}"
     },
+    "conflictInfo": "Näitä tuloksia on muutettu muualla sillä välin. Valitse kumpi jää voimaan.",
+    "conflictMine": "Sinun: {{result}}",
+    "conflictResolve": "Tallenna valinnat",
+    "conflictStored": "Tallennettu ({{who}}): {{result}}",
     "conflicts_one": "{{count}} tulos on muuttunut muualla. Tarkista ja tallenna uudelleen.",
     "conflicts_other": "{{count}} tulosta on muuttunut muualla. Tarkista ja tallenna uudelleen.",
+    "conflictTitle": "Ristiriitaiset tulokset",
     "runningTotal": "{{points}} / {{maxPoints}}",
     "saved": "Tulokset tallennettu",
     "scope": "Näytä",

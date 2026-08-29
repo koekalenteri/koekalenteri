@@ -715,8 +715,13 @@
       "result": "Result",
       "task": "Task {{number}}"
     },
+    "conflictInfo": "These results were changed elsewhere in the meantime. Choose which one stands.",
+    "conflictMine": "Yours: {{result}}",
+    "conflictResolve": "Save choices",
+    "conflictStored": "Stored ({{who}}): {{result}}",
     "conflicts_one": "{{count}} result changed elsewhere. Check it and save again.",
     "conflicts_other": "{{count}} results changed elsewhere. Check them and save again.",
+    "conflictTitle": "Conflicting results",
     "runningTotal": "{{points}} / {{maxPoints}}",
     "saved": "Results saved",
     "scope": "Show",

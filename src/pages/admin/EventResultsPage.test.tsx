@@ -98,3 +98,22 @@ describe('ResultCell', () => {
     expect(code && formatEventResult(code, 'NOWT', 'AVO')).toBe('AVO1')
   })
 })
+
+describe('conflict handling', () => {
+  it('reads a conflict out of a rejected 409 rather than a returned value', async () => {
+    const { APIError } = await import('../../api/http')
+
+    // http throws on any non-ok response, so the conflicts arrive on the error, not as a result. A
+    // page reading them off a resolved value would have a branch it never reaches.
+    const response = new Response(null, { status: 409, statusText: 'Conflict' })
+    const error = new APIError(response, {
+      conflicts: [{ id: 'reg-1', stored: { result: 'AVO2' }, submitted: { result: 'AVO1' } }],
+      error: 'resultConflict',
+      saved: [],
+      unchanged: [],
+    })
+
+    expect(error.status).toBe(409)
+    expect(error.body).toMatchObject({ conflicts: [{ id: 'reg-1' }] })
+  })
+})

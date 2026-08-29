@@ -7,7 +7,16 @@ import { isObject, parseJSON } from '../lib/utils'
 import { appVersion } from '../lib/version'
 import { API_BASE_URL } from '../routeConfig'
 
-type Body = { message?: string; cancelled?: boolean; email?: string; error?: string; reason?: string } | string
+/**
+ * An error body is whatever the endpoint returned. The named fields are the ones shared code looks for;
+ * the index signature admits an endpoint's own payload, which a caller narrows before reading.
+ */
+type Body =
+  | ({ message?: string; cancelled?: boolean; email?: string; error?: string; reason?: string } & Record<
+      string,
+      unknown
+    >)
+  | string
 
 interface HttpResponse<T> {
   data: T
