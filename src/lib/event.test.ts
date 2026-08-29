@@ -1126,6 +1126,27 @@ describe('publishing results', () => {
       expect(canPublishResults('ended')).toBe(true)
       expect(canPublishResults('completed')).toBe(true)
     })
+
+    it('also counts the calendar, because nobody advances the state on the morning of a test', () => {
+      const today = new Date()
+      const runningToday = { endDate: today, startDate: today, state: 'invited' as const }
+
+      // getEventProgress already reads this event as started, from the same dates. A greyed-out publish
+      // button beside a progress bar saying "käynnissä" leaves the secretary no way to tell why.
+      expect(canPublishResults('invited', runningToday)).toBe(true)
+
+      const nextWeek = addDays(today, 7)
+      expect(canPublishResults('invited', { ...runningToday, endDate: nextWeek, startDate: nextWeek })).toBe(false)
+    })
+
+    it('lets the event state veto the calendar', () => {
+      const today = new Date()
+
+      // A cancelled event whose classes kept an earlier state must not become publishable by date alone.
+      expect(canPublishResults('invited', { endDate: today, startDate: today, state: 'cancelled' })).toBe(false)
+      // Nothing is picked while the event is merely confirmed, so nothing can carry a result either.
+      expect(canPublishResults('confirmed', { endDate: today, startDate: today, state: 'confirmed' })).toBe(false)
+    })
   })
 
   describe('isResultsAvailableForClass', () => {

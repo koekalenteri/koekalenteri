@@ -215,9 +215,31 @@ export const isStartListAvailable = ({
 export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
   state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
 
-/** Nothing to publish before the dogs have run, unlike a start list, which exists beforehand. */
-export const canPublishResults = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
-  state === 'started' || state === 'ended' || state === 'completed'
+/**
+ * Nothing to publish before the dogs have run, unlike a start list, which exists beforehand.
+ *
+ * The stored state is set by hand, and on the morning of a test nobody goes to the event form to
+ * advance it — so the calendar counts too, exactly as the progress indicator already counts it. Without
+ * this an event sitting in 'picked' or 'invited' on its own start date reads as running on the progress
+ * bar while the publish button stays greyed out, and the secretary has no way to tell why.
+ *
+ * The event's own state still decides whether it counts at all: a cancelled event whose classes kept an
+ * earlier state must not become publishable just because its date has passed.
+ */
+export const canPublishResults = (
+  state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state'],
+  event?: EventVitals,
+  now = new Date()
+) =>
+  state === 'started' ||
+  state === 'ended' ||
+  state === 'completed' ||
+  (!!event?.startDate &&
+    isValidForEntry(event.state) &&
+    // Matches isEventOngoing: until the workflow moves past 'confirmed' there are no picked
+    // participants, and so nothing that could carry a result.
+    state !== 'confirmed' &&
+    zonedStartOfDay(event.startDate) <= zonedEndOfDay(now))
 
 const isResultsPublishedClassMap = (
   resultsPublished: JsonDogEvent['resultsPublished']
@@ -234,9 +256,9 @@ export const isResultsPublishedForClass = (event: Pick<JsonDogEvent, 'resultsPub
     : event.resultsPublished === true
 
 export const isResultsAvailableForClass = (
-  event: Pick<JsonDogEvent, 'state' | 'resultsPublished'>,
+  event: Pick<JsonDogEvent, 'state' | 'resultsPublished'> & EventVitals,
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
-) => canPublishResults(eventClass.state ?? event.state) && isResultsPublishedForClass(event, eventClass.class)
+) => canPublishResults(eventClass.state ?? event.state, event) && isResultsPublishedForClass(event, eventClass.class)
 
 export const getResultsPublishedClassMap = ({
   classes,
@@ -331,7 +353,7 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
   // published only where something says so, so an event that never gets here simply stops at 'ended'.
   const publishedResultsClasses = startListClasses.filter((eventClass) => isResultsPublishedForClass(event, eventClass))
   const resultsActionable = startListClasses.some((eventClass) =>
-    canPublishResults(event.classes.find((item) => item.class === eventClass)?.state ?? event.state)
+    canPublishResults(event.classes.find((item) => item.class === eventClass)?.state ?? event.state, event, now)
   )
   const resultsCompleted = resultsActionable && publishedResultsClasses.length === startListClasses.length
 

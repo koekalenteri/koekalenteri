@@ -61,7 +61,7 @@ const ResultsPublishing = ({ event, onSetResultsPublished }: Props) => {
         {classes.map((eventClass) => {
           const published = isResultsPublishedForClass(event, eventClass)
           // Nothing to publish before the dogs have run.
-          const ready = canPublishResults(getEventStateForClass(event, eventClass))
+          const ready = canPublishResults(getEventStateForClass(event, eventClass), event)
 
           return (
             <Stack alignItems="center" direction="row" key={eventClass} spacing={1}>
