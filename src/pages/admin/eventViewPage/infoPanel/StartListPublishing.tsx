@@ -26,7 +26,6 @@ const getStartListAuditMessageKey = (eventClass: RegistrationClass | undefined, 
 
 interface Props {
   readonly event: ConfirmedEvent
-  readonly eventFinished: boolean
   readonly eventWithCurrentAttachments: ConfirmedEvent
   readonly numbersByClass: RegistrationInfo['numbersByClass']
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
@@ -36,7 +35,6 @@ interface Props {
 
 const StartListPublishing = ({
   event,
-  eventFinished,
   eventWithCurrentAttachments,
   numbersByClass,
   onSetStartListPublished,
@@ -55,7 +53,7 @@ const StartListPublishing = ({
 
   const handleSetStartListPublished = async (eventClass: RegistrationClass | undefined, published: boolean) => {
     const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
-    if (eventFinished || !canPublishStartList(state) || !onSetStartListPublished) return
+    if (!canPublishStartList(state, event) || !onSetStartListPublished) return
 
     try {
       await onSetStartListPublished(eventClass, published)
@@ -78,17 +76,18 @@ const StartListPublishing = ({
               const invitationsSent =
                 selected.length > 0 && getInvitationRecipients(eventWithCurrentAttachments, selected).length === 0
               const classState = stateByClass[className] ?? event.state
-              const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
               const startListPublished = isStartListPublished(
                 event.classes.find((eventClass) => eventClass.class === className)
               )
               const classlessEventRow = event.classes.length === 0 && className === event.eventType
               const startListEventClass = isRegistrationClass(className) ? className : undefined
+              // A finished event deliberately does not disable this. Publishing the list is what carries
+              // the results to the public, and results are entered after the dogs have run — unlike
+              // picking participants or sending invitations, which a finished event should not reopen.
               const startListManageable =
                 Boolean(onSetStartListPublished) &&
-                !classFinished &&
                 (classlessEventRow || Boolean(startListEventClass)) &&
-                canPublishStartList(classState)
+                canPublishStartList(classState, event)
               const canManageStartList = invitationsSent && startListManageable
 
               return (

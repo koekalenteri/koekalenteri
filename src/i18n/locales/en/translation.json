@@ -334,6 +334,7 @@
       "hide": "Hide results",
       "publish": "Publish results",
       "published": "Published",
+      "startListRequired": "Publish the start list first",
       "title": "Publishing results"
     },
     "showEventDetails": "Show event details",

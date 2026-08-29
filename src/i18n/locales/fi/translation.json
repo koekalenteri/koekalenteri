@@ -334,6 +334,7 @@
       "hide": "Piilota tulokset",
       "publish": "Julkaise tulokset",
       "published": "Julkaistu",
+      "startListRequired": "Julkaise ensin startlista",
       "title": "Tulosten julkaisu"
     },
     "showEventDetails": "Näytä tapahtuman tiedot",

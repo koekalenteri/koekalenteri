@@ -10,6 +10,7 @@ import {
   canPublishResults,
   getEventStateForClass,
   isResultsPublishedForClass,
+  isStartListAvailableForClass,
   uniqueClasses,
 } from '../../../../lib/event'
 import { actionButtonSx, sectionSx } from './styles'
@@ -60,8 +61,13 @@ const ResultsPublishing = ({ event, onSetResultsPublished }: Props) => {
       <Stack spacing={1} sx={{ p: 1 }}>
         {classes.map((eventClass) => {
           const published = isResultsPublishedForClass(event, eventClass)
+          const classState = getEventStateForClass(event, eventClass)
+          // Results travel on the start list's rows, so publishing them while it is hidden would
+          // change nothing a spectator can see. Say so rather than leaving a dead button.
+          const classEntry = event.classes.find((item) => item.class === eventClass) ?? { class: eventClass }
+          const startListPublished = isStartListAvailableForClass(event, classEntry)
           // Nothing to publish before the dogs have run.
-          const ready = canPublishResults(getEventStateForClass(event, eventClass), event)
+          const ready = startListPublished && canPublishResults(classState, event)
 
           return (
             <Stack alignItems="center" direction="row" key={eventClass} spacing={1}>
@@ -75,7 +81,8 @@ const ResultsPublishing = ({ event, onSetResultsPublished }: Props) => {
                 {published ? t('eventManagement.results.hide') : t('eventManagement.results.publish')}
               </Button>
               <Typography variant="caption" color="text.secondary">
-                {published ? t('eventManagement.results.published') : ''}
+                {published && t('eventManagement.results.published')}
+                {!published && !startListPublished && t('eventManagement.results.startListRequired')}
               </Typography>
             </Stack>
           )

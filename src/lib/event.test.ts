@@ -1161,7 +1161,51 @@ describe('publishing results', () => {
     })
   })
 
+  describe('canPublishStartList', () => {
+    it('opens on the calendar too, so a finished event can still publish its list', () => {
+      const lastYear = addDays(new Date(), -365)
+
+      // Results reach the public on the start list's rows, and they are entered after the dogs have
+      // run — so a finished event is exactly when publishing the list is needed.
+      expect(canPublishStartList('confirmed')).toBe(false)
+      expect(canPublishStartList('confirmed', { endDate: lastYear, startDate: lastYear, state: 'confirmed' })).toBe(
+        true
+      )
+      expect(canPublishStartList('confirmed', { endDate: lastYear, startDate: lastYear, state: 'cancelled' })).toBe(
+        false
+      )
+    })
+  })
+
+  describe('a start list the calendar alone opened', () => {
+    const lastYear = addDays(new Date(), -365)
+    const past = { endDate: lastYear, startDate: lastYear, state: 'confirmed' as const }
+
+    it('still has to be published on purpose', () => {
+      // An absent flag is the legacy "published" default. It must not put a list on the web merely
+      // because the event was confirmed and its date went by.
+      expect(isStartListAvailableForClass(past, { class: 'ALO' })).toBe(false)
+      expect(isStartListAvailableForClass({ ...past, startListPublished: { ALO: true } }, { class: 'ALO' })).toBe(true)
+    })
+
+    it('does not overrule a class that says it is not ready', () => {
+      // Per-day publication rides on the class's own state, because the flag is per class name and
+      // cannot tell one day from another.
+      expect(
+        isStartListAvailableForClass({ ...past, startListPublished: { ALO: true } }, { class: 'ALO', state: 'picked' })
+      ).toBe(false)
+    })
+  })
+
   describe('isResultsAvailableForClass', () => {
+    it('is hidden while the start list carrying it is hidden', () => {
+      // A result has no transport of its own: it is a field on the start list's rows.
+      const event = { resultsPublished: { ALO: true }, startListPublished: { ALO: false }, state: 'ended' as const }
+
+      expect(isResultsAvailableForClass(event, { class: 'ALO' })).toBe(false)
+      expect(isResultsAvailableForClass({ ...event, startListPublished: { ALO: true } }, { class: 'ALO' })).toBe(true)
+    })
+
     it('needs both a state that allows it and an explicit publish', () => {
       const published = { resultsPublished: { ALO: true }, state: 'ended' as const }
 

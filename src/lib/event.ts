@@ -194,51 +194,61 @@ export const newEventStartDate = zonedStartOfDay(nextSaturday(addDays(Date.now()
 export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
 export const newEventEntryEndDate = defaultEntryEndDate(newEventStartDate)
 
-export const isStartListAvailable = ({
-  classes,
-  state,
-  startListPublished,
-}: Pick<JsonDogEvent, 'state' | 'startListPublished'> & {
-  classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
-}) => {
+export const isStartListAvailable = (
+  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> &
+    EventVitals & {
+      classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+    }
+) => {
+  const { classes, state, startListPublished } = event
+
   if (classes?.length) {
-    return classes.some((eventClass) => isStartListAvailableForClass({ startListPublished, state }, eventClass))
+    return classes.some((eventClass) => isStartListAvailableForClass(event, eventClass))
   }
 
-  if (!canPublishStartList(state)) return false
+  if (!canPublishStartList(state, event)) return false
   if (isStartListPublishedClassMap(startListPublished)) {
     return Object.values(startListPublished).some(Boolean)
   }
-  return startListPublished !== false
+
+  // The legacy default applies only to a workflow-published event; see isStartListAvailableForClass.
+  return canPublishStartList(state) ? startListPublished !== false : startListPublished === true
 }
 
-export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
-  state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
-
 /**
- * Nothing to publish before the dogs have run, unlike a start list, which exists beforehand.
+ * Whether the event's own dates have carried it to `phase`, regardless of the workflow state it was
+ * left in.
  *
- * The stored state cannot get here on its own: the event form offers only draft/tentative/confirmed/
- * cancelled, and the backend advances a class no further than 'picked' or 'invited', as the side effect
- * of sending those emails. Nothing anywhere sets 'started', so gating on the state alone would leave
- * this permanently false for every real event.
+ * The stored state cannot be relied on to get there: the event form offers only draft/tentative/
+ * confirmed/cancelled, and the backend advances a class no further than 'picked' or 'invited', as the
+ * side effect of sending those emails. Nothing anywhere sets 'started', so a gate reading the state
+ * alone stays shut for every event whose secretary never sends them.
  *
- * The phase therefore comes from getTemporalPhaseIndex — the same derivation the progress stepper
- * shows — rather than a second reading of the dates that could drift from it. A confirmed event whose
- * dates have passed has ended, and its results are publishable.
- *
- * The event's own state still decides whether it counts at all: the temporal reading ignores state, so
- * without this a cancelled event would become publishable merely by growing old.
+ * The phase comes from getTemporalPhaseIndex — the same derivation the progress stepper shows — so a
+ * gate cannot disagree with the step the secretary is looking at. The state is still consulted for
+ * whether the event counts at all: the temporal reading ignores it, and without this check a cancelled
+ * event would come open merely by growing old.
  */
-export const canPublishResults = (
+const hasReachedPhaseByDate = (event: EventVitals | undefined, phase: EventProgressPhase, now: Date) =>
+  !!event && isValidForEntry(event.state) && getTemporalPhaseIndex(event, now) >= getProgressPhaseIndex(phase)
+
+export const canPublishStartList = (
   state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state'],
   event?: EventVitals,
   now = new Date()
 ) =>
+  state === 'invited' ||
   state === 'started' ||
   state === 'ended' ||
   state === 'completed' ||
-  (!!event && isValidForEntry(event.state) && getTemporalPhaseIndex(event, now) >= getProgressPhaseIndex('started'))
+  hasReachedPhaseByDate(event, 'invited', now)
+
+/** Nothing to publish before the dogs have run, unlike a start list, which exists beforehand. */
+export const canPublishResults = (
+  state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state'],
+  event?: EventVitals,
+  now = new Date()
+) => state === 'started' || state === 'ended' || state === 'completed' || hasReachedPhaseByDate(event, 'started', now)
 
 const isResultsPublishedClassMap = (
   resultsPublished: JsonDogEvent['resultsPublished']
@@ -254,10 +264,18 @@ export const isResultsPublishedForClass = (event: Pick<JsonDogEvent, 'resultsPub
     ? event.resultsPublished[eventClass as RegistrationClass] === true
     : event.resultsPublished === true
 
+/**
+ * A result reaches the public on the start list's own rows — it has no other transport — so a published
+ * result on an unpublished list is invisible. Requiring the list here keeps the two from disagreeing,
+ * and means hiding a list hides the results riding on it.
+ */
 export const isResultsAvailableForClass = (
-  event: Pick<JsonDogEvent, 'state' | 'resultsPublished'> & EventVitals,
+  event: Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'> & EventVitals,
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
-) => canPublishResults(eventClass.state ?? event.state, event) && isResultsPublishedForClass(event, eventClass.class)
+) =>
+  isStartListAvailableForClass(event, eventClass) &&
+  canPublishResults(eventClass.state ?? event.state, event) &&
+  isResultsPublishedForClass(event, eventClass.class)
 
 export const getResultsPublishedClassMap = ({
   classes,
@@ -414,10 +432,29 @@ export const getEventStateForClass = (
   eventClass?: string
 ) => event.classes?.find((item) => item.class === eventClass)?.state ?? event.state
 
+/**
+ * An absent flag counts as published only for an event the workflow actually carried to 'invited' —
+ * those records predate the flag. An event that reaches the gate on its dates alone must have been
+ * published on purpose, or confirming an event and waiting for its date to pass would put its start
+ * list on the web by itself.
+ */
 export const isStartListAvailableForClass = (
-  event: Pick<JsonDogEvent, 'state' | 'startListPublished'>,
+  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> & EventVitals,
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
-) => canPublishStartList(eventClass.state ?? event.state) && isStartListPublishedForClass(event, eventClass.class)
+) => {
+  if (canPublishStartList(eventClass.state ?? event.state)) return isStartListPublishedForClass(event, eventClass.class)
+
+  // A class carrying its own state below 'invited' says this day is not ready, and the calendar must
+  // not overrule it: that is how one day of a class stays hidden while another is public, since the
+  // published flag is per class name and cannot tell the days apart. Only a class with no state of its
+  // own falls through to what the event's dates say.
+  if (eventClass.state !== undefined) return false
+  if (!canPublishStartList(event.state, event)) return false
+
+  return isStartListPublishedClassMap(event.startListPublished)
+    ? event.startListPublished[eventClass.class as RegistrationClass] === true
+    : event.startListPublished === true
+}
 
 type AvailabilityEvent = {
   classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>

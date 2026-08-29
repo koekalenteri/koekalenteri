@@ -296,7 +296,6 @@ const InfoPanel = ({
           />
           <StartListPublishing
             event={event}
-            eventFinished={eventFinished}
             eventWithCurrentAttachments={eventWithCurrentAttachments}
             numbersByClass={numbersByClass}
             onSetStartListPublished={onSetStartListPublished}
