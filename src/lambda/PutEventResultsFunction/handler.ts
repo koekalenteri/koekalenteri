@@ -32,6 +32,18 @@ interface ResultSubmission {
   basedOn?: string
 }
 
+/**
+ * What is stored for a dog after this request.
+ *
+ * Returned rather than left for the client to guess, because a station secretary correcting a dog they
+ * just scored has nothing else to go on: the next save needs the version this one produced, and a venue
+ * with a bad connection cannot rely on the WebSocket to deliver it.
+ */
+interface StoredEventResult {
+  id: string
+  eventResult: JsonEventResult
+}
+
 /** A dog whose stored result was written by someone else and disagrees with this submission. */
 interface EventResultConflict {
   id: string
@@ -105,8 +117,8 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
   const timestamp = new Date().toISOString()
 
   const patches: Patch<JsonRegistration>[] = []
-  const saved: string[] = []
-  const unchanged: string[] = []
+  const saved: StoredEventResult[] = []
+  const unchanged: StoredEventResult[] = []
   const conflicts: EventResultConflict[] = []
 
   for (const submission of submissions) {
@@ -125,7 +137,10 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
       : sameEventResult(stored, resolveFor(confirmedEvent, registration, submission.eventResult, timestamp, user.name))
 
     if (alreadyStored) {
-      unchanged.push(submission.id)
+      unchanged.push({
+        eventResult: stored ?? resolveFor(confirmedEvent, registration, submission.eventResult, timestamp, user.name),
+        id: submission.id,
+      })
       continue
     }
 
@@ -163,7 +178,7 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
     })
 
     patches.push({ eventResult, id: submission.id })
-    saved.push(submission.id)
+    saved.push({ eventResult, id: submission.id })
   }
 
   // One broadcast for the batch: a class secretary saves a screenful at a time, and other open clients

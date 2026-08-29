@@ -206,11 +206,11 @@ describe('putEventResultsLambda', () => {
 
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
       expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
-      expect(mockResponse).toHaveBeenCalledWith(
-        200,
-        { conflicts: [], saved: [], unchanged: ['reg-1'] },
-        expect.anything()
-      )
+      const [status, body] = mockResponse.mock.calls[0]
+      expect(status).toBe(200)
+      expect(body.saved).toEqual([])
+      // The stored result comes back, so the client can carry on from the version that actually exists.
+      expect(body.unchanged).toEqual([{ eventResult: expect.objectContaining({ points: 40 }), id: 'reg-1' }])
     })
 
     it('reports a conflict when someone else changed the result meanwhile', async () => {
@@ -254,7 +254,7 @@ describe('putEventResultsLambda', () => {
       expect(mockUpdateRegistrationField).toHaveBeenCalledWith('event-1', 'reg-2', 'eventResult', expect.anything())
 
       const [, body] = mockResponse.mock.calls[0]
-      expect(body.saved).toEqual(['reg-2'])
+      expect(body.saved.map((item: { id: string }) => item.id)).toEqual(['reg-2'])
       expect(body.conflicts.map((c: { id: string }) => c.id)).toEqual(['reg-1'])
     })
 
@@ -268,11 +268,9 @@ describe('putEventResultsLambda', () => {
       )
 
       expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
-      expect(mockResponse).toHaveBeenCalledWith(
-        200,
-        { conflicts: [], saved: ['reg-1'], unchanged: [] },
-        expect.anything()
-      )
+      const [status, body] = mockResponse.mock.calls[0]
+      expect(status).toBe(200)
+      expect(body.saved).toEqual([{ eventResult: expect.objectContaining({ points: 65 }), id: 'reg-1' }])
     })
   })
 
@@ -323,7 +321,7 @@ describe('putEventResultsLambda', () => {
 
       expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
       const [, body] = mockResponse.mock.calls[0]
-      expect(body.saved).toEqual(['reg-1'])
+      expect(body.saved.map((item: { id: string }) => item.id)).toEqual(['reg-1'])
       expect(body.conflicts).toEqual([])
     })
 
@@ -360,7 +358,7 @@ describe('putEventResultsLambda', () => {
 
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
       const [, body] = mockResponse.mock.calls[0]
-      expect(body.unchanged).toEqual(['reg-1'])
+      expect(body.unchanged.map((item: { id: string }) => item.id)).toEqual(['reg-1'])
     })
 
     it("ignores tasks a post submits for somebody else's post", async () => {
@@ -465,6 +463,56 @@ describe('putEventResultsLambda', () => {
       const afterPost = mockUpdateRegistrationField.mock.calls[0][3]
       expect(afterPost.tasks).toHaveLength(4)
       expect(afterPost.points).toBe(69)
+    })
+  })
+
+  describe('scoring one dog at a time at the post', () => {
+    it('lets the secretary correct a dog they just scored', async () => {
+      await putEventResultsLambda(
+        apiEvent([
+          { eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-2' }] }, id: 'reg-1', stationId: 'post-2' },
+        ])
+      )
+
+      // Everything the next save needs is in the response: without it the secretary conflicts with
+      // their own work, and a venue with a bad connection cannot fall back on the WebSocket.
+      const [, first] = mockResponse.mock.calls[0]
+      const version = first.saved[0].eventResult.tasks.find(
+        (task: { stationId: string }) => task.stationId === 'post-2'
+      ).updatedAt
+
+      mockGetRegistrationsByEventId.mockResolvedValue([
+        { ...registration('reg-1'), eventResult: first.saved[0].eventResult },
+      ])
+      mockUpdateRegistrationField.mockClear()
+      mockResponse.mockClear()
+
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            basedOn: version,
+            eventResult: { tasks: [{ index: 0, points: 15, stationId: 'post-2' }] },
+            id: 'reg-1',
+            stationId: 'post-2',
+          },
+        ])
+      )
+
+      expect(mockResponse.mock.calls[0][0]).toBe(200)
+      expect(mockUpdateRegistrationField.mock.calls[0][3].points).toBe(15)
+    })
+
+    it('records a pass or fail for an event type with no posts at all', async () => {
+      mockGetAuthorizedEvent.mockResolvedValue({
+        classes: [],
+        eventType: 'NOU',
+        organizer: { id: 'org-1', name: 'Org' },
+      })
+      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
+
+      await putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '1' }, id: 'reg-1' }]))
+
+      expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({ result: 'NOU1' })
     })
   })
 })
