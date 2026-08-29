@@ -68,12 +68,46 @@ export interface JsonDogEvent extends JsonDbRecord {
   startDate: string
   state: EventState
   startListPublished?: StartListPublishedState
+  /** Scoring posts, for event types that score at posts (NOWT). */
+  stations?: JsonEventStation[]
 }
 
 type EventRequiredDates = 'startDate' | 'endDate'
 type EventEntryDates = 'entryStartDate' | 'entryEndDate'
 type EventOptionalDates = EventEntryDates | 'entryOrigEndDate' | 'qualificationStartDate'
 type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
+
+/**
+ * A physical scoring post ("rasti"). Judges are stationed at a post and it persists through the day
+ * while classes rotate past it, so the tasks it sets belong to the class rather than to the post.
+ *
+ * `maxPoints` is 20 in current practice, but the rules never state that, so it is stored rather than
+ * assumed. Read the denominator and the per-post prize floor from it; never hardcode 20 or 10.
+ */
+export type JsonEventStation = {
+  id: string
+  /** Display order, "Rasti 1". */
+  number: number
+  name?: string
+  date: string
+  judge?: PublicJudge | PublicJudge[]
+  maxPoints: number
+}
+export type EventStation = Replace<JsonEventStation, 'date', Date>
+
+/**
+ * One scored task ("tehtävä") within a class's round, run at a post. A post sets either one task
+ * worth its full `maxPoints` or two that split it — two tasks never double a post's worth. The
+ * tasks of one post must therefore sum to that post's `maxPoints`.
+ */
+export type EventClassTask = {
+  id: string
+  /** Order within the class's round. */
+  number: number
+  stationId: string
+  name?: string
+  maxPoints: number
+}
 
 export type JsonKcEventInfo = {
   classes: string[]
@@ -91,15 +125,19 @@ export type DogEvent = DbRecord &
       ReplaceOptional<
         ReplaceOptional<
           ReplaceOptional<
-            Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
-            EventOptionalDates,
-            Date
+            ReplaceOptional<
+              Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
+              EventOptionalDates,
+              Date
+            >,
+            'dates',
+            RegistrationDate[]
           >,
-          'dates',
-          RegistrationDate[]
+          'kcEvent',
+          KcEventInfo
         >,
-        'kcEvent',
-        KcEventInfo
+        'stations',
+        Array<EventStation>
       >,
       EventRequiredDates,
       Date
@@ -145,6 +183,8 @@ export type JsonEventClass = {
   entries?: number
   members?: number
   state?: EventClassState
+  /** The class's scored round. Each post carries different tasks for each class passing through it. */
+  tasks?: EventClassTask[]
 }
 export type EventClass = Replace<JsonEventClass, 'date', Date>
 

@@ -8,6 +8,7 @@ import type {
   Language,
   PatchOperation,
   Person,
+  PublicJudge,
   Replace,
   TestResult,
 } from '.'
@@ -15,6 +16,88 @@ import type { DogEventCostSegment } from './Cost'
 
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
+
+/**
+ * Faults that zero a single task while the dog carries on (NOWT rules §5.7.3).
+ *
+ * Stored as a code, never as a label: the Finnish wording is an i18n key, and a rules revision must be
+ * able to reword it without orphaning the recorded history.
+ */
+export type NowtZeroFault =
+  | 'unauthorizedRun'
+  | 'outOfControl'
+  | 'persistentNoise'
+  | 'abandonedRetrieve'
+  | 'refusedWater'
+  | 'dummyNotFound'
+  | 'huntingWithDummy'
+  | 'swappedDummy'
+  | 'eyeWipe'
+
+/**
+ * Eliminating faults ("hylkäävä virhe", §5.7.2). The pair is barred from continuing and the round is
+ * voided, so every one of these resolves to a dash rather than a zero. `harshHandling` is the handler's
+ * own misconduct but the rules put it in the same category and it lands on the same outcome.
+ *
+ * Since the result is a uniform dash, this code is the only place the reason survives.
+ */
+export type NowtEliminatingFault = 'aggression' | 'gunShyness' | 'refusedRetrieve' | 'hardMouth' | 'harshHandling'
+
+/** Why a round ended before it was scored. Only a handler's own withdrawal is conditional. */
+export interface EventResultRetirement {
+  cause: 'handlerChoice' | 'injury'
+  /**
+   * The judge's call, asked only for `handlerChoice`: §5.8.1 grants the dash where the dog could still
+   * have placed, and a zero otherwise. An injured dog always takes the dash.
+   */
+  couldStillHavePlaced?: boolean
+}
+
+/** One task's score for one dog. */
+export interface JsonEventResultTask {
+  taskId: string
+  /** `null` while unscored. `0` is a real score and bars every prize; it is not the same as unscored. */
+  points: number | null
+  /**
+   * ALO only: the dog was called back mid-task, which halves what it can score there (§10.4). This caps
+   * the entry, never the denominator — scoring against the reduced figure would erase the penalty.
+   */
+  recalled?: boolean
+  /** The round stopped here. Recorded as a dash, which is not a zero and contributes nothing. */
+  retired?: boolean
+  /** Required whenever `points` is 0, so the reason survives into later statistics. */
+  zeroFault?: NowtZeroFault
+  judge?: PublicJudge
+  updatedAt: string
+  updatedBy: string
+}
+
+/**
+ * The outcome a secretary records for this event. Distinct from `results` (prior results the registrant
+ * claims) and `qualifyingResults` (server-computed prior history) — both of those describe the dog's
+ * past, not what it did here.
+ */
+export interface JsonEventResult {
+  /** Per-task scores, for event types scored at posts (NOWT). */
+  tasks?: JsonEventResultTask[]
+  /** Derived server-side from `tasks`; a client-supplied total is ignored. */
+  points?: number
+  /** The round's nominal maximum — 80 or 100, depending on how many posts the event ran. */
+  maxPoints?: number
+  /** Derived. Absent for a voided round, which has nothing to compare against a complete one. */
+  percentage?: number
+  /** Composed as prefix + code, e.g. `ALO1`, `AVO-`, `NOU0`. */
+  result?: string
+  cert?: boolean
+  resCert?: boolean
+  eliminatedBy?: NowtEliminatingFault
+  retirement?: EventResultRetirement
+  /** The judging judge, for event types that do not score at posts. */
+  judge?: PublicJudge
+  notes?: string
+  updatedAt: string
+  updatedBy: string
+}
 
 export interface JsonEmailDeliveryStatus {
   at: string
@@ -77,6 +160,8 @@ export interface JsonRegistration extends JsonDbRecord {
   reserve: ReserveChoise | ''
   reserveNotified?: number | true // true is only found in old records
   results?: Array<JsonTestResult & { id: string }>
+  /** The result recorded for THIS event by the secretary. See `JsonEventResult`. */
+  eventResult?: JsonEventResult
   state?: 'creating' | 'ready'
   shouldPay?: boolean
   totalAmount?: number
