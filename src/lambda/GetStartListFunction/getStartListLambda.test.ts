@@ -6,11 +6,6 @@ const mockResponse = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetEvent = vi.fn()
 const mockQuery = vi.fn()
-const mockGetStartListPublishedClassMap = vi.fn()
-const mockIsStartListAvailable = vi.fn()
-const mockIsStartListAvailableForRegistration = vi.fn()
-const mockIsResultsAvailableForRegistration = vi.fn()
-const mockIsStartListPublishedClassMap = vi.fn()
 
 vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
@@ -32,15 +27,6 @@ vi.doMock('../lib/event', () => ({
 
 vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
-}))
-
-vi.doMock('../../lib/event', () => ({
-  getStartListPublishedClassMap: mockGetStartListPublishedClassMap,
-  isEntryClosed: vi.fn(),
-  isResultsAvailableForRegistration: mockIsResultsAvailableForRegistration,
-  isStartListAvailable: mockIsStartListAvailable,
-  isStartListAvailableForRegistration: mockIsStartListAvailableForRegistration,
-  isStartListPublishedClassMap: mockIsStartListPublishedClassMap,
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
@@ -66,7 +52,6 @@ describe('getStartListLambda', () => {
       memberOf: ['org123'],
       user: { id: 'user123', roles: { org123: 'secretary' } },
     })
-    mockIsStartListAvailableForRegistration.mockReturnValue(true)
   })
 
   it('returns unpublished registrations through the authenticated preview route', async () => {
@@ -103,8 +88,6 @@ describe('getStartListLambda', () => {
     await getStartListLambda(previewEvent)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(previewEvent)
-    expect(mockIsStartListAvailable).not.toHaveBeenCalled()
-    expect(mockIsStartListAvailableForRegistration).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       [
@@ -149,14 +132,11 @@ describe('getStartListLambda', () => {
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
-    mockIsStartListAvailable.mockReturnValueOnce(false)
 
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetEvent).toHaveBeenCalledWith(eventId)
-    expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
-    expect(mockIsStartListAvailableForRegistration).not.toHaveBeenCalled()
     expect(mockQuery).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(404, [], event)
   })
@@ -234,14 +214,12 @@ describe('getStartListLambda', () => {
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
-    mockIsStartListAvailable.mockReturnValueOnce(true)
     mockQuery.mockResolvedValueOnce(registrations)
 
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetEvent).toHaveBeenCalledWith(eventId)
-    expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
@@ -278,7 +256,6 @@ describe('getStartListLambda', () => {
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
-    mockIsStartListAvailable.mockReturnValueOnce(true)
     mockQuery.mockResolvedValueOnce(registrations)
 
     await getStartListLambda(event)
@@ -322,10 +299,6 @@ describe('getStartListLambda', () => {
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
-    mockIsStartListAvailable.mockReturnValueOnce(true)
-    mockIsStartListAvailableForRegistration.mockImplementation(
-      (_event: unknown, registration: { class: string }) => registration.class === 'ALO'
-    )
     mockQuery.mockResolvedValueOnce(registrations)
 
     await getStartListLambda(event)
@@ -376,14 +349,12 @@ describe('getStartListLambda', () => {
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
-    mockIsStartListAvailable.mockReturnValueOnce(true)
     mockQuery.mockResolvedValueOnce(registrations)
 
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetEvent).toHaveBeenCalledWith(eventId)
-    expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
@@ -397,14 +368,12 @@ describe('getStartListLambda', () => {
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
-    mockIsStartListAvailable.mockReturnValueOnce(true)
     mockQuery.mockResolvedValueOnce(undefined)
 
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetEvent).toHaveBeenCalledWith(eventId)
-    expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
@@ -423,7 +392,6 @@ describe('getStartListLambda', () => {
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetEvent).toHaveBeenCalledWith(eventId)
-    expect(mockIsStartListAvailable).not.toHaveBeenCalled()
     expect(mockQuery).not.toHaveBeenCalled()
     expect(mockResponse).not.toHaveBeenCalled()
   })
@@ -435,18 +403,55 @@ describe('getStartListLambda', () => {
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
-    mockIsStartListAvailable.mockReturnValueOnce(true)
     mockQuery.mockRejectedValueOnce(error)
 
     await expect(getStartListLambda(event)).rejects.toThrow(error)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetEvent).toHaveBeenCalledWith(eventId)
-    expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
     })
     expect(mockResponse).not.toHaveBeenCalled()
+  })
+
+  it('publishes a result only for a class whose results are published', async () => {
+    const eventId = 'event123'
+    const confirmedEvent = {
+      classes: [
+        { class: 'ALO', state: 'ended' },
+        { class: 'AVO', state: 'ended' },
+      ],
+      id: eventId,
+      resultsPublished: { ALO: true },
+      startDate: '2025-01-01',
+      startListPublished: true,
+      state: 'ended',
+    }
+    const reg = (eventClass: string, number: number) => ({
+      cancelled: false,
+      class: eventClass,
+      dog: { name: `Dog ${number}`, regNo: `REG${number}` },
+      eventId,
+      eventResult: { result: `${eventClass}1`, updatedAt: 'x', updatedBy: 'y' },
+      group: { date: '2025-01-01', key: eventClass, number },
+      handler: { name: 'Handler' },
+      owner: { name: 'Owner' },
+    })
+
+    mockGetParam.mockReturnValueOnce(eventId)
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([reg('ALO', 1), reg('AVO', 2)])
+
+    await getStartListLambda(event)
+
+    const [, published] = mockResponse.mock.calls[0]
+
+    // Both dogs are on a published start list, but only one class released its results. The gates are
+    // independent, and this is the shape a leak would take.
+    expect(published).toHaveLength(2)
+    expect(published[0]).toMatchObject({ class: 'ALO', result: 'ALO1' })
+    expect(published[1].result).toBeUndefined()
   })
 })

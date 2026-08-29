@@ -3,9 +3,16 @@ import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import i18n from 'i18next'
 import { downloadXlsx } from '../../lib/client/xlsx'
 import { startListSpreadsheetRows } from '../../lib/startList'
 import { ParticipantList } from './ParticipantList'
+
+/**
+ * The real translator. The test setup already initialises i18n, so there is no need for a hand-kept
+ * copy of the strings — a parallel list drifts from the locale silently, and a renamed key fails here.
+ */
+const t = i18n.getFixedT('en') as TFunction
 
 vi.mock('../../lib/client/xlsx', () => ({ downloadXlsx: vi.fn() }))
 
@@ -472,23 +479,6 @@ describe('ParticipantList', () => {
   })
 
   it('formats the public start list for an Excel spreadsheet', () => {
-    const t = ((key: string) =>
-      ({
-        'registration.timeLong.ap': 'morning',
-        'startListExport.breeder': 'Breeder',
-        'startListExport.class': 'Class',
-        'startListExport.dam': 'Dam',
-        'startListExport.date': 'Date',
-        'startListExport.dateOfBirth': 'Date of birth',
-        'startListExport.dog': 'Dog',
-        'startListExport.handler': 'Handler',
-        'startListExport.number': 'Number',
-        'startListExport.owner': 'Owner',
-        'startListExport.registrationNumber': 'Registration number',
-        'startListExport.result': 'Result',
-        'startListExport.sire': 'Sire',
-        'startListExport.time': 'Time',
-      })[key] ?? key) as TFunction
     const participant = createMockRegistration('AVO', 'Dog; One', 1, new Date('2023-01-01'), 'ap')
     const rows = startListSpreadsheetRows([participant], mockEvent, t)
 
