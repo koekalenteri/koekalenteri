@@ -24,6 +24,11 @@
         NightlyRebuildV2:
           Type: ScheduleV2
           Properties:
+            # Named after the stack, because SAM otherwise derives the name from the logical IDs
+            # alone (RebuildStatsFunction + NightlyRebuildV2) and EventBridge Scheduler names are
+            # unique per account and region. Unnamed, the first environment to deploy claims the
+            # name for the whole account and every later one fails to create it.
+            Name: !Sub '${AWS::StackName}-rebuild-stats-nightly'
             # 01:00 UTC = 03:00 Helsinki in summer, 04:00 in winter — outside registration hours.
             ScheduleExpression: 'cron(0 1 * * ? *)'
             Description: Nightly rebuild of participation and capacity statistics
