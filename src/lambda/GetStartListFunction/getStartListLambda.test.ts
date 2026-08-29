@@ -9,6 +9,7 @@ const mockQuery = vi.fn()
 const mockGetStartListPublishedClassMap = vi.fn()
 const mockIsStartListAvailable = vi.fn()
 const mockIsStartListAvailableForRegistration = vi.fn()
+const mockIsResultsAvailableForRegistration = vi.fn()
 const mockIsStartListPublishedClassMap = vi.fn()
 
 vi.doMock('../lib/lambda', () => ({
@@ -36,6 +37,7 @@ vi.doMock('../lib/auth', () => ({
 vi.doMock('../../lib/event', () => ({
   getStartListPublishedClassMap: mockGetStartListPublishedClassMap,
   isEntryClosed: vi.fn(),
+  isResultsAvailableForRegistration: mockIsResultsAvailableForRegistration,
   isStartListAvailable: mockIsStartListAvailable,
   isStartListAvailableForRegistration: mockIsStartListAvailableForRegistration,
   isStartListPublishedClassMap: mockIsStartListPublishedClassMap,

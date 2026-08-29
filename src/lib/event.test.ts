@@ -30,6 +30,7 @@ import {
   isEventDeletable,
   isOfficialEventType,
   isResultsAvailableForClass,
+  isResultsAvailableForRegistration,
   isResultsPublishedForClass,
   isStartListAvailable,
   isStartListAvailableForClass,
@@ -1175,5 +1176,53 @@ describe('the results step in the progress', () => {
 
     expect(getEventProgress(published, after).phase).toBe('resultsPublished')
     expect(getEventProgress(published, after).resultsCompleted).toBe(true)
+  })
+})
+
+describe('isResultsAvailableForRegistration', () => {
+  const event = {
+    classes: [
+      { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+      { class: 'AVO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+    ],
+    startDate: new Date('2026-09-12'),
+    state: 'ended' as const,
+  }
+  const dog = (eventClass: string) => ({ class: eventClass, group: { date: new Date('2026-09-12') } })
+
+  it('does not let a published start list carry an unpublished result out with it', () => {
+    // The two gates are independent: a start list is public long before any result is.
+    const published = { ...event, startListPublished: true }
+
+    expect(isStartListAvailableForRegistration(published, dog('ALO'))).toBe(true)
+    expect(isResultsAvailableForRegistration(published, dog('ALO'))).toBe(false)
+  })
+
+  it('shows a result only for the class that was published', () => {
+    const partly = { ...event, resultsPublished: { ALO: true } }
+
+    expect(isResultsAvailableForRegistration(partly, dog('ALO'))).toBe(true)
+    expect(isResultsAvailableForRegistration(partly, dog('AVO'))).toBe(false)
+  })
+
+  it('matches the class entry on the day the dog runs', () => {
+    // A multi-day event has one entry per class per day, and they can be in different states.
+    const twoDays = {
+      classes: [
+        { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+        { class: 'ALO' as const, date: new Date('2026-09-13'), state: 'invited' as const },
+      ],
+      resultsPublished: true,
+      startDate: new Date('2026-09-12'),
+      state: 'ended' as const,
+    }
+
+    expect(isResultsAvailableForRegistration(twoDays, { class: 'ALO', group: { date: new Date('2026-09-12') } })).toBe(
+      true
+    )
+    // The second day has not run yet, so nothing to show even though the flag is on.
+    expect(isResultsAvailableForRegistration(twoDays, { class: 'ALO', group: { date: new Date('2026-09-13') } })).toBe(
+      false
+    )
   })
 })

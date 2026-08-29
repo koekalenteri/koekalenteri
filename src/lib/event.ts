@@ -398,25 +398,57 @@ export const isStartListAvailableForClass = (
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
 ) => canPublishStartList(eventClass.state ?? event.state) && isStartListPublishedForClass(event, eventClass.class)
 
+type AvailabilityEvent = {
+  classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
+  startDate: Date | string
+}
+type AvailabilityRegistration = { class?: string | null; group: { date?: Date | string } }
+
+/**
+ * The class entry a registration belongs to, matched on the day it runs.
+ *
+ * A multi-day event has one entry per class per day and they can be in different states, so the day
+ * decides which one governs. Shared by the start list and the results so the two cannot disagree about
+ * which class a dog is in.
+ */
+const findRegistrationClass = (event: AvailabilityEvent, registration: AvailabilityRegistration) => {
+  const classes = event.classes ?? []
+  if (!registration.class || classes.length === 0) return undefined
+
+  const registrationDate = startListAvailabilityDateKey(registration.group.date ?? event.startDate)
+  const eventClasses = classes.filter((eventClass) => eventClass.class === registration.class)
+  const onTheDay = eventClasses.find(
+    (item) => startListAvailabilityDateKey(item.date ?? event.startDate) === registrationDate
+  )
+
+  return onTheDay ?? (eventClasses.length === 1 ? eventClasses[0] : undefined)
+}
+
 export const isStartListAvailableForRegistration = (
-  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> & {
-    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
-    startDate: Date | string
-  },
-  registration: { class?: string | null; group: { date?: Date | string } }
+  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> & AvailabilityEvent,
+  registration: AvailabilityRegistration
 ) => {
   const classes = event.classes ?? []
   if (!registration.class || classes.length === 0) return classes.length === 0
 
-  const registrationDate = startListAvailabilityDateKey(registration.group.date ?? event.startDate)
-  const eventClasses = classes.filter((eventClass) => eventClass.class === registration.class)
-  const eventClass = eventClasses.find(
-    (item) => startListAvailabilityDateKey(item.date ?? event.startDate) === registrationDate
-  )
+  const eventClass = findRegistrationClass(event, registration)
 
-  if (eventClass) return isStartListAvailableForClass(event, eventClass)
-  if (eventClasses.length === 1) return isStartListAvailableForClass(event, eventClasses[0])
-  return false
+  return eventClass ? isStartListAvailableForClass(event, eventClass) : false
+}
+
+/**
+ * Whether this dog's result may be shown.
+ *
+ * Gated on its own class and nothing else: a start list can be public long before any result is, so an
+ * unpublished result must not ride out on the back of a published list.
+ */
+export const isResultsAvailableForRegistration = (
+  event: Pick<JsonDogEvent, 'state' | 'resultsPublished'> & AvailabilityEvent,
+  registration: AvailabilityRegistration
+) => {
+  const eventClass = findRegistrationClass(event, registration)
+
+  return eventClass ? isResultsAvailableForClass(event, eventClass) : false
 }
 
 const startListAvailabilityDateKey = (date: Date | string) => formatDate(date, 'yyyy-MM-dd')

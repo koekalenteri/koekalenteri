@@ -1,5 +1,9 @@
 import type { JsonPublicRegistration, JsonRegistrationWithGroup } from '../../types'
-import { isStartListAvailable, isStartListAvailableForRegistration } from '../../lib/event'
+import {
+  isResultsAvailableForRegistration,
+  isStartListAvailable,
+  isStartListAvailableForRegistration,
+} from '../../lib/event'
 import {
   formatOwnerNames,
   getHandlingPerson,
@@ -63,6 +67,7 @@ const getStartListLambda = lambda('getStartList', async (event) => {
           handler: getHandlingPerson(reg)?.name ?? '',
           owner: formatOwnerNames(reg),
           ownerHandles: publishedOwnerHandles(reg),
+          ...(isResultsAvailableForRegistration(confirmedEvent, reg) ? { result: reg.eventResult?.result } : {}),
         }))
         .sort((a, b) => a.group.number - b.group.number) ?? []
   }

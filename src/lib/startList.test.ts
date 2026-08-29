@@ -17,6 +17,7 @@ describe('startListSpreadsheetRows', () => {
       'startListExport.number': 'Number',
       'startListExport.owner': 'Owner',
       'startListExport.registrationNumber': 'Registration number',
+      'startListExport.result': 'Result',
       'startListExport.sire': 'Sire',
       'startListExport.time': 'Time',
     })[key] ?? key) as TFunction
@@ -55,6 +56,7 @@ describe('startListSpreadsheetRows', () => {
         'Owner',
         'Handler',
         'Breeder',
+        'Result',
       ],
       [
         new Date(2023, 1, 1, 12),
@@ -69,7 +71,47 @@ describe('startListSpreadsheetRows', () => {
         'Test Owner',
         'Test Owner',
         'Test Breeder',
+        '',
       ],
     ])
+  })
+})
+
+describe('a published result on the exported list', () => {
+  it('travels with the row, so the file matches what the screen shows', () => {
+    const t = ((key: string) =>
+      ({
+        'registration.timeLong.ap': 'morning',
+        'startListExport.breeder': 'Breeder',
+        'startListExport.class': 'Class',
+        'startListExport.dam': 'Dam',
+        'startListExport.date': 'Date',
+        'startListExport.dateOfBirth': 'Date of birth',
+        'startListExport.dog': 'Dog',
+        'startListExport.handler': 'Handler',
+        'startListExport.number': 'Number',
+        'startListExport.owner': 'Owner',
+        'startListExport.registrationNumber': 'Registration number',
+        'startListExport.result': 'Result',
+        'startListExport.sire': 'Sire',
+        'startListExport.time': 'Time',
+      })[key] ?? key) as TFunction
+
+    const event = { classes: [], startDate: new Date('2023-02-01') } as unknown as PublicConfirmedEvent
+    const registration = {
+      breeder: 'Test Breeder',
+      class: 'ALO',
+      dog: { name: 'Test Dog', regNo: 'REG1' },
+      group: { key: 'ALO', number: 2 },
+      handler: 'Test Handler',
+      owner: 'Test Owner',
+      result: 'ALO1',
+    } as PublicRegistration
+
+    const [, row] = startListSpreadsheetRows([registration], event, t)
+
+    // The download is what gets circulated, so a result missing here is a file that disagrees with
+    // the page it came from.
+    expect(row.at(-1)).toBe('ALO1')
   })
 })

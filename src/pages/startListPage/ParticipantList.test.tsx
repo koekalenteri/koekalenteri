@@ -485,6 +485,7 @@ describe('ParticipantList', () => {
         'startListExport.number': 'Number',
         'startListExport.owner': 'Owner',
         'startListExport.registrationNumber': 'Registration number',
+        'startListExport.result': 'Result',
         'startListExport.sire': 'Sire',
         'startListExport.time': 'Time',
       })[key] ?? key) as TFunction
@@ -505,6 +506,7 @@ describe('ParticipantList', () => {
         'Owner',
         'Handler',
         'Breeder',
+        'Result',
       ],
       [
         new Date(2023, 0, 1, 12),
@@ -519,6 +521,7 @@ describe('ParticipantList', () => {
         'Test Owner',
         'Test Handler',
         'Test Breeder',
+        '',
       ],
     ])
   })

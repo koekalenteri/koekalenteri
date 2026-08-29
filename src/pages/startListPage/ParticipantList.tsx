@@ -316,5 +316,10 @@ function formatRegistration(reg: PublicRegistration, t: TFunction) {
     `${reg.group.number}. ${dog} s. ${reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}`,
     `(i. ${sire}, e. ${dam})`,
     `${ownerHandler}, kasv. ${reg.breeder}`,
-  ].join('\n')
+    // The copied list is the one that gets pasted into a forum post, so it has to carry what the
+    // screen shows. Leaving the result out here is how the two quietly stop matching.
+    reg.result,
+  ]
+    .filter(Boolean)
+    .join('\n')
 }
