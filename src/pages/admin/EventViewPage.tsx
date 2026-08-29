@@ -154,6 +154,9 @@ export default function EventViewPage() {
         event={event}
         onCreateRegistration={() => setCreateOpen(true)}
         onOpenDetails={() => setDetailsOpen(true)}
+        onSetResultsPublished={(eventClass, published) =>
+          eventActions.setResultsClassPublished(event, eventClass, published)
+        }
         onSetStartListPublished={(eventClass, published) =>
           eventClass
             ? eventActions.setStartListClassPublished(event, eventClass, published)

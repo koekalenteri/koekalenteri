@@ -8,6 +8,8 @@ import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
   applySingleDayNowtGroups,
+  canPublishResults,
+  canPublishStartList,
   copyDogEvent,
   defaultEntryEndDate,
   defaultEntryStartDate,
@@ -18,6 +20,7 @@ import {
   getEventSeason,
   getEventStateForClass,
   getEventTitle,
+  getResultsPublishedClassMap,
   getStartListPublishedClassMap,
   getUniqueEventClasses,
   hasExplicitPlacesForClass,
@@ -25,6 +28,8 @@ import {
   isDetaultEntryStartDate,
   isEventDeletable,
   isOfficialEventType,
+  isResultsAvailableForClass,
+  isResultsPublishedForClass,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartListAvailableForRegistration,
@@ -1084,6 +1089,60 @@ describe('registrationDatesOutsideClass', () => {
       expect(isOfficialEventType('Koulutus', false)).toEqual(false)
       expect(isOfficialEventType(undefined, true)).toEqual(false)
       expect(isOfficialEventType(null)).toEqual(false)
+    })
+  })
+})
+
+describe('publishing results', () => {
+  describe('isResultsPublishedForClass', () => {
+    it('treats an absent flag as not published', () => {
+      // The start list reads the other way, because its records predate the flag. A result nobody
+      // released must never appear, so the same shape carries the opposite default.
+      expect(isResultsPublishedForClass({}, 'ALO')).toBe(false)
+      expect(isStartListPublishedForClass({}, 'ALO')).toBe(true)
+    })
+
+    it('publishes every class when the flag is a plain true', () => {
+      expect(isResultsPublishedForClass({ resultsPublished: true }, 'ALO')).toBe(true)
+    })
+
+    it('publishes only the classes the map names', () => {
+      const event = { resultsPublished: { ALO: true } }
+
+      expect(isResultsPublishedForClass(event, 'ALO')).toBe(true)
+      expect(isResultsPublishedForClass(event, 'AVO')).toBe(false)
+    })
+  })
+
+  describe('canPublishResults', () => {
+    it('waits until the dogs have run', () => {
+      // A start list exists before the event; a result does not.
+      expect(canPublishResults('invited')).toBe(false)
+      expect(canPublishStartList('invited')).toBe(true)
+
+      expect(canPublishResults('started')).toBe(true)
+      expect(canPublishResults('ended')).toBe(true)
+      expect(canPublishResults('completed')).toBe(true)
+    })
+  })
+
+  describe('isResultsAvailableForClass', () => {
+    it('needs both a state that allows it and an explicit publish', () => {
+      const published = { resultsPublished: { ALO: true }, state: 'ended' as const }
+
+      expect(isResultsAvailableForClass(published, { class: 'ALO' })).toBe(true)
+      // Published, but the class has not started.
+      expect(isResultsAvailableForClass(published, { class: 'ALO', state: 'invited' })).toBe(false)
+      // Started, but never published.
+      expect(isResultsAvailableForClass({ state: 'ended' }, { class: 'ALO' })).toBe(false)
+    })
+  })
+
+  describe('getResultsPublishedClassMap', () => {
+    it('fills in every class, defaulting to not published', () => {
+      expect(
+        getResultsPublishedClassMap({ classes: [{ class: 'ALO' }, { class: 'AVO' }], resultsPublished: { ALO: true } })
+      ).toEqual({ ALO: true, AVO: false })
     })
   })
 })

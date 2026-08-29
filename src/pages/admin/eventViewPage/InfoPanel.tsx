@@ -29,6 +29,7 @@ import { adminEventAtom } from '../state'
 import EventActions from './infoPanel/EventActions'
 import InvitationDelivery from './infoPanel/InvitationDelivery'
 import ParticipantSelection from './infoPanel/ParticipantSelection'
+import ResultsPublishing from './infoPanel/ResultsPublishing'
 import StartListPublishing from './infoPanel/StartListPublishing'
 import { sectionSx } from './infoPanel/styles'
 
@@ -36,6 +37,7 @@ interface Props {
   readonly event: ConfirmedEvent
   readonly onCreateRegistration?: () => void
   readonly onOpenDetails?: () => void
+  readonly onSetResultsPublished?: (eventClass: RegistrationClass, published: boolean) => Promise<unknown>
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly registrations: Registration[]
   readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
@@ -46,6 +48,7 @@ const APP_HEADER_HEIGHT = 36
 const InfoPanel = ({
   event,
   onCreateRegistration,
+  onSetResultsPublished,
   onOpenDetails,
   onSetStartListPublished,
   registrations,
@@ -300,6 +303,7 @@ const InfoPanel = ({
             selectedByClass={selectedByClass}
             stateByClass={stateByClass}
           />
+          <ResultsPublishing event={event} onSetResultsPublished={onSetResultsPublished} />
           <EventActions
             eventFinished={eventFinished}
             eventId={event.id}

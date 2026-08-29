@@ -7,7 +7,9 @@ import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
 import { getChangedTopLevelKeys } from '../../../../lib/diff'
 import {
   copyDogEvent,
+  getResultsPublishedClassMap,
   getStartListPublishedClassMap,
+  isResultsPublishedForClass,
   isStartListPublishedForClass,
   sanitizeDogEvent,
 } from '../../../../lib/event'
@@ -45,6 +47,18 @@ export const buildStartListClassPublishedPatch = (
   id: event.id,
   startListPublished: {
     ...getStartListPublishedClassMap(event),
+    [eventClass]: published,
+  },
+})
+
+const buildResultsClassPublishedPatch = (
+  event: DogEvent,
+  eventClass: RegistrationClass,
+  published: boolean
+): Patch<DogEvent> & { id: string } => ({
+  id: event.id,
+  resultsPublished: {
+    ...getResultsPublishedClassMap(event),
     [eventClass]: published,
   },
 })
@@ -98,6 +112,7 @@ export const useAdminEventActions = () => {
     deleteCurrent,
     publishStartListClass,
     save,
+    setResultsClassPublished,
     setStartListClassPublished,
     setStartListPublished,
   }
@@ -188,6 +203,22 @@ export const useAdminEventActions = () => {
     if ((event.startListPublished !== false) === published) return event
 
     const saved = await putEvent(buildStartListPublishedPatch(event, published), token)
+    setAdminEventId(saved.id)
+    setCurrentAdminEvent(saved)
+    updatePublicEvents(saved)
+
+    return saved
+  }
+
+  async function setResultsClassPublished(
+    event: DogEvent,
+    eventClass: RegistrationClass,
+    published: boolean
+  ): Promise<DogEvent | undefined> {
+    if (!event?.id) return
+    if (isResultsPublishedForClass(event, eventClass) === published) return event
+
+    const saved = await putEvent(buildResultsClassPublishedPatch(event, eventClass, published), token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
     updatePublicEvents(saved)

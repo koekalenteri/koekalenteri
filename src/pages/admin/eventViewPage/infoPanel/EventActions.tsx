@@ -76,7 +76,7 @@ const EventActions = ({
           sx={actionButtonSx}
           variant="outlined"
         >
-          {t('eventManagement.results')}
+          {t('eventManagement.enterResults')}
         </Button>
         <Button
           fullWidth

@@ -17,6 +17,13 @@ import type { DogEventCost } from './Cost'
 export type PaymentTime = 'registration' | 'confirmation'
 export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
 
+/**
+ * Same shape as `StartListPublishedState`, so per-class publishing works the same way — but not the
+ * same default. An absent start list flag means published, for records that predate it; an absent
+ * results flag means not published, because a result nobody released must never appear.
+ */
+export type ResultsPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
+
 export interface JsonInvitationAttachmentVersion {
   className?: string
   uploadedAt: string
@@ -68,6 +75,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   startDate: string
   state: EventState
   startListPublished?: StartListPublishedState
+  resultsPublished?: ResultsPublishedState
   /** Scoring posts, for event types that score at posts (NOWT). */
   stations?: JsonEventStation[]
 }

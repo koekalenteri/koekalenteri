@@ -215,6 +215,45 @@ export const isStartListAvailable = ({
 export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
   state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
 
+/** Nothing to publish before the dogs have run, unlike a start list, which exists beforehand. */
+export const canPublishResults = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
+  state === 'started' || state === 'ended' || state === 'completed'
+
+const isResultsPublishedClassMap = (
+  resultsPublished: JsonDogEvent['resultsPublished']
+): resultsPublished is Partial<Record<RegistrationClass, boolean>> =>
+  typeof resultsPublished === 'object' && resultsPublished !== null
+
+/**
+ * Publishing is explicit. Where the start list treats an absent flag as published — its records predate
+ * the flag — an absent results flag means not published: a result nobody released must not leak.
+ */
+export const isResultsPublishedForClass = (event: Pick<JsonDogEvent, 'resultsPublished'>, eventClass: string) =>
+  isResultsPublishedClassMap(event.resultsPublished)
+    ? event.resultsPublished[eventClass as RegistrationClass] === true
+    : event.resultsPublished === true
+
+export const isResultsAvailableForClass = (
+  event: Pick<JsonDogEvent, 'state' | 'resultsPublished'>,
+  eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
+) => canPublishResults(eventClass.state ?? event.state) && isResultsPublishedForClass(event, eventClass.class)
+
+export const getResultsPublishedClassMap = ({
+  classes,
+  resultsPublished,
+}: Pick<JsonDogEvent, 'resultsPublished'> & {
+  classes: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
+}): Partial<Record<RegistrationClass, boolean>> => {
+  const existingMap = isResultsPublishedClassMap(resultsPublished) ? resultsPublished : {}
+  const result: Partial<Record<RegistrationClass, boolean>> = {}
+
+  for (const eventClass of classes) {
+    result[eventClass.class] = existingMap[eventClass.class] ?? resultsPublished === true
+  }
+
+  return result
+}
+
 export type EventProgressStep =
   | Exclude<ConfirmedEventStates, 'completed'>
   | 'confirmed_entryOpen'

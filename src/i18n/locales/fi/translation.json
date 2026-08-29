@@ -298,6 +298,7 @@
     "close": "Sulje tapahtuman hallinta",
     "datesOutsideClass": "Ilmoittautumisen valitut päivät ({{dates}}) eivät ole luokan {{class}} päiviä. Voit korjata tämän avaamalla ilmoittautumisen ja tallentamalla sen.",
     "datesOutsideEvent": "Ilmoittautumisen valitut päivät ({{dates}}) eivät ole tapahtuman päiviä. Voit korjata tämän avaamalla ilmoittautumisen ja tallentamalla sen.",
+    "enterResults": "Syötä tulokset",
     "groupRules": {
       "duplicateHandler": "Ohjaajalla {{name}} on tässä ryhmässä {{count}} koiraa. Tuomaritoimikunta suosittelee sijoittamaan saman ohjaajan koirat eri ryhmiin, sillä tutut koirat voivat käyttäytyä yhdessä eri tavoin kuin ilman toisiaan sosiaalisen käyttäytymisen osuudessa.",
       "genderBalance": "Ryhmän sukupuolijakauma ei täytä sääntöä: ryhmässä tulee olla vähintään kaksi urosta ja kaksi narttua. Jos ryhmä jää tällaiseksi, sitä tulee täydentää sosiaalisen käyttäytymisen arviointia varten kokeen ulkopuolisilla koirilla. Ryhmässä on nyt uroksia {{maleCount}} ja narttuja {{femaleCount}}.",
@@ -325,7 +326,14 @@
       "sendReserveNotification": "Lähetä varasijailmoitus",
       "title": "Osallistujien valinta"
     },
-    "results": "Syötä tulokset",
+    "results": {
+      "confirm": "Haluatko varmasti julkaista luokan {{eventClass}} tulokset Koekalenterissa?",
+      "confirmTitle": "Julkaise tulokset",
+      "hide": "Piilota tulokset",
+      "publish": "Julkaise tulokset",
+      "published": "Julkaistu",
+      "title": "Tulosten julkaisu"
+    },
     "showEventDetails": "Näytä tapahtuman tiedot",
     "startList": {
       "hide": "Piilota starttilista",
