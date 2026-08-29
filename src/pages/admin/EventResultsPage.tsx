@@ -1,4 +1,4 @@
-import type { EventResult, EventStation, PublicJudge } from '../../types'
+import type { DogEvent, EventResult, EventStation, Patch, PublicJudge } from '../../types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import type { ResultEdit } from './eventResultsPage/types'
 import Save from '@mui/icons-material/Save'
@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
+import { isOfficialEventType } from '../../lib/event'
 import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
 import { classRound, scoresAtPosts, stationVersion } from '../../lib/results'
 import { Path } from '../../routeConfig'
@@ -25,10 +26,18 @@ import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { makeArray } from './components/eventForm/judgeSection/utils'
+import KcIdChoiceDialog from './components/eventForm/KcIdChoiceDialog'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { emptyEdit } from './eventResultsPage/types'
-import { adminConfirmedEventAtom, adminEventRegistrationsAtom } from './state'
+import { useKcIdLookup } from './hooks/useKcIdLookup'
+import {
+  adminActiveEventTypesAtom,
+  adminConfirmedEventAtom,
+  adminEventRegistrationsAtom,
+  adminLinkedKcIdsAtom,
+  useAdminEventActions,
+} from './state'
 
 /** The whole round, or one post's slice of it. */
 const WHOLE_ROUND = 'all'
@@ -92,6 +101,28 @@ export default function EventResultsPage() {
       return (own.length ? own : classJudges).filter((judge): judge is PublicJudge => Boolean(judge?.id))
     },
     [classJudges, stations]
+  )
+
+  // KOE-452: entering results is often when anyone first notices the Kennelliitto id is missing, and
+  // it is needed before the results can go anywhere. Offering the lookup here saves a trip back to the
+  // event form to fetch something the secretary is already standing in front of.
+  const eventActions = useAdminEventActions()
+  const saveKcId = useCallback(
+    async (patch: Patch<DogEvent>) => {
+      if (event) await eventActions.save({ ...event, ...patch })
+    },
+    [event, eventActions]
+  )
+  const linkedKcIds = useAtomValue(adminLinkedKcIdsAtom(event?.id))
+  const kcId = useKcIdLookup(
+    event ?? { classes: [], endDate: new Date(), startDate: new Date() },
+    saveKcId,
+    linkedKcIds
+  )
+  const eventTypes = useAtomValue(adminActiveEventTypesAtom)
+  const officialEventType = isOfficialEventType(
+    event?.eventType,
+    eventTypes.find((item) => item.eventType === event?.eventType)?.official
   )
 
   const handleChange = useCallback(
@@ -173,7 +204,18 @@ export default function EventResultsPage() {
           <Typography variant="body2" color="text.secondary">
             {t('event.kcId')}: {event.kcId}
           </Typography>
-        ) : null}
+        ) : (
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="body2" color="text.secondary">
+              {t('event.kcIdEmpty')}
+            </Typography>
+            {officialEventType && (
+              <Button disabled={kcId.searching || !kcId.organizerId} onClick={kcId.search} size="small">
+                {t('event.kcIdLookup')}
+              </Button>
+            )}
+          </Stack>
+        )}
       </Box>
 
       <Stack direction="row" spacing={2} alignItems="center" sx={{ pt: 1, px: 2 }}>
@@ -239,6 +281,13 @@ export default function EventResultsPage() {
           {t('save')}
         </AsyncButton>
       </Stack>
+
+      <KcIdChoiceDialog
+        choices={kcId.choices}
+        linkedKcIds={linkedKcIds}
+        onClose={kcId.closeChoices}
+        onSelect={kcId.choose}
+      />
 
       <ConflictDialog
         choices={choices}

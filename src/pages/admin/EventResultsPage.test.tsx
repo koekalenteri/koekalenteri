@@ -81,6 +81,18 @@ describe('EventResultsPage', () => {
     expect(screen.getByText('results.column.outcome')).toBeInTheDocument()
   })
 
+  it('shows the koetunnus, so the secretary can see which event they are scoring', async () => {
+    const { i18n } = useTranslation()
+    renderPage(i18n.language as Language)
+    await flushPromises()
+
+    // KOE-72 asks for this outright: entering a whole class against the wrong event is a silent and
+    // expensive mistake. The mock event has an id, so the header states it rather than offering the
+    // lookup that stands in its place.
+    expect(screen.getByText(/event\.kcId/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'event.kcIdLookup' })).not.toBeInTheDocument()
+  })
+
   it('offers no scope selector for an event type that is not scored at posts', async () => {
     const { i18n } = useTranslation()
     renderPage(i18n.language as Language)

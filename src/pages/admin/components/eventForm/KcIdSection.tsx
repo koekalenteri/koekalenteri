@@ -1,6 +1,4 @@
 import type { TFunction } from 'i18next'
-import type { EventKcIdChoice } from '../../../../api/event'
-import type { DogEvent, Patch } from '../../../../types'
 import type { BasicInfoEvent, SectionProps } from './types'
 import Sync from '@mui/icons-material/Sync'
 import Alert from '@mui/material/Alert'
@@ -8,16 +6,13 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { useAtomValue } from 'jotai'
-import { enqueueSnackbar } from 'notistack'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { normalizeEventKcIdChoice, searchEventKcIdChoices } from '../../../../api/event'
-import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
+import { zonedDateString } from '../../../../i18n/dates'
 import { localeSortComparator } from '../../../../lib/datagrid'
 import { unique } from '../../../../lib/utils'
 import CollapsibleSection from '../../../components/CollapsibleSection'
-import { idTokenAtom } from '../../../state'
+import { useKcIdLookup } from '../../hooks/useKcIdLookup'
 import KcIdChoiceDialog from './KcIdChoiceDialog'
 
 export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
@@ -28,78 +23,16 @@ export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
 
 function KcIdSection({ disabled, event, errorStates, linkedKcIds, open, onOpenChange, onChange }: Props) {
   const { t } = useTranslation()
-  const token = useAtomValue(idTokenAtom)
-  const [kcIdRefreshing, setKcIdRefreshing] = useState(false)
-  const [kcIdChoices, setKcIdChoices] = useState<EventKcIdChoice[]>([])
+  const { choices, choose, closeChoices, organizerId, remove, search, searching } = useKcIdLookup(
+    event,
+    onChange,
+    linkedKcIds
+  )
   const hasKcId = Boolean(event.kcId)
-  const selectedOrganizerId = event.organizer?.id
-  const canEditKcId = Boolean(selectedOrganizerId) && !disabled
+  const canEditKcId = Boolean(organizerId) && !disabled
   const error = (errorStates && errorStates.kcId) || false
   const helperText = error ? t('validation.event.errors') : t('event.kcIdSectionInfo')
   const warnings = useMemo(() => computeKcWarnings(event, t), [event, t])
-
-  // The koetunnus may already belong to another event; say so at pick time instead of leaving it to
-  // the conflict the backend raises on save.
-  const selectChoice = useCallback(
-    (choice: EventKcIdChoice) => {
-      if (linkedKcIds?.has(choice.id)) {
-        enqueueSnackbar(t('event.kcIdConflict'), { variant: 'error' })
-        return false
-      }
-      onChange?.(applyKcChoice(choice))
-      enqueueSnackbar(t('event.kcIdSelected', { id: choice.id }), { variant: 'success' })
-      return true
-    },
-    [linkedKcIds, onChange, t]
-  )
-
-  const handleKcIdRefresh = useCallback(async () => {
-    if (!selectedOrganizerId) return
-
-    const criteria = [event.organizer?.name, event.eventType, formatDateSpan(event.startDate, event.endDate)]
-      .filter(Boolean)
-      .join(', ')
-
-    setKcIdRefreshing(true)
-    setKcIdChoices([])
-    try {
-      const result = await searchEventKcIdChoices(
-        {
-          classes: event.classes.map(({ class: eventClass, date }) => ({ class: eventClass, date })),
-          endDate: event.endDate,
-          eventType: event.eventType ?? '',
-          location: event.location ?? '',
-          name: event.name ?? '',
-          organizer: { id: selectedOrganizerId },
-          startDate: event.startDate,
-        },
-        token
-      )
-      if (result.choices.length === 1) {
-        selectChoice(normalizeEventKcIdChoice(result.choices[0]))
-      } else if (result.choices.length > 1) {
-        setKcIdChoices(result.choices.map(normalizeEventKcIdChoice))
-      } else {
-        enqueueSnackbar(t('event.kcIdNotFound', { criteria }), { variant: 'warning' })
-      }
-    } catch (error) {
-      console.error(error)
-      enqueueSnackbar(t('event.kcIdSearchFailed'), { variant: 'error' })
-    } finally {
-      setKcIdRefreshing(false)
-    }
-  }, [event, selectedOrganizerId, token, t, selectChoice])
-  const handleKcIdChoiceClose = useCallback(() => setKcIdChoices([]), [])
-  const handleKcIdChoice = useCallback(
-    (choice: EventKcIdChoice) => {
-      if (selectChoice(choice)) setKcIdChoices([])
-    },
-    [selectChoice]
-  )
-  const handleKcIdRemove = useCallback(() => {
-    onChange?.({ kcEvent: null, kcId: null })
-    enqueueSnackbar(t('event.kcIdRemoved'), { variant: 'success' })
-  }, [onChange, t])
 
   return (
     <>
@@ -124,29 +57,29 @@ function KcIdSection({ disabled, event, errorStates, linkedKcIds, open, onOpenCh
               <Stack direction="row" spacing={1}>
                 <Button
                   variant="contained"
-                  disabled={kcIdRefreshing}
+                  disabled={searching}
                   size="small"
                   startIcon={<Sync fontSize="small" />}
-                  onClick={handleKcIdRefresh}
+                  onClick={search}
                 >
                   {t('event.kcIdSwitch')}
                 </Button>
-                <Button variant="outlined" size="small" onClick={handleKcIdRemove}>
+                <Button variant="outlined" size="small" onClick={remove}>
                   {t('event.kcIdRemove')}
                 </Button>
               </Stack>
             ) : (
               <Button
                 variant="contained"
-                disabled={kcIdRefreshing}
+                disabled={searching}
                 size="small"
                 startIcon={<Sync fontSize="small" />}
-                onClick={handleKcIdRefresh}
+                onClick={search}
               >
                 {t('event.kcIdLookup')}
               </Button>
             ))}
-          {!hasKcId && !selectedOrganizerId && !disabled && (
+          {!hasKcId && !organizerId && !disabled && (
             <Typography variant="body2" color="text.secondary" fontStyle="italic">
               {t('event.kcIdRequiresOrganizer')}
             </Typography>
@@ -160,12 +93,7 @@ function KcIdSection({ disabled, event, errorStates, linkedKcIds, open, onOpenCh
           </Alert>
         )}
       </CollapsibleSection>
-      <KcIdChoiceDialog
-        choices={kcIdChoices}
-        linkedKcIds={linkedKcIds}
-        onClose={handleKcIdChoiceClose}
-        onSelect={handleKcIdChoice}
-      />
+      <KcIdChoiceDialog choices={choices} linkedKcIds={linkedKcIds} onClose={closeChoices} onSelect={choose} />
     </>
   )
 }
@@ -219,20 +147,4 @@ function computeKcWarnings(event: BasicInfoEvent, t: TFunction) {
   }
 
   return warnings
-}
-
-function applyKcChoice(choice: EventKcIdChoice): Patch<DogEvent> {
-  const normalized = normalizeEventKcIdChoice(choice)
-
-  return {
-    kcEvent: {
-      classes: normalized.classes,
-      endDate: zonedEndOfDay(normalized.endDate),
-      eventType: normalized.eventType,
-      judge: normalized.judge,
-      location: normalized.location,
-      startDate: zonedStartOfDay(normalized.startDate),
-    },
-    kcId: normalized.id,
-  }
 }
