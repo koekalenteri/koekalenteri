@@ -268,8 +268,19 @@ export const sameEventResult = (a?: JsonEventResult, b?: JsonEventResult): boole
   return !objectsDiffer(left, right)
 }
 
+/**
+ * The task shape these helpers need. Generic over `updatedAt` because the client holds a `Date` — `http`
+ * revives any ISO string by the value's own shape — while the server holds the string it stored.
+ */
+interface StationScopedTask {
+  stationId: string
+  index: number
+  updatedAt: string | Date
+  updatedBy: string
+}
+
 /** The tasks belonging to one post. */
-const stationTasks = (tasks: readonly JsonEventResultTask[] | undefined, stationId: string): JsonEventResultTask[] =>
+const stationTasks = <T extends StationScopedTask>(tasks: readonly T[] | undefined, stationId: string): T[] =>
   (tasks ?? []).filter((task) => task.stationId === stationId)
 
 /**
@@ -279,27 +290,25 @@ const stationTasks = (tasks: readonly JsonEventResultTask[] | undefined, station
  * result version would go stale every time any other post saved, and every station's next save would
  * look like a conflict with work it never touched.
  */
-export const stationVersion = (
-  tasks: readonly JsonEventResultTask[] | undefined,
+export const stationVersion = <T extends StationScopedTask>(
+  tasks: readonly T[] | undefined,
   stationId: string
-): string | undefined => {
+): T['updatedAt'] | undefined => {
   const own = stationTasks(tasks, stationId)
+  if (!own.length) return undefined
 
-  return own.length
-    ? own
-        .map((task) => task.updatedAt)
-        .sort()
-        .at(-1)
-    : undefined
+  // Compare by instant rather than sorting the raw values: sorting happens to work on ISO strings and
+  // not at all on Date objects, which sort by their locale text.
+  return own.reduce((latest, task) => (new Date(task.updatedAt) > new Date(latest.updatedAt) ? task : latest)).updatedAt
 }
 
-const withoutProvenance = ({ updatedAt: _at, updatedBy: _by, ...rest }: JsonEventResultTask) => rest
+const withoutProvenance = <T extends StationScopedTask>({ updatedAt: _at, updatedBy: _by, ...rest }: T) => rest
 const byIndex = (a: { index: number }, b: { index: number }) => a.index - b.index
 
 /** Whether two rounds say the same thing about one post, ignoring who recorded it and when. */
-export const sameStationTasks = (
-  a: readonly JsonEventResultTask[] | undefined,
-  b: readonly JsonEventResultTask[] | undefined,
+export const sameStationTasks = <T extends StationScopedTask>(
+  a: readonly T[] | undefined,
+  b: readonly T[] | undefined,
   stationId: string
 ): boolean =>
   !objectsDiffer(
@@ -313,11 +322,8 @@ export const sameStationTasks = (
  * Posts are scored independently, so a station secretary submitting their own post must not carry away
  * the scores another post already recorded for the same dog.
  */
-export const mergeStationTasks = (
-  stored: readonly JsonEventResultTask[] | undefined,
-  submitted: readonly JsonEventResultTask[] | undefined,
+export const mergeStationTasks = <T extends StationScopedTask>(
+  stored: readonly T[] | undefined,
+  submitted: readonly T[] | undefined,
   stationId: string
-): JsonEventResultTask[] => [
-  ...(stored ?? []).filter((task) => task.stationId !== stationId),
-  ...stationTasks(submitted, stationId),
-]
+): T[] => [...(stored ?? []).filter((task) => task.stationId !== stationId), ...stationTasks(submitted, stationId)]

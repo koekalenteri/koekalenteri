@@ -75,6 +75,16 @@ export interface JsonEventResultTask {
 }
 
 /**
+ * Client-side shapes. `http` revives any ISO string into a `Date` by the value's own shape rather than
+ * by field name, so `updatedAt` really is a `Date` once a result has crossed the wire — the same reason
+ * `paidAt` and `refundAt` are mapped.
+ */
+type EventResultTask = Replace<JsonEventResultTask, 'updatedAt', Date>
+export type EventResult = Replace<Omit<JsonEventResult, 'tasks'>, 'updatedAt', Date> & {
+  tasks?: EventResultTask[]
+}
+
+/**
  * The outcome a secretary records for this event. Distinct from `results` (prior results the registrant
  * claims) and `qualifyingResults` (server-computed prior history) — both of those describe the dog's
  * past, not what it did here.
@@ -221,6 +231,7 @@ export interface Registration
       JsonRegistration,
       | 'dates'
       | 'dog'
+      | 'eventResult'
       | 'invitationAttachmentUpdatedAt'
       | 'paidAt'
       | 'qualifyingResults'
@@ -232,6 +243,7 @@ export interface Registration
     DbRecord {
   dates: RegistrationDate[]
   dog: Dog
+  eventResult?: EventResult
   paidAt?: Date
   refundAt?: Date
   qualifyingResults: QualifyingResult[]
