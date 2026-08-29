@@ -258,6 +258,7 @@ export type EventProgressStep =
   | Exclude<ConfirmedEventStates, 'completed'>
   | 'confirmed_entryOpen'
   | 'startListPublished'
+  | 'resultsPublished'
 type EventProgressPhase = EventProgressStep | 'confirmed_entryClosed'
 
 export const EVENT_PROGRESS_PHASES: readonly EventProgressStep[] = [
@@ -268,6 +269,7 @@ export const EVENT_PROGRESS_PHASES: readonly EventProgressStep[] = [
   'startListPublished',
   'started',
   'ended',
+  'resultsPublished',
 ]
 
 const getProgressPhaseIndex = (phase: EventProgressPhase | 'completed'): number => {
@@ -324,9 +326,19 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
   const startListActionable =
     legacyStartListPublished || publishableStartListClasses.length > 0 || publishedStartListClasses.length > 0
   const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
+
+  // The results step, mirroring the start list's. Unlike it there is no legacy default: a result is
+  // published only where something says so, so an event that never gets here simply stops at 'ended'.
+  const publishedResultsClasses = startListClasses.filter((eventClass) => isResultsPublishedForClass(event, eventClass))
+  const resultsActionable = startListClasses.some((eventClass) =>
+    canPublishResults(event.classes.find((item) => item.class === eventClass)?.state ?? event.state)
+  )
+  const resultsCompleted = resultsActionable && publishedResultsClasses.length === startListClasses.length
+
   const phaseIndex = Math.max(
     statePhaseIndex,
     startListCompleted ? getProgressPhaseIndex('startListPublished') : -1,
+    resultsCompleted ? getProgressPhaseIndex('resultsPublished') : -1,
     temporalPhaseIndex
   )
   const reachedPhaseIndex = Math.max(
@@ -336,7 +348,8 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
   )
 
   let phase: EventProgressPhase = 'confirmed'
-  if (phaseIndex >= getProgressPhaseIndex('ended')) phase = 'ended'
+  if (phaseIndex >= getProgressPhaseIndex('resultsPublished')) phase = 'resultsPublished'
+  else if (phaseIndex >= getProgressPhaseIndex('ended')) phase = 'ended'
   else if (phaseIndex >= getProgressPhaseIndex('started')) phase = 'started'
   else if (phaseIndex >= getProgressPhaseIndex('startListPublished')) phase = 'startListPublished'
   else if (phaseIndex >= getProgressPhaseIndex('invited')) phase = 'invited'
@@ -350,8 +363,11 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     entryStarted,
     eventClasses,
     phase,
+    publishedResultsClasses,
     publishedStartListClasses,
     reachedPhaseIndex,
+    resultsActionable,
+    resultsCompleted,
     startListActionable,
     startListClasses,
     startListCompleted,

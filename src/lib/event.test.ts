@@ -16,6 +16,7 @@ import {
   eventRegistrationDateKey,
   getEventClassesByDays,
   getEventDays,
+  getEventProgress,
   getEventProgressPhase,
   getEventSeason,
   getEventStateForClass,
@@ -1144,5 +1145,35 @@ describe('publishing results', () => {
         getResultsPublishedClassMap({ classes: [{ class: 'ALO' }, { class: 'AVO' }], resultsPublished: { ALO: true } })
       ).toEqual({ ALO: true, AVO: false })
     })
+  })
+})
+
+describe('the results step in the progress', () => {
+  const ended = {
+    classes: [
+      { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+      { class: 'AVO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+    ],
+    endDate: new Date('2026-09-12'),
+    entryEndDate: new Date('2026-09-01'),
+    entryStartDate: new Date('2026-08-01'),
+    startDate: new Date('2026-09-12'),
+    startListPublished: true,
+    state: 'ended' as const,
+  } as ConfirmedEvent
+
+  const after = new Date('2026-09-20')
+
+  it('stops at ended while any class is unpublished', () => {
+    // No legacy default here: an event that never publishes simply never reaches the step.
+    expect(getEventProgress(ended, after).phase).toBe('ended')
+    expect(getEventProgress({ ...ended, resultsPublished: { ALO: true } }, after).phase).toBe('ended')
+  })
+
+  it('reaches the results step once every class is published', () => {
+    const published = { ...ended, resultsPublished: { ALO: true, AVO: true } }
+
+    expect(getEventProgress(published, after).phase).toBe('resultsPublished')
+    expect(getEventProgress(published, after).resultsCompleted).toBe(true)
   })
 })
