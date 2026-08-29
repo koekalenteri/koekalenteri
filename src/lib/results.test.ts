@@ -6,9 +6,12 @@ import {
   deriveNowtResult,
   eventResultPrefix,
   formatEventResult,
+  mergeStationTasks,
   nowtTotals,
   resolveEventResult,
   sameEventResult,
+  sameStationTasks,
+  stationVersion,
   taskEntryCeiling,
   taskMaxPoints,
   toScoredTasks,
@@ -380,5 +383,74 @@ describe('sameEventResult', () => {
   it('treats a missing result as different from any result', () => {
     expect(sameEventResult(undefined, result('x', 'a'))).toBe(false)
     expect(sameEventResult(undefined, undefined)).toBe(true)
+  })
+})
+
+describe('per-post entry', () => {
+  const at = (stationId: string, index: number, points: number, updatedAt: string): JsonEventResultTask => ({
+    index,
+    points,
+    stationId,
+    updatedAt,
+    updatedBy: 'joku',
+  })
+
+  const stored = [at('post-1', 0, 17, '2026-09-12T10:00:00.000Z'), at('post-2', 0, 18, '2026-09-12T11:00:00.000Z')]
+
+  describe('mergeStationTasks', () => {
+    it('replaces one post and leaves the rest of the round alone', () => {
+      const merged = mergeStationTasks(stored, [at('post-1', 0, 12, '2026-09-12T12:00:00.000Z')], 'post-1')
+
+      expect(merged).toEqual([
+        at('post-2', 0, 18, '2026-09-12T11:00:00.000Z'),
+        at('post-1', 0, 12, '2026-09-12T12:00:00.000Z'),
+      ])
+    })
+
+    it('drops tasks submitted for a post the submission does not cover', () => {
+      // A post may only speak for itself, however the client filled the payload.
+      const merged = mergeStationTasks(stored, [at('post-2', 0, 1, 'x'), at('post-3', 0, 20, 'x')], 'post-3')
+
+      expect(merged.map((task) => [task.stationId, task.points])).toEqual([
+        ['post-1', 17],
+        ['post-2', 18],
+        ['post-3', 20],
+      ])
+    })
+
+    it('adds a post that had nothing stored yet', () => {
+      expect(mergeStationTasks(undefined, [at('post-1', 0, 17, 'x')], 'post-1')).toHaveLength(1)
+    })
+  })
+
+  describe('stationVersion', () => {
+    it("reports the latest write among that post's tasks", () => {
+      const twoTasks = [at('post-1', 0, 9, '2026-09-12T10:00:00.000Z'), at('post-1', 1, 8, '2026-09-12T12:00:00.000Z')]
+
+      expect(stationVersion(twoTasks, 'post-1')).toBe('2026-09-12T12:00:00.000Z')
+    })
+
+    it('is unaware of other posts, so their saves cannot make this one look stale', () => {
+      expect(stationVersion(stored, 'post-1')).toBe('2026-09-12T10:00:00.000Z')
+    })
+
+    it('has no version for a post nothing has scored', () => {
+      expect(stationVersion(stored, 'post-9')).toBeUndefined()
+    })
+  })
+
+  describe('sameStationTasks', () => {
+    it('ignores who recorded a score and when', () => {
+      expect(sameStationTasks(stored, [at('post-1', 0, 17, 'much later')], 'post-1')).toBe(true)
+    })
+
+    it('sees a different score', () => {
+      expect(sameStationTasks(stored, [at('post-1', 0, 12, 'x')], 'post-1')).toBe(false)
+    })
+
+    it('compares only the post in question', () => {
+      // Post 2 differs wildly, but this is a post 1 submission.
+      expect(sameStationTasks(stored, [at('post-1', 0, 17, 'x'), at('post-2', 0, 0, 'x')], 'post-1')).toBe(true)
+    })
   })
 })

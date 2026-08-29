@@ -1,6 +1,12 @@
 import type { SubmittedEventResult } from '../../lib/results'
-import type { JsonConfirmedEvent, JsonEventResult, JsonRegistration, Patch } from '../../types'
-import { resolveEventResult, sameEventResult } from '../../lib/results'
+import type { JsonConfirmedEvent, JsonEventResult, JsonEventResultTask, JsonRegistration, Patch } from '../../types'
+import {
+  mergeStationTasks,
+  resolveEventResult,
+  sameEventResult,
+  sameStationTasks,
+  stationVersion,
+} from '../../lib/results'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
@@ -13,8 +19,15 @@ interface ResultSubmission {
   id: string
   eventResult: SubmittedEventResult
   /**
-   * The `updatedAt` of the result this edit was made against, so a second writer can be told apart from
-   * the same writer trying again. Absent when the client believed nothing was stored yet.
+   * Scopes the submission to one post. A station secretary scores their own post while the others are
+   * being scored in parallel, so their save replaces that post's tasks and leaves the rest of the round
+   * as stored. Absent for the event secretary's whole-round view.
+   */
+  stationId?: string
+  /**
+   * The version this edit was made against, so a second writer can be told apart from the same writer
+   * trying again. Scoped to the post when `stationId` is set — a whole-result version would go stale
+   * every time any other post saved. Absent when the client believed nothing was stored yet.
    */
   basedOn?: string
 }
@@ -22,9 +35,21 @@ interface ResultSubmission {
 /** A dog whose stored result was written by someone else and disagrees with this submission. */
 interface EventResultConflict {
   id: string
+  /** Present when only one post is in dispute, so the rest of the round need not be re-entered. */
+  stationId?: string
   stored: JsonEventResult
   submitted: JsonEventResult
 }
+
+/**
+ * Who recorded a task and when. Stamped here rather than taken from the client: it decides what counts
+ * as a competing edit, so it must come from the server that accepted the write.
+ */
+const stampProvenance = (
+  tasks: JsonEventResultTask[] | undefined,
+  updatedAt: string,
+  updatedBy: string
+): JsonEventResultTask[] | undefined => tasks?.map((task) => ({ ...task, updatedAt, updatedBy }))
 
 const isSubmission = (value: unknown): value is ResultSubmission =>
   typeof value === 'object' && value !== null && typeof (value as ResultSubmission).id === 'string'
@@ -45,7 +70,8 @@ const resolveFor = (
   confirmedEvent: JsonConfirmedEvent,
   registration: JsonRegistration,
   submitted: SubmittedEventResult,
-  username: string
+  updatedAt: string,
+  updatedBy: string
 ): JsonEventResult => {
   const eventClass = registration.class ?? undefined
   const classStations = confirmedEvent.classes?.find((item) => item.class === eventClass)?.stations
@@ -57,8 +83,8 @@ const resolveFor = (
       eventType: confirmedEvent.eventType,
       stations: confirmedEvent.stations,
     }),
-    updatedAt: new Date().toISOString(),
-    updatedBy: username,
+    updatedAt,
+    updatedBy,
   }
 }
 
@@ -75,6 +101,9 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
   const registrations = await getRegistrationsByEventId(eventId)
 
+  // One timestamp for the batch, so every task saved together shares a version.
+  const timestamp = new Date().toISOString()
+
   const patches: Patch<JsonRegistration>[] = []
   const saved: string[] = []
   const unchanged: string[] = []
@@ -85,23 +114,46 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
     if (!registration) throw new LambdaError(404, `Registration '${submission.id}' not found`)
 
     const stored = registration.eventResult
-    const eventResult = resolveFor(confirmedEvent, registration, submission.eventResult, user.name)
+    const { stationId } = submission
+    const submittedTasks = stampProvenance(submission.eventResult.tasks, timestamp, user.name)
 
     // A retry from the field is the common case, not an edge case: the venue's connection drops, the
-    // secretary saves again, and the first attempt turns out to have landed. That reads as already
-    // stored rather than as someone else's competing edit.
-    if (sameEventResult(stored, eventResult)) {
+    // secretary saves again, and the first attempt turns out to have landed. Comparing content rather
+    // than version makes that read as already stored, not as someone else's competing edit.
+    const alreadyStored = stationId
+      ? sameStationTasks(stored?.tasks, submittedTasks, stationId)
+      : sameEventResult(stored, resolveFor(confirmedEvent, registration, submission.eventResult, timestamp, user.name))
+
+    if (alreadyStored) {
       unchanged.push(submission.id)
       continue
     }
 
-    // Only a genuinely different result written by someone else is a conflict. It is handed back for a
-    // person to resolve, because the two versions disagree about what the dog did and nothing here can
-    // tell which is right.
-    if (stored && stored.updatedAt !== submission.basedOn) {
-      conflicts.push({ id: submission.id, stored, submitted: eventResult })
+    // Only a genuinely different result written by someone else is a conflict. Scoped to the post when
+    // the submission is: two stations scoring the same dog touch different tasks and must not collide.
+    const storedVersion = stationId ? stationVersion(stored?.tasks, stationId) : stored?.updatedAt
+
+    if (storedVersion && storedVersion !== submission.basedOn) {
+      conflicts.push({
+        id: submission.id,
+        ...(stationId ? { stationId } : {}),
+        stored: stored as JsonEventResult,
+        submitted: resolveFor(confirmedEvent, registration, submission.eventResult, timestamp, user.name),
+      })
       continue
     }
+
+    // Merge rather than replace, or a station secretary's save carries away the scores another post
+    // already recorded for the same dog.
+    const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, stationId) : submittedTasks
+
+    const eventResult = resolveFor(
+      confirmedEvent,
+      registration,
+      { ...submission.eventResult, tasks },
+      timestamp,
+      user.name
+    )
 
     await updateRegistrationField(eventId, submission.id, 'eventResult', eventResult)
     await audit({

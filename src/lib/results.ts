@@ -267,3 +267,57 @@ export const sameEventResult = (a?: JsonEventResult, b?: JsonEventResult): boole
 
   return !objectsDiffer(left, right)
 }
+
+/** The tasks belonging to one post. */
+const stationTasks = (tasks: readonly JsonEventResultTask[] | undefined, stationId: string): JsonEventResultTask[] =>
+  (tasks ?? []).filter((task) => task.stationId === stationId)
+
+/**
+ * The latest write among a post's tasks — the version a station-scoped edit is made against.
+ *
+ * Provenance is tracked per post rather than per result because posts are scored in parallel. A whole-
+ * result version would go stale every time any other post saved, and every station's next save would
+ * look like a conflict with work it never touched.
+ */
+export const stationVersion = (
+  tasks: readonly JsonEventResultTask[] | undefined,
+  stationId: string
+): string | undefined => {
+  const own = stationTasks(tasks, stationId)
+
+  return own.length
+    ? own
+        .map((task) => task.updatedAt)
+        .sort()
+        .at(-1)
+    : undefined
+}
+
+const withoutProvenance = ({ updatedAt: _at, updatedBy: _by, ...rest }: JsonEventResultTask) => rest
+const byIndex = (a: { index: number }, b: { index: number }) => a.index - b.index
+
+/** Whether two rounds say the same thing about one post, ignoring who recorded it and when. */
+export const sameStationTasks = (
+  a: readonly JsonEventResultTask[] | undefined,
+  b: readonly JsonEventResultTask[] | undefined,
+  stationId: string
+): boolean =>
+  !objectsDiffer(
+    stationTasks(a, stationId).map(withoutProvenance).sort(byIndex),
+    stationTasks(b, stationId).map(withoutProvenance).sort(byIndex)
+  )
+
+/**
+ * Replace one post's tasks and leave the rest of the round as stored.
+ *
+ * Posts are scored independently, so a station secretary submitting their own post must not carry away
+ * the scores another post already recorded for the same dog.
+ */
+export const mergeStationTasks = (
+  stored: readonly JsonEventResultTask[] | undefined,
+  submitted: readonly JsonEventResultTask[] | undefined,
+  stationId: string
+): JsonEventResultTask[] => [
+  ...(stored ?? []).filter((task) => task.stationId !== stationId),
+  ...stationTasks(submitted, stationId),
+]

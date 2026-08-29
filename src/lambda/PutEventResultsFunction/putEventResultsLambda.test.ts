@@ -275,4 +275,196 @@ describe('putEventResultsLambda', () => {
       )
     })
   })
+
+  describe('parallel entry by post', () => {
+    const scoredAt = (stationId: string, points: number, updatedAt: string, updatedBy: string) => ({
+      index: 0,
+      points,
+      stationId,
+      updatedAt,
+      updatedBy,
+    })
+
+    const withStored = (...tasks: ReturnType<typeof scoredAt>[]) =>
+      mockGetRegistrationsByEventId.mockResolvedValue([
+        {
+          ...registration('reg-1'),
+          eventResult: { tasks, updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Rasti 1' },
+        },
+      ])
+
+    it("keeps another post's scores when one post saves its own", async () => {
+      withStored(scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1'))
+
+      await putEventResultsLambda(
+        apiEvent([
+          { eventResult: { tasks: [{ index: 0, points: 18, stationId: 'post-3' }] }, id: 'reg-1', stationId: 'post-3' },
+        ])
+      )
+
+      const stored = mockUpdateRegistrationField.mock.calls[0][3]
+      expect(stored.tasks).toEqual([
+        expect.objectContaining({ points: 17, stationId: 'post-1' }),
+        expect.objectContaining({ points: 18, stationId: 'post-3' }),
+      ])
+      expect(stored.points).toBe(35)
+    })
+
+    it('does not call two posts scoring the same dog a conflict', async () => {
+      // Post 3 saved last, so the whole result is newer than anything post 1 ever saw. Versioning the
+      // result rather than the post would reject post 1's first save as stale.
+      withStored(scoredAt('post-3', 18, '2026-09-12T11:00:00.000Z', 'Rasti 3'))
+
+      await putEventResultsLambda(
+        apiEvent([
+          { eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1', stationId: 'post-1' },
+        ])
+      )
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      const [, body] = mockResponse.mock.calls[0]
+      expect(body.saved).toEqual(['reg-1'])
+      expect(body.conflicts).toEqual([])
+    })
+
+    it('reports a conflict only when the same post was rescored by someone else', async () => {
+      withStored(scoredAt('post-1', 17, '2026-09-12T11:00:00.000Z', 'Joku muu'))
+
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            basedOn: '2026-09-12T10:00:00.000Z',
+            eventResult: { tasks: [{ index: 0, points: 12, stationId: 'post-1' }] },
+            id: 'reg-1',
+            stationId: 'post-1',
+          },
+        ])
+      )
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+
+      const [status, body] = mockResponse.mock.calls[0]
+      expect(status).toBe(409)
+      // The post is named, so only that post has to be re-entered.
+      expect(body.conflicts[0]).toMatchObject({ id: 'reg-1', stationId: 'post-1' })
+    })
+
+    it('treats a post resending what it already stored as nothing new', async () => {
+      withStored(scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1'))
+
+      await putEventResultsLambda(
+        apiEvent([
+          { eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1', stationId: 'post-1' },
+        ])
+      )
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      const [, body] = mockResponse.mock.calls[0]
+      expect(body.unchanged).toEqual(['reg-1'])
+    })
+
+    it("ignores tasks a post submits for somebody else's post", async () => {
+      withStored(scoredAt('post-2', 20, '2026-09-12T10:00:00.000Z', 'Rasti 2'))
+
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: {
+              tasks: [
+                { index: 0, points: 17, stationId: 'post-1' },
+                { index: 0, points: 1, stationId: 'post-2' },
+              ],
+            },
+            id: 'reg-1',
+            stationId: 'post-1',
+          },
+        ])
+      )
+
+      // Post 2 keeps its own 20; the stray task is dropped rather than overwriting it.
+      expect(mockUpdateRegistrationField.mock.calls[0][3].tasks).toEqual([
+        expect.objectContaining({ points: 20, stationId: 'post-2' }),
+        expect.objectContaining({ points: 17, stationId: 'post-1' }),
+      ])
+    })
+  })
+
+  describe('one user entering a whole round, dog by dog', () => {
+    const scoredAt = (stationId: string, points: number, updatedAt: string, updatedBy: string) => ({
+      index: 0,
+      points,
+      stationId,
+      updatedAt,
+      updatedBy,
+    })
+
+    it('stores every post in one go', async () => {
+      await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+      expect(mockUpdateRegistrationField.mock.calls[0][3].tasks).toHaveLength(4)
+      expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({ points: 65, result: 'AVO1' })
+    })
+
+    it('builds on what a post already recorded, when working from the current version', async () => {
+      mockGetRegistrationsByEventId.mockResolvedValue([
+        {
+          ...registration('reg-1'),
+          eventResult: {
+            tasks: [scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1')],
+            updatedAt: '2026-09-12T10:00:00.000Z',
+            updatedBy: 'Rasti 1',
+          },
+        },
+      ])
+
+      await putEventResultsLambda(
+        apiEvent([{ basedOn: '2026-09-12T10:00:00.000Z', eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }])
+      )
+
+      expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({ points: 65, result: 'AVO1' })
+    })
+
+    it('will not silently overwrite a post it never saw', async () => {
+      // A stale page believing nothing was stored must not wipe the post someone entered meanwhile.
+      mockGetRegistrationsByEventId.mockResolvedValue([
+        {
+          ...registration('reg-1'),
+          eventResult: {
+            tasks: [scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1')],
+            updatedAt: '2026-09-12T10:00:00.000Z',
+            updatedBy: 'Rasti 1',
+          },
+        },
+      ])
+
+      await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(1, 1, 1, 1) }, id: 'reg-1' }]))
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockResponse.mock.calls[0][0]).toBe(409)
+    })
+
+    it('mixes with per-post entry on the same dog', async () => {
+      // Whole round first, then one post rescored on its own.
+      await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+      const afterRound = mockUpdateRegistrationField.mock.calls[0][3]
+      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), eventResult: afterRound }])
+      mockUpdateRegistrationField.mockClear()
+
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            basedOn: afterRound.tasks[2].updatedAt,
+            eventResult: { tasks: [{ index: 0, points: 20, stationId: 'post-3' }] },
+            id: 'reg-1',
+            stationId: 'post-3',
+          },
+        ])
+      )
+
+      const afterPost = mockUpdateRegistrationField.mock.calls[0][3]
+      expect(afterPost.tasks).toHaveLength(4)
+      expect(afterPost.points).toBe(69)
+    })
+  })
 })
