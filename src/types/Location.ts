@@ -5,7 +5,7 @@
 export interface Location {
   /** kennelpiiri the municipality belongs to */
   district: string
-  /** KL number of the municipality */
+  /** KL number of the municipality, numbered within the kennelpiiri */
   id: number
   name: string
 }

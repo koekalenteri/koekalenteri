@@ -178,9 +178,12 @@ export type KLKennelpiiri = {
 }
 
 export type KLPaikkakunta = {
-  numero: number
+  kennelpiirinNumero: number
   kennelpiiri: string
+  /** Numbered within the kennelpiiri, so not unique across the whole list. */
+  paikkakuntaNumero: number
   paikkakunta: string
+  paikkakunta_SE?: string
 }
 
 export type KLYhdistys = {

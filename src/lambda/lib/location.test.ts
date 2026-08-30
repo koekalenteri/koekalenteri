@@ -27,21 +27,23 @@ describe('fetchLocations', () => {
     vi.restoreAllMocks()
   })
 
-  it('capitalizes, dedupes and sorts the municipalities', async () => {
+  // Espoo and Ähtäri share paikkakuntaNumero 1 because KL numbers them within the kennelpiiri:
+  // keying the collection by the number kept one municipality out of the whole country.
+  it('capitalizes, dedupes by name and sorts the municipalities', async () => {
     const { klapi, luePaikkakunnat } = createKlapi()
     luePaikkakunnat.mockResolvedValueOnce(
       klapiResult([
-        { kennelpiiri: 'UUDENMAAN KENNELPIIRI', numero: 2, paikkakunta: 'VANTAA' },
-        { kennelpiiri: 'POHJANMAAN KENNELPIIRI', numero: 3, paikkakunta: 'ÄHTÄRI' },
-        { kennelpiiri: 'UUDENMAAN KENNELPIIRI', numero: 1, paikkakunta: 'ESPOO' },
-        { kennelpiiri: 'UUDENMAAN KENNELPIIRI', numero: 1, paikkakunta: 'ESPOO' },
+        { kennelpiiri: 'UUDENMAAN KENNELPIIRI', kennelpiirinNumero: 2, paikkakunta: 'VANTAA', paikkakuntaNumero: 2 },
+        { kennelpiiri: 'POHJANMAAN KENNELPIIRI', kennelpiirinNumero: 5, paikkakunta: 'ÄHTÄRI', paikkakuntaNumero: 1 },
+        { kennelpiiri: 'UUDENMAAN KENNELPIIRI', kennelpiirinNumero: 2, paikkakunta: 'ESPOO', paikkakuntaNumero: 1 },
+        { kennelpiiri: 'UUDENMAAN KENNELPIIRI', kennelpiirinNumero: 2, paikkakunta: 'ESPOO', paikkakuntaNumero: 1 },
       ])
     )
 
     await expect(fetchLocations(klapi)).resolves.toEqual([
       { district: 'Uudenmaan Kennelpiiri', id: 1, name: 'Espoo' },
       { district: 'Uudenmaan Kennelpiiri', id: 2, name: 'Vantaa' },
-      { district: 'Pohjanmaan Kennelpiiri', id: 3, name: 'Ähtäri' },
+      { district: 'Pohjanmaan Kennelpiiri', id: 1, name: 'Ähtäri' },
     ])
     expect(luePaikkakunnat).toHaveBeenCalledTimes(1)
   })
@@ -56,8 +58,21 @@ describe('fetchLocations', () => {
       ])
     )
     luePaikkakunnat
-      .mockResolvedValueOnce(klapiResult([{ kennelpiiri: 'Uudenmaan kennelpiiri', numero: 1, paikkakunta: 'espoo' }]))
-      .mockResolvedValueOnce(klapiResult([{ kennelpiiri: 'Pohjanmaan kennelpiiri', numero: 3, paikkakunta: 'ähtäri' }]))
+      .mockResolvedValueOnce(
+        klapiResult([
+          { kennelpiiri: 'Uudenmaan kennelpiiri', kennelpiirinNumero: 10, paikkakunta: 'espoo', paikkakuntaNumero: 1 },
+        ])
+      )
+      .mockResolvedValueOnce(
+        klapiResult([
+          {
+            kennelpiiri: 'Pohjanmaan kennelpiiri',
+            kennelpiirinNumero: 20,
+            paikkakunta: 'ähtäri',
+            paikkakuntaNumero: 3,
+          },
+        ])
+      )
 
     await expect(fetchLocations(klapi)).resolves.toEqual([
       { district: 'Uudenmaan Kennelpiiri', id: 1, name: 'Espoo' },
@@ -85,7 +100,11 @@ describe('fetchLocations', () => {
       ])
     )
     luePaikkakunnat
-      .mockResolvedValueOnce(klapiResult([{ kennelpiiri: 'Uudenmaan kennelpiiri', numero: 1, paikkakunta: 'espoo' }]))
+      .mockResolvedValueOnce(
+        klapiResult([
+          { kennelpiiri: 'Uudenmaan kennelpiiri', kennelpiirinNumero: 10, paikkakunta: 'espoo', paikkakuntaNumero: 1 },
+        ])
+      )
       .mockResolvedValueOnce(klapiResult(undefined, 500, 'oh no'))
 
     await expect(fetchLocations(klapi)).resolves.toBeUndefined()

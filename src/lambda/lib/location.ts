@@ -25,22 +25,28 @@ interface LocationSnapshot {
 
 const mapLocation = (item: KLPaikkakunta): Location => ({
   district: capitalize(item.kennelpiiri),
-  id: item.numero,
+  id: item.paikkakuntaNumero,
   name: capitalize(item.paikkakunta),
 })
 
-const collectLocations = (entries: Map<number, Location>, items: KLPaikkakunta[]) => {
+/**
+ * Keyed by name, not by number: KL numbers the municipalities within the kennelpiiri, so the same
+ * number comes back once per district. The name is the identity the option list needs anyway, and
+ * a municipality listed under two districts is one option to the person filling in the form.
+ */
+const collectLocations = (entries: Map<string, Location>, items: KLPaikkakunta[]) => {
   for (const item of items) {
     if (!item.paikkakunta) continue
     const location = mapLocation(item)
-    if (!entries.has(location.id)) entries.set(location.id, location)
+    const key = location.name.toLocaleLowerCase('fi')
+    if (!entries.has(key)) entries.set(key, location)
   }
 }
 
 const sortLocations = (locations: Location[]) => locations.sort((a, b) => a.name.localeCompare(b.name, 'fi'))
 
 export const fetchLocations = async (klapi: LocationApi): Promise<Location[] | undefined> => {
-  const entries = new Map<number, Location>()
+  const entries = new Map<string, Location>()
 
   // KennelpiirinNumero is optional in the KL API, but the district-less call has never been made in
   // anger. When it comes back empty, fall back to looping the districts the way the official
