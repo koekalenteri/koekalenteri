@@ -8,6 +8,10 @@ type StoreName = typeof KEYSTORE | typeof DATASETS
 
 let dbPromise: Promise<IDBDatabase> | undefined
 
+/** `request.error` is nullable, but a promise should always reject with an `Error`. */
+const requestError = (request: IDBRequest | IDBOpenDBRequest, action: string): Error =>
+  request.error ?? new Error(`indexedDB ${action} failed`)
+
 const openDatabase = (): Promise<IDBDatabase> => {
   if (typeof indexedDB === 'undefined') return Promise.reject(new Error('indexedDB is not available'))
   if (dbPromise) return dbPromise
@@ -21,7 +25,7 @@ const openDatabase = (): Promise<IDBDatabase> => {
       if (!db.objectStoreNames.contains(DATASETS)) db.createObjectStore(DATASETS)
     }
 
-    request.onerror = () => reject(request.error)
+    request.onerror = () => reject(requestError(request, 'open'))
     request.onsuccess = () => resolve(request.result)
   })
 
@@ -30,7 +34,7 @@ const openDatabase = (): Promise<IDBDatabase> => {
 
 const requestToPromise = <T>(request: IDBRequest<T>): Promise<T> =>
   new Promise((resolve, reject) => {
-    request.onerror = () => reject(request.error)
+    request.onerror = () => reject(requestError(request, 'request'))
     request.onsuccess = () => resolve(request.result)
   })
 
@@ -54,7 +58,7 @@ export const idbDeleteDatabase = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.deleteDatabase(DB_NAME)
 
-    request.onerror = () => reject(request.error)
+    request.onerror = () => reject(requestError(request, 'deleteDatabase'))
     request.onsuccess = () => resolve()
   })
 }
