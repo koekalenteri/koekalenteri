@@ -1,6 +1,6 @@
 import type { Dog, EventClassRequirement, EventRequirement, EventResultRequirementsByDate, Registration } from './types'
 import { tz } from '@date-fns/tz'
-import { parseISO } from 'date-fns'
+import { parseISO } from 'date-fns/parseISO'
 import { TIME_ZONE } from './i18n/dates'
 import { keysOf } from './lib/typeGuards'
 import { isModernFinnishRegNo } from './lib/validation'

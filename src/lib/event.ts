@@ -18,17 +18,15 @@ import type {
   SanitizedPublicDogEvent,
 } from '../types'
 import { tz } from '@date-fns/tz'
-import {
-  addDays,
-  differenceInDays,
-  eachDayOfInterval,
-  isSameDay,
-  isValid,
-  nextSaturday,
-  parseISO,
-  sub,
-  subDays,
-} from 'date-fns'
+import { addDays } from 'date-fns/addDays'
+import { differenceInDays } from 'date-fns/differenceInDays'
+import { eachDayOfInterval } from 'date-fns/eachDayOfInterval'
+import { isSameDay } from 'date-fns/isSameDay'
+import { isValid } from 'date-fns/isValid'
+import { nextSaturday } from 'date-fns/nextSaturday'
+import { parseISO } from 'date-fns/parseISO'
+import { sub } from 'date-fns/sub'
+import { subDays } from 'date-fns/subDays'
 import { formatDate, TIME_ZONE, zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isConfirmedEvent } from './typeGuards'
 import { unique, uniqueDate } from './utils'

@@ -5,7 +5,7 @@ import type {
   QualifyingResults,
   TestResult,
 } from './types'
-import { subYears } from 'date-fns'
+import { subYears } from 'date-fns/subYears'
 import { zonedEndOfDay } from './i18n/dates'
 import { NOME_B_CH_qualificationStartDate2023 } from './lib/registration'
 

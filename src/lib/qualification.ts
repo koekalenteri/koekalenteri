@@ -9,7 +9,7 @@ import type {
   Registration,
   TestResult,
 } from '../types'
-import { startOfYear } from 'date-fns'
+import { startOfYear } from 'date-fns/startOfYear'
 import { getRequirements } from '../rules'
 import { getNextClass, isRegistrationClass } from './registration'
 

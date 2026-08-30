@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import type { BreedCode, DeepPartial, Dog, DogGender } from '../types'
-import { differenceInMinutes } from 'date-fns'
+import { differenceInMinutes } from 'date-fns/differenceInMinutes'
 
 /**
  * Determines if a dog's data should be allowed to be refreshed

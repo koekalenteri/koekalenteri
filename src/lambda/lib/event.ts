@@ -11,7 +11,7 @@ import type {
   Registration,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
-import { addDays } from 'date-fns'
+import { addDays } from 'date-fns/addDays'
 import { formatDate, zonedStartOfDay } from '../../i18n/dates'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, hasPriority } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'

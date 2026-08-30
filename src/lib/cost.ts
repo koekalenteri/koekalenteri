@@ -12,7 +12,7 @@ import type {
   MinimalRegistrationForMembership,
   PublicConfirmedEvent,
 } from '../types'
-import { addDays } from 'date-fns'
+import { addDays } from 'date-fns/addDays'
 import { isMember } from './registration'
 
 export const getEarlyBirdEndDate = (

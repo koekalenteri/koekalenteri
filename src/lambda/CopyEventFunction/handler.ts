@@ -1,4 +1,6 @@
-import { addDays, differenceInDays, parseISO } from 'date-fns'
+import { addDays } from 'date-fns/addDays'
+import { differenceInDays } from 'date-fns/differenceInDays'
+import { parseISO } from 'date-fns/parseISO'
 import { nanoid } from 'nanoid'
 import { getEventSeason } from '../../lib/event'
 import { saveEvent } from '../lib/event'

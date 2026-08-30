@@ -1,6 +1,6 @@
 import type { JsonDogEvent, Organizer } from '../../types'
 import type { KLKoetapahtuma } from '../types/KLAPI'
-import { addDays } from 'date-fns'
+import { addDays } from 'date-fns/addDays'
 import { zonedDateString } from '../../i18n/dates'
 import { isEventOver, OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'

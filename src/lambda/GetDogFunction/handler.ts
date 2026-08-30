@@ -1,5 +1,5 @@
 import type { BreedCode, JsonDog, JsonEventType, JsonTestResult } from '../../types'
-import { differenceInMinutes } from 'date-fns'
+import { differenceInMinutes } from 'date-fns/differenceInMinutes'
 import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
