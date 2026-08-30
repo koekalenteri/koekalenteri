@@ -73,9 +73,11 @@ export default function MoveToPositionDialog({ open, onClose, registration, posi
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{t('close')}</Button>
         <Button onClick={handleMove} variant="contained" disabled={saving}>
           {t('registration.moveToPositionDialog.moveToPosition')}
+        </Button>
+        <Button onClick={onClose} variant="outlined">
+          {t('close')}
         </Button>
       </DialogActions>
     </Dialog>
