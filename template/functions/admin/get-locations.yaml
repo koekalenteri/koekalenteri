@@ -9,6 +9,11 @@
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref LocationTable
+        # authorize() resolves the caller: the cognito link first, then the user record it points to.
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetLocations:
