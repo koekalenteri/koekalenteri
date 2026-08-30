@@ -78,11 +78,11 @@ export default function LoggedInUserMenu({ userName }: Props) {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={closeEdit} variant="outlined">
-              {t('cancel')}
-            </Button>
             <Button onClick={handleSave} variant="contained" disabled={saveDisabled}>
               {t('save')}
+            </Button>
+            <Button onClick={closeEdit} variant="outlined">
+              {t('cancel')}
             </Button>
           </DialogActions>
         </Dialog>

@@ -109,9 +109,15 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{t('cancel')}</Button>
-        <Button onClick={handleAdd} disabled={mode === 'optional' || key === 'custom' ? !descriptionFi.trim() : !key}>
+        <Button
+          onClick={handleAdd}
+          variant="contained"
+          disabled={mode === 'optional' || key === 'custom' ? !descriptionFi.trim() : !key}
+        >
           {t(mode === 'optional' ? 'costAddOptional' : 'costAdd')}
+        </Button>
+        <Button onClick={onClose} variant="outlined">
+          {t('cancel')}
         </Button>
       </DialogActions>
     </Dialog>

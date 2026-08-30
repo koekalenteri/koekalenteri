@@ -129,9 +129,11 @@ export default function MoveToGroupDialog({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{t('close')}</Button>
         <Button onClick={handleMove} variant="contained" disabled={saving || selectedGroup === currentGroupKey}>
           {t('registration.moveToGroupDialog.moveToGroup')}
+        </Button>
+        <Button onClick={onClose} variant="outlined">
+          {t('close')}
         </Button>
       </DialogActions>
     </Dialog>

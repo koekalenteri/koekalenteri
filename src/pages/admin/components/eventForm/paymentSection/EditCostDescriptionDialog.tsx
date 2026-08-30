@@ -61,9 +61,11 @@ export const EditCostDescriptionDialog = ({ open, costKey, initialDescriptions, 
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{t('cancel')}</Button>
-        <Button onClick={handleSave} disabled={!descriptionFi}>
+        <Button onClick={handleSave} variant="contained" disabled={!descriptionFi}>
           {t('save')}
+        </Button>
+        <Button onClick={onClose} variant="outlined">
+          {t('cancel')}
         </Button>
       </DialogActions>
     </Dialog>
