@@ -65,9 +65,11 @@ export default function InternalNotesDialog({ open, onClose, registration, onSav
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{t('cancel')}</Button>
         <Button onClick={handleSave} variant="contained" disabled={saving}>
           {t('save')}
+        </Button>
+        <Button onClick={onClose} variant="outlined">
+          {t('cancel')}
         </Button>
       </DialogActions>
     </Dialog>
