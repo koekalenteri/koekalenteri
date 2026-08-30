@@ -50,11 +50,32 @@
   },
   "overrides": [
     {
+      "includes": ["src/lambda/**", "src/lib/**", "src/i18n/**", "src/rules.ts", "src/rules_ch.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "date-fns": {
+                    "allowImportNames": ["Locale"],
+                    "message": "Import date-fns by module path instead: date-fns/addDays. The lambdas are bundled with packages: 'external', so a bare specifier is resolved from the dependencies layer at runtime and pulls in the whole 245-export index on every cold start -- 508 ms against 8 ms for one module. See KOE-6."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/*.test.ts", "**/*.test.tsx"],
       "linter": {
         "rules": {
           "style": {
-            "noNonNullAssertion": "off"
+            "noNonNullAssertion": "off",
+            "noRestrictedImports": "off"
           }
         }
       }
