@@ -357,6 +357,33 @@ describe('useWebSocket', () => {
     expect(result.current.viewers).toEqual([])
   })
 
+  it('should not patch a public event from an unscoped acknowledgement', async () => {
+    const event = { entries: 1, id: 'event-1', name: 'Public Name' }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(Provider, {
+        children,
+        initializeState: ({ set }: TestStore) => {
+          set(eventsAtom, [event as any])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return { events: useAtomValue(eventsAtom) }
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', subscribed: true }),
+      })
+    })
+
+    await waitFor(() => expect(result.current.events).toEqual([event]))
+  })
+
   it('should authenticate over websocket message when token is available', async () => {
     renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
 

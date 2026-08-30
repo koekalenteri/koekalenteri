@@ -516,7 +516,10 @@ export const useWebSocket = () => {
         return
       }
 
-      if (scope === 'public:event-patch' || !scope) {
+      // Only an explicitly scoped message is a patch. Command acknowledgements arrive on the same
+      // socket and carry an eventId with no scope -- `{ eventId, subscribed: true }` from an event
+      // subscribe would otherwise be written into the public event.
+      if (scope === 'public:event-patch') {
         setPublicEvents(eventId, patch as Patch<PublicDogEvent>)
       }
     },

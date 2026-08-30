@@ -31,13 +31,24 @@
         - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
         - { LambdaArn: !GetAtt WsMessageFunction.Arn }
 
+  # Without a route response API Gateway discards whatever the integration returns, so every
+  # acknowledgement the client waits for -- authenticate, the 401/403 refusal, the participant's
+  # initial registration state -- was silently dropped. See KOE-1251.
   MessageDefaultRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref WebSocketApi
       RouteKey: $default
       AuthorizationType: NONE
+      RouteResponseSelectionExpression: $default
       Target: !Sub integrations/${MessageIntegration}
+
+  MessageDefaultRouteResponse:
+    Type: AWS::ApiGatewayV2::RouteResponse
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteId: !Ref MessageDefaultRoute
+      RouteResponseKey: $default
 
   MessagePermission:
     Type: AWS::Lambda::Permission
