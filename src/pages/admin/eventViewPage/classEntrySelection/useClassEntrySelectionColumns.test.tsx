@@ -380,12 +380,7 @@ describe('useClassEntrySectionColumns', () => {
     }
     expect(breedGetter(undefined, regWithoutBreed)).toBe('')
 
-    const regWithoutGender = {
-      ...registrationWithStaticDates,
-      dog: { ...registrationWithStaticDates.dog, gender: undefined },
-    }
-
-    expect(breedGetter(undefined, regWithoutGender)).toBe('')
+    // the abbreviation itself is covered by the breedAbbreviation tests in lib/dog.test.ts
   })
 
   it('should test the breed column with various breed codes and genders', () => {
@@ -415,10 +410,6 @@ describe('useClassEntrySectionColumns', () => {
       },
       {
         dog: { breedCode: undefined, gender: 'M' as const },
-        expected: '',
-      },
-      {
-        dog: { breedCode: '110' as const, gender: undefined },
         expected: '',
       },
       {

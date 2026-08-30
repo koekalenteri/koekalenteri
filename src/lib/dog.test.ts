@@ -1,5 +1,7 @@
+import type { BreedCode } from '../types'
 import { subMinutes } from 'date-fns'
-import { createDogUpdateFromFormValues, formatDogName, isValidDob, shouldAllowRefresh } from './dog'
+import { t } from 'i18next'
+import { breedAbbreviation, createDogUpdateFromFormValues, formatDogName, isValidDob, shouldAllowRefresh } from './dog'
 
 describe('dog utility functions', () => {
   describe('shouldAllowRefresh', () => {
@@ -52,6 +54,38 @@ describe('dog utility functions', () => {
 
     it('ignores a whitespace-only title', () => {
       expect(formatDogName({ name: 'Dog Name', titles: '  ' })).toBe('Dog Name')
+    })
+  })
+
+  describe('breedAbbreviation', () => {
+    it('returns the official abbreviation for a retriever breed', () => {
+      expect(breedAbbreviation(t, '122', 'M')).toBe('lbu')
+      expect(breedAbbreviation(t, '122', 'F')).toBe('lbn')
+    })
+
+    it('returns the SPKL abbreviation for a service dog breed', () => {
+      expect(breedAbbreviation(t, '166', 'M')).toBe('sp')
+      expect(breedAbbreviation(t, '15.3', 'F')).toBe('bpm')
+      expect(breedAbbreviation(t, '181.2')).toBe('ss')
+    })
+
+    it('derives an abbreviation from the breed name for breeds without an official one', () => {
+      expect(breedAbbreviation(t, '5', 'M')).toBe('coc')
+      expect(breedAbbreviation(t, '5', 'F')).toBe('coc')
+      expect(breedAbbreviation(t, '1', 'M')).toBe('poi')
+    })
+
+    it('derives an abbreviation when gender is not known', () => {
+      expect(breedAbbreviation(t, '122')).toBe('lab')
+      expect(breedAbbreviation(t, '5')).toBe('coc')
+    })
+
+    it('falls back to the breed code for an unknown breed', () => {
+      expect(breedAbbreviation(t, '99999' as unknown as BreedCode)).toBe('99999')
+    })
+
+    it('returns an empty string without a breed code', () => {
+      expect(breedAbbreviation(t)).toBe('')
     })
   })
 

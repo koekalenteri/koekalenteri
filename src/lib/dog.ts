@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type { BreedCode, DeepPartial, Dog, DogGender } from '../types'
 import { differenceInMinutes } from 'date-fns'
 
@@ -28,6 +29,34 @@ export function isValidDob(dob?: Date): boolean {
   }
   // Check if the date is the KL empty value (0001-01-01)
   return dob.getFullYear() > 1
+}
+
+/** How many leading characters of a breed name to use when the breed has no official abbreviation. */
+const DERIVED_BREED_ABBREVIATION_LENGTH = 3
+
+/**
+ * Short breed marker for start lists and other dense listings.
+ *
+ * The breedAbbr resource holds two kinds of official abbreviation: the retriever ones, which vary
+ * by sex ("lbu"/"lbn"), are objects keyed by gender, and SPKL's service dog ones, which do not,
+ * are plain strings. Unofficial events accept any breed, so for everything else (spaniels,
+ * pointers, ...) we derive a marker from the start of the breed name, which is unique enough in
+ * practice and at least readable, unlike the bare breed code.
+ */
+export function breedAbbreviation(t: TFunction, breedCode?: BreedCode, gender?: DogGender): string {
+  if (!breedCode) return ''
+
+  if (gender) {
+    const sexed: string = t(`${breedCode}.${gender}`, { defaultValue: '', ns: 'breedAbbr' })
+    if (sexed) return sexed
+  }
+
+  // returnObjects keeps the sex-specific entries from resolving to i18next's "returned an object" notice
+  const shared = t(breedCode, { defaultValue: '', ns: 'breedAbbr', returnObjects: true })
+  if (typeof shared === 'string' && shared) return shared
+
+  const name: string = t(breedCode, { defaultValue: '', ns: 'breed' })
+  return name ? name.slice(0, DERIVED_BREED_ABBREVIATION_LENGTH).toLowerCase() : breedCode
 }
 
 export function formatDogName(dog?: Pick<Dog, 'name' | 'titles'>): string {

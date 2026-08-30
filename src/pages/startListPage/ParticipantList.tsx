@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../i18n/dates'
 import { downloadXlsx } from '../../lib/client/xlsx'
-import { formatDogName } from '../../lib/dog'
+import { breedAbbreviation, formatDogName } from '../../lib/dog'
 import {
   eventRegistrationDateKey,
   isStartListAvailableForClass,
@@ -306,13 +306,7 @@ function formatClassJudges(event: PublicConfirmedEvent, eventClass: string, date
 function formatRegistration(reg: PublicRegistration, t: TFunction) {
   if (reg.cancelled) return `${reg.group.number}. PERUTTU`
 
-  const breed =
-    reg.dog.breedCode && reg.dog.gender
-      ? t(`${reg.dog.breedCode}.${reg.dog.gender}`, {
-          defaultValue: reg.dog.breedCode,
-          ns: 'breedAbbr',
-        })
-      : ''
+  const breed = breedAbbreviation(t, reg.dog.breedCode, reg.dog.gender)
   const ownerHandler = reg.ownerHandles ? `om. & ohj. ${reg.owner}` : `om. ${reg.owner}, ohj. ${reg.handler}`
   const dog = [breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')
   const sire = formatDogName(reg.dog.sire)

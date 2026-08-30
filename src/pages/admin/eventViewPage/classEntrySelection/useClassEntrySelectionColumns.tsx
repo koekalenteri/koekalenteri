@@ -13,6 +13,7 @@ import Tooltip from '@mui/material/Tooltip'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { breedAbbreviation } from '../../../../lib/dog'
 import { registrationDatesOutsideClass } from '../../../../lib/event'
 import {
   canRefund,
@@ -270,10 +271,7 @@ export function useClassEntrySelectionColumns(
         field: 'dob.breed',
         headerName: t('dog.breed'),
         minWidth: 56,
-        valueGetter: (_value, row) =>
-          row.dog?.breedCode && row.dog?.gender
-            ? t(`${row.dog.breedCode}.${row.dog.gender}`, { defaultValue: row.dog.breedCode, ns: 'breedAbbr' })
-            : '',
+        valueGetter: (_value, row) => breedAbbreviation(t, row.dog?.breedCode, row.dog?.gender),
         width: 56,
       },
       {

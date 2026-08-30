@@ -2,7 +2,7 @@ import type { PublicRegistration } from '../../types/Registration'
 import Box from '@mui/material/Box'
 import TableCell from '@mui/material/TableCell'
 import { useTranslation } from 'react-i18next'
-import { formatDogName } from '../../lib/dog'
+import { breedAbbreviation, formatDogName } from '../../lib/dog'
 import { StyledTableRow } from './StyledTableRow'
 
 interface RegistrationDetailsProps {
@@ -12,13 +12,7 @@ interface RegistrationDetailsProps {
 
 export const RegistrationDetails = ({ registration: reg, index }: RegistrationDetailsProps) => {
   const { t } = useTranslation()
-  const breed =
-    reg.dog.breedCode && reg.dog.gender
-      ? t(`${reg.dog.breedCode}.${reg.dog.gender}`, {
-          defaultValue: reg.dog.breedCode,
-          ns: 'breedAbbr',
-        })
-      : ''
+  const breed = breedAbbreviation(t, reg.dog.breedCode, reg.dog.gender)
   const ownerHandler = reg.ownerHandles ? `om. & ohj. ${reg.owner}` : `om. ${reg.owner}, ohj. ${reg.handler}`
   const sire = formatDogName(reg.dog.sire)
   const dam = formatDogName(reg.dog.dam)
