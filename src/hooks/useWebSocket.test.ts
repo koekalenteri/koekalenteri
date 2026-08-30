@@ -309,40 +309,40 @@ describe('useWebSocket', () => {
     expect(getUsers).toHaveBeenLastCalledWith('token-1', undefined, new Date('2024-01-03T00:00:00.000Z'))
   })
 
-  it('should expose public connection count from public scoped messages', () => {
-    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+  it('should keep the connection alive with a periodic ping', () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
 
     act(() => {
-      mockWebSocketInstance.onmessage?.({
-        data: JSON.stringify({ count: 2, scope: 'admin:connection-count' }),
-      })
+      mockWebSocketInstance.onopen?.({} as Event)
     })
-    expect(result.current.publicCount).toBe(0)
+
+    expect(mockWebSocketInstance.send).not.toHaveBeenCalledWith(JSON.stringify({ action: 'ping' }))
 
     act(() => {
-      mockWebSocketInstance.onmessage?.({
-        data: JSON.stringify({ count: 5, scope: 'public:connection-count' }),
-      })
+      vi.advanceTimersByTime(480_000)
     })
-    expect(result.current.publicCount).toBe(5)
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'ping' }))
   })
 
-  it('should expose admin connection count from admin scoped messages', () => {
-    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
+  it('should stop pinging once the connection closes', () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
 
     act(() => {
-      mockWebSocketInstance.onmessage?.({
-        data: JSON.stringify({ count: 5, scope: 'public:connection-count' }),
-      })
+      mockWebSocketInstance.onopen?.({} as Event)
+      mockWebSocketInstance.onclose?.({} as CloseEvent)
     })
-    expect(result.current.adminCount).toBe(0)
+    mockWebSocketInstance.send.mockClear()
 
     act(() => {
-      mockWebSocketInstance.onmessage?.({
-        data: JSON.stringify({ count: 2, scope: 'admin:connection-count' }),
-      })
+      vi.advanceTimersByTime(480_000 * 3)
     })
-    expect(result.current.adminCount).toBe(2)
+
+    expect(mockWebSocketInstance.send).not.toHaveBeenCalledWith(JSON.stringify({ action: 'ping' }))
   })
 
   it('should ignore subscribe acknowledgements without mutating viewer state', () => {

@@ -13,7 +13,7 @@ import {
 } from '../lib/ws/subscriptionService'
 
 interface WsMessage {
-  action?: 'authenticate' | 'subscribe' | 'unsubscribe'
+  action?: 'authenticate' | 'ping' | 'subscribe' | 'unsubscribe'
   channel?: 'admin' | 'event' | 'registration'
   eventId?: string
   registrationId?: string
@@ -22,6 +22,7 @@ interface WsMessage {
 
 type ValidWsMessage =
   | { action: 'authenticate'; token: string }
+  | { action: 'ping' }
   | { action: 'subscribe'; channel: 'admin' }
   | { action: 'subscribe'; channel: 'event'; eventId: string }
   | { action: 'subscribe'; channel: 'registration'; editToken: string; eventId: string; registrationId: string }
@@ -30,6 +31,10 @@ type ValidWsMessage =
 const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
 
 const parseObjectMessage = (message: WsMessage): ValidWsMessage | undefined => {
+  if (message.action === 'ping') {
+    return { action: 'ping' }
+  }
+
   if (message.action === 'authenticate' && isNonEmptyString(message.token)) {
     return { action: 'authenticate', token: message.token }
   }
@@ -120,6 +125,13 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
 
   if (!connectionId || !message) {
     return response(400, 'Bad request', event)
+  }
+
+  // A keepalive only has to be traffic: API Gateway closes a WebSocket after 10 minutes of
+  // silence, and each reconnect costs two lambda invocations. Answer before the connection
+  // lookup so a ping costs nothing beyond the invocation itself.
+  if (message.action === 'ping') {
+    return response(200, { pong: true }, event)
   }
 
   const connection = await getWebSocketConnection(connectionId)

@@ -1,5 +1,5 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { publishConnectionCounts, publishEventViewers } from '../lib/ws/actions'
+import { publishEventViewers } from '../lib/ws/actions'
 import { disconnectWebSocket } from '../lib/ws/connectionLifecycle'
 
 const wsDisconnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
@@ -14,7 +14,6 @@ const wsDisconnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayPr
       await publishEventViewers(eventId, organizerId)
     },
   })
-  await publishConnectionCounts()
 
   return { body: 'Disconnected', statusCode: 200 }
 }

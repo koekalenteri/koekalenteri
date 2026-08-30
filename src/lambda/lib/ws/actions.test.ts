@@ -11,7 +11,6 @@ const mockOrganizerAudience = vi.fn().mockReturnValue([])
 const mockPublicAudience = vi.fn().mockReturnValue([])
 const mockRegistrationAudience = vi.fn().mockReturnValue([])
 const mockAdminAudience = vi.fn().mockReturnValue([])
-const mockBuildConnectionCountPayload = vi.fn((scope: string, count: number) => ({ count, scope }))
 const mockBuildEventPatchPayload = vi.fn((eventId: string, patch: object) => ({ eventId, ...patch }))
 const mockBuildEventViewersPayload = vi.fn((eventId: string, viewers: unknown[]) => ({ eventId, viewers }))
 const mockBuildRegistrationPatchPayload = vi.fn((eventId: string, patch: unknown[]) => ({ eventId, patch }))
@@ -34,7 +33,6 @@ vi.doMock('./connectionSelectors', () => ({
 }))
 
 vi.doMock('./payloads', () => ({
-  buildConnectionCountPayload: mockBuildConnectionCountPayload,
   buildEventPatchPayload: mockBuildEventPatchPayload,
   buildEventViewersPayload: mockBuildEventViewersPayload,
   buildRegistrationPatchPayload: mockBuildRegistrationPatchPayload,
@@ -50,9 +48,6 @@ const {
   publishParticipantRegistrationPatch,
   publishAdminDataInvalidation,
   publishEventViewers,
-  publishAdminConnectionCount,
-  publishConnectionCounts,
-  publishPublicConnectionCount,
 } = await import('./actions')
 
 describe('ws/actions', () => {
@@ -64,7 +59,6 @@ describe('ws/actions', () => {
     mockOrganizerAudience.mockClear()
     mockPublicAudience.mockClear()
     mockAdminAudience.mockClear()
-    mockBuildConnectionCountPayload.mockClear()
     mockBuildEventPatchPayload.mockClear()
     mockBuildEventViewersPayload.mockClear()
     mockBuildRegistrationPatchPayload.mockClear()
@@ -288,87 +282,8 @@ describe('ws/actions', () => {
     expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', [{ name: 'u1', userId: 'u1' }])
   })
 
-  it('publishPublicConnectionCount builds public scoped payload from public audience size', async () => {
-    mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'c1' }, { connectionId: 'c2' }])
-
-    await publishPublicConnectionCount()
-
-    expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    const call = broadcastConfigurations[0] as
-      | { audience: () => Promise<unknown[]>; buildPayload: (audience: unknown[]) => unknown }
-      | undefined
-    expect(call).toBeTruthy()
-    if (!call) throw new Error('missing broadcast call')
-
-    const audience = await call.audience()
-    call.buildPayload(audience)
-
-    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith('public:connection-count', 2)
-  })
-
-  it('publishPublicConnectionCount excludes specified connection ids from public audience', async () => {
-    mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'c1' }, { connectionId: 'c2' }, { connectionId: 'c3' }])
-
-    await publishPublicConnectionCount(['c2'])
-
-    expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    const call = broadcastConfigurations[0] as
-      | { audience: () => Promise<Array<{ connectionId: string }>>; buildPayload: (audience: unknown[]) => unknown }
-      | undefined
-    expect(call).toBeTruthy()
-    if (!call) throw new Error('missing broadcast call')
-
-    const audience = await call.audience()
-    expect(audience).toEqual([{ connectionId: 'c1' }, { connectionId: 'c3' }])
-
-    call.buildPayload(audience)
-    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith('public:connection-count', 2)
-  })
-
-  it('publishAdminConnectionCount builds admin scoped payload from admin audience size', async () => {
-    mockAdminAudience.mockResolvedValueOnce([{ connectionId: 'a1' }, { connectionId: 'a2' }])
-
-    await publishAdminConnectionCount()
-
-    expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    const call = broadcastConfigurations[0] as
-      | { audience: () => Promise<unknown[]>; buildPayload: (audience: unknown[]) => unknown }
-      | undefined
-    expect(call).toBeTruthy()
-    if (!call) throw new Error('missing broadcast call')
-
-    const audience = await call.audience()
-    call.buildPayload(audience)
-
-    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith('admin:connection-count', 2)
-  })
-
-  it('publishAdminConnectionCount excludes specified connection ids from admin audience', async () => {
-    mockAdminAudience.mockResolvedValueOnce([{ connectionId: 'a1' }, { connectionId: 'a2' }, { connectionId: 'a3' }])
-
-    await publishAdminConnectionCount(['a2'])
-
-    const call = broadcastConfigurations[0] as
-      | { audience: () => Promise<Array<{ connectionId: string }>>; buildPayload: (audience: unknown[]) => unknown }
-      | undefined
-    expect(call).toBeTruthy()
-    if (!call) throw new Error('missing broadcast call')
-
-    const audience = await call.audience()
-    expect(audience).toEqual([{ connectionId: 'a1' }, { connectionId: 'a3' }])
-
-    call.buildPayload(audience)
-    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith('admin:connection-count', 2)
-  })
-
-  it('publishConnectionCounts publishes public and admin counts', async () => {
-    await publishConnectionCounts(['c1'])
-
-    expect(mockBroadcast).toHaveBeenCalledTimes(2)
-  })
-
   it('send uses onGoneConnection handler to remove a gone connection', async () => {
-    await publishPublicConnectionCount()
+    await publishPublicEvent({ entries: 5, eventId: 'e1' })
 
     const call = broadcastConfigurations[0] as { onGoneConnection: (id: string) => Promise<void> } | undefined
     expect(call).toBeTruthy()

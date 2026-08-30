@@ -39,6 +39,10 @@ import { userAtom } from '../pages/state/user/derivedAtoms'
 import { WS_API_URL } from '../routeConfig'
 
 const RECONNECT_INTERVAL = 1000
+// API Gateway closes a WebSocket after 10 minutes without traffic, and every reconnect used to
+// invoke two lambdas. Any client->server message resets the timer, so one ping well inside the
+// window keeps the connection up. Route responses are not configured, so nothing comes back.
+const KEEPALIVE_INTERVAL = 480_000
 const validIdTokenValueAtom = unwrap(validIdTokenAtom, (previous) => previous)
 const websocketAdminUsersValueAtom = unwrap(websocketAdminUsersAtom, (previous) => previous ?? [])
 const userValueAtom = unwrap(userAtom, (previous) => previous)
@@ -68,6 +72,13 @@ const configureWebSocket = ({
   socket,
   token,
 }: WebSocketHandlers) => {
+  let keepAlive: ReturnType<typeof globalThis.setInterval> | undefined
+  const stopKeepAlive = () => {
+    if (keepAlive === undefined) return
+    globalThis.clearInterval(keepAlive)
+    keepAlive = undefined
+  }
+
   socket.onopen = () => {
     if (!isCurrent()) {
       console.debug('ws: ignored stale open', { connectionId })
@@ -76,11 +87,13 @@ const configureWebSocket = ({
     }
 
     onOpen()
+    keepAlive = globalThis.setInterval(() => send({ action: 'ping' }, socket), KEEPALIVE_INTERVAL)
     if (token) send({ action: 'authenticate', token }, socket)
     else resendSubscriptions(socket)
   }
 
   socket.onclose = () => {
+    stopKeepAlive()
     if (!isCurrent()) {
       console.debug('ws: ignored stale close', { connectionId })
       return
@@ -211,8 +224,6 @@ export const applyViewers = (current: EventViewer[], next: EventViewer[]) => {
 // ── Context ──────────────────────────────────────────────────────────────────
 
 interface WebSocketContextValue {
-  publicCount: number
-  adminCount: number
   viewers: EventViewer[]
   subscribeAdmin: () => void
   subscribeEvent: (eventId: string) => void
@@ -391,8 +402,6 @@ export const useWebSocket = () => {
     }, [])
   )
 
-  const [publicCount, setPublicCount] = useState(0)
-  const [adminCount, setAdminCount] = useState(0)
   const [viewers, setViewers] = useState<EventViewer[]>([])
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
@@ -495,15 +504,6 @@ export const useWebSocket = () => {
     return () => auditRecordListenersRef.current.delete(listener)
   }, [])
 
-  const handleCountMessage = useCallback((data: { count?: unknown; scope?: unknown }) => {
-    if (typeof data.count !== 'number') return false
-
-    if (data.scope === 'public:connection-count') setPublicCount(data.count)
-    else if (data.scope === 'admin:connection-count') setAdminCount(data.count)
-
-    return true
-  }, [])
-
   const handleEventPatchMessage = useCallback(
     ({ eventId, scope, ...patch }: EventPatchMessage) => {
       if (scope === 'admin:event-patch') {
@@ -553,7 +553,6 @@ export const useWebSocket = () => {
     (data: any, token: string | undefined, ws: WebSocket, connectionId: number) => {
       console.debug('ws: ', data)
 
-      if (handleCountMessage(data)) return
       if (handleAdminMessage(data, token)) return
 
       const registrationSubscription = registrationSubscriptionRef.current
@@ -595,7 +594,7 @@ export const useWebSocket = () => {
         handleEventPatchMessage(data)
       }
     },
-    [handleAdminMessage, handleCountMessage, handleEventPatchMessage, resendActiveSubscriptions]
+    [handleAdminMessage, handleEventPatchMessage, resendActiveSubscriptions]
   )
 
   const connect = useCallback(() => {
@@ -704,8 +703,6 @@ export const useWebSocket = () => {
   }, [connect, idToken])
 
   return {
-    adminCount,
-    publicCount,
     subscribeAdmin,
     subscribeAuditRecords,
     subscribeEvent,

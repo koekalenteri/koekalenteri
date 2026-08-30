@@ -2,14 +2,9 @@ import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
 
 const mockWsConnect = vi.fn()
-const mockBroadcastConnectionCounts = vi.fn()
 
 vi.doMock('../lib/ws/connectionLifecycle', () => ({
   connectWebSocket: mockWsConnect,
-}))
-
-vi.doMock('../lib/ws/actions', () => ({
-  publishConnectionCounts: mockBroadcastConnectionCounts,
 }))
 
 const { default: wsConnectHandler } = await import('./handler')
@@ -27,23 +22,17 @@ describe('wsConnectHandler', () => {
     vi.clearAllMocks()
 
     mockWsConnect.mockResolvedValue(undefined)
-    mockBroadcastConnectionCounts.mockResolvedValue(undefined)
   })
 
   afterAll(() => {
     errorSpy.mockRestore()
   })
 
-  it('connects the websocket and broadcasts connection count', async () => {
+  it('connects the websocket', async () => {
     const result = await wsConnectHandler(event)
 
-    // Verify wsConnect was called with the connection ID
     expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
 
-    // Verify broadcastConnectionCount was called excluding current connection
-    expect(mockBroadcastConnectionCounts).toHaveBeenCalledWith(['test-connection-id'])
-
-    // Verify the response
     expect(result).toEqual({
       body: 'Connected',
       statusCode: 200,
@@ -51,18 +40,12 @@ describe('wsConnectHandler', () => {
   })
 
   it('throws an error if wsConnect fails', async () => {
-    // Setup wsConnect to throw an error
     const error = new Error('Connection error')
     mockWsConnect.mockRejectedValueOnce(error)
 
-    // Expect the handler to throw the error
     await expect(wsConnectHandler(event)).rejects.toThrow('Connection error')
 
-    // Verify wsConnect was called
     expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
-
-    // Verify broadcastConnectionCount was not called
-    expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
   })
 
   it('returns LambdaError status if wsConnect rejects with LambdaError', async () => {
@@ -71,22 +54,13 @@ describe('wsConnectHandler', () => {
     const result = await wsConnectHandler(event)
 
     expect(result).toEqual({ body: 'Too many public websocket connections', statusCode: 429 })
-    expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
   })
 
-  it('throws an error if broadcastConnectionCount fails', async () => {
-    // Setup broadcastConnectionCount to throw an error
-    const error = new Error('Broadcast error')
-    mockBroadcastConnectionCounts.mockRejectedValueOnce(error)
+  it('returns 400 without a connection id', async () => {
+    const result = await wsConnectHandler({ requestContext: {} } as any)
 
-    // Expect the handler to throw the error
-    await expect(wsConnectHandler(event)).rejects.toThrow('Broadcast error')
-
-    // Verify wsConnect was called
-    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
-
-    // Verify broadcastConnectionCount was called excluding current connection
-    expect(mockBroadcastConnectionCounts).toHaveBeenCalledWith(['test-connection-id'])
+    expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
+    expect(mockWsConnect).not.toHaveBeenCalled()
   })
 
   it('ignores query token and connects anonymously', async () => {

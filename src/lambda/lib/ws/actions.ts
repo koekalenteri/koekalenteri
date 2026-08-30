@@ -12,7 +12,6 @@ import {
   registrationAudience,
 } from './connectionSelectors'
 import {
-  buildConnectionCountPayload,
   buildEventPatchPayload,
   buildEventViewersPayload,
   buildRegistrationPatchPayload,
@@ -116,24 +115,3 @@ export const publishEventViewers = (
     audience: () => eventAudience(eventId, organizerId, options),
     buildPayload: (audience) => buildEventViewersPayload(eventId, toEventViewers(audience)),
   })
-
-export const publishPublicConnectionCount = (excludeConnectionIds: string[] = []) =>
-  send({
-    audience: async () =>
-      (await publicAudience()).filter((connection) => !excludeConnectionIds.includes(connection.connectionId)),
-    buildPayload: (audience) => buildConnectionCountPayload('public:connection-count', audience.length),
-  })
-
-export const publishAdminConnectionCount = (excludeConnectionIds: string[] = []) =>
-  send({
-    audience: async () =>
-      (await adminAudience()).filter((connection) => !excludeConnectionIds.includes(connection.connectionId)),
-    buildPayload: (audience) => buildConnectionCountPayload('admin:connection-count', audience.length),
-  })
-
-export const publishConnectionCounts = async (excludeConnectionIds: string[] = []) => {
-  await Promise.all([
-    publishPublicConnectionCount(excludeConnectionIds),
-    publishAdminConnectionCount(excludeConnectionIds),
-  ])
-}

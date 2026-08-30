@@ -69,7 +69,6 @@ const mockBroadcastPublicEvent = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
   __esModule: true,
   publishAdminEventPatch: mockBroadcastAdminEvent,
-  publishConnectionCounts: mockBroadcast,
   publishEventPatch: vi.fn(),
   publishPublicEvent: mockBroadcastPublicEvent,
   publishRegistrationPatches: mockBroadcastEventRegistrations,

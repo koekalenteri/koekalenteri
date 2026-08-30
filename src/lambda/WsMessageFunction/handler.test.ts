@@ -76,7 +76,7 @@ describe('wsMessageHandler', () => {
 
   it('returns 400 when message action is unknown', async () => {
     const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'ping' }),
+      body: JSON.stringify({ action: 'nonsense' }),
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
@@ -103,6 +103,16 @@ describe('wsMessageHandler', () => {
     } as any)
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
+  })
+
+  it('answers a keepalive ping without looking the connection up', async () => {
+    const result = await wsMessageHandler({
+      body: JSON.stringify({ action: 'ping' }),
+      requestContext: { connectionId: 'conn-1' },
+    } as any)
+
+    expect(mockGetWsConnection).not.toHaveBeenCalled()
+    expect(result).toEqual({ body: { pong: true }, statusCode: 200 })
   })
 
   it('subscribes to admin channel', async () => {

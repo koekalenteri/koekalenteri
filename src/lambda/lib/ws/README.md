@@ -23,6 +23,7 @@ All client messages are JSON objects sent to `$default`.
 | Unsubscribe from admin | `{ "action": "unsubscribe", "channel": "admin" }` | Removes the admin-channel subscription and returns the connection to the public audience. |
 | Unsubscribe from event | `{ "action": "unsubscribe", "channel": "event" }` | Removes the current event subscription and publishes updated event viewers. |
 | Unsubscribe from registration | `{ "action": "unsubscribe", "channel": "registration" }` | Removes the current participant registration subscription. |
+| Keepalive | `{ "action": "ping" }` | Answered with `{ pong: true }` without a connection lookup. API Gateway closes a WebSocket after 10 minutes without traffic, so clients ping well inside that window rather than reconnecting. |
 
 Authentication is optional for public broadcasts, but required for admin and event subscriptions.
 
@@ -39,8 +40,6 @@ Outbound messages include a `scope` field so clients can route updates.
 | `admin:audit-record` | Authenticated subscribers of the specific event | `{ eventId, record }` newly written audit record. |
 | `admin:data-invalidation` | Admin channel subscribers | `{ collections }` names the reference-data collections clients must refetch through their authorized HTTP APIs. |
 | `admin:event-viewers` | Event subscribers allowed to see the organizer's event | `{ eventId, viewers }`, where `viewers` contains distinct subscribed user IDs. |
-| `public:connection-count` | Public connections | `{ count, scope }` for the current public audience. |
-| `admin:connection-count` | Admin-channel subscribers allowed to receive admin updates | `{ count, scope }` for the current admin audience. |
 
 ## Connection model
 

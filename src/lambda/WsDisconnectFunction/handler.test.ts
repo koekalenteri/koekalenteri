@@ -1,15 +1,14 @@
 import { vi } from 'vitest'
 
 const mockWsDisconnect = vi.fn()
-const mockBroadcastConnectionCounts = vi.fn()
+const mockPublishEventViewers = vi.fn()
 
 vi.doMock('../lib/ws/connectionLifecycle', () => ({
   disconnectWebSocket: mockWsDisconnect,
 }))
 
 vi.doMock('../lib/ws/actions', () => ({
-  publishConnectionCounts: mockBroadcastConnectionCounts,
-  publishEventViewers: vi.fn(),
+  publishEventViewers: mockPublishEventViewers,
 }))
 
 const { default: wsDisconnectHandler } = await import('./handler')
@@ -24,63 +23,50 @@ describe('wsDisconnectHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
-    // Default mock implementations
     mockWsDisconnect.mockResolvedValue(undefined)
-    mockBroadcastConnectionCounts.mockResolvedValue(undefined)
+    mockPublishEventViewers.mockResolvedValue(undefined)
   })
 
-  it('disconnects the websocket and broadcasts connection count', async () => {
+  it('disconnects the websocket', async () => {
     const result = await wsDisconnectHandler(event)
 
-    // Verify wsDisconnect was called with the connection ID
     expect(mockWsDisconnect).toHaveBeenCalledWith(
       'test-connection-id',
       expect.objectContaining({ notifyEventViewers: expect.any(Function) })
     )
 
-    // Verify broadcastConnectionCount was called
-    expect(mockBroadcastConnectionCounts).toHaveBeenCalled()
-
-    // Verify the response
     expect(result).toEqual({
       body: 'Disconnected',
       statusCode: 200,
     })
   })
 
+  it('notifies the viewers of the event the connection was watching', async () => {
+    mockWsDisconnect.mockImplementationOnce(async (_id: string, { notifyEventViewers }: any) => {
+      await notifyEventViewers('e1', 'org1')
+    })
+
+    await wsDisconnectHandler(event)
+
+    expect(mockPublishEventViewers).toHaveBeenCalledWith('e1', 'org1')
+  })
+
   it('throws an error if wsDisconnect fails', async () => {
-    // Setup wsDisconnect to throw an error
     const error = new Error('Disconnection error')
     mockWsDisconnect.mockRejectedValueOnce(error)
 
-    // Expect the handler to throw the error
     await expect(wsDisconnectHandler(event)).rejects.toThrow('Disconnection error')
 
-    // Verify wsDisconnect was called
     expect(mockWsDisconnect).toHaveBeenCalledWith(
       'test-connection-id',
       expect.objectContaining({ notifyEventViewers: expect.any(Function) })
     )
-
-    // Verify broadcastConnectionCount was not called
-    expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
   })
 
-  it('throws an error if broadcastConnectionCount fails', async () => {
-    // Setup broadcastConnectionCount to throw an error
-    const error = new Error('Broadcast error')
-    mockBroadcastConnectionCounts.mockRejectedValueOnce(error)
+  it('returns 400 without a connection id', async () => {
+    const result = await wsDisconnectHandler({ requestContext: {} } as any)
 
-    // Expect the handler to throw the error
-    await expect(wsDisconnectHandler(event)).rejects.toThrow('Broadcast error')
-
-    // Verify wsDisconnect was called
-    expect(mockWsDisconnect).toHaveBeenCalledWith(
-      'test-connection-id',
-      expect.objectContaining({ notifyEventViewers: expect.any(Function) })
-    )
-
-    // Verify broadcastConnectionCount was called
-    expect(mockBroadcastConnectionCounts).toHaveBeenCalled()
+    expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
+    expect(mockWsDisconnect).not.toHaveBeenCalled()
   })
 })

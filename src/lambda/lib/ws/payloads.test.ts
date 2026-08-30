@@ -1,5 +1,4 @@
 import {
-  buildConnectionCountPayload,
   buildEventPatchPayload,
   buildEventViewersPayload,
   buildParticipantPaymentPatch,
@@ -61,20 +60,6 @@ describe('ws/payloads', () => {
       eventId: 'e1',
       scope: 'admin:event-viewers',
       viewers,
-    })
-  })
-
-  it('buildConnectionCountPayload returns public scoped count object', () => {
-    expect(buildConnectionCountPayload('public:connection-count', 3)).toEqual({
-      count: 3,
-      scope: 'public:connection-count',
-    })
-  })
-
-  it('buildConnectionCountPayload returns admin scoped count object', () => {
-    expect(buildConnectionCountPayload('admin:connection-count', 2)).toEqual({
-      count: 2,
-      scope: 'admin:connection-count',
     })
   })
 
