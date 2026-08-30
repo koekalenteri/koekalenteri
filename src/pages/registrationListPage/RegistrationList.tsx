@@ -18,7 +18,7 @@ import { PaymentIcon } from '../components/icons/PaymentIcon'
 import { PriorityIcon } from '../components/icons/PriorityIcon'
 import StyledDataGrid from '../components/StyledDataGrid'
 
-type StrippedRegistration = Omit<Registration, 'grouo' | 'internalNotes'>
+type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
 
 interface Props {
   readonly disabled?: boolean
