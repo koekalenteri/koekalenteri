@@ -69,6 +69,18 @@ export default function RegistrationDialogBase({
     }
   }, [actions, enqueueSnackbar, event, onClose, patchBase, registration, resetRegistration])
 
+  // Internal notes bypass the form's save: an ordinary registration save mails the registrant about
+  // the change, and a secretary's note must not reach them. The edited copy is kept in step so that
+  // a later form save does not patch the note back to the value it had when the dialog opened.
+  const handleInternalNotesChange = useCallback(
+    async (internalNotes: string) => {
+      if (!registration?.id) return
+      setRegistration({ ...registration, internalNotes })
+      await actions.putInternalNotes(registration.eventId, registration.id, internalNotes)
+    },
+    [actions, registration, setRegistration]
+  )
+
   const handleCancel = useCallback(() => {
     resetRegistration()
     onClose?.()
@@ -123,6 +135,7 @@ export default function RegistrationDialogBase({
           event={event as ConfirmedEvent}
           onCancel={handleCancel}
           onChange={handleChange}
+          onInternalNotesChange={handleInternalNotesChange}
           onSave={handleSave}
           registration={registration}
           savedRegistration={savedRegistration}

@@ -558,6 +558,12 @@
     "handler": "Ohjaajan tiedot",
     "handlerIsMember": "Ohjaaja on järjestävän yhdistyksen jäsen",
     "internalNotes": "Sisäinen kommentti (ei näy ilmoittautujalle)",
+    "internalNotesStatus": {
+      "error": "Tallennus epäonnistui",
+      "idle": "Tallentuu automaattisesti",
+      "saved": "Tallennettu",
+      "saving": "Tallennetaan…"
+    },
     "member": "Jäsen",
     "membership": "Jäsenyystiedot",
     "modified_one": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
@@ -643,6 +649,7 @@
     "reserveHelp": "Valitse kuinka lyhyellä varoitusajalla pystyt vielä saapumaan koepaikalle, mikäli saat koepaikan varasijalta.",
     "saved_one": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "saved_other": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
+    "secretaryNotes": "Koesihteerin merkinnät",
     "someoneElse": "Joku muu",
     "state": {
       "cancelled": "Tämä ilmoittautuminen on peruttu"

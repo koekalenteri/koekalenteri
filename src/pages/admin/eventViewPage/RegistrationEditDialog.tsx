@@ -26,7 +26,13 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
   const initialRegistration = useRef(savedRegistration)
   if (!open) initialRegistration.current = savedRegistration
   if (!initialRegistration.current && savedRegistration) initialRegistration.current = savedRegistration
-  const registrationChanges = useMemo(() => getChanges(initialRegistration.current, registration), [registration])
+  const registrationChanges = useMemo(() => {
+    // Internal notes save through their own endpoint as they are typed, so they are never a pending
+    // form change. Dropping them here rather than keeping the baseline in step keeps the save button
+    // off regardless of when the note's own save lands: this memo only reruns on an edited value.
+    const { internalNotes: _internalNotes, ...changes } = getChanges(initialRegistration.current, registration)
+    return changes
+  }, [registration])
   const changes = !isEmptyObject(registrationChanges)
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
   useAuditTrailSubscription(`${event.id}:${registrationId}`, open, setAuditTrail)

@@ -558,6 +558,12 @@
     "handler": "Handler information",
     "handlerIsMember": "Handler is a member of the organizing society",
     "internalNotes": "Internal comment (not visible to registrant)",
+    "internalNotesStatus": {
+      "error": "Saving failed",
+      "idle": "Saved automatically",
+      "saved": "Saved",
+      "saving": "Saving…"
+    },
     "member": "Member",
     "membership": "Membership information",
     "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
@@ -643,6 +649,7 @@
     "reserveHelp": "Select how short a notice you can still attend the trial if you get a place from the reserve list.",
     "saved_one": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "saved_other": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
+    "secretaryNotes": "Secretary's notes",
     "someoneElse": "Someone else",
     "state": {
       "cancelled": "This registration is cancelled"

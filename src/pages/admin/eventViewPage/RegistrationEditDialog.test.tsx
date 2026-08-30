@@ -9,9 +9,10 @@ import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
+import { putAdminRegistrationNotes } from '../../../api/registration'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
-import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { idTokenAtom } from '../../state'
 import RegistrationEditDialog from './RegistrationEditDialog'
 
@@ -88,5 +89,36 @@ describe('RegistrationEditDialog', () => {
     await flushPromises()
     expect(baseElement).toMatchSnapshot()
     expect(screen.getByRole('dialog')).toHaveTextContent('PERUTTU: ')
+  })
+
+  it('saves an internal note on its own, without enabling the form save button', async () => {
+    const { user } = renderWithUserEvents(
+      <RegistrationEditDialog
+        event={eventWithStaticDates}
+        open={true}
+        registrationId={registrationWithStaticDates.id}
+      />,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    const save = screen.getByRole('button', { name: 'registration.cta.saveChanges' })
+    expect(save).toBeDisabled()
+
+    await user.type(screen.getByLabelText('registration.internalNotes'), 'tarvitsee apua englanniksi')
+
+    // typed, but the note's own save has not been dispatched yet
+    expect(save).toBeDisabled()
+
+    await flushPromises()
+
+    expect(putAdminRegistrationNotes).toHaveBeenLastCalledWith(
+      expect.objectContaining({ internalNotes: 'tarvitsee apua englanniksi' }),
+      TEST_ID_TOKEN
+    )
+    // and still disabled once the save has landed and updated the stored registration
+    expect(save).toBeDisabled()
+    expect(screen.getByText('registration.internalNotesStatus.saved')).toBeInTheDocument()
   })
 })

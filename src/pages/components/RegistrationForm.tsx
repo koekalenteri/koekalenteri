@@ -49,6 +49,7 @@ import { BreederInfo } from './registrationForm/BreederInfo'
 import { DogInfo } from './registrationForm/DogInfo'
 import { EntryInfo } from './registrationForm/EntryInfo'
 import { HandlerInfo } from './registrationForm/HandlerInfo'
+import { InternalNotesInfo } from './registrationForm/InternalNotesInfo'
 import MembershipInfo from './registrationForm/MembershipInfo'
 import { OwnerInfo } from './registrationForm/OwnerInfo'
 import { PayerInfo } from './registrationForm/PayerInfo'
@@ -66,6 +67,7 @@ interface Props {
   readonly event: PublicConfirmedEvent
   readonly onCancel?: () => void
   readonly onChange?: (registration: Registration) => void
+  readonly onInternalNotesChange?: (notes: string) => void
   readonly onSave?: () => Promise<void>
   readonly registration: Registration
   readonly savedRegistration?: Registration | null
@@ -81,6 +83,7 @@ export default function RegistrationForm({
   event,
   onCancel,
   onChange,
+  onInternalNotesChange,
   onSave,
   registration,
   savedRegistration,
@@ -274,6 +277,14 @@ export default function RegistrationForm({
           pb: 0.5,
         }}
       >
+        {admin && onInternalNotesChange && registration.id ? (
+          <InternalNotesInfo
+            notes={registration.internalNotes}
+            onChange={onInternalNotesChange}
+            onOpenChange={(value) => handleOpenChange('internalNotes', value)}
+            open={open.internalNotes}
+          />
+        ) : null}
         <EntryInfo
           key={event.id}
           reg={registration}

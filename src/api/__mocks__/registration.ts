@@ -145,6 +145,14 @@ export async function patchAdminRegistration(
   return patchRegistration(request)
 }
 
+export const putAdminRegistrationNotes = vi.fn(
+  async (
+    _registration: Pick<Registration, 'eventId' | 'id' | 'internalNotes'>,
+    _token: string,
+    _signal?: AbortSignal
+  ): Promise<void> => undefined
+)
+
 export async function putRegistrationGroups(
   _eventId: string,
   _moves: RegistrationGroupMove[],
