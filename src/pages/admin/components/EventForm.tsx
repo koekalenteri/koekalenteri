@@ -20,6 +20,7 @@ import {
   adminActiveEventTypesAtom,
   adminActiveJudgesAtom,
   adminEventTypeClassesAtom,
+  adminLocationNamesAtom,
   adminUserOrganizersAtom,
   adminUsersAtom,
 } from '../state'
@@ -51,13 +52,15 @@ const eventFormOptionsAtom = atom(async (get) =>
     Promise.resolve(get(adminEventTypeClassesAtom)),
     get(adminUsersAtom),
     get(adminUserOrganizersAtom),
+    get(adminLocationNamesAtom),
   ] as const)
 )
 
 export default function EventForm({ event, changes, canSave, disabled, onSave, onCancel, onChange }: Props) {
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers] = useAtomValue(eventFormOptionsAtom)
+  const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers, locations] =
+    useAtomValue(eventFormOptionsAtom)
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,
@@ -329,6 +332,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
           eventTypes={activeEventTypes.map((et) => et.eventType)}
           fields={fields}
           helperTexts={helperTexts}
+          locations={locations}
           officials={officials}
           onChange={handleChange}
           onOpenChange={handleBasicOpenChange}

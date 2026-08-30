@@ -12,6 +12,7 @@ export const CONFIG = {
 
   frontendURL: `https://${process.env.CUSTOM_DOMAIN ?? 'koekalenteri.snj.fi'}`,
   judgeTable: process.env.JUDGE_TABLE_NAME ?? 'judge-table-not-found-in-env',
+  locationTable: process.env.LOCATION_TABLE_NAME ?? 'location-table-not-found-in-env',
   officialTable: process.env.OFFICIAL_TABLE_NAME ?? 'official-table-not-found-in-env',
   organizerTable: process.env.ORGANIZER_TABLE_NAME ?? 'organizer-table-not-found-in-env',
   registrationTable: process.env.REGISTRATION_TABLE_NAME ?? 'registration-table-not-found-in-env',

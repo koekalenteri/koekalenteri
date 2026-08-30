@@ -1,0 +1,27 @@
+  GetLocationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetLocationsFunction
+      Handler: handler.default
+      Layers:
+        - !Ref DependenciesLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref LocationTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetLocations:
+          Type: Api
+          Properties:
+            Path: /admin/location
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetLocationsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetLocationsFunction]]
+      RetentionInDays: 30

@@ -1,6 +1,7 @@
 import type { DataVersion, DataVersions, JsonUser } from '../../types'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { LOCATIONS_ID } from './locations'
 import { dedupeUsersByEmail, filterRelevantUsers, getAllUsers, userIsMemberOf } from './user'
 
 type VersionRecord = { modifiedAt?: string }
@@ -22,6 +23,14 @@ async function getTableDataVersion(table: string): Promise<DataVersion> {
   return dataVersionFromItems(items)
 }
 
+async function getLocationsDataVersion(): Promise<DataVersion> {
+  // The locations snapshot is a single row carrying its own count and modifiedAt, so this stays a
+  // GetItem. Everything else here scans, and this lambda runs on every login.
+  const snapshot = await client.read<DataVersion>({ id: LOCATIONS_ID }, CONFIG.locationTable)
+
+  return { count: snapshot?.count ?? 0, modifiedAt: snapshot?.modifiedAt }
+}
+
 async function getRelevantUsersDataVersion(user: JsonUser): Promise<DataVersion> {
   const allUsers = await getAllUsers()
   const memberOf = userIsMemberOf(user)
@@ -32,13 +41,14 @@ async function getRelevantUsersDataVersion(user: JsonUser): Promise<DataVersion>
 }
 
 export async function getDataVersions(user: JsonUser): Promise<DataVersions> {
-  const [emailTemplates, eventTypes, judges, officials, users] = await Promise.all([
+  const [emailTemplates, eventTypes, judges, locations, officials, users] = await Promise.all([
     getTableDataVersion(CONFIG.emailTemplateTable),
     getTableDataVersion(CONFIG.eventTypeTable),
     getTableDataVersion(CONFIG.judgeTable),
+    getLocationsDataVersion(),
     getTableDataVersion(CONFIG.officialTable),
     getRelevantUsersDataVersion(user),
   ])
 
-  return { emailTemplates, eventTypes, judges, officials, users }
+  return { emailTemplates, eventTypes, judges, locations, officials, users }
 }

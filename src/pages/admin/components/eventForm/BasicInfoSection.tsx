@@ -36,6 +36,7 @@ export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: BasicInfoEvent
   readonly eventTypes?: string[]
   readonly eventTypeClasses?: Record<string, RegistrationClass[]>
+  readonly locations?: string[]
   readonly officials?: User[]
   readonly organizers?: Organizer[]
   readonly secretaries?: User[]
@@ -55,6 +56,7 @@ function BasicInfoSection({
   fields,
   eventTypes,
   eventTypeClasses,
+  locations,
   officials,
   open,
   onOpenChange,
@@ -242,7 +244,7 @@ function BasicInfoSection({
               freeSolo
               id="location"
               onChange={onChange}
-              options={[]}
+              options={locations ?? []}
             />
           </Grid>
         </Grid>

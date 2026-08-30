@@ -1,0 +1,20 @@
+  # A single row (id: 'fi') holding the whole Kennelliitto municipality list. See
+  # src/lambda/lib/locations.ts for why this is not one row per municipality.
+  LocationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [location-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

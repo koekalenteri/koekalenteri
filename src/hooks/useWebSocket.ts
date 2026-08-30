@@ -13,6 +13,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { getEmailTemplates } from '../api/email'
 import { getEventTypes } from '../api/eventType'
 import { getJudges } from '../api/judge'
+import { getLocations } from '../api/location'
 import { getOfficials } from '../api/official'
 import { getAdminOrganizers } from '../api/organizer'
 import { getUsers } from '../api/user'
@@ -25,6 +26,7 @@ import { adminEmailTemplatesAtom, fetchEmailTemplates } from '../pages/admin/sta
 import { adminEventsAtom } from '../pages/admin/state/events'
 import { adminEventTypesAtom } from '../pages/admin/state/eventTypes'
 import { adminJudgesAtom } from '../pages/admin/state/judges'
+import { adminLocationsAtom } from '../pages/admin/state/locations'
 import { adminOfficialsAtom } from '../pages/admin/state/officials'
 import { adminOrganizersAtom } from '../pages/admin/state/organizers'
 import { adminEventRegistrationsAtom } from '../pages/admin/state/registrations/atoms'
@@ -115,6 +117,7 @@ const isAdminDataCollection = (value: unknown): value is AdminDataCollection =>
   value === 'emailTemplates' ||
   value === 'eventTypes' ||
   value === 'judges' ||
+  value === 'locations' ||
   value === 'officials' ||
   value === 'organizers' ||
   value === 'users'
@@ -331,6 +334,10 @@ export const useWebSocket = () => {
             }
             case 'organizers':
               set(adminOrganizersAtom, [...(await getAdminOrganizers(token))].sort(compareByLocalizedString('name')))
+              break
+            // Refreshed weekly and never edited, so there is nothing incremental to reconcile.
+            case 'locations':
+              set(adminLocationsAtom, [...(await getLocations(token))].sort(compareByLocalizedString('name')))
               break
             case 'judges': {
               const current = await get(adminJudgesAtom)

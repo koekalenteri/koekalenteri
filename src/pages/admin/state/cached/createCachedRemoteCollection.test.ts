@@ -26,6 +26,7 @@ const makeEffect = (fetch = vi.fn()) => {
       emailTemplates: { count: 0 },
       eventTypes: { count: 0 },
       judges: { count: 1, modifiedAt: '2026-01-02T00:00:00.000Z' },
+      locations: { count: 0 },
       officials: { count: 0 },
       users: { count: 0 },
     },

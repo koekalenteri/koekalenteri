@@ -24,6 +24,7 @@ Globals:
         EVENT_TABLE_NAME: !Ref EventTable
         EVENT_TYPE_TABLE_NAME: !Ref EventTypeTable
         JUDGE_TABLE_NAME: !Ref JudgeTable
+        LOCATION_TABLE_NAME: !Ref LocationTable
         OFFICIAL_TABLE_NAME: !Ref OfficialTable
         ORGANIZER_TABLE_NAME: !Ref OrganizerTable
         REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable

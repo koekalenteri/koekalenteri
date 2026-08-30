@@ -1,1 +1,8 @@
-export type AdminDataCollection = 'emailTemplates' | 'eventTypes' | 'judges' | 'officials' | 'organizers' | 'users'
+export type AdminDataCollection =
+  | 'emailTemplates'
+  | 'eventTypes'
+  | 'judges'
+  | 'locations'
+  | 'officials'
+  | 'organizers'
+  | 'users'

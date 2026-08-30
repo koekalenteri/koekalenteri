@@ -17,6 +17,9 @@
             TableName: !Ref OfficialTable
         - DynamoDBReadPolicy:
             TableName: !Ref JudgeTable
+        # dataVersions reads the locations snapshot row
+        - DynamoDBReadPolicy:
+            TableName: !Ref LocationTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTypeTable
         - CloudWatchPutMetricPolicy: {}

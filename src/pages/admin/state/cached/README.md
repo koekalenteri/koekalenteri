@@ -1,6 +1,6 @@
 # Encrypted admin reference data cache
 
-Admin reference datasets (`eventTypes`, `judges`, `officials`, and caller-visible `users`) are cached in the browser to avoid repeated cold Lambda calls.
+Admin reference datasets (`eventTypes`, `judges`, `locations`, `officials`, and caller-visible `users`) are cached in the browser to avoid repeated cold Lambda calls.
 
 ## Freshness model
 
