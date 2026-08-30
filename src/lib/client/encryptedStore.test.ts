@@ -69,35 +69,31 @@ describe('encryptedStore', () => {
   })
 
   it('encrypts and decrypts a cached dataset', async () => {
-    await writeEncryptedDataset('user-1', 'judges', ['judge-a'], {
-      count: 1,
-      modifiedAt: '2026-01-01T00:00:00.000Z',
-    })
+    await writeEncryptedDataset('user-1', 'judges', ['judge-a'], { revision: '*:abc123' })
 
     const raw = stores.datasets.get('user-1:judges') as { cipherText: ArrayBuffer }
     expect(raw).toBeDefined()
     expect(new TextDecoder().decode(raw.cipherText)).not.toContain('judge-a')
 
     await expect(readEncryptedDataset<string[]>('user-1', 'judges')).resolves.toMatchObject({
-      count: 1,
       data: ['judge-a'],
-      modifiedAt: '2026-01-01T00:00:00.000Z',
+      revision: '*:abc123',
       userId: 'user-1',
     })
   })
 
   it('wipes datasets and creates a new key when the user changes', async () => {
-    await writeEncryptedDataset('user-1', 'judges', ['judge-a'], { count: 1 })
+    await writeEncryptedDataset('user-1', 'judges', ['judge-a'], { revision: '*:abc123' })
     expect(stores.datasets.has('user-1:judges')).toBe(true)
 
-    await writeEncryptedDataset('user-2', 'judges', ['judge-b'], { count: 1 })
+    await writeEncryptedDataset('user-2', 'judges', ['judge-b'], { revision: '*:abc123' })
 
     expect(stores.datasets.has('user-1:judges')).toBe(false)
     await expect(readEncryptedDataset<string[]>('user-2', 'judges')).resolves.toMatchObject({ data: ['judge-b'] })
   })
 
   it('clears the database on explicit clear', async () => {
-    await writeEncryptedDataset('user-1', 'judges', ['judge-a'], { count: 1 })
+    await writeEncryptedDataset('user-1', 'judges', ['judge-a'], { revision: '*:abc123' })
 
     await clearEncryptedStore()
 

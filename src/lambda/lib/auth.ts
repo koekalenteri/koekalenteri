@@ -87,7 +87,7 @@ async function updateExistingUser(
     // lastSeen updates on every login and must not invalidate dataVersions caches.
     const onlyLastSeenChanged = changedKeys.every((k) => k === 'lastSeen')
     const writeModifiedAt = onlyLastSeenChanged ? (existing.modifiedAt ?? dateString) : dateString
-    await updateUser({ ...final, modifiedAt: writeModifiedAt, modifiedBy })
+    await updateUser({ ...final, modifiedAt: writeModifiedAt, modifiedBy }, existing)
   }
 
   return final
@@ -227,7 +227,7 @@ export async function getAndUpdateUserByEmail(
     // lastSeen updates on every login and must not invalidate dataVersions caches.
     const onlyLastSeenChanged = existing !== undefined && changedKeys.every((k) => k === 'lastSeen')
     const writeModifiedAt = onlyLastSeenChanged ? (existing.modifiedAt ?? dateString) : dateString
-    await updateUser({ ...final, modifiedAt: writeModifiedAt, modifiedBy })
+    await updateUser({ ...final, modifiedAt: writeModifiedAt, modifiedBy }, existing)
   }
   return final
 }

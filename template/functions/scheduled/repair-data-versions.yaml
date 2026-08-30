@@ -1,0 +1,106 @@
+  # Weekly backstop for the version registry. Collection versions are bumped by hand where the data
+  # is written, so a forgotten bump would leave browsers on a stale cache indefinitely. This
+  # recomputes the count and latest modifiedAt per scope - the scans that used to run on every
+  # /user call - and remints anything that moved without being bumped.
+  RepairDataVersionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/RepairDataVersionsFunction
+      Handler: handler.default
+      Layers:
+        - !Ref DependenciesLayer
+      Tracing: Active
+      Timeout: 300
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataVersionTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EmailTemplatesTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTypeTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref JudgeTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OfficialTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref LocationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+      Events:
+        WeeklyRepair:
+          Type: ScheduleV2
+          Properties:
+            # Stack-scoped name: EventBridge Scheduler names are unique per account and region.
+            Name: !Sub '${AWS::StackName}-repair-data-versions-weekly'
+            # 02:40 UTC on Sunday, after the location refresh at 02:20.
+            ScheduleExpression: 'cron(40 2 ? * SUN *)'
+            Description: Weekly repair of drifted admin data versions
+            State: ENABLED
+            FlexibleTimeWindow:
+              Mode: 'OFF'
+
+  RepairDataVersionsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RepairDataVersionsFunction]]
+      RetentionInDays: 30
+
+  RepairDataVersionsFunctionErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Weekly data version repair failed
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref RepairDataVersionsFunction
+      Statistic: Sum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+
+  # One day is the largest period CloudWatch accepts, so nine of them cover a missed weekly run.
+  RepairDataVersionsFunctionMissingRunAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Data version repair has not run in 9 days
+      Namespace: AWS/Lambda
+      MetricName: Invocations
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref RepairDataVersionsFunction
+      Statistic: Sum
+      Period: 86400
+      EvaluationPeriods: 9
+      Threshold: 1
+      ComparisonOperator: LessThanThreshold
+      TreatMissingData: breaching
+
+  # Finding drift means a mutation path is missing its bump: the repair fixes the symptom, but the
+  # missing bump is a bug and should be visible.
+  RepairDataVersionsDriftMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterName: RepairDataVersionsDrift
+      FilterPattern: '"data version drift repaired"'
+      LogGroupName: !Ref RepairDataVersionsFunctionLogGroup
+      MetricTransformations:
+        - MetricName: DataVersionDrift
+          MetricNamespace: KoekalenteriApp
+          MetricValue: '1'
+
+  RepairDataVersionsDriftAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: A collection changed without its version being bumped
+      AlarmName: !Sub '${AWS::StackName}-data-version-drift'
+      Namespace: KoekalenteriApp
+      MetricName: DataVersionDrift
+      Statistic: Sum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching

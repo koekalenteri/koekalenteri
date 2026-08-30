@@ -9,9 +9,11 @@ import { validEmail } from '../../lib/email'
 import { scoreUser } from '../../lib/user'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { bumpDataVersion } from './dataVersions'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { reverseName } from './string'
+import { callerScopes, userScopes } from './userScopes'
 
 const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
 
@@ -106,22 +108,17 @@ export function dedupeUsersByEmail<
   return [...byEmail.values()]
 }
 
-export const userIsMemberOf = (user: Pick<JsonUser, 'roles'>): string[] =>
-  Object.keys(user?.roles ?? {}).filter((orgId) => !!user?.roles?.[orgId])
+export { userIsMemberOf } from './userScopes'
 
+/**
+ * A user record is relevant to a caller exactly when their scopes intersect. The same two scope
+ * functions decide which cached lists a record invalidates, so relevance and versioning cannot
+ * drift apart. See lib/userScopes.ts.
+ */
 export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) => {
-  const memberOf = userIsMemberOf(user)
-  const filteredOrgs = new Set(orgs.filter((o) => memberOf.includes(o)))
+  const scopes = new Set(callerScopes(user, orgs))
 
-  return user.admin
-    ? users
-    : users.filter(
-        (u) =>
-          u.admin || // admins are always included
-          u.judge?.length || // judges are always included
-          u.officer?.length || // officers are always included
-          Object.keys(u.roles ?? {}).some((orgId) => filteredOrgs.has(orgId))
-      )
+  return users.filter((u) => userScopes(u).some((scope) => scopes.has(scope)))
 }
 
 export const getAllUsers = async (): Promise<JsonUser[]> => {
@@ -167,7 +164,21 @@ export const findUserByEmail = async (email?: string): Promise<JsonUser | undefi
   return exact
 }
 
-export const updateUser = async (user: JsonUser) => dynamoDB.write(user, userTable)
+/**
+ * @param previous the stored record this write replaces, when there is one. Its scopes are bumped
+ * along with the new ones so a user that moves between organizations invalidates both sides.
+ * A write that leaves `modifiedAt` alone (a lastSeen refresh, which happens on every login) is
+ * deliberately not a version change.
+ */
+export const updateUser = async (user: JsonUser, previous?: JsonUser) => {
+  const result = await dynamoDB.write(user, userTable)
+
+  if (!previous || previous.modifiedAt !== user.modifiedAt) {
+    await bumpDataVersion('users', [...userScopes(user), ...(previous ? userScopes(previous) : [])])
+  }
+
+  return result
+}
 
 export const setUserRole = async (
   user: JsonUser,
@@ -197,6 +208,9 @@ export const setUserRole = async (
     },
     userTable
   )
+
+  // The role change moves the record between scopes, so both sides are invalidated.
+  await bumpDataVersion('users', [...userScopes(user), ...userScopes({ ...user, roles })])
 
   const org = await dynamoDB.read<Organizer>({ id: orgId }, organizerTable)
 
@@ -595,6 +609,10 @@ const applyUserSyncPlan = async (dynamoDB: CustomDynamoClient, ctx: UserSyncCont
       console.error('Failed to batch write user sync', { userCount: write.length })
       throw e
     }
+
+    const previousById = new Map(ctx.allUsers.map((u) => [u.id, u]))
+    const scopes = write.flatMap((u) => [...userScopes(u), ...userScopes(previousById.get(u.id) ?? u)])
+    await bumpDataVersion('users', scopes)
   }
 }
 

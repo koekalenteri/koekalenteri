@@ -29,6 +29,8 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataVersionTable
         - !Ref WebSocketPolicy
       Events:
         GetOfficials:

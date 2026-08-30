@@ -2,6 +2,7 @@
 
 import type { ConditionCheck, Delete, Put, ReturnValue, TransactWriteItem, Update } from '@aws-sdk/client-dynamodb'
 import type {
+  BatchGetCommandInput,
   BatchWriteCommandInput,
   DeleteCommandInput,
   GetCommandInput,
@@ -15,6 +16,7 @@ import type {
 import { inspect, isDeepStrictEqual } from 'node:util'
 import { DynamoDBClient, TransactionCanceledException, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
 import {
+  BatchGetCommand,
   BatchWriteCommand,
   DeleteCommand,
   DynamoDBDocumentClient,
@@ -246,6 +248,31 @@ export default class CustomDynamoClient {
 
       lastEvaluatedKey = data.LastEvaluatedKey
     } while (lastEvaluatedKey)
+
+    return items
+  }
+
+  /**
+   * Point lookups for a known set of keys in one round trip. DynamoDB caps a request at 100 keys
+   * and may return some of them as unprocessed, so both are handled here.
+   */
+  async batchGet<T extends object>(keys: Record<string, number | string>[], table?: string): Promise<T[]> {
+    if (!keys.length) return []
+
+    const tableName = table ? fromSamLocalTable(table) : this.table
+    const items: T[] = []
+
+    for (let i = 0; i < keys.length; i += 100) {
+      let requestItems: BatchGetCommandInput['RequestItems'] = { [tableName]: { Keys: keys.slice(i, i + 100) } }
+
+      for (let attempt = 0; attempt < 3 && requestItems; attempt++) {
+        const params: BatchGetCommandInput = { RequestItems: requestItems }
+        logDb('DB.batchGet', params)
+        const data = await this.docClient.send(new BatchGetCommand(params))
+        items.push(...((data.Responses?.[tableName] ?? []) as T[]))
+        requestItems = Object.keys(data.UnprocessedKeys ?? {}).length ? data.UnprocessedKeys : undefined
+      }
+    }
 
     return items
   }

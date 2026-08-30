@@ -8,8 +8,8 @@ interface KeyMeta {
 }
 
 interface CachedDatasetMeta {
-  count: number
-  modifiedAt?: string
+  /** The collection version this blob was fetched at. Absent in blobs written before versions. */
+  revision?: string
   storedAt: string
   userId: string
 }
@@ -78,7 +78,7 @@ export async function writeEncryptedDataset<T>(
   userId: string,
   key: string,
   data: T,
-  meta: Pick<CachedDatasetMeta, 'count' | 'modifiedAt'>
+  meta: Pick<CachedDatasetMeta, 'revision'>
 ): Promise<void> {
   const cryptoKey = await getKey(userId)
   const iv = crypto.getRandomValues(new Uint8Array(12))
@@ -90,9 +90,8 @@ export async function writeEncryptedDataset<T>(
 
   await idbSet<EncryptedDataset>(DATASETS, datasetKey(userId, key), {
     cipherText,
-    count: meta.count,
     iv: iv.buffer.slice(0),
-    modifiedAt: meta.modifiedAt,
+    revision: meta.revision,
     storedAt: new Date().toISOString(),
     userId,
   })

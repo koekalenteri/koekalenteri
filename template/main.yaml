@@ -18,6 +18,7 @@ Globals:
         STACK_NAME: !Ref AWS::StackName
         STAGE_NAME: !Ref StageNameParam
         AUDIT_TABLE_NAME: !Ref AuditTable
+        DATA_VERSION_TABLE_NAME: !Ref DataVersionTable
         DOG_TABLE_NAME: !Ref DogTable
         EMAIL_SUPPRESSION_TABLE_NAME: !Ref EmailSuppressionTable
         EMAIL_TEMPLATE_TABLE_NAME: !Ref EmailTemplatesTable

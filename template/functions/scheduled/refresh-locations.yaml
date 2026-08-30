@@ -20,6 +20,8 @@
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref LocationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataVersionTable
         - !Ref WebSocketPolicy
       Events:
         WeeklyRefresh:

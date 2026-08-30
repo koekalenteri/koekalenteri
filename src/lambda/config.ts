@@ -1,6 +1,7 @@
 export const CONFIG = {
   // TABLES
   auditTable: process.env.AUDIT_TABLE_NAME ?? 'audit-table-not-found-in-env',
+  dataVersionTable: process.env.DATA_VERSION_TABLE_NAME ?? 'data-version-table-not-found-in-env',
   dogTable: process.env.DOG_TABLE_NAME ?? 'dog-table-not-found-in-env',
   emailFrom: process.env.EMAIL_FROM ?? 'koekalenteri@koekalenteri.snj.fi',
   emailSuppressionTable: process.env.EMAIL_SUPPRESSION_TABLE_NAME ?? 'email-suppression-table-not-found-in-env',

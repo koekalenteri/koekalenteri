@@ -11,17 +11,10 @@
             TableName: !Ref UserTable
         - DynamoDBCrudPolicy:
             TableName: !Ref UserLinkTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref EmailTemplatesTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref OfficialTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref JudgeTable
-        # dataVersions reads the locations snapshot row
-        - DynamoDBReadPolicy:
-            TableName: !Ref LocationTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref EventTypeTable
+        # dataVersions reads the version registry instead of scanning the collection tables.
+        # Crud, not Read: authorize() can create or update the caller's user record, which bumps.
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataVersionTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetUser:

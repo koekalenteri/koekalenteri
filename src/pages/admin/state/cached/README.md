@@ -4,9 +4,11 @@ Admin reference datasets (`eventTypes`, `judges`, `locations`, `officials`, and 
 
 ## Freshness model
 
-The existing `/user` login call returns `dataVersions` only for users with admin access (global admins or users that belong to at least one organization). Each dataset version is `{ count, modifiedAt }`. A cached dataset is considered fresh when its count matches and its `modifiedAt` is greater than or equal to the server value.
+The existing `/user` login call returns `dataVersions` only for users with admin access (global admins or users that belong to at least one organization). Each dataset version is `{ revision, modifiedAt? }`, where `revision` is an opaque token reminted whenever the collection changes. A cached dataset is fresh when its stored revision equals the current one — nothing else about the token is meaningful, and a blob written before revisions existed has none, so it is refetched once.
 
-The `users` version follows the same visibility rules as `/admin/user`: non-global-admin callers only count users relevant to their organizations, plus admins, judges, and officials.
+The versions come from a registry table keyed by `(collection, scope)` rather than being derived on read; see `src/lambda/lib/dataVersions.ts` for why (five table scans on the hottest lambda we have) and `src/lambda/lib/dataVersionRepair.ts` for the weekly job that repairs a forgotten bump.
+
+The `users` version follows the same visibility rules as `/admin/user`, and is scoped the same way: a global admin compares one global token, everyone else compares the composed tokens of the `directory` scope (admins, judges and officials) plus one scope per organization they belong to. A user record that is irrelevant to a caller cannot invalidate that caller's cache, and `src/lambda/lib/userScopes.ts` holds both halves of that rule so the scoping and the filtering cannot drift apart.
 
 ## Storage model
 
@@ -31,6 +33,6 @@ Admin collection atoms use `atomWithCachedRemoteCollection()`. Its asynchronous 
 
 When the API call fails and a cached blob is available, the atom returns the cached data so the UI remains usable through transient outages. When no cache is available, the original error propagates and the atom rejects.
 
-On a successful refetch the cache is rewritten using the actual fetched count, not the server-reported `dataVersions.count`. This keeps the cache self-consistent when the server dataset changes between the `dataVersions` snapshot and the refetch.
+On a successful refetch the blob records the revision reported *before* the fetch. If the collection changes in between, the blob is marked older than its data and refetches once more later — never the other way round.
 
 If IndexedDB or Web Crypto is unavailable (for example in tests), cache read/write failures are ignored and the atom falls back to remote fetching.

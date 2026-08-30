@@ -299,7 +299,8 @@ describe('auth', () => {
           id: 'test-id',
           lastSeen: '2023-11-30T20:00:00.000Z',
           name: '',
-        })
+        }),
+        existingUser
       )
     })
 
@@ -351,7 +352,7 @@ describe('auth', () => {
         changedKeys: Object.keys(expectedUser),
         userId: 'test-id',
       })
-      expect(updateUser).toHaveBeenCalledWith(expectedUser)
+      expect(updateUser).toHaveBeenCalledWith(expectedUser, undefined)
     })
 
     it('should trim whitespace from email', async () => {
@@ -372,7 +373,7 @@ describe('auth', () => {
         changedKeys: Object.keys(expectedUser),
         userId: 'test-id',
       })
-      expect(updateUser).toHaveBeenCalledWith(expectedUser)
+      expect(updateUser).toHaveBeenCalledWith(expectedUser, undefined)
     })
 
     it('should update lastSeen when requested', async () => {
@@ -389,7 +390,7 @@ describe('auth', () => {
         name: '',
       }
 
-      expect(updateUser).toHaveBeenCalledWith(expectedUser)
+      expect(updateUser).toHaveBeenCalledWith(expectedUser, undefined)
     })
 
     it('should not update existing user lastSeen when it was recently updated', async () => {
@@ -473,7 +474,8 @@ describe('auth', () => {
         expect.objectContaining({
           email: 'old@example.com',
           emailHistory: [{ changedAt: '2023-11-30T20:00:00.000Z', email: 'old@example.com', source: 'login' }],
-        })
+        }),
+        expect.objectContaining({ email: 'old@example.com' })
       )
     })
   })

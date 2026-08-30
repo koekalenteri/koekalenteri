@@ -12,6 +12,8 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataVersionTable
         - !Ref WebSocketPolicy
       Events:
         PutUserName:

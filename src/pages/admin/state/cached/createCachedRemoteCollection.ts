@@ -17,14 +17,13 @@ export async function loadCachedRemoteCollection<T>(
   const version = user.dataVersions?.[cacheKey]
   const cached = await readEncryptedDataset<T[]>(user.id, cacheKey).catch(() => undefined)
   const sortedCached = cached ? (sort ? sort([...cached.data]) : cached.data) : undefined
-  if (sortedCached && isFresh(cached, version)) return sortedCached
+  if (sortedCached && isFresh(cached?.revision, version)) return sortedCached
   try {
     const fresh = await fetch(token)
     const sorted = sort ? sort([...fresh]) : fresh
-    await writeEncryptedDataset(user.id, cacheKey, sorted, {
-      count: sorted.length,
-      modifiedAt: version?.modifiedAt,
-    }).catch(() => undefined)
+    // The revision is the one reported before the fetch: if the collection changed in between, the
+    // blob is recorded as older than its data and refetches once more later. Never the other way.
+    await writeEncryptedDataset(user.id, cacheKey, sorted, { revision: version?.revision }).catch(() => undefined)
     return sorted
   } catch (error) {
     if (sortedCached) return sortedCached
@@ -32,11 +31,9 @@ export async function loadCachedRemoteCollection<T>(
   }
 }
 
-const isFresh = (cached: DataVersion | undefined, current: DataVersion | undefined): boolean => {
-  if (!cached || !current || cached.count !== current.count) return false
-  if (!current.modifiedAt) return true
-  return Boolean(cached.modifiedAt && cached.modifiedAt >= current.modifiedAt)
-}
+// A blob written before versions existed has no revision and is always refetched once.
+const isFresh = (cachedRevision: string | undefined, current: DataVersion | undefined): boolean =>
+  Boolean(cachedRevision && current?.revision && cachedRevision === current.revision)
 
 export function atomWithCachedRemoteCollection<T>({ cacheKey, fetch, sort }: CachedCollectionOptions<T>) {
   const remoteAtom = atom(async (get) => {

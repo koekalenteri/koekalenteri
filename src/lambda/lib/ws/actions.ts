@@ -1,6 +1,7 @@
 import type { AdminDataCollection, JsonDogEvent, JsonPublicDogEvent, JsonRegistration, Patch } from '../../../types'
 import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
+import { bumpDataVersion } from '../dataVersions'
 import { broadcast } from './broadcast'
 import { removeConnection } from './connectionRepository'
 import {
@@ -91,11 +92,20 @@ export const publishParticipantRegistrationPatch = (
     buildPayload: () => ({ eventId, patch, registrationId, scope: 'participant:registration-patch' }),
   })
 
-export const publishAdminDataInvalidation = (collections: AdminDataCollection[]) =>
-  send({
+export const publishAdminDataInvalidation = async (collections: AdminDataCollection[]) => {
+  // Bump the stored versions too, so a browser that is not connected right now notices at its next
+  // login. `users` is deliberately excluded: its version is scoped per organization and bumped
+  // where the records are written (lib/user.ts), which is also where the old and new scopes of a
+  // moved record are known. `organizers` has no browser-side cache and no version.
+  for (const collection of collections) {
+    if (collection !== 'users' && collection !== 'organizers') await bumpDataVersion(collection)
+  }
+
+  return send({
     audience: adminAudience,
     buildPayload: () => ({ collections, scope: 'admin:data-invalidation' }),
   })
+}
 
 export const publishEventViewers = (
   eventId: string,

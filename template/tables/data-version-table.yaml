@@ -1,0 +1,26 @@
+  # Version registry for the browser-cached admin collections: one row per (collection, scope)
+  # holding an opaque revision token. Replaces counting rows and taking max(modifiedAt) on every
+  # /user call. `users` is scoped per organization, everything else uses the '*' scope.
+  # See src/lambda/lib/dataVersions.ts.
+  DataVersionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [data-version-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: collection
+            KeyType: HASH
+          - AttributeName: scope
+            KeyType: RANGE
+      AttributeDefinitions:
+          - AttributeName: collection
+            AttributeType: S
+          - AttributeName: scope
+            AttributeType: S
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

@@ -23,12 +23,12 @@ beforeAll(async () => {
 const makeEffect = (fetch = vi.fn()) => {
   const promise = loadCachedRemoteCollection({ cacheKey: 'judges', fetch }, 'token', {
     dataVersions: {
-      emailTemplates: { count: 0 },
-      eventTypes: { count: 0 },
-      judges: { count: 1, modifiedAt: '2026-01-02T00:00:00.000Z' },
-      locations: { count: 0 },
-      officials: { count: 0 },
-      users: { count: 0 },
+      emailTemplates: { revision: '*:initial' },
+      eventTypes: { revision: '*:initial' },
+      judges: { modifiedAt: '2026-01-02T00:00:00.000Z', revision: '*:current' },
+      locations: { revision: '*:initial' },
+      officials: { revision: '*:initial' },
+      users: { revision: 'directory:initial' },
     },
     id: 'user-1',
   } satisfies Partial<User> as User)
@@ -41,12 +41,8 @@ describe('loadCachedRemoteCollection', () => {
     mockWriteEncryptedDataset.mockResolvedValue(undefined)
   })
 
-  it('returns cached data and skips fetch when cache is fresh', async () => {
-    mockReadEncryptedDataset.mockResolvedValueOnce({
-      count: 1,
-      data: ['cached'],
-      modifiedAt: '2026-01-02T00:00:00.000Z',
-    })
+  it('returns cached data and skips fetch when the revision matches', async () => {
+    mockReadEncryptedDataset.mockResolvedValueOnce({ data: ['cached'], revision: '*:current' })
     const { fetch, promise } = makeEffect()
 
     await expect(promise).resolves.toEqual(['cached'])
@@ -55,12 +51,8 @@ describe('loadCachedRemoteCollection', () => {
     expect(mockWriteEncryptedDataset).not.toHaveBeenCalled()
   })
 
-  it('fetches and stores fresh data when cache is stale', async () => {
-    mockReadEncryptedDataset.mockResolvedValueOnce({
-      count: 1,
-      data: ['cached'],
-      modifiedAt: '2026-01-01T00:00:00.000Z',
-    })
+  it('fetches and stores fresh data when the revision differs', async () => {
+    mockReadEncryptedDataset.mockResolvedValueOnce({ data: ['cached'], revision: '*:stale' })
     const fetch = vi.fn().mockResolvedValueOnce(['fresh-a', 'fresh-b'])
     const { promise } = makeEffect(fetch)
 
@@ -68,27 +60,19 @@ describe('loadCachedRemoteCollection', () => {
 
     expect(fetch).toHaveBeenCalledWith('token')
     expect(mockWriteEncryptedDataset).toHaveBeenCalledWith('user-1', 'judges', ['fresh-a', 'fresh-b'], {
-      count: 2,
-      modifiedAt: '2026-01-02T00:00:00.000Z',
+      revision: '*:current',
     })
   })
 
-  it('fetches when cached count differs from current version count', async () => {
-    mockReadEncryptedDataset.mockResolvedValueOnce({
-      count: 2,
-      data: ['cached-a', 'cached-b'],
-      modifiedAt: '2026-01-02T00:00:00.000Z',
-    })
+  it('fetches when the cached blob predates revisions', async () => {
+    mockReadEncryptedDataset.mockResolvedValueOnce({ data: ['cached-a', 'cached-b'] })
     const fetch = vi.fn().mockResolvedValueOnce(['fresh'])
     const { promise } = makeEffect(fetch)
 
     await expect(promise).resolves.toEqual(['fresh'])
 
     expect(fetch).toHaveBeenCalledWith('token')
-    expect(mockWriteEncryptedDataset).toHaveBeenCalledWith('user-1', 'judges', ['fresh'], {
-      count: 1,
-      modifiedAt: '2026-01-02T00:00:00.000Z',
-    })
+    expect(mockWriteEncryptedDataset).toHaveBeenCalledWith('user-1', 'judges', ['fresh'], { revision: '*:current' })
   })
 
   it('fetches when there is no cache', async () => {
@@ -102,11 +86,7 @@ describe('loadCachedRemoteCollection', () => {
   })
 
   it('falls back to cached data when fetch fails', async () => {
-    mockReadEncryptedDataset.mockResolvedValueOnce({
-      count: 1,
-      data: ['cached'],
-      modifiedAt: '2026-01-01T00:00:00.000Z',
-    })
+    mockReadEncryptedDataset.mockResolvedValueOnce({ data: ['cached'], revision: '*:stale' })
     const fetch = vi.fn().mockRejectedValueOnce(new Error('network'))
     const { promise } = makeEffect(fetch)
 

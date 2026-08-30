@@ -46,7 +46,8 @@ interface UserRoles {
 }
 
 export interface DataVersion {
-  count: number
+  /** Opaque token, reminted whenever the collection changes. Compare for equality, nothing else. */
+  revision: string
   modifiedAt?: string
 }
 

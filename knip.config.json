@@ -1,8 +1,15 @@
 {
   "workspaces": {
     ".": {
-      "ignore": ["aws/split.js", "scripts/marshall.cjs", "scripts/precommit.js"],
-      "ignoreBinaries": ["sam", "scripts/prebuild-backend.sh"],
+      "ignore": [
+        "aws/split.js",
+        "scripts/marshall.cjs",
+        "scripts/precommit.js"
+      ],
+      "ignoreBinaries": [
+        "sam",
+        "scripts/prebuild-backend.sh"
+      ],
       "ignoreDependencies": [
         "@aws-amplify/core",
         "@codemirror/lang-html",
@@ -19,9 +26,10 @@
         "src/lambda/GetDogFunction/handler.ts",
         "src/lambda/GetEmailTemplatesFunction/handler.ts",
         "src/lambda/GetEventFunction/handler.ts",
-        "src/lambda/GetEventsFunction/handler.ts",
         "src/lambda/GetEventTypesFunction/handler.ts",
+        "src/lambda/GetEventsFunction/handler.ts",
         "src/lambda/GetJudgesFunction/handler.ts",
+        "src/lambda/GetLocationsFunction/handler.ts",
         "src/lambda/GetOfficialsFunction/handler.ts",
         "src/lambda/GetOrganizersFunction/handler.ts",
         "src/lambda/GetRegistrationAuditTrailFunction/handler.ts",
@@ -49,9 +57,11 @@
         "src/lambda/PutUserNameFunction/handler.ts",
         "src/lambda/RebuildAllStatsFunction/handler.ts",
         "src/lambda/RebuildStatsFunction/handler.ts",
+        "src/lambda/RefreshLocationsFunction/handler.ts",
         "src/lambda/RefundCancelFunction/handler.ts",
         "src/lambda/RefundCreateFunction/handler.ts",
         "src/lambda/RefundSuccessFunction/handler.ts",
+        "src/lambda/RepairDataVersionsFunction/handler.ts",
         "src/lambda/RunMigrationFunction/handler.ts",
         "src/lambda/SendRegistrationMessagesFunction/handler.ts",
         "src/lambda/SetAdminFunction/handler.ts",
@@ -65,7 +75,11 @@
     }
   },
   "ignoreIssues": {
-    "src/pages/global-mocks/**": ["exports"]
+    "src/pages/global-mocks/**": [
+      "exports"
+    ]
   },
-  "tags": ["-lintignore"]
+  "tags": [
+    "-lintignore"
+  ]
 }

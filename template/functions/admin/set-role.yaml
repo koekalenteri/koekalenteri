@@ -16,6 +16,8 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataVersionTable
         - !Ref WebSocketPolicy
         - Statement:
           - Sid: SESSendEmailPolicy
