@@ -60,12 +60,14 @@
       ComparisonOperator: GreaterThanThreshold
       TreatMissingData: notBreaching
 
-  # A sync that quietly stops running leaves the option list frozen with no other signal. One day
-  # is the largest period CloudWatch accepts, so nine of them cover a missed weekly run.
+  # A sync that quietly stops running leaves the option list frozen with no other signal. CloudWatch
+  # rejects an alarm whose EvaluationPeriods * Period exceeds one week when the period is an hour or
+  # more, so a weekly job gets exactly seven daily periods: all seven must be missing, which happens
+  # only when a scheduled run was skipped.
   RefreshLocationsFunctionMissingRunAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmDescription: Kennelliitto location refresh has not run in 9 days
+      AlarmDescription: Kennelliitto location refresh has not run in 7 days
       Namespace: AWS/Lambda
       MetricName: Invocations
       Dimensions:
@@ -73,7 +75,7 @@
           Value: !Ref RefreshLocationsFunction
       Statistic: Sum
       Period: 86400
-      EvaluationPeriods: 9
+      EvaluationPeriods: 7
       Threshold: 1
       ComparisonOperator: LessThanThreshold
       TreatMissingData: breaching
