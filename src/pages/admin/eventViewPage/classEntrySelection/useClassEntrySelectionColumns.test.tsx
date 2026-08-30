@@ -515,7 +515,15 @@ describe('Action column in detail', () => {
       // Participant registration (not reserve/cancelled) with payment
       {
         cancelled: false,
-        expectedActions: ['moveToGroup', 'moveToPosition', 'moveToReserve', 'edit', 'cancel', 'sendMessage'],
+        expectedActions: [
+          'moveToGroup',
+          'moveToPosition',
+          'moveToReserve',
+          'edit',
+          'cancel',
+          'editInternalNotes',
+          'sendMessage',
+        ],
         // ensure it is treated as a participant (not reserve/cancelled)
         group: { key: 'P' },
         id: 'test-id-1',
@@ -526,7 +534,7 @@ describe('Action column in detail', () => {
       // Cancelled registration with payment
       {
         cancelled: true,
-        expectedActions: ['moveToReserve', 'refund', 'edit', 'sendMessage'],
+        expectedActions: ['moveToReserve', 'refund', 'edit', 'editInternalNotes', 'sendMessage'],
         group: { key: registrationUtils.GROUP_KEY_CANCELLED },
         id: 'test-id-2',
         paidAmount: 5000,
@@ -536,7 +544,7 @@ describe('Action column in detail', () => {
       // Fully refunded cancelled registration
       {
         cancelled: true,
-        expectedActions: ['moveToReserve', 'edit', 'sendMessage'],
+        expectedActions: ['moveToReserve', 'edit', 'editInternalNotes', 'sendMessage'],
         group: { key: registrationUtils.GROUP_KEY_CANCELLED },
         id: 'test-id-3',
         paidAmount: 5000,
@@ -546,7 +554,7 @@ describe('Action column in detail', () => {
       // Unpaid reserve registration
       {
         cancelled: false,
-        expectedActions: ['moveToParticipants', 'moveToPosition', 'edit', 'cancel', 'sendMessage'],
+        expectedActions: ['moveToParticipants', 'moveToPosition', 'edit', 'cancel', 'editInternalNotes', 'sendMessage'],
         group: { key: registrationUtils.GROUP_KEY_RESERVE },
         id: 'test-id-4',
         paidAmount: 0,

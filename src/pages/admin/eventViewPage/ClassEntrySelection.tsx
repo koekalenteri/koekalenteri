@@ -36,6 +36,7 @@ import UnlockArrange from './classEntrySelection/UnlockArrange'
 import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySelectionColumns'
 import { useDnDHandlers } from './classEntrySelection/useDnDHandlers'
 import { useEntryHandlers } from './classEntrySelection/useEntryHandlers'
+import InternalNotesDialog from './InternalNotesDialog'
 import MoveToGroupDialog from './MoveToGroupDialog'
 import MoveToPositionDialog from './MoveToPositionDialog'
 import SendMessageDialog from './SendMessageDialog'
@@ -79,6 +80,7 @@ const ClassEntrySelection = ({
   const [moveToGroupDialogOpen, setMoveToGroupDialogOpen] = useState(false)
   const [moveToPositionDialogOpen, setMoveToPositionDialogOpen] = useState(false)
   const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
+  const [internalNotesDialogOpen, setInternalNotesDialogOpen] = useState(false)
   const [pendingMoveId, setPendingMoveId] = useState<string>()
   const [selectedForAction, setSelectedForAction] = useState<Registration | undefined>()
   const actionsDisabled = isEventOver(event) || (state ? ['ended', 'completed'].includes(state) : false)
@@ -172,6 +174,10 @@ const ClassEntrySelection = ({
       },
       canMoveReserveToPosition,
       canMoveToPosition: canMoveParticipantToPosition,
+      editInternalNotes: (id: string) => {
+        if (actionsDisabled) return
+        openActionDialog(id, setInternalNotesDialogOpen)
+      },
       movementDisabled,
       moveToGroup: (id: string) => openMoveDialog(id, setMoveToGroupDialogOpen),
       moveToParticipants: (id: string) => openMoveDialog(id, setMoveToGroupDialogOpen),
@@ -450,6 +456,15 @@ const ClassEntrySelection = ({
             open={sendMessageDialogOpen}
             onClose={() => setSendMessageDialogOpen(false)}
             registrations={[selectedForAction]}
+          />
+
+          <InternalNotesDialog
+            open={internalNotesDialogOpen}
+            onClose={() => setInternalNotesDialogOpen(false)}
+            registration={selectedForAction}
+            onSave={(internalNotes) =>
+              actions.putInternalNotes(selectedForAction.eventId, selectedForAction.id, internalNotes)
+            }
           />
         </>
       )}

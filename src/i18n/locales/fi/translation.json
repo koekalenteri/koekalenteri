@@ -466,6 +466,7 @@
     "actions": {
       "cancel": "Peru ilmoittautuminen",
       "edit": "Muokkaa ilmoittautumista",
+      "editInternalNotes": "Muokkaa sisäistä kommenttia",
       "moveToGroup": "Siirrä toiseen ryhmään",
       "moveToParticipants": "Siirrä osallistujiin",
       "moveToPosition": "Siirrä tietylle starttipaikalle",
@@ -558,6 +559,10 @@
     "handler": "Ohjaajan tiedot",
     "handlerIsMember": "Ohjaaja on järjestävän yhdistyksen jäsen",
     "internalNotes": "Sisäinen kommentti (ei näy ilmoittautujalle)",
+    "internalNotesDialog": {
+      "saveFailed": "Sisäisen kommentin tallennus epäonnistui",
+      "title": "Koesihteerin merkinnät: {{name}}"
+    },
     "internalNotesStatus": {
       "error": "Tallennus epäonnistui",
       "idle": "Tallentuu automaattisesti",

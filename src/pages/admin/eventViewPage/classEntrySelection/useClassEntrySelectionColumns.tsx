@@ -6,6 +6,7 @@ import EditOutlined from '@mui/icons-material/EditOutlined'
 import EmailOutlined from '@mui/icons-material/EmailOutlined'
 import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
 import LowPriorityOutlined from '@mui/icons-material/LowPriorityOutlined'
+import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import SwapHorizOutlined from '@mui/icons-material/SwapHorizOutlined'
 import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -34,6 +35,7 @@ interface RegistrationActionCallbacks {
   moveToReserve?: (id: string) => void
   moveToParticipants?: (id: string) => void
   sendMessage?: (id: string) => void
+  editInternalNotes?: (id: string) => void
   pendingMoveId?: string
   actionsDisabled?: boolean
   movementDisabled?: boolean
@@ -186,6 +188,17 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
       />
     )
   }
+
+  actions.push(
+    <GridActionsCellItem
+      key="editInternalNotes"
+      disabled={actionsDisabled}
+      icon={<SpeakerNotesOutlined fontSize="small" />}
+      label={t('registration.actions.editInternalNotes')}
+      onClick={() => callbacks?.editInternalNotes?.(row.id)}
+      showInMenu
+    />
+  )
 
   actions.push(
     <GridActionsCellItem

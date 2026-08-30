@@ -466,6 +466,7 @@
     "actions": {
       "cancel": "Cancel registration",
       "edit": "Edit registration",
+      "editInternalNotes": "Edit internal comment",
       "moveToGroup": "Move to group",
       "moveToParticipants": "Move to participants",
       "moveToPosition": "Move to start position",
@@ -558,6 +559,10 @@
     "handler": "Handler information",
     "handlerIsMember": "Handler is a member of the organizing society",
     "internalNotes": "Internal comment (not visible to registrant)",
+    "internalNotesDialog": {
+      "saveFailed": "Saving the internal comment failed",
+      "title": "Secretary's notes: {{name}}"
+    },
     "internalNotesStatus": {
       "error": "Saving failed",
       "idle": "Saved automatically",
