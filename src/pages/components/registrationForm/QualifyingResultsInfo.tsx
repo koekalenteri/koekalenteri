@@ -63,7 +63,10 @@ export default function QualifyingResultsInfo({
     if (results) {
       for (const result of results) {
         if (!newResults.some((r) => !r.official && r.id && r.id === result.id)) {
-          newResults.push({ ...result, official: false, qualifying: undefined })
+          // Not among the results the rules picked (worse than the best five, or outside the ranking
+          // period). It stays visible for editing, but it earns no ranking points, so any points the
+          // result carried from an earlier calculation are dropped instead of counted in the total.
+          newResults.push({ ...result, official: false, qualifying: undefined, rankingPoints: undefined })
         }
       }
     }
