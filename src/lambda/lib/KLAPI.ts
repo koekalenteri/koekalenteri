@@ -104,7 +104,6 @@ export default class KLAPI {
       }
     }
 
-    console.log('KPLAPI.get returning', { error, json, status })
     return { error, json, status }
   }
 
