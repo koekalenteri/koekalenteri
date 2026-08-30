@@ -1,6 +1,10 @@
+import type { ManualTestResult } from '../../../../types'
+import { getRequirements } from '../../../../rules'
 import { availableResults, availableTypes, createMissingResult, resultBorderColor } from './utils'
 
 const ID_REGEXP = /^[0-9a-zA-Z_-]{10}$/
+// SM rules are in force from 15.4.2023 onwards
+const SM_RULE_DATE = new Date('2024-01-01')
 
 describe('QualifyingResultsInfo utils', () => {
   describe('availableTypes', () => {
@@ -42,6 +46,16 @@ describe('QualifyingResultsInfo utils', () => {
           ],
         })
       ).toEqual(['NOME-B', 'NOWT'])
+    })
+
+    // SM events have no listed rules: their requirements are a function, so the types come from
+    // the event type alone.
+    it.each([
+      ['NOME-B SM', ['NOME-B']],
+      ['NOME-A SM', ['NOME-A', 'NOME-A KV']],
+      ['NOWT SM', ['NOWT']],
+    ])('should return the types accepted by %s', (eventType, expected) => {
+      expect(availableTypes(getRequirements(eventType, undefined, SM_RULE_DATE), eventType)).toEqual(expected)
     })
   })
 
@@ -96,6 +110,33 @@ describe('QualifyingResultsInfo utils', () => {
           ],
         })
       ).toEqual(['ALO1', 'ALO2'])
+    })
+
+    it.each([
+      ['NOME-B SM', 'NOME-B', ['FI KVA-B', 'VOI1', 'VOI2', 'VOI3']],
+      ['NOWT SM', 'NOWT', ['FI KVA-WT', 'VOI1', 'VOI2', 'VOI3']],
+      ['NOME-A SM', 'NOME-A', ['FI KVA-FT', 'A1 CERT', 'A1 RES-CERT', 'A1', 'A2', 'A3']],
+      ['NOME-A SM', 'NOME-A KV', ['EXC CACIT', 'EXC RES-CACIT', 'EXC', 'VG', 'G']],
+    ])('should return the results accepted by %s for type %s', (eventType, type, expected) => {
+      expect(availableResults(getRequirements(eventType, undefined, SM_RULE_DATE), type, eventType)).toEqual(expected)
+    })
+
+    it('should not offer a title the dog already has', () => {
+      const kvaResult: ManualTestResult = {
+        class: 'VOI',
+        date: new Date('2024-01-01'),
+        id: 'kva',
+        judge: 'Judge Dredd',
+        location: 'Location',
+        official: false,
+        regNo: 'test-reg-no',
+        result: 'FI KVA-WT',
+        type: 'NOWT',
+      }
+
+      expect(
+        availableResults(getRequirements('NOWT SM', undefined, SM_RULE_DATE), 'NOWT', 'NOWT SM', [kvaResult])
+      ).toEqual(['VOI1', 'VOI2', 'VOI3'])
     })
   })
 
