@@ -4,7 +4,7 @@ const mockFetchLocations = vi.fn()
 const mockSyncLocations = vi.fn()
 const mockPublishAdminDataInvalidation = vi.fn()
 
-vi.doMock('../lib/locations', () => ({
+vi.doMock('../lib/location', () => ({
   fetchLocations: mockFetchLocations,
   syncLocations: mockSyncLocations,
 }))

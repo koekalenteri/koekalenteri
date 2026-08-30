@@ -11,12 +11,14 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   }),
 }))
 
-vi.doMock('./dataVersions', () => ({
+vi.doMock('../lib/dataVersions', () => ({
+  // Vitest replaces the whole module, so the scope constant has to come along.
+  GLOBAL_SCOPE: '*',
   readStoredDataVersions: mockReadStored,
   writeDataVersionFingerprint: mockWriteFingerprint,
 }))
 
-const { repairDataVersions } = await import('./dataVersionRepair')
+const { default: repairDataVersions } = await import('./handler')
 
 const users = [
   { id: 'u1', modifiedAt: '2026-01-02T00:00:00.000Z', roles: { org1: 'secretary' } },
@@ -71,7 +73,7 @@ describe('repairDataVersions', () => {
       { count: 2, fingerprintAt: '2026-01-03T00:00:00.000Z' },
       false
     )
-    expect(mockWriteFingerprint.mock.calls.every((call) => call[3] === false)).toBe(true)
+    expect(mockWriteFingerprint).not.toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything(), true)
   })
 
   it('leaves matching fingerprints alone', async () => {

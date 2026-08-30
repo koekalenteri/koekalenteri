@@ -35,6 +35,9 @@ vi.mock('@aws-sdk/client-dynamodb', () => ({
 }))
 
 vi.mock('@aws-sdk/lib-dynamodb', () => ({
+  BatchGetCommand: vi.fn().mockImplementation(function BatchGetCommand(params) {
+    return params
+  }),
   BatchWriteCommand: vi.fn().mockImplementation(function BatchWriteCommand(params) {
     return params
   }),
@@ -516,6 +519,81 @@ describe('CustomDynamoClient', () => {
         },
         UpdateExpression: 'SET #placesPerDay.#n2026_08_22 = :placesPerDay_2026_08_22',
       })
+    })
+  })
+
+  describe('batchGet', () => {
+    it('returns the items for the requested keys', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Responses: { 'test-table': [{ id: '1' }, { id: '2' }] } })
+
+      const items = await client.batchGet([{ id: '1' }, { id: '2' }])
+
+      expect(items).toEqual([{ id: '1' }, { id: '2' }])
+      expect(mockSend).toHaveBeenCalledWith({
+        RequestItems: { 'test-table': { Keys: [{ id: '1' }, { id: '2' }] } },
+      })
+    })
+
+    it('does not call DynamoDB without keys', async () => {
+      const client = new CustomDynamoClient('TestTable')
+
+      await expect(client.batchGet([])).resolves.toEqual([])
+
+      expect(mockSend).not.toHaveBeenCalled()
+    })
+
+    it('splits the keys into requests of 100', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValue({ Responses: { 'test-table': [] } })
+      const keys = Array.from({ length: 150 }, (_, i) => ({ id: `${i}` }))
+
+      await client.batchGet(keys)
+
+      expect(mockSend).toHaveBeenCalledTimes(2)
+      expect(mockSend).toHaveBeenNthCalledWith(1, {
+        RequestItems: { 'test-table': { Keys: keys.slice(0, 100) } },
+      })
+      expect(mockSend).toHaveBeenNthCalledWith(2, {
+        RequestItems: { 'test-table': { Keys: keys.slice(100) } },
+      })
+    })
+
+    it('retries the keys DynamoDB could not process', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend
+        .mockResolvedValueOnce({
+          Responses: { 'test-table': [{ id: '1' }] },
+          UnprocessedKeys: { 'test-table': { Keys: [{ id: '2' }] } },
+        })
+        .mockResolvedValueOnce({ Responses: { 'test-table': [{ id: '2' }] } })
+
+      const items = await client.batchGet([{ id: '1' }, { id: '2' }])
+
+      expect(items).toEqual([{ id: '1' }, { id: '2' }])
+      expect(mockSend).toHaveBeenCalledTimes(2)
+      expect(mockSend).toHaveBeenNthCalledWith(2, {
+        RequestItems: { 'test-table': { Keys: [{ id: '2' }] } },
+      })
+    })
+
+    it('gives up after three attempts rather than looping', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValue({
+        Responses: { 'test-table': [] },
+        UnprocessedKeys: { 'test-table': { Keys: [{ id: '1' }] } },
+      })
+
+      await client.batchGet([{ id: '1' }])
+
+      expect(mockSend).toHaveBeenCalledTimes(3)
+    })
+
+    it('uses provided table name', async () => {
+      const client = new CustomDynamoClient('DefaultTable')
+      mockSend.mockResolvedValueOnce({ Responses: { 'custom-table': [{ id: '1' }] } })
+
+      await expect(client.batchGet([{ id: '1' }], 'CustomTable')).resolves.toEqual([{ id: '1' }])
     })
   })
 

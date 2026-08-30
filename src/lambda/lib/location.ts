@@ -12,6 +12,10 @@ import { capitalize } from './string'
  */
 export const LOCATIONS_ID = 'fi'
 
+/** Only the calls this module makes, so a test double is a plain object rather than a cast. */
+type LocationApi = Pick<KLAPI, 'lueKennelpiirit' | 'luePaikkakunnat'>
+type LocationStore = Pick<CustomDynamoClient, 'read' | 'write'>
+
 interface LocationSnapshot {
   count: number
   id: string
@@ -35,7 +39,7 @@ const collectLocations = (entries: Map<number, Location>, items: KLPaikkakunta[]
 
 const sortLocations = (locations: Location[]) => locations.sort((a, b) => a.name.localeCompare(b.name, 'fi'))
 
-export const fetchLocations = async (klapi: KLAPI): Promise<Location[] | undefined> => {
+export const fetchLocations = async (klapi: LocationApi): Promise<Location[] | undefined> => {
   const entries = new Map<number, Location>()
 
   // KennelpiirinNumero is optional in the KL API, but the district-less call has never been made in
@@ -73,8 +77,7 @@ export const fetchLocations = async (klapi: KLAPI): Promise<Location[] | undefin
   return entries.size ? sortLocations([...entries.values()]) : undefined
 }
 
-export const getLocationSnapshot = (dynamoDB: CustomDynamoClient) =>
-  dynamoDB.read<LocationSnapshot>({ id: LOCATIONS_ID })
+export const getLocationSnapshot = (dynamoDB: LocationStore) => dynamoDB.read<LocationSnapshot>({ id: LOCATIONS_ID })
 
 /**
  * Writes the snapshot only when the list actually changed: an unchanged modifiedAt is what keeps
@@ -82,7 +85,7 @@ export const getLocationSnapshot = (dynamoDB: CustomDynamoClient) =>
  *
  * @returns true when the snapshot was written
  */
-export const syncLocations = async (dynamoDB: CustomDynamoClient, locations: Location[]): Promise<boolean> => {
+export const syncLocations = async (dynamoDB: LocationStore, locations: Location[]): Promise<boolean> => {
   if (!locations.length) return false
 
   const existing = await getLocationSnapshot(dynamoDB)

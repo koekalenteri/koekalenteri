@@ -1,9 +1,9 @@
 // Weekly refresh of the Kennelliitto municipality list offered in the event form's location field.
 // The list only really changes at the turn of the year, so a week of staleness costs nothing and
-// the sync stays a cheap background job. See src/lambda/lib/locations.ts.
+// the sync stays a cheap background job. See src/lambda/lib/location.ts.
 import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
-import { fetchLocations, syncLocations } from '../lib/locations'
+import { fetchLocations, syncLocations } from '../lib/location'
 import { getKLAPIConfig } from '../lib/secrets'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'

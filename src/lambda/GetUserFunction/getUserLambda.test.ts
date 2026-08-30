@@ -61,7 +61,7 @@ describe('getUserLambda', () => {
     await getUserLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event, true)
-    expect(mockGetDataVersions).toHaveBeenCalledWith(user)
+    expect(mockGetDataVersions).toHaveBeenCalledWith(['*'])
     expect(mockResponse).toHaveBeenCalledWith(200, { ...user, dataVersions }, event)
   })
 

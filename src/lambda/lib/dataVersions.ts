@@ -1,8 +1,10 @@
-import type { DataVersion, DataVersions, JsonUser } from '../../types'
+import type { DataVersion, DataVersions } from '../../types'
 import { nanoid } from 'nanoid'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { callerScopes, GLOBAL_SCOPE } from './userScopes'
+
+/** Every collection but `users` has a single version; see `userScopes()` in lib/user.ts. */
+export const GLOBAL_SCOPE = '*'
 
 /**
  * Version registry: one row per (collection, scope), holding an opaque revision token that is
@@ -64,11 +66,13 @@ const composeVersion = (records: Map<string, VersionRecord>, collection: Version
   } satisfies DataVersion
 }
 
-export async function getDataVersions(user: JsonUser): Promise<DataVersions> {
-  const userScopeList = callerScopes(user)
+/**
+ * @param userScopes the scopes the caller's user list is assembled from, from `callerScopes()`
+ */
+export async function getDataVersions(userScopes: string[]): Promise<DataVersions> {
   const records = await client.batchGet<VersionRecord>([
     ...GLOBAL_VERSIONED_COLLECTIONS.map((collection) => ({ collection, scope: GLOBAL_SCOPE })),
-    ...userScopeList.map((scope) => ({ collection: 'users', scope })),
+    ...userScopes.map((scope) => ({ collection: 'users', scope })),
   ])
   const byKey = new Map(records.map((record) => [recordKey(record.collection, record.scope), record]))
   const global = (collection: VersionedCollection) => composeVersion(byKey, collection, [GLOBAL_SCOPE])
@@ -79,7 +83,7 @@ export async function getDataVersions(user: JsonUser): Promise<DataVersions> {
     judges: global('judges'),
     locations: global('locations'),
     officials: global('officials'),
-    users: composeVersion(byKey, 'users', userScopeList),
+    users: composeVersion(byKey, 'users', userScopes),
   }
 }
 

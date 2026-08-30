@@ -1,5 +1,10 @@
-import type { JsonUser } from '../../types'
 import { vi } from 'vitest'
+
+vi.useFakeTimers()
+vi.setSystemTime(new Date('2026-08-30T12:00:00Z'))
+// Reset between tests so each one can assert the exact revision it produced.
+const revision = vi.hoisted(() => ({ next: 0 }))
+vi.doMock('nanoid', () => ({ nanoid: () => `test-revision-${++revision.next}` }))
 
 const mockBatchGet = vi.fn()
 const mockUpdate = vi.fn()
@@ -12,17 +17,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 
 const { bumpDataVersion, getDataVersions } = await import('./dataVersions')
 
-const user = (props: Partial<JsonUser>): JsonUser =>
-  ({
-    createdAt: '',
-    createdBy: '',
-    email: '',
-    id: 'caller',
-    modifiedAt: '',
-    modifiedBy: '',
-    name: '',
-    ...props,
-  }) as JsonUser
+const NOW = '2026-08-30T12:00:00.000Z'
 
 describe('getDataVersions', () => {
   beforeEach(() => {
@@ -31,7 +26,7 @@ describe('getDataVersions', () => {
   })
 
   it('reads one row per global collection and per caller scope', async () => {
-    await getDataVersions(user({ roles: { org1: 'secretary', org2: 'admin' } }))
+    await getDataVersions(['directory', 'org1', 'org2'])
 
     expect(mockBatchGet).toHaveBeenCalledTimes(1)
     expect(mockBatchGet).toHaveBeenCalledWith([
@@ -46,11 +41,11 @@ describe('getDataVersions', () => {
     ])
   })
 
-  it('reads a single global users scope for a global admin', async () => {
-    await getDataVersions(user({ admin: true, roles: { org1: 'secretary' } }))
+  it('reads a single row for a global admin', async () => {
+    await getDataVersions(['*'])
 
-    expect(mockBatchGet.mock.calls[0][0]).toContainEqual({ collection: 'users', scope: '*' })
-    expect(mockBatchGet.mock.calls[0][0]).not.toContainEqual({ collection: 'users', scope: 'org1' })
+    expect(mockBatchGet).toHaveBeenCalledWith(expect.arrayContaining([{ collection: 'users', scope: '*' }]))
+    expect(mockBatchGet).toHaveBeenCalledWith(expect.not.arrayContaining([{ collection: 'users', scope: 'org1' }]))
   })
 
   it('composes the users version from every caller scope', async () => {
@@ -59,7 +54,7 @@ describe('getDataVersions', () => {
       { collection: 'users', modifiedAt: '2026-01-03T00:00:00.000Z', revision: 'bbb', scope: 'directory' },
     ])
 
-    const versions = await getDataVersions(user({ roles: { org1: 'secretary' } }))
+    const versions = await getDataVersions(['directory', 'org1'])
 
     expect(versions.users).toEqual({
       modifiedAt: '2026-01-03T00:00:00.000Z',
@@ -68,15 +63,15 @@ describe('getDataVersions', () => {
   })
 
   it('reports an initial revision for collections nothing has bumped', async () => {
-    const versions = await getDataVersions(user({ roles: { org1: 'secretary' } }))
+    const versions = await getDataVersions(['directory', 'org1'])
 
     expect(versions.judges).toEqual({ modifiedAt: undefined, revision: '*:initial' })
     expect(versions.users).toEqual({ modifiedAt: undefined, revision: 'directory:initial|org1:initial' })
   })
 
-  it('changes the users revision when the caller changes organization', async () => {
-    const before = await getDataVersions(user({ roles: { org1: 'secretary' } }))
-    const after = await getDataVersions(user({ roles: { org1: 'secretary', org2: 'secretary' } }))
+  it('changes the users version when the caller changes organization', async () => {
+    const before = await getDataVersions(['directory', 'org1'])
+    const after = await getDataVersions(['directory', 'org1', 'org2'])
 
     expect(after.users.revision).not.toEqual(before.users.revision)
   })
@@ -85,6 +80,7 @@ describe('getDataVersions', () => {
 describe('bumpDataVersion', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    revision.next = 0
     mockUpdate.mockResolvedValue(undefined)
   })
 
@@ -94,7 +90,7 @@ describe('bumpDataVersion', () => {
     expect(mockUpdate).toHaveBeenCalledTimes(1)
     expect(mockUpdate).toHaveBeenCalledWith(
       { collection: 'judges', scope: '*' },
-      { set: { modifiedAt: expect.any(String), revision: expect.any(String) } }
+      { set: { modifiedAt: NOW, revision: 'test-revision-1' } }
     )
   })
 
@@ -102,17 +98,33 @@ describe('bumpDataVersion', () => {
     await bumpDataVersion('users', ['*', 'org1', 'org1', 'directory'])
 
     expect(mockUpdate).toHaveBeenCalledTimes(3)
-    const revisions = new Set(mockUpdate.mock.calls.map((call) => call[1].set.revision))
-    expect(revisions.size).toBe(1)
-    expect(mockUpdate.mock.calls.map((call) => call[0].scope)).toEqual(['*', 'org1', 'directory'])
+    expect(mockUpdate).toHaveBeenNthCalledWith(
+      1,
+      { collection: 'users', scope: '*' },
+      { set: { modifiedAt: NOW, revision: 'test-revision-1' } }
+    )
+    expect(mockUpdate).toHaveBeenNthCalledWith(
+      2,
+      { collection: 'users', scope: 'org1' },
+      { set: { modifiedAt: NOW, revision: 'test-revision-1' } }
+    )
+    expect(mockUpdate).toHaveBeenNthCalledWith(
+      3,
+      { collection: 'users', scope: 'directory' },
+      { set: { modifiedAt: NOW, revision: 'test-revision-1' } }
+    )
   })
 
   it('produces a different revision on every bump', async () => {
     await bumpDataVersion('judges')
     await bumpDataVersion('judges')
 
-    const [first, second] = mockUpdate.mock.calls.map((call) => call[1].set.revision)
-    expect(first).not.toEqual(second)
+    expect(mockUpdate).toHaveBeenNthCalledWith(1, expect.anything(), {
+      set: { modifiedAt: NOW, revision: 'test-revision-1' },
+    })
+    expect(mockUpdate).toHaveBeenNthCalledWith(2, expect.anything(), {
+      set: { modifiedAt: NOW, revision: 'test-revision-2' },
+    })
   })
 
   it('does not fail the write that triggered it', async () => {
@@ -120,7 +132,11 @@ describe('bumpDataVersion', () => {
     mockUpdate.mockRejectedValueOnce(new Error('AccessDenied'))
 
     await expect(bumpDataVersion('judges')).resolves.toBeUndefined()
-    expect(error).toHaveBeenCalled()
+    expect(error).toHaveBeenCalledWith('failed to bump data version', {
+      collection: 'judges',
+      error: expect.any(Error),
+      scopes: ['*'],
+    })
     error.mockRestore()
   })
 

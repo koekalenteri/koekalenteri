@@ -13,7 +13,6 @@ import { bumpDataVersion } from './dataVersions'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { reverseName } from './string'
-import { callerScopes, userScopes } from './userScopes'
 
 const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
 
@@ -108,13 +107,38 @@ export function dedupeUsersByEmail<
   return [...byEmail.values()]
 }
 
-export { userIsMemberOf } from './userScopes'
+/** Every user record belongs to this scope: it is what a global admin's cache compares against. */
+export const GLOBAL_SCOPE = '*'
+/** Admins, judges and officials are part of every caller's user list, whatever their organization. */
+export const DIRECTORY_SCOPE = 'directory'
+
+export const userIsMemberOf = (user: Pick<JsonUser, 'roles'>): string[] =>
+  Object.keys(user?.roles ?? {}).filter((orgId) => !!user?.roles?.[orgId])
+
+type ScopedUser = Pick<JsonUser, 'admin' | 'judge' | 'officer' | 'roles'>
 
 /**
- * A user record is relevant to a caller exactly when their scopes intersect. The same two scope
- * functions decide which cached lists a record invalidates, so relevance and versioning cannot
- * drift apart. See lib/userScopes.ts.
+ * The scopes a user record belongs to, i.e. whose cached user lists contain it.
+ *
+ * Together with `callerScopes()` this *is* the relevance rule below: a record is relevant to a
+ * caller exactly when the two scope sets intersect. The same pair decides which cached lists a
+ * record invalidates (see lib/dataVersions.ts), so relevance and versioning cannot drift apart.
  */
+export const userScopes = (user: ScopedUser): string[] => [
+  GLOBAL_SCOPE,
+  ...(user.admin || user.judge?.length || user.officer?.length ? [DIRECTORY_SCOPE] : []),
+  ...Object.keys(user.roles ?? {}),
+]
+
+/** The scopes a caller's user list is assembled from. */
+export const callerScopes = (user: ScopedUser, orgs?: string[]): string[] => {
+  if (user.admin) return [GLOBAL_SCOPE]
+
+  const memberOf = userIsMemberOf(user)
+
+  return [DIRECTORY_SCOPE, ...(orgs ? orgs.filter((orgId) => memberOf.includes(orgId)) : memberOf)]
+}
+
 export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) => {
   const scopes = new Set(callerScopes(user, orgs))
 

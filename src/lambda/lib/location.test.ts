@@ -1,21 +1,19 @@
 import type { Location } from '../../types'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
-import type KLAPI from './KLAPI'
 import { vi } from 'vitest'
-import { fetchLocations, LOCATIONS_ID, syncLocations } from './locations'
+import { fetchLocations, LOCATIONS_ID, syncLocations } from './location'
 
 const klapiResult = <T>(json: T | undefined, status = 200, error?: string) => ({ error, json, status })
 
 const createKlapi = () => {
   const luePaikkakunnat = vi.fn()
   const lueKennelpiirit = vi.fn()
-  return { klapi: { lueKennelpiirit, luePaikkakunnat } as unknown as KLAPI, lueKennelpiirit, luePaikkakunnat }
+  return { klapi: { lueKennelpiirit, luePaikkakunnat }, lueKennelpiirit, luePaikkakunnat }
 }
 
 const createDynamo = () => {
   const read = vi.fn()
   const write = vi.fn()
-  return { dynamoDB: { read, write } as unknown as CustomDynamoClient, read, write }
+  return { dynamoDB: { read, write }, read, write }
 }
 
 describe('fetchLocations', () => {

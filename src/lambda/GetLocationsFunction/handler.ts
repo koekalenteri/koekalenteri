@@ -2,7 +2,7 @@ import { userHasAdminAccess } from '../../lib/user'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
-import { getLocationSnapshot } from '../lib/locations'
+import { getLocationSnapshot } from '../lib/location'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 // exported for testing
