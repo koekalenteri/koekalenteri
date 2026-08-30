@@ -16,6 +16,22 @@
           RequireNumbers: true
           RequireSymbols: false
           RequireUppercase: true
+      # Verification codes must come from the SES domain identity, not from an
+      # address on snj.fi: only koekalenteri.snj.fi has DKIM signing and a custom
+      # MAIL FROM, so only it produces a DMARC-aligned message. Sending from
+      # snj.fi left the codes unauthenticated and they landed in spam (KOE-1122).
+      # This block also has to stay here rather than being set in the console:
+      # Cognito replaces the whole pool on update, so an unrelated change to this
+      # resource would silently revert sending to Cognito's shared address and its
+      # 50 messages per day cap.
+      EmailConfiguration:
+        EmailSendingAccount: DEVELOPER
+        SourceArn: !Sub 'arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/koekalenteri.snj.fi'
+        From: 'Koekalenteri <koekalenteri@koekalenteri.snj.fi>'
+        ReplyToEmailAddress: 'koekalenteri@snj.fi'
+        # Separate from the 'Koekalenteri' set on purpose: sign-up bounces must not
+        # feed the registration email suppression table.
+        ConfigurationSet: UserPool
 
   KoekalanteriUserPoolGoogleProvider:
     Type: AWS::Cognito::UserPoolIdentityProvider
