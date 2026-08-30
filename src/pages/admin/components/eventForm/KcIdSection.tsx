@@ -14,6 +14,8 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { normalizeEventKcIdChoice, searchEventKcIdChoices } from '../../../../api/event'
 import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
+import { localeSortComparator } from '../../../../lib/datagrid'
+import { unique } from '../../../../lib/utils'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import { idTokenAtom } from '../../../state'
 import KcIdChoiceDialog from './KcIdChoiceDialog'
@@ -160,7 +162,9 @@ function formatDateSpan(start?: Date, end?: Date) {
 }
 
 function joinSorted(values: readonly (string | undefined)[] | undefined) {
-  return [...new Set((values ?? []).filter((v): v is string => Boolean(v)))].sort().join(', ')
+  return unique((values ?? []).filter((v): v is string => Boolean(v)))
+    .sort(localeSortComparator)
+    .join(', ')
 }
 
 function computeKcWarnings(event: BasicInfoEvent, t: TFunction) {
