@@ -130,6 +130,7 @@ function ResultsTable({
                 ))}
                 <RoundOutcomeCell
                   disabled={disabled}
+                  eventType={eventType}
                   stationId={stationId}
                   stations={stations}
                   onChange={(next) => onChange(registration.id, next)}

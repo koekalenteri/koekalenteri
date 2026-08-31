@@ -1,4 +1,4 @@
-import type { EventStation, NowtEliminatingFault } from '../../../types'
+import type { EliminatingFault, EventStation } from '../../../types'
 import type { ResultEdit } from './types'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -9,15 +9,7 @@ import TableCell from '@mui/material/TableCell'
 import TextField from '@mui/material/TextField'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-
-/** §5.7.2. Every one of these voids the round and is recorded as a dash, never a zero. */
-const ELIMINATING_FAULTS: NowtEliminatingFault[] = [
-  'aggression',
-  'gunShyness',
-  'refusedRetrieve',
-  'hardMouth',
-  'harshHandling',
-]
+import { eliminatingFaults } from '../../../lib/results'
 
 const SCORED = ''
 const INJURY = 'injury'
@@ -26,6 +18,8 @@ const HANDLER_CHOICE = 'handlerChoice'
 interface Props {
   readonly value: ResultEdit
   readonly disabled?: boolean
+  /** Which rules' hylkäävät virheet to offer. They are not the same list for every event type. */
+  readonly eventType?: string
   /** The posts a round could have ended at. Empty for event types that are not scored at posts. */
   readonly stations: EventStation[]
   /** Set in a post's own view: the round can only have ended at the post being scored. */
@@ -43,8 +37,9 @@ const stationOf = (edit: ResultEdit) => edit.elimination?.stationId ?? edit.reti
  * finish — even though the rules treat them differently: every elimination is a dash, while a handler's
  * own withdrawal is a dash only if the judge holds the dog could still have placed.
  */
-export const RoundOutcome = ({ value, disabled, stations, stationId, onChange }: Props) => {
+export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, onChange }: Props) => {
   const { t } = useTranslation()
+  const faults = eliminatingFaults(eventType)
   const outcome = outcomeOf(value)
   // A post's own view already knows where it happened; the whole-round view has to ask.
   const where = stationId ?? stationOf(value)
@@ -63,7 +58,7 @@ export const RoundOutcome = ({ value, disabled, stations, stationId, onChange }:
         return onChange({ retirement: { cause: 'handlerChoice', ...at }, tasks: value.tasks })
       }
 
-      return onChange({ elimination: { fault: next as NowtEliminatingFault, ...at }, tasks: value.tasks })
+      return onChange({ elimination: { fault: next as EliminatingFault, ...at }, tasks: value.tasks })
     },
     [onChange, value.tasks, where]
   )
@@ -103,7 +98,7 @@ export const RoundOutcome = ({ value, disabled, stations, stationId, onChange }:
             be undoable. */}
         <MenuItem value={SCORED}>{t('results.outcomeNone')}</MenuItem>
         <ListSubheader>{t('results.outcomeEliminated')}</ListSubheader>
-        {ELIMINATING_FAULTS.map((fault) => (
+        {faults.map((fault) => (
           <MenuItem key={fault} value={fault}>
             {t(`results.eliminatingFaults.${fault}`)}
           </MenuItem>

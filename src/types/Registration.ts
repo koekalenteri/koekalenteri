@@ -40,8 +40,22 @@ export type NowtZeroFault =
  * own misconduct but the rules put it in the same category and it lands on the same outcome.
  *
  * Since the result is a uniform dash, this code is the only place the reason survives.
+ *
+ * Not NOWT's alone, unlike `NowtZeroFault`: a zero attaches to a task's score and only NOWT has tasks,
+ * while any event type can throw a dog out. So the union is wider than any one rules section's list, and
+ * `eliminatingFaults` in `lib/results.ts` says which codes are offered where.
  */
-export type NowtEliminatingFault = 'aggression' | 'gunShyness' | 'refusedRetrieve' | 'hardMouth' | 'harshHandling'
+export type EliminatingFault =
+  | 'aggression'
+  | 'gunShyness'
+  | 'refusedRetrieve'
+  | 'hardMouth'
+  | 'harshHandling'
+  /**
+   * Scent-marking, and NOU's alone: §2.3.2 fails the Hakuinto quality for it as evidence of deficient
+   * hunting drive, rather than treating it as bad manners. NOWT §5.3.5 does not list it.
+   */
+  | 'marking'
 
 /**
  * A round ended by a hylkäävä virhe (§5.7.2). Every one of these is a dash rather than a zero.
@@ -50,7 +64,7 @@ export type NowtEliminatingFault = 'aggression' | 'gunShyness' | 'refusedRetriev
  * worth knowing, and it is lost the moment only the fault is kept.
  */
 export interface EventResultElimination {
-  fault: NowtEliminatingFault
+  fault: EliminatingFault
   /** Absent for event types with no posts. */
   stationId?: string
 }

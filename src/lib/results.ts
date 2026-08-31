@@ -1,4 +1,5 @@
 import type {
+  EliminatingFault,
   EventResultElimination,
   EventResultRetirement,
   JsonEventClassStation,
@@ -37,6 +38,28 @@ export const taskMaxPoints = (tasks: 1 | 2): number => STATION_MAX_POINTS / task
 const POST_SCORED_EVENT_TYPES = ['NOWT', 'NOWT SM']
 
 export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.includes(eventType ?? '')
+
+/** Shared by every event type's rules, in the order the lists give them. */
+const ELIMINATING_FAULTS: EliminatingFault[] = [
+  'aggression',
+  'gunShyness',
+  'refusedRetrieve',
+  'hardMouth',
+  'harshHandling',
+]
+
+/**
+ * The hylkäävät virheet offered when scoring an event type.
+ *
+ * Only merkkaaminen is scoped so far, because only it is demonstrably one event type's: the rules give
+ * it to NOU alone, as the Hakuinto quality of the taipumuskoe (§2.3.2, "Jatkuva reviirin merkkaaminen
+ * kertoo puutteellisesta hakuinnosta ja johtaa suorituksen hylkäämiseen"), and NOWT §5.3.5 does not list
+ * it. Where the shared list itself diverges from §5.3.5 — refusedRetrieve and harshHandling are not in
+ * it, and liiallinen arkuus tai pelokkuus is missing from ours — that is the deferred conformance work,
+ * which this deliberately does not decide.
+ */
+export const eliminatingFaults = (eventType?: string): EliminatingFault[] =>
+  eventType === 'NOU' ? [...ELIMINATING_FAULTS, 'marking'] : ELIMINATING_FAULTS
 
 /** One task as scored for one dog, joined to its definition in the class's round. */
 export interface ScoredTask {

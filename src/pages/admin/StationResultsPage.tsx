@@ -200,7 +200,13 @@ export default function StationResultsPage() {
             ))}
           </Stack>
 
-          <RoundOutcome onChange={setEdit} stationId={stationId} stations={[]} value={edit} />
+          <RoundOutcome
+            eventType={event.eventType}
+            onChange={setEdit}
+            stationId={stationId}
+            stations={[]}
+            value={edit}
+          />
         </Stack>
       )}
 

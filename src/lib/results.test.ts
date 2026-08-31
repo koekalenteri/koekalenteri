@@ -4,6 +4,7 @@ import {
   availableResultCodes,
   classRound,
   deriveNowtResult,
+  eliminatingFaults,
   eventResultPrefix,
   formatEventResult,
   mergeStationTasks,
@@ -121,6 +122,26 @@ describe('deriveNowtResult', () => {
     it('settles a voided round before completeness, so an unfinished scorecard still resolves', () => {
       expect(deriveNowtResult({ elimination: { fault: 'gunShyness' }, tasks: [] })).toBe('-')
     })
+  })
+})
+
+describe('eliminatingFaults', () => {
+  it('offers merkkaaminen only where the NOU rules give it', () => {
+    // §2.3.2 fails the Hakuinto quality of the taipumuskoe for continual scent-marking. NOWT §5.3.5 has
+    // four faults and this is not among them, so offering it there would invite a record the rules of
+    // that trial cannot account for.
+    expect(eliminatingFaults('NOU')).toContain('marking')
+    expect(eliminatingFaults('NOWT')).not.toContain('marking')
+    expect(eliminatingFaults('NOME-B')).not.toContain('marking')
+    expect(eliminatingFaults()).not.toContain('marking')
+  })
+
+  it('offers the shared vocabulary to every event type', () => {
+    for (const eventType of ['NOU', 'NOME-A', 'NOME-B', 'NOWT', 'NKM', undefined]) {
+      expect(eliminatingFaults(eventType)).toEqual(
+        expect.arrayContaining(['aggression', 'gunShyness', 'refusedRetrieve', 'hardMouth', 'harshHandling'])
+      )
+    }
   })
 })
 
