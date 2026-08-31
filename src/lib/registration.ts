@@ -394,6 +394,15 @@ export const getRegistrationGroupKey = <T extends JsonRegistration | Registratio
 export const isParticipantGroup = (group?: string): boolean =>
   Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
 
+/**
+ * Whether a result can be recorded for this entry at all. Only the dogs that actually ran are scored: a
+ * reserve never called up and a cancelled entry have no round to record, and offering them a row invites
+ * a result being entered against the wrong dog.
+ */
+export const isScorableRegistration = <T extends JsonRegistration | Registration>(
+  reg: Pick<T, 'cancelled' | 'group'>
+): boolean => isParticipantGroup(getRegistrationGroupKey(reg))
+
 export const canRefund = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
 ): boolean =>

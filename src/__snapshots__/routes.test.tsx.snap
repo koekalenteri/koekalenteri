@@ -149,6 +149,18 @@ exports[`routes > should match a snapshot 1`] = `
       },
       {
         "lazy": [Function],
+        "path": "/admin/event/stations/:id",
+      },
+      {
+        "lazy": [Function],
+        "path": "/admin/event/results/:id",
+      },
+      {
+        "lazy": [Function],
+        "path": "/admin/event/results/:id/station/:stationId",
+      },
+      {
+        "lazy": [Function],
         "path": "/admin/organizations",
       },
       {

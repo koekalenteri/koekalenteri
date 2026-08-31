@@ -8,6 +8,7 @@ import type {
   Language,
   PatchOperation,
   Person,
+  PublicJudge,
   Replace,
   TestResult,
 } from '.'
@@ -15,6 +16,128 @@ import type { DogEventCostSegment } from './Cost'
 
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
+
+/**
+ * Faults that zero a single task while the dog carries on (NOWT rules §5.7.3).
+ *
+ * Stored as a code, never as a label: the Finnish wording is an i18n key, and a rules revision must be
+ * able to reword it without orphaning the recorded history.
+ */
+export type NowtZeroFault =
+  | 'unauthorizedRun'
+  | 'outOfControl'
+  | 'persistentNoise'
+  | 'abandonedRetrieve'
+  | 'refusedWater'
+  | 'dummyNotFound'
+  | 'huntingWithDummy'
+  | 'swappedDummy'
+  | 'eyeWipe'
+
+/**
+ * Eliminating faults ("hylkäävä virhe", §5.7.2). The pair is barred from continuing and the round is
+ * voided, so every one of these resolves to a dash rather than a zero. `harshHandling` is the handler's
+ * own misconduct but the rules put it in the same category and it lands on the same outcome.
+ *
+ * Since the result is a uniform dash, this code is the only place the reason survives.
+ *
+ * Not NOWT's alone, unlike `NowtZeroFault`: a zero attaches to a task's score and only NOWT has tasks,
+ * while any event type can throw a dog out. So the union is wider than any one rules section's list, and
+ * `eliminatingFaults` in `lib/results.ts` says which codes are offered where.
+ */
+export type EliminatingFault =
+  | 'aggression'
+  | 'gunShyness'
+  | 'refusedRetrieve'
+  | 'hardMouth'
+  | 'harshHandling'
+  /**
+   * Scent-marking, and NOU's alone: §2.3.2 fails the Hakuinto quality for it as evidence of deficient
+   * hunting drive, rather than treating it as bad manners. NOWT §5.3.5 does not list it.
+   */
+  | 'marking'
+
+/**
+ * A round ended by a hylkäävä virhe (§5.7.2). Every one of these is a dash rather than a zero.
+ *
+ * The post is recorded because an elimination happens somewhere: which post a dog was thrown out at is
+ * worth knowing, and it is lost the moment only the fault is kept.
+ */
+export interface EventResultElimination {
+  fault: EliminatingFault
+  /** Absent for event types with no posts. */
+  stationId?: string
+}
+
+/** Why a round ended before it was scored. Only a handler's own withdrawal is conditional. */
+export interface EventResultRetirement {
+  cause: 'handlerChoice' | 'injury'
+  /**
+   * The judge's call, asked only for `handlerChoice`: §5.8.1 grants the dash where the dog could still
+   * have placed, and a zero otherwise. An injured dog always takes the dash.
+   */
+  couldStillHavePlaced?: boolean
+  /** Where it happened. An injury in particular is worth locating, not just counting. */
+  stationId?: string
+}
+
+/** One task's score for one dog. A task is identified by its post and its position within it. */
+export interface JsonEventResultTask {
+  stationId: string
+  /** 0-based position among that post's tasks. */
+  index: number
+  /** `null` while unscored. `0` is a real score and bars every prize; it is not the same as unscored. */
+  points: number | null
+  /**
+   * ALO only: the dog was called back mid-task, which halves what it can score there (§10.4). This caps
+   * the entry, never the denominator — scoring against the reduced figure would erase the penalty.
+   */
+  recalled?: boolean
+  /** The round stopped here. Recorded as a dash, which is not a zero and contributes nothing. */
+  retired?: boolean
+  /** Required whenever `points` is 0, so the reason survives into later statistics. */
+  zeroFault?: NowtZeroFault
+  judge?: PublicJudge
+  updatedAt: string
+  updatedBy: string
+}
+
+/**
+ * Client-side shapes. `http` revives any ISO string into a `Date` by the value's own shape rather than
+ * by field name, so `updatedAt` really is a `Date` once a result has crossed the wire — the same reason
+ * `paidAt` and `refundAt` are mapped.
+ */
+type EventResultTask = Replace<JsonEventResultTask, 'updatedAt', Date>
+export type EventResult = Replace<Omit<JsonEventResult, 'tasks'>, 'updatedAt', Date> & {
+  tasks?: EventResultTask[]
+}
+
+/**
+ * The outcome a secretary records for this event. Distinct from `results` (prior results the registrant
+ * claims) and `qualifyingResults` (server-computed prior history) — both of those describe the dog's
+ * past, not what it did here.
+ */
+export interface JsonEventResult {
+  /** Per-task scores, for event types scored at posts (NOWT). */
+  tasks?: JsonEventResultTask[]
+  /** Derived server-side from `tasks`; a client-supplied total is ignored. */
+  points?: number
+  /** The round's nominal maximum — 80 or 100, depending on how many posts the event ran. */
+  maxPoints?: number
+  /** Derived. Absent for a voided round, which has nothing to compare against a complete one. */
+  percentage?: number
+  /** Composed as prefix + code, e.g. `ALO1`, `AVO-`, `NOU0`. */
+  result?: string
+  cert?: boolean
+  resCert?: boolean
+  elimination?: EventResultElimination
+  retirement?: EventResultRetirement
+  /** The judging judge, for event types that do not score at posts. */
+  judge?: PublicJudge
+  notes?: string
+  updatedAt: string
+  updatedBy: string
+}
 
 export interface JsonEmailDeliveryStatus {
   at: string
@@ -77,6 +200,8 @@ export interface JsonRegistration extends JsonDbRecord {
   reserve: ReserveChoise | ''
   reserveNotified?: number | true // true is only found in old records
   results?: Array<JsonTestResult & { id: string }>
+  /** The result recorded for THIS event by the secretary. See `JsonEventResult`. */
+  eventResult?: JsonEventResult
   state?: 'creating' | 'ready'
   shouldPay?: boolean
   totalAmount?: number
@@ -134,6 +259,7 @@ export interface Registration
       JsonRegistration,
       | 'dates'
       | 'dog'
+      | 'eventResult'
       | 'invitationAttachmentUpdatedAt'
       | 'paidAt'
       | 'qualifyingResults'
@@ -145,6 +271,7 @@ export interface Registration
     DbRecord {
   dates: RegistrationDate[]
   dog: Dog
+  eventResult?: EventResult
   paidAt?: Date
   refundAt?: Date
   qualifyingResults: QualifyingResult[]
@@ -183,6 +310,8 @@ export interface JsonPublicRegistration {
    * "owner & handler". With several owners it is `false` and `handler` names the handling person.
    */
   ownerHandles?: boolean
+  /** Present only where the class's results have been published. Composed, e.g. `AVO1` or `ALO-`. */
+  result?: string
 }
 
 export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' | 'group'> {

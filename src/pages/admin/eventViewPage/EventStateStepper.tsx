@@ -74,11 +74,16 @@ const getPhaseLabel = (
   entryCompleted: boolean,
   entryOpen: boolean,
   startListCompleted: boolean,
+  resultsCompleted: boolean,
   t: TFunction
 ) => {
   if (phase === 'confirmed_entryOpen') return getEntryPhaseLabel(entryCompleted, entryOpen, t)
+  // A publishing step reads as an instruction until it is done, and as a fact afterwards.
   if (phase === 'startListPublished') {
     return t(`event.states.${startListCompleted ? 'startListPublished' : 'publishStartList'}`)
+  }
+  if (phase === 'resultsPublished') {
+    return t(`event.states.${resultsCompleted ? 'resultsPublished' : 'publishResults'}`)
   }
   return t(`event.states.${phase}`)
 }
@@ -93,6 +98,7 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     reachedPhaseIndex,
     startListActionable,
     startListClasses,
+    resultsCompleted,
     startListCompleted,
     temporalPhaseIndex,
   } = getEventProgress(event)
@@ -146,7 +152,7 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
             (phase === 'confirmed_entryOpen' && entryOpen && !entryCompleted) ||
             (phase === 'startListPublished' && startListActionable && !startListCompleted) ||
             (showClassProgress && completedClasses.length > 0 && completedClasses.length < eventClasses.length)
-          const label = getPhaseLabel(phase, entryCompleted, entryOpen, startListCompleted, t)
+          const label = getPhaseLabel(phase, entryCompleted, entryOpen, startListCompleted, resultsCompleted, t)
           const progressText = getPhaseProgressText({
             completedClasses,
             eventClasses,

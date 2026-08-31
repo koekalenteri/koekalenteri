@@ -23,6 +23,7 @@ export function startListSpreadsheetRows(
       t('startListExport.owner'),
       t('startListExport.handler'),
       t('startListExport.breeder'),
+      t('startListExport.result'),
     ],
     ...participants.map((registration) => [
       spreadsheetDate(registration.group.date ?? event.startDate),
@@ -37,6 +38,7 @@ export function startListSpreadsheetRows(
       registration.owner,
       registration.ownerHandles ? registration.owner : registration.handler,
       registration.breeder,
+      registration.result ?? '',
     ]),
   ]
 }

@@ -12,7 +12,7 @@ import { atom, useAtomValue } from 'jotai'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { objectsDiffer } from '../../../lib/diff'
-import { isEventOver, isOfficialEventType } from '../../../lib/event'
+import { isEventOver } from '../../../lib/event'
 import { merge } from '../../../lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
@@ -20,7 +20,6 @@ import {
   adminActiveEventTypesAtom,
   adminActiveJudgesAtom,
   adminEventTypeClassesAtom,
-  adminLinkedKcIdsAtom,
   adminLocationNamesAtom,
   adminUserOrganizersAtom,
   adminUsersAtom,
@@ -62,7 +61,6 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers, locations] =
     useAtomValue(eventFormOptionsAtom)
-  const linkedKcIds = useAtomValue(adminLinkedKcIdsAtom(event.id))
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,
@@ -115,6 +113,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       entryEndDate: event.entryEndDate,
       entryStartDate: event.entryStartDate,
       eventType: event.eventType,
+      id: event.id,
       judges: event.judges,
       kcEvent: event.kcEvent,
       kcId: event.kcId,
@@ -135,6 +134,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       event.entryEndDate,
       event.entryStartDate,
       event.eventType,
+      event.id,
       event.judges,
       event.kcEvent,
       event.kcId,
@@ -346,18 +346,15 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
           secretaries={secretaries}
           selectedEventType={selectedEventType}
         />
-        {isOfficialEventType(event.eventType, selectedEventType?.official) && (
-          <KcIdSection
-            disabled={allDisabled}
-            errorStates={errorStates}
-            event={basicInfoEvent}
-            fields={fields}
-            linkedKcIds={linkedKcIds}
-            onChange={handleChange}
-            onOpenChange={handleKcIdOpenChange}
-            open={open.kcId}
-          />
-        )}
+        <KcIdSection
+          disabled={allDisabled}
+          errorStates={errorStates}
+          event={basicInfoEvent}
+          fields={fields}
+          onChange={handleChange}
+          onOpenChange={handleKcIdOpenChange}
+          open={open.kcId}
+        />
         <JudgesSection
           disabled={allDisabled}
           errorStates={errorStates}

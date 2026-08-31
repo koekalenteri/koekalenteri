@@ -1,11 +1,13 @@
 import type {
   AuditRecord,
   ConfirmedEvent,
+  EventResult,
   Registration,
   RegistrationCreateRequest,
   RegistrationGroupMove,
   RegistrationPatchRequest,
 } from '../../types'
+import type { EventResultSubmission, EventResultsResponse } from '../registration'
 import { parseISO } from 'date-fns'
 import { mockRegistrationData } from '../../__mockData__/registrations'
 import { applyPatchOperations } from '../../lib/patch'
@@ -175,4 +177,21 @@ export async function getStartList(eventId: string, _token?: string, _signal?: A
 
 export const getStartListPreview = vi.fn(
   async (eventId: string, _token: string, _signal?: AbortSignal): Promise<Registration[]> => getStartList(eventId)
+)
+
+/**
+ * Saving results. A vi.fn so a test can make the save conflict or fail; the default answer says every
+ * submission was written, which is what the page needs to report a successful save.
+ */
+export const putEventResults = vi.fn(
+  async (
+    _eventId: string,
+    results: EventResultSubmission[],
+    _token: string,
+    _signal?: AbortSignal
+  ): Promise<EventResultsResponse> => ({
+    conflicts: [],
+    saved: results.map(({ id }) => ({ eventResult: {} as EventResult, id })),
+    unchanged: [],
+  })
 )

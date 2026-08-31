@@ -45,6 +45,8 @@ export const RegistrationDetails = ({ registration: reg, index }: RegistrationDe
           <Box>
             {ownerHandler}, kasv. {reg.breeder}
           </Box>
+          {/* Its own line, bold: this is what a reader came for, and what a Koiranet screenshot omits. */}
+          {reg.result && <Box sx={{ fontWeight: 'bold' }}>{reg.result}</Box>}
         </Box>
       </TableCell>
     </StyledTableRow>

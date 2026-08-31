@@ -17,6 +17,13 @@ import type { DogEventCost } from './Cost'
 export type PaymentTime = 'registration' | 'confirmation'
 export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
 
+/**
+ * Same shape as `StartListPublishedState`, so per-class publishing works the same way — but not the
+ * same default. An absent start list flag means published, for records that predate it; an absent
+ * results flag means not published, because a result nobody released must never appear.
+ */
+export type ResultsPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
+
 export interface JsonInvitationAttachmentVersion {
   className?: string
   uploadedAt: string
@@ -68,12 +75,52 @@ export interface JsonDogEvent extends JsonDbRecord {
   startDate: string
   state: EventState
   startListPublished?: StartListPublishedState
+  resultsPublished?: ResultsPublishedState
+  /** Scoring posts, for event types that score at posts (NOWT). */
+  stations?: JsonEventStation[]
 }
 
 type EventRequiredDates = 'startDate' | 'endDate'
 type EventEntryDates = 'entryStartDate' | 'entryEndDate'
 type EventOptionalDates = EventEntryDates | 'entryOrigEndDate' | 'qualificationStartDate'
 type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
+
+/**
+ * A physical scoring post ("rasti"). Judges are stationed at a post and it persists through the day
+ * while the classes rotate past it, each running its own exercise there.
+ *
+ * `tasks` is the course as built, which a class may override through `JsonEventClassStation`. A post is
+ * always worth `STATION_MAX_POINTS` and its tasks split that evenly, so what varies is the number of
+ * tasks, never the maximum — deriving each task's ceiling from the split rather than storing it means a
+ * post's tasks cannot fail to add up to the post.
+ */
+export type JsonEventStation = {
+  id: string
+  /** Posts are never named, only numbered 1..n within their own day. */
+  number: number
+  date: string
+  /**
+   * Several judges may work one post (§5.7). Always an array: `classes[].judge` carries a legacy
+   * single-judge shape, but this field is new and has no such history to accommodate.
+   */
+  judges?: PublicJudge[]
+  /** One task worth the post's full points, or two worth half each. */
+  tasks: 1 | 2
+}
+export type EventStation = Replace<JsonEventStation, 'date', Date>
+
+/**
+ * How many tasks one class runs at a post, where that differs from the post's own layout.
+ *
+ * A course is normally built once and every class runs it as laid out, so this is an override rather
+ * than a requirement: absent an entry, the class follows `JsonEventStation.tasks`. Keeping the two
+ * separate leaves room for a class to split a post the others do not, without duplicating the whole
+ * course per class.
+ */
+export type JsonEventClassStation = {
+  stationId: string
+  tasks: 1 | 2
+}
 
 export type JsonKcEventInfo = {
   classes: string[]
@@ -91,15 +138,19 @@ export type DogEvent = DbRecord &
       ReplaceOptional<
         ReplaceOptional<
           ReplaceOptional<
-            Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
-            EventOptionalDates,
-            Date
+            ReplaceOptional<
+              Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
+              EventOptionalDates,
+              Date
+            >,
+            'dates',
+            RegistrationDate[]
           >,
-          'dates',
-          RegistrationDate[]
+          'kcEvent',
+          KcEventInfo
         >,
-        'kcEvent',
-        KcEventInfo
+        'stations',
+        Array<EventStation>
       >,
       EventRequiredDates,
       Date
@@ -145,6 +196,8 @@ export type JsonEventClass = {
   entries?: number
   members?: number
   state?: EventClassState
+  /** Posts this class splits differently from the course as built. Absent entries follow the post. */
+  stations?: JsonEventClassStation[]
 }
 export type EventClass = Replace<JsonEventClass, 'date', Date>
 

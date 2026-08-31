@@ -265,13 +265,23 @@
       "extended_info": "Jatkettu",
       "invited": "Koekutsut lähetetty",
       "picked": "Osallistujat valittu",
+      "publishResults": "Julkaise tulokset",
       "publishStartList": "Julkaise starttilista",
+      "resultsPublished": "Tulokset julkaistu",
       "started": "Käynnissä",
       "startListPublished": "Starttilista julkaistu",
       "tentative": "Julkaistu alustavana",
       "tentative_info": "Alustava",
       "tentative_save": "Tapahtuma on julkaistu alustavana"
     },
+    "station": "Rasti",
+    "stationAdd": "Lisää rasti",
+    "stationJudges": "Tuomarit",
+    "stationRemove": "Poista rasti",
+    "stationsInfo": "Rastit ovat kiinteitä suorituspaikkoja, joiden läpi luokat kiertävät päivän aikana. Kunkin luokan tehtävät määritellään erikseen.",
+    "stationsSaved": "Rastit tallennettu",
+    "stationsSectionTitle": "Rastit",
+    "stationTasks": "Tehtäviä",
     "statusText": "",
     "viewerBanner_one": "Myös {{names}} katsoo tätä tapahtumaa.",
     "viewerBanner_other": "Myös {{names}} katsovat tätä tapahtumaa."
@@ -290,6 +300,7 @@
     "close": "Sulje tapahtuman hallinta",
     "datesOutsideClass": "Ilmoittautumisen valitut päivät ({{dates}}) eivät ole luokan {{class}} päiviä. Voit korjata tämän avaamalla ilmoittautumisen ja tallentamalla sen.",
     "datesOutsideEvent": "Ilmoittautumisen valitut päivät ({{dates}}) eivät ole tapahtuman päiviä. Voit korjata tämän avaamalla ilmoittautumisen ja tallentamalla sen.",
+    "enterResults": "Syötä tulokset",
     "groupRules": {
       "duplicateHandler": "Ohjaajalla {{name}} on tässä ryhmässä {{count}} koiraa. Tuomaritoimikunta suosittelee sijoittamaan saman ohjaajan koirat eri ryhmiin, sillä tutut koirat voivat käyttäytyä yhdessä eri tavoin kuin ilman toisiaan sosiaalisen käyttäytymisen osuudessa.",
       "genderBalance": "Ryhmän sukupuolijakauma ei täytä sääntöä: ryhmässä tulee olla vähintään kaksi urosta ja kaksi narttua. Jos ryhmä jää tällaiseksi, sitä tulee täydentää sosiaalisen käyttäytymisen arviointia varten kokeen ulkopuolisilla koirilla. Ryhmässä on nyt uroksia {{maleCount}} ja narttuja {{femaleCount}}.",
@@ -317,6 +328,15 @@
       "sendReserveNotification": "Lähetä varasijailmoitus",
       "title": "Osallistujien valinta"
     },
+    "results": {
+      "confirm": "Haluatko varmasti julkaista luokan {{eventClass}} tulokset Koekalenterissa?",
+      "confirmTitle": "Julkaise tulokset",
+      "hide": "Piilota tulokset",
+      "publish": "Julkaise tulokset",
+      "published": "Julkaistu",
+      "startListRequired": "Julkaise ensin startlista",
+      "title": "Tulosten julkaisu"
+    },
     "showEventDetails": "Näytä tapahtuman tiedot",
     "startList": {
       "hide": "Piilota starttilista",
@@ -328,6 +348,7 @@
       "saveFailed": "Starttilistan julkaisutilan tallennus epäonnistui. Yritä uudelleen.",
       "secretary": "Sihteerin starttilista"
     },
+    "stations": "Määritä rastit",
     "tabs": {
       "ariaLabel": "Tapahtuman hallinnan välilehdet",
       "auditTrail": "Muutoshistoria",
@@ -696,6 +717,63 @@
     "whoPays": "Kuka maksaa?"
   },
   "registrations": "Ilmoittautumiset",
+  "results": {
+    "alreadySaved": "Tulokset olivat jo tallennettuna",
+    "backToEvent": "Takaisin tapahtumaan",
+    "column": {
+      "dog": "Koira",
+      "handler": "Ohjaaja",
+      "number": "#",
+      "outcome": "Lisätieto",
+      "result": "Tulos",
+      "task": "Tehtävä {{number}}"
+    },
+    "conflictInfo": "Näitä tuloksia on muutettu muualla sillä välin. Valitse kumpi jää voimaan.",
+    "conflictMine": "Sinun: {{result}}",
+    "conflictResolve": "Tallenna valinnat",
+    "conflictStored": "Tallennettu ({{who}}): {{result}}",
+    "conflicts_one": "{{count}} tulos on muuttunut muualla. Tarkista ja tallenna uudelleen.",
+    "conflicts_other": "{{count}} tulosta on muuttunut muualla. Tarkista ja tallenna uudelleen.",
+    "conflictTitle": "Ristiriitaiset tulokset",
+    "couldStillHavePlaced": "Olisi vielä voinut palkintosijoille",
+    "eliminatingFaults": {
+      "aggression": "Aggressiivinen käyttäytyminen",
+      "gunShyness": "Laukausarkuus",
+      "hardMouth": "Kovasuisuus",
+      "harshHandling": "Koiran kurittaminen koepaikalla",
+      "marking": "Merkkaaminen",
+      "refusedRetrieve": "Kieltäytyminen noudosta"
+    },
+    "judge": "Tuomari",
+    "openStationView": "Rastinäkymä",
+    "outcome": "Lisätieto",
+    "outcomeAt": "Missä",
+    "outcomeAtUnknown": "Ei tiedossa",
+    "outcomeEliminated": "Hylkäävä virhe",
+    "outcomeNone": "Ei lisätietoa",
+    "outcomeRetired": "Keskeytys",
+    "retirement": {
+      "handlerChoice": "Ohjaaja keskeytti",
+      "injury": "Koira loukkaantui"
+    },
+    "runningTotal": "{{points}} / {{maxPoints}}",
+    "saved": "Tulokset tallennettu",
+    "scope": "Näytä",
+    "scopeAll": "Kaikki rastit",
+    "title": "Tulokset",
+    "zeroFault": "Nollan syy",
+    "zeroFaults": {
+      "abandonedRetrieve": "Noudon jättäminen kesken",
+      "dummyNotFound": "Löytymättä jäänyt dami",
+      "eyeWipe": "Eye-wipe",
+      "huntingWithDummy": "Etsiminen dami suussa",
+      "outOfControl": "Karkaaminen ohjaajan hallinnasta",
+      "persistentNoise": "Toistuva vinkuminen tai haukkuminen",
+      "refusedWater": "Kieltäytyminen vesityöskentelystä",
+      "swappedDummy": "Damin vaihtaminen",
+      "unauthorizedRun": "Luvaton lähtö noutoon"
+    }
+  },
   "roles": "Roolit",
   "save": "Tallenna",
   "search": {
@@ -717,6 +795,7 @@
     "number": "Numero",
     "owner": "Omistaja",
     "registrationNumber": "Rekisterinumero",
+    "result": "Tulos",
     "sheetName": "Starttilista",
     "sire": "Isä",
     "time": "Aika"

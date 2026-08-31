@@ -8,16 +8,20 @@ import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
   applySingleDayNowtGroups,
+  canPublishResults,
+  canPublishStartList,
   copyDogEvent,
   defaultEntryEndDate,
   defaultEntryStartDate,
   eventRegistrationDateKey,
   getEventClassesByDays,
   getEventDays,
+  getEventProgress,
   getEventProgressPhase,
   getEventSeason,
   getEventStateForClass,
   getEventTitle,
+  getResultsPublishedClassMap,
   getStartListPublishedClassMap,
   getUniqueEventClasses,
   hasExplicitPlacesForClass,
@@ -25,6 +29,9 @@ import {
   isDetaultEntryStartDate,
   isEventDeletable,
   isOfficialEventType,
+  isResultsAvailableForClass,
+  isResultsAvailableForRegistration,
+  isResultsPublishedForClass,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartListAvailableForRegistration,
@@ -1085,5 +1092,214 @@ describe('registrationDatesOutsideClass', () => {
       expect(isOfficialEventType(undefined, true)).toEqual(false)
       expect(isOfficialEventType(null)).toEqual(false)
     })
+  })
+})
+
+describe('publishing results', () => {
+  describe('isResultsPublishedForClass', () => {
+    it('treats an absent flag as not published', () => {
+      // The start list reads the other way, because its records predate the flag. A result nobody
+      // released must never appear, so the same shape carries the opposite default.
+      expect(isResultsPublishedForClass({}, 'ALO')).toBe(false)
+      expect(isStartListPublishedForClass({}, 'ALO')).toBe(true)
+    })
+
+    it('publishes every class when the flag is a plain true', () => {
+      expect(isResultsPublishedForClass({ resultsPublished: true }, 'ALO')).toBe(true)
+    })
+
+    it('publishes only the classes the map names', () => {
+      const event = { resultsPublished: { ALO: true } }
+
+      expect(isResultsPublishedForClass(event, 'ALO')).toBe(true)
+      expect(isResultsPublishedForClass(event, 'AVO')).toBe(false)
+    })
+  })
+
+  describe('canPublishResults', () => {
+    it('waits until the dogs have run', () => {
+      // A start list exists before the event; a result does not.
+      expect(canPublishResults('invited')).toBe(false)
+      expect(canPublishStartList('invited')).toBe(true)
+
+      expect(canPublishResults('started')).toBe(true)
+      expect(canPublishResults('ended')).toBe(true)
+      expect(canPublishResults('completed')).toBe(true)
+    })
+
+    it('also counts the calendar, because nobody advances the state on the morning of a test', () => {
+      const today = new Date()
+      const runningToday = { endDate: today, startDate: today, state: 'invited' as const }
+
+      // getEventProgress already reads this event as started, from the same dates. A greyed-out publish
+      // button beside a progress bar saying "käynnissä" leaves the secretary no way to tell why.
+      expect(canPublishResults('invited', runningToday)).toBe(true)
+
+      const nextWeek = addDays(today, 7)
+      expect(canPublishResults('invited', { ...runningToday, endDate: nextWeek, startDate: nextWeek })).toBe(false)
+    })
+
+    it('lets the event state veto the calendar, but only where the event never happened', () => {
+      const today = new Date()
+
+      // A cancelled event whose classes kept an earlier state must not become publishable by date alone.
+      expect(canPublishResults('invited', { endDate: today, startDate: today, state: 'cancelled' })).toBe(false)
+      expect(canPublishResults('invited', { endDate: today, startDate: today, state: 'draft' })).toBe(false)
+
+      // 'confirmed' is not such a state: an event left in it was still held. Once its dates have
+      // passed the stepper reads it as ended, and its results are publishable — otherwise a small
+      // event that never sends the emails that would advance its state could never publish at all.
+      const lastYear = addDays(today, -365)
+      expect(canPublishResults('confirmed', { endDate: lastYear, startDate: lastYear, state: 'confirmed' })).toBe(true)
+
+      // Its own day is the one gap, and it is the stepper's: isEventOngoing excludes 'confirmed', so
+      // the stepper does not read this event as running either. The gate follows that single truth
+      // rather than second-guessing it — publishing opens once the day is over.
+      expect(canPublishResults('confirmed', { endDate: today, startDate: today, state: 'confirmed' })).toBe(false)
+      // An event whose invitations went out reaches 'invited', which the stepper does read as running.
+      expect(canPublishResults('invited', { endDate: today, startDate: today, state: 'invited' })).toBe(true)
+    })
+  })
+
+  describe('canPublishStartList', () => {
+    it('opens on the calendar too, so a finished event can still publish its list', () => {
+      const lastYear = addDays(new Date(), -365)
+
+      // Results reach the public on the start list's rows, and they are entered after the dogs have
+      // run — so a finished event is exactly when publishing the list is needed.
+      expect(canPublishStartList('confirmed')).toBe(false)
+      expect(canPublishStartList('confirmed', { endDate: lastYear, startDate: lastYear, state: 'confirmed' })).toBe(
+        true
+      )
+      expect(canPublishStartList('confirmed', { endDate: lastYear, startDate: lastYear, state: 'cancelled' })).toBe(
+        false
+      )
+    })
+  })
+
+  describe('a start list the calendar alone opened', () => {
+    const lastYear = addDays(new Date(), -365)
+    const past = { endDate: lastYear, startDate: lastYear, state: 'confirmed' as const }
+
+    it('still has to be published on purpose', () => {
+      // An absent flag is the legacy "published" default. It must not put a list on the web merely
+      // because the event was confirmed and its date went by.
+      expect(isStartListAvailableForClass(past, { class: 'ALO' })).toBe(false)
+      expect(isStartListAvailableForClass({ ...past, startListPublished: { ALO: true } }, { class: 'ALO' })).toBe(true)
+    })
+
+    it('does not overrule a class that says it is not ready', () => {
+      // Per-day publication rides on the class's own state, because the flag is per class name and
+      // cannot tell one day from another.
+      expect(
+        isStartListAvailableForClass({ ...past, startListPublished: { ALO: true } }, { class: 'ALO', state: 'picked' })
+      ).toBe(false)
+    })
+  })
+
+  describe('isResultsAvailableForClass', () => {
+    it('is hidden while the start list carrying it is hidden', () => {
+      // A result has no transport of its own: it is a field on the start list's rows.
+      const event = { resultsPublished: { ALO: true }, startListPublished: { ALO: false }, state: 'ended' as const }
+
+      expect(isResultsAvailableForClass(event, { class: 'ALO' })).toBe(false)
+      expect(isResultsAvailableForClass({ ...event, startListPublished: { ALO: true } }, { class: 'ALO' })).toBe(true)
+    })
+
+    it('needs both a state that allows it and an explicit publish', () => {
+      const published = { resultsPublished: { ALO: true }, state: 'ended' as const }
+
+      expect(isResultsAvailableForClass(published, { class: 'ALO' })).toBe(true)
+      // Published, but the class has not started.
+      expect(isResultsAvailableForClass(published, { class: 'ALO', state: 'invited' })).toBe(false)
+      // Started, but never published.
+      expect(isResultsAvailableForClass({ state: 'ended' }, { class: 'ALO' })).toBe(false)
+    })
+  })
+
+  describe('getResultsPublishedClassMap', () => {
+    it('fills in every class, defaulting to not published', () => {
+      expect(
+        getResultsPublishedClassMap({ classes: [{ class: 'ALO' }, { class: 'AVO' }], resultsPublished: { ALO: true } })
+      ).toEqual({ ALO: true, AVO: false })
+    })
+  })
+})
+
+describe('the results step in the progress', () => {
+  const ended = {
+    classes: [
+      { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+      { class: 'AVO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+    ],
+    endDate: new Date('2026-09-12'),
+    entryEndDate: new Date('2026-09-01'),
+    entryStartDate: new Date('2026-08-01'),
+    startDate: new Date('2026-09-12'),
+    startListPublished: true,
+    state: 'ended' as const,
+  } as ConfirmedEvent
+
+  const after = new Date('2026-09-20')
+
+  it('stops at ended while any class is unpublished', () => {
+    // No legacy default here: an event that never publishes simply never reaches the step.
+    expect(getEventProgress(ended, after).phase).toBe('ended')
+    expect(getEventProgress({ ...ended, resultsPublished: { ALO: true } }, after).phase).toBe('ended')
+  })
+
+  it('reaches the results step once every class is published', () => {
+    const published = { ...ended, resultsPublished: { ALO: true, AVO: true } }
+
+    expect(getEventProgress(published, after).phase).toBe('resultsPublished')
+    expect(getEventProgress(published, after).resultsCompleted).toBe(true)
+  })
+})
+
+describe('isResultsAvailableForRegistration', () => {
+  const event = {
+    classes: [
+      { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+      { class: 'AVO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+    ],
+    startDate: new Date('2026-09-12'),
+    state: 'ended' as const,
+  }
+  const dog = (eventClass: string) => ({ class: eventClass, group: { date: new Date('2026-09-12') } })
+
+  it('does not let a published start list carry an unpublished result out with it', () => {
+    // The two gates are independent: a start list is public long before any result is.
+    const published = { ...event, startListPublished: true }
+
+    expect(isStartListAvailableForRegistration(published, dog('ALO'))).toBe(true)
+    expect(isResultsAvailableForRegistration(published, dog('ALO'))).toBe(false)
+  })
+
+  it('shows a result only for the class that was published', () => {
+    const partly = { ...event, resultsPublished: { ALO: true } }
+
+    expect(isResultsAvailableForRegistration(partly, dog('ALO'))).toBe(true)
+    expect(isResultsAvailableForRegistration(partly, dog('AVO'))).toBe(false)
+  })
+
+  it('matches the class entry on the day the dog runs', () => {
+    // A multi-day event has one entry per class per day, and they can be in different states.
+    const twoDays = {
+      classes: [
+        { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+        { class: 'ALO' as const, date: new Date('2026-09-13'), state: 'invited' as const },
+      ],
+      resultsPublished: true,
+      startDate: new Date('2026-09-12'),
+      state: 'ended' as const,
+    }
+
+    expect(isResultsAvailableForRegistration(twoDays, { class: 'ALO', group: { date: new Date('2026-09-12') } })).toBe(
+      true
+    )
+    // The second day has not run yet, so nothing to show even though the flag is on.
+    expect(isResultsAvailableForRegistration(twoDays, { class: 'ALO', group: { date: new Date('2026-09-13') } })).toBe(
+      false
+    )
   })
 })

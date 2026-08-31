@@ -295,6 +295,46 @@ exports[`EventViewPage > renders properly for event with classes 1`] = `
           </span>
         </span>
       </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root css-1umw9bq-MuiSvgIcon-root"
+              data-testid="RadioButtonUncheckedIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.publishResults
+            </span>
+          </span>
+        </span>
+      </div>
     </div>
   </div>
   <button
@@ -4946,6 +4986,46 @@ exports[`EventViewPage > renders properly for event without classes 1`] = `
               class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
             >
               event.states.ended
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root css-1umw9bq-MuiSvgIcon-root"
+              data-testid="RadioButtonUncheckedIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.publishResults
             </span>
           </span>
         </span>
@@ -11151,6 +11231,46 @@ exports[`EventViewPage > uses the route event id instead of stale admin event se
               class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
             >
               event.states.ended
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root css-1umw9bq-MuiSvgIcon-root"
+              data-testid="RadioButtonUncheckedIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.publishResults
             </span>
           </span>
         </span>

@@ -265,13 +265,23 @@
       "extended_info": "Continued",
       "invited": "Invitations sent",
       "picked": "Participants selected",
+      "publishResults": "Publish results",
       "publishStartList": "Publish start list",
+      "resultsPublished": "Results published",
       "started": "Started",
       "startListPublished": "Start list published",
       "tentative": "Published tentative",
       "tentative_info": "Tentative",
       "tentative_save": "Event was published as tentative"
     },
+    "station": "Station",
+    "stationAdd": "Add station",
+    "stationJudges": "Judges",
+    "stationRemove": "Remove station",
+    "stationsInfo": "Stations are fixed posts that the classes rotate through during the day. Each class's tasks are defined separately.",
+    "stationsSaved": "Stations saved",
+    "stationsSectionTitle": "Stations",
+    "stationTasks": "Tasks",
     "statusText": "",
     "viewerBanner_one": "{{names}} is also viewing this event.",
     "viewerBanner_other": "{{names}} are also viewing this event."
@@ -290,6 +300,7 @@
     "close": "Close event management",
     "datesOutsideClass": "The selected dates ({{dates}}) are not days of class {{class}}. You can fix this by opening the registration and saving it.",
     "datesOutsideEvent": "The selected dates ({{dates}}) are not days of the event. You can fix this by opening the registration and saving it.",
+    "enterResults": "Enter results",
     "groupRules": {
       "duplicateHandler": "Handler {{name}} has {{count}} dogs in this group. The Judges Committee recommends placing dogs with the same handler in different groups, as familiar dogs may behave differently together than they would without each other during the social behaviour assessment.",
       "genderBalance": "The group's gender balance does not meet the rules: it must include at least two male and two female dogs. If the group remains this way, it should be supplemented with non-participating dogs for the social behaviour assessment. The group currently has {{maleCount}} male and {{femaleCount}} female dogs.",
@@ -317,6 +328,15 @@
       "sendReserveNotification": "Send reserve notification",
       "title": "Participant selection"
     },
+    "results": {
+      "confirm": "Publish the results for class {{eventClass}} in Koekalenteri?",
+      "confirmTitle": "Publish results",
+      "hide": "Hide results",
+      "publish": "Publish results",
+      "published": "Published",
+      "startListRequired": "Publish the start list first",
+      "title": "Publishing results"
+    },
     "showEventDetails": "Show event details",
     "startList": {
       "hide": "Hide start list",
@@ -328,6 +348,7 @@
       "saveFailed": "Saving the start list publication status failed. Try again.",
       "secretary": "Secretary's start list"
     },
+    "stations": "Configure stations",
     "tabs": {
       "ariaLabel": "Event management tabs",
       "auditTrail": "Audit trail",
@@ -696,6 +717,63 @@
     "whoPays": "Who pays?"
   },
   "registrations": "Registrations",
+  "results": {
+    "alreadySaved": "The results were already saved",
+    "backToEvent": "Back to event",
+    "column": {
+      "dog": "Dog",
+      "handler": "Handler",
+      "number": "#",
+      "outcome": "Additional info",
+      "result": "Result",
+      "task": "Task {{number}}"
+    },
+    "conflictInfo": "These results were changed elsewhere in the meantime. Choose which one stands.",
+    "conflictMine": "Yours: {{result}}",
+    "conflictResolve": "Save choices",
+    "conflictStored": "Stored ({{who}}): {{result}}",
+    "conflicts_one": "{{count}} result changed elsewhere. Check it and save again.",
+    "conflicts_other": "{{count}} results changed elsewhere. Check them and save again.",
+    "conflictTitle": "Conflicting results",
+    "couldStillHavePlaced": "Could still have placed",
+    "eliminatingFaults": {
+      "aggression": "Aggressive behaviour",
+      "gunShyness": "Gun shyness",
+      "hardMouth": "Hard mouth",
+      "harshHandling": "Disciplined the dog at the venue",
+      "marking": "Scent-marking",
+      "refusedRetrieve": "Refused to retrieve"
+    },
+    "judge": "Judge",
+    "openStationView": "Post view",
+    "outcome": "Additional info",
+    "outcomeAt": "Where",
+    "outcomeAtUnknown": "Not known",
+    "outcomeEliminated": "Eliminating fault",
+    "outcomeNone": "No additional info",
+    "outcomeRetired": "Stopped",
+    "retirement": {
+      "handlerChoice": "Handler withdrew",
+      "injury": "Dog was injured"
+    },
+    "runningTotal": "{{points}} / {{maxPoints}}",
+    "saved": "Results saved",
+    "scope": "Show",
+    "scopeAll": "Whole round",
+    "title": "Results",
+    "zeroFault": "Reason for zero",
+    "zeroFaults": {
+      "abandonedRetrieve": "Abandoned the retrieve",
+      "dummyNotFound": "Dummy not found",
+      "eyeWipe": "Eye-wipe",
+      "huntingWithDummy": "Hunting with the dummy in its mouth",
+      "outOfControl": "Ran out of the handler's control",
+      "persistentNoise": "Persistent whining or barking",
+      "refusedWater": "Refused to work in water",
+      "swappedDummy": "Swapped the dummy",
+      "unauthorizedRun": "Unauthorised run-in"
+    }
+  },
   "roles": "Roles",
   "save": "Save",
   "search": {
@@ -717,6 +795,7 @@
     "number": "Number",
     "owner": "Owner",
     "registrationNumber": "Registration number",
+    "result": "Result",
     "sheetName": "Start list",
     "sire": "Sire",
     "time": "Time"

@@ -194,31 +194,110 @@ export const newEventStartDate = zonedStartOfDay(nextSaturday(addDays(Date.now()
 export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
 export const newEventEntryEndDate = defaultEntryEndDate(newEventStartDate)
 
-export const isStartListAvailable = ({
-  classes,
-  state,
-  startListPublished,
-}: Pick<JsonDogEvent, 'state' | 'startListPublished'> & {
-  classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
-}) => {
+export const isStartListAvailable = (
+  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> &
+    EventVitals & {
+      classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+    }
+) => {
+  const { classes, state, startListPublished } = event
+
   if (classes?.length) {
-    return classes.some((eventClass) => isStartListAvailableForClass({ startListPublished, state }, eventClass))
+    return classes.some((eventClass) => isStartListAvailableForClass(event, eventClass))
   }
 
-  if (!canPublishStartList(state)) return false
+  if (!canPublishStartList(state, event)) return false
   if (isStartListPublishedClassMap(startListPublished)) {
     return Object.values(startListPublished).some(Boolean)
   }
-  return startListPublished !== false
+
+  // The legacy default applies only to a workflow-published event; see isStartListAvailableForClass.
+  return canPublishStartList(state) ? startListPublished !== false : startListPublished === true
 }
 
-export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
-  state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
+/**
+ * Whether the event's own dates have carried it to `phase`, regardless of the workflow state it was
+ * left in.
+ *
+ * The stored state cannot be relied on to get there: the event form offers only draft/tentative/
+ * confirmed/cancelled, and the backend advances a class no further than 'picked' or 'invited', as the
+ * side effect of sending those emails. Nothing anywhere sets 'started', so a gate reading the state
+ * alone stays shut for every event whose secretary never sends them.
+ *
+ * The phase comes from getTemporalPhaseIndex — the same derivation the progress stepper shows — so a
+ * gate cannot disagree with the step the secretary is looking at. The state is still consulted for
+ * whether the event counts at all: the temporal reading ignores it, and without this check a cancelled
+ * event would come open merely by growing old.
+ */
+const hasReachedPhaseByDate = (event: EventVitals | undefined, phase: EventProgressPhase, now: Date) =>
+  !!event && isValidForEntry(event.state) && getTemporalPhaseIndex(event, now) >= getProgressPhaseIndex(phase)
+
+export const canPublishStartList = (
+  state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state'],
+  event?: EventVitals,
+  now = new Date()
+) =>
+  state === 'invited' ||
+  state === 'started' ||
+  state === 'ended' ||
+  state === 'completed' ||
+  hasReachedPhaseByDate(event, 'invited', now)
+
+/** Nothing to publish before the dogs have run, unlike a start list, which exists beforehand. */
+export const canPublishResults = (
+  state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state'],
+  event?: EventVitals,
+  now = new Date()
+) => state === 'started' || state === 'ended' || state === 'completed' || hasReachedPhaseByDate(event, 'started', now)
+
+const isResultsPublishedClassMap = (
+  resultsPublished: JsonDogEvent['resultsPublished']
+): resultsPublished is Partial<Record<RegistrationClass, boolean>> =>
+  typeof resultsPublished === 'object' && resultsPublished !== null
+
+/**
+ * Publishing is explicit. Where the start list treats an absent flag as published — its records predate
+ * the flag — an absent results flag means not published: a result nobody released must not leak.
+ */
+export const isResultsPublishedForClass = (event: Pick<JsonDogEvent, 'resultsPublished'>, eventClass: string) =>
+  isResultsPublishedClassMap(event.resultsPublished)
+    ? event.resultsPublished[eventClass as RegistrationClass] === true
+    : event.resultsPublished === true
+
+/**
+ * A result reaches the public on the start list's own rows — it has no other transport — so a published
+ * result on an unpublished list is invisible. Requiring the list here keeps the two from disagreeing,
+ * and means hiding a list hides the results riding on it.
+ */
+export const isResultsAvailableForClass = (
+  event: Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'> & EventVitals,
+  eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
+) =>
+  isStartListAvailableForClass(event, eventClass) &&
+  canPublishResults(eventClass.state ?? event.state, event) &&
+  isResultsPublishedForClass(event, eventClass.class)
+
+export const getResultsPublishedClassMap = ({
+  classes,
+  resultsPublished,
+}: Pick<JsonDogEvent, 'resultsPublished'> & {
+  classes: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
+}): Partial<Record<RegistrationClass, boolean>> => {
+  const existingMap = isResultsPublishedClassMap(resultsPublished) ? resultsPublished : {}
+  const result: Partial<Record<RegistrationClass, boolean>> = {}
+
+  for (const eventClass of classes) {
+    result[eventClass.class] = existingMap[eventClass.class] ?? resultsPublished === true
+  }
+
+  return result
+}
 
 export type EventProgressStep =
   | Exclude<ConfirmedEventStates, 'completed'>
   | 'confirmed_entryOpen'
   | 'startListPublished'
+  | 'resultsPublished'
 type EventProgressPhase = EventProgressStep | 'confirmed_entryClosed'
 
 export const EVENT_PROGRESS_PHASES: readonly EventProgressStep[] = [
@@ -229,6 +308,7 @@ export const EVENT_PROGRESS_PHASES: readonly EventProgressStep[] = [
   'startListPublished',
   'started',
   'ended',
+  'resultsPublished',
 ]
 
 const getProgressPhaseIndex = (phase: EventProgressPhase | 'completed'): number => {
@@ -242,7 +322,7 @@ const getStateProgressPhaseIndex = (state: ConfirmedEventStates, entryStarted: b
   return getProgressPhaseIndex(state)
 }
 
-const getTemporalPhaseIndex = (event: ConfirmedEvent, now: Date): number => {
+const getTemporalPhaseIndex = (event: EventVitals, now: Date): number => {
   if (isEventOver(event, now)) return getProgressPhaseIndex('ended')
   if (isEventOngoing(event, now)) return getProgressPhaseIndex('started')
   return -1
@@ -261,6 +341,23 @@ const getPublishedStartListClasses = (
       event.startListPublished === true || isStartListPublishedClassMap(event.startListPublished)
     return isStartListPublishedForClass(event, eventClass) && (explicitlyPublished || canPublishStartList(state))
   })
+}
+
+/**
+ * The phase a computed index names: the highest step it has reached. Only the two halves of `confirmed`
+ * need the event itself, because they share one index and are told apart by whether entry is open.
+ */
+const getProgressPhaseAtIndex = (event: ConfirmedEvent, phaseIndex: number, now: Date): EventProgressPhase => {
+  if (phaseIndex >= getProgressPhaseIndex('resultsPublished')) return 'resultsPublished'
+  if (phaseIndex >= getProgressPhaseIndex('ended')) return 'ended'
+  if (phaseIndex >= getProgressPhaseIndex('started')) return 'started'
+  if (phaseIndex >= getProgressPhaseIndex('startListPublished')) return 'startListPublished'
+  if (phaseIndex >= getProgressPhaseIndex('invited')) return 'invited'
+  if (phaseIndex >= getProgressPhaseIndex('picked')) return 'picked'
+  if (phaseIndex >= getProgressPhaseIndex('confirmed_entryOpen')) {
+    return isEntryOpen(event, now) ? 'confirmed_entryOpen' : 'confirmed_entryClosed'
+  }
+  return 'confirmed'
 }
 
 export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
@@ -285,9 +382,19 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
   const startListActionable =
     legacyStartListPublished || publishableStartListClasses.length > 0 || publishedStartListClasses.length > 0
   const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
+
+  // The results step, mirroring the start list's. Unlike it there is no legacy default: a result is
+  // published only where something says so, so an event that never gets here simply stops at 'ended'.
+  const publishedResultsClasses = startListClasses.filter((eventClass) => isResultsPublishedForClass(event, eventClass))
+  const resultsActionable = startListClasses.some((eventClass) =>
+    canPublishResults(event.classes.find((item) => item.class === eventClass)?.state ?? event.state, event, now)
+  )
+  const resultsCompleted = resultsActionable && publishedResultsClasses.length === startListClasses.length
+
   const phaseIndex = Math.max(
     statePhaseIndex,
     startListCompleted ? getProgressPhaseIndex('startListPublished') : -1,
+    resultsCompleted ? getProgressPhaseIndex('resultsPublished') : -1,
     temporalPhaseIndex
   )
   const reachedPhaseIndex = Math.max(
@@ -296,23 +403,16 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     ...classPhases.map(({ phaseIndex }) => phaseIndex)
   )
 
-  let phase: EventProgressPhase = 'confirmed'
-  if (phaseIndex >= getProgressPhaseIndex('ended')) phase = 'ended'
-  else if (phaseIndex >= getProgressPhaseIndex('started')) phase = 'started'
-  else if (phaseIndex >= getProgressPhaseIndex('startListPublished')) phase = 'startListPublished'
-  else if (phaseIndex >= getProgressPhaseIndex('invited')) phase = 'invited'
-  else if (phaseIndex >= getProgressPhaseIndex('picked')) phase = 'picked'
-  else if (phaseIndex >= getProgressPhaseIndex('confirmed_entryOpen')) {
-    phase = isEntryOpen(event, now) ? 'confirmed_entryOpen' : 'confirmed_entryClosed'
-  }
-
   return {
     classPhases,
     entryStarted,
     eventClasses,
-    phase,
+    phase: getProgressPhaseAtIndex(event, phaseIndex, now),
+    publishedResultsClasses,
     publishedStartListClasses,
     reachedPhaseIndex,
+    resultsActionable,
+    resultsCompleted,
     startListActionable,
     startListClasses,
     startListCompleted,
@@ -338,30 +438,81 @@ export const getEventStateForClass = (
   eventClass?: string
 ) => event.classes?.find((item) => item.class === eventClass)?.state ?? event.state
 
+/**
+ * An absent flag counts as published only for an event the workflow actually carried to 'invited' —
+ * those records predate the flag. An event that reaches the gate on its dates alone must have been
+ * published on purpose, or confirming an event and waiting for its date to pass would put its start
+ * list on the web by itself.
+ */
 export const isStartListAvailableForClass = (
-  event: Pick<JsonDogEvent, 'state' | 'startListPublished'>,
+  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> & EventVitals,
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
-) => canPublishStartList(eventClass.state ?? event.state) && isStartListPublishedForClass(event, eventClass.class)
+) => {
+  if (canPublishStartList(eventClass.state ?? event.state)) return isStartListPublishedForClass(event, eventClass.class)
+
+  // A class carrying its own state below 'invited' says this day is not ready, and the calendar must
+  // not overrule it: that is how one day of a class stays hidden while another is public, since the
+  // published flag is per class name and cannot tell the days apart. Only a class with no state of its
+  // own falls through to what the event's dates say.
+  if (eventClass.state !== undefined) return false
+  if (!canPublishStartList(event.state, event)) return false
+
+  return isStartListPublishedClassMap(event.startListPublished)
+    ? event.startListPublished[eventClass.class as RegistrationClass] === true
+    : event.startListPublished === true
+}
+
+type AvailabilityEvent = {
+  classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
+  startDate: Date | string
+}
+type AvailabilityRegistration = { class?: string | null; group: { date?: Date | string } }
+
+/**
+ * The class entry a registration belongs to, matched on the day it runs.
+ *
+ * A multi-day event has one entry per class per day and they can be in different states, so the day
+ * decides which one governs. Shared by the start list and the results so the two cannot disagree about
+ * which class a dog is in.
+ */
+const findRegistrationClass = (event: AvailabilityEvent, registration: AvailabilityRegistration) => {
+  const classes = event.classes ?? []
+  if (!registration.class || classes.length === 0) return undefined
+
+  const registrationDate = startListAvailabilityDateKey(registration.group.date ?? event.startDate)
+  const eventClasses = classes.filter((eventClass) => eventClass.class === registration.class)
+  const onTheDay = eventClasses.find(
+    (item) => startListAvailabilityDateKey(item.date ?? event.startDate) === registrationDate
+  )
+
+  return onTheDay ?? (eventClasses.length === 1 ? eventClasses[0] : undefined)
+}
 
 export const isStartListAvailableForRegistration = (
-  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> & {
-    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
-    startDate: Date | string
-  },
-  registration: { class?: string | null; group: { date?: Date | string } }
+  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> & AvailabilityEvent,
+  registration: AvailabilityRegistration
 ) => {
   const classes = event.classes ?? []
   if (!registration.class || classes.length === 0) return classes.length === 0
 
-  const registrationDate = startListAvailabilityDateKey(registration.group.date ?? event.startDate)
-  const eventClasses = classes.filter((eventClass) => eventClass.class === registration.class)
-  const eventClass = eventClasses.find(
-    (item) => startListAvailabilityDateKey(item.date ?? event.startDate) === registrationDate
-  )
+  const eventClass = findRegistrationClass(event, registration)
 
-  if (eventClass) return isStartListAvailableForClass(event, eventClass)
-  if (eventClasses.length === 1) return isStartListAvailableForClass(event, eventClasses[0])
-  return false
+  return eventClass ? isStartListAvailableForClass(event, eventClass) : false
+}
+
+/**
+ * Whether this dog's result may be shown.
+ *
+ * Gated on its own class and nothing else: a start list can be public long before any result is, so an
+ * unpublished result must not ride out on the back of a published list.
+ */
+export const isResultsAvailableForRegistration = (
+  event: Pick<JsonDogEvent, 'state' | 'resultsPublished'> & AvailabilityEvent,
+  registration: AvailabilityRegistration
+) => {
+  const eventClass = findRegistrationClass(event, registration)
+
+  return eventClass ? isResultsAvailableForClass(event, eventClass) : false
 }
 
 const startListAvailabilityDateKey = (date: Date | string) => formatDate(date, 'yyyy-MM-dd')

@@ -29,9 +29,13 @@ export const Path = {
     officials: `${ADMIN_ROOT}/officials`,
 
     orgs: `${ADMIN_ROOT}/organizations`,
+    results: (id: string = ':id') => `${ADMIN_EVENTS}/results/${id}`,
     root: ADMIN_ROOT,
     startList: (id: string = ':id') => `${ADMIN_EVENTS}/startlist/${id}`,
     startListPreview: (id: string = ':id') => `${ADMIN_EVENTS}/startlist-preview/${id}`,
+    stationResults: (id: string = ':id', stationId: string = ':stationId') =>
+      `${ADMIN_EVENTS}/results/${id}/station/${stationId}`,
+    stations: (id: string = ':id') => `${ADMIN_EVENTS}/stations/${id}`,
     stats: `${ADMIN_ROOT}/stats`,
     users: `${ADMIN_ROOT}/users`,
     viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
