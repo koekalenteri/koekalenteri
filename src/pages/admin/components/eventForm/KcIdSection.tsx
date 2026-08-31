@@ -22,9 +22,11 @@ import KcIdChoiceDialog from './KcIdChoiceDialog'
 
 export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: BasicInfoEvent
+  /** koetunnukset already linked to some other event in Koekalenteri */
+  readonly linkedKcIds?: ReadonlySet<number>
 }
 
-function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChange }: Props) {
+function KcIdSection({ disabled, event, errorStates, linkedKcIds, open, onOpenChange, onChange }: Props) {
   const { t } = useTranslation()
   const token = useAtomValue(idTokenAtom)
   const [kcIdRefreshing, setKcIdRefreshing] = useState(false)
@@ -35,6 +37,21 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
   const error = (errorStates && errorStates.kcId) || false
   const helperText = error ? t('validation.event.errors') : t('event.kcIdSectionInfo')
   const warnings = useMemo(() => computeKcWarnings(event, t), [event, t])
+
+  // The koetunnus may already belong to another event; say so at pick time instead of leaving it to
+  // the conflict the backend raises on save.
+  const selectChoice = useCallback(
+    (choice: EventKcIdChoice) => {
+      if (linkedKcIds?.has(choice.id)) {
+        enqueueSnackbar(t('event.kcIdConflict'), { variant: 'error' })
+        return false
+      }
+      onChange?.(applyKcChoice(choice))
+      enqueueSnackbar(t('event.kcIdSelected', { id: choice.id }), { variant: 'success' })
+      return true
+    },
+    [linkedKcIds, onChange, t]
+  )
 
   const handleKcIdRefresh = useCallback(async () => {
     if (!selectedOrganizerId) return
@@ -59,9 +76,7 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
         token
       )
       if (result.choices.length === 1) {
-        const choice = normalizeEventKcIdChoice(result.choices[0])
-        onChange?.(applyKcChoice(choice))
-        enqueueSnackbar(t('event.kcIdSelected', { id: choice.id }), { variant: 'success' })
+        selectChoice(normalizeEventKcIdChoice(result.choices[0]))
       } else if (result.choices.length > 1) {
         setKcIdChoices(result.choices.map(normalizeEventKcIdChoice))
       } else {
@@ -73,15 +88,13 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
     } finally {
       setKcIdRefreshing(false)
     }
-  }, [event, selectedOrganizerId, token, t, onChange])
+  }, [event, selectedOrganizerId, token, t, selectChoice])
   const handleKcIdChoiceClose = useCallback(() => setKcIdChoices([]), [])
   const handleKcIdChoice = useCallback(
     (choice: EventKcIdChoice) => {
-      onChange?.(applyKcChoice(choice))
-      setKcIdChoices([])
-      enqueueSnackbar(t('event.kcIdSelected', { id: choice.id }), { variant: 'success' })
+      if (selectChoice(choice)) setKcIdChoices([])
     },
-    [onChange, t]
+    [selectChoice]
   )
   const handleKcIdRemove = useCallback(() => {
     onChange?.({ kcEvent: null, kcId: null })
@@ -147,7 +160,12 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
           </Alert>
         )}
       </CollapsibleSection>
-      <KcIdChoiceDialog choices={kcIdChoices} onClose={handleKcIdChoiceClose} onSelect={handleKcIdChoice} />
+      <KcIdChoiceDialog
+        choices={kcIdChoices}
+        linkedKcIds={linkedKcIds}
+        onClose={handleKcIdChoiceClose}
+        onSelect={handleKcIdChoice}
+      />
     </>
   )
 }

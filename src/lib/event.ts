@@ -174,6 +174,15 @@ export const registrationDates = (event: PublicDogEvent, times: RegistrationTime
 
 export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
 
+/**
+ * Event types are official when the Kennel Club knows them, which the event type sync records in
+ * `official`. Rows predating that flag - and the SM types, which have no Kennel Club counterpart of
+ * their own - fall back to the list above, so that stays the source of truth for the event types
+ * Koekalenteri itself supports.
+ */
+export const isOfficialEventType = (eventType?: string | null, official?: boolean) =>
+  !!eventType && (official === true || OFFICIAL_EVENT_TYPES.includes(eventType))
+
 const EntryStartWeeks = 6
 const EntryEndWeeks = 3
 const eventSeasonFormatter = new Intl.DateTimeFormat('en', { timeZone: TIME_ZONE, year: 'numeric' })

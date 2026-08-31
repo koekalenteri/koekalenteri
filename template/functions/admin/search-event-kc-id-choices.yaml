@@ -13,6 +13,8 @@
             TableName: !Ref UserLinkTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTypeTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - Statement:

@@ -194,6 +194,105 @@ describe('KcIdSection', () => {
     expect(screen.queryByText('event.kcIdChoiceTitle')).not.toBeInTheDocument()
   })
 
+  it('should refuse a single match that is already linked to another event', async () => {
+    vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
+      choices: [
+        {
+          classes: ['ALO', 'AVO'],
+          endDate: new TZDate('2026-07-02', TIME_ZONE),
+          eventType: 'NOME-B',
+          id: 222,
+          location: 'Espoo',
+          name: 'Toinen koe',
+          organizer: 'Järjestäjä',
+          startDate: new TZDate('2026-07-01', TIME_ZONE),
+        },
+      ],
+    })
+    const changeHandler = vi.fn()
+    const testEvent: PartialEvent = {
+      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
+      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      eventType: 'NOME-B',
+      id: 'test',
+      judges: [],
+      organizer: { id: 'org-id', name: 'Organizer' },
+      startDate: new TZDate('2026-06-01', TIME_ZONE),
+    }
+
+    const { user } = renderComponent({
+      event: testEvent,
+      linkedKcIds: new Set([222]),
+      onChange: changeHandler,
+      open: true,
+    })
+
+    await user.click(screen.getByText('event.kcIdLookup'))
+    await flushPromises()
+
+    expect(enqueueSnackbar).toHaveBeenCalledWith('event.kcIdConflict', { variant: 'error' })
+    expect(changeHandler).not.toHaveBeenCalled()
+  })
+
+  it('should not offer a choice that is already linked to another event', async () => {
+    vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
+      choices: [
+        {
+          classes: ['ALO', 'AVO'],
+          endDate: new TZDate('2026-07-02', TIME_ZONE),
+          eventType: 'NOME-B',
+          id: 222,
+          location: 'Espoo',
+          name: 'Toinen koe',
+          organizer: 'Järjestäjä',
+          startDate: new TZDate('2026-07-01', TIME_ZONE),
+        },
+        {
+          classes: ['VOI'],
+          endDate: new TZDate('2026-08-02', TIME_ZONE),
+          eventType: 'NOME-B',
+          id: 333,
+          location: 'Vantaa',
+          name: 'Kolmas koe',
+          organizer: 'Järjestäjä',
+          startDate: new TZDate('2026-08-01', TIME_ZONE),
+        },
+      ],
+    })
+    const changeHandler = vi.fn()
+    const testEvent: PartialEvent = {
+      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
+      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      eventType: 'NOME-B',
+      id: 'test',
+      judges: [],
+      organizer: { id: 'org-id', name: 'Organizer' },
+      startDate: new TZDate('2026-06-01', TIME_ZONE),
+    }
+
+    const { user } = renderComponent({
+      event: testEvent,
+      linkedKcIds: new Set([222]),
+      onChange: changeHandler,
+      open: true,
+    })
+
+    await user.click(screen.getByText('event.kcIdLookup'))
+    expect(await screen.findByText('event.kcIdChoiceTitle')).toBeInTheDocument()
+    expect(screen.getByText('event.kcIdChoiceLinked')).toBeInTheDocument()
+
+    const selectButtons = screen.getAllByRole('button', { name: 'event.kcIdSelect' })
+    expect(selectButtons).toHaveLength(1)
+
+    await user.click(selectButtons[0])
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenLastCalledWith({
+      kcEvent: expect.objectContaining({ classes: ['VOI'] }),
+      kcId: 333,
+    })
+  })
+
   it('should show the fetched Kennel Club ID as static, non-editable text', () => {
     const testEvent: PartialEvent = {
       classes: [],

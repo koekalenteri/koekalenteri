@@ -24,6 +24,7 @@ import {
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEventDeletable,
+  isOfficialEventType,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartListAvailableForRegistration,
@@ -1065,5 +1066,24 @@ describe('registrationDatesOutsideClass', () => {
     expect(registrationDatesOutsideClass(event, 'VAL', [{ date: '2026-09-25T21:00:00.000Z' }])).toEqual([])
     const outside = [{ date: '2026-09-24T21:00:00.000Z' }]
     expect(registrationDatesOutsideClass(event, 'VAL', outside)).toEqual(outside)
+  })
+
+  describe('isOfficialEventType', () => {
+    it('accepts the event types Koekalenteri supports without any event type data', () => {
+      expect(isOfficialEventType('NOME-B')).toEqual(true)
+      expect(isOfficialEventType('NOWT SM')).toEqual(true)
+    })
+
+    it('accepts an event type the Kennel Club sync flagged official', () => {
+      expect(isOfficialEventType('MEJÄ', true)).toEqual(true)
+      expect(isOfficialEventType('VEPE', true)).toEqual(true)
+    })
+
+    it('rejects event types that are neither supported nor flagged official', () => {
+      expect(isOfficialEventType('MEJÄ')).toEqual(false)
+      expect(isOfficialEventType('Koulutus', false)).toEqual(false)
+      expect(isOfficialEventType(undefined, true)).toEqual(false)
+      expect(isOfficialEventType(null)).toEqual(false)
+    })
   })
 })

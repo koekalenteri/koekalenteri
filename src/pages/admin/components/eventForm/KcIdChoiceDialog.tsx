@@ -9,16 +9,18 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../../../i18n/dates'
 
 type Props = {
   readonly choices: EventKcIdChoice[]
+  readonly linkedKcIds?: ReadonlySet<number>
   readonly onClose: () => void
   readonly onSelect: (choice: EventKcIdChoice) => void
 }
 
-export default function KcIdChoiceDialog({ choices, onClose, onSelect }: Props) {
+export default function KcIdChoiceDialog({ choices, linkedKcIds, onClose, onSelect }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -49,9 +51,15 @@ export default function KcIdChoiceDialog({ choices, onClose, onSelect }: Props) 
                 <TableCell>{choice.organizer}</TableCell>
                 <TableCell>{choice.status}</TableCell>
                 <TableCell align="right">
-                  <Button variant="contained" size="small" onClick={() => onSelect(choice)}>
-                    {t('event.kcIdSelect')}
-                  </Button>
+                  {linkedKcIds?.has(choice.id) ? (
+                    <Typography variant="caption" color="error">
+                      {t('event.kcIdChoiceLinked')}
+                    </Typography>
+                  ) : (
+                    <Button variant="contained" size="small" onClick={() => onSelect(choice)}>
+                      {t('event.kcIdSelect')}
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

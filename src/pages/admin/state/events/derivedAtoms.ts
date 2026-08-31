@@ -36,6 +36,18 @@ export const adminEventAtom = atomFamily((eventId: string | undefined) =>
   )
 )
 
+// Koetunnukset already spoken for, so the koetunnus picker can refuse one at pick time instead of
+// leaving the secretary to discover the clash from the conflict the backend raises on save.
+export const adminLinkedKcIdsAtom = atomFamily((eventId: string | undefined) =>
+  atom(async (get) => {
+    const kcIds = new Set<number>()
+    for (const event of await get(adminEventsAtom)) {
+      if (event.id !== eventId && event.kcId !== undefined) kcIds.add(event.kcId)
+    }
+    return kcIds
+  })
+)
+
 export const adminConfirmedEventAtom = atomFamily((eventId: string | undefined) =>
   atom(async (get): Promise<ConfirmedEvent | null> => {
     const event = await get(adminEventAtom(eventId))

@@ -21,7 +21,7 @@ import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrat
 import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
-import { hasEntryEnded, isEventOver, OFFICIAL_EVENT_TYPES } from '../../../lib/event'
+import { hasEntryEnded, isEventOver } from '../../../lib/event'
 import { invitationAttachmentFileName } from '../../../lib/fileName'
 import { validIdTokenAtom } from '../../state'
 import { AuditTrail } from '../components/AuditTrail'
@@ -253,7 +253,7 @@ const InfoPanel = ({
             scrollbarGutter: 'stable',
           }}
         >
-          {OFFICIAL_EVENT_TYPES.includes(event.eventType) && (
+          {event.kcId !== undefined && (
             <Box sx={sectionSx}>
               <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
                 Kokeen tiedot
@@ -262,9 +262,7 @@ const InfoPanel = ({
                 <Typography variant="caption" fontWeight="bold">
                   Koetunnus
                 </Typography>
-                <Typography variant="caption" fontStyle={event.kcId ? undefined : 'italic'}>
-                  {event.kcId ?? 'Ei haettua koetunnusta'}
-                </Typography>
+                <Typography variant="caption">{event.kcId}</Typography>
               </Box>
             </Box>
           )}

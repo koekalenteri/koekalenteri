@@ -1,8 +1,8 @@
-import type { JsonDogEvent, Organizer } from '../../types'
+import type { JsonDogEvent, JsonEventType, Organizer } from '../../types'
 import type { KLKoetapahtuma } from '../types/KLAPI'
 import { addDays } from 'date-fns/addDays'
 import { zonedDateString } from '../../i18n/dates'
-import { isEventOver, OFFICIAL_EVENT_TYPES } from '../../lib/event'
+import { isEventOver, isOfficialEventType, OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
@@ -152,7 +152,12 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
     throw new LambdaError(403, 'Forbidden')
   }
 
-  if (!OFFICIAL_EVENT_TYPES.includes(criteria.eventType) || isEventOver(criteria)) {
+  const eventType = await dynamoDB.read<JsonEventType>(
+    { eventType: toKcEventType(criteria.eventType) },
+    CONFIG.eventTypeTable
+  )
+
+  if (!isOfficialEventType(criteria.eventType, eventType?.official) || isEventOver(criteria)) {
     throw new LambdaError(403, 'Forbidden')
   }
 

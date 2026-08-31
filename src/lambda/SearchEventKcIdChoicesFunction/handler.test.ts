@@ -1,4 +1,4 @@
-import type { JsonUser, Organizer } from '../../types'
+import type { JsonEventType, JsonUser, Organizer } from '../../types'
 import type { KLKoetapahtuma } from '../types/KLAPI'
 import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
@@ -7,7 +7,11 @@ vi.useFakeTimers()
 const TEST_NOW = new Date('2026-06-01T12:00:00.000Z')
 
 const mockAuthorizeWithMemberOf = vi.fn<() => Promise<{ memberOf: string[]; user: JsonUser }>>()
-const mockRead = vi.fn<() => Promise<Organizer | undefined>>()
+const mockReadOrganizer = vi.fn<() => Promise<Organizer | undefined>>()
+const mockReadEventType = vi.fn<() => Promise<JsonEventType | undefined>>()
+const mockRead = vi.fn((key: Record<string, unknown>) =>
+  'eventType' in key ? mockReadEventType() : mockReadOrganizer()
+)
 const mockResponse = vi.fn<(status: number, body: unknown, event: unknown) => unknown>()
 const mockLueKoetapahtumat = vi.fn<() => Promise<{ error?: string; json?: KLKoetapahtuma[]; status: number }>>()
 
@@ -89,13 +93,24 @@ const otherOrganizer: Organizer = {
   name: 'Other Org',
 }
 
+const eventTypeRecord: JsonEventType = {
+  createdAt: '',
+  createdBy: '',
+  description: { en: '', fi: '', sv: '' },
+  eventType: 'NOME-B',
+  modifiedAt: '',
+  modifiedBy: '',
+  official: true,
+}
+
 describe('searchEventKcIdChoicesLambda', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     vi.setSystemTime(TEST_NOW)
     vi.clearAllMocks()
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-id'], user })
-    mockRead.mockResolvedValue(organizer)
+    mockReadOrganizer.mockResolvedValue(organizer)
+    mockReadEventType.mockResolvedValue(eventTypeRecord)
     mockLueKoetapahtumat.mockResolvedValue({
       json: [
         {
@@ -174,7 +189,7 @@ describe('searchEventKcIdChoicesLambda', () => {
 
   it('uses requested organizer kcId', async () => {
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org-id', 'org-2'], user })
-    mockRead.mockResolvedValueOnce(otherOrganizer)
+    mockReadOrganizer.mockResolvedValueOnce(otherOrganizer)
     const event = constructAPIGwEvent({ ...lookupRequest, organizer: { id: 'org-2' } }, { method: 'POST' })
 
     await searchEventKcIdChoicesLambda(event)
@@ -400,6 +415,32 @@ describe('searchEventKcIdChoicesLambda', () => {
       { choices: [expect.not.objectContaining({ judge: expect.anything(), status: expect.anything() })] },
       event
     )
+  })
+
+  it('allows an event type the Kennel Club sync flagged official', async () => {
+    mockReadEventType.mockResolvedValueOnce({ ...eventTypeRecord, eventType: 'MEJÄ' })
+    const event = constructAPIGwEvent({ ...lookupRequest, eventType: 'MEJÄ' }, { method: 'POST' })
+
+    await searchEventKcIdChoicesLambda(event)
+
+    expect(mockRead).toHaveBeenCalledWith({ eventType: 'MEJÄ' }, expect.anything())
+    expect(mockLueKoetapahtumat).toHaveBeenCalledWith(expect.objectContaining({ Koemuoto: 'MEJÄ' }))
+  })
+
+  it('rejects an event type that is neither supported nor flagged official', async () => {
+    mockReadEventType.mockResolvedValueOnce({ ...eventTypeRecord, eventType: 'MEJÄ', official: false })
+    const event = constructAPIGwEvent({ ...lookupRequest, eventType: 'MEJÄ' }, { method: 'POST' })
+
+    await expect(searchEventKcIdChoicesLambda(event)).rejects.toMatchObject({ status: 403 })
+    expect(mockLueKoetapahtumat).not.toHaveBeenCalled()
+  })
+
+  it('looks up the Kennel Club counterpart of an SM event type', async () => {
+    const event = constructAPIGwEvent({ ...lookupRequest, eventType: 'NOME-B SM' }, { method: 'POST' })
+
+    await searchEventKcIdChoicesLambda(event)
+
+    expect(mockRead).toHaveBeenCalledWith({ eventType: 'NOME-B' }, expect.anything())
   })
 
   it('rejects requested organizer when user is not a member', async () => {
