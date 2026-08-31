@@ -22,7 +22,8 @@ export const reconcileAdminEvents = (existing: DogEvent[], changed: DogEvent[]):
 }
 
 const remoteAdminEventsAtom = atom(async (get) => {
-  const [token, user] = await Promise.all([get(validIdTokenAtom), get(userAtom)])
+  const token = get(validIdTokenAtom)
+  const user = await get(userAtom)
   if (!token || !user) return []
 
   const scopeKey = 'adminEvents:scope'

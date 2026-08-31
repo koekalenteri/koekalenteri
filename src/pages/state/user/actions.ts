@@ -26,7 +26,7 @@ export const useUserActions = () => {
     useCallback(
       async (get, set, idToken: string) => {
         set(idTokenAtom, idToken)
-        const loginPath = await get(loginPathAtom)
+        const loginPath = get(loginPathAtom)
         try {
           const user = await get(userAtom)
           const nameOrEmail = user?.name ?? user?.email
@@ -67,7 +67,7 @@ export const useUserActions = () => {
     useCallback(
       async (get, _set, name: string) => {
         try {
-          const token = await get(validIdTokenAtom)
+          const token = get(validIdTokenAtom)
           if (!token) return
 
           const cleaned = String(name ?? '').trim()

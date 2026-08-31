@@ -54,7 +54,7 @@ const eventFormOptionsAtom = atom(async (get) =>
     get(adminUsersAtom),
     get(adminUserOrganizersAtom),
     get(adminLocationNamesAtom),
-  ] as const)
+  ])
 )
 
 export default function EventForm({ event, changes, canSave, disabled, onSave, onCancel, onChange }: Props) {

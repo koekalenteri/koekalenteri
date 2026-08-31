@@ -94,12 +94,10 @@ export const useAdminRegistrationActions = (eventId: string) => {
         }
 
         const refresh = (async () => {
-          const [currentToken, registrations, fetchedAt, storedCursor] = await Promise.all([
-            get(validIdTokenAtom),
-            get(adminEventRegistrationsAtom(eventId)),
-            get(adminEventRegistrationsFetchedAtAtom(eventId)),
-            get(adminEventRegistrationsCursorAtom(eventId)),
-          ])
+          const currentToken = get(validIdTokenAtom)
+          const fetchedAt = get(adminEventRegistrationsFetchedAtAtom(eventId))
+          const storedCursor = get(adminEventRegistrationsCursorAtom(eventId))
+          const registrations = await get(adminEventRegistrationsAtom(eventId))
           if (!currentToken) return
 
           const now = new Date()

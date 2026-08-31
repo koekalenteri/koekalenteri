@@ -45,7 +45,8 @@ export function atomWithCachedRemoteCollection<T>({ cacheKey, fetch, sort }: Cac
   let cacheTarget: { revision?: string; userId: string } | undefined
 
   const remoteAtom = atom(async (get) => {
-    const [token, user] = await Promise.all([get(validIdTokenAtom), get(userAtom)])
+    const token = get(validIdTokenAtom)
+    const user = await get(userAtom)
     if (!token || !user?.id) return []
 
     cacheTarget = { revision: user.dataVersions?.[cacheKey]?.revision, userId: user.id }

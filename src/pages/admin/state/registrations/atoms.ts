@@ -13,7 +13,7 @@ export const adminRegistrationIdAtom = atomWithLocalStorage<string | undefined>(
 
 export const adminEventRegistrationsAtom = atomFamily((eventId: string) => {
   const remoteAtom = atom(async (get) => {
-    const token = await get(validIdTokenAtom)
+    const token = get(validIdTokenAtom)
     return token ? ((await getRegistrations(eventId, token)) ?? []) : []
   })
   const overrideAtom = atom<Registration[] | undefined>(undefined)

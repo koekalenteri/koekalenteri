@@ -232,8 +232,8 @@ export function useFetchEvents() {
       }
 
       try {
-        const metadata = await get(eventMetadataAtom)
-        const events = await get(eventsAtom)
+        const metadata = get(eventMetadataAtom)
+        const events = get(eventsAtom)
         const effectiveMetadata = consumeMetadataInvalidation(metadata)
         const now = Date.now()
         const preparedRange = prepareRangeEvents(events, start, now)
@@ -256,7 +256,7 @@ export function useFetchEvents() {
         }
 
         if (eventId) {
-          const currentEvents = await get(eventsAtom)
+          const currentEvents = get(eventsAtom)
           const singleResult = await getSingleSyncResult(currentEvents, nextMetadata, eventId, now)
           if (singleResult.events) set(eventsAtom, singleResult.events)
           if (singleResult.metadata !== nextMetadata) set(eventMetadataAtom, singleResult.metadata)

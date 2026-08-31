@@ -13,6 +13,37 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 const { eventTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
 
+/**
+ * The attachment being replaced can be dropped only when no registration still points at it, either
+ * because it was already sent or read, or because it is the one an invitation yet to be sent used.
+ */
+const findStaleAttachment = async (
+  eventId: string,
+  oldAttachment: string | undefined,
+  className: string | undefined
+): Promise<string | undefined> => {
+  if (!oldAttachment) return undefined
+
+  const referenced = (await getRegistrationsByEventId(eventId)).some(
+    (registration) =>
+      registration.invitationAttachmentSent === oldAttachment ||
+      registration.invitationAttachmentRead === oldAttachment ||
+      (!registration.invitationAttachmentSent &&
+        (!className || getRegistrationClass(registration) === className) &&
+        (registration.messagesSent?.invitation || registration.invitationRead))
+  )
+  return referenced ? undefined : oldAttachment
+}
+
+/** Removing the replaced file is best effort: the event already points at the new one. */
+const deleteStaleAttachment = async (key: string) => {
+  try {
+    await deleteFile(key)
+  } catch (error) {
+    console.error('Failed to delete unused invitation attachment', error)
+  }
+}
+
 const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (event) => {
   const user = await authorize(event)
   if (!user) {
@@ -45,21 +76,12 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
 
   const existingClassAttachments = existing.invitationAttachments ?? {}
   const oldAttachment = className ? existingClassAttachments[className] : existing.invitationAttachment
-  const oldAttachmentIsReferenced = oldAttachment
-    ? (await getRegistrationsByEventId(eventId)).some(
-        (registration) =>
-          registration.invitationAttachmentSent === oldAttachment ||
-          registration.invitationAttachmentRead === oldAttachment ||
-          (!registration.invitationAttachmentSent &&
-            (!className || getRegistrationClass(registration) === className) &&
-            (registration.messagesSent?.invitation || registration.invitationRead))
-      )
-    : false
+  const staleAttachment = await findStaleAttachment(eventId, oldAttachment, className)
   const key = nanoid()
   await uploadFile(key, file.data)
   const uploadedAt = new Date().toISOString()
   const previousInvitationAttachmentHistory = { ...existing.invitationAttachmentHistory }
-  if (oldAttachment && !oldAttachmentIsReferenced) delete previousInvitationAttachmentHistory[oldAttachment]
+  if (staleAttachment) delete previousInvitationAttachmentHistory[staleAttachment]
   const invitationAttachmentHistory = {
     ...previousInvitationAttachmentHistory,
     [key]: {
@@ -89,13 +111,7 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
   )
   await publishAdminEventPatch({ eventId, ...set }, existing.organizer.id)
 
-  if (oldAttachment && !oldAttachmentIsReferenced) {
-    try {
-      await deleteFile(oldAttachment)
-    } catch (error) {
-      console.error('Failed to delete unused invitation attachment', error)
-    }
-  }
+  if (staleAttachment) await deleteStaleAttachment(staleAttachment)
 
   return response(200, { invitationAttachmentHistory, key, uploadedAt }, event)
 })

@@ -12,7 +12,7 @@ export const validIdTokenAtom = atom((get) => {
 })
 
 export const userAtom = atom(async (get) => {
-  const token = await get(validIdTokenAtom)
+  const token = get(validIdTokenAtom)
   const refresh = get(userRefreshAtom)
   if (!token) return null
   try {

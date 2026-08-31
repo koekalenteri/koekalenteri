@@ -719,6 +719,32 @@ const processRegistrationStats = (
   return { skipped: false, unattributedCapacity }
 }
 
+/**
+ * Allocates the per-partition buckets, seeding the ones that start from the events themselves
+ * rather than from registrations.
+ */
+const seedStatsBuckets = (
+  eventsById: Map<string, EventStatsEvent>,
+  wanted: Set<StatsPartition>,
+  yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
+) => {
+  const capacityBuckets = new Map<string, CapacityBucket>()
+  const eventClassMonths = new Map<string, Map<string, string>>()
+  if (wanted.has('capacity')) seedCapacityFromEvents(eventsById, capacityBuckets, eventClassMonths)
+
+  const judgeWorkloadBuckets = new Map<string, JudgeWorkloadBucket>()
+  if (wanted.has('judges')) seedJudgeWorkloadFromEvents(eventsById, judgeWorkloadBuckets)
+
+  if (wanted.has('participation')) seedEventCountsFromEvents(eventsById, yearlyStats)
+
+  const breedStartBuckets = new Map<string, BreedStartBucket>()
+
+  const eventBreakdownBuckets = new Map<string, EventBreakdownBucket>()
+  if (wanted.has('eventBreakdown')) seedEventBreakdownFromEvents(eventsById, eventBreakdownBuckets)
+
+  return { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets }
+}
+
 /** Builds the desired contents of the given stats partitions without making DynamoDB writes. */
 export function buildStatsRecords(
   registrations: CapacityRegistrationInput[],
@@ -745,19 +771,8 @@ export function buildStatsRecords(
   let skippedCount = 0
   let unattributedCapacityCount = 0
 
-  const capacityBuckets = new Map<string, CapacityBucket>()
-  const eventClassMonths = new Map<string, Map<string, string>>()
-  if (wanted.has('capacity')) seedCapacityFromEvents(eventsById, capacityBuckets, eventClassMonths)
-
-  const judgeWorkloadBuckets = new Map<string, JudgeWorkloadBucket>()
-  if (wanted.has('judges')) seedJudgeWorkloadFromEvents(eventsById, judgeWorkloadBuckets)
-
-  if (wanted.has('participation')) seedEventCountsFromEvents(eventsById, yearlyStats)
-
-  const breedStartBuckets = new Map<string, BreedStartBucket>()
-
-  const eventBreakdownBuckets = new Map<string, EventBreakdownBucket>()
-  if (wanted.has('eventBreakdown')) seedEventBreakdownFromEvents(eventsById, eventBreakdownBuckets)
+  const { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets } =
+    seedStatsBuckets(eventsById, wanted, yearlyStats)
 
   for (const registration of registrations) {
     const outcome = processRegistrationStats(
