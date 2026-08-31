@@ -227,7 +227,9 @@ export default function UsersPage() {
   const { refresh } = useAdminUserActions()
 
   useEffect(() => {
-    // Always refresh on mount so lastSeen is up-to-date for the admin users list.
+    // Refresh on mount so lastSeen is up-to-date: it is the one field the collection version does
+    // not track, so nothing else brings it in. The refresh only asks for what changed after the
+    // list already loaded, and leaves the cached list in place.
     void refresh()
   }, [refresh])
 

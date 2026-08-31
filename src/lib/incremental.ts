@@ -1,15 +1,28 @@
 import type { CollectionResponse } from '../types'
 
-type TimestampedItem = { modifiedAt?: Date | string; updatedAt?: Date | string }
+type Timestamp = Date | string | undefined
+/**
+ * `lastSeen` counts: a user row whose lastSeen was refreshed is a changed row, even though that
+ * refresh deliberately leaves modifiedAt - and with it the collection version - alone. The cursor
+ * has to advance past it or the next incremental fetch asks for the same rows again.
+ */
+type TimestampedItem = { lastSeen?: Timestamp; modifiedAt?: Timestamp; updatedAt?: Timestamp }
+
+const timestampValue = (value: Timestamp): number => {
+  if (value instanceof Date) return value.getTime()
+  if (typeof value === 'string') return Date.parse(value)
+  return Number.NaN
+}
 
 export const latestCollectionUpdate = <T>(items: T[]): Date | undefined => {
   const latest = items.reduce((max, item) => {
-    const { modifiedAt, updatedAt } = item as T & TimestampedItem
-    const value = updatedAt ?? modifiedAt
-    let timestamp = Number.NaN
-    if (value instanceof Date) timestamp = value.getTime()
-    else if (typeof value === 'string') timestamp = Date.parse(value)
-    return Number.isNaN(timestamp) ? max : Math.max(max, timestamp)
+    const { lastSeen, modifiedAt, updatedAt } = item as T & TimestampedItem
+    // The same rule the backend applies when it computes a cursor: the latest of the timestamps
+    // the row carries, not the first one that happens to be present.
+    return [updatedAt, modifiedAt, lastSeen].reduce<number>((latest, value) => {
+      const timestamp = timestampValue(value)
+      return Number.isNaN(timestamp) ? latest : Math.max(latest, timestamp)
+    }, max)
   }, Number.NEGATIVE_INFINITY)
 
   return Number.isFinite(latest) ? new Date(latest) : undefined

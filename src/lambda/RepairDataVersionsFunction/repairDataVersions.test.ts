@@ -25,9 +25,15 @@ const users = [
   { id: 'u2', judge: ['NOME-B'], modifiedAt: '2026-01-03T00:00:00.000Z' },
 ]
 
+const organizers = [
+  { id: 'o1', name: 'Yhdistys A' },
+  { id: 'o2', name: 'Yhdistys B' },
+]
+
 const setup = () => {
-  // emailTemplates, eventTypes, judges, officials, then users
+  // emailTemplates, eventTypes, judges, officials, then organizers and users
   mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce([]).mockResolvedValueOnce([]).mockResolvedValueOnce([])
+  mockReadAll.mockResolvedValueOnce(organizers)
   mockReadAll.mockResolvedValueOnce(users)
   mockRead.mockResolvedValueOnce({ count: 309, modifiedAt: '2026-01-01T00:00:00.000Z' })
 }
@@ -55,6 +61,8 @@ describe('repairDataVersions', () => {
       { count: 309, fingerprintAt: '2026-01-01T00:00:00.000Z' },
       false
     )
+    // Organizer rows carry no timestamp, so only the count is measurable.
+    expect(mockWriteFingerprint).toHaveBeenCalledWith('organizers', '*', { count: 2, fingerprintAt: undefined }, false)
     expect(mockWriteFingerprint).toHaveBeenCalledWith(
       'users',
       'org1',
@@ -84,6 +92,7 @@ describe('repairDataVersions', () => {
       { collection: 'judges', count: 0, fingerprintAt: '', scope: '*' },
       { collection: 'officials', count: 0, fingerprintAt: '', scope: '*' },
       { collection: 'locations', count: 309, fingerprintAt: '2026-01-01T00:00:00.000Z', scope: '*' },
+      { collection: 'organizers', count: 2, fingerprintAt: '', scope: '*' },
       { collection: 'users', count: 2, fingerprintAt: '2026-01-03T00:00:00.000Z', scope: '*' },
       { collection: 'users', count: 1, fingerprintAt: '2026-01-03T00:00:00.000Z', scope: 'directory' },
       { collection: 'users', count: 1, fingerprintAt: '2026-01-02T00:00:00.000Z', scope: 'org1' },

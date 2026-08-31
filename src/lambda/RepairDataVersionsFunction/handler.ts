@@ -36,13 +36,14 @@ const key = (collection: string, scope: string) => `${collection}#${scope}`
 const readTable = async <T extends TimestampedItem>(table: string) => (await dynamoDB.readAll<T>({ table })) ?? []
 
 const collectFingerprints = async (): Promise<Map<string, Fingerprint>> => {
-  const [emailTemplates, eventTypes, judges, officials, locations, users] = await Promise.all([
+  const [emailTemplates, eventTypes, judges, officials, locations, organizers, users] = await Promise.all([
     readTable(CONFIG.emailTemplateTable),
     readTable(CONFIG.eventTypeTable),
     readTable(CONFIG.judgeTable),
     readTable(CONFIG.officialTable),
     // Locations live in a single snapshot row that carries its own count and modifiedAt.
     dynamoDB.read<{ count?: number; modifiedAt?: string }>({ id: LOCATIONS_ID }, CONFIG.locationTable),
+    readTable(CONFIG.organizerTable),
     readTable<JsonUser>(CONFIG.userTable),
   ])
 
@@ -52,6 +53,9 @@ const collectFingerprints = async (): Promise<Map<string, Fingerprint>> => {
     [key('judges', GLOBAL_SCOPE), fingerprintOf(judges)],
     [key('officials', GLOBAL_SCOPE), fingerprintOf(officials)],
     [key('locations', GLOBAL_SCOPE), { count: locations?.count ?? 0, fingerprintAt: locations?.modifiedAt }],
+    // Organizer rows carry no timestamp, so the backstop only sees rows appearing or disappearing.
+    // A renamed organizer is caught by the explicit bump at the two sites that can rename one.
+    [key('organizers', GLOBAL_SCOPE), fingerprintOf(organizers)],
   ])
 
   // Users are fingerprinted per scope, the same way they are versioned.

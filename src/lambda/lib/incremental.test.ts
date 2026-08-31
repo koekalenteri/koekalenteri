@@ -22,6 +22,20 @@ describe('incremental collection helpers', () => {
     ).toEqual(['same', 'new'])
   })
 
+  it('counts a refreshed lastSeen as a change', () => {
+    // A lastSeen refresh deliberately leaves modifiedAt alone, so it is invisible to the collection
+    // version. An incremental fetch is the only way an admin list ever sees it.
+    expect(
+      changedItemsSince(
+        [
+          { id: 'quiet', modifiedAt: '2024-01-01T00:00:00.000Z' },
+          { id: 'seen', lastSeen: '2024-01-03T00:00:00.000Z', modifiedAt: '2024-01-01T00:00:00.000Z' },
+        ],
+        since
+      ).map((item) => item.id)
+    ).toEqual(['seen'])
+  })
+
   it('uses deletion time and emits deletion tombstones', () => {
     expect(
       collectionChangesSince(

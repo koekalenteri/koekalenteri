@@ -36,22 +36,51 @@ const isFresh = (cachedRevision: string | undefined, current: DataVersion | unde
   Boolean(cachedRevision && current?.revision && cachedRevision === current.revision)
 
 export function atomWithCachedRemoteCollection<T>({ cacheKey, fetch, sort }: CachedCollectionOptions<T>) {
+  /**
+   * Where an update should be mirrored, recorded by the load that produced the list being updated.
+   * Taken from the load rather than read from `userAtom` in the writer, so that seeding the atom -
+   * a test fixture, or any write before anything has read the collection - never triggers a `/user`
+   * request or stores a blob for a user whose data this list is not.
+   */
+  let cacheTarget: { revision?: string; userId: string } | undefined
+
   const remoteAtom = atom(async (get) => {
     const [token, user] = await Promise.all([get(validIdTokenAtom), get(userAtom)])
     if (!token || !user?.id) return []
 
+    cacheTarget = { revision: user.dataVersions?.[cacheKey]?.revision, userId: user.id }
     return loadCachedRemoteCollection({ cacheKey, fetch, sort }, token, user)
   })
   const overrideAtom = atom<T[] | undefined>(undefined)
   return atom(
     (get) => get(overrideAtom) ?? get(remoteAtom),
-    (_get, set, value: T[] | ((previous: T[]) => T[])) => {
-      const previous = set(overrideAtom, (current) => {
-        if (typeof value !== 'function') return value
-        if (!current) throw new Error('Cannot update a remote atom before it has loaded')
-        return value(current)
-      })
-      return previous
+    async (get, set, value: T[] | ((previous: T[]) => T[])) => {
+      let next: T[]
+      if (typeof value === 'function') {
+        // An updater builds on whatever the atom currently reads: the override once one has been
+        // written, the loaded (cached or fetched) remote list until then.
+        const previous = get(overrideAtom) ?? (await get(remoteAtom))
+        next = value(previous)
+        // An update that changed nothing - an incremental refresh that found nothing new - has
+        // nothing to store and nothing to notify about.
+        if (next === previous) return next
+      } else {
+        next = value
+      }
+      set(overrideAtom, next)
+
+      // Mirror the write into the cache. Without this the blob keeps the list as it was at the last
+      // fetch, so every update in this session costs a full refetch in the next one. The revision
+      // recorded is the one this browser knew when it loaded, exactly as in the fetch path above:
+      // if the collection changed after that, the blob refetches once more later, never the other
+      // way round.
+      if (cacheTarget) {
+        await writeEncryptedDataset(cacheTarget.userId, cacheKey, next, {
+          revision: cacheTarget.revision,
+        }).catch(() => undefined)
+      }
+
+      return next
     }
   )
 }

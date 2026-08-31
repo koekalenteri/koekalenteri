@@ -1,5 +1,8 @@
-import type { User } from '../../../../types'
+import type { PrimitiveAtom } from 'jotai'
+import type { DataVersions, User } from '../../../../types'
+import { createStore } from 'jotai'
 import { vi } from 'vitest'
+import { TEST_ID_TOKEN } from '../../../../test-utils/utils'
 
 const mockReadEncryptedDataset = vi.fn()
 const mockWriteEncryptedDataset = vi.fn()
@@ -9,7 +12,23 @@ vi.mock('../../../../lib/client/encryptedStore', () => ({
   writeEncryptedDataset: mockWriteEncryptedDataset,
 }))
 
+const dataVersions: DataVersions = {
+  emailTemplates: { revision: '*:initial' },
+  eventTypes: { revision: '*:initial' },
+  judges: { modifiedAt: '2026-01-02T00:00:00.000Z', revision: '*:current' },
+  locations: { revision: '*:initial' },
+  officials: { revision: '*:initial' },
+  organizers: { revision: '*:initial' },
+  users: { revision: 'directory:initial' },
+}
+
+const currentUser: User = { dataVersions, email: 'admin@user.vi', id: 'user-1', name: 'Test Admin' }
+
+vi.mock('../../../../api/user', () => ({ getUser: vi.fn(async () => currentUser) }))
+
 let loadCachedRemoteCollection: typeof import('./createCachedRemoteCollection').loadCachedRemoteCollection
+let atomWithCachedRemoteCollection: typeof import('./createCachedRemoteCollection').atomWithCachedRemoteCollection
+let idTokenAtom: PrimitiveAtom<string | undefined>
 
 beforeAll(async () => {
   vi.resetModules()
@@ -17,21 +36,15 @@ beforeAll(async () => {
     readEncryptedDataset: mockReadEncryptedDataset,
     writeEncryptedDataset: mockWriteEncryptedDataset,
   }))
-  loadCachedRemoteCollection = (await import('./createCachedRemoteCollection')).loadCachedRemoteCollection
+  // Imported after the reset, so the atoms are the same instances the module under test uses.
+  idTokenAtom = (await import('../../../state')).idTokenAtom
+  const module = await import('./createCachedRemoteCollection')
+  loadCachedRemoteCollection = module.loadCachedRemoteCollection
+  atomWithCachedRemoteCollection = module.atomWithCachedRemoteCollection
 })
 
 const makeEffect = (fetch = vi.fn()) => {
-  const promise = loadCachedRemoteCollection({ cacheKey: 'judges', fetch }, 'token', {
-    dataVersions: {
-      emailTemplates: { revision: '*:initial' },
-      eventTypes: { revision: '*:initial' },
-      judges: { modifiedAt: '2026-01-02T00:00:00.000Z', revision: '*:current' },
-      locations: { revision: '*:initial' },
-      officials: { revision: '*:initial' },
-      users: { revision: 'directory:initial' },
-    },
-    id: 'user-1',
-  } satisfies Partial<User> as User)
+  const promise = loadCachedRemoteCollection({ cacheKey: 'judges', fetch }, 'token', currentUser)
   return { fetch, promise }
 }
 
@@ -102,5 +115,57 @@ describe('loadCachedRemoteCollection', () => {
     const { promise } = makeEffect(fetch)
 
     await expect(promise).rejects.toThrow('network')
+  })
+})
+
+describe('atomWithCachedRemoteCollection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockWriteEncryptedDataset.mockResolvedValue(undefined)
+  })
+
+  const loadedCollection = async (fetch = vi.fn()) => {
+    const collection = atomWithCachedRemoteCollection<string>({ cacheKey: 'judges', fetch })
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+    await store.get(collection)
+    return { collection, store }
+  }
+
+  it('applies an updater to the list the atom is currently serving', async () => {
+    mockReadEncryptedDataset.mockResolvedValueOnce({ data: ['cached'], revision: '*:current' })
+    const { collection, store } = await loadedCollection()
+
+    await store.set(collection, (previous) => [...previous, 'added'])
+
+    expect(store.get(collection)).toEqual(['cached', 'added'])
+  })
+
+  it('mirrors an update into the cache at the revision it loaded', async () => {
+    mockReadEncryptedDataset.mockResolvedValueOnce({ data: ['cached'], revision: '*:current' })
+    const { collection, store } = await loadedCollection()
+
+    await store.set(collection, ['replaced'])
+
+    expect(mockWriteEncryptedDataset).toHaveBeenCalledWith('user-1', 'judges', ['replaced'], { revision: '*:current' })
+  })
+
+  it('leaves the cache alone when an updater finds nothing to change', async () => {
+    mockReadEncryptedDataset.mockResolvedValueOnce({ data: ['cached'], revision: '*:current' })
+    const { collection, store } = await loadedCollection()
+
+    await store.set(collection, (previous) => previous)
+
+    expect(mockWriteEncryptedDataset).not.toHaveBeenCalled()
+  })
+
+  it('leaves the cache alone for a write that precedes any load', async () => {
+    const collection = atomWithCachedRemoteCollection<string>({ cacheKey: 'judges', fetch: vi.fn() })
+    const store = createStore()
+
+    await store.set(collection, ['seeded'])
+
+    expect(store.get(collection)).toEqual(['seeded'])
+    expect(mockWriteEncryptedDataset).not.toHaveBeenCalled()
   })
 })

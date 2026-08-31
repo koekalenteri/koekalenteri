@@ -8,12 +8,18 @@ export function parseDateParam(value: string | undefined): Date | undefined {
 
 interface TimestampedItem {
   deletedAt?: string
+  /**
+   * A user row also changes when its lastSeen is refreshed, and that refresh deliberately leaves
+   * modifiedAt - and with it the collection version - alone (see lib/auth.ts). An incremental
+   * fetch is therefore the only way an admin list ever sees a new lastSeen.
+   */
+  lastSeen?: string
   modifiedAt?: string
   updatedAt?: string
 }
 
 const getUpdatedAt = (item: TimestampedItem) => {
-  const timestamps = [item.updatedAt, item.modifiedAt, item.deletedAt]
+  const timestamps = [item.updatedAt, item.modifiedAt, item.deletedAt, item.lastSeen]
     .filter((value): value is string => typeof value === 'string')
     .map((value) => new Date(value))
     .filter((value) => !Number.isNaN(value.getTime()))

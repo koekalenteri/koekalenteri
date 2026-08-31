@@ -35,6 +35,7 @@ describe('getDataVersions', () => {
       { collection: 'judges', scope: '*' },
       { collection: 'locations', scope: '*' },
       { collection: 'officials', scope: '*' },
+      { collection: 'organizers', scope: '*' },
       { collection: 'users', scope: 'directory' },
       { collection: 'users', scope: 'org1' },
       { collection: 'users', scope: 'org2' },

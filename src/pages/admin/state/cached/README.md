@@ -1,6 +1,6 @@
 # Encrypted admin reference data cache
 
-Admin reference datasets (`eventTypes`, `judges`, `locations`, `officials`, and caller-visible `users`) are cached in the browser to avoid repeated cold Lambda calls.
+Admin reference datasets (`emailTemplates`, `eventTypes`, `judges`, `locations`, `officials`, `organizers`, and caller-visible `users`) are cached in the browser to avoid repeated cold Lambda calls.
 
 ## Freshness model
 
@@ -34,5 +34,9 @@ Admin collection atoms use `atomWithCachedRemoteCollection()`. Its asynchronous 
 When the API call fails and a cached blob is available, the atom returns the cached data so the UI remains usable through transient outages. When no cache is available, the original error propagates and the atom rejects.
 
 On a successful refetch the blob records the revision reported *before* the fetch. If the collection changes in between, the blob is marked older than its data and refetches once more later — never the other way round.
+
+Writing to a collection atom — a WebSocket invalidation, a manual refresh, an edit made in the UI — mirrors the new list into the blob under the same rule, so the next session starts from it instead of refetching everything the moment anything was updated. A write that arrives before anything has read the collection (a test fixture, say) is not mirrored: there is no load to take the user and revision from, and seeding an atom must never reach for `/user`.
+
+`lastSeen` is the one field the version cannot see: refreshing it deliberately leaves `modifiedAt` — and with it the collection version — alone, or every login would invalidate every admin's cached user list. The users list therefore stays cached, and the page that shows `lastSeen` refreshes it incrementally with `?since=`; that is why `lastSeen` counts as a change for the incremental cursor on both sides.
 
 If IndexedDB or Web Crypto is unavailable (for example in tests), cache read/write failures are ignored and the atom falls back to remote fetching.

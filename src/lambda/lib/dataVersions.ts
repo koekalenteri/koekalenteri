@@ -27,6 +27,7 @@ const GLOBAL_VERSIONED_COLLECTIONS = [
   'judges',
   'locations',
   'officials',
+  'organizers',
 ] as const satisfies readonly VersionedCollection[]
 
 /**
@@ -85,6 +86,7 @@ export async function getDataVersions(userScopes: string[]): Promise<DataVersion
     judges: global('judges'),
     locations: global('locations'),
     officials: global('officials'),
+    organizers: global('organizers'),
     users: composeVersion(byKey, 'users', userScopes),
   }
 }

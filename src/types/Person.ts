@@ -57,6 +57,7 @@ export interface DataVersions {
   judges: DataVersion
   locations: DataVersion
   officials: DataVersion
+  organizers: DataVersion
   users: DataVersion
 }
 

@@ -95,9 +95,9 @@ export const publishAdminDataInvalidation = async (collections: AdminDataCollect
   // Bump the stored versions too, so a browser that is not connected right now notices at its next
   // login. `users` is deliberately excluded: its version is scoped per organization and bumped
   // where the records are written (lib/user.ts), which is also where the old and new scopes of a
-  // moved record are known. `organizers` has no browser-side cache and no version.
+  // moved record are known.
   for (const collection of collections) {
-    if (collection !== 'users' && collection !== 'organizers') await bumpDataVersion(collection)
+    if (collection !== 'users') await bumpDataVersion(collection)
   }
 
   return send({

@@ -10,6 +10,25 @@ describe('incremental collections', () => {
     ).toEqual(new Date('2024-01-03T00:00:00.000Z'))
   })
 
+  it('advances past a refreshed lastSeen', () => {
+    // The users cursor has to move with lastSeen, or the next incremental fetch asks for the rows
+    // it just received all over again.
+    expect(
+      latestCollectionUpdate([
+        { id: 'a', modifiedAt: '2024-01-01T00:00:00.000Z' },
+        { id: 'b', lastSeen: '2024-01-05T00:00:00.000Z', modifiedAt: '2024-01-02T00:00:00.000Z' },
+      ])
+    ).toEqual(new Date('2024-01-05T00:00:00.000Z'))
+  })
+
+  it('takes the latest timestamp a row carries, not the first one present', () => {
+    expect(
+      latestCollectionUpdate([
+        { id: 'a', modifiedAt: '2024-01-04T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z' },
+      ])
+    ).toEqual(new Date('2024-01-04T00:00:00.000Z'))
+  })
+
   it('prefers the server cursor and can force a full request', () => {
     const items = [{ id: 'a', modifiedAt: new Date('2024-01-01T00:00:00.000Z') }]
 

@@ -340,22 +340,25 @@ export const useWebSocket = () => {
               const since = collectionSince(current, adminDataCursorsRef.current.users)
               const response = since ? await getUsers(token, undefined, since) : await getUsers(token)
               adminDataCursorsRef.current.users = collectionResponseCursor(response)
-              set(adminUsersAtom, (latest) => reconcileCollection(latest, response))
+              await set(adminUsersAtom, (latest) => reconcileCollection(latest, response))
               break
             }
             case 'organizers':
-              set(adminOrganizersAtom, [...(await getAdminOrganizers(token))].sort(compareByLocalizedString('name')))
+              await set(
+                adminOrganizersAtom,
+                [...(await getAdminOrganizers(token))].sort(compareByLocalizedString('name'))
+              )
               break
             // Refreshed weekly and never edited, so there is nothing incremental to reconcile.
             case 'locations':
-              set(adminLocationsAtom, [...(await getLocations(token))].sort(compareByLocalizedString('name')))
+              await set(adminLocationsAtom, [...(await getLocations(token))].sort(compareByLocalizedString('name')))
               break
             case 'judges': {
               const current = await get(adminJudgesAtom)
               const since = collectionSince(current, adminDataCursorsRef.current.judges)
               const response = since ? await getJudges(token, undefined, undefined, since) : await getJudges(token)
               adminDataCursorsRef.current.judges = collectionResponseCursor(response)
-              set(adminJudgesAtom, (latest) =>
+              await set(adminJudgesAtom, (latest) =>
                 reconcileCollection(latest, response).sort(compareByLocalizedString('name'))
               )
               break
@@ -367,7 +370,7 @@ export const useWebSocket = () => {
                 ? await getOfficials(token, undefined, undefined, since)
                 : await getOfficials(token)
               adminDataCursorsRef.current.officials = collectionResponseCursor(response)
-              set(adminOfficialsAtom, (latest) =>
+              await set(adminOfficialsAtom, (latest) =>
                 reconcileCollection(latest, response).sort(compareByLocalizedString('name'))
               )
               break
@@ -379,7 +382,7 @@ export const useWebSocket = () => {
                 ? await getEventTypes(token, undefined, undefined, since)
                 : await getEventTypes(token)
               adminDataCursorsRef.current.eventTypes = collectionResponseCursor(response)
-              set(adminEventTypesAtom, (latest) =>
+              await set(adminEventTypesAtom, (latest) =>
                 reconcileCollection(latest, response, eventTypeKey).sort(compareByLocalizedString('eventType'))
               )
               break
@@ -391,7 +394,7 @@ export const useWebSocket = () => {
                 ? await getEmailTemplates(token, undefined, since)
                 : await fetchEmailTemplates(token)
               adminDataCursorsRef.current.emailTemplates = collectionResponseCursor(response)
-              set(adminEmailTemplatesAtom, (latest) =>
+              await set(adminEmailTemplatesAtom, (latest) =>
                 reconcileCollection(latest, response).sort(compareByLocalizedString('id'))
               )
               break
