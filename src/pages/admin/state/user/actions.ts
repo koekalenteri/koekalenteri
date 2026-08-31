@@ -7,7 +7,13 @@ import { getUsers, putAdmin, putRole, putUser } from '../../../../api/user'
 import { reportError } from '../../../../lib/client/error'
 import { collectionSince, reconcileCollection } from '../../../../lib/incremental'
 import { validIdTokenAtom } from '../../../state'
-import { adminUsersAtom } from './atoms'
+import { adminUsersAtom, adminUsersRefreshedAtAtom } from './atoms'
+
+/**
+ * The backend refreshes a user's `lastSeen` at most once every 15 minutes (lambda/lib/auth.ts), so
+ * asking for the list more often than that cannot show anything new.
+ */
+const LAST_SEEN_REFRESH_INTERVAL_MS = 15 * 60 * 1000
 
 export const useAdminUserActions = () => {
   const token = useAtomValue(validIdTokenAtom)
@@ -25,12 +31,17 @@ export const useAdminUserActions = () => {
   // callers can refresh on mount without the refresh itself scheduling the next one.
   const refreshUsers = useAtomCallback(
     useCallback(async (get, set, token: string) => {
+      const now = Date.now()
+      if (now - get(adminUsersRefreshedAtAtom) < LAST_SEEN_REFRESH_INTERVAL_MS) return
+
       // The cached list is complete up to its own newest timestamp, so only what happened after it
       // has to come over the wire. Without this a mount refresh discards the cache every time.
       const current = await get(adminUsersAtom)
       const since = collectionSince(current)
       const response = since ? await getUsers(token, undefined, since) : await getUsers(token)
       await set(adminUsersAtom, (latest) => reconcileCollection(latest, response))
+      // Only once it succeeded: a failed refresh should be retried, not waited out.
+      set(adminUsersRefreshedAtAtom, now)
     }, [])
   )
 

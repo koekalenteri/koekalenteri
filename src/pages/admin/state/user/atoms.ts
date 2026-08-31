@@ -4,6 +4,11 @@ import { atomWithLocalStorage } from '../../../state/storage'
 import { adminUsersRemoteAtom } from './remoteAtoms'
 
 export const adminUsersAtom = adminUsersRemoteAtom
+/**
+ * When the list was last refreshed for `lastSeen`, so opening the page again does not ask for it
+ * over and over. Deliberately not persisted: a reload stays the way to force a refresh.
+ */
+export const adminUsersRefreshedAtAtom = atom(0)
 export const adminUserFilterAtom = atom('')
 export const adminUserIdAtom = atomWithLocalStorage<string | undefined>('adminUserId', '')
 export const adminUsersOrganizerIdAtom = atomWithLocalStorage('adminUsersOrganizerId', '')

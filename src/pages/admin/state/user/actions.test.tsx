@@ -60,6 +60,32 @@ describe('useAdminUserActions', () => {
     expect(result.current.users).toEqual([cached[0], seen])
   })
 
+  it('does not ask again while nothing new can have been seen', async () => {
+    mockGetUsers.mockResolvedValue({ cursor: Date.parse('2026-01-05T00:00:00.000Z'), deletedIds: [], items: [] })
+
+    const { result } = renderHook(() => useAdminUsers(), { wrapper: wrapper(cached) })
+    await act(async () => {
+      await result.current.refresh()
+      await result.current.refresh()
+    })
+
+    expect(mockGetUsers).toHaveBeenCalledTimes(1)
+  })
+
+  it('asks again after a refresh that failed', async () => {
+    mockGetUsers
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce({ cursor: Date.parse('2026-01-05T00:00:00.000Z'), deletedIds: [], items: [] })
+
+    const { result } = renderHook(() => useAdminUsers(), { wrapper: wrapper(cached) })
+    await act(async () => {
+      await result.current.refresh()
+      await result.current.refresh()
+    })
+
+    expect(mockGetUsers).toHaveBeenCalledTimes(2)
+  })
+
   it('asks for the whole list when it has nothing to build on', async () => {
     mockGetUsers.mockResolvedValue(cached)
 
