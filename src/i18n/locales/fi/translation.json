@@ -209,7 +209,7 @@
     "kcIdChoiceTitle": "Valitse Kennelliiton koe",
     "kcIdChoiceType": "Koe",
     "kcIdConflict": "Koetunnus on jo liitetty toiseen kokeeseen. Tarkista koetunnus.",
-    "kcIdEmpty": "Ei haettua koetunnusta",
+    "kcIdEmpty": "Ei liitettyä koetunnusta",
     "kcIdLookup": "Hae koetunnus",
     "kcIdNotFound": "Koetunnusta ei löytynyt tiedoilla {{criteria}}. Koetunnus syntyy, kun koe on anottu Kennelliitosta ja se on hyväksytty.",
     "kcIdRemove": "Poista koetunnus",

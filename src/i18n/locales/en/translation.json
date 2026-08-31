@@ -209,7 +209,7 @@
     "kcIdChoiceTitle": "Select Kennel Club event",
     "kcIdChoiceType": "Event",
     "kcIdConflict": "This Kennel Club ID is already linked to another event. Check the ID.",
-    "kcIdEmpty": "No Kennel Club ID fetched yet",
+    "kcIdEmpty": "No Kennel Club ID linked",
     "kcIdLookup": "Fetch Kennel Club ID",
     "kcIdNotFound": "No Kennel Club ID was found with search details {{criteria}}. The Kennel Club ID becomes available once the event has been applied for and approved by the Kennel Club.",
     "kcIdRemove": "Remove Kennel Club ID",
