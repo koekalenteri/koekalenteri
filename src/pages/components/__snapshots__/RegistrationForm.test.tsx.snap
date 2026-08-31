@@ -43,7 +43,7 @@ exports[`RegistrationForm > renders 1`] = `
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
             >
-              NOU, dateFormat.weekday date registration.timeLong.ap, registration.reserveChoises.ANY
+              NOU, dateFormat.wdshort date registration.timeLong.ap, registration.reserveChoises.ANY
             </p>
           </div>
           <div
@@ -2711,7 +2711,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
             >
-              NOU, dateFormat.weekday date registration.timeLong.ap, registration.reserveChoises.ANY
+              NOU, dateFormat.wdshort date registration.timeLong.ap, registration.reserveChoises.ANY
             </p>
           </div>
           <div

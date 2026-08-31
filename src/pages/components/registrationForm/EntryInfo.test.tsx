@@ -403,6 +403,54 @@ describe('EntryInfo', () => {
     expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ class: undefined }))
   })
 
+  it('should show the entered day on a multi-day event when the class has a single day and group', async () => {
+    // KOE-1253: a two-day event where the class runs on one day only, with a single group, left
+    // the registrant nothing to pick -- and used to show nothing about the day either.
+    const nowtEvent = {
+      ...eventWithStaticDatesAnd3Classes,
+      eventType: 'NOWT',
+      id: 'nowt-single-day-class',
+    }
+    const reg = {
+      ...registrationWithStaticDatesAndClass,
+      class: 'VOI' as const,
+      dates: [{ date: nowtEvent.endDate, time: 'kp' as const }],
+      eventId: nowtEvent.id,
+      eventType: nowtEvent.eventType,
+    }
+
+    render(<EntryInfo reg={reg} event={nowtEvent} errorStates={{}} helperTexts={{}} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    // The day is shown, but there is nothing to filter, so the field is disabled.
+    expect(screen.getByRole('combobox', { name: 'registration.datesFilter' })).toBeDisabled()
+    expect(screen.getByText('dateFormat.wdshort date')).toBeInTheDocument()
+    expect(screen.queryByRole('combobox', { name: 'registration.dates' })).not.toBeInTheDocument()
+    expect(
+      screen.getByText('VOI, dateFormat.wdshort date registration.timeLong.kp, registration.reserveChoises.ANY')
+    ).toBeInTheDocument()
+  })
+
+  it('should not show any day on a single day event', async () => {
+    const singleDayEvent = {
+      ...eventWithStaticDatesAndClass,
+      classes: [{ class: 'ALO' as const, date: eventWithStaticDatesAndClass.startDate }],
+      endDate: eventWithStaticDatesAndClass.startDate,
+      id: 'single-day-event',
+    }
+    const reg = {
+      ...registrationWithStaticDatesAndClass,
+      dates: [{ date: singleDayEvent.startDate, time: 'ap' as const }],
+      eventId: singleDayEvent.id,
+    }
+
+    render(<EntryInfo reg={reg} event={singleDayEvent} errorStates={{}} helperTexts={{}} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.queryByRole('combobox', { name: 'registration.datesFilter' })).not.toBeInTheDocument()
+    expect(screen.getByText('ALO, registration.reserveChoises.ANY')).toBeInTheDocument()
+  })
+
   it('should pick first available class when current reg.class is not in event classes', async () => {
     const reg = merge(registrationWithStaticDatesAndClass, { class: 'VAL' as any })
     const changeHandler = vi.fn((props) => Object.assign(reg, props))

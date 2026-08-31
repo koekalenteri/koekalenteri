@@ -253,7 +253,7 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
             >
-              NOU, dateFormat.weekday date registration.timeLong.ap / dateFormat.weekday date registration.timeLong.ip / dateFormat.weekday date registration.timeLong.ap / dateFormat.weekday date registration.timeLong.ip, registration.reserveChoises.DAY
+              NOU, dateFormat.wdshort date registration.timeLong.ap / dateFormat.wdshort date registration.timeLong.ip / dateFormat.wdshort date registration.timeLong.ap / dateFormat.wdshort date registration.timeLong.ip, registration.reserveChoises.DAY
             </p>
           </div>
           <div
@@ -3309,7 +3309,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
             >
-              VOI, registration.reserveChoises.DAY
+              VOI, dateFormat.wdshort date registration.timeLong.ap / dateFormat.wdshort date registration.timeLong.ip, registration.reserveChoises.DAY
             </p>
           </div>
           <div
@@ -3341,8 +3341,8 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r47:"
-                            id=":r47:-label"
+                            for=":r46:"
+                            id=":r46:-label"
                           >
                             registration.class
                           </label>
@@ -3356,7 +3356,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r47:"
+                              id=":r46:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3414,8 +3414,8 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r4a:"
-                            id=":r4a:-label"
+                            for=":r49:"
+                            id=":r49:-label"
                           >
                             registration.reserve
                           </label>
@@ -3424,13 +3424,13 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                           >
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r4a:-helper-text"
+                              aria-describedby=":r49:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r4a:"
+                              id=":r49:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3474,7 +3474,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r4a:-helper-text"
+                            id=":r49:-helper-text"
                           >
                             registration.reserveHelp
                           </p>
@@ -3482,28 +3482,28 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-169bonr-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
                         data-testid="registration.datesFilter"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r4d:"
-                            id=":r4d:-label"
+                            for=":r4c:"
+                            id=":r4c:-label"
                           >
                             registration.datesFilter
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-o79jym-MuiButtonBase-root-MuiChip-root"
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled Mui-disabled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-o79jym-MuiButtonBase-root-MuiChip-root"
                               data-tag-index="0"
                               role="button"
                               tabindex="-1"
@@ -3527,13 +3527,14 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r4d:-helper-text"
+                              aria-describedby=":r4c:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r4d:"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                              disabled=""
+                              id=":r4c:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3543,27 +3544,9 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                               class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
                             >
                               <button
-                                aria-label="Clear"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                tabindex="-1"
-                                title="Clear"
-                                type="button"
-                              >
-                                <svg
-                                  aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
-                                  data-testid="CloseIcon"
-                                  focusable="false"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                                  />
-                                </svg>
-                              </button>
-                              <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                disabled=""
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -3595,8 +3578,8 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                             </fieldset>
                           </div>
                           <p
-                            class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r4d:-helper-text"
+                            class="MuiFormHelperText-root Mui-disabled MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
+                            id=":r4c:-helper-text"
                           >
                             registration.datesFilterInfo
                           </p>
@@ -3616,8 +3599,8 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r4h:"
-                            id=":r4h:-label"
+                            for=":r4f:"
+                            id=":r4f:-label"
                           >
                             registration.dates
                           </label>
@@ -3672,13 +3655,13 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r4h:-helper-text"
+                              aria-describedby=":r4f:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r4h:"
+                              id=":r4f:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3741,7 +3724,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r4h:-helper-text"
+                            id=":r4f:-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -3929,8 +3912,8 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r4p:"
-                          id=":r4p:-label"
+                          for=":r4n:"
+                          id=":r4n:-label"
                         >
                           dog.rfid
                         </label>
@@ -3941,7 +3924,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r4p:"
+                            id=":r4n:"
                             type="text"
                             value=""
                           />
@@ -4060,8 +4043,8 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r4s:"
-                            id=":r4s:-label"
+                            for=":r4q:"
+                            id=":r4q:-label"
                           >
                             dog.dob
                           </label>
@@ -4072,7 +4055,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                               aria-invalid="true"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r4s:"
+                              id=":r4q:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -4129,8 +4112,8 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r4v:"
-                            id=":r4v:-label"
+                            for=":r4t:"
+                            id=":r4t:-label"
                           >
                             dog.gender
                           </label>
@@ -4145,7 +4128,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r4v:"
+                              id=":r4t:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -4204,8 +4187,8 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r52:"
-                            id=":r52:-label"
+                            for=":r50:"
+                            id=":r50:-label"
                           >
                             dog.breed
                           </label>
@@ -4220,7 +4203,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r52:"
+                              id=":r50:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -4837,7 +4820,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r5h:"
+                                name=":r5f:"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -4882,7 +4865,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r5h:"
+                                name=":r5f:"
                                 type="radio"
                                 value=""
                               />
@@ -4944,7 +4927,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r5i:"
+                                name=":r5g:"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -4989,7 +4972,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r5i:"
+                                name=":r5g:"
                                 type="radio"
                                 value=""
                               />
@@ -5703,8 +5686,8 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
-                      for=":r61:"
-                      id=":r61:-label"
+                      for=":r5v:"
+                      id=":r5v:-label"
                     >
                       registration.notes
                     </label>
@@ -5714,7 +5697,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r61:"
+                        id=":r5v:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"

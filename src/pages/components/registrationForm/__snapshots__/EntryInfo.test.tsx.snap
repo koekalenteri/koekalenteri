@@ -36,7 +36,7 @@ exports[`EntryInfo > should render with event with classes 1`] = `
         <p
           class="MuiFormHelperText-root css-1snnebk-MuiFormHelperText-root"
         >
-          ALO, dateFormat.weekday date registration.timeLong.ap, registration.reserveChoises.ANY
+          ALO, dateFormat.wdshort date registration.timeLong.ap, registration.reserveChoises.ANY
         </p>
       </div>
       <div
@@ -491,7 +491,7 @@ exports[`EntryInfo > should render with event without classes 1`] = `
         <p
           class="MuiFormHelperText-root css-1snnebk-MuiFormHelperText-root"
         >
-          NOU, dateFormat.weekday date registration.timeLong.ap, registration.reserveChoises.ANY
+          NOU, dateFormat.wdshort date registration.timeLong.ap, registration.reserveChoises.ANY
         </p>
       </div>
       <div

@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { useLocalState } from '../../../hooks/useLocalState'
-import { registrationDates, uniqueClasses } from '../../../lib/event'
+import { eventDates, registrationDates, uniqueClasses } from '../../../lib/event'
 import { getRegistrationClass, isRegistrationClass } from '../../../lib/registration'
 import { unique, uniqueDate } from '../../../lib/utils'
 import AutocompleteMulti from '../AutocompleteMulti'
@@ -60,12 +60,18 @@ export function EntryInfo({
 
   // Extract label formatters
   const getRegDateLabel = useCallback((o: Date) => t('dateFormat.wdshort', { date: o }), [t])
-  const getRegDateTimeLabel = useCallback(
-    (o: RegistrationDate) => {
-      const timeText = o.time ? t(`registration.timeLong.${o.time}`) : ''
-      return t('dateFormat.weekday', { date: o.date }) + (timeText ? ` ${timeText}` : '')
-    },
+  const getTimeSuffix = useCallback(
+    (time?: RegistrationTime) => (time ? ` ${t(`registration.timeLong.${time}`)}` : ''),
     [t]
+  )
+  const getRegDateTimeLabel = useCallback(
+    (o: RegistrationDate) => t('dateFormat.weekday', { date: o.date }) + getTimeSuffix(o.time),
+    [getTimeSuffix, t]
+  )
+  // The summary spells the day out, since the pickers that would give it context may be hidden.
+  const getRegDateSummaryLabel = useCallback(
+    (o: RegistrationDate) => t('dateFormat.wdshort', { date: o.date }) + getTimeSuffix(o.time),
+    [getTimeSuffix, t]
   )
   const getReserveChoiceLabel = useCallback(
     (o: ReserveChoise | ''): string => (o === '' ? '' : t(`registration.reserveChoises.${o}`)),
@@ -124,13 +130,19 @@ export function EntryInfo({
   )
 
   // UI display flags
+  // Whether there is anything to filter, which also drives how the effects below maintain the
+  // filter -- so it stays keyed on the class's days, not on the event's.
   const showDatesFilter = dates.length > 1
+  // On a multi-day event the registrant must see which day they entered, even when their class
+  // runs on a single day and has a single group, leaving nothing to pick. The day is then shown
+  // as a disabled field (and in the summary) rather than hidden.
+  const eventIsMultiDay = useMemo(() => eventDates(event).length > 1, [event])
   const showDatesAndTimes = groups.length > 1
   const sizeSwitch = showDatesFilter && showDatesAndTimes
 
   // Error and text display helpers
   const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
-  const datesText = showDatesFilter ? reg.dates?.map(getRegDateTimeLabel).join(' / ') : ''
+  const datesText = eventIsMultiDay ? reg.dates?.map(getRegDateSummaryLabel).join(' / ') : ''
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
   const infoText = [getRegistrationClass(reg), datesText, reserveText].filter(Boolean).join(', ')
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
@@ -299,9 +311,9 @@ export function EntryInfo({
             value={selectedReserve}
           />
         </Grid>
-        <Grid size={{ md: 6, xs: 12 }} sx={{ display: showDatesFilter ? undefined : 'none' }}>
+        <Grid size={{ md: 6, xs: 12 }} sx={{ display: eventIsMultiDay ? undefined : 'none' }}>
           <AutocompleteMulti
-            disabled={disabled}
+            disabled={disabled || !showDatesFilter}
             error={errorStates.dates || (showDatesFilter && filterDates.length === 0)}
             helperText={t('registration.datesFilterInfo')}
             label={t('registration.datesFilter')}
