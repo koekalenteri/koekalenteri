@@ -168,7 +168,7 @@ export const getRegistrationTransactions = async (
   http.get<Transaction[]>(`/admin/registration/transactions/${eventId}/${id}`, withToken({ signal }, token))
 
 /** One dog's result as entered. Totals are derived on the server, never sent. */
-interface EventResultSubmission {
+export interface EventResultSubmission {
   id: string
   /** Tasks go up without provenance: the server assigns it, since it decides what a competing edit is. */
   eventResult: Omit<SubmittedEventResult, 'tasks'> & { tasks?: SubmittedTask[] }
@@ -183,7 +183,7 @@ interface StoredEventResult {
   eventResult: EventResult
 }
 
-interface EventResultsResponse {
+export interface EventResultsResponse {
   saved: StoredEventResult[]
   /** Already stored — what a retry over a bad connection gets back. */
   unchanged: StoredEventResult[]

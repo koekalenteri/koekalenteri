@@ -1,20 +1,25 @@
+import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { cleanup, screen } from '@testing-library/react'
+import { cleanup, screen, within } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../__mockData__/events'
+import { eventWithStations, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
+import { APIError } from '../../api/http'
+import { putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
+import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 
 vi.mock('../../api/user')
 vi.mock('../../api/event')
@@ -42,6 +47,50 @@ const renderPage = (language: Language) => {
     undefined,
     { advanceTimers: vi.advanceTimersByTime }
   )
+}
+
+/**
+ * The same page against a working test that has a course and dogs on it: two posts, one of them split
+ * in two, and an entry list with a reserve in it. Everything the table itself does needs a round to do
+ * it to, so the seeded atoms stand in for the event and its entries.
+ */
+const renderScoringPage = (language: Language, registrations = registrationsToEventWithStations) => {
+  const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
+
+  return renderWithUserEvents(
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminEventsAtom, [eventWithStations])
+            set(adminEventRegistrationsAtom(eventWithStations.id), registrations)
+          }}
+        >
+          <Suspense fallback={<div>loading...</div>}>
+            <SnackbarProvider>
+              <DataMemoryRouter initialEntries={[Path.admin.results(eventWithStations.id)]} routes={routes} />
+            </SnackbarProvider>
+          </Suspense>
+        </Provider>
+      </LocalizationProvider>
+    </ThemeProvider>,
+    undefined,
+    { advanceTimers: vi.advanceTimersByTime }
+  )
+}
+
+/** Enter a score and let the debounced change reach the page before anything else happens. */
+const score = async (user: UserEvent, input: HTMLElement, points: string) => {
+  await user.type(input, points)
+  await flushPromises()
+}
+
+/** The table row a dog is scored on. The page's own controls answer the same queries as the cells'. */
+const rowFor = (dogName: string): HTMLElement => {
+  const row = screen.getByText(dogName).closest('tr')
+  if (!row) throw new Error(`no row for ${dogName}`)
+  return row
 }
 
 describe('EventResultsPage', () => {
@@ -91,6 +140,216 @@ describe('EventResultsPage', () => {
     // lookup that stands in its place.
     expect(screen.getByText(/event\.kcId/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'event.kcIdLookup' })).not.toBeInTheDocument()
+  })
+
+  it('lists the dogs that ran, one row each, with a slot for every task in the round', async () => {
+    const { i18n } = useTranslation()
+    renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    expect(screen.getByText('Ensimmainen')).toBeInTheDocument()
+    expect(screen.getByText('Toinen')).toBeInTheDocument()
+    // Post 2 splits its 20 points in two, so a two-post course is three scored slots, not two.
+    expect(screen.getAllByText(/results\.column\.task/)).toHaveLength(3)
+  })
+
+  it('leaves out a reserve who never ran', async () => {
+    const { i18n } = useTranslation()
+    renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    // The dog is entered and not cancelled, which is why filtering on cancellation alone let it
+    // through: there is simply no round to record for it.
+    expect(screen.queryByText('Varalla')).not.toBeInTheDocument()
+  })
+
+  it('shows the class tabs of the classes that have dogs', async () => {
+    const { i18n } = useTranslation()
+    renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    expect(screen.getByRole('tab', { name: 'ALO' })).toBeInTheDocument()
+    // AVO is on the event but nobody ran it, so there is nothing to score under it.
+    expect(screen.queryByRole('tab', { name: 'AVO' })).not.toBeInTheDocument()
+  })
+
+  it('narrows to one post, and offers that post its own view', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    // The whole round is three slots; post 2 alone is the two it splits into.
+    expect(screen.getAllByText(/results\.column\.task/)).toHaveLength(3)
+    expect(screen.queryByRole('link', { name: 'results.openStationView' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByLabelText('results.scope'))
+    await user.click(screen.getByRole('option', { name: 'event.station 2' }))
+    await flushPromises()
+
+    expect(screen.getAllByText(/results\.column\.task/)).toHaveLength(2)
+    expect(screen.getByRole('link', { name: 'results.openStationView' })).toBeInTheDocument()
+  })
+
+  it('states a lone post judge rather than offering a choice', async () => {
+    const { i18n } = useTranslation()
+    renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    // Post 1 names one judge, so there is nothing to choose; post 2 names none and falls back to the
+    // class's, which is the same single judge.
+    expect(screen.getAllByText('Tuomari 2').length).toBeGreaterThan(0)
+    expect(screen.queryByLabelText('results.judge')).not.toBeInTheDocument()
+  })
+
+  it('derives the prize from what is on screen as it is typed', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    const row = rowFor('Ensimmainen')
+    const [first, second, third] = within(row).getAllByRole('textbox')
+
+    // The entry is debounced, so each score has to land before focus moves on — otherwise the blur
+    // rewrites the field from a value the parent has not been told about yet.
+    await score(user, first, '18')
+    await score(user, second, '9')
+    await score(user, third, '9')
+
+    // 36 of 40 is 90 %, over the 80 % first-prize threshold, and the class prefixes the code.
+    expect(screen.getByText('ALO1')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+  })
+
+  it('asks why a task scored nothing, and will not let the zero stand unexplained', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    expect(screen.queryByLabelText('results.zeroFault')).not.toBeInTheDocument()
+
+    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '0')
+
+    // A zero without a reason is what would leave the series unable to answer the question it is
+    // collected for, so the select opens in an error state until one is chosen.
+    const fault = within(rowFor('Ensimmainen')).getByLabelText('results.zeroFault')
+    expect(fault).toBeInTheDocument()
+    expect(fault.closest('.MuiFormControl-root')?.querySelector('.Mui-error')).toBeTruthy()
+
+    await user.click(fault)
+    await user.click(screen.getByRole('option', { name: 'results.zeroFaults.eyeWipe' }))
+    await flushPromises()
+
+    expect(
+      within(rowFor('Ensimmainen')).getByLabelText('results.zeroFault').closest('.MuiFormControl-root')
+    ).not.toHaveClass('Mui-error')
+  })
+
+  it('voids the round on an eliminating fault and asks where it happened', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    expect(screen.queryByLabelText('results.outcomeAt')).not.toBeInTheDocument()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    await user.click(screen.getByRole('option', { name: 'results.eliminatingFaults.hardMouth' }))
+    await flushPromises()
+
+    // Every elimination is a dash rather than a zero, and which post threw the dog out is worth
+    // keeping rather than losing.
+    expect(screen.getByText('ALO-')).toBeInTheDocument()
+    expect(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt')).toBeInTheDocument()
+  })
+
+  it('asks of a handler withdrawal only whether a prize was still in reach', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    await user.click(screen.getByRole('option', { name: 'results.retirement.injury' }))
+    await flushPromises()
+
+    // An injured dog always takes the dash, so §5.8.1's question is not asked of it.
+    expect(screen.queryByLabelText('results.couldStillHavePlaced')).not.toBeInTheDocument()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    await user.click(screen.getByRole('option', { name: 'results.retirement.handlerChoice' }))
+    await flushPromises()
+
+    expect(screen.getByLabelText('results.couldStillHavePlaced')).toBeInTheDocument()
+  })
+
+  it('sends only the dogs that were actually scored', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
+
+    await user.click(screen.getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    // The other dog was left untouched, and an empty row is not a result worth writing.
+    expect(putEventResults).toHaveBeenCalledOnce()
+    const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+    expect(submissions).toHaveLength(1)
+    expect(submissions?.[0]).toMatchObject({ id: 'run-1' })
+  })
+
+  it('keeps only the disputed dogs on screen when the save comes back a conflict', async () => {
+    const { i18n } = useTranslation()
+    vi.mocked(putEventResults).mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
+        conflicts: [{ id: 'run-1', stored: { result: 'ALO2' }, submitted: { result: 'ALO1' } }],
+        error: 'resultConflict',
+        saved: [],
+        unchanged: [],
+      })
+    )
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
+    await user.click(screen.getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    // Losing a screenful of work to one contested dog would be its own bug, so the rest is already
+    // written and only this one is put to the secretary.
+    expect(screen.getByText('results.conflictTitle')).toBeInTheDocument()
+    // Both versions are put side by side, since the secretary is the one who can tell them apart.
+    expect(screen.getByRole('radio', { name: /results\.conflictStored/ })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /results\.conflictMine/ })).toBeInTheDocument()
+    // Named, because a batch save can come back with several and "one of them" is not actionable.
+    expect(within(screen.getByRole('dialog')).getByText('Ensimmainen')).toBeInTheDocument()
+  })
+
+  it('sends back only the dogs the secretary overruled', async () => {
+    const { i18n } = useTranslation()
+    vi.mocked(putEventResults).mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
+        conflicts: [{ id: 'run-1', stored: { result: 'ALO2' }, submitted: { result: 'ALO1' } }],
+        error: 'resultConflict',
+        saved: [],
+        unchanged: [],
+      })
+    )
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
+    await user.click(screen.getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    await user.click(screen.getByRole('radio', { name: /results\.conflictMine/ }))
+    await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+    await flushPromises()
+
+    // Sent again based on the version that beat it, so this save is no longer a conflict.
+    expect(putEventResults).toHaveBeenCalledTimes(2)
+    const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+    expect(submissions?.[0]).toMatchObject({ basedOn: undefined, id: 'run-1' })
+    expect(screen.queryByText('results.conflictTitle')).not.toBeInTheDocument()
   })
 
   it('offers no scope selector for an event type that is not scored at posts', async () => {
