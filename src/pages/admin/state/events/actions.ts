@@ -67,7 +67,7 @@ export const adminSaveEventAtom = atom(
     set(adminEventIdAtom, saved.id)
     await set(adminCurrentEventAtom, saved)
 
-    const publicEvents = await get(eventsAtom)
+    const publicEvents = get(eventsAtom)
     const index = publicEvents.findIndex((candidate) => candidate.id === saved.id)
     const publicEvent = sanitizeDogEvent(saved)
     if (index >= 0) {

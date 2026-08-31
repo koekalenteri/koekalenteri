@@ -54,7 +54,9 @@ const recordKey = (collection: string, scope: string) => `${collection}#${scope}
  * value: their list is then a different list.
  */
 const composeVersion = (records: Map<string, VersionRecord>, collection: VersionedCollection, scopes: string[]) => {
-  const parts = [...scopes].sort().map((scope) => ({ record: records.get(recordKey(collection, scope)), scope }))
+  const parts = [...scopes]
+    .sort((a, b) => a.localeCompare(b))
+    .map((scope) => ({ record: records.get(recordKey(collection, scope)), scope }))
 
   return {
     modifiedAt: parts.reduce<string | undefined>(
