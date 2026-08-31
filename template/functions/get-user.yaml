@@ -31,3 +31,31 @@
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetUserFunction]]
       RetentionInDays: 30
+
+  # GET /user once ran at ~11.5 req/s for five hours before anyone noticed, which was 64% of all
+  # Lambda invocations for the period. Normal traffic is one call per token-refresh cycle per
+  # user. This alarms on the API Gateway request count rather than Lambda invocations because
+  # the method throttle rejects a storm before it reaches the function, which would leave the
+  # Lambda metric quiet exactly when the throttle is doing its job.
+  # TODO: Add AlarmActions when the stack has a general operations SNS topic.
+  GetUserRequestFloodAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: GET /user request volume is far above normal use
+      Namespace: AWS/ApiGateway
+      MetricName: Count
+      Dimensions:
+        - Name: ApiName
+          Value: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
+        - Name: Stage
+          Value: !Ref StageNameParam
+        - Name: Resource
+          Value: /user
+        - Name: Method
+          Value: GET
+      Statistic: Sum
+      Period: 3600
+      EvaluationPeriods: 1
+      Threshold: 1000
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching

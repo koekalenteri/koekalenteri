@@ -7,10 +7,21 @@
           DataTraceEnabled: false
           MetricsEnabled: false
           LoggingLevel: INFO
+        # A runaway client once drove GET /user to ~11.5 req/s for hours, which was 64% of all
+        # Lambda invocations. Legitimate traffic is one call per token-refresh cycle per user,
+        # roughly 0.003 req/s in total, so this bucket sits ~1000x above normal use and still
+        # trips well below a storm. The bucket is shared across the method, not per caller.
+        - ResourcePath: '/user'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          MetricsEnabled: true
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 20
 
       AccessLogSetting:
         DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
-        Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
+        Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message" "$context.request.header.X-Client-Version"'
       Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
       StageName: !Ref StageNameParam
       OpenApiVersion: '3.0.1' # prevents the default 'Stage' creation
@@ -18,7 +29,10 @@
       Cors:
         AllowOrigin: "'*'"
         AllowMethods: "'OPTIONS,HEAD,GET,PUT,POST,PATCH,DELETE'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Client-Version'"
+        # Without this the browser preflights every five seconds; one storm episode added
+        # 2351 preflight round trips on its own.
+        MaxAge: "'3600'"
       Auth:
         Authorizers:
           CognitoAuthorizer:

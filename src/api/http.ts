@@ -4,6 +4,7 @@ import { coalesceRequest } from '../lib/client/coalesceRequest'
 import { reportError } from '../lib/client/error'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { isObject, parseJSON } from '../lib/utils'
+import { appVersion } from '../lib/version'
 import { API_BASE_URL } from '../routeConfig'
 
 type Body = { message?: string; cancelled?: boolean; email?: string; error?: string; reason?: string } | string
@@ -156,6 +157,9 @@ async function httpWithTimeout<T>(
       headers: {
         ...requestInit.headers,
         Accept: 'application/json',
+        // Logged by API Gateway access logging. A request with no version came from a bundle
+        // older than this header, which is the only way to tell those clients apart.
+        'X-Client-Version': appVersion,
       },
       signal,
     })

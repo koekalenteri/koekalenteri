@@ -1,4 +1,5 @@
 import { enqueueSnackbar } from 'notistack'
+import { appVersion } from '../lib/version'
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
 import http, { APIError, withToken } from './http'
@@ -37,6 +38,17 @@ describe('http', () => {
       expect(json).toEqual('ok')
       expect(fetchMock).toHaveBeenCalledTimes(1)
       expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/test/`, expect.any(Object))
+    })
+
+    it('sends the client version so old bundles are identifiable in the access log', async () => {
+      fetchMock.mockResponse(JSON.stringify('ok'))
+
+      await http.get('/versioned')
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        `${API_BASE_URL}/versioned`,
+        expect.objectContaining({ headers: expect.objectContaining({ 'X-Client-Version': appVersion }) })
+      )
     })
 
     it('retries a failed network request once', async () => {
