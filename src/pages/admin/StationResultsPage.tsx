@@ -14,7 +14,11 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { putEventResults } from '../../api/registration'
-import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
+import {
+  getRegistrationClass,
+  isScorableRegistration,
+  sortRegistrationsByDateClassTimeAndNumber,
+} from '../../lib/registration'
 import { classRound, stationVersion } from '../../lib/results'
 import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
@@ -40,7 +44,7 @@ export default function StationResultsPage() {
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
 
   const classes = useMemo(
-    () => [...new Set(registrations.filter((reg) => !reg.cancelled).map(getRegistrationClass))],
+    () => [...new Set(registrations.filter(isScorableRegistration).map(getRegistrationClass))],
     [registrations]
   )
   const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])
@@ -54,7 +58,7 @@ export default function StationResultsPage() {
   const dogs = useMemo(
     () =>
       registrations
-        .filter((reg) => !reg.cancelled && getRegistrationClass(reg) === eventClass)
+        .filter((reg) => isScorableRegistration(reg) && getRegistrationClass(reg) === eventClass)
         .sort(sortRegistrationsByDateClassTimeAndNumber),
     [eventClass, registrations]
   )

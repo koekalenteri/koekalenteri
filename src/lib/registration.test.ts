@@ -23,6 +23,7 @@ import {
   isPredefinedReason,
   isPublicRegistrationOperationField,
   isRegistrationClass,
+  isScorableRegistration,
   priorityDescriptionKey,
   resolveOwnerPerson,
   resolveOwnerSelection,
@@ -477,6 +478,24 @@ describe('lib/registration', () => {
 
     it('should default to reserver', () => {
       expect(getRegistrationGroupKey({})).toEqual(GROUP_KEY_RESERVE)
+    })
+  })
+
+  describe('isScorableRegistration', () => {
+    it('should accept a dog that was given a place', () => {
+      expect(isScorableRegistration({ group: { key: 'ALO-AP', number: 1 } })).toBe(true)
+    })
+
+    it('should reject a reserve, who never ran', () => {
+      expect(isScorableRegistration({ group: { key: GROUP_KEY_RESERVE, number: 1 } })).toBe(false)
+      // No group at all is the reserve case too, before anyone has been picked.
+      expect(isScorableRegistration({})).toBe(false)
+    })
+
+    it('should reject a cancelled entry, however its group still reads', () => {
+      expect(isScorableRegistration({ cancelled: true, group: { key: GROUP_KEY_CANCELLED, number: 1 } })).toBe(false)
+      // A dog cancelled after being placed keeps the group it was placed in; the flag is what counts.
+      expect(isScorableRegistration({ cancelled: true, group: { key: 'ALO-AP', number: 1 } })).toBe(false)
     })
   })
 

@@ -18,7 +18,11 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
-import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
+import {
+  getRegistrationClass,
+  isScorableRegistration,
+  sortRegistrationsByDateClassTimeAndNumber,
+} from '../../lib/registration'
 import { classRound, scoresAtPosts, stationVersion } from '../../lib/results'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -45,7 +49,7 @@ export default function EventResultsPage() {
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
 
   const classes = useMemo(
-    () => [...new Set(registrations.filter((reg) => !reg.cancelled).map(getRegistrationClass))],
+    () => [...new Set(registrations.filter(isScorableRegistration).map(getRegistrationClass))],
     [registrations]
   )
   const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])
@@ -64,7 +68,7 @@ export default function EventResultsPage() {
   const rows = useMemo(
     () =>
       registrations
-        .filter((reg) => !reg.cancelled && getRegistrationClass(reg) === eventClass)
+        .filter((reg) => isScorableRegistration(reg) && getRegistrationClass(reg) === eventClass)
         .sort(sortRegistrationsByDateClassTimeAndNumber),
     [eventClass, registrations]
   )
