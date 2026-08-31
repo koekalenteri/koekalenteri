@@ -2,6 +2,7 @@ import { lightFormat } from 'date-fns'
 import { useSnackbar } from 'notistack'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { appBuildTime } from '../../lib/client/build'
 import {
   activateServiceWorkerUpdate,
   consumeServiceWorkerUpdated,
@@ -18,15 +19,16 @@ function ServiceWorkerUpdateNotifier() {
     if (versionChange) {
       // In development the version number rarely changes, so the build time is
       // the only thing that tells the reloaded build apart from the old one.
-      const buildTime = versionChange.from === versionChange.to ? versionChange.buildTime : undefined
+      // The update reloaded the page, so this bundle is the update itself and
+      // its own build time is the one to report.
       const message =
-        buildTime === undefined
-          ? t('app.updated', versionChange)
-          : t('app.updatedBuild', {
-              date: lightFormat(buildTime, 'dd.MM.yyyy'),
-              time: lightFormat(buildTime, 'HH:mm'),
+        versionChange.from === versionChange.to
+          ? t('app.updatedBuild', {
+              date: lightFormat(appBuildTime, 'dd.MM.yyyy'),
+              time: lightFormat(appBuildTime, 'HH:mm'),
               to: versionChange.to,
             })
+          : t('app.updated', versionChange)
       enqueueSnackbar(message, { variant: 'success' })
     }
 

@@ -12,37 +12,24 @@ const updatedSessionKey = 'service-worker-updated'
 type VersionChange = {
   from: string
   to: string
-  // Build time of the update. Undefined when the worker did not answer, so the
-  // notification can leave it out instead of showing the current build's time.
-  buildTime?: number
 }
 
-type WorkerBuild = Pick<VersionChange, 'buildTime'> & { version: string }
+const getServiceWorkerVersion = (worker: ServiceWorker) => {
+  if (typeof window.MessageChannel !== 'function') return Promise.resolve(appVersion)
 
-const getServiceWorkerBuild = (worker: ServiceWorker) => {
-  const unknownBuild: WorkerBuild = { version: appVersion }
-  if (typeof window.MessageChannel !== 'function') return Promise.resolve(unknownBuild)
-
-  return new Promise<WorkerBuild>((resolve) => {
+  return new Promise<string>((resolve) => {
     const messageChannel = new window.MessageChannel()
     let timeout: number
-    const finish = (build: WorkerBuild) => {
+    const finish = (version: string) => {
       window.clearTimeout(timeout)
       messageChannel.port1.close()
       messageChannel.port2.close()
-      resolve(build)
+      resolve(version)
     }
-    timeout = window.setTimeout(() => finish(unknownBuild), 1000)
+    timeout = window.setTimeout(() => finish(appVersion), 1000)
 
     messageChannel.port1.onmessage = (event) => {
-      finish(
-        typeof event.data?.version === 'string'
-          ? {
-              buildTime: typeof event.data?.buildTime === 'number' ? event.data.buildTime : undefined,
-              version: event.data.version,
-            }
-          : unknownBuild
-      )
+      finish(typeof event.data?.version === 'string' ? event.data.version : appVersion)
     }
     worker.postMessage({ type: 'GET_VERSION' }, [messageChannel.port2])
   })
@@ -114,16 +101,14 @@ export const activateServiceWorkerUpdate = (registration: ServiceWorkerRegistrat
 
   activatingUpdate = true
   clearWaitingUpdate()
-  const updatedBuild = getServiceWorkerBuild(worker)
+  const updatedVersion = getServiceWorkerVersion(worker)
   navigator.serviceWorker.addEventListener(
     'controllerchange',
     async () => {
       try {
-        const build = await updatedBuild
         const versionChange: VersionChange = {
-          buildTime: build.buildTime,
           from: appVersion,
-          to: build.version,
+          to: await updatedVersion,
         }
         window.sessionStorage.setItem(updatedSessionKey, JSON.stringify(versionChange))
       } catch (error) {
@@ -151,12 +136,7 @@ export const consumeServiceWorkerUpdated = () => {
       'to' in versionChange &&
       typeof versionChange.to === 'string'
     ) {
-      const applied: VersionChange = { from: versionChange.from, to: versionChange.to }
-      if ('buildTime' in versionChange && typeof versionChange.buildTime === 'number') {
-        applied.buildTime = versionChange.buildTime
-      }
-
-      return applied
+      return versionChange
     }
     return undefined
   } catch (error) {

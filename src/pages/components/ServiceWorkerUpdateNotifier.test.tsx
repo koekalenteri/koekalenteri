@@ -97,7 +97,7 @@ describe('ServiceWorkerUpdateNotifier', () => {
 
   it('reports the build time when the version number did not change', () => {
     const enqueueSnackbar = vi.fn()
-    mockConsumeUpdated.mockReturnValue({ buildTime: 0, from: '1.10.3', to: '1.10.3' })
+    mockConsumeUpdated.mockReturnValue({ from: '1.10.3', to: '1.10.3' })
     mockUseSnackbar.mockReturnValue({ closeSnackbar: vi.fn(), enqueueSnackbar })
     mockUseTranslation.mockReturnValue({
       t: (key: string, options?: Record<string, string>) => `${key}:${options?.to}:${options?.date} ${options?.time}`,
@@ -111,19 +111,5 @@ describe('ServiceWorkerUpdateNotifier', () => {
       expect.stringMatching(/^app\.updatedBuild:1\.10\.3:\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/),
       { variant: 'success' }
     )
-  })
-
-  it('reports the version change when the build time is unknown', () => {
-    const enqueueSnackbar = vi.fn()
-    mockConsumeUpdated.mockReturnValue({ from: '1.10.3', to: '1.10.3' })
-    mockUseSnackbar.mockReturnValue({ closeSnackbar: vi.fn(), enqueueSnackbar })
-    mockUseTranslation.mockReturnValue({
-      t: (key: string, options?: Record<string, string>) => `${key}:${options?.from}→${options?.to}`,
-    } as ReturnType<typeof useTranslation>)
-    mockSubscribe.mockReturnValue(vi.fn())
-
-    render(<ServiceWorkerUpdateNotifier />)
-
-    expect(enqueueSnackbar).toHaveBeenCalledWith('app.updated:1.10.3→1.10.3', { variant: 'success' })
   })
 })
