@@ -1,5 +1,6 @@
 import { createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
+import { appBuildTime } from './lib/client/build'
 import { appVersion } from './lib/version'
 
 precacheAndRoute(self.__WB_MANIFEST)
@@ -23,7 +24,7 @@ self.addEventListener('message', (event) => {
   if (event.origin !== self.location.origin) return
 
   if (event.data?.type === 'GET_VERSION') {
-    event.ports[0]?.postMessage({ version: appVersion })
+    event.ports[0]?.postMessage({ buildTime: appBuildTime, version: appVersion })
   }
 
   if (event.data?.type === 'SKIP_WAITING') {

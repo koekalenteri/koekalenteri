@@ -3,7 +3,8 @@
   "admin": "Administration",
   "all": "All",
   "app": {
-    "updated": "App updated: {{from}} → {{to}}"
+    "updated": "App updated: {{from}} → {{to}}",
+    "updatedBuild": "App updated: {{to}} ({{date}} {{time}})"
   },
   "audit": {
     "after": "after",

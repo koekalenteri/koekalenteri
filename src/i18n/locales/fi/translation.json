@@ -3,7 +3,8 @@
   "admin": "Ylläpito",
   "all": "Kaikki",
   "app": {
-    "updated": "Sovellus päivitetty: {{from}} → {{to}}"
+    "updated": "Sovellus päivitetty: {{from}} → {{to}}",
+    "updatedBuild": "Sovellus päivitetty: {{to}} ({{date}} klo {{time}})"
   },
   "audit": {
     "after": "jälkeen",

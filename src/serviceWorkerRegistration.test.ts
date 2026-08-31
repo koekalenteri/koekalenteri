@@ -135,8 +135,52 @@ describe('serviceWorkerRegistration', () => {
     window.sessionStorage.setItem('service-worker-updated', JSON.stringify({ from: '1.10.2', to: '1.10.3' }))
     const { consumeServiceWorkerUpdated } = await import('./serviceWorkerRegistration')
 
-    expect(consumeServiceWorkerUpdated()).toEqual({ from: '1.10.2', to: '1.10.3' })
+    expect(consumeServiceWorkerUpdated()).toEqual({ buildTime: undefined, from: '1.10.2', to: '1.10.3' })
     expect(consumeServiceWorkerUpdated()).toBeUndefined()
+  })
+
+  it('keeps the build time of an applied update', async () => {
+    window.sessionStorage.setItem(
+      'service-worker-updated',
+      JSON.stringify({ buildTime: 1700000000000, from: '1.10.3', to: '1.10.3' })
+    )
+    const { consumeServiceWorkerUpdated } = await import('./serviceWorkerRegistration')
+
+    expect(consumeServiceWorkerUpdated()).toEqual({ buildTime: 1700000000000, from: '1.10.3', to: '1.10.3' })
+  })
+
+  it('drops a build time that is not a number', async () => {
+    window.sessionStorage.setItem(
+      'service-worker-updated',
+      JSON.stringify({ buildTime: 'today', from: '1.10.3', to: '1.10.3' })
+    )
+    const { consumeServiceWorkerUpdated } = await import('./serviceWorkerRegistration')
+
+    expect(consumeServiceWorkerUpdated()).toEqual({ buildTime: undefined, from: '1.10.3', to: '1.10.3' })
+  })
+
+  it('stores the version and build time answered by the activated worker', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    const waitingWorker = { postMessage: vi.fn() } as unknown as ServiceWorker
+    const registration = mockRegistration(waitingWorker)
+    const container = mockServiceWorkerContainer(registration)
+    const reload = vi.fn()
+    Object.defineProperty(window, 'location', { configurable: true, value: { ...window.location, reload } })
+    const { activateServiceWorkerUpdate, consumeServiceWorkerUpdated } = await import('./serviceWorkerRegistration')
+
+    activateServiceWorkerUpdate(registration)
+
+    const [message, ports] = (waitingWorker.postMessage as import('vitest').Mock).mock.calls[0]
+    expect(message).toEqual({ type: 'GET_VERSION' })
+    ports[0].postMessage({ buildTime: 1700000000000, version: '1.10.3' })
+    container.dispatchEvent(new Event('controllerchange'))
+    await vi.waitFor(() => expect(reload).toHaveBeenCalled())
+
+    expect(consumeServiceWorkerUpdated()).toEqual({
+      buildTime: 1700000000000,
+      from: expect.any(String),
+      to: '1.10.3',
+    })
   })
 
   it('reports an update that finishes installing while the app is controlled', async () => {
