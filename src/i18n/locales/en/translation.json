@@ -724,7 +724,7 @@
       "dog": "Dog",
       "handler": "Handler",
       "number": "#",
-      "outcome": "Round",
+      "outcome": "Additional info",
       "result": "Result",
       "task": "Task {{number}}"
     },
@@ -745,12 +745,12 @@
     },
     "judge": "Judge",
     "openStationView": "Post view",
-    "outcome": "Round",
+    "outcome": "Additional info",
     "outcomeAt": "Where",
     "outcomeAtUnknown": "Not known",
     "outcomeEliminated": "Eliminating fault",
+    "outcomeNone": "No additional info",
     "outcomeRetired": "Stopped",
-    "outcomeScored": "Completed",
     "retirement": {
       "handlerChoice": "Handler withdrew",
       "injury": "Dog was injured"

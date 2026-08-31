@@ -98,7 +98,10 @@ export const RoundOutcome = ({ value, disabled, stations, stationId, onChange }:
         sx={{ minWidth: 190 }}
         value={outcome}
       >
-        <MenuItem value={SCORED}>{t('results.outcomeScored')}</MenuItem>
+        {/* Completing the round is the default, so this reads as the absence of a note rather than an
+            outcome of its own — but it stays selectable, since an elimination entered by mistake has to
+            be undoable. */}
+        <MenuItem value={SCORED}>{t('results.outcomeNone')}</MenuItem>
         <ListSubheader>{t('results.outcomeEliminated')}</ListSubheader>
         {ELIMINATING_FAULTS.map((fault) => (
           <MenuItem key={fault} value={fault}>

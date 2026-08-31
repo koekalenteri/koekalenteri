@@ -724,7 +724,7 @@
       "dog": "Koira",
       "handler": "Ohjaaja",
       "number": "#",
-      "outcome": "Kierros",
+      "outcome": "Lisätieto",
       "result": "Tulos",
       "task": "Tehtävä {{number}}"
     },
@@ -745,12 +745,12 @@
     },
     "judge": "Tuomari",
     "openStationView": "Rastinäkymä",
-    "outcome": "Kierros",
+    "outcome": "Lisätieto",
     "outcomeAt": "Missä",
     "outcomeAtUnknown": "Ei tiedossa",
     "outcomeEliminated": "Hylkäävä virhe",
+    "outcomeNone": "Ei lisätietoa",
     "outcomeRetired": "Keskeytys",
-    "outcomeScored": "Suoritti",
     "retirement": {
       "handlerChoice": "Ohjaaja keskeytti",
       "injury": "Koira loukkaantui"
@@ -758,7 +758,7 @@
     "runningTotal": "{{points}} / {{maxPoints}}",
     "saved": "Tulokset tallennettu",
     "scope": "Näytä",
-    "scopeAll": "Koko kierros",
+    "scopeAll": "Kaikki rastit",
     "title": "Tulokset",
     "zeroFault": "Nollan syy",
     "zeroFaults": {
