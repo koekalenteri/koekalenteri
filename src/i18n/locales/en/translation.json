@@ -758,6 +758,7 @@
     },
     "runningTotal": "{{points}} / {{maxPoints}}",
     "saved": "Results saved",
+    "saveFailed": "Saving the results failed. The scores entered are still on screen.",
     "scope": "Show",
     "scopeAll": "Whole round",
     "title": "Results",

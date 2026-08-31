@@ -758,6 +758,7 @@
     },
     "runningTotal": "{{points}} / {{maxPoints}}",
     "saved": "Tulokset tallennettu",
+    "saveFailed": "Tulosten tallennus epäonnistui. Syötetyt pisteet ovat yhä näkyvissä.",
     "scope": "Näytä",
     "scopeAll": "Kaikki rastit",
     "title": "Tulokset",

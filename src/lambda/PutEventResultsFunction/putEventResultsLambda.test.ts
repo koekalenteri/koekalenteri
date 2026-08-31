@@ -62,8 +62,9 @@ const nowtEvent: Pick<JsonConfirmedEvent, 'eventType' | 'organizer' | 'stations'
   ],
 }
 
+/** A dog that ran: only a participant group has a round to record against it. */
 const registration = (id: string, eventClass: JsonRegistration['class'] = 'AVO') =>
-  ({ class: eventClass, eventId: 'event-1', id }) as JsonRegistration
+  ({ class: eventClass, eventId: 'event-1', group: { key: 'AVO-AP', number: 1 }, id }) as JsonRegistration
 
 const scores = (...points: number[]) =>
   points.map((value, index) => ({ index: 0, points: value, stationId: `post-${index + 1}` }))
@@ -172,6 +173,23 @@ describe('putEventResultsLambda', () => {
     ).rejects.toThrow("Registration 'stranger' not found")
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['a reserve who was never called up', { group: { key: 'reserve', number: 1 } }],
+    ['a dog that never got a place at all', { group: undefined }],
+    ['an entry that was cancelled', { cancelled: true }],
+  ])('refuses a result for %s', async (_case, state) => {
+    mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), ...state }])
+
+    // The views never offer these a row, so a submission naming one is a client working from a list
+    // that has moved on. Believing it would attribute a round to a dog that did not run it.
+    await expect(
+      putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(20, 20, 20, 20) }, id: 'reg-1' }]))
+    ).rejects.toThrow("Registration 'reg-1' did not run")
+
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
   })
 
   it('stops before writing when the caller has no access to the event', async () => {

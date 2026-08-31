@@ -19,6 +19,8 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
+import { reportError } from '../../lib/client/error'
+import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import {
   getRegistrationClass,
   isScorableRegistration,
@@ -150,14 +152,20 @@ export default function EventResultsPage() {
     } catch (error) {
       // A conflict arrives as a rejected 409 rather than a value, and its body carries both versions.
       const body = error instanceof APIError && error.status === 409 ? error.body : undefined
-      if (!isResultConflictBody(body)) throw error
+      if (!isResultConflictBody(body)) {
+        // Anything else — the server refusing a dog that did not run, a dropped connection — keeps the
+        // entered scores on screen and says so. The button only stops spinning, which reads as success.
+        reportError(error)
+        enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
+        return
+      }
 
       // Whatever did not conflict is already written; keep only the disputed dogs on screen.
       setEdits((prev) => Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? emptyEdit])))
       setConflicts(body.conflicts)
       setChoices({})
     }
-  }, [edits, eventId, report, submissionFor, token])
+  }, [edits, eventId, report, submissionFor, t, token])
 
   const handleResolve = useCallback(async () => {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that

@@ -324,6 +324,26 @@ describe('EventResultsPage', () => {
     expect(within(screen.getByRole('dialog')).getByText('Ensimmainen')).toBeInTheDocument()
   })
 
+  it('keeps the entered scores and says so when the save is refused', async () => {
+    const { i18n } = useTranslation()
+    // What the server answers for a dog that did not run: not a conflict, so there is nothing to
+    // choose between and nothing the page can resolve on its own.
+    vi.mocked(putEventResults).mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 422, statusText: 'Unprocessable' }), 'did not run')
+    )
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
+    await user.click(screen.getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    expect(screen.getByText('results.saveFailed')).toBeInTheDocument()
+    expect(screen.queryByText('results.conflictTitle')).not.toBeInTheDocument()
+    // The work stays on screen: the button merely stopping would read as a successful save.
+    expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+  })
+
   it('sends back only the dogs the secretary overruled', async () => {
     const { i18n } = useTranslation()
     vi.mocked(putEventResults).mockRejectedValueOnce(

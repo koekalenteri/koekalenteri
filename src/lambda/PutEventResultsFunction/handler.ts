@@ -1,5 +1,6 @@
 import type { SubmittedEventResult, SubmittedTask } from '../../lib/results'
 import type { JsonConfirmedEvent, JsonEventResult, JsonEventResultTask, JsonRegistration, Patch } from '../../types'
+import { isScorableRegistration } from '../../lib/registration'
 import {
   mergeStationTasks,
   resolveEventResult,
@@ -171,6 +172,13 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
   for (const submission of submissions) {
     const registration = registrations.find((item) => item.id === submission.id)
     if (!registration) throw new LambdaError(404, `Registration '${submission.id}' not found`)
+
+    // A reserve never called up and a cancelled entry have no round to record. The views do not offer
+    // them a row, so this is a client working from a list that has moved on since it loaded — refusing
+    // is what stops a result being attributed to a dog that was not there.
+    if (!isScorableRegistration(registration)) {
+      throw new LambdaError(422, `Registration '${submission.id}' did not run`)
+    }
 
     const outcome = classifySubmission(confirmedEvent, registration, submission, timestamp, user.name)
 
