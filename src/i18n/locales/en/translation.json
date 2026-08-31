@@ -719,6 +719,7 @@
   "registrations": "Registrations",
   "results": {
     "alreadySaved": "The results were already saved",
+    "backToEvent": "Back to event",
     "column": {
       "dog": "Dog",
       "handler": "Handler",

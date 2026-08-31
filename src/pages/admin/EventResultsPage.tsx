@@ -1,6 +1,7 @@
 import type { DogEvent, EventResult, EventStation, Patch, PublicJudge } from '../../types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import type { ResultEdit } from './eventResultsPage/types'
+import ArrowBack from '@mui/icons-material/ArrowBack'
 import Save from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -184,6 +185,15 @@ export default function EventResultsPage() {
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
       <Box sx={{ pt: 2, px: 2 }}>
+        <Button
+          component={Link}
+          size="small"
+          startIcon={<ArrowBack fontSize="small" />}
+          sx={{ ml: -1 }}
+          to={Path.admin.viewEvent(eventId)}
+        >
+          {t('results.backToEvent')}
+        </Button>
         <Typography variant="h6">{t('results.title')}</Typography>
         {event.kcId ? (
           <Typography variant="body2" color="text.secondary">

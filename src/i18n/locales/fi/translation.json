@@ -719,6 +719,7 @@
   "registrations": "Ilmoittautumiset",
   "results": {
     "alreadySaved": "Tulokset olivat jo tallennettuna",
+    "backToEvent": "Takaisin tapahtumaan",
     "column": {
       "dog": "Koira",
       "handler": "Ohjaaja",
