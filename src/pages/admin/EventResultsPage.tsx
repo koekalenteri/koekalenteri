@@ -18,7 +18,6 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
-import { isOfficialEventType } from '../../lib/event'
 import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
 import { classRound, scoresAtPosts, stationVersion } from '../../lib/results'
 import { Path } from '../../routeConfig'
@@ -26,18 +25,11 @@ import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { makeArray } from './components/eventForm/judgeSection/utils'
-import KcIdChoiceDialog from './components/eventForm/KcIdChoiceDialog'
+import { KcIdLookupButton } from './components/KcIdLookupButton'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { emptyEdit } from './eventResultsPage/types'
-import { useKcIdLookup } from './hooks/useKcIdLookup'
-import {
-  adminActiveEventTypesAtom,
-  adminConfirmedEventAtom,
-  adminEventRegistrationsAtom,
-  adminLinkedKcIdsAtom,
-  useAdminEventActions,
-} from './state'
+import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 
 /** The whole round, or one post's slice of it. */
 const WHOLE_ROUND = 'all'
@@ -112,17 +104,6 @@ export default function EventResultsPage() {
       if (event) await eventActions.save({ ...event, ...patch })
     },
     [event, eventActions]
-  )
-  const linkedKcIds = useAtomValue(adminLinkedKcIdsAtom(event?.id))
-  const kcId = useKcIdLookup(
-    event ?? { classes: [], endDate: new Date(), startDate: new Date() },
-    saveKcId,
-    linkedKcIds
-  )
-  const eventTypes = useAtomValue(adminActiveEventTypesAtom)
-  const officialEventType = isOfficialEventType(
-    event?.eventType,
-    eventTypes.find((item) => item.eventType === event?.eventType)?.official
   )
 
   const handleChange = useCallback(
@@ -209,11 +190,7 @@ export default function EventResultsPage() {
             <Typography variant="body2" color="text.secondary">
               {t('event.kcIdEmpty')}
             </Typography>
-            {officialEventType && (
-              <Button disabled={kcId.searching || !kcId.organizerId} onClick={kcId.search} size="small">
-                {t('event.kcIdLookup')}
-              </Button>
-            )}
+            <KcIdLookupButton event={event} onChange={saveKcId} variant="text" />
           </Stack>
         )}
       </Box>
@@ -281,13 +258,6 @@ export default function EventResultsPage() {
           {t('save')}
         </AsyncButton>
       </Stack>
-
-      <KcIdChoiceDialog
-        choices={kcId.choices}
-        linkedKcIds={linkedKcIds}
-        onClose={kcId.closeChoices}
-        onSelect={kcId.choose}
-      />
 
       <ConflictDialog
         choices={choices}

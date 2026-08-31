@@ -9,7 +9,7 @@ import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../../../i18n/d
 import { idTokenAtom } from '../../state'
 
 /** The event details the Kennelliitto search matches against. */
-interface KcIdLookupEvent {
+export interface KcIdLookupEvent {
   classes: DogEvent['classes']
   endDate: Date
   eventType?: string

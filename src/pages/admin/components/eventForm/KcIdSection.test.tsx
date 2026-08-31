@@ -1,3 +1,4 @@
+import type { DogEvent } from '../../../../types'
 import type { Props } from './KcIdSection'
 import type { PartialEvent } from './types'
 import { TZDate } from '@date-fns/tz'
@@ -6,26 +7,36 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { eventWithStaticDates } from '../../../../__mockData__/events'
 import * as eventApi from '../../../../api/event'
 import { locales } from '../../../../i18n'
 import { TIME_ZONE, zonedDateString } from '../../../../i18n/dates'
 import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
 import { idTokenAtom } from '../../../state'
+import { adminEventsAtom } from '../../state'
 import KcIdSection from './KcIdSection'
 
 vi.mock('notistack', () => ({
   enqueueSnackbar: vi.fn(),
 }))
 
-const renderComponent = (props: Props) =>
+/** Events other than the one being edited, whose koetunnukset are therefore already spoken for. */
+const renderComponent = (props: Props, otherEvents: DogEvent[] = []) =>
   renderWithUserEvents(
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-      <Provider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+      <Provider
+        initializeState={({ set }) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventsAtom, otherEvents)
+        }}
+      >
         <KcIdSection {...props} />
       </Provider>
     </LocalizationProvider>,
     undefined
   )
+
+const eventLinkedTo = (kcId: number): DogEvent => ({ ...eventWithStaticDates, id: `linked-${kcId}`, kcId })
 
 describe('KcIdSection', () => {
   beforeEach(() => {
@@ -220,12 +231,8 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    const { user } = renderComponent({
-      event: testEvent,
-      linkedKcIds: new Set([222]),
-      onChange: changeHandler,
-      open: true,
-    })
+    const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [eventLinkedTo(222)])
+    await flushPromises()
 
     await user.click(screen.getByText('event.kcIdLookup'))
     await flushPromises()
@@ -270,12 +277,8 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    const { user } = renderComponent({
-      event: testEvent,
-      linkedKcIds: new Set([222]),
-      onChange: changeHandler,
-      open: true,
-    })
+    const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [eventLinkedTo(222)])
+    await flushPromises()
 
     await user.click(screen.getByText('event.kcIdLookup'))
     expect(await screen.findByText('event.kcIdChoiceTitle')).toBeInTheDocument()

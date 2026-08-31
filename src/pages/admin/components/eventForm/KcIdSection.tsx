@@ -1,9 +1,7 @@
 import type { TFunction } from 'i18next'
 import type { BasicInfoEvent, SectionProps } from './types'
-import Sync from '@mui/icons-material/Sync'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { memo, useMemo } from 'react'
@@ -12,27 +10,25 @@ import { zonedDateString } from '../../../../i18n/dates'
 import { localeSortComparator } from '../../../../lib/datagrid'
 import { unique } from '../../../../lib/utils'
 import CollapsibleSection from '../../../components/CollapsibleSection'
-import { useKcIdLookup } from '../../hooks/useKcIdLookup'
-import KcIdChoiceDialog from './KcIdChoiceDialog'
+import { useIsOfficialEventType } from '../../hooks/useIsOfficialEventType'
+import { KcIdLookupButton } from '../KcIdLookupButton'
 
 export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: BasicInfoEvent
-  /** koetunnukset already linked to some other event in Koekalenteri */
-  readonly linkedKcIds?: ReadonlySet<number>
 }
 
-function KcIdSection({ disabled, event, errorStates, linkedKcIds, open, onOpenChange, onChange }: Props) {
+function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChange }: Props) {
   const { t } = useTranslation()
-  const { choices, choose, closeChoices, organizerId, remove, search, searching } = useKcIdLookup(
-    event,
-    onChange,
-    linkedKcIds
-  )
+  const official = useIsOfficialEventType(event.eventType)
+  const organizerId = event.organizer?.id
   const hasKcId = Boolean(event.kcId)
   const canEditKcId = Boolean(organizerId) && !disabled
   const error = (errorStates && errorStates.kcId) || false
   const helperText = error ? t('validation.event.errors') : t('event.kcIdSectionInfo')
   const warnings = useMemo(() => computeKcWarnings(event, t), [event, t])
+
+  // Only the Kennel Club's own event types have a koetunnus, so for the rest there is no section.
+  if (!official) return null
 
   return (
     <>
@@ -52,33 +48,7 @@ function KcIdSection({ disabled, event, errorStates, linkedKcIds, open, onOpenCh
               {event.kcId ?? t('event.kcIdEmpty')}
             </Typography>
           </Box>
-          {canEditKcId &&
-            (hasKcId ? (
-              <Stack direction="row" spacing={1}>
-                <Button
-                  variant="contained"
-                  disabled={searching}
-                  size="small"
-                  startIcon={<Sync fontSize="small" />}
-                  onClick={search}
-                >
-                  {t('event.kcIdSwitch')}
-                </Button>
-                <Button variant="outlined" size="small" onClick={remove}>
-                  {t('event.kcIdRemove')}
-                </Button>
-              </Stack>
-            ) : (
-              <Button
-                variant="contained"
-                disabled={searching}
-                size="small"
-                startIcon={<Sync fontSize="small" />}
-                onClick={search}
-              >
-                {t('event.kcIdLookup')}
-              </Button>
-            ))}
+          {canEditKcId && <KcIdLookupButton editable event={event} onChange={onChange} />}
           {!hasKcId && !organizerId && !disabled && (
             <Typography variant="body2" color="text.secondary" fontStyle="italic">
               {t('event.kcIdRequiresOrganizer')}
@@ -93,7 +63,6 @@ function KcIdSection({ disabled, event, errorStates, linkedKcIds, open, onOpenCh
           </Alert>
         )}
       </CollapsibleSection>
-      <KcIdChoiceDialog choices={choices} linkedKcIds={linkedKcIds} onClose={closeChoices} onSelect={choose} />
     </>
   )
 }
