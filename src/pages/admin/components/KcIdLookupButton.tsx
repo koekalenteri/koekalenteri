@@ -21,7 +21,7 @@ const linkedKcIdsAtom = atomFamily((eventId: string | undefined) =>
 )
 
 interface Props {
-  readonly event: KcIdLookupEvent & { id?: string; kcId?: DogEvent['kcId'] | null }
+  readonly event: KcIdLookupEvent & { id?: string; kcId?: number | null }
   /** Also offer to swap a koetunnus the event already has, and to remove it. */
   readonly editable?: boolean
   readonly onChange?: (patch: Patch<DogEvent>) => void

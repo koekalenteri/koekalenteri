@@ -35,9 +35,9 @@ const STATION_MAX_POINTS = 20
 export const taskMaxPoints = (tasks: 1 | 2): number => STATION_MAX_POINTS / tasks
 
 /** Event types scored at posts. Everything else is judged qualitatively and has no tasks. */
-const POST_SCORED_EVENT_TYPES = ['NOWT', 'NOWT SM']
+const POST_SCORED_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
 
-export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.includes(eventType ?? '')
+export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.has(eventType ?? '')
 
 /** Shared by every event type's rules, in the order the lists give them. */
 const ELIMINATING_FAULTS: EliminatingFault[] = [
@@ -195,7 +195,7 @@ export const deriveNowtResult = ({ tasks, elimination, retirement }: NowtResultI
  * Event types judged pass or fail rather than placed. Both still use the shared alphabet — a pass is
  * `1` and a fail `0` — so `NOU1` and `NKM0`, never words.
  */
-const PASS_FAIL_EVENT_TYPES = ['NOU', 'NKM']
+const PASS_FAIL_EVENT_TYPES = new Set(['NOU', 'NKM'])
 
 /**
  * The codes a secretary may record for an event type.
@@ -204,7 +204,7 @@ const PASS_FAIL_EVENT_TYPES = ['NOU', 'NKM']
  * a dash on a test with nothing to place against would mean nothing.
  */
 export const availableResultCodes = (eventType: string): ResultCode[] =>
-  PASS_FAIL_EVENT_TYPES.includes(eventType) ? ['1', '0'] : ['1', '2', '3', '0', '-']
+  PASS_FAIL_EVENT_TYPES.has(eventType) ? ['1', '0'] : ['1', '2', '3', '0', '-']
 
 /**
  * Results are written as a prefix and a code: `ALO1`, `AVO-`, and for event types without classes
@@ -330,7 +330,8 @@ export const stationVersion = <T extends StationScopedTask>(
 
   // Compare by instant rather than sorting the raw values: sorting happens to work on ISO strings and
   // not at all on Date objects, which sort by their locale text.
-  return own.reduce((latest, task) => (new Date(task.updatedAt) > new Date(latest.updatedAt) ? task : latest)).updatedAt
+  return own.reduce((latest, task) => (new Date(task.updatedAt) > new Date(latest.updatedAt) ? task : latest), own[0])
+    .updatedAt
 }
 
 const withoutProvenance = <T extends StationScopedTask>({ updatedAt: _at, updatedBy: _by, ...rest }: T) => rest

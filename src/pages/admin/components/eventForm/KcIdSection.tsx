@@ -31,39 +31,37 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
   if (!official) return null
 
   return (
-    <>
-      <CollapsibleSection
-        title={t('event.kcIdSectionTitle')}
-        open={open}
-        onOpenChange={onOpenChange}
-        error={error}
-        helperText={helperText}
-      >
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Box sx={{ minWidth: 160 }}>
-            <Typography variant="caption" color="text.secondary" component="div">
-              {t('event.kcId')}
-            </Typography>
-            <Typography color={hasKcId ? 'text.primary' : 'text.secondary'} fontStyle={hasKcId ? undefined : 'italic'}>
-              {event.kcId ?? t('event.kcIdEmpty')}
-            </Typography>
-          </Box>
-          {canEditKcId && <KcIdLookupButton editable event={event} onChange={onChange} />}
-          {!hasKcId && !organizerId && !disabled && (
-            <Typography variant="body2" color="text.secondary" fontStyle="italic">
-              {t('event.kcIdRequiresOrganizer')}
-            </Typography>
-          )}
-        </Stack>
-        {warnings.length > 0 && (
-          <Alert severity="warning" sx={{ mt: 1 }}>
-            {warnings.map((warning) => (
-              <div key={warning}>{warning}</div>
-            ))}
-          </Alert>
+    <CollapsibleSection
+      title={t('event.kcIdSectionTitle')}
+      open={open}
+      onOpenChange={onOpenChange}
+      error={error}
+      helperText={helperText}
+    >
+      <Stack direction="row" spacing={2} alignItems="center">
+        <Box sx={{ minWidth: 160 }}>
+          <Typography variant="caption" color="text.secondary" component="div">
+            {t('event.kcId')}
+          </Typography>
+          <Typography color={hasKcId ? 'text.primary' : 'text.secondary'} fontStyle={hasKcId ? undefined : 'italic'}>
+            {event.kcId ?? t('event.kcIdEmpty')}
+          </Typography>
+        </Box>
+        {canEditKcId && <KcIdLookupButton editable event={event} onChange={onChange} />}
+        {!hasKcId && !organizerId && !disabled && (
+          <Typography variant="body2" color="text.secondary" fontStyle="italic">
+            {t('event.kcIdRequiresOrganizer')}
+          </Typography>
         )}
-      </CollapsibleSection>
-    </>
+      </Stack>
+      {warnings.length > 0 && (
+        <Alert severity="warning" sx={{ mt: 1 }}>
+          {warnings.map((warning) => (
+            <div key={warning}>{warning}</div>
+          ))}
+        </Alert>
+      )}
+    </CollapsibleSection>
   )
 }
 

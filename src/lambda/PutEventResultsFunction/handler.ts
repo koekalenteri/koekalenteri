@@ -100,6 +100,53 @@ const resolveFor = (
   }
 }
 
+/**
+ * What a submission turns out to be, decided before anything is written. Keeping the decision apart
+ * from the writing is what lets the loop below read as three outcomes rather than as one long branch.
+ */
+type SubmissionOutcome =
+  | { kind: 'unchanged'; eventResult: JsonEventResult }
+  | { kind: 'conflict'; stored: JsonEventResult; submitted: JsonEventResult }
+  | { kind: 'save'; eventResult: JsonEventResult; hadStored: boolean }
+
+const classifySubmission = (
+  confirmedEvent: JsonConfirmedEvent,
+  registration: JsonRegistration,
+  submission: ResultSubmission,
+  timestamp: string,
+  userName: string
+): SubmissionOutcome => {
+  const stored = registration.eventResult
+  const { stationId } = submission
+  const submittedTasks = stampProvenance(submission.eventResult.tasks, timestamp, userName)
+  const submitted: SubmittedEventResult = { ...submission.eventResult, tasks: submittedTasks }
+  const resolve = (result: SubmittedEventResult) =>
+    resolveFor(confirmedEvent, registration, result, timestamp, userName)
+
+  // A retry from the field is the common case, not an edge case: the venue's connection drops, the
+  // secretary saves again, and the first attempt turns out to have landed. Comparing content rather
+  // than version makes that read as already stored, not as someone else's competing edit.
+  const alreadyStored = stationId
+    ? sameStationTasks(stored?.tasks, submittedTasks, stationId)
+    : sameEventResult(stored, resolve(submitted))
+
+  if (alreadyStored) return { eventResult: stored ?? resolve(submitted), kind: 'unchanged' }
+
+  // Only a genuinely different result written by someone else is a conflict. Scoped to the post when
+  // the submission is: two stations scoring the same dog touch different tasks and must not collide.
+  const storedVersion = stationId ? stationVersion(stored?.tasks, stationId) : stored?.updatedAt
+
+  if (storedVersion && storedVersion !== submission.basedOn) {
+    return { kind: 'conflict', stored: stored as JsonEventResult, submitted: resolve(submitted) }
+  }
+
+  // Merge rather than replace, or a station secretary's save carries away the scores another post
+  // already recorded for the same dog.
+  const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, stationId) : submittedTasks
+
+  return { eventResult: resolve({ ...submitted, tasks }), hadStored: Boolean(stored), kind: 'save' }
+}
+
 const putEventResultsLambda = lambda('putEventResults', async (event) => {
   const { user, memberOf, res } = await authorizeWithMemberOf(event)
 
@@ -125,50 +172,29 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
     const registration = registrations.find((item) => item.id === submission.id)
     if (!registration) throw new LambdaError(404, `Registration '${submission.id}' not found`)
 
-    const stored = registration.eventResult
-    const { stationId } = submission
-    const submittedTasks = stampProvenance(submission.eventResult.tasks, timestamp, user.name)
-    const submitted: SubmittedEventResult = { ...submission.eventResult, tasks: submittedTasks }
+    const outcome = classifySubmission(confirmedEvent, registration, submission, timestamp, user.name)
 
-    // A retry from the field is the common case, not an edge case: the venue's connection drops, the
-    // secretary saves again, and the first attempt turns out to have landed. Comparing content rather
-    // than version makes that read as already stored, not as someone else's competing edit.
-    const alreadyStored = stationId
-      ? sameStationTasks(stored?.tasks, submittedTasks, stationId)
-      : sameEventResult(stored, resolveFor(confirmedEvent, registration, submitted, timestamp, user.name))
-
-    if (alreadyStored) {
-      unchanged.push({
-        eventResult: stored ?? resolveFor(confirmedEvent, registration, submitted, timestamp, user.name),
-        id: submission.id,
-      })
+    if (outcome.kind === 'unchanged') {
+      unchanged.push({ eventResult: outcome.eventResult, id: submission.id })
       continue
     }
 
-    // Only a genuinely different result written by someone else is a conflict. Scoped to the post when
-    // the submission is: two stations scoring the same dog touch different tasks and must not collide.
-    const storedVersion = stationId ? stationVersion(stored?.tasks, stationId) : stored?.updatedAt
-
-    if (storedVersion && storedVersion !== submission.basedOn) {
+    if (outcome.kind === 'conflict') {
       conflicts.push({
         id: submission.id,
-        ...(stationId ? { stationId } : {}),
-        stored: stored as JsonEventResult,
-        submitted: resolveFor(confirmedEvent, registration, submitted, timestamp, user.name),
+        ...(submission.stationId ? { stationId: submission.stationId } : {}),
+        stored: outcome.stored,
+        submitted: outcome.submitted,
       })
       continue
     }
 
-    // Merge rather than replace, or a station secretary's save carries away the scores another post
-    // already recorded for the same dog.
-    const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, stationId) : submittedTasks
-
-    const eventResult = resolveFor(confirmedEvent, registration, { ...submitted, tasks }, timestamp, user.name)
+    const { eventResult } = outcome
 
     await updateRegistrationField(eventId, submission.id, 'eventResult', eventResult)
     await audit({
       auditKey: registrationAuditKey({ eventId, id: submission.id }),
-      message: stored ? 'Muutti tulosta' : 'Tallensi tuloksen',
+      message: outcome.hadStored ? 'Muutti tulosta' : 'Tallensi tuloksen',
       user: user.name,
     })
 

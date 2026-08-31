@@ -343,6 +343,23 @@ const getPublishedStartListClasses = (
   })
 }
 
+/**
+ * The phase a computed index names: the highest step it has reached. Only the two halves of `confirmed`
+ * need the event itself, because they share one index and are told apart by whether entry is open.
+ */
+const getProgressPhaseAtIndex = (event: ConfirmedEvent, phaseIndex: number, now: Date): EventProgressPhase => {
+  if (phaseIndex >= getProgressPhaseIndex('resultsPublished')) return 'resultsPublished'
+  if (phaseIndex >= getProgressPhaseIndex('ended')) return 'ended'
+  if (phaseIndex >= getProgressPhaseIndex('started')) return 'started'
+  if (phaseIndex >= getProgressPhaseIndex('startListPublished')) return 'startListPublished'
+  if (phaseIndex >= getProgressPhaseIndex('invited')) return 'invited'
+  if (phaseIndex >= getProgressPhaseIndex('picked')) return 'picked'
+  if (phaseIndex >= getProgressPhaseIndex('confirmed_entryOpen')) {
+    return isEntryOpen(event, now) ? 'confirmed_entryOpen' : 'confirmed_entryClosed'
+  }
+  return 'confirmed'
+}
+
 export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
   const entryStarted = hasEntryStarted(event, now)
   const eventClasses = [...new Set(event.classes.map(({ class: eventClass }) => eventClass))]
@@ -386,22 +403,11 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     ...classPhases.map(({ phaseIndex }) => phaseIndex)
   )
 
-  let phase: EventProgressPhase = 'confirmed'
-  if (phaseIndex >= getProgressPhaseIndex('resultsPublished')) phase = 'resultsPublished'
-  else if (phaseIndex >= getProgressPhaseIndex('ended')) phase = 'ended'
-  else if (phaseIndex >= getProgressPhaseIndex('started')) phase = 'started'
-  else if (phaseIndex >= getProgressPhaseIndex('startListPublished')) phase = 'startListPublished'
-  else if (phaseIndex >= getProgressPhaseIndex('invited')) phase = 'invited'
-  else if (phaseIndex >= getProgressPhaseIndex('picked')) phase = 'picked'
-  else if (phaseIndex >= getProgressPhaseIndex('confirmed_entryOpen')) {
-    phase = isEntryOpen(event, now) ? 'confirmed_entryOpen' : 'confirmed_entryClosed'
-  }
-
   return {
     classPhases,
     entryStarted,
     eventClasses,
-    phase,
+    phase: getProgressPhaseAtIndex(event, phaseIndex, now),
     publishedResultsClasses,
     publishedStartListClasses,
     reachedPhaseIndex,
