@@ -6,18 +6,19 @@ import { getUniqueEventClasses, OFFICIAL_EVENT_TYPES } from '../../../../../lib/
 import { ClassGroups } from './eventDates/ClassGroups'
 import { EventGroups } from './eventDates/EventGroups'
 
-interface Props extends Pick<SectionProps, 'disabled' | 'helperTexts' | 'onChange'> {
+interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
   readonly event: EntryEvent
   readonly eventTypeClasses?: RegistrationClass[]
   readonly invalidClasses?: string[]
+  readonly invalidClassesHelperText?: string
 }
 
 export const EventDates = ({
   disabled,
   event,
   eventTypeClasses,
-  helperTexts,
   invalidClasses,
+  invalidClassesHelperText,
   onChange,
 }: Readonly<Props>) => {
   const classes = useMemo(() => getUniqueEventClasses(event), [event])
@@ -36,7 +37,7 @@ export const EventDates = ({
           error={invalidClasses?.includes(c)}
           event={event}
           eventClass={c}
-          helperText={invalidClasses?.includes(c) ? helperTexts?.classes : undefined}
+          helperText={invalidClasses?.includes(c) ? invalidClassesHelperText : undefined}
           onChange={onChange}
         />
       ))}

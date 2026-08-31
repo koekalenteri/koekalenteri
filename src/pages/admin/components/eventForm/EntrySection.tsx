@@ -39,10 +39,19 @@ function EntrySection(props: Props) {
     open,
   } = props
   const prioritySort = getPrioritySort(t)
-  const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.classes ?? helperTexts?.places
   const classesGroupsError = errors?.find(
     (validationError) => validationError && validationError.key === 'classesGroups'
   )
+  // the message is not in helperTexts: it is only shown here, next to the class it belongs to
+  const classesGroupsHelperText = classesGroupsError
+    ? t(`validation.event.${classesGroupsError.key}`, classesGroupsError.opts)
+    : undefined
+  const error =
+    helperTexts?.entryStartDate ??
+    helperTexts?.entryEndDate ??
+    helperTexts?.classes ??
+    helperTexts?.places ??
+    classesGroupsHelperText
   const invalidClasses = classesGroupsError ? classesGroupsError.opts.list : undefined
   const helperText = error ? t('validation.event.errors') : ''
   const eventPriority = useMemo(
@@ -140,8 +149,8 @@ function EntrySection(props: Props) {
             disabled={disabled}
             event={event}
             eventTypeClasses={eventTypeClasses}
-            helperTexts={helperTexts}
             invalidClasses={invalidClasses}
+            invalidClassesHelperText={classesGroupsHelperText}
             onChange={onChange}
           />
         </Grid>

@@ -844,7 +844,7 @@
   "validation": {
     "event": {
       "classes": "Luokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
-      "classesGroups": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) pitää valita vähintään yksi koepäivä.",
+      "classesGroups": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) pitää valita vähintään yksi päivä.",
       "classesJudge": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu tuomari.",
       "classesMissing_one": "koeluokalta",
       "classesMissing_other": "koeluokilta",

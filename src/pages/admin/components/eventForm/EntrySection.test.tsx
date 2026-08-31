@@ -168,7 +168,6 @@ describe('EntrySection', () => {
                         opts: { field: 'classes', length: 1, list: ['VOI'] },
                       },
                     ]}
-                    helperTexts={{ classes: 'VOI needs an available day' }}
                     open
                   />
                 </SnackbarProvider>
@@ -185,6 +184,6 @@ describe('EntrySection', () => {
     expect(groupSelectors[0]).toHaveAttribute('aria-invalid', 'false')
     expect(groupSelectors[1]).toHaveAttribute('aria-invalid', 'false')
     expect(groupSelectors[2]).toHaveAttribute('aria-invalid', 'true')
-    expect(screen.getAllByText('VOI needs an available day')).toHaveLength(1)
+    expect(screen.getAllByText('validation.event.classesGroups field, length, list')).toHaveLength(1)
   })
 })

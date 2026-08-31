@@ -285,6 +285,9 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
     const errorStates: { [Property in keyof PartialEvent]?: boolean } = {}
     const helperTexts: { [Property in keyof PartialEvent]?: string } = {}
     for (const error of errors) {
+      // classesGroups is shown per class in the entry section, which is the only place it can be
+      // fixed. The class picker in basic info has no groups to select, so leave it out of there.
+      if (error.key === 'classesGroups') continue
       helperTexts[error.opts.field] = t(`validation.event.${error.key}`, error.opts)
       errorStates[error.opts.field] = true
     }
