@@ -170,7 +170,8 @@ describe('getStartListLambda', () => {
         dog: { name: 'Dog 1', regNo: 'REG1' },
         eventId,
         group: { date: '2025-01-01', key: 'ALO', number: 2 },
-        handler: { name: 'Handler 1' },
+        // The client mirrors the handling owner into `handler`.
+        handler: { name: 'Owner 1' },
         owner: { name: 'Owner 1' },
         ownerHandles: true,
       },
@@ -223,7 +224,7 @@ describe('getStartListLambda', () => {
         class: 'ALO',
         dog: { name: 'Dog 1', regNo: 'REG1' },
         group: { date: '2025-01-01', key: 'ALO', number: 2 },
-        handler: 'Handler 1',
+        handler: 'Owner 1',
         owner: 'Owner 1',
         ownerHandles: true,
       },
@@ -246,7 +247,7 @@ describe('getStartListLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, expectedPublicRegs, event)
   })
 
-  it('publishes ownerHandles for legacy booleans and for a key naming the first owner', async () => {
+  it('lists every owner and only collapses owner & handler for a single owner', async () => {
     const eventId = 'event123'
     const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
     const reg = (number: number, extra: Record<string, unknown>) => ({
@@ -261,7 +262,7 @@ describe('getStartListLambda', () => {
       // Legacy record: the boolean refers to the single owner on file, even without an owner object.
       reg(1, { ownerHandles: true }),
       reg(2, { ownerHandles: 'owner-1', owners: [{ key: 'owner-1', name: 'Owner 2' }] }),
-      // A second owner handles, but the projection only names the first one.
+      // Co-owners: both are listed, and the handling one is named separately.
       reg(3, {
         ownerHandles: 'owner-2',
         owners: [
@@ -280,11 +281,11 @@ describe('getStartListLambda', () => {
 
     await getStartListLambda(event)
 
-    expect(mockResponse.mock.calls[0][1].map((r: any) => [r.owner, r.ownerHandles])).toEqual([
-      ['', true],
-      ['Owner 2', true],
-      ['Owner 3', false],
-      ['Owner 4', false],
+    expect(mockResponse.mock.calls[0][1].map((r: any) => [r.owner, r.ownerHandles, r.handler])).toEqual([
+      ['', true, ''],
+      ['Owner 2', true, 'Owner 2'],
+      ['Owner 3, Co-owner 3', false, 'Co-owner 3'],
+      ['Owner 4', false, ''],
     ])
   })
 

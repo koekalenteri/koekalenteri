@@ -178,7 +178,10 @@ export interface JsonPublicRegistration {
   handler: string
   owner: string
   breeder: string
-  /** True when the handler is the owner named in `owner`; owner keys are resolved before publication. */
+  /**
+   * True when the sole owner named in `owner` also handles the dog, collapsing the row to
+   * "owner & handler". With several owners it is `false` and `handler` names the handling person.
+   */
   ownerHandles?: boolean
 }
 

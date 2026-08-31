@@ -1,21 +1,28 @@
 import type { JsonPublicRegistration, JsonRegistrationWithGroup } from '../../types'
 import { isStartListAvailable, isStartListAvailableForRegistration } from '../../lib/event'
-import { getRegistrationOwners, resolveOwnerSelection } from '../../lib/registration'
+import {
+  formatOwnerNames,
+  getHandlingPerson,
+  getRegistrationOwners,
+  resolveOwnerSelection,
+} from '../../lib/registration'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 
 /**
- * The public projection only exposes the first owner's name, so `ownerHandles` is published only
- * when the handling owner is that owner. A legacy boolean always refers to the single owner on
- * file; a key that matches no owner publishes `false` rather than guessing.
+ * `ownerHandles` collapses the public row to "owner & handler", which only reads correctly when the
+ * single owner handles the dog. With several owners the handler is named separately, even when they
+ * are one of the owners. A legacy boolean refers to the single owner on file; a key that matches no
+ * owner publishes `false` rather than guessing.
  */
 const publishedOwnerHandles = (reg: JsonRegistrationWithGroup): boolean | undefined => {
   const { ownerHandles } = reg
   if (ownerHandles === undefined) return undefined
+  if (getRegistrationOwners(reg).length > 1) return false
   if (typeof ownerHandles !== 'string') return !!ownerHandles
-  return resolveOwnerSelection(reg.owners, reg.owner, ownerHandles) === getRegistrationOwners(reg)[0]
+  return !!resolveOwnerSelection(reg.owners, reg.owner, ownerHandles)
 }
 
 const getStartListLambda = lambda('getStartList', async (event) => {
@@ -53,8 +60,8 @@ const getStartListLambda = lambda('getStartList', async (event) => {
           class: reg.class,
           dog: reg.dog,
           group: reg.group,
-          handler: reg.handler?.name ?? '',
-          owner: getRegistrationOwners(reg)[0]?.name ?? '',
+          handler: getHandlingPerson(reg)?.name ?? '',
+          owner: formatOwnerNames(reg),
           ownerHandles: publishedOwnerHandles(reg),
         }))
         .sort((a, b) => a.group.number - b.group.number) ?? []
