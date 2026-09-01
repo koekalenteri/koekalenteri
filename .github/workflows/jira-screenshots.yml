@@ -1,0 +1,32 @@
+name: Jira screenshots
+
+# A ticket should show what the components it covers look like now. Whenever a push to main
+# changes visual-test baselines, the changed images are attached to the Jira issues the commits
+# name, replacing same-named attachments from earlier pushes.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**/__screenshots__/**'
+
+permissions:
+  contents: read
+
+jobs:
+  attach:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # Per-commit pairing needs the pushed commits and their parents
+
+      - name: Attach changed screenshots to the Jira issues the commits name
+        env:
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          BEFORE="${{ github.event.before }}"
+          if [[ -z "$BEFORE" || "$BEFORE" == 0000000000000000000000000000000000000000 ]] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            BEFORE="$(git rev-parse '${{ github.sha }}^')"
+          fi
+          node scripts/jira-attach-screenshots.mjs "$BEFORE" "${{ github.sha }}"
