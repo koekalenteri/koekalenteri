@@ -18,6 +18,39 @@
           LoggingLevel: INFO
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 20
+        # The unauthenticated endpoints below carry no API key, so the usage plan's quota never
+        # covers them; without their own buckets they fall back to the account-wide default — the
+        # same exposure the /user incident above was about. The start list is the page spectators
+        # keep open on an event day, so its bucket is the widest.
+        - ResourcePath: '/startlist/{eventId}'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          MetricsEnabled: true
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 25
+          ThrottlingBurstLimit: 100
+        # A handful of posts per event: legitimate traffic is a save or a reload every few minutes.
+        - ResourcePath: '/station-entry/{eventId}/{stationId}'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          MetricsEnabled: true
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 20
+        - ResourcePath: '/station-entry/{eventId}/{stationId}'
+          HttpMethod: 'POST'
+          DataTraceEnabled: false
+          MetricsEnabled: true
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 20
+        - ResourcePath: '/station-entry/{eventId}/{stationId}/turn'
+          HttpMethod: 'POST'
+          DataTraceEnabled: false
+          MetricsEnabled: true
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 20
 
       AccessLogSetting:
         DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
