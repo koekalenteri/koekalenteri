@@ -24,6 +24,10 @@ const Wrapper = (props: ComponentProps<typeof SelectMulti>) => {
 
 const options = ['Option 1', 'Option 2', 'Option 3']
 
+/** A hand-built change event stands in for MUI's synthetic one at this single boundary. */
+const asSelectChangeEvent = (event: { target: { value: string | string[] } }) =>
+  event as unknown as SelectChangeEvent<string[]>
+
 describe('SelectMulti', () => {
   it('renders with default label', () => {
     const onChange = vi.fn()
@@ -74,11 +78,11 @@ describe('SelectMulti', () => {
     )
 
     // Create a mock event
-    const mockEvent = {
+    const mockEvent = asSelectChangeEvent({
       target: {
         value: ['Option 2'],
       },
-    } as unknown as SelectChangeEvent<string[]>
+    })
 
     const selectElement = screen.getByTestId('Test Label')
 
@@ -156,18 +160,18 @@ describe('SelectMulti', () => {
     )
 
     // Test with string value (non-array)
-    const mockEventString = {
+    const mockEventString = asSelectChangeEvent({
       target: {
         value: 'Option 1', // Not an array
       },
-    } as unknown as SelectChangeEvent<string[]>
+    })
 
     // Test with array value
-    const mockEventArray = {
+    const mockEventArray = asSelectChangeEvent({
       target: {
         value: ['Option 1', 'Option 3'],
       },
-    } as unknown as SelectChangeEvent<string[]>
+    })
 
     // Simulate handleChange function from the component
     const handleChange = (event: SelectChangeEvent<string[]>) => {
@@ -564,6 +568,7 @@ describe('SelectMulti', () => {
         <ThemeProvider theme={theme}>
           <SelectMulti
             options={options}
+            // Deliberately missing, to cover the defensive path
             value={undefined as unknown as string[]}
             onChange={() => {}}
             label="Test Label"
@@ -579,6 +584,7 @@ describe('SelectMulti', () => {
     it('handles null options gracefully', () => {
       renderWithUserEvents(
         <ThemeProvider theme={theme}>
+          {/* Deliberately null options, to cover the defensive path */}
           <SelectMulti options={null as unknown as string[]} value={[]} onChange={() => {}} label="Test Label" />
         </ThemeProvider>
       )

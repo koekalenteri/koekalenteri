@@ -921,7 +921,7 @@ describe('PaymentSection', () => {
       costMember: { earlyBird: undefined, normal: 10 },
     }
     const onChange = vi.fn((props) => Object.assign(testEvent, props))
-    const { user } = renderPaymentSection(testEvent as any, onChange)
+    const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
     const daysInput = screen.getByTestId('earlyBirdDays')
@@ -946,7 +946,7 @@ describe('PaymentSection', () => {
       costMember: 10,
     }
     const onChange = vi.fn()
-    const { user } = renderPaymentSection(testEvent as any, onChange)
+    const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
     const memberOptInputDiv = screen.getByTestId('costMember.optionalAdditionalCosts.0')
@@ -1037,7 +1037,7 @@ describe('PaymentSection', () => {
       costMember: { earlyBird: { cost: 8, days: 7 }, normal: 10 },
     }
     const onChange = vi.fn((props) => Object.assign(testEvent, props))
-    const { user } = renderPaymentSection(testEvent as any, onChange)
+    const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
     const daysInput = screen.getByTestId('earlyBirdDays')
@@ -1189,7 +1189,7 @@ describe('PaymentSection', () => {
       costMember: 10,
     }
     const onChange = vi.fn((props) => Object.assign(testEvent, props))
-    const { user } = renderPaymentSection(testEvent as any, onChange)
+    const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
     await user.click(screen.getByTestId('cost.custom-edit'))
@@ -1224,7 +1224,7 @@ describe('PaymentSection', () => {
       },
     }
     const onChange = vi.fn()
-    const { user } = renderPaymentSection(testEvent as any, onChange)
+    const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
     await user.click(screen.getByTestId('edit-optional-0'))
@@ -1344,7 +1344,7 @@ describe('PaymentSection', () => {
       costMember: 10,
     }
     const onChange = vi.fn((props) => Object.assign(testEvent, props))
-    const { user } = renderPaymentSection(testEvent as any, onChange)
+    const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
     await user.click(screen.getByTestId('edit-optional-0'))
@@ -1375,7 +1375,7 @@ describe('PaymentSection', () => {
       costMember: { earlyBird: { cost: 8, days: 7 }, normal: 10 },
     }
     const onChange = vi.fn((props) => Object.assign(testEvent, props))
-    const { user } = renderPaymentSection(testEvent as any, onChange)
+    const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
     const daysInput = screen.getByTestId('earlyBirdDays')

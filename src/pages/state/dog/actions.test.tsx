@@ -21,6 +21,12 @@ vi.mock('notistack', () => ({
 
 const mockGetDog = getDog as import('vitest').MockedFunction<typeof getDog>
 
+/**
+ * The cache tests seed deep-partial entries; the runtime merges them field by field, so they
+ * convert to the cache's shallow-partial type at this one named boundary.
+ */
+const asCacheInfo = (info: DeepPartial<DogCachedInfo>) => info as Partial<DogCachedInfo>
+
 describe('useDogActions', () => {
   const testRegNo = 'TEST123/45'
   const testDog: Dog = {
@@ -117,6 +123,7 @@ describe('useDogActions', () => {
     })
 
     it('returns empty dog when API returns undefined', async () => {
+      // The API client's type promises a Dog, but the network can still hand back nothing
       mockGetDog.mockResolvedValueOnce(undefined as unknown as Dog)
 
       const { result } = renderHook(() => useDogActions(testRegNo), {
@@ -131,9 +138,9 @@ describe('useDogActions', () => {
     })
 
     it('initializes results array if missing from API response', async () => {
-      const dogWithoutResults = { ...testDog }
-      delete (dogWithoutResults as any).results
-      mockGetDog.mockResolvedValueOnce(dogWithoutResults)
+      // Deliberately missing the required results array, to cover the initializing path
+      const { results: _results, ...dogWithoutResults } = testDog
+      mockGetDog.mockResolvedValueOnce(dogWithoutResults as Dog)
 
       const { result } = renderHook(() => useDogActions(testRegNo), {
         wrapper: Provider,
@@ -160,7 +167,7 @@ describe('useDogActions', () => {
         wrapper: ({ children }) => (
           <Provider
             initializeState={(snap) => {
-              snap.set(dogCacheAtom, { [testRegNo]: cachedInfo as any })
+              snap.set(dogCacheAtom, { [testRegNo]: asCacheInfo(cachedInfo) })
             }}
           >
             {children}
@@ -190,10 +197,10 @@ describe('useDogActions', () => {
           <Provider
             initializeState={(snap) => {
               snap.set(dogCacheAtom, {
-                [testRegNo]: {
+                [testRegNo]: asCacheInfo({
                   dog: cachedDog,
                   manual: true,
-                } as any,
+                }),
               })
             }}
           >
@@ -243,9 +250,9 @@ describe('useDogActions', () => {
     })
 
     it('initializes results array if missing from API response', async () => {
-      const dogWithoutResults = { ...testDog }
-      delete (dogWithoutResults as any).results
-      mockGetDog.mockResolvedValueOnce(dogWithoutResults)
+      // Deliberately missing the required results array, to cover the initializing path
+      const { results: _results, ...dogWithoutResults } = testDog
+      mockGetDog.mockResolvedValueOnce(dogWithoutResults as Dog)
 
       const { result } = renderHook(() => useDogActions(testRegNo), {
         wrapper: Provider,
@@ -338,7 +345,7 @@ describe('useDogActions', () => {
         wrapper: ({ children }) => (
           <Provider
             initializeState={(snap) => {
-              snap.set(dogCacheAtom, { [testRegNo]: cachedInfo as any })
+              snap.set(dogCacheAtom, { [testRegNo]: asCacheInfo(cachedInfo) })
             }}
           >
             {children}
@@ -380,7 +387,7 @@ describe('useDogActions', () => {
         wrapper: ({ children }) => (
           <Provider
             initializeState={(snap) => {
-              snap.set(dogCacheAtom, { [testRegNo]: cachedInfo as any })
+              snap.set(dogCacheAtom, { [testRegNo]: asCacheInfo(cachedInfo) })
             }}
           >
             {children}
@@ -469,7 +476,7 @@ describe('useDogActions', () => {
         wrapper: ({ children }) => (
           <Provider
             initializeState={(snap) => {
-              snap.set(dogCacheAtom, initialCache as any)
+              snap.set(dogCacheAtom, { [testRegNo]: asCacheInfo(initialCache[testRegNo]) })
             }}
           >
             <AtomObserver
@@ -566,7 +573,7 @@ describe('useDogActions', () => {
           <Provider
             initializeState={(snap) => {
               snap.set(dogCacheAtom, {
-                [testRegNo]: cacheWithTitlesRfidDob as any,
+                [testRegNo]: asCacheInfo(cacheWithTitlesRfidDob),
               })
             }}
           >

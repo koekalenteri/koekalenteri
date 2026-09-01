@@ -14,7 +14,7 @@ describe('ws/broadcast', () => {
     const log = vi.fn()
 
     const result = await broadcast({
-      audience: async () => [{ connectionId: 'a' } as any, { connectionId: 'b' } as any, { connectionId: 'c' } as any],
+      audience: async () => [{ connectionId: 'a' }, { connectionId: 'b' }, { connectionId: 'c' }],
       buildPayload: (_audience, recipient) => ({ recipientId: recipient.connectionId, type: 'test' }),
       log,
       onGoneConnection,
@@ -36,7 +36,7 @@ describe('ws/broadcast', () => {
     }))
 
     await broadcast({
-      audience: async () => [{ connectionId: 'a' } as any, { connectionId: 'b' } as any],
+      audience: async () => [{ connectionId: 'a' }, { connectionId: 'b' }],
       buildPayload,
       send,
     })
@@ -63,7 +63,7 @@ describe('ws/broadcast', () => {
     })
 
     const result = await broadcast({
-      audience: async () => Array.from({ length: 5 }, (_, index) => ({ connectionId: `connection-${index}` }) as any),
+      audience: async () => Array.from({ length: 5 }, (_, index) => ({ connectionId: `connection-${index}` })),
       buildPayload: () => ({ type: 'test' }),
       concurrency: 2,
       send,
@@ -77,7 +77,7 @@ describe('ws/broadcast', () => {
   it('counts unexpected send rejections as failures', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const result = await broadcast({
-      audience: async () => [{ connectionId: 'a' } as any],
+      audience: async () => [{ connectionId: 'a' }],
       buildPayload: () => ({ type: 'test' }),
       send: vi.fn().mockRejectedValue(new Error('network failure')),
     })

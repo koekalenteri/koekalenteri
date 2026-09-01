@@ -56,18 +56,16 @@ describe('ws/subscriptionService', () => {
 
   it('subscribeToAdmin throws 401 when connection is expired', async () => {
     mockIsConnectionExpired.mockReturnValueOnce(true)
-    await expect(subscribeToAdmin({ connectionId: 'c1' } as any)).rejects.toEqual(
-      new LambdaError(401, 'Connection expired')
-    )
+    await expect(subscribeToAdmin({ connectionId: 'c1' })).rejects.toEqual(new LambdaError(401, 'Connection expired'))
   })
 
   it('subscribeToAdmin throws 403 for non-admin/non-member connection', async () => {
     mockCanReceiveAnyAdminEvent.mockReturnValueOnce(false)
-    await expect(subscribeToAdmin({ connectionId: 'c1' } as any)).rejects.toEqual(new LambdaError(403, 'Forbidden'))
+    await expect(subscribeToAdmin({ connectionId: 'c1' })).rejects.toEqual(new LambdaError(403, 'Forbidden'))
   })
 
   it('subscribeToAdmin sets adminSubscribed', async () => {
-    const result = await subscribeToAdmin({ connectionId: 'c1' } as any)
+    const result = await subscribeToAdmin({ connectionId: 'c1' })
     expect(mockSubscribeAdminChannel).toHaveBeenCalledWith('c1')
     expect(mockSubscribeConnection).not.toHaveBeenCalled()
     expect(result).toEqual({ adminSubscribed: true })
@@ -76,7 +74,7 @@ describe('ws/subscriptionService', () => {
   it('subscribeToEvent throws 401 when connection is expired', async () => {
     mockIsConnectionExpired.mockReturnValueOnce(true)
 
-    await expect(subscribeToEvent({ connectionId: 'c1' } as any, 'e1', vi.fn())).rejects.toEqual(
+    await expect(subscribeToEvent({ connectionId: 'c1' }, 'e1', vi.fn())).rejects.toEqual(
       new LambdaError(401, 'Connection expired')
     )
   })
@@ -85,7 +83,7 @@ describe('ws/subscriptionService', () => {
     mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
 
     await expect(
-      subscribeToEvent({ admin: false, connectionId: 'c1', memberOf: ['org-2'] } as any, 'e1', vi.fn())
+      subscribeToEvent({ admin: false, connectionId: 'c1', memberOf: ['org-2'] }, 'e1', vi.fn())
     ).rejects.toEqual(new LambdaError(403, 'Forbidden'))
   })
 
@@ -93,7 +91,7 @@ describe('ws/subscriptionService', () => {
     mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
     const publishEventViewers = vi.fn().mockResolvedValue(undefined)
 
-    const result = await subscribeToEvent({ admin: true, connectionId: 'c1' } as any, 'e1', publishEventViewers)
+    const result = await subscribeToEvent({ admin: true, connectionId: 'c1' }, 'e1', publishEventViewers)
 
     expect(mockSubscribeConnection).toHaveBeenCalledWith('c1', 'e1')
     expect(publishEventViewers).toHaveBeenCalledTimes(1)
@@ -109,7 +107,7 @@ describe('ws/subscriptionService', () => {
       .mockResolvedValueOnce({ organizer: { id: 'org-old' } })
     const publishEventViewers = vi.fn().mockResolvedValue(undefined)
 
-    await subscribeToEvent({ admin: true, connectionId: 'c1', eventId: 'e-old' } as any, 'e-new', publishEventViewers)
+    await subscribeToEvent({ admin: true, connectionId: 'c1', eventId: 'e-old' }, 'e-new', publishEventViewers)
 
     expect(mockSubscribeConnection).toHaveBeenCalledWith('c1', 'e-new')
     expect(publishEventViewers).toHaveBeenNthCalledWith(1, 'e-old', 'org-old')
@@ -126,7 +124,7 @@ describe('ws/subscriptionService', () => {
     mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
     const publishEventViewers = vi.fn().mockResolvedValue(undefined)
 
-    await unsubscribeFromEvent({ connectionId: 'c1', eventId: 'e1' } as any, publishEventViewers)
+    await unsubscribeFromEvent({ connectionId: 'c1', eventId: 'e1' }, publishEventViewers)
 
     expect(mockGetConnection).not.toHaveBeenCalled()
     expect(mockUnsubscribeConnection).toHaveBeenCalledWith('c1')
@@ -136,7 +134,7 @@ describe('ws/subscriptionService', () => {
   it('unsubscribeFromEvent only unsubscribes when connection has no event', async () => {
     const publishEventViewers = vi.fn().mockResolvedValue(undefined)
 
-    await unsubscribeFromEvent({ connectionId: 'c1' } as any, publishEventViewers)
+    await unsubscribeFromEvent({ connectionId: 'c1' }, publishEventViewers)
 
     expect(mockGetConnection).not.toHaveBeenCalled()
     expect(mockUnsubscribeConnection).toHaveBeenCalledWith('c1')

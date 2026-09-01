@@ -1,3 +1,4 @@
+import type { APIGatewayProxyEvent } from 'aws-lambda'
 import { gzipSync } from 'node:zlib'
 import { vi } from 'vitest'
 import { CONFIG } from '../config'
@@ -17,6 +18,9 @@ vi.doMock('../lib/api-gw', () => ({
 const { allowOrigin, getParam, isDevStage, isHttpMethod, isPatchRequest, isProdStage, isTestStage, response } =
   await import('./lambda')
 const apiGw = await import('../lib/api-gw')
+
+/** allowOrigin and response read only the headers; minimal events convert at this boundary. */
+const asEvent = (event: { headers: Record<string, string | undefined> }) => event as APIGatewayProxyEvent
 
 describe('lambda', () => {
   describe('getParam', () => {
@@ -148,7 +152,7 @@ describe('lambda', () => {
       })
 
       it('should return origin when it ends with koekalenteri.snj.fi', () => {
-        const mockEvent = { headers: {} } as any
+        const mockEvent = asEvent({ headers: {} })
         mockGetOrigin.mockReturnValue('https://test.koekalenteri.snj.fi')
 
         expect(allowOrigin(mockEvent)).toBe('https://test.koekalenteri.snj.fi')
@@ -156,7 +160,7 @@ describe('lambda', () => {
       })
 
       it('should return origin when it is localhost:3000 and in dev stage', () => {
-        const mockEvent = { headers: {} } as any
+        const mockEvent = asEvent({ headers: {} })
         mockGetOrigin.mockReturnValue('http://localhost:3000')
         CONFIG.stageName = 'dev'
 
@@ -165,7 +169,7 @@ describe('lambda', () => {
       })
 
       it('should return default origin when localhost:3000 but not in dev stage', () => {
-        const mockEvent = { headers: {} } as any
+        const mockEvent = asEvent({ headers: {} })
         mockGetOrigin.mockReturnValue('http://localhost:3000')
         CONFIG.stageName = 'prod'
 
@@ -174,7 +178,7 @@ describe('lambda', () => {
       })
 
       it('should return default origin for other origins', () => {
-        const mockEvent = { headers: {} } as any
+        const mockEvent = asEvent({ headers: {} })
         mockGetOrigin.mockReturnValue('https://example.com')
 
         expect(allowOrigin(mockEvent)).toBe('https://koekalenteri.snj.fi')
@@ -183,9 +187,9 @@ describe('lambda', () => {
     })
 
     describe('response', () => {
-      const mockEvent = {
+      const mockEvent = asEvent({
         headers: {},
-      } as any
+      })
 
       it('should create a response with the correct structure', () => {
         const result = response(200, { message: 'Success' }, mockEvent)
@@ -242,11 +246,11 @@ describe('lambda', () => {
       it('should compress large responses when gzip is accepted', () => {
         // Create a large response body
         const largeBody = { data: 'x'.repeat(5000) }
-        const mockEventWithGzip = {
+        const mockEventWithGzip = asEvent({
           headers: {
             'Accept-Encoding': 'gzip, deflate',
           },
-        } as any
+        })
 
         const result = response(200, largeBody, mockEventWithGzip)
 
@@ -261,11 +265,11 @@ describe('lambda', () => {
 
       it('should not compress small responses even when gzip is accepted', () => {
         const smallBody = { data: 'small' }
-        const mockEventWithGzip = {
+        const mockEventWithGzip = asEvent({
           headers: {
             'Accept-Encoding': 'gzip, deflate',
           },
-        } as any
+        })
 
         const result = response(200, smallBody, mockEventWithGzip)
 
@@ -277,11 +281,11 @@ describe('lambda', () => {
 
       it('should not compress when gzip is not accepted', () => {
         const largeBody = { data: 'x'.repeat(5000) }
-        const mockEventWithoutGzip = {
+        const mockEventWithoutGzip = asEvent({
           headers: {
             'Accept-Encoding': 'deflate',
           },
-        } as any
+        })
 
         const result = response(200, largeBody, mockEventWithoutGzip)
 

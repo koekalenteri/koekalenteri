@@ -1,5 +1,8 @@
 import { webcrypto } from 'node:crypto'
 
+// This file hand-rolls a minimal IndexedDB double. The platform interfaces cannot be implemented
+// in full here, so the double's pieces convert to them at the boundaries below.
+
 type Store = Map<IDBValidKey, unknown>
 
 let stores: Record<string, Store>

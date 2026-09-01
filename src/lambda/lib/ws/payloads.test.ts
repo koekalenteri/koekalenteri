@@ -9,19 +9,19 @@ import {
 describe('ws/payloads', () => {
   it('buildEventPatchPayload returns event id with patch fields', () => {
     const result = buildEventPatchPayload('e1', {
-      classes: [{ id: 'c1' }] as any,
-      entries: [{ id: 'entry-1' }] as any,
+      classes: [{ class: 'ALO', date: '2026-01-01' }],
+      entries: 7,
     })
 
     expect(result).toEqual({
-      classes: [{ id: 'c1' }],
-      entries: [{ id: 'entry-1' }],
+      classes: [{ class: 'ALO', date: '2026-01-01' }],
+      entries: 7,
       eventId: 'e1',
     })
   })
 
   it('buildRegistrationPatchPayload wraps patch array with event id', () => {
-    const patch = [{ dog: { name: 'Nelli' }, id: 'r1' }] as any
+    const patch = [{ dog: { name: 'Nelli' }, id: 'r1' }]
     expect(buildRegistrationPatchPayload('e1', patch)).toEqual({ eventId: 'e1', patch })
   })
 
@@ -70,7 +70,7 @@ describe('ws/payloads', () => {
       { connectionId: 'c3', userEmail: 'anna@example.com', userId: 'anna' },
       { connectionId: 'c4', userEmail: 'other@example.com', userId: 'matti', userName: 'Other Matti' },
       { connectionId: 'c5', userId: 'åke' },
-    ] as any
+    ]
 
     expect(toEventViewers(connections)).toEqual([
       { name: 'Matti Meikäläinen', userId: 'matti' },
