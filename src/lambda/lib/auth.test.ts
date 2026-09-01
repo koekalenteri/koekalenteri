@@ -1,3 +1,4 @@
+import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonUser } from '../../types'
 import { vi } from 'vitest'
 
@@ -33,6 +34,15 @@ const { authorize, authorizeAdmin, authorizeWithMemberOf, getAndUpdateUserByEmai
   './auth'
 )
 
+/**
+ * authorize() and friends read only headers and requestContext.authorizer.claims, so the tests
+ * build minimal events; they convert to the full APIGatewayProxyEvent at this one named boundary.
+ */
+const asEvent = (event: {
+  headers?: Record<string, string | undefined>
+  requestContext?: { authorizer?: { claims?: unknown } | null }
+}) => event as APIGatewayProxyEvent
+
 describe('auth', () => {
   beforeEach(() => {
     vi.resetAllMocks()
@@ -56,7 +66,7 @@ describe('auth', () => {
     })
 
     it('should return null if missing cognitoUser', async () => {
-      const event = { requestContext: { authorizer: { claims: { sub: null } } } } as any
+      const event = asEvent({ requestContext: { authorizer: { claims: { sub: null } } } })
       const result = await authorize(event)
 
       expect(result).toBeNull()
@@ -66,11 +76,11 @@ describe('auth', () => {
     it('should parse JSON-string claims from ws custom authorizer context', async () => {
       const cognitoUser = 'cognito-user'
       const claims = { email: 'test@example.com', name: 'test-user', sub: cognitoUser }
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: JSON.stringify(claims) },
         },
-      } as any
+      })
 
       await authorize(event)
 
@@ -79,11 +89,11 @@ describe('auth', () => {
     })
 
     it('should return null for non-JSON string claims', async () => {
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: 'not-json' },
         },
-      } as any
+      })
 
       const result = await authorize(event)
 
@@ -94,16 +104,16 @@ describe('auth', () => {
 
     it('should create link if not found', async () => {
       const cognitoUser = 'cognito-user'
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
         },
-      } as any
+      })
       const link = { cognitoUser, userId: 'test-id' }
 
       const result = await authorize(event)
 
-      expect(logSpy).not.toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
+      expect(logSpy).not.toHaveBeenCalledWith('claims', event.requestContext?.authorizer?.claims)
       expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
       expect(mockWrite).toHaveBeenCalledWith(link, 'user-link-table-not-found-in-env')
       expect(logSpy).toHaveBeenCalledWith('added user link', link)
@@ -120,13 +130,13 @@ describe('auth', () => {
 
     it('should link cognito user to an existing user found by email if link is missing (KL email change mitigation)', async () => {
       const cognitoUser = 'cognito-user'
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: {
             claims: { email: 'Test@Example.com', email_verified: 'true', name: 'test-user', sub: cognitoUser },
           },
         },
-      } as any
+      })
 
       const existingUser = {
         createdAt: '2023-11-30T20:00:00.000Z',
@@ -158,11 +168,11 @@ describe('auth', () => {
 
     it('should refuse to link cognito user to an existing user when the email claim is not verified', async () => {
       const cognitoUser = 'cognito-user'
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
         },
-      } as any
+      })
 
       const existingUser = {
         createdAt: '2023-11-30T20:00:00.000Z',
@@ -188,11 +198,11 @@ describe('auth', () => {
 
     it('should return the user if link is found', async () => {
       const cognitoUser = 'cognito-user'
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
         },
-      } as any
+      })
       const link = { cognitoUser, userId: 'test-id' }
       const existingUser = {
         createdAt: '2023-11-30T20:00:00.000Z',
@@ -210,7 +220,7 @@ describe('auth', () => {
 
       const result = await authorize(event)
 
-      expect(logSpy).not.toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
+      expect(logSpy).not.toHaveBeenCalledWith('claims', event.requestContext?.authorizer?.claims)
       expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
       expect(mockWrite).not.toHaveBeenCalled()
       expect(logSpy).not.toHaveBeenCalledWith('added user link', link)
@@ -219,11 +229,11 @@ describe('auth', () => {
 
     it('should not update user when no changes detected', async () => {
       const cognitoUser = 'cognito-user'
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
         },
-      } as any
+      })
       const link = { cognitoUser, userId: 'test-id' }
       const existingUser = {
         createdAt: '2023-11-30T20:00:00.000Z',
@@ -246,11 +256,11 @@ describe('auth', () => {
 
     it('should normalize email to empty string when claims email is not a string', async () => {
       const cognitoUser = 'cognito-user'
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: { email: null, email_verified: true, name: 'test-user', sub: cognitoUser } },
         },
-      } as any
+      })
 
       const existingUser = {
         createdAt: '2023-11-30T20:00:00.000Z',
@@ -272,11 +282,11 @@ describe('auth', () => {
 
     it('should replace non-string stored name when updating existing linked user', async () => {
       const cognitoUser = 'cognito-user'
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: { email: 'test@example.com', name: 'fixed-name', sub: cognitoUser } },
         },
-      } as any
+      })
       const link = { cognitoUser, userId: 'test-id' }
       const existingUser = {
         createdAt: '2023-11-30T20:00:00.000Z',
@@ -285,6 +295,7 @@ describe('auth', () => {
         id: 'test-id',
         modifiedAt: '2023-11-30T20:00:00.000Z',
         modifiedBy: 'system',
+        // Deliberately not a string, to cover the name-sanitizing path
         name: 1234,
       } as unknown as JsonUser
 
@@ -306,11 +317,11 @@ describe('auth', () => {
 
     it('should not update linked user lastSeen when it was recently updated', async () => {
       const cognitoUser = 'cognito-user'
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
         },
-      } as any
+      })
       const link = { cognitoUser, userId: 'test-id' }
       const existingUser: JsonUser = {
         createdAt: '2023-11-30T19:00:00.000Z',
@@ -489,11 +500,11 @@ describe('auth', () => {
 
     it('should return the user name if user is found', async () => {
       const cognitoUser = 'cognito-user'
-      const event = {
+      const event = asEvent({
         requestContext: {
           authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
         },
-      } as any
+      })
       const link = { cognitoUser, userId: 'test-id' }
       const existingUser = {
         createdAt: '2023-11-30T20:00:00.000Z',
@@ -516,7 +527,7 @@ describe('auth', () => {
 
   describe('authorizeWithMemberOf', () => {
     it('should return Unauthorized when user cannot be resolved', async () => {
-      const event = { headers: {}, requestContext: { authorizer: { claims: null } } } as any
+      const event = asEvent({ headers: {}, requestContext: { authorizer: { claims: null } } })
 
       const result = await authorizeWithMemberOf(event)
 
@@ -524,12 +535,12 @@ describe('auth', () => {
     })
 
     it('should return Forbidden when not member and not admin', async () => {
-      const event = {
+      const event = asEvent({
         headers: {},
         requestContext: {
           authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: 'cognito-user' } },
         },
-      } as any
+      })
 
       const link = { cognitoUser: 'cognito-user', userId: 'test-id' }
       const existingUser = {
@@ -554,12 +565,12 @@ describe('auth', () => {
     })
 
     it('should return memberOf list when user is a member', async () => {
-      const event = {
+      const event = asEvent({
         headers: {},
         requestContext: {
           authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: 'cognito-user' } },
         },
-      } as any
+      })
 
       const link = { cognitoUser: 'cognito-user', userId: 'test-id' }
       const existingUser = {
@@ -583,12 +594,12 @@ describe('auth', () => {
   })
 
   describe('authorizeAdmin', () => {
-    const event = {
+    const event = asEvent({
       headers: {},
       requestContext: {
         authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: 'cognito-user' } },
       },
-    } as any
+    })
     const link = { cognitoUser: 'cognito-user', userId: 'test-id' }
     const user = {
       createdAt: '2023-11-30T20:00:00.000Z',
@@ -601,7 +612,7 @@ describe('auth', () => {
     }
 
     it('returns Unauthorized when the user cannot be resolved', async () => {
-      const result = await authorizeAdmin({ headers: {}, requestContext: { authorizer: { claims: null } } } as any)
+      const result = await authorizeAdmin(asEvent({ headers: {}, requestContext: { authorizer: { claims: null } } }))
 
       expect(result).toEqual({ res: expect.objectContaining({ statusCode: 401 }) })
     })

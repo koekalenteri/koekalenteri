@@ -1,13 +1,26 @@
-import type { GridRenderCellParams } from '@mui/x-data-grid'
+import type { GridColDef } from '@mui/x-data-grid'
 import type React from 'react'
 import type { ReactElement } from 'react'
-import type { Registration, RegistrationDate } from '../../../../types'
+import type { Registration, RegistrationDate, RegistrationGroup } from '../../../../types'
 import CircularProgress from '@mui/material/CircularProgress'
 import { renderHook } from '@testing-library/react'
 import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
 import * as registrationUtils from '../../../../lib/registration'
 import { useClassEntrySelectionColumns } from './useClassEntrySelectionColumns'
+
+/**
+ * The action tests exercise getActions with deliberately minimal rows, where an absent field
+ * (e.g. paidAmount) is part of the scenario, so the rows convert at this one named boundary.
+ */
+const asRegistration = (row: Omit<Partial<Registration>, 'group'> & { group?: Partial<RegistrationGroup> }) =>
+  row as Registration
+
+/** GridColDef is a union and only the actions column member carries getActions; `in` narrows to it. */
+const getRowActions = (column: GridColDef<Registration> | undefined, row: Registration): readonly ReactElement[] => {
+  if (!column || !('getActions' in column)) throw new Error('Expected an actions column')
+  return column.getActions({ columns: [], id: row.id, row })
+}
 
 const mockAvailableDates: RegistrationDate[] = [
   { date: eventWithStaticDatesAnd3Classes.startDate, time: 'ap' },
@@ -91,8 +104,7 @@ describe('useClassEntrySectionColumns', () => {
     } as Registration
 
     // Get the actions for the mock row
-    // We need to use any here because TypeScript doesn't know about the getActions method
-    const actions = (actionsColumn as any)?.getActions({ row: mockRow } as GridRenderCellParams<any, Registration>)
+    const actions = getRowActions(actionsColumn, mockRow)
     expect(actions).toBeDefined()
 
     // Check that the actions include the edit action
@@ -120,9 +132,10 @@ describe('useClassEntrySectionColumns', () => {
       })
     )
     const actionsColumn = result.current.entryColumns.find((column) => column.field === 'actions')
-    const actions = (actionsColumn as any)?.getActions({
-      row: { cancelled: false, group: { key: 'P' }, id: 'test-id' },
-    } as GridRenderCellParams<any, Registration>) as ReactElement[]
+    const actions = getRowActions(
+      actionsColumn,
+      asRegistration({ cancelled: false, group: { key: 'P' }, id: 'test-id' })
+    )
 
     expect(actions.find((action) => action.key === 'edit')?.props.disabled).toBe(true)
     expect(actions.find((action) => action.key === 'cancel')?.props.disabled).toBe(true)
@@ -150,10 +163,7 @@ describe('useClassEntrySectionColumns', () => {
     } as Registration
 
     // Get the actions for the cancelled row
-    const actions = (actionsColumn as any)?.getActions({ row: mockCancelledRow } as GridRenderCellParams<
-      any,
-      Registration
-    >)
+    const actions = getRowActions(actionsColumn, mockCancelledRow)
     expect(actions).toBeDefined()
 
     // Check that there's no cancel action for cancelled registrations
@@ -181,10 +191,7 @@ describe('useClassEntrySectionColumns', () => {
     } as Registration
 
     // Get the actions for the refundable row
-    const actions = (actionsColumn as any)?.getActions({ row: mockRefundableRow } as GridRenderCellParams<
-      any,
-      Registration
-    >)
+    const actions = getRowActions(actionsColumn, mockRefundableRow)
     expect(actions).toBeDefined()
 
     // Check that there's a refund action
@@ -219,10 +226,7 @@ describe('useClassEntrySectionColumns', () => {
     } as Registration
 
     // Get the actions for the fully refunded row
-    const actions = (actionsColumn as any)?.getActions({ row: mockFullyRefundedRow } as GridRenderCellParams<
-      any,
-      Registration
-    >)
+    const actions = getRowActions(actionsColumn, mockFullyRefundedRow)
     expect(actions).toBeDefined()
 
     // For a fully refunded registration, the refund action might not be present at all
@@ -359,10 +363,7 @@ describe('useClassEntrySectionColumns', () => {
     } as Registration
 
     // Get the actions for the non-refundable row
-    const actions = (actionsColumn as any)?.getActions({ row: mockNonRefundableRow } as GridRenderCellParams<
-      any,
-      Registration
-    >)
+    const actions = getRowActions(actionsColumn, mockNonRefundableRow)
     expect(actions).toBeDefined()
 
     // Check that there's no refund action
@@ -576,9 +577,7 @@ describe('Action column in detail', () => {
     ]
 
     testCases.forEach((testCase) => {
-      const actions = (actionsColumn as any)?.getActions({
-        row: testCase,
-      } as GridRenderCellParams<any, Registration>)
+      const actions = getRowActions(actionsColumn, asRegistration(testCase))
 
       expect(actions).toBeDefined()
 
@@ -621,38 +620,37 @@ describe('Action column in detail', () => {
     const actionsColumn = entryColumns.find((col) => col.field === 'actions')
     expect(actionsColumn).toBeDefined()
 
-    const getActions = (row: Registration) =>
-      (actionsColumn as any)?.getActions({ row } as GridRenderCellParams<any, Registration>) as ReactElement[]
+    const getActions = (row: Registration) => getRowActions(actionsColumn, row)
 
-    const clickByKey = (actions: ReactElement[], key: string) => {
+    const clickByKey = (actions: readonly ReactElement[], key: string) => {
       const action = actions.find((a) => a.key === key)
       expect(action).toBeDefined()
       action?.props.onClick()
     }
 
     // participant row
-    const participantRow = {
+    const participantRow = asRegistration({
       cancelled: false,
       group: { key: 'P' },
       id: 'p-1',
       paidAmount: 5000,
       paidAt: new Date(),
       refundAmount: 0,
-    } as unknown as Registration
+    })
 
     // reserve row
-    const reserveRow = {
+    const reserveRow = asRegistration({
       cancelled: false,
       group: { key: registrationUtils.GROUP_KEY_RESERVE },
       id: 'r-1',
-    } as unknown as Registration
+    })
 
     // cancelled row
-    const cancelledRow = {
+    const cancelledRow = asRegistration({
       cancelled: true,
       group: { key: registrationUtils.GROUP_KEY_CANCELLED },
       id: 'c-1',
-    } as unknown as Registration
+    })
 
     const participantActions = getActions(participantRow)
     clickByKey(participantActions, 'moveToGroup')
@@ -684,16 +682,13 @@ describe('Action column in detail', () => {
     const actionsColumn = entryColumns.find((col) => col.field === 'actions')
     expect(actionsColumn).toBeDefined()
 
-    const reserveRow = {
+    const reserveRow = asRegistration({
       cancelled: false,
       group: { key: registrationUtils.GROUP_KEY_RESERVE },
       id: 'r-1',
-    } as unknown as Registration
+    })
 
-    const reserveActions = (actionsColumn as any)?.getActions({ row: reserveRow } as GridRenderCellParams<
-      any,
-      Registration
-    >) as ReactElement[]
+    const reserveActions = getRowActions(actionsColumn, reserveRow)
 
     const moveToParticipants = reserveActions.find((a) => a.key === 'moveToParticipants')
     const moveToPosition = reserveActions.find((a) => a.key === 'moveToPosition')
@@ -715,16 +710,13 @@ describe('Action column in detail', () => {
     const actionsColumn = entryColumns.find((col) => col.field === 'actions')
     expect(actionsColumn).toBeDefined()
 
-    const reserveRow = {
+    const reserveRow = asRegistration({
       cancelled: false,
       group: { key: registrationUtils.GROUP_KEY_RESERVE },
       id: 'r-1',
-    } as unknown as Registration
+    })
 
-    const reserveActions = (actionsColumn as any)?.getActions({ row: reserveRow } as GridRenderCellParams<
-      any,
-      Registration
-    >) as ReactElement[]
+    const reserveActions = getRowActions(actionsColumn, reserveRow)
     const moveToPosition = reserveActions.find((a) => a.key === 'moveToPosition')
 
     expect(moveToPosition?.props.disabled).toBe(true)
@@ -742,16 +734,13 @@ describe('Action column in detail', () => {
     const actionsColumn = entryColumns.find((col) => col.field === 'actions')
     expect(actionsColumn).toBeDefined()
 
-    const participantRow = {
+    const participantRow = asRegistration({
       cancelled: false,
       group: { key: 'P', number: 2 },
       id: 'p-1',
-    } as unknown as Registration
+    })
 
-    const participantActions = (actionsColumn as any)?.getActions({ row: participantRow } as GridRenderCellParams<
-      any,
-      Registration
-    >) as ReactElement[]
+    const participantActions = getRowActions(actionsColumn, participantRow)
     const moveToPosition = participantActions.find((a) => a.key === 'moveToPosition')
 
     expect(moveToPosition?.props.disabled).toBe(true)
@@ -766,24 +755,20 @@ describe('Action column in detail', () => {
     const entryActionsColumn = entryColumns.find((col) => col.field === 'actions')
     const cancelledActionsColumn = cancelledColumns.find((col) => col.field === 'actions')
 
-    const participantRow = {
+    const participantRow = asRegistration({
       cancelled: false,
       group: { key: 'P', number: 2 },
       id: 'p-1',
-    } as unknown as Registration
+    })
 
-    const cancelledRow = {
+    const cancelledRow = asRegistration({
       cancelled: true,
       group: { key: registrationUtils.GROUP_KEY_CANCELLED, number: 1 },
       id: 'c-1',
-    } as unknown as Registration
+    })
 
-    const participantActions = (entryActionsColumn as any)?.getActions({
-      row: participantRow,
-    } as GridRenderCellParams<any, Registration>) as ReactElement[]
-    const cancelledActions = (cancelledActionsColumn as any)?.getActions({
-      row: cancelledRow,
-    } as GridRenderCellParams<any, Registration>) as ReactElement[]
+    const participantActions = getRowActions(entryActionsColumn, participantRow)
+    const cancelledActions = getRowActions(cancelledActionsColumn, cancelledRow)
 
     expect(participantActions.find((a) => a.key === 'moveToReserve')?.props.disabled).toBe(true)
     expect(cancelledActions.find((a) => a.key === 'moveToReserve')?.props.disabled).toBe(false)
@@ -799,15 +784,15 @@ describe('Action column in detail', () => {
       { group: { key: 'P', number: 1 }, id: 'p-1' },
       { group: { key: registrationUtils.GROUP_KEY_RESERVE, number: 1 }, id: 'r-1' },
       { cancelled: true, group: { key: registrationUtils.GROUP_KEY_CANCELLED, number: 1 }, id: 'c-1' },
-    ] as unknown as Registration[]
+    ].map((row) => asRegistration(row))
     const columns = [result.current.entryColumns, result.current.entryColumns, result.current.cancelledColumns]
 
     rows.forEach((row, index) => {
       const actionsColumn = columns[index].find((column) => column.field === 'actions')
       expect(actionsColumn).toBeDefined()
-      const movementActions = (
-        (actionsColumn as any).getActions({ row } as GridRenderCellParams<any, Registration>) as ReactElement[]
-      ).filter((action) => String(action.key).startsWith('moveTo'))
+      const movementActions = getRowActions(actionsColumn, row).filter((action) =>
+        String(action.key).startsWith('moveTo')
+      )
 
       expect(movementActions.length).toBeGreaterThan(0)
       movementActions.forEach((action) => {
@@ -836,9 +821,7 @@ describe('Action column in detail', () => {
     } as Registration
 
     // Get the actions for the mock row
-    const actions = (actionsColumn as any)?.getActions({
-      row: mockRow,
-    } as GridRenderCellParams<any, Registration>)
+    const actions = getRowActions(actionsColumn, mockRow)
 
     expect(actions).toBeDefined()
 

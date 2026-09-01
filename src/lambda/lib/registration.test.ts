@@ -1,4 +1,4 @@
-import type { EmailTemplateId, JsonRegistration } from '../../types'
+import type { DeepPartial, EmailTemplateId, JsonRegistration } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { eventWithALOClassInvited } from '../../__mockData__/events'
@@ -68,6 +68,17 @@ const {
   publicRegistrationPatch,
   removeRegistrationCreationMetadata,
 } = await import('./registration')
+
+/**
+ * The grouping and patching tests feed deliberately minimal registrations; the deep-partial
+ * fixtures convert to the full json shapes at these named boundaries.
+ */
+const asJsonRegistration = (reg: DeepPartial<JsonRegistration>) => reg as JsonRegistration
+const asJsonRegistrations = (regs: DeepPartial<JsonRegistration>[]) => regs as JsonRegistration[]
+const asRegistrationsByClass = (data: Record<string, DeepPartial<JsonRegistration>[]>) =>
+  data as Record<string, JsonRegistration[]>
+const asRegistrationsByClassAndGroup = (data: Record<string, Record<string, DeepPartial<JsonRegistration>[]>>) =>
+  data as Record<string, Record<string, JsonRegistration[]>>
 
 describe('createSentRegistrationMessagesAudit', () => {
   afterEach(() => vi.clearAllMocks())
@@ -149,11 +160,11 @@ describe('removeRegistrationCreationMetadata', () => {
 
 describe('applyOwnerOverrides', () => {
   it('persists the selected owner as handler and payer', () => {
-    const data = {
+    const data = asJsonRegistration({
       ownerHandles: 'owner-1',
       ownerPays: 'owner-1',
       owners: [{ email: 'a@example.com', key: 'owner-1', name: 'A' }],
-    } as unknown as JsonRegistration
+    })
 
     applyOwnerOverrides(data)
 
@@ -162,11 +173,11 @@ describe('applyOwnerOverrides', () => {
   })
 
   it('leaves an absent handler/payer key absent, so an unchanged registration stays unchanged', () => {
-    const data = {
+    const data = asJsonRegistration({
       ownerHandles: false,
       ownerPays: false,
       owners: [{ key: 'owner-1', name: 'A' }],
-    } as unknown as JsonRegistration
+    })
 
     applyOwnerOverrides(data)
 
@@ -414,11 +425,11 @@ describe('registration', () => {
 
   describe('groupRegistrationsByClass', () => {
     it('should group registrations by class', () => {
-      const registrations = [
+      const registrations = asJsonRegistrations([
         { class: 'ALO', id: '1' },
         { class: 'AVO', id: '2' },
         { class: 'ALO', id: '3' },
-      ] as unknown as JsonRegistration[]
+      ])
 
       const result = groupRegistrationsByClass(registrations)
 
@@ -431,11 +442,11 @@ describe('registration', () => {
     })
 
     it('should use eventType when class is not available', () => {
-      const registrations = [
+      const registrations = asJsonRegistrations([
         { eventType: 'NOME', id: '1' },
         { class: 'AVO', id: '2' },
         { eventType: 'NOME', id: '3' },
-      ] as unknown as JsonRegistration[]
+      ])
 
       const result = groupRegistrationsByClass(registrations)
 
@@ -452,14 +463,14 @@ describe('registration', () => {
 
   describe('groupRegistrationsByClassAndGroup', () => {
     it('should group registrations by class and group', () => {
-      const registrationsByClass = {
+      const registrationsByClass = asRegistrationsByClass({
         ALO: [
           { group: { key: 'group1' }, id: '1' },
           { group: { key: 'group2' }, id: '2' },
           { group: { key: 'group1' }, id: '3' },
         ],
         AVO: [{ group: { key: 'group3' }, id: '4' }],
-      } as unknown as Record<string, JsonRegistration[]>
+      })
 
       const result = groupRegistrationsByClassAndGroup(registrationsByClass)
 
@@ -471,14 +482,14 @@ describe('registration', () => {
     })
 
     it('should skip registrations that are not in participant groups', () => {
-      const registrationsByClass = {
+      const registrationsByClass = asRegistrationsByClass({
         ALO: [
           { group: { key: 'group1' }, id: '1' },
           { group: { key: 'reserve' }, id: '2' },
           { group: { key: 'cancelled' }, id: '3' },
           { group: undefined, id: '4' },
         ],
-      } as unknown as Record<string, JsonRegistration[]>
+      })
 
       const result = groupRegistrationsByClassAndGroup(registrationsByClass)
 
@@ -494,7 +505,7 @@ describe('registration', () => {
 
   describe('findClassesToMark', () => {
     it('should find classes where all groups have received the message', () => {
-      const registrationsByClassAndGroup = {
+      const registrationsByClassAndGroup = asRegistrationsByClassAndGroup({
         ALO: {
           group1: [
             { id: '1', messagesSent: { invitation: true } },
@@ -508,7 +519,7 @@ describe('registration', () => {
         VOI: {
           group4: [{ id: '5', messagesSent: { invitation: false } }],
         },
-      } as unknown as Record<string, Record<string, JsonRegistration[]>>
+      })
 
       const result = findClassesToMark(registrationsByClassAndGroup, 'invitation')
 
@@ -516,12 +527,12 @@ describe('registration', () => {
     })
 
     it('should not include classes with empty groups', () => {
-      const registrationsByClassAndGroup = {
+      const registrationsByClassAndGroup = asRegistrationsByClassAndGroup({
         ALO: {},
         AVO: {
           group1: [{ id: '1', messagesSent: { invitation: true } }],
         },
-      } as unknown as Record<string, Record<string, JsonRegistration[]>>
+      })
 
       const result = findClassesToMark(registrationsByClassAndGroup, 'invitation')
 
@@ -529,14 +540,14 @@ describe('registration', () => {
     })
 
     it('should handle missing messagesSent property', () => {
-      const registrationsByClassAndGroup = {
+      const registrationsByClassAndGroup = asRegistrationsByClassAndGroup({
         ALO: {
           group1: [
             { id: '1', messagesSent: { invitation: true } },
             { id: '2' }, // Missing messagesSent
           ],
         },
-      } as unknown as Record<string, Record<string, JsonRegistration[]>>
+      })
 
       const result = findClassesToMark(registrationsByClassAndGroup, 'invitation')
 
@@ -638,19 +649,19 @@ describe('registration', () => {
     })
 
     it('updates only changed fields and reloads the registration', async () => {
-      const existing = {
+      const existing = asJsonRegistration({
         dog: { name: 'Old name', regNo: 'REG-1' },
         emailDeliveryStatus: { status: 'bounce' },
         eventId: 'event-id',
         id: 'reg-id',
         notes: 'old',
-      } as unknown as JsonRegistration
-      const next = {
+      })
+      const next = asJsonRegistration({
         ...existing,
         dog: { name: 'New name', regNo: 'REG-1' },
         emailDeliveryStatus: undefined,
         notes: 'new',
-      } as unknown as JsonRegistration
+      })
       mockDynamoDB.read.mockResolvedValueOnce(next)
 
       const result = await patchRegistration(existing.eventId, existing.id, existing, next)
@@ -677,7 +688,7 @@ describe('registration', () => {
     })
 
     it('does nothing for no-op patches', async () => {
-      const existing = { eventId: 'event-id', id: 'reg-id', notes: 'old' } as unknown as JsonRegistration
+      const existing = asJsonRegistration({ eventId: 'event-id', id: 'reg-id', notes: 'old' })
 
       const result = await patchRegistration(existing.eventId, existing.id, existing, { ...existing })
 
@@ -700,8 +711,8 @@ describe('registration', () => {
         return emails
       })
 
-      mockSendTemplatedMail.mockResolvedValue({} as any)
-      mockDynamoDB.update.mockResolvedValue({} as any)
+      mockSendTemplatedMail.mockResolvedValue(undefined)
+      mockDynamoDB.update.mockResolvedValue({ $metadata: {} })
     })
 
     it('should send emails to all registrations successfully', async () => {
@@ -916,7 +927,7 @@ describe('registration', () => {
         'https://example.com',
         'Test message',
         'admin-user',
-        { context: 'data' } as any
+        ''
       )
 
       // Check that messagesSent was properly updated
@@ -948,7 +959,7 @@ describe('registration', () => {
         'https://example.com',
         'Test message',
         'admin-user',
-        { context: 'data' } as any
+        ''
       )
 
       // Check lastEmail format for reserve template

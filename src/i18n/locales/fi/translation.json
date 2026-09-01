@@ -864,6 +864,7 @@
     "sire": "i."
   },
   "startListCopied": "Lista kopioitu",
+  "startListCopyFailed": "Listan kopiointi leikepöydälle epäonnistui",
   "startListExport": {
     "breeder": "Kasvattaja",
     "class": "Luokka",

@@ -1,4 +1,12 @@
-import type { JsonQualifyingResult, QualifyingResult, RegistrationClass } from '../types'
+import type { TFunction } from 'i18next'
+import type {
+  DeepPartial,
+  JsonConfirmedEvent,
+  JsonQualifyingResult,
+  JsonRegistration,
+  QualifyingResult,
+  RegistrationClass,
+} from '../types'
 import type { SortableRegistration } from './registration'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
@@ -632,11 +640,17 @@ describe('lib/registration', () => {
   })
 
   describe('getRegistrationEmailTemplateData', () => {
-    // Create a simple mock t function with type assertion
-    const t = vi.fn().mockImplementation(() => 'translated-text') as any
+    // A branded TFunction cannot be satisfied by a plain function, so this follows the repo idiom
+    // of converting a simple stand-in.
+    const t = (() => 'translated-text') as TFunction
+
+    // The template data tests feed deliberately minimal registrations and events; the deep-partial
+    // fixtures convert to the full json shapes at these two named boundaries.
+    const asJsonRegistration = (reg: DeepPartial<JsonRegistration>) => reg as JsonRegistration
+    const asJsonEvent = (event: DeepPartial<JsonConfirmedEvent>) => event as JsonConfirmedEvent
 
     it('should return an object with the expected structure', () => {
-      const registration = {
+      const registration = asJsonRegistration({
         cancelReason: 'dog-sick',
         dates: [{ date: '2024-08-01', time: 'ap' }],
         dog: { breedCode: '123' },
@@ -645,17 +659,17 @@ describe('lib/registration', () => {
         id: 'reg1',
         qualifyingResults: [{ date: '2024-07-01', result: 'VOI1' }],
         reserve: 'ANY',
-      } as any
+      })
 
-      const confirmedEvent = {
+      const confirmedEvent = asJsonEvent({
         endDate: '2024-08-02',
         invitationAttachment: 'event-attachment',
         invitationAttachments: { ALO: 'alo-attachment' },
         startDate: '2024-08-01',
-      } as any // Type assertion for event
+      })
 
       const origin = 'https://example.com'
-      const context = 'confirmation' as any // Type assertion for context
+      const context = 'confirm'
       const text = 'Additional text'
 
       const result = getRegistrationEmailTemplateData(registration, confirmedEvent, origin, context, text, t)
@@ -693,24 +707,24 @@ describe('lib/registration', () => {
     })
 
     it('should use class-specific invitation attachment in template event data', () => {
-      const registration = {
+      const registration = asJsonRegistration({
         class: 'ALO',
         dates: [],
         dog: {},
         eventId: 'event1',
         id: 'reg1',
         qualifyingResults: [],
-      } as any
-      const confirmedEvent = {
+      })
+      const confirmedEvent = asJsonEvent({
         invitationAttachment: 'event-attachment',
         invitationAttachments: { ALO: 'alo-attachment' },
-      } as any
+      })
 
       const result = getRegistrationEmailTemplateData(
         registration,
         confirmedEvent,
         'https://example.com',
-        'invitation' as any,
+        'invitation',
         '',
         t
       )
@@ -720,26 +734,26 @@ describe('lib/registration', () => {
 
     it('should use the event texts in the registrant language', () => {
       // KOE-1263: the name and additional info read in the registrant's language when translated.
-      const registration = {
+      const registration = asJsonRegistration({
         dates: [],
         dog: {},
         eventId: 'event1',
         id: 'reg1',
         language: 'en',
         qualifyingResults: [],
-      } as any
-      const confirmedEvent = {
+      })
+      const confirmedEvent = asJsonEvent({
         description: 'Lisätiedot',
         descriptions: { en: 'Additional info' },
         name: 'Nimi',
         names: { en: 'Name' },
-      } as any
+      })
 
       const result = getRegistrationEmailTemplateData(
         registration,
         confirmedEvent,
         'https://example.com',
-        'confirmation' as any,
+        'confirm',
         '',
         t
       )
@@ -749,21 +763,21 @@ describe('lib/registration', () => {
     })
 
     it('should fall back to the Finnish event texts without translations', () => {
-      const registration = {
+      const registration = asJsonRegistration({
         dates: [],
         dog: {},
         eventId: 'event1',
         id: 'reg1',
         language: 'en',
         qualifyingResults: [],
-      } as any
-      const confirmedEvent = { description: 'Lisätiedot', name: 'Nimi' } as any
+      })
+      const confirmedEvent = asJsonEvent({ description: 'Lisätiedot', name: 'Nimi' })
 
       const result = getRegistrationEmailTemplateData(
         registration,
         confirmedEvent,
         'https://example.com',
-        'confirmation' as any,
+        'confirm',
         '',
         t
       )
@@ -773,26 +787,25 @@ describe('lib/registration', () => {
     })
 
     it('should use previous group when provided', () => {
-      // Use type assertion to avoid TypeScript errors
-      const registration = {
+      const registration = asJsonRegistration({
         dates: [],
         dog: { breedCode: '123' },
         eventId: 'event1',
         group: { date: '2024-08-01', key: 'group1', number: 5, time: 'ap' },
         id: 'reg1',
         qualifyingResults: [],
-      } as any // Type assertion
+      })
 
-      const previousGroup = { date: '2024-08-02', key: 'group2', number: 10, time: 'ip' }
+      const previousGroup = { date: '2024-08-02', key: 'group2', number: 10, time: 'ip' as const }
 
       const result = getRegistrationEmailTemplateData(
         registration,
-        {} as any, // Type assertion for empty event object
+        asJsonEvent({}),
         'https://example.com',
-        'confirmation' as any, // Type assertion for context
+        'confirm',
         '',
         t,
-        { previousGroup: previousGroup as any }
+        { previousGroup }
       )
 
       // Verify that the previous group's number is used
@@ -800,24 +813,17 @@ describe('lib/registration', () => {
     })
 
     it('should handle missing data gracefully', () => {
-      const registration = {
+      const registration = asJsonRegistration({
         dates: [],
         dog: {},
         eventId: 'event1',
         group: {},
         id: 'reg1',
         qualifyingResults: [],
-      } as any
+      })
 
       // This should not throw an error
-      const result = getRegistrationEmailTemplateData(
-        registration,
-        {} as any, // Type assertion for empty event object
-        undefined,
-        'confirmation' as any, // Type assertion for context
-        undefined,
-        t
-      )
+      const result = getRegistrationEmailTemplateData(registration, asJsonEvent({}), undefined, 'confirm', undefined, t)
 
       // Verify some default values
       expect(result.groupNumber).toBe('?')

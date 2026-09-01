@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { TestStore } from '../test-utils/AtomProvider'
-import type { PublicDogEvent, Registration, User } from '../types'
+import type { DogEvent, PublicDogEvent, Registration, User } from '../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { unwrap } from 'jotai/utils'
@@ -71,6 +71,15 @@ vi.mock('../pages/state/events/atoms', async () => {
 
 const event1RegistrationsValueAtom = unwrap(adminEventRegistrationsAtom('event-1'))
 let consoleDebugSpy: import('vitest').MockInstance
+
+/**
+ * These tests seed atoms with deliberately minimal events and stand-in sockets; the fixtures
+ * convert to the full types at these named boundaries.
+ */
+const asDogEvent = (event: Partial<DogEvent>) => event as DogEvent
+const asPublicEvent = (event: Partial<PublicDogEvent>) => event as PublicDogEvent
+/** A test double cannot carry the WebSocket statics, so the constructor converts here. */
+const asWebSocketConstructor = (mock: unknown) => mock as typeof WebSocket
 
 describe('applyPatch', () => {
   const baseEvents = [
@@ -227,9 +236,11 @@ describe('useWebSocket', () => {
     }
 
     // Mock WebSocket constructor
-    global.WebSocket = vi.fn(function MockWebSocket() {
-      return mockWebSocketInstance
-    }) as any
+    global.WebSocket = asWebSocketConstructor(
+      vi.fn(function MockWebSocket() {
+        return mockWebSocketInstance
+      })
+    )
   })
 
   afterEach(() => {
@@ -363,7 +374,7 @@ describe('useWebSocket', () => {
       return createElement(Provider, {
         children,
         initializeState: ({ set }: TestStore) => {
-          set(eventsAtom, [event as any])
+          set(eventsAtom, [asPublicEvent(event)])
         },
       })
     }
@@ -676,7 +687,7 @@ describe('useWebSocket', () => {
         children,
         initializeState: ({ set }: TestStore) => {
           set(idTokenAtom, 'id-token')
-          set(adminEventsAtom, [event as any])
+          set(adminEventsAtom, [asDogEvent(event)])
         },
       })
     }
@@ -722,7 +733,7 @@ describe('useWebSocket', () => {
         children,
         initializeState: ({ set }: TestStore) => {
           set(idTokenAtom, 'id-token')
-          set(adminEventsAtom, [event as any])
+          set(adminEventsAtom, [asDogEvent(event)])
         },
       })
     }
@@ -747,8 +758,8 @@ describe('useWebSocket', () => {
 
     await waitFor(() => {
       const updated = result.current[0]
-      expect((updated as any).startDate).toBeInstanceOf(Date)
-      expect((updated as any).endDate).toBeInstanceOf(Date)
+      expect(updated?.startDate).toBeInstanceOf(Date)
+      expect(updated?.endDate).toBeInstanceOf(Date)
     })
   })
 
@@ -796,7 +807,7 @@ describe('useWebSocket', () => {
       return createElement(Provider, {
         children,
         initializeState: ({ set }: TestStore) => {
-          set(eventsAtom, [event as any])
+          set(eventsAtom, [asPublicEvent(event)])
         },
       })
     }
@@ -824,12 +835,12 @@ describe('useWebSocket', () => {
   })
 
   it('should remove public events from scoped public draft event patch messages', async () => {
-    const event = { entries: 1, id: 'event-1', name: 'Old Public Name', state: 'tentative' }
+    const event = { entries: 1, id: 'event-1', name: 'Old Public Name', state: 'tentative' as const }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
       return createElement(Provider, {
         children,
         initializeState: ({ set }: TestStore) => {
-          set(eventsAtom, [event as any])
+          set(eventsAtom, [asPublicEvent(event)])
         },
       })
     }
@@ -867,7 +878,7 @@ describe('useWebSocket', () => {
       return createElement(Provider, {
         children,
         initializeState: ({ set }: TestStore) => {
-          set(eventsAtom, [event as any])
+          set(eventsAtom, [asPublicEvent(event)])
         },
       })
     }
@@ -965,12 +976,12 @@ describe('useWebSocket', () => {
   })
 
   it('should remove public events from scoped admin draft event patch messages', async () => {
-    const event = { entries: 1, id: 'event-1', name: 'Old Public Name', state: 'tentative' }
+    const event = { entries: 1, id: 'event-1', name: 'Old Public Name', state: 'tentative' as const }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
       return createElement(Provider, {
         children,
         initializeState: ({ set }: TestStore) => {
-          set(eventsAtom, [event as any])
+          set(eventsAtom, [asPublicEvent(event)])
         },
       })
     }
@@ -999,7 +1010,7 @@ describe('useWebSocket', () => {
       return createElement(Provider, {
         children,
         initializeState: ({ set }: TestStore) => {
-          set(eventsAtom, [event as any])
+          set(eventsAtom, [asPublicEvent(event)])
         },
       })
     }
@@ -1106,6 +1117,7 @@ describe('useWebSocket', () => {
         children,
         initializeState: ({ set }: TestStore) => {
           set(idTokenAtom, 'id-token')
+          // Deliberately a pending promise in a Registration[] atom, to cover the loading race
           set(adminEventRegistrationsAtom('event-1'), registrationsPromise as unknown as Registration[])
         },
       })
@@ -1202,19 +1214,21 @@ describe('useWebSocket', () => {
 
   it('should reconnect and authenticate when token changes after initial connection', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(function MockWebSocket() {
-      const instance = {
-        close: vi.fn(),
-        onclose: null as (() => void) | null,
-        onerror: null as (() => void) | null,
-        onmessage: null as ((e: { data: string }) => void) | null,
-        onopen: null as (() => void) | null,
-        readyState: WebSocket.OPEN,
-        send: vi.fn(),
-      }
-      wsInstances.push(instance)
-      return instance
-    }) as unknown as typeof WebSocket
+    global.WebSocket = asWebSocketConstructor(
+      vi.fn(function MockWebSocket() {
+        const instance = {
+          close: vi.fn(),
+          onclose: null as (() => void) | null,
+          onerror: null as (() => void) | null,
+          onmessage: null as ((e: { data: string }) => void) | null,
+          onopen: null as (() => void) | null,
+          readyState: WebSocket.OPEN,
+          send: vi.fn(),
+        }
+        wsInstances.push(instance)
+        return instance
+      })
+    )
 
     const { result } = renderHook(
       () => {
@@ -1243,19 +1257,21 @@ describe('useWebSocket', () => {
 
   it('ignores a late authentication failure from the socket that used the previous token', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(function MockWebSocket() {
-      const instance = {
-        close: vi.fn(),
-        onclose: null as (() => void) | null,
-        onerror: null as (() => void) | null,
-        onmessage: null as ((e: { data: string }) => void) | null,
-        onopen: null as (() => void) | null,
-        readyState: WebSocket.OPEN,
-        send: vi.fn(),
-      }
-      wsInstances.push(instance)
-      return instance
-    }) as unknown as typeof WebSocket
+    global.WebSocket = asWebSocketConstructor(
+      vi.fn(function MockWebSocket() {
+        const instance = {
+          close: vi.fn(),
+          onclose: null as (() => void) | null,
+          onerror: null as (() => void) | null,
+          onmessage: null as ((e: { data: string }) => void) | null,
+          onopen: null as (() => void) | null,
+          readyState: WebSocket.OPEN,
+          send: vi.fn(),
+        }
+        wsInstances.push(instance)
+        return instance
+      })
+    )
 
     const { result } = renderHook(
       () => {
@@ -1291,19 +1307,21 @@ describe('useWebSocket', () => {
 
   it('should close authenticated socket and clear subscriptions when token is removed', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(function MockWebSocket() {
-      const instance = {
-        close: vi.fn(),
-        onclose: null as (() => void) | null,
-        onerror: null as (() => void) | null,
-        onmessage: null as ((e: { data: string }) => void) | null,
-        onopen: null as (() => void) | null,
-        readyState: WebSocket.OPEN,
-        send: vi.fn(),
-      }
-      wsInstances.push(instance)
-      return instance
-    }) as unknown as typeof WebSocket
+    global.WebSocket = asWebSocketConstructor(
+      vi.fn(function MockWebSocket() {
+        const instance = {
+          close: vi.fn(),
+          onclose: null as (() => void) | null,
+          onerror: null as (() => void) | null,
+          onmessage: null as ((e: { data: string }) => void) | null,
+          onopen: null as (() => void) | null,
+          readyState: WebSocket.OPEN,
+          send: vi.fn(),
+        }
+        wsInstances.push(instance)
+        return instance
+      })
+    )
 
     const { result } = renderHook(
       () => {
@@ -1339,19 +1357,21 @@ describe('useWebSocket', () => {
 
   it('should keep event subscription while the token atom is pending during token refresh', async () => {
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(function MockWebSocket() {
-      const instance = {
-        close: vi.fn(),
-        onclose: null as (() => void) | null,
-        onerror: null as (() => void) | null,
-        onmessage: null as ((e: { data: string }) => void) | null,
-        onopen: null as (() => void) | null,
-        readyState: WebSocket.OPEN,
-        send: vi.fn(),
-      }
-      wsInstances.push(instance)
-      return instance
-    }) as unknown as typeof WebSocket
+    global.WebSocket = asWebSocketConstructor(
+      vi.fn(function MockWebSocket() {
+        const instance = {
+          close: vi.fn(),
+          onclose: null as (() => void) | null,
+          onerror: null as (() => void) | null,
+          onmessage: null as ((e: { data: string }) => void) | null,
+          onopen: null as (() => void) | null,
+          readyState: WebSocket.OPEN,
+          send: vi.fn(),
+        }
+        wsInstances.push(instance)
+        return instance
+      })
+    )
 
     const loadingToken = new Promise<string>(() => undefined)
 
@@ -1368,6 +1388,7 @@ describe('useWebSocket', () => {
 
     act(() => {
       result.current.websocket.subscribeEvent('event-1')
+      // Deliberately a pending promise in the string atom, to model a token refresh in flight
       result.current.setToken(loadingToken as unknown as string)
     })
 

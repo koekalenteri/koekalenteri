@@ -1,3 +1,4 @@
+import type { APIGatewayEvent } from 'aws-lambda'
 import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
 
@@ -42,6 +43,12 @@ vi.doMock('../lib/lambda', () => ({
 
 const { default: wsMessageHandler } = await import('./handler')
 
+/**
+ * wsMessageHandler reads only body and requestContext.connectionId, so the tests build minimal
+ * events; they convert to the full APIGatewayEvent at this one named boundary.
+ */
+const asEvent = (event: { body: string | null; requestContext: { connectionId?: string } }) => event as APIGatewayEvent
+
 describe('wsMessageHandler', () => {
   const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
@@ -56,39 +63,47 @@ describe('wsMessageHandler', () => {
   })
 
   it('returns 400 when connectionId is missing', async () => {
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
-      requestContext: {},
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
+        requestContext: {},
+      })
+    )
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
   })
 
   it('returns 400 when body is missing', async () => {
     // handler exits before calling getWebSocketConnection — no mock needed
-    const result = await wsMessageHandler({
-      body: null,
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: null,
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
   })
 
   it('returns 400 when message action is unknown', async () => {
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'nonsense' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'nonsense' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
     expect(mockGetWsConnection).not.toHaveBeenCalled()
   })
 
   it('returns 400 when eventId is only whitespace', async () => {
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'event', eventId: '   ' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'subscribe', channel: 'event', eventId: '   ' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
     expect(mockGetWsConnection).not.toHaveBeenCalled()
@@ -97,19 +112,23 @@ describe('wsMessageHandler', () => {
   it('returns 400 when connection is not found', async () => {
     mockGetWsConnection.mockResolvedValueOnce(undefined)
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
   })
 
   it('answers a keepalive ping without looking the connection up', async () => {
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'ping' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'ping' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(mockGetWsConnection).not.toHaveBeenCalled()
     expect(result).toEqual({ body: { pong: true }, statusCode: 200 })
@@ -119,10 +138,12 @@ describe('wsMessageHandler', () => {
     mockGetWsConnection.mockResolvedValueOnce({ admin: true, connectionId: 'conn-1' })
     mockSubscribeToAdmin.mockResolvedValueOnce({ adminSubscribed: true })
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(mockSubscribeToAdmin).toHaveBeenCalledWith({ admin: true, connectionId: 'conn-1' })
     expect(result).toEqual({ body: { adminSubscribed: true }, statusCode: 200 })
@@ -140,10 +161,10 @@ describe('wsMessageHandler', () => {
     })
     mockAuthenticateWebSocket.mockResolvedValueOnce(undefined)
 
-    const event = {
+    const event = asEvent({
       body: JSON.stringify({ action: 'authenticate', token: 'id-token' }),
       requestContext: { connectionId: 'conn-1' },
-    } as any
+    })
     const result = await wsMessageHandler(event)
 
     expect(mockAuthenticateToken).toHaveBeenCalledWith(event, 'id-token')
@@ -173,10 +194,12 @@ describe('wsMessageHandler', () => {
   it('returns 400 when authenticate token is missing', async () => {
     mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'authenticate' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'authenticate' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
     expect(mockAuthenticateToken).not.toHaveBeenCalled()
@@ -186,10 +209,12 @@ describe('wsMessageHandler', () => {
     mockGetWsConnection.mockResolvedValueOnce({ admin: false, connectionId: 'conn-1', memberOf: ['org-1'] })
     mockSubscribeToEvent.mockResolvedValueOnce({ eventId: 'event-1', subscribed: true })
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(mockSubscribeToEvent).toHaveBeenCalledWith(
       { admin: false, connectionId: 'conn-1', memberOf: ['org-1'] },
@@ -209,16 +234,18 @@ describe('wsMessageHandler', () => {
       subscribed: true,
     })
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({
-        action: 'subscribe',
-        channel: 'registration',
-        eventId: 'event-1',
-        registrationId: 'registration-1',
-        token: 'edit-token',
-      }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({
+          action: 'subscribe',
+          channel: 'registration',
+          eventId: 'event-1',
+          registrationId: 'registration-1',
+          token: 'edit-token',
+        }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(mockSubscribeToRegistration).toHaveBeenCalledWith(
       { connectionId: 'conn-1' },
@@ -246,10 +273,12 @@ describe('wsMessageHandler', () => {
   ])('returns 400 when %s', async (_description, message) => {
     mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify(message),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify(message),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
   })
@@ -258,10 +287,12 @@ describe('wsMessageHandler', () => {
     mockGetWsConnection.mockResolvedValueOnce({ admin: true, adminSubscribed: true, connectionId: 'conn-1' })
     mockUnsubscribeFromAdmin.mockResolvedValueOnce({ adminSubscribed: false })
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'unsubscribe', channel: 'admin' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'unsubscribe', channel: 'admin' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(mockUnsubscribeFromAdmin).toHaveBeenCalledWith('conn-1')
     expect(result).toEqual({ body: { adminSubscribed: false, connectionId: 'conn-1' }, statusCode: 200 })
@@ -271,10 +302,12 @@ describe('wsMessageHandler', () => {
     mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1', eventId: 'event-1' })
     mockUnsubscribeFromEvent.mockResolvedValueOnce(undefined)
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'unsubscribe', channel: 'event' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'unsubscribe', channel: 'event' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(mockUnsubscribeFromEvent).toHaveBeenCalledWith(
       { connectionId: 'conn-1', eventId: 'event-1' },
@@ -287,10 +320,12 @@ describe('wsMessageHandler', () => {
     mockGetWsConnection.mockResolvedValueOnce({ admin: false, connectionId: 'conn-1', memberOf: [] })
     mockSubscribeToAdmin.mockRejectedValueOnce(new LambdaError(403, 'Forbidden'))
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: 'Forbidden', status: 403 }))
     expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 403 })
@@ -300,10 +335,12 @@ describe('wsMessageHandler', () => {
     mockGetWsConnection.mockResolvedValueOnce({ admin: false, connectionId: 'conn-1', memberOf: [] })
     mockSubscribeToEvent.mockRejectedValueOnce(new LambdaError(403, 'Forbidden'))
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: 'Forbidden', status: 403 }))
     expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 403 })
@@ -313,10 +350,12 @@ describe('wsMessageHandler', () => {
     mockGetWsConnection.mockResolvedValueOnce({ admin: true, connectionId: 'conn-1' })
     mockSubscribeToAdmin.mockRejectedValueOnce(new Error('unexpected'))
 
-    const result = await wsMessageHandler({
-      body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
-      requestContext: { connectionId: 'conn-1' },
-    } as any)
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
 
     expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'unexpected' }))
     expect(result).toEqual({ body: { error: 'Internal server error', ok: false, status: 500 }, statusCode: 500 })

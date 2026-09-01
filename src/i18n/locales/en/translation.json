@@ -864,6 +864,7 @@
     "sire": "sire"
   },
   "startListCopied": "List copied",
+  "startListCopyFailed": "Copying the list to the clipboard failed",
   "startListExport": {
     "breeder": "Breeder",
     "class": "Class",
