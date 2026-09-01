@@ -59,6 +59,9 @@ it('prints the English translation for an English viewer', async () => {
     </TestProvider>
   )
 
+  // The caption comes through i18next while the body comes through the atom, so wait for both to
+  // read English before capturing.
+  await expect.element(screen.getByText('Description')).toBeVisible()
   await expect.element(screen.getByText(/The canteen is open/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-description-translated')
 })

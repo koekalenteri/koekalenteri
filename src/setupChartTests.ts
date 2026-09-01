@@ -2,7 +2,7 @@ import { Globals } from '@react-spring/web'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { registerFormatters } from './i18n/formatters'
-import { fi, fiBreed, fiBreedAbbr, fiCountry } from './i18n/locales'
+import { en, enBreed, enBreedAbbr, enCountry, fi, fiBreed, fiBreedAbbr, fiCountry } from './i18n/locales'
 
 // MUI charts grow their bars and draw their lines with react-spring, so a screenshot taken
 // before the springs settle catches a half-drawn chart -- which looks like a layout bug and
@@ -21,7 +21,12 @@ i18n.use(initReactI18next).init({
   fallbackLng: 'fi',
   interpolation: { escapeValue: false },
   lng: 'fi',
-  resources: { fi: { breed: fiBreed, breedAbbr: fiBreedAbbr, country: fiCountry, translation: fi } },
+  // Both app languages, so a visual test can render the English view too (KOE-1263) — without the
+  // en bundle a changeLanguage('en') silently falls back to Finnish captions.
+  resources: {
+    en: { breed: enBreed, breedAbbr: enBreedAbbr, country: enCountry, translation: en },
+    fi: { breed: fiBreed, breedAbbr: fiBreedAbbr, country: fiCountry, translation: fi },
+  },
 })
 
 // The date and span formats the app registers on top of i18next: without these a screenshot shows a
