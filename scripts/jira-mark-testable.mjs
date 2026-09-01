@@ -17,6 +17,7 @@ if (!base || !head) {
 }
 
 const baseUrl = process.env.JIRA_BASE_URL ?? 'https://koekalenteri.atlassian.net'
+const repoUrl = `https://github.com/${process.env.GITHUB_REPOSITORY ?? 'koekalenteri/koekalenteri'}`
 const email = process.env.JIRA_USER_EMAIL
 const token = process.env.JIRA_API_TOKEN
 
@@ -85,6 +86,23 @@ const request = async (path, init = {}) => {
   return response
 }
 
+const link = (href) => ({ attrs: { href }, type: 'link' })
+
+/**
+ * A reader of the comment should be able to click every reference in it, so the subject's issue
+ * keys become links to their issues instead of bare text. A link mark is carried on its own: a
+ * link combined with `code` renders as bare monospace and loses the href.
+ */
+const linkedSubject = (subject) =>
+  subject
+    .split(/(KOE-\d+)/)
+    .filter(Boolean)
+    .map((part) =>
+      /^KOE-\d+$/.test(part)
+        ? { marks: [link(`${baseUrl}/browse/${part}`)], text: part, type: 'text' }
+        : { text: part, type: 'text' }
+    )
+
 /** One comment per issue per push: the deployed commits, as an ADF bullet list. */
 const commentBody = (commits) => ({
   body: {
@@ -98,8 +116,9 @@ const commentBody = (commits) => ({
           content: [
             {
               content: [
-                { marks: [{ type: 'code' }], text: sha, type: 'text' },
-                { text: ` ${subject}`, type: 'text' },
+                { marks: [link(`${repoUrl}/commit/${sha}`)], text: sha, type: 'text' },
+                { text: ' ', type: 'text' },
+                ...linkedSubject(subject),
               ],
               type: 'paragraph',
             },
@@ -117,6 +136,7 @@ const commentBody = (commits) => ({
 for (const [key, commits] of commitsByIssue) {
   if (dryRun) {
     console.log(`would mark ${key} testable for: ${commits.map((commit) => commit.sha).join(', ')}`)
+    console.log(JSON.stringify(commentBody(commits).body))
     continue
   }
 

@@ -49,11 +49,28 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   claimed issue still in a development state to Ready for Testing and comments the deployed commits
   on it (`scripts/jira-mark-testable.mjs`). Issues already in testing keep their state and only get
   the comment; done issues are left alone.
-- So: do not comment "korjattu" on a Jira issue before the fix is pushed — the pipeline tells the
-  tester when it is actually testable. Detailed fix explanations are still written by hand; the
-  automation only carries the testability signal.
+- So: write the issue a comment about the work once the commit is pushed, and leave the testability
+  signal to the pipeline. The comment carries what the automation cannot — what was actually wrong,
+  what changed, and what the tester should try — and never claims the change is testable; the
+  `jira-testable` job says that when the deploy is through. Do not comment before the push: the
+  tester starts from the comment, and there would be nothing deployed to start on.
 - The `jira-screenshots` attach workflow intentionally matches keys anywhere in the message —
   attaching an image to a context-cited issue is harmless, moving it would not be.
+
+### Every reference in a Jira comment is a link
+
+- Asked for by the testers: an issue key, a commit or a file named in a comment must be clickable.
+  Write them as Markdown links and post with `contentFormat: "markdown"` — the converter turns them
+  into real ADF link marks:
+  `[KOE-740](https://koekalenteri.atlassian.net/browse/KOE-740)`,
+  `[90a933ee](https://github.com/koekalenteri/koekalenteri/commit/90a933ee)`,
+  `[EventDescription](https://github.com/koekalenteri/koekalenteri/blob/main/src/pages/components/EventDescription.tsx)`.
+- A bare `KOE-740` in an ADF comment stays plain text — Jira does not linkify keys the way the old
+  wiki renderer did.
+- Do **not** put code in a link: `` [`90a933ee`](url) `` silently drops the href and leaves bare
+  monospace. Pick one — for a reference, the link.
+- `scripts/jira-mark-testable.mjs` builds its comment the same way: the sha links to the GitHub
+  commit and the subject's keys to their issues. `--dry-run` prints the ADF it would post.
 
 ## Static Analysis (Sonar)
 
