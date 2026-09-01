@@ -13,6 +13,7 @@ import { Path } from '../../routeConfig'
 import { CollapsibleEvent } from './CollapsibleEvent'
 import CostInfo from './CostInfo'
 import { EntryStatus } from './EntryStatus'
+import { EventDescription } from './EventDescription'
 import { ItemWithCaption } from './ItemWithCaption'
 import { PriorityChips } from './PriorityChips'
 
@@ -102,9 +103,7 @@ export default function RegistrationEventInfo({
             <PriorityChips priority={event.priority} />
           </ItemWithCaption>
         ) : null}
-        {event.description ? (
-          <ItemWithCaption label={t('event.description')}>{event.description}</ItemWithCaption>
-        ) : null}
+        <EventDescription description={event.description} />
         {attachmentEvent && getEventStateForClass(event, eventClass) === 'invited' ? (
           <ItemWithCaption label={t('event.attachments')}>
             <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />

@@ -198,7 +198,11 @@ exports[`RegistrationEditPage > should render 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>

@@ -10,6 +10,7 @@ import { printContactInfo, unique } from '../../../lib/utils'
 import { getRankingPeriod } from '../../../rules_ch'
 import CostInfo from '../../components/CostInfo'
 import { EntryStatus } from '../../components/EntryStatus'
+import { EventDescription } from '../../components/EventDescription'
 import { ItemWithCaption } from '../../components/ItemWithCaption'
 import { PriorityChips } from '../../components/PriorityChips'
 import { TimeLeft } from '../../components/TimeLeft'
@@ -103,11 +104,7 @@ export const EventInfo = ({ event }: Props) => {
           {t('dateFormat.datespan', { end: rankingPeriod.maxResultDate, start: rankingPeriod.minResultDate })}
         </ItemWithCaption>
       ) : null}
-      {event.description ? (
-        <ItemWithCaption label={t('event.description')} order={{ xs: 9 }}>
-          {event.description}
-        </ItemWithCaption>
-      ) : null}
+      <EventDescription description={event.description} order={{ xs: 9 }} />
     </Grid>
   )
 }

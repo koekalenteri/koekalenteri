@@ -1577,7 +1577,11 @@ exports[`SearchPage > filters by date 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -1910,7 +1914,11 @@ exports[`SearchPage > filters by date 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -2318,7 +2326,11 @@ exports[`SearchPage > filters by date 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -2651,7 +2663,11 @@ exports[`SearchPage > filters by date 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -3599,7 +3615,11 @@ exports[`SearchPage > filters by date/end 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -3932,7 +3952,11 @@ exports[`SearchPage > filters by date/end 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -4340,7 +4364,11 @@ exports[`SearchPage > filters by date/end 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -4673,7 +4701,11 @@ exports[`SearchPage > filters by date/end 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -5752,7 +5784,11 @@ exports[`SearchPage > filters by event class 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -6085,7 +6121,11 @@ exports[`SearchPage > filters by event class 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -6452,7 +6492,11 @@ exports[`SearchPage > filters by event class 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -6826,7 +6870,11 @@ exports[`SearchPage > filters by event class 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -7156,7 +7204,11 @@ exports[`SearchPage > filters by event class 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -8138,7 +8190,11 @@ exports[`SearchPage > filters by event type 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -8546,7 +8602,11 @@ exports[`SearchPage > filters by event type 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -8879,7 +8939,11 @@ exports[`SearchPage > filters by event type 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -9246,7 +9310,11 @@ exports[`SearchPage > filters by event type 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -9620,7 +9688,11 @@ exports[`SearchPage > filters by event type 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>
@@ -10624,7 +10696,11 @@ exports[`SearchPage > filters by organizer 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                test
+                <div
+                  class="MuiBox-root css-fc3ad2"
+                >
+                  test
+                </div>
               </div>
             </div>
           </div>

@@ -209,7 +209,11 @@ exports[`EventInfo > should render contact info 1`] = `
       <div
         class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
       >
-        event description text
+        <div
+          class="MuiBox-root css-fc3ad2"
+        >
+          event description text
+        </div>
       </div>
     </div>
   </div>
@@ -425,7 +429,11 @@ exports[`EventInfo > should render event information 1`] = `
       <div
         class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
       >
-        event description text
+        <div
+          class="MuiBox-root css-fc3ad2"
+        >
+          event description text
+        </div>
       </div>
     </div>
   </div>
