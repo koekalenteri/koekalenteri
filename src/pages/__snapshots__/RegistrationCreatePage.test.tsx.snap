@@ -3034,19 +3034,19 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
                   style="margin: 0px;"
                 >
                   <li>
-                    registration.agreeToTerms
+                    registration.agreeToTerms defaultValue
                      
                   </li>
                   <li>
-                    registration.breeder
+                    registration.breeder defaultValue
                      
                   </li>
                   <li>
-                    registration.dog
+                    registration.dog defaultValue
                      
                   </li>
                   <li>
-                    registration.owner
+                    registration.owner defaultValue
                      
                   </li>
                 </ul>
@@ -6008,19 +6008,19 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                   style="margin: 0px;"
                 >
                   <li>
-                    registration.agreeToTerms
+                    registration.agreeToTerms defaultValue
                      
                   </li>
                   <li>
-                    registration.breeder
+                    registration.breeder defaultValue
                      
                   </li>
                   <li>
-                    registration.dog
+                    registration.dog defaultValue
                      
                   </li>
                   <li>
-                    registration.owner
+                    registration.owner defaultValue
                      
                   </li>
                   <li>

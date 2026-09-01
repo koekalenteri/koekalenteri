@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material'
-import type { TFunction } from 'i18next'
+import type { ParseKeys, TFunction } from 'i18next'
 import type { DeepPartial, ManualTestResult, PublicConfirmedEvent, Registration, TestResult } from '../../types'
 import Cancel from '@mui/icons-material/Cancel'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
@@ -457,7 +457,10 @@ export default function RegistrationForm({
             {t('registration.accordionInfo')}
             <ul style={{ margin: 0 }}>
               {errors.map((e) => (
-                <li key={`error-${e.opts.field}`}>{t(`registration.${e.opts.field}` as any)} </li>
+                <li key={`error-${e.opts.field}`}>
+                  {/* Not every Registration field has a translation; fall back to the field name. */}
+                  {t(`registration.${e.opts.field}` as ParseKeys<'translation'>, { defaultValue: e.opts.field })}{' '}
+                </li>
               ))}
               {registration.qualifies ? null : <li>{t('registration.qualifyingResults')}</li>}
             </ul>

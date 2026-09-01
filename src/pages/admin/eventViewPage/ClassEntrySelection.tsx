@@ -17,6 +17,7 @@ import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventReg
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { eventRegistrationDateKey, isEventOver } from '../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../lib/registration'
+import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../state/registrations/actions'
@@ -451,12 +452,14 @@ const ClassEntrySelection = ({
             }}
           />
 
-          <SendMessageDialog
-            event={event as any}
-            open={sendMessageDialogOpen}
-            onClose={() => setSendMessageDialogOpen(false)}
-            registrations={[selectedForAction]}
-          />
+          {isConfirmedEvent(event) && (
+            <SendMessageDialog
+              event={event}
+              open={sendMessageDialogOpen}
+              onClose={() => setSendMessageDialogOpen(false)}
+              registrations={[selectedForAction]}
+            />
+          )}
 
           <InternalNotesDialog
             open={internalNotesDialogOpen}

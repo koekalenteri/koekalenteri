@@ -166,6 +166,13 @@ const processRemoveOperations = (
  * Default CloudWatch/Lambda object logging is shallow and will collapse arrays/objects into `[Object]`.
  * Force deep inspection so DynamoDB request payloads (e.g. batchWrite items) are fully visible.
  */
+/**
+ * The SDK error may cross a bundling boundary where instanceof fails, so fall back to
+ * matching the error name, as the AWS SDK documentation recommends.
+ */
+const isTransactionCanceled = (err: unknown): err is TransactionCanceledException =>
+  err instanceof TransactionCanceledException || (err instanceof Error && err.name === 'TransactionCanceledException')
+
 const logDb = (operation: string, payload: unknown) => {
   // Keep the operation token as the first argument for easy CW filtering (e.g. "DB.batchWrite")
   console.info(operation, inspect(payload, { colors: false, compact: false, depth: null, maxArrayLength: null }))
@@ -505,10 +512,10 @@ export default class CustomDynamoClient {
         })
       )
     } catch (err) {
-      if (err instanceof TransactionCanceledException || (err as any).name === 'TransactionCanceledException') {
+      if (isTransactionCanceled(err)) {
         console.error('❌ Transaction was canceled')
 
-        const reasons = (err as TransactionCanceledException).CancellationReasons
+        const reasons = err.CancellationReasons
         if (reasons) {
           reasons.forEach((reason, index) => {
             console.log(`🔹 Operation ${index + 1}:`)

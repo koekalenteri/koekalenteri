@@ -35,13 +35,13 @@ const withClaims = (event: APIGatewayEvent, claims: JwtPayload): APIGatewayEvent
   ...event,
   requestContext: {
     ...event.requestContext,
-    authorizer: { ...event.requestContext.authorizer, claims: claims as any },
+    authorizer: { ...event.requestContext.authorizer, claims },
   },
 })
 
 export const authenticateWebSocketToken = async (event: APIGatewayEvent, token: string) => {
-  const claims = (await getVerifier().verify(token)) as JwtPayload
-  const auth = await authorizeWithMemberOf(withClaims(event, claims) as any)
+  const claims: JwtPayload = await getVerifier().verify(token)
+  const auth = await authorizeWithMemberOf(withClaims(event, claims))
 
   if (auth.res || !auth.user)
     throw new LambdaError(auth.res?.statusCode ?? 401, String(auth.res?.body ?? 'Unauthorized'))

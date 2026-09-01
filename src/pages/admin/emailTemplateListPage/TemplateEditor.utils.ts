@@ -15,7 +15,7 @@ export function getChild(obj: any, parts: string[]) {
   let cur = obj
   for (const p of parts) {
     if (!isObj(cur)) return undefined
-    cur = (cur as any)[p]
+    cur = cur[p]
     if (cur === undefined) return undefined
   }
   return cur

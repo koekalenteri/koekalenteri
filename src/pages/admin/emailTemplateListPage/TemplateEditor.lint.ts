@@ -15,7 +15,7 @@ function validatePath(base: any, parts: string[], start: number): PathValidation
     const seg = parts[j]
     if (seg === 'this' || seg === '..') continue
     if (!isObj(cur) || !(seg in cur)) return { badIdx: j, ok: false }
-    cur = (cur as any)[seg]
+    cur = cur[seg]
     const el = elemOf(cur)
     if (el !== undefined) cur = el
   }

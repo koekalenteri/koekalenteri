@@ -710,9 +710,14 @@ export function sanitizeDogEvent(event: JsonDogEvent): SanitizedJsonPublicDogEve
 export function sanitizeDogEvent(event: ConfirmedEvent): SanitizedPublicConfirmedDogEvent
 export function sanitizeDogEvent(event: DogEvent): SanitizedPublicDogEvent
 export function sanitizeDogEvent(event: Patch<JsonDogEvent>): Patch<SanitizedJsonPublicDogEvent>
+export function sanitizeDogEvent(event: Patch<DogEvent>): Patch<SanitizedPublicDogEvent>
 export function sanitizeDogEvent(
-  event: DogEvent | JsonDogEvent | Patch<JsonDogEvent>
-): SanitizedPublicDogEvent | SanitizedJsonPublicDogEvent | Patch<SanitizedJsonPublicDogEvent> {
+  event: DogEvent | JsonDogEvent | Patch<JsonDogEvent> | Patch<DogEvent>
+):
+  | SanitizedPublicDogEvent
+  | SanitizedJsonPublicDogEvent
+  | Patch<SanitizedJsonPublicDogEvent>
+  | Patch<SanitizedPublicDogEvent> {
   const {
     createdBy: _createdBy,
     deletedAt: _deletedAt,

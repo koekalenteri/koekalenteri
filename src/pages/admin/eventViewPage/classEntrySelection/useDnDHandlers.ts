@@ -80,7 +80,7 @@ export const useDnDHandlers = ({
     const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
 
     if (save.length) {
-      if (save.length === 1 && (save[0] as any).cancelled) onCancelOpen(save[0].id)
+      if (save.length === 1 && save[0].cancelled) onCancelOpen(save[0].id)
       else
         await saveGroups(
           reg.eventId,

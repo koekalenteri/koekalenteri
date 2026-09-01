@@ -93,9 +93,11 @@ export const patchMerge = <T extends AnyObject, P extends Patch<T>>(base: T, pat
   if (!isObject(base) || !isObject(patch)) return patch as T & P
 
   let changed = false
-  const result = { ...base } as T & P
-  for (const key of Object.keys(patch)) {
-    if (patch[key] === null) {
+  // A generic intersection cannot be indexed for writing, so the merge happens on a plain record
+  // and the intersection is claimed only on return, where every key of base and patch is merged.
+  const result: AnyObject = { ...base }
+  for (const [key, value] of Object.entries(patch)) {
+    if (value === null) {
       if (key in result) {
         delete result[key]
         changed = true
@@ -103,14 +105,14 @@ export const patchMerge = <T extends AnyObject, P extends Patch<T>>(base: T, pat
       continue
     }
 
-    const merged = patchMerge(base[key], (patch as any)[key])
+    const merged = patchMerge(base[key], value)
     if (merged !== base[key]) {
-      ;(result as any)[key] = merged
+      result[key] = merged
       changed = true
     }
   }
 
-  return changed ? result : (base as T & P)
+  return changed ? (result as T & P) : (base as T & P)
 }
 
 export const applyPatch = <T extends { id: string }, P extends Patch<T>>(items: T[], itemId: string, patch: P): T[] => {
@@ -133,6 +135,8 @@ export const applyPatchOrInsert = <T extends { id: string }, P extends Patch<T>>
   const next = applyPatch(items, itemId, patch)
   if (next !== items || items.some((item) => item.id === itemId)) return next
 
+  // By design an insert trusts the patch to carry every required field of T; the type system
+  // cannot know that, so the conversion is deliberate.
   return [...items, { ...patch, id: itemId } as unknown as T]
 }
 
@@ -156,6 +160,7 @@ export const applyPatchesById = <T extends { id: string }, P extends Patch<T>>(i
 
   for (const [id, patch] of patchesById) {
     if (!existingIds.has(id)) {
+      // Same deliberate conversion as in applyPatchOrInsert: an insert trusts the patch to be complete.
       next.push({ ...patch, id } as unknown as T)
       changed = true
     }

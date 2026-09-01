@@ -24,10 +24,12 @@ const DraggableRow = ({ draggable = true, groupKey, ...props }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
 
   // MUI X may render a "row" slot with `row`/`rowId` temporarily null/undefined
-  // (e.g. during drag operations / virtualization updates). Guard against it so
-  // our DnD hooks don't create items with missing ids.
-  const rowId = (props.rowId ?? (props.row as any)?.id) as unknown
-  const hasRowId = rowId !== null && rowId !== undefined
+  // (e.g. during drag operations / virtualization updates) even though the prop
+  // types promise otherwise. Read the id as unknown and guard, so our DnD hooks
+  // don't create items with missing ids.
+  const rawRowId: unknown = props.rowId ?? props.row?.id
+  const rowId = typeof rawRowId === 'string' || typeof rawRowId === 'number' ? rawRowId : undefined
+  const hasRowId = rowId !== undefined
   const canDrag = draggable && hasRowId && props.row !== null && props.row !== undefined
 
   // In MUI X v7 during cross-grid moves we can end up rendering a row slot for an
@@ -35,7 +37,7 @@ const DraggableRow = ({ draggable = true, groupKey, ...props }: Props) => {
   // then crashes while reading `row.id` inside `useGridRowAriaAttributes`.
   //
   // If the row isn't present in the grid state, render a harmless placeholder.
-  const rowFromState = hasRowId ? apiRef.current.getRow(rowId as any) : null
+  const rowFromState = hasRowId ? apiRef.current.getRow(rowId) : null
   const canRenderGridRow = !!rowFromState
   const [{ handlerId, hovered, position }, drop] = useDrop<
     DragItem,
@@ -82,8 +84,9 @@ const DraggableRow = ({ draggable = true, groupKey, ...props }: Props) => {
     }),
     item: () => ({
       groupKey: groupKey,
-      groups: (props.row as any)?.dropGroups ?? [],
-      id: rowId as any,
+      groups: props.row?.dropGroups ?? [],
+      // canDrag gates dragging on hasRowId, so the fallback id is never used
+      id: rowId ?? '',
       index: props.index,
     }),
     type: 'row',

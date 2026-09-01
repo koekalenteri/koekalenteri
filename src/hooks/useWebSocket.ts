@@ -1,12 +1,4 @@
-import type {
-  AdminDataCollection,
-  AuditRecord,
-  DogEvent,
-  JsonDogEvent,
-  Patch,
-  PublicDogEvent,
-  Registration,
-} from '../types'
+import type { AdminDataCollection, AuditRecord, DogEvent, Patch, PublicDogEvent, Registration } from '../types'
 import { useAtomValue } from 'jotai'
 import { unwrap, useAtomCallback } from 'jotai/utils'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
@@ -510,9 +502,11 @@ export const useWebSocket = () => {
   const handleEventPatchMessage = useCallback(
     ({ eventId, scope, ...patch }: EventPatchMessage) => {
       if (scope === 'admin:event-patch') {
-        const eventPatch = patch as Patch<JsonDogEvent>
-        setAdminEvents(eventId, eventPatch as unknown as Patch<DogEvent>)
-        const publicPatch = sanitizeDogEvent(eventPatch) as unknown as Patch<PublicDogEvent>
+        // parseJSON revives ISO strings into Dates, so the wire patch already has DogEvent shape;
+        // the conversion is the one trust boundary between the socket payload and typed state.
+        const eventPatch = patch as Patch<DogEvent>
+        setAdminEvents(eventId, eventPatch)
+        const publicPatch = sanitizeDogEvent(eventPatch)
         if (Object.keys(publicPatch).length > 0) {
           setPublicEvents(eventId, publicPatch, { insert: isInsertablePublicEventPatch(publicPatch) })
         }

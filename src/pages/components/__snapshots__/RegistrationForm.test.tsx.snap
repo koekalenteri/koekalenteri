@@ -5391,7 +5391,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                   style="margin: 0px;"
                 >
                   <li>
-                    registration.dog
+                    registration.dog defaultValue
                      
                   </li>
                 </ul>

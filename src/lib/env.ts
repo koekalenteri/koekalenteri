@@ -1,15 +1,5 @@
 /** Detect whether we're running under a test runner in either node or jsdom. */
-const isTestRunnerDefined = (): boolean => {
-  const global = globalThis as unknown as {
-    vi?: unknown
-    expect?: unknown
-    describe?: unknown
-  }
-
-  if (global.vi !== undefined) return true
-  if (global.expect !== undefined && global.describe !== undefined) return true
-  return false
-}
+const isTestRunnerDefined = (): boolean => 'vi' in globalThis || ('expect' in globalThis && 'describe' in globalThis)
 
 export const isDevEnv = (detectTestRunner: () => boolean = isTestRunnerDefined): boolean =>
   (process.env.NODE_ENV === 'development' || Boolean(process.env.REACT_APP_API_BASE_URL?.endsWith('/dev'))) &&
