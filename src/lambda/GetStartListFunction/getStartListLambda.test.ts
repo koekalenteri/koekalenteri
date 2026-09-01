@@ -224,12 +224,62 @@ describe('getStartListLambda', () => {
           dog: { name: 'Dog 1', regNo: 'REG1' },
           group: { date: '2025-01-01', key: 'ALO', number: 1 },
           handler: 'Handler 1',
+          numberProvisional: true,
           owner: 'Owner 1',
           ownerHandles: undefined,
         },
       ],
       previewEvent
     )
+  })
+
+  it('shows the entered number in the preview and flags a working-order one as provisional', async () => {
+    const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
+    const confirmedEvent = {
+      classes: [{ class: 'ALO', state: 'confirmed' }],
+      id: 'event123',
+      organizer: { id: 'org123' },
+      startListPublished: { ALO: true },
+      startNumbersPublished: { ALO: false },
+      state: 'confirmed',
+    }
+    const base = {
+      cancelled: false,
+      class: 'ALO',
+      eventId: 'event123',
+      handler: { name: 'Handler' },
+      owner: { name: 'Owner' },
+    }
+
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      {
+        ...base,
+        dog: { name: 'Drawn', regNo: 'REG1' },
+        // The secretary entered 2 for this dog; the preview must show it back (KOE-1218), not the
+        // working order the row still holds.
+        group: { date: '2025-01-01', key: 'ALO-AP', number: 3, time: 'ap' },
+        startGroup: { date: '2025-01-01', key: 'ALO-AP', number: 2, time: 'ap' },
+      },
+      {
+        ...base,
+        dog: { name: 'Undrawn', regNo: 'REG2' },
+        group: { date: '2025-01-01', key: 'ALO-AP', number: 2, time: 'ap' },
+      },
+    ])
+
+    await getStartListLambda(previewEvent)
+
+    const [status, payload] = mockResponse.mock.calls[0]
+    expect(status).toBe(200)
+    // Both dogs read 2, but only one owns it: the entered number sorts and renders as the dog's own,
+    // the working-order duplicate stays provisional for the preview to grey out and flag.
+    expect(payload.map((reg: { dog: { name: string } }) => reg.dog.name)).toEqual(['Drawn', 'Undrawn'])
+    expect(payload[0].group.number).toBe(2)
+    expect(payload[0].numberProvisional).toBe(false)
+    expect(payload[1].group.number).toBe(2)
+    expect(payload[1].numberProvisional).toBe(true)
   })
 
   it('rejects an unauthenticated preview request', async () => {

@@ -9,7 +9,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 describe('CancelledRegistration', () => {
-  it('renders cancelled registration correctly', () => {
+  it('renders the number and the absent mark on one bold line, like a participating row', () => {
     render(
       <table>
         <tbody>
@@ -18,10 +18,11 @@ describe('CancelledRegistration', () => {
       </table>
     )
 
-    // Check that group number is rendered
-    expect(screen.getByText('123.')).toBeInTheDocument()
-
-    // Check that the absent mark is rendered
-    expect(screen.getByText('startList.absent')).toBeInTheDocument()
+    // KOE-1017: the held number prints in the same position as the other dogs' numbers — one line
+    // in a single full-width cell, like RegistrationDetails. The bold look is covered by the
+    // visual test's screenshot.
+    const line = screen.getByText(/123\./)
+    expect(line).toHaveTextContent('123. startList.absent')
+    expect(line.closest('td')).toHaveAttribute('colspan', '6')
   })
 })

@@ -321,6 +321,12 @@ export interface JsonPublicRegistration {
    * "owner & handler". With several owners it is `false` and `handler` names the handling person.
    */
   ownerHandles?: boolean
+  /**
+   * Preview only (KOE-1218): `true` while the number is still the derived working order, `false`
+   * once it is an entered or frozen number of the dog's own. Absent on the public list, where every
+   * visible number is published truth.
+   */
+  numberProvisional?: boolean
   /** Present only where the class's results have been published. Composed, e.g. `AVO1` or `ALO-`. */
   result?: string
 }

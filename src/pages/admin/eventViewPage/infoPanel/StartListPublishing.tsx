@@ -12,6 +12,7 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
+import { APIError } from '../../../../api/http'
 import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
 import {
   canPublishStartList,
@@ -21,6 +22,7 @@ import {
   isStartNumbersAvailableForClass,
 } from '../../../../lib/event'
 import { getInvitationRecipients, isRegistrationClass } from '../../../../lib/registration'
+import { isObject } from '../../../../lib/utils'
 import { Path } from '../../../../routeConfig'
 import { actionButtonSx, sectionSx } from './styles'
 
@@ -97,8 +99,14 @@ const StartListPublishing = ({
     try {
       await onSetStartNumbersPublished(eventClass, published)
       enqueueSnackbar(t(getStartNumbersAuditMessageKey(eventClass, published), { eventClass }), { variant: 'success' })
-    } catch {
-      enqueueSnackbar(t('eventManagement.startList.saveFailed'), errorSnackbarOptions)
+    } catch (error) {
+      // A half-entered draw is the secretary's own next step, not a save failure — name it (KOE-1218).
+      const incomplete =
+        error instanceof APIError && isObject(error.body) && error.body.error === 'startNumbersIncomplete'
+      enqueueSnackbar(
+        t(incomplete ? 'eventManagement.startList.numbersIncomplete' : 'eventManagement.startList.saveFailed'),
+        errorSnackbarOptions
+      )
     }
   }
 

@@ -57,6 +57,15 @@ export const ParticipantList = ({
     [event, t, visibleParticipants]
   )
   const startListItems = useMemo(() => getStartListItems(visibleParticipants, event), [event, visibleParticipants])
+  // Preview only (KOE-1218): where a class+day has drawn numbers, an undrawn dog's working-order
+  // number can collide with a drawn one — those rows get a warning marker.
+  const drawnClassDates = useMemo(() => {
+    const keys = new Set<string>()
+    for (const reg of participants) {
+      if (reg.numberProvisional === false) keys.add(classDateKey(reg.class, reg.group.date ?? event.startDate))
+    }
+    return keys
+  }, [event.startDate, participants])
   let lastDate: Date | undefined
   let lastClass: PublicRegistration['class']
   let lastGroup: string | undefined
@@ -185,6 +194,7 @@ export const ParticipantList = ({
                 <CancelledRegistration
                   key={`cancelled-${reg.dog.regNo}-${reg.group.number}`}
                   groupNumber={reg.group.number}
+                  index={index}
                 />
               )
             } else {
@@ -193,10 +203,13 @@ export const ParticipantList = ({
                   key={`reg-${reg.dog.regNo}-${reg.group.number}`}
                   registration={reg}
                   index={index}
+                  warnNumberPending={
+                    reg.numberProvisional === true && drawnClassDates.has(classDateKey(reg.class, date))
+                  }
                 />
               )
-              index++
             }
+            index++
 
             return result
           })}

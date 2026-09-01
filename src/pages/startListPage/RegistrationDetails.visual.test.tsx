@@ -67,7 +67,8 @@ it('runs alphabetically without numbers until the start order is confirmed', asy
 
 it("holds a cancelled dog's number as a bare POISSA row", async () => {
   // KOE-1017: the published number is the dog's own — a cancellation keeps the slot occupied and
-  // publishes nothing else about who it was.
+  // publishes nothing else about who it was. The row mirrors the participating rows' layout, so the
+  // number prints in the same position and the same bold as its neighbours'.
   const { CancelledRegistration } = await import('./CancelledRegistration')
   const second: PublicRegistration = {
     ...registration,
@@ -81,15 +82,48 @@ it("holds a cancelled dog's number as a bare POISSA row", async () => {
       <Table>
         <TableBody>
           <RegistrationDetails index={0} registration={{ ...registration, result: undefined }} />
-          <CancelledRegistration groupNumber={2} />
-          <RegistrationDetails index={1} registration={second} />
+          <CancelledRegistration groupNumber={2} index={1} />
+          <RegistrationDetails index={2} registration={second} />
         </TableBody>
       </Table>
     </Frame>
   )
 
-  await expect.element(screen.getByText('POISSA')).toBeVisible()
+  await expect.element(screen.getByText(/2\. POISSA/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-poissa-row')
+})
+
+it('greys a working-order number in the preview and flags it beside a drawn one', async () => {
+  // KOE-1218: only an entered or frozen number is the dog's own. In the preview the working order
+  // renders grey, and where the class already has drawn numbers, the undrawn dog gets a warning —
+  // its provisional number can collide with a drawn one until the draw is finished.
+  const drawn: PublicRegistration = {
+    ...registration,
+    group: { ...registration.group, number: 2 },
+    numberProvisional: false,
+    result: undefined,
+  }
+  const undrawn: PublicRegistration = {
+    ...registration,
+    dog: { ...registration.dog, name: "FLATGOLD'S SECOND IN LINE", regNo: 'FI13776/22' },
+    group: { ...registration.group, number: 2 },
+    numberProvisional: true,
+    result: undefined,
+  }
+
+  const screen = await render(
+    <Frame>
+      <Table>
+        <TableBody>
+          <RegistrationDetails index={0} registration={drawn} />
+          <RegistrationDetails index={1} registration={undrawn} warnNumberPending />
+        </TableBody>
+      </Table>
+    </Frame>
+  )
+
+  await expect.element(screen.getByRole('img', { name: 'Starttinumeroa ei ole vielä arvottu' })).toBeInTheDocument()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-preview-number-pending')
 })
 
 it('publishes the result on its own line under the start list row', async () => {

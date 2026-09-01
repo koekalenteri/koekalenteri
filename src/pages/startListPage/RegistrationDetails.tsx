@@ -1,4 +1,5 @@
 import type { PublicRegistration } from '../../types/Registration'
+import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined'
 import Box from '@mui/material/Box'
 import TableCell from '@mui/material/TableCell'
 import { useTranslation } from 'react-i18next'
@@ -8,10 +9,15 @@ import { StyledTableRow } from './StyledTableRow'
 interface RegistrationDetailsProps {
   registration: PublicRegistration
   index: number
+  /** Preview only (KOE-1218): the class has drawn numbers, but this dog's is still the working order. */
+  warnNumberPending?: boolean
 }
 
-export const RegistrationDetails = ({ registration: reg, index }: RegistrationDetailsProps) => {
+export const RegistrationDetails = ({ registration: reg, index, warnNumberPending }: RegistrationDetailsProps) => {
   const { t } = useTranslation()
+  // The preview greys a working-order number the same way the entry view does: only an entered or
+  // frozen number reads as the dog's own (KOE-1218).
+  const numberSx = reg.numberProvisional ? { color: 'text.secondary', fontWeight: 'normal' } : undefined
   const breed = breedAbbreviation(t, reg.dog.breedCode, reg.dog.gender)
   const ownerHandler = reg.ownerHandles
     ? `${t('startList.ownerAndHandler')} ${reg.owner}`
@@ -38,7 +44,14 @@ export const RegistrationDetails = ({ registration: reg, index }: RegistrationDe
           }}
         >
           <Box sx={{ fontWeight: 'bold' }}>
-            {reg.group.number != null ? `${reg.group.number}. ` : ''}
+            {reg.group.number != null && <Box component="span" sx={numberSx}>{`${reg.group.number}. `}</Box>}
+            {warnNumberPending && (
+              <WarningAmberOutlined
+                fontSize="inherit"
+                sx={{ color: 'warning.main', mr: 0.5, verticalAlign: 'text-top' }}
+                titleAccess={t('startList.numberPending')}
+              />
+            )}
             {[breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')} {t('startList.born')}{' '}
             {reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}
           </Box>

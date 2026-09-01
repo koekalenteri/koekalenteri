@@ -12,6 +12,7 @@ import {
   registrationsToEventWithParticipantsInvited,
   registrationWithStaticDates,
 } from '../../../../__mockData__/registrations'
+import { APIError } from '../../../../api/http'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/utils'
 import { adminEventsAtom } from '../../state'
@@ -253,6 +254,50 @@ describe('InfoPanel>', () => {
 
     await waitFor(() => {
       expect(onSetStartListPublished).toHaveBeenCalledWith(undefined, false)
+    })
+  })
+
+  it('names the unfinished draw when publishing the numbers is refused (KOE-1218)', async () => {
+    const { enqueueSnackbar } = await import('notistack')
+    const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
+    const onSetStartNumbersPublished = vi.fn().mockRejectedValue(
+      new APIError(new Response(null, { status: 422 }), {
+        error: 'startNumbersIncomplete',
+        message: 'Start numbers are missing for 1 dogs (ALO 2026-09-12)',
+      })
+    )
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+        {children}
+      </Provider>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{
+          ...eventWithParticipantsInvited,
+          invitationAttachments: { ALO: 'alo-key' },
+          startListPublished: true,
+          startNumbersPublished: { ALO: false },
+        }}
+        onSetStartListPublished={onSetStartListPublished}
+        onSetStartNumbersPublished={onSetStartNumbersPublished}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent: registration.class === 'ALO' ? 'alo-key' : undefined,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    await user.click(screen.getAllByRole('button', { name: 'eventManagement.startList.publishNumbers' })[0])
+
+    await waitFor(() => {
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        'eventManagement.startList.numbersIncomplete',
+        expect.objectContaining({ variant: 'error' })
+      )
     })
   })
 

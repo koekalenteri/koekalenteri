@@ -1,4 +1,4 @@
-import type { JsonPublicRegistration, JsonRegistration } from '../../types'
+import type { JsonPublicRegistration, JsonPublicRegistrationGroup, JsonRegistration } from '../../types'
 import {
   isResultsAvailableForRegistration,
   isStartListAvailable,
@@ -91,17 +91,19 @@ const getStartListLambda = lambda('getStartList', async (event) => {
       if (!preview && !isStartListAvailableForRegistration(confirmedEvent, registered)) continue
 
       const numbersAvailable = isStartNumbersAvailableForRegistration(confirmedEvent, registered)
-      // The published number is the frozen one; `group` stays the secretary's working order, which
-      // is what the preview shows. Until the class's numbers are published the number is withheld
-      // (KOE-1006): the dogs are real but the order is not, and a number that still moves must not
-      // look like a promise.
-      const publicGroup = preview
-        ? group
-        : numbersAvailable
-          ? (reg.startGroup ?? group)
-          : { ...group, number: undefined }
+      // The published number is the frozen one. The preview shows it too, as soon as it exists
+      // (KOE-1218): the secretary entered it and expects to see it back; the working order fills in
+      // only where no number has been drawn, and is flagged provisional so the preview can render it
+      // as such. Until the class's numbers are published the public number is withheld (KOE-1006):
+      // the dogs are real but the order is not, and a number that still moves must not look like a
+      // promise.
+      let publicGroup: JsonPublicRegistrationGroup = reg.startGroup ?? group
+      if (!preview && !numbersAvailable) {
+        publicGroup = { ...group, number: undefined }
+      }
 
       publicRegs.push({
+        ...(preview ? { numberProvisional: !reg.startGroup } : {}),
         breeder: reg.breeder?.name,
         class: reg.class,
         dog: reg.dog,

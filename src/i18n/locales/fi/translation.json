@@ -349,6 +349,7 @@
     "startList": {
       "hide": "Piilota starttilista",
       "hideNumbers": "Piilota starttinumerot",
+      "numbersIncomplete": "Starttinumeroiden syöttäminen on kesken. Syötä ensin kaikki starttinumerot.",
       "numbersPublished": "Starttinumerot julkaistu",
       "preview": "Katso julkinen starttilista",
       "previewUnpublished": "Katso starttilistan esikatselu",
@@ -837,6 +838,7 @@
     "handlerIsMember": "Ohjaaja on jäsen",
     "handlerPhone": "Ohjaajan puhelin",
     "noPhone": "-ei puhelinta-",
+    "numberPending": "Starttinumeroa ei ole vielä arvottu",
     "owner": "om.",
     "ownerAndHandler": "om. & ohj.",
     "ownerIsMember": "Omistaja on jäsen",

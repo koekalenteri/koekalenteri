@@ -74,8 +74,9 @@ describe('startNumbers', () => {
 
       // The gap would freeze to its working-order number, which can collide with a drawn one on the
       // same day's public list. Refusing names the fix: enter the missing number and publish again.
+      // The code is structured so the client can show that fix instead of a generic failure (KOE-1218).
       await expect(freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO')).rejects.toThrow(
-        'Start numbers are missing for 1 dogs (ALO 2026-09-12)'
+        /startNumbersIncomplete.*Start numbers are missing for 1 dogs \(ALO 2026-09-12\)/
       )
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })

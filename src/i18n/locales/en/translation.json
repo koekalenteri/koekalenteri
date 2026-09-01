@@ -349,6 +349,7 @@
     "startList": {
       "hide": "Hide start list",
       "hideNumbers": "Hide start numbers",
+      "numbersIncomplete": "Start number entry is incomplete. Enter all start numbers first.",
       "numbersPublished": "Start numbers published",
       "preview": "View public start list",
       "previewUnpublished": "Preview start list",
@@ -837,6 +838,7 @@
     "handlerIsMember": "Handler is a member",
     "handlerPhone": "Handler's phone",
     "noPhone": "-no phone-",
+    "numberPending": "Start number not yet drawn",
     "owner": "owner",
     "ownerAndHandler": "owner & handler",
     "ownerIsMember": "Owner is a member",

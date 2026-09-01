@@ -48,7 +48,14 @@ export const freezeStartNumbers = async (
   }
   for (const [key, count] of gaps) {
     if (entered.has(key)) {
-      throw new LambdaError(422, `Start numbers are missing for ${count} dogs (${key})`)
+      // Structured so the client can tell "finish the draw first" apart from other 422s (KOE-1218).
+      throw new LambdaError(
+        422,
+        JSON.stringify({
+          error: 'startNumbersIncomplete',
+          message: `Start numbers are missing for ${count} dogs (${key})`,
+        })
+      )
     }
   }
 
