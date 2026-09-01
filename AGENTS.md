@@ -41,6 +41,100 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   attaches the changed linux baselines to those Jira issues, so the ticket always shows the current
   look of the components it covers.
 
+## Static Analysis (Sonar)
+
+SonarQube runs on every push and its findings have cost this repo ~40 follow-up commits.
+Below is what it has actually raised here, most frequent first. Write it this way the first
+time instead of fixing it in a second commit.
+
+### Complexity — the bulk of the churn
+
+- **Cognitive complexity (S3776)** is the single most common finding. A handler that decides
+  *and* does I/O *and* merges, all nested in one loop, will trip it. Split the decision out of
+  the loop: name the classification (`classifySubmission`), then let the loop only write.
+  Real examples: `putEventResults`, `putEventLambda`, `buildStatsRecords`, `useWebSocket`,
+  `http.ts` retry, `refundCreate`, `putRegistrationGroups`, `getEventProgress`.
+- **Nested ternaries.** Never chain `a ? x : b ? y : z`. Use `let` plus `if` / `else if`, or lift
+  the chain into a named function (`getTemporalPhaseIndex`, `getEntryPhaseLabel`).
+- **Repeated subexpressions.** If the same `x ?? (y ? a : b)` appears twice, bind it to a const
+  once and use the const — Sonar flags the duplication and the code reads better.
+- **Repeated inline types.** Three signatures sharing `DogEventCost | number | undefined` becomes
+  one `type EventCostInput`. Same for repeated `keyof JsonRegistration`.
+- Prefer extracting a guard into a named predicate (`isInvalidMoveAnchor`, `shouldRetryRequest`)
+  over an `if` with six `||` operands.
+
+### Mechanical TypeScript idioms
+
+- `??` instead of `||` whenever the fallback is for null/undefined, not falsiness.
+- Optional chaining instead of `a && a.b`. But check the semantics first: `a?.b !== c` is *not*
+  the same as `a && a.b !== c`, and chaining a comparison can make two missing values compare
+  equal. When the chain would change behaviour, leave it and say so in the commit message.
+- `arr.at(-1)` instead of `arr[arr.length - 1]`.
+- `arr.some(pred)` instead of `Boolean(arr.find(pred))`.
+- `str.replaceAll('-', '+')` instead of `str.replace(/-/g, '+')`.
+- A constant membership list that is only ever tested with `includes` should be a `Set` with
+  `.has()`.
+- `reduce` always gets an explicit initial value, even when a length guard makes it safe.
+- Do not spread a nullish fallback: `{ ...(x ?? {}) }` becomes `{ ...x }`, or
+  `x ? { ...x, regNo } : { regNo }` when the fallback is not empty.
+- `x !== undefined`, not `typeof x !== 'undefined'`, unless the identifier may be undeclared.
+- Prefer the positive condition: `a === b ? [] : [id]` over `a !== b ? [id] : []`.
+- Use `forEach` for side effects; `map` whose result is discarded is a finding.
+- Never interpolate an unvalidated `unknown` into a string — `String(value)` on an object yields
+  `"[object Object]"`. Narrow to `string` first and reject anything else.
+
+### Promises and async
+
+- **Do not `await` a non-thenable (S4123).** Synchronous Jotai atoms, plain values and
+  `Promise.all` over non-promises all trip this. Read synchronous atoms directly and await only
+  what is genuinely asynchronous.
+- Reject with an `Error`, never with a bare string or object.
+- Avoid `as const` on an array whose element types the caller needs to see as non-promise; the
+  bare array literal already infers the tuple.
+
+### Sorting
+
+- **`.sort()` always takes a comparator (S2871).** Numbers: `(a, b) => a - b`. Strings: an
+  explicit `localeCompare` — use `compareByLocalizedString('name')` from `src/lib/client/sort`
+  rather than open-coding `a.name.localeCompare(b.name, i18next.language)`.
+
+### Regular expressions
+
+- `\d` instead of `[0-9]`.
+- Bound greedy captures: `/^Bearer\s+(\S+)$/` rather than `(.+)`, to avoid super-linear
+  backtracking findings.
+
+### React
+
+- Component props interfaces use `readonly` members.
+- A `useMemo` that returns a function is a `useCallback`.
+- No `<Fragment>` or `<>` with a single child.
+
+### Types
+
+- `any` or `unknown` in a union swallows every other member — Sonar flags both. Model the value
+  instead.
+- Do not restate optionality the type already has: if `DogEvent['kcId']` already includes
+  `undefined`, the extra `?` is redundant, and `dates?: DogEvent['dates']` should be
+  `dates?: NonNullable<DogEvent['dates']>`.
+
+### Tests
+
+Tests are excluded from smell analysis but still scanned, and these come up:
+
+- `await screen.findByText(...)` instead of `waitFor(() => expect(screen.getByText(...)))`.
+- `expect(x).toHaveLength(1)` instead of `expect(x.length).toEqual(1)`.
+- Always `await expect(promise).rejects...` — a missing `await` is a floating promise.
+- No tautologies (`expect(true).toBe(true)`); assert the actual thing.
+- Near-identical test cases collapse into `it.each`.
+
+### Sonar is not always right
+
+A finding is a prompt to look, not an order. Two optional-chain suggestions in `updateUser` and
+`sameDate` were deliberately left alone because applying them would change behaviour; the
+reasoning went into the commit message. Do the same rather than silently breaking something to
+clear a rule.
+
 ## Formatting
 
 - Use Biome for formatting files:
