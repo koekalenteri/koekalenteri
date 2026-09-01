@@ -1,4 +1,4 @@
-import type { SubmittedTask } from '../../../lib/results'
+import type { ResultCode, SubmittedTask } from '../../../lib/results'
 import type { EventResultElimination, EventResultRetirement } from '../../../types'
 
 /**
@@ -15,6 +15,8 @@ export type TaskEdit = SubmittedTask
  */
 export interface ResultEdit {
   tasks: TaskEdit[]
+  /** The judge's decision as entered, for event types where no derivation exists to produce one. */
+  resultCode?: ResultCode
   elimination?: EventResultElimination
   retirement?: EventResultRetirement
 }

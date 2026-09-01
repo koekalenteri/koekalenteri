@@ -9,6 +9,7 @@ import {
   formatEventResult,
   mergeStationTasks,
   nowtTotals,
+  parseEventResultCode,
   resolveEventResult,
   sameEventResult,
   sameStationTasks,
@@ -276,6 +277,21 @@ describe('availableResultCodes', () => {
   })
 })
 
+describe('parseEventResultCode', () => {
+  it('reads the code back out of a stored result', () => {
+    expect(parseEventResultCode('NOU1', 'NOU')).toBe('1')
+    expect(parseEventResultCode('ALO2', 'NOWT', 'ALO')).toBe('2')
+    expect(parseEventResultCode('AVO-', 'NOWT', 'AVO')).toBe('-')
+  })
+
+  it('refuses a foreign prefix and a code the type cannot award', () => {
+    // Whatever wrote NOU2 was not using a pass/fail test's alphabet, so it is not this view's to read.
+    expect(parseEventResultCode('NOU2', 'NOU')).toBeUndefined()
+    expect(parseEventResultCode('AVO1', 'NOWT', 'ALO')).toBeUndefined()
+    expect(parseEventResultCode(undefined, 'NOU')).toBeUndefined()
+  })
+})
+
 describe('eventResultPrefix', () => {
   it('prefers the class where the event has classes', () => {
     expect(eventResultPrefix('NOWT', 'AVO')).toBe('AVO')
@@ -340,8 +356,9 @@ describe('resolveEventResult', () => {
     expect(result.result).toBe('AVO3')
   })
 
-  it('lets the secretary override the derived prize', () => {
-    // The rules leave the judge discretion the derivation cannot see.
+  it('lets a submitted code override the derived prize', () => {
+    // §5.4.1 grants no discretion here and no client sends this; the server-side override stands until
+    // the deferred conformance work decides whether it should exist at all.
     expect(resolveEventResult({ resultCode: '2', tasks: fullRound(17, 18, 16, 14) }, nowt).result).toBe('AVO2')
   })
 

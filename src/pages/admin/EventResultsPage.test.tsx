@@ -1,6 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
+import type { EventResult } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -70,6 +71,43 @@ const renderScoringPage = (language: Language, registrations = registrationsToEv
           <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
               <DataMemoryRouter initialEntries={[Path.admin.results(eventWithStations.id)]} routes={routes} />
+            </SnackbarProvider>
+          </Suspense>
+        </Provider>
+      </LocalizationProvider>
+    </ThemeProvider>,
+    undefined,
+    { advanceTimers: vi.advanceTimersByTime }
+  )
+}
+
+/**
+ * The same page against a taipumuskoe: no posts and no tasks, so the result column is the entry — a
+ * NOU is judged pass or fail, and there is nothing to derive either from.
+ */
+const renderQualitativePage = (language: Language, storedResults: Record<string, EventResult> = {}) => {
+  const registrations = registrationsToEventWithStations.map((reg) => ({
+    ...reg,
+    class: undefined,
+    eventId: eventWithStaticDates.id,
+    eventResult: storedResults[reg.id],
+    eventType: 'NOU',
+  }))
+  const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
+
+  return renderWithUserEvents(
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminEventsAtom, [eventWithStaticDates])
+            set(adminEventRegistrationsAtom(eventWithStaticDates.id), registrations)
+          }}
+        >
+          <Suspense fallback={<div>loading...</div>}>
+            <SnackbarProvider>
+              <DataMemoryRouter initialEntries={[Path.admin.results(eventWithStaticDates.id)]} routes={routes} />
             </SnackbarProvider>
           </Suspense>
         </Provider>
@@ -447,5 +485,65 @@ describe('judge attribution', () => {
     const scored = [{ index: 0, judge, points: 17, stationId: 'post-1', updatedAt: 'x', updatedBy: 'y' }]
 
     expect(mergeStationTasks(undefined, scored, 'post-1')[0].judge).toEqual(judge)
+  })
+})
+
+describe('a pass/fail event type', () => {
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => {
+    cleanup()
+    vi.runOnlyPendingTimers()
+  })
+  afterAll(() => vi.useRealTimers())
+
+  it('offers the codes the type can award, and sends the chosen one', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderQualitativePage(i18n.language as Language)
+    await flushPromises()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+
+    // A NOU is pass or fail: 1 or 0, and no dash — there is nothing to place against.
+    expect(screen.getByRole('option', { name: 'NOU1' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'NOU0' })).toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'NOU2' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'NOU-' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('option', { name: 'NOU1' }))
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+    expect(submissions).toHaveLength(1)
+    expect(submissions?.[0]).toMatchObject({ eventResult: { resultCode: '1' }, id: 'run-1' })
+  })
+
+  it('keeps the stored result when only the lisätieto changes', async () => {
+    const { i18n } = useTranslation()
+    const stored: EventResult = { result: 'NOU1', updatedAt: new Date('2026-08-30T10:00:00Z'), updatedBy: 'joku' }
+    const { user } = renderQualitativePage(i18n.language as Language, { 'run-1': stored })
+    await flushPromises()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    await user.click(screen.getByRole('option', { name: 'results.retirement.injury' }))
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    // The edit only added the keskeytys; the recorded NOU1 must not fall off the save.
+    const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+    expect(submissions?.[0]).toMatchObject({
+      eventResult: { resultCode: '1', retirement: { cause: 'injury' } },
+      id: 'run-1',
+    })
+  })
+
+  it('offers no result entry for a post-scored type, whose result is derived instead', async () => {
+    const { i18n } = useTranslation()
+    renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    expect(within(rowFor('Ensimmainen')).queryByLabelText('results.column.result')).not.toBeInTheDocument()
   })
 })

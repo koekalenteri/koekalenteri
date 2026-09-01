@@ -216,6 +216,23 @@ export const eventResultPrefix = (eventType: string, eventClass?: string): strin
 export const formatEventResult = (code: ResultCode, eventType: string, eventClass?: string): string =>
   `${eventResultPrefix(eventType, eventClass)}${code}`
 
+/**
+ * Read the code back out of a stored result, so an entry screen can seed from what is recorded rather
+ * than showing a scored dog as blank. Refuses a foreign prefix and a code the event type cannot award —
+ * either means the stored string is not this view's to interpret.
+ */
+export const parseEventResultCode = (
+  result: string | undefined,
+  eventType: string,
+  eventClass?: string
+): ResultCode | undefined => {
+  const prefix = eventResultPrefix(eventType, eventClass)
+  if (!result?.startsWith(prefix)) return undefined
+
+  const code = result.slice(prefix.length)
+  return availableResultCodes(eventType).find((candidate) => candidate === code)
+}
+
 /** A task as it arrives from a client: provenance is the server's to assign, not the client's to claim. */
 export type SubmittedTask = Omit<JsonEventResultTask, 'updatedAt' | 'updatedBy'>
 
@@ -223,8 +240,9 @@ export type SubmittedTask = Omit<JsonEventResultTask, 'updatedAt' | 'updatedBy'>
 export interface SubmittedEventResult {
   tasks?: JsonEventResultTask[]
   /**
-   * The only source of a result for qualitative event types, and an override for NOWT — the rules leave
-   * the judge discretion the derivation cannot model.
+   * The only source of a result for qualitative event types. For post-scored types this overrides the
+   * derivation, though §5.4.1 grants no such discretion — no client sends one, and whether the
+   * server-side override should stay belongs to the deferred conformance work.
    */
   resultCode?: ResultCode
   cert?: boolean

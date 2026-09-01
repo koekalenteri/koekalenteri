@@ -532,6 +532,22 @@ describe('putEventResultsLambda', () => {
 
       expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({ result: 'NOU1' })
     })
+
+    it('refuses a code the event type cannot award', async () => {
+      mockGetAuthorizedEvent.mockResolvedValue({
+        classes: [],
+        eventType: 'NOU',
+        organizer: { id: 'org-1', name: 'Org' },
+      })
+      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
+
+      // A pass/fail test has no prizes: a '2' can only be a client working from the wrong alphabet.
+      await expect(
+        putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '2' }, id: 'reg-1' }]))
+      ).rejects.toThrow("Result code '2' is not valid for NOU")
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    })
   })
 
   it('keeps the post an elimination happened at', async () => {

@@ -2,6 +2,7 @@ import type { SubmittedEventResult, SubmittedTask } from '../../lib/results'
 import type { JsonConfirmedEvent, JsonEventResult, JsonEventResultTask, JsonRegistration, Patch } from '../../types'
 import { isScorableRegistration } from '../../lib/registration'
 import {
+  availableResultCodes,
   mergeStationTasks,
   resolveEventResult,
   sameEventResult,
@@ -178,6 +179,13 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
     // is what stops a result being attributed to a dog that was not there.
     if (!isScorableRegistration(registration)) {
       throw new LambdaError(422, `Registration '${submission.id}' did not run`)
+    }
+
+    // The alphabet is the event type's own: a pass/fail test awards 1 or 0 and nothing else, so a code
+    // outside it is a client bug to refuse, not a judgement to store.
+    const { resultCode } = submission.eventResult
+    if (resultCode && !availableResultCodes(confirmedEvent.eventType).includes(resultCode)) {
+      throw new LambdaError(422, `Result code '${resultCode}' is not valid for ${confirmedEvent.eventType}`)
     }
 
     const outcome = classifySubmission(confirmedEvent, registration, submission, timestamp, user.name)

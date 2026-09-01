@@ -1,5 +1,5 @@
 import type { RoundTask } from '../../../lib/results'
-import type { EventStation, NowtZeroFault, PublicJudge, Registration } from '../../../types'
+import type { EventResult, EventStation, NowtZeroFault, PublicJudge, Registration } from '../../../types'
 import type { ResultEdit, TaskEdit } from './types'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -10,6 +10,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { parseEventResultCode, scoresAtPosts } from '../../../lib/results'
 import { ResultCell } from './ResultCell'
 import { RoundOutcomeCell } from './RoundOutcomeCell'
 import { TaskCell } from './TaskCell'
@@ -59,6 +60,22 @@ function ResultsTable({
 }: Props) {
   const { t } = useTranslation()
 
+  // A qualitative type's stored result seeds the row, so an edit that only adds a lisätieto cannot
+  // quietly drop the recorded result on save. Post-scored rounds keep starting blank: their stored
+  // state lives in the tasks, and the conflict handling already guards a whole-round overwrite.
+  const seededEdit = (stored?: EventResult): ResultEdit => {
+    if (scoresAtPosts(eventType) || !stored) return emptyEdit
+
+    const resultCode = parseEventResultCode(stored.result, eventType, eventClass)
+
+    return {
+      ...(stored.elimination ? { elimination: stored.elimination } : {}),
+      ...(stored.retirement ? { retirement: stored.retirement } : {}),
+      ...(resultCode ? { resultCode } : {}),
+      tasks: [],
+    }
+  }
+
   return (
     <TableContainer component={Paper} variant="outlined">
       <Table size="small" stickyHeader>
@@ -78,7 +95,7 @@ function ResultsTable({
         </TableHead>
         <TableBody>
           {registrations.map((registration) => {
-            const edit = edits[registration.id] ?? emptyEdit
+            const edit = edits[registration.id] ?? seededEdit(registration.eventResult)
             const { tasks } = edit
             const voided = isVoided(edit)
 
@@ -137,9 +154,11 @@ function ResultsTable({
                   value={edit}
                 />
                 <ResultCell
+                  disabled={disabled}
                   edit={edit}
                   eventClass={eventClass}
                   eventType={eventType}
+                  onChange={(next) => onChange(registration.id, next)}
                   round={fullRound}
                   stored={registration.eventResult}
                 />

@@ -125,7 +125,12 @@ export default function EventResultsPage() {
       return {
         // The version this edit was made against, so the server can tell a second writer from a retry.
         basedOn: scoped ? stationVersion(stored?.tasks, scope) : stored?.updatedAt,
-        eventResult: { elimination: edit.elimination, retirement: edit.retirement, tasks: edit.tasks },
+        eventResult: {
+          elimination: edit.elimination,
+          ...(edit.resultCode ? { resultCode: edit.resultCode } : {}),
+          retirement: edit.retirement,
+          tasks: edit.tasks,
+        },
         id,
         ...(scoped ? { stationId: scope } : {}),
       }

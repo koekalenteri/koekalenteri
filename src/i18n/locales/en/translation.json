@@ -752,6 +752,7 @@
     "outcomeEliminated": "Eliminating fault",
     "outcomeNone": "No additional info",
     "outcomeRetired": "Stopped",
+    "resultNone": "No result",
     "retirement": {
       "handlerChoice": "Handler withdrew",
       "injury": "Dog was injured"

@@ -752,6 +752,7 @@
     "outcomeEliminated": "Hylkäävä virhe",
     "outcomeNone": "Ei lisätietoa",
     "outcomeRetired": "Keskeytys",
+    "resultNone": "Ei tulosta",
     "retirement": {
       "handlerChoice": "Ohjaaja keskeytti",
       "injury": "Koira loukkaantui"

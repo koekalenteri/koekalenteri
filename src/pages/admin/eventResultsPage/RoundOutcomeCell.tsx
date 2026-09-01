@@ -50,17 +50,20 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
 
       const at = where ? { stationId: where } : {}
 
-      // Scores survive the choice: a dog eliminated at the last post keeps what it earned at the first,
-      // and switching back should not have quietly thrown that away.
-      if (next === SCORED) return onChange({ tasks: value.tasks })
-      if (next === INJURY) return onChange({ retirement: { cause: 'injury', ...at }, tasks: value.tasks })
+      // Scores — and a qualitative type's entered result — survive the choice: a dog eliminated at the
+      // last post keeps what it earned at the first, and switching back should not have quietly thrown
+      // that away.
+      const kept = { tasks: value.tasks, ...(value.resultCode ? { resultCode: value.resultCode } : {}) }
+
+      if (next === SCORED) return onChange(kept)
+      if (next === INJURY) return onChange({ retirement: { cause: 'injury', ...at }, ...kept })
       if (next === HANDLER_CHOICE) {
-        return onChange({ retirement: { cause: 'handlerChoice', ...at }, tasks: value.tasks })
+        return onChange({ retirement: { cause: 'handlerChoice', ...at }, ...kept })
       }
 
-      return onChange({ elimination: { fault: next as EliminatingFault, ...at }, tasks: value.tasks })
+      return onChange({ elimination: { fault: next as EliminatingFault, ...at }, ...kept })
     },
-    [onChange, value.tasks, where]
+    [onChange, value.resultCode, value.tasks, where]
   )
 
   const handleWhere = useCallback(
@@ -78,8 +81,9 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
       onChange({
         retirement: { cause: 'handlerChoice', couldStillHavePlaced: checked, ...(where ? { stationId: where } : {}) },
         tasks: value.tasks,
+        ...(value.resultCode ? { resultCode: value.resultCode } : {}),
       }),
-    [onChange, value.tasks, where]
+    [onChange, value.resultCode, value.tasks, where]
   )
 
   return (
