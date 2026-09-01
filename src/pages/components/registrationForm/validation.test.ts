@@ -1,4 +1,14 @@
-import type { BreedCode, Dog, ManualTestResult, Registration } from '../../../types'
+import type {
+  BreedCode,
+  Dog,
+  ManualTestResult,
+  PublicConfirmedEvent,
+  Registration,
+  RegistrationBreeder,
+  TestResult,
+} from '../../../types'
+import { eventWithStaticDates } from '../../../__mockData__/events'
+import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import { filterRelevantResults, objectContains } from '../../../lib/qualification'
 import { validateDog, validateRegistration } from './validation'
 
@@ -330,7 +340,7 @@ describe('validation', () => {
 
         it('Should allow two qualifying results on the same day', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
-          const ALO1_1 = {
+          const ALO1_1: TestResult = {
             class: 'ALO',
             date: new Date('2016-05-30'),
             judge: 'Judge 1',
@@ -338,7 +348,7 @@ describe('validation', () => {
             result: 'ALO1',
             type: 'NOME-B',
           }
-          const ALO1_2 = {
+          const ALO1_2: TestResult = {
             class: 'ALO',
             date: new Date('2016-05-30'),
             judge: 'Judge 2',
@@ -347,7 +357,7 @@ describe('validation', () => {
             type: 'NOME-B',
           }
 
-          expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1 as any, ALO1_2 as any]).qualifies).toEqual(true)
+          expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1, ALO1_2]).qualifies).toEqual(true)
         })
 
         it('Should reject a dog with only 1xALO1 2016..2022', () => {
@@ -900,7 +910,8 @@ describe('validation', () => {
 
         it('Should allow a dog rewarded in international field trial', () => {
           const testEvent = { eventType: 'NOME-A', startDate: new Date('2023-04-15') }
-          const kvResult = {
+          const kvResult: TestResult = {
+            class: '',
             date: new Date('2023-03-01'),
             judge: 'Test Judge',
             location: 'Test',
@@ -908,7 +919,7 @@ describe('validation', () => {
             type: 'NOME-A KV',
           }
 
-          expect(filterRelevantResults(testEvent, undefined, [kvResult as any]).qualifies).toEqual(true)
+          expect(filterRelevantResults(testEvent, undefined, [kvResult]).qualifies).toEqual(true)
         })
       })
 
@@ -1070,22 +1081,23 @@ describe('validation', () => {
   })
 
   describe('validateRegistration', () => {
-    const nameFormatEvent = {
+    const nameFormatEvent: PublicConfirmedEvent = {
+      ...eventWithStaticDates,
       classes: [],
       eventType: 'NOU',
       startDate: new Date('2020-10-15'),
-    } as any
+    }
 
-    const regWithOwnerNamed = (name: string): Registration =>
-      ({
-        agreeToTerms: true,
-        dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
-        dog: testDog,
-        ownerHandles: 'owner-1',
-        ownerPays: 'owner-1',
-        owners: [{ email: 'owner@example.com', key: 'owner-1', name }],
-        reserve: 'ANY',
-      }) as unknown as Registration
+    const regWithOwnerNamed = (name: string): Registration => ({
+      ...registrationWithStaticDates,
+      agreeToTerms: true,
+      dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
+      dog: testDog,
+      ownerHandles: 'owner-1',
+      ownerPays: 'owner-1',
+      owners: [{ email: 'owner@example.com', key: 'owner-1', membership: false, name }],
+      reserve: 'ANY',
+    })
 
     const nameFormatErrors = (reg: Registration, saved?: Registration) =>
       validateRegistration(reg, nameFormatEvent, saved).filter((e) => e.key === 'nameFormat')
@@ -1104,10 +1116,14 @@ describe('validation', () => {
       // Pre-1.10.7 records carry only the keyless `owner` mirror; editing any field in the row makes
       // the form write an `owners` list keyed `owner-1`, which must still match the saved name.
       const name = 'Matti ja Maija Meikäläinen'
-      const saved = { ...regWithOwnerNamed(name), owner: { email: 'owner@example.com', name }, owners: undefined }
+      const saved = {
+        ...regWithOwnerNamed(name),
+        owner: { email: 'owner@example.com', membership: false, name },
+        owners: undefined,
+      }
       const edited = regWithOwnerNamed(name)
 
-      expect(nameFormatErrors(edited, saved as unknown as Registration)).toHaveLength(0)
+      expect(nameFormatErrors(edited, saved)).toHaveLength(0)
     })
 
     it('rejects a changed owner name even when the saved one was grandfathered', () => {
@@ -1117,27 +1133,29 @@ describe('validation', () => {
     })
 
     it('should skip fields in NOT_VALIDATED list', () => {
-      const mockEvent = {
+      const mockEvent: PublicConfirmedEvent = {
+        ...eventWithStaticDates,
         classes: [],
         eventType: 'NOU',
         startDate: new Date('2020-10-15'),
-      } as any
+      }
 
-      const mockReg = {
+      const mockReg: Registration = {
+        ...registrationWithStaticDates,
         agreeToTerms: false,
         createdAt: new Date(),
         createdBy: 'user1',
-        dates: ['2020-10-15'],
-        deletedAt: null,
-        deletedBy: null,
+        dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
+        deletedAt: undefined,
+        deletedBy: undefined,
         dog: testDog,
         modifiedAt: new Date(),
         modifiedBy: 'user2',
-        owner: { email: 'owner@example.com', name: 'Owner' },
+        owner: { email: 'owner@example.com', membership: false, name: 'Owner' },
         ownerHandles: true,
         ownerPays: true,
-        reserve: true,
-      } as unknown as Registration
+        reserve: 'ANY',
+      }
 
       const errors = validateRegistration(mockReg, mockEvent)
 
@@ -1153,22 +1171,24 @@ describe('validation', () => {
     })
 
     it('should collect all validation errors', () => {
-      const mockEvent = {
-        classes: [{ id: 'ALO', name: 'ALO' }],
+      const mockEvent: PublicConfirmedEvent = {
+        ...eventWithStaticDates,
+        classes: [{ class: 'ALO', date: new Date('2020-10-15') }],
         eventType: 'NOU',
         startDate: new Date('2020-10-15'),
-      } as any
+      }
 
-      const mockReg = {
+      const mockReg: Registration = {
+        ...registrationWithStaticDates,
         agreeToTerms: false,
         class: undefined,
         dates: [],
         dog: testDog,
-        owner: { email: 'owner@example.com', name: 'Owner' },
+        owner: { email: 'owner@example.com', membership: false, name: 'Owner' },
         ownerHandles: true,
         ownerPays: true,
-        reserve: false,
-      } as unknown as Registration
+        reserve: '',
+      }
 
       const errors = validateRegistration(mockReg, mockEvent)
 
@@ -1180,21 +1200,29 @@ describe('validation', () => {
     })
 
     it('should return empty array when all fields are valid', () => {
-      const mockEvent = {
+      const mockEvent: PublicConfirmedEvent = {
+        ...eventWithStaticDates,
         classes: [],
         eventType: 'NOU',
         startDate: new Date('2020-10-15'),
-      } as any
+      }
 
-      const mockReg = {
+      const mockReg: Registration = {
+        ...registrationWithStaticDates,
         agreeToTerms: true,
-        dates: ['2020-10-15'],
+        dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
         dog: testDog,
-        owner: { email: 'owner@example.com', location: 'somewhere', name: 'Owner', phone: '+35840123456' },
+        owner: {
+          email: 'owner@example.com',
+          location: 'somewhere',
+          membership: false,
+          name: 'Owner',
+          phone: '+35840123456',
+        },
         ownerHandles: true,
         ownerPays: true,
-        reserve: true,
-      } as unknown as Registration
+        reserve: 'ANY',
+      }
 
       const errors = validateRegistration(mockReg, mockEvent)
 
@@ -1236,34 +1264,39 @@ describe('validation', () => {
   describe('validateBreeder', () => {
     // We need to test the validateBreeder function indirectly through VALIDATORS.breeder
     it('should validate breeder correctly', () => {
-      const mockEvent = { eventType: 'NOU', startDate: new Date() } as any
+      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
 
-      // Test with undefined breeder
-      const reg1 = { breeder: undefined } as any
+      // Test with undefined breeder. The type requires a breeder, but legacy records may lack one,
+      // and the key must stay present for validateRegistration to visit the field.
+      const reg1: Registration = {
+        ...registrationWithStaticDates,
+        breeder: undefined as unknown as RegistrationBreeder,
+      }
       const result1 = validateRegistration(reg1, mockEvent)
       expect(result1.some((e) => e.opts?.field === 'breeder')).toBe(true)
 
       // Test with empty name
-      const reg2 = { breeder: { location: 'Helsinki', name: '' } } as any
+      const reg2: Registration = { ...registrationWithStaticDates, breeder: { location: 'Helsinki', name: '' } }
       const result2 = validateRegistration(reg2, mockEvent)
       expect(result2.some((e) => e.opts?.field === 'breeder')).toBe(true)
 
       // Test with empty location
-      const reg3 = { breeder: { location: '', name: 'Test Breeder' } } as any
+      const reg3: Registration = { ...registrationWithStaticDates, breeder: { location: '', name: 'Test Breeder' } }
       const result3 = validateRegistration(reg3, mockEvent)
       expect(result3.some((e) => e.opts?.field === 'breeder')).toBe(true)
 
       // Test with valid breeder
-      const reg4 = {
+      const reg4: Registration = {
+        ...registrationWithStaticDates,
         agreeToTerms: true,
         breeder: { location: 'Helsinki', name: 'Test Breeder' },
-        dates: ['2020-10-15'],
+        dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
         dog: testDog,
-        owner: { email: 'owner@example.com', name: 'Owner' },
+        owner: { email: 'owner@example.com', membership: false, name: 'Owner' },
         ownerHandles: true,
         ownerPays: true,
-        reserve: true,
-      } as any
+        reserve: 'ANY',
+      }
       const result4 = validateRegistration(reg4, mockEvent)
       expect(result4.some((e) => e.opts?.field === 'breeder')).toBe(false)
     })
@@ -1271,102 +1304,128 @@ describe('validation', () => {
 
   describe('VALIDATORS', () => {
     it('should validate selectedCost correctly', () => {
-      const mockEvent1 = {} as any
-      const reg = {} as any
-      const result1 = validateRegistration(reg, mockEvent1)
+      const result1 = validateRegistration(registrationWithStaticDates, eventWithStaticDates)
       expect(result1.some((e) => e.opts?.field === 'selectedCost')).toBe(false)
     })
 
     it('should validate handler correctly', () => {
-      const mockEvent = { eventType: 'NOU', startDate: new Date() } as any
+      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
 
-      const owner = { email: 'owner@example.com', location: 'somewhere', name: 'Owner', phone: '+35840123456' }
+      const owner = {
+        email: 'owner@example.com',
+        location: 'somewhere',
+        membership: false,
+        name: 'Owner',
+        phone: '+35840123456',
+      }
+      const invalidHandler = { email: '', membership: false, name: '' }
 
       // Test with ownerHandles = true and an owner to stand in for the handler
-      const reg1 = {
-        handler: { email: '', name: '' }, // Invalid handler, but should be ignored
+      const reg1: Registration = {
+        ...registrationWithStaticDates,
+        handler: invalidHandler, // Invalid handler, but should be ignored
         owner,
         ownerHandles: true,
-      } as any
+      }
       const result1 = validateRegistration(reg1, mockEvent)
       expect(result1.some((e) => e.opts?.field === 'handler')).toBe(false)
 
       // Test with ownerHandles = false and invalid handler
-      const reg2 = {
-        handler: { email: '', name: '' },
+      const reg2: Registration = {
+        ...registrationWithStaticDates,
+        handler: invalidHandler,
         ownerHandles: false,
-      } as any
+      }
       const result2 = validateRegistration(reg2, mockEvent)
       expect(result2.some((e) => e.opts?.field === 'handler')).toBe(true)
 
       // Test with ownerHandles = false and valid handler
-      const reg3 = {
-        handler: { email: 'handler@example.com', location: 'somewhere', name: 'Handler', phone: '+35840123456' },
+      const reg3: Registration = {
+        ...registrationWithStaticDates,
+        handler: {
+          email: 'handler@example.com',
+          location: 'somewhere',
+          membership: false,
+          name: 'Handler',
+          phone: '+35840123456',
+        },
         ownerHandles: false,
-      } as any
+      }
       const result3 = validateRegistration(reg3, mockEvent)
       expect(result3.some((e) => e.opts?.field === 'handler')).toBe(false)
 
       // A key that resolves to an owner stands in for the handler
-      const reg4 = {
-        handler: { email: '', name: '' },
+      const reg4: Registration = {
+        ...registrationWithStaticDates,
+        handler: invalidHandler,
         ownerHandles: 'owner-1',
         owners: [{ ...owner, key: 'owner-1' }],
-      } as any
+      }
       const result4 = validateRegistration(reg4, mockEvent)
       expect(result4.some((e) => e.opts?.field === 'handler')).toBe(false)
 
       // A stale key that names no owner must not skip handler validation
-      const reg5 = {
-        handler: { email: '', name: '' },
+      const reg5: Registration = {
+        ...registrationWithStaticDates,
+        handler: invalidHandler,
         ownerHandles: 'gone',
         owners: [{ ...owner, key: 'owner-1' }],
-      } as any
+      }
       const result5 = validateRegistration(reg5, mockEvent)
       expect(result5.some((e) => e.opts?.field === 'handler')).toBe(true)
     })
 
     it('should validate payer correctly', () => {
-      const mockEvent = { eventType: 'NOU', startDate: new Date() } as any
+      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
 
-      const owner = { email: 'owner@example.com', location: 'somewhere', name: 'Owner', phone: '+35840123456' }
+      const owner = {
+        email: 'owner@example.com',
+        location: 'somewhere',
+        membership: false,
+        name: 'Owner',
+        phone: '+35840123456',
+      }
 
       // Test with ownerPays = true and an owner to stand in for the payer
-      const reg1 = {
+      const reg1: Registration = {
+        ...registrationWithStaticDates,
         owner,
         ownerPays: true,
         payer: { email: '', name: '' }, // Invalid payer, but should be ignored
-      } as any
+      }
       const result1 = validateRegistration(reg1, mockEvent)
       expect(result1.some((e) => e.opts?.field === 'payer')).toBe(false)
 
       // Test with ownerPays = false and invalid payer
-      const reg2 = {
+      const reg2: Registration = {
+        ...registrationWithStaticDates,
         ownerPays: false,
         payer: { email: '', name: '' },
-      } as any
+      }
       const result2 = validateRegistration(reg2, mockEvent)
       expect(result2.some((e) => e.opts?.field === 'payer')).toBe(true)
 
       // Test with ownerPays = false and valid payer
-      const reg3 = {
+      const reg3: Registration = {
+        ...registrationWithStaticDates,
         ownerPays: false,
         payer: { email: 'payer@example.com', name: 'Payer', phone: '+35840123456' },
-      } as any
+      }
       const result3 = validateRegistration(reg3, mockEvent)
       expect(result3.some((e) => e.opts?.field === 'payer')).toBe(false)
     })
 
     it('should validate id, notes, results, and optionalCosts fields', () => {
-      const mockEvent = { eventType: 'NOU', startDate: new Date() } as any
+      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
 
       // These validators always return false, so they should not produce errors
-      const reg = {
+      const reg: Registration = {
+        ...registrationWithStaticDates,
         id: 'test-id',
         notes: 'Some notes',
         optionalCosts: [],
         results: [],
-      } as any
+      }
 
       const result = validateRegistration(reg, mockEvent)
       expect(result.some((e) => e.opts?.field === 'id')).toBe(false)
@@ -1378,13 +1437,14 @@ describe('validation', () => {
 
   describe('validateRegistrationField edge cases', () => {
     it('should handle default validator for unknown fields', () => {
-      const mockEvent = { eventType: 'NOU', startDate: new Date() } as any
+      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
 
-      // Test with a field that doesn't exist in VALIDATORS
+      // Test with a field that doesn't exist in VALIDATORS. The fields under test cannot exist on
+      // Registration by definition, so this is a deliberate boundary conversion.
       const reg = {
         anotherUnknown: 'value', // This should not trigger the default validator
         unknownField: '', // This should trigger the default validator
-      } as any
+      } as unknown as Registration
 
       const result = validateRegistration(reg, mockEvent)
 

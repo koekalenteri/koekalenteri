@@ -7,17 +7,17 @@ describe('validation', () => {
   describe('VALIDATORS', () => {
     describe('classes', () => {
       it('returns false when not required', () => {
-        const event = { ...emptyEvent, classes: [] } as any
+        const event: PartialEvent = { ...emptyEvent, classes: [] }
         expect(VALIDATORS.classes?.(event, false)).toBe(false)
       })
 
       it('returns classes when required and empty', () => {
-        const event = { ...emptyEvent, classes: [] } as any
+        const event: PartialEvent = { ...emptyEvent, classes: [] }
         expect(VALIDATORS.classes?.(event, true)).toBe('classes')
       })
 
       it('returns false when required and has classes', () => {
-        const event = { ...emptyEvent, classes: [{ class: 'ALO' }] } as any
+        const event: PartialEvent = { ...emptyEvent, classes: [{ class: 'ALO', date: emptyEvent.startDate }] }
         expect(VALIDATORS.classes?.(event, true)).toBe(false)
       })
 
@@ -54,17 +54,17 @@ describe('validation', () => {
 
     describe('cost', () => {
       it('returns false when not required', () => {
-        const event = { ...emptyEvent, cost: undefined } as any
+        const event: PartialEvent = { ...emptyEvent, cost: undefined }
         expect(VALIDATORS.cost?.(event, false)).toBe(false)
       })
 
       it('returns true when required and missing', () => {
-        const event = { ...emptyEvent, cost: undefined } as any
+        const event: PartialEvent = { ...emptyEvent, cost: undefined }
         expect(VALIDATORS.cost?.(event, true)).toBe(true)
       })
 
       it('returns false when required and present', () => {
-        const event = { ...emptyEvent, cost: 10 } as any
+        const event: PartialEvent = { ...emptyEvent, cost: 10 }
         expect(VALIDATORS.cost?.(event, true)).toBe(false)
       })
     })
@@ -157,17 +157,17 @@ describe('validation', () => {
     it('returns false when cost is object and costMember is number', () => {
       const cost = { normal: 10 }
       const costMember = 5
-      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember } as any, true)).toBe(false)
+      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember }, true)).toBe(false)
     })
 
     it('returns false when costMember is missing', () => {
       const cost = 10
-      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember: undefined } as any, true)).toBe(false)
+      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember: undefined }, true)).toBe(false)
     })
 
     it('returns false when cost is missing', () => {
       const costMember = 10
-      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost: undefined, costMember } as any, true)).toBe(false)
+      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost: undefined, costMember }, true)).toBe(false)
     })
 
     it('handles missing optionalAdditionalCosts in cost object', () => {
@@ -197,7 +197,7 @@ describe('validation', () => {
 
   describe('requiredFields()', () => {
     it('merges requirements from draft and tentative into confirmed and resolves function flags', () => {
-      const event = { ...emptyEvent, eventType: 'NOME-B' as any, state: 'confirmed' as const }
+      const event: PartialEvent = { ...emptyEvent, eventType: 'NOME-B', state: 'confirmed' }
       const req = requiredFields(event)
 
       // From draft
@@ -219,16 +219,16 @@ describe('validation', () => {
     })
 
     it('is true for NOWT', () => {
-      const req = requiredFields({ ...emptyEvent, eventType: 'NOWT' as any, state: 'confirmed' as const })
+      const req = requiredFields({ ...emptyEvent, eventType: 'NOWT', state: 'confirmed' })
       expect(req.required.classes).toBe(true)
     })
     it('is false for non-matching types', () => {
-      const req = requiredFields({ ...emptyEvent, eventType: 'SOME' as any, state: 'confirmed' as const })
+      const req = requiredFields({ ...emptyEvent, eventType: 'SOME', state: 'confirmed' })
       expect(req.required.classes).toBeFalsy()
     })
 
     it('handles undefined event state', () => {
-      const event = { ...emptyEvent, state: undefined } as any
+      const event: PartialEvent = { ...emptyEvent, state: undefined }
       const req = requiredFields(event)
       // Should default to 'draft' state
       expect(req.required.startDate).toBe(true)
@@ -240,7 +240,7 @@ describe('validation', () => {
     })
 
     it('handles non-standard event states', () => {
-      const event = { ...emptyEvent, state: 'picked' as const } as any
+      const event: PartialEvent = { ...emptyEvent, state: 'picked' }
       const req = requiredFields(event)
       // 'picked' should include 'confirmed' state requirements
       expect(req.required.classes).toBeDefined()
@@ -251,8 +251,8 @@ describe('validation', () => {
 
   describe('validateEventField()', () => {
     it('returns validationError for unknown fields when required and empty', () => {
-      const event = { ...emptyEvent, name: '' as any, state: 'draft' as const }
-      const res = validateEventField(event as any, 'name' as any, true)
+      const event: PartialEvent = { ...emptyEvent, name: '', state: 'draft' }
+      const res = validateEventField(event, 'name', true)
       expect(res).toEqual({
         key: 'validationError',
         opts: { field: 'name', state: 'draft' },
@@ -260,7 +260,7 @@ describe('validation', () => {
     })
 
     it('handles undefined event state', () => {
-      const event = { ...emptyEvent, secretary: undefined, state: undefined } as any
+      const event: PartialEvent = { ...emptyEvent, secretary: undefined, state: undefined }
       const res = validateEventField(event, 'secretary', true)
       expect(res).toEqual({
         key: 'validationError',
@@ -269,8 +269,8 @@ describe('validation', () => {
     })
 
     it('returns a string key for validators that yield string (e.g., classes)', () => {
-      const event = { ...emptyEvent, classes: [] as any, eventType: 'NOWT' as any, state: 'confirmed' as const }
-      const res = validateEventField(event as any, 'classes', true)
+      const event: PartialEvent = { ...emptyEvent, classes: [], eventType: 'NOWT', state: 'confirmed' }
+      const res = validateEventField(event, 'classes', true)
       expect(res).toEqual({
         key: 'classes',
         opts: { field: 'classes', state: 'confirmed', type: 'NOWT' },
@@ -278,13 +278,13 @@ describe('validation', () => {
     })
 
     it('returns an object for validators that yield structured errors (e.g., judgeCount)', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
-        eventType: 'NOME-A' as any,
+        eventType: 'NOME-A',
         judges: [{ id: 1, name: 'Only One' }],
-        state: 'confirmed' as const,
+        state: 'confirmed',
       }
-      const res = validateEventField(event as any, 'judges', true)
+      const res = validateEventField(event, 'judges', true)
       expect(res).toEqual({
         key: 'judgeCount',
         opts: { field: 'judges', length: 2, state: 'confirmed', type: 'NOME-A' },
@@ -295,36 +295,39 @@ describe('validation', () => {
   describe('judges', () => {
     it('requires 2 judges for NOWT or NOME-A and 1 for others', () => {
       // NOWT: requires 2
-      const nowt = {
+      const nowt: PartialEvent = {
         ...emptyEvent,
-        eventType: 'NOWT' as any,
+        eventType: 'NOWT',
         judges: [{ id: 1, name: 'T1' }],
-        state: 'confirmed' as const,
+        state: 'confirmed',
       }
-      expect(VALIDATORS.judges?.(nowt as any, true)).toEqual({
+      expect(VALIDATORS.judges?.(nowt, true)).toEqual({
         key: 'judgeCount',
         opts: { field: 'judges', length: 2 },
       })
 
       // Non-NOWT/A: requires 1 (ok when one judge present and classes have judges assigned)
-      const other = {
+      const other: PartialEvent = {
         ...emptyEvent,
-        classes: [{ class: 'ALO', judge: { id: 1 } }], // Assign judge to class
-        eventType: 'SOME' as any,
+        classes: [{ class: 'ALO', date: emptyEvent.startDate, judge: { id: 1, name: 'T1' } }], // Assign judge to class
+        eventType: 'SOME',
         judges: [{ id: 1, name: 'T1' }],
-        state: 'confirmed' as const,
+        state: 'confirmed',
       }
-      expect(VALIDATORS.judges?.(other as any, true)).toBe(false)
+      expect(VALIDATORS.judges?.(other, true)).toBe(false)
     })
 
     it('requires class judge assignment for non-NOWT event types', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
-        classes: [{ class: 'ALO' } as any, { class: 'VOI', judge: { id: 99 } } as any],
-        eventType: 'NOME-B' as any,
-        state: 'confirmed' as const,
+        classes: [
+          { class: 'ALO', date: emptyEvent.startDate },
+          { class: 'VOI', date: emptyEvent.startDate, judge: { id: 99, name: 'T99' } },
+        ],
+        eventType: 'NOME-B',
+        state: 'confirmed',
       }
-      const res = VALIDATORS.judges?.(event as any, true)
+      const res = VALIDATORS.judges?.(event, true)
       expect(res).toEqual({
         key: 'classesJudge',
         opts: { field: 'judges', length: 1, list: ['ALO'] },
@@ -332,40 +335,43 @@ describe('validation', () => {
     })
 
     it('does not require class judge assignment for NOWT', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
-        classes: [{ class: 'ALO' } as any],
-        eventType: 'NOWT' as any,
-        state: 'confirmed' as const,
+        classes: [{ class: 'ALO', date: emptyEvent.startDate }],
+        eventType: 'NOWT',
+        state: 'confirmed',
       }
       // Only min-count matters, not per-class assignment
-      const res = VALIDATORS.judges?.(event as any, true)
-      expect(res === false || (typeof res === 'object' && (res as any).key === 'judgeCount')).toBe(true)
+      const res = VALIDATORS.judges?.(event, true)
+      expect(res === false || (typeof res === 'object' && res.key === 'judgeCount')).toBe(true)
     })
 
     it('returns false for NOWT with sufficient judges (covers line 150)', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
-        classes: [{ class: 'ALO' } as any, { class: 'VOI' } as any],
-        eventType: 'NOWT' as any,
+        classes: [
+          { class: 'ALO', date: emptyEvent.startDate },
+          { class: 'VOI', date: emptyEvent.startDate },
+        ],
+        eventType: 'NOWT',
         judges: [
           { id: 1, name: 'Judge 1' },
           { id: 2, name: 'Judge 2' },
         ], // Sufficient judges for NOWT
-        state: 'confirmed' as const,
+        state: 'confirmed',
       }
       // NOWT with enough judges should return false (line 150)
-      const res = VALIDATORS.judges?.(event as any, true)
+      const res = VALIDATORS.judges?.(event, true)
       expect(res).toBe(false)
     })
 
     it('returns false when required is false', () => {
-      const ev = { ...emptyEvent, judges: [] } as any
+      const ev: PartialEvent = { ...emptyEvent, judges: [] }
       expect(VALIDATORS.judges?.(ev, false)).toBe(false)
     })
 
     it('counts judges with only name but no id', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
         classes: [],
         eventType: 'NOME-A',
@@ -373,23 +379,23 @@ describe('validation', () => {
           { name: 'Judge with name only' }, // No id
           { name: 'Another judge with name only' }, // No id
         ],
-      } as any
+      }
       const result = VALIDATORS.judges?.(event, true)
       expect(result).toBe(false) // Should pass with 2 judges for NOME-A
     })
 
     it('handles array judges in class assignment validation', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
         classes: [
-          { class: 'ALO', judge: [] }, // Empty array judge
-          { class: 'VOI', judge: [{ id: 1 }] }, // Non-empty array judge
+          { class: 'ALO', date: emptyEvent.startDate, judge: [] }, // Empty array judge
+          { class: 'VOI', date: emptyEvent.startDate, judge: [{ id: 1, name: 'Judge 1' }] }, // Non-empty array judge
         ],
-        eventType: 'NOME-B' as any,
+        eventType: 'NOME-B',
         judges: [{ id: 1, name: 'Judge 1' }],
-        state: 'confirmed' as const,
+        state: 'confirmed',
       }
-      const res = VALIDATORS.judges?.(event as any, true)
+      const res = VALIDATORS.judges?.(event, true)
       expect(res).toEqual({
         key: 'classesJudge',
         opts: { field: 'judges', length: 1, list: ['ALO'] },
@@ -399,8 +405,8 @@ describe('validation', () => {
 
   describe('places', () => {
     it('returns validationError when required and overall places missing (non NOME-B)', () => {
-      const event = { ...emptyEvent, eventType: 'SOME' as any, places: undefined, state: 'confirmed' as const }
-      const res = validateEventField(event as any, 'places', true)
+      const event: PartialEvent = { ...emptyEvent, eventType: 'SOME', places: undefined, state: 'confirmed' }
+      const res = validateEventField(event, 'places', true)
       expect(res).toEqual({
         key: 'validationError',
         opts: { field: 'places', state: 'confirmed' },
@@ -408,14 +414,17 @@ describe('validation', () => {
     })
 
     it('returns placesClass with list of classes missing places for NOME-B', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
-        classes: [{ class: 'ALO' } as any, { class: 'VOI', places: 5 } as any],
-        eventType: 'NOME-B' as any,
+        classes: [
+          { class: 'ALO', date: emptyEvent.startDate },
+          { class: 'VOI', date: emptyEvent.startDate, places: 5 },
+        ],
+        eventType: 'NOME-B',
         places: 10, // overall places exist (not undefined/falsy)
-        state: 'confirmed' as const,
+        state: 'confirmed',
       }
-      const res = VALIDATORS.places?.(event as any, true)
+      const res = VALIDATORS.places?.(event, true)
       expect(res).toEqual({
         key: 'placesClass',
         opts: { field: 'places', length: 1, list: ['ALO'] },
@@ -423,72 +432,72 @@ describe('validation', () => {
     })
 
     it('returns true when required and overall places missing for non NOME-B', () => {
-      const event = { ...emptyEvent, eventType: 'SOME' as any, places: undefined } as any
+      const event: PartialEvent = { ...emptyEvent, eventType: 'SOME', places: undefined }
       expect(VALIDATORS.places?.(event, true)).toBe(true)
     })
 
     it('returns false when places exist and not NOME-B', () => {
-      const event = { ...emptyEvent, eventType: 'SOME' as any, places: 10 } as any
+      const event: PartialEvent = { ...emptyEvent, eventType: 'SOME', places: 10 }
       expect(VALIDATORS.places?.(event, true)).toBe(false)
     })
 
     it('returns false when not required', () => {
-      const event = { ...emptyEvent, eventType: 'SOME' as any, places: undefined } as any
+      const event: PartialEvent = { ...emptyEvent, eventType: 'SOME', places: undefined }
       expect(VALIDATORS.places?.(event, false)).toBe(false)
     })
   })
 
   describe('contactInfo', () => {
     it('returns contactInfo when neither official nor secretary is shown', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
-        contactInfo: { official: {}, secretary: {} } as any,
-        state: 'confirmed' as const,
+        contactInfo: { official: {}, secretary: {} },
+        state: 'confirmed',
       }
-      expect(VALIDATORS.contactInfo?.(event as any, true)).toBe('contactInfo')
+      expect(VALIDATORS.contactInfo?.(event, true)).toBe('contactInfo')
     })
 
     it('requires secretary email when required even if official is shown', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
-        contactInfo: { official: { phone: '111' }, secretary: { name: 'X' } } as any,
-        state: 'confirmed' as const,
+        contactInfo: { official: { phone: '111' }, secretary: { name: 'X' } },
+        state: 'confirmed',
       }
-      expect(VALIDATORS.contactInfo?.(event as any, true)).toBe('secretaryEmail')
+      expect(VALIDATORS.contactInfo?.(event, true)).toBe('secretaryEmail')
     })
   })
 
   describe('startDate/endDate', () => {
     it('fail for past dates when required', () => {
       // emptyEvent dates are in the past
-      expect(VALIDATORS.startDate?.(emptyEvent as any, true)).toBe('startDate')
-      expect(VALIDATORS.endDate?.(emptyEvent as any, true)).toBe('endDate')
+      expect(VALIDATORS.startDate?.(emptyEvent, true)).toBe('startDate')
+      expect(VALIDATORS.endDate?.(emptyEvent, true)).toBe('endDate')
     })
 
     it('allows past dates for drafts', () => {
-      const event = { ...emptyEvent, state: 'draft' as const }
+      const event: PartialEvent = { ...emptyEvent, state: 'draft' }
 
-      expect(VALIDATORS.startDate?.(event as any, true)).toBe(false)
-      expect(VALIDATORS.endDate?.(event as any, true)).toBe(false)
+      expect(VALIDATORS.startDate?.(event, true)).toBe(false)
+      expect(VALIDATORS.endDate?.(event, true)).toBe(false)
     })
 
     it('allows past dates for unsaved events', () => {
-      const event = { ...emptyEvent, id: '' }
+      const event: PartialEvent = { ...emptyEvent, id: '' }
 
-      expect(VALIDATORS.startDate?.(event as any, true)).toBe(false)
-      expect(VALIDATORS.endDate?.(event as any, true)).toBe(false)
+      expect(VALIDATORS.startDate?.(event, true)).toBe(false)
+      expect(VALIDATORS.endDate?.(event, true)).toBe(false)
     })
 
     it('return false for past dates when not required', () => {
-      expect(VALIDATORS.startDate?.(emptyEvent as any, false)).toBe(false)
-      expect(VALIDATORS.endDate?.(emptyEvent as any, false)).toBe(false)
+      expect(VALIDATORS.startDate?.(emptyEvent, false)).toBe(false)
+      expect(VALIDATORS.endDate?.(emptyEvent, false)).toBe(false)
     })
   })
 
   describe('validateEvent()', () => {
     it('collects errors across fields', () => {
       // emptyEvent is in the past, so start/end date validators should surface when required via inclusion
-      const errors = validateEvent(emptyEvent as any)
+      const errors = validateEvent(emptyEvent)
       expect(errors).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ key: 'startDate' }),
@@ -498,20 +507,20 @@ describe('validation', () => {
     })
 
     it('returns detailed objects for structured validators', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
-        classes: [{ class: 'ALO' } as any],
-        contactInfo: { official: { phone: '111' }, secretary: { name: 'X' } } as any,
+        classes: [{ class: 'ALO', date: emptyEvent.startDate }],
+        contactInfo: { official: { phone: '111' }, secretary: { name: 'X' } },
         cost: undefined,
         entryEndDate: undefined,
         entryStartDate: undefined,
-        eventType: 'NOME-B' as any,
+        eventType: 'NOME-B',
         headquarters: undefined,
         judges: [],
         places: undefined,
-        state: 'confirmed' as const,
+        state: 'confirmed',
       }
-      const errors = validateEvent(event as any)
+      const errors = validateEvent(event)
 
       // Expect a mix of structured and generic errors without asserting the full set
       expect(errors).toEqual(
@@ -532,12 +541,12 @@ describe('validation', () => {
     })
 
     it('requires official for OFFICIAL_EVENT_TYPES', () => {
-      const event = {
+      const event: PartialEvent = {
         ...emptyEvent,
-        eventType: 'NOME-B' as any,
+        eventType: 'NOME-B',
         official: undefined,
-        state: 'confirmed' as const,
-      } as any
+        state: 'confirmed',
+      }
       const errors = validateEvent(event)
       expect(errors).toEqual(
         expect.arrayContaining([
@@ -547,16 +556,16 @@ describe('validation', () => {
     })
 
     it('does not require official for non-official event types', () => {
-      const event = { ...emptyEvent, eventType: 'SOME' as any, official: undefined, state: 'confirmed' as const } as any
+      const event: PartialEvent = { ...emptyEvent, eventType: 'SOME', official: undefined, state: 'confirmed' }
       const errors = validateEvent(event)
       // Ensure no error object with field 'official'
-      expect(errors.find((e: any) => e?.opts?.field === 'official')).toBeUndefined()
+      expect(errors.find((e) => e.opts.field === 'official')).toBeUndefined()
     })
 
     it('logs to console in development environment', () => {
       vi.spyOn(env, 'isDevEnv').mockReturnValue(true)
       const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {})
-      const event = { ...emptyEvent, eventType: 'SOME' as any, official: undefined, state: 'confirmed' as const } as any
+      const event: PartialEvent = { ...emptyEvent, eventType: 'SOME', official: undefined, state: 'confirmed' }
       const errors = validateEvent(event)
 
       expect(errors).toHaveLength(3)

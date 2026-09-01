@@ -1,27 +1,51 @@
-import type { Element } from 'hast'
+import type { Element, Text } from 'hast'
+import type { Text as MdastText, Paragraph, Parents, Table } from 'mdast'
 import type { State } from 'mdast-util-to-hast/lib/state'
 import { all, one, tableHandler, wrap } from './table'
 
-// Mock state for testing - using any for flexibility in tests
+// The handlers return broad hast content unions; these narrow safely for assertions and fail the
+// test loudly when a node is not the expected shape.
+function isElement(node: unknown): node is Element {
+  return typeof node === 'object' && node !== null && 'type' in node && node.type === 'element'
+}
+
+function asElement(node: unknown): Element {
+  if (!isElement(node)) throw new Error('Expected a hast element')
+  return node
+}
+
+function textValue(node: unknown): string | undefined {
+  if (typeof node === 'object' && node !== null && 'value' in node && typeof node.value === 'string') {
+    return node.value
+  }
+  return undefined
+}
+
+// all()/one() are exercised on purpose with node shapes outside the mdast union (unknown node
+// types, missing children); this converts those deliberately invalid fixtures at one named boundary.
+const asParents = (node: unknown): Parents => node as Parents
+
+// Building a real mdast-util-to-hast State would need the library's private pipeline; the handlers
+// under test only touch these members, so the stand-in is converted at this single boundary.
 const mockState = {
   handlers: {
-    break: () => ({ children: [], properties: {}, tagName: 'br', type: 'element' }),
-    paragraph: (state: any, node: any) => ({
+    break: (): Element => ({ children: [], properties: {}, tagName: 'br', type: 'element' }),
+    paragraph: (state: State, node: Paragraph): Element => ({
       children: all(state, node),
       properties: {},
       tagName: 'p',
       type: 'element',
     }),
-    text: (_state: any, node: any) => ({ type: 'text', value: node.value }),
+    text: (_state: State, node: MdastText): Text => ({ type: 'text', value: node.value }),
   },
-  patch: (_node: any, result: any) => result,
-} as any as State
+  patch: (_node: unknown, result: Element) => result,
+} as unknown as State
 
 describe('table.ts', () => {
   describe('tableHandler', () => {
     it('should convert a markdown table to HTML table', () => {
       // Create a simple markdown table
-      const table = {
+      const table: Table = {
         align: ['left', 'center', 'right'],
         children: [
           {
@@ -44,7 +68,7 @@ describe('table.ts', () => {
         type: 'table',
       }
 
-      const result = tableHandler(mockState, table, undefined) as any
+      const result = asElement(tableHandler(mockState, table, undefined))
 
       // Verify the structure of the result
       expect(result.type).toBe('element')
@@ -52,16 +76,16 @@ describe('table.ts', () => {
       expect(result.children.length).toBeGreaterThan(0)
 
       // Check that the tbody exists
-      const tbody = result.children.find((child: any) => child.type === 'element' && child.tagName === 'tbody')
+      const tbody = asElement(result.children.find((child) => isElement(child) && child.tagName === 'tbody'))
       expect(tbody).toBeDefined()
 
       // Check that the rows exist
-      expect(tbody.children.some((child: any) => child.type === 'element' && child.tagName === 'tr')).toBe(true)
+      expect(tbody.children.some((child) => isElement(child) && child.tagName === 'tr')).toBe(true)
     })
 
     it('should handle tables without align property', () => {
       // Create a table without align property
-      const table = {
+      const table: Table = {
         children: [
           {
             children: [
@@ -81,7 +105,7 @@ describe('table.ts', () => {
         type: 'table',
       }
 
-      const result = tableHandler(mockState, table, undefined) as any
+      const result = asElement(tableHandler(mockState, table, undefined))
 
       // Verify the structure of the result
       expect(result.type).toBe('element')
@@ -89,7 +113,7 @@ describe('table.ts', () => {
     })
 
     it('should omit alignment when a column has no alignment', () => {
-      const table = {
+      const table: Table = {
         align: [null],
         children: [
           {
@@ -104,16 +128,16 @@ describe('table.ts', () => {
         type: 'table',
       }
 
-      const result = tableHandler(mockState, table, undefined) as any
-      const tbody = result.children.find((child: any) => child.type === 'element' && child.tagName === 'tbody')
-      const row = tbody.children.find((child: any) => child.type === 'element' && child.tagName === 'tr')
-      const cell = row.children.find((child: any) => child.type === 'element')
+      const result = asElement(tableHandler(mockState, table, undefined))
+      const tbody = asElement(result.children.find((child) => isElement(child) && child.tagName === 'tbody'))
+      const row = asElement(tbody.children.find((child) => isElement(child) && child.tagName === 'tr'))
+      const cell = asElement(row.children.find(isElement))
 
       expect(cell.properties.align).toBeUndefined()
     })
 
     it('should handle empty cells', () => {
-      // Create a table with empty cells
+      // Create a table with an empty (null) cell, which a real mdast Table cannot hold
       const table = {
         children: [
           {
@@ -127,7 +151,7 @@ describe('table.ts', () => {
         type: 'table',
       }
 
-      const result = tableHandler(mockState, table, undefined) as any
+      const result = asElement(tableHandler(mockState, table, undefined))
 
       // Verify the structure of the result
       expect(result.type).toBe('element')
@@ -147,11 +171,11 @@ describe('table.ts', () => {
       // Should have newlines at start, between nodes, and at end
       expect(result).toHaveLength(5)
       expect(result[0].type).toBe('text')
-      expect((result[0] as any).value).toBe('\n')
+      expect(textValue(result[0])).toBe('\n')
       expect(result[2].type).toBe('text')
-      expect((result[2] as any).value).toBe('\n')
+      expect(textValue(result[2])).toBe('\n')
       expect(result[4].type).toBe('text')
-      expect((result[4] as any).value).toBe('\n')
+      expect(textValue(result[4])).toBe('\n')
     })
 
     it('should not add extra newlines when loose is false', () => {
@@ -166,7 +190,7 @@ describe('table.ts', () => {
       expect(result).toHaveLength(3)
       expect(result[0].type).toBe('element')
       expect(result[1].type).toBe('text')
-      expect((result[1] as any).value).toBe('\n')
+      expect(textValue(result[1])).toBe('\n')
       expect(result[2].type).toBe('element')
     })
 
@@ -174,7 +198,7 @@ describe('table.ts', () => {
       const result = wrap([], true)
       expect(result).toHaveLength(1) // Just the initial newline
       expect(result[0].type).toBe('text')
-      expect((result[0] as any).value).toBe('\n')
+      expect(textValue(result[0])).toBe('\n')
 
       const result2 = wrap([], false)
       expect(result2).toHaveLength(0) // No nodes, no newlines
@@ -183,7 +207,7 @@ describe('table.ts', () => {
 
   describe('all', () => {
     it('should process all children of a parent node', () => {
-      const parent: any = {
+      const parent: Paragraph = {
         children: [
           { type: 'text', value: 'Hello' },
           { type: 'text', value: 'World' },
@@ -195,19 +219,19 @@ describe('table.ts', () => {
 
       expect(result).toHaveLength(2)
       expect(result[0].type).toBe('text')
-      expect((result[0] as any).value).toBe('Hello')
+      expect(textValue(result[0])).toBe('Hello')
       expect(result[1].type).toBe('text')
-      expect((result[1] as any).value).toBe('World')
+      expect(textValue(result[1])).toBe('World')
     })
 
     it('should handle parent without children', () => {
-      const parent: any = { type: 'someType' }
+      const parent = asParents({ type: 'someType' })
       const result = all(mockState, parent)
       expect(result).toEqual([])
     })
 
     it('should remove leading whitespace after breaks', () => {
-      const parent: any = {
+      const parent: Paragraph = {
         children: [
           { type: 'break' },
           { type: 'text', value: '  Hello' }, // Leading whitespace
@@ -219,12 +243,12 @@ describe('table.ts', () => {
 
       expect(result).toHaveLength(2)
       expect(result[1].type).toBe('text')
-      expect((result[1] as any).value).toBe('Hello') // Whitespace removed
+      expect(textValue(result[1])).toBe('Hello') // Whitespace removed
     })
 
     it('should remove leading whitespace in elements after breaks', () => {
-      // Using any type to avoid strict mdast type checking in tests
-      const parent: any = {
+      // A paragraph inside a paragraph is not valid mdast, but exercises the element branch
+      const parent = asParents({
         children: [
           { type: 'break' },
           {
@@ -233,31 +257,31 @@ describe('table.ts', () => {
           },
         ],
         type: 'paragraph',
-      }
+      })
 
       const result = all(mockState, parent)
 
       expect(result).toHaveLength(2)
       expect(result[1].type).toBe('element')
-      const element = result[1] as Element
+      const element = asElement(result[1])
       expect(element.children[0].type).toBe('text')
-      expect((element.children[0] as any).value).toBe('Hello') // Whitespace removed
+      expect(textValue(element.children[0])).toBe('Hello') // Whitespace removed
     })
 
-    it('should handle null results from one()', () => {
-      // Create a mock state that returns null for a specific node type
-      const customMockState = {
+    it('should handle empty results from one()', () => {
+      // Create a mock state whose html handler returns undefined
+      const customMockState: State = {
         ...mockState,
         handlers: {
           ...mockState.handlers,
-          ignore: () => null,
+          html: () => undefined,
         },
-      } as any as State
+      }
 
-      const parent: any = {
+      const parent: Paragraph = {
         children: [
           { type: 'text', value: 'Hello' },
-          { type: 'ignore' }, // This will return null
+          { type: 'html', value: '<!-- -->' }, // This will return undefined
           { type: 'text', value: 'World' },
         ],
         type: 'paragraph',
@@ -265,30 +289,30 @@ describe('table.ts', () => {
 
       const result = all(customMockState, parent)
 
-      expect(result).toHaveLength(2) // Only 2 items, the null result is skipped
+      expect(result).toHaveLength(2) // Only 2 items, the empty result is skipped
       expect(result[0].type).toBe('text')
-      expect((result[0] as any).value).toBe('Hello')
+      expect(textValue(result[0])).toBe('Hello')
       expect(result[1].type).toBe('text')
-      expect((result[1] as any).value).toBe('World')
+      expect(textValue(result[1])).toBe('World')
     })
 
     it('should handle array results from one()', () => {
-      // Create a mock state that returns an array for a specific node type
-      const customMockState = {
+      // Create a mock state whose emphasis handler returns an array
+      const customMockState: State = {
         ...mockState,
         handlers: {
           ...mockState.handlers,
-          multiple: () => [
+          emphasis: () => [
             { type: 'text', value: 'Item 1' },
             { type: 'text', value: 'Item 2' },
           ],
         },
-      } as any as State
+      }
 
-      const parent: any = {
+      const parent: Paragraph = {
         children: [
           { type: 'text', value: 'Before' },
-          { type: 'multiple' }, // This will return an array
+          { children: [], type: 'emphasis' }, // This will return an array
           { type: 'text', value: 'After' },
         ],
         type: 'paragraph',
@@ -297,33 +321,31 @@ describe('table.ts', () => {
       const result = all(customMockState, parent)
 
       expect(result).toHaveLength(4) // 1 + 2 + 1 = 4 items
-      expect((result[0] as any).value).toBe('Before')
-      expect((result[1] as any).value).toBe('Item 1')
-      expect((result[2] as any).value).toBe('Item 2')
-      expect((result[3] as any).value).toBe('After')
+      expect(textValue(result[0])).toBe('Before')
+      expect(textValue(result[1])).toBe('Item 1')
+      expect(textValue(result[2])).toBe('Item 2')
+      expect(textValue(result[3])).toBe('After')
     })
   })
 
   describe('one', () => {
     it('should process a single node using the appropriate handler', () => {
       const node = { type: 'text', value: 'Hello' }
-      const result = one(mockState, node, undefined) as any
+      const result = one(mockState, node, undefined)
 
-      expect(result.type).toBe('text')
-      expect(result.value).toBe('Hello')
+      expect(result).toMatchObject({ type: 'text', value: 'Hello' })
     })
 
     it('should throw an error for non-nodes', () => {
-      expect(() => one(mockState, null as any, undefined)).toThrow('Expected node, got `null`')
-      expect(() => one(mockState, undefined as any, undefined)).toThrow('Expected node, got `undefined`')
+      expect(() => one(mockState, null, undefined)).toThrow('Expected node, got `null`')
+      expect(() => one(mockState, undefined, undefined)).toThrow('Expected node, got `undefined`')
     })
 
     it('should remove trailing colons from node values', () => {
       const node = { type: 'text', value: 'Hello:' }
-      const result = one(mockState, node, undefined) as any
+      const result = one(mockState, node, undefined)
 
-      expect(result.type).toBe('text')
-      expect(result.value).toBe('Hello') // Colon removed
+      expect(result).toMatchObject({ type: 'text', value: 'Hello' }) // Colon removed
     })
 
     it('should use the unknown handler for unknown node types', () => {
@@ -338,7 +360,7 @@ describe('table.ts', () => {
   describe('Integration tests', () => {
     it('should correctly process a basic table structure', () => {
       // Create a simple table with basic structure
-      const table = {
+      const table: Table = {
         align: ['left', 'center'],
         children: [
           {
@@ -372,19 +394,19 @@ describe('table.ts', () => {
       }
 
       // Execute the handler with the table
-      const result = tableHandler(mockState, table, undefined) as any
+      const result = asElement(tableHandler(mockState, table, undefined))
 
       // Verify the structure of the result
       expect(result.type).toBe('element')
       expect(result.tagName).toBe('table')
 
       // Find the tbody element
-      const tbody = result.children.find((child: any) => child.type === 'element' && child.tagName === 'tbody')
+      const tbody = asElement(result.children.find((child) => isElement(child) && child.tagName === 'tbody'))
       expect(tbody).toBeDefined()
 
       // The tableHandler function puts the first row in a separate thead element
       // and only includes subsequent rows in the tbody
-      const rows = tbody.children.filter((child: any) => child.type === 'element' && child.tagName === 'tr')
+      const rows = tbody.children.filter(isElement).filter((child) => child.tagName === 'tr')
       expect(rows).toHaveLength(1) // Only the second row is in tbody
 
       // Verify the second row exists
@@ -394,7 +416,7 @@ describe('table.ts', () => {
       expect(secondRow.tagName).toBe('tr')
 
       // Verify the cells in the second row
-      const cells = secondRow.children.filter((child: any) => child.type === 'element' && child.tagName === 'td')
+      const cells = secondRow.children.filter(isElement).filter((child) => child.tagName === 'td')
       expect(cells.length).toBeGreaterThan(0)
 
       // Verify the first cell has content
