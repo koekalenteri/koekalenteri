@@ -523,17 +523,17 @@ export const isStartListAvailableForRegistration = (
 }
 
 /**
- * Start numbers ride the start list but publish separately (KOE-1006). An absent flag means
+ * Start numbers ride the start list but publish separately (KOE-1006). A wholly absent flag means
  * published — every event before the flag put its numbers out with the list, and a deploy must not
- * pull them — so only an explicit `false` withholds. Note the inverted default against the start
- * list's own class map, where an absent class means unpublished.
+ * pull them. But a class *missing from an existing map* was added after the flag existed, so it has
+ * no legacy claim and stays unpublished until the secretary releases it (KOE-1266).
  */
 const isStartNumbersPublishedForClass = (
   { startNumbersPublished }: Pick<JsonDogEvent, 'startNumbersPublished'>,
   eventClass?: string
 ) =>
   isStartListPublishedClassMap(startNumbersPublished)
-    ? startNumbersPublished[eventClass as RegistrationClass] !== false
+    ? startNumbersPublished[eventClass as RegistrationClass] === true
     : startNumbersPublished !== false
 
 type StartNumbersEvent = Pick<JsonDogEvent, 'state' | 'startListPublished' | 'startNumbersPublished'>
@@ -578,8 +578,9 @@ export const getStartNumbersPublishedClassMap = ({
   classes: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
 }): Partial<Record<RegistrationClass, boolean>> => {
   const existingMap = isStartListPublishedClassMap(startNumbersPublished) ? startNumbersPublished : {}
-  // The absent-means-published default (above) carries into the expanded map.
-  const defaultPublished = isStartListPublishedClassMap(startNumbersPublished) ? true : startNumbersPublished !== false
+  // The absent-means-published default (above) carries into the expanded map, but a class missing
+  // from an existing map is post-feature and starts unpublished (KOE-1266).
+  const defaultPublished = isStartListPublishedClassMap(startNumbersPublished) ? false : startNumbersPublished !== false
   const result: Partial<Record<RegistrationClass, boolean>> = {}
 
   for (const eventClass of classes) {

@@ -337,6 +337,81 @@ describe('putEventLambda', () => {
     )
   })
 
+  it('freezes an absent start number state when the start list publish state changes', async () => {
+    // KOE-1266: absent means published, so publishing the list would otherwise publish the numbers too.
+    const stored: JsonDogEvent = {
+      ...mockEvent,
+      classes: [
+        { class: 'ALO', date: '2025-06-01' },
+        { class: 'AVO', date: '2025-06-01' },
+      ],
+      startListPublished: { ALO: true },
+      state: 'invited',
+    }
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce(stored)
+
+    await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({
+        id: 'existing',
+        startListPublished: { ALO: true, AVO: true },
+      })
+    )
+
+    // ALO's numbers were already riding its published list and must stay out; AVO's were not.
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      stored,
+      expect.objectContaining({ startNumbersPublished: { ALO: true, AVO: false } })
+    )
+  })
+
+  it('freezes an absent start number state for a classless event', async () => {
+    const stored: JsonDogEvent = { ...mockEvent, startListPublished: false, state: 'invited' }
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce(stored)
+
+    await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startListPublished: true }))
+
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      stored,
+      expect.objectContaining({ startNumbersPublished: false })
+    )
+  })
+
+  it('leaves an explicit start number state alone when the start list is published', async () => {
+    const stored: JsonDogEvent = {
+      ...mockEvent,
+      startListPublished: false,
+      startNumbersPublished: false,
+      state: 'invited',
+    }
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce(stored)
+
+    await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startListPublished: true }))
+
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      stored,
+      expect.objectContaining({ startNumbersPublished: false })
+    )
+  })
+
+  it('does not invent a start number state when the start list state is untouched', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'invited' })
+
+    await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
+
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.anything(),
+      expect.not.objectContaining({ startNumbersPublished: expect.anything() })
+    )
+  })
+
   it('should reject an event edit based on stale modification data', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, modifiedAt: '2025-03-22T09:00:00.000Z' })

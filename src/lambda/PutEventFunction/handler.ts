@@ -1,6 +1,12 @@
-import type { JsonConfirmedEvent, JsonDogEvent, JsonUser, Patch } from '../../types'
+import type { JsonConfirmedEvent, JsonDogEvent, JsonUser, Patch, RegistrationClass } from '../../types'
 import { nanoid } from 'nanoid'
-import { getEventSeason, isEntryOpen, isEventDeletable } from '../../lib/event'
+import {
+  getEventSeason,
+  isEntryOpen,
+  isEventDeletable,
+  isStartNumbersAvailable,
+  isStartNumbersAvailableForClass,
+} from '../../lib/event'
 import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
@@ -43,6 +49,32 @@ const shouldStoreOriginalEntryEndDate = (
       item.entryEndDate &&
       item.entryEndDate > existing.entryEndDate
   )
+
+/**
+ * An event that predates the start number flag reads its absence as published (KOE-1006). When such
+ * an event's start list publish state changes, freeze the numbers state to what the public list
+ * showed before the change — publishing a list must never publish the numbers as a side effect
+ * (KOE-1266).
+ */
+const freezeAbsentStartNumbersState = (
+  data: JsonConfirmedEvent,
+  existing: JsonConfirmedEvent | undefined,
+  item: Patch<JsonConfirmedEvent>
+) => {
+  if (!existing || existing.startNumbersPublished !== undefined) return
+  if (!Object.hasOwn(item, 'startListPublished') || Object.hasOwn(item, 'startNumbersPublished')) return
+
+  if (existing.classes?.length) {
+    const frozen: Partial<Record<RegistrationClass, boolean>> = {}
+    for (const eventClass of existing.classes) {
+      // A class can run on several days; its numbers stay out if any of its days had them out.
+      frozen[eventClass.class] = frozen[eventClass.class] || isStartNumbersAvailableForClass(existing, eventClass)
+    }
+    data.startNumbersPublished = frozen
+  } else {
+    data.startNumbersPublished = isStartNumbersAvailable(existing)
+  }
+}
 
 const restoreServerOwnedLocks = (data: JsonConfirmedEvent, existing: JsonConfirmedEvent | undefined) => {
   delete data.registrationGroupsLock
@@ -201,6 +233,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // The registration-group lock is server-owned. Never accept it from an
   // admin payload, including when the stored event currently has no lock.
   restoreServerOwnedLocks(data, existing)
+  freezeAbsentStartNumbersState(data, existing, item)
   await updateEventDerivedFields(data)
 
   // modification info is always updated

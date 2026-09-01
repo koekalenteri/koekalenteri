@@ -346,8 +346,13 @@ describe('lib/event', () => {
       expect(
         isStartNumbersAvailableForClass({ ...published, startNumbersPublished: { ALO: false } }, { class: 'ALO' })
       ).toBe(false)
+      // A class missing from an existing map was added after the flag existed: it has no legacy
+      // claim, so it stays unpublished until explicitly released (KOE-1266).
       expect(
         isStartNumbersAvailableForClass({ ...published, startNumbersPublished: { ALO: false } }, { class: 'AVO' })
+      ).toBe(false)
+      expect(
+        isStartNumbersAvailableForClass({ ...published, startNumbersPublished: { AVO: true } }, { class: 'AVO' })
       ).toBe(true)
 
       // Numbers cannot be public on an unpublished list: the list is their only transport.
