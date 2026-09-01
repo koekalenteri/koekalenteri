@@ -849,7 +849,7 @@
       "number": "Starttinumero"
     },
     "duplicate": "Sama numero kahdesti",
-    "info": "Kirjaa paikan päällä arvotut starttinumerot. Kaksoiskappaleet torjutaan myös palvelimella.",
+    "info": "Kirjaa paikan päällä arvotut starttinumerot.",
     "save": "Tallenna numerot",
     "saved": "Starttinumerot tallennettu",
     "saveFailed": "Starttinumeroiden tallennus epäonnistui. Tarkista numerot ja yritä uudelleen.",

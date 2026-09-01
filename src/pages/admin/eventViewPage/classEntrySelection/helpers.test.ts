@@ -280,6 +280,35 @@ describe('helpers', () => {
       expect(result.group1[2].group?.number).toBe(3)
     })
 
+    it('should sort by the frozen start number when one exists', () => {
+      // The number column shows startGroup?.number ?? group?.number (KOE-1017), so the rows must
+      // line up with the drawn numbers or the list reads as shuffled (KOE-1218).
+      const drawn: Registration[] = [
+        {
+          ...mockRegistrations[0],
+          group: { key: 'group1', number: 1 },
+          id: 'reg1',
+          startGroup: { key: 'group1', number: 3 },
+        } as Registration,
+        {
+          ...mockRegistrations[0],
+          group: { key: 'group1', number: 2 },
+          id: 'reg2',
+          startGroup: { key: 'group1', number: 1 },
+        } as Registration,
+        {
+          ...mockRegistrations[0],
+          group: { key: 'group1', number: 3 },
+          id: 'reg3',
+          startGroup: { key: 'group1', number: 2 },
+        } as Registration,
+      ]
+
+      const result = buildRegistrationsByGroup(drawn, mockGroups)
+
+      expect(result.group1.map((reg) => reg.id)).toEqual(['reg2', 'reg3', 'reg1'])
+    })
+
     it('should handle registrations without group numbers', () => {
       const registrationsWithoutNumbers: Registration[] = [
         {

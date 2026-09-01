@@ -110,7 +110,11 @@ export const buildRegistrationsByGroup = (
     })
   }
   for (const regs of Object.values(byGroup)) {
-    regs.sort((a, b) => (a.group?.number || 999) - (b.group?.number || 999))
+    // The frozen, published number wins over the working order (KOE-1017/KOE-1218): the number
+    // column already shows it, so the rows must line up with it or the list reads as shuffled.
+    regs.sort(
+      (a, b) => (a.startGroup?.number ?? a.group?.number ?? 999) - (b.startGroup?.number ?? b.group?.number ?? 999)
+    )
   }
   return byGroup
 }

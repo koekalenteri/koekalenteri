@@ -55,19 +55,45 @@ describe('startNumbers', () => {
       })
     })
 
-    it('keeps an entered draw when publishing, freezing only the gaps', async () => {
+    it('keeps a fully entered draw when publishing', async () => {
+      const drawn = (id: string, number: number) =>
+        registration(id, { startGroup: { date: '2026-09-12', key: 'ALO-AP', number, time: 'ap' } })
+
+      const patches = await freezeStartNumbers('event-1', [drawn('run-1', 7), drawn('run-2', 3)], 'ALO')
+
+      // Freezing over an existing snapshot would replace the venue's drawn numbers with the working
+      // order in the same request that makes them public (KOE-1218).
+      expect(patches).toEqual([])
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    })
+
+    it('refuses to publish a day whose draw covers only part of the class', async () => {
       const drawn = registration('run-1', {
         startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' },
       })
 
-      const patches = await freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO')
+      // The gap would freeze to its working-order number, which can collide with a drawn one on the
+      // same day's public list. Refusing names the fix: enter the missing number and publish again.
+      await expect(freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO')).rejects.toThrow(
+        'Start numbers are missing for 1 dogs (ALO 2026-09-12)'
+      )
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    })
 
-      // Freezing over an existing snapshot would replace the venue's drawn numbers with the working
-      // order in the same request that makes them public (KOE-1218).
+    it('freezes an undrawn day beside a fully drawn one', async () => {
+      const drawn = registration('run-1', {
+        startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' },
+      })
+      const otherDay = registration('run-2', {
+        group: { date: '2026-09-13', key: 'ALO-AP', number: 2, time: 'ap' },
+      })
+
+      // Uniqueness is scoped to class and day, so the days publish independently.
+      const patches = await freezeStartNumbers('event-1', [drawn, otherDay], 'ALO')
+
       expect(patches).toEqual([
-        { id: 'run-2', startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 2, time: 'ap' } },
+        { id: 'run-2', startGroup: { date: '2026-09-13', key: 'ALO-AP', number: 2, time: 'ap' } },
       ])
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith('event-1', 'run-1', 'startGroup', expect.anything())
     })
 
     it('freezes every class when no class is named', async () => {

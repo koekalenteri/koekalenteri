@@ -31,15 +31,34 @@ export const freezeStartNumbers = async (
   registrations: JsonRegistration[],
   eventClass: RegistrationClass | undefined
 ): Promise<Patch<JsonRegistration>[]> => {
-  const patches: Patch<JsonRegistration>[] = []
+  const scoped = registrations.filter(
+    (registration) =>
+      isScorableRegistration(registration) && Boolean(registration.group?.date) && inScope(registration, eventClass)
+  )
 
-  for (const registration of registrations) {
-    if (!isScorableRegistration(registration) || !registration.group?.date) continue
-    if (!inScope(registration, eventClass)) continue
+  // A partly entered draw must not be published: the gaps would freeze to working-order numbers, and
+  // a working number can collide with a drawn one on the same day's list (KOE-1218). Uniqueness is
+  // scoped to class and day, so a day whose draw is complete publishes fine beside an undrawn one.
+  const gaps = new Map<string, number>()
+  const entered = new Set<string>()
+  for (const registration of scoped) {
+    const key = `${getRegistrationClass(registration) ?? ''} ${registration.group?.date ?? ''}`
+    if (registration.startGroup) entered.add(key)
+    else gaps.set(key, (gaps.get(key) ?? 0) + 1)
+  }
+  for (const [key, count] of gaps) {
+    if (entered.has(key)) {
+      throw new LambdaError(422, `Start numbers are missing for ${count} dogs (${key})`)
+    }
+  }
+
+  const patches: Patch<JsonRegistration>[] = []
+  for (const registration of scoped) {
     // An existing snapshot is already the dog's own number — the venue's entered draw (KOE-1218) or
     // an earlier publish. Freezing over it would replace the drawn numbers with the working order in
     // the same request that makes them public, so publishing only fills the gaps.
     if (registration.startGroup) continue
+    if (!registration.group?.date) continue
 
     const startGroup = { ...registration.group }
     await updateRegistrationField(eventId, registration.id, 'startGroup', startGroup)

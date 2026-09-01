@@ -849,7 +849,7 @@
       "number": "Start number"
     },
     "duplicate": "Duplicate number",
-    "info": "Enter the start numbers drawn at the venue. Duplicates are refused on the server too.",
+    "info": "Enter the start numbers drawn at the venue.",
     "save": "Save numbers",
     "saved": "Start numbers saved",
     "saveFailed": "Saving the start numbers failed. Check the numbers and try again.",
