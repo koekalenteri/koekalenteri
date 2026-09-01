@@ -305,6 +305,7 @@
     "datesOutsideClass": "The selected dates ({{dates}}) are not days of class {{class}}. You can fix this by opening the registration and saving it.",
     "datesOutsideEvent": "The selected dates ({{dates}}) are not days of the event. You can fix this by opening the registration and saving it.",
     "enterResults": "Enter results",
+    "enterStartNumbers": "Enter start numbers",
     "groupRules": {
       "duplicateHandler": "Handler {{name}} has {{count}} dogs in this group. The Judges Committee recommends placing dogs with the same handler in different groups, as familiar dogs may behave differently together than they would without each other during the social behaviour assessment.",
       "genderBalance": "The group's gender balance does not meet the rules: it must include at least two male and two female dogs. If the group remains this way, it should be supplemented with non-participating dogs for the social behaviour assessment. The group currently has {{maleCount}} male and {{femaleCount}} female dogs.",
@@ -817,6 +818,17 @@
     "time": "Time"
   },
   "startListNotPublished": "start list is not published yet",
+  "startNumbers": {
+    "column": {
+      "number": "Start number"
+    },
+    "duplicate": "Duplicate number",
+    "info": "Enter the start numbers drawn at the venue. Duplicates are refused on the server too.",
+    "save": "Save numbers",
+    "saved": "Start numbers saved",
+    "saveFailed": "Saving the start numbers failed. Check the numbers and try again.",
+    "title": "Start number entry"
+  },
   "startNumbersNotPublished": "start order is not confirmed yet",
   "stats": {
     "admin": {

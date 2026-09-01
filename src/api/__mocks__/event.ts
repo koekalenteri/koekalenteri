@@ -66,6 +66,10 @@ export async function getEvent(id: string, _signal?: AbortSignal): Promise<DogEv
   })
 }
 
+export const putStartNumbers = vi.fn(async (_eventId: string, _request: unknown, _token?: string) => ({
+  event: mockEvents[0],
+}))
+
 export const getEventAuditTrail = vi.fn(
   async (_id: string, _token: string, _signal?: AbortSignal): Promise<AuditRecord[] | undefined> => []
 )

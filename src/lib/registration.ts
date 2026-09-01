@@ -342,21 +342,28 @@ export const priorityDescriptionKey: PriorityCheckFn<
  * Structural minimum the sort needs, so it serves stored registrations and public projections alike —
  * including a public row whose number is withheld until the class's start numbers are published.
  */
+type SortablePlacement = { date?: string | Date; key?: string; number?: number; time?: RegistrationTime }
+
 export type SortableRegistration = {
   class?: string | null
   eventType?: string
-  group?: { date?: string | Date; key?: string; number?: number; time?: RegistrationTime }
+  group?: SortablePlacement
+  /** The frozen, published placement (KOE-1017); once it exists, it is the order everyone sees. */
+  startGroup?: SortablePlacement
 }
+
+/** The frozen placement wins over the working order: a published number is where the dog runs. */
+const placementOf = ({ group, startGroup }: SortableRegistration): SortablePlacement | undefined => startGroup ?? group
 
 const sortableDate = (date: string | Date | undefined): string =>
   date instanceof Date ? date.toISOString() : (date ?? '\uffff')
 
 export const getRegistrationGroupTime = (registration: SortableRegistration): RegistrationTime =>
-  registration.group?.time ?? 'kp'
+  placementOf(registration)?.time ?? 'kp'
 
 const byTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
   getRegistrationGroupTime(a) === getRegistrationGroupTime(b)
-    ? (a.group?.number ?? Number.MAX_SAFE_INTEGER) - (b.group?.number ?? Number.MAX_SAFE_INTEGER)
+    ? (placementOf(a)?.number ?? Number.MAX_SAFE_INTEGER) - (placementOf(b)?.number ?? Number.MAX_SAFE_INTEGER)
     : getRegistrationGroupTime(a).localeCompare(getRegistrationGroupTime(b))
 
 const byClassTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
@@ -365,9 +372,9 @@ const byClassTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): numbe
     : (getRegistrationClass(a) ?? '').localeCompare(getRegistrationClass(b) ?? '')
 
 export const sortRegistrationsByDateClassTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
-  sortableDate(a.group?.date) === sortableDate(b.group?.date)
+  sortableDate(placementOf(a)?.date) === sortableDate(placementOf(b)?.date)
     ? byClassTimeAndNumber(a, b)
-    : sortableDate(a.group?.date).localeCompare(sortableDate(b.group?.date))
+    : sortableDate(placementOf(a)?.date).localeCompare(sortableDate(placementOf(b)?.date))
 
 export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'class' | 'eventType' | 'group'>
