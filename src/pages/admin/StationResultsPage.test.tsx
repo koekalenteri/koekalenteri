@@ -27,6 +27,7 @@ vi.mock('../../api/judge')
 vi.mock('../../api/official')
 vi.mock('../../api/organizer')
 vi.mock('../../api/registration')
+vi.mock('../../api/station')
 
 const renderPage = (language: Language, stationId: string) => {
   const routes: RouteObject[] = [{ element: <StationResultsPage />, path: Path.admin.stationResults() }]
@@ -94,6 +95,25 @@ describe('StationResultsPage', () => {
     vi.runOnlyPendingTimers()
   })
   afterAll(() => vi.useRealTimers())
+
+  it('copies the tokenized station link for sharing', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderStation(i18n.language as Language)
+    await flushPromises()
+
+    // Defined after render on purpose: userEvent's setup installs its own clipboard stub, and this
+    // must land on top of it to observe the page's write.
+    const writeText = vi.fn()
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+
+    await user.click(screen.getByRole('button', { name: 'results.copyStationLink' }))
+    await flushPromises()
+
+    const { getStationLink } = await import('../../api/station')
+    expect(getStationLink).toHaveBeenCalledWith('test-results', 'post-2', TEST_ID_TOKEN)
+    // The mock mints `token-<stationId>`; what lands on the clipboard is the shareable public path.
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/station/test-results/post-2/access/token-post-2'))
+  })
 
   it('will not open on a post the event does not have', async () => {
     const { i18n } = useTranslation()

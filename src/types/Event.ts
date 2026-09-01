@@ -1,12 +1,16 @@
 import type {
   DbRecord,
+  EventResult,
   JsonDbRecord,
+  JsonEventResult,
   JsonRegistrationDate,
+  JsonRegistrationGroup,
   NotOptional,
   PublicJudge,
   PublicOrganizer,
   RegistrationClass,
   RegistrationDate,
+  RegistrationGroup,
   RegistrationTime,
   Replace,
   ReplaceOptional,
@@ -106,8 +110,41 @@ export type JsonEventStation = {
   judges?: PublicJudge[]
   /** One task worth the post's full points, or two worth half each. */
   tasks: 1 | 2
+  /** Versions the post's tokenized entry link (KOE-1258); bumping it revokes every link issued. */
+  tokenVersion?: number
 }
 export type EventStation = Replace<JsonEventStation, 'date', Date>
+
+/**
+ * One dog as a station secretary's tokenized link may see it: enough to call the dog up and score it,
+ * nothing more. Owner and handler details stay off a link this widely shared.
+ */
+export interface JsonStationEntryDog {
+  id: string
+  class?: RegistrationClass | null
+  eventType: string
+  group?: JsonRegistrationGroup
+  dog: { name?: string }
+  /** This post's own recordings only; the rest of the round is not this link's to see. */
+  eventResult?: Pick<JsonEventResult, 'elimination' | 'retirement' | 'tasks'>
+}
+export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'> & {
+  group?: RegistrationGroup
+  eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks'>
+}
+
+/** What the tokenized station link serves: the post, its slice of the course, and the dogs that run. */
+export interface JsonStationEntry {
+  event: Pick<JsonPublicDogEvent, 'id' | 'eventType' | 'name' | 'location' | 'startDate' | 'endDate' | 'classes'>
+  /** Without `tokenVersion`: the link must not reveal its own revocation counter. */
+  station: Omit<JsonEventStation, 'tokenVersion'>
+  registrations: JsonStationEntryDog[]
+}
+export type StationEntry = {
+  event: Pick<PublicDogEvent, 'id' | 'eventType' | 'name' | 'location' | 'startDate' | 'endDate' | 'classes'>
+  station: Omit<EventStation, 'tokenVersion'>
+  registrations: StationEntryDog[]
+}
 
 /**
  * How many tasks one class runs at a post, where that differs from the post's own layout.

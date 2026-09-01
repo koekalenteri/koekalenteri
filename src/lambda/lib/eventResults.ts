@@ -1,0 +1,225 @@
+import type { SubmittedEventResult, SubmittedTask } from '../../lib/results'
+import type { JsonConfirmedEvent, JsonEventResult, JsonEventResultTask, JsonRegistration, Patch } from '../../types'
+import { isScorableRegistration } from '../../lib/registration'
+import {
+  availableResultCodes,
+  mergeStationTasks,
+  resolveEventResult,
+  sameEventResult,
+  sameStationTasks,
+  stationVersion,
+} from '../../lib/results'
+import { audit, registrationAuditKey } from './audit'
+import { parseJSONWithFallback } from './json'
+import { LambdaError } from './lambda'
+import { updateRegistrationField } from './registration'
+
+interface ResultSubmission {
+  id: string
+  eventResult: Omit<SubmittedEventResult, 'tasks'> & { tasks?: SubmittedTask[] }
+  /**
+   * Scopes the submission to one post. A station secretary scores their own post while the others are
+   * being scored in parallel, so their save replaces that post's tasks and leaves the rest of the round
+   * as stored. Absent for the event secretary's whole-round view.
+   */
+  stationId?: string
+  /**
+   * The version this edit was made against, so a second writer can be told apart from the same writer
+   * trying again. Scoped to the post when `stationId` is set — a whole-result version would go stale
+   * every time any other post saved. Absent when the client believed nothing was stored yet.
+   */
+  basedOn?: string
+}
+
+/**
+ * What is stored for a dog after this request.
+ *
+ * Returned rather than left for the client to guess, because a station secretary correcting a dog they
+ * just scored has nothing else to go on: the next save needs the version this one produced, and a venue
+ * with a bad connection cannot rely on the WebSocket to deliver it.
+ */
+interface StoredEventResult {
+  id: string
+  eventResult: JsonEventResult
+}
+
+/** A dog whose stored result was written by someone else and disagrees with this submission. */
+interface EventResultConflict {
+  id: string
+  /** Present when only one post is in dispute, so the rest of the round need not be re-entered. */
+  stationId?: string
+  stored: JsonEventResult
+  submitted: JsonEventResult
+}
+
+interface ProcessedResultSubmissions {
+  conflicts: EventResultConflict[]
+  patches: Patch<JsonRegistration>[]
+  saved: StoredEventResult[]
+  unchanged: StoredEventResult[]
+}
+
+/**
+ * Who recorded a task and when. Stamped here rather than taken from the client: it decides what counts
+ * as a competing edit, so it must come from the server that accepted the write.
+ */
+const stampProvenance = (
+  tasks: SubmittedTask[] | undefined,
+  updatedAt: string,
+  updatedBy: string
+): JsonEventResultTask[] | undefined => tasks?.map((task) => ({ ...task, updatedAt, updatedBy }))
+
+const isSubmission = (value: unknown): value is ResultSubmission =>
+  typeof value === 'object' && value !== null && typeof (value as ResultSubmission).id === 'string'
+
+export const parseSubmissions = (body: string | null): ResultSubmission[] => {
+  const parsed = parseJSONWithFallback(body, [])
+  if (!Array.isArray(parsed)) return []
+
+  return parsed.filter(isSubmission)
+}
+
+/**
+ * Recompute rather than trust. The client sends task scores and the judge's own calls; the totals, the
+ * percentage and the composed result are derived here from the event's own course, so a client cannot
+ * report a prize its scores do not support.
+ */
+const resolveFor = (
+  confirmedEvent: JsonConfirmedEvent,
+  registration: JsonRegistration,
+  submitted: SubmittedEventResult,
+  updatedAt: string,
+  updatedBy: string
+): JsonEventResult => {
+  const eventClass = registration.class ?? undefined
+  const classStations = confirmedEvent.classes?.find((item) => item.class === eventClass)?.stations
+
+  return {
+    ...resolveEventResult(submitted, {
+      classStations,
+      eventClass,
+      eventType: confirmedEvent.eventType,
+      stations: confirmedEvent.stations,
+    }),
+    updatedAt,
+    updatedBy,
+  }
+}
+
+/**
+ * What a submission turns out to be, decided before anything is written. Keeping the decision apart
+ * from the writing is what lets the loop below read as three outcomes rather than as one long branch.
+ */
+type SubmissionOutcome =
+  | { kind: 'unchanged'; eventResult: JsonEventResult }
+  | { kind: 'conflict'; stored: JsonEventResult; submitted: JsonEventResult }
+  | { kind: 'save'; eventResult: JsonEventResult; hadStored: boolean }
+
+const classifySubmission = (
+  confirmedEvent: JsonConfirmedEvent,
+  registration: JsonRegistration,
+  submission: ResultSubmission,
+  timestamp: string,
+  userName: string
+): SubmissionOutcome => {
+  const stored = registration.eventResult
+  const { stationId } = submission
+  const submittedTasks = stampProvenance(submission.eventResult.tasks, timestamp, userName)
+  const submitted: SubmittedEventResult = { ...submission.eventResult, tasks: submittedTasks }
+  const resolve = (result: SubmittedEventResult) =>
+    resolveFor(confirmedEvent, registration, result, timestamp, userName)
+
+  // A retry from the field is the common case, not an edge case: the venue's connection drops, the
+  // secretary saves again, and the first attempt turns out to have landed. Comparing content rather
+  // than version makes that read as already stored, not as someone else's competing edit.
+  const alreadyStored = stationId
+    ? sameStationTasks(stored?.tasks, submittedTasks, stationId)
+    : sameEventResult(stored, resolve(submitted))
+
+  if (alreadyStored) return { eventResult: stored ?? resolve(submitted), kind: 'unchanged' }
+
+  // Only a genuinely different result written by someone else is a conflict. Scoped to the post when
+  // the submission is: two stations scoring the same dog touch different tasks and must not collide.
+  const storedVersion = stationId ? stationVersion(stored?.tasks, stationId) : stored?.updatedAt
+
+  if (storedVersion && storedVersion !== submission.basedOn) {
+    return { kind: 'conflict', stored: stored as JsonEventResult, submitted: resolve(submitted) }
+  }
+
+  // Merge rather than replace, or a station secretary's save carries away the scores another post
+  // already recorded for the same dog.
+  const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, stationId) : submittedTasks
+
+  return { eventResult: resolve({ ...submitted, tasks }), hadStored: Boolean(stored), kind: 'save' }
+}
+
+/**
+ * Classify, write and audit a batch of result submissions. Shared by the event secretary's endpoint
+ * and the tokenized station endpoint, so the two cannot drift on what counts as a retry, a conflict
+ * or a save — `userName` is whoever this write is attributed to.
+ */
+export const processResultSubmissions = async (
+  eventId: string,
+  confirmedEvent: JsonConfirmedEvent,
+  registrations: JsonRegistration[],
+  submissions: ResultSubmission[],
+  userName: string
+): Promise<ProcessedResultSubmissions> => {
+  // One timestamp for the batch, so every task saved together shares a version.
+  const timestamp = new Date().toISOString()
+
+  const patches: Patch<JsonRegistration>[] = []
+  const saved: StoredEventResult[] = []
+  const unchanged: StoredEventResult[] = []
+  const conflicts: EventResultConflict[] = []
+
+  for (const submission of submissions) {
+    const registration = registrations.find((item) => item.id === submission.id)
+    if (!registration) throw new LambdaError(404, `Registration '${submission.id}' not found`)
+
+    // A reserve never called up and a cancelled entry have no round to record. The views do not offer
+    // them a row, so this is a client working from a list that has moved on since it loaded — refusing
+    // is what stops a result being attributed to a dog that was not there.
+    if (!isScorableRegistration(registration)) {
+      throw new LambdaError(422, `Registration '${submission.id}' did not run`)
+    }
+
+    // The alphabet is the event type's own: a pass/fail test awards 1 or 0 and nothing else, so a code
+    // outside it is a client bug to refuse, not a judgement to store.
+    const { resultCode } = submission.eventResult
+    if (resultCode && !availableResultCodes(confirmedEvent.eventType).includes(resultCode)) {
+      throw new LambdaError(422, `Result code '${resultCode}' is not valid for ${confirmedEvent.eventType}`)
+    }
+
+    const outcome = classifySubmission(confirmedEvent, registration, submission, timestamp, userName)
+
+    if (outcome.kind === 'unchanged') {
+      unchanged.push({ eventResult: outcome.eventResult, id: submission.id })
+      continue
+    }
+
+    if (outcome.kind === 'conflict') {
+      conflicts.push({
+        id: submission.id,
+        ...(submission.stationId ? { stationId: submission.stationId } : {}),
+        stored: outcome.stored,
+        submitted: outcome.submitted,
+      })
+      continue
+    }
+
+    const { eventResult } = outcome
+
+    await updateRegistrationField(eventId, submission.id, 'eventResult', eventResult)
+    await audit({
+      auditKey: registrationAuditKey({ eventId, id: submission.id }),
+      message: outcome.hadStored ? 'Muutti tulosta' : 'Tallensi tuloksen',
+      user: userName,
+    })
+
+    patches.push({ eventResult, id: submission.id })
+    saved.push({ eventResult, id: submission.id })
+  }
+
+  return { conflicts, patches, saved, unchanged }
+}

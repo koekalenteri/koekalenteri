@@ -27,6 +27,10 @@ const routes: RouteObject[] = [
         })
       ),
       {
+        lazy: () => reloadOnChunkLoadError(() => import('./pages/StationEntryPage')),
+        path: 'station/:eventId/:stationId/access/:token',
+      },
+      {
         lazy: () => reloadOnChunkLoadError(() => import('./pages/PaymentPage')),
         path: 'p/:id/:registrationId',
       },

@@ -22,6 +22,10 @@ exports[`routes > should match a snapshot 1`] = `
       },
       {
         "lazy": [Function],
+        "path": "station/:eventId/:stationId/access/:token",
+      },
+      {
+        "lazy": [Function],
         "path": "p/:id/:registrationId",
       },
       {

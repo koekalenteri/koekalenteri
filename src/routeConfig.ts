@@ -58,5 +58,7 @@ export const Path = {
   registration: (registration: ParticipantRegistration) => participantPath('r', registration),
   registrationOk: (registration: ParticipantRegistration) => participantPath('r', registration, '/saved'),
   startList: (id: string = ':id') => `/startlist/${id}`,
+  stationEntry: (eventId: string, stationId: string, token: string) =>
+    `/station/${eventId}/${stationId}/access/${encodeURIComponent(token)}`,
   stats: '/tilastot',
 }

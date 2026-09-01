@@ -736,6 +736,7 @@
     "conflicts_one": "{{count}} result changed elsewhere. Check it and save again.",
     "conflicts_other": "{{count}} results changed elsewhere. Check them and save again.",
     "conflictTitle": "Conflicting results",
+    "copyStationLink": "Copy station secretary link",
     "couldStillHavePlaced": "Could still have placed",
     "eliminatingFaults": {
       "aggression": "Aggressive behaviour",
@@ -758,12 +759,16 @@
       "handlerChoice": "Handler withdrew",
       "injury": "Dog was injured"
     },
+    "revokeStationLink": "Revoke station link",
     "runningTotal": "{{points}} / {{maxPoints}}",
     "save": "Save results",
     "saved": "Results saved",
     "saveFailed": "Saving the results failed. The scores entered are still on screen.",
     "scope": "Show",
     "scopeAll": "Whole round",
+    "stationLinkCopied": "Station link copied to clipboard",
+    "stationLinkInvalid": "This link is not valid. Ask the event secretary for a new one.",
+    "stationLinkRevoked": "Station link revoked. Share a new link with the station secretary.",
     "title": "Results",
     "zeroFault": "Reason for zero",
     "zeroFaults": {

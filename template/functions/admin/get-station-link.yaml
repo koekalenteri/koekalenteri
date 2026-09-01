@@ -1,0 +1,34 @@
+  GetStationLinkFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetStationLinkFunction
+      Handler: handler.default
+      Environment:
+        Variables:
+          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:secretsmanager:${RegistrationEditTokenSecret}:SecretString}}'
+      Layers:
+        - !Ref DependenciesLayer
+      Tracing: PassThrough
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetStationLink:
+          Type: Api
+          Properties:
+            Path: /admin/station-link/{eventId}/{stationId}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetStationLinkFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetStationLinkFunction]]
+      RetentionInDays: 30

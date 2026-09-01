@@ -736,6 +736,7 @@
     "conflicts_one": "{{count}} tulos on muuttunut muualla. Tarkista ja tallenna uudelleen.",
     "conflicts_other": "{{count}} tulosta on muuttunut muualla. Tarkista ja tallenna uudelleen.",
     "conflictTitle": "Ristiriitaiset tulokset",
+    "copyStationLink": "Kopioi rastisihteerin linkki",
     "couldStillHavePlaced": "Olisi vielä voinut palkintosijoille",
     "eliminatingFaults": {
       "aggression": "Aggressiivinen käyttäytyminen",
@@ -758,12 +759,16 @@
       "handlerChoice": "Ohjaaja keskeytti",
       "injury": "Koira loukkaantui"
     },
+    "revokeStationLink": "Mitätöi rastilinkki",
     "runningTotal": "{{points}} / {{maxPoints}}",
     "save": "Tallenna tulokset",
     "saved": "Tulokset tallennettu",
     "saveFailed": "Tulosten tallennus epäonnistui. Syötetyt pisteet ovat yhä näkyvissä.",
     "scope": "Näytä",
     "scopeAll": "Kaikki rastit",
+    "stationLinkCopied": "Rastilinkki kopioitu leikepöydälle",
+    "stationLinkInvalid": "Linkki ei ole voimassa. Pyydä koesihteeriltä uusi linkki.",
+    "stationLinkRevoked": "Rastilinkki mitätöity. Jaa rastisihteerille uusi linkki.",
     "title": "Tulokset",
     "zeroFault": "Nollan syy",
     "zeroFaults": {
