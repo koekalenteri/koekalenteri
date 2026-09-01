@@ -81,12 +81,15 @@ export function availableResults(
 export function createMissingResult(
   requirements: EventResultRequirementsByDate | undefined,
   results: Array<QualifyingResult | ManualTestResult>,
-  regNo: string
+  regNo: string,
+  maxDate?: Date
 ): ManualTestResult {
   const rule = findFirstMissing(requirements, results)
+  const now = new Date()
   return {
     class: '',
-    date: new Date(),
+    // Default inside the qualification period: a date the rules will drop helps nobody (KOE-1270).
+    date: maxDate && maxDate < now ? maxDate : now,
     id: nanoid(10),
     judge: '',
     location: '',

@@ -20,6 +20,7 @@ interface Props {
   readonly result: QualifyingResult | ManualTestResult
   readonly manualResults?: ManualTestResult[]
   readonly disabled?: boolean
+  readonly rankingPeriod?: { min?: Date; max?: Date }
   readonly requirements?: EventResultRequirementsByDate
   readonly onChange?: (result: ManualTestResult, props: Partial<ManualTestResult>) => void
   readonly onRemove?: (result: ManualTestResult) => void
@@ -66,12 +67,16 @@ export default function QualifyingResultRow({
   result,
   manualResults,
   disabled,
+  rankingPeriod,
   requirements,
   onChange,
   onRemove,
 }: Props) {
   const { t } = useTranslation()
-  const maxDate = new Date()
+  const now = new Date()
+  // A result after the qualification period can never count (rules window ends at entry end), so
+  // don't let the picker offer dates the rules will silently drop (KOE-1270).
+  const maxDate = rankingPeriod?.max && rankingPeriod.max < now ? rankingPeriod.max : now
   const date9Months = dob ? addMonths(dob, 9) : maxDate
   const minDate = date9Months < maxDate ? date9Months : maxDate
 

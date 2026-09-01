@@ -88,9 +88,9 @@ export default function QualifyingResultsInfo({
   const handleAddResult = useCallback(
     () =>
       onChange?.({
-        results: [...(results ?? []), createMissingResult(requirements, qualifying, regNo ?? '')],
+        results: [...(results ?? []), createMissingResult(requirements, qualifying, regNo ?? '', rankingPeriod?.max)],
       }),
-    [onChange, results, requirements, qualifying, regNo]
+    [onChange, results, requirements, qualifying, regNo, rankingPeriod?.max]
   )
 
   const handleRemoveResult = useCallback(
@@ -124,6 +124,7 @@ export default function QualifyingResultsInfo({
             disabled={disabled}
             result={result}
             manualResults={results}
+            rankingPeriod={rankingPeriod}
             requirements={requirements}
             onChange={handleChange}
             onRemove={handleRemoveResult}
