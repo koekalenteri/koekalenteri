@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
-const setEventBody = (event: { body: string }, body: unknown) => {
+const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
@@ -27,12 +28,12 @@ vi.doMock('../lib/auth', () => ({
 const { default: putUserNameLambda } = await import('./handler')
 
 describe('putUserNameLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       name: 'Test User',
     }),
     headers: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

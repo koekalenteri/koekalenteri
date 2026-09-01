@@ -74,6 +74,7 @@ Object.defineProperty(Element.prototype, 'getBoundingClientRect', {
       width: 100,
       x: 0,
       y: 0,
+      // jsdom has no layout; the partial rect converts here.
     } as unknown as DOMRect
   },
 })

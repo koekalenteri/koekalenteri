@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockLambda = vi.fn((_name, fn) => fn)
@@ -25,10 +26,10 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: getEmailTemplatesLambda } = await import('./handler')
 
 describe('getEmailTemplatesLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: '',
     headers: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

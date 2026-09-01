@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetEvent = vi.fn()
@@ -14,7 +15,7 @@ vi.doMock('./event', () => ({
 const { authorizeEvent } = await import('./eventAuth')
 
 describe('authorizeEvent', () => {
-  const request = {} as any
+  const request = constructPartialAPIGwEvent({})
 
   beforeEach(() => {
     vi.clearAllMocks()

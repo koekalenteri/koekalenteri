@@ -55,18 +55,20 @@ describe('ws/connectionRepository', () => {
   })
 
   it('createConnection writes minimal payload when optional fields are missing', async () => {
-    await createConnection({ connectionId: 'c1' } as any)
+    await createConnection({ connectionId: 'c1' })
     expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1' })
   })
 
   it('createConnection writes expiresAt but ignores legacy auth fields', async () => {
-    await createConnection({
+    // Legacy connect payloads may still carry auth fields; createConnection must ignore them
+    const legacyPayload = {
       admin: true,
       connectionId: 'c1',
       expiresAt: 123,
       memberOf: ['org-1'],
       userId: 'u1',
-    } as any)
+    }
+    await createConnection(legacyPayload)
 
     expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1', expiresAt: 123 })
   })

@@ -26,6 +26,9 @@ Object.defineProperty(navigator, 'clipboard', {
   },
 })
 
+/** The handlers touch only defaultMuiPrevented; the minimal event converts at this boundary. */
+const asMuiEvent = (event: { defaultMuiPrevented: boolean }) => event as MuiEvent<React.MouseEvent>
+
 describe('useEntryHandlers', () => {
   // Common test data
   const mockSetOpen = vi.fn()
@@ -156,9 +159,9 @@ describe('useEntryHandlers', () => {
         value: 'TEST123',
       } as GridCellParams
 
-      const event = {
+      const event = asMuiEvent({
         defaultMuiPrevented: false,
-      } as unknown as MuiEvent<React.MouseEvent>
+      })
 
       await result.current.handleCellClick(params, event)
 
@@ -183,9 +186,9 @@ describe('useEntryHandlers', () => {
         value: 'some value',
       } as GridCellParams
 
-      const event = {
+      const event = asMuiEvent({
         defaultMuiPrevented: false,
-      } as unknown as MuiEvent<React.MouseEvent>
+      })
 
       await result.current.handleCellClick(params, event)
 

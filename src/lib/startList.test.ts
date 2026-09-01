@@ -70,6 +70,7 @@ describe('startListSpreadsheetRows', () => {
 
 describe('a published result on the exported list', () => {
   it('travels with the row, so the file matches what the screen shows', () => {
+    // The exporter reads only classes and startDate; the minimal event converts here.
     const event = { classes: [], startDate: new Date('2023-02-01') } as unknown as PublicConfirmedEvent
     const registration = {
       breeder: 'Test Breeder',

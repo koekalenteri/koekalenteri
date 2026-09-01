@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { getStationEntryToken } from '../lib/stationEntry'
+import { asJsonConfirmedEvent, asJsonRegistration, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -30,7 +30,7 @@ const { default: getStationEntryLambda } = await import('./handler')
 
 const station = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
 
-const confirmedEvent = {
+const confirmedEvent = asJsonConfirmedEvent({
   classes: [{ class: 'AVO' }],
   endDate: '2026-09-12',
   eventType: 'NOWT',
@@ -40,12 +40,11 @@ const confirmedEvent = {
   organizer: { id: 'org-1', name: 'Org' },
   startDate: '2026-09-12',
   stations: [station],
-} as unknown as JsonConfirmedEvent
+})
 
 const apiEvent = async (token?: string): Promise<APIGatewayProxyEvent> => {
   const bearer = token ?? (await getStationEntryToken('event-1', station))
-  // Safe: the handler and every mocked collaborator touch only the headers.
-  return { headers: { authorization: `Bearer ${bearer}` } } as unknown as APIGatewayProxyEvent
+  return constructPartialAPIGwEvent({ headers: { authorization: `Bearer ${bearer}` } })
 }
 
 describe('getStationEntryLambda', () => {
@@ -54,7 +53,7 @@ describe('getStationEntryLambda', () => {
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'post-1'))
     mockGetEvent.mockResolvedValue(confirmedEvent)
     mockGetRegistrationsByEventId.mockResolvedValue([
-      {
+      asJsonRegistration({
         class: 'AVO',
         dog: { name: 'Rekku', regNo: 'REG-1' },
         eventId: 'event-1',
@@ -62,7 +61,7 @@ describe('getStationEntryLambda', () => {
         group: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' },
         handler: { email: 'h@example.com', name: 'Handler' },
         id: 'reg-1',
-      } as unknown as JsonRegistration,
+      }),
     ])
   })
 

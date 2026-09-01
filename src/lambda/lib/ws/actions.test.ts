@@ -158,9 +158,9 @@ describe('ws/actions', () => {
   })
 
   it('publishRegistrationPatches sends admin:event-registrations payload to organizer audience', async () => {
-    const patch = [{ id: 'r1', state: 'invited' }]
+    const patch = [{ id: 'r1', state: 'ready' as const }]
 
-    await publishRegistrationPatches('e1', patch as any, 'org-1')
+    await publishRegistrationPatches('e1', patch, 'org-1')
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
     const call = broadcastConfigurations[0] as
@@ -179,7 +179,7 @@ describe('ws/actions', () => {
   it('strict registration publication rejects failed deliveries', async () => {
     mockBroadcast.mockResolvedValueOnce({ attempted: 2, failed: 1, gone: 0, sent: 1 })
 
-    await expect(publishRegistrationPatchesStrict('e1', [{ id: 'r1' }] as any, 'org-1')).rejects.toThrow(
+    await expect(publishRegistrationPatchesStrict('e1', [{ id: 'r1' }], 'org-1')).rejects.toThrow(
       'Failed to publish registration patches to 1 WebSocket connection(s)'
     )
   })

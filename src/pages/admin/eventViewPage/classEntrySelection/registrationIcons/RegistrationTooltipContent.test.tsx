@@ -1,3 +1,4 @@
+import type { DogEvent, Registration } from '../../../../../types'
 import { render, screen } from '@testing-library/react'
 import RegistrationTooltipContent from './RegistrationTooltipContent'
 
@@ -11,11 +12,12 @@ vi.mock('../../../../components/IconsTooltip', () => ({
 }))
 
 describe('RegistrationTooltipContent', () => {
+  // The tooltip reads only a few fields; the minimal fixtures convert at these boundaries.
   const mockEvent = {
     id: 'event-1',
     name: 'Test Event',
     priority: ['member'],
-  } as any
+  } as DogEvent
 
   const mockRegistration = {
     confirmed: true,
@@ -30,7 +32,7 @@ describe('RegistrationTooltipContent', () => {
     refundAmount: 0,
     refundAt: undefined,
     refundStatus: undefined,
-  } as any
+  } as unknown as Registration
 
   it('should render priority tooltip when priority is true', () => {
     render(

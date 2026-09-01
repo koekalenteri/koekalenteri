@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockWsConnect = vi.fn()
 
@@ -12,11 +13,11 @@ const { default: wsConnectHandler } = await import('./handler')
 describe('wsConnectHandler', () => {
   const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-  const event = {
+  const event = constructPartialAPIGwEvent({
     requestContext: {
       connectionId: 'test-connection-id',
     },
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -57,14 +58,16 @@ describe('wsConnectHandler', () => {
   })
 
   it('returns 400 without a connection id', async () => {
-    const result = await wsConnectHandler({ requestContext: {} } as any)
+    const result = await wsConnectHandler(constructPartialAPIGwEvent({ requestContext: {} }))
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
     expect(mockWsConnect).not.toHaveBeenCalled()
   })
 
   it('ignores query token and connects anonymously', async () => {
-    const result = await wsConnectHandler({ ...event, queryStringParameters: { token: 'ignored' } } as any)
+    const result = await wsConnectHandler(
+      constructPartialAPIGwEvent({ ...event, queryStringParameters: { token: 'ignored' } })
+    )
 
     expect(result).toEqual({ body: 'Connected', statusCode: 200 })
     expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })

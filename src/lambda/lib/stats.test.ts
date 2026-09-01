@@ -3,6 +3,7 @@ import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { RegistrationStatsInput } from './stats'
 import { vi } from 'vitest'
 import { CONFIG } from '../config'
+import { asJsonRegistration } from '../test-utils/helpers'
 
 const mockQuery = vi.fn()
 const mockRead = vi.fn()
@@ -329,12 +330,12 @@ describe('lib/stats', () => {
     })
 
     it('writes only organizer stats, leaving participation to the nightly rebuild', async () => {
-      const existingReg = {
-        dog: { breedCode: 'BC', regNo: 'DOG123' },
+      const existingReg = asJsonRegistration({
+        dog: { breedCode: '110', regNo: 'DOG123' },
         eventType: 'NOME',
         handler: { email: 'handler@example.com' },
         owner: { email: 'owner@example.com' },
-      } as unknown as JsonRegistration
+      })
       const updatedReg = { ...existingReg, notes: 'Updated notes' } as JsonRegistration
       const event = {
         eventType: 'NOME',
@@ -1144,6 +1145,7 @@ describe('lib/stats', () => {
     })
 
     it('handles null values correctly', () => {
+      // Legacy rows can hold nulls where the type says number | undefined
       const existingRegistration = {
         cancelled: false,
         paidAmount: null,

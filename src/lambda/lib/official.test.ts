@@ -21,6 +21,7 @@ describe('official', () => {
     const mockReadOfficials = vi.fn<KLAPI['lueKoemuodonKoetoimitsijat']>().mockResolvedValue({ json: [], status: 200 })
     const mockKlapi = {
       lueKoemuodonKoetoimitsijat: mockReadOfficials,
+      // The code under test calls only this method; the partial double converts here.
     } as unknown as KLAPI
     it('should return empty array for empty eventTypes input', async () => {
       const result = await fetchOfficialsForEventTypes(mockKlapi, [])
@@ -132,6 +133,7 @@ describe('official', () => {
     const mockDB = {
       batchWrite: mockBatchWrite,
       readAll: mockReadAll,
+      // The code under test touches only these members; the partial double converts here.
     } as unknown as CustomDynamoClient
 
     it('should do nothing with empty array', async () => {

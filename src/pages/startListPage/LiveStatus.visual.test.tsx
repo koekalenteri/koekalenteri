@@ -47,6 +47,7 @@ const event = {
     { date: minutesAgo(0), id: 'post-1', number: 1, tasks: 1 },
     { date: minutesAgo(0), id: 'post-2', number: 2, tasks: 2 },
   ],
+  // The live view reads only the fields above; the minimal event converts here.
 } as unknown as PublicConfirmedEvent
 
 // Twenty starters at a post taking two at a time, six of them already through: the estimate covers
@@ -86,6 +87,7 @@ const walkUpEvent = {
     },
   ],
   stations: [{ date: minutesAgo(0), dogsAtOnce: 2, id: 'post-3', number: 3, tasks: 1 }],
+  // The live view reads only the fields above; the minimal event converts here.
 } as unknown as PublicConfirmedEvent
 
 it('shows who is at each post and how fast the queue is moving (KOE-1259)', async () => {

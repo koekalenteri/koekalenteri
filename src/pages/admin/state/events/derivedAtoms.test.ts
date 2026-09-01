@@ -43,6 +43,7 @@ describe('admin event derived atoms', () => {
     const missingOrganizer = {
       ...event('missing-organizer', new Date('2026-05-28T00:00:00.000+03:00')),
       organizer: undefined,
+      // Deliberately missing the organizer, to cover the defensive path
     } as unknown as DogEvent
 
     const store = createStore()

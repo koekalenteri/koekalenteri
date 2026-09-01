@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -111,7 +112,7 @@ vi.doMock('../lib/ws/actions', () => ({
 const { default: paymentSuccessLambda } = await import('./handler')
 
 describe('paymentSuccessLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: '',
     headers: {},
     queryStringParameters: {
@@ -121,7 +122,7 @@ describe('paymentSuccessLambda', () => {
       'checkout-status': 'ok',
       'checkout-transaction-id': 'tx123',
     },
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

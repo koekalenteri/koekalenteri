@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -51,7 +52,7 @@ vi.doMock('../lib/ws/actions', () => ({
 const { default: putInvitationAttachmentLambda } = await import('./handler')
 
 describe('putInvitationAttachmentLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: 'file-content-base64',
     headers: {
       'Content-Type': 'multipart/form-data; boundary=boundary',
@@ -59,7 +60,7 @@ describe('putInvitationAttachmentLambda', () => {
     pathParameters: {
       eventId: 'event123',
     },
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

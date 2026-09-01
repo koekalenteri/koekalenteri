@@ -510,7 +510,8 @@ describe('getDogHandler', () => {
       status: 200,
     })
     mockKLAPI.lueKoiranKoetulokset.mockResolvedValueOnce({
-      json: null as any,
+      // The wire can carry a literal null where the type says optional
+      json: null as unknown as undefined,
       status: 200,
     })
     const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))

@@ -1,3 +1,4 @@
+import type { SNSEvent } from 'aws-lambda'
 import { vi } from 'vitest'
 
 const mockAudit = vi.fn()
@@ -32,6 +33,9 @@ vi.doMock('../lib/ws/actions', () => ({
 
 const { default: sesNotificationLambda } = await import('./handler')
 
+/** The handler reads only Records[].Sns.Message; minimal events convert at this boundary. */
+const asSNSEvent = (event: { Records: { Sns: { Message: string } }[] }) => event as SNSEvent
+
 describe('sesNotificationLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -40,33 +44,35 @@ describe('sesNotificationLambda', () => {
   })
 
   it('stores bounce details for the tagged registration', async () => {
-    await sesNotificationLambda({
-      Records: [
-        {
-          Sns: {
-            Message: JSON.stringify({
-              bounce: {
-                bouncedRecipients: [
-                  {
-                    diagnosticCode: 'smtp; 550 5.1.1 user unknown',
-                    emailAddress: 'Handler@Example.com',
-                  },
-                ],
-                timestamp: '2026-05-27T10:00:00.000Z',
-              },
-              mail: {
-                tags: {
-                  eventId: ['event123'],
-                  registrationId: ['reg456'],
-                  template: ['invitation'],
+    await sesNotificationLambda(
+      asSNSEvent({
+        Records: [
+          {
+            Sns: {
+              Message: JSON.stringify({
+                bounce: {
+                  bouncedRecipients: [
+                    {
+                      diagnosticCode: 'smtp; 550 5.1.1 user unknown',
+                      emailAddress: 'Handler@Example.com',
+                    },
+                  ],
+                  timestamp: '2026-05-27T10:00:00.000Z',
                 },
-              },
-              notificationType: 'Bounce',
-            }),
+                mail: {
+                  tags: {
+                    eventId: ['event123'],
+                    registrationId: ['reg456'],
+                    template: ['invitation'],
+                  },
+                },
+                notificationType: 'Bounce',
+              }),
+            },
           },
-        },
-      ],
-    } as any)
+        ],
+      })
+    )
 
     expect(mockDynamoUpdate).toHaveBeenCalledWith(
       { eventId: 'event123', id: 'reg456' },
@@ -111,29 +117,31 @@ describe('sesNotificationLambda', () => {
   })
 
   it('stores complaint details for the tagged registration', async () => {
-    await sesNotificationLambda({
-      Records: [
-        {
-          Sns: {
-            Message: JSON.stringify({
-              complaint: {
-                complainedRecipients: [{ emailAddress: 'owner@example.com' }],
-                complaintFeedbackType: 'abuse',
-                timestamp: '2026-05-27T11:00:00.000Z',
-              },
-              mail: {
-                tags: {
-                  eventId: ['event123'],
-                  registrationId: ['reg456'],
-                  template: ['registration'],
+    await sesNotificationLambda(
+      asSNSEvent({
+        Records: [
+          {
+            Sns: {
+              Message: JSON.stringify({
+                complaint: {
+                  complainedRecipients: [{ emailAddress: 'owner@example.com' }],
+                  complaintFeedbackType: 'abuse',
+                  timestamp: '2026-05-27T11:00:00.000Z',
                 },
-              },
-              notificationType: 'Complaint',
-            }),
+                mail: {
+                  tags: {
+                    eventId: ['event123'],
+                    registrationId: ['reg456'],
+                    template: ['registration'],
+                  },
+                },
+                notificationType: 'Complaint',
+              }),
+            },
           },
-        },
-      ],
-    } as any)
+        ],
+      })
+    )
 
     expect(mockDynamoUpdate).toHaveBeenCalledWith(
       { eventId: 'event123', id: 'reg456' },
@@ -161,20 +169,22 @@ describe('sesNotificationLambda', () => {
   })
 
   it('ignores notifications without registration tags', async () => {
-    await sesNotificationLambda({
-      Records: [
-        {
-          Sns: {
-            Message: JSON.stringify({
-              bounce: {
-                bouncedRecipients: [{ emailAddress: 'handler@example.com' }],
-              },
-              notificationType: 'Bounce',
-            }),
+    await sesNotificationLambda(
+      asSNSEvent({
+        Records: [
+          {
+            Sns: {
+              Message: JSON.stringify({
+                bounce: {
+                  bouncedRecipients: [{ emailAddress: 'handler@example.com' }],
+                },
+                notificationType: 'Bounce',
+              }),
+            },
           },
-        },
-      ],
-    } as any)
+        ],
+      })
+    )
 
     expect(mockDynamoUpdate).not.toHaveBeenCalled()
     expect(mockDynamoWrite).not.toHaveBeenCalled()

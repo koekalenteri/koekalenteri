@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -74,7 +75,7 @@ vi.doMock('../lib/ws/actions', () => ({
 const { default: refundSuccessLambda } = await import('./handler')
 
 describe('refundSuccessLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     queryStringParameters: {
       'checkout-amount': '1000',
       'checkout-provider': 'paytrail',
@@ -83,7 +84,7 @@ describe('refundSuccessLambda', () => {
       'checkout-transaction-id': 'transaction123',
       signature: 'valid-signature',
     },
-  } as any
+  })
 
   const mockTransaction = {
     amount: 1000,
@@ -288,9 +289,9 @@ describe('refundSuccessLambda', () => {
   })
 
   it('handles empty query parameters', async () => {
-    const emptyEvent = {
+    const emptyEvent = constructPartialAPIGwEvent({
       queryStringParameters: null,
-    } as any
+    })
 
     mockParseParams.mockReturnValueOnce({
       // No values

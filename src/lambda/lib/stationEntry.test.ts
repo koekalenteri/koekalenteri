@@ -1,4 +1,5 @@
-import type { JsonConfirmedEvent, JsonEventResult, JsonRegistration } from '../../types'
+import type { JsonEventResult, JsonRegistration } from '../../types'
+import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import {
   authorizeStationEntry,
   deriveStationEntryToken,
@@ -9,7 +10,7 @@ import {
 
 const station = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
 
-const confirmedEvent = {
+const confirmedEvent = asJsonConfirmedEvent({
   classes: [{ class: 'ALO' }],
   endDate: '2026-09-12',
   eventType: 'NOWT',
@@ -18,7 +19,7 @@ const confirmedEvent = {
   name: 'Syyskoe',
   startDate: '2026-09-12',
   stations: [station],
-} as unknown as JsonConfirmedEvent
+})
 
 const headers = (token?: string) => ({ headers: token ? { authorization: `Bearer ${token}` } : {} })
 
@@ -61,7 +62,7 @@ describe('stationEntry', () => {
 
   describe('stationEntryResponse', () => {
     const registration = (id: string, overrides: Partial<JsonRegistration> = {}): JsonRegistration =>
-      ({
+      asJsonRegistration({
         class: 'ALO',
         dog: { name: `Dog ${id}`, regNo: `REG-${id}` },
         eventId: 'event-1',
@@ -71,7 +72,7 @@ describe('stationEntry', () => {
         id,
         owner: { email: 'x@example.com', name: 'Owner' },
         ...overrides,
-      }) as unknown as JsonRegistration
+      })
 
     it('serves the minimum a post needs to call dogs up, and nothing personal', () => {
       const result = stationEntryResponse(confirmedEvent, station, [registration('run-1')])
@@ -106,7 +107,7 @@ describe('stationEntry', () => {
           ],
           updatedAt: 't2',
           updatedBy: 'u',
-        } as unknown as JsonEventResult,
+        },
       })
 
       const [dog] = stationEntryResponse(confirmedEvent, station, [scored]).registrations

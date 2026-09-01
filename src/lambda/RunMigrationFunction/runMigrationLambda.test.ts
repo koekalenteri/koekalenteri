@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -38,10 +39,10 @@ describe('runMigrationLambda', () => {
     { count: season, name: 'fixSeasonFromStartDate' },
   ]
 
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: '',
     headers: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

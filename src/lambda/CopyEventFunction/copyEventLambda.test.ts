@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
-const setEventBody = (event: { body: string }, body: unknown) => {
+const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
@@ -49,7 +50,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: copyEventHandler } = await import('./handler')
 
 describe('copyEventHandler', () => {
-  const event = { body: '{}' } as any
+  const event = constructPartialAPIGwEvent({ body: '{}' })
 
   beforeEach(() => {
     vi.clearAllMocks()

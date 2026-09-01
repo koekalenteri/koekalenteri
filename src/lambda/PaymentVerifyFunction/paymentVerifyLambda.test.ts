@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn().mockImplementation((statusCode: number, body: any) => ({
@@ -58,7 +59,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: paymentVerifyLambda } = await import('./handler')
 
 describe('paymentVerifyLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       'checkout-amount': '5000',
       'checkout-provider': 'paytrail',
@@ -67,7 +68,7 @@ describe('paymentVerifyLambda', () => {
       'checkout-transaction-id': 'tx123',
     }),
     headers: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

@@ -10,6 +10,7 @@ const baseEvent = {
     { date: new Date('2026-09-12'), id: 'post-1', number: 1, tasks: 1 },
     { date: new Date('2026-09-12'), id: 'post-2', number: 2, tasks: 2 },
   ],
+  // The live view reads only the fields above; the minimal event converts here.
 } as unknown as PublicConfirmedEvent
 
 const turn = (overrides: Partial<NonNullable<PublicConfirmedEvent['liveTurns']>[number]>) => ({

@@ -2,6 +2,7 @@ import type { ApiGatewayManagementApiClient } from '@aws-sdk/client-apigatewayma
 import { vi } from 'vitest'
 import { sendToConnection } from './gatewaySender'
 
+// sendToConnection only calls gateway.send; the partial doubles convert at these boundaries.
 describe('ws/gatewaySender', () => {
   it('returns sent when post succeeds', async () => {
     const gateway = { send: vi.fn().mockResolvedValue({}) } as unknown as ApiGatewayManagementApiClient

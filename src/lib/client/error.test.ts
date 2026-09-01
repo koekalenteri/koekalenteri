@@ -7,6 +7,7 @@ describe('error', () => {
     vi.restoreAllMocks()
   })
 
+  // reportError calls only recordError; the partial AwsRum double converts at these boundaries.
   describe('reportError', () => {
     it('should call reportError on rum', () => {
       const recordError = vi.fn()

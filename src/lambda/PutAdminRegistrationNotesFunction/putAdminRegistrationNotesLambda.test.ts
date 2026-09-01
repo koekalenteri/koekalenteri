@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
-const setEventBody = (event: { body: string }, body: unknown) => {
+const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
@@ -50,14 +51,14 @@ vi.doMock('../lib/ws/actions', () => ({
 const { default: putAdminRegistrationNotesLambda } = await import('./handler')
 
 describe('putAdminRegistrationNotesLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       eventId: 'event123',
       id: 'reg456',
       internalNotes: 'Test internal notes',
     }),
     headers: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

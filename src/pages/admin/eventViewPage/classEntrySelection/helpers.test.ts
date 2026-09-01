@@ -148,6 +148,7 @@ describe('helpers', () => {
       id: 'reg1',
       modifiedAt: new Date(),
       owner: { name: 'Owner 1' },
+      // The helpers read only the fields above; the minimal fixture converts here.
     } as unknown as Registration
 
     it('should return cancelled key when registration is cancelled', () => {
@@ -620,7 +621,7 @@ describe('helpers', () => {
         group: { key: 'group1', number: 1 },
         id: 'reg1',
       } as Partial<Registration> as Registration
-      const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
+      const _registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
         group2: [{ group: { key: 'group2', number: 2 }, id: 'reg2' } as RegistrationWithGroups],
       }
 
@@ -653,7 +654,7 @@ describe('helpers', () => {
         group: { key: 'group2', number: 2 },
         id: 'reg1',
       } as Partial<Registration> as Registration
-      const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
+      const _registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
         group2: [
           { group: { key: 'group2', number: 2 }, id: 'reg1' } as RegistrationWithGroups,
           { group: { key: 'group2', number: 3 }, id: 'reg2' } as RegistrationWithGroups,

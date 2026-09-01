@@ -22,7 +22,12 @@ describe('buildEventSavePatch', () => {
       classes: [{ class: 'ALO' as const, date: eventWithStaticDates.startDate, places: 2 }],
     }
 
-    expect(buildEventSavePatch(event, current, { classes: { 0: { places: 2 } } } as any)).toEqual({
+    // Deliberately an object where the type wants an array, as DynamoDB marshalling can produce
+    expect(
+      buildEventSavePatch(event, current, { classes: { 0: { places: 2 } } } as unknown as Parameters<
+        typeof buildEventSavePatch
+      >[2])
+    ).toEqual({
       classes: event.classes,
       id: current.id,
     })

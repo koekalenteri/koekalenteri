@@ -644,6 +644,7 @@ describe('lib/user', () => {
       batchWriteArguments = args
       return Promise.resolve(undefined)
     })
+    // The sync touches only these two members; the partial double converts at this boundary.
     const mockDB = {
       batchWrite: mockBatchWrite,
       readAll: mockReadAll,

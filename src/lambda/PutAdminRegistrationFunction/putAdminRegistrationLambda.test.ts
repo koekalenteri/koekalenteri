@@ -1,6 +1,7 @@
 import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetEvent = vi.fn()
@@ -135,7 +136,7 @@ const { default: putAdminRegistrationLambda } = await import('./handler')
 
 describe('putAdminRegistrationLambda', () => {
   const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       class: 'ALO',
       dates: [],
@@ -159,7 +160,7 @@ describe('putAdminRegistrationLambda', () => {
     requestContext: {
       requestId: 'test-request-id',
     },
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -332,7 +333,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('rejects a concurrent create that wins after the initial duplicate check', async () => {
-    const request = JSON.parse(event.body)
+    const request = JSON.parse(event.body ?? '')
     delete request.id
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(undefined).mockResolvedValueOnce({
       ...request,
@@ -356,7 +357,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('does not adopt a concurrent keyless registration', async () => {
-    const request = JSON.parse(event.body)
+    const request = JSON.parse(event.body ?? '')
     delete request.id
     delete request.creationIdempotencyKey
     const winner = { ...request, id: 'unrelated-registration', state: 'ready' }
@@ -369,7 +370,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('resumes a same-key create that wins while waiting for the lock', async () => {
-    const request = JSON.parse(event.body)
+    const request = JSON.parse(event.body ?? '')
     delete request.id
     request.creationIdempotencyKey = 'same-key'
     const winner = { ...request, id: 'winning-registration', state: 'ready' }
@@ -535,7 +536,7 @@ describe('putAdminRegistrationLambda', () => {
     const result = await putAdminRegistrationLambda({
       ...event,
       body: JSON.stringify({
-        ...JSON.parse(event.body),
+        ...JSON.parse(event.body ?? ''),
         creationIdempotencyKey: 'attacker-controlled-key',
       }),
     })
@@ -847,14 +848,14 @@ describe('putAdminRegistrationLambda', () => {
 
   it('rejects an update based on stale modification data', async () => {
     mockGetRegistration.mockResolvedValueOnce({
-      ...JSON.parse(event.body),
+      ...JSON.parse(event.body ?? ''),
       modifiedAt: '2025-03-22T09:00:00.000Z',
     })
 
     const result = await putAdminRegistrationLambda({
       ...event,
       body: JSON.stringify({
-        ...JSON.parse(event.body),
+        ...JSON.parse(event.body ?? ''),
         modifiedAt: '2025-03-22T08:00:00.000Z',
       }),
     })
@@ -925,7 +926,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('returns a concurrent idempotent retry while the original request holds the workflow lease', async () => {
-    const request = JSON.parse(event.body)
+    const request = JSON.parse(event.body ?? '')
     delete request.id
     request.creationIdempotencyKey = 'secret-create-key'
     const existingRegistration = {

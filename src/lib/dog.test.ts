@@ -81,6 +81,7 @@ describe('dog utility functions', () => {
     })
 
     it('falls back to the breed code for an unknown breed', () => {
+      // Deliberately outside the BreedCode union: an unknown code must fall through as-is
       expect(breedAbbreviation(t, '99999' as unknown as BreedCode)).toBe('99999')
     })
 

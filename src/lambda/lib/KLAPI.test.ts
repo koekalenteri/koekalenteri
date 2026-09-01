@@ -12,7 +12,7 @@ const mockConfig: KLAPIConfig = {
 const mockLoadConfig = vi.fn(async () => mockConfig)
 
 const originalFetch = global.fetch
-global.fetch = vi.fn() as any
+global.fetch = vi.fn<typeof fetch>()
 
 describe('KLAPI', () => {
   let klapi: KLAPI

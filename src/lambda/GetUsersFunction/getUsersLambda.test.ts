@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockAuthorize = vi.fn()
 const mockLambda = vi.fn((_name, fn) => fn)
@@ -25,7 +26,7 @@ vi.doMock('../lib/user', () => ({
 const { default: getUsersHandler } = await import('./handler')
 
 describe('getUsersHandler', () => {
-  const event = { body: '', headers: {} } as any
+  const event = constructPartialAPIGwEvent({ body: '', headers: {} })
   let errorSpy: import('vitest').MockInstance<any>
 
   beforeAll(() => {

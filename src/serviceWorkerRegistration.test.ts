@@ -101,6 +101,7 @@ describe('serviceWorkerRegistration', () => {
 
   it('reports and activates a waiting update only when requested', async () => {
     vi.stubEnv('NODE_ENV', 'production')
+    // The code under test only posts a message; the partial worker double converts here.
     const waitingWorker = { postMessage: vi.fn() } as unknown as ServiceWorker
     const registration = mockRegistration(waitingWorker)
     mockServiceWorkerContainer(registration)

@@ -29,6 +29,7 @@ describe('rum', () => {
           return mockInstance
         }
       }
+      // A class double cannot carry AwsRum's statics; the constructor converts here.
       vi.spyOn(awsRum, 'AwsRum').mockImplementation(MockAwsRum as unknown as typeof AwsRum)
 
       expect(rum()).toEqual(mockInstance)

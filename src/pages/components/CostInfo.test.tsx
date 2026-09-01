@@ -41,7 +41,7 @@ describe('CostInfo', () => {
     it('should ignore object member cost when base cost is numeric', () => {
       const { container } = setup({
         cost: 50,
-        costMember: { normal: 40 } as any,
+        costMember: { normal: 40 },
       })
       expect(container).toHaveTextContent('50 €')
       expect(container).not.toHaveTextContent('invalid cost configuration')
@@ -53,7 +53,7 @@ describe('CostInfo', () => {
     it('should treat numeric member cost as normal member price for object cost', () => {
       setup({
         cost: { normal: 50 } as DogEventCost,
-        costMember: 40 as any,
+        costMember: 40,
       })
 
       expect(screen.getByText('costNames.normal')).toBeInTheDocument()

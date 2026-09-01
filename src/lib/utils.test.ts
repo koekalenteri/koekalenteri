@@ -42,6 +42,7 @@ describe('utils', () => {
     })
 
     it('returns an empty array for malformed classes', () => {
+      // Deliberately an object where the type wants an array, as DynamoDB marshalling can produce
       expect(uniqueClasses({ classes: {} } as unknown as PublicDogEvent)).toEqual([])
     })
 

@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockDownloadFile = vi.fn()
 const mockGetParam = vi.fn()
@@ -36,12 +37,12 @@ class MockReadableStream {
 const { default: getAttachmentLambda } = await import('./handler')
 
 describe('getAttachmentLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: '',
     headers: {},
     pathParameters: { key: 'test-file.pdf' },
     queryStringParameters: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

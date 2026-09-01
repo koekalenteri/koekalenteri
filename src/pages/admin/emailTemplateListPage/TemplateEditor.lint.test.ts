@@ -1,3 +1,4 @@
+import type { EditorView } from '@uiw/react-codemirror'
 import { getLintSource } from './TemplateEditor.lint'
 
 describe('TemplateEditor.lint', () => {
@@ -8,6 +9,7 @@ describe('TemplateEditor.lint', () => {
     },
   }
 
+  // The lint source reads only state.doc; the minimal view double converts at this boundary.
   const makeView = (text: string) =>
     ({
       state: {
@@ -15,7 +17,7 @@ describe('TemplateEditor.lint', () => {
           toString: () => text,
         },
       },
-    }) as any
+    }) as unknown as EditorView
 
   it('does not lint identifier-like text inside string literals', () => {
     const lint = getLintSource(schema)

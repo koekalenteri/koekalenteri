@@ -11,6 +11,7 @@ const registration = {
 } as Registration
 
 const t = vi.fn()
+// A branded TFunction cannot be satisfied by a plain mock; converted at this one boundary.
 const translate = t as unknown as TFunction
 const enqueueSnackbar = vi.fn()
 

@@ -41,6 +41,7 @@ describe('useDnDHandlers', () => {
     group: { key: 'group1', number: 1 },
     id: 'reg1',
     modifiedAt: new Date(),
+    // The handlers read only the fields above; the minimal fixture converts here.
   } as unknown as Registration
 
   const mockRegistrations: Registration[] = [mockRegistration]

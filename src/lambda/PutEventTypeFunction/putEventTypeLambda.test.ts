@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockPublishAdminDataInvalidation = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
@@ -53,14 +54,14 @@ afterAll(() => {
 const { default: putEventTypeLambda } = await import('./handler')
 
 describe('putEventTypeLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       active: true,
       eventType: 'AGILITY',
       name: 'Agility',
     }),
     headers: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

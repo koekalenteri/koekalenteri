@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockWsDisconnect = vi.fn()
 const mockPublishEventViewers = vi.fn()
@@ -14,11 +15,11 @@ vi.doMock('../lib/ws/actions', () => ({
 const { default: wsDisconnectHandler } = await import('./handler')
 
 describe('wsDisconnectHandler', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     requestContext: {
       connectionId: 'test-connection-id',
     },
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -64,7 +65,7 @@ describe('wsDisconnectHandler', () => {
   })
 
   it('returns 400 without a connection id', async () => {
-    const result = await wsDisconnectHandler({ requestContext: {} } as any)
+    const result = await wsDisconnectHandler(constructPartialAPIGwEvent({ requestContext: {} }))
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
     expect(mockWsDisconnect).not.toHaveBeenCalled()

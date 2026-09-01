@@ -1,4 +1,5 @@
 import type { PublicDogEvent } from '../../../types'
+import type { EventMetadata } from './types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAtomValue } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -31,13 +32,13 @@ function makeEvent(id: string, startDate: string, endDate?: string): PublicDogEv
   } as PublicDogEvent
 }
 
-function wrapperWithState(initialEvents: PublicDogEvent[], metadata: Record<string, unknown>) {
+function wrapperWithState(initialEvents: PublicDogEvent[], metadata: Partial<EventMetadata>) {
   return function Wrapper({ children }: { readonly children: React.ReactNode }) {
     return (
       <Provider
         initializeState={({ set }) => {
           set(eventsAtom, initialEvents)
-          set(eventMetadataAtom, { singles: {}, ...metadata } as any)
+          set(eventMetadataAtom, { singles: {}, ...metadata })
         }}
       >
         {children}

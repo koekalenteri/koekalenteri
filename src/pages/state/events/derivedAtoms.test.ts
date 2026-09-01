@@ -20,6 +20,7 @@ describe('event derived atoms', () => {
         withUpcomingEntry: false,
       })
       store.set(eventsAtom, [
+        // The filters read only a few fields; the minimal events convert at these boundaries.
         {
           classes: [],
           endDate: new Date('2026-06-02'),
@@ -32,6 +33,7 @@ describe('event derived atoms', () => {
           startDate: new Date('2026-06-01'),
           state: 'confirmed',
         } as unknown as PublicDogEvent,
+        // Deliberately missing the organizer, to cover the filter's defensive path
         {
           classes: [],
           endDate: new Date('2026-06-04'),

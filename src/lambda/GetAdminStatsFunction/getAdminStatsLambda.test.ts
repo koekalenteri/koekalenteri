@@ -5,8 +5,8 @@ import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // Mocks
-const mockReadAll: any = vi.fn()
-const mockQuery: any = vi.fn()
+const mockReadAll = vi.fn()
+const mockQuery = vi.fn()
 const mockDynamoDB = {
   delete: vi.fn(),
   query: mockQuery,
@@ -14,7 +14,7 @@ const mockDynamoDB = {
   readAll: mockReadAll,
   update: vi.fn(),
   write: vi.fn(),
-} as any
+}
 
 const mockAuthorizeWithMemberOf = vi.fn<typeof authorizeWithMemberOf>()
 

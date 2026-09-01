@@ -517,6 +517,8 @@ describe('putEventLambda', () => {
 
     const res = await putEventLambda(
       constructAPIGwEvent(
+        // Deliberately an object where the type wants an array: DynamoDB marshalling produces
+        // this shape from sparse arrays, and the handler must reject it.
         { id: 'existing', [field]: { 0: { name: 'Invalid sparse array' } } } as unknown as Partial<JsonDogEvent>,
         { method: 'PATCH' }
       )

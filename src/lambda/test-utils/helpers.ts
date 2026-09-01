@@ -1,4 +1,5 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
+import type { DeepPartial, JsonConfirmedEvent, JsonRegistration } from '../../types'
 
 interface Options {
   method?: 'OPTIONS' | 'HEAD' | 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE'
@@ -63,3 +64,22 @@ export function constructAPIGwEvent<T = unknown>(message: T, options: Options = 
     stageVariables: {},
   }
 }
+
+/**
+ * Handlers under test read only a few fields of the API Gateway event, and many tests build
+ * deliberately partial events (a missing body or path parameter is often the scenario itself).
+ * Such a partial event converts to the full type at this one shared, named boundary.
+ */
+export const constructPartialAPIGwEvent = (
+  event: Partial<Omit<APIGatewayProxyEvent, 'requestContext'>> & {
+    requestContext?: Partial<APIGatewayProxyEvent['requestContext']>
+  }
+): APIGatewayProxyEvent => event as APIGatewayProxyEvent
+
+/**
+ * Many tests feed deliberately minimal events and registrations, where the code under test reads
+ * only the fields the fixture carries; the deep-partial fixtures convert to the full json shapes
+ * at these shared, named boundaries.
+ */
+export const asJsonConfirmedEvent = (event: DeepPartial<JsonConfirmedEvent>) => event as JsonConfirmedEvent
+export const asJsonRegistration = (reg: DeepPartial<JsonRegistration>) => reg as JsonRegistration

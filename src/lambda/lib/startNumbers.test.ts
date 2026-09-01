@@ -1,5 +1,6 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
+import { asJsonConfirmedEvent } from '../test-utils/helpers'
 
 const mockUpdateRegistrationField = vi.fn()
 const mockRemoveRegistrationField = vi.fn()
@@ -168,11 +169,11 @@ describe('startNumbers', () => {
 
   describe('setStartNumbersPublishedState', () => {
     it('flips the class entry in the map and writes it to the event', async () => {
-      const confirmedEvent = {
+      const confirmedEvent = asJsonConfirmedEvent({
         classes: [{ class: 'ALO' }, { class: 'AVO' }],
         id: 'event-1',
         startNumbersPublished: false,
-      } as unknown as JsonConfirmedEvent
+      })
 
       const state = await setStartNumbersPublishedState(confirmedEvent, 'ALO', true)
 

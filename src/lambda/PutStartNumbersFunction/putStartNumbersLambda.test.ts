@@ -1,6 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
+import { asJsonConfirmedEvent, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -48,14 +49,14 @@ vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishR
 const { default: putStartNumbersLambda } = await import('./handler')
 
 const confirmedEvent = () =>
-  ({
+  asJsonConfirmedEvent({
     classes: [{ class: 'ALO' }],
     id: 'event-1',
     organizer: { id: 'org-1', name: 'Org' },
     startListPublished: { ALO: true },
     startNumbersPublished: { ALO: false },
     state: 'invited',
-  }) as unknown as JsonConfirmedEvent
+  })
 
 const registration = (id: string, overrides: Partial<JsonRegistration> = {}): JsonRegistration =>
   ({
@@ -68,7 +69,7 @@ const registration = (id: string, overrides: Partial<JsonRegistration> = {}): Js
   }) as JsonRegistration
 
 const apiEvent = (body: unknown): APIGatewayProxyEvent =>
-  ({ body: JSON.stringify(body), headers: {} }) as unknown as APIGatewayProxyEvent
+  constructPartialAPIGwEvent({ body: JSON.stringify(body), headers: {} })
 
 describe('putStartNumbersLambda', () => {
   beforeEach(() => {

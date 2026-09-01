@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { RegistrationClass } from '../../../types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
@@ -452,7 +453,8 @@ describe('EntryInfo', () => {
   })
 
   it('should pick first available class when current reg.class is not in event classes', async () => {
-    const reg = merge(registrationWithStaticDatesAndClass, { class: 'VAL' as any })
+    // Deliberately not a RegistrationClass: the event's classes must win over a bogus value
+    const reg = merge(registrationWithStaticDatesAndClass, { class: 'VAL' as unknown as RegistrationClass })
     const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
     render(

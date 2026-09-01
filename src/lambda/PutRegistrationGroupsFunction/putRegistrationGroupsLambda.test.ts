@@ -62,7 +62,7 @@ vi.doMock('../lib/registration', () => ({
 const { authorizeWithMemberOf } = await import('../lib/auth')
 const authorizeWithMemberOfMock = authorizeWithMemberOf as import('vitest').Mock<typeof authorizeWithMemberOf>
 
-const mockBroadcast = vi.fn()
+const _mockBroadcast = vi.fn()
 const mockBroadcastAdminEvent = vi.fn()
 const mockBroadcastEventRegistrations = vi.fn()
 const mockBroadcastPublicEvent = vi.fn()

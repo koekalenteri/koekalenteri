@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
-const setEventBody = (event: { body: string }, body: unknown) => {
+const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
@@ -42,7 +43,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: putOrganizerLambda } = await import('./handler')
 
 describe('putOrganizerLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       email: 'test@example.com',
       id: 'org123',
@@ -50,7 +51,7 @@ describe('putOrganizerLambda', () => {
       paytrailMerchantId: 'merchant123',
     }),
     headers: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

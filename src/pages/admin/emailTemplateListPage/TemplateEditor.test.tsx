@@ -38,7 +38,8 @@ describe('TemplateEditor', () => {
     vi.useRealTimers()
   })
 
-  const baseTemplate: EmailTemplate = {
+  // The editor reads only the language fields; the partial template converts at this boundary.
+  const baseTemplate = {
     en: '',
     fi: '',
   } as unknown as EmailTemplate
@@ -51,13 +52,13 @@ describe('TemplateEditor', () => {
     hidden?: boolean
   }) {
     const onChange = opts?.onChange ?? vi.fn()
-    const language = (opts?.lang ?? 'fi') as any
+    const language = opts?.lang ?? 'fi'
     const template = { ...baseTemplate, [language]: opts?.value ?? '' } as EmailTemplate
 
     const { user } = renderWithUserEvents(
       <div style={{ height: 400, width: 600 }}>
         <TemplateEditor
-          templateId={opts?.templateId as any}
+          templateId={opts?.templateId}
           template={template}
           language={language}
           onChange={onChange}

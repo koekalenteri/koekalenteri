@@ -1,6 +1,7 @@
 import type { i18n } from 'i18next'
 import { registerFormatters } from './formatters'
 
+// registerFormatters touches only services.formatter.add; the partial double converts below.
 describe('registerFormatters', () => {
   it('formats a Finnish short datetime with a two-letter weekday', () => {
     let format: (date: Date, language: string) => string = () => ''

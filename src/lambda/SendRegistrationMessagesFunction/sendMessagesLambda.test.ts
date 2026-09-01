@@ -1,7 +1,8 @@
 import type { JsonConfirmedEvent, Registration } from '../../types'
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
-const setEventBody = (event: { body: string }, body: unknown) => {
+const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
@@ -80,7 +81,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: sendMessagesLambda } = await import('./handler')
 
 describe('sendMessagesLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
@@ -89,7 +90,7 @@ describe('sendMessagesLambda', () => {
       text: 'Test message',
     }),
     headers: {},
-  } as any
+  })
 
   const mockRegistrations: Partial<Registration>[] = [
     {

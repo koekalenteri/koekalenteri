@@ -27,6 +27,7 @@ describe('ServiceWorkerUpdateNotifier integration', () => {
 
   it('activates the waiting worker automatically', async () => {
     vi.stubEnv('NODE_ENV', 'production')
+    // The notifier only posts a message; the partial worker double converts here.
     const waitingWorker = { postMessage: vi.fn() } as unknown as ServiceWorker
     const registration = new EventTarget() as ServiceWorkerRegistration
     Object.defineProperties(registration, {

@@ -255,6 +255,7 @@ describe('dnd', () => {
         group: { key: GROUP_KEY_RESERVE, number: 2 },
         id: 'reg-id',
       }
+      // Legacy rows can hold a null group where the type says optional
       const regs = [{ group: null }] as unknown as Pick<Registration, 'group'>[]
 
       expect(determineChangesFromDrop(item, group, reg, regs, true)).toEqual([

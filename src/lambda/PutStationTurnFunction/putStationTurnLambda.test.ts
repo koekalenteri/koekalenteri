@@ -1,6 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonConfirmedEvent, JsonStationTurn } from '../../types'
 import { vi } from 'vitest'
+import { asJsonConfirmedEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -38,12 +39,12 @@ vi.doMock('../lib/ws/actions', () => ({ publishEventPatch: mockPublishEventPatch
 const { default: putStationTurnLambda } = await import('./handler')
 
 const confirmedEvent = (overrides: Partial<JsonConfirmedEvent> = {}) =>
-  ({
+  asJsonConfirmedEvent({
     id: 'event-1',
     organizer: { id: 'org-1', name: 'Org' },
     stations: [{ date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 }],
     ...overrides,
-  }) as unknown as JsonConfirmedEvent
+  })
 
 const storedTurn: JsonStationTurn = {
   dogs: [],

@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockPublishAdminDataInvalidation = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
@@ -65,11 +66,11 @@ vi.doMock('../lib/KLAPI', () => ({
 const { default: getOrganizersLambda } = await import('./handler')
 
 describe('getOrganizersLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: '',
     headers: {},
     queryStringParameters: null,
-  } as any
+  })
 
   let consoleLogSpy: import('vitest').MockInstance<any>
 

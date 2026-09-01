@@ -117,7 +117,7 @@ const createMockRegistration = (overrides: Partial<JsonRegistration> = {}): Json
   createdAt: '2025-01-01T00:00:00.000Z',
   createdBy: 'test-user',
   dates: [],
-  dog: {} as any,
+  dog: { name: 'Test Dog', regNo: 'TEST-123' },
   eventId: 'event123',
   eventType: 'Test Type',
   handler: { email: 'handler@exmaple.com', membership: true, name: 'Test Handler' },

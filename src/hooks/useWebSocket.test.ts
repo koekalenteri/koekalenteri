@@ -1428,19 +1428,21 @@ describe('useWebSocket', () => {
 
     // Override the shared mock so each construction returns a distinct instance
     const wsInstances: (typeof mockWebSocketInstance)[] = []
-    global.WebSocket = vi.fn(function MockWebSocket() {
-      const instance = {
-        close: vi.fn(),
-        onclose: null as (() => void) | null,
-        onerror: null as (() => void) | null,
-        onmessage: null as ((e: { data: string }) => void) | null,
-        onopen: null as (() => void) | null,
-        readyState: WebSocket.CONNECTING,
-        send: vi.fn(),
-      }
-      wsInstances.push(instance)
-      return instance
-    }) as unknown as typeof WebSocket
+    global.WebSocket = asWebSocketConstructor(
+      vi.fn(function MockWebSocket() {
+        const instance = {
+          close: vi.fn(),
+          onclose: null as (() => void) | null,
+          onerror: null as (() => void) | null,
+          onmessage: null as ((e: { data: string }) => void) | null,
+          onopen: null as (() => void) | null,
+          readyState: WebSocket.CONNECTING,
+          send: vi.fn(),
+        }
+        wsInstances.push(instance)
+        return instance
+      })
+    )
 
     renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
 

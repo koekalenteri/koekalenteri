@@ -37,7 +37,7 @@ describe('ws/connectionLifecycle', () => {
   it('connectWebSocket writes connection', async () => {
     vi.useFakeTimers().setSystemTime(new Date('2026-05-23T19:00:00.000Z'))
 
-    await connectWebSocket({ connectionId: 'c1' } as any)
+    await connectWebSocket({ connectionId: 'c1' })
 
     expect(mockQueryPublicConnections).toHaveBeenCalledWith()
     expect(mockCreateConnection).toHaveBeenCalledWith({ connectionId: 'c1', expiresAt: 1779570000 })
@@ -49,7 +49,7 @@ describe('ws/connectionLifecycle', () => {
       Array.from({ length: 1000 }, (_, index) => ({ connectionId: `c${index}` }))
     )
 
-    await expect(connectWebSocket({ connectionId: 'c1001' } as any)).rejects.toMatchObject({
+    await expect(connectWebSocket({ connectionId: 'c1001' })).rejects.toMatchObject({
       error: 'Too many public websocket connections',
       status: 429,
     })
@@ -63,7 +63,7 @@ describe('ws/connectionLifecycle', () => {
       userEmail: 'user@example.com',
       userId: 'u1',
       userName: 'User One',
-    } as any)
+    })
 
     expect(mockAuthenticateConnection).toHaveBeenCalledWith({
       connectionId: 'c1',

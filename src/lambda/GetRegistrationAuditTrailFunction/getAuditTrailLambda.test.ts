@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetParam = vi.fn()
@@ -36,11 +37,11 @@ vi.doMock('../lib/audit', () => ({
 const { default: getAuditTrailLambda } = await import('./handler')
 
 describe('getAuditTrailLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: '',
     headers: {},
     pathParameters: { eventId: 'event123', id: 'reg456' },
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
-const setEventBody = (event: { body: string }, body: unknown) => {
+const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
@@ -94,9 +95,10 @@ vi.doMock('@aws-sdk/client-ses', () => {
 })
 
 // Mock setTimeout to avoid waiting in tests
-vi.spyOn(global, 'setTimeout').mockImplementation((callback: any) => {
+vi.spyOn(global, 'setTimeout').mockImplementation((callback: () => void) => {
   callback()
-  return {} as any
+  // The code under test never touches the returned timer handle
+  return {} as unknown as NodeJS.Timeout
 })
 
 // Mock Date.toISOString to return a consistent timestamp for testing
@@ -116,7 +118,7 @@ vi.spyOn(console, 'error').mockImplementation(() => {})
 const { default: putEmailTemplateLambda } = await import('./handler')
 
 describe('putEmailTemplateLambda', () => {
-  const event = {
+  const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       en: '# English Template\n\nThis is a test template in English.',
       fi: '# Finnish Template\n\nThis is a test template in Finnish.',
@@ -124,7 +126,7 @@ describe('putEmailTemplateLambda', () => {
       name: 'Test Template',
     }),
     headers: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()
