@@ -441,9 +441,9 @@
     "mark": {
       "eyeWipe": "Eye wipe",
       "firstDogDown": "First dog down",
-      "found": "Found",
-      "notFound": "Not found",
-      "sent": "Sent"
+      "gotRetrieve": "Got the retrieve",
+      "noRetrieve": "No retrieve",
+      "onRetrieve": "On the retrieve"
     },
     "noEstimate": "no pace estimate yet",
     "now": "At the post now",

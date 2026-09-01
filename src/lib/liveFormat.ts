@@ -51,12 +51,13 @@ interface LiveFormat {
 }
 
 /**
- * NOME-A's live facts are marks, not scores: what the dog was sent for and whether it came back with
- * it. The last two are the judge's calls on top of that — an eye-wipe is failing at game another dog
- * retrieves in comparable conditions, a first dog down is marking wounded game and not finding what
- * the judge holds was findable — and neither is derivable from the order of attempts.
+ * NOME-A's live facts are marks, not scores, and the vocabulary is the one spoken at the post: the dog
+ * is noudossa, and it either sai noudon or ei noutoa. The last two are the judge's calls on top of
+ * that — an eye wipe is failing at game another dog retrieves in comparable conditions, a first dog
+ * down is marking wounded game and not finding what the judge holds was findable — and neither is
+ * derivable from the order of attempts, however plainly the order suggests one.
  */
-const NOME_A_MARKS: readonly LiveMark[] = ['sent', 'found', 'notFound', 'eyeWipe', 'firstDogDown']
+const NOME_A_MARKS: readonly LiveMark[] = ['onRetrieve', 'gotRetrieve', 'noRetrieve', 'eyeWipe', 'firstDogDown']
 
 /**
  * One post, a queue, nothing recorded but the result. What an unlisted format gets — and it fixes no

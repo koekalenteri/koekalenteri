@@ -441,9 +441,9 @@
     "mark": {
       "eyeWipe": "Eye wipe",
       "firstDogDown": "First dog down",
-      "found": "Löysi",
-      "notFound": "Ei löytänyt",
-      "sent": "Lähtee noutoon"
+      "gotRetrieve": "Sai noudon",
+      "noRetrieve": "Ei noutoa",
+      "onRetrieve": "Noudossa"
     },
     "noEstimate": "ei vielä arviota läpimenosta",
     "now": "Rastilla nyt",

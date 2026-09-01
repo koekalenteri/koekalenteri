@@ -67,9 +67,9 @@ describe('stationTurns', () => {
       [{ registrationIds: ['run-1'], taskIndex: 2, type: 'start' }],
       [{ registrationIds: ['run-1'], taskIndex: 0.5, type: 'start' }],
       [{ index: 0, mark: 'wagged', type: 'mark' }],
-      [{ index: -1, mark: 'found', type: 'mark' }],
-      [{ index: 10, mark: 'found', type: 'mark' }],
-      [{ mark: 'found', type: 'mark' }],
+      [{ index: -1, mark: 'gotRetrieve', type: 'mark' }],
+      [{ index: 10, mark: 'gotRetrieve', type: 'mark' }],
+      [{ mark: 'gotRetrieve', type: 'mark' }],
     ])('refuses %j with 422', (body) => {
       expect(() => parseStationTurnOp(body)).toThrow(expect.objectContaining({ status: 422 }))
     })
@@ -141,21 +141,21 @@ describe('stationTurns', () => {
     it('marks one dog of the open group without ending the span', () => {
       const open = storedTurn({ dogs: [{ name: 'Dog run-1' }, { name: 'Dog run-2' }] })
 
-      const turns = applyStationTurnOp([open], [], 'post-1', { index: 1, mark: 'found', type: 'mark' }, NOW)
+      const turns = applyStationTurnOp([open], [], 'post-1', { index: 1, mark: 'gotRetrieve', type: 'mark' }, NOW)
 
-      expect(turns[0]).toEqual({ ...open, dogs: [{ name: 'Dog run-1' }, { mark: 'found', name: 'Dog run-2' }] })
+      expect(turns[0]).toEqual({ ...open, dogs: [{ name: 'Dog run-1' }, { mark: 'gotRetrieve', name: 'Dog run-2' }] })
       expect(turns[0].endedAt).toBeUndefined()
     })
 
     it('refuses a mark with no open span, or with no such dog in it', () => {
       const open = storedTurn()
 
-      expect(() => applyStationTurnOp([], [], 'post-1', { index: 0, mark: 'found', type: 'mark' }, NOW)).toThrow(
+      expect(() => applyStationTurnOp([], [], 'post-1', { index: 0, mark: 'gotRetrieve', type: 'mark' }, NOW)).toThrow(
         expect.objectContaining({ status: 422 })
       )
-      expect(() => applyStationTurnOp([open], [], 'post-1', { index: 3, mark: 'found', type: 'mark' }, NOW)).toThrow(
-        expect.objectContaining({ status: 422 })
-      )
+      expect(() =>
+        applyStationTurnOp([open], [], 'post-1', { index: 3, mark: 'gotRetrieve', type: 'mark' }, NOW)
+      ).toThrow(expect.objectContaining({ status: 422 }))
     })
 
     it('records a break as a turn with no dogs', () => {

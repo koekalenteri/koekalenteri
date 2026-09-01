@@ -17,7 +17,7 @@ const { eventTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
 
 const PAUSES: readonly StationTurnPause[] = ['coffee', 'lunch', 'weather', 'other']
-const MARKS: readonly LiveMark[] = ['sent', 'found', 'notFound', 'eyeWipe', 'firstDogDown']
+const MARKS: readonly LiveMark[] = ['onRetrieve', 'gotRetrieve', 'noRetrieve', 'eyeWipe', 'firstDogDown']
 
 /** A post never lays out more tasks than this, so a turn cannot name one beyond them. */
 const MAX_TASK_INDEX = 1

@@ -28,8 +28,8 @@ const turns: StationTurnItem[] = [
   closed('b', 21, 14),
   {
     dogs: [
-      { mark: 'found', name: 'ANNALOUGHAN ACE', number: 1 },
-      { mark: 'notFound', name: 'WATERFOWLER ODIN', number: 2 },
+      { mark: 'gotRetrieve', name: 'ANNALOUGHAN ACE', number: 1 },
+      { mark: 'noRetrieve', name: 'WATERFOWLER ODIN', number: 2 },
       { mark: 'eyeWipe', name: 'PORTLEDGE PENELOPE', number: 3 },
       { name: 'WATERFOWLER OAKLEAF', number: 4 },
     ],
@@ -51,6 +51,6 @@ it("marks the group that is out, in the format's own vocabulary (KOE-1259)", asy
     </Frame>
   )
 
-  await expect.element(screen.getByText('3 PORTLEDGE PENELOPE · Eye wipe')).toBeVisible()
+  await expect.element(screen.getByText('2 WATERFOWLER ODIN · Ei noutoa')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-turn-marks')
 })

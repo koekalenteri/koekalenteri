@@ -27,7 +27,7 @@ describe('liveFormat', () => {
   })
 
   it('marks are the live vocabulary of NOME-A alone', () => {
-    expect(liveFormat('NOME-A').marks).toEqual(['sent', 'found', 'notFound', 'eyeWipe', 'firstDogDown'])
+    expect(liveFormat('NOME-A').marks).toEqual(['onRetrieve', 'gotRetrieve', 'noRetrieve', 'eyeWipe', 'firstDogDown'])
     expect(liveFormat('NOWT').marks).toEqual([])
     expect(liveFormat('NOU').marks).toEqual([])
   })

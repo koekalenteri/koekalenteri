@@ -89,7 +89,7 @@ describe('LiveStatus', () => {
       liveTurns: [
         turn({
           dogs: [
-            { mark: 'found', name: 'Ensimmainen', number: 5 },
+            { mark: 'gotRetrieve', name: 'Ensimmainen', number: 5 },
             { name: 'Toinen', number: 6 },
           ],
           id: 'open',
@@ -99,6 +99,6 @@ describe('LiveStatus', () => {
 
     render(<LiveStatus event={event} />)
 
-    expect(screen.getByText(/5 Ensimmainen \(liveStatus\.mark\.found\)/)).toBeInTheDocument()
+    expect(screen.getByText(/5 Ensimmainen \(liveStatus\.mark\.gotRetrieve\)/)).toBeInTheDocument()
   })
 })

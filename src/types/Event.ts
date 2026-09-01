@@ -144,12 +144,17 @@ export type StationTurnPause = 'coffee' | 'lunch' | 'weather' | 'other'
  * What a turn can say about a dog beyond that it ran (KOE-1259), for the formats whose live facts are
  * marks rather than scores — NOME-A, where all four dogs are on the same retrieve.
  *
+ * The words are the ones said out loud at the post, because a vocabulary nobody uses is one nobody
+ * reaches for in the rain: a dog is *noudossa*, and it either *sai noudon* or there is *ei noutoa*.
+ * The unit is the nouto, not the finding — "löysi" describes the dog's nose, "sai noudon" describes
+ * what the trial records.
+ *
  * `eyeWipe` and `firstDogDown` are the judge's calls, not derivations: neither "comparable conditions"
  * nor "was findable" is computable from the order of attempts, so they are recorded, never inferred.
  * Both are serious faults rather than eliminating ones, which is why they belong in the live vocabulary
  * at all — the stop they can cause publishes as an interruption, not as a dash.
  */
-export type LiveMark = 'sent' | 'found' | 'notFound' | 'eyeWipe' | 'firstDogDown'
+export type LiveMark = 'onRetrieve' | 'gotRetrieve' | 'noRetrieve' | 'eyeWipe' | 'firstDogDown'
 
 /** The public face of a dog in a turn: what the published start list already tells. */
 export interface JsonStationTurnDog {
