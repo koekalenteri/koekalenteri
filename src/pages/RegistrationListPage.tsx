@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { useRegistrationSubscription } from '../hooks/useRegistrationSubscription'
 import { redirectTo } from '../lib/client/navigation'
+import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { calculateCost } from '../lib/cost'
 import { getEventStateForClass } from '../lib/event'
 import { getRegistrationClass, getRegistrationEmails } from '../lib/registration'
@@ -100,10 +101,12 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       setConfirmOpen(false)
     } catch (error_) {
       console.error(error_)
+      // A silent failure looks like a dead button (KOE-1265) — always tell the user something.
+      enqueueSnackbar(t('registration.notifications.confirmFailed'), errorSnackbarOptions)
     } finally {
       setConfirmPending(false)
     }
-  }, [actions, allDisabled, confirmPending, event, registration, setRegistration])
+  }, [actions, allDisabled, confirmPending, event, registration, setRegistration, t])
 
   const handlePayment = useCallback(async () => {
     if (allDisabled || !registration || registration.cancelled) {
@@ -197,11 +200,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
 
   useEffect(() => {
     if (!event || !registration || registration.cancelled) return
+    // On the confirm route the confirm dialog goes first: the payment dialog would stack on top of
+    // it and its backdrop would swallow the confirm button (KOE-1265). It opens once confirmed.
+    if (confirm && !registration.confirmed) return
 
     if ((registration.paidAmount ?? 0) < (costResult?.amount ?? 0) && registration.messagesSent?.picked) {
       setPaymentOpen((current) => current ?? true)
     }
-  }, [event, registration, costResult])
+  }, [confirm, event, registration, costResult])
 
   useEffect(() => {
     if (registration?.language && registration.language !== language) {

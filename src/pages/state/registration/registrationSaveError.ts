@@ -39,6 +39,12 @@ export const showRegistrationSaveConflict = (
     return true
   }
 
+  if (isObject(error.body) && error.body.error === 'groupsBusy') {
+    // A held workflow lock, not a duplicate registration — tell the user to retry (KOE-1265).
+    enqueueSnackbar(t('registration.notifications.groupsBusy'), { variant: 'info' })
+    return true
+  }
+
   enqueueSnackbar(
     t('registration.notifications.alreadyRegistered', {
       contact: printContactInfo(event.contactInfo?.secretary),

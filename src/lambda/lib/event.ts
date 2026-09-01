@@ -311,7 +311,8 @@ export const lockRegistrationGroups = async (eventId: string, retries: number = 
     eventId,
     'registrationGroupsLock',
     retries,
-    'Registration groups are being updated. Please retry.'
+    // Structured so the client can tell "busy, retry" apart from other 409s (KOE-1265).
+    JSON.stringify({ error: 'groupsBusy', message: 'Registration groups are being updated. Please retry.' })
   )
 }
 
