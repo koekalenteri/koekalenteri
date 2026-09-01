@@ -41,6 +41,20 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   attaches the changed linux baselines to those Jira issues, so the ticket always shows the current
   look of the components it covers.
 
+## Jira Automation
+
+- A commit *claims* an issue by naming its KOE key in the subject line or on a body line of nothing
+  but keys (the footer convention). A key cited mid-sentence ("the KOE-85 gate") is context only.
+- When the CI `deploy-dev` job succeeds on a push to main, the `jira-testable` job moves every
+  claimed issue still in a development state to Ready for Testing and comments the deployed commits
+  on it (`scripts/jira-mark-testable.mjs`). Issues already in testing keep their state and only get
+  the comment; done issues are left alone.
+- So: do not comment "korjattu" on a Jira issue before the fix is pushed — the pipeline tells the
+  tester when it is actually testable. Detailed fix explanations are still written by hand; the
+  automation only carries the testability signal.
+- The `jira-screenshots` attach workflow intentionally matches keys anywhere in the message —
+  attaching an image to a context-cited issue is harmless, moving it would not be.
+
 ## Static Analysis (Sonar)
 
 SonarQube runs on every push and its findings have cost this repo ~40 follow-up commits.
