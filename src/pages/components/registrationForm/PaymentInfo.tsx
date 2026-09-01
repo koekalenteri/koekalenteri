@@ -60,12 +60,6 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
     }
   }, [registration, cost, onChange])
 
-  useEffect(() => {
-    if (registration.language !== language) {
-      onChange?.({ language })
-    }
-  }, [registration.language, language, onChange])
-
   if (typeof appliedCost !== 'object' || !isMinimalRegistrationForCost(registration)) {
     return null
   }

@@ -4,10 +4,11 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { Amplify } from 'aws-amplify'
+import i18n from 'i18next'
 import { useAtomValue } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
-import { Suspense, useCallback } from 'react'
+import { Suspense, useCallback, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { AWSConfig } from './amplify-env'
 import { useAuthSessionInitialization } from './hooks/useAuthSessionInitialization'
@@ -35,6 +36,13 @@ function App() {
   const authSessionInitialized = useAuthSessionInitialization(idToken)
   const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
   useAuthSessionRefresh(authSessionInitialized ? idToken : undefined)
+
+  useEffect(() => {
+    // The stored choice is the source of truth; i18n boots on the fallback and must realign after
+    // a reload, or everything comparing the two starts to disagree (KOE-1268).
+    if (i18n.language !== language) void i18n.changeLanguage(language)
+    document.documentElement.lang = language
+  }, [language])
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>

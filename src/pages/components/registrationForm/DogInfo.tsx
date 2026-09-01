@@ -51,7 +51,10 @@ export const DogInfo = ({
   const { t } = useTranslation()
   const [state, setState] = useState<State>({
     dob: !isValidDob(reg?.dog?.dob),
-    mode: reg?.dog?.regNo ? 'update' : 'fetch',
+    // A bare regNo without dog data is a half-written draft (an interrupted fetch, a persisted
+    // admin draft): starting it in 'update' would lock every field around an empty dog with the
+    // fetch CTA dead, so only a dog that actually has data starts in 'update' (KOE-1269).
+    mode: reg?.dog?.regNo && reg.dog.name ? 'update' : 'fetch',
     regNo: reg?.dog?.regNo ?? '',
   })
 

@@ -91,7 +91,7 @@ describe('PaymentInfo', () => {
     })
   })
 
-  it('synchronizes registration language from state language when different', () => {
+  it('does not touch the registration language (RegistrationForm owns it, KOE-1268)', () => {
     const onChange = vi.fn()
 
     render(
@@ -105,7 +105,7 @@ describe('PaymentInfo', () => {
       </Provider>
     )
 
-    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ language: expect.any(String) }))
+    expect(onChange).not.toHaveBeenCalledWith(expect.objectContaining({ language: expect.any(String) }))
   })
 
   it('does not clear legacy selection when nothing is selected', () => {

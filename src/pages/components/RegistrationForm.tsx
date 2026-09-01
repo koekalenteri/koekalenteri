@@ -1,13 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { TFunction } from 'i18next'
-import type {
-  DeepPartial,
-  Language,
-  ManualTestResult,
-  PublicConfirmedEvent,
-  Registration,
-  TestResult,
-} from '../../types'
+import type { DeepPartial, ManualTestResult, PublicConfirmedEvent, Registration, TestResult } from '../../types'
 import Cancel from '@mui/icons-material/Cancel'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -26,6 +19,7 @@ import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { calculateCost } from '../../lib/cost'
@@ -42,6 +36,7 @@ import {
 } from '../../lib/registration'
 import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
+import { languageAtom } from '../state'
 import { AsyncButton } from './AsyncButton'
 import { PaymentDetails } from './PaymentDetails'
 import { AdditionalInfo } from './registrationForm/AdditionalInfo'
@@ -88,7 +83,8 @@ export default function RegistrationForm({
   registration,
   savedRegistration,
 }: Props) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [errors, setErrors] = useState(() => validateRegistration(registration, event, savedRegistration))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
@@ -225,11 +221,12 @@ export default function RegistrationForm({
   }, [event, handleChange, registration, savedRegistration])
 
   useEffect(() => {
-    // update language on new registrations
-    if (!registration.id && i18n.language !== registration.language) {
-      handleChange?.({ language: i18n.language as Language })
+    // A new registration follows the user's stored language choice. The single writer: i18n itself
+    // realigns to the same atom in App, so no second effect may tug the field back (KOE-1268).
+    if (!registration.id && registration.language !== language) {
+      handleChange?.({ language })
     }
-  }, [i18n.language, handleChange, registration.language, registration.id])
+  }, [language, handleChange, registration.language, registration.id])
 
   useEffect(() => {
     // An unset selection defaults to the (first) owner; a key that resolves to no owner (stale
