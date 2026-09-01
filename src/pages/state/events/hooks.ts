@@ -292,10 +292,27 @@ function useEvent(eventId: string | undefined) {
 
 export function useConfirmedEvent(eventId: string | undefined) {
   const event = useEvent(eventId)
+  const metadata = useAtomValue(eventMetadataAtom)
+  const fetchEvents = useFetchEvents()
+  const singleFresh = eventId ? isSingleFresh(metadata, eventId) : false
+  const usable = !!event && isConfirmedEvent(event)
+
+  useEffect(() => {
+    // The cache can hold a pre-confirmation copy from an earlier visit while the server already
+    // has a usable one. Left alone it would read as "loading" forever (KOE-1262), so refresh it.
+    if (eventId && event && !usable && !singleFresh) {
+      fetchEvents(undefined, undefined, eventId)
+    }
+  }, [eventId, event, usable, singleFresh, fetchEvents])
 
   if (event === null) {
     return null
   }
 
-  return event && isConfirmedEvent(event) ? event : undefined
+  // A fresh copy that still isn't a confirmed event is a definitive miss, not a pending load.
+  if (event && !usable && singleFresh) {
+    return null
+  }
+
+  return usable ? event : undefined
 }

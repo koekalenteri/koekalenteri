@@ -181,7 +181,10 @@ export function Component() {
 
   return (
     <Suspense fallback={<LoadingPage />}>
-      {!event || !registration ? (
+      {event === undefined ? (
+        // Still loading. A `null` event or registration is a known miss and must render its
+        // message below — not spin forever (KOE-1262); the registration atom suspends while
+        // loading, so by here it has resolved.
         <LoadingPage />
       ) : (
         <Await resolve={data.response} errorElement={<ErrorInfo />}>
