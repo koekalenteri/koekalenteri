@@ -166,6 +166,15 @@ export interface JsonRegistration extends JsonDbRecord {
   /** Raw participant edit token. Only present in participant-facing API responses. */
   editToken?: string
   group?: JsonRegistrationGroup
+  /**
+   * The published start position, frozen when the class's start numbers are published (KOE-1017).
+   * `group` stays the secretary's working order and is renumbered freely; this snapshot is the
+   * public truth, and nothing automatic writes it — only publishing the class's numbers (which
+   * rewrites it from the group as it stands) or the secretary's explicit number entry. The whole
+   * placement is snapshotted rather than the bare number because a cancellation drops the group's
+   * date and time, and the POISSA row still has to land under the right day.
+   */
+  startGroup?: JsonRegistrationGroup
   handler?: RegistrationPerson
   emailDeliveryStatus?: JsonEmailDeliveryStatus
   internalNotes?: string
@@ -270,6 +279,7 @@ export interface Registration
       | 'refundAt'
       | 'results'
       | 'group'
+      | 'startGroup'
       | keyof JsonDbRecord
     >,
     DbRecord {
@@ -281,6 +291,7 @@ export interface Registration
   qualifyingResults: QualifyingResult[]
   results?: Array<ManualTestResult>
   group?: RegistrationGroup
+  startGroup?: RegistrationGroup
   invitationAttachmentUpdatedAt?: Date
 }
 
@@ -295,10 +306,6 @@ export interface JsonRegistrationPatchRequest {
 
 export interface RegistrationPatchRequest extends Omit<JsonRegistrationPatchRequest, 'modifiedAt'> {
   modifiedAt?: Date
-}
-
-export interface JsonRegistrationWithGroup extends JsonRegistration {
-  group: JsonRegistrationGroup
 }
 
 export interface JsonPublicRegistration {

@@ -418,7 +418,7 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO Judge One'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Dog 1'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('(i. Sire Dog, e. Dam Dog)'))
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. PERUTTU'))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. POISSA'))
   })
 
   it('copies unpublished participants and their publication status in preview mode', async () => {

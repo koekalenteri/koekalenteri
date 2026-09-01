@@ -14,7 +14,7 @@ describe('CancelledRegistration', () => {
     // Check that group number is rendered
     expect(screen.getByText('123.')).toBeInTheDocument()
 
-    // Check that PERUTTU text is rendered
-    expect(screen.getByText('PERUTTU')).toBeInTheDocument()
+    // Check that POISSA text is rendered
+    expect(screen.getByText('POISSA')).toBeInTheDocument()
   })
 })

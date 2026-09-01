@@ -1,4 +1,12 @@
-import type { AuditRecord, DogEvent, EventClass, InvitationAttachmentVersion, Patch, PublicDogEvent } from '../types'
+import type {
+  AuditRecord,
+  DogEvent,
+  EventClass,
+  InvitationAttachmentVersion,
+  Patch,
+  PublicDogEvent,
+  RegistrationClass,
+} from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
 import http, { withToken } from './http'
@@ -96,6 +104,27 @@ export async function putEvent(event: Patch<DogEvent>, token?: string, signal?: 
   return event.id
     ? (await http.patch<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, request)).data
     : (await http.post<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, request)).data
+}
+
+export interface StartNumbersRequest {
+  eventClass?: RegistrationClass
+  /** Publishing is also the freeze: the server snapshots each participant's current group. */
+  published?: boolean
+  numbers?: { id: string; startNumber: number }[]
+}
+
+/** The one endpoint that writes start numbers (KOE-1017, KOE-1218). */
+export async function putStartNumbers(
+  eventId: string,
+  request: StartNumbersRequest,
+  token?: string,
+  signal?: AbortSignal
+): Promise<{ event: DogEvent }> {
+  return http.put<StartNumbersRequest, { event: DogEvent }>(
+    `/admin/startnumbers/${eventId}`,
+    request,
+    withToken({ signal }, token)
+  )
 }
 
 export async function searchEventKcIdChoices(

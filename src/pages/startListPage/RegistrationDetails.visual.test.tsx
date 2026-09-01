@@ -65,6 +65,33 @@ it('runs alphabetically without numbers until the start order is confirmed', asy
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-unconfirmed-order')
 })
 
+it("holds a cancelled dog's number as a bare POISSA row", async () => {
+  // KOE-1017: the published number is the dog's own — a cancellation keeps the slot occupied and
+  // publishes nothing else about who it was.
+  const { CancelledRegistration } = await import('./CancelledRegistration')
+  const second: PublicRegistration = {
+    ...registration,
+    dog: { ...registration.dog, name: "FLATGOLD'S SECOND IN LINE", regNo: 'FI13776/22' },
+    group: { ...registration.group, number: 3 },
+    result: undefined,
+  }
+
+  const screen = await render(
+    <Frame>
+      <Table>
+        <TableBody>
+          <RegistrationDetails index={0} registration={{ ...registration, result: undefined }} />
+          <CancelledRegistration groupNumber={2} />
+          <RegistrationDetails index={1} registration={second} />
+        </TableBody>
+      </Table>
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('POISSA')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-poissa-row')
+})
+
 it('publishes the result on its own line under the start list row', async () => {
   const screen = await render(
     <Frame>

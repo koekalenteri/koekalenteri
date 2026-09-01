@@ -121,6 +121,66 @@ describe('getStartListLambda', () => {
     expect(payload.map((reg: { group: { number?: number } }) => reg.group.number)).toEqual([1, 2])
   })
 
+  it('serves the frozen number and keeps a cancelled dog as a bare POISSA row', async () => {
+    const confirmedEvent = {
+      classes: [{ class: 'ALO', state: 'invited' }],
+      id: 'event123',
+      organizer: { id: 'org123' },
+      startDate: '2025-01-01',
+      startListPublished: { ALO: true },
+      startNumbersPublished: { ALO: true },
+      state: 'invited',
+    }
+    const base = {
+      cancelled: false,
+      class: 'ALO',
+      eventId: 'event123',
+      handler: { name: 'Handler' },
+      owner: { name: 'Owner' },
+    }
+
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      {
+        ...base,
+        dog: { name: 'Vieno', regNo: 'REG1' },
+        // The working order has moved since the freeze; the public list must not follow it.
+        group: { date: '2025-01-01', key: 'ALO-AP', number: 1, time: 'ap' },
+        startGroup: { date: '2025-01-01', key: 'ALO-AP', number: 2, time: 'ap' },
+      },
+      {
+        ...base,
+        cancelled: true,
+        dog: { name: 'Salainen', regNo: 'REG9' },
+        // Cancellation dropped the date from the working group; the frozen placement still knows it.
+        group: { key: 'cancelled', number: 1 },
+        startGroup: { date: '2025-01-01', key: 'ALO-AP', number: 1, time: 'ap' },
+      },
+    ])
+
+    await getStartListLambda(event)
+
+    const [status, payload] = mockResponse.mock.calls[0]
+    expect(status).toBe(200)
+    expect(payload).toHaveLength(2)
+
+    // The cancelled dog holds its number so nobody slides into it, but publishes nothing else.
+    expect(payload[0]).toEqual({
+      breeder: '',
+      cancelled: true,
+      class: 'ALO',
+      dog: { name: '', regNo: '' },
+      group: { date: '2025-01-01', key: 'ALO-AP', number: 1, time: 'ap' },
+      handler: '',
+      owner: '',
+    })
+    expect(JSON.stringify(payload[0])).not.toContain('Salainen')
+
+    expect(payload[1].dog.name).toBe('Vieno')
+    expect(payload[1].group.number).toBe(2)
+  })
+
   it('returns unpublished registrations through the authenticated preview route', async () => {
     const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
     const confirmedEvent = {

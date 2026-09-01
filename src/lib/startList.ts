@@ -25,21 +25,33 @@ export function startListSpreadsheetRows(
       t('startListExport.breeder'),
       t('startListExport.result'),
     ],
-    ...participants.map((registration) => [
-      spreadsheetDate(registration.group.date ?? event.startDate),
-      registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
-      registration.class ?? '',
-      registration.group.number ?? '',
-      [registration.dog.titles, registration.dog.name].filter(Boolean).join(' '),
-      registration.dog.regNo,
-      registration.dog.dob ? spreadsheetDate(registration.dog.dob) : '',
-      formatDogName(registration.dog.sire),
-      formatDogName(registration.dog.dam),
-      registration.owner,
-      registration.ownerHandles ? registration.owner : registration.handler,
-      registration.breeder,
-      registration.result ?? '',
-    ]),
+    ...participants.map((registration) =>
+      // A cancelled row carries its frozen number and the mark, nothing else (KOE-1017).
+      registration.cancelled
+        ? [
+            spreadsheetDate(registration.group.date ?? event.startDate),
+            registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
+            registration.class ?? '',
+            registration.group.number ?? '',
+            'POISSA',
+            ...Array.from({ length: 8 }, () => ''),
+          ]
+        : [
+            spreadsheetDate(registration.group.date ?? event.startDate),
+            registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
+            registration.class ?? '',
+            registration.group.number ?? '',
+            [registration.dog.titles, registration.dog.name].filter(Boolean).join(' '),
+            registration.dog.regNo,
+            registration.dog.dob ? spreadsheetDate(registration.dog.dob) : '',
+            formatDogName(registration.dog.sire),
+            formatDogName(registration.dog.dam),
+            registration.owner,
+            registration.ownerHandles ? registration.owner : registration.handler,
+            registration.breeder,
+            registration.result ?? '',
+          ]
+    ),
   ]
 }
 

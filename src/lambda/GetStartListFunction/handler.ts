@@ -1,4 +1,4 @@
-import type { JsonPublicRegistration, JsonRegistrationWithGroup } from '../../types'
+import type { JsonPublicRegistration, JsonRegistration } from '../../types'
 import {
   isResultsAvailableForRegistration,
   isStartListAvailable,
@@ -23,7 +23,7 @@ import { getRegistrationsByEventId } from '../lib/registration'
  * are one of the owners. A legacy boolean refers to the single owner on file; a key that matches no
  * owner publishes `false` rather than guessing.
  */
-const publishedOwnerHandles = (reg: JsonRegistrationWithGroup): boolean | undefined => {
+const publishedOwnerHandles = (reg: JsonRegistration): boolean | undefined => {
   const { ownerHandles } = reg
   if (ownerHandles === undefined) return undefined
   if (getRegistrationOwners(reg).length > 1) return false
@@ -45,44 +45,81 @@ const getStartListLambda = lambda('getStartList', async (event) => {
   }
 
   const startListAvailable = preview || isStartListAvailable(confirmedEvent)
-  let publicRegs: JsonPublicRegistration[] = []
+  const publicRegs: JsonPublicRegistration[] = []
 
   if (startListAvailable) {
-    const items = await getRegistrationsByEventId(eventId)
+    const items = (await getRegistrationsByEventId(eventId)) ?? []
 
-    publicRegs =
-      items
-        ?.filter<JsonRegistrationWithGroup>((reg): reg is JsonRegistrationWithGroup => !!reg.group)
-        .filter((reg) => reg.group.date && !reg.cancelled)
-        .filter((reg) => {
-          // Keep preview limited to event classes even though it bypasses publication checks.
-          const hasEventClass = confirmedEvent.classes?.some((eventClass) => eventClass.class === reg.class)
-          if (!hasEventClass && confirmedEvent.classes?.length) return false
-          if (preview) return true
-          return isStartListAvailableForRegistration(confirmedEvent, reg)
-        })
-        .map<JsonPublicRegistration>((reg) => ({
-          breeder: reg.breeder?.name,
+    for (const reg of items) {
+      // Keep preview limited to event classes even though it bypasses publication checks.
+      const hasEventClass = confirmedEvent.classes?.some((eventClass) => eventClass.class === reg.class)
+      if (!hasEventClass && confirmedEvent.classes?.length) continue
+
+      if (reg.cancelled) {
+        // A cancelled dog appears as its frozen number and nothing more (KOE-1017): the number is
+        // published truth and must not slide onto the next dog, but the dog itself, its owner and
+        // its handler are no longer anyone's business. The narrow row is built here rather than
+        // filtered in the browser, so the details never leave the server.
+        const placement = reg.startGroup
+        if (!placement?.date) continue
+        const probe = { class: reg.class, group: placement }
+        if (
+          !preview &&
+          !(
+            isStartListAvailableForRegistration(confirmedEvent, probe) &&
+            isStartNumbersAvailableForRegistration(confirmedEvent, probe)
+          )
+        ) {
+          continue
+        }
+
+        publicRegs.push({
+          breeder: '',
+          cancelled: true,
           class: reg.class,
-          dog: reg.dog,
-          // Until the class's numbers are published the number is withheld (KOE-1006): the dogs are
-          // real but the order is not, and a number that still moves must not look like a promise.
-          group:
-            preview || isStartNumbersAvailableForRegistration(confirmedEvent, reg)
-              ? reg.group
-              : { ...reg.group, number: undefined },
-          handler: getHandlingPerson(reg)?.name ?? '',
-          owner: formatOwnerNames(reg),
-          ownerHandles: publishedOwnerHandles(reg),
-          ...(isResultsAvailableForRegistration(confirmedEvent, reg) ? { result: reg.eventResult?.result } : {}),
-        }))
-        // Groups keep their day/class/time order either way; within a group a withheld number falls
-        // back to the dog's name, so the unconfirmed list reads alphabetically rather than leaking
-        // the draft order through its row positions.
-        .sort(
-          (a, b) =>
-            sortRegistrationsByDateClassTimeAndNumber(a, b) || (a.dog.name ?? '').localeCompare(b.dog.name ?? '', 'fi')
-        ) ?? []
+          dog: { name: '', regNo: '' },
+          group: placement,
+          handler: '',
+          owner: '',
+        })
+        continue
+      }
+
+      const group = reg.group
+      if (!group?.date) continue
+      const registered = { class: reg.class, group }
+      if (!preview && !isStartListAvailableForRegistration(confirmedEvent, registered)) continue
+
+      const numbersAvailable = isStartNumbersAvailableForRegistration(confirmedEvent, registered)
+      // The published number is the frozen one; `group` stays the secretary's working order, which
+      // is what the preview shows. Until the class's numbers are published the number is withheld
+      // (KOE-1006): the dogs are real but the order is not, and a number that still moves must not
+      // look like a promise.
+      const publicGroup = preview
+        ? group
+        : numbersAvailable
+          ? (reg.startGroup ?? group)
+          : { ...group, number: undefined }
+
+      publicRegs.push({
+        breeder: reg.breeder?.name,
+        class: reg.class,
+        dog: reg.dog,
+        group: publicGroup,
+        handler: getHandlingPerson(reg)?.name ?? '',
+        owner: formatOwnerNames(reg),
+        ownerHandles: publishedOwnerHandles(reg),
+        ...(isResultsAvailableForRegistration(confirmedEvent, registered) ? { result: reg.eventResult?.result } : {}),
+      })
+    }
+
+    // Groups keep their day/class/time order either way; within a group a withheld number falls
+    // back to the dog's name, so the unconfirmed list reads alphabetically rather than leaking
+    // the draft order through its row positions.
+    publicRegs.sort(
+      (a, b) =>
+        sortRegistrationsByDateClassTimeAndNumber(a, b) || (a.dog.name ?? '').localeCompare(b.dog.name ?? '', 'fi')
+    )
   }
 
   return response(startListAvailable ? 200 : 404, publicRegs, event)

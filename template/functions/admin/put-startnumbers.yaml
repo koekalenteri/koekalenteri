@@ -1,0 +1,36 @@
+  PutStartNumbersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/PutStartNumbersFunction
+      Handler: handler.default
+      Layers:
+        - !Ref DependenciesLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
+      Events:
+        PutStartNumbers:
+          Type: Api
+          Properties:
+            Path: /admin/startnumbers/{eventId}
+            Method: PUT
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  PutStartNumbersFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutStartNumbersFunction]]
+      RetentionInDays: 30

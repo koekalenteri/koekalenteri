@@ -3,13 +3,12 @@ import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
+import { copyEventWithRegistrations, putEvent, putStartNumbers } from '../../../../api/event'
 import { getChangedTopLevelKeys } from '../../../../lib/diff'
 import {
   copyDogEvent,
   getResultsPublishedClassMap,
   getStartListPublishedClassMap,
-  getStartNumbersPublishedClassMap,
   isResultsPublishedForClass,
   isStartListPublishedForClass,
   sanitizeDogEvent,
@@ -70,23 +69,6 @@ export const buildStartListPublishedPatch = (
 ): Patch<DogEvent> & { id: string } => ({
   id: event.id,
   startListPublished: published,
-})
-
-const buildStartNumbersClassPublishedPatch = (
-  event: DogEvent,
-  eventClass: RegistrationClass,
-  published: boolean
-): Patch<DogEvent> & { id: string } => ({
-  id: event.id,
-  startNumbersPublished: {
-    ...getStartNumbersPublishedClassMap(event),
-    [eventClass]: published,
-  },
-})
-
-const buildStartNumbersPublishedPatch = (event: DogEvent, published: boolean): Patch<DogEvent> & { id: string } => ({
-  id: event.id,
-  startNumbersPublished: published,
 })
 
 /** Save without subscribing the form controller to asynchronous event collections. */
@@ -237,7 +219,9 @@ export const useAdminEventActions = () => {
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
 
-    const saved = await putEvent(buildStartNumbersClassPublishedPatch(event, eventClass, published), token)
+    // Publishing is also the freeze, so it goes through the start-numbers endpoint rather than a
+    // plain event patch: the flag flip and the snapshot must land in the same locked request.
+    const { event: saved } = await putStartNumbers(event.id, { eventClass, published }, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
     updatePublicEvents(saved)
@@ -249,7 +233,7 @@ export const useAdminEventActions = () => {
     if (!event?.id) return
     if ((event.startNumbersPublished !== false) === published) return event
 
-    const saved = await putEvent(buildStartNumbersPublishedPatch(event, published), token)
+    const { event: saved } = await putStartNumbers(event.id, { published }, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
     updatePublicEvents(saved)

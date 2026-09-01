@@ -260,7 +260,9 @@ export function useClassEntrySelectionColumns(
         headerName: '#',
         minWidth: 30,
         renderCell: (p) => {
-          const n = p.row.group?.number
+          // The frozen, published number wins over the working order (KOE-1017): once numbers are
+          // out, this column shows the truth the public list carries — for cancelled dogs too.
+          const n = p.row.startGroup?.number ?? p.row.group?.number
           if (!n) return ''
           if (Number.isInteger(n)) return `${n}`
           return <CircularProgress size={10} thickness={5} />

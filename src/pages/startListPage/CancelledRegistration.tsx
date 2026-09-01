@@ -9,7 +9,7 @@ export const CancelledRegistration = ({ groupNumber }: CancelledRegistrationProp
   return (
     <StyledTableRow key={groupNumber}>
       <TableCell align="right">{groupNumber}.</TableCell>
-      <TableCell colSpan={5}>PERUTTU</TableCell>
+      <TableCell colSpan={5}>POISSA</TableCell>
     </StyledTableRow>
   )
 }

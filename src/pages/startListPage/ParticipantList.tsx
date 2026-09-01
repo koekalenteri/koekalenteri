@@ -321,7 +321,7 @@ function formatClassJudges(event: PublicConfirmedEvent, eventClass: string, date
 }
 
 function formatRegistration(reg: PublicRegistration, t: TFunction) {
-  if (reg.cancelled) return `${reg.group.number}. PERUTTU`
+  if (reg.cancelled) return `${reg.group.number}. POISSA`
 
   const breed = breedAbbreviation(t, reg.dog.breedCode, reg.dog.gender)
   const ownerHandler = reg.ownerHandles ? `om. & ohj. ${reg.owner}` : `om. ${reg.owner}, ohj. ${reg.handler}`
