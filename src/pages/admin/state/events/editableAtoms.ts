@@ -32,7 +32,7 @@ export const adminEditableEventByIdAtom = atomFamily((eventId: string) => {
     // editing, that would make Suspense re-throw (and remount the whole form) on every keystroke.
     (get) => {
       const stored = get(storedAtom)
-      return stored !== undefined ? stored : get(adminEventAtom(eventId))
+      return stored ?? get(adminEventAtom(eventId))
     },
     (_get, set, value: DogEvent | typeof RESET) => set(storedAtom, value)
   )

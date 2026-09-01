@@ -1,5 +1,4 @@
 import { atom } from 'jotai'
-import { adminOfficialsRemoteAtom } from './remoteAtoms'
 
-export const adminOfficialsAtom = adminOfficialsRemoteAtom
+export { adminOfficialsRemoteAtom as adminOfficialsAtom } from './remoteAtoms'
 export const adminOfficialFilterAtom = atom('')

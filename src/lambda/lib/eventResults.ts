@@ -133,9 +133,14 @@ const pickTask = (value: unknown, judges: PublicJudge[]): SubmittedTask => {
     throw new LambdaError(422, 'Malformed task')
   }
 
-  const zeroFault = nowtZeroFaults.find((fault) => fault === value.zeroFault)
-  if (value.zeroFault != null && !zeroFault) {
-    throw new LambdaError(422, `Unknown zero fault '${String(value.zeroFault)}'`)
+  const submittedZeroFault = value.zeroFault
+  if (submittedZeroFault != null && typeof submittedZeroFault !== 'string') {
+    throw new LambdaError(422, 'Malformed task')
+  }
+
+  const zeroFault = nowtZeroFaults.find((fault) => fault === submittedZeroFault)
+  if (submittedZeroFault != null && !zeroFault) {
+    throw new LambdaError(422, `Unknown zero fault '${submittedZeroFault}'`)
   }
 
   const judge = resolveJudge(value.judge, judges)

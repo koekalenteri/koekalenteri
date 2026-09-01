@@ -1,9 +1,8 @@
 import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import { atom } from 'jotai'
 import { atomWithLocalStorage } from '../../../state/storage'
-import { adminUsersRemoteAtom } from './remoteAtoms'
 
-export const adminUsersAtom = adminUsersRemoteAtom
+export { adminUsersRemoteAtom as adminUsersAtom } from './remoteAtoms'
 /**
  * When the list was last refreshed for `lastSeen`, so opening the page again does not ask for it
  * over and over. Deliberately not persisted: a reload stays the way to force a refresh.

@@ -2,9 +2,8 @@ import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import type { DogEvent } from '../../../../types'
 import { newEventEntryEndDate, newEventEntryStartDate, newEventStartDate } from '../../../../lib/event'
 import { atomWithLocalStorage } from '../../../state/storage'
-import { adminEventsRemoteAtom } from './remoteAtoms'
 
-export const adminEventsAtom = adminEventsRemoteAtom
+export { adminEventsRemoteAtom as adminEventsAtom } from './remoteAtoms'
 export const adminNewEventAtom = atomWithLocalStorage<DogEvent>('newEvent', {
   classes: [],
   endDate: newEventStartDate,

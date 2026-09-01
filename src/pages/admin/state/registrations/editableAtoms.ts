@@ -18,7 +18,7 @@ export const adminEditableEventRegistrationByEventIdAndIdAtom = atomFamily(
     return atom(
       (get) => {
         const stored = get(storedAtom)
-        return stored !== undefined ? stored : get(adminEventRegistrationAtom(ids))
+        return stored ?? get(adminEventRegistrationAtom(ids))
       },
       (_get, set, value: Registration | undefined | typeof RESET) => set(storedAtom, value)
     )

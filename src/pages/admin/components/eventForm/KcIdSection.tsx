@@ -23,7 +23,7 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
   const organizerId = event.organizer?.id
   const hasKcId = Boolean(event.kcId)
   const canEditKcId = Boolean(organizerId) && !disabled
-  const error = (errorStates && errorStates.kcId) || false
+  const error = errorStates?.kcId || false
   const helperText = error ? t('validation.event.errors') : t('event.kcIdSectionInfo')
   const warnings = useMemo(() => computeKcWarnings(event, t), [event, t])
 

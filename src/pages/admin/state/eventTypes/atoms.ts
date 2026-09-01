@@ -1,8 +1,7 @@
 import type { RegistrationClass, RegistrationTime } from '../../../../types'
 import { atom } from 'jotai'
-import { adminEventTypesRemoteAtom } from './remoteAtoms'
 
-export const adminEventTypesAtom = adminEventTypesRemoteAtom
+export { adminEventTypesRemoteAtom as adminEventTypesAtom } from './remoteAtoms'
 export const adminEventTypeFilterAtom = atom('')
 export const adminEventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
   'NOME-A': [],

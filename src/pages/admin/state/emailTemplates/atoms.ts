@@ -1,3 +1,1 @@
-import { adminEmailTemplatesRemoteAtom } from './remoteAtoms'
-
-export const adminEmailTemplatesAtom = adminEmailTemplatesRemoteAtom
+export { adminEmailTemplatesRemoteAtom as adminEmailTemplatesAtom } from './remoteAtoms'

@@ -18,7 +18,7 @@ export const adminEditableTemplateByIdAtom = atomFamily((templateId: string | un
     // on every keystroke.
     (get) => {
       const stored = get(storedAtom)
-      return stored !== undefined ? stored : get(adminEmailTemplateAtom(templateId))
+      return stored ?? get(adminEmailTemplateAtom(templateId))
     },
     (_get, set, value: EmailTemplate | typeof RESET) => set(storedAtom, value)
   )
