@@ -77,6 +77,7 @@
     "lint": "npm run lint-frontend && npm run lint-backend && npm run lint-biome",
     "format": "biome format --write src",
     "find-invalid-registrations": "node scripts/find-invalid-registrations.mjs",
+    "backfill-start-numbers": "node scripts/backfill-start-numbers-published.mjs",
     "start-backend-build": "npm run build-backend-watch",
     "start-backend-sam": "sam local start-api -p 8080 --docker-network lambda-local --warm-containers=LAZY 2>&1 | tr \"\r\" \"\n\"",
     "start-dynamodb": "docker start dynamodb && docker attach dynamodb",
