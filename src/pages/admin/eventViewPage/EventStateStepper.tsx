@@ -36,9 +36,11 @@ interface PhaseProgressOptions {
   eventClasses: string[]
   phase: EventProgressStep
   publishedStartListClasses: string[]
+  publishedStartNumbersClasses: string[]
   showClassProgress: boolean
   startListActionable: boolean
   startListClasses: string[]
+  startNumbersActionable: boolean
   t: TFunction
 }
 
@@ -47,15 +49,20 @@ const getPhaseProgressText = ({
   eventClasses,
   phase,
   publishedStartListClasses,
+  publishedStartNumbersClasses,
   showClassProgress,
   startListActionable,
   startListClasses,
+  startNumbersActionable,
   t,
 }: PhaseProgressOptions) => {
   let classes: string[] = []
   let total = 0
   if (phase === 'startListPublished' && startListActionable && startListClasses.length > 1) {
     classes = publishedStartListClasses
+    total = startListClasses.length
+  } else if (phase === 'startNumbersPublished' && startNumbersActionable && startListClasses.length > 1) {
+    classes = publishedStartNumbersClasses
     total = startListClasses.length
   } else if (showClassProgress) {
     classes = completedClasses.map(({ eventClass }) => eventClass)
@@ -74,6 +81,7 @@ const getPhaseLabel = (
   entryCompleted: boolean,
   entryOpen: boolean,
   startListCompleted: boolean,
+  startNumbersCompleted: boolean,
   resultsCompleted: boolean,
   t: TFunction
 ) => {
@@ -81,6 +89,9 @@ const getPhaseLabel = (
   // A publishing step reads as an instruction until it is done, and as a fact afterwards.
   if (phase === 'startListPublished') {
     return t(`event.states.${startListCompleted ? 'startListPublished' : 'publishStartList'}`)
+  }
+  if (phase === 'startNumbersPublished') {
+    return t(`event.states.${startNumbersCompleted ? 'startNumbersPublished' : 'publishStartNumbers'}`)
   }
   if (phase === 'resultsPublished') {
     return t(`event.states.${resultsCompleted ? 'resultsPublished' : 'publishResults'}`)
@@ -95,11 +106,14 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     entryStarted,
     eventClasses,
     publishedStartListClasses,
+    publishedStartNumbersClasses,
     reachedPhaseIndex,
     startListActionable,
     startListClasses,
     resultsCompleted,
     startListCompleted,
+    startNumbersActionable,
+    startNumbersCompleted,
     temporalPhaseIndex,
   } = getEventProgress(event)
   const entryOpen = isEntryOpen(event)
@@ -147,20 +161,32 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
           let completed = index <= reachedPhaseIndex
           if (phase === 'confirmed_entryOpen') completed = entryCompleted
           else if (phase === 'startListPublished') completed = startListCompleted
+          else if (phase === 'startNumbersPublished') completed = startNumbersCompleted
           else if (showClassProgress) completed = completedClasses.length === eventClasses.length
           const active =
             (phase === 'confirmed_entryOpen' && entryOpen && !entryCompleted) ||
             (phase === 'startListPublished' && startListActionable && !startListCompleted) ||
+            (phase === 'startNumbersPublished' && startNumbersActionable && !startNumbersCompleted) ||
             (showClassProgress && completedClasses.length > 0 && completedClasses.length < eventClasses.length)
-          const label = getPhaseLabel(phase, entryCompleted, entryOpen, startListCompleted, resultsCompleted, t)
+          const label = getPhaseLabel(
+            phase,
+            entryCompleted,
+            entryOpen,
+            startListCompleted,
+            startNumbersCompleted,
+            resultsCompleted,
+            t
+          )
           const progressText = getPhaseProgressText({
             completedClasses,
             eventClasses,
             phase,
             publishedStartListClasses,
+            publishedStartNumbersClasses,
             showClassProgress,
             startListActionable,
             startListClasses,
+            startNumbersActionable,
             t,
           })
 

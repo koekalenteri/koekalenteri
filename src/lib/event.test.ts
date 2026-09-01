@@ -145,31 +145,54 @@ describe('lib/event', () => {
       {
         expected: 'event.states.startListPublished',
         startListPublished: { ALO: true, AVO: true },
+        startNumbersPublished: false,
       },
       {
         expected: 'event.states.picked',
         startListPublished: { ALO: true, AVO: false },
+        startNumbersPublished: false,
       },
-    ])('returns $expected based on class start list publishing', ({ expected, startListPublished }) => {
-      expect(
-        getEventTitle(
-          event({
-            classes: [
-              { class: 'ALO', date: addDays(now, 2), state: 'picked' },
-              { class: 'AVO', date: addDays(now, 2), state: 'invited' },
-            ],
-            endDate: addDays(now, 3),
-            entryEndDate: addDays(now, -1),
-            entryStartDate: addDays(now, -3),
-            startDate: addDays(now, 2),
-            startListPublished,
-            state: 'invited',
-          }),
-          t,
-          now
-        )
-      ).toBe(expected)
-    })
+      // An absent numbers flag means published (legacy events), advancing the phase past the list.
+      {
+        expected: 'event.states.startNumbersPublished',
+        startListPublished: { ALO: true, AVO: true },
+        startNumbersPublished: undefined,
+      },
+      {
+        expected: 'event.states.startNumbersPublished',
+        startListPublished: { ALO: true, AVO: true },
+        startNumbersPublished: { ALO: true, AVO: true },
+      },
+      // Withheld numbers in one class keep the event at the start list phase.
+      {
+        expected: 'event.states.startListPublished',
+        startListPublished: { ALO: true, AVO: true },
+        startNumbersPublished: { ALO: true, AVO: false },
+      },
+    ])(
+      'returns $expected based on class start list and number publishing',
+      ({ expected, startListPublished, startNumbersPublished }) => {
+        expect(
+          getEventTitle(
+            event({
+              classes: [
+                { class: 'ALO', date: addDays(now, 2), state: 'picked' },
+                { class: 'AVO', date: addDays(now, 2), state: 'invited' },
+              ],
+              endDate: addDays(now, 3),
+              entryEndDate: addDays(now, -1),
+              entryStartDate: addDays(now, -3),
+              startDate: addDays(now, 2),
+              startListPublished,
+              startNumbersPublished,
+              state: 'invited',
+            }),
+            t,
+            now
+          )
+        ).toBe(expected)
+      }
+    )
 
     it('shows a published start list phase for an event without classes', () => {
       expect(
@@ -181,12 +204,32 @@ describe('lib/event', () => {
             entryStartDate: addDays(now, -3),
             startDate: addDays(now, 2),
             startListPublished: true,
+            startNumbersPublished: false,
             state: 'invited',
           }),
           t,
           now
         )
       ).toBe('event.states.startListPublished')
+    })
+
+    it('shows a published start numbers phase for an event without classes', () => {
+      expect(
+        getEventTitle(
+          event({
+            classes: [],
+            endDate: addDays(now, 3),
+            entryEndDate: addDays(now, -1),
+            entryStartDate: addDays(now, -3),
+            startDate: addDays(now, 2),
+            startListPublished: true,
+            startNumbersPublished: true,
+            state: 'invited',
+          }),
+          t,
+          now
+        )
+      ).toBe('event.states.startNumbersPublished')
     })
   })
 

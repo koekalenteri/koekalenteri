@@ -276,4 +276,26 @@ describe('InfoPanel>', () => {
 
     expect(screen.getByRole('link', { name: 'eventManagement.startList.preview' })).toBeInTheDocument()
   })
+
+  it('keeps the preview wording while any class holds its numbers back', async () => {
+    // KOE-1006 feedback: with numbers withheld the secretary sees more than the public does.
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+        {children}
+      </Provider>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, startListPublished: true, startNumbersPublished: { ALO: false } }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getByRole('link', { name: 'eventManagement.startList.previewUnpublished' })).toBeInTheDocument()
+  })
 })

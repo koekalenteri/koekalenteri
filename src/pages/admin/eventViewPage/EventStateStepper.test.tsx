@@ -137,6 +137,43 @@ describe('EventStateStepper', () => {
     expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
   })
 
+  it('shows start numbers publishing as an incomplete actionable phase', () => {
+    render(<EventStateStepper event={{ ...eventWithParticipantsInvited, startNumbersPublished: false }} />)
+
+    const numbersStep = screen
+      .getByText(/^event\.states\.publishStartNumbers/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+
+    expect(numbersStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-active')
+    expect(numbersStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
+  })
+
+  it('shows class progress when only some start numbers are published', () => {
+    render(
+      <EventStateStepper
+        event={{ ...eventWithParticipantsInvited, startNumbersPublished: { ALO: true, AVO: false } }}
+      />
+    )
+
+    const numbersStep = screen
+      .getByText(/^event\.states\.publishStartNumbers/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+
+    expect(numbersStep).toHaveTextContent('event.classProgress')
+    expect(numbersStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-active')
+  })
+
+  it('treats missing start number publishing as completed for a legacy event', () => {
+    render(<EventStateStepper event={eventWithParticipantsInvited} />)
+
+    const numbersStep = screen
+      .getByText(/^event\.states\.startNumbersPublished/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+
+    expect(numbersStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-completed')
+    expect(numbersStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
+  })
+
   it('treats a missing start list field as published for a historical event with a stale state', () => {
     render(<EventStateStepper event={{ ...eventWithStaticDates, startListPublished: undefined, state: 'picked' }} />)
 

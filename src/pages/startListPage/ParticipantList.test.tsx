@@ -28,11 +28,20 @@ vi.mock('./DateHeader', () => ({
 }))
 
 vi.mock('./ClassHeader', () => ({
-  ClassHeader: ({ classValue, published = true }: { classValue: string; published?: boolean }) => (
+  ClassHeader: ({
+    classValue,
+    published = true,
+    numbersPublished = true,
+  }: {
+    classValue: string
+    published?: boolean
+    numbersPublished?: boolean
+  }) => (
     <tr data-testid="class-header">
       <td>
         {classValue}
         {published ? '' : ' unpublished'}
+        {published && !numbersPublished ? ' numbers-unpublished' : ''}
       </td>
     </tr>
   ),
@@ -225,6 +234,41 @@ describe('ParticipantList', () => {
     render(<ParticipantList participants={[participant]} event={{ ...mockEvent, classes: [] }} />)
 
     expect(screen.getByText('Dog 1 (index: 0)')).toBeInTheDocument()
+  })
+
+  it('notes withheld start numbers under the date for a classless event', () => {
+    // KOE-1006 feedback: a NOU has no class header to carry the note, so it hangs off the date.
+    const participant = createMockRegistration('', 'Dog 1', 1, new Date('2023-01-01'), 'ap')
+    participant.class = undefined
+
+    render(
+      <ParticipantList
+        participants={[participant]}
+        event={{ ...mockEvent, classes: [], startListPublished: true, startNumbersPublished: false, state: 'invited' }}
+      />
+    )
+
+    expect(screen.getByTestId('class-header')).toHaveTextContent('numbers-unpublished')
+    expect(screen.getByTestId('registration-details')).toBeInTheDocument()
+  })
+
+  it('copies the withheld-numbers note for a classless event', async () => {
+    const user = userEvent.setup()
+    mockClipboard()
+    const participant = createMockRegistration('', 'Dog 1', 1, new Date('2023-01-01'), 'ap')
+    participant.class = undefined
+
+    render(
+      <ParticipantList
+        participants={[participant]}
+        event={{ ...mockEvent, classes: [], startListPublished: true, startNumbersPublished: false, state: 'invited' }}
+        showExportActions
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
+
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('(startNumbersNotPublished)'))
   })
 
   it('renders an unpublished event class as a header on the public start list', () => {

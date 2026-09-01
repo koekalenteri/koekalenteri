@@ -103,6 +103,23 @@ export const ParticipantList = ({
             // Add date header if date changed
             if (startListDateKey(date) !== startListDateKey(lastDate)) {
               result.push(<DateHeader key={date.toISOString()} date={date} />)
+              // A classless event never gets a class header, so its publishing notes hang off the date.
+              if (item.type === 'registration' && !item.registration.class) {
+                const published = isStartListAvailableForRegistration(event, item.registration)
+                const numbersPublished = isStartNumbersAvailableForRegistration(event, item.registration)
+                if (!published || !numbersPublished) {
+                  result.push(
+                    <ClassHeader
+                      key={`notes-${date.valueOf()}`}
+                      classValue=""
+                      event={event}
+                      lastDate={date}
+                      published={published}
+                      numbersPublished={numbersPublished}
+                    />
+                  )
+                }
+              }
               lastDate = date
               lastClass = undefined
               lastGroup = undefined
@@ -200,6 +217,17 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
     if (startListDateKey(date) !== startListDateKey(lastDate)) {
       if (lines.length) lines.push('')
       lines.push(`${t('dateFormat.weekday', { date })} ${t('dateFormat.date', { date })}`)
+      // The classless event's notes, mirroring the on-screen list's date-level placement.
+      if (item.type === 'registration' && !item.registration.class) {
+        const note = isStartListAvailableForRegistration(event, item.registration)
+          ? ''
+          : `(${t('startListNotPublished')})`
+        const numbersNote =
+          !note && !isStartNumbersAvailableForRegistration(event, item.registration)
+            ? `(${t('startNumbersNotPublished')})`
+            : ''
+        if (note || numbersNote) lines.push(note || numbersNote)
+      }
       lastDate = date
       lastClass = undefined
       lastGroup = undefined

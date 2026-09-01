@@ -303,6 +303,7 @@ export type EventProgressStep =
   | Exclude<ConfirmedEventStates, 'completed'>
   | 'confirmed_entryOpen'
   | 'startListPublished'
+  | 'startNumbersPublished'
   | 'resultsPublished'
 type EventProgressPhase = EventProgressStep | 'confirmed_entryClosed'
 
@@ -312,6 +313,7 @@ export const EVENT_PROGRESS_PHASES: readonly EventProgressStep[] = [
   'picked',
   'invited',
   'startListPublished',
+  'startNumbersPublished',
   'started',
   'ended',
   'resultsPublished',
@@ -357,6 +359,7 @@ const getProgressPhaseAtIndex = (event: ConfirmedEvent, phaseIndex: number, now:
   if (phaseIndex >= getProgressPhaseIndex('resultsPublished')) return 'resultsPublished'
   if (phaseIndex >= getProgressPhaseIndex('ended')) return 'ended'
   if (phaseIndex >= getProgressPhaseIndex('started')) return 'started'
+  if (phaseIndex >= getProgressPhaseIndex('startNumbersPublished')) return 'startNumbersPublished'
   if (phaseIndex >= getProgressPhaseIndex('startListPublished')) return 'startListPublished'
   if (phaseIndex >= getProgressPhaseIndex('invited')) return 'invited'
   if (phaseIndex >= getProgressPhaseIndex('picked')) return 'picked'
@@ -389,6 +392,14 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     legacyStartListPublished || publishableStartListClasses.length > 0 || publishedStartListClasses.length > 0
   const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
 
+  // Start numbers step right behind the list's: numbers ride a published list, so only published
+  // list classes count, and the absent-means-published legacy default completes the step by itself.
+  const publishedStartNumbersClasses = publishedStartListClasses.filter((eventClass) =>
+    isStartNumbersPublishedForClass(event, eventClass)
+  )
+  const startNumbersActionable = publishedStartListClasses.length > 0
+  const startNumbersCompleted = startListCompleted && publishedStartNumbersClasses.length === startListClasses.length
+
   // The results step, mirroring the start list's. Unlike it there is no legacy default: a result is
   // published only where something says so, so an event that never gets here simply stops at 'ended'.
   const publishedResultsClasses = startListClasses.filter((eventClass) => isResultsPublishedForClass(event, eventClass))
@@ -400,6 +411,7 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
   const phaseIndex = Math.max(
     statePhaseIndex,
     startListCompleted ? getProgressPhaseIndex('startListPublished') : -1,
+    startNumbersCompleted ? getProgressPhaseIndex('startNumbersPublished') : -1,
     resultsCompleted ? getProgressPhaseIndex('resultsPublished') : -1,
     temporalPhaseIndex
   )
@@ -416,12 +428,15 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     phase: getProgressPhaseAtIndex(event, phaseIndex, now),
     publishedResultsClasses,
     publishedStartListClasses,
+    publishedStartNumbersClasses,
     reachedPhaseIndex,
     resultsActionable,
     resultsCompleted,
     startListActionable,
     startListClasses,
     startListCompleted,
+    startNumbersActionable,
+    startNumbersCompleted,
     temporalPhaseIndex,
   }
 }

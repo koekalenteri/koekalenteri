@@ -271,9 +271,11 @@
       "picked": "Participants selected",
       "publishResults": "Publish results",
       "publishStartList": "Publish start list",
+      "publishStartNumbers": "Publish start numbers",
       "resultsPublished": "Results published",
       "started": "Started",
       "startListPublished": "Start list published",
+      "startNumbersPublished": "Start numbers published",
       "tentative": "Published tentative",
       "tentative_info": "Tentative",
       "tentative_save": "Event was published as tentative"

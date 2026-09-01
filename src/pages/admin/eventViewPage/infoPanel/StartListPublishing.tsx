@@ -73,6 +73,11 @@ const StartListPublishing = ({
     event.classes.length === 0
       ? isStartListPublished()
       : event.classes.every((eventClass) => isStartListPublished(eventClass))
+  // With numbers still withheld the secretary sees more than the public does, so the link is a preview.
+  const startNumbersFullyPublished =
+    event.classes.length === 0
+      ? isNumbersPublished()
+      : event.classes.every((eventClass) => isNumbersPublished(eventClass))
 
   const handleSetStartListPublished = async (eventClass: RegistrationClass | undefined, published: boolean) => {
     const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
@@ -138,12 +143,12 @@ const StartListPublishing = ({
                         {className}
                       </Typography>
                       {startListPublished && (
-                        <Typography variant="caption" color="info.main" display="block">
+                        <Typography variant="caption" color="info.main" display="block" noWrap>
                           {t('eventManagement.startList.published')}
                         </Typography>
                       )}
                       {startListPublished && numbersPublished && (
-                        <Typography variant="caption" color="info.main" display="block">
+                        <Typography variant="caption" color="info.main" display="block" noWrap>
                           {t('eventManagement.startList.numbersPublished')}
                         </Typography>
                       )}
@@ -199,7 +204,7 @@ const StartListPublishing = ({
           variant="outlined"
         >
           {t(
-            startListFullyPublished
+            startListFullyPublished && startNumbersFullyPublished
               ? 'eventManagement.startList.preview'
               : 'eventManagement.startList.previewUnpublished'
           )}

@@ -271,9 +271,11 @@
       "picked": "Osallistujat valittu",
       "publishResults": "Julkaise tulokset",
       "publishStartList": "Julkaise starttilista",
+      "publishStartNumbers": "Julkaise starttinumerot",
       "resultsPublished": "Tulokset julkaistu",
       "started": "Käynnissä",
       "startListPublished": "Starttilista julkaistu",
+      "startNumbersPublished": "Starttinumerot julkaistu",
       "tentative": "Julkaistu alustavana",
       "tentative_info": "Alustava",
       "tentative_save": "Tapahtuma on julkaistu alustavana"
