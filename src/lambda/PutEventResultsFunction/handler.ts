@@ -12,11 +12,11 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
   if (res) return res
 
   const eventId = getParam(event, 'eventId')
-  const submissions = parseSubmissions(event.body)
+  const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
+  const submissions = parseSubmissions(event.body, confirmedEvent)
 
   if (submissions.length === 0) return response(422, 'no results', event)
 
-  const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
   const registrations = await getRegistrationsByEventId(eventId)
 
   const { conflicts, patches, saved, unchanged } = await processResultSubmissions(

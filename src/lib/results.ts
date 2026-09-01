@@ -5,6 +5,7 @@ import type {
   JsonEventClassStation,
   JsonEventResult,
   JsonEventResultTask,
+  NowtZeroFault,
   PublicJudge,
 } from '../types'
 import { objectsDiffer } from './diff'
@@ -60,6 +61,19 @@ const ELIMINATING_FAULTS: EliminatingFault[] = [
  */
 export const eliminatingFaults = (eventType?: string): EliminatingFault[] =>
   eventType === 'NOU' ? [...ELIMINATING_FAULTS, 'marking'] : ELIMINATING_FAULTS
+
+/** Every zero-fault code, for validating a submission's claim at the write boundary. */
+export const nowtZeroFaults: NowtZeroFault[] = [
+  'unauthorizedRun',
+  'outOfControl',
+  'persistentNoise',
+  'abandonedRetrieve',
+  'refusedWater',
+  'dummyNotFound',
+  'huntingWithDummy',
+  'swappedDummy',
+  'eyeWipe',
+]
 
 /** One task as scored for one dog, joined to its definition in the class's round. */
 export interface ScoredTask {

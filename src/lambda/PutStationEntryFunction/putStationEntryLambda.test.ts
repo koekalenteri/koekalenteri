@@ -104,6 +104,49 @@ describe('putStationEntryLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ user: 'Rasti 1' }))
   })
 
+  it('drops the whole-round fields a station link may not write', async () => {
+    await putStationEntryLambda(
+      await apiEvent([
+        {
+          eventResult: {
+            cert: true,
+            junk: 'x',
+            notes: 'ei rastin asia',
+            resCert: true,
+            resultCode: '1',
+            tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
+          },
+          id: 'reg-1',
+        },
+      ])
+    )
+
+    // The certs, the notes and an overriding result code are the event secretary's; a widely shared
+    // link writes its post's scores and outcome, nothing else.
+    const saved = mockUpdateRegistrationField.mock.calls[0][3]
+    expect(saved).not.toHaveProperty('cert')
+    expect(saved).not.toHaveProperty('resCert')
+    expect(saved).not.toHaveProperty('notes')
+    expect(saved).not.toHaveProperty('junk')
+    // The dropped result code did not sneak into a derived result either: the round is incomplete.
+    expect(saved).not.toHaveProperty('result')
+    expect(saved.tasks).toEqual([expect.objectContaining({ points: 17, stationId: 'post-1' })])
+  })
+
+  it('saves a round-ending outcome that arrives without a score', async () => {
+    await putStationEntryLambda(
+      await apiEvent([
+        { eventResult: { retirement: { cause: 'injury', stationId: 'post-1' }, tasks: [] }, id: 'reg-1' },
+      ])
+    )
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+    expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({
+      result: 'AVO-',
+      retirement: { cause: 'injury', stationId: 'post-1' },
+    })
+  })
+
   it('echoes back only what the link may see', async () => {
     mockGetRegistrationsByEventId.mockResolvedValue([
       {

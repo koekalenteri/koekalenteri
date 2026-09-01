@@ -1,13 +1,28 @@
 import type { SubmittedEventResult, SubmittedTask } from '../../lib/results'
-import type { JsonConfirmedEvent, JsonEventResult, JsonEventResultTask, JsonRegistration, Patch } from '../../types'
+import type {
+  EventResultElimination,
+  EventResultRetirement,
+  JsonConfirmedEvent,
+  JsonEventResult,
+  JsonEventResultTask,
+  JsonRegistration,
+  Patch,
+  PublicJudge,
+} from '../../types'
+import { objectsDiffer } from '../../lib/diff'
 import { isScorableRegistration } from '../../lib/registration'
 import {
   availableResultCodes,
+  classRound,
+  eliminatingFaults,
   mergeStationTasks,
+  nowtZeroFaults,
   resolveEventResult,
   sameEventResult,
   sameStationTasks,
+  scoresAtPosts,
   stationVersion,
+  taskEntryCeiling,
 } from '../../lib/results'
 import { audit, registrationAuditKey } from './audit'
 import { parseJSONWithFallback } from './json'
@@ -69,14 +84,177 @@ const stampProvenance = (
   updatedBy: string
 ): JsonEventResultTask[] | undefined => tasks?.map((task) => ({ ...task, updatedAt, updatedBy }))
 
-const isSubmission = (value: unknown): value is ResultSubmission =>
-  typeof value === 'object' && value !== null && typeof (value as ResultSubmission).id === 'string'
+/**
+ * How many dogs one request may carry. A class screenful is a few dozen; the cap is a ceiling on the
+ * write fan-out a single request can command, not a limit anyone legitimate meets.
+ */
+const MAX_RESULT_SUBMISSIONS = 200
 
-export const parseSubmissions = (body: string | null): ResultSubmission[] => {
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/** The judge as a client may name one: identity only, so nothing else rides along inside the object. */
+const pickJudge = (value: unknown): PublicJudge | undefined => {
+  if (!isRecord(value) || typeof value.name !== 'string') return undefined
+
+  const { id, name } = value
+  return { name, ...(typeof id === 'number' ? { id } : {}) }
+}
+
+/** Everyone the event's configuration knows as a judge, whichever level names them. */
+const knownJudges = (confirmedEvent: JsonConfirmedEvent): PublicJudge[] => [
+  ...(confirmedEvent.judges ?? []),
+  ...(confirmedEvent.stations ?? []).flatMap((station) => station.judges ?? []),
+  ...(confirmedEvent.classes ?? []).flatMap((item) =>
+    Array.isArray(item.judge) ? item.judge : item.judge ? [item.judge] : []
+  ),
+]
+
+/**
+ * A client only ever offers judges from the event's own configuration, so a matching id restores the
+ * full identity. What matches nothing is reduced to a bare name — a submission cannot smuggle
+ * arbitrary content inside a judge object.
+ */
+const resolveJudge = (value: unknown, judges: PublicJudge[]): PublicJudge | undefined => {
+  const picked = pickJudge(value)
+  if (!picked) return undefined
+
+  return judges.find((judge) => judge.id !== undefined && judge.id === picked.id) ?? picked
+}
+
+const pickTask = (value: unknown, judges: PublicJudge[]): SubmittedTask => {
+  if (
+    !isRecord(value) ||
+    typeof value.stationId !== 'string' ||
+    typeof value.index !== 'number' ||
+    !Number.isInteger(value.index) ||
+    (value.points !== null && typeof value.points !== 'number')
+  ) {
+    throw new LambdaError(422, 'Malformed task')
+  }
+
+  const zeroFault = nowtZeroFaults.find((fault) => fault === value.zeroFault)
+  if (value.zeroFault != null && !zeroFault) {
+    throw new LambdaError(422, `Unknown zero fault '${String(value.zeroFault)}'`)
+  }
+
+  const judge = resolveJudge(value.judge, judges)
+
+  return {
+    index: value.index,
+    points: value.points,
+    stationId: value.stationId,
+    ...(value.recalled === true ? { recalled: true } : {}),
+    ...(value.retired === true ? { retired: true } : {}),
+    ...(zeroFault ? { zeroFault } : {}),
+    ...(judge ? { judge } : {}),
+  }
+}
+
+const pickElimination = (value: unknown, eventType: string): EventResultElimination => {
+  if (!isRecord(value)) throw new LambdaError(422, 'Malformed elimination')
+
+  const fault = eliminatingFaults(eventType).find((item) => item === value.fault)
+  if (!fault) {
+    throw new LambdaError(422, `Eliminating fault '${String(value.fault)}' is not valid for ${eventType}`)
+  }
+
+  return { fault, ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}) }
+}
+
+const RETIREMENT_CAUSES = ['handlerChoice', 'injury'] as const
+
+const pickRetirement = (value: unknown): EventResultRetirement => {
+  if (!isRecord(value)) throw new LambdaError(422, 'Malformed retirement')
+
+  const cause = RETIREMENT_CAUSES.find((item) => item === value.cause)
+  if (!cause) throw new LambdaError(422, `Unknown retirement cause '${String(value.cause)}'`)
+
+  return {
+    cause,
+    ...(typeof value.couldStillHavePlaced === 'boolean' ? { couldStillHavePlaced: value.couldStillHavePlaced } : {}),
+    ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}),
+  }
+}
+
+/**
+ * The fields a client may write, picked one by one. Everything else in the payload is dropped here
+ * and never stored: this path is shared with the widely shared tokenized station link (KOE-1258), so
+ * the stored result must not be writable by whatever a request chooses to put in it.
+ */
+const pickSubmittedResult = (
+  value: unknown,
+  confirmedEvent: JsonConfirmedEvent,
+  judges: PublicJudge[]
+): ResultSubmission['eventResult'] => {
+  if (!isRecord(value)) throw new LambdaError(422, 'Malformed result submission')
+
+  const { eventType } = confirmedEvent
+  const resultCode =
+    typeof value.resultCode === 'string'
+      ? availableResultCodes(eventType).find((code) => code === value.resultCode)
+      : undefined
+  if (typeof value.resultCode === 'string' && !resultCode) {
+    throw new LambdaError(422, `Result code '${value.resultCode}' is not valid for ${eventType}`)
+  }
+
+  const tasks = Array.isArray(value.tasks) ? value.tasks.map((task) => pickTask(task, judges)) : undefined
+  const judge = resolveJudge(value.judge, judges)
+
+  return {
+    ...(tasks ? { tasks } : {}),
+    ...(resultCode ? { resultCode } : {}),
+    ...(typeof value.cert === 'boolean' ? { cert: value.cert } : {}),
+    ...(typeof value.resCert === 'boolean' ? { resCert: value.resCert } : {}),
+    ...(value.elimination != null ? { elimination: pickElimination(value.elimination, eventType) } : {}),
+    ...(value.retirement != null ? { retirement: pickRetirement(value.retirement) } : {}),
+    ...(judge ? { judge } : {}),
+    ...(typeof value.notes === 'string' ? { notes: value.notes } : {}),
+  }
+}
+
+export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfirmedEvent): ResultSubmission[] => {
   const parsed = parseJSONWithFallback(body, [])
   if (!Array.isArray(parsed)) return []
+  if (parsed.length > MAX_RESULT_SUBMISSIONS) {
+    throw new LambdaError(422, `Too many submissions (max ${MAX_RESULT_SUBMISSIONS})`)
+  }
 
-  return parsed.filter(isSubmission)
+  const judges = knownJudges(confirmedEvent)
+  const submissions: ResultSubmission[] = []
+
+  for (const value of parsed) {
+    if (!isRecord(value) || typeof value.id !== 'string') continue
+
+    submissions.push({
+      eventResult: pickSubmittedResult(value.eventResult, confirmedEvent, judges),
+      id: value.id,
+      ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}),
+      ...(typeof value.basedOn === 'string' ? { basedOn: value.basedOn } : {}),
+    })
+  }
+
+  return submissions
+}
+
+/**
+ * What a tokenized station link may write: its post's scores and the round-ending outcome. The
+ * whole-round fields — cert, notes, the judging judge, an overriding result code — are the event
+ * secretary's, and are dropped here the same way the merge drops tasks naming another post.
+ */
+export const stationScopedSubmission = (submission: ResultSubmission, stationId: string): ResultSubmission => {
+  const { elimination, retirement, tasks } = submission.eventResult
+
+  return {
+    eventResult: {
+      ...(tasks ? { tasks } : {}),
+      ...(elimination ? { elimination } : {}),
+      ...(retirement ? { retirement } : {}),
+    },
+    id: submission.id,
+    stationId,
+    ...(submission.basedOn ? { basedOn: submission.basedOn } : {}),
+  }
 }
 
 /**
@@ -115,6 +293,16 @@ type SubmissionOutcome =
   | { kind: 'conflict'; stored: JsonEventResult; submitted: JsonEventResult }
   | { kind: 'save'; eventResult: JsonEventResult; hadStored: boolean }
 
+/**
+ * Whether a submission changes the round-ending outcome. Task equality alone must not read as a retry:
+ * an elimination recorded before the post scored anything arrives with the task list unchanged.
+ */
+const outcomeDiffers = (stored: JsonEventResult | undefined, submitted: SubmittedEventResult): boolean =>
+  objectsDiffer(
+    { elimination: stored?.elimination, retirement: stored?.retirement },
+    { elimination: submitted.elimination, retirement: submitted.retirement }
+  )
+
 const classifySubmission = (
   confirmedEvent: JsonConfirmedEvent,
   registration: JsonRegistration,
@@ -133,7 +321,7 @@ const classifySubmission = (
   // secretary saves again, and the first attempt turns out to have landed. Comparing content rather
   // than version makes that read as already stored, not as someone else's competing edit.
   const alreadyStored = stationId
-    ? sameStationTasks(stored?.tasks, submittedTasks, stationId)
+    ? sameStationTasks(stored?.tasks, submittedTasks, stationId) && !outcomeDiffers(stored, submitted)
     : sameEventResult(stored, resolve(submitted))
 
   if (alreadyStored) return { eventResult: stored ?? resolve(submitted), kind: 'unchanged' }
@@ -158,6 +346,37 @@ const classifySubmission = (
  * and the tokenized station endpoint, so the two cannot drift on what counts as a retry, a conflict
  * or a save — `userName` is whoever this write is attributed to.
  */
+/**
+ * Refuse a score the round cannot hold. The totals are recomputed rather than trusted, but a
+ * recomputation happily sums an out-of-range figure — 30 points on a 20-point task would derive an
+ * unearned prize as faithfully as a real score — and a task naming a slot outside the round would
+ * ride along stored forever.
+ */
+const validateSubmittedTasks = (
+  confirmedEvent: JsonConfirmedEvent,
+  registration: JsonRegistration,
+  submission: ResultSubmission
+): void => {
+  const tasks = submission.eventResult.tasks
+  if (!tasks?.length) return
+
+  const eventClass = registration.class ?? undefined
+  const classStations = confirmedEvent.classes?.find((item) => item.class === eventClass)?.stations
+  const round = classRound(confirmedEvent.stations ?? [], classStations)
+
+  for (const task of tasks) {
+    const slot = round.find((item) => item.stationId === task.stationId && item.index === task.index)
+    if (!slot) {
+      throw new LambdaError(422, `Task ${task.stationId}#${task.index} is not part of the round`)
+    }
+
+    const ceiling = taskEntryCeiling({ maxPoints: slot.maxPoints, ...(task.recalled ? { recalled: true } : {}) })
+    if (task.points !== null && (task.points < 0 || task.points > ceiling)) {
+      throw new LambdaError(422, `Task points ${task.points} out of range for ${task.stationId}#${task.index}`)
+    }
+  }
+}
+
 export const processResultSubmissions = async (
   eventId: string,
   confirmedEvent: JsonConfirmedEvent,
@@ -182,6 +401,10 @@ export const processResultSubmissions = async (
     // is what stops a result being attributed to a dog that was not there.
     if (!isScorableRegistration(registration)) {
       throw new LambdaError(422, `Registration '${submission.id}' did not run`)
+    }
+
+    if (scoresAtPosts(confirmedEvent.eventType)) {
+      validateSubmittedTasks(confirmedEvent, registration, submission)
     }
 
     // The alphabet is the event type's own: a pass/fail test awards 1 or 0 and nothing else, so a code

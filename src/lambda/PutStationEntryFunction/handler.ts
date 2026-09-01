@@ -1,6 +1,6 @@
 import type { JsonConfirmedEvent } from '../../types'
 import { getEvent } from '../lib/event'
-import { parseSubmissions, processResultSubmissions } from '../lib/eventResults'
+import { parseSubmissions, processResultSubmissions, stationScopedSubmission } from '../lib/eventResults'
 import { getParam, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import { authorizeStationEntry, scopeResultToStation } from '../lib/stationEntry'
@@ -19,7 +19,9 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
   const station = await authorizeStationEntry(event, eventId, confirmedEvent, stationId)
 
-  const submissions = parseSubmissions(event.body).map((submission) => ({ ...submission, stationId }))
+  const submissions = parseSubmissions(event.body, confirmedEvent).map((submission) =>
+    stationScopedSubmission(submission, stationId)
+  )
   if (submissions.length === 0) return response(422, 'no results', event)
 
   const registrations = await getRegistrationsByEventId(eventId)

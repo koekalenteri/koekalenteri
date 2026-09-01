@@ -163,7 +163,68 @@ describe('putEventResultsLambda', () => {
     await putEventResultsLambda(apiEvent([]))
 
     expect(mockResponse).toHaveBeenCalledWith(422, 'no results', expect.anything())
-    expect(mockGetAuthorizedEvent).not.toHaveBeenCalled()
+    // The event itself is read first — parsing validates against its round — but nothing is written.
+    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
+  it('strips fields the result schema does not know rather than storing them', async () => {
+    await putEventResultsLambda(
+      apiEvent([
+        {
+          eventResult: { cert: 'totta kai', junk: 'x', ownerNotes: { nested: true }, tasks: scores(17, 18, 16, 14) },
+          id: 'reg-1',
+        },
+      ])
+    )
+
+    // The stored item must not be writable by whatever a request chooses to put in it: this write
+    // path is shared with the widely shared tokenized station link (KOE-1258).
+    expect(savedResult()).not.toHaveProperty('junk')
+    expect(savedResult()).not.toHaveProperty('ownerNotes')
+    // A cert claim that is not a boolean is noise, not a certificate.
+    expect(savedResult()).not.toHaveProperty('cert')
+    expect(savedResult()).toMatchObject({ points: 65, result: 'AVO1' })
+  })
+
+  it('refuses points beyond what the task can hold', async () => {
+    // The totals are recomputed, but a recomputation happily sums 30 on a 20-point task into an
+    // unearned prize — the range is the server's to enforce.
+    await expect(
+      putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(30, 10, 10, 10) }, id: 'reg-1' }]))
+    ).rejects.toThrow('out of range')
+
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
+  it('caps a recalled task at its halved ceiling', async () => {
+    await expect(
+      putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { tasks: [{ index: 0, points: 11, recalled: true, stationId: 'post-1' }] },
+            id: 'reg-1',
+          },
+        ])
+      )
+    ).rejects.toThrow('out of range')
+  })
+
+  it('refuses a task naming a slot outside the round', async () => {
+    await expect(
+      putEventResultsLambda(
+        apiEvent([{ eventResult: { tasks: [{ index: 0, points: 10, stationId: 'post-9' }] }, id: 'reg-1' }])
+      )
+    ).rejects.toThrow('not part of the round')
+  })
+
+  it('caps how many dogs one request may carry', async () => {
+    const batch = Array.from({ length: 201 }, (_ignored, index) => ({
+      eventResult: { tasks: scores(1, 1, 1, 1) },
+      id: `reg-${index}`,
+    }))
+
+    await expect(putEventResultsLambda(apiEvent(batch))).rejects.toThrow('Too many submissions')
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
@@ -377,6 +438,32 @@ describe('putEventResultsLambda', () => {
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
       const [, body] = mockResponse.mock.calls[0]
       expect(body.unchanged.map((item: { id: string }) => item.id)).toEqual(['reg-1'])
+    })
+
+    it('saves an elimination that arrives with the task list unchanged', async () => {
+      // A dog can be thrown out before or after its post scored: the outcome is then the whole save,
+      // and task equality alone must not make it read as a retry that changes nothing.
+      withStored(scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1'))
+
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            basedOn: '2026-09-12T10:00:00.000Z',
+            eventResult: {
+              elimination: { fault: 'aggression', stationId: 'post-1' },
+              tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
+            },
+            id: 'reg-1',
+            stationId: 'post-1',
+          },
+        ])
+      )
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({
+        elimination: { fault: 'aggression', stationId: 'post-1' },
+        result: 'AVO-',
+      })
     })
 
     it("ignores tasks a post submits for somebody else's post", async () => {
