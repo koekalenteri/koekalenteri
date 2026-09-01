@@ -461,8 +461,8 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledTimes(1)
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO Judge One'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Dog 1'))
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('(i. Sire Dog, e. Dam Dog)'))
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. POISSA'))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('(startList.sire Sire Dog, startList.dam Dam Dog)'))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. startList.absent'))
   })
 
   it('copies unpublished participants and their publication status in preview mode', async () => {
@@ -494,7 +494,7 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledWith(
       expect.stringContaining('VOI Judge Two, Judge Three (startListNotPublished)')
     )
-    expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/\n2\..*Dog 2 REG2 s\./))
+    expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/\n2\..*Dog 2 REG2 startList\.born/))
   })
 
   it('does not export unpublished participants from the public start list', async () => {

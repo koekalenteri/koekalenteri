@@ -1,28 +1,31 @@
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   reserve: boolean
 }
 
 const HeaderRow = ({ reserve }: Props) => {
+  const { t } = useTranslation()
+
   return (
     <TableRow selected>
       <TableCell>#</TableCell>
-      <TableCell>Rekisterinumero</TableCell>
-      <TableCell>Syntymäaika</TableCell>
-      <TableCell>Siru</TableCell>
-      <TableCell>Rotu</TableCell>
-      <TableCell>Nimi</TableCell>
-      <TableCell>Omistaja</TableCell>
-      <TableCell>Omistaja on jäsen</TableCell>
-      <TableCell>Ohjaaja</TableCell>
-      <TableCell>Ohjaaja on jäsen</TableCell>
-      <TableCell>Ohjaajan puhelin</TableCell>
+      <TableCell>{t('dog.regNo')}</TableCell>
+      <TableCell>{t('dog.dob')}</TableCell>
+      <TableCell>{t('dog.rfid')}</TableCell>
+      <TableCell>{t('dog.breed')}</TableCell>
+      <TableCell>{t('dog.name')}</TableCell>
+      <TableCell>{t('startListExport.owner')}</TableCell>
+      <TableCell>{t('startList.ownerIsMember')}</TableCell>
+      <TableCell>{t('startListExport.handler')}</TableCell>
+      <TableCell>{t('startList.handlerIsMember')}</TableCell>
+      <TableCell>{t('startList.handlerPhone')}</TableCell>
       {reserve ? (
         <>
-          <TableCell>Paikkakunta</TableCell>
-          <TableCell>Varoitusaika</TableCell>
+          <TableCell>{t('contact.city')}</TableCell>
+          <TableCell>{t('startList.reserveNotice')}</TableCell>
         </>
       ) : null}
     </TableRow>

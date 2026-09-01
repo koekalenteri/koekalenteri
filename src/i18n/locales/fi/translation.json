@@ -826,6 +826,22 @@
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
   },
+  "startList": {
+    "absent": "POISSA",
+    "born": "s.",
+    "breeder": "kasv.",
+    "dam": "e.",
+    "handler": "ohj.",
+    "handlerIsMember": "Ohjaaja on jäsen",
+    "handlerPhone": "Ohjaajan puhelin",
+    "noPhone": "-ei puhelinta-",
+    "owner": "om.",
+    "ownerAndHandler": "om. & ohj.",
+    "ownerIsMember": "Omistaja on jäsen",
+    "reserve": "Varalla",
+    "reserveNotice": "Varoitusaika",
+    "sire": "i."
+  },
   "startListCopied": "Lista kopioitu",
   "startListExport": {
     "breeder": "Kasvattaja",

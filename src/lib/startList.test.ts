@@ -49,12 +49,12 @@ describe('startListSpreadsheetRows', () => {
       ],
       [
         // The fixture is cancelled: since KOE-1017 a cancelled row exports its number and the
-        // POISSA mark, nothing else — the file must match the public page it came from.
+        // absent mark, nothing else — the file must match the public page it came from.
         new Date(2023, 1, 1, 12),
         'morning',
         'ALO',
         2,
-        'POISSA',
+        'ABSENT',
         '',
         '',
         '',

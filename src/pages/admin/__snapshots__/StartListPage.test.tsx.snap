@@ -54,52 +54,52 @@ exports[`OrganizerListPage > renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rekisterinumero
+              dog.regNo
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Syntymäaika
+              dog.dob
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Siru
+              dog.rfid
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rotu
+              dog.breed
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Nimi
+              dog.name
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja
+              startListExport.owner
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja on jäsen
+              startList.ownerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja
+              startListExport.handler
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja on jäsen
+              startList.handlerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaajan puhelin
+              startList.handlerPhone
             </td>
           </tr>
           <tr
@@ -182,52 +182,52 @@ exports[`OrganizerListPage > renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rekisterinumero
+              dog.regNo
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Syntymäaika
+              dog.dob
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Siru
+              dog.rfid
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rotu
+              dog.breed
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Nimi
+              dog.name
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja
+              startListExport.owner
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja on jäsen
+              startList.ownerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja
+              startListExport.handler
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja on jäsen
+              startList.handlerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaajan puhelin
+              startList.handlerPhone
             </td>
           </tr>
           <tr
@@ -310,52 +310,52 @@ exports[`OrganizerListPage > renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rekisterinumero
+              dog.regNo
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Syntymäaika
+              dog.dob
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Siru
+              dog.rfid
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rotu
+              dog.breed
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Nimi
+              dog.name
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja
+              startListExport.owner
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja on jäsen
+              startList.ownerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja
+              startListExport.handler
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja on jäsen
+              startList.handlerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaajan puhelin
+              startList.handlerPhone
             </td>
           </tr>
           <tr
@@ -438,52 +438,52 @@ exports[`OrganizerListPage > renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rekisterinumero
+              dog.regNo
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Syntymäaika
+              dog.dob
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Siru
+              dog.rfid
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rotu
+              dog.breed
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Nimi
+              dog.name
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja
+              startListExport.owner
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja on jäsen
+              startList.ownerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja
+              startListExport.handler
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja on jäsen
+              startList.handlerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaajan puhelin
+              startList.handlerPhone
             </td>
           </tr>
           <tr
@@ -559,7 +559,7 @@ exports[`OrganizerListPage > renders 1`] = `
               <h5
                 class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
               >
-                varalla
+                startList.reserve
               </h5>
             </td>
           </tr>
@@ -588,62 +588,62 @@ exports[`OrganizerListPage > renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rekisterinumero
+              dog.regNo
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Syntymäaika
+              dog.dob
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Siru
+              dog.rfid
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rotu
+              dog.breed
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Nimi
+              dog.name
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja
+              startListExport.owner
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja on jäsen
+              startList.ownerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja
+              startListExport.handler
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja on jäsen
+              startList.handlerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaajan puhelin
+              startList.handlerPhone
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Paikkakunta
+              contact.city
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Varoitusaika
+              startList.reserveNotice
             </td>
           </tr>
           <tr
@@ -801,62 +801,62 @@ exports[`OrganizerListPage > renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rekisterinumero
+              dog.regNo
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Syntymäaika
+              dog.dob
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Siru
+              dog.rfid
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Rotu
+              dog.breed
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Nimi
+              dog.name
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja
+              startListExport.owner
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Omistaja on jäsen
+              startList.ownerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja
+              startListExport.handler
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaaja on jäsen
+              startList.handlerIsMember
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Ohjaajan puhelin
+              startList.handlerPhone
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Paikkakunta
+              contact.city
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
-              Varoitusaika
+              startList.reserveNotice
             </td>
           </tr>
           <tr

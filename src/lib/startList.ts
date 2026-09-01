@@ -33,7 +33,7 @@ export function startListSpreadsheetRows(
             registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
             registration.class ?? '',
             registration.group.number ?? '',
-            'POISSA',
+            t('startList.absent'),
             ...Array.from({ length: 8 }, () => ''),
           ]
         : [

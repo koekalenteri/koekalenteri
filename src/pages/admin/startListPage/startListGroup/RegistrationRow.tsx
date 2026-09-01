@@ -27,7 +27,7 @@ const RegistrationRow = ({ reg, reserve, nameLen }: RegistrationRowProps) => {
       <TableCell align="center">{owners.some((owner) => owner?.membership) ? '✘' : ''}</TableCell>
       <TableCell>{reg.handler?.name}</TableCell>
       <TableCell align="center">{reg.handler?.membership ? '✘' : ''}</TableCell>
-      <TableCell>{reg.handler?.phone ?? '-ei puhelinta-'}</TableCell>
+      <TableCell>{reg.handler?.phone ?? t('startList.noPhone')}</TableCell>
       {reserve ? (
         <>
           <TableCell>{reg.handler?.location}</TableCell>

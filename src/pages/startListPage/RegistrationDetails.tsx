@@ -13,7 +13,9 @@ interface RegistrationDetailsProps {
 export const RegistrationDetails = ({ registration: reg, index }: RegistrationDetailsProps) => {
   const { t } = useTranslation()
   const breed = breedAbbreviation(t, reg.dog.breedCode, reg.dog.gender)
-  const ownerHandler = reg.ownerHandles ? `om. & ohj. ${reg.owner}` : `om. ${reg.owner}, ohj. ${reg.handler}`
+  const ownerHandler = reg.ownerHandles
+    ? `${t('startList.ownerAndHandler')} ${reg.owner}`
+    : `${t('startList.owner')} ${reg.owner}, ${t('startList.handler')} ${reg.handler}`
   const sire = formatDogName(reg.dog.sire)
   const dam = formatDogName(reg.dog.dam)
 
@@ -37,14 +39,14 @@ export const RegistrationDetails = ({ registration: reg, index }: RegistrationDe
         >
           <Box sx={{ fontWeight: 'bold' }}>
             {reg.group.number != null ? `${reg.group.number}. ` : ''}
-            {[breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')} s.{' '}
+            {[breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')} {t('startList.born')}{' '}
             {reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}
           </Box>
           <Box>
-            (i. {sire}, e. {dam})
+            ({t('startList.sire')} {sire}, {t('startList.dam')} {dam})
           </Box>
           <Box>
-            {ownerHandler}, kasv. {reg.breeder}
+            {ownerHandler}, {t('startList.breeder')} {reg.breeder}
           </Box>
           {/* Its own line, bold: this is what a reader came for, and what a Koiranet screenshot omits. */}
           {reg.result && <Box sx={{ fontWeight: 'bold' }}>{reg.result}</Box>}

@@ -62,7 +62,7 @@ export default function StartListPage() {
           const reserve = groupKey === 'varalla'
           const cols = reserve ? 10 : 8
           const group = grouped[groupKey]
-          const heading = reserve ? groupKey : t('dateFormat.wdshort', { date: new Date(+groupKey) })
+          const heading = reserve ? t('startList.reserve') : t('dateFormat.wdshort', { date: new Date(+groupKey) })
 
           return (
             <Table key={groupKey} size="small">

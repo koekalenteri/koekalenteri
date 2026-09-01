@@ -826,6 +826,22 @@
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
   },
+  "startList": {
+    "absent": "ABSENT",
+    "born": "b.",
+    "breeder": "breeder",
+    "dam": "dam",
+    "handler": "handler",
+    "handlerIsMember": "Handler is a member",
+    "handlerPhone": "Handler's phone",
+    "noPhone": "-no phone-",
+    "owner": "owner",
+    "ownerAndHandler": "owner & handler",
+    "ownerIsMember": "Owner is a member",
+    "reserve": "Reserve",
+    "reserveNotice": "Notice period",
+    "sire": "sire"
+  },
   "startListCopied": "List copied",
   "startListExport": {
     "breeder": "Breeder",

@@ -2,7 +2,16 @@ import type { PublicRegistration } from '../../types/Registration'
 import { render, screen } from '@testing-library/react'
 import { RegistrationDetails } from './RegistrationDetails'
 
-// Mock i18next
+// Mock i18next with the Finnish start list abbreviations the assertions read
+const startListAbbreviations: Record<string, string> = {
+  'startList.born': 's.',
+  'startList.breeder': 'kasv.',
+  'startList.dam': 'e.',
+  'startList.handler': 'ohj.',
+  'startList.owner': 'om.',
+  'startList.ownerAndHandler': 'om. & ohj.',
+  'startList.sire': 'i.',
+}
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, _options?: any) => {
@@ -12,7 +21,7 @@ vi.mock('react-i18next', () => ({
       if (key === 'dateFormat.date') {
         return '1.1.2020'
       }
-      return key
+      return startListAbbreviations[key] ?? key
     },
   }),
 }))

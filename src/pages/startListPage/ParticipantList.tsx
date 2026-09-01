@@ -349,10 +349,12 @@ function formatClassJudges(event: PublicConfirmedEvent, eventClass: string, date
 }
 
 function formatRegistration(reg: PublicRegistration, t: TFunction) {
-  if (reg.cancelled) return `${reg.group.number}. POISSA`
+  if (reg.cancelled) return `${reg.group.number}. ${t('startList.absent')}`
 
   const breed = breedAbbreviation(t, reg.dog.breedCode, reg.dog.gender)
-  const ownerHandler = reg.ownerHandles ? `om. & ohj. ${reg.owner}` : `om. ${reg.owner}, ohj. ${reg.handler}`
+  const ownerHandler = reg.ownerHandles
+    ? `${t('startList.ownerAndHandler')} ${reg.owner}`
+    : `${t('startList.owner')} ${reg.owner}, ${t('startList.handler')} ${reg.handler}`
   const dog = [breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')
   const sire = formatDogName(reg.dog.sire)
   const dam = formatDogName(reg.dog.dam)
@@ -360,9 +362,9 @@ function formatRegistration(reg: PublicRegistration, t: TFunction) {
   const numberPrefix = reg.group.number != null ? `${reg.group.number}. ` : ''
 
   return [
-    `${numberPrefix}${dog} s. ${reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}`,
-    `(i. ${sire}, e. ${dam})`,
-    `${ownerHandler}, kasv. ${reg.breeder}`,
+    `${numberPrefix}${dog} ${t('startList.born')} ${reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}`,
+    `(${t('startList.sire')} ${sire}, ${t('startList.dam')} ${dam})`,
+    `${ownerHandler}, ${t('startList.breeder')} ${reg.breeder}`,
     // The copied list is the one that gets pasted into a forum post, so it has to carry what the
     // screen shows. Leaving the result out here is how the two quietly stop matching.
     reg.result,
