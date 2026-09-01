@@ -7,7 +7,9 @@ import type {
   RegistrationClass,
   RegistrationGroup,
   RegistrationTime,
+  StationTurnOp,
 } from '../../../types'
+import type { StationTurnItem } from './StationTurnControls'
 import type { ResultEdit } from './types'
 import Save from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
@@ -25,6 +27,7 @@ import { classRound, stationVersion } from '../../../lib/results'
 import { AsyncButton } from '../../components/AsyncButton'
 import { makeArray } from '../components/eventForm/judgeSection/utils'
 import { RoundOutcome } from './RoundOutcomeCell'
+import { StationTurnControls } from './StationTurnControls'
 import { TaskScore } from './TaskCell'
 import { emptyEdit, isVoided } from './types'
 
@@ -52,6 +55,9 @@ interface Props {
   /** Scorable dogs only. */
   readonly registrations: StationScoringDog[]
   readonly onSave: (submission: EventResultSubmission) => Promise<EventResultsResponse>
+  /** The post's live timeline (KOE-1259); the clock and its buttons render only when provided. */
+  readonly turns?: readonly StationTurnItem[]
+  readonly onTurn?: (op: StationTurnOp) => Promise<unknown>
 }
 
 /**
@@ -64,7 +70,7 @@ interface Props {
  * Serves two callers that differ only in where the data comes from: the event secretary's own station
  * view, and the tokenized link a station secretary opens without an account.
  */
-export function StationScoring({ station, eventType, subtitle, classes, registrations, onSave }: Props) {
+export function StationScoring({ station, eventType, subtitle, classes, registrations, onSave, turns, onTurn }: Props) {
   const { t } = useTranslation()
 
   const eventClasses = useMemo(() => [...new Set(registrations.map(getRegistrationClass))], [registrations])
@@ -156,6 +162,15 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
           <Tab key={item} label={item} value={item} />
         ))}
       </Tabs>
+
+      {turns && onTurn && (
+        <StationTurnControls
+          onTurn={onTurn}
+          selectedDog={selected && { id: selected.id, name: selected.dog.name, number: selected.group?.number }}
+          stationId={station.id}
+          turns={turns}
+        />
+      )}
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, p: 2 }}>
         {dogs.map((dog) => (

@@ -9,6 +9,7 @@ import { getStartList } from '../api/registration'
 import { isStartListAvailable } from '../lib/event'
 import LoadingIndicator from './components/LoadingIndicator'
 import { EventHeader } from './startListPage/EventHeader'
+import { LiveStatus } from './startListPage/LiveStatus'
 import { ParticipantList } from './startListPage/ParticipantList'
 import { useConfirmedEvent, userAtom } from './state'
 
@@ -43,6 +44,7 @@ export const StartListPage = () => {
   return (
     <Box p={1}>
       <EventHeader event={event} now={now} />
+      <LiveStatus event={event} />
       <ParticipantList participants={participants} event={event} showExportActions={showExportActions} />
     </Box>
   )

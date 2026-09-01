@@ -1,4 +1,4 @@
-import type { StationEntry } from '../types'
+import type { PublicStationTurn, StationEntry, StationTurn, StationTurnOp } from '../types'
 import type { EventResultSubmission, EventResultsResponse } from './registration'
 import http, { withToken } from './http'
 
@@ -23,6 +23,37 @@ export async function putStationEntry(
     await http.post<EventResultSubmission[], EventResultsResponse>(
       `/station-entry/${eventId}/${stationId}`,
       results,
+      withToken({ signal }, token)
+    )
+  ).data
+}
+
+/** The event secretary's turn writes (KOE-1259): one op against one post's live timeline. */
+export async function putStationTurn(
+  eventId: string,
+  op: StationTurnOp & { stationId?: string },
+  token: string,
+  signal?: AbortSignal
+): Promise<{ turns: StationTurn[] }> {
+  return http.put<StationTurnOp & { stationId?: string }, { turns: StationTurn[] }>(
+    `/admin/turns/${eventId}`,
+    op,
+    withToken({ signal }, token)
+  )
+}
+
+/** The same turn ops through the station's own tokenized link, scoped to the link's post. */
+export async function putStationEntryTurn(
+  eventId: string,
+  stationId: string,
+  op: StationTurnOp,
+  token: string,
+  signal?: AbortSignal
+): Promise<{ turns: PublicStationTurn[] }> {
+  return (
+    await http.post<StationTurnOp, { turns: PublicStationTurn[] }>(
+      `/station-entry/${eventId}/${stationId}/turn`,
+      op,
       withToken({ signal }, token)
     )
   ).data

@@ -36,6 +36,18 @@ const registrations = [
   },
 ]
 
+// A closed span gives the clock a stable footer (one group through, a seven-minute pace) without
+// putting the ticking wall clock itself into the picture.
+const turns = [
+  {
+    dogs: [{ name: 'Ensimmainen', number: 1 }],
+    endedAt: new Date('2026-09-12T08:07:00Z'),
+    id: 'turn-1',
+    startedAt: new Date('2026-09-12T08:00:00Z'),
+    stationId: 'post-2',
+  },
+]
+
 it('scores the dog at the post, one round at a time', async () => {
   const screen = await render(
     <Frame>
@@ -43,9 +55,11 @@ it('scores the dog at the post, one round at a time', async () => {
         classes={eventWithStations.classes}
         eventType="NOWT"
         onSave={async () => ({ registrations: [], saved: [] })}
+        onTurn={async () => {}}
         registrations={registrations}
         station={station}
         subtitle="Tuloskoe"
+        turns={turns}
       />
     </Frame>
   )

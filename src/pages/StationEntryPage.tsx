@@ -1,10 +1,10 @@
 import type { EventResultSubmission } from '../api/registration'
-import type { StationEntry } from '../types'
+import type { StationEntry, StationTurnOp } from '../types'
 import Typography from '@mui/material/Typography'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { getStationEntry, putStationEntry } from '../api/station'
+import { getStationEntry, putStationEntry, putStationEntryTurn } from '../api/station'
 import { StationScoring } from './admin/eventResultsPage/StationScoring'
 import LoadingIndicator from './components/LoadingIndicator'
 
@@ -54,6 +54,14 @@ export function Component() {
     [eventId, stationId, token]
   )
 
+  const handleTurn = useCallback(
+    async (op: StationTurnOp) => {
+      const response = await putStationEntryTurn(eventId, stationId, op, token)
+      setEntry((previous) => previous && { ...previous, turns: response.turns })
+    },
+    [eventId, stationId, token]
+  )
+
   // A wrong link, a revoked one and a station that never existed all read the same, on purpose.
   if (failed) {
     return (
@@ -79,9 +87,11 @@ export function Component() {
       classes={entry.event.classes}
       eventType={entry.event.eventType}
       onSave={handleSave}
+      onTurn={handleTurn}
       registrations={entry.registrations}
       station={entry.station}
       subtitle={subtitle}
+      turns={entry.turns ?? []}
     />
   )
 }

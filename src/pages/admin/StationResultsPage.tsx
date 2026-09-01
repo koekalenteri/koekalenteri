@@ -1,14 +1,15 @@
 import type { EventResultSubmission } from '../../api/registration'
+import type { StationTurn, StationTurnOp } from '../../types'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { putEventResults } from '../../api/registration'
-import { getStationLink } from '../../api/station'
+import { getStationLink, putStationTurn } from '../../api/station'
 import { isScorableRegistration } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import { idTokenAtom } from '../state'
@@ -34,6 +35,18 @@ export default function StationResultsPage() {
   const handleSave = useCallback(
     (submission: EventResultSubmission) => putEventResults(eventId, [submission], token ?? ''),
     [eventId, token]
+  )
+
+  // The response is the freshest timeline until the WebSocket patch catches the event atom up; each
+  // save remembers which atom value it was based on, so a fresher patch takes over by itself.
+  const [savedTurns, setSavedTurns] = useState<{ base: StationTurn[] | undefined; turns: StationTurn[] }>()
+  const eventTurns = event?.turns
+  const handleTurn = useCallback(
+    async (op: StationTurnOp) => {
+      const response = await putStationTurn(eventId, { ...op, stationId }, token ?? '')
+      setSavedTurns({ base: eventTurns, turns: response.turns })
+    },
+    [eventId, eventTurns, stationId, token]
   )
 
   const handleCopyLink = useCallback(async () => {
@@ -72,9 +85,11 @@ export default function StationResultsPage() {
         classes={event.classes}
         eventType={event.eventType}
         onSave={handleSave}
+        onTurn={handleTurn}
         registrations={scorable}
         station={station}
         subtitle={subtitle}
+        turns={(savedTurns && savedTurns.base === event.turns ? savedTurns.turns : event.turns) ?? []}
       />
     </Box>
   )

@@ -81,7 +81,9 @@ export const getEvents = async (
   return { events: response, unchangedIds: [] }
 }
 
-export const getEvent = async (id: string, signal?: AbortSignal) => http.get<DogEvent>(`${PATH}${id}`, { signal })
+// The endpoint serves the sanitized public event, so the public-only `liveTurns` rides along.
+export const getEvent = async (id: string, signal?: AbortSignal) =>
+  http.get<DogEvent & Pick<PublicDogEvent, 'liveTurns'>>(`${PATH}${id}`, { signal })
 
 export async function getAdminEvents(token?: string, lastModified?: number, signal?: AbortSignal): Promise<DogEvent[]> {
   const qs = lastModified ? `?since=${lastModified}` : ''

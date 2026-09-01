@@ -92,6 +92,7 @@
     "isodate": "{{ date, isodate }}",
     "long": "{{ date, long }}",
     "short": "{{ date, short }}",
+    "time": "{{ date, time }}",
     "wdshort": "{{ date, wdshort2 }}",
     "weekday": "{{ date, weekday2 }}"
   },
@@ -426,6 +427,29 @@
   },
   "languageMenu": "Kieli",
   "languages": "Arvostelukielet",
+  "liveStatus": {
+    "completed_one": "{{count}} ryhmä käynyt",
+    "completed_other": "{{count}} ryhmää käynyt",
+    "endBreak": "Päätä tauko",
+    "endTurn": "Päätä vuoro",
+    "free": "Rasti vapaa",
+    "noEstimate": "ei vielä arviota läpimenosta",
+    "now": "Rastilla nyt",
+    "pause": {
+      "coffee": "Kahvitauko",
+      "lunch": "Lounastauko",
+      "other": "Tauko",
+      "weather": "Sääkeskeytys"
+    },
+    "pauseSince": "{{label}} · alkoi {{time}}",
+    "sinceMinutes": "{{minutes}} min",
+    "startBreak": "Tauko",
+    "startTurn": "Aloita vuoro",
+    "station": "Rasti {{number}}",
+    "throughput": "Läpimeno {{min}}–{{max}} min · ka {{mean}} min",
+    "title": "Live",
+    "turnSaveFailed": "Vuoron tallennus epäonnistui. Yritä uudelleen."
+  },
   "loading": "Ladataan",
   "locale": {
     "en": "In English",

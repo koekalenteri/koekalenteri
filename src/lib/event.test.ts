@@ -999,6 +999,28 @@ describe('sanitizeDogEvent', () => {
     expect(sanitized).toEqual({ id: 'event-1' })
   })
 
+  it('turns the stored timeline into liveTurns without the registration ids', () => {
+    const event = {
+      id: 'event-1',
+      turns: [
+        {
+          dogs: [{ name: 'Dog', number: 5 }],
+          id: 'turn-1',
+          registrationIds: ['run-1'],
+          startedAt: '2026-09-12T08:00:00.000Z',
+          stationId: 'post-1',
+        },
+      ],
+    }
+
+    const sanitized = sanitizeDogEvent(event as any)
+
+    expect(Object.hasOwn(sanitized, 'turns')).toBe(false)
+    expect(sanitized.liveTurns).toEqual([
+      { dogs: [{ name: 'Dog', number: 5 }], id: 'turn-1', startedAt: '2026-09-12T08:00:00.000Z', stationId: 'post-1' },
+    ])
+  })
+
   it('should handle event with only private fields', () => {
     const event = {
       createdBy: 'user-1',

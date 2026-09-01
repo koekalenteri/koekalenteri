@@ -49,6 +49,10 @@ const restoreServerOwnedLocks = (data: JsonConfirmedEvent, existing: JsonConfirm
   if (existing?.registrationGroupsLock) data.registrationGroupsLock = existing.registrationGroupsLock
   delete data.registrationPaymentsLock
   if (existing?.registrationPaymentsLock) data.registrationPaymentsLock = existing.registrationPaymentsLock
+  // The live timeline (KOE-1259) is written only through the turn endpoints; a stale copy riding an
+  // event save must not clobber the spans a post recorded meanwhile.
+  delete data.turns
+  if (existing?.turns) data.turns = existing.turns
 }
 
 const persistEvent = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {

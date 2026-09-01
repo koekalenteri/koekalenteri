@@ -92,6 +92,7 @@
     "isodate": "{{ date, isodate }}",
     "long": "{{ date, long }}",
     "short": "{{ date, short }}",
+    "time": "{{ date, time }}",
     "wdshort": "{{ date, wdshort3 }}",
     "weekday": "{{ date, weekday3 }}"
   },
@@ -426,6 +427,29 @@
   },
   "languageMenu": "Language",
   "languages": "Judging languages",
+  "liveStatus": {
+    "completed_one": "{{count}} group through",
+    "completed_other": "{{count}} groups through",
+    "endBreak": "End break",
+    "endTurn": "End turn",
+    "free": "Post idle",
+    "noEstimate": "no pace estimate yet",
+    "now": "At the post now",
+    "pause": {
+      "coffee": "Coffee break",
+      "lunch": "Lunch break",
+      "other": "Break",
+      "weather": "Weather hold"
+    },
+    "pauseSince": "{{label}} · since {{time}}",
+    "sinceMinutes": "{{minutes}} min",
+    "startBreak": "Break",
+    "startTurn": "Start turn",
+    "station": "Post {{number}}",
+    "throughput": "Pace {{min}}–{{max}} min · avg {{mean}} min",
+    "title": "Live",
+    "turnSaveFailed": "Saving the turn failed. Please try again."
+  },
   "loading": "Loading...",
   "locale": {
     "en": "In English",

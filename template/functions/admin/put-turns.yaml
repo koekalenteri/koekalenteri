@@ -1,0 +1,34 @@
+  PutStationTurnFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/PutStationTurnFunction
+      Handler: handler.default
+      Layers:
+        - !Ref DependenciesLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
+      Events:
+        PutStationTurn:
+          Type: Api
+          Properties:
+            Path: /admin/turns/{eventId}
+            Method: PUT
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  PutStationTurnFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutStationTurnFunction]]
+      RetentionInDays: 30

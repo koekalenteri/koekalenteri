@@ -90,6 +90,12 @@ export interface JsonDogEvent extends JsonDbRecord {
   resultsPublished?: ResultsPublishedState
   /** Scoring posts, for event types that score at posts (NOWT). */
   stations?: JsonEventStation[]
+  /**
+   * The live timeline of the trial day (KOE-1259): every span a post has run, turns and breaks alike,
+   * appended as the day goes. Server-owned — written only through the turn endpoint, never by an
+   * event save — and stripped from the public event, which carries the derived `liveTurns` instead.
+   */
+  turns?: JsonStationTurn[]
 }
 
 type EventRequiredDates = 'startDate' | 'endDate'
@@ -123,6 +129,50 @@ export type JsonEventStation = {
 }
 export type EventStation = Replace<JsonEventStation, 'date', Date>
 
+/** A break is labeled with a code rather than free text, so the day's pauses can be counted later. */
+export type StationTurnPause = 'coffee' | 'lunch' | 'weather' | 'other'
+
+/** The public face of a dog in a turn: what the published start list already tells. */
+export interface JsonStationTurnDog {
+  name: string
+  number?: number
+}
+
+/**
+ * One span of a post's day as the public may see it: a turn holding a group of dogs, or a break
+ * holding none. The span with no `endedAt` is what is happening right now; throughput is the closed
+ * spans measured. Timestamps stay ISO strings on both sides of the wire.
+ */
+export interface JsonPublicStationTurn {
+  id: string
+  /** The post this span belongs to; `'1'` for the implicit single post of formats without stations. */
+  stationId: string
+  /** Denormalized at write time so the public projection never needs the registrations. */
+  dogs: JsonStationTurnDog[]
+  startedAt: string
+  endedAt?: string
+  pause?: StationTurnPause
+}
+
+/** The stored span (KOE-1259): the public shape plus the registration ids, which never leave admin. */
+export interface JsonStationTurn extends JsonPublicStationTurn {
+  registrationIds: string[]
+}
+
+/** The turn as the browser holds it, timestamps revived to `Date` by the http layer. */
+export type PublicStationTurn = Replace<ReplaceOptional<JsonPublicStationTurn, 'endedAt', Date>, 'startedAt', Date>
+export type StationTurn = Replace<ReplaceOptional<JsonStationTurn, 'endedAt', Date>, 'startedAt', Date>
+
+/**
+ * What a post can do to its timeline: put a group of dogs to work, put the post on a break, or close
+ * the open span. Starting anything closes the open span first — at the post the next thing beginning
+ * is what says the previous one ended, and one tap must be enough.
+ */
+export type StationTurnOp =
+  | { type: 'start'; registrationIds: string[] }
+  | { type: 'break'; pause: StationTurnPause }
+  | { type: 'end' }
+
 /**
  * One dog as a station secretary's tokenized link may see it: enough to call the dog up and score it,
  * nothing more. Owner and handler details stay off a link this widely shared.
@@ -147,11 +197,14 @@ export interface JsonStationEntry {
   /** Without `tokenVersion`: the link must not reveal its own revocation counter. */
   station: Omit<JsonEventStation, 'tokenVersion'>
   registrations: JsonStationEntryDog[]
+  /** This post's own timeline (KOE-1259), in the public shape — the link runs the turns it sees. */
+  turns?: JsonPublicStationTurn[]
 }
 export type StationEntry = {
   event: Pick<PublicDogEvent, 'id' | 'eventType' | 'name' | 'location' | 'startDate' | 'endDate' | 'classes'>
   station: Omit<EventStation, 'tokenVersion'>
   registrations: StationEntryDog[]
+  turns?: PublicStationTurn[]
 }
 
 /**
@@ -184,18 +237,22 @@ export type DogEvent = DbRecord &
         ReplaceOptional<
           ReplaceOptional<
             ReplaceOptional<
-              Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
-              EventOptionalDates,
-              Date
+              ReplaceOptional<
+                Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
+                EventOptionalDates,
+                Date
+              >,
+              'dates',
+              RegistrationDate[]
             >,
-            'dates',
-            RegistrationDate[]
+            'kcEvent',
+            KcEventInfo
           >,
-          'kcEvent',
-          KcEventInfo
+          'stations',
+          Array<EventStation>
         >,
-        'stations',
-        Array<EventStation>
+        'turns',
+        Array<StationTurn>
       >,
       EventRequiredDates,
       Date
@@ -221,13 +278,19 @@ type NonPublicDogEventProperties =
   | 'modifiedBy'
   | 'registrationGroupsLock'
   | 'registrationPaymentsLock'
+  | 'turns'
 
-export type JsonPublicDogEvent = Omit<JsonDogEvent, NonPublicDogEventProperties>
+export type JsonPublicDogEvent = Omit<JsonDogEvent, NonPublicDogEventProperties> & {
+  /** The stored `turns` without their registration ids, derived by `sanitizeDogEvent`. */
+  liveTurns?: JsonPublicStationTurn[]
+}
 export type SanitizedJsonPublicDogEvent = JsonPublicDogEvent & {
   [K in NonPublicDogEventProperties]?: never
 }
 
-export type PublicDogEvent = Omit<DogEvent, NonPublicDogEventProperties>
+export type PublicDogEvent = Omit<DogEvent, NonPublicDogEventProperties> & {
+  liveTurns?: PublicStationTurn[]
+}
 export type SanitizedPublicDogEvent = PublicDogEvent & {
   [K in NonPublicDogEventProperties]?: never
 }

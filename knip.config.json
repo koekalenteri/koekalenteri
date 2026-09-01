@@ -17,6 +17,9 @@
         "@emnapi/runtime"
       ],
       "entry": [
+        "scripts/build-template.mjs",
+        "scripts/layer-modules.mjs",
+        "src/index.tsx",
         "src/lambda/CopyEventFunction/handler.ts",
         "src/lambda/GetAdminEventFunction/handler.ts",
         "src/lambda/GetAdminEventsFunction/handler.ts",
@@ -34,10 +37,10 @@
         "src/lambda/GetOrganizersFunction/handler.ts",
         "src/lambda/GetRegistrationAuditTrailFunction/handler.ts",
         "src/lambda/GetRegistrationFunction/handler.ts",
-        "src/lambda/GetStationEntryFunction/handler.ts",
-        "src/lambda/GetStationLinkFunction/handler.ts",
         "src/lambda/GetRegistrationTransactionsFunction/handler.ts",
         "src/lambda/GetStartListFunction/handler.ts",
+        "src/lambda/GetStationEntryFunction/handler.ts",
+        "src/lambda/GetStationLinkFunction/handler.ts",
         "src/lambda/GetStatsFunction/handler.ts",
         "src/lambda/GetUserFunction/handler.ts",
         "src/lambda/GetUsersFunction/handler.ts",
@@ -58,6 +61,8 @@
         "src/lambda/PutRegistrationGroupsFunction/handler.ts",
         "src/lambda/PutStartNumbersFunction/handler.ts",
         "src/lambda/PutStationEntryFunction/handler.ts",
+        "src/lambda/PutStationEntryTurnFunction/handler.ts",
+        "src/lambda/PutStationTurnFunction/handler.ts",
         "src/lambda/PutUserFunction/handler.ts",
         "src/lambda/PutUserNameFunction/handler.ts",
         "src/lambda/RebuildAllStatsFunction/handler.ts",
@@ -71,11 +76,8 @@
         "src/lambda/SendRegistrationMessagesFunction/handler.ts",
         "src/lambda/SetAdminFunction/handler.ts",
         "src/lambda/SetRoleFunction/handler.ts",
-        "src/index.tsx",
-        "src/service-worker.js",
         "src/service-worker-unregister.js",
-        "scripts/build-template.mjs",
-        "scripts/layer-modules.mjs"
+        "src/service-worker.js"
       ]
     }
   },

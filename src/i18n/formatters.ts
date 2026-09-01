@@ -15,4 +15,5 @@ export const registerFormatters = (i18n: i18n) => {
   i18n.services.formatter?.add('date', getDateFormatter('d.M.yyyy'))
   i18n.services.formatter?.add('isodate', getDateFormatter('dd.MM.yyyy'))
   i18n.services.formatter?.add('long', getDateFormatter('dd.MM.yyyy HH:mm'))
+  i18n.services.formatter?.add('time', getDateFormatter('HH:mm'))
 }

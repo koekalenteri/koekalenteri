@@ -3,9 +3,11 @@ import type {
   JsonConfirmedEvent,
   JsonEventResult,
   JsonEventStation,
+  JsonPublicStationTurn,
   JsonRegistration,
   JsonStationEntry,
   JsonStationEntryDog,
+  JsonStationTurn,
 } from '../../types'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { isScorableRegistration, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
@@ -104,6 +106,12 @@ export const scopeResultToStation = (result: JsonEventResult, stationId: string)
   }
 }
 
+/** One post's spans in the public shape: the link that runs the turns sees them without the ids. */
+export const publicStationTurns = (turns: JsonStationTurn[] | undefined, stationId: string): JsonPublicStationTurn[] =>
+  (turns ?? [])
+    .filter((turn) => turn.stationId === stationId)
+    .map(({ registrationIds: _registrationIds, ...publicTurn }) => publicTurn)
+
 export const stationEntryResponse = (
   confirmedEvent: JsonConfirmedEvent,
   station: JsonEventStation,
@@ -126,5 +134,6 @@ export const stationEntryResponse = (
       .sort(sortRegistrationsByDateClassTimeAndNumber)
       .map((registration) => stationEntryDog(registration, station.id)),
     station: publicStation,
+    turns: publicStationTurns(confirmedEvent.turns, station.id),
   }
 }

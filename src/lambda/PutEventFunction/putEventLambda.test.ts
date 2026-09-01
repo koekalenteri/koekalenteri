@@ -309,6 +309,34 @@ describe('putEventLambda', () => {
     expect(JSON.parse(res.body)).not.toHaveProperty('registrationGroupsLock')
   })
 
+  it('keeps the server-owned live timeline over whatever an event save carries', async () => {
+    // KOE-1259: a stale copy riding an event save must not clobber the spans a post recorded meanwhile.
+    const storedTurns = [
+      {
+        dogs: [{ name: 'Dog', number: 1 }],
+        id: 'turn-1',
+        registrationIds: ['run-1'],
+        startedAt: '2026-09-12T08:00:00.000Z',
+        stationId: 'post-1',
+      },
+    ]
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, turns: storedTurns })
+
+    await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({
+        id: 'existing',
+        turns: [],
+      })
+    )
+
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.objectContaining({ turns: storedTurns }),
+      expect.objectContaining({ turns: storedTurns })
+    )
+  })
+
   it('should reject an event edit based on stale modification data', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, modifiedAt: '2025-03-22T09:00:00.000Z' })

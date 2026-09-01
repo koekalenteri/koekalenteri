@@ -28,6 +28,7 @@ import { parseISO } from 'date-fns/parseISO'
 import { sub } from 'date-fns/sub'
 import { subDays } from 'date-fns/subDays'
 import { formatDate, TIME_ZONE, zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
+import { isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
 import { unique, uniqueDate } from './utils'
 
@@ -705,10 +706,19 @@ export function sanitizeDogEvent(
     registrationPaymentsLock: _registrationPaymentsLock,
     secretary: _secretary,
     official: _official,
+    turns,
     ...publicFields
   } = event
 
-  return publicFields
+  // The public face of the live timeline: the stored spans without their registration ids (KOE-1259).
+  // The guard narrows away the partial shapes a Patch could in principle carry; turn patches always
+  // hold complete spans, so nothing real is dropped. The map cannot carry the Json/Date correlation
+  // of the three overload shapes through TypeScript, so this one boundary conversion re-asserts what
+  // the overload signatures promise: string-dated turns for the Json shapes, Date-dated for the rest.
+  if (!turns) return publicFields
+  const storedTurns: readonly unknown[] = turns
+  const liveTurns = storedTurns.filter(isStoredStationTurn).map(toPublicStationTurn)
+  return { ...publicFields, liveTurns } as SanitizedJsonPublicDogEvent | SanitizedPublicDogEvent
 }
 
 const groupDates = (dates: RegistrationDate[]): Record<number, RegistrationTime[]> =>
