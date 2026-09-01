@@ -417,6 +417,23 @@ describe('searchEventKcIdChoicesLambda', () => {
     )
   })
 
+  it('allows the lookup for an event already run, which is when results are entered (KOE-452)', async () => {
+    const event = constructAPIGwEvent(
+      {
+        ...lookupRequest,
+        classes: [{ class: 'ALO', date: '2026-05-20T00:00:00.000Z' }],
+        endDate: '2026-05-21T20:59:59.999Z',
+        startDate: '2026-05-20T00:00:00.000Z',
+      },
+      { method: 'POST' }
+    )
+
+    await searchEventKcIdChoicesLambda(event)
+
+    expect(mockLueKoetapahtumat).toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), event)
+  })
+
   it('allows an event type the Kennel Club sync flagged official', async () => {
     mockReadEventType.mockResolvedValueOnce({ ...eventTypeRecord, eventType: 'MEJÄ' })
     const event = constructAPIGwEvent({ ...lookupRequest, eventType: 'MEJÄ' }, { method: 'POST' })

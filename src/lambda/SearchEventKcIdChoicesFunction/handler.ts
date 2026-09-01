@@ -2,7 +2,7 @@ import type { JsonDogEvent, JsonEventType, Organizer } from '../../types'
 import type { KLKoetapahtuma } from '../types/KLAPI'
 import { addDays } from 'date-fns/addDays'
 import { zonedDateString } from '../../i18n/dates'
-import { isEventOver, isOfficialEventType, OFFICIAL_EVENT_TYPES } from '../../lib/event'
+import { isOfficialEventType, OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
@@ -157,7 +157,10 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
     CONFIG.eventTypeTable
   )
 
-  if (!isOfficialEventType(criteria.eventType, eventType?.official) || isEventOver(criteria)) {
+  // Only official event types have a Kennelliitto id to find. A past event is deliberately not
+  // refused (the KOE-85 gate used to): the lookup's own use case is results entry (KOE-452), which
+  // happens the evening after the event, or days later.
+  if (!isOfficialEventType(criteria.eventType, eventType?.official)) {
     throw new LambdaError(403, 'Forbidden')
   }
 
