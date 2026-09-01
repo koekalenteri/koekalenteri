@@ -298,6 +298,20 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
     }
   )
 
+/** Remove a field outright. DynamoDB refuses `SET x = :undefined`, so clearing is its own expression. */
+export const removeRegistrationField = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  field: keyof JsonRegistration & string
+) =>
+  dynamoDB.update(
+    { eventId, id },
+    {
+      remove: [field],
+      set: { updatedAt: new Date().toISOString() },
+    }
+  )
+
 const setInvitationAttachmentSent = async (registration: JsonRegistration, attachment: string) => {
   const hasUnversionedLegacyRead = registration.invitationRead && !registration.invitationAttachmentRead
   const legacyReadAttachment = hasUnversionedLegacyRead ? registration.invitationAttachmentSent : undefined

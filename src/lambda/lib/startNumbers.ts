@@ -4,7 +4,7 @@ import { getRegistrationClass, isScorableRegistration } from '../../lib/registra
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { LambdaError } from './lambda'
-import { updateRegistrationField } from './registration'
+import { removeRegistrationField, updateRegistrationField } from './registration'
 
 const { eventTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
@@ -22,7 +22,7 @@ const inScope = (registration: JsonRegistration, eventClass?: RegistrationClass)
  * Freeze the published order: each scorable participant's current group becomes its `startGroup`.
  *
  * Publishing is the moment the number turns from a derived ordinal into the dog's own (KOE-1017), so
- * the snapshot is (re)written here and nowhere automatic afterwards. The whole placement is copied,
+ * the snapshot is written here — only where none exists yet — and nowhere automatic afterwards. The whole placement is copied,
  * not the bare number: a later cancellation drops the group's date and time, and the public POISSA
  * row still has to land under the right day.
  */
@@ -36,6 +36,10 @@ export const freezeStartNumbers = async (
   for (const registration of registrations) {
     if (!isScorableRegistration(registration) || !registration.group?.date) continue
     if (!inScope(registration, eventClass)) continue
+    // An existing snapshot is already the dog's own number — the venue's entered draw (KOE-1218) or
+    // an earlier publish. Freezing over it would replace the drawn numbers with the working order in
+    // the same request that makes them public, so publishing only fills the gaps.
+    if (registration.startGroup) continue
 
     const startGroup = { ...registration.group }
     await updateRegistrationField(eventId, registration.id, 'startGroup', startGroup)
@@ -93,8 +97,10 @@ export const assignStartNumbers = async (
       // A cancelled holder yields its slot: this is how the secretary fills a vacated place, and
       // yielding it removes the POISSA row from the public list "kunnolla", as the ticket asks.
       if (other.cancelled) {
-        await updateRegistrationField(eventId, other.id, 'startGroup', undefined)
-        patches.push({ id: other.id, startGroup: undefined })
+        // Yielding is a REMOVE: DynamoDB refuses `SET startGroup = :undefined`, and `null` in the
+        // patch is what tells the clients' patchMerge to delete the field rather than skip it.
+        await removeRegistrationField(eventId, other.id, 'startGroup')
+        patches.push({ id: other.id, startGroup: null })
         continue
       }
 

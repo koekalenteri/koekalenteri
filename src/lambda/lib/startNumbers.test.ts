@@ -2,9 +2,13 @@ import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 
 const mockUpdateRegistrationField = vi.fn()
+const mockRemoveRegistrationField = vi.fn()
 const mockUpdate = vi.fn()
 
-vi.doMock('./registration', () => ({ updateRegistrationField: mockUpdateRegistrationField }))
+vi.doMock('./registration', () => ({
+  removeRegistrationField: mockRemoveRegistrationField,
+  updateRegistrationField: mockUpdateRegistrationField,
+}))
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return { update: mockUpdate }
@@ -49,6 +53,21 @@ describe('startNumbers', () => {
         number: 1,
         time: 'ap',
       })
+    })
+
+    it('keeps an entered draw when publishing, freezing only the gaps', async () => {
+      const drawn = registration('run-1', {
+        startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' },
+      })
+
+      const patches = await freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO')
+
+      // Freezing over an existing snapshot would replace the venue's drawn numbers with the working
+      // order in the same request that makes them public (KOE-1218).
+      expect(patches).toEqual([
+        { id: 'run-2', startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 2, time: 'ap' } },
+      ])
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith('event-1', 'run-1', 'startGroup', expect.anything())
     })
 
     it('freezes every class when no class is named', async () => {
@@ -109,11 +128,14 @@ describe('startNumbers', () => {
       const patches = await assignStartNumbers('event-1', [riser, cancelled], [{ id: 'run-1', startNumber: 5 }])
 
       // The POISSA row disappears from the public list "kunnolla": the number now belongs to the
-      // dog that took the place.
+      // dog that took the place. Yielding is a REMOVE expression — DynamoDB refuses a SET to
+      // undefined — and the patch carries `null` so patchMerge on the clients deletes the field.
       expect(patches).toEqual([
-        { id: 'can-2', startGroup: undefined },
+        { id: 'can-2', startGroup: null },
         { id: 'run-1', startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 5, time: 'ap' } },
       ])
+      expect(mockRemoveRegistrationField).toHaveBeenCalledWith('event-1', 'can-2', 'startGroup')
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith('event-1', 'can-2', 'startGroup', undefined)
     })
   })
 
