@@ -112,14 +112,19 @@ const main = async () => {
     written++
 
     if (options.apply) {
+      // The browser keeps events in a persisted cache and refetches them incrementally, asking only
+      // for what changed since its cursor (`changedSince` in lambda/lib/incremental.ts). A row
+      // rewritten without moving a timestamp comes back as unchanged, so the new field would never
+      // reach anyone already holding the event. `updatedAt` is the one to move: it is what the
+      // incremental fetch reads, while `modifiedAt` records a user's edit and this is not one.
       await client.send(
         new UpdateCommand({
           // The write is skipped if some other writer set the field meanwhile.
           ConditionExpression: 'attribute_not_exists(startNumbersPublished)',
-          ExpressionAttributeValues: { ':value': value },
+          ExpressionAttributeValues: { ':updatedAt': new Date().toISOString(), ':value': value },
           Key: { id: event.id },
           TableName: options.table,
-          UpdateExpression: 'SET startNumbersPublished = :value',
+          UpdateExpression: 'SET startNumbersPublished = :value, updatedAt = :updatedAt',
         })
       )
     }
