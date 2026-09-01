@@ -55,7 +55,7 @@
     "unified": "^11.0.5",
     "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.1.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "scripts": {
     "analyze": "npm run build-frontend && webpack-bundle-analyzer build/stats.json build --no-open --mode static",
@@ -178,5 +178,10 @@
     "presets": [
       "./config/babelPreset.js"
     ]
+  },
+  "overrides": {
+    "aws-rum-web": {
+      "uuid": "^11.1.1"
+    }
   }
 }
