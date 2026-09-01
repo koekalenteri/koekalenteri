@@ -68,11 +68,21 @@ function ResultsTable({
   const { t } = useTranslation()
   const qualitative = !scoresAtPosts(eventType)
 
-  // A qualitative type's stored result seeds the row, so an edit that only adds a lisätieto cannot
-  // quietly drop the recorded result on save. Post-scored rounds keep starting blank: their stored
-  // state lives in the tasks, and the conflict handling already guards a whole-round overwrite.
+  // The stored result seeds the row, so an edit cannot quietly drop what is already recorded. For a
+  // qualitative type that is the judge's decision; for a post-scored round it is every task the posts
+  // have saved so far — the whole-round submission replaces the task array, so a row starting blank
+  // would erase the other posts' scores the moment the secretary corrected one cell. (The conflict
+  // check only guards against a *stale* client; a current one would overwrite without a word.)
   const seededEdit = (stored?: EventResult): ResultEdit => {
-    if (!qualitative || !stored) return emptyEdit
+    if (!stored) return emptyEdit
+
+    if (!qualitative) {
+      return {
+        ...(stored.elimination ? { elimination: stored.elimination } : {}),
+        ...(stored.retirement ? { retirement: stored.retirement } : {}),
+        tasks: (stored.tasks ?? []).map(({ updatedAt: _at, updatedBy: _by, ...task }) => task),
+      }
+    }
 
     const resultCode = parseEventResultCode(stored.result, eventType, eventClass)
 

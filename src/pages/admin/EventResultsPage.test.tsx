@@ -339,6 +339,42 @@ describe('EventResultsPage', () => {
     expect(submissions?.[0]).toMatchObject({ id: 'run-1' })
   })
 
+  it("shows another post's stored scores and carries them along, so a correction does not erase them", async () => {
+    const { i18n } = useTranslation()
+    const storedAt = new Date('2021-02-13T10:00:00Z')
+    const registrations = registrationsToEventWithStations.map((reg) =>
+      reg.id === 'run-1'
+        ? {
+            ...reg,
+            eventResult: {
+              tasks: [{ index: 0, points: 17, stationId: 'post-1', updatedAt: storedAt, updatedBy: 'Rasti 1' }],
+              updatedAt: storedAt,
+              updatedBy: 'Rasti 1',
+            },
+          }
+        : reg
+    )
+    const { user } = renderScoringPage(i18n.language as Language, registrations)
+    await flushPromises()
+
+    // The stored score seeds the row rather than leaving it blank: the whole-round save replaces the
+    // task array, so a row starting blank would erase post-1's work the moment post-2 was entered.
+    const inputs = within(rowFor('Ensimmainen')).getAllByRole('textbox')
+    expect(inputs[0]).toHaveValue('17')
+
+    await score(user, inputs[1], '8')
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+    expect(submissions?.[0].eventResult.tasks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ points: 17, stationId: 'post-1' }),
+        expect.objectContaining({ points: 8, stationId: 'post-2' }),
+      ])
+    )
+  })
+
   it('keeps only the disputed dogs on screen when the save comes back a conflict', async () => {
     const { i18n } = useTranslation()
     vi.mocked(putEventResults).mockRejectedValueOnce(
