@@ -22,12 +22,16 @@
       "classEmailSent": "{{template}} sent to {{eventClass}} class: succeeded {{ok}}, failed {{failed}}",
       "classStartListHidden": "{{eventClass}} start list hidden",
       "classStartListPublished": "{{eventClass}} start list published",
+      "classStartNumbersHidden": "{{eventClass}} start numbers hidden",
+      "classStartNumbersPublished": "{{eventClass}} start numbers published",
       "emailSent": "{{template}} sent: succeeded {{ok}}, failed {{failed}}",
       "eventCreated": "Event created",
       "eventDeleted": "Event deleted",
       "eventSaved": "Event saved",
       "startListHidden": "Start list hidden",
-      "startListPublished": "Start list published"
+      "startListPublished": "Start list published",
+      "startNumbersHidden": "Start numbers hidden",
+      "startNumbersPublished": "Start numbers published"
     },
     "removed": "(removed)",
     "showDetails": "Show audit details",
@@ -340,11 +344,14 @@
     "showEventDetails": "Show event details",
     "startList": {
       "hide": "Hide start list",
+      "hideNumbers": "Hide start numbers",
+      "numbersPublished": "Start numbers published",
       "preview": "View public start list",
       "previewUnpublished": "Preview start list",
       "publish": "Publish start list",
       "published": "Start list published",
       "publishing": "Start list publishing",
+      "publishNumbers": "Publish start numbers",
       "saveFailed": "Saving the start list publication status failed. Try again.",
       "secretary": "Secretary's start list"
     },
@@ -810,6 +817,7 @@
     "time": "Time"
   },
   "startListNotPublished": "start list is not published yet",
+  "startNumbersNotPublished": "start order is not confirmed yet",
   "stats": {
     "admin": {
       "cancellationRate": "Cancelled",

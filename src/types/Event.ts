@@ -79,6 +79,14 @@ export interface JsonDogEvent extends JsonDbRecord {
   startDate: string
   state: EventState
   startListPublished?: StartListPublishedState
+  /**
+   * Whether the start numbers ride the published start list (KOE-1006). Same shape as
+   * `startListPublished`, and gated behind it: numbers cannot be public on an unpublished list.
+   * Absent means published — every event before the flag put its numbers out with the list — and
+   * only an explicit `false` withholds them; new events are created with `false` so the choice is
+   * the secretary's.
+   */
+  startNumbersPublished?: StartListPublishedState
   resultsPublished?: ResultsPublishedState
   /** Scoring posts, for event types that score at posts (NOWT). */
   stations?: JsonEventStation[]

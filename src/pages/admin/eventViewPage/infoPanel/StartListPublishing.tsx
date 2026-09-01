@@ -3,6 +3,7 @@ import type { ConfirmedEvent, RegistrationClass } from '../../../../types'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -12,7 +13,13 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
-import { canPublishStartList, isStartListAvailable, isStartListAvailableForClass } from '../../../../lib/event'
+import {
+  canPublishStartList,
+  isStartListAvailable,
+  isStartListAvailableForClass,
+  isStartNumbersAvailable,
+  isStartNumbersAvailableForClass,
+} from '../../../../lib/event'
 import { getInvitationRecipients, isRegistrationClass } from '../../../../lib/registration'
 import { Path } from '../../../../routeConfig'
 import { actionButtonSx, sectionSx } from './styles'
@@ -24,11 +31,22 @@ const getStartListAuditMessageKey = (eventClass: RegistrationClass | undefined, 
   return published ? 'audit.messages.startListPublished' : 'audit.messages.startListHidden'
 }
 
+const getStartNumbersAuditMessageKey = (eventClass: RegistrationClass | undefined, published: boolean) => {
+  if (eventClass) {
+    return published ? 'audit.messages.classStartNumbersPublished' : 'audit.messages.classStartNumbersHidden'
+  }
+  return published ? 'audit.messages.startNumbersPublished' : 'audit.messages.startNumbersHidden'
+}
+
 interface Props {
   readonly event: ConfirmedEvent
   readonly eventWithCurrentAttachments: ConfirmedEvent
   readonly numbersByClass: RegistrationInfo['numbersByClass']
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
+  readonly onSetStartNumbersPublished?: (
+    eventClass: RegistrationClass | undefined,
+    published: boolean
+  ) => Promise<unknown>
   readonly selectedByClass: RegistrationInfo['selectedByClass']
   readonly stateByClass: RegistrationInfo['stateByClass']
 }
@@ -38,6 +56,7 @@ const StartListPublishing = ({
   eventWithCurrentAttachments,
   numbersByClass,
   onSetStartListPublished,
+  onSetStartNumbersPublished,
   selectedByClass,
   stateByClass,
 }: Props) => {
@@ -46,6 +65,10 @@ const StartListPublishing = ({
     eventClass
       ? isStartListAvailableForClass(event, eventClass)
       : event.classes.length === 0 && isStartListAvailable(event)
+  const isNumbersPublished = (eventClass?: ConfirmedEvent['classes'][number]) =>
+    eventClass
+      ? isStartNumbersAvailableForClass(event, eventClass)
+      : event.classes.length === 0 && isStartNumbersAvailable(event)
   const startListFullyPublished =
     event.classes.length === 0
       ? isStartListPublished()
@@ -58,6 +81,17 @@ const StartListPublishing = ({
     try {
       await onSetStartListPublished(eventClass, published)
       enqueueSnackbar(t(getStartListAuditMessageKey(eventClass, published), { eventClass }), { variant: 'success' })
+    } catch {
+      enqueueSnackbar(t('eventManagement.startList.saveFailed'), errorSnackbarOptions)
+    }
+  }
+
+  const handleSetStartNumbersPublished = async (eventClass: RegistrationClass | undefined, published: boolean) => {
+    if (!onSetStartNumbersPublished) return
+
+    try {
+      await onSetStartNumbersPublished(eventClass, published)
+      enqueueSnackbar(t(getStartNumbersAuditMessageKey(eventClass, published), { eventClass }), { variant: 'success' })
     } catch {
       enqueueSnackbar(t('eventManagement.startList.saveFailed'), errorSnackbarOptions)
     }
@@ -89,6 +123,12 @@ const StartListPublishing = ({
                 (classlessEventRow || Boolean(startListEventClass)) &&
                 canPublishStartList(classState, event)
               const canManageStartList = invitationsSent && startListManageable
+              const numbersPublished = isNumbersPublished(
+                event.classes.find((eventClass) => eventClass.class === className)
+              )
+              // Numbers can only be public on a published list, so the button waits for the list.
+              const canManageStartNumbers =
+                Boolean(onSetStartNumbersPublished) && startListManageable && startListPublished
 
               return (
                 <TableRow key={className}>
@@ -102,22 +142,46 @@ const StartListPublishing = ({
                           {t('eventManagement.startList.published')}
                         </Typography>
                       )}
+                      {startListPublished && numbersPublished && (
+                        <Typography variant="caption" color="info.main" display="block">
+                          {t('eventManagement.startList.numbersPublished')}
+                        </Typography>
+                      )}
                     </Box>
                   </TableCell>
                   <TableCell align="right">
-                    <Button
-                      size="small"
-                      disabled={!canManageStartList}
-                      onClick={() => {
-                        if (classlessEventRow || startListEventClass) {
-                          handleSetStartListPublished(startListEventClass, !startListPublished)
-                        }
-                      }}
-                      color={startListPublished ? 'secondary' : 'primary'}
-                      variant={canManageStartList ? 'contained' : 'outlined'}
-                    >
-                      {t(startListPublished ? 'eventManagement.startList.hide' : 'eventManagement.startList.publish')}
-                    </Button>
+                    <Stack direction="row" flexWrap="wrap" justifyContent="flex-end" spacing={1} useFlexGap>
+                      <Button
+                        size="small"
+                        disabled={!canManageStartList}
+                        onClick={() => {
+                          if (classlessEventRow || startListEventClass) {
+                            handleSetStartListPublished(startListEventClass, !startListPublished)
+                          }
+                        }}
+                        color={startListPublished ? 'secondary' : 'primary'}
+                        variant={canManageStartList ? 'contained' : 'outlined'}
+                      >
+                        {t(startListPublished ? 'eventManagement.startList.hide' : 'eventManagement.startList.publish')}
+                      </Button>
+                      <Button
+                        size="small"
+                        disabled={!canManageStartNumbers}
+                        onClick={() => {
+                          if (classlessEventRow || startListEventClass) {
+                            handleSetStartNumbersPublished(startListEventClass, !numbersPublished)
+                          }
+                        }}
+                        color={numbersPublished ? 'secondary' : 'primary'}
+                        variant={canManageStartNumbers ? 'contained' : 'outlined'}
+                      >
+                        {t(
+                          numbersPublished
+                            ? 'eventManagement.startList.hideNumbers'
+                            : 'eventManagement.startList.publishNumbers'
+                        )}
+                      </Button>
+                    </Stack>
                   </TableCell>
                 </TableRow>
               )

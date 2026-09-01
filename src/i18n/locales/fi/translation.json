@@ -22,12 +22,16 @@
       "classEmailSent": "{{template}} luokkaan {{eventClass}} lähetetty: onnistui {{ok}}, epäonnistui {{failed}}",
       "classStartListHidden": "{{eventClass}} starttilista piilotettu",
       "classStartListPublished": "{{eventClass}} starttilista julkaistu",
+      "classStartNumbersHidden": "{{eventClass}} starttinumerot piilotettu",
+      "classStartNumbersPublished": "{{eventClass}} starttinumerot julkaistu",
       "emailSent": "{{template}} lähetetty: onnistui {{ok}}, epäonnistui {{failed}}",
       "eventCreated": "Tapahtuma luotu",
       "eventDeleted": "Tapahtuma poistettu",
       "eventSaved": "Tapahtuma tallennettu",
       "startListHidden": "Starttilista piilotettu",
-      "startListPublished": "Starttilista julkaistu"
+      "startListPublished": "Starttilista julkaistu",
+      "startNumbersHidden": "Starttinumerot piilotettu",
+      "startNumbersPublished": "Starttinumerot julkaistu"
     },
     "removed": "(poistettu)",
     "showDetails": "Näytä audit-lisätiedot",
@@ -340,11 +344,14 @@
     "showEventDetails": "Näytä tapahtuman tiedot",
     "startList": {
       "hide": "Piilota starttilista",
+      "hideNumbers": "Piilota starttinumerot",
+      "numbersPublished": "Starttinumerot julkaistu",
       "preview": "Katso julkinen starttilista",
       "previewUnpublished": "Katso starttilistan esikatselu",
       "publish": "Julkaise starttilista",
       "published": "Starttilista julkaistu",
       "publishing": "Starttilistan julkaisu",
+      "publishNumbers": "Julkaise starttinumerot",
       "saveFailed": "Starttilistan julkaisutilan tallennus epäonnistui. Yritä uudelleen.",
       "secretary": "Sihteerin starttilista"
     },
@@ -810,6 +817,7 @@
     "time": "Aika"
   },
   "startListNotPublished": "starttilistaa ei ole vielä julkaistu",
+  "startNumbersNotPublished": "starttijärjestystä ei ole vielä vahvistettu",
   "stats": {
     "admin": {
       "cancellationRate": "Peruutuksia",

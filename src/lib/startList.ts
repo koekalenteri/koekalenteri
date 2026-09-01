@@ -29,7 +29,7 @@ export function startListSpreadsheetRows(
       spreadsheetDate(registration.group.date ?? event.startDate),
       registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
       registration.class ?? '',
-      registration.group.number,
+      registration.group.number ?? '',
       [registration.dog.titles, registration.dog.name].filter(Boolean).join(' '),
       registration.dog.regNo,
       registration.dog.dob ? spreadsheetDate(registration.dog.dob) : '',

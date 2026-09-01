@@ -507,6 +507,73 @@ export const isStartListAvailableForRegistration = (
 }
 
 /**
+ * Start numbers ride the start list but publish separately (KOE-1006). An absent flag means
+ * published — every event before the flag put its numbers out with the list, and a deploy must not
+ * pull them — so only an explicit `false` withholds. Note the inverted default against the start
+ * list's own class map, where an absent class means unpublished.
+ */
+const isStartNumbersPublishedForClass = (
+  { startNumbersPublished }: Pick<JsonDogEvent, 'startNumbersPublished'>,
+  eventClass?: string
+) =>
+  isStartListPublishedClassMap(startNumbersPublished)
+    ? startNumbersPublished[eventClass as RegistrationClass] !== false
+    : startNumbersPublished !== false
+
+type StartNumbersEvent = Pick<JsonDogEvent, 'state' | 'startListPublished' | 'startNumbersPublished'>
+
+/** Numbers can only be public on a published list: the list is the numbers' only transport. */
+export const isStartNumbersAvailableForClass = (
+  event: StartNumbersEvent & EventVitals,
+  eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
+) => isStartListAvailableForClass(event, eventClass) && isStartNumbersPublishedForClass(event, eventClass.class)
+
+export const isStartNumbersAvailable = (
+  event: StartNumbersEvent &
+    EventVitals & {
+      classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+    }
+) => {
+  if (event.classes?.length) {
+    return event.classes.some((eventClass) => isStartNumbersAvailableForClass(event, eventClass))
+  }
+
+  return isStartListAvailable(event) && isStartNumbersPublishedForClass(event)
+}
+
+export const isStartNumbersAvailableForRegistration = (
+  event: StartNumbersEvent & AvailabilityEvent,
+  registration: AvailabilityRegistration
+) => {
+  if (!isStartListAvailableForRegistration(event, registration)) return false
+
+  const classes = event.classes ?? []
+  if (!registration.class || classes.length === 0) return isStartNumbersPublishedForClass(event)
+
+  const eventClass = findRegistrationClass(event, registration)
+
+  return eventClass ? isStartNumbersPublishedForClass(event, eventClass.class) : false
+}
+
+export const getStartNumbersPublishedClassMap = ({
+  classes,
+  startNumbersPublished,
+}: Pick<JsonDogEvent, 'startNumbersPublished'> & {
+  classes: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
+}): Partial<Record<RegistrationClass, boolean>> => {
+  const existingMap = isStartListPublishedClassMap(startNumbersPublished) ? startNumbersPublished : {}
+  // The absent-means-published default (above) carries into the expanded map.
+  const defaultPublished = isStartListPublishedClassMap(startNumbersPublished) ? true : startNumbersPublished !== false
+  const result: Partial<Record<RegistrationClass, boolean>> = {}
+
+  for (const eventClass of classes) {
+    result[eventClass.class] = existingMap[eventClass.class] ?? defaultPublished
+  }
+
+  return result
+}
+
+/**
  * Whether this dog's result may be shown.
  *
  * Gated on its own class and nothing else: a start list can be public long before any result is, so an

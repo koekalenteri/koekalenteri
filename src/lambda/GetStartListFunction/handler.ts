@@ -3,12 +3,14 @@ import {
   isResultsAvailableForRegistration,
   isStartListAvailable,
   isStartListAvailableForRegistration,
+  isStartNumbersAvailableForRegistration,
 } from '../../lib/event'
 import {
   formatOwnerNames,
   getHandlingPerson,
   getRegistrationOwners,
   resolveOwnerSelection,
+  sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
@@ -63,13 +65,24 @@ const getStartListLambda = lambda('getStartList', async (event) => {
           breeder: reg.breeder?.name,
           class: reg.class,
           dog: reg.dog,
-          group: reg.group,
+          // Until the class's numbers are published the number is withheld (KOE-1006): the dogs are
+          // real but the order is not, and a number that still moves must not look like a promise.
+          group:
+            preview || isStartNumbersAvailableForRegistration(confirmedEvent, reg)
+              ? reg.group
+              : { ...reg.group, number: undefined },
           handler: getHandlingPerson(reg)?.name ?? '',
           owner: formatOwnerNames(reg),
           ownerHandles: publishedOwnerHandles(reg),
           ...(isResultsAvailableForRegistration(confirmedEvent, reg) ? { result: reg.eventResult?.result } : {}),
         }))
-        .sort((a, b) => a.group.number - b.group.number) ?? []
+        // Groups keep their day/class/time order either way; within a group a withheld number falls
+        // back to the dog's name, so the unconfirmed list reads alphabetically rather than leaking
+        // the draft order through its row positions.
+        .sort(
+          (a, b) =>
+            sortRegistrationsByDateClassTimeAndNumber(a, b) || (a.dog.name ?? '').localeCompare(b.dog.name ?? '', 'fi')
+        ) ?? []
   }
 
   return response(startListAvailable ? 200 : 404, publicRegs, event)

@@ -39,6 +39,10 @@ interface Props {
   readonly onOpenDetails?: () => void
   readonly onSetResultsPublished?: (eventClass: RegistrationClass, published: boolean) => Promise<unknown>
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
+  readonly onSetStartNumbersPublished?: (
+    eventClass: RegistrationClass | undefined,
+    published: boolean
+  ) => Promise<unknown>
   readonly registrations: Registration[]
   readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
 }
@@ -51,6 +55,7 @@ const InfoPanel = ({
   onSetResultsPublished,
   onOpenDetails,
   onSetStartListPublished,
+  onSetStartNumbersPublished,
   registrations,
   onOpenMessageDialog,
 }: Props) => {
@@ -299,6 +304,7 @@ const InfoPanel = ({
             eventWithCurrentAttachments={eventWithCurrentAttachments}
             numbersByClass={numbersByClass}
             onSetStartListPublished={onSetStartListPublished}
+            onSetStartNumbersPublished={onSetStartNumbersPublished}
             selectedByClass={selectedByClass}
             stateByClass={stateByClass}
           />

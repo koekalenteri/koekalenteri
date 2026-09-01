@@ -153,12 +153,8 @@ export const NOME_B_CH_qualificationStartDate2023 = new Date('2023-08-17T21:00:0
 export const REG_CLASSES = new Set<RegistrationClass>(['ALO', 'AVO', 'VOI'])
 
 export function getRegistrationClass(registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>): string
-export function getRegistrationClass(
-  registration: Partial<Pick<JsonRegistration | Registration, 'class' | 'eventType'>>
-): string | undefined
-export function getRegistrationClass(
-  registration: Partial<Pick<JsonRegistration | Registration, 'class' | 'eventType'>>
-) {
+export function getRegistrationClass(registration: { class?: string | null; eventType?: string }): string | undefined
+export function getRegistrationClass(registration: { class?: string | null; eventType?: string }) {
   return registration.class ?? registration.eventType
 }
 
@@ -342,10 +338,14 @@ export const priorityDescriptionKey: PriorityCheckFn<
   if (nomeBSMPriority) return nomeBSMPriority
 }
 
+/**
+ * Structural minimum the sort needs, so it serves stored registrations and public projections alike —
+ * including a public row whose number is withheld until the class's start numbers are published.
+ */
 export type SortableRegistration = {
-  class?: Exclude<JsonRegistration['class'], undefined>
-  eventType?: Exclude<JsonRegistration['eventType'], undefined>
-  group?: Exclude<JsonRegistration['group'] | Registration['group'], undefined>
+  class?: string | null
+  eventType?: string
+  group?: { date?: string | Date; key?: string; number?: number; time?: RegistrationTime }
 }
 
 const sortableDate = (date: string | Date | undefined): string =>

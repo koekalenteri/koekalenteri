@@ -54,6 +54,73 @@ describe('getStartListLambda', () => {
     })
   })
 
+  it('withholds numbers and orders the class alphabetically until they are published', async () => {
+    const confirmedEvent = {
+      classes: [{ class: 'ALO', state: 'invited' }],
+      id: 'event123',
+      organizer: { id: 'org123' },
+      startDate: '2025-01-01',
+      startListPublished: { ALO: true },
+      startNumbersPublished: { ALO: false },
+      state: 'invited',
+    }
+    const base = {
+      cancelled: false,
+      class: 'ALO',
+      eventId: 'event123',
+      handler: { name: 'Handler' },
+      owner: { name: 'Owner' },
+    }
+
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      { ...base, dog: { name: 'Vieno', regNo: 'REG1' }, group: { date: '2025-01-01', key: 'ALO', number: 1 } },
+      { ...base, dog: { name: 'Aapo', regNo: 'REG2' }, group: { date: '2025-01-01', key: 'ALO', number: 2 } },
+    ])
+
+    await getStartListLambda(event)
+
+    const [status, payload] = mockResponse.mock.calls[0]
+    expect(status).toBe(200)
+    // The dogs are real but the order is not: a number that still moves must not look like a
+    // promise, so the rows run by name and carry no number at all.
+    expect(payload.map((reg: { dog: { name: string } }) => reg.dog.name)).toEqual(['Aapo', 'Vieno'])
+    expect(payload[0].group.number).toBeUndefined()
+    expect(payload[1].group.number).toBeUndefined()
+  })
+
+  it('keeps the numbers of an event that never chose to withhold them', async () => {
+    const confirmedEvent = {
+      classes: [{ class: 'ALO', state: 'invited' }],
+      id: 'event123',
+      organizer: { id: 'org123' },
+      startDate: '2025-01-01',
+      startListPublished: { ALO: true },
+      state: 'invited',
+    }
+    const base = {
+      cancelled: false,
+      class: 'ALO',
+      eventId: 'event123',
+      handler: { name: 'Handler' },
+      owner: { name: 'Owner' },
+    }
+
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      { ...base, dog: { name: 'Vieno', regNo: 'REG1' }, group: { date: '2025-01-01', key: 'ALO', number: 1 } },
+      { ...base, dog: { name: 'Aapo', regNo: 'REG2' }, group: { date: '2025-01-01', key: 'ALO', number: 2 } },
+    ])
+
+    await getStartListLambda(event)
+
+    const [, payload] = mockResponse.mock.calls[0]
+    // An absent flag is the legacy "published with the list" default; the order stays numeric.
+    expect(payload.map((reg: { group: { number?: number } }) => reg.group.number)).toEqual([1, 2])
+  })
+
   it('returns unpublished registrations through the authenticated preview route', async () => {
     const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
     const confirmedEvent = {

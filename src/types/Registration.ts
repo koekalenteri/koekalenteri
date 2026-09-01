@@ -225,6 +225,10 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
   key: string
 }
 
+/** The public row's group: the number is withheld until the class's start numbers are published. */
+export type JsonPublicRegistrationGroup = Omit<JsonRegistrationGroup, 'number'> & { number?: number }
+export type PublicRegistrationGroup = Omit<RegistrationGroup, 'number'> & { number?: number }
+
 export type RegistrationGroupInfo = Pick<Registration, 'eventId' | 'id' | 'group' | 'cancelled' | 'cancelReason'>
 export type JsonRegistrationGroupInfo = Pick<
   JsonRegistration,
@@ -301,7 +305,7 @@ export interface JsonPublicRegistration {
   class?: string | null
   cancelled?: boolean
   dog: JsonDog
-  group: JsonRegistrationGroup
+  group: JsonPublicRegistrationGroup
   handler: string
   owner: string
   breeder: string
@@ -316,7 +320,7 @@ export interface JsonPublicRegistration {
 
 export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' | 'group'> {
   dog: Dog
-  group: RegistrationGroup
+  group: PublicRegistrationGroup
 }
 
 export interface JsonQualifyingResult extends JsonTestResult {

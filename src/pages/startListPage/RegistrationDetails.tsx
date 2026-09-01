@@ -36,7 +36,8 @@ export const RegistrationDetails = ({ registration: reg, index }: RegistrationDe
           }}
         >
           <Box sx={{ fontWeight: 'bold' }}>
-            {reg.group.number}. {[breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')} s.{' '}
+            {reg.group.number != null ? `${reg.group.number}. ` : ''}
+            {[breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')} s.{' '}
             {reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}
           </Box>
           <Box>

@@ -16,6 +16,8 @@ import {
   eventRegistrationDateKey,
   isStartListAvailableForClass,
   isStartListAvailableForRegistration,
+  isStartNumbersAvailableForClass,
+  isStartNumbersAvailableForRegistration,
 } from '../../lib/event'
 import { startListFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
@@ -115,6 +117,7 @@ export const ParticipantList = ({
                   event={event}
                   lastDate={item.date}
                   published={isStartListAvailableForClass(event, item.eventClass)}
+                  numbersPublished={isStartNumbersAvailableForClass(event, item.eventClass)}
                 />
               )
               lastClass = item.eventClass.class
@@ -135,6 +138,7 @@ export const ParticipantList = ({
                     event={event}
                     lastDate={lastDate}
                     published={isStartListAvailableForRegistration(event, reg)}
+                    numbersPublished={isStartNumbersAvailableForRegistration(event, reg)}
                   />
                 )
               }
@@ -161,10 +165,19 @@ export const ParticipantList = ({
             // Add registration details
             if (reg.cancelled) {
               result.push(
-                <CancelledRegistration key={`cancelled-${reg.group.number}`} groupNumber={reg.group.number} />
+                <CancelledRegistration
+                  key={`cancelled-${reg.dog.regNo}-${reg.group.number}`}
+                  groupNumber={reg.group.number}
+                />
               )
             } else {
-              result.push(<RegistrationDetails key={`reg-${reg.group.number}`} registration={reg} index={index} />)
+              result.push(
+                <RegistrationDetails
+                  key={`reg-${reg.dog.regNo}-${reg.group.number}`}
+                  registration={reg}
+                  index={index}
+                />
+              )
               index++
             }
 
@@ -207,7 +220,9 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
       if (reg.class) {
         const judges = formatClassJudges(event, reg.class, date, t)
         const note = isStartListAvailableForRegistration(event, reg) ? '' : `(${t('startListNotPublished')})`
-        lines.push([reg.class, judges, note].filter(Boolean).join(' '))
+        const numbersNote =
+          !note && !isStartNumbersAvailableForRegistration(event, reg) ? `(${t('startNumbersNotPublished')})` : ''
+        lines.push([reg.class, judges, note, numbersNote].filter(Boolean).join(' '))
       }
       lastClass = reg.class
     }
@@ -280,7 +295,9 @@ function startListItemTime(item: StartListItem): string {
 }
 
 function startListItemNumber(item: StartListItem): number {
-  return item.type === 'registration' ? item.registration.group.number : Number.MAX_SAFE_INTEGER
+  return item.type === 'registration'
+    ? (item.registration.group.number ?? Number.MAX_SAFE_INTEGER)
+    : Number.MAX_SAFE_INTEGER
 }
 
 function classDateKey(classValue: string | null | undefined, date: Date | undefined): string {
@@ -311,9 +328,11 @@ function formatRegistration(reg: PublicRegistration, t: TFunction) {
   const dog = [breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')
   const sire = formatDogName(reg.dog.sire)
   const dam = formatDogName(reg.dog.dam)
+  // A withheld number leaves the row unnumbered rather than lying about the order.
+  const numberPrefix = reg.group.number != null ? `${reg.group.number}. ` : ''
 
   return [
-    `${reg.group.number}. ${dog} s. ${reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}`,
+    `${numberPrefix}${dog} s. ${reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}`,
     `(i. ${sire}, e. ${dam})`,
     `${ownerHandler}, kasv. ${reg.breeder}`,
     // The copied list is the one that gets pasted into a forum post, so it has to carry what the

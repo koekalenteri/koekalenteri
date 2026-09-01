@@ -2,7 +2,7 @@ import TableCell from '@mui/material/TableCell'
 import { StyledTableRow } from './StyledTableRow'
 
 interface CancelledRegistrationProps {
-  groupNumber: number
+  groupNumber?: number
 }
 
 export const CancelledRegistration = ({ groupNumber }: CancelledRegistrationProps) => {

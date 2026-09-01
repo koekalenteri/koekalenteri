@@ -37,6 +37,8 @@ import {
   isStartListAvailableForClass,
   isStartListAvailableForRegistration,
   isStartListPublishedForClass,
+  isStartNumbersAvailableForClass,
+  isStartNumbersAvailableForRegistration,
   newEventEntryEndDate,
   newEventEntryStartDate,
   newEventStartDate,
@@ -286,6 +288,50 @@ describe('lib/event', () => {
         expect(isStartListAvailable({ state })).toEqual(false)
       }
     )
+
+    it('start numbers ride the list but publish separately', () => {
+      const published = { startListPublished: { ALO: true, AVO: true }, state: 'invited' as const }
+
+      // An absent flag means published: every event before the flag put its numbers out with the
+      // list, and a deploy must not pull them.
+      expect(isStartNumbersAvailableForClass(published, { class: 'ALO' })).toBe(true)
+
+      // Only an explicit false withholds — for the whole event or for the class's own entry.
+      expect(isStartNumbersAvailableForClass({ ...published, startNumbersPublished: false }, { class: 'ALO' })).toBe(
+        false
+      )
+      expect(
+        isStartNumbersAvailableForClass({ ...published, startNumbersPublished: { ALO: false } }, { class: 'ALO' })
+      ).toBe(false)
+      expect(
+        isStartNumbersAvailableForClass({ ...published, startNumbersPublished: { ALO: false } }, { class: 'AVO' })
+      ).toBe(true)
+
+      // Numbers cannot be public on an unpublished list: the list is their only transport.
+      expect(
+        isStartNumbersAvailableForClass(
+          { startListPublished: { ALO: false }, startNumbersPublished: true, state: 'invited' },
+          { class: 'ALO' }
+        )
+      ).toBe(false)
+    })
+
+    it('answers per registration through the class that runs its day', () => {
+      const event = {
+        classes: [{ class: 'ALO' as const, date: '2025-01-01' }],
+        startDate: '2025-01-01',
+        startListPublished: { ALO: true },
+        startNumbersPublished: { ALO: false },
+        state: 'invited' as const,
+      }
+      const registration = { class: 'ALO', group: { date: '2025-01-01' } }
+
+      expect(isStartListAvailableForRegistration(event, registration)).toBe(true)
+      expect(isStartNumbersAvailableForRegistration(event, registration)).toBe(false)
+      expect(isStartNumbersAvailableForRegistration({ ...event, startNumbersPublished: undefined }, registration)).toBe(
+        true
+      )
+    })
 
     it('checks class state and publication together', () => {
       expect(

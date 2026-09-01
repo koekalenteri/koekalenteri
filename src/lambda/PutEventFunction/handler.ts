@@ -62,6 +62,9 @@ const initializeNewEvent = (item: Patch<JsonConfirmedEvent>, timestamp: string, 
   item.createdAt = timestamp
   item.createdBy = username
   item.startListPublished = false
+  // The numbers are the secretary's own decision (KOE-1006); old events lack the field and read as
+  // published, so only a new event starts from the explicit 'not yet'.
+  item.startNumbersPublished = false
 }
 
 const invalidEventDateField = (data: JsonConfirmedEvent) =>

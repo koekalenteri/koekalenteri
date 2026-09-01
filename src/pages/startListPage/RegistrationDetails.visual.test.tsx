@@ -34,6 +34,37 @@ const registration: PublicRegistration = {
   result: 'AVO1',
 }
 
+it('runs alphabetically without numbers until the start order is confirmed', async () => {
+  // KOE-1006: the class header carries the note and the rows carry no number — the dogs are real,
+  // the order is not yet a promise.
+  const { ClassHeader } = await import('./ClassHeader')
+  const event = { classes: [] } as never
+  const second: PublicRegistration = {
+    ...registration,
+    dog: { ...registration.dog, name: "FLATGOLD'S SECOND IN LINE", regNo: 'FI13776/22' },
+    group: { ...registration.group, number: undefined },
+    result: undefined,
+  }
+
+  const screen = await render(
+    <Frame>
+      <Table>
+        <TableBody>
+          <ClassHeader classValue="AVO" event={event} numbersPublished={false} />
+          <RegistrationDetails
+            index={0}
+            registration={{ ...registration, group: { ...registration.group, number: undefined }, result: undefined }}
+          />
+          <RegistrationDetails index={1} registration={second} />
+        </TableBody>
+      </Table>
+    </Frame>
+  )
+
+  await expect.element(screen.getByText(/starttij/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-unconfirmed-order')
+})
+
 it('publishes the result on its own line under the start list row', async () => {
   const screen = await render(
     <Frame>

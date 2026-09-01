@@ -9,6 +9,7 @@ import {
   copyDogEvent,
   getResultsPublishedClassMap,
   getStartListPublishedClassMap,
+  getStartNumbersPublishedClassMap,
   isResultsPublishedForClass,
   isStartListPublishedForClass,
   sanitizeDogEvent,
@@ -71,6 +72,23 @@ export const buildStartListPublishedPatch = (
   startListPublished: published,
 })
 
+const buildStartNumbersClassPublishedPatch = (
+  event: DogEvent,
+  eventClass: RegistrationClass,
+  published: boolean
+): Patch<DogEvent> & { id: string } => ({
+  id: event.id,
+  startNumbersPublished: {
+    ...getStartNumbersPublishedClassMap(event),
+    [eventClass]: published,
+  },
+})
+
+const buildStartNumbersPublishedPatch = (event: DogEvent, published: boolean): Patch<DogEvent> & { id: string } => ({
+  id: event.id,
+  startNumbersPublished: published,
+})
+
 /** Save without subscribing the form controller to asynchronous event collections. */
 export const adminSaveEventAtom = atom(
   null,
@@ -115,6 +133,8 @@ export const useAdminEventActions = () => {
     setResultsClassPublished,
     setStartListClassPublished,
     setStartListPublished,
+    setStartNumbersClassPublished,
+    setStartNumbersPublished,
   }
 
   function updatePublicEvents(event: DogEvent, remove?: boolean): void {
@@ -203,6 +223,33 @@ export const useAdminEventActions = () => {
     if ((event.startListPublished !== false) === published) return event
 
     const saved = await putEvent(buildStartListPublishedPatch(event, published), token)
+    setAdminEventId(saved.id)
+    setCurrentAdminEvent(saved)
+    updatePublicEvents(saved)
+
+    return saved
+  }
+
+  async function setStartNumbersClassPublished(
+    event: DogEvent,
+    eventClass: RegistrationClass,
+    published: boolean
+  ): Promise<DogEvent | undefined> {
+    if (!event?.id) return
+
+    const saved = await putEvent(buildStartNumbersClassPublishedPatch(event, eventClass, published), token)
+    setAdminEventId(saved.id)
+    setCurrentAdminEvent(saved)
+    updatePublicEvents(saved)
+
+    return saved
+  }
+
+  async function setStartNumbersPublished(event: DogEvent, published: boolean): Promise<DogEvent | undefined> {
+    if (!event?.id) return
+    if ((event.startNumbersPublished !== false) === published) return event
+
+    const saved = await putEvent(buildStartNumbersPublishedPatch(event, published), token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
     updatePublicEvents(saved)

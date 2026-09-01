@@ -226,6 +226,7 @@ describe('putEventLambda', () => {
       season: '2025',
       startDate: '2025-06-01',
       startListPublished: false,
+      startNumbersPublished: false,
       updatedAt: '2025-03-22T10:45:33.000Z',
     })
     expect(auditMock).toHaveBeenCalledWith({

@@ -10,11 +10,20 @@ interface ClassHeaderProps {
   event: PublicConfirmedEvent
   lastDate?: Date
   published?: boolean
+  /** False while the class's start numbers are unpublished: the rows below run alphabetically. */
+  numbersPublished?: boolean
 }
 
-export const ClassHeader = ({ classValue, event, lastDate, published = true }: ClassHeaderProps) => {
+export const ClassHeader = ({
+  classValue,
+  event,
+  lastDate,
+  published = true,
+  numbersPublished = true,
+}: ClassHeaderProps) => {
   const { t } = useTranslation()
   const note = published ? '' : ` (${t('startListNotPublished')})`
+  const numbersNote = published && !numbersPublished ? ` (${t('startNumbersNotPublished')})` : ''
 
   return (
     <StyledTableRow key={classValue}>
@@ -29,6 +38,7 @@ export const ClassHeader = ({ classValue, event, lastDate, published = true }: C
           .filter(Boolean)
           .join(', ')}
         {note}
+        {numbersNote}
       </TableCell>
     </StyledTableRow>
   )
