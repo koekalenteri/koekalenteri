@@ -1,5 +1,13 @@
 import type { TFunction } from 'i18next'
-import type { ConfirmedEvent, DogEvent, EventClass, EventState, RegistrationDate, RegistrationTime } from '../types'
+import type {
+  ConfirmedEvent,
+  DogEvent,
+  EventClass,
+  EventState,
+  JsonDogEvent,
+  RegistrationDate,
+  RegistrationTime,
+} from '../types'
 import { TZDate } from '@date-fns/tz'
 import { addDays, differenceInDays } from 'date-fns'
 import { eventWithEntryClosing, eventWithParticipantsInvited } from '../__mockData__/events'
@@ -51,7 +59,7 @@ import {
 
 describe('lib/event', () => {
   describe('getEventTitle', () => {
-    const t = ((key: string) => key) as unknown as TFunction<'translation'>
+    const t = ((key: string) => key) as TFunction<'translation'>
     const now = new Date()
     const event = (overrides: Partial<DogEvent>): DogEvent => ({ ...eventWithEntryClosing, ...overrides })
 
@@ -597,7 +605,8 @@ describe('lib/event', () => {
     })
 
     it('should return empty array when there are no classes', () => {
-      expect(getUniqueEventClasses({} as any)).toEqual([])
+      // Legacy data can lack classes even though the type requires them
+      expect(getUniqueEventClasses({} as Pick<DogEvent, 'classes'>)).toEqual([])
     })
   })
 
@@ -640,7 +649,13 @@ describe('lib/event', () => {
 
     it('should return empty empty array as classes when classes is missing', () => {
       const date = new TZDate(2025, 2, 27, TIME_ZONE)
-      expect(getEventClassesByDays({ endDate: date, startDate: date } as any)).toEqual([{ classes: [], day: date }])
+      // Legacy data can lack classes even though the type requires them
+      expect(
+        getEventClassesByDays({ endDate: date, startDate: date } as unknown as Pick<
+          DogEvent,
+          'startDate' | 'endDate' | 'classes'
+        >)
+      ).toEqual([{ classes: [], day: date }])
     })
   })
 
@@ -997,6 +1012,12 @@ describe('localizedEventName and localizedEventDescription', () => {
 })
 
 describe('sanitizeDogEvent', () => {
+  /**
+   * sanitizeDogEvent must strip the private fields and pass everything else through whatever the
+   * values are, so these fixtures deliberately do not match JsonDogEvent; converted here.
+   */
+  const asDogEvent = (event: Record<string, unknown>) => event as unknown as JsonDogEvent
+
   it('should remove private fields from event', () => {
     const event = {
       createdBy: 'user-1',
@@ -1018,7 +1039,7 @@ describe('sanitizeDogEvent', () => {
       secretary: 'secretary-info',
     }
 
-    const sanitized = sanitizeDogEvent(event as any)
+    const sanitized = sanitizeDogEvent(asDogEvent(event))
 
     // Check that private fields are removed
     expect(sanitized.createdBy).toBeUndefined()
@@ -1038,13 +1059,14 @@ describe('sanitizeDogEvent', () => {
     // Check that public fields are preserved
     expect(sanitized.id).toEqual('event-1')
     expect(sanitized.name).toEqual('Test Event')
-    expect((sanitized as any).publicField1).toEqual('public-value-1')
-    expect((sanitized as any).publicField2).toEqual('public-value-2')
+    expect(sanitized).toEqual(
+      expect.objectContaining({ publicField1: 'public-value-1', publicField2: 'public-value-2' })
+    )
   })
 
   it('should handle empty event object', () => {
     const event = { id: 'event-1' }
-    const sanitized = sanitizeDogEvent(event as any)
+    const sanitized = sanitizeDogEvent(asDogEvent(event))
 
     expect(sanitized).toEqual({ id: 'event-1' })
   })
@@ -1063,7 +1085,7 @@ describe('sanitizeDogEvent', () => {
       ],
     }
 
-    const sanitized = sanitizeDogEvent(event as any)
+    const sanitized = sanitizeDogEvent(asDogEvent(event))
 
     expect(Object.hasOwn(sanitized, 'turns')).toBe(false)
     expect(sanitized.liveTurns).toEqual([
@@ -1086,7 +1108,7 @@ describe('sanitizeDogEvent', () => {
       secretary: 'secretary-info',
     }
 
-    const sanitized = sanitizeDogEvent(event as any)
+    const sanitized = sanitizeDogEvent(asDogEvent(event))
 
     expect(sanitized).toEqual({})
   })

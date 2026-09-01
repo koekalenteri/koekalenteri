@@ -137,12 +137,12 @@ describe('ClassEntrySelection behavior coverage', () => {
     const registrations: Registration[] = [
       {
         ...registrationWithStaticDates,
-        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' } as any,
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' as const },
         id: 'target-participant',
       },
       {
         ...registrationWithStaticDates,
-        group: { key: GROUP_KEY_RESERVE, number: 1 } as any,
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
         id: 'already-reserve-1',
       },
     ]
@@ -178,7 +178,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     const setCancelOpen = vi.fn()
     const registration = {
       ...registrationWithStaticDates,
-      group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' } as any,
+      group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' as const },
       id: 'participant-1',
     }
 
@@ -224,29 +224,29 @@ describe('ClassEntrySelection behavior coverage', () => {
       {
         ...registrationWithStaticDates,
         dates: [
-          { date: mockedGroups[0].date, time: 'ap' },
-          { date: mockedGroups[1].date, time: 'ip' },
+          { date: mockedGroups[0].date, time: 'ap' as const },
+          { date: mockedGroups[1].date, time: 'ip' as const },
         ],
-        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' } as any,
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' as const },
         id: 'participant-1',
       },
       {
         ...registrationWithStaticDates,
-        group: { date: mockedGroups[1].date, key: '2021-02-10-ip', number: 2, time: 'ip' } as any,
+        group: { date: mockedGroups[1].date, key: '2021-02-10-ip', number: 2, time: 'ip' as const },
         id: 'participant-2',
       },
       {
         ...registrationWithStaticDatesCancelled,
-        group: { key: GROUP_KEY_CANCELLED, number: 1 } as any,
+        group: { key: GROUP_KEY_CANCELLED, number: 1 },
         id: 'cancelled-1',
       },
       {
         ...registrationWithStaticDates,
         dates: [
-          { date: mockedGroups[0].date, time: 'ap' },
-          { date: mockedGroups[1].date, time: 'ip' },
+          { date: mockedGroups[0].date, time: 'ap' as const },
+          { date: mockedGroups[1].date, time: 'ip' as const },
         ],
-        group: { key: GROUP_KEY_RESERVE, number: 1 } as any,
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
         id: 'reserve-1',
       },
     ]
@@ -321,17 +321,17 @@ describe('ClassEntrySelection behavior coverage', () => {
     const registrations: Registration[] = [
       {
         ...registrationWithStaticDates,
-        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' } as any,
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' as const },
         id: 'participant-1',
       },
       {
         ...registrationWithStaticDates,
-        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 2, time: 'ap' } as any,
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 2, time: 'ap' as const },
         id: 'participant-2',
       },
       {
         ...registrationWithStaticDates,
-        group: { key: GROUP_KEY_RESERVE, number: 1 } as any,
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
         id: 'reserve-1',
       },
     ]
@@ -356,13 +356,13 @@ describe('ClassEntrySelection behavior coverage', () => {
       {
         ...registrationWithStaticDates,
         dog: { ...registrationWithStaticDates.dog, gender: 'M' },
-        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' },
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' as const },
         id: 'participant-1',
       },
       {
         ...registrationWithStaticDates,
         dog: { ...registrationWithStaticDates.dog, gender: 'M', regNo: 'FI99999/21' },
-        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 2, time: 'ap' },
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 2, time: 'ap' as const },
         id: 'participant-2',
       },
     ]
@@ -385,7 +385,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     const registrations: Registration[] = [
       {
         ...registrationWithStaticDates,
-        group: { key: GROUP_KEY_RESERVE, number: 1 } as any,
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
         id: 'reserve-1',
       },
     ]

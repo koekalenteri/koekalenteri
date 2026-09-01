@@ -1,16 +1,21 @@
+import type { CostResult, DogEventCostSegment, PublicConfirmedEvent } from '../../../types'
 import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import PaymentInfo from './PaymentInfo'
 
-describe('PaymentInfo', () => {
-  const baseEvent = {
-    cost: { normal: 100 },
-  } as any
+/** The component reads only the cost fields; a minimal event converts at this one boundary. */
+const asPaymentEvent = (event: Partial<PublicConfirmedEvent>) => event as PublicConfirmedEvent
 
-  const baseCost = {
+describe('PaymentInfo', () => {
+  const baseEvent = asPaymentEvent({
+    cost: { normal: 100 },
+  })
+
+  const baseCost: CostResult = {
+    amount: 100,
     cost: { normal: 100 },
     segment: 'normal',
-  } as any
+  }
 
   it('does not auto-select cost when selectedCost is empty string', () => {
     const onChange = vi.fn()
@@ -20,13 +25,12 @@ describe('PaymentInfo', () => {
         <PaymentInfo
           event={baseEvent}
           cost={baseCost}
-          registration={
-            {
-              dog: { breedCode: '110' },
-              language: 'fi',
-              selectedCost: '',
-            } as any
-          }
+          registration={{
+            dog: { breedCode: '110' },
+            language: 'fi',
+            // Deliberately outside the DogEventCostSegment union: legacy data can hold ''
+            selectedCost: '' as DogEventCostSegment,
+          }}
           onChange={onChange}
         />
       </Provider>
@@ -46,13 +50,11 @@ describe('PaymentInfo', () => {
         <PaymentInfo
           event={baseEvent}
           cost={baseCost}
-          registration={
-            {
-              dog: { breedCode: '110' },
-              language: 'fi',
-              selectedCost: undefined,
-            } as any
-          }
+          registration={{
+            dog: { breedCode: '110' },
+            language: 'fi',
+            selectedCost: undefined,
+          }}
           onChange={onChange}
         />
       </Provider>
@@ -71,15 +73,13 @@ describe('PaymentInfo', () => {
       <Provider>
         <PaymentInfo
           event={baseEvent}
-          cost={{ cost: { normal: 100 }, segment: 'legacy' } as any}
-          registration={
-            {
-              dog: { breedCode: '110' },
-              language: 'fi',
-              optionalCosts: [0],
-              selectedCost: 'normal',
-            } as any
-          }
+          cost={{ amount: 100, cost: { normal: 100 }, segment: 'legacy' }}
+          registration={{
+            dog: { breedCode: '110' },
+            language: 'fi',
+            optionalCosts: [0],
+            selectedCost: 'normal',
+          }}
           onChange={onChange}
         />
       </Provider>
@@ -98,8 +98,8 @@ describe('PaymentInfo', () => {
       <Provider>
         <PaymentInfo
           event={baseEvent}
-          cost={{ cost: { normal: 100 }, segment: 'legacy' } as any}
-          registration={{ dog: { breedCode: '110' }, language: 'en' } as any}
+          cost={{ amount: 100, cost: { normal: 100 }, segment: 'legacy' }}
+          registration={{ dog: { breedCode: '110' }, language: 'en' }}
           onChange={onChange}
         />
       </Provider>
@@ -115,15 +115,13 @@ describe('PaymentInfo', () => {
       <Provider>
         <PaymentInfo
           event={baseEvent}
-          cost={{ cost: { normal: 100 }, segment: 'legacy' } as any}
-          registration={
-            {
-              dog: { breedCode: '110' },
-              language: 'fi',
-              optionalCosts: undefined,
-              selectedCost: undefined,
-            } as any
-          }
+          cost={{ amount: 100, cost: { normal: 100 }, segment: 'legacy' }}
+          registration={{
+            dog: { breedCode: '110' },
+            language: 'fi',
+            optionalCosts: undefined,
+            selectedCost: undefined,
+          }}
           onChange={onChange}
         />
       </Provider>
@@ -142,24 +140,21 @@ describe('PaymentInfo', () => {
       <Provider>
         <PaymentInfo
           event={baseEvent}
-          cost={
-            {
-              cost: {
-                normal: 100,
-                optionalAdditionalCosts: [{ cost: 10, description: { fi: 'Lisämaksu' } }],
-              },
-              segment: 'normal',
-            } as any
-          }
-          registration={
-            {
-              createdAt: new Date(),
-              dog: { breedCode: '110' },
-              language: 'fi',
-              optionalCosts: [],
-              selectedCost: 'normal',
-            } as any
-          }
+          cost={{
+            amount: 100,
+            cost: {
+              normal: 100,
+              optionalAdditionalCosts: [{ cost: 10, description: { fi: 'Lisämaksu' } }],
+            },
+            segment: 'normal',
+          }}
+          registration={{
+            createdAt: new Date(),
+            dog: { breedCode: '110' },
+            language: 'fi',
+            optionalCosts: [],
+            selectedCost: 'normal',
+          }}
           onChange={onChange}
         />
       </Provider>
@@ -172,7 +167,7 @@ describe('PaymentInfo', () => {
     const onChange = vi.fn()
     const { container } = render(
       <Provider>
-        <PaymentInfo event={baseEvent} cost={baseCost} registration={{ language: 'fi' } as any} onChange={onChange} />
+        <PaymentInfo event={baseEvent} cost={baseCost} registration={{ language: 'fi' }} onChange={onChange} />
       </Provider>
     )
 

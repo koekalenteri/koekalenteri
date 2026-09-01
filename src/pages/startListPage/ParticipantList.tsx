@@ -7,6 +7,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
+import { enqueueSnackbar } from 'notistack'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../i18n/dates'
@@ -76,8 +77,14 @@ export const ParticipantList = ({
       {showExportActions && (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
           <Button
-            onClick={() => {
-              void navigator.clipboard?.writeText(copyText).then(() => setCopied(true))
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(copyText)
+                setCopied(true)
+              } catch {
+                // A missing clipboard API (insecure context, webview) throws here too.
+                enqueueSnackbar(t('startListCopyFailed'), { variant: 'error' })
+              }
             }}
             size="small"
             startIcon={<ContentCopyOutlined />}

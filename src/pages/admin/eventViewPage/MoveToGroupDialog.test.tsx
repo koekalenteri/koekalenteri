@@ -1,4 +1,4 @@
-import type { DogEvent, Registration, RegistrationGroup } from '../../../types'
+import type { Registration, RegistrationGroup } from '../../../types'
 import { render, screen } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
 import { eventWithStaticDates } from '../../../__mockData__/events'
@@ -37,7 +37,7 @@ describe('MoveToGroupDialog', () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
       dates: [groups[0]],
-      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time } as any,
+      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time },
     }
 
     const { baseElement } = render(
@@ -45,7 +45,7 @@ describe('MoveToGroupDialog', () => {
         open={true}
         onClose={vi.fn()}
         registration={registration}
-        event={eventWithStaticDates as unknown as DogEvent}
+        event={eventWithStaticDates}
         groups={groups}
         onMove={vi.fn()}
       />
@@ -65,7 +65,7 @@ describe('MoveToGroupDialog', () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
       dates: [groups[0]],
-      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time } as any,
+      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time },
     }
 
     const onClose = vi.fn()
@@ -76,7 +76,7 @@ describe('MoveToGroupDialog', () => {
         open={true}
         onClose={onClose}
         registration={registration}
-        event={eventWithStaticDates as unknown as DogEvent}
+        event={eventWithStaticDates}
         groups={groups}
         onMove={onMove}
       />,
@@ -106,7 +106,7 @@ describe('MoveToGroupDialog', () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
       dates: [groups[0], groups[1]],
-      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time } as any,
+      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time },
     }
 
     const onClose = vi.fn()
@@ -117,7 +117,7 @@ describe('MoveToGroupDialog', () => {
         open={true}
         onClose={onClose}
         registration={registration}
-        event={eventWithStaticDates as unknown as DogEvent}
+        event={eventWithStaticDates}
         groups={groups}
         onMove={onMove}
       />,
@@ -154,7 +154,7 @@ describe('MoveToGroupDialog', () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
       dates: [groups[0], groups[1]],
-      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time } as any,
+      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time },
     }
 
     const onClose = vi.fn()
@@ -165,7 +165,7 @@ describe('MoveToGroupDialog', () => {
         open={true}
         onClose={onClose}
         registration={registration}
-        event={eventWithStaticDates as unknown as DogEvent}
+        event={eventWithStaticDates}
         groups={groups}
         onMove={onMove}
       />,
@@ -195,7 +195,7 @@ describe('MoveToGroupDialog', () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
       dates: [groups[1]],
-      group: { key: 'reserve', number: 1 } as any,
+      group: { key: 'reserve', number: 1 },
     }
 
     render(
@@ -203,7 +203,7 @@ describe('MoveToGroupDialog', () => {
         open={true}
         onClose={vi.fn()}
         registration={registration}
-        event={eventWithStaticDates as unknown as DogEvent}
+        event={eventWithStaticDates}
         groups={groups}
         onMove={vi.fn()}
       />
@@ -219,7 +219,7 @@ describe('MoveToGroupDialog', () => {
     const groups: TestRegistrationGroup[] = [makeGroup(eventWithStaticDates.startDate, 'ap')]
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { date: groups[0].date, key: eventRegistrationDateKey(groups[0]), number: 1, time: groups[0].time } as any,
+      group: { date: groups[0].date, key: eventRegistrationDateKey(groups[0]), number: 1, time: groups[0].time },
     }
 
     render(
@@ -227,7 +227,7 @@ describe('MoveToGroupDialog', () => {
         open={true}
         onClose={vi.fn()}
         registration={registration}
-        event={eventWithStaticDates as unknown as DogEvent}
+        event={eventWithStaticDates}
         groups={groups}
         onMove={vi.fn()}
       />

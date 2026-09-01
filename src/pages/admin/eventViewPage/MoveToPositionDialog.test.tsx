@@ -20,7 +20,7 @@ describe('MoveToPositionDialog', () => {
   it('renders', async () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { key: 'participants', number: 2 } as any,
+      group: { key: 'participants', number: 2 },
     }
 
     const { baseElement } = render(
@@ -40,7 +40,7 @@ describe('MoveToPositionDialog', () => {
     const onClose = vi.fn()
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { key: 'participants', number: 1 } as any,
+      group: { key: 'participants', number: 1 },
     }
 
     const { user } = renderWithUserEvents(
@@ -63,7 +63,7 @@ describe('MoveToPositionDialog', () => {
     const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' } as any,
+      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' },
     }
 
     const { user } = renderWithUserEvents(
@@ -99,7 +99,7 @@ describe('MoveToPositionDialog', () => {
     const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' } as any,
+      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' },
     }
 
     const { user } = renderWithUserEvents(
@@ -131,7 +131,7 @@ describe('MoveToPositionDialog', () => {
     const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 3, time: 'ap' } as any,
+      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 3, time: 'ap' },
     }
 
     const { user } = renderWithUserEvents(
@@ -163,7 +163,7 @@ describe('MoveToPositionDialog', () => {
     const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { key: 'reserve', number: 1 } as any,
+      group: { key: 'reserve', number: 1 },
     }
 
     const { user } = renderWithUserEvents(
@@ -197,7 +197,7 @@ describe('MoveToPositionDialog', () => {
     const onMove = vi.fn().mockRejectedValue(new Error('move failed'))
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { key: 'participants', number: 2 } as any,
+      group: { key: 'participants', number: 2 },
     }
 
     const { user } = renderWithUserEvents(
@@ -224,7 +224,7 @@ describe('MoveToPositionDialog', () => {
   it('shows only position 1 when only one position is available', async () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { key: 'participants', number: 1 } as any,
+      group: { key: 'participants', number: 1 },
     }
 
     const { user } = renderWithUserEvents(
@@ -248,7 +248,7 @@ describe('MoveToPositionDialog', () => {
   it('shows only explicitly allowed positions', async () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { key: 'participants', number: 2 } as any,
+      group: { key: 'participants', number: 2 },
     }
 
     const { user } = renderWithUserEvents(
@@ -274,7 +274,7 @@ describe('MoveToPositionDialog', () => {
   it('shows the dog name in the title', async () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { key: 'participants', number: 2 } as any,
+      group: { key: 'participants', number: 2 },
     }
 
     render(

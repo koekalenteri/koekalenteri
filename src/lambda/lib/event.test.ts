@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonDogEvent, JsonRegistration, JsonUser } from '../../types'
+import type { DeepPartial, JsonConfirmedEvent, JsonDogEvent, JsonRegistration, JsonUser } from '../../types'
 import { vi } from 'vitest'
 import { PRIORITY_MEMBER } from '../../lib/priority'
 
@@ -57,6 +57,13 @@ const {
 } = await import('./event')
 
 const { LambdaError } = await import('./lambda')
+
+/**
+ * These tests feed deliberately minimal events and registrations; the deep-partial fixtures
+ * convert to the full json shapes at these named boundaries.
+ */
+const asJsonConfirmedEvent = (event: DeepPartial<JsonConfirmedEvent>) => event as JsonConfirmedEvent
+const asJsonRegistrations = (regs: DeepPartial<JsonRegistration>[]) => regs as JsonRegistration[]
 
 describe('lib/event', () => {
   describe('lockRegistrationGroups', () => {
@@ -163,14 +170,14 @@ describe('lib/event', () => {
     })
 
     it('updates all classes and event state if all invited', async () => {
-      const event = {
+      const event = asJsonConfirmedEvent({
         classes: [
           { class: 'ALO', state: 'invited' },
-          { class: 'AVO', state: 'pending' },
+          { class: 'AVO', state: 'picked' },
         ],
         id: 'e1',
-        state: 'pending',
-      } as unknown as JsonConfirmedEvent
+        state: 'confirmed',
+      })
 
       await markParticipants(event, 'invited', 'AVO')
       expect(event.state).toBe('invited')
@@ -190,17 +197,17 @@ describe('lib/event', () => {
     })
 
     it('updates only one class if eventClass is given', async () => {
-      const event = {
+      const event = asJsonConfirmedEvent({
         classes: [
-          { class: 'ALO', state: 'pending' },
-          { class: 'VOI', state: 'pending' },
+          { class: 'ALO', state: 'picked' },
+          { class: 'VOI', state: 'picked' },
         ],
         id: 'e2',
-        state: 'pending',
-      } as unknown as JsonConfirmedEvent
+        state: 'confirmed',
+      })
       await markParticipants(event, 'invited', 'ALO')
       expect(event.classes.find((c) => c.class === 'ALO')?.state).toBe('invited')
-      expect(event.classes.find((c) => c.class === 'VOI')?.state).toBe('pending')
+      expect(event.classes.find((c) => c.class === 'VOI')?.state).toBe('picked')
     })
 
     it('keeps new class start lists unpublished when invitations advance their state', async () => {
@@ -246,11 +253,11 @@ describe('lib/event', () => {
     })
 
     it('keeps a new classless event start list unpublished when invitations are sent', async () => {
-      const event = {
+      const event = asJsonConfirmedEvent({
         classes: [],
         id: 'classless-event',
         state: 'confirmed',
-      } as unknown as JsonConfirmedEvent
+      })
 
       await markParticipants(event, 'invited')
 
@@ -272,36 +279,36 @@ describe('lib/event', () => {
     })
 
     it('does not update event state if not all classes have the same state', async () => {
-      const event = {
+      const event = asJsonConfirmedEvent({
         classes: [
-          { class: 'ALO', state: 'pending' },
-          { class: 'AVO', state: 'pending' },
-          { class: 'VOI', state: 'pending' },
+          { class: 'ALO', state: 'picked' },
+          { class: 'AVO', state: 'picked' },
+          { class: 'VOI', state: 'picked' },
         ],
         id: 'e3',
         state: 'confirmed',
-      } as unknown as JsonConfirmedEvent
+      })
 
       await markParticipants(event, 'invited', 'ALO')
 
       // Only ALO class should be updated
       expect(event.classes.find((c) => c.class === 'ALO')?.state).toBe('invited')
-      expect(event.classes.find((c) => c.class === 'AVO')?.state).toBe('pending')
-      expect(event.classes.find((c) => c.class === 'VOI')?.state).toBe('pending')
+      expect(event.classes.find((c) => c.class === 'AVO')?.state).toBe('picked')
+      expect(event.classes.find((c) => c.class === 'VOI')?.state).toBe('picked')
 
       // Event state should remain unchanged
       expect(event.state).toBe('confirmed')
     })
 
     it('handles state progression correctly', async () => {
-      const event = {
+      const event = asJsonConfirmedEvent({
         classes: [
           { class: 'ALO', state: 'picked' },
           { class: 'AVO', state: 'picked' },
         ],
         id: 'e4',
         state: 'confirmed',
-      } as unknown as JsonConfirmedEvent
+      })
 
       // Update ALO class to 'invited'
       await markParticipants(event, 'invited', 'ALO')
@@ -325,14 +332,14 @@ describe('lib/event', () => {
     })
 
     it('does not downgrade state when lower state is provided', async () => {
-      const event = {
+      const event = asJsonConfirmedEvent({
         classes: [
           { class: 'ALO', state: 'started' },
           { class: 'AVO', state: 'invited' },
         ],
         id: 'e5',
         state: 'started',
-      } as unknown as JsonConfirmedEvent
+      })
 
       // Try to downgrade ALO from 'started' to 'invited'
       await markParticipants(event, 'invited', 'ALO')
@@ -345,10 +352,10 @@ describe('lib/event', () => {
     })
 
     it('handles case with no eventClass parameter', async () => {
-      const event = {
+      const event = asJsonConfirmedEvent({
         id: 'e6',
         state: 'confirmed',
-      } as unknown as JsonConfirmedEvent
+      })
 
       await markParticipants(event, 'invited')
 
@@ -455,7 +462,7 @@ describe('lib/event', () => {
       mockRead.mockResolvedValueOnce(event)
 
       // These registrations should be used directly without querying the database
-      const updatedRegs = [
+      const updatedRegs = asJsonRegistrations([
         { cancelled: false, class: 'ALO', eventId: 'e5', id: 'r1', paidAmount: 1, state: 'ready' },
         { cancelled: false, class: 'ALO', eventId: 'e5', id: 'r2', paidAmount: 1, state: 'ready' },
         {
@@ -467,7 +474,7 @@ describe('lib/event', () => {
           paidAmount: 1,
           state: 'ready',
         },
-      ] as unknown as JsonRegistration[]
+      ])
 
       const result = await updateRegistrations('e5', updatedRegs)
 
@@ -862,7 +869,7 @@ describe('lib/event', () => {
       const user = { name: 'user' } as JsonUser
       mockAudit.mockClear()
 
-      const regs = [
+      const regs = asJsonRegistrations([
         {
           class: 'ALO',
           group: { date: '2024-08-02', key: '2024-08-02-ap', number: 5, time: 'ap' },
@@ -875,7 +882,7 @@ describe('lib/event', () => {
           class: 'ALO',
           group: { date: '2024-08-02', key: '2024-08-02-ip', number: 7, time: 'ip' },
         },
-      ] as unknown as JsonRegistration[]
+      ])
 
       const result = await fixRegistrationGroups(regs, user, false)
 
@@ -894,10 +901,10 @@ describe('lib/event', () => {
       const user = { name: 'user' } as JsonUser
       mockAudit.mockClear()
 
-      const regs = [
+      const regs = asJsonRegistrations([
         { cancelled: true, class: 'ALO', group: { key: 'old', number: 3 } },
-        { class: 'ALO', group: { key: 'reserve', number: 2 }, state: 'pending' },
-      ] as unknown as JsonRegistration[]
+        { class: 'ALO', group: { key: 'reserve', number: 2 }, state: 'ready' },
+      ])
 
       const result = await fixRegistrationGroups(regs, user, true)
 

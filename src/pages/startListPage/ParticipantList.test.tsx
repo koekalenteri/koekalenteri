@@ -1,9 +1,10 @@
 import type { TFunction } from 'i18next'
 import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import i18n from 'i18next'
+import { enqueueSnackbar } from 'notistack'
 import { downloadXlsx } from '../../lib/client/xlsx'
 import { startListSpreadsheetRows } from '../../lib/startList'
 import { ParticipantList } from './ParticipantList'
@@ -14,8 +15,10 @@ import { ParticipantList } from './ParticipantList'
  */
 const t = i18n.getFixedT('en') as TFunction
 
+vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 vi.mock('../../lib/client/xlsx', () => ({ downloadXlsx: vi.fn() }))
 
+const mockEnqueueSnackbar = vi.mocked(enqueueSnackbar)
 const mockDownloadXlsx = vi.mocked(downloadXlsx)
 
 // Mock the child components
@@ -463,6 +466,25 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Dog 1'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('(startList.sire Sire Dog, startList.dam Dam Dog)'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. startList.absent'))
+  })
+
+  it('reports a failed copy instead of failing silently', async () => {
+    const user = userEvent.setup()
+    mockClipboard()
+    writeText.mockRejectedValue(new DOMException('denied', 'NotAllowedError'))
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+    ]
+
+    render(<ParticipantList participants={mockParticipants} event={mockEvent} showExportActions />)
+
+    await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
+
+    await waitFor(() => {
+      // The global react-i18next mock returns keys verbatim.
+      expect(mockEnqueueSnackbar).toHaveBeenCalledWith('startListCopyFailed', { variant: 'error' })
+    })
+    expect(screen.getByRole('button', { name: 'copyStartList' })).toBeInTheDocument()
   })
 
   it('copies unpublished participants and their publication status in preview mode', async () => {

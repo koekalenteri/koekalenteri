@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router'
-import type { CreatePaymentResponse } from '../types'
+import type { CreatePaymentResponse, PublicConfirmedEvent } from '../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -31,6 +31,9 @@ const mockUseParams = useParams as import('vitest').Mock
 const mockCreatePayment = createPayment as import('vitest').MockedFunction<typeof createPayment>
 
 const { paymentStatus: _0, paidAt: _1, paidAmount: _2, ...testRegistration } = unpaidRegistrationWithStaticDatesAndClass
+
+/** The page reads only a few event fields; minimal events convert at this one boundary. */
+const asPaymentEvent = (event: Partial<PublicConfirmedEvent>) => event as PublicConfirmedEvent
 
 describe('PaymentPage', () => {
   beforeAll(() => vi.useFakeTimers())
@@ -150,7 +153,11 @@ describe('PaymentPage', () => {
     it('should show error message when registration is not found', async () => {
       const { container } = render(
         <Provider>
-          <PaymentPageWithData registrationId="test-reg-id" event={{ id: 'test-id' } as any} registration={null} />
+          <PaymentPageWithData
+            registrationId="test-reg-id"
+            event={asPaymentEvent({ id: 'test-id' })}
+            registration={null}
+          />
         </Provider>
       )
 
@@ -176,8 +183,8 @@ describe('PaymentPage', () => {
           element: (
             <PaymentPageWithData
               registrationId="test-reg-id"
-              event={event as any}
-              registration={registration as any}
+              event={asPaymentEvent(event)}
+              registration={registration}
               response={mockResponse as CreatePaymentResponse}
             />
           ),
@@ -202,7 +209,7 @@ describe('PaymentPage', () => {
         <Provider>
           <PaymentPageWithData
             registrationId="test-reg-id"
-            event={{ id: 'test-id' } as any}
+            event={asPaymentEvent({ id: 'test-id' })}
             registration={testRegistration}
             response={{} as CreatePaymentResponse}
           />
@@ -231,8 +238,8 @@ describe('PaymentPage', () => {
           element: (
             <PaymentPageWithData
               registrationId="test-reg-id"
-              event={event as any}
-              registration={registration as any}
+              event={asPaymentEvent(event)}
+              registration={registration}
               response={undefined}
             />
           ),
@@ -275,8 +282,8 @@ describe('PaymentPage', () => {
           element: (
             <PaymentPageWithData
               registrationId="test-reg-id"
-              event={event as any}
-              registration={registration as any}
+              event={asPaymentEvent(event)}
+              registration={registration}
               response={mockResponse as CreatePaymentResponse}
             />
           ),
@@ -323,8 +330,8 @@ describe('PaymentPage', () => {
           element: (
             <PaymentPageWithData
               registrationId="test-reg-id"
-              event={event as any}
-              registration={registration as any}
+              event={asPaymentEvent(event)}
+              registration={registration}
               response={undefined}
               responseStatus={status}
             />
@@ -372,8 +379,8 @@ describe('PaymentPage', () => {
           element: (
             <PaymentPageWithData
               registrationId="test-reg-id"
-              event={event as any}
-              registration={registration as any}
+              event={asPaymentEvent(event)}
+              registration={registration}
               response={undefined}
               responseStatus={501}
             />
@@ -413,8 +420,8 @@ describe('PaymentPage', () => {
           element: (
             <PaymentPageWithData
               registrationId="test-reg-id"
-              event={event as any}
-              registration={registration as any}
+              event={asPaymentEvent(event)}
+              registration={registration}
               response={undefined}
               responseErrorMessage="Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment"
               responseStatus={400}

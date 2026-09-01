@@ -1,3 +1,4 @@
+import type { APIGatewayProxyEvent } from 'aws-lambda'
 import { vi } from 'vitest'
 
 const mockLambda = vi.fn((_name, fn) => fn)
@@ -26,11 +27,21 @@ vi.doMock('../../lib/event', () => ({
 
 const { default: getEventsLambda } = await import('./handler')
 
+/**
+ * getEventsLambda reads only headers and queryStringParameters, so the tests build minimal
+ * events; they convert to the full APIGatewayProxyEvent at this one named boundary.
+ */
+const asEvent = (event: {
+  body?: string | null
+  headers?: Record<string, string | undefined>
+  queryStringParameters?: Record<string, string | undefined>
+}) => event as APIGatewayProxyEvent
+
 describe('getEventsLambda', () => {
-  const event = {
+  const event = asEvent({
     body: '',
     headers: {},
-  } as any
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -122,12 +133,12 @@ describe('getEventsLambda', () => {
     mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         start: String(Date.parse('2026-01-02T00:00:00.000Z')),
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -162,12 +173,12 @@ describe('getEventsLambda', () => {
     mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         start: '2026-01-02T00:00:00.000Z',
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -187,12 +198,12 @@ describe('getEventsLambda', () => {
     mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         end: String(Date.parse('2026-01-02T00:00:00.000Z')),
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -212,13 +223,13 @@ describe('getEventsLambda', () => {
     mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         end: String(Date.parse('2026-01-06T00:00:00.000Z')),
         start: String(Date.parse('2026-01-02T00:00:00.000Z')),
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -234,13 +245,13 @@ describe('getEventsLambda', () => {
     mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         end: String(Date.parse('2026-01-03T00:00:00.000Z')),
         start: String(Date.parse('2026-01-03T00:00:00.000Z')),
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -267,12 +278,12 @@ describe('getEventsLambda', () => {
     mockReadAll.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         since: String(Date.parse('2026-01-02T00:00:00.000Z')),
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -305,14 +316,14 @@ describe('getEventsLambda', () => {
     mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         end: '2026-01-05T00:00:00.000Z',
         since: '2026-01-02T00:00:00.000Z',
         start: '2026-01-02T00:00:00.000Z',
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -345,14 +356,14 @@ describe('getEventsLambda', () => {
     mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         end: String(Date.parse('2026-01-05T00:00:00.000Z')),
         since: String(Date.parse('2026-01-02T00:00:00.000Z')),
         start: String(Date.parse('2026-01-02T00:00:00.000Z')),
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -362,13 +373,13 @@ describe('getEventsLambda', () => {
   it('queries all derived seasons for cross-year ranges', async () => {
     mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         end: String(Date.parse('2027-01-02T00:00:00.000Z')),
         start: String(Date.parse('2026-12-31T00:00:00.000Z')),
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -397,12 +408,12 @@ describe('getEventsLambda', () => {
     vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
     mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         start: String(Date.parse('2026-05-01T00:00:00.000Z')),
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
@@ -433,12 +444,12 @@ describe('getEventsLambda', () => {
     vi.setSystemTime(new Date('2026-12-31T22:30:00.000Z')) // 2027-01-01 in Helsinki
     mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
 
-    const rangeEvent = {
+    const rangeEvent = asEvent({
       ...event,
       queryStringParameters: {
         start: String(Date.parse('2026-12-31T22:30:00.000Z')),
       },
-    } as any
+    })
 
     await getEventsLambda(rangeEvent)
 
