@@ -59,6 +59,12 @@ export default defineConfig({
             'test-utils': new URL('./src/test-utils', import.meta.url).pathname,
           },
         },
+        // Components under visual test may transitively import modules that read process.env at
+        // import time (amplify-env); a browser has no process, so give the expressions something
+        // to compile against.
+        define: {
+          'process.env': {},
+        },
         test: {
           name: 'charts',
           globals: true,

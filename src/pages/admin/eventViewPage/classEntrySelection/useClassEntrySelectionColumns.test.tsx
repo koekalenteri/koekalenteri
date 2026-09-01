@@ -41,8 +41,20 @@ describe('useClassEntrySectionColumns', () => {
     expect(entryColumns[7].field).toBe('icons')
     expect(entryColumns[8].field).toBe('actions')
 
-    // Check participant columns (should be the same as entry columns)
-    expect(participantColumns).toEqual(entryColumns)
+    // The participant list carries the recorded result once the dogs have run (KOE-72); the mock
+    // event's dates are long past, so the column is there.
+    expect(participantColumns.map((col) => col.field)).toEqual([
+      'dates',
+      'number',
+      'dog.name',
+      'dog.regNo',
+      'dob.breed',
+      'handler',
+      'lastEmail',
+      'result',
+      'icons',
+      'actions',
+    ])
 
     // Check cancelled columns (should have an extra column for cancel reason)
     expect(cancelledColumns.length).toBeGreaterThan(entryColumns.length)

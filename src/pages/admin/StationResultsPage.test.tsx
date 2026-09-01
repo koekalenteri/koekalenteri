@@ -152,7 +152,7 @@ describe('StationResultsPage', () => {
     await score(user, screen.getAllByRole('textbox')[0], '10')
     await score(user, screen.getAllByRole('textbox')[1], '10')
 
-    await user.click(screen.getByRole('button', { name: 'save' }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
     await flushPromises()
 
     expect(putEventResults).toHaveBeenCalledOnce()

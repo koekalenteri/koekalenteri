@@ -11,11 +11,12 @@
 set -euo pipefail
 
 IMAGE="mcr.microsoft.com/playwright:v1.62.1-noble"
-SHOTS="src/pages/components/stats/__screenshots__"
 
+# Visual tests live wherever their component does, so every __screenshots__ directory under src is
+# copied back, not just the stats charts\'.
 docker run --rm \
   -v "$PWD":/src:ro \
-  -v "$PWD/$SHOTS":/out \
+  -v "$PWD/src":/out \
   "$IMAGE" \
   bash -c "
     set -euo pipefail
@@ -24,5 +25,6 @@ docker run --rm \
     cd /work
     npm ci --no-audit --no-fund
     npm run test-charts -- --run $* || true
-    cp -r /work/$SHOTS/. /out/
+    cd /work/src
+    find . -path '*/__screenshots__/*' -name '*-chromium-linux.png' -exec cp --parents {} /out/ \;
   "

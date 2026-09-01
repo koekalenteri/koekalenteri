@@ -1,5 +1,5 @@
 import type { ResultCode, SubmittedTask } from '../../../lib/results'
-import type { EventResultElimination, EventResultRetirement } from '../../../types'
+import type { EventResultElimination, EventResultRetirement, PublicJudge } from '../../../types'
 
 /**
  * One task as the secretary has it on screen. Identical to what goes on the wire: the server assigns
@@ -17,6 +17,8 @@ export interface ResultEdit {
   tasks: TaskEdit[]
   /** The judge's decision as entered, for event types where no derivation exists to produce one. */
   resultCode?: ResultCode
+  /** Who judged the dog, for event types with no posts to attribute the scoring to. */
+  judge?: PublicJudge
   elimination?: EventResultElimination
   retirement?: EventResultRetirement
 }

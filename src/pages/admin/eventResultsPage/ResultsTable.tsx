@@ -11,6 +11,7 @@ import TableRow from '@mui/material/TableRow'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { parseEventResultCode, scoresAtPosts } from '../../../lib/results'
+import { JudgeCell } from './JudgeCell'
 import { ResultCell } from './ResultCell'
 import { RoundOutcomeCell } from './RoundOutcomeCell'
 import { TaskCell } from './TaskCell'
@@ -29,6 +30,8 @@ interface Props {
   readonly stationId?: string
   /** Who may have judged at a given post. */
   readonly judgesFor: (stationId: string) => PublicJudge[]
+  /** The class's or event's judges, for event types with no posts to attribute the scoring to. */
+  readonly judges?: PublicJudge[]
   /** The judge last chosen at each post, carried to the next dog. */
   readonly defaultJudges: Record<string, PublicJudge | undefined>
   readonly onJudgeChange: (stationId: string, judge?: PublicJudge) => void
@@ -38,6 +41,9 @@ interface Props {
 }
 
 const taskKey = (task: { stationId: string; index: number }) => `${task.stationId}#${task.index}`
+
+/** Where the carried judge lives in `defaultJudges` for rows that have no posts. */
+const EVENT_JUDGE_KEY = 'event'
 
 /**
  * One table serving both the event secretary and a station secretary. They differ only in which slots
@@ -52,6 +58,7 @@ function ResultsTable({
   stations,
   stationId,
   judgesFor,
+  judges = [],
   defaultJudges,
   onJudgeChange,
   edits,
@@ -59,21 +66,33 @@ function ResultsTable({
   onChange,
 }: Props) {
   const { t } = useTranslation()
+  const qualitative = !scoresAtPosts(eventType)
 
   // A qualitative type's stored result seeds the row, so an edit that only adds a lisätieto cannot
   // quietly drop the recorded result on save. Post-scored rounds keep starting blank: their stored
   // state lives in the tasks, and the conflict handling already guards a whole-round overwrite.
   const seededEdit = (stored?: EventResult): ResultEdit => {
-    if (scoresAtPosts(eventType) || !stored) return emptyEdit
+    if (!qualitative || !stored) return emptyEdit
 
     const resultCode = parseEventResultCode(stored.result, eventType, eventClass)
 
     return {
       ...(stored.elimination ? { elimination: stored.elimination } : {}),
+      ...(stored.judge ? { judge: stored.judge } : {}),
       ...(stored.retirement ? { retirement: stored.retirement } : {}),
       ...(resultCode ? { resultCode } : {}),
       tasks: [],
     }
+  }
+
+  // Recording anything for a dog attributes it to whoever is judging, the same way scoring a task
+  // does at a post — so with one judge the secretary never touches a judge control at all.
+  const attributed = (next: ResultEdit): ResultEdit => {
+    if (qualitative) {
+      const judge = next.judge ?? defaultJudges[EVENT_JUDGE_KEY] ?? judges[0]
+      if (judge) return { ...next, judge }
+    }
+    return next
   }
 
   return (
@@ -83,7 +102,9 @@ function ResultsTable({
           <TableRow>
             <TableCell align="right">{t('results.column.number')}</TableCell>
             <TableCell>{t('results.column.dog')}</TableCell>
+            <TableCell>{t('dog.regNo')}</TableCell>
             <TableCell>{t('results.column.handler')}</TableCell>
+            {qualitative && <TableCell>{t('results.judge')}</TableCell>}
             {round.map((task, index) => (
               <TableCell align="center" key={taskKey(task)}>
                 {t('results.column.task', { number: index + 1 })}
@@ -129,7 +150,19 @@ function ResultsTable({
               <TableRow hover key={registration.id}>
                 <TableCell align="right">{registration.group?.number}</TableCell>
                 <TableCell>{registration.dog.name}</TableCell>
+                <TableCell>{registration.dog.regNo}</TableCell>
                 <TableCell>{registration.handler?.name}</TableCell>
+                {qualitative && (
+                  <JudgeCell
+                    disabled={disabled}
+                    judges={judges}
+                    onChange={(judge) => {
+                      onJudgeChange(EVENT_JUDGE_KEY, judge)
+                      onChange(registration.id, { ...edit, ...(judge ? { judge } : {}) })
+                    }}
+                    value={edit.judge ?? defaultJudges[EVENT_JUDGE_KEY] ?? judges[0]}
+                  />
+                )}
                 {round.map((task) => (
                   <TaskCell
                     defaultJudge={defaultJudges[task.stationId]}
@@ -150,7 +183,7 @@ function ResultsTable({
                   eventType={eventType}
                   stationId={stationId}
                   stations={stations}
-                  onChange={(next) => onChange(registration.id, next)}
+                  onChange={(next) => onChange(registration.id, attributed(next))}
                   value={edit}
                 />
                 <ResultCell
@@ -158,7 +191,7 @@ function ResultsTable({
                   edit={edit}
                   eventClass={eventClass}
                   eventType={eventType}
-                  onChange={(next) => onChange(registration.id, next)}
+                  onChange={(next) => onChange(registration.id, attributed(next))}
                   round={fullRound}
                   stored={registration.eventResult}
                 />

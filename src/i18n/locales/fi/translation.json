@@ -758,6 +758,7 @@
       "injury": "Koira loukkaantui"
     },
     "runningTotal": "{{points}} / {{maxPoints}}",
+    "save": "Tallenna tulokset",
     "saved": "Tulokset tallennettu",
     "saveFailed": "Tulosten tallennus epäonnistui. Syötetyt pisteet ovat yhä näkyvissä.",
     "scope": "Näytä",

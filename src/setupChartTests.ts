@@ -1,6 +1,7 @@
 import { Globals } from '@react-spring/web'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import { registerFormatters } from './i18n/formatters'
 import { fi, fiBreed, fiBreedAbbr, fiCountry } from './i18n/locales'
 
 // MUI charts grow their bars and draw their lines with react-spring, so a screenshot taken
@@ -22,3 +23,7 @@ i18n.use(initReactI18next).init({
   lng: 'fi',
   resources: { fi: { breed: fiBreed, breedAbbr: fiBreedAbbr, country: fiCountry, translation: fi } },
 })
+
+// The date and span formats the app registers on top of i18next: without these a screenshot shows a
+// raw Date.toString() wherever a label formats one, which is not the label anyone gets.
+registerFormatters(i18n)

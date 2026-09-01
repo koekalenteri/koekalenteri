@@ -85,11 +85,15 @@ const renderScoringPage = (language: Language, registrations = registrationsToEv
  * The same page against a taipumuskoe: no posts and no tasks, so the result column is the entry — a
  * NOU is judged pass or fail, and there is nothing to derive either from.
  */
-const renderQualitativePage = (language: Language, storedResults: Record<string, EventResult> = {}) => {
+const renderQualitativePage = (
+  language: Language,
+  storedResults: Record<string, EventResult> = {},
+  event = eventWithStaticDates
+) => {
   const registrations = registrationsToEventWithStations.map((reg) => ({
     ...reg,
     class: undefined,
-    eventId: eventWithStaticDates.id,
+    eventId: event.id,
     eventResult: storedResults[reg.id],
     eventType: 'NOU',
   }))
@@ -101,13 +105,13 @@ const renderQualitativePage = (language: Language, storedResults: Record<string,
         <Provider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
-            set(adminEventsAtom, [eventWithStaticDates])
-            set(adminEventRegistrationsAtom(eventWithStaticDates.id), registrations)
+            set(adminEventsAtom, [event])
+            set(adminEventRegistrationsAtom(event.id), registrations)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
-              <DataMemoryRouter initialEntries={[Path.admin.results(eventWithStaticDates.id)]} routes={routes} />
+              <DataMemoryRouter initialEntries={[Path.admin.results(event.id)]} routes={routes} />
             </SnackbarProvider>
           </Suspense>
         </Provider>
@@ -155,7 +159,7 @@ describe('EventResultsPage', () => {
     renderPage(i18n.language as Language)
     await flushPromises()
 
-    expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
   })
 
   it('offers a way to record a round that was not scored', async () => {
@@ -255,7 +259,7 @@ describe('EventResultsPage', () => {
 
     // 36 of 40 is 90 %, over the 80 % first-prize threshold, and the class prefixes the code.
     expect(screen.getByText('ALO1')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
   })
 
   it('asks why a task scored nothing, and will not let the zero stand unexplained', async () => {
@@ -325,7 +329,7 @@ describe('EventResultsPage', () => {
 
     await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
 
-    await user.click(screen.getByRole('button', { name: 'save' }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
     await flushPromises()
 
     // The other dog was left untouched, and an empty row is not a result worth writing.
@@ -349,7 +353,7 @@ describe('EventResultsPage', () => {
     await flushPromises()
 
     await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
-    await user.click(screen.getByRole('button', { name: 'save' }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
     await flushPromises()
 
     // Losing a screenful of work to one contested dog would be its own bug, so the rest is already
@@ -373,13 +377,13 @@ describe('EventResultsPage', () => {
     await flushPromises()
 
     await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
-    await user.click(screen.getByRole('button', { name: 'save' }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
     await flushPromises()
 
     expect(screen.getByText('results.saveFailed')).toBeInTheDocument()
     expect(screen.queryByText('results.conflictTitle')).not.toBeInTheDocument()
     // The work stays on screen: the button merely stopping would read as a successful save.
-    expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
   })
 
   it('sends back only the dogs the secretary overruled', async () => {
@@ -396,7 +400,7 @@ describe('EventResultsPage', () => {
     await flushPromises()
 
     await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
-    await user.click(screen.getByRole('button', { name: 'save' }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
     await flushPromises()
 
     await user.click(screen.getByRole('radio', { name: /results\.conflictMine/ }))
@@ -511,7 +515,7 @@ describe('a pass/fail event type', () => {
 
     await user.click(screen.getByRole('option', { name: 'NOU1' }))
     await flushPromises()
-    await user.click(screen.getByRole('button', { name: 'save' }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
     await flushPromises()
 
     const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
@@ -528,7 +532,7 @@ describe('a pass/fail event type', () => {
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
     await user.click(screen.getByRole('option', { name: 'results.retirement.injury' }))
     await flushPromises()
-    await user.click(screen.getByRole('button', { name: 'save' }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
     await flushPromises()
 
     // The edit only added the keskeytys; the recorded NOU1 must not fall off the save.
@@ -537,6 +541,79 @@ describe('a pass/fail event type', () => {
       eventResult: { resultCode: '1', retirement: { cause: 'injury' } },
       id: 'run-1',
     })
+  })
+
+  it('shows the registration number beside the dog, as the AC lists it', async () => {
+    const { i18n } = useTranslation()
+    renderQualitativePage(i18n.language as Language)
+    await flushPromises()
+
+    expect(within(rowFor('Ensimmainen')).getByText('REG-run-1')).toBeInTheDocument()
+  })
+
+  it('states a lone event judge and attributes the result to them', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderQualitativePage(i18n.language as Language)
+    await flushPromises()
+
+    // One judge is a fact to state, not a choice to offer — same shape as a post's judge control.
+    expect(within(rowFor('Ensimmainen')).getByText('Tuomari 1')).toBeInTheDocument()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'NOU1' }))
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+    expect(submissions?.[0]).toMatchObject({
+      eventResult: { judge: { id: 123, name: 'Tuomari 1' }, resultCode: '1' },
+      id: 'run-1',
+    })
+  })
+
+  it('offers a choice of judges when the event names several, and sends the chosen one', async () => {
+    const { i18n } = useTranslation()
+    const twoJudges = {
+      ...eventWithStaticDates,
+      judges: [
+        { id: 123, name: 'Tuomari 1' },
+        { id: 223, name: 'Tuomari 2' },
+      ],
+    }
+    const { user } = renderQualitativePage(i18n.language as Language, {}, twoJudges)
+    await flushPromises()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.judge'))
+    await user.click(screen.getByRole('option', { name: 'Tuomari 2' }))
+    await flushPromises()
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'NOU0' }))
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+    expect(submissions?.[0]).toMatchObject({
+      eventResult: { judge: { id: 223, name: 'Tuomari 2' }, resultCode: '0' },
+      id: 'run-1',
+    })
+  })
+
+  it('discards the entered results on cancel rather than saving them', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderQualitativePage(i18n.language as Language)
+    await flushPromises()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'NOU1' }))
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'cancel' }))
+    await flushPromises()
+
+    // The AC's secondary CTA: everything typed is dropped, and there is nothing left to save.
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
   })
 
   it('offers no result entry for a post-scored type, whose result is derived instead', async () => {

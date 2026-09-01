@@ -212,7 +212,7 @@ export default function StationResultsPage() {
 
       <Stack direction="row" justifyContent="flex-end" sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', p: 1 }}>
         <AsyncButton color="primary" disabled={!selected} onClick={handleSave} startIcon={<Save />} variant="contained">
-          {t('save')}
+          {t('results.save')}
         </AsyncButton>
       </Stack>
     </Paper>

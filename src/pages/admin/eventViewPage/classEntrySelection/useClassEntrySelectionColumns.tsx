@@ -15,7 +15,7 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation } from '../../../../lib/dog'
-import { registrationDatesOutsideClass } from '../../../../lib/event'
+import { isEventOngoing, isEventOver, registrationDatesOutsideClass } from '../../../../lib/event'
 import {
   canRefund,
   GROUP_KEY_CANCELLED,
@@ -332,6 +332,19 @@ export function useClassEntrySelectionColumns(
 
     const participantColumns = [...entryColumns]
 
+    // KOE-72: once results are being recorded, the secretary's own participant list shows them. Not
+    // before the dogs run, when the column could only ever be empty.
+    if (isEventOngoing(event) || isEventOver(event)) {
+      participantColumns.splice(-2, 0, {
+        field: 'result',
+        headerName: t('results.column.result'),
+        minWidth: 70,
+        sortable: false,
+        valueGetter: (_value, row) => row.eventResult?.result ?? '',
+        width: 70,
+      })
+    }
+
     const cancelledColumns = [...participantColumns]
     cancelledColumns.splice(-2, 0, {
       field: 'cancelReason',
@@ -343,5 +356,5 @@ export function useClassEntrySelectionColumns(
     })
 
     return { cancelledColumns, entryColumns, participantColumns }
-  }, [t, createColumnDefinitions])
+  }, [t, createColumnDefinitions, event])
 }

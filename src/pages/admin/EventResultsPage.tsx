@@ -94,6 +94,15 @@ export default function EventResultsPage() {
     () => makeArray(event?.classes?.find((item) => item.class === eventClass)?.judge),
     [event?.classes, eventClass]
   )
+  // A classless type has no class to hang judges on, so the event's own judges stand for the round.
+  const eventJudges = useMemo(
+    () =>
+      (classJudges.length ? classJudges : (event?.judges ?? [])).filter((judge): judge is PublicJudge =>
+        Boolean(judge?.id)
+      ),
+    [classJudges, event?.judges]
+  )
+
   const judgesFor = useCallback(
     (id: string) => {
       const own = stations.find((station) => station.id === id)?.judges ?? []
@@ -127,6 +136,7 @@ export default function EventResultsPage() {
         basedOn: scoped ? stationVersion(stored?.tasks, scope) : stored?.updatedAt,
         eventResult: {
           elimination: edit.elimination,
+          ...(edit.judge ? { judge: edit.judge } : {}),
           ...(edit.resultCode ? { resultCode: edit.resultCode } : {}),
           retirement: edit.retirement,
           tasks: edit.tasks,
@@ -208,6 +218,12 @@ export default function EventResultsPage() {
           {t('results.backToEvent')}
         </Button>
         <Typography variant="h6">{t('results.title')}</Typography>
+        {/* Which trial these results belong to, so the secretary is never entering against the wrong
+            event: the day, the format, the venue and the name, same order as the AC gives them. */}
+        <Typography variant="body2">
+          {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })} {event.eventType} {event.location}
+          {event.name ? ` (${event.name})` : ''}
+        </Typography>
         {event.kcId ? (
           <Typography variant="body2" color="text.secondary">
             {t('event.kcId')}: {event.kcId}
@@ -260,6 +276,7 @@ export default function EventResultsPage() {
           fullRound={scoped ? undefined : fullRound}
           onChange={handleChange}
           defaultJudges={defaultJudges}
+          judges={eventJudges}
           judgesFor={judgesFor}
           onJudgeChange={(id, judge) => setDefaultJudges((prev) => ({ ...prev, [id]: judge }))}
           registrations={rows}
@@ -275,6 +292,9 @@ export default function EventResultsPage() {
         spacing={1}
         sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', p: 1 }}
       >
+        <Button disabled={Object.keys(edits).length === 0} onClick={() => setEdits({})}>
+          {t('cancel')}
+        </Button>
         <AsyncButton
           color="primary"
           disabled={Object.keys(edits).length === 0}
@@ -282,7 +302,7 @@ export default function EventResultsPage() {
           startIcon={<Save />}
           variant="contained"
         >
-          {t('save')}
+          {t('results.save')}
         </AsyncButton>
       </Stack>
 
