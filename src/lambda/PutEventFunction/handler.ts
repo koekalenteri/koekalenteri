@@ -69,6 +69,8 @@ const initializeNewEvent = (item: Patch<JsonConfirmedEvent>, timestamp: string, 
   // The numbers are the secretary's own decision (KOE-1006); old events lack the field and read as
   // published, so only a new event starts from the explicit 'not yet'.
   item.startNumbersPublished = false
+  // A new event has no results to have published; a client-side copy would otherwise carry the flag.
+  delete item.resultsPublished
 }
 
 const invalidEventDateField = (data: JsonConfirmedEvent) =>

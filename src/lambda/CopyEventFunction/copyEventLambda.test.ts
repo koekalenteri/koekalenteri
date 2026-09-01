@@ -149,6 +149,9 @@ describe('copyEventHandler', () => {
       name: 'Kopio - Original Event',
       season: '2025',
       startDate: '2025-07-01T00:00:00.000Z',
+      // Publish decisions belong to the source event's runs, not the copy.
+      startListPublished: false,
+      startNumbersPublished: false,
       state: 'draft',
     })
 
@@ -187,7 +190,7 @@ describe('copyEventHandler', () => {
     )
   })
 
-  it('does not copy registration idempotency credentials or post-processing state', async () => {
+  it('does not copy registration idempotency credentials, post-processing state or event outcomes', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)
     setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
@@ -204,6 +207,8 @@ describe('copyEventHandler', () => {
         creationIdempotencyKey: 'source-secret',
         dates: [{ date: '2025-06-10T00:00:00.000Z' }],
         eventId: 'event123',
+        // What the dog did at the source event stays there: a copy has not run.
+        eventResult: { result: 'AVO1', updatedAt: '2025-06-12T00:00:00.000Z', updatedBy: 'Sihteeri' },
         id: 'registration123',
         newRegistrationAuditAt: '2025-06-01T00:00:00.000Z',
         newRegistrationEmailSentAt: '2025-06-01T00:00:00.000Z',
@@ -211,6 +216,7 @@ describe('copyEventHandler', () => {
         newRegistrationProcessedAt: '2025-06-01T00:00:00.000Z',
         newRegistrationPublishedAt: '2025-06-01T00:00:00.000Z',
         newRegistrationStatsAt: '2025-06-01T00:00:00.000Z',
+        startGroup: { date: '2025-06-10T00:00:00.000Z', key: 'AVO-AP', number: 5, time: 'ap' },
       },
     ])
 

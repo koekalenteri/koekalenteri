@@ -772,6 +772,17 @@ describe('lib/event', () => {
       expect(copyDogEvent({ ...eventWithParticipantsInvited, startListPublished: true }).startListPublished).toBe(
         false
       ))
+    it('should reset start number and results publishing', () => {
+      // An inherited flag would skip the whole decision: absent-means-published for numbers that
+      // predate the field, and a copied resultsPublished would advertise results that do not exist.
+      const copy = copyDogEvent({
+        ...eventWithParticipantsInvited,
+        resultsPublished: { ALO: true },
+        startNumbersPublished: true,
+      })
+      expect(copy.startNumbersPublished).toBe(false)
+      expect(copy.resultsPublished).toBeUndefined()
+    })
     it('should reset entries and members', () => {
       const copy = copyDogEvent({ ...eventWithParticipantsInvited, entries: 15, members: 10 })
       expect(copy.entries).toBe(0)

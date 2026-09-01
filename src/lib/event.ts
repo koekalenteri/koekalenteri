@@ -867,7 +867,12 @@ export const copyDogEvent = (event: DogEvent): DogEvent => {
   copy.entryStartDate = newEventEntryStartDate
   copy.entryEndDate = newEventEntryEndDate
   copy.season = String(newEventStartDate.getFullYear())
+  // Publish decisions belong to the source event's runs, not the copy — and for numbers and results
+  // an inherited flag would skip the whole decision, since absent means published for a start list
+  // that predates the flag and a copied `resultsPublished` would advertise results that do not exist.
   copy.startListPublished = false
+  copy.startNumbersPublished = false
+  delete copy.resultsPublished
 
   delete copy.kcId
   delete copy.entryOrigEndDate

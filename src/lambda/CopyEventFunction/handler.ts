@@ -27,6 +27,10 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   item.id = nanoid(10)
   item.name = `Kopio - ${item.name ?? ''}`
   item.state = 'draft'
+  // Publish decisions belong to the source event's runs, not the copy (see copyDogEvent).
+  item.startListPublished = false
+  item.startNumbersPublished = false
+  delete item.resultsPublished
   item.createdAt = timestamp
   item.createdBy = user.name
   delete item.entryOrigEndDate
@@ -55,6 +59,10 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     // These values belong to the source creation attempt and must not be
     // inherited by a registration in the copied event.
     removeRegistrationCreationMetadata(reg)
+    // What the dog did at the source event stays there: a copied entry has not run, and a frozen
+    // start number would pin it to the source's published order.
+    delete reg.startGroup
+    delete reg.eventResult
     reg.dates.forEach((d) => {
       d.date = addDays(parseISO(d.date), days).toISOString()
     })
