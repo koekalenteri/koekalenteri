@@ -388,6 +388,7 @@
     "organizer": "Järjestäjä",
     "results_one": "{{count}} tapahtuma",
     "results_other": "{{count}} tapahtumaa",
+    "resultsPublished": "Tulokset julkaistu",
     "title": "Rajaa"
   },
   "goBack": "Takaisin",

@@ -264,6 +264,12 @@ export const isResultsPublishedForClass = (event: Pick<JsonDogEvent, 'resultsPub
     ? event.resultsPublished[eventClass as RegistrationClass] === true
     : event.resultsPublished === true
 
+/** Whether any class's results are public — what a search for "events with results" filters on. */
+export const hasPublishedResults = ({ resultsPublished }: Pick<JsonDogEvent, 'resultsPublished'>): boolean =>
+  isResultsPublishedClassMap(resultsPublished)
+    ? Object.values(resultsPublished).some(Boolean)
+    : resultsPublished === true
+
 /**
  * A result reaches the public on the start list's own rows — it has no other transport — so a published
  * result on an unpublished list is invisible. Requiring the list here keeps the two from disagreeing,

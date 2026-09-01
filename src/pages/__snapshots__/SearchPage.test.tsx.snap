@@ -579,6 +579,36 @@ exports[`SearchPage > filters by date - no-results 1`] = `
                               entryUpcoming
                             </span>
                           </label>
+                          <label
+                            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                          >
+                            <span
+                              class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
+                            >
+                              <span
+                                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                              >
+                                <input
+                                  class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
+                                  name="withResults"
+                                  role="switch"
+                                  type="checkbox"
+                                  value="withResults"
+                                />
+                                <span
+                                  class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                                />
+                              </span>
+                              <span
+                                class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                              />
+                            </span>
+                            <span
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                            >
+                              filter.resultsPublished
+                            </span>
+                          </label>
                         </div>
                       </div>
                       <div
@@ -1181,6 +1211,36 @@ exports[`SearchPage > filters by date 1`] = `
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                             >
                               entryUpcoming
+                            </span>
+                          </label>
+                          <label
+                            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                          >
+                            <span
+                              class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
+                            >
+                              <span
+                                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                              >
+                                <input
+                                  class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
+                                  name="withResults"
+                                  role="switch"
+                                  type="checkbox"
+                                  value="withResults"
+                                />
+                                <span
+                                  class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                                />
+                              </span>
+                              <span
+                                class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                              />
+                            </span>
+                            <span
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                            >
+                              filter.resultsPublished
                             </span>
                           </label>
                         </div>
@@ -3173,6 +3233,36 @@ exports[`SearchPage > filters by date/end 1`] = `
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                             >
                               entryUpcoming
+                            </span>
+                          </label>
+                          <label
+                            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                          >
+                            <span
+                              class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
+                            >
+                              <span
+                                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                              >
+                                <input
+                                  class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
+                                  name="withResults"
+                                  role="switch"
+                                  type="checkbox"
+                                  value="withResults"
+                                />
+                                <span
+                                  class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                                />
+                              </span>
+                              <span
+                                class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                              />
+                            </span>
+                            <span
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                            >
+                              filter.resultsPublished
                             </span>
                           </label>
                         </div>
@@ -5207,6 +5297,36 @@ exports[`SearchPage > filters by event class 1`] = `
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                             >
                               entryUpcoming
+                            </span>
+                          </label>
+                          <label
+                            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                          >
+                            <span
+                              class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
+                            >
+                              <span
+                                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                              >
+                                <input
+                                  class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
+                                  name="withResults"
+                                  role="switch"
+                                  type="checkbox"
+                                  value="withResults"
+                                />
+                                <span
+                                  class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                                />
+                              </span>
+                              <span
+                                class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                              />
+                            </span>
+                            <span
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                            >
+                              filter.resultsPublished
                             </span>
                           </label>
                         </div>
@@ -7638,6 +7758,36 @@ exports[`SearchPage > filters by event type 1`] = `
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                             >
                               entryUpcoming
+                            </span>
+                          </label>
+                          <label
+                            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                          >
+                            <span
+                              class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
+                            >
+                              <span
+                                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                              >
+                                <input
+                                  class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
+                                  name="withResults"
+                                  role="switch"
+                                  type="checkbox"
+                                  value="withResults"
+                                />
+                                <span
+                                  class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                                />
+                              </span>
+                              <span
+                                class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                              />
+                            </span>
+                            <span
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                            >
+                              filter.resultsPublished
                             </span>
                           </label>
                         </div>
@@ -10094,6 +10244,36 @@ exports[`SearchPage > filters by organizer 1`] = `
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                             >
                               entryUpcoming
+                            </span>
+                          </label>
+                          <label
+                            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                          >
+                            <span
+                              class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
+                            >
+                              <span
+                                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                              >
+                                <input
+                                  class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
+                                  name="withResults"
+                                  role="switch"
+                                  type="checkbox"
+                                  value="withResults"
+                                />
+                                <span
+                                  class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                                />
+                              </span>
+                              <span
+                                class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                              />
+                            </span>
+                            <span
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                            >
+                              filter.resultsPublished
                             </span>
                           </label>
                         </div>

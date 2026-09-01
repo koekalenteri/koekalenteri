@@ -15,9 +15,11 @@ import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
+import { subMonths } from 'date-fns'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HEADER_HEIGHT } from '../../assets/Theme'
+import { zonedStartOfDay } from '../../i18n/dates'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
 import SelectMulti from '../components/SelectMulti'
@@ -85,6 +87,21 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
         withUpcomingEntry: checked,
       }),
     [setFilter]
+  )
+  const handleWithResultsChange = useCallback(
+    (_event: SyntheticEvent<Element, Event>, checked: boolean) => {
+      // Results exist only on ended events and the default range starts today, so switching this on
+      // with the default range would show nothing. Widen backwards; the moved date stays visible in
+      // the range field, so the reader sees why past events appeared and can adjust it.
+      const today = zonedStartOfDay(new Date())
+      const widen = checked && filter.start && filter.start >= today
+
+      setFilter({
+        withResults: checked,
+        ...(widen ? { start: subMonths(today, 6) } : {}),
+      })
+    },
+    [filter.start, setFilter]
   )
   const getName = useCallback((o?: { name?: string }) => o?.name ?? '', [])
   const getJudgeName = useCallback(
@@ -209,6 +226,15 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                       labelPlacement="end"
                       name="withUpcomingEntry"
                       onChange={handleWithUpcomingEntryChange}
+                    />
+                    <FormControlLabel
+                      value="withResults"
+                      checked={filter.withResults ?? false}
+                      control={<Switch />}
+                      label={t('filter.resultsPublished')}
+                      labelPlacement="end"
+                      name="withResults"
+                      onChange={handleWithResultsChange}
                     />
                   </Stack>
                 </Grid>

@@ -7,6 +7,7 @@ export type FilterProps = {
   withClosingEntry?: boolean
   withUpcomingEntry?: boolean
   withFreePlaces?: boolean
+  withResults?: boolean
   eventType: string[]
   eventClass: RegistrationClass[]
   judge: string[]

@@ -5,8 +5,10 @@ import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen, within } from '@testing-library/react'
+import { subMonths } from 'date-fns'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
+import { zonedStartOfDay } from '../../i18n/dates'
 import { createMatchMedia, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 import { EventFilter } from './EventFilter'
 
@@ -142,6 +144,36 @@ describe('EventFilter', () => {
 
     await user.click(screen.getByLabelText('entryUpcoming'))
     expect(changeHandler).toHaveBeenCalledTimes(2)
+  })
+
+  it('widens the range backwards when the results switch is turned on', async () => {
+    const changeHandler = vi.fn()
+    const start = zonedStartOfDay(new Date())
+    const { user } = renderComponent(
+      { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start },
+      changeHandler
+    )
+
+    await user.click(screen.getByLabelText('filter.resultsPublished'))
+
+    // Results exist only on ended events; with the default range starting today the filter would
+    // show nothing, so the start date moves back and stays visible for the user to adjust.
+    expect(changeHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ start: subMonths(start, 6), withResults: true })
+    )
+  })
+
+  it('leaves a range the user already widened alone', async () => {
+    const changeHandler = vi.fn()
+    const start = zonedStartOfDay(subMonths(new Date(), 1))
+    const { user } = renderComponent(
+      { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start },
+      changeHandler
+    )
+
+    await user.click(screen.getByLabelText('filter.resultsPublished'))
+
+    expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ start, withResults: true }))
   })
 
   it('should fire onChange for date picker and switches', async () => {

@@ -11,6 +11,7 @@ import {
   withinEventTypeFilter,
   withinJudgeFilter,
   withinOrganizerFilter,
+  withinResultsFilter,
   withinSwitchFilters,
 } from './filters'
 
@@ -27,6 +28,7 @@ export const filteredEventsAtom = atom((get) => {
       event.state !== 'draft' &&
       withinDateFilters(event, filter) &&
       withinSwitchFilters(event, filter) &&
+      withinResultsFilter(event, filter) &&
       withinEventTypeFilter(event, filter) &&
       withinEventTypeClassFilter(event, filter) &&
       withinOrganizerFilter(event, filter) &&
@@ -44,6 +46,7 @@ const filteredEventsForTypeAtom = atom((get) => {
       event.state !== 'draft' &&
       withinDateFilters(event, filter) &&
       withinSwitchFilters(event, filter) &&
+      withinResultsFilter(event, filter) &&
       withinEventTypeClassFilter(event, filter) &&
       withinOrganizerFilter(event, filter) &&
       withinJudgeFilter(event, filter)
@@ -60,6 +63,7 @@ const filteredEventsForEventClassAtom = atom((get) => {
       event.state !== 'draft' &&
       withinDateFilters(event, filter) &&
       withinSwitchFilters(event, filter) &&
+      withinResultsFilter(event, filter) &&
       withinEventTypeFilter(event, filter) &&
       withinOrganizerFilter(event, filter) &&
       withinJudgeFilter(event, filter)
@@ -76,6 +80,7 @@ const filteredEventsForOrganizerAtom = atom((get) => {
       event.state !== 'draft' &&
       withinDateFilters(event, filter) &&
       withinSwitchFilters(event, filter) &&
+      withinResultsFilter(event, filter) &&
       withinEventTypeFilter(event, filter) &&
       withinEventTypeClassFilter(event, filter) &&
       withinJudgeFilter(event, filter)
@@ -92,6 +97,7 @@ const filteredEventsForJudgeAtom = atom((get) => {
       event.state !== 'draft' &&
       withinDateFilters(event, filter) &&
       withinSwitchFilters(event, filter) &&
+      withinResultsFilter(event, filter) &&
       withinEventTypeFilter(event, filter) &&
       withinEventTypeClassFilter(event, filter) &&
       withinOrganizerFilter(event, filter)

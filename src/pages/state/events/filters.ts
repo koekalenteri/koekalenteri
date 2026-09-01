@@ -3,7 +3,7 @@ import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './types'
 import { format } from 'date-fns'
 import { formatDateSpan, zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../i18n/dates'
-import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/event'
+import { hasPublishedResults, isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/event'
 import { isRegistrationClass } from '../../../lib/registration'
 
 export const readDate = (date: string | null) => (date ? zonedParseDate(date) : null)
@@ -43,6 +43,10 @@ export function withinSwitchFilters(
   }
 
   return result !== false
+}
+
+export function withinResultsFilter(event: PublicDogEvent, { withResults }: FilterProps) {
+  return !withResults || hasPublishedResults(event)
 }
 
 export function withinEventTypeFilter(event: PublicDogEvent, { eventType }: FilterProps) {
@@ -88,6 +92,9 @@ export function serializeFilter(eventFilter: FilterProps): string {
   if (eventFilter.withUpcomingEntry) {
     bits.push('u')
   }
+  if (eventFilter.withResults) {
+    bits.push('r')
+  }
   params.append('s', eventFilter.start ? writeDate(eventFilter.start) : '')
   if (eventFilter.end) {
     params.append('e', writeDate(eventFilter.end))
@@ -126,6 +133,7 @@ export function deserializeFilter(input: string) {
     withClosingEntry: bits.includes('c'),
     withFreePlaces: bits.includes('f'),
     withOpenEntry: bits.includes('o'),
+    withResults: bits.includes('r'),
     withUpcomingEntry: bits.includes('u'),
   }
 
@@ -160,6 +168,9 @@ export function filterStrings(filter: FilterProps, t: TFunction): string[] {
   }
   if (filter.withUpcomingEntry) {
     filters.push(t('entryUpcoming'))
+  }
+  if (filter.withResults) {
+    filters.push(t('filter.resultsPublished'))
   }
 
   return filters

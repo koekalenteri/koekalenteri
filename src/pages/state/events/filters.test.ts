@@ -1,5 +1,13 @@
+import type { PublicDogEvent } from '../../../types'
 import { zonedEndOfDay, zonedStartOfDay } from '../../../i18n/dates'
-import { deserializeFilter, readDate, serializeFilter, withinDateFilters, writeDate } from './filters'
+import {
+  deserializeFilter,
+  readDate,
+  serializeFilter,
+  withinDateFilters,
+  withinResultsFilter,
+  writeDate,
+} from './filters'
 
 describe('state.events.filters', () => {
   describe('readDate', () => {
@@ -43,9 +51,10 @@ describe('state.events.filters', () => {
           withClosingEntry: true,
           withFreePlaces: true,
           withOpenEntry: true,
+          withResults: true,
           withUpcomingEntry: true,
         })
-      ).toEqual('s=2025-03-24&e=2025-03-31&c=ALO&t=NOME-B&j=Tuomari+Risto&o=bOkL76mduc&b=c&b=f&b=o&b=u')
+      ).toEqual('s=2025-03-24&e=2025-03-31&c=ALO&t=NOME-B&j=Tuomari+Risto&o=bOkL76mduc&b=c&b=f&b=o&b=u&b=r')
     })
   })
 
@@ -63,13 +72,14 @@ describe('state.events.filters', () => {
         withClosingEntry: false,
         withFreePlaces: false,
         withOpenEntry: false,
+        withResults: false,
         withUpcomingEntry: false,
       })
     })
 
     it('deseriealizes all filds', () => {
       expect(
-        deserializeFilter('s=2025-03-24&e=2025-03-31&c=ALO&t=NOME-B&j=Tuomari+Risto&o=bOkL76mduc&b=c&b=f&b=o&b=u')
+        deserializeFilter('s=2025-03-24&e=2025-03-31&c=ALO&t=NOME-B&j=Tuomari+Risto&o=bOkL76mduc&b=c&b=f&b=o&b=u&b=r')
       ).toEqual({
         end: zonedEndOfDay(new Date(1743449533000)),
         eventClass: ['ALO'],
@@ -80,6 +90,7 @@ describe('state.events.filters', () => {
         withClosingEntry: true,
         withFreePlaces: true,
         withOpenEntry: true,
+        withResults: true,
         withUpcomingEntry: true,
       })
     })
@@ -146,6 +157,24 @@ describe('state.events.filters', () => {
       `('and end is $end, it should return false', ({ end }) => {
         expect(withinDateFilters({ startDate: undefined }, { end, start: null })).toEqual(false)
       })
+    })
+  })
+
+  describe('withinResultsFilter', () => {
+    const filter = deserializeFilter('b=r')
+    const event = (resultsPublished?: PublicDogEvent['resultsPublished']) => ({ resultsPublished }) as PublicDogEvent
+
+    it('passes everything while the switch is off', () => {
+      expect(withinResultsFilter(event(), deserializeFilter(''))).toBe(true)
+    })
+
+    it('keeps only events with something published', () => {
+      expect(withinResultsFilter(event(), filter)).toBe(false)
+      expect(withinResultsFilter(event(false), filter)).toBe(false)
+      expect(withinResultsFilter(event(true), filter)).toBe(true)
+      // One published class is enough: the reader came for results, not for completeness.
+      expect(withinResultsFilter(event({ ALO: true, AVO: false }), filter)).toBe(true)
+      expect(withinResultsFilter(event({ ALO: false }), filter)).toBe(false)
     })
   })
 })

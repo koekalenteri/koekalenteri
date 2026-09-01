@@ -388,6 +388,7 @@
     "organizer": "Organizer",
     "results_one": "{{count}} event",
     "results_other": "{{count}} events",
+    "resultsPublished": "Results published",
     "title": "Filter"
   },
   "goBack": "Back",

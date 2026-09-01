@@ -25,6 +25,7 @@ import {
   getStartListPublishedClassMap,
   getUniqueEventClasses,
   hasExplicitPlacesForClass,
+  hasPublishedResults,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEventDeletable,
@@ -1113,6 +1114,19 @@ describe('publishing results', () => {
 
       expect(isResultsPublishedForClass(event, 'ALO')).toBe(true)
       expect(isResultsPublishedForClass(event, 'AVO')).toBe(false)
+    })
+  })
+
+  describe('hasPublishedResults', () => {
+    it('is true as soon as any class is public', () => {
+      expect(hasPublishedResults({ resultsPublished: true })).toBe(true)
+      expect(hasPublishedResults({ resultsPublished: { ALO: false, AVO: true } })).toBe(true)
+    })
+
+    it('is false with nothing published', () => {
+      expect(hasPublishedResults({})).toBe(false)
+      expect(hasPublishedResults({ resultsPublished: false })).toBe(false)
+      expect(hasPublishedResults({ resultsPublished: { ALO: false } })).toBe(false)
     })
   })
 

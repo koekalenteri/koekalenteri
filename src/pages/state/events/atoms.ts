@@ -58,6 +58,7 @@ const defaultFilter = (): FilterProps => ({
   withClosingEntry: false,
   withFreePlaces: false,
   withOpenEntry: false,
+  withResults: false,
   withUpcomingEntry: false,
 })
 
