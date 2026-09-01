@@ -104,7 +104,7 @@ export const EventInfo = ({ event }: Props) => {
           {t('dateFormat.datespan', { end: rankingPeriod.maxResultDate, start: rankingPeriod.minResultDate })}
         </ItemWithCaption>
       ) : null}
-      <EventDescription description={event.description} order={{ xs: 9 }} />
+      <EventDescription event={event} order={{ xs: 9 }} />
     </Grid>
   )
 }

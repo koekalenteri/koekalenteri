@@ -414,6 +414,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
         <AdditionalInfoSection
           disabled={allDisabled}
           description={event.description}
+          descriptions={event.descriptions}
           onChange={handleChange}
           onOpenChange={handleInfoOpenChange}
           open={open.info}

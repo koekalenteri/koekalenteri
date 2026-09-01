@@ -127,6 +127,7 @@ export const stationEntryResponse = (
       id: confirmedEvent.id,
       location: confirmedEvent.location,
       name: confirmedEvent.name,
+      names: confirmedEvent.names,
       startDate: confirmedEvent.startDate,
     },
     registrations: registrations

@@ -9,7 +9,9 @@ describe('AdditionalInfoSection', () => {
 
   it('should render', () => {
     const changeHandler = vi.fn()
-    const { container } = render(<AdditionalInfoSection description="Test!" onChange={changeHandler} open />)
+    const { container } = render(
+      <AdditionalInfoSection description="Test!" descriptions={{ en: 'In English!' }} onChange={changeHandler} open />
+    )
     expect(container).toMatchSnapshot()
   })
 
@@ -22,7 +24,7 @@ describe('AdditionalInfoSection', () => {
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
 
-    const input = screen.getByRole('textbox')
+    const input = screen.getByLabelText('event.description (locale.fi)')
     expect(input).toHaveValue('')
 
     await user.type(input, 'Testing!')
@@ -36,6 +38,26 @@ describe('AdditionalInfoSection', () => {
     expect(changeHandler).toHaveBeenLastCalledWith({ description: 'Testing!' })
   })
 
+  it('should fire onChange with the translations map for a translated text', async () => {
+    // KOE-1263: the additional info can also be given in the other app languages.
+    const changeHandler = vi.fn()
+
+    const { user } = renderWithUserEvents(
+      <AdditionalInfoSection description="Suomeksi" onChange={changeHandler} open />,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    const input = screen.getByLabelText('event.description (locale.en)')
+    expect(input).toHaveValue('')
+
+    await user.type(input, 'In English!')
+
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenLastCalledWith({ descriptions: { en: 'In English!' } })
+  })
+
   it('should keep the paragraph breaks the secretary types', async () => {
     // KOE-740: the secretary writes the additional info in paragraphs, so the newlines have to
     // survive all the way to the patch the form saves.
@@ -45,7 +67,7 @@ describe('AdditionalInfoSection', () => {
       advanceTimers: vi.advanceTimersByTime,
     })
 
-    const input = screen.getByRole('textbox')
+    const input = screen.getByLabelText('event.description (locale.fi)')
     await user.type(input, 'Ensimmäinen kappale.{Enter}{Enter}Toinen kappale.')
 
     expect(input).toHaveValue('Ensimmäinen kappale.\n\nToinen kappale.')

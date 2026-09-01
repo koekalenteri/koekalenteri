@@ -4,17 +4,20 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import i18n from 'i18next'
+import { useAtomValue } from 'jotai'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await, Navigate, useLoaderData } from 'react-router'
 import { getEvent } from '../api/event'
 import { getRegistration, patchRegistration } from '../api/registration'
+import { localizedEventName } from '../lib/event'
 import { invitationAttachmentFileName } from '../lib/fileName'
 import { createPatchOperations } from '../lib/patch'
 import { getInvitationReadStatus } from '../lib/registration'
 import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
 import { LoadingPage } from './LoadingPage'
+import { languageAtom } from './state'
 
 interface DeferredData {
   url?: string
@@ -77,6 +80,7 @@ export const loader = async ({ params, request }: { params: Params<string>; requ
 export const Component = () => {
   const loaderData: { data: Promise<DeferredData> } = useLoaderData()
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
 
   return (
     <Suspense fallback={<LoadingPage />}>
@@ -90,7 +94,7 @@ export const Component = () => {
                 <Typography variant="caption">{t('invitation.event')}</Typography>
                 <Typography>
                   {event.eventType} {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}{' '}
-                  {event.location} ({event.name})
+                  {event.location} ({localizedEventName(event, language)})
                 </Typography>
                 <Typography variant="caption">{t('invitation.registeredDog')}</Typography>
                 <Typography>

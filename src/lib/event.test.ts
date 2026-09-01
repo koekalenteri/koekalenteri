@@ -39,6 +39,8 @@ import {
   isStartListPublishedForClass,
   isStartNumbersAvailableForClass,
   isStartNumbersAvailableForRegistration,
+  localizedEventDescription,
+  localizedEventName,
   newEventEntryEndDate,
   newEventEntryStartDate,
   newEventStartDate,
@@ -959,6 +961,38 @@ describe('eventRegistrationDateKey', () => {
 
     expect(eventRegistrationDateKey({ date: new Date(2023, 0, 1, 12), time })).toEqual('2023-01-01-ap')
     expect(eventRegistrationDateKey({ date: new Date(2023, 11, 31, 12), time })).toEqual('2023-12-31-ap')
+  })
+})
+
+describe('localizedEventName and localizedEventDescription', () => {
+  // KOE-1263: `name` and `description` stay the Finnish texts; the maps carry the translations.
+  const event = {
+    description: 'Lisätiedot',
+    descriptions: { en: 'Additional info' },
+    name: 'Nimi',
+    names: { en: 'Name' },
+  }
+
+  it('returns the Finnish texts for fi', () => {
+    expect(localizedEventName(event, 'fi')).toEqual('Nimi')
+    expect(localizedEventDescription(event, 'fi')).toEqual('Lisätiedot')
+  })
+
+  it('returns the translations for en', () => {
+    expect(localizedEventName(event, 'en')).toEqual('Name')
+    expect(localizedEventDescription(event, 'en')).toEqual('Additional info')
+  })
+
+  it('falls back to the Finnish texts without a translation', () => {
+    expect(localizedEventName({ name: 'Nimi' }, 'en')).toEqual('Nimi')
+    expect(localizedEventDescription({ description: 'Lisätiedot' }, 'en')).toEqual('Lisätiedot')
+  })
+
+  it('falls back to the Finnish texts for an empty translation', () => {
+    expect(localizedEventName({ name: 'Nimi', names: { en: '' } }, 'en')).toEqual('Nimi')
+    expect(localizedEventDescription({ description: 'Lisätiedot', descriptions: { en: '' } }, 'en')).toEqual(
+      'Lisätiedot'
+    )
   })
 })
 

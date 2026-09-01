@@ -49,6 +49,7 @@ export type BasicInfoEvent = Pick<
   | 'kcId'
   | 'location'
   | 'name'
+  | 'names'
   | 'official'
   | 'organizer'
   | 'placesPerDay'

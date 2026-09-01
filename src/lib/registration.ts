@@ -21,7 +21,7 @@ import type {
 } from '../types'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
-import { isEntryClosed } from './event'
+import { isEntryClosed, localizedEventDescription, localizedEventName } from './event'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
 import { isObject, unique } from './utils'
@@ -572,7 +572,11 @@ export const getRegistrationEmailTemplateData = (
     .join(', ')
   const event = {
     ...confirmedEvent,
+    // The name and additional info read in the registrant's language (KOE-1263), so the templates
+    // need no language awareness of their own.
+    description: localizedEventDescription(confirmedEvent, registration.language),
     invitationAttachment: getCurrentInvitationAttachment(confirmedEvent, registration),
+    name: localizedEventName(confirmedEvent, registration.language),
   }
 
   return {

@@ -718,6 +718,60 @@ describe('lib/registration', () => {
       expect(result.event.invitationAttachment).toBe('alo-attachment')
     })
 
+    it('should use the event texts in the registrant language', () => {
+      // KOE-1263: the name and additional info read in the registrant's language when translated.
+      const registration = {
+        dates: [],
+        dog: {},
+        eventId: 'event1',
+        id: 'reg1',
+        language: 'en',
+        qualifyingResults: [],
+      } as any
+      const confirmedEvent = {
+        description: 'Lisätiedot',
+        descriptions: { en: 'Additional info' },
+        name: 'Nimi',
+        names: { en: 'Name' },
+      } as any
+
+      const result = getRegistrationEmailTemplateData(
+        registration,
+        confirmedEvent,
+        'https://example.com',
+        'confirmation' as any,
+        '',
+        t
+      )
+
+      expect(result.event.name).toBe('Name')
+      expect(result.event.description).toBe('Additional info')
+    })
+
+    it('should fall back to the Finnish event texts without translations', () => {
+      const registration = {
+        dates: [],
+        dog: {},
+        eventId: 'event1',
+        id: 'reg1',
+        language: 'en',
+        qualifyingResults: [],
+      } as any
+      const confirmedEvent = { description: 'Lisätiedot', name: 'Nimi' } as any
+
+      const result = getRegistrationEmailTemplateData(
+        registration,
+        confirmedEvent,
+        'https://example.com',
+        'confirmation' as any,
+        '',
+        t
+      )
+
+      expect(result.event.name).toBe('Nimi')
+      expect(result.event.description).toBe('Lisätiedot')
+    })
+
     it('should use previous group when provided', () => {
       // Use type assertion to avoid TypeScript errors
       const registration = {

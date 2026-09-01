@@ -1,12 +1,15 @@
 import type { EventResultSubmission } from '../api/registration'
 import type { StationEntry, StationTurnOp } from '../types'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { getStationEntry, putStationEntry, putStationEntryTurn } from '../api/station'
+import { localizedEventName } from '../lib/event'
 import { StationScoring } from './admin/eventResultsPage/StationScoring'
 import LoadingIndicator from './components/LoadingIndicator'
+import { languageAtom } from './state'
 
 /**
  * The station secretary's scoring view, opened with the station's own tokenized link instead of an
@@ -15,6 +18,7 @@ import LoadingIndicator from './components/LoadingIndicator'
  */
 export function Component() {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
   const { eventId = '', stationId = '', token = '' } = useParams()
   const [entry, setEntry] = useState<StationEntry>()
   const [failed, setFailed] = useState(false)
@@ -77,7 +81,7 @@ export function Component() {
     t('dateFormat.datespan', { end: entry.event.endDate, start: entry.event.startDate }),
     entry.event.eventType,
     entry.event.location,
-    entry.event.name,
+    localizedEventName(entry.event, language),
   ]
     .filter(Boolean)
     .join(' ')

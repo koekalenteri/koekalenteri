@@ -2,7 +2,10 @@ import type { PublicConfirmedEvent, Registration } from '../../types'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
+import { localizedEventName } from '../../lib/event'
+import { languageAtom } from '../state'
 
 interface Props {
   readonly event: PublicConfirmedEvent
@@ -11,6 +14,8 @@ interface Props {
 
 export const RegistrationDetails = ({ event, registration }: Props) => {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
+  const name = localizedEventName(event, language)
 
   return (
     <Stack direction="row" justifyContent="start">
@@ -23,7 +28,7 @@ export const RegistrationDetails = ({ event, registration }: Props) => {
             event.eventType,
             t('dateFormat.datespan', { end: event.endDate, start: event.startDate }),
             event.location,
-            event.name ? `(${event.name})` : '',
+            name ? `(${name})` : '',
           ]
             .filter(Boolean)
             .join(' ')}

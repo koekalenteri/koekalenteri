@@ -4,6 +4,7 @@ import type {
   DogEvent,
   EventClass,
   EventType,
+  Language,
   Organizer,
   Person,
   RegistrationClass,
@@ -22,6 +23,7 @@ import {
   applySingleDayNowtGroups,
   defaultEntryEndDate,
   defaultEntryStartDate,
+  EVENT_TRANSLATION_LANGUAGES,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   OFFICIAL_EVENT_TYPES,
@@ -42,6 +44,9 @@ export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly secretaries?: User[]
   readonly selectedEventType?: EventType
 }
+
+/** A stable default for `useLocalState`, so its initial-value effect does not fire on every render. */
+const EMPTY_TRANSLATIONS: Partial<Record<Language, string>> = {}
 
 const getTypeClasses = (eventType?: string, eventTypeClasses?: Record<string, RegistrationClass[]>) =>
   OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
@@ -144,6 +149,12 @@ function BasicInfoSection({
   )
   const [name, setName] = useLocalState(event.name ?? '', (value) => onChange?.({ name: value }))
   const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => setName(e.target.value), [setName])
+  // KOE-1263: the name can also be given in the other app languages; `name` stays the Finnish one.
+  const [names, setNames] = useLocalState(event.names ?? EMPTY_TRANSLATIONS, (value) => onChange?.({ names: value }))
+  const handleTranslatedNameChange = useCallback(
+    (language: Language, value: string) => setNames((prev) => ({ ...prev, [language]: value })),
+    [setNames]
+  )
   const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
   const getId = useCallback((o?: string | { id?: number | string }) => (typeof o === 'string' ? o : (o?.id ?? '')), [])
   const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : (o?.name ?? '')), [])
@@ -210,8 +221,25 @@ function BasicInfoSection({
         </Grid>
         <Grid container spacing={1}>
           <Grid sx={{ width: 600 }}>
-            <TextField disabled={disabled} label={t('event.name')} fullWidth value={name} onChange={handleNameChange} />
+            <TextField
+              disabled={disabled}
+              label={`${t('event.name')} (${t('locale.fi')})`}
+              fullWidth
+              value={name}
+              onChange={handleNameChange}
+            />
           </Grid>
+          {EVENT_TRANSLATION_LANGUAGES.map((language) => (
+            <Grid key={language} sx={{ width: 600 }}>
+              <TextField
+                disabled={disabled}
+                label={`${t('event.name')} (${t(`locale.${language}`)})`}
+                fullWidth
+                value={names[language] ?? ''}
+                onChange={(e) => handleTranslatedNameChange(language, e.target.value)}
+              />
+            </Grid>
+          ))}
         </Grid>
         <Grid container spacing={1}>
           <Grid sx={{ width: 600 }}>

@@ -2,6 +2,8 @@ import Grid from '@mui/material/Grid'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
+import { TestProvider } from '../../test-utils/AtomProvider'
+import { languageAtom } from '../state'
 import { EventDescription } from './EventDescription'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -28,11 +30,35 @@ const description = [
 
 it('prints the additional info as the paragraphs the secretary wrote', async () => {
   const screen = await render(
-    <Frame>
-      <EventDescription description={description} />
-    </Frame>
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
+      <Frame>
+        <EventDescription event={{ description }} />
+      </Frame>
+    </TestProvider>
   )
 
   await expect.element(screen.getByText(/Kanttiini on avoinna/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-description-paragraphs')
+})
+
+it('prints the English translation for an English viewer', async () => {
+  // KOE-1263: the secretary gave the additional info in English too, and the viewer reads English.
+  const descriptions = {
+    en: [
+      'Entries are made through Koekalenteri.',
+      '',
+      'The canteen is open all day. Cash and MobilePay accepted.',
+    ].join('\n'),
+  }
+
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'en')}>
+      <Frame>
+        <EventDescription event={{ description, descriptions }} />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText(/The canteen is open/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-description-translated')
 })

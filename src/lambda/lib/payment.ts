@@ -10,6 +10,7 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import type { PaytrailError } from './paytrail'
 import { timingSafeEqual } from 'node:crypto'
 import { i18n } from '../../i18n/lambda'
+import { localizedEventName } from '../../lib/event'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -383,7 +384,7 @@ export const applySuccessfulRefund = async (
 }
 
 export const paymentDescription = (
-  jsonEvent: Pick<JsonDogEvent | DogEvent, 'eventType' | 'startDate' | 'endDate' | 'name' | 'location'>,
+  jsonEvent: Pick<JsonDogEvent | DogEvent, 'eventType' | 'startDate' | 'endDate' | 'name' | 'names' | 'location'>,
   language: Language
 ) => {
   const t = i18n.getFixedT(language)
@@ -393,7 +394,9 @@ export const paymentDescription = (
     start: jsonEvent.startDate,
   })
 
-  return [jsonEvent.eventType, eventDate, jsonEvent.location, jsonEvent.name].filter(Boolean).join(' ')
+  return [jsonEvent.eventType, eventDate, jsonEvent.location, localizedEventName(jsonEvent, language)]
+    .filter(Boolean)
+    .join(' ')
 }
 
 export const getTransactionsByReference = async (reference: string) =>

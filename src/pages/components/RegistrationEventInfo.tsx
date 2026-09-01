@@ -3,13 +3,15 @@ import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getEventStateForClass } from '../../lib/event'
+import { getEventStateForClass, localizedEventName } from '../../lib/event'
 import { invitationAttachmentFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
 import { printContactInfo } from '../../lib/utils'
 import { Path } from '../../routeConfig'
+import { languageAtom } from '../state'
 import { CollapsibleEvent } from './CollapsibleEvent'
 import CostInfo from './CostInfo'
 import { EntryStatus } from './EntryStatus'
@@ -29,9 +31,11 @@ type HeaderProps = Pick<Props, 'event'>
 
 const Header = ({ event }: HeaderProps) => {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
+  const name = localizedEventName(event, language)
 
   const title = `${event.eventType} ${t('dateFormat.datespan', { end: event.endDate, start: event.startDate })} ${
-    event.location + (event.name ? ` (${event.name})` : '')
+    event.location + (name ? ` (${name})` : '')
   }`
 
   return (
@@ -103,7 +107,7 @@ export default function RegistrationEventInfo({
             <PriorityChips priority={event.priority} />
           </ItemWithCaption>
         ) : null}
-        <EventDescription description={event.description} />
+        <EventDescription event={event} />
         {attachmentEvent && getEventStateForClass(event, eventClass) === 'invited' ? (
           <ItemWithCaption label={t('event.attachments')}>
             <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />

@@ -130,6 +130,15 @@ describe('payment', () => {
     it('works correctly for two day event', () => {
       expect(paymentDescription(eventWithStaticDatesAnd3Classes, 'fi')).toEqual('NOME-B 10.–11.2. test location test')
     })
+
+    it('uses the translated event name for the language when given', () => {
+      // KOE-1263
+      const event = { ...jsonEmptyEvent, name: 'Nimi', names: { en: 'Name' } }
+
+      expect(paymentDescription(event, 'en')).toEqual('test 1.1. test Name')
+      expect(paymentDescription(event, 'fi')).toEqual('test 1.1. test Nimi')
+      expect(paymentDescription({ ...event, names: undefined }, 'en')).toEqual('test 1.1. test Nimi')
+    })
   })
 
   describe('transaction creation claims', () => {

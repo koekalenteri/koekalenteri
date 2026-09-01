@@ -18,4 +18,6 @@ export * from './Transaction'
 export * from './utility'
 export * from './WebSocket'
 
-export type Language = 'fi' | 'en'
+/** The languages the app speaks, in menu order. Add a language here and the type follows. */
+export const LANGUAGES = ['fi', 'en'] as const
+export type Language = (typeof LANGUAGES)[number]

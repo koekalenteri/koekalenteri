@@ -48,6 +48,27 @@ describe('BasicInfoSection', () => {
   })
 
   describe('interactions', () => {
+    it('should fire onChange with the translations map for a translated name', async () => {
+      // KOE-1263: the name can also be given in the other app languages.
+      const testEvent: PartialEvent = {
+        classes: [],
+        endDate: newEventStartDate,
+        judges: [],
+        name: 'Nimi',
+        startDate: newEventStartDate,
+      }
+      const changeHandler = vi.fn()
+      const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+
+      const input = screen.getByLabelText<HTMLInputElement>('event.name (locale.en)')
+      expect(input).toHaveValue('')
+
+      await user.type(input, 'In English')
+      await waitFor(() => expect(changeHandler).toHaveBeenCalledTimes(1))
+
+      expect(changeHandler).toHaveBeenCalledWith({ names: { en: 'In English' } })
+    })
+
     it('should update entry dates when event start date changes and entry dates are the defaults', async () => {
       const testEvent: PartialEvent = {
         classes: [],

@@ -5,6 +5,7 @@ import type {
   JsonEventResult,
   JsonRegistrationDate,
   JsonRegistrationGroup,
+  Language,
   NotOptional,
   PublicJudge,
   PublicOrganizer,
@@ -48,6 +49,11 @@ export interface JsonDogEvent extends JsonDbRecord {
   cost: number | DogEventCost
   costMember?: number | DogEventCost
   description: string
+  /**
+   * The additional info in other languages (KOE-1263). `description` stays the Finnish text and the
+   * fallback; keying the translations by language makes a new language a key, not a schema change.
+   */
+  descriptions?: Partial<Record<Language, string>>
   endDate: string
   entries?: number
   entryEndDate?: string
@@ -65,6 +71,8 @@ export interface JsonDogEvent extends JsonDbRecord {
   location: string
   members?: number
   name: string
+  /** The event name in other languages (KOE-1263), keyed like `descriptions`; `name` is the fallback. */
+  names?: Partial<Record<Language, string>>
   official: Partial<User>
   organizer: PublicOrganizer
   places: number
@@ -230,7 +238,10 @@ export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'>
 
 /** What the tokenized station link serves: the post, its slice of the course, and the dogs that run. */
 export interface JsonStationEntry {
-  event: Pick<JsonPublicDogEvent, 'id' | 'eventType' | 'name' | 'location' | 'startDate' | 'endDate' | 'classes'>
+  event: Pick<
+    JsonPublicDogEvent,
+    'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
+  >
   /** Without `tokenVersion`: the link must not reveal its own revocation counter. */
   station: Omit<JsonEventStation, 'tokenVersion'>
   registrations: JsonStationEntryDog[]
@@ -238,7 +249,7 @@ export interface JsonStationEntry {
   turns?: JsonPublicStationTurn[]
 }
 export type StationEntry = {
-  event: Pick<PublicDogEvent, 'id' | 'eventType' | 'name' | 'location' | 'startDate' | 'endDate' | 'classes'>
+  event: Pick<PublicDogEvent, 'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'>
   station: Omit<EventStation, 'tokenVersion'>
   registrations: StationEntryDog[]
   turns?: PublicStationTurn[]

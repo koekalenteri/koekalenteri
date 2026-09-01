@@ -402,7 +402,7 @@ exports[`BasicInfoSection > should render 1`] = `
                         for=":re:"
                         id=":re:-label"
                       >
-                        event.name
+                        event.name (locale.fi)
                       </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1blp12k-MuiInputBase-root-MuiOutlinedInput-root"
@@ -422,7 +422,46 @@ exports[`BasicInfoSection > should render 1`] = `
                             class="css-1n64csd-MuiNotchedOutlined-root"
                           >
                             <span>
-                              event.name
+                              event.name (locale.fi)
+                            </span>
+                          </legend>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-12kblo6-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                    >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="false"
+                        for=":rf:"
+                        id=":rf:-label"
+                      >
+                        event.name (locale.en)
+                      </label>
+                      <div
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1blp12k-MuiInputBase-root-MuiOutlinedInput-root"
+                      >
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":rf:"
+                          type="text"
+                          value=""
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                        >
+                          <legend
+                            class="css-1n64csd-MuiNotchedOutlined-root"
+                          >
+                            <span>
+                              event.name (locale.en)
                             </span>
                           </legend>
                         </fieldset>

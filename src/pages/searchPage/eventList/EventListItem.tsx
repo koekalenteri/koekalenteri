@@ -1,13 +1,22 @@
 import type { PublicDogEvent } from '../../../types'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedStartOfDay } from '../../../i18n/dates'
-import { isEntryClosed, isEntryOpen, isEntryUpcoming, isEventOver, isValidForEntry } from '../../../lib/event'
+import {
+  isEntryClosed,
+  isEntryOpen,
+  isEntryUpcoming,
+  isEventOver,
+  isValidForEntry,
+  localizedEventName,
+} from '../../../lib/event'
 import { Path } from '../../../routeConfig'
 import { CollapsibleEvent } from '../../components/CollapsibleEvent'
 import LinkButton from '../../components/LinkButton'
+import { languageAtom } from '../../state'
 import { EventInfo } from './EventInfo'
 import { EventStateInfo } from './EventStateInfo'
 import { EventPlaces } from './eventTableRow/EventPlaces'
@@ -19,6 +28,7 @@ interface Props {
 
 const EventHeader = ({ event }: Props) => {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
   const cancelledSx = event.state === 'cancelled' ? { textDecoration: 'line-through' } : undefined
 
   const infoText = useMemo(() => {
@@ -114,7 +124,7 @@ const EventHeader = ({ event }: Props) => {
             xs: 'grow',
           }}
         >
-          {event.name ? event.name : ''}
+          {localizedEventName(event, language)}
         </Grid>
         <Grid
           alignContent="center"

@@ -8,6 +8,7 @@ import type {
   EventState,
   JsonDogEvent,
   JsonPublicDogEvent,
+  Language,
   Patch,
   PublicDogEvent,
   RegistrationClass,
@@ -28,6 +29,7 @@ import { parseISO } from 'date-fns/parseISO'
 import { sub } from 'date-fns/sub'
 import { subDays } from 'date-fns/subDays'
 import { formatDate, TIME_ZONE, zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
+import { LANGUAGES } from '../types'
 import { isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
 import { unique, uniqueDate } from './utils'
@@ -37,6 +39,25 @@ type EventVitals = Partial<
 >
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
+
+/** The languages an event's texts can be translated into (KOE-1263): every app language but Finnish. */
+export const EVENT_TRANSLATION_LANGUAGES = LANGUAGES.filter((language) => language !== 'fi')
+
+/**
+ * The event name as it should read in the given language (KOE-1263). Finnish is the canonical name
+ * every event has; the `names` map carries the translations and falls back to it, like the cost
+ * descriptions do.
+ */
+export const localizedEventName = (
+  event: Pick<PublicDogEvent | JsonPublicDogEvent, 'name' | 'names'>,
+  language: Language
+): string => event.names?.[language] || event.name
+
+/** The additional info in the given language (KOE-1263), with the same Finnish fallback as the name. */
+export const localizedEventDescription = (
+  event: Pick<PublicDogEvent | JsonPublicDogEvent, 'description' | 'descriptions'>,
+  language: Language
+): string => event.descriptions?.[language] || event.description
 
 export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = new Date()) =>
   !!entryStartDate && entryStartDate > now && (isValidForEntry(state) || state === 'tentative')
