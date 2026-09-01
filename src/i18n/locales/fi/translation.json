@@ -283,6 +283,7 @@
     },
     "station": "Rasti",
     "stationAdd": "Lisää rasti",
+    "stationDogsAtOnce": "Koiria kerralla",
     "stationJudges": "Tuomarit",
     "stationRemove": "Poista rasti",
     "stationsInfo": "Rastit ovat kiinteitä suorituspaikkoja, joiden läpi luokat kiertävät päivän aikana. Kunkin luokan tehtävät määritellään erikseen.",
@@ -434,6 +435,16 @@
     "endBreak": "Päätä tauko",
     "endTurn": "Päätä vuoro",
     "free": "Rasti vapaa",
+    "group_one": "Ryhmä (1)",
+    "group_other": "Ryhmä ({{count}})",
+    "group_zero": "Ryhmä",
+    "mark": {
+      "eyeWipe": "Eye wipe",
+      "firstDogDown": "First dog down",
+      "found": "Löysi",
+      "notFound": "Ei löytänyt",
+      "sent": "Lähtee noutoon"
+    },
     "noEstimate": "ei vielä arviota läpimenosta",
     "now": "Rastilla nyt",
     "pause": {
@@ -447,9 +458,12 @@
     "startBreak": "Tauko",
     "startTurn": "Aloita vuoro",
     "station": "Rasti {{number}}",
+    "task": "Tehtävä {{number}}",
     "throughput": "Läpimeno {{min}}–{{max}} min · ka {{mean}} min",
     "title": "Live",
-    "turnSaveFailed": "Vuoron tallennus epäonnistui. Yritä uudelleen."
+    "turnSaveFailed": "Vuoron tallennus epäonnistui. Yritä uudelleen.",
+    "waitEstimate_one": "Jonoa jäljellä n. {{min}}–{{max}} min (1 vuoro)",
+    "waitEstimate_other": "Jonoa jäljellä n. {{min}}–{{max}} min ({{count}} vuoroa)"
   },
   "loading": "Ladataan",
   "locale": {
@@ -794,7 +808,8 @@
     "resultNone": "Ei tulosta",
     "retirement": {
       "handlerChoice": "Ohjaaja keskeytti",
-      "injury": "Koira loukkaantui"
+      "injury": "Koira loukkaantui",
+      "judgeStopped": "Tuomari keskeytti kokeen"
     },
     "revokeStationLink": "Mitätöi rastilinkki",
     "runningTotal": "{{points}} / {{maxPoints}}",

@@ -44,7 +44,7 @@ export const StartListPage = () => {
   return (
     <Box p={1}>
       <EventHeader event={event} now={now} />
-      <LiveStatus event={event} />
+      <LiveStatus event={event} participants={participants} />
       <ParticipantList participants={participants} event={event} showExportActions={showExportActions} />
     </Box>
   )

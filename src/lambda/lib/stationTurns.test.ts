@@ -38,12 +38,22 @@ describe('stationTurns', () => {
   beforeEach(() => vi.clearAllMocks())
 
   describe('parseStationTurnOp', () => {
-    it('accepts the three ops', () => {
+    it('accepts every op', () => {
       expect(parseStationTurnOp({ type: 'end' })).toEqual({ type: 'end' })
       expect(parseStationTurnOp({ pause: 'lunch', type: 'break' })).toEqual({ pause: 'lunch', type: 'break' })
       expect(parseStationTurnOp({ registrationIds: ['run-1'], type: 'start' })).toEqual({
         registrationIds: ['run-1'],
         type: 'start',
+      })
+      expect(parseStationTurnOp({ registrationIds: ['run-1'], taskIndex: 1, type: 'start' })).toEqual({
+        registrationIds: ['run-1'],
+        taskIndex: 1,
+        type: 'start',
+      })
+      expect(parseStationTurnOp({ index: 2, mark: 'eyeWipe', type: 'mark' })).toEqual({
+        index: 2,
+        mark: 'eyeWipe',
+        type: 'mark',
       })
     })
 
@@ -54,6 +64,12 @@ describe('stationTurns', () => {
       [{ registrationIds: [], type: 'start' }],
       [{ registrationIds: [1], type: 'start' }],
       [{ registrationIds: Array.from({ length: 11 }, (_item, i) => `run-${i}`), type: 'start' }],
+      [{ registrationIds: ['run-1'], taskIndex: 2, type: 'start' }],
+      [{ registrationIds: ['run-1'], taskIndex: 0.5, type: 'start' }],
+      [{ index: 0, mark: 'wagged', type: 'mark' }],
+      [{ index: -1, mark: 'found', type: 'mark' }],
+      [{ index: 10, mark: 'found', type: 'mark' }],
+      [{ mark: 'found', type: 'mark' }],
     ])('refuses %j with 422', (body) => {
       expect(() => parseStationTurnOp(body)).toThrow(expect.objectContaining({ status: 422 }))
     })
@@ -95,6 +111,51 @@ describe('stationTurns', () => {
       expect(turns[0]).toEqual({ ...open, endedAt: NOW.toISOString() })
       expect(turns[1]).toEqual(otherPost)
       expect(turns[2].registrationIds).toEqual(['run-2'])
+    })
+
+    it('records the task a turn ran where the format names one', () => {
+      const turns = applyStationTurnOp(
+        [],
+        [registration('run-1')],
+        'post-1',
+        { registrationIds: ['run-1'], taskIndex: 1, type: 'start' },
+        NOW
+      )
+
+      expect(turns[0]).toMatchObject({ taskIndex: 1 })
+    })
+
+    it('starts a walk-up as one span holding the whole group', () => {
+      const turns = applyStationTurnOp(
+        [],
+        [registration('run-1'), registration('run-2'), registration('run-3'), registration('run-4')],
+        'post-1',
+        { registrationIds: ['run-1', 'run-2', 'run-3', 'run-4'], type: 'start' },
+        NOW
+      )
+
+      expect(turns).toHaveLength(1)
+      expect(turns[0].dogs).toHaveLength(4)
+    })
+
+    it('marks one dog of the open group without ending the span', () => {
+      const open = storedTurn({ dogs: [{ name: 'Dog run-1' }, { name: 'Dog run-2' }] })
+
+      const turns = applyStationTurnOp([open], [], 'post-1', { index: 1, mark: 'found', type: 'mark' }, NOW)
+
+      expect(turns[0]).toEqual({ ...open, dogs: [{ name: 'Dog run-1' }, { mark: 'found', name: 'Dog run-2' }] })
+      expect(turns[0].endedAt).toBeUndefined()
+    })
+
+    it('refuses a mark with no open span, or with no such dog in it', () => {
+      const open = storedTurn()
+
+      expect(() => applyStationTurnOp([], [], 'post-1', { index: 0, mark: 'found', type: 'mark' }, NOW)).toThrow(
+        expect.objectContaining({ status: 422 })
+      )
+      expect(() => applyStationTurnOp([open], [], 'post-1', { index: 3, mark: 'found', type: 'mark' }, NOW)).toThrow(
+        expect.objectContaining({ status: 422 })
+      )
     })
 
     it('records a break as a turn with no dogs', () => {

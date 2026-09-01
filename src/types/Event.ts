@@ -124,6 +124,14 @@ export type JsonEventStation = {
   judges?: PublicJudge[]
   /** One task worth the post's full points, or two worth half each. */
   tasks: 1 | 2
+  /**
+   * How many dogs this post takes at once (KOE-1259): one, a pair task, or a walk-up. It is the
+   * post's own form, fixed for the whole trial, so it lives here beside `tasks` rather than on each
+   * turn — and it stays a plain count, because a wider walk-up must not need a code change. Absent
+   * means one. Note the trap it shares a number with: two *tasks* worth ten points each and a *pair*
+   * task run by two dogs are different axes.
+   */
+  dogsAtOnce?: number
   /** Versions the post's tokenized entry link (KOE-1258); bumping it revokes every link issued. */
   tokenVersion?: number
 }
@@ -132,10 +140,23 @@ export type EventStation = Replace<JsonEventStation, 'date', Date>
 /** A break is labeled with a code rather than free text, so the day's pauses can be counted later. */
 export type StationTurnPause = 'coffee' | 'lunch' | 'weather' | 'other'
 
+/**
+ * What a turn can say about a dog beyond that it ran (KOE-1259), for the formats whose live facts are
+ * marks rather than scores — NOME-A, where all four dogs are on the same retrieve.
+ *
+ * `eyeWipe` and `firstDogDown` are the judge's calls, not derivations: neither "comparable conditions"
+ * nor "was findable" is computable from the order of attempts, so they are recorded, never inferred.
+ * Both are serious faults rather than eliminating ones, which is why they belong in the live vocabulary
+ * at all — the stop they can cause publishes as an interruption, not as a dash.
+ */
+export type LiveMark = 'sent' | 'found' | 'notFound' | 'eyeWipe' | 'firstDogDown'
+
 /** The public face of a dog in a turn: what the published start list already tells. */
 export interface JsonStationTurnDog {
   name: string
   number?: number
+  /** How this dog's turn is going, where the format has a mark vocabulary. */
+  mark?: LiveMark
 }
 
 /**
@@ -152,6 +173,12 @@ export interface JsonPublicStationTurn {
   startedAt: string
   endedAt?: string
   pause?: StationTurnPause
+  /**
+   * Which of the post's tasks this turn ran, 0-based — recorded only where the format lets a class
+   * take the post's tasks in an order of its own (NOME-B). Where the post is one turn (NOWT) or the
+   * order is fixed (NOU) there is nothing to record.
+   */
+  taskIndex?: number
 }
 
 /** The stored span (KOE-1259): the public shape plus the registration ids, which never leave admin. */
@@ -169,9 +196,14 @@ export type StationTurn = Replace<ReplaceOptional<JsonStationTurn, 'endedAt', Da
  * is what says the previous one ended, and one tap must be enough.
  */
 export type StationTurnOp =
-  | { type: 'start'; registrationIds: string[] }
+  | { type: 'start'; registrationIds: string[]; taskIndex?: number }
   | { type: 'break'; pause: StationTurnPause }
   | { type: 'end' }
+  /**
+   * Mark one dog of the open turn, by its position in that turn rather than by registration id — the
+   * tokenized station link works from the public shape, which has no ids to name a dog by.
+   */
+  | { type: 'mark'; index: number; mark: LiveMark }
 
 /**
  * One dog as a station secretary's tokenized link may see it: enough to call the dog up and score it,

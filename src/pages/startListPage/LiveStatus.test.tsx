@@ -50,4 +50,55 @@ describe('LiveStatus', () => {
     expect(screen.getByText(/liveStatus\.pauseSince/)).toBeInTheDocument()
     expect(screen.getAllByText(/liveStatus\.completed/)).toHaveLength(2)
   })
+
+  it('estimates the wait from the queue left and the pace the post has kept (KOE-1259)', () => {
+    const event: PublicConfirmedEvent = {
+      ...baseEvent,
+      eventType: 'NOWT',
+      liveTurns: [
+        turn({ endedAt: new Date('2026-09-12T08:07:00Z'), id: 'done' }),
+        turn({ id: 'open', startedAt: new Date('2026-09-12T08:07:00Z') }),
+      ],
+    } as PublicConfirmedEvent
+    const participants = [{}, {}, {}, {}, { cancelled: true }]
+
+    render(<LiveStatus event={event} participants={participants} />)
+
+    expect(screen.getByText(/liveStatus\.waitEstimate/)).toBeInTheDocument()
+  })
+
+  it('withholds the estimate where the whole entry is on the ground rather than queueing', () => {
+    const event: PublicConfirmedEvent = {
+      ...baseEvent,
+      eventType: 'NOME-A',
+      liveTurns: [
+        turn({ endedAt: new Date('2026-09-12T08:07:00Z'), id: 'done' }),
+        turn({ id: 'open', startedAt: new Date('2026-09-12T08:07:00Z') }),
+      ],
+    } as PublicConfirmedEvent
+
+    render(<LiveStatus event={event} participants={[{}, {}, {}, {}]} />)
+
+    expect(screen.queryByText(/liveStatus\.waitEstimate/)).not.toBeInTheDocument()
+  })
+
+  it("shows the judge's marks beside the dogs that are out", () => {
+    const event: PublicConfirmedEvent = {
+      ...baseEvent,
+      eventType: 'NOME-A',
+      liveTurns: [
+        turn({
+          dogs: [
+            { mark: 'found', name: 'Ensimmainen', number: 5 },
+            { name: 'Toinen', number: 6 },
+          ],
+          id: 'open',
+        }),
+      ],
+    } as PublicConfirmedEvent
+
+    render(<LiveStatus event={event} />)
+
+    expect(screen.getByText(/5 Ensimmainen \(liveStatus\.mark\.found\)/)).toBeInTheDocument()
+  })
 })

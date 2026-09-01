@@ -1,4 +1,5 @@
 import type { JsonStationTurn, StationTurn, StationTurnPause } from '../types'
+import type { LiveFlow } from './liveFormat'
 
 /**
  * Derivations over a post's timeline (KOE-1259). Shared between the lambdas and the browser on
@@ -98,6 +99,48 @@ export const stationThroughput = (
     meanMs: kept.reduce((sum, ms) => sum + ms, 0) / kept.length,
     minMs: kept[0],
   }
+}
+
+/**
+ * How many dogs a post has actually had through, which is not the number of turns: one walk-up span
+ * moves four dogs along. Counted from the closed spans only — the group on the ground has not been
+ * through yet.
+ */
+export const dogsThrough = <T extends StationTurnSpan & { dogs: readonly unknown[] }>(
+  turns: readonly T[],
+  stationId: string
+): number => completedGroupTurns(turns, stationId).reduce((total, turn) => total + turn.dogs.length, 0)
+
+/** A range, because the answer is an estimate and must never read as a promise. */
+interface WaitEstimate {
+  /** Turns still to run, not dogs — what the range was actually multiplied from. */
+  groupsAhead: number
+  minMs: number
+  maxMs: number
+}
+
+/**
+ * How long the dogs still queueing at a post will take, from the pace the post has actually kept.
+ *
+ * Throughput measures a *group*, because a walk-up is one span however many dogs it holds, so the
+ * queue is divided by the post's `dogsAtOnce` before it is multiplied. Getting that backwards
+ * overstates the wait by exactly that factor — twelve dogs at a post taking four at a time is three
+ * turns, not twelve — and a fourfold overstatement is what sends someone home before their turn.
+ *
+ * Withheld with no figures to go on, and withheld under `field`, where the entry is on the ground
+ * rather than waiting to be called and a number of minutes would describe nothing.
+ */
+export const waitEstimate = (
+  throughput: StationThroughput | undefined,
+  dogsAhead: number,
+  dogsAtOnce: number,
+  flow: LiveFlow = 'queue'
+): WaitEstimate | undefined => {
+  if (flow === 'field' || !throughput || dogsAhead <= 0) return undefined
+
+  const groupsAhead = Math.ceil(dogsAhead / Math.max(1, dogsAtOnce))
+
+  return { groupsAhead, maxMs: groupsAhead * throughput.maxMs, minMs: groupsAhead * throughput.minMs }
 }
 
 /** The post ids that have any live spans, in first-seen order — what the live view iterates. */

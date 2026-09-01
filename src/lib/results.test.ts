@@ -123,6 +123,14 @@ describe('deriveNowtResult', () => {
     it('settles a voided round before completeness, so an unfinished scorecard still resolves', () => {
       expect(deriveNowtResult({ elimination: { fault: 'gunShyness' }, tasks: [] })).toBe('-')
     })
+
+    it("records a judge's stop as an interruption, which is neither a dash nor a nought", () => {
+      // A stop on two serious faults is not a hylkäävä virhe, so it does not take the dash every
+      // elimination takes — and the dog was not judged and unplaced either, so it is not a nought.
+      expect(deriveNowtResult({ retirement: { cause: 'judgeStopped' }, tasks: round(17, null, null, null) })).toBe(
+        'KES'
+      )
+    })
   })
 })
 
@@ -275,6 +283,12 @@ describe('availableResultCodes', () => {
   it('treats a championship as its class-based parent', () => {
     expect(availableResultCodes('NOWT SM')).toEqual(['1', '2', '3', '0', '-'])
   })
+
+  it('offers the interruption only where a judge may stop a dog short of an eliminating fault', () => {
+    expect(availableResultCodes('NOME-A')).toEqual(['1', '2', '3', '0', '-', 'KES'])
+    expect(availableResultCodes('NOME-A SM')).toEqual(['1', '2', '3', '0', '-', 'KES'])
+    expect(availableResultCodes('NOWT')).not.toContain('KES')
+  })
 })
 
 describe('parseEventResultCode', () => {
@@ -282,6 +296,11 @@ describe('parseEventResultCode', () => {
     expect(parseEventResultCode('NOU1', 'NOU')).toBe('1')
     expect(parseEventResultCode('ALO2', 'NOWT', 'ALO')).toBe('2')
     expect(parseEventResultCode('AVO-', 'NOWT', 'AVO')).toBe('-')
+  })
+
+  it('reads the interruption back, and only for a type that awards it', () => {
+    expect(parseEventResultCode('AVOKES', 'NOME-A', 'AVO')).toBe('KES')
+    expect(parseEventResultCode('AVOKES', 'NOWT', 'AVO')).toBeUndefined()
   })
 
   it('refuses a foreign prefix and a code the type cannot award', () => {
@@ -386,6 +405,24 @@ describe('resolveEventResult', () => {
 
   it('composes a classless type from its event type', () => {
     expect(resolveEventResult({ resultCode: '0' }, { eventType: 'NOU' }).result).toBe('NOU0')
+  })
+
+  it('publishes a stopped trial as the interruption without being told the code as well', () => {
+    const result = resolveEventResult(
+      { retirement: { cause: 'judgeStopped', stationId: 'post-1' } },
+      { eventClass: 'AVO', eventType: 'NOME-A' }
+    )
+
+    expect(result).toEqual({ result: 'AVOKES', retirement: { cause: 'judgeStopped', stationId: 'post-1' } })
+  })
+
+  it('still lets the secretary say otherwise about a stopped trial', () => {
+    const result = resolveEventResult(
+      { resultCode: '-', retirement: { cause: 'judgeStopped' } },
+      { eventClass: 'AVO', eventType: 'NOME-A' }
+    )
+
+    expect(result.result).toBe('AVO-')
   })
 
   it('honours a class that splits a post differently from the course', () => {

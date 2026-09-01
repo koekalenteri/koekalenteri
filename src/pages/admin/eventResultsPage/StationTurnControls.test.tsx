@@ -14,7 +14,7 @@ const renderControls = (props: Partial<Parameters<typeof StationTurnControls>[0]
   const onTurn = vi.fn().mockResolvedValue(undefined)
   render(
     <SnackbarProvider>
-      <StationTurnControls onTurn={onTurn} stationId="post-1" turns={[]} {...props} />
+      <StationTurnControls onTurn={onTurn} station={{ id: 'post-1', tasks: 1 }} turns={[]} {...props} />
     </SnackbarProvider>
   )
   return { onTurn }
@@ -65,5 +65,78 @@ describe('StationTurnControls', () => {
     })
 
     expect(screen.getByRole('button', { name: 'liveStatus.endBreak' })).toBeEnabled()
+  })
+
+  describe('per format (KOE-1259 phase 4)', () => {
+    const walkUpDogs = [
+      { id: 'run-1', name: 'Ensimmainen', number: 5 },
+      { id: 'run-2', name: 'Toinen', number: 6 },
+      { id: 'run-3', name: 'Kolmas', number: 7 },
+    ]
+
+    it('offers no group picker where a post takes one dog at a time', () => {
+      renderControls({ dogs: walkUpDogs, eventType: 'NOWT', station: { id: 'post-1', tasks: 1 } })
+
+      expect(screen.queryByRole('button', { name: /liveStatus.group/ })).not.toBeInTheDocument()
+    })
+
+    it('starts a walk-up as one turn holding the whole picked group', async () => {
+      const user = userEvent.setup()
+      const { onTurn } = renderControls({
+        dogs: walkUpDogs,
+        eventType: 'NOWT',
+        station: { dogsAtOnce: 4, id: 'post-1', tasks: 1 },
+      })
+
+      await user.click(screen.getByRole('button', { name: /liveStatus.group/ }))
+      const menu = within(screen.getByRole('menu'))
+      await user.click(menu.getByText('5 Ensimmainen'))
+      await user.click(menu.getByText('7 Kolmas'))
+      await user.keyboard('{Escape}')
+      await user.click(screen.getByRole('button', { name: 'liveStatus.startTurn' }))
+
+      expect(onTurn).toHaveBeenCalledWith({ registrationIds: ['run-1', 'run-3'], type: 'start' })
+    })
+
+    it('names the task where the class orders a two-task post for itself', async () => {
+      const user = userEvent.setup()
+      const { onTurn } = renderControls({
+        eventType: 'NOME-B',
+        selectedDog: { id: 'run-1', name: 'Ensimmainen', number: 5 },
+        station: { id: 'post-1', tasks: 2 },
+      })
+
+      await user.click(screen.getAllByRole('button', { name: 'liveStatus.task number' })[1])
+      await user.click(screen.getByRole('button', { name: 'liveStatus.startTurn' }))
+
+      expect(onTurn).toHaveBeenCalledWith({ registrationIds: ['run-1'], taskIndex: 1, type: 'start' })
+    })
+
+    it("marks a dog of the open group where the format's live facts are marks", async () => {
+      const user = userEvent.setup()
+      const { onTurn } = renderControls({
+        eventType: 'NOME-A',
+        turns: [
+          {
+            ...openTurn,
+            dogs: [
+              { name: 'Ensimmainen', number: 5 },
+              { name: 'Toinen', number: 6 },
+            ],
+          },
+        ],
+      })
+
+      await user.click(screen.getByRole('button', { name: '6 Toinen' }))
+      await user.click(within(screen.getByRole('menu')).getByText('liveStatus.mark.eyeWipe'))
+
+      expect(onTurn).toHaveBeenCalledWith({ index: 1, mark: 'eyeWipe', type: 'mark' })
+    })
+
+    it('offers no marks where a turn records only that the dog ran', () => {
+      renderControls({ eventType: 'NOWT', turns: [openTurn] })
+
+      expect(screen.queryByRole('button', { name: '5 Ensimmainen' })).not.toBeInTheDocument()
+    })
   })
 })

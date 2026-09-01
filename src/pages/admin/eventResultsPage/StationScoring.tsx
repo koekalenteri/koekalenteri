@@ -46,7 +46,7 @@ interface StationScoringDog {
 }
 
 interface Props {
-  readonly station: Pick<EventStation, 'id' | 'number' | 'tasks' | 'judges'>
+  readonly station: Pick<EventStation, 'id' | 'number' | 'tasks' | 'judges' | 'dogsAtOnce'>
   readonly eventType: string
   /** The line under the post number: the event's name, and whatever else the caller may show. */
   readonly subtitle?: string
@@ -102,6 +102,12 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
   }, [classes, eventClass, station.judges])
 
   const selected = dogs.find((dog) => dog.id === selectedId)
+
+  /** The queue as the turn controls need it, for picking a walk-up out of the class on show. */
+  const turnDogs = useMemo(
+    () => dogs.map((dog) => ({ id: dog.id, name: dog.dog.name, number: dog.group?.number })),
+    [dogs]
+  )
 
   /** A dog this post has already scored, so the judge can see at a glance who is still to come. */
   const isScored = useCallback(
@@ -165,9 +171,11 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
 
       {turns && onTurn && (
         <StationTurnControls
+          dogs={turnDogs}
+          eventType={eventType}
           onTurn={onTurn}
           selectedDog={selected && { id: selected.id, name: selected.dog.name, number: selected.group?.number }}
-          stationId={station.id}
+          station={station}
           turns={turns}
         />
       )}

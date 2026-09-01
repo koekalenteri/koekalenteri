@@ -9,11 +9,13 @@ import TableCell from '@mui/material/TableCell'
 import TextField from '@mui/material/TextField'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { liveFormat } from '../../../lib/liveFormat'
 import { eliminatingFaults } from '../../../lib/results'
 
 const SCORED = ''
 const INJURY = 'injury'
 const HANDLER_CHOICE = 'handlerChoice'
+const JUDGE_STOPPED = 'judgeStopped'
 
 interface Props {
   readonly value: ResultEdit
@@ -41,6 +43,9 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
   const { t } = useTranslation()
   const faults = eliminatingFaults(eventType)
   const outcome = outcomeOf(value)
+  // Only NOME-A's judge may stop a dog short of an eliminating fault, and only there does the option
+  // belong in the list: everywhere else there is no such call to record.
+  const stopsOnSeriousFaults = Boolean(liveFormat(eventType).interruption)
   // A post's own view already knows where it happened; the whole-round view has to ask.
   const where = stationId ?? stationOf(value)
 
@@ -57,6 +62,7 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
 
       if (next === SCORED) return onChange(kept)
       if (next === INJURY) return onChange({ retirement: { cause: 'injury', ...at }, ...kept })
+      if (next === JUDGE_STOPPED) return onChange({ retirement: { cause: 'judgeStopped', ...at }, ...kept })
       if (next === HANDLER_CHOICE) {
         return onChange({ retirement: { cause: 'handlerChoice', ...at }, ...kept })
       }
@@ -110,6 +116,7 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
         <ListSubheader>{t('results.outcomeRetired')}</ListSubheader>
         <MenuItem value={INJURY}>{t('results.retirement.injury')}</MenuItem>
         <MenuItem value={HANDLER_CHOICE}>{t('results.retirement.handlerChoice')}</MenuItem>
+        {stopsOnSeriousFaults && <MenuItem value={JUDGE_STOPPED}>{t('results.retirement.judgeStopped')}</MenuItem>}
       </TextField>
 
       {/* An elimination happens somewhere, and which post is worth keeping rather than losing. */}

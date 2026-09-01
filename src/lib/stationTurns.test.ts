@@ -1,6 +1,7 @@
 import type { JsonStationTurn } from '../types'
 import {
   completedGroupTurns,
+  dogsThrough,
   isBreakTurn,
   isStoredStationTurn,
   liveStationIds,
@@ -8,6 +9,7 @@ import {
   stationThroughput,
   toPublicStationTurn,
   turnDurationMs,
+  waitEstimate,
 } from './stationTurns'
 
 const turn = (overrides: Partial<JsonStationTurn>): JsonStationTurn => ({
@@ -102,6 +104,42 @@ describe('stationTurns', () => {
         meanMs: 7 * 60000,
         minMs: 6 * 60000,
       })
+    })
+  })
+
+  describe('dogsThrough', () => {
+    it('counts dogs rather than turns, so one walk-up moves the queue by four', () => {
+      const walkUp = { dogs: [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }] }
+      const turns = [minuteTurn('a', 0, 6, walkUp), minuteTurn('b', 6, 12), minuteTurn('open', 12)]
+
+      expect(dogsThrough(turns, 'post-1')).toBe(5)
+      expect(dogsThrough(turns, 'post-2')).toBe(0)
+    })
+  })
+
+  describe('waitEstimate', () => {
+    const throughput = { count: 3, maxMs: 8 * 60000, meanMs: 7 * 60000, minMs: 6 * 60000 }
+
+    it('divides the queue by the dogs a turn holds before multiplying', () => {
+      // Twelve dogs at a post taking four at a time is three turns, not twelve. Getting this
+      // backwards overstates the wait fourfold, which is what sends someone home before their turn.
+      expect(waitEstimate(throughput, 12, 4)).toEqual({ groupsAhead: 3, maxMs: 24 * 60000, minMs: 18 * 60000 })
+      expect(waitEstimate(throughput, 12, 1)).toEqual({ groupsAhead: 12, maxMs: 96 * 60000, minMs: 72 * 60000 })
+    })
+
+    it('rounds a part-full last group up to a whole turn', () => {
+      expect(waitEstimate(throughput, 9, 4)?.groupsAhead).toBe(3)
+    })
+
+    it('withholds the estimate with nothing to go on, and with nobody left to run', () => {
+      expect(waitEstimate(undefined, 12, 4)).toBeUndefined()
+      expect(waitEstimate(throughput, 0, 4)).toBeUndefined()
+      expect(waitEstimate(throughput, -3, 4)).toBeUndefined()
+    })
+
+    it('withholds it entirely on open ground, where minutes describe nothing anyone is doing', () => {
+      expect(waitEstimate(throughput, 12, 4, 'field')).toBeUndefined()
+      expect(waitEstimate(throughput, 12, 4, 'queue')).toBeDefined()
     })
   })
 

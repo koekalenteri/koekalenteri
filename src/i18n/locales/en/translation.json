@@ -283,6 +283,7 @@
     },
     "station": "Station",
     "stationAdd": "Add station",
+    "stationDogsAtOnce": "Dogs at once",
     "stationJudges": "Judges",
     "stationRemove": "Remove station",
     "stationsInfo": "Stations are fixed posts that the classes rotate through during the day. Each class's tasks are defined separately.",
@@ -434,6 +435,16 @@
     "endBreak": "End break",
     "endTurn": "End turn",
     "free": "Post idle",
+    "group_one": "Group (1)",
+    "group_other": "Group ({{count}})",
+    "group_zero": "Group",
+    "mark": {
+      "eyeWipe": "Eye wipe",
+      "firstDogDown": "First dog down",
+      "found": "Found",
+      "notFound": "Not found",
+      "sent": "Sent"
+    },
     "noEstimate": "no pace estimate yet",
     "now": "At the post now",
     "pause": {
@@ -447,9 +458,12 @@
     "startBreak": "Break",
     "startTurn": "Start turn",
     "station": "Post {{number}}",
+    "task": "Task {{number}}",
     "throughput": "Pace {{min}}–{{max}} min · avg {{mean}} min",
     "title": "Live",
-    "turnSaveFailed": "Saving the turn failed. Please try again."
+    "turnSaveFailed": "Saving the turn failed. Please try again.",
+    "waitEstimate_one": "Queue left approx. {{min}}–{{max}} min (1 turn)",
+    "waitEstimate_other": "Queue left approx. {{min}}–{{max}} min ({{count}} turns)"
   },
   "loading": "Loading...",
   "locale": {
@@ -794,7 +808,8 @@
     "resultNone": "No result",
     "retirement": {
       "handlerChoice": "Handler withdrew",
-      "injury": "Dog was injured"
+      "injury": "Dog was injured",
+      "judgeStopped": "Judge stopped the trial"
     },
     "revokeStationLink": "Revoke station link",
     "runningTotal": "{{points}} / {{maxPoints}}",

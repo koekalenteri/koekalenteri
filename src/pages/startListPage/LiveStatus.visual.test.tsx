@@ -17,6 +17,7 @@ const now = Date.now()
 const minutesAgo = (minutes: number) => new Date(now - minutes * 60000)
 
 const event = {
+  eventType: 'NOWT',
   id: 'event-live',
   liveTurns: [
     {
@@ -48,6 +49,45 @@ const event = {
   ],
 } as unknown as PublicConfirmedEvent
 
+// Twenty starters at a post taking two at a time, six of them already through: the estimate covers
+// seven turns, not fourteen, which is the whole point of dividing before multiplying.
+const walkUpEvent = {
+  ...event,
+  liveTurns: [
+    {
+      dogs: [
+        { name: 'ANNALOUGHAN ACE', number: 1 },
+        { name: 'WATERFOWLER ODIN', number: 2 },
+      ],
+      endedAt: minutesAgo(14),
+      id: 'w-a',
+      startedAt: minutesAgo(21),
+      stationId: 'post-3',
+    },
+    {
+      dogs: [
+        { name: 'PORTLEDGE PENELOPE', number: 3 },
+        { name: 'WATERFOWLER OAKLEAF', number: 4 },
+      ],
+      endedAt: minutesAgo(8),
+      id: 'w-b',
+      startedAt: minutesAgo(14),
+      stationId: 'post-3',
+    },
+    {
+      dogs: [
+        { name: 'GLENBRIAR GRACE', number: 5 },
+        { name: 'HEATHERBRAE HUGO', number: 6 },
+      ],
+      endedAt: minutesAgo(2),
+      id: 'w-c',
+      startedAt: minutesAgo(8),
+      stationId: 'post-3',
+    },
+  ],
+  stations: [{ date: minutesAgo(0), dogsAtOnce: 2, id: 'post-3', number: 3, tasks: 1 }],
+} as unknown as PublicConfirmedEvent
+
 it('shows who is at each post and how fast the queue is moving (KOE-1259)', async () => {
   const screen = await render(
     <Frame>
@@ -57,4 +97,15 @@ it('shows who is at each post and how fast the queue is moving (KOE-1259)', asyn
 
   await expect.element(screen.getByText(/PORTLEDGE PENELOPE/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('live-status')
+})
+
+it('turns the pace into the number people want: how long the queue still is (KOE-1259)', async () => {
+  const screen = await render(
+    <Frame>
+      <LiveStatus event={walkUpEvent} participants={Array.from({ length: 20 }, () => ({}))} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText(/Jonoa jäljellä/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('live-status-wait')
 })

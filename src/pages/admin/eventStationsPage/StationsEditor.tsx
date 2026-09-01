@@ -11,7 +11,7 @@ import { zonedDateString } from '../../../i18n/dates'
 import { getEventDays } from '../../../lib/event'
 import { StationRow } from './StationRow'
 
-export type StationsEditorEvent = Pick<DogEvent, 'endDate' | 'judges' | 'startDate' | 'stations'>
+export type StationsEditorEvent = Pick<DogEvent, 'endDate' | 'eventType' | 'judges' | 'startDate' | 'stations'>
 
 export interface Props {
   readonly event: StationsEditorEvent

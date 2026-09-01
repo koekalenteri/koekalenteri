@@ -2,10 +2,12 @@ import type {
   JsonConfirmedEvent,
   JsonRegistration,
   JsonStationTurn,
+  LiveMark,
   StationTurnOp,
   StationTurnPause,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
+import { MAX_DOGS_AT_ONCE } from '../../lib/liveFormat'
 import { openTurn } from '../../lib/stationTurns'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -15,16 +17,47 @@ const { eventTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
 
 const PAUSES: readonly StationTurnPause[] = ['coffee', 'lunch', 'weather', 'other']
+const MARKS: readonly LiveMark[] = ['sent', 'found', 'notFound', 'eyeWipe', 'firstDogDown']
 
-/** A whole entry never runs at once; more ids than this is a malformed request, not a walk-up. */
-const MAX_TURN_DOGS = 10
+/** A post never lays out more tasks than this, so a turn cannot name one beyond them. */
+const MAX_TASK_INDEX = 1
+
+const parseStart = (registrationIds: unknown, taskIndex: unknown): StationTurnOp => {
+  if (
+    !Array.isArray(registrationIds) ||
+    registrationIds.length === 0 ||
+    registrationIds.length > MAX_DOGS_AT_ONCE ||
+    !registrationIds.every((id) => typeof id === 'string')
+  ) {
+    throw new LambdaError(422, 'invalid turn dogs')
+  }
+
+  if (taskIndex === undefined) return { registrationIds, type: 'start' }
+
+  if (typeof taskIndex !== 'number' || !Number.isInteger(taskIndex) || taskIndex < 0 || taskIndex > MAX_TASK_INDEX) {
+    throw new LambdaError(422, 'invalid task')
+  }
+  return { registrationIds, taskIndex, type: 'start' }
+}
+
+const parseMark = (index: unknown, mark: unknown): StationTurnOp => {
+  const knownMark = MARKS.find((code) => code === mark)
+  if (!knownMark) throw new LambdaError(422, 'unknown mark')
+  if (typeof index !== 'number' || !Number.isInteger(index) || index < 0 || index >= MAX_DOGS_AT_ONCE) {
+    throw new LambdaError(422, 'invalid mark target')
+  }
+  return { index, mark: knownMark, type: 'mark' }
+}
 
 export const parseStationTurnOp = (body: unknown): StationTurnOp => {
   if (typeof body !== 'object' || body === null) throw new LambdaError(422, 'no turn')
-  const { type, registrationIds, pause } = body as {
+  const { type, registrationIds, pause, taskIndex, index, mark } = body as {
     type?: unknown
     registrationIds?: unknown
     pause?: unknown
+    taskIndex?: unknown
+    index?: unknown
+    mark?: unknown
   }
 
   if (type === 'end') return { type }
@@ -33,17 +66,9 @@ export const parseStationTurnOp = (body: unknown): StationTurnOp => {
     if (!knownPause) throw new LambdaError(422, 'unknown pause')
     return { pause: knownPause, type }
   }
-  if (type === 'start') {
-    if (
-      !Array.isArray(registrationIds) ||
-      registrationIds.length === 0 ||
-      registrationIds.length > MAX_TURN_DOGS ||
-      !registrationIds.every((id) => typeof id === 'string')
-    ) {
-      throw new LambdaError(422, 'invalid turn dogs')
-    }
-    return { registrationIds, type }
-  }
+  if (type === 'start') return parseStart(registrationIds, taskIndex)
+  if (type === 'mark') return parseMark(index, mark)
+
   throw new LambdaError(422, 'unknown turn op')
 }
 
@@ -65,6 +90,17 @@ export const applyStationTurnOp = (
   now: Date = new Date()
 ): JsonStationTurn[] => {
   const at = now.toISOString()
+
+  // Marking edits the span that is running rather than ending it: at a NOME-A post all four dogs are
+  // out on the same retrieve, and what each of them did comes in while the turn is still open.
+  if (op.type === 'mark') {
+    const open = openTurn(turns, stationId)
+    if (!open?.dogs[op.index]) throw new LambdaError(422, 'nothing to mark')
+
+    const dogs = open.dogs.map((dog, index) => (index === op.index ? { ...dog, mark: op.mark } : dog))
+    return turns.map((turn) => (turn === open ? { ...turn, dogs } : turn))
+  }
+
   const closed = closeOpen(turns, stationId, at)
 
   if (op.type === 'end') {
@@ -84,7 +120,17 @@ export const applyStationTurnOp = (
     return { name: registration.dog.name ?? '', ...(placement?.number ? { number: placement.number } : {}) }
   })
 
-  return [...closed, { dogs, id: randomUUID(), registrationIds: op.registrationIds, startedAt: at, stationId }]
+  return [
+    ...closed,
+    {
+      dogs,
+      id: randomUUID(),
+      registrationIds: op.registrationIds,
+      startedAt: at,
+      stationId,
+      ...(op.taskIndex === undefined ? {} : { taskIndex: op.taskIndex }),
+    },
+  ]
 }
 
 /**

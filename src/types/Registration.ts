@@ -71,7 +71,13 @@ export interface EventResultElimination {
 
 /** Why a round ended before it was scored. Only a handler's own withdrawal is conditional. */
 export interface EventResultRetirement {
-  cause: 'handlerChoice' | 'injury'
+  /**
+   * `judgeStopped` is the judge ending the dog's trial on two serious faults (NOME-A) — an eye-wipe or
+   * a first dog down among the first three retrieves does it alone. It is deliberately not an
+   * `EventResultElimination`: a stop on serious faults is not a hylkäävä virhe, so it publishes as an
+   * interruption rather than the dash every elimination takes.
+   */
+  cause: 'handlerChoice' | 'injury' | 'judgeStopped'
   /**
    * The judge's call, asked only for `handlerChoice`: §5.8.1 grants the dash where the dog could still
    * have placed, and a zero otherwise. An injured dog always takes the dash.

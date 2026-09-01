@@ -16,6 +16,7 @@ const station = (id: string, number: number, overrides: Partial<EventStation> = 
 
 const testEvent = (overrides: Partial<StationsEditorEvent> = {}): StationsEditorEvent => ({
   endDate: new TZDate('2026-09-12', TIME_ZONE),
+  eventType: 'NOWT',
   judges: [],
   startDate: new TZDate('2026-09-12', TIME_ZONE),
   ...overrides,

@@ -167,7 +167,7 @@ const pickElimination = (value: unknown, eventType: string): EventResultEliminat
   return { fault, ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}) }
 }
 
-const RETIREMENT_CAUSES = ['handlerChoice', 'injury'] as const
+const RETIREMENT_CAUSES = ['handlerChoice', 'injury', 'judgeStopped'] as const
 
 const pickRetirement = (value: unknown): EventResultRetirement => {
   if (!isRecord(value)) throw new LambdaError(422, 'Malformed retirement')

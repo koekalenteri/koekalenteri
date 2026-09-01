@@ -9,13 +9,29 @@ import type {
   PublicJudge,
 } from '../types'
 import { objectsDiffer } from './diff'
+import { liveFormat } from './liveFormat'
 
 /**
  * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog was
  * judged and did not place, `-` says there was no completed round to judge. Both differ again from an
  * absent result, which says nothing has been recorded yet.
+ *
+ * `KES` is a fourth thing again, and only some formats have it — see `INTERRUPTED`.
  */
-export type ResultCode = '1' | '2' | '3' | '0' | '-'
+export type ResultCode = '1' | '2' | '3' | '0' | '-' | 'KES'
+
+/**
+ * The mark a judge's stop publishes as (KOE-1259): keskeytetty.
+ *
+ * The rules say when a dog's trial is stopped — two serious faults, or one of eye-wipe and first dog
+ * down among the first three retrieves — but not what the result line then reads. It is not a dash,
+ * which every *eliminating* fault takes, and not a nought, which says the dog was judged and did not
+ * place. So it is its own mark, and this is the one place its spelling is decided: `OUT` was the other
+ * candidate, and Finnish `KES` was taken because the rest of this alphabet is Finnish (`NOU1`, `NKM0`).
+ * What Koiranet accepts on import has not been verified against a live import; if it wants the other
+ * word, this constant is the whole change.
+ */
+const INTERRUPTED = 'KES' satisfies ResultCode
 
 /**
  * Prize thresholds as percentages of the round's maximum (NOWT rules §5.8.1).
@@ -186,6 +202,7 @@ const everyPostAtLeastHalf = (tasks: readonly ScoredTask[]): boolean => {
 export const deriveNowtResult = ({ tasks, elimination, retirement }: NowtResultInput): ResultCode | undefined => {
   if (elimination) return '-'
   if (retirement?.cause === 'injury') return '-'
+  if (retirement?.cause === 'judgeStopped') return INTERRUPTED
   if (retirement?.cause === 'handlerChoice') return retirement.couldStillHavePlaced ? '-' : '0'
 
   if (tasks.length === 0 || tasks.some((task) => task.points === null)) return undefined
@@ -215,10 +232,15 @@ const PASS_FAIL_EVENT_TYPES = new Set(['NOU', 'NKM'])
  * The codes a secretary may record for an event type.
  *
  * Neither pass/fail type offers the dash: their rules (§2.7, §6.7) describe only a pass and a fail, and
- * a dash on a test with nothing to place against would mean nothing.
+ * a dash on a test with nothing to place against would mean nothing. The interruption is offered only
+ * where the format's judge can stop a dog short of an eliminating fault, which is NOME-A's rule alone.
  */
-export const availableResultCodes = (eventType: string): ResultCode[] =>
-  PASS_FAIL_EVENT_TYPES.has(eventType) ? ['1', '0'] : ['1', '2', '3', '0', '-']
+export const availableResultCodes = (eventType: string): ResultCode[] => {
+  if (PASS_FAIL_EVENT_TYPES.has(eventType)) return ['1', '0']
+
+  const placings: ResultCode[] = ['1', '2', '3', '0', '-']
+  return liveFormat(eventType).interruption ? [...placings, INTERRUPTED] : placings
+}
 
 /**
  * Results are written as a prefix and a code: `ALO1`, `AVO-`, and for event types without classes
@@ -289,10 +311,15 @@ export const resolveEventResult = (
   const voided = Boolean(submitted.elimination) || Boolean(submitted.retirement)
 
   if (!scoresAtPosts(eventType)) {
-    // Nothing to derive: a qualitative type is whatever the judge decided.
+    // Nothing to derive: a qualitative type is whatever the judge decided — except a stopped trial,
+    // which has a mark of its own rather than a decision, so it does not depend on the secretary
+    // remembering to pick it from the list as well as recording the stop.
+    const stopped = submitted.retirement?.cause === 'judgeStopped' ? INTERRUPTED : undefined
+    const code = resultCode ?? stopped
+
     return {
       ...rest,
-      ...(resultCode ? { result: formatEventResult(resultCode, eventType, eventClass) } : {}),
+      ...(code ? { result: formatEventResult(code, eventType, eventClass) } : {}),
     }
   }
 
