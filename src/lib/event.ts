@@ -40,6 +40,21 @@ type EventVitals = Partial<
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 
+type EventDateSortKey = { id: string; startDate?: Date | string; endDate?: Date | string }
+
+/** The calendar's order: start date, then end date, with the id as a stable tiebreaker. */
+export const compareEventsByDate = (a: EventDateSortKey, b: EventDateSortKey): number => {
+  const aStart = a.startDate ? new Date(a.startDate).getTime() : 0
+  const bStart = b.startDate ? new Date(b.startDate).getTime() : 0
+  if (aStart !== bStart) return aStart - bStart
+
+  const aEnd = a.endDate ? new Date(a.endDate).getTime() : 0
+  const bEnd = b.endDate ? new Date(b.endDate).getTime() : 0
+  if (aEnd !== bEnd) return aEnd - bEnd
+
+  return a.id.localeCompare(b.id)
+}
+
 /** The languages an event's texts can be translated into (KOE-1263): every app language but Finnish. */
 export const EVENT_TRANSLATION_LANGUAGES = LANGUAGES.filter((language) => language !== 'fi')
 

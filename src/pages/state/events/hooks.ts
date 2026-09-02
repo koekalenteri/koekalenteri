@@ -4,6 +4,7 @@ import { useAtomValue } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useCallback, useEffect } from 'react'
 import { getEvent, getEvents } from '../../../api/event'
+import { compareEventsByDate } from '../../../lib/event'
 import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
 import { eventAtom } from './derivedAtoms'
@@ -30,18 +31,6 @@ type RangePreparation<T> = {
 type RangeStrategy =
   | { kind: 'fetch'; isCold: boolean; request: RangeRequest }
   | { kind: 'throttled'; request: RangeRequest }
-
-function compareEventsByDate(a: DogEventSortKey, b: DogEventSortKey) {
-  const aStart = a.startDate ? new Date(a.startDate).getTime() : 0
-  const bStart = b.startDate ? new Date(b.startDate).getTime() : 0
-  if (aStart !== bStart) return aStart - bStart
-
-  const aEnd = a.endDate ? new Date(a.endDate).getTime() : 0
-  const bEnd = b.endDate ? new Date(b.endDate).getTime() : 0
-  if (aEnd !== bEnd) return aEnd - bEnd
-
-  return a.id.localeCompare(b.id)
-}
 
 function mergeAndSortByDate<T extends DogEventSortKey>(existing: T[], incoming: T[]): T[] {
   const byId = new Map(existing.map((e) => [e.id, e]))

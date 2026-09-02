@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router'
 import { copyEventWithRegistrations, putEvent, putStartNumbers } from '../../../../api/event'
 import { getChangedTopLevelKeys } from '../../../../lib/diff'
 import {
+  compareEventsByDate,
   copyDogEvent,
   getResultsPublishedClassMap,
   getStartListPublishedClassMap,
@@ -82,15 +83,12 @@ export const adminSaveEventAtom = atom(
     await set(adminCurrentEventAtom, saved)
 
     const publicEvents = get(eventsAtom)
-    const index = publicEvents.findIndex((candidate) => candidate.id === saved.id)
     const publicEvent = sanitizeDogEvent(saved)
-    if (index >= 0) {
-      const next = [...publicEvents]
-      next.splice(index, 1, publicEvent)
-      set(eventsAtom, next)
-    } else {
-      set(eventsAtom, [...publicEvents, publicEvent])
-    }
+    const next = publicEvents.filter((candidate) => candidate.id !== saved.id)
+    next.push(publicEvent)
+    // A new or redated event lands in calendar order right away, not at the end of the list (KOE-1275).
+    next.sort(compareEventsByDate)
+    set(eventsAtom, next)
     return saved
   }
 )
@@ -120,20 +118,17 @@ export const useAdminEventActions = () => {
   }
 
   function updatePublicEvents(event: DogEvent, remove?: boolean): void {
-    if (event.id) {
-      const index = publicEvents.findIndex((e) => e.id === event.id)
-      if (index >= 0) {
-        const newEvents = [...publicEvents]
-        if (remove) {
-          newEvents.splice(index, 1)
-        } else {
-          newEvents.splice(index, 1, sanitizeDogEvent(event))
-        }
-        setPublicEvents(newEvents)
-      } else if (!remove) {
-        setPublicEvents([...publicEvents, sanitizeDogEvent(event)])
-      }
+    if (!event.id) return
+
+    const newEvents = publicEvents.filter((e) => e.id !== event.id)
+    if (remove) {
+      if (newEvents.length === publicEvents.length) return
+    } else {
+      newEvents.push(sanitizeDogEvent(event))
+      // A new or redated event lands in calendar order right away, not at the end of the list (KOE-1275).
+      newEvents.sort(compareEventsByDate)
     }
+    setPublicEvents(newEvents)
   }
 
   function copyCurrent() {
