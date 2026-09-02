@@ -793,7 +793,7 @@
       "dog": "Koira",
       "handler": "Ohjaaja",
       "number": "#",
-      "outcome": "Lisätieto",
+      "outcome": "Hylkäys / keskeytys",
       "result": "Tulos",
       "task": "Tehtävä {{number}}"
     },
@@ -816,11 +816,11 @@
     },
     "judge": "Tuomari",
     "openStationView": "Rastinäkymä",
-    "outcome": "Lisätieto",
+    "outcome": "Hylkäys / keskeytys",
     "outcomeAt": "Missä",
     "outcomeAtUnknown": "Ei tiedossa",
     "outcomeEliminated": "Hylkäävä virhe",
-    "outcomeNone": "Ei lisätietoa",
+    "outcomeNone": "Ei hylkäystä tai keskeytystä",
     "outcomeRetired": "Keskeytys",
     "resultNone": "Ei tulosta",
     "retirement": {

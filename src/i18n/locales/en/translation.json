@@ -793,7 +793,7 @@
       "dog": "Dog",
       "handler": "Handler",
       "number": "#",
-      "outcome": "Additional info",
+      "outcome": "Elimination / retirement",
       "result": "Result",
       "task": "Task {{number}}"
     },
@@ -816,11 +816,11 @@
     },
     "judge": "Judge",
     "openStationView": "Post view",
-    "outcome": "Additional info",
+    "outcome": "Elimination / retirement",
     "outcomeAt": "Where",
     "outcomeAtUnknown": "Not known",
     "outcomeEliminated": "Eliminating fault",
-    "outcomeNone": "No additional info",
+    "outcomeNone": "No elimination or retirement",
     "outcomeRetired": "Stopped",
     "resultNone": "No result",
     "retirement": {
