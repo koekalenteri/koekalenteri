@@ -56,27 +56,105 @@ const POST_SCORED_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
 
 export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.has(eventType ?? '')
 
-/** Shared by every event type's rules, in the order the lists give them. */
-const ELIMINATING_FAULTS: EliminatingFault[] = [
+/**
+ * NOWT §5.3.5, in the order the list gives them, plus §5.4.1's stop for disciplining the dog. Luvaton
+ * lähtö, karkaaminen and vinkuminen only zero a task here (§5.3.4, `NowtZeroFault`), so they are absent
+ * on purpose.
+ */
+const NOWT_ELIMINATING_FAULTS: readonly EliminatingFault[] = [
   'aggression',
   'gunShyness',
-  'refusedRetrieve',
+  'excessiveShyness',
   'hardMouth',
   'harshHandling',
 ]
 
+/** NOME-A §3.3.3, hylkäävät virheet, in the order the list gives them. */
+const NOME_A_ELIMINATING_FAULTS: readonly EliminatingFault[] = [
+  'aggression',
+  'gunShyness',
+  'excessiveShyness',
+  'noise',
+  'refusedWater',
+  'refusedGame',
+  'hardMouth',
+  'swappedGame',
+  'chasedUnshotGame',
+  'huntingWithGame',
+  'unauthorizedRun',
+  'physicalContact',
+  'outOfControl',
+]
+
 /**
- * The hylkäävät virheet offered when scoring an event type.
- *
- * Only merkkaaminen is scoped so far, because only it is demonstrably one event type's: the rules give
- * it to NOU alone, as the Hakuinto quality of the taipumuskoe (§2.3.2, "Jatkuva reviirin merkkaaminen
- * kertoo puutteellisesta hakuinnosta ja johtaa suorituksen hylkäämiseen"), and NOWT §5.3.5 does not list
- * it. Where the shared list itself diverges from §5.3.5 — refusedRetrieve and harshHandling are not in
- * it, and liiallinen arkuus tai pelokkuus is missing from ours — that is the deferred conformance work,
- * which this deliberately does not decide.
+ * NOME-B §4.3.3, the reasons a judge stops a dog's trial, in the order the list gives them, with the
+ * cooperation failure the section's opening sentence names before the list. NKM is judged by NOME-B's
+ * VOI rules (§6.3) and shares it.
  */
-export const eliminatingFaults = (eventType?: string): EliminatingFault[] =>
-  eventType === 'NOU' ? [...ELIMINATING_FAULTS, 'marking'] : ELIMINATING_FAULTS
+const NOME_B_ELIMINATING_FAULTS: readonly EliminatingFault[] = [
+  'aggression',
+  'excessiveShyness',
+  'noise',
+  'gunShyness',
+  'noDrive',
+  'refusedWater',
+  'refusedRetrieve',
+  'refusedGame',
+  'hardMouth',
+  'huntingWithGame',
+  'swappedGame',
+  'unauthorizedRun',
+  'outOfControl',
+  'lacksCooperation',
+]
+
+/**
+ * The taipumuskoe has no fault list: §2.3.2 names, quality by quality, what fails the dog, and §2.4 has
+ * the main reason recorded when several qualities fail. These are those failures, in the order the
+ * qualities are given.
+ */
+const NOU_ELIMINATING_FAULTS: readonly EliminatingFault[] = [
+  'excessiveShyness',
+  'aggression',
+  'noise',
+  'overExcitement',
+  'refusedWater',
+  'noDrive',
+  'marking',
+  'refusedRetrieve',
+  'hardMouth',
+  'refusedGame',
+  'gunShyness',
+  'lacksIndependence',
+  'lacksCooperation',
+]
+
+const ELIMINATING_FAULTS_BY_EVENT_TYPE = new Map<string, readonly EliminatingFault[]>([
+  ['NKM', NOME_B_ELIMINATING_FAULTS],
+  ['NOME-A', NOME_A_ELIMINATING_FAULTS],
+  ['NOME-A SM', NOME_A_ELIMINATING_FAULTS],
+  ['NOME-B', NOME_B_ELIMINATING_FAULTS],
+  ['NOME-B SM', NOME_B_ELIMINATING_FAULTS],
+  ['NOU', NOU_ELIMINATING_FAULTS],
+  ['NOWT', NOWT_ELIMINATING_FAULTS],
+  ['NOWT SM', NOWT_ELIMINATING_FAULTS],
+])
+
+/** What every list agrees on, for an event type whose rules this module does not know. */
+const COMMON_ELIMINATING_FAULTS: readonly EliminatingFault[] = [
+  'aggression',
+  'gunShyness',
+  'excessiveShyness',
+  'hardMouth',
+]
+
+/**
+ * The faults a judge may end a dog's trial on, for an event type — each format's own list from the
+ * rules edition in force (15.4.2023), since the lists differ: the same act is a hylkäävä virhe in
+ * NOME-A, a keskeytyssyy in NOME-B, and a task-zeroing fault in NOWT.
+ */
+export const eliminatingFaults = (eventType?: string): readonly EliminatingFault[] =>
+  ELIMINATING_FAULTS_BY_EVENT_TYPE.get(eventType ?? '') ?? COMMON_ELIMINATING_FAULTS
 
 /** Every zero-fault code, for validating a submission's claim at the write boundary. */
 export const nowtZeroFaults: NowtZeroFault[] = [

@@ -35,27 +35,53 @@ export type NowtZeroFault =
   | 'eyeWipe'
 
 /**
- * Eliminating faults ("hylkäävä virhe", §5.7.2). The pair is barred from continuing and the round is
- * voided, so every one of these resolves to a dash rather than a zero. `harshHandling` is the handler's
- * own misconduct but the rules put it in the same category and it lands on the same outcome.
+ * The faults a judge ends a dog's trial on: NOWT's hylkäävät virheet (§5.3.5), NOME-A's (§3.3.3),
+ * NOME-B's keskeytyssyyt (§4.3.3) and the taipumuskoe's failed qualities (§2.3.2), in the rules edition
+ * in force from 15.4.2023. The round is voided, so every one of these resolves to a dash rather than a
+ * zero, and this code is then the only place the reason survives.
  *
- * Since the result is a uniform dash, this code is the only place the reason survives.
- *
- * Not NOWT's alone, unlike `NowtZeroFault`: a zero attaches to a task's score and only NOWT has tasks,
- * while any event type can throw a dog out. So the union is wider than any one rules section's list, and
- * `eliminatingFaults` in `lib/results.ts` says which codes are offered where.
+ * One code per rules bullet, shared across the lists where the bullets say the same thing. The union is
+ * wider than any one list, and `eliminatingFaults` in `lib/results.ts` says which codes each event type
+ * offers — the same act is an eliminating fault in one format and a task-zeroing `NowtZeroFault` in
+ * another, so a code's presence here says nothing about where it applies.
  */
 export type EliminatingFault =
   | 'aggression'
   | 'gunShyness'
+  | 'excessiveShyness'
+  /** Vinkuminen tai haukkuminen. NOME-B tolerates a single whine, its bullet reads "toistuva". */
+  | 'noise'
+  | 'refusedWater'
   | 'refusedRetrieve'
+  /** Kieltäytyminen riistasta tai noudon jättäminen kesken. */
+  | 'refusedGame'
+  /** Riistan (NOWT: damin) vahingoittaminen. NOME-B and NOU count rolling on the game with it. */
   | 'hardMouth'
-  | 'harshHandling'
+  /** Riistan vaihtaminen. NOME-B counts repeatedly dropping the game with it. */
+  | 'swappedGame'
+  | 'chasedUnshotGame'
+  | 'huntingWithGame'
+  | 'unauthorizedRun'
+  | 'physicalContact'
+  | 'outOfControl'
+  /** Täysin riittämätön työskentelyhalu; in the taipumuskoe the Hakuinto quality failing for it. */
+  | 'noDrive'
+  /** Yhteistyö niin puutteellista, ettei kokeen suorittaminen onnistu. */
+  | 'lacksCooperation'
+  /** NOU's alone: an overexcited dog fails Sosiaalinen käyttäytyminen (§2.3.2). */
+  | 'overExcitement'
+  /** NOU's alone: a dog that dares not work out to the task's distance fails Itseluottamus (§2.3.2). */
+  | 'lacksIndependence'
   /**
    * Scent-marking, and NOU's alone: §2.3.2 fails the Hakuinto quality for it as evidence of deficient
    * hunting drive, rather than treating it as bad manners. NOWT §5.3.5 does not list it.
    */
   | 'marking'
+  /**
+   * NOWT's alone: not in §5.3.5's list, but §5.4.1 names a trial stopped for disciplining the dog at the
+   * venue beside the eliminating faults. The handler's own misconduct, landing on the same outcome.
+   */
+  | 'harshHandling'
 
 /**
  * A round ended by a hylkäävä virhe (§5.7.2). Every one of these is a dash rather than a zero.

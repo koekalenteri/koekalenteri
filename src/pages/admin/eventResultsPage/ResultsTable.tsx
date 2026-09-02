@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { parseEventResultCode, scoresAtPosts } from '../../../lib/results'
 import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'
-import { RoundOutcome } from './RoundOutcome'
+import { ROUND_OUTCOME_ENABLED, RoundOutcome } from './RoundOutcome'
 import { TaskScore } from './TaskScore'
 import { emptyEdit, isVoided, sameResultEdit } from './types'
 
@@ -174,7 +174,7 @@ function ResultsTable({
           value={edit.judge ?? defaultJudges[EVENT_JUDGE_KEY] ?? judges[0]}
         />
       ) : undefined,
-      outcome: (
+      outcome: ROUND_OUTCOME_ENABLED ? (
         <RoundOutcome
           disabled={disabled}
           eventType={eventType}
@@ -183,7 +183,7 @@ function ResultsTable({
           onChange={(next) => report(registration, attributed(next))}
           value={edit}
         />
-      ),
+      ) : undefined,
       result: (
         <ResultSummary
           disabled={disabled}
@@ -244,7 +244,7 @@ function ResultsTable({
                 {t('results.column.task', { number: index + 1 })}
               </TableCell>
             ))}
-            <TableCell>{t('results.column.outcome')}</TableCell>
+            {ROUND_OUTCOME_ENABLED && <TableCell>{t('results.column.outcome')}</TableCell>}
             <TableCell align="right">{t('results.column.result')}</TableCell>
           </TableRow>
         </TableHead>
@@ -264,7 +264,7 @@ function ResultsTable({
                     {task}
                   </TableCell>
                 ))}
-                <TableCell>{controls.outcome}</TableCell>
+                {ROUND_OUTCOME_ENABLED && <TableCell>{controls.outcome}</TableCell>}
                 <TableCell align="right">{controls.result}</TableCell>
               </TableRow>
             )

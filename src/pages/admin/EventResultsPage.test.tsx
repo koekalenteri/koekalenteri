@@ -26,6 +26,12 @@ vi.mock('../../api/user')
 vi.mock('../../api/event')
 vi.mock('../../api/eventType')
 vi.mock('../../hooks/useEventSubscription', () => ({ useEventSubscription: vi.fn(() => ({ viewers: [] })) }))
+// The outcome field is built and wired but not taken into use yet; these tests exercise the wiring, so
+// they run with it shown. StationScoring.test.tsx covers that the screens leave it out by default.
+vi.mock('./eventResultsPage/RoundOutcome', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./eventResultsPage/RoundOutcome')>()),
+  ROUND_OUTCOME_ENABLED: true,
+}))
 vi.mock('../../api/judge')
 vi.mock('../../api/official')
 vi.mock('../../api/organizer')

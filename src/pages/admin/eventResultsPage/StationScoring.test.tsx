@@ -65,6 +65,15 @@ describe('StationScoring', () => {
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     })
 
+    it('leaves the outcome out, since recording why a round ended is not taken into use yet', async () => {
+      const user = userEvent.setup()
+      renderScoring()
+
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+
+      expect(screen.queryByLabelText('results.outcome')).not.toBeInTheDocument()
+    })
+
     it("saves the judge's decision, attributed to the lone judge without asking", async () => {
       const user = userEvent.setup()
       const { onSave } = renderScoring()

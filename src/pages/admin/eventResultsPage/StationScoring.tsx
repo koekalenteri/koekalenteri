@@ -30,7 +30,7 @@ import { AsyncButton } from '../../components/AsyncButton'
 import { makeArray } from '../components/eventForm/judgeSection/utils'
 import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'
-import { RoundOutcome } from './RoundOutcome'
+import { ROUND_OUTCOME_ENABLED, RoundOutcome } from './RoundOutcome'
 import { StationTurnControls } from './StationTurnControls'
 import { TaskScore } from './TaskScore'
 import { emptyEdit, isVoided } from './types'
@@ -316,7 +316,9 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
             ))}
           </Stack>
 
-          <RoundOutcome eventType={eventType} onChange={setEdit} stationId={station.id} stations={[]} value={edit} />
+          {ROUND_OUTCOME_ENABLED && (
+            <RoundOutcome eventType={eventType} onChange={setEdit} stationId={station.id} stations={[]} value={edit} />
+          )}
         </Stack>
       )}
 

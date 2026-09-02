@@ -11,6 +11,13 @@ import { useTranslation } from 'react-i18next'
 import { liveFormat } from '../../../lib/liveFormat'
 import { eliminatingFaults } from '../../../lib/results'
 
+/**
+ * Whether the entry screens show the outcome at all. The vocabulary follows the rules edition in force
+ * and the server accepts it, but recording the reason a round ended is not taken into use yet — Jukka's
+ * call on 2.9.2026 — so every screen leaves the field out until this is flipped.
+ */
+export const ROUND_OUTCOME_ENABLED = false
+
 const SCORED = ''
 const INJURY = 'injury'
 const HANDLER_CHOICE = 'handlerChoice'

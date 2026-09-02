@@ -32,11 +32,25 @@ import { updateRegistrationField } from './registration'
 /** The outcome dropdown's Finnish labels, for the audit line (KOE-1284). */
 const ELIMINATING_FAULT_TEXT: Record<EventResultElimination['fault'], string> = {
   aggression: 'aggressiivinen käyttäytyminen',
+  chasedUnshotGame: 'ampumattoman riistan takaa-ajaminen',
+  excessiveShyness: 'liiallinen arkuus tai pelokkuus',
   gunShyness: 'laukausarkuus',
-  hardMouth: 'kovasuisuus',
+  hardMouth: 'riistan vahingoittaminen',
   harshHandling: 'koiran kurittaminen koepaikalla',
+  huntingWithGame: 'metsästäminen riista suussa',
+  lacksCooperation: 'puutteellinen yhteistyö',
+  lacksIndependence: 'puutteellinen itseluottamus',
   marking: 'merkkaaminen',
+  noDrive: 'riittämätön työskentelyhalu',
+  noise: 'vinkuminen tai haukkuminen',
+  outOfControl: 'karkaaminen ohjaajan hallinnasta',
+  overExcitement: 'ylikiihkeys',
+  physicalContact: 'fyysinen kosketus koiraan',
+  refusedGame: 'kieltäytyminen riistasta tai noudon jättäminen kesken',
   refusedRetrieve: 'kieltäytyminen noudosta',
+  refusedWater: 'kieltäytyminen vesityöskentelystä',
+  swappedGame: 'riistan vaihtaminen',
+  unauthorizedRun: 'luvaton lähtö noutoon',
 }
 
 const RETIREMENT_CAUSE_TEXT: Record<EventResultRetirement['cause'], string> = {

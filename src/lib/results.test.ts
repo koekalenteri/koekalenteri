@@ -145,12 +145,53 @@ describe('eliminatingFaults', () => {
     expect(eliminatingFaults()).not.toContain('marking')
   })
 
-  it('offers the shared vocabulary to every event type', () => {
-    for (const eventType of ['NOU', 'NOME-A', 'NOME-B', 'NOWT', 'NKM', undefined]) {
+  it('offers what every list agrees on to every event type, known or not', () => {
+    for (const eventType of ['NOU', 'NOME-A', 'NOME-B', 'NOWT', 'NKM', 'NOTO', undefined]) {
       expect(eliminatingFaults(eventType)).toEqual(
-        expect.arrayContaining(['aggression', 'gunShyness', 'refusedRetrieve', 'hardMouth', 'harshHandling'])
+        expect.arrayContaining(['aggression', 'gunShyness', 'excessiveShyness', 'hardMouth'])
       )
     }
+  })
+
+  it('follows each format on running in, breaking away and whining', () => {
+    // NOME-A §3.3.3 and NOME-B §4.3.3 end the trial on them; NOWT §5.3.4 only zeroes the task.
+    for (const eventType of ['NOME-A', 'NOME-A SM', 'NOME-B', 'NOME-B SM', 'NKM']) {
+      expect(eliminatingFaults(eventType)).toEqual(expect.arrayContaining(['unauthorizedRun', 'outOfControl', 'noise']))
+    }
+    for (const eventType of ['NOWT', 'NOWT SM']) {
+      expect(eliminatingFaults(eventType)).not.toContain('unauthorizedRun')
+      expect(eliminatingFaults(eventType)).not.toContain('outOfControl')
+      expect(eliminatingFaults(eventType)).not.toContain('noise')
+    }
+  })
+
+  it('gives NOWT the stop for disciplining the dog, which §5.4.1 names beside the eliminating faults', () => {
+    expect(eliminatingFaults('NOWT')).toContain('harshHandling')
+    expect(eliminatingFaults('NOME-A')).not.toContain('harshHandling')
+    expect(eliminatingFaults('NOME-B')).not.toContain('harshHandling')
+  })
+
+  it("lists each format's own faults, in the order its rules give them", () => {
+    expect(eliminatingFaults('NOME-A')).toEqual([
+      'aggression',
+      'gunShyness',
+      'excessiveShyness',
+      'noise',
+      'refusedWater',
+      'refusedGame',
+      'hardMouth',
+      'swappedGame',
+      'chasedUnshotGame',
+      'huntingWithGame',
+      'unauthorizedRun',
+      'physicalContact',
+      'outOfControl',
+    ])
+    // NKM is judged by NOME-B's VOI rules (§6.3).
+    expect(eliminatingFaults('NKM')).toEqual(eliminatingFaults('NOME-B'))
+    expect(eliminatingFaults('NOME-B')).toContain('noDrive')
+    expect(eliminatingFaults('NOME-B')).toContain('refusedRetrieve')
+    expect(eliminatingFaults('NOME-A')).not.toContain('refusedRetrieve')
   })
 })
 
