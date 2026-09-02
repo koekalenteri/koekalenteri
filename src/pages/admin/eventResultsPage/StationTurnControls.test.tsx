@@ -38,6 +38,12 @@ describe('StationTurnControls', () => {
     expect(onTurn).toHaveBeenCalledWith({ registrationIds: ['run-1'], type: 'start' })
   })
 
+  it('offers no start while a run is under way: the run is ended, not run over', () => {
+    renderControls({ selectedDog: { id: 'run-2', name: 'Toinen', number: 6 }, turns: [openTurn] })
+
+    expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeDisabled()
+  })
+
   it('shows the running group and ends it', async () => {
     const user = userEvent.setup()
     const { onTurn } = renderControls({ turns: [openTurn] })

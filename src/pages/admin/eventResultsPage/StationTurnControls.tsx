@@ -153,6 +153,11 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
   const startIds = nextTurnIds()
   const canStart = startIds.length > 0
   const selectedHasRun = Boolean(selectedDog && alreadyRun(selectedDog))
+  const runOpen = Boolean(open) && !isBreakTurn(open ?? {}) && !isWholeTurn(open ?? {})
+  const nextPhaseLabel = () => {
+    if (nextPhase) return t('liveStatus.nextPhaseTo', { label: phaseLabel(nextPhase) })
+    return t(runPhases.length > 1 ? 'liveStatus.nextPhase' : 'liveStatus.startTurn')
+  }
 
   // A run starts at the day's first phase, where the day has phases.
   const handleStart = async () => {
@@ -212,29 +217,32 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
           </Button>
         )}
 
-        <Tooltip title={selectedHasRun && !canStart ? t('liveStatus.alreadyThrough') : ''}>
-          <span>
-            <AsyncButton
-              disabled={!canStart}
-              onClick={handleStart}
-              size="small"
-              startIcon={<PlayArrow />}
-              variant="outlined"
-            >
-              {t('liveStatus.startTurn')}
-            </AsyncButton>
-          </span>
-        </Tooltip>
-        {runPhases.length > 1 && (
+        {/* One button for what comes next: a run while none is under way, and while one is, its next
+            phase — or nothing at all, since starting another dog over a running one is not a thing. */}
+        {runOpen ? (
           <AsyncButton
             disabled={!nextPhase}
             onClick={() => runOp({ type: 'next' })}
             size="small"
-            startIcon={<SkipNext />}
+            startIcon={runPhases.length > 1 ? <SkipNext /> : <PlayArrow />}
             variant="outlined"
           >
-            {nextPhase ? t('liveStatus.nextPhaseTo', { label: phaseLabel(nextPhase) }) : t('liveStatus.nextPhase')}
+            {nextPhaseLabel()}
           </AsyncButton>
+        ) : (
+          <Tooltip title={selectedHasRun && !canStart ? t('liveStatus.alreadyThrough') : ''}>
+            <span>
+              <AsyncButton
+                disabled={!canStart}
+                onClick={handleStart}
+                size="small"
+                startIcon={<PlayArrow />}
+                variant="outlined"
+              >
+                {t('liveStatus.startTurn')}
+              </AsyncButton>
+            </span>
+          </Tooltip>
         )}
         <AsyncButton
           disabled={!open}
