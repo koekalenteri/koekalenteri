@@ -19,7 +19,7 @@ import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'
 import { RoundOutcome } from './RoundOutcome'
 import { TaskScore } from './TaskScore'
-import { emptyEdit, isVoided } from './types'
+import { emptyEdit, isVoided, sameResultEdit } from './types'
 
 interface Props {
   readonly registrations: Registration[]
@@ -41,7 +41,8 @@ interface Props {
   readonly onJudgeChange: (stationId: string, judge?: PublicJudge) => void
   readonly edits: Record<string, ResultEdit>
   readonly disabled?: boolean
-  readonly onChange: (registrationId: string, edit: ResultEdit) => void
+  /** `undefined` says the row is back to what is stored: nothing to save for this dog. */
+  readonly onChange: (registrationId: string, edit: ResultEdit | undefined) => void
   /**
    * One card per dog instead of one row: the round's controls stacked under the dog's name, for a
    * phone in the field (KOE-1280). The controls are the same either way; only their arrangement differs.
@@ -124,6 +125,13 @@ function ResultsTable({
     return next
   }
 
+  // An edit equal to what is stored is not an edit: the row reports itself clean, as the event form
+  // does, so reverting a change takes the save button back with it.
+  const report = (registration: Registration, next: ResultEdit) => {
+    const stored = attributed(seededEdit(registration.eventResult))
+    onChange(registration.id, sameResultEdit(attributed(next), stored) ? undefined : next)
+  }
+
   const controlsFor = (registration: Registration): RowControls => {
     const edit = edits[registration.id] ?? seededEdit(registration.eventResult)
     const { tasks } = edit
@@ -135,7 +143,7 @@ function ResultsTable({
       // judge control when it actually changes.
       const judge = changes.judge ?? existing?.judge ?? defaultJudges[task.stationId] ?? judgesFor(task.stationId)[0]
 
-      onChange(registration.id, {
+      report(registration, {
         ...edit,
         tasks: [
           ...tasks.filter((item) => taskKey(item) !== taskKey(task)),
@@ -161,7 +169,7 @@ function ResultsTable({
           judges={judges}
           onChange={(judge) => {
             onJudgeChange(EVENT_JUDGE_KEY, judge)
-            onChange(registration.id, { ...edit, ...(judge ? { judge } : {}) })
+            report(registration, { ...edit, ...(judge ? { judge } : {}) })
           }}
           value={edit.judge ?? defaultJudges[EVENT_JUDGE_KEY] ?? judges[0]}
         />
@@ -172,7 +180,7 @@ function ResultsTable({
           eventType={eventType}
           stationId={stationId}
           stations={stations}
-          onChange={(next) => onChange(registration.id, attributed(next))}
+          onChange={(next) => report(registration, attributed(next))}
           value={edit}
         />
       ),
@@ -182,7 +190,7 @@ function ResultsTable({
           edit={edit}
           eventClass={eventClass}
           eventType={eventType}
-          onChange={(next) => onChange(registration.id, attributed(next))}
+          onChange={(next) => report(registration, attributed(next))}
           round={fullRound}
           stored={registration.eventResult}
         />

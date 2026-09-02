@@ -153,7 +153,12 @@ export default function EventResultsPage() {
   )
 
   const handleChange = useCallback(
-    (registrationId: string, edit: ResultEdit) => setEdits((prev) => ({ ...prev, [registrationId]: edit })),
+    (registrationId: string, edit: ResultEdit | undefined) =>
+      setEdits((prev) => {
+        if (edit) return { ...prev, [registrationId]: edit }
+        const { [registrationId]: _clean, ...rest } = prev
+        return rest
+      }),
     []
   )
 

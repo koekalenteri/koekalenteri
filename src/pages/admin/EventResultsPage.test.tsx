@@ -163,6 +163,35 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
   })
 
+  it('has nothing to save again once a change is taken back', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderScoringPage(i18n.language as Language)
+    await flushPromises()
+    const input = within(rowFor('Ensimmainen')).getAllByRole('textbox')[0]
+
+    await score(user, input, '10')
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+
+    // Cleared again, the row is what is stored: nothing to save, and nothing to warn about leaving.
+    await user.clear(input)
+    await flushPromises()
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+  })
+
+  it('takes a picked result back as no change for a qualitative type', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderQualitativePage(i18n.language as Language)
+    await flushPromises()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'NOU1' }))
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'results.resultNone' }))
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+  })
+
   it('offers a way to record a round that was not scored', async () => {
     const { i18n } = useTranslation()
     renderPage(i18n.language as Language)
