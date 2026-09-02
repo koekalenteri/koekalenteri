@@ -75,7 +75,11 @@ export default defineConfig({
           setupFiles: ['./src/setupChartTests.ts'],
           browser: {
             enabled: true,
-            provider: playwright(),
+            // The test iframe is scaled down to fit the browser window, and Playwright's default window
+            // is 1280x720: shorter than the iframe below, so every capture came out at 80 %. A window no
+            // test outgrows keeps the captures pixel for pixel -- a whole form on a phone runs well past
+            // a screen's height.
+            provider: playwright({ contextOptions: { viewport: { height: 3000, width: 1280 } } }),
             headless: true,
             screenshotFailures: false,
             instances: [{ browser: 'chromium' }],
