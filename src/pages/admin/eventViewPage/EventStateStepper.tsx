@@ -108,6 +108,7 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     publishedStartListClasses,
     publishedStartNumbersClasses,
     reachedPhaseIndex,
+    resultsActionable,
     startListActionable,
     startListClasses,
     resultsCompleted,
@@ -162,11 +163,15 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
           if (phase === 'confirmed_entryOpen') completed = entryCompleted
           else if (phase === 'startListPublished') completed = startListCompleted
           else if (phase === 'startNumbersPublished') completed = startNumbersCompleted
+          // The publishing state is the truth for this step, like the start list steps above: once
+          // every class's results are out, the step is done even while 'ended' still waits (KOE-1292).
+          else if (phase === 'resultsPublished') completed = resultsCompleted
           else if (showClassProgress) completed = completedClasses.length === eventClasses.length
           const active =
             (phase === 'confirmed_entryOpen' && entryOpen && !entryCompleted) ||
             (phase === 'startListPublished' && startListActionable && !startListCompleted) ||
             (phase === 'startNumbersPublished' && startNumbersActionable && !startNumbersCompleted) ||
+            (phase === 'resultsPublished' && resultsActionable && !resultsCompleted) ||
             (showClassProgress && completedClasses.length > 0 && completedClasses.length < eventClasses.length)
           const label = getPhaseLabel(
             phase,
