@@ -1,4 +1,5 @@
 import type { Theme } from '@mui/material'
+import type { EventResultsResponse } from '../../api/registration'
 import type { DogEvent, EventResult, EventStation, Patch, PublicJudge } from '../../types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import type { ResultEdit } from './eventResultsPage/types'
@@ -21,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
+import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
@@ -42,11 +44,19 @@ import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { emptyEdit } from './eventResultsPage/types'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
+import { useStoreEventResults } from './state/registrations/actions'
 
 /** The whole round, or one post's slice of it. */
 const WHOLE_ROUND = 'all'
 
-const isResultConflictBody = (body: unknown): body is { conflicts: ResultConflict[] } =>
+/** A 409 carries the disputed dogs, and beside them whatever did get written. */
+interface ResultConflictBody {
+  conflicts: ResultConflict[]
+  saved?: EventResultsResponse['saved']
+  unchanged?: EventResultsResponse['unchanged']
+}
+
+const isResultConflictBody = (body: unknown): body is ResultConflictBody =>
   typeof body === 'object' && body !== null && Array.isArray((body as { conflicts?: unknown }).conflicts)
 
 export default function EventResultsPage() {
@@ -55,6 +65,10 @@ export default function EventResultsPage() {
   const token = useAtomValue(idTokenAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
+  const storeResults = useStoreEventResults(eventId)
+  // What another secretary — or the post's own link — saves arrives over the socket only while this
+  // page is subscribed to the event.
+  useEventSubscription(eventId)
   // A whole NOWT round is a thousand pixels of columns; short of that the dogs go one under another (KOE-1280).
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
@@ -178,6 +192,8 @@ export default function EventResultsPage() {
 
     try {
       const response = await putEventResults(eventId, submissions, token ?? '')
+      // Stored is stored: the rows re-seed from what came back, so the result stays on screen.
+      await storeResults([...response.saved, ...response.unchanged])
       report(response.saved.length)
       setEdits({})
     } catch (error) {
@@ -192,11 +208,12 @@ export default function EventResultsPage() {
       }
 
       // Whatever did not conflict is already written; keep only the disputed dogs on screen.
+      await storeResults([...(body.saved ?? []), ...(body.unchanged ?? [])])
       setEdits((prev) => Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? emptyEdit])))
       setConflicts(body.conflicts)
       setChoices({})
     }
-  }, [edits, eventId, report, submissionFor, t, token])
+  }, [edits, eventId, report, storeResults, submissionFor, t, token])
 
   const handleResolve = useCallback(async () => {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that
@@ -208,13 +225,14 @@ export default function EventResultsPage() {
 
     if (submissions.length) {
       const response = await putEventResults(eventId, submissions, token ?? '')
+      await storeResults([...response.saved, ...response.unchanged])
       report(response.saved.length)
     }
 
     setConflicts([])
     setChoices({})
     setEdits({})
-  }, [choices, conflicts, edits, eventId, report, submissionFor, token])
+  }, [choices, conflicts, edits, eventId, report, storeResults, submissionFor, token])
 
   if (!event?.id) return <EventNotFound />
 

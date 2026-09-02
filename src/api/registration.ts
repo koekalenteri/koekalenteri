@@ -178,7 +178,7 @@ export interface EventResultSubmission {
   basedOn?: string | Date
 }
 
-interface StoredEventResult {
+export interface StoredEventResult {
   id: string
   eventResult: EventResult
 }

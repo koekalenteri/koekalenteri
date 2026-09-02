@@ -438,7 +438,7 @@
     "allThrough": "All dogs through · last finished at {{time}}",
     "alreadyThrough": "The dog has already been through this post",
     "endBreak": "End break",
-    "endTurn": "End turn",
+    "endTurn": "End run",
     "free": "Post idle",
     "group_one": "Group (1)",
     "group_other": "Group ({{count}})",
@@ -450,6 +450,8 @@
       "noRetrieve": "No retrieve",
       "onRetrieve": "On the retrieve"
     },
+    "nextPhase": "Next phase",
+    "nextPhaseTo": "Next phase: {{label}}",
     "noEstimate": "no pace estimate yet",
     "now": "At the post now",
     "pause": {
@@ -468,7 +470,7 @@
     "phasesHelp": "The phases of the day in order, separated by commas",
     "sinceMinutes": "{{minutes}} min",
     "startBreak": "Break",
-    "startTurn": "Start turn",
+    "startTurn": "Start run",
     "station": "Post {{number}}",
     "through_one": "{{count}} dog through",
     "through_other": "{{count}} dogs through",

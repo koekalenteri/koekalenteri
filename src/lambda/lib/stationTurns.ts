@@ -9,7 +9,7 @@ import type {
 } from '../../types'
 import { randomUUID } from 'node:crypto'
 import { MAX_DOGS_AT_ONCE, resolveStation, stationPhases } from '../../lib/liveFormat'
-import { openTurn } from '../../lib/stationTurns'
+import { currentPhase, isBreakTurn, isWholeTurn, openTurn } from '../../lib/stationTurns'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { LambdaError } from './lambda'
@@ -66,7 +66,7 @@ export const parseStationTurnOp = (body: unknown): StationTurnOp => {
     mark?: unknown
   }
 
-  if (type === 'end') return { type }
+  if (type === 'end' || type === 'next') return { type }
   if (type === 'break') {
     const knownPause = PAUSES.find((code) => code === pause)
     if (!knownPause) throw new LambdaError(422, 'unknown pause')
@@ -108,6 +108,19 @@ export const applyStationTurnOp = (
     return turns.map((turn) => (turn === open ? { ...turn, dogs } : turn))
   }
 
+  // The run moves on: the phase it is in closes as the next one begins, inside the same span, so a
+  // run stays one span however many phases it has and each phase's time falls out of the sequence.
+  if (op.type === 'next') {
+    const open = openTurn(turns, stationId)
+    if (!open || isBreakTurn(open) || isWholeTurn(open)) throw new LambdaError(422, 'nothing to move on')
+    const runPhases = phases.filter((item) => !item.whole)
+    const next = runPhases[runPhases.findIndex((item) => item.key === currentPhase(open)) + 1]
+    if (currentPhase(open) === undefined || !next) throw new LambdaError(422, 'no next phase')
+
+    const entered = [...(open.phases ?? []), { key: next.key, startedAt: at }]
+    return turns.map((turn) => (turn === open ? { ...turn, phases: entered } : turn))
+  }
+
   const closed = closeOpen(turns, stationId, at)
 
   if (op.type === 'end') {
@@ -140,7 +153,7 @@ export const applyStationTurnOp = (
       registrationIds: op.registrationIds,
       startedAt: at,
       stationId,
-      ...(op.phase === undefined ? {} : { phase: op.phase }),
+      ...(op.phase === undefined ? {} : { phases: [{ key: op.phase, startedAt: at }] }),
     },
   ]
 }

@@ -16,8 +16,14 @@ export interface StationTurnSpan {
   startedAt: string | Date
   endedAt?: string | Date
   pause?: StationTurnPause
-  phase?: string
-  dogs?: readonly unknown[]
+  phases?: readonly { key: string; startedAt: string | Date }[]
+  dogs?: readonly StationTurnSpanDog[]
+}
+
+/** The least a span's dog line says: what a run is told apart by across spans. */
+export interface StationTurnSpanDog {
+  name: string
+  number?: number
 }
 
 /** The stored span without its registration ids — the only face the public and the link may see. */
@@ -42,15 +48,18 @@ export const isStoredStationTurn = (turn: unknown): turn is JsonStationTurn | St
 /** A break is a span with a pause code; only dog-carrying spans count toward throughput. */
 export const isBreakTurn = (turn: Pick<StationTurnSpan, 'pause'>) => Boolean(turn.pause)
 
+/** The phase a run is in: the last it entered. Absent where the day has no phases. */
+export const currentPhase = (turn: Pick<StationTurnSpan, 'phases'>): string | undefined => turn.phases?.at(-1)?.key
+
 /**
  * A span that is a phase the whole entry attends at once — the briefing — rather than a dog's turn.
  * It has a phase and no dogs, and like a break it is nobody's time through the post.
  */
-export const isWholeTurn = (turn: Pick<StationTurnSpan, 'pause' | 'phase' | 'dogs'>) =>
-  !turn.pause && Boolean(turn.phase) && turn.dogs?.length === 0
+export const isWholeTurn = (turn: Pick<StationTurnSpan, 'pause' | 'phases' | 'dogs'>) =>
+  !turn.pause && (turn.phases?.length ?? 0) > 0 && turn.dogs?.length === 0
 
 /** A span some dogs ran: what the queue moves by and what the figures measure. */
-const isGroupTurn = (turn: Pick<StationTurnSpan, 'pause' | 'phase' | 'dogs'>) =>
+const isGroupTurn = (turn: Pick<StationTurnSpan, 'pause' | 'phases' | 'dogs'>) =>
   !isBreakTurn(turn) && !isWholeTurn(turn)
 
 /** The span with no end yet: what the post is doing right now, a turn or a break alike. */
@@ -117,13 +126,17 @@ export const stationThroughput = (
 
 /**
  * How many dogs a post has actually had through, which is not the number of turns: one walk-up span
- * moves four dogs along. Counted from the closed spans only — the group on the ground has not been
- * through yet.
+ * moves four dogs along, and a dog sent out again — retrieve after retrieve at an A trial — is still
+ * one dog through. Counted from the closed spans only: the group on the ground has not been through
+ * yet. Dogs are told apart by number and name, the handles the public shape has.
  */
-export const dogsThrough = <T extends StationTurnSpan & { dogs: readonly unknown[] }>(
+export const dogsThrough = <T extends StationTurnSpan & { dogs: readonly StationTurnSpanDog[] }>(
   turns: readonly T[],
   stationId: string
-): number => completedGroupTurns(turns, stationId).reduce((total, turn) => total + turn.dogs.length, 0)
+): number =>
+  new Set(
+    completedGroupTurns(turns, stationId).flatMap((turn) => turn.dogs.map((dog) => `${dog.number ?? ''}#${dog.name}`))
+  ).size
 
 /** A range, because the answer is an estimate and must never read as a promise. */
 interface WaitEstimate {

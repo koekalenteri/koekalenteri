@@ -55,22 +55,24 @@ it("marks the group that is out, in the format's own vocabulary (KOE-1259)", asy
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-turn-marks')
 })
 
-// A taipumuskoe's day in its fixed phases: the briefing and the water mark done, one dog out on the
-// search, and the picker already on the search for the next one.
+// A taipumuskoe's day in its fixed phases: the briefing done, the first dog's run through the water
+// mark and now on the search — one span, two phases — with nothing left to move on to.
 it("runs a taipumuskoe's day in phases (KOE-1259)", async () => {
   const day: StationTurnItem[] = [
-    { dogs: [], endedAt: minutesAgo(40), phase: 'briefing', startedAt: minutesAgo(55), stationId: '1' },
     {
-      dogs: [{ name: 'ANNALOUGHAN ACE', number: 1 }],
-      endedAt: minutesAgo(32),
-      phase: 'waterMark',
-      startedAt: minutesAgo(38),
+      dogs: [],
+      endedAt: minutesAgo(40),
+      phases: [{ key: 'briefing', startedAt: minutesAgo(55) }],
+      startedAt: minutesAgo(55),
       stationId: '1',
     },
     {
       dogs: [{ name: 'ANNALOUGHAN ACE', number: 1 }],
-      phase: 'search',
-      startedAt: minutesAgo(9),
+      phases: [
+        { key: 'waterMark', startedAt: minutesAgo(15) },
+        { key: 'search', startedAt: minutesAgo(9) },
+      ],
+      startedAt: minutesAgo(15),
       stationId: '1',
     },
   ]
@@ -86,6 +88,6 @@ it("runs a taipumuskoe's day in phases (KOE-1259)", async () => {
     </Frame>
   )
 
-  await expect.element(screen.getByText('1 ANNALOUGHAN ACE · Haku · 9 min')).toBeVisible()
+  await expect.element(screen.getByText('1 ANNALOUGHAN ACE · Haku · 15 min')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-turn-phases')
 })

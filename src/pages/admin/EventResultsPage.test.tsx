@@ -25,6 +25,7 @@ import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 vi.mock('../../api/user')
 vi.mock('../../api/event')
 vi.mock('../../api/eventType')
+vi.mock('../../hooks/useEventSubscription', () => ({ useEventSubscription: vi.fn(() => ({ viewers: [] })) }))
 vi.mock('../../api/judge')
 vi.mock('../../api/official')
 vi.mock('../../api/organizer')
@@ -547,6 +548,27 @@ describe('a pass/fail event type', () => {
     vi.runOnlyPendingTimers()
   })
   afterAll(() => vi.useRealTimers())
+
+  it('keeps a saved result on screen: the row re-seeds from what the server stored', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderQualitativePage(i18n.language as Language)
+    await flushPromises()
+    const judge = { id: 223, name: 'Tuomari 2' }
+    vi.mocked(putEventResults).mockResolvedValueOnce({
+      conflicts: [],
+      saved: [{ eventResult: { judge, result: 'NOU1', updatedAt: new Date(), updatedBy: 'x' }, id: 'run-1' }],
+      unchanged: [],
+    })
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'NOU1' }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    // Nothing is being edited any more, and the stored result is what the row shows.
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    expect(within(rowFor('Ensimmainen')).getByLabelText('results.column.result')).toHaveTextContent('NOU1')
+  })
 
   it('offers the codes the type can award, and sends the chosen one', async () => {
     const { i18n } = useTranslation()

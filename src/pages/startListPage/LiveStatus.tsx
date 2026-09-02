@@ -10,6 +10,7 @@ import { hasAllResultsPublished } from '../../lib/event'
 import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
 import {
   completedGroupTurns,
+  currentPhase,
   dogsThrough,
   isBreakTurn,
   isWholeTurn,
@@ -76,8 +77,9 @@ const LiveStationCard = ({ event, stationId, turns, starters, single }: StationC
     if (isBreakTurn(open)) {
       return t('liveStatus.pauseSince', { label: t(`liveStatus.pause.${open.pause ?? 'other'}`), time })
     }
-    if (isWholeTurn(open)) return t('liveStatus.pauseSince', { label: phaseLabel(open.phase), time })
-    const named = open.phase === undefined ? '' : ` · ${phaseLabel(open.phase)}`
+    const phase = currentPhase(open)
+    if (isWholeTurn(open)) return t('liveStatus.pauseSince', { label: phaseLabel(phase), time })
+    const named = phase === undefined ? '' : ` · ${phaseLabel(phase)}`
     const since = t('liveStatus.sinceMinutes', { minutes: minutes(turnElapsedMs(open)) })
     return `${open.dogs.map(dogLabel).join(', ')}${named} · ${since}`
   }

@@ -65,10 +65,17 @@ describe('LiveStatus', () => {
           dogs: [],
           endedAt: new Date('2026-09-12T08:07:00Z'),
           id: 'briefing',
-          phase: 'briefing',
+          phases: [{ key: 'briefing', startedAt: new Date('2026-09-12T08:00:00Z') }],
           stationId: '1',
         }),
-        turn({ id: 'search', phase: 'search', stationId: '1' }),
+        turn({
+          id: 'search',
+          phases: [
+            { key: 'waterMark', startedAt: new Date('2026-09-12T08:07:00Z') },
+            { key: 'search', startedAt: new Date('2026-09-12T08:12:00Z') },
+          ],
+          stationId: '1',
+        }),
       ],
       stations: undefined,
     }

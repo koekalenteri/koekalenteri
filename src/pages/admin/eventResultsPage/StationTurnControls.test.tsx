@@ -1,5 +1,5 @@
 import type { StationTurnItem } from './StationTurnControls'
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SnackbarProvider } from 'notistack'
 import { StationTurnControls } from './StationTurnControls'
@@ -59,6 +59,16 @@ describe('StationTurnControls', () => {
     expect(onTurn).toHaveBeenCalledWith({ pause: 'lunch', type: 'break' })
   })
 
+  it('lets a break start in the middle of a run: the weather does not wait for the dog', async () => {
+    const user = userEvent.setup()
+    const { onTurn } = renderControls({ turns: [openTurn] })
+
+    await user.click(screen.getByRole('button', { name: 'liveStatus.startBreak' }))
+    await user.click(within(screen.getByRole('menu')).getByText('liveStatus.pause.weather'))
+
+    expect(onTurn).toHaveBeenCalledWith({ pause: 'weather', type: 'break' })
+  })
+
   it('labels the end button for the open break', () => {
     renderControls({
       turns: [{ dogs: [], pause: 'coffee', startedAt: new Date('2026-09-12T10:00:00Z'), stationId: 'post-1' }],
@@ -98,31 +108,46 @@ describe('StationTurnControls', () => {
       expect(onTurn).toHaveBeenCalledWith({ registrationIds: ['run-1', 'run-3'], type: 'start' })
     })
 
-    it('names the phase of the day a turn is, from the fixed list of a taipumuskoe', async () => {
+    it("starts a run at the first of the day's phases, from the fixed list of a taipumuskoe", async () => {
       const user = userEvent.setup()
       const { onTurn } = renderControls({
         eventType: 'NOU',
         selectedDog: { id: 'run-1', name: 'Ensimmainen', number: 5 },
       })
 
-      await user.click(screen.getByRole('button', { name: 'liveStatus.phase.search' }))
       await user.click(screen.getByRole('button', { name: 'liveStatus.startTurn' }))
 
-      expect(onTurn).toHaveBeenCalledWith({ phase: 'search', registrationIds: ['run-1'], type: 'start' })
+      expect(onTurn).toHaveBeenCalledWith({ phase: 'waterMark', registrationIds: ['run-1'], type: 'start' })
     })
 
-    it('starts the briefing with nobody picked: the whole entry is there at once', async () => {
+    it('moves the open run on to the next phase, and offers no move past the last', async () => {
+      const user = userEvent.setup()
+      const atWater = { ...openTurn, phases: [{ key: 'waterMark', startedAt: openTurn.startedAt }] }
+      const { onTurn } = renderControls({ eventType: 'NOU', turns: [atWater] })
+
+      expect(screen.getByText(/5 Ensimmainen · liveStatus.phase.waterMark/)).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'liveStatus.nextPhaseTo label' }))
+      expect(onTurn).toHaveBeenCalledWith({ type: 'next' })
+
+      cleanup()
+      renderControls({
+        eventType: 'NOU',
+        turns: [{ ...atWater, phases: [...atWater.phases, { key: 'search', startedAt: openTurn.startedAt }] }],
+      })
+      expect(screen.getByRole('button', { name: 'liveStatus.nextPhase' })).toBeDisabled()
+    })
+
+    it('starts the briefing on its own button, with nobody picked: the whole entry is there at once', async () => {
       const user = userEvent.setup()
       const { onTurn } = renderControls({ eventType: 'NOU' })
 
-      // The day starts at the briefing, so it is what the picker opens on.
-      expect(screen.getByRole('button', { name: 'liveStatus.phase.briefing', pressed: true })).toBeInTheDocument()
-      await user.click(screen.getByRole('button', { name: 'liveStatus.startTurn' }))
+      expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeDisabled()
+      await user.click(screen.getByRole('button', { name: 'liveStatus.phase.briefing' }))
 
       expect(onTurn).toHaveBeenCalledWith({ phase: 'briefing', registrationIds: [], type: 'start' })
     })
 
-    it("names a B trial's phases as the post wrote them down", async () => {
+    it("starts a B trial's run at the first phase the post wrote down", async () => {
       const user = userEvent.setup()
       const { onTurn } = renderControls({
         eventType: 'NOME-B',
@@ -130,16 +155,9 @@ describe('StationTurnControls', () => {
         station: { id: '1', phases: ['Markkeeraus', 'Haku'], tasks: 1 },
       })
 
-      await user.click(screen.getByRole('button', { name: 'Haku' }))
       await user.click(screen.getByRole('button', { name: 'liveStatus.startTurn' }))
 
-      expect(onTurn).toHaveBeenCalledWith({ phase: 'Haku', registrationIds: ['run-1'], type: 'start' })
-    })
-
-    it('names the phase in the running line, so the post can see where its day is', () => {
-      renderControls({ eventType: 'NOU', turns: [{ ...openTurn, phase: 'waterMark' }] })
-
-      expect(screen.getByText(/5 Ensimmainen · liveStatus.phase.waterMark/)).toBeInTheDocument()
+      expect(onTurn).toHaveBeenCalledWith({ phase: 'Markkeeraus', registrationIds: ['run-1'], type: 'start' })
     })
 
     it('does not send a dog out twice: the timeline already names it', async () => {
@@ -169,20 +187,19 @@ describe('StationTurnControls', () => {
       expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeEnabled()
     })
 
-    it('lets a dog on to the next phase of the day, but not back into the one it ran', async () => {
-      const user = userEvent.setup()
-      const ranWaterMark = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z'), phase: 'waterMark' }
+    it('does not send a dog whose run is over out again, however many phases it had', () => {
+      const ran = {
+        ...openTurn,
+        endedAt: new Date('2026-09-12T08:07:00Z'),
+        phases: [{ key: 'waterMark', startedAt: openTurn.startedAt }],
+      }
       renderControls({
         eventType: 'NOU',
         selectedDog: { id: 'run-1', name: 'Ensimmainen', number: 5 },
-        turns: [ranWaterMark],
+        turns: [ran],
       })
 
-      await user.click(screen.getByRole('button', { name: 'liveStatus.phase.waterMark' }))
       expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeDisabled()
-
-      await user.click(screen.getByRole('button', { name: 'liveStatus.phase.search' }))
-      expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeEnabled()
     })
 
     it('leaves the dogs that have been through out of the walk-up', async () => {

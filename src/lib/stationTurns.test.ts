@@ -56,11 +56,12 @@ describe('stationTurns', () => {
 
   describe('isWholeTurn', () => {
     it('is a phase span with no dogs, and neither a break nor a turn', () => {
-      const briefing = turn({ dogs: [], phase: 'briefing', registrationIds: [] })
+      const at = '2026-09-12T08:00:00.000Z'
+      const briefing = turn({ dogs: [], phases: [{ key: 'briefing', startedAt: at }], registrationIds: [] })
 
       expect(isWholeTurn(briefing)).toBe(true)
       expect(isWholeTurn(turn({ dogs: [], pause: 'coffee', registrationIds: [] }))).toBe(false)
-      expect(isWholeTurn(turn({ phase: 'search' }))).toBe(false)
+      expect(isWholeTurn(turn({ phases: [{ key: 'search', startedAt: at }] }))).toBe(false)
       // It moves nobody through the post and measures nothing.
       const turns = [
         { ...briefing, endedAt: '2026-09-12T08:10:00.000Z' },
@@ -127,6 +128,15 @@ describe('stationTurns', () => {
   })
 
   describe('dogsThrough', () => {
+    it('counts a dog sent out again as one dog through', () => {
+      const twice = [
+        turn({ endedAt: '2026-09-12T08:05:00.000Z' }),
+        turn({ endedAt: '2026-09-12T08:15:00.000Z', id: 'turn-2', startedAt: '2026-09-12T08:10:00.000Z' }),
+      ]
+
+      expect(dogsThrough(twice, 'post-1')).toBe(1)
+    })
+
     it('counts dogs rather than turns, so one walk-up moves the queue by four', () => {
       const walkUp = { dogs: [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }] }
       const turns = [minuteTurn('a', 0, 6, walkUp), minuteTurn('b', 6, 12), minuteTurn('open', 12)]

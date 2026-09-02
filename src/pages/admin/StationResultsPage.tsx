@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { putEventResults } from '../../api/registration'
 import { getStationLink, putStationTurn } from '../../api/station'
+import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
 import { Path } from '../../routeConfig'
@@ -18,6 +19,7 @@ import EventNotFound from './components/EventNotFound'
 import { StationPhasesEditor } from './eventResultsPage/StationPhasesEditor'
 import { StationScoring } from './eventResultsPage/StationScoring'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
+import { useStoreEventResults } from './state/registrations/actions'
 
 /**
  * The event secretary's view of one post: `StationScoring` over the admin data, plus the controls for
@@ -30,14 +32,24 @@ export default function StationResultsPage() {
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const eventActions = useAdminEventActions()
+  const storeResults = useStoreEventResults(eventId)
+  // The other posts' scores, the token link's saves and its turns arrive over the socket only while
+  // this page is subscribed to the event.
+  useEventSubscription(eventId)
 
   // The event's own post, or the implicit single post of a format that lays none out (NOME-B, NOU).
   const station = event && resolveStation(event, stationId)
   const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
 
+  // What came back is the stored truth for that dog: folding it in is what marks the dog as done in
+  // the queue, and what keeps the post from scoring it twice.
   const handleSave = useCallback(
-    (submission: EventResultSubmission) => putEventResults(eventId, [submission], token ?? ''),
-    [eventId, token]
+    async (submission: EventResultSubmission) => {
+      const response = await putEventResults(eventId, [submission], token ?? '')
+      await storeResults([...response.saved, ...response.unchanged])
+      return response
+    },
+    [eventId, storeResults, token]
   )
 
   // The response is the freshest timeline until the WebSocket patch catches the event atom up; each

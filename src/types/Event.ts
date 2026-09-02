@@ -192,11 +192,20 @@ export interface JsonPublicStationTurn {
   endedAt?: string
   pause?: StationTurnPause
   /**
-   * Which phase of the day this span is — the key of a fixed phase (NOU) or the label of the post's
-   * own (NOME-B). A whole-entry phase such as the briefing is a span with a phase and no dogs.
+   * The phases this run has entered, in order, each with when it began — the key of a fixed phase
+   * (NOU) or the label of the post's own (NOME-B). One run is one span whatever its phases, so the
+   * last entry is the phase under way and each phase's time falls out of the sequence. A whole-entry
+   * phase such as the briefing is a span with a phase and no dogs.
    */
-  phase?: string
+  phases?: JsonStationTurnPhase[]
 }
+
+/** One phase of a run, and when the run entered it. */
+export interface JsonStationTurnPhase {
+  key: string
+  startedAt: string
+}
+export type StationTurnPhase = Replace<JsonStationTurnPhase, 'startedAt', Date>
 
 /** The stored span (KOE-1259): the public shape plus the registration ids, which never leave admin. */
 export interface JsonStationTurn extends JsonPublicStationTurn {
@@ -204,8 +213,16 @@ export interface JsonStationTurn extends JsonPublicStationTurn {
 }
 
 /** The turn as the browser holds it, timestamps revived to `Date` by the http layer. */
-export type PublicStationTurn = Replace<ReplaceOptional<JsonPublicStationTurn, 'endedAt', Date>, 'startedAt', Date>
-export type StationTurn = Replace<ReplaceOptional<JsonStationTurn, 'endedAt', Date>, 'startedAt', Date>
+export type PublicStationTurn = Replace<
+  ReplaceOptional<ReplaceOptional<JsonPublicStationTurn, 'endedAt', Date>, 'phases', StationTurnPhase[]>,
+  'startedAt',
+  Date
+>
+export type StationTurn = Replace<
+  ReplaceOptional<ReplaceOptional<JsonStationTurn, 'endedAt', Date>, 'phases', StationTurnPhase[]>,
+  'startedAt',
+  Date
+>
 
 /**
  * What a post can do to its timeline: put a group of dogs to work, put the post on a break, or close
@@ -216,6 +233,8 @@ export type StationTurnOp =
   | { type: 'start'; registrationIds: string[]; phase?: string }
   | { type: 'break'; pause: StationTurnPause }
   | { type: 'end' }
+  /** Move the open run on to the next phase of the day, closing the phase it is in. */
+  | { type: 'next' }
   /**
    * Mark one dog of the open turn, by its position in that turn rather than by registration id — the
    * tokenized station link works from the public shape, which has no ids to name a dog by.

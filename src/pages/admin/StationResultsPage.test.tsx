@@ -25,6 +25,7 @@ import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 vi.mock('../../api/user')
 vi.mock('../../api/event')
 vi.mock('../../api/eventType')
+vi.mock('../../hooks/useEventSubscription', () => ({ useEventSubscription: vi.fn(() => ({ viewers: [] })) }))
 vi.mock('../../api/judge')
 vi.mock('../../api/official')
 vi.mock('../../api/organizer')
@@ -166,6 +167,27 @@ describe('StationResultsPage', () => {
       }),
       TEST_ID_TOKEN
     )
+  })
+
+  it('marks a dog as done the moment its result is stored, so the post does not score it twice', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderStation(i18n.language as Language, '1', singlePostEvent)
+    await flushPromises()
+    const judge = { id: 223, name: 'Tuomari 2' }
+    vi.mocked(putEventResults).mockResolvedValueOnce({
+      conflicts: [],
+      saved: [{ eventResult: { judge, result: 'ALO1', updatedAt: new Date(), updatedBy: 'x' }, id: 'run-1' }],
+      unchanged: [],
+    })
+
+    await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+    await user.click(screen.getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'ALO1' }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(screen.getByRole('button', { name: '1 Ensimmainen' })).toHaveClass('MuiChip-filled')
+    expect(screen.getByRole('button', { name: '2 Toinen' })).toHaveClass('MuiChip-outlined')
   })
 
   it('will not open on a post the event does not have', async () => {

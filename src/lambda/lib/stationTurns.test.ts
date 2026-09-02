@@ -41,6 +41,7 @@ describe('stationTurns', () => {
   describe('parseStationTurnOp', () => {
     it('accepts every op', () => {
       expect(parseStationTurnOp({ type: 'end' })).toEqual({ type: 'end' })
+      expect(parseStationTurnOp({ type: 'next' })).toEqual({ type: 'next' })
       expect(parseStationTurnOp({ pause: 'lunch', type: 'break' })).toEqual({ pause: 'lunch', type: 'break' })
       expect(parseStationTurnOp({ registrationIds: ['run-1'], type: 'start' })).toEqual({
         registrationIds: ['run-1'],
@@ -133,17 +134,45 @@ describe('stationTurns', () => {
           phases
         )
 
-      it('records which phase a turn is', () => {
-        expect(start({ phase: 'search' })[0]).toMatchObject({
+      it('records the phase a run starts in, with when', () => {
+        expect(start({ phase: 'waterMark' })[0]).toMatchObject({
           dogs: [{ name: 'Dog run-1', number: 1 }],
-          phase: 'search',
+          phases: [{ key: 'waterMark', startedAt: NOW.toISOString() }],
         })
+      })
+
+      it('moves the open run on to the next phase inside the same span, and no further than the last', () => {
+        const later = new Date('2026-09-12T08:40:00.000Z')
+        const moved = applyStationTurnOp(start({ phase: 'waterMark' }), [], '1', { type: 'next' }, later, phases)
+
+        expect(moved).toHaveLength(1)
+        expect(moved[0]).toMatchObject({
+          phases: [
+            { key: 'waterMark', startedAt: NOW.toISOString() },
+            { key: 'search', startedAt: later.toISOString() },
+          ],
+        })
+        expect(moved[0].endedAt).toBeUndefined()
+        expect(() => applyStationTurnOp(moved, [], '1', { type: 'next' }, later, phases)).toThrow(
+          expect.objectContaining({ status: 422 })
+        )
+      })
+
+      it('refuses to move on with nothing running, over a break, or at the briefing', () => {
+        const briefing = start({ phase: 'briefing', registrationIds: [] })
+        const onBreak = applyStationTurnOp([], [], '1', { pause: 'coffee', type: 'break' }, NOW, phases)
+
+        for (const turns of [[], briefing, onBreak]) {
+          expect(() => applyStationTurnOp(turns, [], '1', { type: 'next' }, NOW, phases)).toThrow(
+            expect.objectContaining({ status: 422 })
+          )
+        }
       })
 
       it('holds the whole entry at the briefing as a span with no dogs', () => {
         expect(start({ phase: 'briefing', registrationIds: [] })[0]).toMatchObject({
           dogs: [],
-          phase: 'briefing',
+          phases: [{ key: 'briefing', startedAt: NOW.toISOString() }],
           registrationIds: [],
         })
       })

@@ -1,3 +1,4 @@
+import type { StoredEventResult } from '../../../../api/registration'
 import type { PublicDogEvent, Registration, RegistrationGroupMove } from '../../../../types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
@@ -64,6 +65,29 @@ const notifyGroupMoveResult = (result: GroupMoveResult, enqueueSnackbar: Enqueue
     })
   }
 }
+
+/**
+ * Fold results the server has just stored into the event's registrations, so the screen that saved
+ * them shows them stored without waiting for its own write to come back over the socket — and shows
+ * them at all where no socket subscription is delivering it (KOE-1259 testing found both).
+ */
+export const useStoreEventResults = (eventId: string) =>
+  useAtomCallback(
+    useCallback(
+      async (get, set, stored: readonly StoredEventResult[]) => {
+        if (stored.length === 0) return
+        const registrations = await get(adminEventRegistrationsAtom(eventId))
+        set(
+          adminEventRegistrationsAtom(eventId),
+          registrations.map((registration) => {
+            const written = stored.find((item) => item.id === registration.id)
+            return written ? { ...registration, eventResult: written.eventResult } : registration
+          })
+        )
+      },
+      [eventId]
+    )
+  )
 
 export const useAdminRegistrationActions = (eventId: string) => {
   const [eventRegistrations, setEventRegistrations] = useAtom(adminProjectedEventRegistrationsAtom(eventId))
