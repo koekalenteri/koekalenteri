@@ -3,7 +3,6 @@ import type { NowtZeroFault, PublicJudge } from '../../../types'
 import type { TaskEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
-import TableCell from '@mui/material/TableCell'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
@@ -28,6 +27,8 @@ interface Props {
   readonly task: RoundTask
   readonly value?: TaskEdit
   readonly disabled?: boolean
+  /** Names the slot where no column header does, as on a phone's per-dog card. */
+  readonly label?: string
   /** Who may have judged this task: the post's own judges, or the class's where the post names none. */
   readonly judges: PublicJudge[]
   /** Carried over from the dog before, since a post is usually judged by the same person all day. */
@@ -36,7 +37,7 @@ interface Props {
   readonly onJudgeChange: (task: RoundTask, judge?: PublicJudge) => void
 }
 
-export const TaskScore = ({ task, value, disabled, judges, defaultJudge, onChange, onJudgeChange }: Props) => {
+export const TaskScore = ({ task, value, disabled, label, judges, defaultJudge, onChange, onJudgeChange }: Props) => {
   const { t } = useTranslation()
   const judge = value?.judge ?? defaultJudge ?? judges[0]
   const points = value?.points ?? null
@@ -69,8 +70,9 @@ export const TaskScore = ({ task, value, disabled, judges, defaultJudge, onChang
     <Stack spacing={0.5} alignItems="center">
       <NumberInput
         disabled={disabled}
+        label={label}
         onChange={handlePoints}
-        sx={{ width: 64 }}
+        sx={{ width: label ? 96 : 64 }}
         value={points ?? undefined}
         // The ceiling belongs on screen: an ALO recall halves it, and the entry is capped either way.
         helperText={`/ ${ceiling}`}
@@ -123,10 +125,3 @@ export const TaskScore = ({ task, value, disabled, judges, defaultJudge, onChang
     </Stack>
   )
 }
-
-/** The same control in a table row. */
-export const TaskCell = (props: Props) => (
-  <TableCell align="center">
-    <TaskScore {...props} />
-  </TableCell>
-)

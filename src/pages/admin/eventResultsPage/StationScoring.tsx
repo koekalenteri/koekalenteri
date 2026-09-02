@@ -26,9 +26,9 @@ import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from 
 import { classRound, stationVersion } from '../../../lib/results'
 import { AsyncButton } from '../../components/AsyncButton'
 import { makeArray } from '../components/eventForm/judgeSection/utils'
-import { RoundOutcome } from './RoundOutcomeCell'
+import { RoundOutcome } from './RoundOutcome'
 import { StationTurnControls } from './StationTurnControls'
-import { TaskScore } from './TaskCell'
+import { TaskScore } from './TaskScore'
 import { emptyEdit, isVoided } from './types'
 
 /**

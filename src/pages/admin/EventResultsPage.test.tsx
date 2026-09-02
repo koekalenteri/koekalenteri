@@ -460,7 +460,7 @@ describe('EventResultsPage', () => {
   })
 })
 
-describe('ResultCell', () => {
+describe('ResultSummary', () => {
   it('derives the prize with the same module the server saves with', async () => {
     const { deriveNowtResult, formatEventResult, toScoredTasks } = await import('../../lib/results')
     const round = [

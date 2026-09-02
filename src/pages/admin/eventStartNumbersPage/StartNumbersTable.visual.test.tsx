@@ -4,8 +4,8 @@ import theme from '../../../assets/Theme'
 import { StartNumbersTable } from './StartNumbersTable'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
-const Frame = ({ children }: { readonly children: React.ReactNode }) => (
-  <div data-testid="visual-root" style={{ background: '#fff', padding: 16, width: 760 }}>
+const Frame = ({ children, width = 760 }: { readonly children: React.ReactNode; readonly width?: number }) => (
+  <div data-testid="visual-root" style={{ background: '#fff', padding: 16, width }}>
     <ThemeProvider theme={theme}>{children}</ThemeProvider>
   </div>
 )
@@ -32,4 +32,16 @@ it('receives the venue draw as values, flagging duplicates as they are typed', a
 
   await expect.element(screen.getByText('Ensimmainen')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-entry')
+})
+
+// The same entry on a phone (KOE-1282): the number, and the dog's details folded under its name.
+it('folds the dog into one column on a phone', async () => {
+  const screen = await render(
+    <Frame width={360}>
+      <StartNumbersTable compact drafts={{ 'run-2': '5', 'run-3': '5' }} onChange={() => {}} rows={rows} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Ensimmainen')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-entry-phone')
 })

@@ -5,7 +5,6 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import ListSubheader from '@mui/material/ListSubheader'
 import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
-import TableCell from '@mui/material/TableCell'
 import TextField from '@mui/material/TextField'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -156,10 +155,3 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
     </Stack>
   )
 }
-
-/** The same control in a table row. */
-export const RoundOutcomeCell = (props: Props) => (
-  <TableCell>
-    <RoundOutcome {...props} />
-  </TableCell>
-)

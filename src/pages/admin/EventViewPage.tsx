@@ -146,7 +146,8 @@ export default function EventViewPage() {
   }
 
   return (
-    <>
+    // The entry lists are laid out for a desk, and go wide before they go narrow (KOE-735).
+    <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 900 }}>
       <OtherViewers viewers={viewers} />
 
       <Title event={event} />
@@ -261,6 +262,6 @@ export default function EventViewPage() {
           />
         )}
       </Suspense>
-    </>
+    </Box>
   )
 }

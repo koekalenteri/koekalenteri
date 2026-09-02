@@ -2,7 +2,6 @@ import type { RoundTask } from '../../../lib/results'
 import type { EventResult } from '../../../types'
 import type { ResultEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
-import TableCell from '@mui/material/TableCell'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
@@ -32,7 +31,7 @@ interface Props {
  * is the one that gets stored. A post's own view passes no round, because the prize depends on posts it
  * cannot see and a partial figure there would be worse than none.
  */
-export const ResultCell = ({ round, edit, stored, eventType, eventClass, disabled, onChange }: Props) => {
+export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disabled, onChange }: Props) => {
   const { t } = useTranslation()
 
   // A qualitative type has nothing to derive a result from — the judge's decision is the result — so
@@ -42,34 +41,30 @@ export const ResultCell = ({ round, edit, stored, eventType, eventClass, disable
     const codes = availableResultCodes(eventType)
 
     return (
-      <TableCell align="right">
-        <TextField
-          disabled={disabled}
-          label={t('results.column.result')}
-          onChange={(event) => onChange({ ...edit, resultCode: codes.find((code) => code === event.target.value) })}
-          select
-          size="small"
-          sx={{ minWidth: 110 }}
-          value={edit.resultCode ?? ''}
-        >
-          <MenuItem value="">{t('results.resultNone')}</MenuItem>
-          {codes.map((code) => (
-            <MenuItem key={code} value={code}>
-              {formatEventResult(code, eventType, eventClass)}
-            </MenuItem>
-          ))}
-        </TextField>
-      </TableCell>
+      <TextField
+        disabled={disabled}
+        label={t('results.column.result')}
+        onChange={(event) => onChange({ ...edit, resultCode: codes.find((code) => code === event.target.value) })}
+        select
+        size="small"
+        sx={{ minWidth: 110 }}
+        value={edit.resultCode ?? ''}
+      >
+        <MenuItem value="">{t('results.resultNone')}</MenuItem>
+        {codes.map((code) => (
+          <MenuItem key={code} value={code}>
+            {formatEventResult(code, eventType, eventClass)}
+          </MenuItem>
+        ))}
+      </TextField>
     )
   }
 
   if (!round) {
     return (
-      <TableCell align="right">
-        <Typography variant="body2" color="text.secondary">
-          {stored?.result ?? ''}
-        </Typography>
-      </TableCell>
+      <Typography variant="body2" color="text.secondary">
+        {stored?.result ?? ''}
+      </Typography>
     )
   }
 
@@ -78,7 +73,7 @@ export const ResultCell = ({ round, edit, stored, eventType, eventClass, disable
   const { points, maxPoints } = nowtTotals(scored)
 
   return (
-    <TableCell align="right">
+    <>
       <Typography variant="body2" fontWeight={600}>
         {code ? formatEventResult(code, eventType, eventClass) : '–'}
       </Typography>
@@ -88,6 +83,6 @@ export const ResultCell = ({ round, edit, stored, eventType, eventClass, disable
           {t('results.runningTotal', { maxPoints, points })}
         </Typography>
       )}
-    </TableCell>
+    </>
   )
 }

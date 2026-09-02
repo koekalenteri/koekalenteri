@@ -1,6 +1,8 @@
+import type { Theme } from '@mui/material'
 import type { StartNumberRow } from './eventStartNumbersPage/StartNumbersTable'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Save from '@mui/icons-material/Save'
+import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
@@ -42,6 +44,8 @@ export default function EventStartNumbersPage() {
   const token = useAtomValue(idTokenAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
+  // Four columns need more than a phone has; there the dog's details fold into one (KOE-1282).
+  const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
 
   const classes = useMemo(
     () =>
@@ -127,8 +131,8 @@ export default function EventStartNumbersPage() {
         ))}
       </Tabs>
 
-      <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
-        <StartNumbersTable drafts={drafts} onChange={handleChange} rows={rows} />
+      <Box sx={{ flexGrow: 1, overflow: 'auto', p: { md: 2, xs: 1 } }}>
+        <StartNumbersTable compact={compact} drafts={drafts} onChange={handleChange} rows={rows} />
       </Box>
 
       <Stack

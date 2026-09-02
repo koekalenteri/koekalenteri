@@ -6,6 +6,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 
 /** One dog as the number entry needs it — who it is, and where the draw put it. */
@@ -25,6 +26,8 @@ interface Props {
   readonly drafts: Record<string, string>
   readonly disabled?: boolean
   readonly onChange: (id: string, value: string) => void
+  /** Two columns instead of four: the number, and the dog with its details under its name (KOE-1282). */
+  readonly compact?: boolean
 }
 
 const draftOf = (row: StartNumberRow, drafts: Record<string, string>) =>
@@ -35,7 +38,7 @@ const draftOf = (row: StartNumberRow, drafts: Record<string, string>) =>
  * entry: one row per dog, one field, one save. A duplicate is flagged as it is typed — and refused
  * again on the server, where the two-phones case is actually caught.
  */
-export function StartNumbersTable({ rows, drafts, disabled, onChange }: Props) {
+export function StartNumbersTable({ rows, drafts, disabled, onChange, compact }: Props) {
   const { t } = useTranslation()
 
   const counts = new Map<string, number>()
@@ -51,8 +54,8 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange }: Props) {
           <TableRow>
             <TableCell sx={{ width: 120 }}>{t('startNumbers.column.number')}</TableCell>
             <TableCell>{t('results.column.dog')}</TableCell>
-            <TableCell>{t('dog.regNo')}</TableCell>
-            <TableCell>{t('results.column.handler')}</TableCell>
+            {!compact && <TableCell>{t('dog.regNo')}</TableCell>}
+            {!compact && <TableCell>{t('results.column.handler')}</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -75,9 +78,20 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange }: Props) {
                     value={value}
                   />
                 </TableCell>
-                <TableCell>{row.dog.name}</TableCell>
-                <TableCell>{row.dog.regNo}</TableCell>
-                <TableCell>{row.handler?.name}</TableCell>
+                {compact ? (
+                  <TableCell>
+                    {row.dog.name}
+                    <Typography variant="caption" color="text.secondary" component="div">
+                      {[row.dog.regNo, row.handler?.name].filter(Boolean).join(' · ')}
+                    </Typography>
+                  </TableCell>
+                ) : (
+                  <>
+                    <TableCell>{row.dog.name}</TableCell>
+                    <TableCell>{row.dog.regNo}</TableCell>
+                    <TableCell>{row.handler?.name}</TableCell>
+                  </>
+                )}
               </TableRow>
             )
           })}

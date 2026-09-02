@@ -1,8 +1,10 @@
+import type { Theme } from '@mui/material'
 import type { DogEvent, EventResult, EventStation, Patch, PublicJudge } from '../../types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import type { ResultEdit } from './eventResultsPage/types'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Save from '@mui/icons-material/Save'
+import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
@@ -52,6 +54,8 @@ export default function EventResultsPage() {
   const token = useAtomValue(idTokenAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
+  // A whole NOWT round is a thousand pixels of columns; short of that the dogs go one under another (KOE-1280).
+  const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
   const classes = useMemo(
     () =>
@@ -245,7 +249,13 @@ export default function EventResultsPage() {
         )}
       </Box>
 
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ pt: 1, px: 2 }}>
+      <Stack
+        alignItems="center"
+        direction="row"
+        flexWrap="wrap"
+        sx={{ columnGap: 2, pt: 1, px: { md: 2, xs: 1 }, rowGap: 1 }}
+        useFlexGap
+      >
         <Tabs onChange={(_event, value) => setSelectedClass(value)} value={eventClass ?? false}>
           {classes.map((item) => (
             <Tab key={item} label={item} value={item} />
@@ -275,8 +285,9 @@ export default function EventResultsPage() {
         )}
       </Stack>
 
-      <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
+      <Box sx={{ flexGrow: 1, overflow: 'auto', p: { md: 2, xs: 1 } }}>
         <ResultsTable
+          compact={compact}
           edits={edits}
           eventClass={eventClass}
           eventType={event.eventType}
