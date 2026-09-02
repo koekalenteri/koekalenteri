@@ -9,7 +9,7 @@ exports[`EventListPage > renders 1`] = `
       class="MuiBox-root css-u3luxh"
     >
       <div
-        class="MuiStack-root css-1hezniw-MuiStack-root"
+        class="MuiStack-root css-1luzdx5-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qgtx4e-MuiButtonBase-root-MuiButton-root"
@@ -131,7 +131,7 @@ exports[`EventListPage > renders 1`] = `
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 1050px; --DataGrid-columnsTotalWidth: 1050px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
-          class="MuiStack-root css-k5y4k9-MuiStack-root"
+          class="MuiStack-root css-9o1eyz-MuiStack-root"
         >
           <button
             aria-expanded="false"
@@ -161,7 +161,7 @@ exports[`EventListPage > renders 1`] = `
             Columns
           </button>
           <div
-            class="MuiDataGrid-toolbarContainer css-1wrr6qg-MuiDataGrid-toolbarContainer"
+            class="MuiDataGrid-toolbarContainer css-h4x00c-MuiDataGrid-toolbarContainer"
           >
             <div
               class="MuiFormControl-root MuiTextField-root css-vlljk4-MuiFormControl-root-MuiTextField-root"
@@ -212,13 +212,13 @@ exports[`EventListPage > renders 1`] = `
             </div>
           </div>
           <div
-            class="MuiDataGrid-toolbarContainer css-185b43u-MuiDataGrid-toolbarContainer"
+            class="MuiDataGrid-toolbarContainer css-k27u2o-MuiDataGrid-toolbarContainer"
           >
             <div
-              class="MuiStack-root css-cnn9ag-MuiStack-root"
+              class="MuiStack-root css-11xoclm-MuiStack-root"
             >
               <div
-                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1a86huh-MuiAutocomplete-root"
+                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-ps3c76-MuiAutocomplete-root"
                 data-testid="Yhdistys"
               >
                 <div
@@ -306,7 +306,7 @@ exports[`EventListPage > renders 1`] = `
                 </div>
               </div>
               <label
-                class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementStart css-1wa4dm8-MuiFormControlLabel-root"
+                class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementStart css-10uklm4-MuiFormControlLabel-root"
               >
                 <span
                   class="MuiSwitch-root MuiSwitch-sizeSmall css-fzgmul-MuiSwitch-root"
@@ -329,7 +329,7 @@ exports[`EventListPage > renders 1`] = `
                   />
                 </span>
                 <span
-                  class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-body1 MuiTypography-noWrap MuiFormControlLabel-label css-peqrrs-MuiTypography-root"
                 >
                   Näytä myös menneet tapahtumat
                 </span>

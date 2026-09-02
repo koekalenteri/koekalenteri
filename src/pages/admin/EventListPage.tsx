@@ -138,7 +138,7 @@ export default function EventListPage() {
 
   return (
     <FullPageFlex>
-      <Stack direction="row" spacing={2}>
+      <Stack direction="row" spacing={{ sm: 2, xs: 0 }}>
         <AutoButton startIcon={<AddCircleOutline />} onClick={createAction} text={t('createEvent')} />
         <AutoButton startIcon={<EditOutlined />} disabled={!selectedEventID} onClick={editAction} text={t('edit')} />
         <AutoButton
@@ -182,10 +182,13 @@ export default function EventListPage() {
         slotProps={{
           toolbar: {
             children: (
-              <Stack direction="row" mx={1} flex={1}>
+              // The organizer picker keeps a usable width and the switch keeps its label on one line; where
+              // both do not fit side by side, the switch drops to the next row, at the right edge.
+              <Stack direction="row" mx={1} flex={1} flexWrap="wrap" useFlexGap sx={{ rowGap: 0.5 }}>
                 <AutocompleteSingle
                   disabled={orgs.length < 2}
                   size="small"
+                  sx={{ flex: '1 1 200px' }}
                   options={options}
                   label={'Yhdistys'}
                   getOptionLabel={(o) => o.name}
@@ -200,13 +203,14 @@ export default function EventListPage() {
                   onChange={(o) => setOrgId(o?.id ?? '')}
                 ></AutocompleteSingle>
                 <FormControlLabel
-                  sx={{ m: 0, pl: 1 }}
+                  sx={{ m: 0, ml: 'auto', pl: 1 }}
                   checked={showPast}
                   control={<Switch size="small" />}
                   label="Näytä myös menneet tapahtumat"
                   labelPlacement="start"
                   name="showPast"
                   onChange={toggleShowPast}
+                  slotProps={{ typography: { noWrap: true } }}
                 />
               </Stack>
             ),

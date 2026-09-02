@@ -26,9 +26,17 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
   const { t } = useTranslation()
 
   return (
-    <Stack sx={{ p: 0.5, pb: 0 }} direction="row" justifyContent="space-between" spacing={1} alignItems="center">
+    // On a phone the page's own filters take a row of their own under the search, instead of the three
+    // sharing one that fits none of them.
+    <Stack
+      sx={{ columnGap: 1, flexWrap: 'wrap', p: 0.5, pb: 0, rowGap: 0.5 }}
+      direction="row"
+      justifyContent="space-between"
+      alignItems="center"
+      useFlexGap
+    >
       {props.columnSelector ? <GridToolbarColumnsButton /> : null}
-      <GridToolbarContainer sx={{ p: 0 }}>
+      <GridToolbarContainer sx={{ flex: { sm: 'none', xs: 1 }, p: 0 }}>
         <TextField
           variant="standard"
           value={props.value}
@@ -66,7 +74,7 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
           }}
         />
       </GridToolbarContainer>
-      <GridToolbarContainer sx={{ p: 0, width: '50vw' }}>{props.children}</GridToolbarContainer>
+      <GridToolbarContainer sx={{ p: 0, width: { sm: '50vw', xs: '100%' } }}>{props.children}</GridToolbarContainer>
     </Stack>
   )
 }

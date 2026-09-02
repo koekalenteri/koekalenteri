@@ -1,6 +1,8 @@
 import type { ConfirmedEvent } from '../../types'
 import { TZDate } from '@date-fns/tz'
-import { ThemeProvider } from '@mui/material/styles'
+import { fiFI } from '@mui/material/locale'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { fiFI as gridFiFI } from '@mui/x-data-grid/locales'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
@@ -24,6 +26,9 @@ vi.mock(import('../../api/user'), async (importOriginal) => ({
 // A screen each, not the page's height: the grid sizes its page to the room it gets.
 const PHONE = { height: 844, width: 390 }
 const DESKTOP = { height: 800, width: 1200 }
+
+// The grid's own texts in Finnish, as App.tsx sets them; the app's locale bundle drags i18n init along.
+const finnishTheme = createTheme(theme, fiFI, gridFiFI)
 
 const day = (iso: string) => new TZDate(iso, TIME_ZONE)
 
@@ -78,7 +83,7 @@ const renderAt = async ({ height, width }: { height: number; width: number }) =>
         width,
       }}
     >
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={finnishTheme}>
         <TestProvider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)

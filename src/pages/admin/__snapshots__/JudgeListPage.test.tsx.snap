@@ -39,10 +39,10 @@ exports[`JudgeListPage > renders 1`] = `
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 870px; --DataGrid-columnsTotalWidth: 870px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
-          class="MuiStack-root css-k5y4k9-MuiStack-root"
+          class="MuiStack-root css-9o1eyz-MuiStack-root"
         >
           <div
-            class="MuiDataGrid-toolbarContainer css-1wrr6qg-MuiDataGrid-toolbarContainer"
+            class="MuiDataGrid-toolbarContainer css-h4x00c-MuiDataGrid-toolbarContainer"
           >
             <div
               class="MuiFormControl-root MuiTextField-root css-vlljk4-MuiFormControl-root-MuiTextField-root"
