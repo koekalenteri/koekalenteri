@@ -36,10 +36,10 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Do not write a data migration as a repo script or npm command. The KOE-1266 start number backfill
   started as `scripts/backfill-start-numbers-published.mjs` and was moved into the lambda to keep
   the practice uniform.
-- When a migration changes data the browser caches, `run` must also bump `updatedAt` — the
-  incremental fetch (`changedSince` in `src/lambda/lib/incremental.ts`) reads it, and a row
-  rewritten without moving it never reaches clients that already hold the event. `modifiedAt` stays
-  untouched: it records a user's edit, which a migration is not.
+- The lambda bumps `updatedAt` on every modified row before writing, so an individual migration
+  never touches it — the incremental fetch (`changedSince` in `src/lambda/lib/incremental.ts`)
+  reads `updatedAt`, and a row rewritten without moving it would never reach clients that already
+  hold the event. `modifiedAt` stays untouched: it records a user's edit, which a migration is not.
 - `scripts/migrate.sh` and `aws/README.md` cover a different job — copying whole tables between
   stacks — not changing data in place.
 

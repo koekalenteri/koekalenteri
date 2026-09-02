@@ -14,20 +14,9 @@ type EventMigration = {
 
 const migrations: EventMigration[] = [
   {
-    name: 'populateUpdatedAtFromModifiedAt',
-    run: (event) => {
-      if (event.updatedAt) {
-        return false
-      }
-
-      const modifiedAt = event.modifiedAt
-      if (typeof modifiedAt !== 'string' || Number.isNaN(new Date(modifiedAt).getTime())) {
-        return false
-      }
-
-      event.updatedAt = modifiedAt
-      return true
-    },
+    // Rows that predate updatedAt get one; the shared bump below writes the actual value.
+    name: 'populateUpdatedAt',
+    run: (event) => event.updatedAt === undefined,
   },
   {
     name: 'fixSeasonFromStartDate',
@@ -76,12 +65,6 @@ const migrations: EventMigration[] = [
         return false
       }
 
-      // The browser keeps events in a persisted cache and refetches them incrementally, asking only
-      // for what changed since its cursor (`changedSince` in lambda/lib/incremental.ts). A row
-      // rewritten without moving a timestamp comes back as unchanged, so the new field would never
-      // reach anyone already holding the event. `updatedAt` is the one to move: it is what the
-      // incremental fetch reads, while `modifiedAt` records a user's edit and this is not one.
-      event.updatedAt = new Date().toISOString()
       return true
     },
   },
@@ -105,7 +88,13 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
     })
   }
 
+  // Every migration's change must reach browsers that already cache the event: the incremental
+  // fetch (`changedSince` in lambda/lib/incremental.ts) reads `updatedAt`, and a row rewritten
+  // without moving it comes back as unchanged, so the change would never reach anyone already
+  // holding the event. `modifiedAt` stays untouched: it records a user's edit, which this is not.
+  const updatedAt = new Date().toISOString()
   for (const item of modifiedEvents) {
+    item.updatedAt = updatedAt
     await dynamoDB.write(item)
   }
 

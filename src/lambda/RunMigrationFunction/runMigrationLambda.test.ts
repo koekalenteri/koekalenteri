@@ -35,7 +35,7 @@ const { default: runMigrationLambda } = await import('./handler')
 
 describe('runMigrationLambda', () => {
   const migrationResults = (updatedAt: number, season: number, startNumbers = 0) => [
-    { count: updatedAt, name: 'populateUpdatedAtFromModifiedAt' },
+    { count: updatedAt, name: 'populateUpdatedAt' },
     { count: season, name: 'fixSeasonFromStartDate' },
     { count: startNumbers, name: 'backfillStartNumbersPublished' },
   ]
@@ -59,17 +59,20 @@ describe('runMigrationLambda', () => {
       {
         id: 'event1',
         startDate: '2025-01-01',
+        updatedAt: '2025-01-01T00:00:00.000Z',
         // No season field
       },
       {
         id: 'event2',
         startDate: '2025-02-01',
+        updatedAt: '2025-01-01T00:00:00.000Z',
         // No season field
       },
       {
         id: 'event3',
         season: '2024', // Already has season field
         startDate: '2024-12-01',
+        updatedAt: '2025-01-01T00:00:00.000Z',
       },
     ])
 
@@ -151,6 +154,7 @@ describe('runMigrationLambda', () => {
         id: 'event1',
         season: '2024',
         startDate: '2025-01-01',
+        updatedAt: 'kept',
       },
     ])
 
@@ -162,8 +166,11 @@ describe('runMigrationLambda', () => {
         id: 'event1',
         season: '2025',
         startDate: '2025-01-01',
+        updatedAt: expect.any(String),
       })
     )
+    // Every modified row gets the shared updatedAt bump, whatever migration touched it
+    expect(mockWrite).not.toHaveBeenCalledWith(expect.objectContaining({ updatedAt: 'kept' }))
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 1), event)
   })
 
@@ -173,6 +180,7 @@ describe('runMigrationLambda', () => {
         id: 'event1',
         season: '2024',
         startDate: '2024-12-31T22:30:00.000Z',
+        updatedAt: '2025-01-01T00:00:00.000Z',
       },
     ])
 
@@ -189,7 +197,7 @@ describe('runMigrationLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 1), event)
   })
 
-  it('populates updatedAt from modifiedAt when missing', async () => {
+  it('gives a missing updatedAt the shared bump value', async () => {
     mockReadAll.mockResolvedValueOnce([
       {
         id: 'event1',
@@ -206,13 +214,13 @@ describe('runMigrationLambda', () => {
       expect.objectContaining({
         id: 'event1',
         modifiedAt: '2026-01-01T10:00:00.000Z',
-        updatedAt: '2026-01-01T10:00:00.000Z',
+        updatedAt: expect.any(String),
       })
     )
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(1, 0), event)
   })
 
-  it('does not overwrite existing updatedAt', async () => {
+  it('does not touch an event that already has updatedAt', async () => {
     mockReadAll.mockResolvedValueOnce([
       {
         id: 'event1',
@@ -229,7 +237,7 @@ describe('runMigrationLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
   })
 
-  it('does not populate updatedAt from invalid modifiedAt', async () => {
+  it('gives updatedAt the shared bump value even when modifiedAt is invalid', async () => {
     mockReadAll.mockResolvedValueOnce([
       {
         id: 'event1',
@@ -247,8 +255,10 @@ describe('runMigrationLambda', () => {
 
     await runMigrationLambda(event)
 
-    expect(mockWrite).not.toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
+    expect(mockWrite).toHaveBeenCalledTimes(2)
+    expect(mockWrite).toHaveBeenCalledWith(expect.objectContaining({ id: 'event1', updatedAt: expect.any(String) }))
+    expect(mockWrite).toHaveBeenCalledWith(expect.objectContaining({ id: 'event2', updatedAt: expect.any(String) }))
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(2, 0), event)
   })
 
   it('returns migration results with zero count if no events need updating', async () => {
@@ -257,11 +267,13 @@ describe('runMigrationLambda', () => {
         id: 'event1',
         season: '2025', // Already has season field
         startDate: '2025-01-01',
+        updatedAt: '2025-01-01T00:00:00.000Z',
       },
       {
         id: 'event2',
         season: '2025', // Already has season field
         startDate: '2025-02-01',
+        updatedAt: '2025-01-01T00:00:00.000Z',
       },
     ])
 
