@@ -34,9 +34,10 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: runMigrationLambda } = await import('./handler')
 
 describe('runMigrationLambda', () => {
-  const migrationResults = (updatedAt: number, season: number) => [
+  const migrationResults = (updatedAt: number, season: number, startNumbers = 0) => [
     { count: updatedAt, name: 'populateUpdatedAtFromModifiedAt' },
     { count: season, name: 'fixSeasonFromStartDate' },
+    { count: startNumbers, name: 'backfillStartNumbersPublished' },
   ]
 
   const event = constructPartialAPIGwEvent({
@@ -292,4 +293,75 @@ describe('runMigrationLambda', () => {
   })
 
   // Skip the test for handling invalid startDate as it requires more complex mocking
+
+  describe('backfillStartNumbersPublished', () => {
+    it('writes an explicit false when the start list is unpublished', async () => {
+      mockReadAll.mockResolvedValueOnce([
+        { id: 'event1', season: '2026', startDate: '2026-01-01', startListPublished: false, updatedAt: 'kept' },
+      ])
+
+      await runMigrationLambda(event)
+
+      expect(mockWrite).toHaveBeenCalledTimes(1)
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'event1', startNumbersPublished: false, updatedAt: expect.any(String) })
+      )
+      // The incremental fetch reads updatedAt, so the backfill must move it
+      expect(mockWrite).not.toHaveBeenCalledWith(expect.objectContaining({ updatedAt: 'kept' }))
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 1), event)
+    })
+
+    it('mirrors a per-class list, holding back only the unpublished classes', async () => {
+      mockReadAll.mockResolvedValueOnce([
+        {
+          id: 'event1',
+          season: '2026',
+          startDate: '2026-01-01',
+          startListPublished: { ALO: true, AVO: false },
+          updatedAt: 'kept',
+        },
+      ])
+
+      await runMigrationLambda(event)
+
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({ startNumbersPublished: { ALO: true, AVO: false } })
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 1), event)
+    })
+
+    it.each`
+      startListPublished          | reason
+      ${true}                     | ${'a published list has been showing its numbers'}
+      ${undefined}                | ${'an absent flag means published'}
+      ${{ ALO: true, AVO: true }} | ${'every class is already out'}
+    `('leaves the event alone when $reason', async ({ startListPublished }) => {
+      mockReadAll.mockResolvedValueOnce([
+        { id: 'event1', season: '2026', startDate: '2026-01-01', startListPublished, updatedAt: 'kept' },
+      ])
+
+      await runMigrationLambda(event)
+
+      expect(mockWrite).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0), event)
+    })
+
+    it('does not overwrite an existing startNumbersPublished', async () => {
+      mockReadAll.mockResolvedValueOnce([
+        {
+          id: 'event1',
+          season: '2026',
+          startDate: '2026-01-01',
+          startListPublished: false,
+          startNumbersPublished: true,
+          updatedAt: 'kept',
+        },
+      ])
+
+      await runMigrationLambda(event)
+
+      expect(mockWrite).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0), event)
+    })
+  })
 })

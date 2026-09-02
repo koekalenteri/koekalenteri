@@ -26,6 +26,23 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Avoid narrowly named parallel helper files for variants of one workflow, such as `paymentCreation.ts` and `paymentCancellation.ts`, when the code belongs naturally in `payment.ts`.
 - Create a new library file only when it represents a clearly separate, reusable responsibility or a meaningful dependency boundary. Name it after the domain concept rather than a one-off operation or implementation detail.
 
+## Data Migrations
+
+- A one-off data migration is an entry in the `migrations` array of
+  `src/lambda/RunMigrationFunction/handler.ts`: a `name` plus an idempotent `run(event)` that
+  mutates the item and returns whether it changed. The lambda runs every migration over all event
+  rows via `POST /admin/migrate` (admin-only) and reports per-migration counts, so a migration must
+  stay safe to re-run on every invocation.
+- Do not write a data migration as a repo script or npm command. The KOE-1266 start number backfill
+  started as `scripts/backfill-start-numbers-published.mjs` and was moved into the lambda to keep
+  the practice uniform.
+- When a migration changes data the browser caches, `run` must also bump `updatedAt` — the
+  incremental fetch (`changedSince` in `src/lambda/lib/incremental.ts`) reads it, and a row
+  rewritten without moving it never reaches clients that already hold the event. `modifiedAt` stays
+  untouched: it records a user's edit, which a migration is not.
+- `scripts/migrate.sh` and `aws/README.md` cover a different job — copying whole tables between
+  stacks — not changing data in place.
+
 ## Visual Test Convention
 
 - When you change or create a user-visible component, ensure it has a screenshot test
