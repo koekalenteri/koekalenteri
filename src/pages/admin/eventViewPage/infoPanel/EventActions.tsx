@@ -69,15 +69,6 @@ const EventActions = ({
           </Button>
         )}
         <Button
-          fullWidth
-          href={Path.admin.startNumbers(eventId)}
-          startIcon={<FormatListNumberedOutlined />}
-          sx={actionButtonSx}
-          variant="outlined"
-        >
-          {t('eventManagement.enterStartNumbers')}
-        </Button>
-        <Button
           disabled={!eventStarted}
           fullWidth
           href={Path.admin.results(eventId)}

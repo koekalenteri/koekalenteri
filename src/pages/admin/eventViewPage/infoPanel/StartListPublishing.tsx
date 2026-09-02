@@ -203,6 +203,16 @@ const StartListPublishing = ({
         </Table>
       </TableContainer>
       <Box sx={{ pb: 1, pt: 0.5, px: 1 }}>
+        {/* The draw entry lives with the publish/hide buttons its numbers feed (KOE-1274). */}
+        <Button
+          fullWidth
+          href={Path.admin.startNumbers(event.id)}
+          startIcon={<FormatListNumberedOutlined />}
+          sx={{ ...actionButtonSx, mb: 1 }}
+          variant="outlined"
+        >
+          {t('eventManagement.enterStartNumbers')}
+        </Button>
         <Button
           fullWidth
           href={Path.admin.startListPreview(event.id)}
