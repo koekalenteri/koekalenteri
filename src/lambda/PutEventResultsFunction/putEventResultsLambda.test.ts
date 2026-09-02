@@ -353,6 +353,61 @@ describe('putEventResultsLambda', () => {
     })
   })
 
+  describe('a post that is the whole trial', () => {
+    const judge = { id: 123, name: 'Tuomari' }
+    const nomeB = { ...nowtEvent, eventType: 'NOME-B', stations: undefined }
+
+    beforeEach(() => {
+      mockGetAuthorizedEvent.mockResolvedValue(nomeB)
+      mockGetRegistrationsByEventId.mockResolvedValue([
+        {
+          ...registration('reg-1', 'ALO'),
+          eventResult: { judge, result: 'ALO1', updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Sihteeri' },
+        },
+      ])
+    })
+
+    it('saves a corrected verdict from the post: there is no task slice to call unchanged', async () => {
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            basedOn: '2026-09-12T10:00:00.000Z',
+            eventResult: { judge, resultCode: '2', tasks: [] },
+            id: 'reg-1',
+            stationId: '1',
+          },
+        ])
+      )
+
+      const [status] = mockResponse.mock.calls[0]
+      expect(status).toBe(200)
+      expect(savedResult()).toMatchObject({ result: 'ALO2' })
+    })
+
+    it('treats the same verdict sent again as nothing new', async () => {
+      await putEventResultsLambda(
+        apiEvent([{ eventResult: { judge, resultCode: '1', tasks: [] }, id: 'reg-1', stationId: '1' }])
+      )
+
+      const [status, body] = mockResponse.mock.calls[0]
+      expect(status).toBe(200)
+      expect(body.unchanged.map((item: { id: string }) => item.id)).toEqual(['reg-1'])
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    })
+
+    it("versions the post's save on the whole result, as the results page does", async () => {
+      await putEventResultsLambda(
+        apiEvent([
+          { basedOn: 'stale', eventResult: { judge, resultCode: '2', tasks: [] }, id: 'reg-1', stationId: '1' },
+        ])
+      )
+
+      const [status] = mockResponse.mock.calls[0]
+      expect(status).toBe(409)
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    })
+  })
+
   describe('parallel entry by post', () => {
     const scoredAt = (stationId: string, points: number, updatedAt: string, updatedBy: string) => ({
       index: 0,

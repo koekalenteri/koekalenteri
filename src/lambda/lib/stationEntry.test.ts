@@ -127,9 +127,11 @@ describe('stationEntry', () => {
       })
       const implicit = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const }
 
+      // The version rides along, since the post's next save of this dog is based on it.
       expect(stationEntryResponse(singlePost, implicit, [scored]).registrations[0].eventResult).toEqual({
         judge,
         result: 'ALO1',
+        updatedAt: 't1',
       })
     })
 

@@ -360,7 +360,9 @@ const classifySubmission = (
   userName: string
 ): SubmissionOutcome => {
   const stored = registration.eventResult
-  const { stationId } = submission
+  // A post's slice of a scored round is its tasks; where nothing is scored the post is the whole
+  // trial, and its submission is the whole result — compared, versioned and merged as one.
+  const stationId = scoresAtPosts(confirmedEvent.eventType) ? submission.stationId : undefined
   const submittedTasks = stampProvenance(submission.eventResult.tasks, timestamp, userName)
   const submitted: SubmittedEventResult = { ...submission.eventResult, tasks: submittedTasks }
   const resolve = (result: SubmittedEventResult) =>

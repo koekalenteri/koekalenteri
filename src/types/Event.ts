@@ -255,11 +255,13 @@ export interface JsonStationEntryDog {
    * This post's own recordings only; the rest of the round is not this link's to see. The result and
    * the judge ride along for a qualitative type alone, whose post is the whole trial.
    */
-  eventResult?: Pick<JsonEventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'>
+  eventResult?: Pick<JsonEventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
+    Partial<Pick<JsonEventResult, 'updatedAt'>>
 }
 export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'> & {
   group?: RegistrationGroup
-  eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'>
+  eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
+    Partial<Pick<EventResult, 'updatedAt'>>
 }
 
 /** What the tokenized station link serves: the post, its slice of the course, and the dogs that run. */

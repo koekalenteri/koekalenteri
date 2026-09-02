@@ -46,7 +46,8 @@ interface StationScoringDog {
   group?: RegistrationGroup & { time?: RegistrationTime }
   dog: { name?: string }
   handler?: { name?: string }
-  eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'>
+  eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
+    Partial<Pick<EventResult, 'updatedAt'>>
 }
 
 interface Props {
@@ -188,7 +189,8 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
     // A qualitative result is attributed to whoever is judging, as a task's score is at a post.
     const judge = qualitative ? (edit.judge ?? lastJudge ?? judges[0]) : undefined
     const response = await onSave({
-      basedOn: stationVersion(stored?.tasks, station.id),
+      // Where the post is the whole trial, the version is the whole result's, as on the results page.
+      basedOn: qualitative ? stored?.updatedAt : stationVersion(stored?.tasks, station.id),
       eventResult: {
         elimination: edit.elimination,
         retirement: edit.retirement,

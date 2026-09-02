@@ -80,7 +80,8 @@ export const authorizeStationEntry = async (
 const stationEntryDog = (registration: JsonRegistration, stationId: string): JsonStationEntryDog => {
   const stored = registration.eventResult
   const scoped = stored && scopeResultToStation(stored, stationId, registration.eventType)
-  const { updatedAt: _at, updatedBy: _by, ...eventResult } = scoped ?? {}
+  // The version rides along — a whole-trial post's next save is based on it; who wrote it does not.
+  const { updatedBy: _by, ...eventResult } = scoped ?? {}
 
   return {
     class: registration.class,

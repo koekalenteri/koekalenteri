@@ -100,8 +100,16 @@ describe('StationScoring', () => {
 
     it('starts a correction from what is recorded, and marks a judged dog as done', async () => {
       const user = userEvent.setup()
-      const judged = { ...dogs[0], eventResult: { judge, result: 'ALO2' } }
-      renderScoring({ registrations: [judged, dogs[1]] })
+      const updatedAt = new Date('2026-09-12T10:00:00Z')
+      const judged = { ...dogs[0], eventResult: { judge, result: 'ALO2', updatedAt } }
+      const { onSave } = renderScoring({ registrations: [judged, dogs[1]] })
+
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+      // A correction is based on the stored result's version, the whole result being the post's.
+      await user.click(screen.getByLabelText('results.column.result'))
+      await user.click(within(screen.getByRole('listbox')).getByText('ALO1'))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ basedOn: updatedAt, id: 'run-1' }))
 
       await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
 
