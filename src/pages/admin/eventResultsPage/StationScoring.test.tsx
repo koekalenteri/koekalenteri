@@ -106,6 +106,8 @@ describe('StationScoring', () => {
       await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
 
       expect(screen.getByLabelText('results.column.result')).toHaveTextContent('ALO2')
+      // A judged dog's day at the post is over: it cannot be sent out again.
+      expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeDisabled()
       // A filled chip is a dog that has been through; an outlined one is still to come.
       expect(screen.getByRole('button', { name: '1 Ensimmainen' })).toHaveClass('MuiChip-filled')
       expect(screen.getByRole('button', { name: '2 Toinen' })).toHaveClass('MuiChip-outlined')

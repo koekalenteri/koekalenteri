@@ -179,6 +179,12 @@ describe('StationTurnControls', () => {
       expect(await screen.findByText('liveStatus.alreadyThrough')).toBeInTheDocument()
     })
 
+    it('does not send a scored dog out, whatever the timeline says — even at a NOME-A', () => {
+      renderControls({ eventType: 'NOME-A', selectedDog: { done: true, id: 'run-1', name: 'Ensimmainen', number: 5 } })
+
+      expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeDisabled()
+    })
+
     it('lets a NOME-A dog out for retrieve after retrieve', () => {
       const through = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z') }
       renderControls({

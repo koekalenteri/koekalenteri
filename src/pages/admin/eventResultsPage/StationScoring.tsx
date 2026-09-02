@@ -157,12 +157,6 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
 
   const selected = dogs.find((dog) => dog.id === selectedId)
 
-  /** The queue as the turn controls need it, for picking a walk-up out of the class on show. */
-  const turnDogs = useMemo(
-    () => dogs.map((dog) => ({ id: dog.id, name: dog.dog.name, number: dog.group?.number })),
-    [dogs]
-  )
-
   /** A dog this post has already scored, so the judge can see at a glance who is still to come. */
   const isScored = useCallback(
     (dog: StationScoringDog) => {
@@ -171,6 +165,12 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
       return stored?.tasks?.some((task) => task.stationId === station.id) ?? false
     },
     [qualitative, station.id]
+  )
+
+  /** The queue as the turn controls need it, for picking a walk-up out of the class on show. */
+  const turnDogs = useMemo(
+    () => dogs.map((dog) => ({ done: isScored(dog), id: dog.id, name: dog.dog.name, number: dog.group?.number })),
+    [dogs, isScored]
   )
 
   const select = useCallback(
@@ -237,7 +237,7 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
           dogs={turnDogs}
           eventType={eventType}
           onTurn={onTurn}
-          selectedDog={selected && { id: selected.id, name: selected.dog.name, number: selected.group?.number }}
+          selectedDog={turnDogs.find((dog) => dog.id === selected?.id)}
           station={station}
           turns={turns}
         />

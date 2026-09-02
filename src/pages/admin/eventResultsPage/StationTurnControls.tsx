@@ -43,6 +43,8 @@ interface TurnDog {
   id: string
   name?: string
   number?: number
+  /** Already scored at this post: its day here is over, whatever the timeline says. */
+  done?: boolean
 }
 
 interface Props {
@@ -129,7 +131,8 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
 
   // A dog runs a post once — except where the format says otherwise: a NOME-A dog goes out for
   // retrieve after retrieve. The timeline is the record, so a dog it already names is not sent out
-  // again. The match is by number and name, the handles the public turn shape has.
+  // again; and a dog already scored here is done whatever the timeline says, since a score is the
+  // end of its day at the post. The match is by number and name, the handles the public shape has.
   const runsAgain = format.tasks === 'retrieve'
   const hasRun = (dog: TurnDog) =>
     turns.some(
@@ -138,7 +141,7 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
         !isBreakTurn(turn) &&
         turn.dogs.some((ran) => ran.number === dog.number && ran.name === dog.name)
     )
-  const alreadyRun = (dog: TurnDog) => !runsAgain && hasRun(dog)
+  const alreadyRun = (dog: TurnDog) => Boolean(dog.done) || (!runsAgain && hasRun(dog))
   const eligible = (dogs ?? []).filter((dog) => !alreadyRun(dog))
 
   // The picked group is what runs; the dog open in the scoring view is the single-dog shorthand for it.
