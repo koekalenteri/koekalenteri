@@ -301,8 +301,21 @@ export const isResultsPublishedForClass = (event: Pick<JsonDogEvent, 'resultsPub
     ? event.resultsPublished[eventClass as RegistrationClass] === true
     : event.resultsPublished === true
 
-/** Whether any class's results are public — what a search for "events with results" filters on. */
 /** Every class's results are out — the public list is no longer just participants (KOE-1285). */
+export const hasAllResultsPublished = (
+  event: Pick<JsonDogEvent, 'resultsPublished'> & { classes?: Array<Pick<EventClass, 'class'>> | null }
+): boolean => {
+  const classes = uniqueClasses(event)
+  if (classes.length === 0) return event.resultsPublished === true
+  return classes.every((eventClass) => isResultsPublishedForClass(event, eventClass))
+}
+
+/** Whether any class's results are public — what a search for "events with results" filters on. */
+export const hasPublishedResults = ({ resultsPublished }: Pick<JsonDogEvent, 'resultsPublished'>): boolean =>
+  isResultsPublishedClassMap(resultsPublished)
+    ? Object.values(resultsPublished).some(Boolean)
+    : resultsPublished === true
+
 /**
  * Whether the calendar should say the event is live: a post is being run today (or a span is still
  * open), and the trial is not over — once every class's results are out, the page is the results and
@@ -315,19 +328,6 @@ export const isEventLiveNow = (
   },
   now: Date = new Date()
 ): boolean => !hasAllResultsPublished(event) && isLiveNow(event.liveTurns ?? [], now)
-
-export const hasAllResultsPublished = (
-  event: Pick<JsonDogEvent, 'resultsPublished'> & { classes?: Array<Pick<EventClass, 'class'>> | null }
-): boolean => {
-  const classes = uniqueClasses(event)
-  if (classes.length === 0) return event.resultsPublished === true
-  return classes.every((eventClass) => isResultsPublishedForClass(event, eventClass))
-}
-
-export const hasPublishedResults = ({ resultsPublished }: Pick<JsonDogEvent, 'resultsPublished'>): boolean =>
-  isResultsPublishedClassMap(resultsPublished)
-    ? Object.values(resultsPublished).some(Boolean)
-    : resultsPublished === true
 
 /**
  * A result reaches the public on the start list's own rows — it has no other transport — so a published
