@@ -37,6 +37,7 @@ import {
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEventDeletable,
+  isEventLiveNow,
   isOfficialEventType,
   isResultsAvailableForClass,
   isResultsAvailableForRegistration,
@@ -1498,5 +1499,25 @@ describe('isResultsAvailableForRegistration', () => {
     expect(isResultsAvailableForRegistration(twoDays, { class: 'ALO', group: { date: new Date('2026-09-13') } })).toBe(
       false
     )
+  })
+})
+
+describe('isEventLiveNow', () => {
+  const now = new Date('2026-09-12T14:00:00+03:00')
+  const running = [{ startedAt: new Date('2026-09-12T08:00:00+03:00') }]
+
+  it('is live while a post is being run and the trial is not over', () => {
+    expect(isEventLiveNow({ classes: [{ class: 'ALO' }], liveTurns: running, resultsPublished: {} }, now)).toBe(true)
+  })
+
+  it('goes quiet once every class has its results published, whatever the timeline says', () => {
+    expect(
+      isEventLiveNow({ classes: [{ class: 'ALO' }], liveTurns: running, resultsPublished: { ALO: true } }, now)
+    ).toBe(false)
+    expect(isEventLiveNow({ classes: [], liveTurns: running, resultsPublished: true }, now)).toBe(false)
+  })
+
+  it('is quiet with nothing run', () => {
+    expect(isEventLiveNow({ classes: [{ class: 'ALO' }] }, now)).toBe(false)
   })
 })

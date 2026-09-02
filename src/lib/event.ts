@@ -30,7 +30,7 @@ import { sub } from 'date-fns/sub'
 import { subDays } from 'date-fns/subDays'
 import { formatDate, TIME_ZONE, zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { LANGUAGES } from '../types'
-import { isStoredStationTurn, toPublicStationTurn } from './stationTurns'
+import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
 import { unique, uniqueDate } from './utils'
 
@@ -303,6 +303,19 @@ export const isResultsPublishedForClass = (event: Pick<JsonDogEvent, 'resultsPub
 
 /** Whether any class's results are public — what a search for "events with results" filters on. */
 /** Every class's results are out — the public list is no longer just participants (KOE-1285). */
+/**
+ * Whether the calendar should say the event is live: a post is being run today (or a span is still
+ * open), and the trial is not over — once every class's results are out, the page is the results and
+ * nothing at it is live any more, whatever the timeline says.
+ */
+export const isEventLiveNow = (
+  event: Pick<JsonDogEvent, 'resultsPublished'> & {
+    classes?: Array<Pick<EventClass, 'class'>> | null
+    liveTurns?: readonly { startedAt: string | Date; endedAt?: string | Date }[]
+  },
+  now: Date = new Date()
+): boolean => !hasAllResultsPublished(event) && isLiveNow(event.liveTurns ?? [], now)
+
 export const hasAllResultsPublished = (
   event: Pick<JsonDogEvent, 'resultsPublished'> & { classes?: Array<Pick<EventClass, 'class'>> | null }
 ): boolean => {
