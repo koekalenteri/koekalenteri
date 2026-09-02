@@ -63,10 +63,10 @@ exports[`BasicInfoSection > should render 1`] = `
                     class="MuiGrid-root MuiGrid-direction-xs-row css-12kblo6-MuiGrid-root"
                   >
                     <div
-                      class="MuiBox-root css-8atqhb"
+                      class="MuiBox-root css-1ok6p0u"
                     >
                       <div
-                        class="MuiFormControl-root css-1y4zsh1-MuiFormControl-root"
+                        class="MuiFormControl-root css-fyk74u-MuiFormControl-root"
                       >
                         <div
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
@@ -140,7 +140,7 @@ exports[`BasicInfoSection > should render 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiFormControl-root css-8q185u-MuiFormControl-root"
+                        class="MuiFormControl-root css-fyk74u-MuiFormControl-root"
                       >
                         <div
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"

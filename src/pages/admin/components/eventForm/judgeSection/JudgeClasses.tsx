@@ -12,7 +12,8 @@ interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
 
 const JudgeClasses = ({ disabled, event, index, judge, onChange }: Props) => {
   return (
-    <Grid flex={1} display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
+    // Fills the row beside the judge's name; on a phone, where there is no such room, takes a row of its own.
+    <Grid flex="1 1 200px" display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
       <EventClasses
         id={`class${index}`}
         disabled={disabled}

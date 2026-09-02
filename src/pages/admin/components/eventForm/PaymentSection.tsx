@@ -73,19 +73,26 @@ function CostTableSection({
   return (
     <>
       <TableContainer>
-        <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
+        <Table
+          size="small"
+          // The four columns fit a phone only with the cells' side padding pared down and the amounts narrower.
+          sx={{
+            '& .MuiTableCell-root': { px: { sm: 2, xs: 0.5 } },
+            '& .MuiTextField-root': { m: 0, width: { sm: '10ch', xs: '7ch' } },
+          }}
+        >
           <TableHead>
             <TableRow>
               <TableCell sx={{ pl: 1 }}>
                 <Typography variant="subtitle1">{title}</Typography>
               </TableCell>
-              <TableCell align="right" width={100}>
+              <TableCell align="right" sx={{ width: { sm: 100 } }}>
                 <Typography variant="subtitle1">{t('costAmount')}</Typography>
               </TableCell>
-              <TableCell align="right" width={140}>
+              <TableCell align="right" sx={{ width: { sm: 140 } }}>
                 <Typography variant="subtitle1">{t('costMemberAmount')}</Typography>
               </TableCell>
-              <TableCell width={40}></TableCell>
+              <TableCell sx={{ width: { sm: 40 } }}></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>{children}</TableBody>
@@ -358,7 +365,7 @@ function PaymentSection({
       helperText={helperText}
     >
       <Grid container spacing={1} maxWidth={1280}>
-        <Grid minWidth={600}>
+        <Grid sx={{ minWidth: { sm: 600 }, width: { sm: 'auto', xs: '100%' } }}>
           <FormControl fullWidth>
             <InputLabel id="payment-time-label">{t('paymentTime')}</InputLabel>
             <Select
@@ -373,7 +380,7 @@ function PaymentSection({
             </Select>
           </FormControl>
         </Grid>
-        <Grid minWidth={600} width="100%">
+        <Grid sx={{ minWidth: { sm: 600 }, width: '100%' }}>
           <CostTableSection
             title={t('cost')}
             action={

@@ -14,8 +14,9 @@ import { TestProvider } from '../../../test-utils/AtomProvider'
 import { adminEventTypesAtom, adminJudgesAtom, adminOrganizersAtom, adminUsersAtom } from '../state'
 import EventForm from './EventForm'
 
-// A phone's width; the height is whatever the whole form takes, since the capture stops at the viewport's edge.
+// The heights are whatever the whole form takes: the capture stops at the viewport's edge.
 const PHONE = { height: 1400, width: 390 }
+const DESKTOP = { height: 3000, width: 1200 }
 
 // The sections slide open; a capture mid-slide is not a layout anyone gets.
 const stillTheme = createTheme(theme, { transitions: { getAutoHeightDuration: () => 0 } })
@@ -83,12 +84,12 @@ const judges = [
   },
 ]
 
-/** The form on a phone, with the lists the pickers offer seeded so no field is emptier than it is in use. */
-const renderOnPhone = async () => {
-  await page.viewport(PHONE.width, PHONE.height)
+/** The form at a screen's width, with the lists the pickers offer seeded so no field is emptier than it is in use. */
+const renderAt = async ({ height, width }: { height: number; width: number }) => {
+  await page.viewport(width, height)
 
   return render(
-    <div data-testid="visual-root" style={{ background: '#fff', display: 'flex', width: PHONE.width }}>
+    <div data-testid="visual-root" style={{ background: '#fff', display: 'flex', width }}>
       <ThemeProvider theme={stillTheme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <TestProvider
@@ -109,16 +110,23 @@ const renderOnPhone = async () => {
   )
 }
 
+it('opens every section on a desktop', async () => {
+  const screen = await renderAt(DESKTOP)
+
+  await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-form-desktop')
+})
+
 describe('event form on a phone (KOE-271)', () => {
   it('opens with the basic details and the other sections folded', async () => {
-    const screen = await renderOnPhone()
+    const screen = await renderAt(PHONE)
 
     await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-form-phone-basic')
   })
 
   it('shows one section at a time: opening the entry section folds the basic details', async () => {
-    const screen = await renderOnPhone()
+    const screen = await renderAt(PHONE)
     await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).toBeVisible()
 
     await screen.getByText('Ilmoittautuminen', { exact: true }).click()
@@ -128,12 +136,22 @@ describe('event form on a phone (KOE-271)', () => {
   })
 
   it('lists the judges one under another', async () => {
-    const screen = await renderOnPhone()
+    const screen = await renderAt(PHONE)
     await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).toBeVisible()
 
     await screen.getByText('Tuomarit', { exact: true }).click()
 
     await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).not.toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-form-phone-judges')
+  })
+
+  it('fits the cost table', async () => {
+    const screen = await renderAt(PHONE)
+    await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).toBeVisible()
+
+    await screen.getByText('Maksutiedot', { exact: true }).click()
+
+    await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).not.toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-form-phone-payment')
   })
 })

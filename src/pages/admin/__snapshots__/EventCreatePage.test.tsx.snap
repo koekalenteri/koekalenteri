@@ -142,10 +142,10 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                         class="MuiGrid-root MuiGrid-direction-xs-row css-12kblo6-MuiGrid-root"
                       >
                         <div
-                          class="MuiBox-root css-8atqhb"
+                          class="MuiBox-root css-1ok6p0u"
                         >
                           <div
-                            class="MuiFormControl-root css-1y4zsh1-MuiFormControl-root"
+                            class="MuiFormControl-root css-fyk74u-MuiFormControl-root"
                           >
                             <div
                               class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
@@ -219,7 +219,7 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                             </div>
                           </div>
                           <div
-                            class="MuiFormControl-root css-8q185u-MuiFormControl-root"
+                            class="MuiFormControl-root css-fyk74u-MuiFormControl-root"
                           >
                             <div
                               class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
@@ -1089,7 +1089,7 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-direction-xs-row css-1dxe1w3-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-direction-xs-row css-odc8s7-MuiGrid-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -1322,10 +1322,10 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                       class="MuiGrid-root MuiGrid-direction-xs-row css-1n2wi7c-MuiGrid-root"
                     >
                       <div
-                        class="MuiBox-root css-8atqhb"
+                        class="MuiBox-root css-1ok6p0u"
                       >
                         <div
-                          class="MuiFormControl-root css-1y4zsh1-MuiFormControl-root"
+                          class="MuiFormControl-root css-fyk74u-MuiFormControl-root"
                         >
                           <div
                             class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
@@ -1389,7 +1389,7 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                           </div>
                         </div>
                         <div
-                          class="MuiFormControl-root css-8q185u-MuiFormControl-root"
+                          class="MuiFormControl-root css-fyk74u-MuiFormControl-root"
                         >
                           <div
                             class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
@@ -1667,7 +1667,7 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1fszdky-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row css-1whfc6-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row css-111ckz7-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
@@ -1727,13 +1727,13 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row css-1w6v8hl-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row css-is209x-MuiGrid-root"
                     >
                       <div
                         class="MuiTableContainer-root css-70zvr5-MuiTableContainer-root"
                       >
                         <table
-                          class="MuiTable-root css-1nkh8i9-MuiTable-root"
+                          class="MuiTable-root css-z3scua-MuiTable-root"
                         >
                           <thead
                             class="MuiTableHead-root css-1a7iywq-MuiTableHead-root"
@@ -1752,9 +1752,8 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                                 </h6>
                               </th>
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-1ais0ar-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-14ho8uz-MuiTableCell-root"
                                 scope="col"
-                                width="100"
                               >
                                 <h6
                                   class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -1763,9 +1762,8 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                                 </h6>
                               </th>
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-1ais0ar-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-12lxuc0-MuiTableCell-root"
                                 scope="col"
-                                width="140"
                               >
                                 <h6
                                   class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -1774,9 +1772,8 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                                 </h6>
                               </th>
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-g6bqb5-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-8z1hqv-MuiTableCell-root"
                                 scope="col"
-                                width="40"
                               />
                             </tr>
                           </thead>
@@ -1927,7 +1924,7 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                         class="MuiTableContainer-root css-70zvr5-MuiTableContainer-root"
                       >
                         <table
-                          class="MuiTable-root css-1nkh8i9-MuiTable-root"
+                          class="MuiTable-root css-z3scua-MuiTable-root"
                         >
                           <thead
                             class="MuiTableHead-root css-1a7iywq-MuiTableHead-root"
@@ -1946,9 +1943,8 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                                 </h6>
                               </th>
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-1ais0ar-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-14ho8uz-MuiTableCell-root"
                                 scope="col"
-                                width="100"
                               >
                                 <h6
                                   class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -1957,9 +1953,8 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                                 </h6>
                               </th>
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-1ais0ar-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-12lxuc0-MuiTableCell-root"
                                 scope="col"
-                                width="140"
                               >
                                 <h6
                                   class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -1968,9 +1963,8 @@ exports[`EventEditPage > renders properly when creating a new event 1`] = `
                                 </h6>
                               </th>
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-g6bqb5-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-8z1hqv-MuiTableCell-root"
                                 scope="col"
-                                width="40"
                               />
                             </tr>
                           </thead>

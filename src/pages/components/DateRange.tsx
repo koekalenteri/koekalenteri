@@ -77,8 +77,9 @@ export default function DateRange({
   )
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <FormControl sx={{ pr: 0.5, width: '50%' }}>
+    // Side by side where both fit with their labels readable, one under the other on a phone.
+    <Box sx={{ columnGap: 1, display: 'flex', flexWrap: 'wrap', rowGap: 1, width: '100%' }}>
+      <FormControl sx={{ flex: '1 1 200px' }}>
         <DatePicker
           referenceDate={defaultStart}
           disabled={startDisabled}
@@ -101,7 +102,7 @@ export default function DateRange({
         />
       </FormControl>
 
-      <FormControl sx={{ pl: 0.5, width: '50%' }}>
+      <FormControl sx={{ flex: '1 1 200px' }}>
         <DatePicker
           referenceDate={defaultEnd}
           disabled={endDisabled}
