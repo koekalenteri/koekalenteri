@@ -788,6 +788,7 @@
   "results": {
     "alreadySaved": "Tulokset olivat jo tallennettuna",
     "backToEvent": "Takaisin tapahtumaan",
+    "backToResults": "Takaisin tulosten syöttöön",
     "column": {
       "dog": "Koira",
       "handler": "Ohjaaja",

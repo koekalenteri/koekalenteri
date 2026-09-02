@@ -1,5 +1,6 @@
 import type { EventResultSubmission } from '../../api/registration'
 import type { EventStation, StationTurn, StationTurnOp } from '../../types'
+import ArrowBack from '@mui/icons-material/ArrowBack'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
@@ -7,7 +8,7 @@ import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { putEventResults } from '../../api/registration'
 import { getStationLink, putStationTurn } from '../../api/station'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
@@ -103,6 +104,16 @@ export default function StationResultsPage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}>
       <Stack alignItems="center" direction="row" flexWrap="wrap" justifyContent="flex-end" spacing={1} sx={{ pb: 1 }}>
+        {/* The event secretary came from the results page and goes back there; the token link has no such page. */}
+        <Button
+          component={Link}
+          size="small"
+          startIcon={<ArrowBack fontSize="small" />}
+          sx={{ ml: -1 }}
+          to={Path.admin.results(eventId)}
+        >
+          {t('results.backToResults')}
+        </Button>
         {ownPhases && (
           <StationPhasesEditor onSave={(phases) => saveStation({ phases })} phases={station.phases ?? []} />
         )}

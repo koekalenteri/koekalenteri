@@ -190,6 +190,17 @@ describe('StationResultsPage', () => {
     expect(screen.getByRole('button', { name: '2 Toinen' })).toHaveClass('MuiChip-outlined')
   })
 
+  it('leads back to the results page the secretary came from', async () => {
+    const { i18n } = useTranslation()
+    renderStation(i18n.language as Language)
+    await flushPromises()
+
+    expect(screen.getByRole('link', { name: 'results.backToResults' })).toHaveAttribute(
+      'href',
+      Path.admin.results(eventWithStations.id)
+    )
+  })
+
   it('will not open on a post the event does not have', async () => {
     const { i18n } = useTranslation()
     renderPage(i18n.language as Language, 'no-such-post')
