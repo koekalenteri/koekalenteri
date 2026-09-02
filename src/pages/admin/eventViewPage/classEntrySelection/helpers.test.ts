@@ -5,6 +5,7 @@ import { registrationWithStaticDates } from '../../../../__mockData__/registrati
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
 import {
+  buildDrawnNumberOptions,
   buildMoveToGroupChange,
   buildMoveToPositionGroupChange,
   buildMoveToPositionOptions,
@@ -12,7 +13,9 @@ import {
   buildSelectedAdditionalCostsByGroup,
   buildSelectedAdditionalCostsTotal,
   findMoveToPositionTargetGroup,
+  getDrawnNumberDays,
   getNouGroupRuleIssues,
+  isDrawnNumberMove,
   listKey,
 } from './helpers'
 
@@ -370,6 +373,67 @@ describe('helpers', () => {
 
       expect(result.group1[0].dropGroups).toContain('group2')
       expect(result.group1[0].dropGroups).toHaveLength(1)
+    })
+  })
+
+  describe('drawn number helpers (KOE-1273)', () => {
+    const day = parseISO('2023-01-01T12:00:00Z')
+    const groupKey = '2023-01-01-ap'
+    const dog = (id: string, number: number, startNumber?: number, extra: Partial<Registration> = {}): Registration =>
+      ({
+        group: { date: day, key: groupKey, number, time: 'ap' },
+        id,
+        ...(startNumber === undefined
+          ? {}
+          : { startGroup: { date: day, key: groupKey, number: startNumber, time: 'ap' } }),
+        ...extra,
+      }) as Partial<Registration> as Registration
+
+    describe('getDrawnNumberDays', () => {
+      it('is empty while no number has been entered', () => {
+        expect(getDrawnNumberDays([dog('a', 1), dog('b', 2)]).size).toBe(0)
+      })
+
+      it('includes the day once a dog holds an entered number, ignoring cancelled dogs', () => {
+        const days = getDrawnNumberDays([dog('a', 1, 3), dog('b', 2, 9, { cancelled: true })])
+        expect(days).toEqual(new Set([day.toDateString()]))
+      })
+    })
+
+    describe('isDrawnNumberMove', () => {
+      const drawnDays = new Set([day.toDateString()])
+
+      it('applies to a participant on a drawn day', () => {
+        expect(isDrawnNumberMove(dog('a', 1), drawnDays)).toBe(true)
+      })
+
+      it('does not apply before the draw, to a reserve dog, or to a cancelled dog', () => {
+        expect(isDrawnNumberMove(dog('a', 1), new Set())).toBe(false)
+        expect(
+          isDrawnNumberMove(
+            { group: { key: GROUP_KEY_RESERVE, number: 1 } } as Partial<Registration> as Registration,
+            drawnDays
+          )
+        ).toBe(false)
+        expect(isDrawnNumberMove(dog('a', 1, undefined, { cancelled: true }), drawnDays)).toBe(false)
+      })
+    })
+
+    describe('buildDrawnNumberOptions', () => {
+      it('offers the free numbers of the day, entered ones removed', () => {
+        const regs = [dog('a', 1), dog('b', 2, 3), dog('c', 3, 4), dog('d', 4, 6), dog('e', 5), dog('f', 6)]
+        expect(buildDrawnNumberOptions(regs[0], regs)).toEqual([1, 2, 5])
+      })
+
+      it('offers a cancelled dog frozen number, since the server hands a vacated slot on', () => {
+        const regs = [dog('a', 1), dog('b', 2, 2, { cancelled: true }), dog('c', 3, 3)]
+        expect(buildDrawnNumberOptions(regs[0], regs)).toEqual([1, 2])
+      })
+
+      it('excludes the dog own entered number', () => {
+        const regs = [dog('a', 1, 1), dog('b', 2, 2)]
+        expect(buildDrawnNumberOptions(regs[0], regs)).toEqual([])
+      })
     })
   })
 

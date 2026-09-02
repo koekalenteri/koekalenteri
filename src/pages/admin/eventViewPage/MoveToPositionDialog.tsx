@@ -19,12 +19,26 @@ interface Props {
   onClose: () => void
   registration: Registration
   positions: number[]
+  /**
+   * The day's draw has begun (KOE-1273): the chosen place is entered as the dog's own start number,
+   * so it is passed on as-is instead of the working-order insertion anchor.
+   */
+  assignNumber?: boolean
   onMove: (position: number) => Promise<void>
 }
 
-export default function MoveToPositionDialog({ open, onClose, registration, positions, onMove }: Readonly<Props>) {
+export default function MoveToPositionDialog({
+  open,
+  onClose,
+  registration,
+  positions,
+  assignNumber,
+  onMove,
+}: Readonly<Props>) {
   const { t } = useTranslation()
-  const [selectedPosition, setSelectedPosition] = useState<number>(registration.group?.number ?? 1)
+  const [selectedPosition, setSelectedPosition] = useState<number>(
+    registration.startGroup?.number ?? registration.group?.number ?? 1
+  )
   const [saving, setSaving] = useState(false)
 
   const handleMove = async () => {
@@ -32,10 +46,13 @@ export default function MoveToPositionDialog({ open, onClose, registration, posi
     try {
       const isParticipantMove = isParticipantGroup(registration.group?.key)
       const currentPosition = registration.group?.number
-      const movePosition =
-        isParticipantMove && typeof currentPosition === 'number' && currentPosition < selectedPosition
-          ? selectedPosition + 0.5
-          : selectedPosition - 0.5
+      let movePosition = selectedPosition
+      if (!assignNumber) {
+        movePosition =
+          isParticipantMove && typeof currentPosition === 'number' && currentPosition < selectedPosition
+            ? selectedPosition + 0.5
+            : selectedPosition - 0.5
+      }
       await onMove(movePosition)
       enqueueSnackbar(
         t('registration.moveToPositionDialog.moved', { name: registration.dog.name, position: selectedPosition }),

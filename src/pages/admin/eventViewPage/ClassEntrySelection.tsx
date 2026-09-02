@@ -5,6 +5,7 @@ import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { useConfirm } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
 import { Fragment, useCallback, useMemo, useState } from 'react'
@@ -12,25 +13,35 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import withScrolling from 'react-dnd-scrolling'
 import { useTranslation } from 'react-i18next'
+import { putStartNumbers } from '../../../api/event'
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { eventRegistrationDateKey, isEventOver } from '../../../lib/event'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../lib/registration'
+import {
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
+  getRegistrationGroupKey,
+  isRegistrationClass,
+} from '../../../lib/registration'
 import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
+import { idTokenAtom } from '../../state'
 import { useAdminRegistrationActions } from '../state/registrations/actions'
 import DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import {
+  buildDrawnNumberOptions,
   buildMoveToGroupChange,
   buildMoveToPositionGroupChange,
   buildMoveToPositionOptions,
   buildRegistrationsByGroup,
   buildSelectedAdditionalCostsByGroup,
   buildSelectedAdditionalCostsTotal,
+  getDrawnNumberDays,
   getNouGroupRuleIssues,
+  isDrawnNumberMove,
 } from './classEntrySelection/helpers'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 import UnlockArrange from './classEntrySelection/UnlockArrange'
@@ -76,6 +87,7 @@ const ClassEntrySelection = ({
 }: Props) => {
   const confirm = useConfirm()
   const { t } = useTranslation()
+  const token = useAtomValue(idTokenAtom)
   const actions = useAdminRegistrationActions(event.id)
   const [unlockArrange, setUnlockArrange] = useState(false)
   const [moveToGroupDialogOpen, setMoveToGroupDialogOpen] = useState(false)
@@ -116,10 +128,13 @@ const ClassEntrySelection = ({
     [groups, selectedAdditionalCostsByGroup]
   )
 
-  const moveToPositionOptions = useMemo(
-    () => buildMoveToPositionOptions(selectedForAction, groups, registrationsByGroup),
-    [groups, registrationsByGroup, selectedForAction]
-  )
+  // Once the day's draw has begun, moving to a start place enters the number itself (KOE-1273).
+  const drawnDays = useMemo(() => getDrawnNumberDays(registrations), [registrations])
+  const assignNumberMove = isDrawnNumberMove(selectedForAction, drawnDays)
+  const moveToPositionOptions = useMemo(() => {
+    if (assignNumberMove && selectedForAction) return buildDrawnNumberOptions(selectedForAction, registrations)
+    return buildMoveToPositionOptions(selectedForAction, groups, registrationsByGroup)
+  }, [assignNumberMove, groups, registrations, registrationsByGroup, selectedForAction])
 
   const openActionDialog = useCallback(
     (
@@ -443,10 +458,22 @@ const ClassEntrySelection = ({
             onClose={() => setMoveToPositionDialogOpen(false)}
             registration={selectedForAction}
             positions={moveToPositionOptions}
+            assignNumber={assignNumberMove}
             onMove={async (position) => {
               if (movementDisabled) return
               setPendingMoveId(selectedForAction.id)
               try {
+                if (assignNumberMove) {
+                  await putStartNumbers(
+                    event.id,
+                    {
+                      ...(isRegistrationClass(eventClass) ? { eventClass } : {}),
+                      numbers: [{ id: selectedForAction.id, startNumber: position }],
+                    },
+                    token ?? ''
+                  )
+                  return
+                }
                 const change = buildMoveToPositionGroupChange(selectedForAction, position, groups, registrationsByGroup)
                 if (!change) return
 

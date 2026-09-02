@@ -119,6 +119,61 @@ export const buildRegistrationsByGroup = (
   return byGroup
 }
 
+const drawDayKey = (date: Date | string) => new Date(date).toDateString()
+
+const registrationDrawDay = (registration: Registration): string | undefined => {
+  const date = registration.startGroup?.date ?? registration.group?.date
+  return date ? drawDayKey(date) : undefined
+}
+
+/** Days of this class whose draw has begun: some participant already holds an entered number. */
+export const getDrawnNumberDays = (registrations: Registration[]): Set<string> => {
+  const days = new Set<string>()
+  for (const registration of registrations) {
+    if (!registration.cancelled && registration.startGroup?.date) {
+      days.add(drawDayKey(registration.startGroup.date))
+    }
+  }
+  return days
+}
+
+/**
+ * Once the day's draw has begun, "move to a start place" means the place, not the working order:
+ * the move enters the chosen number as the dog's own drawn number (KOE-1273).
+ */
+export const isDrawnNumberMove = (registration: Registration | undefined, drawnDays: Set<string>): boolean => {
+  if (!registration || registration.cancelled) return false
+  if (!isParticipantGroup(getRegistrationGroupKey(registration))) return false
+  const day = registrationDrawDay(registration)
+  return day !== undefined && drawnDays.has(day)
+}
+
+/** The numbers this dog could take in its day's draw: 1..N with the ones already entered removed. */
+export const buildDrawnNumberOptions = (registration: Registration, registrations: Registration[]): number[] => {
+  const day = registrationDrawDay(registration)
+  if (!day) return []
+
+  const sameDay = registrations.filter(
+    (candidate) =>
+      !candidate.cancelled &&
+      isParticipantGroup(getRegistrationGroupKey(candidate)) &&
+      registrationDrawDay(candidate) === day
+  )
+  // A cancelled dog's frozen number is deliberately not taken: the server hands a vacated slot on
+  // (KOE-1017), so the dialog offers it too.
+  const taken = new Set<number>()
+  for (const candidate of sameDay) {
+    if (candidate.id !== registration.id && candidate.startGroup) taken.add(candidate.startGroup.number)
+  }
+
+  const max = Math.max(sameDay.length, ...taken)
+  const options: number[] = []
+  for (let number = 1; number <= max; number++) {
+    if (!taken.has(number) && number !== registration.startGroup?.number) options.push(number)
+  }
+  return options
+}
+
 const getAllowedParticipantGroups = (registration: Registration, groups: RegistrationGroup[]) => {
   const allowedGroupKeys = new Set(registration.dates?.map((date) => eventRegistrationDateKey(date)) ?? [])
 
