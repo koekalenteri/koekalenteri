@@ -37,7 +37,7 @@ import {
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEventDeletable,
-  isEventLiveNow,
+  isEventLive,
   isOfficialEventType,
   isResultsAvailableForClass,
   isResultsAvailableForRegistration,
@@ -1502,22 +1502,26 @@ describe('isResultsAvailableForRegistration', () => {
   })
 })
 
-describe('isEventLiveNow', () => {
+describe('isEventLive', () => {
   const now = new Date('2026-09-12T14:00:00+03:00')
   const running = [{ startedAt: new Date('2026-09-12T08:00:00+03:00') }]
+  const yesterday = [
+    { endedAt: new Date('2026-09-11T11:00:00+03:00'), startedAt: new Date('2026-09-11T08:00:00+03:00') },
+  ]
 
   it('is live while a post is being run and the trial is not over', () => {
-    expect(isEventLiveNow({ classes: [{ class: 'ALO' }], liveTurns: running, resultsPublished: {} }, now)).toBe(true)
+    expect(isEventLive({ classes: [{ class: 'ALO' }], liveTurns: running, resultsPublished: {} }, now)).toBe(true)
   })
 
-  it('goes quiet once every class has its results published, whatever the timeline says', () => {
-    expect(
-      isEventLiveNow({ classes: [{ class: 'ALO' }], liveTurns: running, resultsPublished: { ALO: true } }, now)
-    ).toBe(false)
-    expect(isEventLiveNow({ classes: [], liveTurns: running, resultsPublished: true }, now)).toBe(false)
+  it('goes quiet with the day, and at once when every class has its results published', () => {
+    expect(isEventLive({ classes: [{ class: 'ALO' }], liveTurns: yesterday, resultsPublished: {} }, now)).toBe(false)
+    expect(isEventLive({ classes: [{ class: 'ALO' }], liveTurns: running, resultsPublished: { ALO: true } }, now)).toBe(
+      false
+    )
+    expect(isEventLive({ classes: [], liveTurns: running, resultsPublished: true }, now)).toBe(false)
   })
 
   it('is quiet with nothing run', () => {
-    expect(isEventLiveNow({ classes: [{ class: 'ALO' }] }, now)).toBe(false)
+    expect(isEventLive({ classes: [{ class: 'ALO' }] }, now)).toBe(false)
   })
 })

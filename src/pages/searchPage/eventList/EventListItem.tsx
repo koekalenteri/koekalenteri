@@ -9,7 +9,7 @@ import {
   isEntryClosed,
   isEntryOpen,
   isEntryUpcoming,
-  isEventLiveNow,
+  isEventLive,
   isEventOver,
   isValidForEntry,
   localizedEventName,
@@ -141,7 +141,7 @@ const EventHeader = ({ event }: Props) => {
               <EventStateInfo
                 classes={event.classes}
                 id={event.id}
-                live={isEventLiveNow(event)}
+                live={isEventLive(event)}
                 state={event.state}
                 startListPublished={event.startListPublished}
                 resultsPublished={event.resultsPublished}

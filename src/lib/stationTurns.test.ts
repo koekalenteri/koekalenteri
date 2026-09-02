@@ -184,10 +184,16 @@ describe('stationTurns', () => {
 
       expect(isLiveNow([closed], now)).toBe(true)
       expect(isLiveNow([closed], new Date('2026-09-13T06:00:00+03:00'))).toBe(false)
+      // A two-day trial: yesterday's spans do not keep it live, this morning's first one does.
+      expect(
+        isLiveNow(
+          [closed, turn({ id: 'turn-2', startedAt: '2026-09-13T05:00:00.000Z' })],
+          new Date('2026-09-13T08:00:00+03:00')
+        )
+      ).toBe(true)
     })
 
     it('reads the day in Finnish time, so a late evening span is still today', () => {
-      // 23:30 Helsinki on the 12th is 20:30Z; the UTC date would already say the 12th, the local one too.
       const late = turn({ endedAt: '2026-09-12T20:40:00.000Z', startedAt: '2026-09-12T20:30:00.000Z' })
 
       expect(isLiveNow([late], new Date('2026-09-12T23:50:00+03:00'))).toBe(true)

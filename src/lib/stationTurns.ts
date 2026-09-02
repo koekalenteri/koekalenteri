@@ -171,9 +171,10 @@ export const waitEstimate = (
 }
 
 /**
- * Whether the day is being run right now, as far as a calendar listing can tell: a span is open, or one
- * was started today. The gaps between one turn's end and the next one's start are minutes long, and a
- * badge that blinked off in each of them would say less than one that stays on for the day.
+ * Whether the day is being run right now: a span is open, or one was started today, Finnish time.
+ * The gaps between one turn's end and the next one's start are minutes long, and a badge that
+ * blinked off in each of them would say less than one that stays on for the day; a two-day trial is
+ * quiet overnight and live again with the next morning's first turn.
  */
 export const isLiveNow = (
   turns: readonly Pick<StationTurnSpan, 'startedAt' | 'endedAt'>[],

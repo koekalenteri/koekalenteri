@@ -41,15 +41,17 @@ describe('LiveStatus', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('stays up over an old span until the results are published: the day is over, the trial is not', () => {
+  it("goes away with the day: yesterday's last span is not who is at the post now", () => {
     const earlier = turn({ endedAt: new Date('2026-09-01T09:00:00Z'), startedAt: new Date('2026-09-01T08:00:00Z') })
-    render(<LiveStatus event={{ ...baseEvent, liveTurns: [earlier] }} />)
+    const { container } = render(<LiveStatus event={{ ...baseEvent, liveTurns: [earlier] }} />)
 
-    expect(screen.getByText('liveStatus.title')).toBeInTheDocument()
+    expect(container).toBeEmptyDOMElement()
   })
 
   it('says when the last dog finished once every starter is through', () => {
-    const done = turn({ endedAt: new Date('2026-09-12T08:07:00Z') })
+    // Today, so the day is still live; closed, so the last dog is through.
+    const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60000)
+    const done = turn({ endedAt: minutesAgo(10), startedAt: minutesAgo(17) })
     render(<LiveStatus event={{ ...baseEvent, liveTurns: [done] }} participants={[{}]} />)
 
     expect(screen.getByText(/liveStatus\.allThrough/)).toBeInTheDocument()

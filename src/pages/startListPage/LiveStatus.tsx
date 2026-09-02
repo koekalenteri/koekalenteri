@@ -6,13 +6,14 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEvent } from '../../api/event'
-import { hasAllResultsPublished } from '../../lib/event'
+import { isEventLive } from '../../lib/event'
 import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
 import {
   completedGroupTurns,
   currentPhase,
   dogsThrough,
   isBreakTurn,
+  isLiveNow,
   isWholeTurn,
   liveStationIds,
   openTurn,
@@ -154,7 +155,8 @@ export const LiveStatus = ({
   }, [event.id, eventTurns])
 
   const turns = (polled && polled.base === eventTurns ? polled.turns : eventTurns) ?? []
-  const hasOpen = turns.some((turn) => !turn.endedAt)
+  // The clock keeps ticking while anything is live, so the section also goes away on time.
+  const hasOpen = isLiveNow(turns)
   useEffect(() => {
     if (!hasOpen) return
     const timer = setInterval(() => setTick((tick) => tick + 1), CLOCK_TICK_MS)
@@ -162,8 +164,8 @@ export const LiveStatus = ({
   }, [hasOpen])
 
   // Nothing to show once the trial is over: with every class's results published, the page is the
-  // results, and the last dog's finishing time has had its day.
-  if (turns.length === 0 || hasAllResultsPublished(event)) return null
+  // results, and the last dog's finishing time has had its day. The same rule lights the calendar.
+  if (!isEventLive({ ...event, liveTurns: turns })) return null
 
   const stationIds = liveStationIds(turns)
   // Every dog visits every post over the day, so the whole entry is the queue at each of them.

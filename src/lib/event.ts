@@ -317,11 +317,12 @@ export const hasPublishedResults = ({ resultsPublished }: Pick<JsonDogEvent, 're
     : resultsPublished === true
 
 /**
- * Whether the calendar should say the event is live: a post is being run today (or a span is still
- * open), and the trial is not over — once every class's results are out, the page is the results and
- * nothing at it is live any more, whatever the timeline says.
+ * Whether the event is live: a post has been run today (or a span is still open) and the trial is not
+ * over. The one rule for the calendar's chip and the start list's live section alike — it holds to
+ * the end of the day, or to the results' publication if that comes first, and a two-day trial lights
+ * up again with the next morning's first turn.
  */
-export const isEventLiveNow = (
+export const isEventLive = (
   event: Pick<JsonDogEvent, 'resultsPublished'> & {
     classes?: Array<Pick<EventClass, 'class'>> | null
     liveTurns?: readonly { startedAt: string | Date; endedAt?: string | Date }[]
