@@ -1,10 +1,13 @@
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import * as jotai from 'jotai'
 import * as router from 'react-router'
+import { getStartList } from '../api/registration'
 import { StartListPage } from './StartListPage'
 import * as pageState from './state'
+
+vi.mock('../api/registration', () => ({ getStartList: vi.fn() }))
 
 // Mock react-router
 vi.mock('react-router', () => ({
@@ -110,6 +113,7 @@ describe('StartListPage', () => {
   ]
 
   beforeEach(() => {
+    vi.mocked(getStartList).mockReset()
     mockUseParams.mockReturnValue({ id: 'event-1' })
     mockUseLoaderData.mockReturnValue(mockParticipants)
     mockUseAtomValue.mockReturnValue(null)
@@ -127,6 +131,19 @@ describe('StartListPage', () => {
     expect(screen.getByTestId('participant-list')).toBeInTheDocument()
     expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 1, Event: Test Name')
     expect(screen.getByTestId('participant-list')).toHaveTextContent('Exports: false')
+  })
+
+  it('fetches the list again when the results are published while the page is open', async () => {
+    const { rerender } = render(<StartListPage />)
+    expect(getStartList).not.toHaveBeenCalled()
+
+    // The socket brings the event's publication; the rows with the results have to be fetched.
+    vi.mocked(getStartList).mockResolvedValueOnce([...mockParticipants, { ...mockParticipants[0], class: 'ALO' }])
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({ ...mockEvent, resultsPublished: true })
+    rerender(<StartListPage />)
+
+    expect(getStartList).toHaveBeenCalledWith('event-1', undefined, expect.any(AbortSignal))
+    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
   })
 
   it('shows export actions to a global admin', () => {

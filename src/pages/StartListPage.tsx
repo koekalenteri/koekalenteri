@@ -3,6 +3,7 @@ import type { PublicRegistration } from '../types/Registration'
 import Box from '@mui/material/Box'
 import { useAtomValue } from 'jotai'
 import { unwrap } from 'jotai/utils'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLoaderData, useParams } from 'react-router'
 import { getStartList } from '../api/registration'
@@ -23,7 +24,25 @@ export const StartListPage = () => {
   const { id } = useParams()
   const event = useConfirmedEvent(id)
   const user = useAtomValue(userValueAtom)
-  const participants: PublicRegistration[] = useLoaderData()
+  const loaded: PublicRegistration[] = useLoaderData()
+  const [participants, setParticipants] = useState(loaded)
+  useEffect(() => setParticipants(loaded), [loaded])
+
+  // The event arrives live over the socket, the list does not: when the results (or another class's
+  // start list) get published while the page is open, the list is fetched again so it shows them —
+  // the event patch alone would only take the live section away and leave the old rows standing.
+  const publication = JSON.stringify([event?.startListPublished ?? null, event?.resultsPublished ?? null])
+  const seenPublication = useRef(publication)
+  useEffect(() => {
+    if (!id || seenPublication.current === publication) return
+    seenPublication.current = publication
+    const abort = new AbortController()
+    getStartList(id, undefined, abort.signal)
+      .then((fresh) => setParticipants(fresh))
+      .catch(() => {})
+    return () => abort.abort()
+  }, [id, publication])
+
   const now = new Date()
 
   if (event === undefined) {
