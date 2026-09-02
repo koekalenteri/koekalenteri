@@ -1,16 +1,10 @@
-import type { Organizer } from '../../../../types'
 import { atom } from 'jotai'
-import { atomFamily } from 'jotai-family'
+import { findInCollection } from '../cached/createCachedRemoteCollection'
 import { adminOrganizerIdAtom, adminOrganizersAtom } from './atoms'
 
-const adminOrganizerAtom = atomFamily((organizerId: string | undefined) =>
-  atom(async (get): Promise<Organizer | undefined> => {
-    const events = await get(adminOrganizersAtom)
-    return events.find((e) => e.id === organizerId)
-  })
-)
-
-export const adminCurrentOrganizerAtom = atom(async (get) => {
+// Not an `async` getter: that returns a new Promise on every call, and each change of
+// adminOrganizerIdAtom would then suspend the organizers page and swap it for its Suspense fallback.
+export const adminCurrentOrganizerAtom = atom((get) => {
   const organizerId = get(adminOrganizerIdAtom)
-  return organizerId ? await get(adminOrganizerAtom(organizerId)) : undefined
+  return organizerId ? findInCollection(get(adminOrganizersAtom), organizerId) : undefined
 })

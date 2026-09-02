@@ -1,10 +1,9 @@
-import type { User } from '../../../../types'
 import i18next from 'i18next'
 import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
-import { atomFamily } from 'jotai-family'
 import { userHasAdminAccess } from '../../../../lib/user'
 import { adminUserOrgIdsAtom, isAdminAtom, userAtom } from '../../../state'
+import { findInCollection } from '../cached/createCachedRemoteCollection'
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom, adminUsersOrganizerIdAtom } from './atoms'
 
 // unwrap keeps serving the previous list synchronously while a new filter/data promise settles,
@@ -50,14 +49,9 @@ export const websocketAdminUsersAtom = atom((get) => {
   return currentUser instanceof Promise ? currentUser.then(selectUsers) : selectUsers(currentUser)
 })
 
-const adminUserAtom = atomFamily((userId: string | undefined) =>
-  atom(async (get): Promise<User | undefined> => {
-    const events = await get(adminUsersAtom)
-    return events.find((e) => e.id === userId)
-  })
-)
-
-export const adminCurrentUserAtom = atom(async (get) => {
+// Not an `async` getter: that returns a new Promise on every call, and each change of
+// adminUserIdAtom would then suspend the users page and swap it for its Suspense fallback.
+export const adminCurrentUserAtom = atom((get) => {
   const userId = get(adminUserIdAtom)
-  return userId ? await get(adminUserAtom(userId)) : undefined
+  return userId ? findInCollection(get(adminUsersAtom), userId) : undefined
 })

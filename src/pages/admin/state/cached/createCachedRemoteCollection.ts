@@ -1,5 +1,6 @@
 import type { DataVersion, DataVersions } from '../../../../types'
 import { atom } from 'jotai'
+import { unwrap } from 'jotai/utils'
 import { readEncryptedDataset, writeEncryptedDataset } from '../../../../lib/client/encryptedStore'
 import { userAtom, validIdTokenAtom } from '../../../state'
 
@@ -53,8 +54,11 @@ export function atomWithCachedRemoteCollection<T>({ cacheKey, fetch, sort }: Cac
     return loadCachedRemoteCollection({ cacheKey, fetch, sort }, token, user)
   })
   const overrideAtom = atom<T[] | undefined>(undefined)
+  // Once the load has settled, serve the list synchronously: a dependent reading it in a plain
+  // getter then gets the array instead of a Promise to suspend on.
+  const loadedAtom = unwrap(remoteAtom)
   return atom(
-    (get) => get(overrideAtom) ?? get(remoteAtom),
+    (get) => get(overrideAtom) ?? get(loadedAtom) ?? get(remoteAtom),
     async (get, set, value: T[] | ((previous: T[]) => T[])) => {
       let next: T[]
       if (typeof value === 'function') {
@@ -85,3 +89,15 @@ export function atomWithCachedRemoteCollection<T>({ cacheKey, fetch, sort }: Cac
     }
   )
 }
+
+/**
+ * The item with `id` from a collection that may still be loading. A loaded list is searched
+ * synchronously, so a subscriber does not suspend on a Promise for a value it already has.
+ */
+export const findInCollection = <T extends { id: string }>(
+  items: T[] | Promise<T[]>,
+  id: string
+): T | undefined | Promise<T | undefined> =>
+  items instanceof Promise
+    ? items.then((loaded) => loaded.find((item) => item.id === id))
+    : items.find((item) => item.id === id)
