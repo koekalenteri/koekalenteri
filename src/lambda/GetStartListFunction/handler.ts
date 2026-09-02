@@ -50,6 +50,16 @@ const getStartListLambda = lambda('getStartList', async (event) => {
   if (startListAvailable) {
     const items = (await getRegistrationsByEventId(eventId)) ?? []
 
+    // Days whose draw has been entered, keyed by class and day. A dog added after the class's
+    // numbers went out has no entered number of its own, and its working-order number could shadow
+    // a drawn one — such a dog stays off the published list until its number is entered (KOE-1272).
+    // Events from before entered numbers existed have no startGroup anywhere and are unaffected.
+    const drawnDays = new Set<string>()
+    for (const reg of items) {
+      if (!reg.cancelled && reg.startGroup?.date)
+        drawnDays.add(`${reg.class ?? ''}|${reg.startGroup.date.slice(0, 10)}`)
+    }
+
     for (const reg of items) {
       // Keep preview limited to event classes even though it bypasses publication checks.
       const hasEventClass = confirmedEvent.classes?.some((eventClass) => eventClass.class === reg.class)
@@ -91,6 +101,14 @@ const getStartListLambda = lambda('getStartList', async (event) => {
       if (!preview && !isStartListAvailableForRegistration(confirmedEvent, registered)) continue
 
       const numbersAvailable = isStartNumbersAvailableForRegistration(confirmedEvent, registered)
+      if (
+        !preview &&
+        numbersAvailable &&
+        !reg.startGroup &&
+        drawnDays.has(`${reg.class ?? ''}|${group.date.slice(0, 10)}`)
+      ) {
+        continue
+      }
       // The published number is the frozen one. The preview shows it too, as soon as it exists
       // (KOE-1218): the secretary entered it and expects to see it back; the working order fills in
       // only where no number has been drawn, and is flagged provisional so the preview can render it

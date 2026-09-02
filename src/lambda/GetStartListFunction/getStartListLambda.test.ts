@@ -182,6 +182,81 @@ describe('getStartListLambda', () => {
     expect(payload[1].group.number).toBe(2)
   })
 
+  it('keeps a dog added after the draw off the published list until its number is entered (KOE-1272)', async () => {
+    const confirmedEvent = {
+      classes: [{ class: 'ALO', state: 'invited' }],
+      id: 'event123',
+      organizer: { id: 'org123' },
+      startDate: '2025-01-01',
+      startListPublished: { ALO: true },
+      startNumbersPublished: { ALO: true },
+      state: 'invited',
+    }
+    const base = {
+      cancelled: false,
+      class: 'ALO',
+      eventId: 'event123',
+      handler: { name: 'Handler' },
+      owner: { name: 'Owner' },
+    }
+
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      {
+        ...base,
+        dog: { name: 'Vieno', regNo: 'REG1' },
+        group: { date: '2025-01-01', key: 'ALO-AP', number: 1, time: 'ap' },
+        startGroup: { date: '2025-01-01', key: 'ALO-AP', number: 2, time: 'ap' },
+      },
+      {
+        // Added after the class's numbers went out: no entered number of its own yet.
+        ...base,
+        dog: { name: 'Tulokas', regNo: 'REG2' },
+        group: { date: '2025-01-01', key: 'ALO-AP', number: 2, time: 'ap' },
+      },
+    ])
+
+    await getStartListLambda(event)
+
+    const [status, payload] = mockResponse.mock.calls[0]
+    expect(status).toBe(200)
+    expect(payload).toHaveLength(1)
+    expect(payload[0].dog.name).toBe('Vieno')
+  })
+
+  it('keeps serving working-order numbers for an event whose draw was never entered', async () => {
+    const confirmedEvent = {
+      classes: [{ class: 'ALO', state: 'invited' }],
+      id: 'event123',
+      organizer: { id: 'org123' },
+      startDate: '2025-01-01',
+      startListPublished: { ALO: true },
+      startNumbersPublished: { ALO: true },
+      state: 'invited',
+    }
+    const base = {
+      cancelled: false,
+      class: 'ALO',
+      eventId: 'event123',
+      handler: { name: 'Handler' },
+      owner: { name: 'Owner' },
+    }
+
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      { ...base, dog: { name: 'Vieno', regNo: 'REG1' }, group: { date: '2025-01-01', key: 'ALO-AP', number: 1 } },
+      { ...base, dog: { name: 'Aapo', regNo: 'REG2' }, group: { date: '2025-01-01', key: 'ALO-AP', number: 2 } },
+    ])
+
+    await getStartListLambda(event)
+
+    const [status, payload] = mockResponse.mock.calls[0]
+    expect(status).toBe(200)
+    expect(payload).toHaveLength(2)
+  })
+
   it('returns unpublished registrations through the authenticated preview route', async () => {
     const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
     const confirmedEvent = {
