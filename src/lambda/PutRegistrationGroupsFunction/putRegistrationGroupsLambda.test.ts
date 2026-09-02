@@ -63,13 +63,13 @@ const { authorizeWithMemberOf } = await import('../lib/auth')
 const authorizeWithMemberOfMock = authorizeWithMemberOf as import('vitest').Mock<typeof authorizeWithMemberOf>
 
 const _mockBroadcast = vi.fn()
-const mockBroadcastAdminEvent = vi.fn()
+const mockPublishEventPatch = vi.fn()
 const mockBroadcastEventRegistrations = vi.fn()
 const mockBroadcastPublicEvent = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
   __esModule: true,
-  publishAdminEventPatch: mockBroadcastAdminEvent,
-  publishEventPatch: vi.fn(),
+  publishAdminEventPatch: vi.fn(),
+  publishEventPatch: mockPublishEventPatch,
   publishPublicEvent: mockBroadcastPublicEvent,
   publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
@@ -654,7 +654,7 @@ describe('putRegistrationGroupsLambda', () => {
     expect(resultItem?.group).toEqual(reg.group)
     expect(result.entries).toBe(5)
     expect(result.classes).toEqual([expect.objectContaining({ entries: 4 }), expect.objectContaining({ entries: 1 })])
-    expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
+    expect(mockPublishEventPatch).toHaveBeenCalledWith(
       {
         classes: result.classes,
         entries: 5,

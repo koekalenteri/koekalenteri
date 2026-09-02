@@ -17,7 +17,7 @@ import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, hasPriority } from '../../lib/r
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { isDefined } from '../../lib/typeGuards'
 import { CONFIG } from '../config'
-import { publishAdminEventPatch, publishEventPatch, publishPublicEvent } from '../lib/ws/actions'
+import { publishAdminEventPatch, publishEventPatch } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
@@ -247,8 +247,9 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
   confirmedEvent.members = members
   confirmedEvent.updatedAt = updatedAt
 
-  await publishPublicEvent({ entries, eventId, members, updatedAt })
-  await publishAdminEventPatch({ classes, entries, eventId, members, updatedAt }, confirmedEvent.organizer.id)
+  // The classes carry the per-class counters, and the patch's updatedAt marks the client's cached
+  // row current — a public patch without them would freeze stale per-class counts in place (KOE-1277).
+  await publishEventPatch({ classes, entries, eventId, members, updatedAt }, confirmedEvent.organizer.id)
 
   return confirmedEvent
 }

@@ -406,13 +406,9 @@ describe('lib/event', () => {
         },
         expect.anything()
       )
-      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({
-        entries: 2,
-        eventId: 'e3',
-        members: 0,
-        updatedAt: result.updatedAt,
-      })
-      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
+      // The public audience gets the classes too: the patch marks the cached row current, so the
+      // per-class counters must ride along (KOE-1277).
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
         { classes: result.classes, entries: 2, eventId: 'e3', members: 0, updatedAt: result.updatedAt },
         'org-1'
       )
@@ -509,13 +505,7 @@ describe('lib/event', () => {
 
       expect(result.modifiedAt).toBeUndefined()
       expect(result.updatedAt).toEqual(expect.any(String))
-      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({
-        entries: 3,
-        eventId: 'e5',
-        members: 1,
-        updatedAt: result.updatedAt,
-      })
-      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
         { classes: result.classes, entries: 3, eventId: 'e5', members: 1, updatedAt: result.updatedAt },
         'org-1'
       )
