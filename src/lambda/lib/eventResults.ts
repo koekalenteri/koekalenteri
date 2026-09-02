@@ -29,6 +29,41 @@ import { parseJSONWithFallback } from './json'
 import { LambdaError } from './lambda'
 import { updateRegistrationField } from './registration'
 
+/** The outcome dropdown's Finnish labels, for the audit line (KOE-1284). */
+const ELIMINATING_FAULT_TEXT: Record<EventResultElimination['fault'], string> = {
+  aggression: 'aggressiivinen käyttäytyminen',
+  gunShyness: 'laukausarkuus',
+  hardMouth: 'kovasuisuus',
+  harshHandling: 'koiran kurittaminen koepaikalla',
+  marking: 'merkkaaminen',
+  refusedRetrieve: 'kieltäytyminen noudosta',
+}
+
+const RETIREMENT_CAUSE_TEXT: Record<EventResultRetirement['cause'], string> = {
+  handlerChoice: 'ohjaaja keskeytti',
+  injury: 'koira loukkaantui',
+  judgeStopped: 'tuomari keskeytti kokeen',
+}
+
+/**
+ * What the audit line says was saved: the result, the points, and the outcome extra info — the
+ * secretary must be able to read back from the trail what they entered (KOE-1284). Audit messages
+ * are stored as Finnish text, like every message this module's callers write.
+ */
+const auditResultText = (eventResult: JsonEventResult): string => {
+  const parts: string[] = []
+  if (eventResult.result) parts.push(eventResult.result)
+  if (typeof eventResult.points === 'number') {
+    parts.push(eventResult.maxPoints ? `${eventResult.points}/${eventResult.maxPoints} p` : `${eventResult.points} p`)
+  }
+  if (eventResult.elimination) {
+    parts.push(`hylkäävä virhe: ${ELIMINATING_FAULT_TEXT[eventResult.elimination.fault]}`)
+  }
+  if (eventResult.retirement) parts.push(RETIREMENT_CAUSE_TEXT[eventResult.retirement.cause])
+  if (eventResult.notes) parts.push(eventResult.notes)
+  return parts.length ? `: ${parts.join(', ')}` : ''
+}
+
 interface ResultSubmission {
   id: string
   eventResult: Omit<SubmittedEventResult, 'tasks'> & { tasks?: SubmittedTask[] }
@@ -441,7 +476,7 @@ export const processResultSubmissions = async (
     await updateRegistrationField(eventId, submission.id, 'eventResult', eventResult)
     await audit({
       auditKey: registrationAuditKey({ eventId, id: submission.id }),
-      message: outcome.hadStored ? 'Muutti tulosta' : 'Tallensi tuloksen',
+      message: `${outcome.hadStored ? 'Muutti tulosta' : 'Tallensi tuloksen'}${auditResultText(eventResult)}`,
       user: userName,
     })
 
