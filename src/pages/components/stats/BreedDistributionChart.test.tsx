@@ -114,4 +114,20 @@ describe('BreedDistributionChart', () => {
 
     expect(screen.getByText('stats.noDataForYear')).toBeInTheDocument()
   })
+
+  it('appends the abbreviation legend of the charted breeds to the info text', () => {
+    render(<BreedDistributionChart stats={[year(2024, [{ count: 10, entityId: '122' }])]} />)
+
+    // The info lives on the icon's aria-label; the mocked t() keeps interpolation params as key
+    // names, so this asserts the legend sentence is included, not its rendered content.
+    expect(
+      screen.getByRole('button', { name: /stats\.breedDistributionAbbreviations abbreviations/ })
+    ).toHaveAccessibleName('stats.breedDistributionInfo stats.breedDistributionAbbreviations abbreviations')
+  })
+
+  it('leaves the abbreviation legend out when nothing is charted', () => {
+    render(<BreedDistributionChart stats={[]} />)
+
+    expect(screen.getByRole('button', { name: 'stats.breedDistributionInfo' })).toBeInTheDocument()
+  })
 })

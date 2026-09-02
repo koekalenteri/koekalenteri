@@ -31,3 +31,20 @@ it('stacks the top breeds per year with the remainder on top', async () => {
   await expect.element(screen.getByText('Rotujakauma')).toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('breed-distribution')
 })
+
+it('decodes the charted abbreviations in the info text', async () => {
+  const screen = await render(
+    <ChartFrame>
+      <BreedDistributionChart stats={stats} />
+    </ChartFrame>
+  )
+
+  const info = screen.getByRole('button', { name: /Lyhenteet:/ })
+  await expect.element(info).toBeVisible()
+  const label = info.element().getAttribute('aria-label') ?? ''
+  expect(label).toContain('lb = labradorinnoutaja')
+  expect(label).toContain('ch = chesapeakelahdennoutaja')
+  // The mixed/unregistered bucket has no abbreviation: it is charted under its full name, so
+  // the legend has nothing to decode for it.
+  expect(label).not.toContain('monirotuinen')
+})

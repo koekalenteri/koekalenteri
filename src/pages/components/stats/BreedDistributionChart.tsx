@@ -9,7 +9,7 @@ import {
   OTHER_BUCKET_CHART_COLOR,
   OTHER_BUCKET_CHART_INK,
 } from './chartColors'
-import { useBreedAbbreviation } from './useBreedAbbreviation'
+import { useBreedAbbreviation, useBreedAbbreviationLegend } from './useBreedAbbreviation'
 
 interface Props {
   readonly stats: YearlyStatsResponse[]
@@ -35,6 +35,7 @@ const OTHER_SERIES_ID = 'other'
 export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
   const { t } = useTranslation()
   const abbreviateBreed = useBreedAbbreviation()
+  const breedAbbreviationLegend = useBreedAbbreviationLegend()
 
   const years = stats.map((stat) => stat.year)
 
@@ -94,9 +95,20 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
   const colors = [...CATEGORICAL_CHART_COLORS.slice(0, breedSeries.length), OTHER_BUCKET_CHART_COLOR]
   const isEmpty = series.length === 0 || years.length === 0
 
+  // The legend/tooltip only ever show the abbreviation, so the info text is where a reader can
+  // decode it — built from the breeds actually charted, not a fixed list that goes stale as the
+  // mix of event types (and so breeds) changes.
+  const abbreviations = breedAbbreviationLegend(topBreeds)
+  const info = [
+    t('stats.breedDistributionInfo'),
+    abbreviations ? t('stats.breedDistributionAbbreviations', { abbreviations }) : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
     <>
-      <ChartTitle title={t('stats.breedDistribution')} info={t('stats.breedDistributionInfo')} />
+      <ChartTitle title={t('stats.breedDistribution')} info={info} />
       {isEmpty ? (
         <Typography color="text.secondary">{t('stats.noDataForYear')}</Typography>
       ) : (
