@@ -2,6 +2,7 @@ import type { PublicRegistration } from '../../types/Registration'
 import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined'
 import Box from '@mui/material/Box'
 import TableCell from '@mui/material/TableCell'
+import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation, formatDogName } from '../../lib/dog'
 import { StyledTableRow } from './StyledTableRow'
@@ -46,11 +47,13 @@ export const RegistrationDetails = ({ registration: reg, index, warnNumberPendin
           <Box sx={{ fontWeight: 'bold' }}>
             {reg.group.number != null && <Box component="span" sx={numberSx}>{`${reg.group.number}. `}</Box>}
             {warnNumberPending && (
-              <WarningAmberOutlined
-                fontSize="inherit"
-                sx={{ color: 'warning.main', mr: 0.5, verticalAlign: 'text-top' }}
-                titleAccess={t('startList.numberPending')}
-              />
+              <Tooltip title={t('startList.numberPending')}>
+                <WarningAmberOutlined
+                  fontSize="inherit"
+                  sx={{ color: 'warning.main', mr: 0.5, verticalAlign: 'text-top' }}
+                  titleAccess={t('startList.numberPending')}
+                />
+              </Tooltip>
             )}
             {[breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')} {t('startList.born')}{' '}
             {reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}
