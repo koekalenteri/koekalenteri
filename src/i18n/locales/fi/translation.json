@@ -984,6 +984,12 @@
     "result": "Tulos"
   },
   "toltaPlaces": "paikkaa",
+  "unsavedChanges": {
+    "description": "Sivulla on tallentamattomia muutoksia. Jos poistut, menetät ne.",
+    "leave": "Poistu tallentamatta",
+    "stay": "Jatka muokkausta",
+    "title": "Oletko varma, että haluat poistua sivulta tallentamatta?"
+  },
   "updateData": "Päivitä $t({{data}}, lowercase) Kennelliiton rajapinnasta",
   "user": {
     "admin": "Koekalenterin pääkäyttäjä",

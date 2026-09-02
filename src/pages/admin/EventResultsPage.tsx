@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
+import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import {
@@ -65,6 +66,8 @@ export default function EventResultsPage() {
   const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
   const [conflicts, setConflicts] = useState<ResultConflict[]>([])
   const [choices, setChoices] = useState<Record<string, ConflictChoice>>({})
+  // A whole round's scores can ride on these edits; one stray swipe must not discard them (KOE-1283).
+  useUnsavedChangesWarning(Object.keys(edits).length > 0)
 
   const eventClass = selectedClass ?? classes[0]
   const stations: EventStation[] = useMemo(

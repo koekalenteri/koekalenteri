@@ -984,6 +984,12 @@
     "result": "Result"
   },
   "toltaPlaces": "places",
+  "unsavedChanges": {
+    "description": "This page has unsaved changes. If you leave, they will be lost.",
+    "leave": "Leave without saving",
+    "stay": "Keep editing",
+    "title": "Are you sure you want to leave without saving?"
+  },
   "updateData": "Update $t({{data}}) from The Finnish Kennel Club API",
   "user": {
     "admin": "Koekalenteri administrator",

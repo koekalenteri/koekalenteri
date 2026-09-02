@@ -14,6 +14,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { putStartNumbers } from '../../api/event'
+import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import {
@@ -51,6 +52,8 @@ export default function EventStartNumbersPage() {
   )
   const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])
   const [drafts, setDrafts] = useState<Record<string, string>>({})
+  // The on-site draw is typed in as a batch; losing it to a stray navigation would mean redoing it (KOE-1283).
+  useUnsavedChangesWarning(Object.values(drafts).some((value) => value !== ''))
 
   const eventClass = selectedClass ?? classes[0]
 
