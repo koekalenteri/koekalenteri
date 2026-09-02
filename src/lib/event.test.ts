@@ -3,6 +3,7 @@ import type {
   ConfirmedEvent,
   DogEvent,
   EventClass,
+  EventClassState,
   EventState,
   JsonDogEvent,
   RegistrationDate,
@@ -29,6 +30,7 @@ import {
   getEventSeason,
   getEventStateForClass,
   getEventTitle,
+  getParticipantsPhase,
   getResultsPublishedClassMap,
   getStartListPublishedClassMap,
   getUniqueEventClasses,
@@ -1523,5 +1525,34 @@ describe('isEventLive', () => {
 
   it('is quiet with nothing run', () => {
     expect(isEventLive({ classes: [{ class: 'ALO' }] }, now)).toBe(false)
+  })
+})
+
+describe('getParticipantsPhase', () => {
+  const classes = (...states: Array<EventClassState | undefined>) =>
+    states.map((state, index): EventClass => ({ class: index ? 'AVO' : 'ALO', date: new Date(), state }))
+
+  it('reads the event state where there are no classes', () => {
+    expect(getParticipantsPhase({ classes: [], state: 'confirmed' })).toBeUndefined()
+    expect(getParticipantsPhase({ classes: [], state: 'picked' })).toBe('picked')
+    expect(getParticipantsPhase({ classes: [], state: 'invited' })).toBe('invited')
+  })
+
+  it('stays at the invitations once the trial itself has begun or ended', () => {
+    expect(getParticipantsPhase({ classes: [], state: 'started' })).toBe('invited')
+    expect(getParticipantsPhase({ classes: [], state: 'ended' })).toBe('invited')
+    expect(getParticipantsPhase({ classes: [], state: 'completed' })).toBe('invited')
+  })
+
+  it('follows the class that is furthest behind, taking the event state for a class without one', () => {
+    expect(getParticipantsPhase({ classes: classes('invited', 'picked'), state: 'picked' })).toBe('picked')
+    expect(getParticipantsPhase({ classes: classes('invited', undefined), state: 'picked' })).toBe('picked')
+    expect(getParticipantsPhase({ classes: classes('invited', 'invited'), state: 'confirmed' })).toBe('invited')
+    expect(getParticipantsPhase({ classes: classes('picked', undefined), state: 'confirmed' })).toBeUndefined()
+  })
+
+  it('has nothing to say about an event that is not confirmed', () => {
+    expect(getParticipantsPhase({ classes: classes('invited'), state: 'cancelled' })).toBeUndefined()
+    expect(getParticipantsPhase({ classes: [], state: 'tentative' })).toBeUndefined()
   })
 })

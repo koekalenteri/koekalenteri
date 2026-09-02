@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedStartOfDay } from '../../../i18n/dates'
 import {
+  getParticipantsPhase,
   isEntryClosed,
   isEntryOpen,
   isEntryUpcoming,
@@ -36,7 +37,8 @@ const EventHeader = ({ event }: Props) => {
     if (isEntryOpen(event)) return t('dateFormat.datespan', { end: event.entryEndDate, start: event.entryStartDate })
     if (isEventOver(event)) return t('event.states.confirmed_eventOver')
 
-    if (event.state === 'picked') return t('event.states.picked')
+    const participantsPhase = getParticipantsPhase(event)
+    if (participantsPhase) return t(`event.states.${participantsPhase}`)
 
     if (isEntryClosed(event)) return t('event.states.confirmed_entryClosed_info')
 

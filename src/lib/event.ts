@@ -504,6 +504,25 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
 export const getEventProgressPhase = (event: ConfirmedEvent, now = new Date()): EventProgressPhase =>
   getEventProgress(event, now).phase
 
+/**
+ * How far the selection has got, read the way the stepper reads it: the lowest class state, the event's
+ * own where a class has none. Sending the invitations moves a class past 'picked', and a reading that
+ * looked for `event.state === 'picked'` alone lost the participants again at that moment, so the calendar
+ * fell back to "entry closed" until the start list came out (KOE-1296).
+ */
+export const getParticipantsPhase = (
+  event: Pick<DogEvent, 'state' | 'classes'>
+): Extract<EventProgressStep, 'picked' | 'invited'> | undefined => {
+  if (!isConfirmedEvent(event)) return undefined
+
+  const states = event.classes.length ? event.classes.map((item) => item.state ?? event.state) : [event.state]
+  const phaseIndex = Math.min(...states.map((state) => getProgressPhaseIndex(state)))
+
+  if (phaseIndex >= getProgressPhaseIndex('invited')) return 'invited'
+  if (phaseIndex >= getProgressPhaseIndex('picked')) return 'picked'
+  return undefined
+}
+
 export function getEventTitle(event: DogEvent, t: TFunction<'translation'>, now = new Date()): string {
   if (isConfirmedEvent(event)) {
     return t(`event.states.${getEventProgressPhase(event, now)}`)
