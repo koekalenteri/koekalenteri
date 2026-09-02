@@ -56,9 +56,12 @@ export const adminConfirmedEventAtom = atomFamily((eventId: string | undefined) 
 )
 
 export const adminCurrentEventAtom = atom(
-  async (get) => {
+  // Read through adminEventAtom instead of an `async` getter: an async function returns a new
+  // Promise on every call, so each change of adminEventIdAtom would suspend every subscriber and
+  // swap the page for its Suspense fallback on every row selection.
+  (get) => {
     const eventId = get(adminEventIdAtom)
-    return eventId ? await get(adminEventAtom(eventId)) : undefined
+    return eventId ? get(adminEventAtom(eventId)) : undefined
   },
   async (get, set, value: DogEvent) => {
     const eventId = get(adminEventIdAtom)

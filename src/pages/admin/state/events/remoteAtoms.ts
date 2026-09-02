@@ -1,5 +1,6 @@
 import type { DogEvent, User } from '../../../../types'
 import { atom } from 'jotai'
+import { unwrap } from 'jotai/utils'
 import { getAdminEvents } from '../../../../api/event'
 import { latestCollectionUpdate } from '../../../../lib/incremental'
 import { userAtom, validIdTokenAtom } from '../../../state'
@@ -36,8 +37,12 @@ const remoteAdminEventsAtom = atom(async (get) => {
   return cached && since ? reconcileAdminEvents(cached, events) : sortEvents(events)
 })
 const adminEventsOverrideAtom = atom<DogEvent[] | undefined>(undefined)
+// Once the fetch has settled, serve the list synchronously: a dependent reading it in a plain
+// getter (adminEventAtom) then gets the array instead of chaining a fresh `.then` Promise for
+// every new event id, which would suspend its subscribers on each selection.
+const loadedAdminEventsAtom = unwrap(remoteAdminEventsAtom)
 export const adminEventsRemoteAtom = atom(
-  (get) => get(adminEventsOverrideAtom) ?? get(remoteAdminEventsAtom),
+  (get) => get(adminEventsOverrideAtom) ?? get(loadedAdminEventsAtom) ?? get(remoteAdminEventsAtom),
   (_get, set, value: DogEvent[] | ((previous: DogEvent[]) => DogEvent[])) =>
     set(adminEventsOverrideAtom, (current) => {
       if (typeof value !== 'function') return value

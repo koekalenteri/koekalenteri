@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material'
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -60,6 +60,46 @@ describe('EventListPage', () => {
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenCalledWith(undefined)
     expect(onChange).toHaveBeenCalledWith('testEntryClosed')
+  })
+
+  it('keeps the page mounted when a row is selected', async () => {
+    // A suspending read of the selected event would swap the whole page for the Suspense fallback,
+    // dropping the grid's scroll position and focus on every selection.
+    const Fallback = vi.fn(() => <div>loading...</div>)
+    renderWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            // localStorage survives from the previous test; start with nothing selected so the click changes it.
+            set(adminEventIdAtom, undefined)
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<Fallback />}>
+              <SnackbarProvider>
+                <ConfirmProvider>
+                  <EventListPage />
+                </ConfirmProvider>
+              </SnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+    const fallbackRendersWhileLoading = Fallback.mock.calls.length
+
+    // fireEvent commits the click's render before the microtask queue runs, the way a browser does;
+    // userEvent's awaits would let a pending promise settle first and hide the suspension.
+    const rows = screen.getAllByRole('row')
+    fireEvent.click(rows[1])
+    await flushPromises()
+
+    expect(rows[1]).toHaveClass('Mui-selected')
+    expect(Fallback).toHaveBeenCalledTimes(fallbackRendersWhileLoading)
   })
 
   it('selects the double-click destination based on entry start and event state', () => {

@@ -1,8 +1,8 @@
 import type { DogEvent } from '../../../../types'
 import { createStore } from 'jotai'
 import { emptyEvent } from '../../../../__mockData__/emptyEvent'
-import { adminEventFilterTextAtom, adminEventsAtom, adminShowPastEventsAtom } from './atoms'
-import { adminEventOrganizersAtom, adminFilteredEventsAtom } from './derivedAtoms'
+import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom } from './atoms'
+import { adminCurrentEventAtom, adminEventOrganizersAtom, adminFilteredEventsAtom } from './derivedAtoms'
 
 const event = (id: string, endDate: Date): DogEvent => ({
   ...emptyEvent,
@@ -33,6 +33,18 @@ describe('admin event derived atoms', () => {
     store.set(adminShowPastEventsAtom, false)
 
     await expect(store.get(adminFilteredEventsAtom)).resolves.toEqual([today])
+  })
+
+  it('serves the selected event synchronously once the events have loaded', () => {
+    const selected = event('selected', new Date('2026-05-28T00:00:00.000+03:00'))
+    const other = event('other', new Date('2026-05-29T00:00:00.000+03:00'))
+
+    const store = createStore()
+    store.set(adminEventsAtom, [other, selected])
+    store.set(adminEventIdAtom, 'selected')
+
+    // A Promise here would suspend the event list on every row selection.
+    expect(store.get(adminCurrentEventAtom)).toBe(selected)
   })
 
   it('ignores events with missing organizers when listing event organizers', async () => {
