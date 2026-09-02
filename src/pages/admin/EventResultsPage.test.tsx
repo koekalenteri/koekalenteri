@@ -252,14 +252,14 @@ describe('EventResultsPage', () => {
 
     // The whole round is three slots; post 2 alone is the two it splits into.
     expect(screen.getAllByText(/results\.column\.task/)).toHaveLength(3)
-    expect(screen.queryByRole('link', { name: 'results.openStationView' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'results.openLiveEntry' })).not.toBeInTheDocument()
 
     await user.click(screen.getByLabelText('results.scope'))
     await user.click(screen.getByRole('option', { name: 'event.station 2' }))
     await flushPromises()
 
     expect(screen.getAllByText(/results\.column\.task/)).toHaveLength(2)
-    expect(screen.getByRole('link', { name: 'results.openStationView' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'results.openLiveEntry' })).toBeInTheDocument()
   })
 
   it('states a lone post judge rather than offering a choice', async () => {
@@ -495,7 +495,7 @@ describe('EventResultsPage', () => {
     await flushPromises()
 
     // Nothing to narrow to, but the day is still run from the post: the clock and the queue live there.
-    expect(screen.getByRole('link', { name: 'results.openStationView' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'results.openLiveEntry' })).toHaveAttribute(
       'href',
       Path.admin.stationResults(eventWithStaticDates.id, '1')
     )

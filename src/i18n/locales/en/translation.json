@@ -804,7 +804,7 @@
     "conflicts_one": "{{count}} result changed elsewhere. Check it and save again.",
     "conflicts_other": "{{count}} results changed elsewhere. Check them and save again.",
     "conflictTitle": "Conflicting results",
-    "copyStationLink": "Copy station secretary link",
+    "copyLiveEntryLink": "Copy live entry link",
     "couldStillHavePlaced": "Could still have placed",
     "eliminatingFaults": {
       "aggression": "Aggressive behaviour",
@@ -815,7 +815,10 @@
       "refusedRetrieve": "Refused to retrieve"
     },
     "judge": "Judge",
-    "openStationView": "Post view",
+    "liveEntryLinkCopied": "Live entry link copied to clipboard",
+    "liveEntryLinkInvalid": "This link is not valid. Ask the event secretary for a new one.",
+    "liveEntryLinkRevoked": "Live entry link revoked. Share a new link with the judge's secretary.",
+    "openLiveEntry": "Live entry",
     "outcome": "Elimination / retirement",
     "outcomeAt": "Where",
     "outcomeAtUnknown": "Not known",
@@ -828,16 +831,13 @@
       "injury": "Dog was injured",
       "judgeStopped": "Judge stopped the trial"
     },
-    "revokeStationLink": "Revoke station link",
+    "revokeLiveEntryLink": "Revoke live entry link",
     "runningTotal": "{{points}} / {{maxPoints}}",
     "save": "Save results",
     "saved": "Results saved",
     "saveFailed": "Saving the results failed. The scores entered are still on screen.",
     "scope": "Show",
     "scopeAll": "Whole round",
-    "stationLinkCopied": "Station link copied to clipboard",
-    "stationLinkInvalid": "This link is not valid. Ask the event secretary for a new one.",
-    "stationLinkRevoked": "Station link revoked. Share a new link with the station secretary.",
     "title": "Results",
     "zeroFault": "Reason for zero",
     "zeroFaults": {

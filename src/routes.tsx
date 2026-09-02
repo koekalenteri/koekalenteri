@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router'
-import { Navigate } from 'react-router'
+import { Navigate, redirect } from 'react-router'
 import { reloadOnChunkLoadError } from './lib/client/lazy'
 import LoadingIndicator from './pages/components/LoadingIndicator'
 import { ErrorPage } from './pages/ErrorPage'
@@ -27,7 +27,13 @@ const routes: RouteObject[] = [
         })
       ),
       {
-        lazy: () => reloadOnChunkLoadError(() => import('./pages/StationEntryPage')),
+        lazy: () => reloadOnChunkLoadError(() => import('./pages/LiveEntryPage')),
+        path: 'live-entry/:eventId/:stationId/access/:token',
+      },
+      {
+        // Links already handed to a judge's secretary keep working under the name the view had before.
+        loader: ({ params }) =>
+          redirect(Path.liveEntry(params.eventId ?? '', params.stationId ?? '', params.token ?? '')),
         path: 'station/:eventId/:stationId/access/:token',
       },
       {

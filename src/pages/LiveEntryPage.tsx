@@ -12,9 +12,10 @@ import LoadingIndicator from './components/LoadingIndicator'
 import { languageAtom } from './state'
 
 /**
- * The station secretary's scoring view, opened with the station's own tokenized link instead of an
- * account. The same screen the event secretary has for a post — the difference is only where the data
- * comes from, and that this link sees one post's slice of the day and nothing more.
+ * Live entry: the judge's secretary's scoring view, opened with the post's own tokenized link instead
+ * of an account. What is written here is what the start list's Live section shows. The same screen the
+ * event secretary has for a post — the difference is only where the data comes from, and that this
+ * link sees one post's slice of the day and nothing more.
  */
 export function Component() {
   const { t } = useTranslation()
@@ -70,7 +71,7 @@ export function Component() {
   if (failed) {
     return (
       <Typography sx={{ p: 2 }} variant="body1">
-        {t('results.stationLinkInvalid')}
+        {t('results.liveEntryLinkInvalid')}
       </Typography>
     )
   }

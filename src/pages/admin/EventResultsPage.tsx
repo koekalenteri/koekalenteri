@@ -296,7 +296,7 @@ export default function EventResultsPage() {
             to={Path.admin.stationResults(eventId, stationViewId)}
             variant="outlined"
           >
-            {t('results.openStationView')}
+            {t('results.openLiveEntry')}
           </Button>
         )}
         {stations.length > 0 && (

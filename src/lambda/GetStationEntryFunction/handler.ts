@@ -5,7 +5,7 @@ import { getRegistrationsByEventId } from '../lib/registration'
 import { authorizeStationEntry, stationEntryResponse } from '../lib/stationEntry'
 
 /**
- * The station secretary's view, behind the station's own tokenized link rather than a login: the post,
+ * Live entry, the judge's secretary's view, behind the post's own tokenized link rather than a login: the post,
  * its slice of the course, and a minimal projection of the dogs that run.
  */
 const getStationEntryLambda = lambda('getStationEntry', async (event) => {

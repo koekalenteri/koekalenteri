@@ -24,7 +24,7 @@ import { useStoreEventResults } from './state/registrations/actions'
 
 /**
  * The event secretary's view of one post: `StationScoring` over the admin data, plus the controls for
- * the tokenized link a station secretary without an account scores through (KOE-1258).
+ * the live entry link a judge's secretary without an account scores through (KOE-1258).
  */
 export default function StationResultsPage() {
   const { t } = useTranslation()
@@ -67,10 +67,8 @@ export default function StationResultsPage() {
 
   const handleCopyLink = useCallback(async () => {
     const { token: linkToken } = await getStationLink(eventId, stationId, token ?? '')
-    await navigator.clipboard.writeText(
-      `${globalThis.location.origin}${Path.stationEntry(eventId, stationId, linkToken)}`
-    )
-    enqueueSnackbar(t('results.stationLinkCopied'), { variant: 'success' })
+    await navigator.clipboard.writeText(`${globalThis.location.origin}${Path.liveEntry(eventId, stationId, linkToken)}`)
+    enqueueSnackbar(t('results.liveEntryLinkCopied'), { variant: 'success' })
   }, [eventId, stationId, t, token])
 
   // A change to the post is written onto the event. An implicit post has not been written anywhere
@@ -91,7 +89,7 @@ export default function StationResultsPage() {
   const handleRevokeLink = useCallback(async () => {
     if (!station) return
     await saveStation({ tokenVersion: (station.tokenVersion ?? 1) + 1 })
-    enqueueSnackbar(t('results.stationLinkRevoked'), { variant: 'success' })
+    enqueueSnackbar(t('results.liveEntryLinkRevoked'), { variant: 'success' })
   }, [saveStation, station, t])
 
   if (!event?.id || !station) return <EventNotFound />
@@ -119,10 +117,10 @@ export default function StationResultsPage() {
         )}
         <Box flexGrow={1} />
         <Button onClick={handleRevokeLink} size="small">
-          {t('results.revokeStationLink')}
+          {t('results.revokeLiveEntryLink')}
         </Button>
         <Button onClick={handleCopyLink} size="small" variant="outlined">
-          {t('results.copyStationLink')}
+          {t('results.copyLiveEntryLink')}
         </Button>
       </Stack>
       <StationScoring

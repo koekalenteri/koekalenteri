@@ -112,13 +112,15 @@ describe('StationResultsPage', () => {
     const writeText = vi.fn()
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
 
-    await user.click(screen.getByRole('button', { name: 'results.copyStationLink' }))
+    await user.click(screen.getByRole('button', { name: 'results.copyLiveEntryLink' }))
     await flushPromises()
 
     const { getStationLink } = await import('../../api/station')
     expect(getStationLink).toHaveBeenCalledWith('test-results', 'post-2', TEST_ID_TOKEN)
     // The mock mints `token-<stationId>`; what lands on the clipboard is the shareable public path.
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/station/test-results/post-2/access/token-post-2'))
+    expect(writeText).toHaveBeenCalledWith(
+      expect.stringContaining('/live-entry/test-results/post-2/access/token-post-2')
+    )
   })
 
   it('opens on the implicit post of a format that lays out no course', async () => {
@@ -129,7 +131,7 @@ describe('StationResultsPage', () => {
     // Nothing is stored for the post, yet the day is run from here: the queue is up and the link is
     // there to hand out.
     expect(screen.getByRole('button', { name: '1 Ensimmainen' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'results.copyStationLink' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'results.copyLiveEntryLink' })).toBeInTheDocument()
   })
 
   it('writes the implicit post onto the event when its link is revoked, so the version has a home', async () => {
@@ -139,7 +141,7 @@ describe('StationResultsPage', () => {
     // The mock store knows nothing of this event; the save only has to be observed, not stored.
     vi.mocked(putEvent).mockResolvedValueOnce(singlePostEvent)
 
-    await user.click(screen.getByRole('button', { name: 'results.revokeStationLink' }))
+    await user.click(screen.getByRole('button', { name: 'results.revokeLiveEntryLink' }))
     await flushPromises()
 
     expect(putEvent).toHaveBeenCalledWith(

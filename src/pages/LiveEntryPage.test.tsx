@@ -7,7 +7,7 @@ import { getStationEntry, putStationEntry } from '../api/station'
 import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
-import { Component as StationEntryPage } from './StationEntryPage'
+import { Component as LiveEntryPage } from './LiveEntryPage'
 
 vi.mock('../api/station')
 
@@ -41,12 +41,12 @@ const entry = (): StationEntry => ({
 })
 
 const renderPage = () => {
-  const routes: RouteObject[] = [{ element: <StationEntryPage />, path: 'station/:eventId/:stationId/access/:token' }]
+  const routes: RouteObject[] = [{ element: <LiveEntryPage />, path: 'live-entry/:eventId/:stationId/access/:token' }]
 
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <SnackbarProvider>
-        <DataMemoryRouter initialEntries={[Path.stationEntry('event-1', 'post-1', 'link-token')]} routes={routes} />
+        <DataMemoryRouter initialEntries={[Path.liveEntry('event-1', 'post-1', 'link-token')]} routes={routes} />
       </SnackbarProvider>
     </ThemeProvider>,
     undefined,
@@ -54,7 +54,7 @@ const renderPage = () => {
   )
 }
 
-describe('StationEntryPage', () => {
+describe('LiveEntryPage', () => {
   beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
     cleanup()
@@ -62,7 +62,7 @@ describe('StationEntryPage', () => {
   })
   afterAll(() => vi.useRealTimers())
 
-  it('opens the station view with the link token', async () => {
+  it('opens the live entry with the link token', async () => {
     vi.mocked(getStationEntry).mockResolvedValue(entry())
     renderPage()
     await flushPromises()
@@ -73,7 +73,7 @@ describe('StationEntryPage', () => {
     expect(screen.getByText(/2 Toinen/)).toBeInTheDocument()
   })
 
-  it('saves through the link, scoped to this station', async () => {
+  it('saves through the link, scoped to this post', async () => {
     vi.mocked(getStationEntry).mockResolvedValue(entry())
     const { user } = renderPage()
     await flushPromises()
@@ -102,7 +102,7 @@ describe('StationEntryPage', () => {
     renderPage()
     await flushPromises()
 
-    expect(screen.getByText('results.stationLinkInvalid')).toBeInTheDocument()
+    expect(screen.getByText('results.liveEntryLinkInvalid')).toBeInTheDocument()
     expect(within(document.body).queryByRole('tab')).not.toBeInTheDocument()
   })
 })

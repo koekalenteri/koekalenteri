@@ -2,7 +2,7 @@ import type { PublicStationTurn, StationEntry, StationTurn, StationTurnOp } from
 import type { EventResultSubmission, EventResultsResponse } from './registration'
 import http, { withToken } from './http'
 
-/** The station secretary's view, authorized by the station's own link token instead of a login. */
+/** Live entry: the judge's secretary's view, authorized by the post's own link token instead of a login. */
 export async function getStationEntry(
   eventId: string,
   stationId: string,
@@ -59,7 +59,7 @@ export async function putStationEntryTurn(
   ).data
 }
 
-/** The token behind a station's shareable link; the secretary side of the same mechanism. */
+/** The token behind a post's live entry link; the event secretary's side of the same mechanism. */
 export async function getStationLink(
   eventId: string,
   stationId: string,

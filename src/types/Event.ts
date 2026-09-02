@@ -242,7 +242,7 @@ export type StationTurnOp =
   | { type: 'mark'; index: number; mark: LiveMark }
 
 /**
- * One dog as a station secretary's tokenized link may see it: enough to call the dog up and score it,
+ * One dog as a judge's secretary's live entry link may see it: enough to call the dog up and score it,
  * nothing more. Owner and handler details stay off a link this widely shared.
  */
 export interface JsonStationEntryDog {

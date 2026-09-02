@@ -112,8 +112,8 @@ const dogAtPost = (
  * the next start number — and one score goes in. The table views are for going through a class; this is
  * for going through the day, and saving one dog at a time is what makes it usable on a phone.
  *
- * Serves two callers that differ only in where the data comes from: the event secretary's own station
- * view, and the tokenized link a station secretary opens without an account.
+ * Serves two callers that differ only in where the data comes from: the event secretary's own post
+ * view, and the live entry link a judge's secretary opens without an account.
  */
 export function StationScoring({ station, eventType, subtitle, classes, registrations, onSave, turns, onTurn }: Props) {
   const { t } = useTranslation()

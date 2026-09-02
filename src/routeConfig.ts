@@ -45,6 +45,8 @@ export const Path = {
   invitation: (registration: ParticipantRegistration) => participantPath('r', registration, '/invitation'),
   invitationAttachment: (item: InvitationAttachmentItem) =>
     `${API_BASE_URL}/file/${item.invitationAttachment}/${invitationAttachmentFileName(item)}`,
+  liveEntry: (eventId: string, stationId: string, token: string) =>
+    `/live-entry/${eventId}/${stationId}/access/${encodeURIComponent(token)}`,
   login: '/login',
   logout: '/logout',
   payment: (registration: ParticipantRegistration) => participantPath('p', registration),
@@ -59,7 +61,5 @@ export const Path = {
   registration: (registration: ParticipantRegistration) => participantPath('r', registration),
   registrationOk: (registration: ParticipantRegistration) => participantPath('r', registration, '/saved'),
   startList: (id: string = ':id') => `/startlist/${id}`,
-  stationEntry: (eventId: string, stationId: string, token: string) =>
-    `/station/${eventId}/${stationId}/access/${encodeURIComponent(token)}`,
   stats: '/tilastot',
 }

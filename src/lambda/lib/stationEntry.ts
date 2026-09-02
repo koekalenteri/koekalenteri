@@ -73,7 +73,7 @@ export const authorizeStationEntry = async (
 }
 
 /**
- * The dogs as the link may see them. A station secretary needs the start number, the dog's name and
+ * The dogs as the link may see them. A judge's secretary needs the start number, the dog's name and
  * the class to call dogs up — owner and handler details stay off a link this widely shared. The tasks
  * are this post's own: what the other posts recorded is not this link's to see either.
  */
