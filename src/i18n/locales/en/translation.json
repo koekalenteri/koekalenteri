@@ -647,6 +647,7 @@
       "saved": "Saved",
       "saving": "Saving…"
     },
+    "isMember": "{{name}} is a member of the organizing society",
     "member": "Member",
     "membership": "Membership information",
     "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",

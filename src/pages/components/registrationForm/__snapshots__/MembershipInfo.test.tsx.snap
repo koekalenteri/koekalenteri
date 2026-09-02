@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`MembershipInfo > should render when owner handles and is member 1`] = `
+exports[`MembershipInfo > should render only the owner checkbox when owner handles 1`] = `
 <div>
   <div
     class="MuiBox-root css-137nj4n"
@@ -55,17 +55,16 @@ exports[`MembershipInfo > should render when owner handles and is member 1`] = `
                 class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
               >
                 <label
-                  class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                  class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                 >
                   <span
-                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                   >
                     <input
                       checked=""
                       class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                       data-indeterminate="false"
-                      disabled=""
-                      name="handlerIsMember"
+                      name="ownerIsMember_0"
                       type="checkbox"
                     />
                     <svg
@@ -81,9 +80,9 @@ exports[`MembershipInfo > should render when owner handles and is member 1`] = `
                     </svg>
                   </span>
                   <span
-                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                   >
-                    registration.handlerIsMember
+                    registration.isMember name
                   </span>
                 </label>
               </div>
@@ -161,6 +160,36 @@ exports[`MembershipInfo > should render with minimal info 1`] = `
                     <input
                       class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                       data-indeterminate="false"
+                      name="ownerIsMember_0"
+                      type="checkbox"
+                    />
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                      data-testid="CheckBoxOutlineBlankIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                      />
+                    </svg>
+                  </span>
+                  <span
+                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                  >
+                    registration.isMember name
+                  </span>
+                </label>
+                <label
+                  class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                >
+                  <span
+                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                  >
+                    <input
+                      class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                      data-indeterminate="false"
                       name="handlerIsMember"
                       type="checkbox"
                     />
@@ -179,7 +208,7 @@ exports[`MembershipInfo > should render with minimal info 1`] = `
                   <span
                     class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                   >
-                    registration.handlerIsMember
+                    registration.isMember name
                   </span>
                 </label>
               </div>

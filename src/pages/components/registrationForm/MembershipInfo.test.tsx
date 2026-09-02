@@ -36,22 +36,20 @@ describe('MembershipInfo', () => {
     expect(container).toMatchSnapshot()
   })
 
-  it('should render when owner handles and is member', () => {
+  it('should render only the owner checkbox when owner handles', () => {
     const reg = clone<Registration>(registrationWithStaticDates)
     reg.ownerHandles = true
-    // biome-ignore lint/style/noNonNullAssertion: its a test
     reg.owner!.membership = true
 
     const { container } = render(<MembershipInfo reg={reg} orgId={'test'} />, { wrapper: Wrapper })
+    expect(screen.getAllByRole('checkbox')).toHaveLength(1)
     expect(container).toMatchSnapshot()
   })
 
-  it('should call onChange', async () => {
+  it('should call onChange for a separate handler', async () => {
     const reg = clone<Registration>(registrationWithStaticDates)
     reg.ownerHandles = false
-    // biome-ignore lint/style/noNonNullAssertion: its a test
     reg.owner!.membership = false
-    // biome-ignore lint/style/noNonNullAssertion: its a test
     reg.handler!.membership = false
 
     const onChange = vi.fn((props) => Object.assign(reg, props))
@@ -66,9 +64,10 @@ describe('MembershipInfo', () => {
     await flushPromises()
     expect(onChange).not.toHaveBeenCalled()
 
-    const hadnlerCheckbox = screen.getByRole('checkbox', { name: 'registration.handlerIsMember' })
+    // The owner's checkbox comes first, the separate handler's after it
+    const [, handlerCheckbox] = screen.getAllByRole('checkbox')
 
-    await user.click(hadnlerCheckbox)
+    await user.click(handlerCheckbox)
     await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
       handler: {
@@ -76,6 +75,32 @@ describe('MembershipInfo', () => {
         membership: true,
       },
     })
+
+    await flushPromises()
+  })
+
+  it('should call onChange for an owner', async () => {
+    const reg = clone<Registration>(registrationWithStaticDates)
+    reg.ownerHandles = true
+    reg.owner!.membership = false
+
+    const onChange = vi.fn((props) => Object.assign(reg, props))
+    const { user } = renderWithUserEvents(
+      <MembershipInfo reg={reg} orgId={'test'} onChange={onChange} />,
+      { wrapper: Wrapper },
+      {
+        advanceTimers: vi.advanceTimersByTime,
+      }
+    )
+
+    await flushPromises()
+    expect(onChange).not.toHaveBeenCalled()
+
+    await user.click(screen.getByRole('checkbox'))
+    await flushPromises()
+
+    const expected = expect.objectContaining({ membership: true, name: 'Owner Name' })
+    expect(onChange).toHaveBeenLastCalledWith({ owner: expected, owners: [expected] })
 
     await flushPromises()
   })

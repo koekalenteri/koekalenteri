@@ -1586,43 +1586,6 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   </div>
                                 </div>
                               </div>
-                              <div
-                                class="MuiStack-root css-3y1137-MuiStack-root"
-                              >
-                                <label
-                                  class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
-                                  for="owner_0_membership"
-                                >
-                                  <span
-                                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                                  >
-                                    <input
-                                      class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                      data-indeterminate="false"
-                                      disabled=""
-                                      id="owner_0_membership"
-                                      name="owner_0_membership"
-                                      type="checkbox"
-                                    />
-                                    <svg
-                                      aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                                      data-testid="CheckBoxOutlineBlankIcon"
-                                      focusable="false"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                                      />
-                                    </svg>
-                                  </span>
-                                  <span
-                                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
-                                  >
-                                    registration.ownerIsMember
-                                  </span>
-                                </label>
-                              </div>
                             </div>
                             <button
                               class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-a5nan9-MuiButtonBase-root-MuiButton-root"
@@ -2664,6 +2627,37 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                                   class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                                   data-indeterminate="false"
                                   disabled=""
+                                  name="ownerIsMember_0"
+                                  type="checkbox"
+                                />
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                  data-testid="CheckBoxOutlineBlankIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                                  />
+                                </svg>
+                              </span>
+                              <span
+                                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
+                              >
+                                registration.isMember name
+                              </span>
+                            </label>
+                            <label
+                              class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                            >
+                              <span
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                              >
+                                <input
+                                  class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                  data-indeterminate="false"
+                                  disabled=""
                                   name="handlerIsMember"
                                   type="checkbox"
                                 />
@@ -2682,7 +2676,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                               <span
                                 class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                               >
-                                registration.handlerIsMember
+                                registration.isMember name
                               </span>
                             </label>
                           </div>
@@ -4540,42 +4534,6 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                                   </div>
                                 </div>
                               </div>
-                              <div
-                                class="MuiStack-root css-3y1137-MuiStack-root"
-                              >
-                                <label
-                                  class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
-                                  for="owner_0_membership"
-                                >
-                                  <span
-                                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                                  >
-                                    <input
-                                      class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                      data-indeterminate="false"
-                                      id="owner_0_membership"
-                                      name="owner_0_membership"
-                                      type="checkbox"
-                                    />
-                                    <svg
-                                      aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                                      data-testid="CheckBoxOutlineBlankIcon"
-                                      focusable="false"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                                      />
-                                    </svg>
-                                  </span>
-                                  <span
-                                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
-                                  >
-                                    registration.ownerIsMember
-                                  </span>
-                                </label>
-                              </div>
                             </div>
                             <button
                               class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-a5nan9-MuiButtonBase-root-MuiButton-root"
@@ -5601,6 +5559,36 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                                 <input
                                   class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                                   data-indeterminate="false"
+                                  name="ownerIsMember_0"
+                                  type="checkbox"
+                                />
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                  data-testid="CheckBoxOutlineBlankIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                                  />
+                                </svg>
+                              </span>
+                              <span
+                                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
+                              >
+                                registration.isMember name
+                              </span>
+                            </label>
+                            <label
+                              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
+                            >
+                              <span
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                              >
+                                <input
+                                  class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
+                                  data-indeterminate="false"
                                   name="handlerIsMember"
                                   type="checkbox"
                                 />
@@ -5619,7 +5607,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                               <span
                                 class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                               >
-                                registration.handlerIsMember
+                                registration.isMember name
                               </span>
                             </label>
                           </div>

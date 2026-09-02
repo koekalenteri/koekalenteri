@@ -647,6 +647,7 @@
       "saved": "Tallennettu",
       "saving": "Tallennetaan…"
     },
+    "isMember": "{{name}} on järjestävän yhdistyksen jäsen",
     "member": "Jäsen",
     "membership": "Jäsenyystiedot",
     "modified_one": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
