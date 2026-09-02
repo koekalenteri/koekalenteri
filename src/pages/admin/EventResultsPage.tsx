@@ -22,6 +22,7 @@ import { putEventResults } from '../../api/registration'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import {
+  compareRegistrationClasses,
   getRegistrationClass,
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
@@ -52,7 +53,10 @@ export default function EventResultsPage() {
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
 
   const classes = useMemo(
-    () => [...new Set(registrations.filter(isScorableRegistration).map(getRegistrationClass))],
+    () =>
+      [...new Set(registrations.filter(isScorableRegistration).map(getRegistrationClass))].sort(
+        compareRegistrationClasses
+      ),
     [registrations]
   )
   const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])

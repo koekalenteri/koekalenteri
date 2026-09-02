@@ -152,6 +152,23 @@ export const NOME_B_CH_qualificationStartDate2023 = new Date('2023-08-17T21:00:0
 
 export const REG_CLASSES = new Set<RegistrationClass>(['ALO', 'AVO', 'VOI'])
 
+const REG_CLASS_ORDER: readonly string[] = ['ALO', 'AVO', 'VOI']
+
+/** Standard class order: ALO, AVO, VOI first, anything else (e.g. a classless event type) after them. */
+export const compareRegistrationClasses = (a: string | undefined, b: string | undefined): number => {
+  if (a === b) return 0
+  if (a === undefined) return 1
+  if (b === undefined) return -1
+  const aIndex = REG_CLASS_ORDER.indexOf(a)
+  const bIndex = REG_CLASS_ORDER.indexOf(b)
+  if (aIndex !== bIndex) {
+    if (aIndex === -1) return 1
+    if (bIndex === -1) return -1
+    return aIndex - bIndex
+  }
+  return a.localeCompare(b, 'fi')
+}
+
 export function getRegistrationClass(registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>): string
 export function getRegistrationClass(registration: { class?: string | null; eventType?: string }): string | undefined
 export function getRegistrationClass(registration: { class?: string | null; eventType?: string }) {

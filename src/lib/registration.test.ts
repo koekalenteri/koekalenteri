@@ -11,6 +11,7 @@ import type { SortableRegistration } from './registration'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
   canRefund,
+  compareRegistrationClasses,
   createRegistrationDraft,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
@@ -133,6 +134,22 @@ describe('lib/registration', () => {
       expect(getRegistrationClass({ class: 'ALO', eventType: 'NOME-B' })).toBe('ALO')
       expect(getRegistrationClass({ eventType: 'NOU' })).toBe('NOU')
       expect(getRegistrationClass({})).toBeUndefined()
+    })
+  })
+
+  describe('compareRegistrationClasses', () => {
+    it('orders the standard classes ALO, AVO, VOI', () => {
+      expect(['VOI', 'ALO', 'AVO'].sort(compareRegistrationClasses)).toEqual(['ALO', 'AVO', 'VOI'])
+    })
+
+    it('sorts other values after the standard classes, alphabetically', () => {
+      expect(['NOWT', 'VOI', 'AVO2', 'ALO'].sort(compareRegistrationClasses)).toEqual(['ALO', 'VOI', 'AVO2', 'NOWT'])
+    })
+
+    it('sorts undefined last', () => {
+      expect(compareRegistrationClasses(undefined, 'ALO')).toBeGreaterThan(0)
+      expect(compareRegistrationClasses('ALO', undefined)).toBeLessThan(0)
+      expect(compareRegistrationClasses(undefined, undefined)).toBe(0)
     })
   })
 
