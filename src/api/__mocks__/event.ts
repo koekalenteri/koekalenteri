@@ -74,23 +74,25 @@ export const getEventAuditTrail = vi.fn(
   async (_id: string, _token: string, _signal?: AbortSignal): Promise<AuditRecord[] | undefined> => []
 )
 
-export async function putEvent(event: Patch<DogEvent>, _token?: string, _signal?: AbortSignal): Promise<DogEvent> {
-  return new Promise((resolve, reject) => {
-    let existing: DogEvent | undefined
-    if (!event.id) {
-      existing = { ...event, id: `test${mockEvents.length + 1}` } as DogEvent
-      mockEvents.push(existing)
-    } else {
-      existing = mockEvents.find((e) => e.id === event.id)
-      if (existing) {
-        Object.assign(existing, event)
-        existing.modifiedAt = new Date()
-        existing.modifiedBy = 'mock'
+export const putEvent = vi.fn(
+  async (event: Patch<DogEvent>, _token?: string, _signal?: AbortSignal): Promise<DogEvent> => {
+    return new Promise((resolve, reject) => {
+      let existing: DogEvent | undefined
+      if (!event.id) {
+        existing = { ...event, id: `test${mockEvents.length + 1}` } as DogEvent
+        mockEvents.push(existing)
+      } else {
+        existing = mockEvents.find((e) => e.id === event.id)
+        if (existing) {
+          Object.assign(existing, event)
+          existing.modifiedAt = new Date()
+          existing.modifiedBy = 'mock'
+        }
       }
-    }
-    process.nextTick(() => (existing ? resolve(existing) : reject(new Error('not found'))))
-  })
-}
+      process.nextTick(() => (existing ? resolve(existing) : reject(new Error('not found'))))
+    })
+  }
+)
 
 export async function searchEventKcIdChoices(
   _request: SearchEventKcIdChoicesRequest,

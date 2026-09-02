@@ -1,4 +1,11 @@
-import { liveFormat, MAX_DOGS_AT_ONCE, stationDogsAtOnce, turnNamesTask } from './liveFormat'
+import {
+  IMPLICIT_STATION_ID,
+  liveFormat,
+  MAX_DOGS_AT_ONCE,
+  resolveStation,
+  stationDogsAtOnce,
+  turnNamesTask,
+} from './liveFormat'
 
 describe('liveFormat', () => {
   it('gives an unlisted event type the default: one post, a queue, nothing but the result', () => {
@@ -65,6 +72,54 @@ describe('liveFormat', () => {
       expect(turnNamesTask('NOME-B', { tasks: 1 })).toBe(false)
       expect(turnNamesTask('NOWT', { tasks: 2 })).toBe(false)
       expect(turnNamesTask('NOU', { tasks: 2 })).toBe(false)
+    })
+  })
+
+  describe('resolveStation', () => {
+    const stored = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
+
+    it('answers for the implicit post of a single-post format that has none stored', () => {
+      const event = { eventType: 'NOME-B', startDate: '2026-09-12' }
+
+      expect(resolveStation(event, IMPLICIT_STATION_ID)).toEqual({
+        date: '2026-09-12',
+        id: IMPLICIT_STATION_ID,
+        number: 1,
+        tasks: 1,
+      })
+      expect(resolveStation({ ...event, stations: [] }, IMPLICIT_STATION_ID)).toEqual(
+        resolveStation(event, IMPLICIT_STATION_ID)
+      )
+      // The default format is a single post too, so a type the app has no notion of gets one.
+      expect(resolveStation({ ...event, eventType: 'NKM' }, IMPLICIT_STATION_ID)).toMatchObject({ id: '1' })
+      // But only the one post: any other id is a post the event does not have.
+      expect(resolveStation(event, 'post-1')).toBeUndefined()
+    })
+
+    it('keeps the date type of whichever side asks', () => {
+      const startDate = new Date('2026-09-12T09:00:00Z')
+
+      expect(resolveStation({ eventType: 'NOU', startDate }, IMPLICIT_STATION_ID)?.date).toBe(startDate)
+    })
+
+    it('lets the stored post win once something has written it down', () => {
+      const revoked = { ...stored, id: IMPLICIT_STATION_ID, tokenVersion: 2 }
+
+      expect(resolveStation({ eventType: 'NOME-B', startDate: '2026-09-12', stations: [revoked] }, '1')).toBe(revoked)
+    })
+
+    it('gives a many-post format only the posts it laid out', () => {
+      const event = { eventType: 'NOWT', startDate: '2026-09-12', stations: [stored] }
+
+      expect(resolveStation(event, 'post-1')).toBe(stored)
+      expect(resolveStation(event, IMPLICIT_STATION_ID)).toBeUndefined()
+      expect(resolveStation({ ...event, stations: undefined }, IMPLICIT_STATION_ID)).toBeUndefined()
+    })
+
+    it('never invents a post beside the ones an event has', () => {
+      const event = { eventType: 'NOME-B', startDate: '2026-09-12', stations: [stored] }
+
+      expect(resolveStation(event, IMPLICIT_STATION_ID)).toBeUndefined()
     })
   })
 })

@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { putEventResults } from '../../api/registration'
 import { getStationLink, putStationTurn } from '../../api/station'
+import { resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import { idTokenAtom } from '../state'
@@ -29,7 +30,8 @@ export default function StationResultsPage() {
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const eventActions = useAdminEventActions()
 
-  const station = event?.stations?.find((item) => item.id === stationId)
+  // The event's own post, or the implicit single post of a format that lays none out (NOME-B, NOU).
+  const station = event && resolveStation(event, stationId)
   const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
 
   const handleSave = useCallback(
@@ -57,15 +59,17 @@ export default function StationResultsPage() {
     enqueueSnackbar(t('results.stationLinkCopied'), { variant: 'success' })
   }, [eventId, stationId, t, token])
 
-  // Bumping the version invalidates every link handed out; the next copy serves a fresh one.
+  // Bumping the version invalidates every link handed out; the next copy serves a fresh one. An
+  // implicit post has nowhere to keep its version until now, so revoking writes it onto the event.
   const handleRevokeLink = useCallback(async () => {
-    if (!event) return
-    const stations = event.stations?.map((item) =>
-      item.id === stationId ? { ...item, tokenVersion: (item.tokenVersion ?? 1) + 1 } : item
-    )
+    if (!event || !station) return
+    const revoked = { ...station, tokenVersion: (station.tokenVersion ?? 1) + 1 }
+    const stations = event.stations?.some((item) => item.id === station.id)
+      ? event.stations.map((item) => (item.id === station.id ? revoked : item))
+      : [...(event.stations ?? []), revoked]
     await eventActions.save({ ...event, stations })
     enqueueSnackbar(t('results.stationLinkRevoked'), { variant: 'success' })
-  }, [event, eventActions, stationId, t])
+  }, [event, eventActions, station, t])
 
   if (!event?.id || !station) return <EventNotFound />
 

@@ -10,6 +10,7 @@ import type {
   JsonStationTurn,
 } from '../../types'
 import { createHmac, timingSafeEqual } from 'node:crypto'
+import { resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
 import { LambdaError } from './lambda'
 import { getRegistrationEditTokenSecret } from './secrets'
@@ -56,7 +57,9 @@ export const authorizeStationEntry = async (
   confirmedEvent: JsonConfirmedEvent,
   stationId: string
 ): Promise<JsonEventStation> => {
-  const station = confirmedEvent.stations?.find((item) => item.id === stationId)
+  // The implicit post of a single-post format opens like any other; its version lives on the event
+  // only once a revocation has written it there.
+  const station = resolveStation(confirmedEvent, stationId)
   if (!station) throw new LambdaError(404, 'not found')
 
   const token = getBearerToken(apiEvent)

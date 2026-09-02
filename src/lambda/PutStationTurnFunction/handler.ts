@@ -1,5 +1,5 @@
 import type { JsonConfirmedEvent } from '../../types'
-import { IMPLICIT_STATION_ID } from '../../lib/stationTurns'
+import { IMPLICIT_STATION_ID, resolveStation } from '../../lib/liveFormat'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
@@ -25,9 +25,7 @@ const putStationTurnLambda = lambda('putStationTurn', async (event) => {
 
   // A format without stations runs its one implicit post; with stations, the post must be real.
   const stationId = typeof body.stationId === 'string' && body.stationId ? body.stationId : IMPLICIT_STATION_ID
-  if (confirmedEvent.stations?.length && !confirmedEvent.stations.some((station) => station.id === stationId)) {
-    throw new LambdaError(404, 'not found')
-  }
+  if (!resolveStation(confirmedEvent, stationId)) throw new LambdaError(404, 'not found')
 
   const registrations = await getRegistrationsByEventId(eventId)
   const turns = await writeStationTurn(confirmedEvent, registrations, stationId, op)

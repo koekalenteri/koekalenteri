@@ -1,4 +1,5 @@
 import type { JsonConfirmedEvent } from '../../types'
+import { resolveStation } from '../../lib/liveFormat'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
@@ -17,7 +18,7 @@ const getStationLinkLambda = lambda('getStationLink', async (event) => {
   const stationId = getParam(event, 'stationId')
 
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
-  const station = confirmedEvent.stations?.find((item) => item.id === stationId)
+  const station = resolveStation(confirmedEvent, stationId)
   if (!station) throw new LambdaError(404, 'not found')
 
   return response(200, { token: await getStationEntryToken(eventId, station) }, event)

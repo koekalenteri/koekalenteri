@@ -108,6 +108,33 @@ export const stationDogsAtOnce = (eventType?: string, station?: Pick<JsonEventSt
   return Math.min(own, MAX_DOGS_AT_ONCE)
 }
 
+/** The implicit single post of formats without stations. */
+export const IMPLICIT_STATION_ID = '1'
+
+/** A post as either side holds it: the lambdas with the date as a string, the browser as a `Date`. */
+type StationOf<D> = Omit<JsonEventStation, 'date'> & { date: D }
+
+interface StationHost<D> {
+  eventType: string
+  startDate: D
+  stations?: StationOf<D>[]
+}
+
+/**
+ * The post a station id names on this event.
+ *
+ * One of the event's own where it has any — and then only those, so a NOWT round cannot be scored at
+ * a post nobody laid out. A format that runs its one implicit post has nothing stored, so the implicit
+ * post is answered for out of thin air with the shape the stations editor would have given it. Once
+ * something has written it down (revoking its link does, to have somewhere to keep the version), it is
+ * the event's own post from then on and the stored one wins.
+ */
+export const resolveStation = <D>(event: StationHost<D>, stationId: string): StationOf<D> | undefined => {
+  if (event.stations?.length) return event.stations.find((station) => station.id === stationId)
+  if (stationId !== IMPLICIT_STATION_ID || liveFormat(event.eventType).posts !== 'one') return undefined
+  return { date: event.startDate, id: IMPLICIT_STATION_ID, number: 1, tasks: 1 }
+}
+
 /** Whether a turn at this post has to say which of the post's tasks it ran. */
 export const turnNamesTask = (eventType?: string, station?: Pick<JsonEventStation, 'tasks'>): boolean =>
   liveFormat(eventType).tasks === 'ordered' && (station?.tasks ?? 1) > 1

@@ -84,11 +84,20 @@ describe('putStationTurnLambda', () => {
   })
 
   it('runs the implicit single post for a format without stations', async () => {
-    mockGetAuthorizedEvent.mockResolvedValue(confirmedEvent({ stations: undefined }))
+    mockGetAuthorizedEvent.mockResolvedValue(confirmedEvent({ eventType: 'NOME-B', stations: undefined }))
 
     await putStationTurnLambda(apiEvent({ pause: 'coffee', type: 'break' }))
 
     expect(mockWriteStationTurn).toHaveBeenCalledWith(expect.anything(), [], '1', expect.anything())
+  })
+
+  it('refuses the implicit post to a many-post format that laid out no course', async () => {
+    mockGetAuthorizedEvent.mockResolvedValue(confirmedEvent({ eventType: 'NOWT', stations: undefined }))
+
+    await expect(putStationTurnLambda(apiEvent({ pause: 'coffee', type: 'break' }))).rejects.toMatchObject({
+      statusCode: 404,
+    })
+    expect(mockWriteStationTurn).not.toHaveBeenCalled()
   })
 
   it('refuses a post the event does not have', async () => {

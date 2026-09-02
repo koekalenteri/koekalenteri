@@ -51,6 +51,34 @@ describe('stationEntry', () => {
       )
     })
 
+    it('opens the implicit post of a single-post format, which has nothing stored to find', async () => {
+      const singlePost = asJsonConfirmedEvent({ ...confirmedEvent, eventType: 'NOME-B', stations: undefined })
+      const token = await getStationEntryToken('event-1', { id: '1' })
+
+      await expect(authorizeStationEntry(headers(token), 'event-1', singlePost, '1')).resolves.toMatchObject({
+        date: '2026-09-12',
+        id: '1',
+        number: 1,
+        tasks: 1,
+      })
+      // A NOWT with no course laid out has no post at all, implicit or otherwise.
+      await expect(
+        authorizeStationEntry(headers(token), 'event-1', { ...confirmedEvent, stations: undefined }, '1')
+      ).rejects.toThrow('not found')
+    })
+
+    it('closes the implicit post to the old link once its version has been written down', async () => {
+      const revoked = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const, tokenVersion: 2 }
+      const singlePost = asJsonConfirmedEvent({ ...confirmedEvent, eventType: 'NOME-B', stations: [revoked] })
+      const before = await getStationEntryToken('event-1', { id: '1' })
+      const after = await getStationEntryToken('event-1', revoked)
+
+      await expect(authorizeStationEntry(headers(before), 'event-1', singlePost, '1')).rejects.toThrow('not found')
+      await expect(authorizeStationEntry(headers(after), 'event-1', singlePost, '1')).resolves.toMatchObject({
+        tokenVersion: 2,
+      })
+    })
+
     it('rejects a token minted for another station or event', async () => {
       const other = await getStationEntryToken('event-2', station)
 

@@ -1,6 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
+import type { ConfirmedEvent } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -11,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { eventWithStations, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
+import { putEvent } from '../../api/event'
 import { putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
@@ -53,7 +55,7 @@ const renderPage = (language: Language, stationId: string) => {
 }
 
 /** The post's own screen, on a course that exists and has dogs queued for it. */
-const renderStation = (language: Language, stationId = 'post-2') => {
+const renderStation = (language: Language, stationId = 'post-2', event = eventWithStations) => {
   const routes: RouteObject[] = [{ element: <StationResultsPage />, path: Path.admin.stationResults() }]
 
   return renderWithUserEvents(
@@ -62,16 +64,13 @@ const renderStation = (language: Language, stationId = 'post-2') => {
         <Provider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
-            set(adminEventsAtom, [eventWithStations])
-            set(adminEventRegistrationsAtom(eventWithStations.id), registrationsToEventWithStations)
+            set(adminEventsAtom, [event])
+            set(adminEventRegistrationsAtom(event.id), registrationsToEventWithStations)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
-              <DataMemoryRouter
-                initialEntries={[Path.admin.stationResults(eventWithStations.id, stationId)]}
-                routes={routes}
-              />
+              <DataMemoryRouter initialEntries={[Path.admin.stationResults(event.id, stationId)]} routes={routes} />
             </SnackbarProvider>
           </Suspense>
         </Provider>
@@ -81,6 +80,12 @@ const renderStation = (language: Language, stationId = 'post-2') => {
     { advanceTimers: vi.advanceTimersByTime }
   )
 }
+
+/**
+ * A NOME-B: the same dogs, but no course laid out, because the format runs its day at one post that
+ * nobody configures. Its own screen is the implicit post, numbered 1.
+ */
+const singlePostEvent: ConfirmedEvent = { ...eventWithStations, eventType: 'NOME-B', stations: undefined }
 
 /** Enter a score and let the debounced change land before anything else happens. */
 const score = async (user: UserEvent, input: HTMLElement, points: string) => {
@@ -113,6 +118,36 @@ describe('StationResultsPage', () => {
     expect(getStationLink).toHaveBeenCalledWith('test-results', 'post-2', TEST_ID_TOKEN)
     // The mock mints `token-<stationId>`; what lands on the clipboard is the shareable public path.
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/station/test-results/post-2/access/token-post-2'))
+  })
+
+  it('opens on the implicit post of a format that lays out no course', async () => {
+    const { i18n } = useTranslation()
+    renderStation(i18n.language as Language, '1', singlePostEvent)
+    await flushPromises()
+
+    // Nothing is stored for the post, yet the day is run from here: the queue is up and the link is
+    // there to hand out.
+    expect(screen.getByRole('button', { name: '1 Ensimmainen' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'results.copyStationLink' })).toBeInTheDocument()
+  })
+
+  it('writes the implicit post onto the event when its link is revoked, so the version has a home', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderStation(i18n.language as Language, '1', singlePostEvent)
+    await flushPromises()
+    // The mock store knows nothing of this event; the save only has to be observed, not stored.
+    vi.mocked(putEvent).mockResolvedValueOnce(singlePostEvent)
+
+    await user.click(screen.getByRole('button', { name: 'results.revokeStationLink' }))
+    await flushPromises()
+
+    expect(putEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: singlePostEvent.id,
+        stations: [{ date: singlePostEvent.startDate, id: '1', number: 1, tasks: 1, tokenVersion: 2 }],
+      }),
+      TEST_ID_TOKEN
+    )
   })
 
   it('will not open on a post the event does not have', async () => {

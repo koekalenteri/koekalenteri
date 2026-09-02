@@ -24,6 +24,7 @@ import { putEventResults } from '../../api/registration'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
+import { IMPLICIT_STATION_ID, liveFormat } from '../../lib/liveFormat'
 import {
   compareRegistrationClasses,
   getRegistrationClass,
@@ -95,6 +96,10 @@ export default function EventResultsPage() {
   // A post's own view narrows the columns; the prize is withheld there, because it depends on posts
   // this view cannot see and a partial figure would read as a verdict.
   const scoped = scope !== WHOLE_ROUND
+  // A format that runs its day at one post has no scope to pick, but that one post has its own view
+  // all the same: the live clock and the queue are what the day is run from (KOE-1259).
+  const singlePost = liveFormat(event?.eventType).posts === 'one'
+  const stationViewId = scoped ? scope : IMPLICIT_STATION_ID
   const round = useMemo(
     () => (scoped ? fullRound.filter((task) => task.stationId === scope) : fullRound),
     [fullRound, scope, scoped]
@@ -261,8 +266,13 @@ export default function EventResultsPage() {
             <Tab key={item} label={item} value={item} />
           ))}
         </Tabs>
-        {scoped && (
-          <Button component={Link} size="small" to={Path.admin.stationResults(eventId, scope)} variant="outlined">
+        {(scoped || singlePost) && (
+          <Button
+            component={Link}
+            size="small"
+            to={Path.admin.stationResults(eventId, stationViewId)}
+            variant="outlined"
+          >
             {t('results.openStationView')}
           </Button>
         )}

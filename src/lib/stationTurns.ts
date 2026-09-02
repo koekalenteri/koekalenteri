@@ -147,6 +147,3 @@ export const waitEstimate = (
 export const liveStationIds = (turns: readonly Pick<StationTurnSpan, 'stationId'>[]): string[] => [
   ...new Set(turns.map((turn) => turn.stationId)),
 ]
-
-/** The implicit single post of formats without stations. */
-export const IMPLICIT_STATION_ID = '1'

@@ -458,6 +458,18 @@ describe('EventResultsPage', () => {
     // The mock event is a NOU: there are no posts, so there is nothing to narrow to.
     expect(screen.queryByLabelText('results.scope')).not.toBeInTheDocument()
   })
+
+  it('offers a single-post format its one post without asking which', async () => {
+    const { i18n } = useTranslation()
+    renderQualitativePage(i18n.language as Language)
+    await flushPromises()
+
+    // Nothing to narrow to, but the day is still run from the post: the clock and the queue live there.
+    expect(screen.getByRole('link', { name: 'results.openStationView' })).toHaveAttribute(
+      'href',
+      Path.admin.stationResults(eventWithStaticDates.id, '1')
+    )
+  })
 })
 
 describe('ResultSummary', () => {
