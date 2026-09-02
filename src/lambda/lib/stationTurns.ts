@@ -1,3 +1,4 @@
+import type { LivePhase } from '../../lib/liveFormat'
 import type {
   JsonConfirmedEvent,
   JsonRegistration,
@@ -7,7 +8,7 @@ import type {
   StationTurnPause,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
-import { MAX_DOGS_AT_ONCE } from '../../lib/liveFormat'
+import { MAX_DOGS_AT_ONCE, resolveStation, stationPhases } from '../../lib/liveFormat'
 import { openTurn } from '../../lib/stationTurns'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -19,25 +20,30 @@ const dynamoDB = new CustomDynamoClient(eventTable)
 const PAUSES: readonly StationTurnPause[] = ['coffee', 'lunch', 'weather', 'other']
 const MARKS: readonly LiveMark[] = ['onRetrieve', 'gotRetrieve', 'noRetrieve', 'eyeWipe', 'firstDogDown']
 
-/** A post never lays out more tasks than this, so a turn cannot name one beyond them. */
-const MAX_TASK_INDEX = 1
+/** A phase is a key or a label somebody typed; longer than this is not a phase. */
+const MAX_PHASE_LENGTH = 40
 
-const parseStart = (registrationIds: unknown, taskIndex: unknown): StationTurnOp => {
-  if (
-    !Array.isArray(registrationIds) ||
-    registrationIds.length === 0 ||
-    registrationIds.length > MAX_DOGS_AT_ONCE ||
-    !registrationIds.every((id) => typeof id === 'string')
-  ) {
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((item) => typeof item === 'string')
+
+/**
+ * An empty group is allowed only with a phase, since a whole-entry phase is the one span that holds
+ * no dogs; whether that phase actually is one is the apply step's to check, which knows the post.
+ */
+const parseStart = (registrationIds: unknown, phase: unknown): StationTurnOp => {
+  if (!isStringArray(registrationIds) || registrationIds.length > MAX_DOGS_AT_ONCE) {
     throw new LambdaError(422, 'invalid turn dogs')
   }
 
-  if (taskIndex === undefined) return { registrationIds, type: 'start' }
-
-  if (typeof taskIndex !== 'number' || !Number.isInteger(taskIndex) || taskIndex < 0 || taskIndex > MAX_TASK_INDEX) {
-    throw new LambdaError(422, 'invalid task')
+  if (phase === undefined) {
+    if (registrationIds.length === 0) throw new LambdaError(422, 'invalid turn dogs')
+    return { registrationIds, type: 'start' }
   }
-  return { registrationIds, taskIndex, type: 'start' }
+
+  if (typeof phase !== 'string' || phase.length === 0 || phase.length > MAX_PHASE_LENGTH) {
+    throw new LambdaError(422, 'invalid phase')
+  }
+  return { phase, registrationIds, type: 'start' }
 }
 
 const parseMark = (index: unknown, mark: unknown): StationTurnOp => {
@@ -51,11 +57,11 @@ const parseMark = (index: unknown, mark: unknown): StationTurnOp => {
 
 export const parseStationTurnOp = (body: unknown): StationTurnOp => {
   if (typeof body !== 'object' || body === null) throw new LambdaError(422, 'no turn')
-  const { type, registrationIds, pause, taskIndex, index, mark } = body as {
+  const { type, registrationIds, pause, phase, index, mark } = body as {
     type?: unknown
     registrationIds?: unknown
     pause?: unknown
-    taskIndex?: unknown
+    phase?: unknown
     index?: unknown
     mark?: unknown
   }
@@ -66,7 +72,7 @@ export const parseStationTurnOp = (body: unknown): StationTurnOp => {
     if (!knownPause) throw new LambdaError(422, 'unknown pause')
     return { pause: knownPause, type }
   }
-  if (type === 'start') return parseStart(registrationIds, taskIndex)
+  if (type === 'start') return parseStart(registrationIds, phase)
   if (type === 'mark') return parseMark(index, mark)
 
   throw new LambdaError(422, 'unknown turn op')
@@ -87,7 +93,8 @@ export const applyStationTurnOp = (
   registrations: JsonRegistration[],
   stationId: string,
   op: StationTurnOp,
-  now: Date = new Date()
+  now: Date = new Date(),
+  phases: readonly LivePhase[] = []
 ): JsonStationTurn[] => {
   const at = now.toISOString()
 
@@ -112,6 +119,11 @@ export const applyStationTurnOp = (
     return [...closed, { dogs: [], id: randomUUID(), pause: op.pause, registrationIds: [], startedAt: at, stationId }]
   }
 
+  // A phase is one the post has; a whole-entry phase holds no dogs, every other one holds some.
+  const phase = op.phase === undefined ? undefined : phases.find((item) => item.key === op.phase)
+  if (op.phase !== undefined && !phase) throw new LambdaError(422, 'unknown phase')
+  if (Boolean(phase?.whole) !== (op.registrationIds.length === 0)) throw new LambdaError(422, 'invalid turn dogs')
+
   const dogs = op.registrationIds.map((id) => {
     const registration = registrations.find((item) => item.id === id)
     if (!registration || registration.cancelled) throw new LambdaError(422, 'unknown dog')
@@ -128,7 +140,7 @@ export const applyStationTurnOp = (
       registrationIds: op.registrationIds,
       startedAt: at,
       stationId,
-      ...(op.taskIndex === undefined ? {} : { taskIndex: op.taskIndex }),
+      ...(op.phase === undefined ? {} : { phase: op.phase }),
     },
   ]
 }
@@ -180,9 +192,10 @@ export const writeStationTurn = async (
   now: Date = new Date()
 ): Promise<JsonStationTurn[]> => {
   let expected = confirmedEvent.turns
+  const phases = stationPhases(confirmedEvent.eventType, resolveStation(confirmedEvent, stationId))
 
   for (let attempt = 1; ; attempt++) {
-    const turns = applyStationTurnOp(expected ?? [], registrations, stationId, op, now)
+    const turns = applyStationTurnOp(expected ?? [], registrations, stationId, op, now, phases)
     try {
       await saveStationTurns(confirmedEvent.id, expected, turns, now)
       return turns

@@ -5,6 +5,7 @@ import {
   isBreakTurn,
   isLiveNow,
   isStoredStationTurn,
+  isWholeTurn,
   liveStationIds,
   openTurn,
   stationThroughput,
@@ -50,6 +51,23 @@ describe('stationTurns', () => {
       ]
 
       expect(completedGroupTurns(turns, 'post-1').map((item) => item.id)).toEqual(['a'])
+    })
+  })
+
+  describe('isWholeTurn', () => {
+    it('is a phase span with no dogs, and neither a break nor a turn', () => {
+      const briefing = turn({ dogs: [], phase: 'briefing', registrationIds: [] })
+
+      expect(isWholeTurn(briefing)).toBe(true)
+      expect(isWholeTurn(turn({ dogs: [], pause: 'coffee', registrationIds: [] }))).toBe(false)
+      expect(isWholeTurn(turn({ phase: 'search' }))).toBe(false)
+      // It moves nobody through the post and measures nothing.
+      const turns = [
+        { ...briefing, endedAt: '2026-09-12T08:10:00.000Z' },
+        turn({ endedAt: '2026-09-12T08:20:00.000Z', id: 'turn-2', startedAt: '2026-09-12T08:10:00.000Z' }),
+      ]
+      expect(completedGroupTurns(turns, 'post-1')).toHaveLength(1)
+      expect(dogsThrough(turns, 'post-1')).toBe(1)
     })
   })
 

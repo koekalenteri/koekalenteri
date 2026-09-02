@@ -4,7 +4,7 @@ import {
   MAX_DOGS_AT_ONCE,
   resolveStation,
   stationDogsAtOnce,
-  turnNamesTask,
+  stationPhases,
 } from './liveFormat'
 
 describe('liveFormat', () => {
@@ -22,8 +22,9 @@ describe('liveFormat', () => {
 
   it('describes the formats the plan tabulates', () => {
     expect(liveFormat('NOWT')).toEqual({ flow: 'queue', marks: [], posts: 'many', tasks: 'post' })
-    expect(liveFormat('NOME-B')).toMatchObject({ flow: 'queue', posts: 'one', tasks: 'ordered' })
-    expect(liveFormat('NOU')).toMatchObject({ dogsAtOnce: 1, flow: 'queue', posts: 'one', tasks: 'fixed' })
+    expect(liveFormat('NOME-B')).toMatchObject({ flow: 'queue', posts: 'one', tasks: 'phases' })
+    expect(liveFormat('NOME-B').phases).toBeUndefined()
+    expect(liveFormat('NOU')).toMatchObject({ dogsAtOnce: 1, flow: 'queue', posts: 'one', tasks: 'phases' })
     expect(liveFormat('NOME-A')).toMatchObject({ dogsAtOnce: 4, flow: 'field', posts: 'one', tasks: 'retrieve' })
   })
 
@@ -66,12 +67,24 @@ describe('liveFormat', () => {
     })
   })
 
-  describe('turnNamesTask', () => {
-    it('asks which task only where the class orders a two-task post for itself', () => {
-      expect(turnNamesTask('NOME-B', { tasks: 2 })).toBe(true)
-      expect(turnNamesTask('NOME-B', { tasks: 1 })).toBe(false)
-      expect(turnNamesTask('NOWT', { tasks: 2 })).toBe(false)
-      expect(turnNamesTask('NOU', { tasks: 2 })).toBe(false)
+  describe('stationPhases', () => {
+    it('gives a taipumuskoe its fixed day: the briefing for everyone, then the water mark and the search', () => {
+      expect(stationPhases('NOU')).toEqual([{ key: 'briefing', whole: true }, { key: 'waterMark' }, { key: 'search' }])
+      // The format's list is the format's: a post cannot write over it.
+      expect(stationPhases('NOU', { phases: ['Oma'] })).toEqual(stationPhases('NOU'))
+    })
+
+    it("takes a B trial's phases from the post, as its secretary wrote them", () => {
+      expect(stationPhases('NOME-B', { phases: ['Markkeeraus', 'Haku'] })).toEqual([
+        { key: 'Markkeeraus', label: 'Markkeeraus' },
+        { key: 'Haku', label: 'Haku' },
+      ])
+      expect(stationPhases('NOME-B')).toEqual([])
+    })
+
+    it('has no phases where the post or the retrieve is the unit', () => {
+      expect(stationPhases('NOWT', { phases: ['Ei'] })).toEqual([])
+      expect(stationPhases('NOME-A')).toEqual([])
     })
   })
 

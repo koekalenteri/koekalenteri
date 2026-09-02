@@ -1,5 +1,6 @@
-import type { JsonConfirmedEvent, JsonRegistration, JsonStationTurn } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration, JsonStationTurn, StationTurnOp } from '../../types'
 import { vi } from 'vitest'
+import { stationPhases } from '../../lib/liveFormat'
 
 const mockRead = vi.fn()
 const mockUpdate = vi.fn()
@@ -45,9 +46,15 @@ describe('stationTurns', () => {
         registrationIds: ['run-1'],
         type: 'start',
       })
-      expect(parseStationTurnOp({ registrationIds: ['run-1'], taskIndex: 1, type: 'start' })).toEqual({
+      expect(parseStationTurnOp({ phase: 'search', registrationIds: ['run-1'], type: 'start' })).toEqual({
+        phase: 'search',
         registrationIds: ['run-1'],
-        taskIndex: 1,
+        type: 'start',
+      })
+      // An empty group is a whole-entry phase's — whether this phase is one, the apply step knows.
+      expect(parseStationTurnOp({ phase: 'briefing', registrationIds: [], type: 'start' })).toEqual({
+        phase: 'briefing',
+        registrationIds: [],
         type: 'start',
       })
       expect(parseStationTurnOp({ index: 2, mark: 'eyeWipe', type: 'mark' })).toEqual({
@@ -64,8 +71,9 @@ describe('stationTurns', () => {
       [{ registrationIds: [], type: 'start' }],
       [{ registrationIds: [1], type: 'start' }],
       [{ registrationIds: Array.from({ length: 11 }, (_item, i) => `run-${i}`), type: 'start' }],
-      [{ registrationIds: ['run-1'], taskIndex: 2, type: 'start' }],
-      [{ registrationIds: ['run-1'], taskIndex: 0.5, type: 'start' }],
+      [{ phase: '', registrationIds: ['run-1'], type: 'start' }],
+      [{ phase: 'x'.repeat(41), registrationIds: ['run-1'], type: 'start' }],
+      [{ phase: 1, registrationIds: ['run-1'], type: 'start' }],
       [{ index: 0, mark: 'wagged', type: 'mark' }],
       [{ index: -1, mark: 'gotRetrieve', type: 'mark' }],
       [{ index: 10, mark: 'gotRetrieve', type: 'mark' }],
@@ -113,16 +121,50 @@ describe('stationTurns', () => {
       expect(turns[2].registrationIds).toEqual(['run-2'])
     })
 
-    it('records the task a turn ran where the format names one', () => {
-      const turns = applyStationTurnOp(
-        [],
-        [registration('run-1')],
-        'post-1',
-        { registrationIds: ['run-1'], taskIndex: 1, type: 'start' },
-        NOW
-      )
+    describe('a day in phases', () => {
+      const phases = stationPhases('NOU')
+      const start = (op: Partial<Extract<StationTurnOp, { type: 'start' }>>, turns: JsonStationTurn[] = []) =>
+        applyStationTurnOp(
+          turns,
+          [registration('run-1')],
+          '1',
+          { registrationIds: ['run-1'], type: 'start', ...op },
+          NOW,
+          phases
+        )
 
-      expect(turns[0]).toMatchObject({ taskIndex: 1 })
+      it('records which phase a turn is', () => {
+        expect(start({ phase: 'search' })[0]).toMatchObject({
+          dogs: [{ name: 'Dog run-1', number: 1 }],
+          phase: 'search',
+        })
+      })
+
+      it('holds the whole entry at the briefing as a span with no dogs', () => {
+        expect(start({ phase: 'briefing', registrationIds: [] })[0]).toMatchObject({
+          dogs: [],
+          phase: 'briefing',
+          registrationIds: [],
+        })
+      })
+
+      it('refuses dogs at the briefing, an empty search, and a phase the day does not have', () => {
+        expect(() => start({ phase: 'briefing' })).toThrow(expect.objectContaining({ status: 422 }))
+        expect(() => start({ phase: 'search', registrationIds: [] })).toThrow(expect.objectContaining({ status: 422 }))
+        expect(() => start({ phase: 'lunch' })).toThrow(expect.objectContaining({ status: 422 }))
+      })
+
+      it('takes a phase only from a post that has phases', () => {
+        expect(() =>
+          applyStationTurnOp(
+            [],
+            [registration('run-1')],
+            'post-1',
+            { phase: 'search', registrationIds: ['run-1'], type: 'start' },
+            NOW
+          )
+        ).toThrow(expect.objectContaining({ status: 422 }))
+      })
     })
 
     it('starts a walk-up as one span holding the whole group', () => {

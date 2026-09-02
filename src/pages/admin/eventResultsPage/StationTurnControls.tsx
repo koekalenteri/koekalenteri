@@ -1,3 +1,4 @@
+import type { LivePhase } from '../../../lib/liveFormat'
 import type { StationTurnSpan } from '../../../lib/stationTurns'
 import type { EventStation, LiveMark, StationTurnOp, StationTurnPause } from '../../../types'
 import FreeBreakfastOutlined from '@mui/icons-material/FreeBreakfastOutlined'
@@ -19,8 +20,15 @@ import { enqueueSnackbar } from 'notistack'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
-import { liveFormat, stationDogsAtOnce, turnNamesTask } from '../../../lib/liveFormat'
-import { completedGroupTurns, isBreakTurn, openTurn, stationThroughput, turnElapsedMs } from '../../../lib/stationTurns'
+import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../../lib/liveFormat'
+import {
+  dogsThrough,
+  isBreakTurn,
+  isWholeTurn,
+  openTurn,
+  stationThroughput,
+  turnElapsedMs,
+} from '../../../lib/stationTurns'
 import { AsyncButton } from '../../components/AsyncButton'
 
 const PAUSES: readonly StationTurnPause[] = ['coffee', 'lunch', 'weather', 'other']
@@ -28,7 +36,6 @@ const PAUSES: readonly StationTurnPause[] = ['coffee', 'lunch', 'weather', 'othe
 /** A turn as this panel shows it: the shared span plus the public dog line. */
 export interface StationTurnItem extends StationTurnSpan {
   dogs: Array<{ name: string; number?: number; mark?: LiveMark }>
-  taskIndex?: number
 }
 
 /** A dog the post can put to work: what the queue shows and what a turn is started with. */
@@ -39,7 +46,7 @@ interface TurnDog {
 }
 
 interface Props {
-  readonly station: Pick<EventStation, 'id' | 'tasks' | 'dogsAtOnce'>
+  readonly station: Pick<EventStation, 'id' | 'tasks' | 'dogsAtOnce' | 'phases'>
   /** Decides how many dogs a turn holds, whether it names a task, and what may be marked. */
   readonly eventType?: string
   readonly turns: readonly StationTurnItem[]
@@ -69,7 +76,6 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
   const [groupMenuAnchor, setGroupMenuAnchor] = useState<HTMLElement>()
   const [markMenu, setMarkMenu] = useState<{ anchor: HTMLElement; index: number }>()
   const [groupIds, setGroupIds] = useState<string[]>([])
-  const [taskIndex, setTaskIndex] = useState(0)
   // A live clock: re-render every half minute while a span is open, so "8 min" stays honest.
   const [, setTick] = useState(0)
 
@@ -77,10 +83,23 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
   const format = liveFormat(eventType)
   const dogsAtOnce = stationDogsAtOnce(eventType, station)
   const picksGroup = dogsAtOnce > 1 && (dogs?.length ?? 0) > 0
-  const namesTask = turnNamesTask(eventType, station)
+
+  // The day's phases, where the format has them. The picker opens where the day is: on the phase
+  // of the latest span at this post, or at the first phase before anything has run.
+  const phases = useMemo(() => stationPhases(eventType, station), [eventType, station])
+  const [phaseKey, setPhaseKey] = useState<string | undefined>(() => {
+    const latest = turns.filter((turn) => turn.stationId === stationId && turn.phase).at(-1)
+    return latest?.phase ?? phases[0]?.key
+  })
+  const phase = phases.find((item) => item.key === phaseKey)
+  const phaseLabel = (item: LivePhase) => livePhaseLabel(item, t)
+  const labelOf = (key: string | undefined) => {
+    const known = phases.find((item) => item.key === key)
+    return known ? phaseLabel(known) : (key ?? '')
+  }
 
   const open = openTurn(turns, stationId)
-  const completed = completedGroupTurns(turns, stationId)
+  const through = dogsThrough(turns, stationId)
   const throughput = useMemo(() => stationThroughput(turns, stationId), [stationId, turns])
 
   const hasOpen = Boolean(open)
@@ -104,16 +123,16 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
   }
 
   // A dog runs a post once — except where the format says otherwise: a NOME-A dog goes out for
-  // retrieve after retrieve, and a class that takes a two-task post in its own order comes back for
-  // the other task. The timeline is the record, so a dog it already names is not sent out again. The
-  // match is by number and name, the handles the public turn shape has.
+  // retrieve after retrieve, and a day in phases takes each dog through each phase once. The
+  // timeline is the record, so a dog it already names is not sent out again. The match is by number
+  // and name, the handles the public turn shape has.
   const runsAgain = format.tasks === 'retrieve'
   const hasRun = (dog: TurnDog) =>
     turns.some(
       (turn) =>
         turn.stationId === stationId &&
         !isBreakTurn(turn) &&
-        (!namesTask || turn.taskIndex === taskIndex) &&
+        (phases.length === 0 || turn.phase === phaseKey) &&
         turn.dogs.some((ran) => ran.number === dog.number && ran.name === dog.name)
     )
   const alreadyRun = (dog: TurnDog) => !runsAgain && hasRun(dog)
@@ -125,14 +144,14 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
     if (picked.length) return picked.slice(0, dogsAtOnce)
     return selectedDog && !alreadyRun(selectedDog) ? [selectedDog.id] : []
   }
-  const startIds = nextTurnIds()
+  // A whole-entry phase starts with nobody picked: the briefing is everyone's at once.
+  const startIds = phase?.whole ? [] : nextTurnIds()
+  const canStart = Boolean(phase?.whole) || startIds.length > 0
   const selectedHasRun = Boolean(selectedDog && alreadyRun(selectedDog))
 
-  const taskNumbers = Array.from({ length: station.tasks }, (_unused, index) => index)
-
   const handleStart = async () => {
-    if (startIds.length === 0) return
-    await runOp({ registrationIds: startIds, type: 'start', ...(namesTask ? { taskIndex } : {}) })
+    if (!canStart) return
+    await runOp({ registrationIds: startIds, type: 'start', ...(phaseKey ? { phase: phaseKey } : {}) })
     setGroupIds([])
   }
 
@@ -141,15 +160,15 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
 
   const statusLine = () => {
     if (!open) return t('liveStatus.free')
+    const time = t('dateFormat.time', { date: new Date(open.startedAt) })
     if (isBreakTurn(open)) {
-      return t('liveStatus.pauseSince', {
-        label: t(`liveStatus.pause.${open.pause ?? 'other'}`),
-        time: t('dateFormat.time', { date: new Date(open.startedAt) }),
-      })
+      return t('liveStatus.pauseSince', { label: t(`liveStatus.pause.${open.pause ?? 'other'}`), time })
     }
+    // A whole-entry phase reads like a break: its label and when it began, no dogs to name.
+    if (isWholeTurn(open)) return t('liveStatus.pauseSince', { label: labelOf(open.phase), time })
     const since = t('liveStatus.sinceMinutes', { minutes: minutes(turnElapsedMs(open)) })
-    const task = open.taskIndex === undefined ? '' : ` · ${t('liveStatus.task', { number: open.taskIndex + 1 })}`
-    return `${open.dogs.map(turnDogLabel).join(', ')}${task} · ${since}`
+    const named = open.phase === undefined ? '' : ` · ${labelOf(open.phase)}`
+    return `${open.dogs.map(turnDogLabel).join(', ')}${named} · ${since}`
   }
 
   const markableDogs = format.marks.length > 0 && open && !isBreakTurn(open) ? open.dogs : []
@@ -162,19 +181,19 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
         </Typography>
         <Box flexGrow={1} />
 
-        {/* Which of the post's tasks this turn runs, where the class takes them in its own order. */}
-        {namesTask && (
+        {/* Which phase of the day the next turn is, where the day has phases. */}
+        {phases.length > 0 && (
           <ToggleButtonGroup
             exclusive
             onChange={(_event, value) => {
-              if (value !== null) setTaskIndex(Number(value))
+              if (typeof value === 'string') setPhaseKey(value)
             }}
             size="small"
-            value={taskIndex}
+            value={phaseKey ?? null}
           >
-            {taskNumbers.map((task) => (
-              <ToggleButton key={`task-${task}`} value={task}>
-                {t('liveStatus.task', { number: task + 1 })}
+            {phases.map((item) => (
+              <ToggleButton key={item.key} value={item.key}>
+                {phaseLabel(item)}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
@@ -191,10 +210,10 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
           </Button>
         )}
 
-        <Tooltip title={selectedHasRun && startIds.length === 0 ? t('liveStatus.alreadyThrough') : ''}>
+        <Tooltip title={selectedHasRun && !canStart ? t('liveStatus.alreadyThrough') : ''}>
           <span>
             <AsyncButton
-              disabled={startIds.length === 0}
+              disabled={!canStart}
               onClick={handleStart}
               size="small"
               startIcon={<PlayArrow />}
@@ -279,7 +298,7 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
       )}
 
       <Typography color="text.secondary" variant="caption">
-        {t(dogsAtOnce > 1 ? 'liveStatus.completed' : 'liveStatus.completedDogs', { count: completed.length })}
+        {t('liveStatus.through', { count: through })}
         {throughput
           ? ` · ${t('liveStatus.throughput', {
               max: minutes(throughput.maxMs),

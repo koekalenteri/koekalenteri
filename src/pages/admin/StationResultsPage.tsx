@@ -1,5 +1,5 @@
 import type { EventResultSubmission } from '../../api/registration'
-import type { StationTurn, StationTurnOp } from '../../types'
+import type { EventStation, StationTurn, StationTurnOp } from '../../types'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
@@ -10,11 +10,12 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { putEventResults } from '../../api/registration'
 import { getStationLink, putStationTurn } from '../../api/station'
-import { resolveStation } from '../../lib/liveFormat'
+import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
+import { StationPhasesEditor } from './eventResultsPage/StationPhasesEditor'
 import { StationScoring } from './eventResultsPage/StationScoring'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 
@@ -59,25 +60,41 @@ export default function StationResultsPage() {
     enqueueSnackbar(t('results.stationLinkCopied'), { variant: 'success' })
   }, [eventId, stationId, t, token])
 
-  // Bumping the version invalidates every link handed out; the next copy serves a fresh one. An
-  // implicit post has nowhere to keep its version until now, so revoking writes it onto the event.
+  // A change to the post is written onto the event. An implicit post has not been written anywhere
+  // until now, so the first change is what puts it there.
+  const saveStation = useCallback(
+    async (changes: Partial<EventStation>) => {
+      if (!event || !station) return
+      const changed = { ...station, ...changes }
+      const stations = event.stations?.some((item) => item.id === station.id)
+        ? event.stations.map((item) => (item.id === station.id ? changed : item))
+        : [...(event.stations ?? []), changed]
+      await eventActions.save({ ...event, stations })
+    },
+    [event, eventActions, station]
+  )
+
+  // Bumping the version invalidates every link handed out; the next copy serves a fresh one.
   const handleRevokeLink = useCallback(async () => {
-    if (!event || !station) return
-    const revoked = { ...station, tokenVersion: (station.tokenVersion ?? 1) + 1 }
-    const stations = event.stations?.some((item) => item.id === station.id)
-      ? event.stations.map((item) => (item.id === station.id ? revoked : item))
-      : [...(event.stations ?? []), revoked]
-    await eventActions.save({ ...event, stations })
+    if (!station) return
+    await saveStation({ tokenVersion: (station.tokenVersion ?? 1) + 1 })
     enqueueSnackbar(t('results.stationLinkRevoked'), { variant: 'success' })
-  }, [event, eventActions, station, t])
+  }, [saveStation, station, t])
 
   if (!event?.id || !station) return <EventNotFound />
 
   const subtitle = `${event.name || event.eventType}${event.kcId ? ` · ${t('event.kcId')} ${event.kcId}` : ''}`
+  // A format whose phases are the post's own gets them written here, at the post, on the day.
+  const format = liveFormat(event.eventType)
+  const ownPhases = format.tasks === 'phases' && !format.phases
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}>
-      <Stack direction="row" justifyContent="flex-end" spacing={1} sx={{ pb: 1 }}>
+      <Stack alignItems="center" direction="row" flexWrap="wrap" justifyContent="flex-end" spacing={1} sx={{ pb: 1 }}>
+        {ownPhases && (
+          <StationPhasesEditor onSave={(phases) => saveStation({ phases })} phases={station.phases ?? []} />
+        )}
+        <Box flexGrow={1} />
         <Button onClick={handleRevokeLink} size="small">
           {t('results.revokeStationLink')}
         </Button>

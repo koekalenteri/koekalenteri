@@ -16,6 +16,8 @@ export interface StationTurnSpan {
   startedAt: string | Date
   endedAt?: string | Date
   pause?: StationTurnPause
+  phase?: string
+  dogs?: readonly unknown[]
 }
 
 /** The stored span without its registration ids — the only face the public and the link may see. */
@@ -40,13 +42,24 @@ export const isStoredStationTurn = (turn: unknown): turn is JsonStationTurn | St
 /** A break is a span with a pause code; only dog-carrying spans count toward throughput. */
 export const isBreakTurn = (turn: Pick<StationTurnSpan, 'pause'>) => Boolean(turn.pause)
 
+/**
+ * A span that is a phase the whole entry attends at once — the briefing — rather than a dog's turn.
+ * It has a phase and no dogs, and like a break it is nobody's time through the post.
+ */
+export const isWholeTurn = (turn: Pick<StationTurnSpan, 'pause' | 'phase' | 'dogs'>) =>
+  !turn.pause && Boolean(turn.phase) && turn.dogs?.length === 0
+
+/** A span some dogs ran: what the queue moves by and what the figures measure. */
+const isGroupTurn = (turn: Pick<StationTurnSpan, 'pause' | 'phase' | 'dogs'>) =>
+  !isBreakTurn(turn) && !isWholeTurn(turn)
+
 /** The span with no end yet: what the post is doing right now, a turn or a break alike. */
 export const openTurn = <T extends StationTurnSpan>(turns: readonly T[], stationId: string): T | undefined =>
   turns.find((turn) => turn.stationId === stationId && !turn.endedAt)
 
 /** The closed, dog-carrying spans of one post — the list every figure below measures. */
 export const completedGroupTurns = <T extends StationTurnSpan>(turns: readonly T[], stationId: string): T[] =>
-  turns.filter((turn) => turn.stationId === stationId && Boolean(turn.endedAt) && !isBreakTurn(turn))
+  turns.filter((turn) => turn.stationId === stationId && Boolean(turn.endedAt) && isGroupTurn(turn))
 
 export const turnDurationMs = (turn: Pick<StationTurnSpan, 'startedAt' | 'endedAt'>): number =>
   new Date(turn.endedAt ?? turn.startedAt).valueOf() - new Date(turn.startedAt).valueOf()

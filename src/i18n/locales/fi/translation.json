@@ -435,11 +435,8 @@
   "languageMenu": "Kieli",
   "languages": "Arvostelukielet",
   "liveStatus": {
+    "allThrough": "Kaikki koirakot käyneet · viimeinen valmistui {{time}}",
     "alreadyThrough": "Koira on jo käynyt rastilla",
-    "completed_one": "{{count}} ryhmä käynyt",
-    "completed_other": "{{count}} ryhmää käynyt",
-    "completedDogs_one": "{{count}} koira käynyt",
-    "completedDogs_other": "{{count}} koiraa käynyt",
     "endBreak": "Päätä tauko",
     "endTurn": "Päätä vuoro",
     "free": "Rasti vapaa",
@@ -462,11 +459,19 @@
       "weather": "Sääkeskeytys"
     },
     "pauseSince": "{{label}} · alkoi {{time}}",
+    "phase": {
+      "briefing": "Alkupuhuttelu",
+      "search": "Haku",
+      "waterMark": "Vesimarkki"
+    },
+    "phases": "Vaiheet",
+    "phasesHelp": "Päivän vaiheet järjestyksessä, pilkulla eroteltuna",
     "sinceMinutes": "{{minutes}} min",
     "startBreak": "Tauko",
     "startTurn": "Aloita vuoro",
     "station": "Rasti {{number}}",
-    "task": "Tehtävä {{number}}",
+    "through_one": "{{count}} koirakko käynyt",
+    "through_other": "{{count}} koirakkoa käynyt",
     "throughput": "Läpimeno {{min}}–{{max}} min · ka {{mean}} min",
     "title": "Live",
     "turnSaveFailed": "Vuoron tallennus epäonnistui. Yritä uudelleen.",

@@ -142,6 +142,11 @@ export type JsonEventStation = {
   dogsAtOnce?: number
   /** Versions the post's tokenized entry link (KOE-1258); bumping it revokes every link issued. */
   tokenVersion?: number
+  /**
+   * The phases of the day at this post, in order, as its secretary wrote them down — for a format
+   * whose phases are the post's own (NOME-B). A format with fixed phases (NOU) ignores this.
+   */
+  phases?: string[]
 }
 export type EventStation = Replace<JsonEventStation, 'date', Date>
 
@@ -187,11 +192,10 @@ export interface JsonPublicStationTurn {
   endedAt?: string
   pause?: StationTurnPause
   /**
-   * Which of the post's tasks this turn ran, 0-based — recorded only where the format lets a class
-   * take the post's tasks in an order of its own (NOME-B). Where the post is one turn (NOWT) or the
-   * order is fixed (NOU) there is nothing to record.
+   * Which phase of the day this span is — the key of a fixed phase (NOU) or the label of the post's
+   * own (NOME-B). A whole-entry phase such as the briefing is a span with a phase and no dogs.
    */
-  taskIndex?: number
+  phase?: string
 }
 
 /** The stored span (KOE-1259): the public shape plus the registration ids, which never leave admin. */
@@ -209,7 +213,7 @@ export type StationTurn = Replace<ReplaceOptional<JsonStationTurn, 'endedAt', Da
  * is what says the previous one ended, and one tap must be enough.
  */
 export type StationTurnOp =
-  | { type: 'start'; registrationIds: string[]; taskIndex?: number }
+  | { type: 'start'; registrationIds: string[]; phase?: string }
   | { type: 'break'; pause: StationTurnPause }
   | { type: 'end' }
   /**

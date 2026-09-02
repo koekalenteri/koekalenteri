@@ -16,7 +16,7 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 const now = Date.now()
 const minutesAgo = (minutes: number) => new Date(now - minutes * 60000)
 
-const closed = (id: string, from: number, to: number): StationTurnItem => ({
+const closed = (_id: string, from: number, to: number): StationTurnItem => ({
   dogs: [{ name: 'Aiempi ryhma' }],
   endedAt: minutesAgo(to),
   startedAt: minutesAgo(from),
@@ -53,4 +53,39 @@ it("marks the group that is out, in the format's own vocabulary (KOE-1259)", asy
 
   await expect.element(screen.getByText('2 WATERFOWLER ODIN · Ei noutoa')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-turn-marks')
+})
+
+// A taipumuskoe's day in its fixed phases: the briefing and the water mark done, one dog out on the
+// search, and the picker already on the search for the next one.
+it("runs a taipumuskoe's day in phases (KOE-1259)", async () => {
+  const day: StationTurnItem[] = [
+    { dogs: [], endedAt: minutesAgo(40), phase: 'briefing', startedAt: minutesAgo(55), stationId: '1' },
+    {
+      dogs: [{ name: 'ANNALOUGHAN ACE', number: 1 }],
+      endedAt: minutesAgo(32),
+      phase: 'waterMark',
+      startedAt: minutesAgo(38),
+      stationId: '1',
+    },
+    {
+      dogs: [{ name: 'ANNALOUGHAN ACE', number: 1 }],
+      phase: 'search',
+      startedAt: minutesAgo(9),
+      stationId: '1',
+    },
+  ]
+  const screen = await render(
+    <Frame>
+      <StationTurnControls
+        dogs={[{ id: 'run-2', name: 'WATERFOWLER ODIN', number: 2 }]}
+        eventType="NOU"
+        onTurn={async () => {}}
+        station={{ id: '1', tasks: 1 }}
+        turns={day}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('1 ANNALOUGHAN ACE · Haku · 9 min')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-turn-phases')
 })

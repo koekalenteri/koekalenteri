@@ -22,6 +22,7 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { liveFormat } from '../../../lib/liveFormat'
 import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '../../../lib/registration'
 import { classRound, parseEventResultCode, scoresAtPosts, stationVersion } from '../../../lib/results'
 import { openTurn } from '../../../lib/stationTurns'
@@ -118,6 +119,8 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
 
   // A qualitative type has no tasks to score; the judge's decision is the result, entered as such.
   const qualitative = !scoresAtPosts(eventType)
+  // Where the day runs at one post, "Rasti 1" names nothing anyone calls it; the event is the title.
+  const singlePost = liveFormat(eventType).posts === 'one'
 
   const eventClasses = useMemo(() => [...new Set(registrations.map(getRegistrationClass))], [registrations])
   // Read once, on opening: the dog already at the post is where the screen starts, class tab included.
@@ -211,11 +214,13 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
       <Box sx={{ pt: 2, px: 2 }}>
-        <Typography variant="h6">
-          {t('event.station')} {station.number}
-        </Typography>
+        {!singlePost && (
+          <Typography variant="h6">
+            {t('event.station')} {station.number}
+          </Typography>
+        )}
         {subtitle && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography color={singlePost ? undefined : 'text.secondary'} variant={singlePost ? 'h6' : 'body2'}>
             {subtitle}
           </Typography>
         )}

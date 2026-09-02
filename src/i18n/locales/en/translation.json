@@ -435,11 +435,8 @@
   "languageMenu": "Language",
   "languages": "Judging languages",
   "liveStatus": {
+    "allThrough": "All dogs through · last finished at {{time}}",
     "alreadyThrough": "The dog has already been through this post",
-    "completed_one": "{{count}} group through",
-    "completed_other": "{{count}} groups through",
-    "completedDogs_one": "{{count}} dog through",
-    "completedDogs_other": "{{count}} dogs through",
     "endBreak": "End break",
     "endTurn": "End turn",
     "free": "Post idle",
@@ -462,11 +459,19 @@
       "weather": "Weather hold"
     },
     "pauseSince": "{{label}} · since {{time}}",
+    "phase": {
+      "briefing": "Briefing",
+      "search": "Search",
+      "waterMark": "Water mark"
+    },
+    "phases": "Phases",
+    "phasesHelp": "The phases of the day in order, separated by commas",
     "sinceMinutes": "{{minutes}} min",
     "startBreak": "Break",
     "startTurn": "Start turn",
     "station": "Post {{number}}",
-    "task": "Task {{number}}",
+    "through_one": "{{count}} dog through",
+    "through_other": "{{count}} dogs through",
     "throughput": "Pace {{min}}–{{max}} min · avg {{mean}} min",
     "title": "Live",
     "turnSaveFailed": "Saving the turn failed. Please try again.",

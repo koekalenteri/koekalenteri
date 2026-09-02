@@ -5,6 +5,7 @@ import { LiveStatus } from './LiveStatus'
 vi.mock('../../api/event')
 
 const baseEvent = {
+  eventType: 'NOWT',
   id: 'event-1',
   stations: [
     { date: new Date('2026-09-12'), id: 'post-1', number: 1, tasks: 1 },
@@ -40,11 +41,42 @@ describe('LiveStatus', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it("does not show yesterday's last span as who is at the post now", () => {
-    const yesterday = turn({ endedAt: new Date('2026-09-01T09:00:00Z'), startedAt: new Date('2026-09-01T08:00:00Z') })
-    const { container } = render(<LiveStatus event={{ ...baseEvent, liveTurns: [yesterday] }} />)
+  it('stays up over an old span until the results are published: the day is over, the trial is not', () => {
+    const earlier = turn({ endedAt: new Date('2026-09-01T09:00:00Z'), startedAt: new Date('2026-09-01T08:00:00Z') })
+    render(<LiveStatus event={{ ...baseEvent, liveTurns: [earlier] }} />)
 
-    expect(container).toBeEmptyDOMElement()
+    expect(screen.getByText('liveStatus.title')).toBeInTheDocument()
+  })
+
+  it('says when the last dog finished once every starter is through', () => {
+    const done = turn({ endedAt: new Date('2026-09-12T08:07:00Z') })
+    render(<LiveStatus event={{ ...baseEvent, liveTurns: [done] }} participants={[{}]} />)
+
+    expect(screen.getByText(/liveStatus\.allThrough/)).toBeInTheDocument()
+    expect(screen.queryByText('liveStatus.free')).not.toBeInTheDocument()
+  })
+
+  it('names the phase of the day at a post that runs in phases', () => {
+    const nou: PublicConfirmedEvent = {
+      ...baseEvent,
+      eventType: 'NOU',
+      liveTurns: [
+        turn({
+          dogs: [],
+          endedAt: new Date('2026-09-12T08:07:00Z'),
+          id: 'briefing',
+          phase: 'briefing',
+          stationId: '1',
+        }),
+        turn({ id: 'search', phase: 'search', stationId: '1' }),
+      ],
+      stations: undefined,
+    }
+    render(<LiveStatus event={nou} />)
+
+    expect(screen.getByText(/5 Ensimmainen · liveStatus\.phase\.search/)).toBeInTheDocument()
+    // The briefing is over and was everyone's at once: not who is at the post, not a dog through it.
+    expect(screen.queryByText(/liveStatus\.phase\.briefing/)).not.toBeInTheDocument()
   })
 
   it('shows the running group, the pace and the break per post', () => {
@@ -68,7 +100,7 @@ describe('LiveStatus', () => {
     expect(screen.getAllByText('liveStatus.station', { exact: false })).toHaveLength(2)
     expect(screen.getByText(/5 Ensimmainen/)).toBeInTheDocument()
     expect(screen.getByText(/liveStatus\.pauseSince/)).toBeInTheDocument()
-    expect(screen.getAllByText(/liveStatus\.completed/)).toHaveLength(2)
+    expect(screen.getAllByText(/liveStatus\.through/)).toHaveLength(2)
   })
 
   it('estimates the wait from the queue left and the pace the post has kept (KOE-1259)', () => {

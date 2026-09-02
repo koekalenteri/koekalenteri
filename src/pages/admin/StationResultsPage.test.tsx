@@ -150,6 +150,24 @@ describe('StationResultsPage', () => {
     )
   })
 
+  it("writes the phases of a B trial's day onto its post, as the secretary types them", async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderStation(i18n.language as Language, '1', singlePostEvent)
+    await flushPromises()
+    vi.mocked(putEvent).mockResolvedValueOnce(singlePostEvent)
+
+    await user.type(screen.getByLabelText('liveStatus.phases'), 'Markkeeraus, Haku')
+    await user.tab()
+    await flushPromises()
+
+    expect(putEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stations: [expect.objectContaining({ id: '1', phases: ['Markkeeraus', 'Haku'] })],
+      }),
+      TEST_ID_TOKEN
+    )
+  })
+
   it('will not open on a post the event does not have', async () => {
     const { i18n } = useTranslation()
     renderPage(i18n.language as Language, 'no-such-post')

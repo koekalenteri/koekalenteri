@@ -7,12 +7,12 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEvent } from '../../api/event'
 import { hasAllResultsPublished } from '../../lib/event'
-import { liveFormat, stationDogsAtOnce } from '../../lib/liveFormat'
+import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
 import {
   completedGroupTurns,
   dogsThrough,
   isBreakTurn,
-  isLiveNow,
+  isWholeTurn,
   liveStationIds,
   openTurn,
   stationThroughput,
@@ -43,11 +43,23 @@ const LiveStationCard = ({ event, stationId, turns, starters, single }: StationC
 
   const station = event.stations?.find((item) => item.id === stationId)
   const format = liveFormat(event.eventType)
+  const phases = stationPhases(event.eventType, station)
   const open = openTurn(turns, stationId)
   const completed = completedGroupTurns(turns, stationId)
   const throughput = stationThroughput(turns, stationId)
   const dogsAtOnce = stationDogsAtOnce(event.eventType, station)
-  const wait = waitEstimate(throughput, starters - dogsThrough(turns, stationId), dogsAtOnce, format.flow)
+  const through = dogsThrough(turns, stationId)
+  const wait = waitEstimate(throughput, starters - through, dogsAtOnce, format.flow)
+  // The last dog is through: the one thing left to say is when.
+  const lastEnd = completed
+    .map((turn) => new Date(turn.endedAt ?? turn.startedAt).valueOf())
+    .reduce((a, b) => Math.max(a, b), 0)
+  const allThrough = !open && starters > 0 && through >= starters && lastEnd > 0
+
+  const phaseLabel = (key: string | undefined) => {
+    const known = phases.find((item) => item.key === key)
+    return known ? livePhaseLabel(known, t) : (key ?? '')
+  }
 
   const dogLabel = (dog: PublicStationTurn['dogs'][number]) => {
     const name = dog.number ? `${dog.number} ${dog.name}`.trim() : dog.name
@@ -55,32 +67,34 @@ const LiveStationCard = ({ event, stationId, turns, starters, single }: StationC
   }
 
   const statusLine = () => {
-    if (!open) return t('liveStatus.free')
-    if (isBreakTurn(open)) {
-      return t('liveStatus.pauseSince', {
-        label: t(`liveStatus.pause.${open.pause ?? 'other'}`),
-        time: t('dateFormat.time', { date: new Date(open.startedAt) }),
-      })
+    if (!open) {
+      return allThrough
+        ? t('liveStatus.allThrough', { time: t('dateFormat.time', { date: new Date(lastEnd) }) })
+        : t('liveStatus.free')
     }
-    const task = open.taskIndex === undefined ? '' : ` · ${t('liveStatus.task', { number: open.taskIndex + 1 })}`
+    const time = t('dateFormat.time', { date: new Date(open.startedAt) })
+    if (isBreakTurn(open)) {
+      return t('liveStatus.pauseSince', { label: t(`liveStatus.pause.${open.pause ?? 'other'}`), time })
+    }
+    if (isWholeTurn(open)) return t('liveStatus.pauseSince', { label: phaseLabel(open.phase), time })
+    const named = open.phase === undefined ? '' : ` · ${phaseLabel(open.phase)}`
     const since = t('liveStatus.sinceMinutes', { minutes: minutes(turnElapsedMs(open)) })
-    return `${open.dogs.map(dogLabel).join(', ')}${task} · ${since}`
+    return `${open.dogs.map(dogLabel).join(', ')}${named} · ${since}`
   }
-
-  const title =
-    station || !single ? t('liveStatus.station', { number: station?.number ?? stationId }) : t('liveStatus.title')
 
   return (
     <Paper sx={{ minWidth: 220, p: 1.5 }} variant="outlined">
-      <Typography color="text.secondary" variant="overline">
-        {title}
-      </Typography>
+      {/* A format with one post has nothing to call it; the section's own heading is enough. */}
+      {!single && (
+        <Typography color="text.secondary" variant="overline">
+          {t('liveStatus.station', { number: station?.number ?? stationId })}
+        </Typography>
+      )}
       <Typography sx={{ fontWeight: open && !isBreakTurn(open) ? 'bold' : undefined }} variant="body2">
         {statusLine()}
       </Typography>
       <Typography color="text.secondary" variant="caption" component="div">
-        {/* A post that takes one dog at a time counts dogs; "groups" is the walk-up's word. */}
-        {t(dogsAtOnce > 1 ? 'liveStatus.completed' : 'liveStatus.completedDogs', { count: completed.length })}
+        {t('liveStatus.through', { count: through })}
         {throughput
           ? ` · ${t('liveStatus.throughput', {
               max: minutes(throughput.maxMs),
@@ -145,9 +159,9 @@ export const LiveStatus = ({
     return () => clearInterval(timer)
   }, [hasOpen])
 
-  // Nothing to show once the day is over: a finished trial's page is its results, and yesterday's
-  // last span is not "who is at the post now".
-  if (turns.length === 0 || !isLiveNow(turns) || hasAllResultsPublished(event)) return null
+  // Nothing to show once the trial is over: with every class's results published, the page is the
+  // results, and the last dog's finishing time has had its day.
+  if (turns.length === 0 || hasAllResultsPublished(event)) return null
 
   const stationIds = liveStationIds(turns)
   // Every dog visits every post over the day, so the whole entry is the queue at each of them.
@@ -161,7 +175,7 @@ export const LiveStatus = ({
           <LiveStationCard
             event={event}
             key={stationId}
-            single={stationIds.length === 1}
+            single={liveFormat(event.eventType).posts === 'one'}
             starters={starters}
             stationId={stationId}
             turns={turns}
