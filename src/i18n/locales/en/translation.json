@@ -1061,6 +1061,7 @@
       "terms": "It is mandatory to accept registration terms and the data protection statement."
     }
   },
+  "viewResults": "View results",
   "viewStartList": "View participant list",
   "withdraw": "Withdraw"
 }

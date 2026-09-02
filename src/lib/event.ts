@@ -302,6 +302,15 @@ export const isResultsPublishedForClass = (event: Pick<JsonDogEvent, 'resultsPub
     : event.resultsPublished === true
 
 /** Whether any class's results are public — what a search for "events with results" filters on. */
+/** Every class's results are out — the public list is no longer just participants (KOE-1285). */
+export const hasAllResultsPublished = (
+  event: Pick<JsonDogEvent, 'resultsPublished'> & { classes?: Array<Pick<EventClass, 'class'>> | null }
+): boolean => {
+  const classes = uniqueClasses(event)
+  if (classes.length === 0) return event.resultsPublished === true
+  return classes.every((eventClass) => isResultsPublishedForClass(event, eventClass))
+}
+
 export const hasPublishedResults = ({ resultsPublished }: Pick<JsonDogEvent, 'resultsPublished'>): boolean =>
   isResultsPublishedClassMap(resultsPublished)
     ? Object.values(resultsPublished).some(Boolean)

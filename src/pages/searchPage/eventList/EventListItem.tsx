@@ -142,6 +142,7 @@ const EventHeader = ({ event }: Props) => {
                 id={event.id}
                 state={event.state}
                 startListPublished={event.startListPublished}
+                resultsPublished={event.resultsPublished}
                 text={infoText}
               />
             )}
