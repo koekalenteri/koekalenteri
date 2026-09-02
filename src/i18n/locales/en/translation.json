@@ -342,9 +342,12 @@
     "results": {
       "confirm": "Publish the results for class {{eventClass}} in Koekalenteri?",
       "confirmTitle": "Publish results",
+      "hidden": "Results for class {{eventClass}} hidden",
       "hide": "Hide results",
       "publish": "Publish results",
       "published": "Published",
+      "publishedSnack": "Results for class {{eventClass}} published",
+      "saveFailed": "Saving the results publishing state failed. Please try again.",
       "startListRequired": "Publish the start list first",
       "title": "Publishing results"
     },

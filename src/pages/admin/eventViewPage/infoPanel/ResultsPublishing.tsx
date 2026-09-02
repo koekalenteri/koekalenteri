@@ -4,8 +4,10 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
+import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
 import {
   canPublishResults,
   getEventStateForClass,
@@ -48,7 +50,15 @@ const ResultsPublishing = ({ event, onSetResultsPublished }: Props) => {
         if (!confirmed) return
       }
 
-      await onSetResultsPublished?.(eventClass, published)
+      try {
+        await onSetResultsPublished?.(eventClass, published)
+        enqueueSnackbar(
+          t(published ? 'eventManagement.results.publishedSnack' : 'eventManagement.results.hidden', { eventClass }),
+          { variant: 'success' }
+        )
+      } catch {
+        enqueueSnackbar(t('eventManagement.results.saveFailed'), errorSnackbarOptions)
+      }
     },
     [confirm, onSetResultsPublished, t]
   )
