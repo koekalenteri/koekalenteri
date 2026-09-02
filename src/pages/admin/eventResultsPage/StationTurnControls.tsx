@@ -68,8 +68,9 @@ const minutes = (ms: number) => Math.max(0, Math.round(ms / 60000))
  *
  * What else appears here is the format's, not this component's: a group picker only where a post takes
  * dogs several at a time, the day's phases only where the format has them — a run starts at the first,
- * "next phase" moves it on and closes the one it was in, and it can be ended at any point — and marks
- * only where the live facts are marks rather than scores.
+ * "next phase" moves it on and closes the one it was in, and it can be ended at any point; a phase the
+ * whole entry attends comes before the first run and never after — and marks only where the live facts
+ * are marks rather than scores. A break waits for the post to be free: ending the run is one tap.
  */
 export const StationTurnControls = ({ station, eventType, turns, dogs, selectedDog, onTurn }: Props) => {
   const { t } = useTranslation()
@@ -97,6 +98,8 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
   }
 
   const open = openTurn(turns, stationId)
+  // The briefing comes before the first run, never after it; a break waits for the post to be free.
+  const runStarted = turns.some((turn) => turn.stationId === stationId && !isBreakTurn(turn) && !isWholeTurn(turn))
   // Where the open run can move on to: the phase after the one it is in, if the day has one.
   const openPhase = open && !isBreakTurn(open) ? currentPhase(open) : undefined
   const nextPhase =
@@ -185,7 +188,7 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
         {/* A phase the whole entry attends at once is started on its own, like a break: nobody is picked. */}
         {wholePhases.map((item) => (
           <AsyncButton
-            disabled={Boolean(open) && isWholeTurn(open ?? {}) && currentPhase(open ?? {}) === item.key}
+            disabled={runStarted || Boolean(open)}
             key={item.key}
             onClick={() => runOp({ phase: item.key, registrationIds: [], type: 'start' })}
             size="small"
@@ -240,7 +243,7 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
           {t(open && isBreakTurn(open) ? 'liveStatus.endBreak' : 'liveStatus.endTurn')}
         </AsyncButton>
         <Button
-          disabled={Boolean(open && isBreakTurn(open))}
+          disabled={Boolean(open)}
           onClick={(event) => setPauseMenuAnchor(event.currentTarget)}
           size="small"
           startIcon={<FreeBreakfastOutlined />}

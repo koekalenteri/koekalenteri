@@ -59,14 +59,10 @@ describe('StationTurnControls', () => {
     expect(onTurn).toHaveBeenCalledWith({ pause: 'lunch', type: 'break' })
   })
 
-  it('lets a break start in the middle of a run: the weather does not wait for the dog', async () => {
-    const user = userEvent.setup()
-    const { onTurn } = renderControls({ turns: [openTurn] })
+  it('waits for the post to be free before a break: the run is ended first, one tap', () => {
+    renderControls({ turns: [openTurn] })
 
-    await user.click(screen.getByRole('button', { name: 'liveStatus.startBreak' }))
-    await user.click(within(screen.getByRole('menu')).getByText('liveStatus.pause.weather'))
-
-    expect(onTurn).toHaveBeenCalledWith({ pause: 'weather', type: 'break' })
+    expect(screen.getByRole('button', { name: 'liveStatus.startBreak' })).toBeDisabled()
   })
 
   it('labels the end button for the open break', () => {
@@ -145,6 +141,13 @@ describe('StationTurnControls', () => {
       await user.click(screen.getByRole('button', { name: 'liveStatus.phase.briefing' }))
 
       expect(onTurn).toHaveBeenCalledWith({ phase: 'briefing', registrationIds: [], type: 'start' })
+    })
+
+    it('offers the briefing only before the first run: it is never held after one', () => {
+      const ran = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z') }
+      renderControls({ eventType: 'NOU', turns: [ran] })
+
+      expect(screen.getByRole('button', { name: 'liveStatus.phase.briefing' })).toBeDisabled()
     })
 
     it("starts a B trial's run at the first phase the post wrote down", async () => {

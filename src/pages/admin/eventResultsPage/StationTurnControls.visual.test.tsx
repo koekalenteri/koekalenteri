@@ -91,3 +91,50 @@ it("runs a taipumuskoe's day in phases (KOE-1259)", async () => {
   await expect.element(screen.getByText('1 ANNALOUGHAN ACE · Haku · 15 min')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-turn-phases')
 })
+
+// The same day a little earlier: the first dog is at the water mark, so the one thing to do next is
+// to move it on to the search — the button says where to.
+it('offers the next phase while a run is in one that has a next (KOE-1259)', async () => {
+  const day: StationTurnItem[] = [
+    {
+      dogs: [],
+      endedAt: minutesAgo(40),
+      phases: [{ key: 'briefing', startedAt: minutesAgo(55) }],
+      startedAt: minutesAgo(55),
+      stationId: '1',
+    },
+    {
+      dogs: [{ name: 'ANNALOUGHAN ACE', number: 1 }],
+      phases: [{ key: 'waterMark', startedAt: minutesAgo(4) }],
+      startedAt: minutesAgo(4),
+      stationId: '1',
+    },
+  ]
+  const screen = await render(
+    <Frame>
+      <StationTurnControls eventType="NOU" onTurn={async () => {}} station={{ id: '1', tasks: 1 }} turns={day} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Seuraava vaihe: Haku')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-turn-next-phase')
+})
+
+// Before anything has happened: the briefing is the one thing on offer, the first dog is picked and
+// its run can start, and a break can be taken because the post is free.
+it('opens the day on the briefing, with the first run ready to go (KOE-1259)', async () => {
+  const screen = await render(
+    <Frame>
+      <StationTurnControls
+        eventType="NOU"
+        onTurn={async () => {}}
+        selectedDog={{ id: 'run-1', name: 'ANNALOUGHAN ACE', number: 1 }}
+        station={{ id: '1', tasks: 1 }}
+        turns={[]}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Rasti vapaa')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-turn-day-start')
+})
