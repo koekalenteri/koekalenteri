@@ -21,7 +21,7 @@ import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrat
 import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
-import { hasEntryEnded, isEventOngoing, isEventOver } from '../../../lib/event'
+import { canPublishResults, hasEntryEnded, isEventOver } from '../../../lib/event'
 import { invitationAttachmentFileName } from '../../../lib/fileName'
 import { validIdTokenAtom } from '../../state'
 import { AuditTrail } from '../components/AuditTrail'
@@ -76,8 +76,9 @@ const InfoPanel = ({
   )
   const entryEnded = hasEntryEnded(event)
   const eventFinished = isEventOver(event)
-  // Nothing to score until the dogs are running.
-  const eventStarted = eventFinished || isEventOngoing(event)
+  // Nothing to score until the dogs are running. The date-based phase keeps the gate open for an
+  // event whose workflow states were never advanced past 'confirmed' (KOE-1279).
+  const eventStarted = eventFinished || canPublishResults(event.state, event)
   const eventWithCurrentAttachments = useMemo(
     () => ({ ...event, invitationAttachment: attachmentKey, invitationAttachments: classAttachmentKeys }),
     [attachmentKey, classAttachmentKeys, event]
