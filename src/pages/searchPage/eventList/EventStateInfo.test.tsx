@@ -40,6 +40,13 @@ describe('EventStateInfo', () => {
     expect(startListLink).toHaveAttribute('aria-disabled', 'true')
   })
 
+  it('says the start list is live while a post is being run', () => {
+    render(<EventStateInfo id={'test-id'} live state={'invited'} startListPublished={true} />, { wrapper: Wrapper })
+
+    expect(screen.getByText('liveStatus.title')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'viewStartList' })).toBeInTheDocument()
+  })
+
   it('should render start list link when a class-specific start list is published', () => {
     render(<EventStateInfo id={'test-id'} state={'invited'} startListPublished={{ ALO: true, AVO: false }} />, {
       wrapper: Wrapper,

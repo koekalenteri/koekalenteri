@@ -28,6 +28,25 @@ describe('LiveStatus', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
+  it('leaves the page to the results once every class has them published', () => {
+    const finished: PublicConfirmedEvent = {
+      ...baseEvent,
+      classes: [{ class: 'ALO', date: new Date('2026-09-12') }],
+      liveTurns: [turn({})],
+      resultsPublished: { ALO: true },
+    }
+    const { container } = render(<LiveStatus event={finished} />)
+
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it("does not show yesterday's last span as who is at the post now", () => {
+    const yesterday = turn({ endedAt: new Date('2026-09-01T09:00:00Z'), startedAt: new Date('2026-09-01T08:00:00Z') })
+    const { container } = render(<LiveStatus event={{ ...baseEvent, liveTurns: [yesterday] }} />)
+
+    expect(container).toBeEmptyDOMElement()
+  })
+
   it('shows the running group, the pace and the break per post', () => {
     const event: PublicConfirmedEvent = {
       ...baseEvent,

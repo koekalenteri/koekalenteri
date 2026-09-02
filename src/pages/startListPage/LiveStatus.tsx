@@ -6,11 +6,13 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEvent } from '../../api/event'
+import { hasAllResultsPublished } from '../../lib/event'
 import { liveFormat, stationDogsAtOnce } from '../../lib/liveFormat'
 import {
   completedGroupTurns,
   dogsThrough,
   isBreakTurn,
+  isLiveNow,
   liveStationIds,
   openTurn,
   stationThroughput,
@@ -44,12 +46,8 @@ const LiveStationCard = ({ event, stationId, turns, starters, single }: StationC
   const open = openTurn(turns, stationId)
   const completed = completedGroupTurns(turns, stationId)
   const throughput = stationThroughput(turns, stationId)
-  const wait = waitEstimate(
-    throughput,
-    starters - dogsThrough(turns, stationId),
-    stationDogsAtOnce(event.eventType, station),
-    format.flow
-  )
+  const dogsAtOnce = stationDogsAtOnce(event.eventType, station)
+  const wait = waitEstimate(throughput, starters - dogsThrough(turns, stationId), dogsAtOnce, format.flow)
 
   const dogLabel = (dog: PublicStationTurn['dogs'][number]) => {
     const name = dog.number ? `${dog.number} ${dog.name}`.trim() : dog.name
@@ -81,7 +79,8 @@ const LiveStationCard = ({ event, stationId, turns, starters, single }: StationC
         {statusLine()}
       </Typography>
       <Typography color="text.secondary" variant="caption" component="div">
-        {t('liveStatus.completed', { count: completed.length })}
+        {/* A post that takes one dog at a time counts dogs; "groups" is the walk-up's word. */}
+        {t(dogsAtOnce > 1 ? 'liveStatus.completed' : 'liveStatus.completedDogs', { count: completed.length })}
         {throughput
           ? ` · ${t('liveStatus.throughput', {
               max: minutes(throughput.maxMs),
@@ -146,7 +145,9 @@ export const LiveStatus = ({
     return () => clearInterval(timer)
   }, [hasOpen])
 
-  if (turns.length === 0) return null
+  // Nothing to show once the day is over: a finished trial's page is its results, and yesterday's
+  // last span is not "who is at the post now".
+  if (turns.length === 0 || !isLiveNow(turns) || hasAllResultsPublished(event)) return null
 
   const stationIds = liveStationIds(turns)
   // Every dog visits every post over the day, so the whole entry is the queue at each of them.

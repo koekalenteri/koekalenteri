@@ -279,17 +279,26 @@ export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfir
 
 /**
  * What a tokenized station link may write: its post's scores and the round-ending outcome. The
- * whole-round fields — cert, notes, the judging judge, an overriding result code — are the event
- * secretary's, and are dropped here the same way the merge drops tasks naming another post.
+ * whole-round fields — cert, notes, an overriding result code — are the event secretary's, and are
+ * dropped here the same way the merge drops tasks naming another post. Except where there is no
+ * round to score: a qualitative type's post *is* the whole trial, and its recording is the judge's
+ * decision and who made it, so those two go through.
  */
-export const stationScopedSubmission = (submission: ResultSubmission, stationId: string): ResultSubmission => {
-  const { elimination, retirement, tasks } = submission.eventResult
+export const stationScopedSubmission = (
+  submission: ResultSubmission,
+  stationId: string,
+  eventType: string
+): ResultSubmission => {
+  const { elimination, retirement, tasks, resultCode, judge } = submission.eventResult
+  const qualitative = !scoresAtPosts(eventType)
 
   return {
     eventResult: {
       ...(tasks ? { tasks } : {}),
       ...(elimination ? { elimination } : {}),
       ...(retirement ? { retirement } : {}),
+      ...(qualitative && resultCode ? { resultCode } : {}),
+      ...(qualitative && judge ? { judge } : {}),
     },
     id: submission.id,
     stationId,

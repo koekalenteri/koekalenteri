@@ -205,11 +205,11 @@ describe('stationTurns', () => {
       const expected = [storedTurn()]
       const next = [storedTurn({ endedAt: NOW.toISOString() })]
 
-      await saveStationTurns('event-1', expected, next)
+      await saveStationTurns('event-1', expected, next, NOW)
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
-        { set: { turns: next } },
+        { set: { turns: next, updatedAt: NOW.toISOString() } },
         'event-table-not-found-in-env',
         undefined,
         {
@@ -223,11 +223,11 @@ describe('stationTurns', () => {
     it('requires the attribute to be absent for the first span of the day', async () => {
       const next = [storedTurn()]
 
-      await saveStationTurns('event-1', undefined, next)
+      await saveStationTurns('event-1', undefined, next, NOW)
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
-        { set: { turns: next } },
+        { set: { turns: next, updatedAt: NOW.toISOString() } },
         'event-table-not-found-in-env',
         undefined,
         {

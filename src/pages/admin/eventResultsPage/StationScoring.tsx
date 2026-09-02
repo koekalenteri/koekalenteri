@@ -23,9 +23,12 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '../../../lib/registration'
-import { classRound, stationVersion } from '../../../lib/results'
+import { classRound, parseEventResultCode, scoresAtPosts, stationVersion } from '../../../lib/results'
+import { openTurn } from '../../../lib/stationTurns'
 import { AsyncButton } from '../../components/AsyncButton'
 import { makeArray } from '../components/eventForm/judgeSection/utils'
+import { JudgeSelect } from './JudgeSelect'
+import { ResultSummary } from './ResultSummary'
 import { RoundOutcome } from './RoundOutcome'
 import { StationTurnControls } from './StationTurnControls'
 import { TaskScore } from './TaskScore'
@@ -42,7 +45,7 @@ interface StationScoringDog {
   group?: RegistrationGroup & { time?: RegistrationTime }
   dog: { name?: string }
   handler?: { name?: string }
-  eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks'>
+  eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'>
 }
 
 interface Props {
@@ -61,6 +64,46 @@ interface Props {
 }
 
 /**
+ * What this post already recorded for a dog, as the edit starts from — so a correction edits rather
+ * than replaces. A post-scored type's recording is its tasks; a qualitative type's is the judge's
+ * decision, read back out of the stored string, and who made it.
+ */
+const seededEdit = (dog: StationScoringDog, stationId: string, eventType: string): ResultEdit => {
+  const stored = dog.eventResult
+  const outcome = { elimination: stored?.elimination, retirement: stored?.retirement }
+
+  if (scoresAtPosts(eventType)) {
+    const tasks = (stored?.tasks ?? [])
+      .filter((task) => task.stationId === stationId)
+      .map(({ updatedAt: _at, updatedBy: _by, ...task }) => task)
+    return { ...outcome, tasks }
+  }
+
+  const resultCode = parseEventResultCode(stored?.result, eventType, getRegistrationClass(dog))
+  return {
+    ...outcome,
+    ...(resultCode ? { resultCode } : {}),
+    ...(stored?.judge ? { judge: stored.judge } : {}),
+    tasks: [],
+  }
+}
+
+/**
+ * The dog in front of the judge when the screen opens: whoever the open turn holds. Coming back to a
+ * turn already started must land on that dog, not on an empty screen. The public turn shape carries
+ * no ids, so the match is by start number and name — the same two things the post calls out.
+ */
+const dogAtPost = (
+  registrations: readonly StationScoringDog[],
+  turns: readonly StationTurnItem[] | undefined,
+  stationId: string
+): StationScoringDog | undefined => {
+  const running = turns && openTurn(turns, stationId)?.dogs[0]
+  if (!running) return undefined
+  return registrations.find((dog) => dog.group?.number === running.number && dog.dog.name === running.name)
+}
+
+/**
  * Scoring at the post, while the test runs.
  *
  * The dog in front of the judge is the whole screen: it arrives, it is picked from the list — usually
@@ -73,10 +116,17 @@ interface Props {
 export function StationScoring({ station, eventType, subtitle, classes, registrations, onSave, turns, onTurn }: Props) {
   const { t } = useTranslation()
 
+  // A qualitative type has no tasks to score; the judge's decision is the result, entered as such.
+  const qualitative = !scoresAtPosts(eventType)
+
   const eventClasses = useMemo(() => [...new Set(registrations.map(getRegistrationClass))], [registrations])
-  const [selectedClass, setSelectedClass] = useState<string | undefined>(eventClasses[0])
-  const [selectedId, setSelectedId] = useState<string | undefined>()
-  const [edit, setEdit] = useState<ResultEdit>(emptyEdit)
+  // Read once, on opening: the dog already at the post is where the screen starts, class tab included.
+  const [initial] = useState(() => dogAtPost(registrations, turns, station.id))
+  const [selectedClass, setSelectedClass] = useState<string | undefined>(
+    initial ? getRegistrationClass(initial) : eventClasses[0]
+  )
+  const [selectedId, setSelectedId] = useState<string | undefined>(initial?.id)
+  const [edit, setEdit] = useState<ResultEdit>(initial ? seededEdit(initial, station.id, eventType) : emptyEdit)
   const [lastJudge, setLastJudge] = useState<PublicJudge | undefined>()
 
   const eventClass = selectedClass ?? eventClasses[0]
@@ -89,11 +139,12 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
     [eventClass, registrations]
   )
 
-  // Only this post's slots, which is one task or two.
+  // Only this post's slots, which is one task or two — and none at all where nothing is scored.
   const round = useMemo(() => {
+    if (qualitative) return []
     const classStations = classes?.find((item) => item.class === eventClass)?.stations
     return classRound([station], classStations).filter((task) => task.stationId === station.id)
-  }, [classes, eventClass, station])
+  }, [classes, eventClass, qualitative, station])
 
   const judges = useMemo(() => {
     const own = station.judges ?? []
@@ -111,30 +162,37 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
 
   /** A dog this post has already scored, so the judge can see at a glance who is still to come. */
   const isScored = useCallback(
-    (dog: StationScoringDog) => dog.eventResult?.tasks?.some((task) => task.stationId === station.id) ?? false,
-    [station.id]
+    (dog: StationScoringDog) => {
+      const stored = dog.eventResult
+      if (qualitative) return Boolean(stored?.result ?? stored?.elimination ?? stored?.retirement)
+      return stored?.tasks?.some((task) => task.stationId === station.id) ?? false
+    },
+    [qualitative, station.id]
   )
 
   const select = useCallback(
     (dog: StationScoringDog) => {
       setSelectedId(dog.id)
-      // Start from what this post already recorded, so a correction edits rather than replaces.
-      const tasks = (dog.eventResult?.tasks ?? [])
-        .filter((task) => task.stationId === station.id)
-        .map(({ updatedAt: _at, updatedBy: _by, ...task }) => task)
-
-      setEdit({ elimination: dog.eventResult?.elimination, retirement: dog.eventResult?.retirement, tasks })
+      setEdit(seededEdit(dog, station.id, eventType))
     },
-    [station.id]
+    [eventType, station.id]
   )
 
   const handleSave = useCallback(async () => {
     if (!selected) return
 
     const stored = selected.eventResult
+    // A qualitative result is attributed to whoever is judging, as a task's score is at a post.
+    const judge = qualitative ? (edit.judge ?? lastJudge ?? judges[0]) : undefined
     const response = await onSave({
       basedOn: stationVersion(stored?.tasks, station.id),
-      eventResult: { elimination: edit.elimination, retirement: edit.retirement, tasks: edit.tasks },
+      eventResult: {
+        elimination: edit.elimination,
+        retirement: edit.retirement,
+        tasks: edit.tasks,
+        ...(qualitative ? { resultCode: edit.resultCode } : {}),
+        ...(judge ? { judge } : {}),
+      },
       id: selected.id,
       stationId: station.id,
     })
@@ -145,7 +203,7 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
     const next = dogs.find((dog) => !isScored(dog) && dog.id !== selected.id)
     if (next) select(next)
     else setSelectedId(undefined)
-  }, [dogs, edit, isScored, onSave, select, selected, station.id, t])
+  }, [dogs, edit, isScored, judges, lastJudge, onSave, qualitative, select, selected, station.id, t])
 
   return (
     <Paper
@@ -203,7 +261,20 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
             </Typography>
           )}
 
-          <Stack direction="row" spacing={2}>
+          <Stack alignItems="center" direction="row" spacing={2}>
+            {qualitative && (
+              <>
+                <ResultSummary edit={edit} eventClass={eventClass} eventType={eventType} onChange={setEdit} />
+                <JudgeSelect
+                  judges={judges}
+                  onChange={(judge) => {
+                    setLastJudge(judge)
+                    setEdit((prev) => ({ ...prev, judge }))
+                  }}
+                  value={edit.judge ?? lastJudge ?? judges[0]}
+                />
+              </>
+            )}
             {round.map((task) => (
               <TaskScore
                 defaultJudge={lastJudge}

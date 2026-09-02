@@ -20,7 +20,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   const station = await authorizeStationEntry(event, eventId, confirmedEvent, stationId)
 
   const submissions = parseSubmissions(event.body, confirmedEvent).map((submission) =>
-    stationScopedSubmission(submission, stationId)
+    stationScopedSubmission(submission, stationId, confirmedEvent.eventType)
   )
   if (submissions.length === 0) return response(422, 'no results', event)
 
@@ -37,12 +37,13 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
 
   // Echo back only what this link may see: its own post's tasks, without the derived prize the
   // whole-round data would carry.
+  const { eventType } = confirmedEvent
   const scope = (results: typeof saved) =>
-    results.map((item) => ({ ...item, eventResult: scopeResultToStation(item.eventResult, stationId) }))
+    results.map((item) => ({ ...item, eventResult: scopeResultToStation(item.eventResult, stationId, eventType) }))
   const scopedConflicts = conflicts.map((conflict) => ({
     ...conflict,
-    stored: scopeResultToStation(conflict.stored, stationId),
-    submitted: scopeResultToStation(conflict.submitted, stationId),
+    stored: scopeResultToStation(conflict.stored, stationId, eventType),
+    submitted: scopeResultToStation(conflict.submitted, stationId, eventType),
   }))
 
   if (conflicts.length) {

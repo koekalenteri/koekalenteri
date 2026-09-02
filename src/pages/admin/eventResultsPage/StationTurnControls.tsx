@@ -13,6 +13,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -102,12 +103,30 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
     }
   }
 
+  // A dog runs a post once — except where the format says otherwise: a NOME-A dog goes out for
+  // retrieve after retrieve, and a class that takes a two-task post in its own order comes back for
+  // the other task. The timeline is the record, so a dog it already names is not sent out again. The
+  // match is by number and name, the handles the public turn shape has.
+  const runsAgain = format.tasks === 'retrieve'
+  const hasRun = (dog: TurnDog) =>
+    turns.some(
+      (turn) =>
+        turn.stationId === stationId &&
+        !isBreakTurn(turn) &&
+        (!namesTask || turn.taskIndex === taskIndex) &&
+        turn.dogs.some((ran) => ran.number === dog.number && ran.name === dog.name)
+    )
+  const alreadyRun = (dog: TurnDog) => !runsAgain && hasRun(dog)
+  const eligible = (dogs ?? []).filter((dog) => !alreadyRun(dog))
+
   // The picked group is what runs; the dog open in the scoring view is the single-dog shorthand for it.
   const nextTurnIds = () => {
-    if (groupIds.length) return groupIds.slice(0, dogsAtOnce)
-    return selectedDog ? [selectedDog.id] : []
+    const picked = groupIds.filter((id) => eligible.some((dog) => dog.id === id))
+    if (picked.length) return picked.slice(0, dogsAtOnce)
+    return selectedDog && !alreadyRun(selectedDog) ? [selectedDog.id] : []
   }
   const startIds = nextTurnIds()
+  const selectedHasRun = Boolean(selectedDog && alreadyRun(selectedDog))
 
   const taskNumbers = Array.from({ length: station.tasks }, (_unused, index) => index)
 
@@ -172,15 +191,19 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
           </Button>
         )}
 
-        <AsyncButton
-          disabled={startIds.length === 0}
-          onClick={handleStart}
-          size="small"
-          startIcon={<PlayArrow />}
-          variant="outlined"
-        >
-          {t('liveStatus.startTurn')}
-        </AsyncButton>
+        <Tooltip title={selectedHasRun && startIds.length === 0 ? t('liveStatus.alreadyThrough') : ''}>
+          <span>
+            <AsyncButton
+              disabled={startIds.length === 0}
+              onClick={handleStart}
+              size="small"
+              startIcon={<PlayArrow />}
+              variant="outlined"
+            >
+              {t('liveStatus.startTurn')}
+            </AsyncButton>
+          </span>
+        </Tooltip>
         <AsyncButton
           disabled={!open}
           onClick={() => runOp({ type: 'end' })}
@@ -217,7 +240,7 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
         {/* The walk-up, picked before it is started: the menu stays open so several dogs go in with
             one visit, and the count on the button says how many are in hand. */}
         <Menu anchorEl={groupMenuAnchor} onClose={() => setGroupMenuAnchor(undefined)} open={Boolean(groupMenuAnchor)}>
-          {(dogs ?? []).map((dog) => (
+          {eligible.map((dog) => (
             <MenuItem key={dog.id} onClick={() => toggleGroupDog(dog.id)}>
               <Checkbox checked={groupIds.includes(dog.id)} size="small" sx={{ mr: 1, p: 0 }} />
               {turnDogLabel(dog)}
@@ -256,7 +279,7 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
       )}
 
       <Typography color="text.secondary" variant="caption">
-        {t('liveStatus.completed', { count: completed.length })}
+        {t(dogsAtOnce > 1 ? 'liveStatus.completed' : 'liveStatus.completedDogs', { count: completed.length })}
         {throughput
           ? ` · ${t('liveStatus.throughput', {
               max: minutes(throughput.maxMs),

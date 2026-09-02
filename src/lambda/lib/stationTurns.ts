@@ -140,13 +140,22 @@ export const applyStationTurnOp = (
 export const saveStationTurns = async (
   eventId: string,
   expected: JsonStationTurn[] | undefined,
-  turns: JsonStationTurn[]
+  turns: JsonStationTurn[],
+  now: Date = new Date()
 ): Promise<void> => {
   const condition = expected
     ? { expression: '#turns = :expected', names: { '#turns': 'turns' }, values: { ':expected': expected } }
     : { expression: 'attribute_not_exists(#turns)', names: { '#turns': 'turns' } }
 
-  await dynamoDB.update({ id: eventId }, { set: { turns } }, eventTable, undefined, condition)
+  // `updatedAt` moves so an incremental fetch of the calendar carries the new timeline; `modifiedAt`
+  // stays, because a turn is the day happening, not an edit to the event.
+  await dynamoDB.update(
+    { id: eventId },
+    { set: { turns, updatedAt: now.toISOString() } },
+    eventTable,
+    undefined,
+    condition
+  )
 }
 
 const isConditionalCheckFailed = (error: unknown): boolean =>
@@ -175,7 +184,7 @@ export const writeStationTurn = async (
   for (let attempt = 1; ; attempt++) {
     const turns = applyStationTurnOp(expected ?? [], registrations, stationId, op, now)
     try {
-      await saveStationTurns(confirmedEvent.id, expected, turns)
+      await saveStationTurns(confirmedEvent.id, expected, turns, now)
       return turns
     } catch (error) {
       if (!isConditionalCheckFailed(error) || attempt >= TURN_WRITE_ATTEMPTS) throw error

@@ -68,3 +68,26 @@ it('scores the dog at the post, one round at a time', async () => {
   await expect.element(screen.getByText('2. Toinen')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-scoring')
 })
+
+// A NOME-B runs its day at one post that nobody lays out, and its result is the judge's word rather
+// than a score: the same screen, with the result picker where the task inputs would be.
+it("takes the judge's decision at the post of a qualitative type", async () => {
+  const screen = await render(
+    <Frame>
+      <StationScoring
+        classes={eventWithStations.classes}
+        eventType="NOME-B"
+        onSave={async () => ({ registrations: [], saved: [] })}
+        onTurn={async () => {}}
+        registrations={registrations.map((dog) => ({ ...dog, eventResult: undefined, eventType: 'NOME-B' }))}
+        station={{ id: '1', judges: [judge], number: 1, tasks: 1 }}
+        subtitle="Tuloskoe"
+        turns={[{ ...turns[0], stationId: '1' }]}
+      />
+    </Frame>
+  )
+
+  await screen.getByText('1 Ensimmainen').click()
+  await expect.element(screen.getByText('1. Ensimmainen')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-scoring-qualitative')
+})

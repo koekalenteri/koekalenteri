@@ -12,6 +12,7 @@ import type {
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
+import { scoresAtPosts } from '../../lib/results'
 import { LambdaError } from './lambda'
 import { getRegistrationEditTokenSecret } from './secrets'
 
@@ -77,8 +78,9 @@ export const authorizeStationEntry = async (
  * are this post's own: what the other posts recorded is not this link's to see either.
  */
 const stationEntryDog = (registration: JsonRegistration, stationId: string): JsonStationEntryDog => {
-  const { elimination, retirement } = registration.eventResult ?? {}
-  const tasks = registration.eventResult?.tasks?.filter((task) => task.stationId === stationId)
+  const stored = registration.eventResult
+  const scoped = stored && scopeResultToStation(stored, stationId, registration.eventType)
+  const { updatedAt: _at, updatedBy: _by, ...eventResult } = scoped ?? {}
 
   return {
     class: registration.class,
@@ -86,24 +88,31 @@ const stationEntryDog = (registration: JsonRegistration, stationId: string): Jso
     eventType: registration.eventType,
     group: registration.group,
     id: registration.id,
-    ...(elimination || retirement || tasks?.length
-      ? { eventResult: { ...(elimination ? { elimination } : {}), ...(retirement ? { retirement } : {}), tasks } }
-      : {}),
+    ...(Object.keys(eventResult).length ? { eventResult } : {}),
   }
 }
 
 /**
- * A stored result as the station's PUT response may echo it: this post's tasks and the round-ending
- * outcomes, with the derived totals and prize stripped. A post's own view withholds the prize on
- * purpose — it depends on posts this link cannot see — so the write path must not hand it back.
+ * A stored result as the station's link may see it: this post's tasks and the round-ending outcomes,
+ * with the derived totals and prize stripped. A post's own view withholds the prize on purpose — it
+ * depends on posts this link cannot see — so the write path must not hand it back. A qualitative type
+ * has no such derivation: its result is the judge's decision, recorded at this very post, and the
+ * link needs it back to show the dog as done.
  */
-export const scopeResultToStation = (result: JsonEventResult, stationId: string): JsonEventResult => {
-  const { elimination, retirement, tasks, updatedAt, updatedBy } = result
+export const scopeResultToStation = (
+  result: JsonEventResult,
+  stationId: string,
+  eventType: string
+): JsonEventResult => {
+  const { elimination, retirement, tasks, result: verdict, judge, updatedAt, updatedBy } = result
+  const qualitative = !scoresAtPosts(eventType)
 
   return {
     ...(elimination ? { elimination } : {}),
     ...(retirement ? { retirement } : {}),
-    ...(tasks ? { tasks: tasks.filter((task) => task.stationId === stationId) } : {}),
+    ...(tasks?.length ? { tasks: tasks.filter((task) => task.stationId === stationId) } : {}),
+    ...(qualitative && verdict ? { result: verdict } : {}),
+    ...(qualitative && judge ? { judge } : {}),
     updatedAt,
     updatedBy,
   }

@@ -3,6 +3,7 @@ import {
   completedGroupTurns,
   dogsThrough,
   isBreakTurn,
+  isLiveNow,
   isStoredStationTurn,
   liveStationIds,
   openTurn,
@@ -140,6 +141,33 @@ describe('stationTurns', () => {
     it('withholds it entirely on open ground, where minutes describe nothing anyone is doing', () => {
       expect(waitEstimate(throughput, 12, 4, 'field')).toBeUndefined()
       expect(waitEstimate(throughput, 12, 4, 'queue')).toBeDefined()
+    })
+  })
+
+  describe('isLiveNow', () => {
+    const now = new Date('2026-09-12T14:00:00+03:00')
+
+    it('is live while a span is open, whenever it was started', () => {
+      expect(isLiveNow([turn({ startedAt: '2026-09-11T08:00:00.000Z' })], now)).toBe(true)
+    })
+
+    it('stays live between turns for the rest of the day, and goes quiet the next morning', () => {
+      const closed = turn({ endedAt: '2026-09-12T05:10:00.000Z', startedAt: '2026-09-12T05:00:00.000Z' })
+
+      expect(isLiveNow([closed], now)).toBe(true)
+      expect(isLiveNow([closed], new Date('2026-09-13T06:00:00+03:00'))).toBe(false)
+    })
+
+    it('reads the day in Finnish time, so a late evening span is still today', () => {
+      // 23:30 Helsinki on the 12th is 20:30Z; the UTC date would already say the 12th, the local one too.
+      const late = turn({ endedAt: '2026-09-12T20:40:00.000Z', startedAt: '2026-09-12T20:30:00.000Z' })
+
+      expect(isLiveNow([late], new Date('2026-09-12T23:50:00+03:00'))).toBe(true)
+      expect(isLiveNow([late], new Date('2026-09-13T00:10:00+03:00'))).toBe(false)
+    })
+
+    it('is quiet with nothing recorded', () => {
+      expect(isLiveNow([], now)).toBe(false)
     })
   })
 

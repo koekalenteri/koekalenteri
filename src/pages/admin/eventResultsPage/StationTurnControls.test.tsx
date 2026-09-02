@@ -112,6 +112,67 @@ describe('StationTurnControls', () => {
       expect(onTurn).toHaveBeenCalledWith({ registrationIds: ['run-1'], taskIndex: 1, type: 'start' })
     })
 
+    it('does not send a dog out twice: the timeline already names it', async () => {
+      const user = userEvent.setup()
+      const through = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z') }
+      renderControls({
+        eventType: 'NOWT',
+        selectedDog: { id: 'run-1', name: 'Ensimmainen', number: 5 },
+        turns: [through],
+      })
+
+      const start = screen.getByRole('button', { name: 'liveStatus.startTurn' })
+      expect(start).toBeDisabled()
+      // The reason is a hover away, since a greyed button says nothing on its own.
+      await user.hover(start.parentElement ?? start)
+      expect(await screen.findByText('liveStatus.alreadyThrough')).toBeInTheDocument()
+    })
+
+    it('lets a NOME-A dog out for retrieve after retrieve', () => {
+      const through = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z') }
+      renderControls({
+        eventType: 'NOME-A',
+        selectedDog: { id: 'run-1', name: 'Ensimmainen', number: 5 },
+        turns: [through],
+      })
+
+      expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeEnabled()
+    })
+
+    it('lets a dog back for the other task of a two-task post, but not for the one it ran', async () => {
+      const user = userEvent.setup()
+      const ranFirst = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z'), taskIndex: 0 }
+      renderControls({
+        eventType: 'NOME-B',
+        selectedDog: { id: 'run-1', name: 'Ensimmainen', number: 5 },
+        station: { id: 'post-1', tasks: 2 },
+        turns: [ranFirst],
+      })
+
+      expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeDisabled()
+
+      await user.click(screen.getAllByRole('button', { name: 'liveStatus.task number' })[1])
+
+      expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeEnabled()
+    })
+
+    it('leaves the dogs that have been through out of the walk-up', async () => {
+      const user = userEvent.setup()
+      const through = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z') }
+      renderControls({
+        dogs: walkUpDogs,
+        eventType: 'NOWT',
+        station: { dogsAtOnce: 4, id: 'post-1', tasks: 1 },
+        turns: [through],
+      })
+
+      await user.click(screen.getByRole('button', { name: /liveStatus.group/ }))
+      const menu = within(screen.getByRole('menu'))
+
+      expect(menu.queryByText('5 Ensimmainen')).not.toBeInTheDocument()
+      expect(menu.getByText('6 Toinen')).toBeInTheDocument()
+    })
+
     it("marks a dog of the open group where the format's live facts are marks", async () => {
       const user = userEvent.setup()
       const { onTurn } = renderControls({

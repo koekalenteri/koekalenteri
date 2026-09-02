@@ -118,6 +118,21 @@ describe('stationEntry', () => {
       expect(JSON.stringify(result)).not.toContain('regNo')
     })
 
+    it("serves a qualitative type's verdict, so the link can show who is done", () => {
+      const judge = { id: 123, name: 'Tuomari' }
+      const singlePost = asJsonConfirmedEvent({ ...confirmedEvent, eventType: 'NOME-B', stations: undefined })
+      const scored = registration('run-1', {
+        eventResult: { judge, result: 'ALO1', updatedAt: 't1', updatedBy: 'u' },
+        eventType: 'NOME-B',
+      })
+      const implicit = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const }
+
+      expect(stationEntryResponse(singlePost, implicit, [scored]).registrations[0].eventResult).toEqual({
+        judge,
+        result: 'ALO1',
+      })
+    })
+
     it('leaves out reserves and hides the revocation counter', () => {
       const reserve = registration('res-1', { group: { key: 'reserve', number: 1 } } as Partial<JsonRegistration>)
       const result = stationEntryResponse(confirmedEvent, { ...station, tokenVersion: 3 }, [reserve])
@@ -161,12 +176,26 @@ describe('stationEntry', () => {
         updatedBy: 'u',
       }
 
-      expect(scopeResultToStation(result, 'post-1')).toEqual({
+      expect(scopeResultToStation(result, 'post-1', 'NOWT')).toEqual({
         elimination: { fault: 'hardMouth', stationId: 'post-2' },
         tasks: [{ index: 0, points: 17, stationId: 'post-1', updatedAt: 't1', updatedBy: 'u' }],
         updatedAt: 't2',
         updatedBy: 'u',
       })
+    })
+
+    it("keeps a qualitative type's result and judge, which are the post's own recording", () => {
+      const judge = { id: 123, name: 'Tuomari' }
+      const result: JsonEventResult = { judge, result: 'ALO1', updatedAt: 't1', updatedBy: 'u' }
+
+      expect(scopeResultToStation(result, '1', 'NOME-B')).toEqual({
+        judge,
+        result: 'ALO1',
+        updatedAt: 't1',
+        updatedBy: 'u',
+      })
+      // A NOWT's result is derived from posts this link cannot see, so it stays off.
+      expect(scopeResultToStation(result, 'post-1', 'NOWT')).toEqual({ updatedAt: 't1', updatedBy: 'u' })
     })
   })
 })

@@ -435,8 +435,11 @@
   "languageMenu": "Kieli",
   "languages": "Arvostelukielet",
   "liveStatus": {
+    "alreadyThrough": "Koira on jo käynyt rastilla",
     "completed_one": "{{count}} ryhmä käynyt",
     "completed_other": "{{count}} ryhmää käynyt",
+    "completedDogs_one": "{{count}} koira käynyt",
+    "completedDogs_other": "{{count}} koiraa käynyt",
     "endBreak": "Päätä tauko",
     "endTurn": "Päätä vuoro",
     "free": "Rasti vapaa",

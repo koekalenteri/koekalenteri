@@ -435,8 +435,11 @@
   "languageMenu": "Language",
   "languages": "Judging languages",
   "liveStatus": {
+    "alreadyThrough": "The dog has already been through this post",
     "completed_one": "{{count}} group through",
     "completed_other": "{{count}} groups through",
+    "completedDogs_one": "{{count}} dog through",
+    "completedDogs_other": "{{count}} dogs through",
     "endBreak": "End break",
     "endTurn": "End turn",
     "free": "Post idle",

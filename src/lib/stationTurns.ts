@@ -1,5 +1,6 @@
 import type { JsonStationTurn, StationTurn, StationTurnPause } from '../types'
 import type { LiveFlow } from './liveFormat'
+import { zonedDateString } from '../i18n/dates'
 
 /**
  * Derivations over a post's timeline (KOE-1259). Shared between the lambdas and the browser on
@@ -141,6 +142,19 @@ export const waitEstimate = (
   const groupsAhead = Math.ceil(dogsAhead / Math.max(1, dogsAtOnce))
 
   return { groupsAhead, maxMs: groupsAhead * throughput.maxMs, minMs: groupsAhead * throughput.minMs }
+}
+
+/**
+ * Whether the day is being run right now, as far as a calendar listing can tell: a span is open, or one
+ * was started today. The gaps between one turn's end and the next one's start are minutes long, and a
+ * badge that blinked off in each of them would say less than one that stays on for the day.
+ */
+export const isLiveNow = (
+  turns: readonly Pick<StationTurnSpan, 'startedAt' | 'endedAt'>[],
+  now: Date = new Date()
+): boolean => {
+  const today = zonedDateString(now)
+  return turns.some((turn) => !turn.endedAt || zonedDateString(new Date(turn.startedAt)) === today)
 }
 
 /** The post ids that have any live spans, in first-seen order — what the live view iterates. */
