@@ -48,6 +48,34 @@ it('shows a class group of the secretary start list', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('startlist-secretary-group')
 })
 
+it('shows entered numbers and flags a dog whose number is still undrawn', async () => {
+  const regs = [
+    entry('drawn-1', 'Arvottu', 1, {
+      startGroup: { date: new Date('2021-02-10T10:00:00Z'), key: 'ALO-AP', number: 2, time: 'ap' },
+    }),
+    // Added after the draw: still on its working-order number, so the row carries the warning (KOE-1287).
+    entry('pending-1', 'Arpomaton', 2),
+  ]
+  const group: Record<string, Record<string, Registration[]>> = { ALO: { ap: regs } }
+
+  const screen = await render(
+    <Frame>
+      <StartListGroup
+        colSpan={8}
+        eventClass="ALO"
+        group={group}
+        heading="ke 10.2."
+        nameLen={12}
+        reserve={false}
+        time="ap"
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('REG-drawn-1')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('startlist-secretary-group-number-pending')
+})
+
 it('shows the reserve group with location and notice columns', async () => {
   const regs = [
     entry('reserve-1', 'Varakoira', 1, { group: { key: 'reserve', number: 1 }, reserve: 'DAY' }),

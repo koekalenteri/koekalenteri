@@ -19,6 +19,10 @@ interface Props {
 const StartListGroup = ({ colSpan, group, heading, eventClass, time, reserve, nameLen }: Props) => {
   const { t } = useTranslation()
   const timeText = time ? t(`registration.timeLong.${time}`) : ''
+  // The draw covers the class's whole day, so a dog still on its working-order number is flagged as
+  // soon as any dog that day has an entered number (KOE-1287) — same rule as the public preview.
+  const hasDrawnNumbers =
+    !reserve && Object.values(group[eventClass]).some((regs) => regs.some((reg) => Boolean(reg.startGroup)))
 
   return (
     <>
@@ -29,7 +33,13 @@ const StartListGroup = ({ colSpan, group, heading, eventClass, time, reserve, na
       </TableRow>
       <HeaderRow key={`${heading}${eventClass}header`} reserve={reserve} />
       {group[eventClass][time].map((reg) => (
-        <RegistrationRow key={reg.id} reg={reg} reserve={reserve} nameLen={nameLen} />
+        <RegistrationRow
+          key={reg.id}
+          reg={reg}
+          reserve={reserve}
+          nameLen={nameLen}
+          numberPending={hasDrawnNumbers && !reg.startGroup}
+        />
       ))}
     </>
   )

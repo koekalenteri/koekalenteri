@@ -232,7 +232,12 @@ const ClassEntrySelection = ({
     ]
   )
 
-  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(dates, event, callbacks)
+  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(
+    dates,
+    event,
+    callbacks,
+    registrations
+  )
 
   const reserveNotNotified = useMemo(
     () => !registrationsByGroup.reserve.some((r) => r.reserveNotified),

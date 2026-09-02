@@ -217,9 +217,20 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
 export function useClassEntrySelectionColumns(
   available: RegistrationDate[],
   event: DogEvent,
-  callbacks?: RegistrationActionCallbacks
+  callbacks?: RegistrationActionCallbacks,
+  registrations: Registration[] = []
 ) {
   const { t } = useTranslation()
+
+  // Days whose draw has begun: a dog still on its working-order number needs flagging only where an
+  // entered number exists to collide with (KOE-1288) — same rule as the public preview (KOE-1218).
+  const drawnDates = useMemo(() => {
+    const keys = new Set<string>()
+    for (const reg of registrations) {
+      if (!reg.cancelled && reg.startGroup?.date) keys.add(new Date(reg.startGroup.date).toDateString())
+    }
+    return keys
+  }, [registrations])
 
   const createColumnDefinitions = useCallback(() => {
     const columnConfigs: Array<Partial<GridColDef<Registration>> & { field: string }> = [
@@ -264,10 +275,23 @@ export function useClassEntrySelectionColumns(
           // out, this column shows the truth the public list carries — for cancelled dogs too.
           const n = p.row.startGroup?.number ?? p.row.group?.number
           if (!n) return ''
-          if (Number.isInteger(n)) return `${n}`
-          return <CircularProgress size={10} thickness={5} />
+          if (!Number.isInteger(n)) return <CircularProgress size={10} thickness={5} />
+          const pending =
+            !p.row.startGroup &&
+            !p.row.cancelled &&
+            p.row.group?.date != null &&
+            drawnDates.has(new Date(p.row.group.date).toDateString())
+          if (!pending) return `${n}`
+          return (
+            <Tooltip title={t('startList.numberPending')}>
+              <span>
+                <WarningAmberOutlined color="warning" sx={{ fontSize: '1rem', mr: 0.25, verticalAlign: 'text-top' }} />
+                {`${n}`}
+              </span>
+            </Tooltip>
+          )
         },
-        width: 30,
+        width: 48,
       },
       {
         field: 'dog.name',
@@ -327,7 +351,7 @@ export function useClassEntrySelectionColumns(
       ...config,
       sortable: false, // Common property for all columns
     })) as GridColDef<Registration>[]
-  }, [available, callbacks, event, t])
+  }, [available, callbacks, drawnDates, event, t])
 
   return useMemo(() => {
     const entryColumns = createColumnDefinitions()
