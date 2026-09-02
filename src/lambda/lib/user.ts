@@ -6,13 +6,13 @@ import { nanoid } from 'nanoid'
 import { i18n } from '../../i18n/lambda'
 import { getChangedTopLevelKeys } from '../../lib/diff'
 import { validEmail } from '../../lib/email'
+import { reverseName } from '../../lib/string'
 import { scoreUser } from '../../lib/user'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { bumpDataVersion } from './dataVersions'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
-import { reverseName } from './string'
 
 const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
 

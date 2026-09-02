@@ -93,3 +93,99 @@ interface PaymentMethodGroupData {
    */
   svg: string
 }
+
+export interface PaymentItem {
+  /**
+   * Price per unit, in each country's minor unit, e.g. for Euros use cents.
+   * By default price should include VAT, unless usePricesWithoutVat is set to true.
+   * No negative values accepted. Maximum value of 2147483647, minimum value is 0.
+   */
+  unitPrice: number
+  /**
+   * Quantity, how many items ordered. Negative values are not supported.
+   */
+  units: number
+  /**
+   * VAT percentage
+   */
+  vatPercentage: number
+  /**
+   * Merchant product code. May appear on invoices of certain payment methods. Maximum of 100 characters
+   */
+  productCode: string
+  /**
+   * Item description. May appear on invoices of certain payment methods. Maximum of 1000 characters.
+   */
+  description?: string
+  /**
+   * Merchant specific item category
+   */
+  category?: string
+  /**
+   * Item level order ID (suborder ID). Mainly useful for Shop-in-Shop purchases.
+   */
+  orderId?: string
+  /**
+   * Reference for this item. Required for Shop-in-Shop payments.
+   */
+  reference: string
+  /**
+   * Merchant ID for the item. Required for Shop-in-Shop payments, do not use for normal payments.
+   * This is the money-receiving merchant ID.
+   */
+  merchant: string
+  /**
+   * Shop-in-Shop commission. Do not use for normal payments.
+   */
+  commission?: PaymentCommission
+  /**
+   * Unique identifier for this item. Required for Shop-in-Shop payments. Required for item refunds.
+   */
+  stamp: string
+}
+
+interface PaymentCommission {
+  /**
+   * Merchant who gets the commission
+   */
+  merchant: string
+  /**
+   * Amount of commission in currency's minor units, e.g. for Euros use cents. VAT not applicable.
+   */
+  amount: number
+}
+
+export interface RefundItem {
+  /**
+   * Total amount to refund this item, in currency's minor units (ie. EUR cents)
+   */
+  amount: number
+  /**
+   * The item unique identifier
+   */
+  stamp: string
+  /**
+   * Merchant unique identifier for the refund. Only for Shop-in-Shop payments, do not use for normal payments.
+   */
+  refundStamp: string
+  /**
+   * Refund reference. Only for Shop-in-Shop payments, do not use for normal payments.
+   */
+  refundReference: string
+  /**
+   * Shop-in-Shop commission return. In refunds, the given amount is returned from the given commission account
+   * to the item merchant account. Only for Shop-in-Shop payments, do not use for normal payments.
+   */
+  commission?: RefundCommission
+}
+
+interface RefundCommission {
+  /**
+   * Merchant from whom the commission is returned to the submerchant.
+   */
+  merchant: string
+  /**
+   * Amount of commission in currency's minor units, e.g. for Euros use cents. VAT not applicable.
+   */
+  amount: number
+}

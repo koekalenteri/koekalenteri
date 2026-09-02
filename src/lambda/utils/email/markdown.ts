@@ -1,5 +1,5 @@
-import type { Template } from '@aws-sdk/client-ses'
 import type { Plugin } from 'unified'
+import type { EmailTemplateContent } from '../../../types'
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import remarkHtml from 'remark-html'
@@ -12,7 +12,7 @@ import { linkAsText } from './mdast2text/link'
 import { remarkPlainText } from './mdast2text/remarkPlainText'
 import { removeTableHead } from './mdast2text/table'
 
-export async function markdownToTemplate(templateName: string, source: string): Promise<Template> {
+export async function markdownToTemplate(templateName: string, source: string): Promise<EmailTemplateContent> {
   const { text, subject } = await markdownToText(source)
   const html = await markdownToHtml(source)
 

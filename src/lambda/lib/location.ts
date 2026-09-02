@@ -2,7 +2,7 @@ import type { Location } from '../../types'
 import type { KLPaikkakunta } from '../types/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
-import { capitalize } from './string'
+import { capitalize } from '../../lib/string'
 
 /**
  * The whole municipality list lives in a single row. It is read on every /user call (through

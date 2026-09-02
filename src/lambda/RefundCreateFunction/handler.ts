@@ -4,9 +4,9 @@ import type {
   JsonRefundTransaction,
   JsonUser,
   Organizer,
+  RefundItem,
   RefundPaymentResponse,
 } from '../../types'
-import type { RefundItem } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'

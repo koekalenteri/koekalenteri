@@ -1,5 +1,4 @@
-import type { Template } from '@aws-sdk/client-ses'
-import type { JsonEmailTemplate } from '../../types'
+import type { EmailTemplateContent, JsonEmailTemplate } from '../../types'
 import {
   CreateTemplateCommand,
   SESClient,
@@ -17,7 +16,7 @@ import { markdownToTemplate } from '../utils/email/markdown'
 const dynamoDB = new CustomDynamoClient(CONFIG.emailTemplateTable)
 const ses = new SESClient()
 
-const updateOrCreateTemplate = async (template: Template) => {
+const updateOrCreateTemplate = async (template: EmailTemplateContent) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     const command = new UpdateTemplateCommand({ Template: template })

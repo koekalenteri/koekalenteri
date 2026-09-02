@@ -1,8 +1,15 @@
-import type { CreatePaymentResponse, JsonConfirmedEvent, JsonPaymentTransaction, Organizer } from '../../types'
-import type { PaymentCustomer, PaymentItem } from '../types/paytrail'
+import type {
+  CreatePaymentResponse,
+  JsonConfirmedEvent,
+  JsonPaymentTransaction,
+  Organizer,
+  PaymentItem,
+} from '../../types'
+import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { calculateCost } from '../../lib/cost'
 import { isParticipantGroup } from '../../lib/registration'
+import { splitName } from '../../lib/string'
 import { CONFIG } from '../config'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
@@ -19,7 +26,6 @@ import {
 } from '../lib/payment'
 import { createPayment, PaytrailError } from '../lib/paytrail'
 import { authorizeRegistrationEdit, getRegistration } from '../lib/registration'
-import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
 

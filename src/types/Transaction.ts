@@ -1,5 +1,4 @@
-import type { PaymentItem, RefundItem } from '../lambda/types/paytrail'
-import type { CreatePaymentResponse } from './paytrail'
+import type { CreatePaymentResponse, PaymentItem, RefundItem } from './paytrail'
 
 export interface JsonTransaction {
   transactionId: string

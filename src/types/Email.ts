@@ -1,6 +1,13 @@
-import type { Template } from '@aws-sdk/client-ses'
 import type { DbRecord, JsonDbRecord } from './Database'
 import type { ContactInfo } from './Event'
+
+/** SES-compatible template content, mirrored here so the shared types do not depend on @aws-sdk/client-ses. */
+export interface EmailTemplateContent {
+  HtmlPart?: string
+  SubjectPart?: string
+  TemplateName: string
+  TextPart?: string
+}
 
 export type EmailTemplateId =
   | 'registration'
@@ -19,8 +26,8 @@ export interface EmailTemplate extends DbRecord {
   fi: string
   en: string
   ses?: {
-    fi: Template
-    en: Template
+    fi: EmailTemplateContent
+    en: EmailTemplateContent
   }
 }
 

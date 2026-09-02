@@ -1,11 +1,15 @@
-import type { CreatePaymentResponse, GetPaymentResponse, RefundPaymentResponse } from '../../types'
+import type {
+  CreatePaymentResponse,
+  GetPaymentResponse,
+  PaymentItem,
+  RefundItem,
+  RefundPaymentResponse,
+} from '../../types'
 import type {
   CallbackUrl,
   CreatePaymentRequest,
   PaymentCustomer,
-  PaymentItem,
   PaytrailHeaders,
-  RefundItem,
   RefundRequest,
 } from '../types/paytrail'
 import { createHmac } from 'node:crypto'

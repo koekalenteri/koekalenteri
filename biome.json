@@ -50,13 +50,69 @@
   },
   "overrides": [
     {
-      "includes": ["src/lambda/**", "src/lib/**", "src/i18n/**", "src/rules.ts", "src/rules_ch.ts"],
+      "includes": ["src/**", "!src/lambda/**"],
       "linter": {
         "rules": {
           "style": {
             "noRestrictedImports": {
               "level": "error",
               "options": {
+                "patterns": [
+                  {
+                    "group": ["**/lambda/**"],
+                    "message": "Frontend and shared code must not import from src/lambda. Move the shared code to src/lib or src/types instead; see src/lib/README.md."
+                  },
+                  {
+                    "group": ["@aws-sdk/**"],
+                    "message": "Frontend and shared code must not depend on the AWS SDK. Mirror the needed shape in src/types instead (see EmailTemplateContent in src/types/Email.ts)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lib/**", "src/i18n/**", "src/rules.ts", "src/rules_ch.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/lambda/**"],
+                    "message": "Shared code must not import from src/lambda. Move the shared code to src/lib or src/types instead; see src/lib/README.md."
+                  }
+                ],
+                "paths": {
+                  "date-fns": {
+                    "allowImportNames": ["Locale"],
+                    "message": "Import date-fns by module path instead: date-fns/addDays. The lambdas are bundled with packages: 'external', so a bare specifier is resolved from the dependencies layer at runtime and pulls in the whole 245-export index on every cold start -- 508 ms against 8 ms for one module. See KOE-6."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lambda/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/pages/**", "**/hooks/**", "../api/**", "../../api/**", "../../../api/**", "**/lib/client/**"],
+                    "message": "Lambda code must not import frontend code (src/pages, src/hooks, src/api, src/lib/client)."
+                  }
+                ],
                 "paths": {
                   "date-fns": {
                     "allowImportNames": ["Locale"],

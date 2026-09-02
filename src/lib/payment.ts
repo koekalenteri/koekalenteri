@@ -1,7 +1,7 @@
 import type { CustomCost, MinimalEventForCost, MinimalRegistrationForCost, Registration } from '../types'
-import { capitalize } from '../lambda/lib/string'
 import { additionalCost, getApplicableStrategy, getEarlyBirdDates, selectCost } from './cost'
 import { isMember } from './registration'
+import { capitalize } from './string'
 
 export const PROVIDER_NAMES: Record<string, string> = {
   aktia: 'Aktia',
