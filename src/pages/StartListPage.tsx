@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { useLoaderData, useParams } from 'react-router'
 import { getStartList } from '../api/registration'
 import { isStartListAvailable } from '../lib/event'
+import { liveViewEnabled } from '../lib/features'
 import LoadingIndicator from './components/LoadingIndicator'
 import { EventHeader } from './startListPage/EventHeader'
 import { LiveStatus } from './startListPage/LiveStatus'
@@ -63,7 +64,7 @@ export const StartListPage = () => {
   return (
     <Box p={1}>
       <EventHeader event={event} now={now} />
-      <LiveStatus event={event} participants={participants} />
+      {liveViewEnabled && <LiveStatus event={event} participants={participants} />}
       <ParticipantList participants={participants} event={event} showExportActions={showExportActions} />
     </Box>
   )

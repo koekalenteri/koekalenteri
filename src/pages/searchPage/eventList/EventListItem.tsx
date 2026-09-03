@@ -15,6 +15,7 @@ import {
   isValidForEntry,
   localizedEventName,
 } from '../../../lib/event'
+import { liveViewEnabled } from '../../../lib/features'
 import { Path } from '../../../routeConfig'
 import { CollapsibleEvent } from '../../components/CollapsibleEvent'
 import LinkButton from '../../components/LinkButton'
@@ -143,7 +144,7 @@ const EventHeader = ({ event }: Props) => {
               <EventStateInfo
                 classes={event.classes}
                 id={event.id}
-                live={isEventLive(event)}
+                live={liveViewEnabled && isEventLive(event)}
                 state={event.state}
                 startListPublished={event.startListPublished}
                 resultsPublished={event.resultsPublished}

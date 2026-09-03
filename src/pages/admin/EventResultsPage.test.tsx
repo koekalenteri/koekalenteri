@@ -22,6 +22,11 @@ import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 
+// The live entry link is a release switch (KOE-1259): the tests describe the feature with it on,
+// and one test checks that the switch alone takes the link away.
+const features = vi.hoisted(() => ({ liveViewEnabled: true }))
+vi.mock('../../lib/features', () => features)
+
 vi.mock('../../api/user')
 vi.mock('../../api/event')
 vi.mock('../../api/eventType')
@@ -505,6 +510,19 @@ describe('EventResultsPage', () => {
       'href',
       Path.admin.stationResults(eventWithStaticDates.id, '1')
     )
+  })
+
+  it('offers no way into the live entry view while the release switch is off', async () => {
+    const { i18n } = useTranslation()
+    features.liveViewEnabled = false
+    try {
+      renderQualitativePage(i18n.language as Language)
+      await flushPromises()
+
+      expect(screen.queryByRole('link', { name: 'results.openLiveEntry' })).not.toBeInTheDocument()
+    } finally {
+      features.liveViewEnabled = true
+    }
   })
 })
 

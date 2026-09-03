@@ -26,6 +26,7 @@ import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
+import { liveViewEnabled } from '../../lib/features'
 import { IMPLICIT_STATION_ID, liveFormat } from '../../lib/liveFormat'
 import {
   compareRegistrationClasses,
@@ -289,7 +290,7 @@ export default function EventResultsPage() {
             <Tab key={item} label={item} value={item} />
           ))}
         </Tabs>
-        {(scoped || singlePost) && (
+        {liveViewEnabled && (scoped || singlePost) && (
           <Button
             component={Link}
             size="small"
