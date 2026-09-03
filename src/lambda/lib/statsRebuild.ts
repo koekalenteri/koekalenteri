@@ -744,7 +744,7 @@ const processRegistrationStats = (
   eventBreakdownBuckets: Map<string, EventBreakdownBucket>
 ): { skipped: boolean; unattributedCapacity: boolean } => {
   const dated = eventsById.get(registration.eventId)
-  if (!dated || dated.year === undefined) {
+  if (dated?.year === undefined) {
     console.log(`Skipping registration ${registration.id}: event is missing or has an invalid start date`)
     return { skipped: true, unattributedCapacity: false }
   }

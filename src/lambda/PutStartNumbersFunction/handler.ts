@@ -84,9 +84,10 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
         date
       )
       const scope = [eventClass, date && auditDay(date)].filter(Boolean).join(', ')
+      const scopeSuffix = scope ? ` (${scope})` : ''
       await audit({
         auditKey: eventAuditKey(confirmedEvent),
-        message: `Starttinumerot ${body.published ? 'julkaistu' : 'piilotettu'}${scope ? ` (${scope})` : ''}`,
+        message: `Starttinumerot ${body.published ? 'julkaistu' : 'piilotettu'}${scopeSuffix}`,
         user: user.name,
       })
     }

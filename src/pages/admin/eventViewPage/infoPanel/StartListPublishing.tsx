@@ -232,18 +232,15 @@ const StartListPublishing = ({
                         const dayPublished = day
                           ? startListPublished && isStartNumbersPublishedForDay(event, startListEventClass, day.date)
                           : numbersPublished
+                        const dayLabelKey = dayPublished
+                          ? 'eventManagement.startList.hideNumbersDay'
+                          : 'eventManagement.startList.publishNumbersDay'
+                        const classLabelKey = dayPublished
+                          ? 'eventManagement.startList.hideNumbers'
+                          : 'eventManagement.startList.publishNumbers'
                         const label = day
-                          ? t(
-                              dayPublished
-                                ? 'eventManagement.startList.hideNumbersDay'
-                                : 'eventManagement.startList.publishNumbersDay',
-                              { day: t('dateFormat.wdshort', { date: day.date }) }
-                            )
-                          : t(
-                              dayPublished
-                                ? 'eventManagement.startList.hideNumbers'
-                                : 'eventManagement.startList.publishNumbers'
-                            )
+                          ? t(dayLabelKey, { day: t('dateFormat.wdshort', { date: day.date }) })
+                          : t(classLabelKey)
 
                         return (
                           <Button

@@ -162,8 +162,12 @@ const withDay = (
   date: string,
   published: boolean
 ): StartNumbersDayScope => {
-  const current = Array.isArray(scope) ? scope.map(placementDay) : scope ? days : []
-  const next = published ? [...new Set([...current, date])].sort() : current.filter((day) => day !== date)
+  let current: string[] = []
+  if (Array.isArray(scope)) current = scope.map(placementDay)
+  else if (scope) current = days
+  const next = published
+    ? [...new Set([...current, date])].sort((a, b) => a.localeCompare(b))
+    : current.filter((day) => day !== date)
 
   if (next.length === 0) return false
   if (days.every((day) => next.includes(day))) return true

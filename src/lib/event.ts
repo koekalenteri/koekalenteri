@@ -624,9 +624,10 @@ export const getStartNumbersClassDays = (event: StartNumbersDaysEvent, eventClas
   }
 
   const days: string[] = []
+  const first = zonedStartOfDay(event.startDate)
   const last = startListAvailabilityDateKey(event.endDate ?? event.startDate)
-  for (let day = zonedStartOfDay(event.startDate); days.length < START_NUMBERS_MAX_DAYS; day = addDays(day, 1)) {
-    const key = startListAvailabilityDateKey(day)
+  for (let offset = 0; offset < START_NUMBERS_MAX_DAYS; offset++) {
+    const key = startListAvailabilityDateKey(addDays(first, offset))
     days.push(key)
     if (key >= last) break
   }
