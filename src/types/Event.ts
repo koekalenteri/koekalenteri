@@ -26,8 +26,11 @@ export type StartListPublishedState = boolean | Partial<Record<RegistrationClass
  * Which days' start numbers are out: every day (`true`), none (`false`), or the listed days as
  * yyyy-MM-dd in the event's time zone (KOE-1304). A multi-day class draws its numbers one morning at
  * a time, so one day's numbers can be public while the next day's draw is still to come.
+ *
+ * Stored as strings; the browser's JSON date reviver turns a bare yyyy-MM-dd into a `Date`, so on
+ * the client the list holds dates. Compare through a day key, never by string equality.
  */
-export type StartNumbersDayScope = boolean | string[]
+export type StartNumbersDayScope = boolean | Array<string | Date>
 export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<RegistrationClass, StartNumbersDayScope>>
 
 /**

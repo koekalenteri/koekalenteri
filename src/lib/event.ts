@@ -652,6 +652,12 @@ export const getStartNumbersDayScope = (
     ? (startNumbersPublished[eventClass as RegistrationClass] ?? false)
     : (startNumbersPublished ?? true)
 
+/**
+ * A day list as day keys. The list is stored as yyyy-MM-dd strings, but the browser's JSON reviver
+ * turns those into dates on the way in, so the entries are keyed again before any comparison.
+ */
+const scopeDayKeys = (scope: Array<string | Date>) => scope.map(startListAvailabilityDateKey)
+
 /** Whether the numbers of one day of the class (or of a classless event) are out (KOE-1304). */
 export const isStartNumbersPublishedForDay = (
   event: Pick<JsonDogEvent, 'startNumbersPublished'>,
@@ -659,7 +665,7 @@ export const isStartNumbersPublishedForDay = (
   date: Date | string | undefined
 ) => {
   const scope = getStartNumbersDayScope(event, eventClass)
-  if (Array.isArray(scope)) return !!date && scope.includes(startListAvailabilityDateKey(date))
+  if (Array.isArray(scope)) return !!date && scopeDayKeys(scope).includes(startListAvailabilityDateKey(date))
   return scope
 }
 
@@ -668,15 +674,19 @@ export const isStartNumbersPublishedForClass = (event: StartNumbersDaysEvent, ev
   const scope = getStartNumbersDayScope(event, eventClass)
   if (!Array.isArray(scope)) return scope
 
+  const published = scopeDayKeys(scope)
   const days = getStartNumbersClassDays(event, eventClass)
-  return days.length > 0 && days.every((day) => scope.includes(day))
+  return days.length > 0 && days.every((day) => published.includes(day))
 }
 
 /** The days of the class whose numbers are out, for telling a partly published class apart (KOE-1304). */
 export const getPublishedStartNumbersDays = (event: StartNumbersDaysEvent, eventClass?: string): string[] => {
   const scope = getStartNumbersDayScope(event, eventClass)
   const days = getStartNumbersClassDays(event, eventClass)
-  if (Array.isArray(scope)) return days.filter((day) => scope.includes(day))
+  if (Array.isArray(scope)) {
+    const published = scopeDayKeys(scope)
+    return days.filter((day) => published.includes(day))
+  }
   return scope ? days : []
 }
 

@@ -162,7 +162,7 @@ const withDay = (
   date: string,
   published: boolean
 ): StartNumbersDayScope => {
-  const current = Array.isArray(scope) ? scope : scope ? days : []
+  const current = Array.isArray(scope) ? scope.map(placementDay) : scope ? days : []
   const next = published ? [...new Set([...current, date])].sort() : current.filter((day) => day !== date)
 
   if (next.length === 0) return false

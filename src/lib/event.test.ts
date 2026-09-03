@@ -412,6 +412,12 @@ describe('lib/event', () => {
         '2026-09-05',
       ])
 
+      // The browser's JSON reviver turns the stored "2026-09-04" into a date; the answer must not change.
+      const revived = { ...event, startNumbersPublished: { ALO: [new Date(2026, 8, 4, 12)] } }
+      expect(isStartNumbersAvailableForClass(revived, event.classes[0])).toBe(true)
+      expect(isStartNumbersAvailableForClass(revived, event.classes[1])).toBe(false)
+      expect(getPublishedStartNumbersDays(revived, 'ALO')).toEqual(['2026-09-04'])
+
       // A classless event keys its days off its own dates.
       const classless = { ...event, classes: [], startNumbersPublished: ['2026-09-05'] }
       expect(isStartNumbersAvailableForRegistration(classless, { group: { date: '2026-09-05' } })).toBe(true)
