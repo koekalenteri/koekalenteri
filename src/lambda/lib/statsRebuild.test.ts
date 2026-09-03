@@ -34,6 +34,7 @@ const rebuildHandler = createHandler(REBUILDABLE_STATS_PARTITIONS)
 
 const event = (id: string, startDate: string, eventType = 'NOU'): EventStatsEvent => ({
   classes: [],
+  endDate: startDate,
   eventType,
   id,
   organizer: { id: `organizer-${id}` },
@@ -116,7 +117,7 @@ describe('statsRebuild', () => {
 
     expect(mockReadAll).toHaveBeenNthCalledWith(1, {
       names: { '#state': 'state' },
-      projection: 'id, organizer, startDate, eventType, classes, places, #state, judges',
+      projection: 'id, organizer, startDate, endDate, eventType, classes, places, #state, judges',
       table: 'event-table',
     })
     expect(mockReadAll).toHaveBeenNthCalledWith(2, {
@@ -248,6 +249,7 @@ describe('statsRebuild', () => {
         { class: 'ALO', date: '2025-06-01', places: 10 },
         { class: 'AVO', date: '2025-06-01', places: 8 },
       ],
+      endDate: '2025-06-01',
       eventType: 'NOME-B',
       id: 'nome-b-event',
       organizer: { id: 'organizer-1' },
@@ -299,6 +301,7 @@ describe('statsRebuild', () => {
   it('falls back to the event type as the class key for classless event types', () => {
     const nou: EventStatsEvent = {
       classes: [],
+      endDate: '2025-04-10',
       eventType: 'NOU',
       id: 'nou-event',
       organizer: { id: 'organizer-1' },
@@ -330,6 +333,7 @@ describe('statsRebuild', () => {
   it('buckets a class by its own scheduled date, not the event start date', () => {
     const multiDay: EventStatsEvent = {
       classes: [{ class: 'VOI', date: '2025-07-15', places: 5 }],
+      endDate: '2025-07-10',
       eventType: 'NOWT',
       id: 'multi-day-event',
       organizer: { id: 'organizer-1' },
@@ -349,6 +353,7 @@ describe('statsRebuild', () => {
     // 2025-06-01 00:00 Europe/Helsinki is stored as the previous day in UTC.
     const juneFirst: EventStatsEvent = {
       classes: [{ class: 'ALO', date: '2025-05-31T21:00:00.000Z', places: 6 }],
+      endDate: '2025-05-31T21:00:00.000Z',
       eventType: 'NOME-B',
       id: 'june-first-event',
       organizer: { id: 'organizer-1' },
@@ -380,6 +385,7 @@ describe('statsRebuild', () => {
         { class: 'AVO', date: '2025-09-06' },
         { class: 'VOI', date: '2025-09-06' },
       ],
+      endDate: '2025-09-06',
       eventType: 'NOME-B',
       id: 'no-class-places-event',
       organizer: { id: 'organizer-1' },
@@ -408,6 +414,7 @@ describe('statsRebuild', () => {
         { class: 'ALO', date: '2025-09-06', places: 12 },
         { class: 'AVO', date: '2025-09-06' },
       ],
+      endDate: '2025-09-06',
       eventType: 'NOME-B',
       id: 'mixed-places-event',
       organizer: { id: 'organizer-1' },
@@ -429,6 +436,7 @@ describe('statsRebuild', () => {
   it('counts a registration as a starter only when its group is a participant group', () => {
     const nomeB: EventStatsEvent = {
       classes: [{ class: 'ALO', date: '2025-06-01', places: 10 }],
+      endDate: '2025-06-01',
       eventType: 'NOME-B',
       id: 'group-event',
       organizer: { id: 'organizer-1' },
@@ -452,6 +460,7 @@ describe('statsRebuild', () => {
   it("attributes a registration with an unknown class to the event's only class", () => {
     const nou: EventStatsEvent = {
       classes: [],
+      endDate: '2025-04-10',
       eventType: 'NOU',
       id: 'single-class-event',
       organizer: { id: 'organizer-1' },
@@ -480,6 +489,7 @@ describe('statsRebuild', () => {
         { class: 'ALO', date: '2025-06-01', places: 10 },
         { class: 'AVO', date: '2025-06-01', places: 8 },
       ],
+      endDate: '2025-06-01',
       eventType: 'NOME-B',
       id: 'ambiguous-event',
       organizer: { id: 'organizer-1' },
@@ -506,6 +516,7 @@ describe('statsRebuild', () => {
   it('excludes draft, tentative and cancelled events from capacity stats', () => {
     const draft: EventStatsEvent = {
       classes: [{ class: 'ALO', date: '2025-08-01', places: 5 }],
+      endDate: '2025-08-01',
       eventType: 'NOME-B',
       id: 'draft-event',
       organizer: { id: 'organizer-1' },
@@ -977,6 +988,7 @@ describe('statsRebuild', () => {
     it('writes no organizer records when they are out of scope', () => {
       const nomeB: EventStatsEvent = {
         classes: [{ class: 'ALO', date: '2025-06-01', places: 10 }],
+        endDate: '2025-06-01',
         eventType: 'NOME-B',
         id: 'scoped-event',
         organizer: { id: 'organizer-1' },
@@ -1004,6 +1016,7 @@ describe('statsRebuild', () => {
     it('rebuilds every partition by default', () => {
       const nomeB: EventStatsEvent = {
         classes: [{ class: 'ALO', date: '2025-06-01', places: 10 }],
+        endDate: '2025-06-01',
         eventType: 'NOME-B',
         id: 'full-event',
         organizer: { id: 'organizer-1' },
@@ -1052,6 +1065,120 @@ describe('statsRebuild', () => {
       // total is the only trace of it: per-event rows are counted, not stored.
       expect(records).toContainEqual({ count: 2, PK: 'TOTALS#2025', SK: 'event' })
       expect(records.some((record) => record.PK === 'STAT#2025#event')).toBe(false)
+    })
+  })
+
+  describe('events that have not ended by the rebuild', () => {
+    // Before the draw every entry sits in the reserve group, so an event still ahead would read
+    // as all reserve. Its entries are neither starters nor reserve until the event day is over.
+    const now = new Date('2025-05-15T12:00:00.000Z')
+    const upcoming: EventStatsEvent = {
+      classes: [{ class: 'ALO', date: '2025-06-01', places: 10 }],
+      endDate: '2025-06-01',
+      eventType: 'NOME-B',
+      id: 'upcoming',
+      organizer: { id: 'organizer-1' },
+      places: 10,
+      startDate: '2025-06-01',
+      state: 'confirmed',
+    }
+    const done: EventStatsEvent = {
+      ...upcoming,
+      classes: [{ class: 'ALO', date: '2025-05-01', places: 10 }],
+      endDate: '2025-05-01',
+      id: 'done',
+      startDate: '2025-05-01',
+    }
+    const entries = (eventId: string) => [
+      registration(`${eventId}-starter`, eventId, {
+        class: 'ALO',
+        dog: { breedCode: '111', regNo: `${eventId}-1` },
+        eventType: 'NOME-B',
+        group: { key: 'ALO-ap' },
+        handler: { email: 'a@example.com' },
+      }),
+      registration(`${eventId}-reserve`, eventId, {
+        class: 'ALO',
+        dog: { breedCode: '111', regNo: `${eventId}-2` },
+        eventType: 'NOME-B',
+        group: { key: 'reserve' },
+        handler: { email: 'b@example.com' },
+      }),
+      registration(`${eventId}-cancelled`, eventId, {
+        cancelled: true,
+        class: 'ALO',
+        dog: { breedCode: '111', regNo: `${eventId}-3` },
+        eventType: 'NOME-B',
+        group: { key: 'cancelled' },
+        handler: { email: 'c@example.com' },
+      }),
+    ]
+    const build = (at: Date, events = [upcoming, done]) =>
+      buildStatsRecords(
+        events.flatMap((testEvent) => entries(testEvent.id)),
+        new Map(events.map((testEvent) => [testEvent.id, testEvent])),
+        at.toISOString(),
+        undefined,
+        at
+      ).records
+
+    it('keeps their places and event count in capacity, but counts no starters or reserve', () => {
+      const records = build(now)
+
+      expect(records).toContainEqual(
+        expect.objectContaining({
+          cancelledRegistrations: 1,
+          eventCount: 1,
+          PK: 'CAPACITY#NOME-B',
+          places: 10,
+          reserve: 0,
+          SK: '2025-06#ALO#organizer-1',
+          starters: 0,
+        })
+      )
+      expect(records).toContainEqual(
+        expect.objectContaining({
+          cancelledRegistrations: 1,
+          eventCount: 1,
+          PK: 'CAPACITY#NOME-B',
+          places: 10,
+          reserve: 1,
+          SK: '2025-05#ALO#organizer-1',
+          starters: 1,
+        })
+      )
+    })
+
+    it('leaves their entries out of the breed start rate', () => {
+      expect(build(now)).toContainEqual(
+        expect.objectContaining({ PK: 'STAT#2025#breedStart', reserve: 1, SK: '111', starters: 1 })
+      )
+    })
+
+    it('counts the event and its places in the club breakdown, but none of its entries as started or in reserve', () => {
+      expect(build(now)).toContainEqual(
+        expect.objectContaining({
+          cancelledRegistrations: 2,
+          eventCount: 2,
+          handlerCount: 1,
+          PK: 'BREAKDOWN#2025',
+          places: 20,
+          reserve: 1,
+          SK: 'organizer-1#NOME-B',
+          starters: 1,
+        })
+      )
+    })
+
+    it('goes by the event end date against the rebuild time, so the same event counts once it has run', () => {
+      const records = build(new Date('2025-07-01T00:00:00.000Z'), [upcoming])
+
+      expect(records).toContainEqual(
+        expect.objectContaining({ PK: 'CAPACITY#NOME-B', reserve: 1, SK: '2025-06#ALO#organizer-1', starters: 1 })
+      )
+      expect(records).toContainEqual(
+        expect.objectContaining({ PK: 'STAT#2025#breedStart', reserve: 1, SK: '111', starters: 1 })
+      )
     })
   })
 

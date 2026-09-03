@@ -15,7 +15,7 @@ import type {
   YearlyStatTypes,
 } from '../../types/Stats'
 import type { RegistrationStatsInput } from './stats'
-import { OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
+import { isEventOver, OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
 import { getRegistrationClass, isMember, isParticipantGroup } from '../../lib/registration'
 import { splitEvenly } from '../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
@@ -38,10 +38,34 @@ interface EventStatKey {
 
 // `judges` is optional: the projection can return items without the attribute, and the judge
 // workload seeding already treats a missing list as empty.
-export type EventStatsEvent = Pick<JsonDogEvent, 'classes' | 'eventType' | 'id' | 'places' | 'startDate' | 'state'> &
+export type EventStatsEvent = Pick<
+  JsonDogEvent,
+  'classes' | 'endDate' | 'eventType' | 'id' | 'places' | 'startDate' | 'state'
+> &
   Partial<Pick<JsonDogEvent, 'judges'>> & {
     organizer: { id: string }
   }
+
+/**
+ * An event with what the registration loop needs of it resolved once rather than once per
+ * registration (20 000 of them in production, for 700 events): its stats year, a timezone-aware
+ * parse of the start date, and whether it has ended by the time of the rebuild.
+ *
+ * `ended` gates the starter/reserve split. Until the event day is over, every entry of an event
+ * that has not been drawn yet sits in the reserve group, and one drawn but not yet run has
+ * starters who may still withdraw -- so an upcoming event would show up as all reserve. Its
+ * entries are counted as neither; only its places and event count are (committed capacity).
+ */
+interface DatedStatsEvent {
+  event: EventStatsEvent
+  year: number | undefined
+  ended: boolean
+}
+
+const dateStatsEvents = (eventsById: Map<string, EventStatsEvent>, now: Date): Map<string, DatedStatsEvent> =>
+  new Map(
+    [...eventsById].map(([id, event]) => [id, { ended: isEventOver(event, now), event, year: eventStatsYear(event) }])
+  )
 
 type CapacityRegistrationInput = RegistrationStatsInput & Pick<JsonRegistration, 'group'>
 
@@ -55,7 +79,7 @@ const REGISTRATION_STATS_PROJECTION_NAMES = {
 const REGISTRATION_STATS_PROJECTION =
   'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key'
 const EVENT_STATS_PROJECTION_NAMES = { '#state': 'state' }
-const EVENT_STATS_PROJECTION = 'id, organizer, startDate, eventType, classes, places, #state, judges'
+const EVENT_STATS_PROJECTION = 'id, organizer, startDate, endDate, eventType, classes, places, #state, judges'
 const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'dog#handler', 'class', 'event']
 // Draft/tentative/cancelled events aren't real committed capacity, so they're excluded from
 // capacity stats (unlike the organizer/participation stats above, which count every event
@@ -399,7 +423,7 @@ const seedCapacityFromEvents = (
  */
 const addCapacityRegistration = (
   registration: CapacityRegistrationInput,
-  event: EventStatsEvent,
+  { event, ended }: DatedStatsEvent,
   buckets: Map<string, CapacityBucket>,
   eventClassMonths: Map<string, Map<string, string>>
 ): boolean => {
@@ -424,6 +448,8 @@ const addCapacityRegistration = (
 
   if (registration.cancelled) {
     bucket.cancelledRegistrations += 1
+  } else if (!ended) {
+    // Neither a starter nor left in reserve until the event has run; see DatedStatsEvent.
   } else if (isParticipantGroup(registration.group?.key)) {
     bucket.starters += 1
   } else {
@@ -477,11 +503,15 @@ const getOrCreateBreedStartBucket = (
  */
 const addBreedStartRegistration = (
   registration: CapacityRegistrationInput,
-  event: EventStatsEvent,
-  year: number,
+  { event, year, ended }: DatedStatsEvent & { year: number },
   buckets: Map<string, BreedStartBucket>
 ): void => {
-  if (registration.cancelled || !countsTowardsCapacity(event) || !OFFICIAL_EVENT_TYPES.includes(event.eventType)) {
+  if (
+    registration.cancelled ||
+    !ended ||
+    !countsTowardsCapacity(event) ||
+    !OFFICIAL_EVENT_TYPES.includes(event.eventType)
+  ) {
     return
   }
   const bucket = getOrCreateBreedStartBucket(buckets, year, statIdentifier(registration.dog?.breedCode))
@@ -589,8 +619,7 @@ const seedEventBreakdownFromEvents = (
  */
 const addEventBreakdownRegistration = (
   registration: CapacityRegistrationInput,
-  event: EventStatsEvent,
-  year: number,
+  { event, year, ended }: DatedStatsEvent & { year: number },
   buckets: Map<string, EventBreakdownBucket>
 ): void => {
   if (!countsTowardsCapacity(event)) return
@@ -600,6 +629,8 @@ const addEventBreakdownRegistration = (
     const bucket = getOrCreateEventBreakdownBucket(buckets, year, organizerId, eventType)
     if (registration.cancelled) {
       bucket.cancelledRegistrations += 1
+    } else if (!ended) {
+      // Neither a starter nor left in reserve until the event has run; see DatedStatsEvent.
     } else if (isParticipantGroup(registration.group?.key)) {
       bucket.starters += 1
       bucket.handlerIds.add(handlerId)
@@ -697,19 +728,6 @@ const addRegistrationStats = (
 }
 
 /**
- * An event with its stats year resolved once. The year is a timezone-aware parse of the start
- * date, and resolving it per registration instead (20 000 of them in production, for 700 events)
- * was the one piece of the registration loop that did the same work over and over.
- */
-interface DatedStatsEvent {
-  event: EventStatsEvent
-  year: number | undefined
-}
-
-const dateStatsEvents = (eventsById: Map<string, EventStatsEvent>): Map<string, DatedStatsEvent> =>
-  new Map([...eventsById].map(([id, event]) => [id, { event, year: eventStatsYear(event) }]))
-
-/**
  * Processes one registration into the accumulator/capacity buckets. Returns whether it had to be
  * skipped (unresolvable event/year) and, when capacity is wanted, whether it couldn't be
  * attributed to a capacity bucket.
@@ -731,11 +749,12 @@ const processRegistrationStats = (
     return { skipped: true, unattributedCapacity: false }
   }
   const { event, year } = dated
+  const datedWithYear = { ...dated, year }
   addRegistrationStats(registration, event, year, updatedAt, accumulator, wanted)
-  if (wanted.has('participation')) addBreedStartRegistration(registration, event, year, breedStartBuckets)
-  if (wanted.has('eventBreakdown')) addEventBreakdownRegistration(registration, event, year, eventBreakdownBuckets)
+  if (wanted.has('participation')) addBreedStartRegistration(registration, datedWithYear, breedStartBuckets)
+  if (wanted.has('eventBreakdown')) addEventBreakdownRegistration(registration, datedWithYear, eventBreakdownBuckets)
   const unattributedCapacity =
-    wanted.has('capacity') && !addCapacityRegistration(registration, event, capacityBuckets, eventClassMonths)
+    wanted.has('capacity') && !addCapacityRegistration(registration, dated, capacityBuckets, eventClassMonths)
   return { skipped: false, unattributedCapacity }
 }
 
@@ -770,7 +789,8 @@ export function buildStatsRecords(
   registrations: CapacityRegistrationInput[],
   eventsById: Map<string, EventStatsEvent>,
   updatedAt: string,
-  partitions: StatsPartition[] = ALL_STATS_PARTITIONS
+  partitions: StatsPartition[] = ALL_STATS_PARTITIONS,
+  now = new Date()
 ): {
   records: (
     | JsonEventStatsItem
@@ -794,7 +814,7 @@ export function buildStatsRecords(
   const { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets } =
     seedStatsBuckets(eventsById, wanted, yearlyStats)
 
-  const datedEvents = dateStatsEvents(eventsById)
+  const datedEvents = dateStatsEvents(eventsById, now)
   for (const registration of registrations) {
     const outcome = processRegistrationStats(
       registration,
@@ -872,11 +892,13 @@ export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITION
       return partition !== undefined && wanted.has(partition)
     })
     const eventsById = new Map(events.map((event) => [event.id, event]))
+    const now = new Date()
     const { records, skippedCount, unattributedCapacityCount } = buildStatsRecords(
       registrationRecords,
       eventsById,
-      new Date().toISOString(),
-      partitions
+      now.toISOString(),
+      partitions,
+      now
     )
     const existingStatsByYear = groupStatsByYear(statKeys)
     const recordsByYear = groupStatsByYear(records)
