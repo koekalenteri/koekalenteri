@@ -60,6 +60,9 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 
 ## Jira Automation
 
+- Taking an issue up as work starts with moving it to In Progress (transition it before the first
+  edit), unless it is in Testing In Progress — a tester's round in flight keeps its state, and the
+  fix rides on it as a comment. Ready for Testing does move back: the work has reopened.
 - A commit *claims* an issue by naming its KOE key in the subject line or on a body line of nothing
   but keys (the footer convention). A key cited mid-sentence ("the KOE-85 gate") is context only.
 - When the CI `deploy-dev` job succeeds on a push to main, the `jira-testable` job moves every
