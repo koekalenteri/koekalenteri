@@ -3,7 +3,7 @@ import i18next from 'i18next'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { compareByLocalizedString } from '../../../../lib/client/sort'
-import { isEventOver } from '../../../../lib/event'
+import { compareEventsByDate, isEventOver } from '../../../../lib/event'
 import { isConfirmedEvent } from '../../../../lib/typeGuards'
 import { uniqueFn } from '../../../../lib/utils'
 import {
@@ -27,10 +27,11 @@ export const adminEventAtom = atomFamily((eventId: string | undefined) =>
     async (get, set, value: DogEvent) => {
       if (!value) return
       const events = await get(adminEventsAtom)
-      const index = events.findIndex((event) => event.id === eventId)
-      const next = [...events]
-      const insert = index === -1
-      next.splice(insert ? next.length : index, insert ? 0 : 1, value)
+      const next = events.filter((event) => event.id !== eventId)
+      next.push(value)
+      // A new event went to the end of the list and a redated one stayed in its old slot until
+      // the next full fetch (KOE-1302); keep the secretary's list in the same order the fetch uses.
+      next.sort(compareEventsByDate)
       set(adminEventsAtom, next)
     }
   )

@@ -2,12 +2,13 @@ import type { DogEvent, User } from '../../../../types'
 import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
 import { getAdminEvents } from '../../../../api/event'
+import { compareEventsByDate } from '../../../../lib/event'
 import { latestCollectionUpdate } from '../../../../lib/incremental'
 import { userAtom, validIdTokenAtom } from '../../../state'
 import { parseStorageJSON } from '../../../state/storage/atoms'
 
-const byStartDate = (a: DogEvent, b: DogEvent) => a.startDate.valueOf() - b.startDate.valueOf()
-const sortEvents = (events: DogEvent[]): DogEvent[] => [...events].sort(byStartDate)
+// The same order as the public calendar, so a save (adminEventAtom) and a fetch agree on it.
+const sortEvents = (events: DogEvent[]): DogEvent[] => [...events].sort(compareEventsByDate)
 
 const cacheScope = (user: User): string =>
   JSON.stringify({

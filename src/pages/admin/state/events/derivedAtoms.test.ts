@@ -2,7 +2,12 @@ import type { DogEvent } from '../../../../types'
 import { createStore } from 'jotai'
 import { emptyEvent } from '../../../../__mockData__/emptyEvent'
 import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom } from './atoms'
-import { adminCurrentEventAtom, adminEventOrganizersAtom, adminFilteredEventsAtom } from './derivedAtoms'
+import {
+  adminCurrentEventAtom,
+  adminEventAtom,
+  adminEventOrganizersAtom,
+  adminFilteredEventsAtom,
+} from './derivedAtoms'
 
 const event = (id: string, endDate: Date): DogEvent => ({
   ...emptyEvent,
@@ -45,6 +50,33 @@ describe('admin event derived atoms', () => {
 
     // A Promise here would suspend the event list on every row selection.
     expect(store.get(adminCurrentEventAtom)).toBe(selected)
+  })
+
+  it('puts a newly saved event in date order instead of at the end of the list (KOE-1302)', async () => {
+    const june = event('june', new Date('2026-06-10T00:00:00.000+03:00'))
+    const august = event('august', new Date('2026-08-10T00:00:00.000+03:00'))
+    const july = event('july', new Date('2026-07-10T00:00:00.000+03:00'))
+
+    const store = createStore()
+    store.set(adminEventsAtom, [june, august])
+
+    await store.set(adminEventAtom(july.id), july)
+
+    expect((await store.get(adminEventsAtom)).map((item) => item.id)).toEqual(['june', 'july', 'august'])
+  })
+
+  it('moves a redated event to its new place in the list (KOE-1302)', async () => {
+    const june = event('june', new Date('2026-06-10T00:00:00.000+03:00'))
+    const july = event('july', new Date('2026-07-10T00:00:00.000+03:00'))
+    const august = event('august', new Date('2026-08-10T00:00:00.000+03:00'))
+
+    const store = createStore()
+    store.set(adminEventsAtom, [june, july, august])
+
+    const redated = event('june', new Date('2026-09-10T00:00:00.000+03:00'))
+    await store.set(adminEventAtom(redated.id), redated)
+
+    expect((await store.get(adminEventsAtom)).map((item) => item.id)).toEqual(['july', 'august', 'june'])
   })
 
   it('ignores events with missing organizers when listing event organizers', async () => {
