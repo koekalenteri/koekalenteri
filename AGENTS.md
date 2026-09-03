@@ -76,6 +76,10 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   tester starts from the comment, and there would be nothing deployed to start on.
 - The `jira-screenshots` attach workflow intentionally matches keys anywhere in the message —
   attaching an image to a context-cited issue is harmless, moving it would not be.
+- A comment says nothing about deployment mechanics. New Lambdas, CloudFormation changes and the
+  like go out with the deploy on their own; a "note for the deploy" asks the reader to do something
+  that nobody has to do, and it has confused people. Leave it out — of comments and of the pushed
+  summary alike.
 
 ### Every reference in a Jira comment is a link
 
