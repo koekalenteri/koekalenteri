@@ -1070,7 +1070,9 @@ describe('statsRebuild', () => {
 
   describe('events that have not ended by the rebuild', () => {
     // Before the draw every entry sits in the reserve group, so an event still ahead would read
-    // as all reserve. Its entries are neither starters nor reserve until the event day is over.
+    // as all reserve; its places alone would read as an empty event, and its cancellations alone
+    // as a 100 % cancellation rate. Nothing of it is in capacity or the club breakdown until the
+    // event day is over.
     const now = new Date('2025-05-15T12:00:00.000Z')
     const upcoming: EventStatsEvent = {
       classes: [{ class: 'ALO', date: '2025-06-01', places: 10 }],
@@ -1113,29 +1115,24 @@ describe('statsRebuild', () => {
         handler: { email: 'c@example.com' },
       }),
     ]
-    const build = (at: Date, events = [upcoming, done]) =>
+    const buildAll = (at: Date, events = [upcoming, done]) =>
       buildStatsRecords(
         events.flatMap((testEvent) => entries(testEvent.id)),
         new Map(events.map((testEvent) => [testEvent.id, testEvent])),
         at.toISOString(),
         undefined,
         at
-      ).records
-
-    it('keeps their places and event count in capacity, but counts no starters or reserve', () => {
-      const records = build(now)
-
-      expect(records).toContainEqual(
-        expect.objectContaining({
-          cancelledRegistrations: 1,
-          eventCount: 1,
-          PK: 'CAPACITY#NOME-B',
-          places: 10,
-          reserve: 0,
-          SK: '2025-06#ALO#organizer-1',
-          starters: 0,
-        })
       )
+    const build = (at: Date, events = [upcoming, done]) => buildAll(at, events).records
+
+    it('leaves them out of capacity altogether: no places, event count or cancellations', () => {
+      const { records, unattributedCapacityCount } = buildAll(now)
+
+      expect(records.filter((record) => record.PK === 'CAPACITY#NOME-B').map((record) => record.SK)).toEqual([
+        '2025-05#ALO#organizer-1',
+      ])
+      // Their entries are left out on purpose, not because they failed to find a class.
+      expect(unattributedCapacityCount).toBe(0)
       expect(records).toContainEqual(
         expect.objectContaining({
           cancelledRegistrations: 1,
@@ -1155,14 +1152,14 @@ describe('statsRebuild', () => {
       )
     })
 
-    it('counts the event and its places in the club breakdown, but none of its entries as started or in reserve', () => {
+    it('leaves the event, its places and its entries out of the club breakdown', () => {
       expect(build(now)).toContainEqual(
         expect.objectContaining({
-          cancelledRegistrations: 2,
-          eventCount: 2,
+          cancelledRegistrations: 1,
+          eventCount: 1,
           handlerCount: 1,
           PK: 'BREAKDOWN#2025',
-          places: 20,
+          places: 10,
           reserve: 1,
           SK: 'organizer-1#NOME-B',
           starters: 1,
@@ -1174,7 +1171,24 @@ describe('statsRebuild', () => {
       const records = build(new Date('2025-07-01T00:00:00.000Z'), [upcoming])
 
       expect(records).toContainEqual(
-        expect.objectContaining({ PK: 'CAPACITY#NOME-B', reserve: 1, SK: '2025-06#ALO#organizer-1', starters: 1 })
+        expect.objectContaining({
+          cancelledRegistrations: 1,
+          eventCount: 1,
+          PK: 'CAPACITY#NOME-B',
+          places: 10,
+          reserve: 1,
+          SK: '2025-06#ALO#organizer-1',
+          starters: 1,
+        })
+      )
+      expect(records).toContainEqual(
+        expect.objectContaining({
+          eventCount: 1,
+          PK: 'BREAKDOWN#2025',
+          places: 10,
+          SK: 'organizer-1#NOME-B',
+          starters: 1,
+        })
       )
       expect(records).toContainEqual(
         expect.objectContaining({ PK: 'STAT#2025#breedStart', reserve: 1, SK: '111', starters: 1 })

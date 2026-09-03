@@ -51,10 +51,13 @@ export type EventStatsEvent = Pick<
  * registration (20 000 of them in production, for 700 events): its stats year, a timezone-aware
  * parse of the start date, and whether it has ended by the time of the rebuild.
  *
- * `ended` gates the starter/reserve split. Until the event day is over, every entry of an event
- * that has not been drawn yet sits in the reserve group, and one drawn but not yet run has
- * starters who may still withdraw -- so an upcoming event would show up as all reserve. Its
- * entries are counted as neither; only its places and event count are (committed capacity).
+ * `ended` gates the capacity and club breakdown stats: an event is in them only once it has run.
+ * Until the event day is over, every entry of an event that has not been drawn yet sits in the
+ * reserve group, and one drawn but not yet run has starters who may still withdraw -- so an
+ * upcoming event would show up as all reserve. Counting only some of its figures ahead of the day
+ * is no better: places without starters read as an empty event, and cancellations without
+ * starters as a 100 % cancellation rate. So nothing of an upcoming event is counted, not even
+ * its places or the event itself, and the month appears in these stats once the event has run.
  */
 interface DatedStatsEvent {
   event: EventStatsEvent
@@ -390,14 +393,17 @@ const classMonth = (event: EventStatsEvent, classKey: string): string | undefine
   return eventStatsMonth(dates[0] ?? event.startDate) ?? eventStatsMonth(event.startDate)
 }
 
-/** Seeds capacity (places) per event type/month/class from the events themselves, independent of registrations. */
+/**
+ * Seeds capacity (places) per event type/month/class from the events themselves, independent of
+ * registrations. Only events that have run; see DatedStatsEvent.
+ */
 const seedCapacityFromEvents = (
-  eventsById: Map<string, EventStatsEvent>,
+  datedEvents: Map<string, DatedStatsEvent>,
   buckets: Map<string, CapacityBucket>,
   eventClassMonths: Map<string, Map<string, string>>
 ): void => {
-  for (const event of eventsById.values()) {
-    if (!countsTowardsCapacity(event) || eventStatsYear(event) === undefined) continue
+  for (const { event, ended, year } of datedEvents.values()) {
+    if (!ended || !countsTowardsCapacity(event) || year === undefined) continue
 
     const classKeys = eventClassKeys(event)
     const placesByClass = eventClassPlaces(event, classKeys)
@@ -419,7 +425,8 @@ const seedCapacityFromEvents = (
  * Attributes one registration's starter/reserve/cancelled status to its event type/month/class
  * bucket. Returns false when the registration cannot be placed in a class the event actually
  * seeded — counting it anyway would create a bucket with starters but no places, which then
- * shows up as a phantom entry in the class selector.
+ * shows up as a phantom entry in the class selector. An event that has not run yet was not
+ * seeded either, and its entries are not counted at all; see DatedStatsEvent.
  */
 const addCapacityRegistration = (
   registration: CapacityRegistrationInput,
@@ -427,7 +434,7 @@ const addCapacityRegistration = (
   buckets: Map<string, CapacityBucket>,
   eventClassMonths: Map<string, Map<string, string>>
 ): boolean => {
-  if (!countsTowardsCapacity(event)) return true
+  if (!ended || !countsTowardsCapacity(event)) return true
 
   const classMonths = eventClassMonths.get(event.id)
   if (!classMonths?.size) return false
@@ -448,8 +455,6 @@ const addCapacityRegistration = (
 
   if (registration.cancelled) {
     bucket.cancelledRegistrations += 1
-  } else if (!ended) {
-    // Neither a starter nor left in reserve until the event has run; see DatedStatsEvent.
   } else if (isParticipantGroup(registration.group?.key)) {
     bucket.starters += 1
   } else {
@@ -588,18 +593,17 @@ const eventBreakdownBucketTargets = (organizerId: string, eventType: string): [s
 
 /**
  * Seeds event counts and starting places per year + club + event type from the events
- * themselves, independent of registrations -- an event with no entries yet still counts as
- * organized. Also accumulates into each club's cross-type subtotal and the nationwide grand
- * total, which is the only place either can be computed without double-counting.
+ * themselves, independent of registrations -- an event that ran with no entries still counts as
+ * organized, but one still ahead does not (see DatedStatsEvent). Also accumulates into each
+ * club's cross-type subtotal and the nationwide grand total, which is the only place either can
+ * be computed without double-counting.
  */
 const seedEventBreakdownFromEvents = (
-  eventsById: Map<string, EventStatsEvent>,
+  datedEvents: Map<string, DatedStatsEvent>,
   buckets: Map<string, EventBreakdownBucket>
 ): void => {
-  for (const event of eventsById.values()) {
-    if (!countsTowardsCapacity(event)) continue
-    const year = eventStatsYear(event)
-    if (year === undefined) continue
+  for (const { event, ended, year } of datedEvents.values()) {
+    if (!ended || !countsTowardsCapacity(event) || year === undefined) continue
 
     const places = Number(event.places) || 0
     for (const [organizerId, eventType] of eventBreakdownBucketTargets(event.organizer.id, event.eventType)) {
@@ -622,15 +626,13 @@ const addEventBreakdownRegistration = (
   { event, year, ended }: DatedStatsEvent & { year: number },
   buckets: Map<string, EventBreakdownBucket>
 ): void => {
-  if (!countsTowardsCapacity(event)) return
+  if (!ended || !countsTowardsCapacity(event)) return
 
   const handlerId = hashStatValue(registration.handler?.email)
   for (const [organizerId, eventType] of eventBreakdownBucketTargets(event.organizer.id, event.eventType)) {
     const bucket = getOrCreateEventBreakdownBucket(buckets, year, organizerId, eventType)
     if (registration.cancelled) {
       bucket.cancelledRegistrations += 1
-    } else if (!ended) {
-      // Neither a starter nor left in reserve until the event has run; see DatedStatsEvent.
     } else if (isParticipantGroup(registration.group?.key)) {
       bucket.starters += 1
       bucket.handlerIds.add(handlerId)
@@ -764,12 +766,13 @@ const processRegistrationStats = (
  */
 const seedStatsBuckets = (
   eventsById: Map<string, EventStatsEvent>,
+  datedEvents: Map<string, DatedStatsEvent>,
   wanted: Set<StatsPartition>,
   yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
 ) => {
   const capacityBuckets = new Map<string, CapacityBucket>()
   const eventClassMonths = new Map<string, Map<string, string>>()
-  if (wanted.has('capacity')) seedCapacityFromEvents(eventsById, capacityBuckets, eventClassMonths)
+  if (wanted.has('capacity')) seedCapacityFromEvents(datedEvents, capacityBuckets, eventClassMonths)
 
   const judgeWorkloadBuckets = new Map<string, JudgeWorkloadBucket>()
   if (wanted.has('judges')) seedJudgeWorkloadFromEvents(eventsById, judgeWorkloadBuckets)
@@ -779,7 +782,7 @@ const seedStatsBuckets = (
   const breedStartBuckets = new Map<string, BreedStartBucket>()
 
   const eventBreakdownBuckets = new Map<string, EventBreakdownBucket>()
-  if (wanted.has('eventBreakdown')) seedEventBreakdownFromEvents(eventsById, eventBreakdownBuckets)
+  if (wanted.has('eventBreakdown')) seedEventBreakdownFromEvents(datedEvents, eventBreakdownBuckets)
 
   return { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets }
 }
@@ -811,10 +814,10 @@ export function buildStatsRecords(
   let skippedCount = 0
   let unattributedCapacityCount = 0
 
-  const { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets } =
-    seedStatsBuckets(eventsById, wanted, yearlyStats)
-
   const datedEvents = dateStatsEvents(eventsById, now)
+  const { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets } =
+    seedStatsBuckets(eventsById, datedEvents, wanted, yearlyStats)
+
   for (const registration of registrations) {
     const outcome = processRegistrationStats(
       registration,
