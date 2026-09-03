@@ -399,10 +399,14 @@ export default class CustomDynamoClient {
       for (let attempt = 1; pending && attempt <= BATCH_WRITE_MAX_ATTEMPTS; attempt++) {
         if (attempt > 1) await waitForBatchWriteRetry(attempt)
         const params: BatchWriteCommandInput = { RequestItems: { [tableName]: pending } }
-        logDb('DB.batchWrite', params)
         const result = await this.docClient.send(new BatchWriteCommand(params))
-        logDb('DB.batchWrite.result', result)
         const unprocessed = result.UnprocessedItems?.[tableName]
+        // A summary, not the items: the stats rebuild alone sends 17 500 of them a night, and a
+        // full dump of every request was megabytes of log nobody could read anything from.
+        console.info(
+          'DB.batchWrite',
+          `${tableName}: ${pending.length} items, ${unprocessed?.length ?? 0} unprocessed, attempt ${attempt}`
+        )
         pending = unprocessed?.length ? unprocessed : undefined
       }
 

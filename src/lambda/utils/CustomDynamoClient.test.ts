@@ -643,6 +643,17 @@ describe('CustomDynamoClient', () => {
       )
     })
 
+    it('logs one summary line per request instead of the items', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      const items = Array.from({ length: 30 }, (_, i) => ({ id: `${i}`, secret: 'not-for-the-log' }))
+
+      await client.batchWrite(items)
+
+      expect(console.info).toHaveBeenCalledWith('DB.batchWrite', 'test-table: 25 items, 0 unprocessed, attempt 1')
+      expect(console.info).toHaveBeenCalledWith('DB.batchWrite', 'test-table: 5 items, 0 unprocessed, attempt 1')
+      expect(console.info).not.toHaveBeenCalledWith(expect.anything(), expect.stringContaining('not-for-the-log'))
+    })
+
     it('retries the items DynamoDB could not process, after a backoff', async () => {
       vi.useFakeTimers()
       try {
