@@ -810,7 +810,7 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -1408,7 +1408,7 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -1546,7 +1546,7 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -2063,7 +2063,7 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
                   />
                 </div>
                 <div
-                  class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+                  class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
                   style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                 >
                   <div
@@ -2558,7 +2558,7 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -2666,7 +2666,7 @@ exports[`RegistrationCreatePage > should render with event/eventType/id path 1`]
             />
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -3747,7 +3747,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -4345,7 +4345,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -4483,7 +4483,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -5000,7 +5000,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
                   />
                 </div>
                 <div
-                  class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+                  class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
                   style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                 >
                   <div
@@ -5495,7 +5495,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -5603,7 +5603,7 @@ exports[`RegistrationCreatePage > should select the date on event/eventType/id/c
             />
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1f6q371-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div

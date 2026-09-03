@@ -8,6 +8,12 @@ import { toHaveNoViolations } from 'jest-axe'
 
 Object.assign(globalThis, { __BUILD_TIMESTAMP__: 0, IS_REACT_ACT_ENVIRONMENT: true })
 
+// Testing Library only drives fake timers it recognises as Jest's: waitFor looks for a `jest`
+// global and calls jest.advanceTimersByTime between checks. Vitest's clock carries the same
+// `setTimeout.clock` marker, so this shim is all findBy*/waitFor need to advance a faked clock
+// instead of waiting for a timer that never fires. With real timers the shim is never called.
+Object.assign(globalThis, { jest: { advanceTimersByTime: (ms: number) => vi.advanceTimersByTime(ms) } })
+
 // https://github.com/jsdom/jsdom/issues/3363
 // vi/jsdom runtime doesn't provide structuredClone in all configs.
 if (typeof globalThis.structuredClone !== 'function') {

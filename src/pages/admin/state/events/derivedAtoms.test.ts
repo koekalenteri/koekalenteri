@@ -24,7 +24,7 @@ describe('admin event derived atoms', () => {
   })
 
   afterEach(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 20))
+    await vi.advanceTimersByTimeAsync(20)
     vi.useRealTimers()
   })
 

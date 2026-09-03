@@ -41,16 +41,24 @@ export function DataMemoryRouter({
   return <RouterProvider router={router} />
 }
 
+/**
+ * Lets the rendered tree settle: React work, resolved promises and roughly 300 ms of clock time, enough
+ * for a debounced change or a MUI transition but not for a snackbar to hide itself. Under a faked clock
+ * that time passes instantly, in rounds so React flushes the effects a fired timer queued before the
+ * next round runs the timers those effects scheduled.
+ */
 export const flushPromises = async (timers: boolean = true) => {
   const timeoutIsFaked = 'clock' in globalThis.setTimeout
-  await act(async () => {
-    for (let i = 0; i <= 7; i++) {
-      if (timers && vi.isFakeTimers()) vi.runOnlyPendingTimers()
+  for (let i = 0; i < SETTLE_ROUNDS; i++) {
+    await act(async () => {
+      if (timers && timeoutIsFaked) vi.advanceTimersByTime(SETTLE_MS / SETTLE_ROUNDS)
       await Promise.resolve()
-    }
-    if (timers && !timeoutIsFaked) await new Promise((resolve) => globalThis.setTimeout(resolve, 310))
-  })
+    })
+  }
+  if (timers && !timeoutIsFaked) await act(() => new Promise((resolve) => globalThis.setTimeout(resolve, SETTLE_MS)))
 }
+const SETTLE_MS = 320
+const SETTLE_ROUNDS = 8
 
 export const createMatchMedia =
   (width: number) =>
@@ -78,6 +86,11 @@ export function renderWithUserEvents(
 ): RenderResult & { user: UserEvent } {
   return {
     user: userEvent.setup({
+      // user-event waits between actions on a setTimeout; under a faked clock that timer has to be
+      // advanced by hand or the action never completes.
+      advanceTimers: (ms) => {
+        if (vi.isFakeTimers()) vi.advanceTimersByTime(ms)
+      },
       ...userEventOptions,
     }),
     ...render(ui, options),

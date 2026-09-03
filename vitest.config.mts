@@ -32,9 +32,6 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    // CI runners have limited cores; capping workers there avoids coverage-shard
-    // instability. Locally, let Vitest use all available cores.
-    maxWorkers: process.env.CI ? 2 : undefined,
     passWithNoTests: true,
     testTimeout: 10_000,
     coverage,
@@ -106,7 +103,10 @@ export default defineConfig({
           name: 'frontend',
           clearMocks: true,
           fakeTimers: {
-            toFake: ['Date'],
+            // Timers are faked alongside Date so that flushPromises can run a pending debounce or a
+            // MUI transition instantly instead of sleeping through it. Testing Library's waitFor
+            // cooperates with the faked clock through the `jest` shim in setupTests.
+            toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'setImmediate', 'clearImmediate'],
           },
           globals: true,
           unstubEnvs: true,

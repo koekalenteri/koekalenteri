@@ -494,7 +494,10 @@ describe('PaymentPage', () => {
 
     expect(store.get(newRegistrationAtom)).toMatchObject({
       ...createNewRegistration(),
+      // Stamped when the page reset the form, some faked milliseconds before this expectation is built.
+      createdAt: expect.any(Date),
       creationIdempotencyKey: expect.any(String),
+      modifiedAt: expect.any(Date),
     })
     expect(store.get(newRegistrationAtom)).not.toMatchObject({ eventId: testRegistration.eventId })
   })
