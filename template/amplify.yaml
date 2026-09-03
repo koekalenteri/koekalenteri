@@ -38,6 +38,9 @@
             baseDirectory: build
             files:
               - '**/*'
+          cache:
+            paths:
+              - node_modules/**/*
       CustomHeaders: !Sub |-
         customHeaders:
           - pattern: '**'

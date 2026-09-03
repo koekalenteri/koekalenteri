@@ -118,8 +118,11 @@ jobs:
             --no-confirm-changeset --no-fail-on-empty-changeset
 
   deploy-frontend:
-    needs: [setup, deploy-backend]
-    if: ${{ always() && !failure() && !cancelled() && needs.setup.outputs.deploy_frontend == 'true' }}
+    # Independent of deploy-backend: the Amplify build reads nothing from the SAM stack (its env vars
+    # are static on the app), so the two deploys run side by side. Only a brand-new environment needs
+    # the backend first, for the AmplifyBranch resource the stack creates.
+    needs: [setup]
+    if: ${{ needs.setup.outputs.deploy_frontend == 'true' }}
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     steps:
@@ -181,6 +184,6 @@ jobs:
               echo "Job failed or was cancelled. See Amplify console for details."
               exit 1
             fi
-            sleep 30
+            sleep 10
           done
           echo "Job completed successfully."
