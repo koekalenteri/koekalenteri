@@ -1,4 +1,4 @@
-import type { Registration } from '../../../types'
+import type { Registration, RegistrationGroup } from '../../../types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -9,16 +9,30 @@ import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import { enqueueSnackbar } from 'notistack'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { isParticipantGroup } from '../../../lib/registration'
+
+/** A day a reserve dog can be placed on; the dialog labels it the way the group dialog does. */
+interface MoveToPositionDayOption {
+  date: Date
+  key: string
+  time?: RegistrationGroup['time']
+}
 
 interface Props {
   open: boolean
   onClose: () => void
   registration: Registration
   positions: number[]
+  /**
+   * The days a reserve dog can be placed on, once one of them is drawn (KOE-1273): the day is
+   * named before the number, since a number is the day's. One day alone needs no choice.
+   */
+  days?: MoveToPositionDayOption[]
+  selectedDay?: string
+  onSelectDay?: (key: string) => void
   /**
    * The day's draw has begun (KOE-1273): the chosen place is entered as the dog's own start number,
    * so it is passed on as-is instead of the working-order insertion anchor.
@@ -32,14 +46,23 @@ export default function MoveToPositionDialog({
   onClose,
   registration,
   positions,
+  days,
+  selectedDay,
+  onSelectDay,
   assignNumber,
   onMove,
 }: Readonly<Props>) {
   const { t } = useTranslation()
-  const [selectedPosition, setSelectedPosition] = useState<number>(
-    registration.startGroup?.number ?? registration.group?.number ?? 1
-  )
+  const [selectedPosition, setSelectedPosition] = useState<number>(() => {
+    const own = registration.startGroup?.number ?? registration.group?.number ?? 1
+    return positions.length && !positions.includes(own) ? positions[0] : own
+  })
   const [saving, setSaving] = useState(false)
+
+  // The offer follows the day: a number the list no longer offers is not a choice.
+  useEffect(() => {
+    if (positions.length && !positions.includes(selectedPosition)) setSelectedPosition(positions[0])
+  }, [positions, selectedPosition])
 
   const handleMove = async () => {
     setSaving(true)
@@ -73,6 +96,24 @@ export default function MoveToPositionDialog({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{t('registration.moveToPositionDialog.title', { name: registration.dog.name })}</DialogTitle>
       <DialogContent>
+        {days && days.length > 1 && (
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel id="day-select-label">{t('registration.moveToPositionDialog.selectDay')}</InputLabel>
+            <Select
+              labelId="day-select-label"
+              value={selectedDay ?? days[0].key}
+              label={t('registration.moveToPositionDialog.selectDay')}
+              onChange={(e) => onSelectDay?.(String(e.target.value))}
+            >
+              {days.map((day) => (
+                <MenuItem key={day.key} value={day.key}>
+                  {t('dateFormat.wdshort', { date: day.date })}
+                  {day.time ? ` ${t(`registration.timeLong.${day.time}`)}` : ''}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
         <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel id="position-select-label">{t('registration.moveToPositionDialog.selectPosition')}</InputLabel>
           <Select

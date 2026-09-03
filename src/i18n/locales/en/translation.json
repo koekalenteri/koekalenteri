@@ -674,6 +674,7 @@
     "moveToPositionDialog": {
       "moved": "Dog {{name}} moved to start position {{position}}",
       "moveToPosition": "Move to start position",
+      "selectDay": "Select day",
       "selectPosition": "Select start number",
       "title": "Move dog {{name}} to specific start position"
     },

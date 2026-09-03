@@ -674,6 +674,7 @@
     "moveToPositionDialog": {
       "moved": "Koira {{name}} siirretty starttipaikalle {{position}}",
       "moveToPosition": "Siirrä starttipaikalle",
+      "selectDay": "Valitse päivä",
       "selectPosition": "Valitse starttinumero",
       "title": "Siirrä koira {{name}} tietylle starttipaikalle"
     },

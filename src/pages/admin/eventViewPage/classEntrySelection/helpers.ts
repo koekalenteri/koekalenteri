@@ -148,9 +148,16 @@ export const isDrawnNumberMove = (registration: Registration | undefined, drawnD
   return day !== undefined && drawnDays.has(day)
 }
 
-/** The numbers this dog could take in its day's draw: 1..N with the ones already entered removed. */
-export const buildDrawnNumberOptions = (registration: Registration, registrations: Registration[]): number[] => {
-  const day = registrationDrawDay(registration)
+/**
+ * The numbers this dog could take in its day's draw: 1..N with the ones already entered removed.
+ * A reserve dog has no day of its own, so the day it is being placed on is named (KOE-1273).
+ */
+export const buildDrawnNumberOptions = (
+  registration: Registration,
+  registrations: Registration[],
+  date?: Date
+): number[] => {
+  const day = date ? drawDayKey(date) : registrationDrawDay(registration)
   if (!day) return []
 
   const sameDay = registrations.filter(
@@ -166,7 +173,9 @@ export const buildDrawnNumberOptions = (registration: Registration, registration
     if (candidate.id !== registration.id && candidate.startGroup) taken.add(candidate.startGroup.number)
   }
 
-  const max = Math.max(sameDay.length, ...taken)
+  // A dog joining the day from the reserve list is one more on it than the list yet holds.
+  const count = sameDay.some((candidate) => candidate.id === registration.id) ? sameDay.length : sameDay.length + 1
+  const max = Math.max(count, ...taken)
   const options: number[] = []
   for (let number = 1; number <= max; number++) {
     if (!taken.has(number) && number !== registration.startGroup?.number) options.push(number)
@@ -182,6 +191,36 @@ const getAllowedParticipantGroups = (registration: Registration, groups: Registr
   return groups.filter(
     (group) => group.date && allowedGroupKeys.has(eventRegistrationDateKey({ ...group, date: group.date }))
   )
+}
+
+/** A day a reserve dog can be placed on from the position dialog, and whether its draw has begun. */
+interface MoveToPositionDay {
+  date: Date
+  drawn: boolean
+  key: string
+  time?: RegistrationGroup['time']
+}
+
+/**
+ * A reserve dog has no day yet, so once any of its allowed days is drawn the day has to be named
+ * before a number means anything (KOE-1273): a drawn day takes the number as the dog's own, an
+ * undrawn one still inserts into the working order. Empty for a participant, and while none of
+ * the dog's days is drawn — then the working order is the one list to insert into, as before.
+ */
+export const buildMoveToPositionDays = (
+  registration: Registration | undefined,
+  groups: RegistrationGroup[],
+  drawnDays: Set<string>
+): MoveToPositionDay[] => {
+  if (!registration || registration.cancelled) return []
+  if (isParticipantGroup(getRegistrationGroupKey(registration))) return []
+
+  const days = getAllowedParticipantGroups(registration, groups).flatMap((group) =>
+    group.date
+      ? [{ date: group.date, drawn: drawnDays.has(drawDayKey(group.date)), key: group.key, time: group.time }]
+      : []
+  )
+  return days.some((day) => day.drawn) ? days : []
 }
 
 export const buildMoveToPositionOptions = (

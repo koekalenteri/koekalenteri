@@ -34,6 +34,7 @@ import GroupHeader from './classEntrySelection/GroupHeader'
 import {
   buildDrawnNumberOptions,
   buildMoveToGroupChange,
+  buildMoveToPositionDays,
   buildMoveToPositionGroupChange,
   buildMoveToPositionOptions,
   buildRegistrationsByGroup,
@@ -128,13 +129,33 @@ const ClassEntrySelection = ({
     [groups, selectedAdditionalCostsByGroup]
   )
 
-  // Once the day's draw has begun, moving to a start place enters the number itself (KOE-1273).
+  // Once the day's draw has begun, moving to a start place enters the number itself (KOE-1273). A
+  // reserve dog has no day yet, so it names the day first; a day still undrawn takes the working order.
   const drawnDays = useMemo(() => getDrawnNumberDays(registrations), [registrations])
-  const assignNumberMove = isDrawnNumberMove(selectedForAction, drawnDays)
+  const moveToPositionDays = useMemo(
+    () => buildMoveToPositionDays(selectedForAction, groups, drawnDays),
+    [drawnDays, groups, selectedForAction]
+  )
+  const [moveToPositionDayKey, setMoveToPositionDayKey] = useState<string>()
+  const moveToPositionDay = moveToPositionDays.find((day) => day.key === moveToPositionDayKey) ?? moveToPositionDays[0]
+  const assignNumberMove = moveToPositionDay ? moveToPositionDay.drawn : isDrawnNumberMove(selectedForAction, drawnDays)
+  const moveToPositionGroups = useMemo(
+    () => (moveToPositionDay ? groups.filter((group) => group.key === moveToPositionDay.key) : groups),
+    [groups, moveToPositionDay]
+  )
   const moveToPositionOptions = useMemo(() => {
-    if (assignNumberMove && selectedForAction) return buildDrawnNumberOptions(selectedForAction, registrations)
-    return buildMoveToPositionOptions(selectedForAction, groups, registrationsByGroup)
-  }, [assignNumberMove, groups, registrations, registrationsByGroup, selectedForAction])
+    if (assignNumberMove && selectedForAction) {
+      return buildDrawnNumberOptions(selectedForAction, registrations, moveToPositionDay?.date)
+    }
+    return buildMoveToPositionOptions(selectedForAction, moveToPositionGroups, registrationsByGroup)
+  }, [
+    assignNumberMove,
+    moveToPositionDay,
+    moveToPositionGroups,
+    registrations,
+    registrationsByGroup,
+    selectedForAction,
+  ])
 
   const openActionDialog = useCallback(
     (
@@ -145,6 +166,7 @@ const ClassEntrySelection = ({
       if (!nextSelectedForAction) return
 
       setSelectedForAction(nextSelectedForAction)
+      setMoveToPositionDayKey(undefined)
       openDialog(true)
     },
     [registrations]
@@ -459,11 +481,22 @@ const ClassEntrySelection = ({
             registration={selectedForAction}
             positions={moveToPositionOptions}
             assignNumber={assignNumberMove}
+            days={moveToPositionDays}
+            selectedDay={moveToPositionDay?.key}
+            onSelectDay={setMoveToPositionDayKey}
             onMove={async (position) => {
               if (movementDisabled) return
               setPendingMoveId(selectedForAction.id)
               try {
                 if (assignNumberMove) {
+                  if (moveToPositionDay) {
+                    // A reserve dog first takes its place on the day; only then is the number its own.
+                    const change = buildMoveToGroupChange(selectedForAction, moveToPositionDay.key, groups)
+                    if (!change) return
+                    if ((await actions.saveGroups(event.id, [change])) === false) {
+                      throw new Error('Moving the registration to the day failed')
+                    }
+                  }
                   await putStartNumbers(
                     event.id,
                     {
@@ -474,7 +507,12 @@ const ClassEntrySelection = ({
                   )
                   return
                 }
-                const change = buildMoveToPositionGroupChange(selectedForAction, position, groups, registrationsByGroup)
+                const change = buildMoveToPositionGroupChange(
+                  selectedForAction,
+                  position,
+                  moveToPositionGroups,
+                  registrationsByGroup
+                )
                 if (!change) return
 
                 await actions.saveGroups(event.id, [change])

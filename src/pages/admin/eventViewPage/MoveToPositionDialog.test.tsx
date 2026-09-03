@@ -190,6 +190,78 @@ describe('MoveToPositionDialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
+  it('names the day first for a reserve dog with several, and passes a drawn number on as-is', async () => {
+    const onMove = vi.fn().mockResolvedValue(undefined)
+    const onSelectDay = vi.fn()
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'reserve', number: 1 },
+    }
+    const days = [
+      { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', time: 'ap' as const },
+      { date: new Date('2026-08-15T21:00:00.000Z'), key: '2026-08-16-ip', time: 'ip' as const },
+    ]
+
+    const { user } = renderWithUserEvents(
+      <MoveToPositionDialog
+        open={true}
+        onClose={vi.fn()}
+        registration={registration}
+        positions={[2, 5]}
+        assignNumber
+        days={days}
+        selectedDay="2026-08-15-ap"
+        onSelectDay={onSelectDay}
+        onMove={onMove}
+      />,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectDay' }))
+    await user.click(screen.getByRole('option', { name: 'dateFormat.wdshort date registration.timeLong.ip' }))
+    await flushPromises(false)
+    expect(onSelectDay).toHaveBeenCalledWith('2026-08-16-ip')
+
+    // The dog's own working-order number 1 is not on offer: the first free number is selected instead.
+    await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
+    await user.click(screen.getByRole('option', { name: '5' }))
+    await flushPromises(false)
+
+    await user.click(screen.getByRole('button', { name: 'registration.moveToPositionDialog.moveToPosition' }))
+    await flushPromises(false)
+
+    expect(onMove).toHaveBeenCalledWith(5)
+  })
+
+  it('needs no day choice when a reserve dog has one day to go to', async () => {
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'reserve', number: 1 },
+    }
+
+    render(
+      <MoveToPositionDialog
+        open={true}
+        onClose={vi.fn()}
+        registration={registration}
+        positions={[2]}
+        assignNumber
+        days={[{ date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', time: 'ap' }]}
+        selectedDay="2026-08-15-ap"
+        onMove={vi.fn()}
+      />
+    )
+    await flushPromises(false)
+
+    expect(
+      screen.queryByRole('combobox', { name: 'registration.moveToPositionDialog.selectDay' })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' })
+    ).toHaveTextContent('2')
+  })
+
   it('shows error snackbar when move fails', async () => {
     const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 

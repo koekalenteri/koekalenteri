@@ -7,6 +7,7 @@ import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registra
 import {
   buildDrawnNumberOptions,
   buildMoveToGroupChange,
+  buildMoveToPositionDays,
   buildMoveToPositionGroupChange,
   buildMoveToPositionOptions,
   buildRegistrationsByGroup,
@@ -433,6 +434,50 @@ describe('helpers', () => {
       it('excludes the dog own entered number', () => {
         const regs = [dog('a', 1, 1), dog('b', 2, 2)]
         expect(buildDrawnNumberOptions(regs[0], regs)).toEqual([])
+      })
+
+      it('offers a reserve dog one place more than the named day holds', () => {
+        const regs = [dog('a', 1, 1), dog('b', 2, 3)]
+        const reserve = {
+          group: { key: GROUP_KEY_RESERVE, number: 1 },
+          id: 'r',
+        } as Partial<Registration> as Registration
+        expect(buildDrawnNumberOptions(reserve, regs, day)).toEqual([2])
+        expect(buildDrawnNumberOptions(reserve, regs)).toEqual([])
+      })
+    })
+
+    describe('buildMoveToPositionDays', () => {
+      const drawnDays = new Set([day.toDateString()])
+      const otherDay = parseISO('2023-01-02T12:00:00Z')
+      const groups: RegistrationGroup[] = [
+        { date: day, key: groupKey, number: 1, time: 'ap' },
+        { date: otherDay, key: '2023-01-02-ap', number: 2, time: 'ap' },
+      ]
+      const reserve = (dates: Registration['dates']) =>
+        ({ dates, group: { key: GROUP_KEY_RESERVE, number: 1 }, id: 'r' }) as Partial<Registration> as Registration
+
+      it('names the allowed days of a reserve dog once one of them is drawn', () => {
+        const dates = [
+          { date: day, time: 'ap' as const },
+          { date: otherDay, time: 'ap' as const },
+        ]
+        expect(buildMoveToPositionDays(reserve(dates), groups, drawnDays)).toEqual([
+          { date: day, drawn: true, key: groupKey, time: 'ap' },
+          { date: otherDay, drawn: false, key: '2023-01-02-ap', time: 'ap' },
+        ])
+      })
+
+      it('leaves out the days the dog did not enter for', () => {
+        expect(buildMoveToPositionDays(reserve([{ date: day, time: 'ap' }]), groups, drawnDays)).toEqual([
+          { date: day, drawn: true, key: groupKey, time: 'ap' },
+        ])
+      })
+
+      it('is empty while none of the dog days is drawn, and for a participant', () => {
+        expect(buildMoveToPositionDays(reserve([{ date: otherDay, time: 'ap' }]), groups, drawnDays)).toEqual([])
+        expect(buildMoveToPositionDays(reserve([{ date: day, time: 'ap' }]), groups, new Set())).toEqual([])
+        expect(buildMoveToPositionDays(dog('a', 1), groups, drawnDays)).toEqual([])
       })
     })
   })
