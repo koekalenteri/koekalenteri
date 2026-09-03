@@ -8,6 +8,7 @@ import type {
   JsonEventStatsItem,
   JudgeWorkloadEntry,
   RetentionStats,
+  YearlyBreakdownType,
   YearlyStatTypes,
   YearlyTotalStat,
 } from '../../types/Stats'
@@ -216,7 +217,7 @@ export async function getRetentionStats(year: number): Promise<RetentionStats | 
  */
 export async function getYearlyBreakdown(
   year: number,
-  type: YearlyStatTypes
+  type: YearlyBreakdownType
 ): Promise<{ entityId: string; count: number }[]> {
   const pk = `STAT#${year}#${type}`
   const items = await dynamoDB.query<{ SK: string; count: number }>({

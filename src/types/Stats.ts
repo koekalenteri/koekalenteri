@@ -18,6 +18,15 @@ interface OrganizerEventStats {
 
 export type YearlyStatTypes = 'eventType' | 'dog' | 'breed' | 'handler' | 'dog#handler' | 'class' | 'event'
 
+/**
+ * The participation types whose per-entity breakdown (`STAT#<year>#<type>`) is stored and served.
+ * The other types only ever contribute their distinct count to TOTALS: a row per dog, handler,
+ * dog+handler pair and event was 88 % of the stats table and nothing read it. The rebuild writes
+ * exactly these, and the API can only ask for these, so the two cannot drift apart.
+ */
+export const YEARLY_BREAKDOWN_TYPES = ['breed', 'eventType', 'class'] as const satisfies readonly YearlyStatTypes[]
+export type YearlyBreakdownType = (typeof YEARLY_BREAKDOWN_TYPES)[number]
+
 export interface YearlyTotalStat {
   year: number
   type: YearlyStatTypes

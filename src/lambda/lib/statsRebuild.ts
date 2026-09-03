@@ -18,7 +18,7 @@ import type { RegistrationStatsInput } from './stats'
 import { OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
 import { getRegistrationClass, isMember, isParticipantGroup } from '../../lib/registration'
 import { splitEvenly } from '../../lib/utils'
-import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS } from '../../types/Stats'
+import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import {
@@ -87,6 +87,8 @@ export const getStatsRecordPartition = ({ PK }: EventStatKey): StatsPartition | 
   if (PK.startsWith('CAPACITY#')) return 'capacity'
   if (PK.startsWith('JUDGE#')) return 'judges'
   if (PK.startsWith('BREAKDOWN#')) return 'eventBreakdown'
+  // STAT# matches every type, including the per-dog/handler/pair/event rows no longer written:
+  // they belong to this partition so the rebuild prunes them as stale instead of leaking them.
   if (PK === 'YEARS' || /^(?:STAT|TOTALS|BUCKETS|RETENTION)#/.test(PK)) return 'participation'
   return undefined
 }
@@ -241,11 +243,15 @@ const yearlyStatsRecords = (
   handlerDogsByYear: Map<number, Map<string, Set<string>>>
 ) => {
   const records: JsonEventStatsItem[] = []
+  const publishedTypes = new Set<YearlyStatTypes>(YEARLY_BREAKDOWN_TYPES)
   for (const [year, countsByType] of yearlyStats) {
     for (const type of PARTICIPATION_TYPES) {
       const counts = countsForType(countsByType, type)
       records.push({ count: counts.size, PK: `TOTALS#${year}`, SK: type })
-      for (const [entityId, count] of counts) records.push({ count, PK: `STAT#${year}#${type}`, SK: entityId })
+      // Per-entity rows only for the breakdowns the API serves; the rest are counted, not stored.
+      if (publishedTypes.has(type)) {
+        for (const [entityId, count] of counts) records.push({ count, PK: `STAT#${year}#${type}`, SK: entityId })
+      }
       if (type === 'dog#handler') records.push(...dogHandlerBucketRecords(year, counts))
     }
     const handlerDogs = handlerDogsByYear.get(year)

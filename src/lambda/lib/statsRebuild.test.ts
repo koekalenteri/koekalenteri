@@ -185,6 +185,42 @@ describe('statsRebuild', () => {
     )
   })
 
+  it('stores per-entity rows only for the breakdowns the API serves, the rest just count toward the totals', () => {
+    const testEvent = event('event-2025', '2025-05-01')
+    const { records } = buildStatsRecords(
+      [
+        registration('one', testEvent.id, {
+          class: 'ALO',
+          dog: { breedCode: '111', regNo: 'FI1' },
+          handler: { email: 'a@example.com' },
+        }),
+      ],
+      new Map([[testEvent.id, testEvent]]),
+      '2025-01-01T00:00:00.000Z'
+    )
+
+    const statRows = records.filter((record) => record.PK.startsWith('STAT#2025#'))
+    expect(statRows).toEqual(
+      expect.arrayContaining([
+        { count: 1, PK: 'STAT#2025#breed', SK: '111' },
+        { count: 1, PK: 'STAT#2025#eventType', SK: 'NOU' },
+        { count: 1, PK: 'STAT#2025#class', SK: 'ALO' },
+      ])
+    )
+    expect(statRows.map((record) => record.PK)).not.toContain('STAT#2025#dog')
+    expect(statRows.map((record) => record.PK)).not.toContain('STAT#2025#handler')
+    expect(statRows.map((record) => record.PK)).not.toContain('STAT#2025#dog#handler')
+    expect(statRows.map((record) => record.PK)).not.toContain('STAT#2025#event')
+    expect(records).toEqual(
+      expect.arrayContaining([
+        { count: 1, PK: 'TOTALS#2025', SK: 'dog' },
+        { count: 1, PK: 'TOTALS#2025', SK: 'handler' },
+        { count: 1, PK: 'TOTALS#2025', SK: 'dog#handler' },
+        { count: 1, PK: 'TOTALS#2025', SK: 'event' },
+      ])
+    )
+  })
+
   it('buckets handlers by how many distinct dogs they ran, not how many times they registered', () => {
     const testEvent = event('event-2025', '2025-05-01')
     const { records } = buildStatsRecords(
@@ -1012,10 +1048,10 @@ describe('statsRebuild', () => {
 
       const { records } = buildStatsRecords([registration('one', withRegistrations.id)], eventsById, 'now')
 
-      // The registration-less event counts toward the total; cancelled and unofficial do not.
+      // The registration-less event counts toward the total; cancelled and unofficial do not. The
+      // total is the only trace of it: per-event rows are counted, not stored.
       expect(records).toContainEqual({ count: 2, PK: 'TOTALS#2025', SK: 'event' })
-      expect(records).toContainEqual({ count: 0, PK: 'STAT#2025#event', SK: empty.id })
-      expect(records.some((record) => record.PK === 'STAT#2025#event' && record.SK === cancelled.id)).toBe(false)
+      expect(records.some((record) => record.PK === 'STAT#2025#event')).toBe(false)
     })
   })
 
