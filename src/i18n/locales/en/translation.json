@@ -23,7 +23,9 @@
       "classStartListHidden": "{{eventClass}} start list hidden",
       "classStartListPublished": "{{eventClass}} start list published",
       "classStartNumbersHidden": "{{eventClass}} start numbers hidden",
+      "classStartNumbersHiddenDay": "{{eventClass}} start numbers hidden {{day}}",
       "classStartNumbersPublished": "{{eventClass}} start numbers published",
+      "classStartNumbersPublishedDay": "{{eventClass}} start numbers published {{day}}",
       "emailSent": "{{template}} sent: succeeded {{ok}}, failed {{failed}}",
       "eventCreated": "Event created",
       "eventDeleted": "Event deleted",
@@ -31,7 +33,9 @@
       "startListHidden": "Start list hidden",
       "startListPublished": "Start list published",
       "startNumbersHidden": "Start numbers hidden",
-      "startNumbersPublished": "Start numbers published"
+      "startNumbersHiddenDay": "Start numbers hidden {{day}}",
+      "startNumbersPublished": "Start numbers published",
+      "startNumbersPublishedDay": "Start numbers published {{day}}"
     },
     "removed": "(removed)",
     "showDetails": "Show audit details",
@@ -355,14 +359,17 @@
     "startList": {
       "hide": "Hide start list",
       "hideNumbers": "Hide start numbers",
+      "hideNumbersDay": "Hide start numbers {{day}}",
       "numbersIncomplete": "Start number entry is incomplete. Enter all start numbers first.",
       "numbersPublished": "Start numbers published",
+      "numbersPublishedDays": "Start numbers published: {{days}}",
       "preview": "View public start list",
       "previewUnpublished": "Preview start list",
       "publish": "Publish start list",
       "published": "Start list published",
       "publishing": "Start list publishing",
       "publishNumbers": "Publish start numbers",
+      "publishNumbersDay": "Publish start numbers {{day}}",
       "saveFailed": "Saving the start list publication status failed. Try again.",
       "secretary": "Secretary's start list"
     },
@@ -914,17 +921,17 @@
   "startListNotPublished": "start list is not published yet",
   "startNumbers": {
     "column": {
+      "day": "Start day",
       "number": "Start number"
     },
+    "day": "Day",
     "duplicate": "Duplicate number",
     "info": "Enter the start numbers drawn at the venue.",
     "save": "Save numbers",
     "saved": "Start numbers saved",
     "saveFailed": "Saving the start numbers failed. Check the numbers and try again.",
-      "day": "Start day",
     "title": "Start number entry"
   },
-    "day": "Day",
   "startNumbersNotPublished": "start order is not confirmed yet",
   "stats": {
     "admin": {

@@ -1,6 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Registration } from '../../../../types'
 import { screen, waitFor } from '@testing-library/react'
+import { addDays } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import {
   eventWithEntryOpen,
@@ -13,6 +14,7 @@ import {
   registrationWithStaticDates,
 } from '../../../../__mockData__/registrations'
 import { APIError } from '../../../../api/http'
+import { zonedDateString } from '../../../../i18n/dates'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/utils'
 import { adminEventsAtom } from '../../state'
@@ -298,6 +300,51 @@ describe('InfoPanel>', () => {
         'eventManagement.startList.numbersIncomplete',
         expect.objectContaining({ variant: 'error' })
       )
+    })
+  })
+
+  it('publishes a two-day class one day at a time (KOE-1304)', async () => {
+    const onSetStartNumbersPublished = vi.fn().mockResolvedValue(undefined)
+    const [aloDay, avoDay] = eventWithParticipantsInvited.classes
+    const saturday = addDays(aloDay.date, 1)
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+        {children}
+      </Provider>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{
+          ...eventWithParticipantsInvited,
+          classes: [aloDay, { ...aloDay, date: saturday }, avoDay],
+          endDate: saturday,
+          invitationAttachments: { ALO: 'alo-key' },
+          startListPublished: true,
+          // Friday's draw is out; Saturday's is tomorrow morning.
+          startNumbersPublished: { ALO: [zonedDateString(aloDay.date)], AVO: false },
+        }}
+        onSetStartListPublished={vi.fn().mockResolvedValue(undefined)}
+        onSetStartNumbersPublished={onSetStartNumbersPublished}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent: registration.class === 'ALO' ? 'alo-key' : undefined,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    // One button per day: Friday hides, Saturday publishes. The class is not done yet.
+    expect(screen.getByRole('button', { name: 'eventManagement.startList.hideNumbersDay day' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' })).toBeEnabled()
+    expect(screen.getByText('eventManagement.startList.numbersPublishedDays days')).toBeInTheDocument()
+    expect(screen.queryByText('eventManagement.startList.numbersPublished')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' }))
+
+    await waitFor(() => {
+      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', true, zonedDateString(saturday))
     })
   })
 

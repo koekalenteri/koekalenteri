@@ -1,4 +1,4 @@
-import type { JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { asJsonConfirmedEvent } from '../test-utils/helpers'
 
@@ -98,6 +98,26 @@ describe('startNumbers', () => {
       ])
     })
 
+    it('freezes only the named day, and lets a stray number on the other day be (KOE-1304)', async () => {
+      const friday = registration('run-1', {
+        startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' },
+      })
+      // Saturday's draw is tomorrow morning; one number typed in by accident must not block Friday.
+      const strayOnSaturday = registration('run-2', {
+        group: { date: '2026-09-13', key: 'ALO-AP', number: 2, time: 'ap' },
+        startGroup: { date: '2026-09-13', key: 'ALO-AP', number: 30, time: 'ap' },
+      })
+      const saturday = registration('run-3', {
+        group: { date: '2026-09-13', key: 'ALO-AP', number: 3, time: 'ap' },
+      })
+
+      const patches = await freezeStartNumbers('event-1', [friday, strayOnSaturday, saturday], 'ALO', '2026-09-12')
+
+      // Friday's draw is complete and already frozen; Saturday's working order stays untouched.
+      expect(patches).toEqual([])
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    })
+
     it('freezes every class when no class is named', async () => {
       const patches = await freezeStartNumbers(
         'event-1',
@@ -168,6 +188,55 @@ describe('startNumbers', () => {
   })
 
   describe('setStartNumbersPublishedState', () => {
+    it('publishes a multi-day class one day at a time (KOE-1304)', async () => {
+      const twoDays = (startNumbersPublished: JsonConfirmedEvent['startNumbersPublished']) =>
+        asJsonConfirmedEvent({
+          classes: [
+            { class: 'ALO', date: '2026-09-12' },
+            { class: 'ALO', date: '2026-09-13' },
+            { class: 'AVO', date: '2026-09-12' },
+          ],
+          endDate: '2026-09-13',
+          id: 'event-1',
+          startDate: '2026-09-12',
+          startNumbersPublished,
+        })
+
+      // Friday out: the class holds a day list, the other class is untouched.
+      expect(
+        await setStartNumbersPublishedState(twoDays({ ALO: false, AVO: false }), 'ALO', true, '2026-09-12')
+      ).toEqual({ ALO: ['2026-09-12'], AVO: false })
+      // Saturday out too: the list covers every day the class runs, so it collapses to plain true.
+      expect(
+        await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-12'], AVO: false }), 'ALO', true, '2026-09-13')
+      ).toEqual({ ALO: true, AVO: false })
+      // Hiding one day of a fully published class expands it back into the days that stay out.
+      expect(
+        await setStartNumbersPublishedState(twoDays({ ALO: true, AVO: false }), 'ALO', false, '2026-09-12')
+      ).toEqual({ ALO: ['2026-09-13'], AVO: false })
+      // And hiding the last day is plain false.
+      expect(
+        await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-13'], AVO: false }), 'ALO', false, '2026-09-13')
+      ).toEqual({ ALO: false, AVO: false })
+    })
+
+    it('publishes one day of a classless event against its own dates', async () => {
+      const confirmedEvent = asJsonConfirmedEvent({
+        classes: [],
+        endDate: '2026-09-13',
+        id: 'event-1',
+        startDate: '2026-09-12',
+        startNumbersPublished: false,
+      })
+
+      expect(await setStartNumbersPublishedState(confirmedEvent, undefined, true, '2026-09-12')).toEqual(['2026-09-12'])
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { startNumbersPublished: ['2026-09-12'] } },
+        expect.anything()
+      )
+    })
+
     it('flips the class entry in the map and writes it to the event', async () => {
       const confirmedEvent = asJsonConfirmedEvent({
         classes: [{ class: 'ALO' }, { class: 'AVO' }],

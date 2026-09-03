@@ -31,6 +31,7 @@ import {
   getEventStateForClass,
   getEventTitle,
   getParticipantsPhase,
+  getPublishedStartNumbersDays,
   getResultsPublishedClassMap,
   getStartListPublishedClassMap,
   getUniqueEventClasses,
@@ -50,6 +51,7 @@ import {
   isStartListPublishedForClass,
   isStartNumbersAvailableForClass,
   isStartNumbersAvailableForRegistration,
+  isStartNumbersPublishedForClass,
   localizedEventDescription,
   localizedEventName,
   newEventEntryEndDate,
@@ -375,6 +377,49 @@ describe('lib/event', () => {
           { class: 'ALO' }
         )
       ).toBe(false)
+    })
+
+    it('publishes a multi-day class one day at a time (KOE-1304)', () => {
+      const event = {
+        classes: [
+          { class: 'ALO' as const, date: '2026-09-04' },
+          { class: 'ALO' as const, date: '2026-09-05' },
+        ],
+        endDate: '2026-09-05',
+        startDate: '2026-09-04',
+        startListPublished: { ALO: true },
+        startNumbersPublished: { ALO: ['2026-09-04'] },
+        state: 'invited' as const,
+      }
+
+      // Friday's numbers are out, Saturday's are not — per class entry and per registration alike.
+      expect(isStartNumbersAvailableForClass(event, event.classes[0])).toBe(true)
+      expect(isStartNumbersAvailableForClass(event, event.classes[1])).toBe(false)
+      expect(isStartNumbersAvailableForRegistration(event, { class: 'ALO', group: { date: '2026-09-04' } })).toBe(true)
+      expect(isStartNumbersAvailableForRegistration(event, { class: 'ALO', group: { date: '2026-09-05' } })).toBe(false)
+
+      // The class counts as published only once every day it runs is out.
+      expect(isStartNumbersPublishedForClass(event, 'ALO')).toBe(false)
+      expect(getPublishedStartNumbersDays(event, 'ALO')).toEqual(['2026-09-04'])
+      expect(
+        isStartNumbersPublishedForClass(
+          { ...event, startNumbersPublished: { ALO: ['2026-09-04', '2026-09-05'] } },
+          'ALO'
+        )
+      ).toBe(true)
+      expect(getPublishedStartNumbersDays({ ...event, startNumbersPublished: { ALO: true } }, 'ALO')).toEqual([
+        '2026-09-04',
+        '2026-09-05',
+      ])
+
+      // A classless event keys its days off its own dates.
+      const classless = { ...event, classes: [], startNumbersPublished: ['2026-09-05'] }
+      expect(isStartNumbersAvailableForRegistration(classless, { group: { date: '2026-09-05' } })).toBe(true)
+      expect(isStartNumbersAvailableForRegistration(classless, { group: { date: '2026-09-04' } })).toBe(false)
+      expect(isStartNumbersPublishedForClass(classless)).toBe(false)
+      expect(
+        isStartNumbersPublishedForClass({ ...classless, startNumbersPublished: ['2026-09-04', '2026-09-05'] })
+      ).toBe(true)
     })
 
     it('answers per registration through the class that runs its day', () => {

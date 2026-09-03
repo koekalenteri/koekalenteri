@@ -210,13 +210,14 @@ export const useAdminEventActions = () => {
   async function setStartNumbersClassPublished(
     event: DogEvent,
     eventClass: RegistrationClass,
-    published: boolean
+    published: boolean,
+    date?: string
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
 
     // Publishing is also the freeze, so it goes through the start-numbers endpoint rather than a
     // plain event patch: the flag flip and the snapshot must land in the same locked request.
-    const { event: saved } = await putStartNumbers(event.id, { eventClass, published }, token)
+    const { event: saved } = await putStartNumbers(event.id, { date, eventClass, published }, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
     updatePublicEvents(saved)
@@ -224,11 +225,15 @@ export const useAdminEventActions = () => {
     return saved
   }
 
-  async function setStartNumbersPublished(event: DogEvent, published: boolean): Promise<DogEvent | undefined> {
+  async function setStartNumbersPublished(
+    event: DogEvent,
+    published: boolean,
+    date?: string
+  ): Promise<DogEvent | undefined> {
     if (!event?.id) return
-    if ((event.startNumbersPublished !== false) === published) return event
+    if (!date && (event.startNumbersPublished !== false) === published) return event
 
-    const { event: saved } = await putStartNumbers(event.id, { published }, token)
+    const { event: saved } = await putStartNumbers(event.id, { date, published }, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
     updatePublicEvents(saved)

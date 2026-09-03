@@ -108,6 +108,50 @@ describe('putStartNumbersLambda', () => {
     expect(payload.event.startNumbersPublished).toEqual({ ALO: true })
   })
 
+  it('publishes one day of a multi-day class and leaves the other day alone (KOE-1304)', async () => {
+    mockGetAuthorizedEvent.mockResolvedValue(
+      asJsonConfirmedEvent({
+        ...confirmedEvent(),
+        classes: [
+          { class: 'ALO', date: '2026-09-12' },
+          { class: 'ALO', date: '2026-09-13' },
+        ],
+        endDate: '2026-09-13',
+        startDate: '2026-09-12',
+      })
+    )
+    mockGetRegistrationsByEventId.mockResolvedValue([
+      registration('run-1'),
+      registration('run-2', { group: { date: '2026-09-13', key: 'ALO-AP', number: 2, time: 'ap' } }),
+    ])
+
+    await putStartNumbersLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
+
+    // Friday freezes; Saturday's draw is tomorrow morning and its working order must not go out.
+    expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'run-1',
+      'startGroup',
+      expect.objectContaining({ number: 1 })
+    )
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { id: 'event-1' },
+      { set: { startNumbersPublished: { ALO: ['2026-09-12'] } } },
+      expect.anything()
+    )
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Starttinumerot julkaistu (ALO, 12.9.2026)' })
+    )
+  })
+
+  it('refuses a malformed day', async () => {
+    await putStartNumbersLambda(apiEvent({ date: '12.9.2026', eventClass: 'ALO', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(422, 'invalid date', expect.anything())
+    expect(mockLockRegistrationGroups).not.toHaveBeenCalled()
+  })
+
   it('refuses to publish numbers for a class whose list is not out', async () => {
     mockGetAuthorizedEvent.mockResolvedValue({
       ...confirmedEvent(),

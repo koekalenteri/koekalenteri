@@ -17,15 +17,22 @@ interface StartNumbersRequest {
   eventClass?: string
   /** Flip the class's numbers public or hidden. Publishing is also the freeze. */
   published?: boolean
+  /** Narrows a publish or hide to one day (yyyy-MM-dd) of a multi-day class (KOE-1304). */
+  date?: string
   /** The venue draw's results, written as values rather than as a reordering. */
   numbers?: StartNumberEntry[]
 }
+
+const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/
 
 const isEntry = (value: unknown): value is StartNumberEntry =>
   typeof value === 'object' &&
   value !== null &&
   typeof (value as StartNumberEntry).id === 'string' &&
   typeof (value as StartNumberEntry).startNumber === 'number'
+
+/** "4.9.2026" from a day key, for the audit trail's Finnish reader. */
+const auditDay = (date: string) => date.split('-').reverse().map(Number).join('.')
 
 /**
  * The one endpoint that writes start numbers (KOE-1017, KOE-1218). Publishing freezes each
@@ -46,6 +53,10 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
   if (typeof body.published !== 'boolean' && numbers.length === 0) {
     return response(422, 'nothing to do', event)
   }
+  if (body.date !== undefined && (typeof body.date !== 'string' || !DAY_KEY.test(body.date))) {
+    return response(422, 'invalid date', event)
+  }
+  const date = body.date
 
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
 
@@ -64,16 +75,18 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
 
     if (typeof body.published === 'boolean') {
       if (body.published) {
-        patches.push(...(await freezeStartNumbers(eventId, registrations, eventClass)))
+        patches.push(...(await freezeStartNumbers(eventId, registrations, eventClass, date)))
       }
       confirmedEvent.startNumbersPublished = await setStartNumbersPublishedState(
         confirmedEvent,
         eventClass,
-        body.published
+        body.published,
+        date
       )
+      const scope = [eventClass, date && auditDay(date)].filter(Boolean).join(', ')
       await audit({
         auditKey: eventAuditKey(confirmedEvent),
-        message: `Starttinumerot ${body.published ? 'julkaistu' : 'piilotettu'}${eventClass ? ` (${eventClass})` : ''}`,
+        message: `Starttinumerot ${body.published ? 'julkaistu' : 'piilotettu'}${scope ? ` (${scope})` : ''}`,
         user: user.name,
       })
     }

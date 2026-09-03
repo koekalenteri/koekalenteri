@@ -17,6 +17,7 @@ import type {
   SanitizedJsonPublicDogEvent,
   SanitizedPublicConfirmedDogEvent,
   SanitizedPublicDogEvent,
+  StartNumbersDayScope,
 } from '../types'
 import { tz } from '@date-fns/tz'
 import { addDays } from 'date-fns/addDays'
@@ -600,32 +601,99 @@ export const isStartListAvailableForRegistration = (
   return eventClass ? isStartListAvailableForClass(event, eventClass) : false
 }
 
+type StartNumbersDaysEvent = Pick<JsonDogEvent, 'startNumbersPublished'> & {
+  classes?: Array<Pick<JsonDogEvent['classes'][number], 'class'> & { date?: Date | string }>
+  startDate?: Date | string
+  endDate?: Date | string
+}
+
+/**
+ * The days a class runs, as day keys: one class entry per day, or the event's own days when it has
+ * none. A classless span is capped: no trial runs longer, and an open-ended fixture (an end date
+ * decades away) must not turn a render into a loop over ten thousand days.
+ */
+const START_NUMBERS_MAX_DAYS = 14
+
+export const getStartNumbersClassDays = (event: StartNumbersDaysEvent, eventClass?: string): string[] => {
+  const classes = event.classes ?? []
+  const classDates = eventClass
+    ? classes.filter((item) => item.class === eventClass).map((item) => item.date ?? event.startDate)
+    : []
+  if (classDates.length || !event.startDate) {
+    return [...new Set(classDates.filter((date): date is Date | string => !!date).map(startListAvailabilityDateKey))]
+  }
+
+  const days: string[] = []
+  const last = startListAvailabilityDateKey(event.endDate ?? event.startDate)
+  for (let day = zonedStartOfDay(event.startDate); days.length < START_NUMBERS_MAX_DAYS; day = addDays(day, 1)) {
+    const key = startListAvailabilityDateKey(day)
+    days.push(key)
+    if (key >= last) break
+  }
+  return days
+}
+
+const isStartNumbersPublishedClassMap = (
+  startNumbersPublished: JsonDogEvent['startNumbersPublished']
+): startNumbersPublished is Partial<Record<RegistrationClass, StartNumbersDayScope>> =>
+  typeof startNumbersPublished === 'object' && startNumbersPublished !== null && !Array.isArray(startNumbersPublished)
+
 /**
  * Start numbers ride the start list but publish separately (KOE-1006). A wholly absent flag means
  * published — every event before the flag put its numbers out with the list, and a deploy must not
  * pull them. But a class *missing from an existing map* was added after the flag existed, so it has
  * no legacy claim and stays unpublished until the secretary releases it (KOE-1266).
  */
-const isStartNumbersPublishedForClass = (
+export const getStartNumbersDayScope = (
   { startNumbersPublished }: Pick<JsonDogEvent, 'startNumbersPublished'>,
   eventClass?: string
-) =>
-  isStartListPublishedClassMap(startNumbersPublished)
-    ? startNumbersPublished[eventClass as RegistrationClass] === true
-    : startNumbersPublished !== false
+): StartNumbersDayScope =>
+  isStartNumbersPublishedClassMap(startNumbersPublished)
+    ? (startNumbersPublished[eventClass as RegistrationClass] ?? false)
+    : (startNumbersPublished ?? true)
+
+/** Whether the numbers of one day of the class (or of a classless event) are out (KOE-1304). */
+export const isStartNumbersPublishedForDay = (
+  event: Pick<JsonDogEvent, 'startNumbersPublished'>,
+  eventClass: string | undefined,
+  date: Date | string | undefined
+) => {
+  const scope = getStartNumbersDayScope(event, eventClass)
+  if (Array.isArray(scope)) return !!date && scope.includes(startListAvailabilityDateKey(date))
+  return scope
+}
+
+/** Whether the class's numbers are out for every day it runs: a day list only counts once it is complete. */
+export const isStartNumbersPublishedForClass = (event: StartNumbersDaysEvent, eventClass?: string) => {
+  const scope = getStartNumbersDayScope(event, eventClass)
+  if (!Array.isArray(scope)) return scope
+
+  const days = getStartNumbersClassDays(event, eventClass)
+  return days.length > 0 && days.every((day) => scope.includes(day))
+}
+
+/** The days of the class whose numbers are out, for telling a partly published class apart (KOE-1304). */
+export const getPublishedStartNumbersDays = (event: StartNumbersDaysEvent, eventClass?: string): string[] => {
+  const scope = getStartNumbersDayScope(event, eventClass)
+  const days = getStartNumbersClassDays(event, eventClass)
+  if (Array.isArray(scope)) return days.filter((day) => scope.includes(day))
+  return scope ? days : []
+}
 
 type StartNumbersEvent = Pick<JsonDogEvent, 'state' | 'startListPublished' | 'startNumbersPublished'>
 
 /** Numbers can only be public on a published list: the list is the numbers' only transport. */
 export const isStartNumbersAvailableForClass = (
   event: StartNumbersEvent & EventVitals,
-  eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
-) => isStartListAvailableForClass(event, eventClass) && isStartNumbersPublishedForClass(event, eventClass.class)
+  eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }
+) =>
+  isStartListAvailableForClass(event, eventClass) &&
+  isStartNumbersPublishedForDay(event, eventClass.class, eventClass.date ?? event.startDate)
 
 export const isStartNumbersAvailable = (
   event: StartNumbersEvent &
     EventVitals & {
-      classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+      classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
     }
 ) => {
   if (event.classes?.length) {
@@ -642,11 +710,12 @@ export const isStartNumbersAvailableForRegistration = (
   if (!isStartListAvailableForRegistration(event, registration)) return false
 
   const classes = event.classes ?? []
-  if (!registration.class || classes.length === 0) return isStartNumbersPublishedForClass(event)
+  const date = registration.group.date ?? event.startDate
+  if (!registration.class || classes.length === 0) return isStartNumbersPublishedForDay(event, undefined, date)
 
   const eventClass = findRegistrationClass(event, registration)
 
-  return eventClass ? isStartNumbersPublishedForClass(event, eventClass.class) : false
+  return eventClass ? isStartNumbersPublishedForDay(event, eventClass.class, eventClass.date ?? date) : false
 }
 
 export const getStartNumbersPublishedClassMap = ({
@@ -654,12 +723,14 @@ export const getStartNumbersPublishedClassMap = ({
   startNumbersPublished,
 }: Pick<JsonDogEvent, 'startNumbersPublished'> & {
   classes: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
-}): Partial<Record<RegistrationClass, boolean>> => {
-  const existingMap = isStartListPublishedClassMap(startNumbersPublished) ? startNumbersPublished : {}
+}): Partial<Record<RegistrationClass, StartNumbersDayScope>> => {
+  const existingMap = isStartNumbersPublishedClassMap(startNumbersPublished) ? startNumbersPublished : {}
   // The absent-means-published default (above) carries into the expanded map, but a class missing
   // from an existing map is post-feature and starts unpublished (KOE-1266).
-  const defaultPublished = isStartListPublishedClassMap(startNumbersPublished) ? false : startNumbersPublished !== false
-  const result: Partial<Record<RegistrationClass, boolean>> = {}
+  const defaultPublished = isStartNumbersPublishedClassMap(startNumbersPublished)
+    ? false
+    : startNumbersPublished !== false
+  const result: Partial<Record<RegistrationClass, StartNumbersDayScope>> = {}
 
   for (const eventClass of classes) {
     result[eventClass.class] = existingMap[eventClass.class] ?? defaultPublished

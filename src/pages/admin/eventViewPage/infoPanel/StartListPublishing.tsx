@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type useAdminEventRegistrationInfo from '../../../../hooks/useAdminEventRegistrationsInfo'
 import type { ConfirmedEvent, RegistrationClass } from '../../../../types'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
@@ -13,13 +14,16 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../../api/http'
+import { zonedParseDate } from '../../../../i18n/dates'
 import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
 import {
   canPublishStartList,
+  getPublishedStartNumbersDays,
+  getStartNumbersClassDays,
   isStartListAvailable,
   isStartListAvailableForClass,
-  isStartNumbersAvailable,
-  isStartNumbersAvailableForClass,
+  isStartNumbersPublishedForClass,
+  isStartNumbersPublishedForDay,
 } from '../../../../lib/event'
 import { getInvitationRecipients, isRegistrationClass } from '../../../../lib/registration'
 import { isObject } from '../../../../lib/utils'
@@ -40,6 +44,30 @@ const getStartNumbersAuditMessageKey = (eventClass: RegistrationClass | undefine
   return published ? 'audit.messages.startNumbersPublished' : 'audit.messages.startNumbersHidden'
 }
 
+/** The confirmation for a numbers publish or hide; a day's own names the day (KOE-1304). */
+const startNumbersMessage = (
+  t: TFunction,
+  eventClass: RegistrationClass | undefined,
+  published: boolean,
+  day?: string
+) => {
+  if (!day) return t(getStartNumbersAuditMessageKey(eventClass, published), { eventClass })
+  if (eventClass) {
+    return t(published ? 'audit.messages.classStartNumbersPublishedDay' : 'audit.messages.classStartNumbersHiddenDay', {
+      day,
+      eventClass,
+    })
+  }
+  return t(published ? 'audit.messages.startNumbersPublishedDay' : 'audit.messages.startNumbersHiddenDay', { day })
+}
+
+/** The days a class runs, one per class entry — or the event's own days where it has no classes. */
+const classDays = (event: ConfirmedEvent, className: string) =>
+  getStartNumbersClassDays(event, event.classes.length ? className : undefined).map((key) => ({
+    date: zonedParseDate(key),
+    key,
+  }))
+
 interface Props {
   readonly event: ConfirmedEvent
   readonly eventWithCurrentAttachments: ConfirmedEvent
@@ -47,7 +75,8 @@ interface Props {
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly onSetStartNumbersPublished?: (
     eventClass: RegistrationClass | undefined,
-    published: boolean
+    published: boolean,
+    date?: string
   ) => Promise<unknown>
   readonly selectedByClass: RegistrationInfo['selectedByClass']
   readonly stateByClass: RegistrationInfo['stateByClass']
@@ -67,10 +96,12 @@ const StartListPublishing = ({
     eventClass
       ? isStartListAvailableForClass(event, eventClass)
       : event.classes.length === 0 && isStartListAvailable(event)
+  // Every day of the class: a multi-day class publishes one draw at a time (KOE-1304), and the
+  // class only counts as done once the last day is out.
   const isNumbersPublished = (eventClass?: ConfirmedEvent['classes'][number]) =>
     eventClass
-      ? isStartNumbersAvailableForClass(event, eventClass)
-      : event.classes.length === 0 && isStartNumbersAvailable(event)
+      ? isStartListAvailableForClass(event, eventClass) && isStartNumbersPublishedForClass(event, eventClass.class)
+      : event.classes.length === 0 && isStartListAvailable(event) && isStartNumbersPublishedForClass(event)
   const startListFullyPublished =
     event.classes.length === 0
       ? isStartListPublished()
@@ -93,12 +124,17 @@ const StartListPublishing = ({
     }
   }
 
-  const handleSetStartNumbersPublished = async (eventClass: RegistrationClass | undefined, published: boolean) => {
+  const handleSetStartNumbersPublished = async (
+    eventClass: RegistrationClass | undefined,
+    published: boolean,
+    day?: { date: Date; key: string }
+  ) => {
     if (!onSetStartNumbersPublished) return
 
     try {
-      await onSetStartNumbersPublished(eventClass, published)
-      enqueueSnackbar(t(getStartNumbersAuditMessageKey(eventClass, published), { eventClass }), { variant: 'success' })
+      await onSetStartNumbersPublished(eventClass, published, day?.key)
+      const dayText = day ? t('dateFormat.wdshort', { date: day.date }) : undefined
+      enqueueSnackbar(startNumbersMessage(t, eventClass, published, dayText), { variant: 'success' })
     } catch (error) {
       // A half-entered draw is the secretary's own next step, not a save failure — name it (KOE-1218).
       const incomplete =
@@ -142,6 +178,10 @@ const StartListPublishing = ({
               // Numbers can only be public on a published list, so the button waits for the list.
               const canManageStartNumbers =
                 Boolean(onSetStartNumbersPublished) && startListManageable && startListPublished
+              const days = classDays(event, className)
+              const publishedDays = startListPublished ? getPublishedStartNumbersDays(event, startListEventClass) : []
+              const partlyPublished = !numbersPublished && publishedDays.length > 0
+              const numbersButtons = days.length > 1 ? days : [undefined]
 
               return (
                 <TableRow key={className}>
@@ -158,6 +198,16 @@ const StartListPublishing = ({
                       {startListPublished && numbersPublished && (
                         <Typography variant="caption" color="info.main" display="block" noWrap>
                           {t('eventManagement.startList.numbersPublished')}
+                        </Typography>
+                      )}
+                      {partlyPublished && (
+                        <Typography variant="caption" color="info.main" display="block" noWrap>
+                          {t('eventManagement.startList.numbersPublishedDays', {
+                            days: days
+                              .filter((day) => publishedDays.includes(day.key))
+                              .map((day) => t('dateFormat.wdshort', { date: day.date }))
+                              .join(', '),
+                          })}
                         </Typography>
                       )}
                     </Box>
@@ -177,23 +227,41 @@ const StartListPublishing = ({
                       >
                         {t(startListPublished ? 'eventManagement.startList.hide' : 'eventManagement.startList.publish')}
                       </Button>
-                      <Button
-                        size="small"
-                        disabled={!canManageStartNumbers}
-                        onClick={() => {
-                          if (classlessEventRow || startListEventClass) {
-                            handleSetStartNumbersPublished(startListEventClass, !numbersPublished)
-                          }
-                        }}
-                        color={numbersPublished ? 'secondary' : 'primary'}
-                        variant={canManageStartNumbers ? 'contained' : 'outlined'}
-                      >
-                        {t(
-                          numbersPublished
-                            ? 'eventManagement.startList.hideNumbers'
-                            : 'eventManagement.startList.publishNumbers'
-                        )}
-                      </Button>
+                      {numbersButtons.map((day) => {
+                        // One button per day of a multi-day class; the whole class otherwise.
+                        const dayPublished = day
+                          ? startListPublished && isStartNumbersPublishedForDay(event, startListEventClass, day.date)
+                          : numbersPublished
+                        const label = day
+                          ? t(
+                              dayPublished
+                                ? 'eventManagement.startList.hideNumbersDay'
+                                : 'eventManagement.startList.publishNumbersDay',
+                              { day: t('dateFormat.wdshort', { date: day.date }) }
+                            )
+                          : t(
+                              dayPublished
+                                ? 'eventManagement.startList.hideNumbers'
+                                : 'eventManagement.startList.publishNumbers'
+                            )
+
+                        return (
+                          <Button
+                            key={day?.key ?? 'all'}
+                            size="small"
+                            disabled={!canManageStartNumbers}
+                            onClick={() => {
+                              if (classlessEventRow || startListEventClass) {
+                                handleSetStartNumbersPublished(startListEventClass, !dayPublished, day)
+                              }
+                            }}
+                            color={dayPublished ? 'secondary' : 'primary'}
+                            variant={canManageStartNumbers ? 'contained' : 'outlined'}
+                          >
+                            {label}
+                          </Button>
+                        )
+                      })}
                     </Stack>
                   </TableCell>
                 </TableRow>

@@ -23,6 +23,14 @@ export type PaymentTime = 'registration' | 'confirmation'
 export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
 
 /**
+ * Which days' start numbers are out: every day (`true`), none (`false`), or the listed days as
+ * yyyy-MM-dd in the event's time zone (KOE-1304). A multi-day class draws its numbers one morning at
+ * a time, so one day's numbers can be public while the next day's draw is still to come.
+ */
+export type StartNumbersDayScope = boolean | string[]
+export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<RegistrationClass, StartNumbersDayScope>>
+
+/**
  * Same shape as `StartListPublishedState`, so per-class publishing works the same way — but not the
  * same default. An absent start list flag means published, for records that predate it; an absent
  * results flag means not published, because a result nobody released must never appear.
@@ -92,9 +100,9 @@ export interface JsonDogEvent extends JsonDbRecord {
    * `startListPublished`, and gated behind it: numbers cannot be public on an unpublished list.
    * Absent means published — every event before the flag put its numbers out with the list — and
    * only an explicit `false` withholds them; new events are created with `false` so the choice is
-   * the secretary's.
+   * the secretary's. A day list publishes part of a multi-day class (KOE-1304).
    */
-  startNumbersPublished?: StartListPublishedState
+  startNumbersPublished?: StartNumbersPublishedState
   resultsPublished?: ResultsPublishedState
   /** Scoring posts, for event types that score at posts (NOWT). */
   stations?: JsonEventStation[]

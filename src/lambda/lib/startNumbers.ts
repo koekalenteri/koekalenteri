@@ -1,5 +1,6 @@
-import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass } from '../../types'
-import { getStartNumbersPublishedClassMap } from '../../lib/event'
+import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass, StartNumbersDayScope } from '../../types'
+import { formatDate } from '../../i18n/dates'
+import { getStartNumbersClassDays, getStartNumbersDayScope, getStartNumbersPublishedClassMap } from '../../lib/event'
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -15,8 +16,12 @@ export interface StartNumberEntry {
   startNumber: number
 }
 
-const inScope = (registration: JsonRegistration, eventClass?: RegistrationClass) =>
-  !eventClass || getRegistrationClass(registration) === eventClass
+/** The day a placement falls on, in the event's time zone — the key the published-days list holds. */
+const placementDay = (date: string | Date) => formatDate(date, 'yyyy-MM-dd')
+
+const inScope = (registration: JsonRegistration, eventClass?: RegistrationClass, date?: string) =>
+  (!eventClass || getRegistrationClass(registration) === eventClass) &&
+  (!date || (!!registration.group?.date && placementDay(registration.group.date) === date))
 
 /**
  * Freeze the published order: each scorable participant's current group becomes its `startGroup`.
@@ -25,15 +30,21 @@ const inScope = (registration: JsonRegistration, eventClass?: RegistrationClass)
  * the snapshot is written here — only where none exists yet — and nowhere automatic afterwards. The whole placement is copied,
  * not the bare number: a later cancellation drops the group's date and time, and the public POISSA
  * row still has to land under the right day.
+ *
+ * A `date` (yyyy-MM-dd) narrows the freeze to that day of the class (KOE-1304): a multi-day class
+ * draws each morning, and publishing Friday must leave Saturday's working order alone.
  */
 export const freezeStartNumbers = async (
   eventId: string,
   registrations: JsonRegistration[],
-  eventClass: RegistrationClass | undefined
+  eventClass: RegistrationClass | undefined,
+  date?: string
 ): Promise<Patch<JsonRegistration>[]> => {
   const scoped = registrations.filter(
     (registration) =>
-      isScorableRegistration(registration) && Boolean(registration.group?.date) && inScope(registration, eventClass)
+      isScorableRegistration(registration) &&
+      Boolean(registration.group?.date) &&
+      inScope(registration, eventClass, date)
   )
 
   // A partly entered draw must not be published: the gaps would freeze to working-order numbers, and
@@ -141,15 +152,45 @@ export const assignStartNumbers = async (
   return patches
 }
 
-/** Flip the published flag for the class (or the whole classless event) on the event record. */
+/**
+ * One day's publish or hide, folded into the class's scope (KOE-1304): a day list grows and shrinks,
+ * collapses to `true` when it covers every day the class runs, and empties to `false`.
+ */
+const withDay = (
+  scope: StartNumbersDayScope,
+  days: string[],
+  date: string,
+  published: boolean
+): StartNumbersDayScope => {
+  const current = Array.isArray(scope) ? scope : scope ? days : []
+  const next = published ? [...new Set([...current, date])].sort() : current.filter((day) => day !== date)
+
+  if (next.length === 0) return false
+  if (days.every((day) => next.includes(day))) return true
+  return next
+}
+
+/**
+ * Flip the published flag for the class (or the whole classless event) on the event record. With a
+ * `date` (yyyy-MM-dd) only that day's numbers change state.
+ */
 export const setStartNumbersPublishedState = async (
   confirmedEvent: JsonConfirmedEvent,
   eventClass: RegistrationClass | undefined,
-  published: boolean
+  published: boolean,
+  date?: string
 ): Promise<JsonConfirmedEvent['startNumbersPublished']> => {
-  const startNumbersPublished = eventClass
-    ? { ...getStartNumbersPublishedClassMap(confirmedEvent), [eventClass]: published }
+  const scope: StartNumbersDayScope = date
+    ? withDay(
+        getStartNumbersDayScope(confirmedEvent, eventClass),
+        getStartNumbersClassDays(confirmedEvent, eventClass),
+        date,
+        published
+      )
     : published
+  const startNumbersPublished = eventClass
+    ? { ...getStartNumbersPublishedClassMap(confirmedEvent), [eventClass]: scope }
+    : scope
 
   await dynamoDB.update({ id: confirmedEvent.id }, { set: { startNumbersPublished } }, eventTable)
 

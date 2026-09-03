@@ -23,7 +23,9 @@
       "classStartListHidden": "{{eventClass}} starttilista piilotettu",
       "classStartListPublished": "{{eventClass}} starttilista julkaistu",
       "classStartNumbersHidden": "{{eventClass}} starttinumerot piilotettu",
+      "classStartNumbersHiddenDay": "{{eventClass}} starttinumerot piilotettu {{day}}",
       "classStartNumbersPublished": "{{eventClass}} starttinumerot julkaistu",
+      "classStartNumbersPublishedDay": "{{eventClass}} starttinumerot julkaistu {{day}}",
       "emailSent": "{{template}} lähetetty: onnistui {{ok}}, epäonnistui {{failed}}",
       "eventCreated": "Tapahtuma luotu",
       "eventDeleted": "Tapahtuma poistettu",
@@ -31,7 +33,9 @@
       "startListHidden": "Starttilista piilotettu",
       "startListPublished": "Starttilista julkaistu",
       "startNumbersHidden": "Starttinumerot piilotettu",
-      "startNumbersPublished": "Starttinumerot julkaistu"
+      "startNumbersHiddenDay": "Starttinumerot piilotettu {{day}}",
+      "startNumbersPublished": "Starttinumerot julkaistu",
+      "startNumbersPublishedDay": "Starttinumerot julkaistu {{day}}"
     },
     "removed": "(poistettu)",
     "showDetails": "Näytä audit-lisätiedot",
@@ -355,14 +359,17 @@
     "startList": {
       "hide": "Piilota starttilista",
       "hideNumbers": "Piilota starttinumerot",
+      "hideNumbersDay": "Piilota starttinumerot {{day}}",
       "numbersIncomplete": "Starttinumeroiden syöttäminen on kesken. Syötä ensin kaikki starttinumerot.",
       "numbersPublished": "Starttinumerot julkaistu",
+      "numbersPublishedDays": "Starttinumerot julkaistu: {{days}}",
       "preview": "Katso julkinen starttilista",
       "previewUnpublished": "Katso starttilistan esikatselu",
       "publish": "Julkaise starttilista",
       "published": "Starttilista julkaistu",
       "publishing": "Starttilistan julkaisu",
       "publishNumbers": "Julkaise starttinumerot",
+      "publishNumbersDay": "Julkaise starttinumerot {{day}}",
       "saveFailed": "Starttilistan julkaisutilan tallennus epäonnistui. Yritä uudelleen.",
       "secretary": "Sihteerin starttilista"
     },
@@ -914,17 +921,17 @@
   "startListNotPublished": "starttilistaa ei ole vielä julkaistu",
   "startNumbers": {
     "column": {
+      "day": "Starttipäivä",
       "number": "Starttinumero"
     },
+    "day": "Päivä",
     "duplicate": "Sama numero kahdesti",
     "info": "Kirjaa paikan päällä arvotut starttinumerot.",
     "save": "Tallenna numerot",
     "saved": "Starttinumerot tallennettu",
     "saveFailed": "Starttinumeroiden tallennus epäonnistui. Tarkista numerot ja yritä uudelleen.",
-      "day": "Starttipäivä",
     "title": "Starttinumeroiden syöttö"
   },
-    "day": "Päivä",
   "startNumbersNotPublished": "starttijärjestystä ei ole vielä vahvistettu",
   "stats": {
     "admin": {

@@ -41,7 +41,8 @@ interface Props {
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly onSetStartNumbersPublished?: (
     eventClass: RegistrationClass | undefined,
-    published: boolean
+    published: boolean,
+    date?: string
   ) => Promise<unknown>
   readonly registrations: Registration[]
   readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void

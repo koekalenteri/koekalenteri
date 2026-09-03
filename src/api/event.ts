@@ -112,6 +112,8 @@ export interface StartNumbersRequest {
   eventClass?: RegistrationClass
   /** Publishing is also the freeze: the server snapshots each participant's current group. */
   published?: boolean
+  /** One day (yyyy-MM-dd) of a multi-day class, for a publish or hide that leaves the other days alone (KOE-1304). */
+  date?: string
   numbers?: { id: string; startNumber: number }[]
 }
 

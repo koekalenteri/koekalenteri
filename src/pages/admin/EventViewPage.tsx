@@ -158,10 +158,10 @@ export default function EventViewPage() {
         onSetResultsPublished={(eventClass, published) =>
           eventActions.setResultsClassPublished(event, eventClass, published)
         }
-        onSetStartNumbersPublished={(eventClass, published) =>
+        onSetStartNumbersPublished={(eventClass, published, date) =>
           eventClass
-            ? eventActions.setStartNumbersClassPublished(event, eventClass, published)
-            : eventActions.setStartNumbersPublished(event, published)
+            ? eventActions.setStartNumbersClassPublished(event, eventClass, published, date)
+            : eventActions.setStartNumbersPublished(event, published, date)
         }
         onSetStartListPublished={(eventClass, published) =>
           eventClass
