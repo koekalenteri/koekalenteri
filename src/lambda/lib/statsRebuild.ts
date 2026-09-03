@@ -697,13 +697,26 @@ const addRegistrationStats = (
 }
 
 /**
+ * An event with its stats year resolved once. The year is a timezone-aware parse of the start
+ * date, and resolving it per registration instead (20 000 of them in production, for 700 events)
+ * was the one piece of the registration loop that did the same work over and over.
+ */
+interface DatedStatsEvent {
+  event: EventStatsEvent
+  year: number | undefined
+}
+
+const dateStatsEvents = (eventsById: Map<string, EventStatsEvent>): Map<string, DatedStatsEvent> =>
+  new Map([...eventsById].map(([id, event]) => [id, { event, year: eventStatsYear(event) }]))
+
+/**
  * Processes one registration into the accumulator/capacity buckets. Returns whether it had to be
  * skipped (unresolvable event/year) and, when capacity is wanted, whether it couldn't be
  * attributed to a capacity bucket.
  */
 const processRegistrationStats = (
   registration: CapacityRegistrationInput,
-  eventsById: Map<string, EventStatsEvent>,
+  eventsById: Map<string, DatedStatsEvent>,
   updatedAt: string,
   accumulator: StatsAccumulator,
   wanted: Set<StatsPartition>,
@@ -712,12 +725,12 @@ const processRegistrationStats = (
   breedStartBuckets: Map<string, BreedStartBucket>,
   eventBreakdownBuckets: Map<string, EventBreakdownBucket>
 ): { skipped: boolean; unattributedCapacity: boolean } => {
-  const event = eventsById.get(registration.eventId)
-  const year = event && eventStatsYear(event)
-  if (!event || year === undefined) {
+  const dated = eventsById.get(registration.eventId)
+  if (!dated || dated.year === undefined) {
     console.log(`Skipping registration ${registration.id}: event is missing or has an invalid start date`)
     return { skipped: true, unattributedCapacity: false }
   }
+  const { event, year } = dated
   addRegistrationStats(registration, event, year, updatedAt, accumulator, wanted)
   if (wanted.has('participation')) addBreedStartRegistration(registration, event, year, breedStartBuckets)
   if (wanted.has('eventBreakdown')) addEventBreakdownRegistration(registration, event, year, eventBreakdownBuckets)
@@ -781,10 +794,11 @@ export function buildStatsRecords(
   const { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets } =
     seedStatsBuckets(eventsById, wanted, yearlyStats)
 
+  const datedEvents = dateStatsEvents(eventsById)
   for (const registration of registrations) {
     const outcome = processRegistrationStats(
       registration,
-      eventsById,
+      datedEvents,
       updatedAt,
       accumulator,
       wanted,
