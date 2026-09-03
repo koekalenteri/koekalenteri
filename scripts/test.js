@@ -2,10 +2,8 @@
 //
 // This script forwards any CLI filters (e.g. `npm test http`) to *both* test runners,
 // ensures that filters that match zero tests do not fail the overall command, and is
-// intentionally *non-watch* (it forces --run for the children). It deliberately does NOT force
-// CI=true to get that: vitest.config.mts caps maxWorkers at 2 whenever CI is set, which is the
-// right call for actual CI runners but would needlessly throttle a local machine's cores every
-// time this script runs -- including from the pre-commit hook, where it matters most.
+// intentionally *non-watch* (it forces --run for the children rather than setting CI=true, which
+// the test scripts would also read as "run once" but which changes other behaviour too).
 
 const { spawn } = require('node:child_process')
 
