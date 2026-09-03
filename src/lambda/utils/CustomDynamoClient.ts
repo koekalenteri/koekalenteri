@@ -53,6 +53,16 @@ type UpdateWithOptionalTable = Omit<Update, 'TableName'> & { TableName?: string 
 type DeleteWithOptionalTable = Omit<Delete, 'TableName'> & { TableName?: string }
 type ConditionCheckWithOptionalTable = Omit<ConditionCheck, 'TableName'> & { TableName?: string }
 
+type BatchWriteRequest = NonNullable<BatchWriteCommandInput['RequestItems']>[string][number]
+
+const BATCH_WRITE_CHUNK_SIZE = 25
+const BATCH_WRITE_MAX_ATTEMPTS = 5
+const BATCH_WRITE_RETRY_BASE_MS = 50
+
+/** Exponential backoff between attempts of one batch: 50, 100, 200, 400 ms. */
+const waitForBatchWriteRetry = (attempt: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, BATCH_WRITE_RETRY_BASE_MS * 2 ** (attempt - 2)))
+
 type UpdateCondition = {
   expression: string
   names?: Record<string, string>
@@ -360,24 +370,47 @@ export default class CustomDynamoClient {
     return this.docClient.send(new PutCommand(params))
   }
 
-  async batchWrite<T extends object>(items: T[], table?: string) {
+  /**
+   * Puts the items in requests of 25. A request that DynamoDB only partly processes (throttling,
+   * mostly) is retried with the leftovers until they are all written or the attempts run out --
+   * silently dropping them would leave the table with whatever the keys held before.
+   */
+  async batchWrite<T extends object>(items: T[], table?: string): Promise<void> {
     const tableName = table ? fromSamLocalTable(table) : this.table
-    const chunkSize = 25
+    await this.sendBatchWrites(
+      tableName,
+      items.map((item) => ({ PutRequest: { Item: item } }))
+    )
+  }
 
-    for (let i = 0; i < items.length; i += chunkSize) {
-      const chunk = items.slice(i, i + chunkSize).map((item) => ({
-        PutRequest: {
-          Item: item,
-        },
-      }))
-      const params: BatchWriteCommandInput = {
-        RequestItems: {
-          [tableName]: chunk,
-        },
+  /** Deletes the keys in requests of 25, with the same retry of unprocessed leftovers as batchWrite. */
+  async batchDelete(keys: Record<string, number | string>[], table?: string): Promise<void> {
+    const tableName = table ? fromSamLocalTable(table) : this.table
+    await this.sendBatchWrites(
+      tableName,
+      keys.map((key) => ({ DeleteRequest: { Key: key } }))
+    )
+  }
+
+  private async sendBatchWrites(tableName: string, requests: BatchWriteRequest[]): Promise<void> {
+    for (let i = 0; i < requests.length; i += BATCH_WRITE_CHUNK_SIZE) {
+      let pending: BatchWriteRequest[] | undefined = requests.slice(i, i + BATCH_WRITE_CHUNK_SIZE)
+
+      for (let attempt = 1; pending && attempt <= BATCH_WRITE_MAX_ATTEMPTS; attempt++) {
+        if (attempt > 1) await waitForBatchWriteRetry(attempt)
+        const params: BatchWriteCommandInput = { RequestItems: { [tableName]: pending } }
+        logDb('DB.batchWrite', params)
+        const result = await this.docClient.send(new BatchWriteCommand(params))
+        logDb('DB.batchWrite.result', result)
+        const unprocessed = result.UnprocessedItems?.[tableName]
+        pending = unprocessed?.length ? unprocessed : undefined
       }
-      logDb('DB.batchWrite', params)
-      const result = await this.docClient.send(new BatchWriteCommand(params))
-      logDb('DB.batchWrite.result', result)
+
+      if (pending) {
+        throw new Error(
+          `DynamoDB: ${pending.length} items of a batch write to ${tableName} were left unprocessed after ${BATCH_WRITE_MAX_ATTEMPTS} attempts`
+        )
+      }
     }
   }
 

@@ -642,6 +642,81 @@ describe('CustomDynamoClient', () => {
         })
       )
     })
+
+    it('retries the items DynamoDB could not process, after a backoff', async () => {
+      vi.useFakeTimers()
+      try {
+        const client = new CustomDynamoClient('TestTable')
+        const leftover = { PutRequest: { Item: { id: '2' } } }
+        mockSend
+          .mockResolvedValueOnce({ UnprocessedItems: { 'test-table': [leftover] } })
+          .mockResolvedValueOnce({ UnprocessedItems: {} })
+
+        const write = client.batchWrite([{ id: '1' }, { id: '2' }])
+        await vi.runAllTimersAsync()
+        await write
+
+        expect(mockSend).toHaveBeenCalledTimes(2)
+        expect(mockSend).toHaveBeenNthCalledWith(2, { RequestItems: { 'test-table': [leftover] } })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('fails when items stay unprocessed after every attempt', async () => {
+      vi.useFakeTimers()
+      try {
+        const client = new CustomDynamoClient('TestTable')
+        mockSend.mockResolvedValue({ UnprocessedItems: { 'test-table': [{ PutRequest: { Item: { id: '1' } } }] } })
+
+        const write = client.batchWrite([{ id: '1' }])
+        // The rejection must be observed before the timers run, or it would surface as unhandled.
+        const outcome = expect(write).rejects.toThrow(
+          'DynamoDB: 1 items of a batch write to test-table were left unprocessed after 5 attempts'
+        )
+        await vi.runAllTimersAsync()
+        await outcome
+
+        expect(mockSend).toHaveBeenCalledTimes(5)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
+  describe('batchDelete', () => {
+    it('deletes keys in requests of 25', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      const keys = Array.from({ length: 30 }, (_, i) => ({ PK: 'P', SK: `${i}` }))
+
+      await client.batchDelete(keys)
+
+      expect(mockSend).toHaveBeenCalledTimes(2)
+      expect(mockSend).toHaveBeenNthCalledWith(1, {
+        RequestItems: { 'test-table': keys.slice(0, 25).map((Key) => ({ DeleteRequest: { Key } })) },
+      })
+      expect(mockSend).toHaveBeenNthCalledWith(2, {
+        RequestItems: { 'test-table': keys.slice(25).map((Key) => ({ DeleteRequest: { Key } })) },
+      })
+    })
+
+    it('uses provided table name', async () => {
+      const client = new CustomDynamoClient('DefaultTable')
+
+      await client.batchDelete([{ id: '1' }], 'CustomTable')
+
+      expect(mockSend).toHaveBeenCalledWith({
+        RequestItems: { 'custom-table': [{ DeleteRequest: { Key: { id: '1' } } }] },
+      })
+    })
+
+    it('does not call DynamoDB without keys', async () => {
+      const client = new CustomDynamoClient('TestTable')
+
+      await client.batchDelete([])
+
+      expect(mockSend).not.toHaveBeenCalled()
+    })
   })
 
   describe('update', () => {
