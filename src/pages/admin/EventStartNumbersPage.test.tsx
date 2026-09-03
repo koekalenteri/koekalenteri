@@ -111,6 +111,15 @@ describe('EventStartNumbersPage', () => {
         id: 'run-3',
         startGroup: { date: nextDay, key: 'ALO-AP-2', number: 25, time: 'ap' },
       },
+      // Another class's dog holds 30: the number is one dog's in the whole trial.
+      {
+        ...second,
+        class: 'AVO',
+        dog: { ...second.dog, name: 'Neljas', regNo: 'REG-run-4' },
+        group: { date: first.group?.date, key: 'AVO-AP', number: 4, time: 'ap' },
+        id: 'run-4',
+        startGroup: { date: first.group?.date, key: 'AVO-AP', number: 30, time: 'ap' },
+      },
     ])
     await flushPromises()
 
@@ -128,10 +137,15 @@ describe('EventStartNumbersPage', () => {
     expect(screen.getByText('Kolmas')).toBeInTheDocument()
     expect(within(rowFor('Kolmas')).getByRole('textbox')).toHaveValue('25')
 
-    // One number, one dog, whichever day it runs: 25 is Saturday's, so Friday's dog cannot take it.
+    // One number, one dog, whichever day or class it runs in: 25 is Saturday's, so Friday's dog
+    // cannot take it, and 30 belongs to the AVO dog behind the other class tab.
     await user.click(screen.getAllByRole('button', { pressed: false })[0])
     await flushPromises()
     await user.type(within(rowFor('Ensimmainen')).getByRole('textbox'), '25')
+    await flushPromises()
+    expect(screen.getByText('startNumbers.duplicate')).toBeInTheDocument()
+    await user.clear(within(rowFor('Ensimmainen')).getByRole('textbox'))
+    await user.type(within(rowFor('Ensimmainen')).getByRole('textbox'), '30')
     await flushPromises()
     expect(screen.getByText('startNumbers.duplicate')).toBeInTheDocument()
   })

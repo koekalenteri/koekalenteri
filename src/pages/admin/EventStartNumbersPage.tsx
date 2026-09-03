@@ -105,15 +105,17 @@ export default function EventStartNumbersPage() {
     [classRegistrations, day, days.length]
   )
 
-  // A number belongs to one dog across every day of the class (KOE-1303): Friday 1–24, Saturday
-  // 25–48. The day filter narrows the list, not the check.
+  // A number belongs to one dog in the whole trial, every class and every day (KOE-1303): Friday
+  // 1–24, Saturday 25–48. The class tab and the day filter narrow the list, not the check.
   const duplicates = useMemo(
     () =>
       duplicateNumbers(
-        classRegistrations.map((reg) => ({ id: reg.id, startNumber: reg.startGroup?.number })),
+        registrations
+          .filter(isScorableRegistration)
+          .map((reg) => ({ id: reg.id, startNumber: reg.startGroup?.number })),
         drafts
       ),
-    [classRegistrations, drafts]
+    [drafts, registrations]
   )
 
   const handleChange = useCallback((id: string, value: string) => {

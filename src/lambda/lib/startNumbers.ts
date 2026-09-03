@@ -48,27 +48,22 @@ export const freezeStartNumbers = async (
   )
 
   // A partly entered draw must not be published: the gaps would freeze to working-order numbers, and
-  // a working number can collide with a drawn one (KOE-1218). A number belongs to one dog across
-  // every day of the class (KOE-1303), so an undrawn day cannot freeze beside a drawn one either —
-  // a multi-day class publishes one day at a time instead (KOE-1304).
-  const gaps = new Map<string, number>()
-  const entered = new Set<string>()
-  for (const registration of scoped) {
-    const key = getRegistrationClass(registration) ?? ''
-    if (registration.startGroup) entered.add(key)
-    else gaps.set(key, (gaps.get(key) ?? 0) + 1)
-  }
-  for (const [key, count] of gaps) {
-    if (entered.has(key)) {
-      // Structured so the client can tell "finish the draw first" apart from other 422s (KOE-1218).
-      throw new LambdaError(
-        422,
-        JSON.stringify({
-          error: 'startNumbersIncomplete',
-          message: `Start numbers are missing for ${count} dogs (${key})`,
-        })
-      )
-    }
+  // a working number can collide with a drawn one (KOE-1218). A number belongs to one dog in the
+  // whole trial, every class and every day (KOE-1303), so once any number has been entered, nothing
+  // freezes from the working order any more — an undrawn day or class waits for its own draw, and a
+  // multi-day class publishes one day at a time (KOE-1304). An event whose draw was never entered
+  // has no entered number anywhere and freezes its working order as before.
+  const entered = registrations.some((registration) => isScorableRegistration(registration) && registration.startGroup)
+  const gaps = scoped.filter((registration) => !registration.startGroup).length
+  if (entered && gaps > 0) {
+    // Structured so the client can tell "finish the draw first" apart from other 422s (KOE-1218).
+    throw new LambdaError(
+      422,
+      JSON.stringify({
+        error: 'startNumbersIncomplete',
+        message: `Start numbers are missing for ${gaps} dogs${eventClass ? ` (${eventClass})` : ''}`,
+      })
+    )
   }
 
   const patches: Patch<JsonRegistration>[] = []
@@ -89,7 +84,7 @@ export const freezeStartNumbers = async (
 
 /**
  * Write the numbers the venue drew. Validated here rather than only on the form: an integer from 1
- * up, and unique within the class across every day it runs (KOE-1303) — the duplicate the server
+ * up, and unique in the whole trial — every class, every day (KOE-1303). The duplicate the server
  * refuses is the one two phones would otherwise both claim.
  */
 export const assignStartNumbers = async (
@@ -117,11 +112,8 @@ export const assignStartNumbers = async (
       throw new LambdaError(422, `Registration '${entry.id}' has no start slot to number`)
     }
 
-    const scopeOf = (candidate: JsonRegistration) =>
-      getRegistrationClass(candidate) === getRegistrationClass(registration)
-
     for (const other of registrations) {
-      if (other.id === entry.id || !scopeOf(other)) continue
+      if (other.id === entry.id) continue
 
       const otherNumber = requested.get(other.id) ?? other.startGroup?.number
       if (otherNumber !== entry.startNumber) continue

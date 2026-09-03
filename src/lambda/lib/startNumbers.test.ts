@@ -79,6 +79,10 @@ describe('startNumbers', () => {
       await expect(freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO')).rejects.toThrow(
         /startNumbersIncomplete.*Start numbers are missing for 1 dogs \(ALO\)/
       )
+      // Nor can an undrawn class freeze beside a drawn one: the number is one dog's in the whole trial.
+      await expect(
+        freezeStartNumbers('event-1', [drawn, registration('run-3', { class: 'AVO' })], 'AVO')
+      ).rejects.toThrow(/startNumbersIncomplete.*Start numbers are missing for 1 dogs \(AVO\)/)
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })
 
@@ -164,7 +168,7 @@ describe('startNumbers', () => {
       ).rejects.toThrow('Start number 3 assigned twice')
     })
 
-    it('refuses a number another day of the class already holds (KOE-1303)', async () => {
+    it('refuses a number any dog of the trial already holds, on another day or in another class (KOE-1303)', async () => {
       const friday = registration('run-1', {
         startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' },
       })
@@ -173,15 +177,13 @@ describe('startNumbers', () => {
       })
       const otherClass = registration('run-3', { class: 'AVO' })
 
-      // Friday 1–24, Saturday 25–48: one number, one dog, whichever day it runs.
+      // Friday 1–24, Saturday 25–48: one number, one dog, whichever day or class it runs in.
       await expect(
         assignStartNumbers('event-1', [friday, saturday], [{ id: 'run-2', startNumber: 7 }])
       ).rejects.toThrow('Start number 7 is already taken')
-      // Another class keeps its own numbering.
-      const patches = await assignStartNumbers('event-1', [friday, otherClass], [{ id: 'run-3', startNumber: 7 }])
-      expect(patches).toEqual([
-        { id: 'run-3', startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' } },
-      ])
+      await expect(
+        assignStartNumbers('event-1', [friday, otherClass], [{ id: 'run-3', startNumber: 7 }])
+      ).rejects.toThrow('Start number 7 is already taken')
     })
 
     it('lets a cancelled holder yield its number, which fills the vacated place properly', async () => {
