@@ -937,7 +937,7 @@
     "admin": {
       "cancellationRate": "Cancelled",
       "cancellationRateTitle": "Cancellation rate",
-      "cancellationRateTitleInfo": "Share of registrations cancelled each month, as a percentage of everyone who registered and either started or withdrew. Waiting-list places that never got confirmed are not counted.",
+      "cancellationRateTitleInfo": "Share of registrations cancelled each month, as a percentage of everyone who registered: those who started, those left on the waiting list and those who withdrew. Withdrawing from the waiting list counts as a cancellation too.",
       "cancelledRegistrations": "Cancellations",
       "capacityTitle": "Starters vs. available places",
       "capacityTitleInfo": "Starters compared with the number of available places, per month, for the selected event type and class.",

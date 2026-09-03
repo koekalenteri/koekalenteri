@@ -26,7 +26,8 @@ const entry = (
   month: string,
   classKey: string,
   starters: number,
-  cancelledRegistrations: number
+  cancelledRegistrations: number,
+  reserve = 0
 ): CapacityStatsEntry => ({
   cancelledRegistrations,
   class: classKey,
@@ -35,7 +36,7 @@ const entry = (
   month,
   organizerId: 'org1',
   places: 40,
-  reserve: 0,
+  reserve,
   starters,
 })
 
@@ -53,6 +54,15 @@ describe('CancellationRateChart', () => {
     render(<CancellationRateChart classKey={ALL_CLASSES_ID} data={[entry('2025-03', 'ALO', 22, 4)]} />)
 
     expect(chart().rates).toEqual([15.4])
+  })
+
+  it('counts those left in reserve among the registrations', () => {
+    // 30 places filled, 15 left on the waiting list, 3 withdrew: 3 of 48 = 6.3 %, not 3 of 33.
+    // A withdrawal from the waiting list is a cancellation like any other, and a cancelled entry
+    // no longer says whether it held a place.
+    render(<CancellationRateChart classKey={ALL_CLASSES_ID} data={[entry('2026-05', 'ALO', 30, 3, 15)]} />)
+
+    expect(chart().rates).toEqual([6.3])
   })
 
   it('pools the classes of a month before taking the rate', () => {

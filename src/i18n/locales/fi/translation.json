@@ -937,7 +937,7 @@
     "admin": {
       "cancellationRate": "Peruutuksia",
       "cancellationRateTitle": "Peruutusprosentti",
-      "cancellationRateTitleInfo": "Kuinka suuri osa ilmoittautumisista peruttiin kuukausittain, prosentteina kaikista, jotka joko osallistuivat tai peruivat ilmoittautumisensa. Vahvistamattomia varasijoja ei lasketa mukaan.",
+      "cancellationRateTitleInfo": "Kuinka suuri osa ilmoittautumisista peruttiin kuukausittain, prosentteina kaikista ilmoittautuneista: osallistuneista, varasijalle jääneistä ja peruneista. Myös varasijalta tehty peruutus on peruutus.",
       "cancelledRegistrations": "Peruutukset",
       "capacityTitle": "Osallistujamäärä suhteessa paikkoihin",
       "capacityTitleInfo": "Osallistujien määrä verrattuna käytettävissä olevien paikkojen määrään kuukausittain, valitulle koemuodolle ja luokalle.",

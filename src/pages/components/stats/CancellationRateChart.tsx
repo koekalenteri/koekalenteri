@@ -16,15 +16,17 @@ interface Props {
  * numbers are only comparable once the count is divided out, and a percentage cannot share an
  * axis with the people-counts next to it.
  *
- * The denominator is starters + cancelled — everyone who registered and then either turned up or
- * withdrew. Reserve places are left out: someone who never got a place did not cancel one.
+ * The denominator is every registration: starters, those left in reserve and the cancelled. A
+ * withdrawal from the waiting list is as much a cancellation as one from a place — many come in
+ * before the participants are even picked — and a cancelled entry no longer records which of the
+ * two it was, so the only honest base is everyone who entered.
  */
 const rateByMonth = (data: CapacityStatsEntry[]) => {
   const totals = new Map<string, { cancelled: number; month: string; registered: number }>()
   for (const entry of data) {
     const total = totals.get(entry.month) ?? { cancelled: 0, month: entry.month, registered: 0 }
     total.cancelled += entry.cancelledRegistrations
-    total.registered += entry.starters + entry.cancelledRegistrations
+    total.registered += entry.starters + entry.reserve + entry.cancelledRegistrations
     totals.set(entry.month, total)
   }
   return [...totals.values()]
