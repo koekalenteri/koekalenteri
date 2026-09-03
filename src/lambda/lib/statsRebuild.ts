@@ -813,14 +813,6 @@ export function buildStatsRecords(
   return { records, skippedCount, unattributedCapacityCount }
 }
 
-async function deleteStatsRecords(stats: EventStatKey[]): Promise<void> {
-  for (const stat of stats) {
-    if (!(await dynamoDB.delete({ PK: stat.PK, SK: stat.SK }))) {
-      throw new Error(`Failed to delete stats record ${stat.PK}/${stat.SK}`)
-    }
-  }
-}
-
 const groupStatsByYear = <T extends EventStatKey>(records: T[]) => {
   const recordsByYear = new Map<number, T[]>()
   for (const record of records) {
@@ -887,7 +879,7 @@ export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITION
       const staleRecords = oldRecords.filter((record) => !newKeys.has(`${record.PK}\u0000${record.SK}`))
       // Keep each year independently regenerable if a manual run fails midway.
       if (newRecords.length > 0) await dynamoDB.batchWrite(newRecords)
-      await deleteStatsRecords(staleRecords)
+      if (staleRecords.length > 0) await dynamoDB.batchDelete(staleRecords.map(({ PK, SK }) => ({ PK, SK })))
       console.log(
         `Regenerated ${year}: wrote ${newRecords.length} records and removed ${staleRecords.length} stale stats`
       )

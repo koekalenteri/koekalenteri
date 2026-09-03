@@ -2,14 +2,14 @@ import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { EventStatsEvent } from './statsRebuild'
 import { vi } from 'vitest'
 
+const mockBatchDelete = vi.fn<CustomDynamoClient['batchDelete']>()
 const mockBatchWrite = vi.fn<CustomDynamoClient['batchWrite']>()
-const mockDelete = vi.fn<CustomDynamoClient['delete']>()
 const mockReadAll = vi.fn<CustomDynamoClient['readAll']>()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: class {
+    batchDelete = mockBatchDelete
     batchWrite = mockBatchWrite
-    delete = mockDelete
     readAll = mockReadAll
   },
 }))
@@ -57,7 +57,7 @@ describe('statsRebuild', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockDelete.mockResolvedValue(true)
+    mockBatchDelete.mockResolvedValue(undefined)
     mockBatchWrite.mockResolvedValue(undefined)
   })
 
@@ -87,7 +87,7 @@ describe('statsRebuild', () => {
     await handler()
 
     expect(mockReadAll).toHaveBeenCalledTimes(3)
-    expect(mockDelete).not.toHaveBeenCalled()
+    expect(mockBatchDelete).not.toHaveBeenCalled()
     expect(mockBatchWrite).not.toHaveBeenCalled()
   })
 
@@ -129,9 +129,8 @@ describe('statsRebuild', () => {
     // TOTALS#2024 has no counterpart in the rebuilt records, so it is pruned; TOTALS#2025 is
     // regenerated in place and must never be deleted -- deleting it would blank the year for
     // however long the write takes, and /stats caches that gap publicly.
-    expect(mockDelete).toHaveBeenCalledTimes(1)
-    expect(mockDelete).toHaveBeenCalledWith(stats[1])
-    expect(mockDelete).not.toHaveBeenCalledWith(stats[0])
+    expect(mockBatchDelete).toHaveBeenCalledTimes(1)
+    expect(mockBatchDelete).toHaveBeenCalledWith([stats[1]])
     expect(mockBatchWrite).toHaveBeenCalledTimes(2)
     expect(mockBatchWrite).toHaveBeenNthCalledWith(
       1,
@@ -883,7 +882,7 @@ describe('statsRebuild', () => {
 
     await handler()
 
-    expect(mockDelete).not.toHaveBeenCalled()
+    expect(mockBatchDelete).not.toHaveBeenCalled()
     expect(mockBatchWrite).not.toHaveBeenCalled()
     expect(mockLog).toHaveBeenLastCalledWith(
       'Stats regeneration completed. Records: 0, Skipped: 2, Unclassified stats: 0, Registrations without a capacity class: 0'
@@ -898,7 +897,7 @@ describe('statsRebuild', () => {
 
     await handler()
 
-    expect(mockDelete).not.toHaveBeenCalled()
+    expect(mockBatchDelete).not.toHaveBeenCalled()
     expect(mockLog).toHaveBeenLastCalledWith(
       'Stats regeneration completed. Records: 0, Skipped: 0, Unclassified stats: 1, Registrations without a capacity class: 0'
     )
@@ -932,8 +931,8 @@ describe('statsRebuild', () => {
       await rebuildHandler()
 
       // ORG# is maintained by registration writes; touching it here would race them.
-      const deleted = mockDelete.mock.calls.map(([key]) => key)
-      expect(deleted).toEqual([
+      expect(mockBatchDelete).toHaveBeenCalledTimes(1)
+      expect(mockBatchDelete).toHaveBeenCalledWith([
         { PK: 'TOTALS#2025', SK: 'dog' },
         { PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' },
       ])
@@ -993,9 +992,11 @@ describe('statsRebuild', () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ PK: 'TOTALS#2025', SK: 'dog' }])
-    mockDelete.mockResolvedValueOnce(false)
+    mockBatchDelete.mockRejectedValueOnce(
+      new Error('DynamoDB: 1 items of a batch write to event-stats-table were left unprocessed after 5 attempts')
+    )
 
-    await expect(handler()).rejects.toThrow('Failed to delete stats record TOTALS#2025/dog')
+    await expect(handler()).rejects.toThrow('were left unprocessed after 5 attempts')
     expect(mockBatchWrite).not.toHaveBeenCalled()
   })
 
