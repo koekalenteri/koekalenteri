@@ -1,4 +1,5 @@
 import type { Theme } from '@mui/material'
+import type { StartDay } from './eventStartNumbersPage/StartDaySelector'
 import type { StartNumberRow } from './eventStartNumbersPage/StartNumbersTable'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Save from '@mui/icons-material/Save'
@@ -17,11 +18,13 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { putStartNumbers } from '../../api/event'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
+import { zonedDateString } from '../../i18n/dates'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import {
   compareRegistrationClasses,
   getRegistrationClass,
+  getRegistrationPlacement,
   isRegistrationClass,
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
@@ -30,6 +33,7 @@ import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
+import { StartDaySelector } from './eventStartNumbersPage/StartDaySelector'
 import { StartNumbersTable } from './eventStartNumbersPage/StartNumbersTable'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom } from './state'
 
@@ -55,25 +59,50 @@ export default function EventStartNumbersPage() {
     [registrations]
   )
   const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])
+  const [selectedDay, setSelectedDay] = useState<string | undefined>()
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   // The on-site draw is typed in as a batch; losing it to a stray navigation would mean redoing it (KOE-1283).
   useUnsavedChangesWarning(Object.values(drafts).some((value) => value !== ''))
 
   const eventClass = selectedClass ?? classes[0]
 
+  const classRegistrations = useMemo(
+    () => registrations.filter((reg) => isScorableRegistration(reg) && getRegistrationClass(reg) === eventClass),
+    [eventClass, registrations]
+  )
+
+  // A multi-day class draws its numbers one morning at a time, so the entry goes day by day too
+  // (KOE-1303). The days are the class's own placements, keyed the way the server scopes uniqueness.
+  const days = useMemo<StartDay[]>(
+    () =>
+      classRegistrations
+        .map((reg) => getRegistrationPlacement(reg)?.date)
+        .filter((date): date is Date => !!date)
+        .map((date) => ({ date, key: zonedDateString(date) }))
+        .filter((day, index, all) => all.findIndex((other) => other.key === day.key) === index)
+        .sort((a, b) => a.key.localeCompare(b.key)),
+    [classRegistrations]
+  )
+  // A day picked on one class tab may not exist on the next; fall back to the first rather than an empty list.
+  const day = days.find((item) => item.key === selectedDay)?.key ?? days[0]?.key
+
   const rows = useMemo<StartNumberRow[]>(
     () =>
-      registrations
-        .filter((reg) => isScorableRegistration(reg) && getRegistrationClass(reg) === eventClass)
+      classRegistrations
+        .filter((reg) => {
+          const date = getRegistrationPlacement(reg)?.date
+          return days.length < 2 || (date && zonedDateString(date) === day)
+        })
         .sort(sortRegistrationsByDateClassTimeAndNumber)
         .map((reg) => ({
           dog: { name: reg.dog.name, regNo: reg.dog.regNo },
           groupNumber: reg.group?.number,
           handler: reg.handler,
           id: reg.id,
+          placement: getRegistrationPlacement(reg),
           startNumber: reg.startGroup?.number,
         })),
-    [eventClass, registrations]
+    [classRegistrations, day, days.length]
   )
 
   const handleChange = useCallback((id: string, value: string) => {
@@ -130,6 +159,8 @@ export default function EventStartNumbersPage() {
           <Tab key={item} label={item} value={item} />
         ))}
       </Tabs>
+
+      <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
 
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: { md: 2, xs: 1 } }}>
         <StartNumbersTable compact={compact} drafts={drafts} onChange={handleChange} rows={rows} />

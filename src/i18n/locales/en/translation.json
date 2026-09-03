@@ -921,8 +921,10 @@
     "save": "Save numbers",
     "saved": "Start numbers saved",
     "saveFailed": "Saving the start numbers failed. Check the numbers and try again.",
+      "day": "Start day",
     "title": "Start number entry"
   },
+    "day": "Day",
   "startNumbersNotPublished": "start order is not confirmed yet",
   "stats": {
     "admin": {

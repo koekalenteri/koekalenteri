@@ -921,8 +921,10 @@
     "save": "Tallenna numerot",
     "saved": "Starttinumerot tallennettu",
     "saveFailed": "Starttinumeroiden tallennus epäonnistui. Tarkista numerot ja yritä uudelleen.",
+      "day": "Starttipäivä",
     "title": "Starttinumeroiden syöttö"
   },
+    "day": "Päivä",
   "startNumbersNotPublished": "starttijärjestystä ei ole vielä vahvistettu",
   "stats": {
     "admin": {

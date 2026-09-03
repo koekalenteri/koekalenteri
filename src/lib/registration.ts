@@ -370,7 +370,12 @@ export type SortableRegistration = {
 }
 
 /** The frozen placement wins over the working order: a published number is where the dog runs. */
-const placementOf = ({ group, startGroup }: SortableRegistration): SortablePlacement | undefined => startGroup ?? group
+export const getRegistrationPlacement = <T extends SortableRegistration>(
+  registration: T
+): NonNullable<T['startGroup']> | T['group'] => registration.startGroup ?? registration.group
+
+const placementOf = (registration: SortableRegistration): SortablePlacement | undefined =>
+  getRegistrationPlacement(registration)
 
 const sortableDate = (date: string | Date | undefined): string =>
   date instanceof Date ? date.toISOString() : (date ?? '\uffff')

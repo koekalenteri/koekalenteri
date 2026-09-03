@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next'
+import type { RegistrationTime } from '../../../types'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -18,6 +20,8 @@ export interface StartNumberRow {
   startNumber?: number
   /** The working-order number, shown as a hint while nothing is frozen. */
   groupNumber?: number
+  /** Where the dog runs: the day and its part, as the start list groups them (KOE-1303). */
+  placement?: { date?: Date; time?: RegistrationTime }
 }
 
 interface Props {
@@ -32,6 +36,14 @@ interface Props {
 
 const draftOf = (row: StartNumberRow, drafts: Record<string, string>) =>
   drafts[row.id] ?? (row.startNumber != null ? String(row.startNumber) : '')
+
+/** "pe 4.9. aamupäivä", the same words the start list's group headers use. */
+const placementLabel = (row: StartNumberRow, t: TFunction) => {
+  const { date, time } = row.placement ?? {}
+  if (!date) return ''
+  const timeText = time && time !== 'kp' ? t(`registration.timeLong.${time}`) : ''
+  return [t('dateFormat.wdshort', { date }), timeText].filter(Boolean).join(' ')
+}
 
 /**
  * The venue draw's results, written as values (KOE-1218). The same batch-entry shape as results
@@ -56,6 +68,7 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact }:
             <TableCell>{t('results.column.dog')}</TableCell>
             {!compact && <TableCell>{t('dog.regNo')}</TableCell>}
             {!compact && <TableCell>{t('results.column.handler')}</TableCell>}
+            {!compact && <TableCell>{t('startNumbers.column.day')}</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -82,7 +95,7 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact }:
                   <TableCell>
                     {row.dog.name}
                     <Typography variant="caption" color="text.secondary" component="div">
-                      {[row.dog.regNo, row.handler?.name].filter(Boolean).join(' · ')}
+                      {[row.dog.regNo, row.handler?.name, placementLabel(row, t)].filter(Boolean).join(' · ')}
                     </Typography>
                   </TableCell>
                 ) : (
@@ -90,6 +103,7 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact }:
                     <TableCell>{row.dog.name}</TableCell>
                     <TableCell>{row.dog.regNo}</TableCell>
                     <TableCell>{row.handler?.name}</TableCell>
+                    <TableCell>{placementLabel(row, t)}</TableCell>
                   </>
                 )}
               </TableRow>

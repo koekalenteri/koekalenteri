@@ -1,9 +1,11 @@
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
+import type { Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { cleanup, screen, within } from '@testing-library/react'
+import { addDays } from 'date-fns'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,7 +28,7 @@ vi.mock('../../api/official')
 vi.mock('../../api/organizer')
 vi.mock('../../api/registration')
 
-const renderPage = (language: Language) => {
+const renderPage = (language: Language, registrations: Registration[] = registrationsToEventWithStations) => {
   const routes: RouteObject[] = [{ element: <EventStartNumbersPage />, path: Path.admin.startNumbers() }]
 
   return renderWithUserEvents(
@@ -36,7 +38,7 @@ const renderPage = (language: Language) => {
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
             set(adminEventsAtom, [eventWithStations])
-            set(adminEventRegistrationsAtom(eventWithStations.id), registrationsToEventWithStations)
+            set(adminEventRegistrationsAtom(eventWithStations.id), registrations)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
@@ -92,6 +94,39 @@ describe('EventStartNumbersPage', () => {
       { eventClass: 'ALO', numbers: [{ id: 'run-1', startNumber: 7 }] },
       TEST_ID_TOKEN
     )
+  })
+
+  it('lists a multi-day class one day at a time, and names the day on each row', async () => {
+    const { i18n } = useTranslation()
+    const [first, second] = registrationsToEventWithStations
+    const nextDay = addDays(first.group?.date ?? new Date(), 1)
+    const { user } = renderPage(i18n.language as Language, [
+      first,
+      second,
+      // A dog whose draw is the next morning (KOE-1303) — the frozen placement decides its day.
+      {
+        ...second,
+        dog: { ...second.dog, name: 'Kolmas', regNo: 'REG-run-3' },
+        group: { date: nextDay, key: 'ALO-AP-2', number: 3, time: 'ap' },
+        id: 'run-3',
+        startGroup: { date: nextDay, key: 'ALO-AP-2', number: 25, time: 'ap' },
+      },
+    ])
+    await flushPromises()
+
+    expect(screen.getByText('Ensimmainen')).toBeInTheDocument()
+    expect(screen.queryByText('Kolmas')).not.toBeInTheDocument()
+    expect(
+      within(rowFor('Ensimmainen')).getByText('dateFormat.wdshort date registration.timeLong.ap')
+    ).toBeInTheDocument()
+
+    const days = screen.getAllByRole('button', { pressed: false })
+    await user.click(days[0])
+    await flushPromises()
+
+    expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
+    expect(screen.getByText('Kolmas')).toBeInTheDocument()
+    expect(within(rowFor('Kolmas')).getByRole('textbox')).toHaveValue('25')
   })
 
   it('flags a duplicate as it is typed', async () => {

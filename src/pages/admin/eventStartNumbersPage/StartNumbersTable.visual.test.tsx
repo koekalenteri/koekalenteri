@@ -1,3 +1,4 @@
+import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '../../../assets/Theme'
@@ -10,17 +11,34 @@ const Frame = ({ children, width = 760 }: { readonly children: React.ReactNode; 
   </div>
 )
 
-// One frozen number, one fresh entry, and a duplicate pair flagged as it is typed (KOE-1218).
+// Pinned: the label is a weekday and a date, and a moving clock would move the screenshot.
+const placement = { date: new TZDate(2026, 8, 4, 'Europe/Helsinki'), time: 'ap' as const }
+
+// One frozen number, one fresh entry, and a duplicate pair flagged as it is typed (KOE-1218). Each
+// row names its start day (KOE-1303).
 const rows = [
   {
     dog: { name: 'Ensimmainen', regNo: 'REG-run-1' },
     groupNumber: 1,
     handler: { name: 'Minsu Rauramo' },
     id: 'run-1',
+    placement,
     startNumber: 3,
   },
-  { dog: { name: 'Toinen', regNo: 'REG-run-2' }, groupNumber: 2, handler: { name: 'Sari Alho' }, id: 'run-2' },
-  { dog: { name: 'Kolmas', regNo: 'REG-run-3' }, groupNumber: 3, handler: { name: 'Inka Heller' }, id: 'run-3' },
+  {
+    dog: { name: 'Toinen', regNo: 'REG-run-2' },
+    groupNumber: 2,
+    handler: { name: 'Sari Alho' },
+    id: 'run-2',
+    placement,
+  },
+  {
+    dog: { name: 'Kolmas', regNo: 'REG-run-3' },
+    groupNumber: 3,
+    handler: { name: 'Inka Heller' },
+    id: 'run-3',
+    placement: { ...placement, time: 'ip' as const },
+  },
 ]
 
 it('receives the venue draw as values, flagging duplicates as they are typed', async () => {
