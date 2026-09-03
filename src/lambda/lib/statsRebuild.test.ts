@@ -540,6 +540,27 @@ describe('statsRebuild', () => {
       )
     })
 
+    it('puts a blank breed code in the "unknown" bucket instead of an empty sort key', () => {
+      const nomeB = event('nome-b-event', '2025-06-01', 'NOME-B')
+      const registrations = [
+        registration('starter', nomeB.id, {
+          dog: { breedCode: '', regNo: 'FI1' },
+          eventType: 'NOME-B',
+          group: { key: 'ALO-ap' },
+        }),
+      ]
+
+      const { records } = buildStatsRecords(registrations, new Map([[nomeB.id, nomeB]]), '2025-01-01T00:00:00.000Z')
+
+      expect(records.every((record) => record.SK !== '')).toBe(true)
+      expect(records).toEqual(
+        expect.arrayContaining([
+          { PK: 'STAT#2025#breedStart', reserve: 0, SK: 'unknown', starters: 1, updatedAt: '2025-01-01T00:00:00.000Z' },
+          { count: 1, PK: 'STAT#2025#breed', SK: 'unknown' },
+        ])
+      )
+    })
+
     it('excludes unofficial event types, same as breed participation counts', () => {
       const other = event('other-event', '2025-06-01', 'other')
       const registrations = [

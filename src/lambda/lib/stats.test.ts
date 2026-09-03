@@ -1323,6 +1323,43 @@ describe('lib/stats', () => {
         handler: emptyHash,
       })
     })
+
+    // A stored row can carry '' in breedCode, class or eventType from before those unions existed;
+    // the types cannot express that, so the conversions below model the table row rather than
+    // silence a real error.
+    const storedRow = (row: object): RegistrationStatsInput => row as unknown as RegistrationStatsInput
+
+    it('gives blank participant details the same bucket as missing ones, never an empty sort key', () => {
+      const registration = storedRow({
+        cancelled: false,
+        class: ' ',
+        dog: { breedCode: '', regNo: 'FI123' },
+        eventId: 'event-id',
+        eventType: '',
+        id: 'registration-id',
+        paidAmount: 0,
+        refundAmount: 0,
+      })
+
+      const identifiers = participationIdentifiers(registration)
+
+      expect(identifiers).toEqual(expect.objectContaining({ breed: 'unknown', class: 'unknown', eventType: 'unknown' }))
+      expect(Object.values(identifiers)).not.toContain('')
+    })
+
+    it('falls back from a blank class to the event type', () => {
+      const registration = storedRow({
+        cancelled: false,
+        class: '',
+        eventId: 'e',
+        eventType: 'NOU',
+        id: 'r',
+        paidAmount: 0,
+        refundAmount: 0,
+      })
+
+      expect(participationIdentifiers(registration).class).toBe('NOU')
+    })
   })
 
   describe('getRetentionStats', () => {

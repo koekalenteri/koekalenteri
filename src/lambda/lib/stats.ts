@@ -14,7 +14,7 @@ import type {
 import crypto from 'node:crypto'
 import { formatDate } from '../../i18n/dates'
 import { getEventSeason } from '../../lib/event'
-import { getRegistrationClass, isMember, isParticipantGroup } from '../../lib/registration'
+import { isMember, isParticipantGroup } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -639,17 +639,25 @@ export function hashStatValue(value: string | undefined = ''): string {
   return fullDigest.subarray(0, 12).toString('base64').split('=')[0]
 }
 
+/**
+ * A registration field as a stats sort key. A blank value gets the same bucket as a missing one:
+ * DynamoDB refuses an empty string in a key attribute, so a single stored row with '' in any of
+ * these fields failed the whole rebuild (RebuildAllStats and the nightly run alike).
+ */
+export const statIdentifier = (value: string | null | undefined): string => value?.trim() || 'unknown'
+
 export const participationIdentifiers = (registration: RegistrationStatsInput): Record<YearlyStatTypes, string> => {
   const hashedHandlerEmail = hashStatValue(registration.handler?.email)
   const hashedRegNo = hashStatValue(registration.dog?.regNo)
 
   return {
-    breed: registration.dog?.breedCode ?? 'unknown',
-    class: getRegistrationClass(registration),
+    breed: statIdentifier(registration.dog?.breedCode),
+    // A blank class falls back to the event type, same as getRegistrationClass does for a missing one.
+    class: statIdentifier(registration.class || registration.eventType),
     dog: hashedRegNo,
     'dog#handler': `${hashedRegNo}#${hashedHandlerEmail}`,
     event: registration.eventId,
-    eventType: registration.eventType,
+    eventType: statIdentifier(registration.eventType),
     handler: hashedHandlerEmail,
   }
 }

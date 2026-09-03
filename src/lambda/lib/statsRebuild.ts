@@ -28,6 +28,7 @@ import {
   hashStatValue,
   organizerStatsKey,
   participationIdentifiers,
+  statIdentifier,
 } from './stats'
 
 interface EventStatKey {
@@ -477,7 +478,7 @@ const addBreedStartRegistration = (
   if (registration.cancelled || !countsTowardsCapacity(event) || !OFFICIAL_EVENT_TYPES.includes(event.eventType)) {
     return
   }
-  const bucket = getOrCreateBreedStartBucket(buckets, year, registration.dog?.breedCode ?? 'unknown')
+  const bucket = getOrCreateBreedStartBucket(buckets, year, statIdentifier(registration.dog?.breedCode))
   if (isParticipantGroup(registration.group?.key)) {
     bucket.starters += 1
   } else {
