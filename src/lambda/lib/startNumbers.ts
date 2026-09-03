@@ -48,12 +48,13 @@ export const freezeStartNumbers = async (
   )
 
   // A partly entered draw must not be published: the gaps would freeze to working-order numbers, and
-  // a working number can collide with a drawn one on the same day's list (KOE-1218). Uniqueness is
-  // scoped to class and day, so a day whose draw is complete publishes fine beside an undrawn one.
+  // a working number can collide with a drawn one (KOE-1218). A number belongs to one dog across
+  // every day of the class (KOE-1303), so an undrawn day cannot freeze beside a drawn one either —
+  // a multi-day class publishes one day at a time instead (KOE-1304).
   const gaps = new Map<string, number>()
   const entered = new Set<string>()
   for (const registration of scoped) {
-    const key = `${getRegistrationClass(registration) ?? ''} ${registration.group?.date ?? ''}`
+    const key = getRegistrationClass(registration) ?? ''
     if (registration.startGroup) entered.add(key)
     else gaps.set(key, (gaps.get(key) ?? 0) + 1)
   }
@@ -88,8 +89,8 @@ export const freezeStartNumbers = async (
 
 /**
  * Write the numbers the venue drew. Validated here rather than only on the form: an integer from 1
- * up, and unique within the frozen set of the same class and day — the duplicate the server refuses
- * is the one two phones would otherwise both claim.
+ * up, and unique within the class across every day it runs (KOE-1303) — the duplicate the server
+ * refuses is the one two phones would otherwise both claim.
  */
 export const assignStartNumbers = async (
   eventId: string,
@@ -117,8 +118,7 @@ export const assignStartNumbers = async (
     }
 
     const scopeOf = (candidate: JsonRegistration) =>
-      getRegistrationClass(candidate) === getRegistrationClass(registration) &&
-      (candidate.startGroup ?? candidate.group)?.date === placement.date
+      getRegistrationClass(candidate) === getRegistrationClass(registration)
 
     for (const other of registrations) {
       if (other.id === entry.id || !scopeOf(other)) continue

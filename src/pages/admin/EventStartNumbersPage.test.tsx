@@ -127,6 +127,13 @@ describe('EventStartNumbersPage', () => {
     expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
     expect(screen.getByText('Kolmas')).toBeInTheDocument()
     expect(within(rowFor('Kolmas')).getByRole('textbox')).toHaveValue('25')
+
+    // One number, one dog, whichever day it runs: 25 is Saturday's, so Friday's dog cannot take it.
+    await user.click(screen.getAllByRole('button', { pressed: false })[0])
+    await flushPromises()
+    await user.type(within(rowFor('Ensimmainen')).getByRole('textbox'), '25')
+    await flushPromises()
+    expect(screen.getByText('startNumbers.duplicate')).toBeInTheDocument()
   })
 
   it('flags a duplicate as it is typed', async () => {

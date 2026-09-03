@@ -32,10 +32,28 @@ interface Props {
   readonly onChange: (id: string, value: string) => void
   /** Two columns instead of four: the number, and the dog with its details under its name (KOE-1282). */
   readonly compact?: boolean
+  /**
+   * Numbers held by more than one dog of the class, counted over every day it runs (KOE-1303). When
+   * absent the table counts its own rows.
+   */
+  readonly duplicates?: ReadonlySet<string>
 }
 
 const draftOf = (row: StartNumberRow, drafts: Record<string, string>) =>
   drafts[row.id] ?? (row.startNumber != null ? String(row.startNumber) : '')
+
+/** The numbers more than one of these dogs holds, entered or frozen. */
+export const duplicateNumbers = (
+  rows: ReadonlyArray<Pick<StartNumberRow, 'id' | 'startNumber'>>,
+  drafts: Record<string, string>
+): Set<string> => {
+  const counts = new Map<string, number>()
+  for (const row of rows) {
+    const value = drafts[row.id] ?? (row.startNumber != null ? String(row.startNumber) : '')
+    if (value) counts.set(value, (counts.get(value) ?? 0) + 1)
+  }
+  return new Set([...counts].filter(([, count]) => count > 1).map(([value]) => value))
+}
 
 /** "pe 4.9. aamupäivä", the same words the start list's group headers use. */
 const placementLabel = (row: StartNumberRow, t: TFunction) => {
@@ -50,14 +68,10 @@ const placementLabel = (row: StartNumberRow, t: TFunction) => {
  * entry: one row per dog, one field, one save. A duplicate is flagged as it is typed — and refused
  * again on the server, where the two-phones case is actually caught.
  */
-export function StartNumbersTable({ rows, drafts, disabled, onChange, compact }: Props) {
+export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, duplicates }: Props) {
   const { t } = useTranslation()
 
-  const counts = new Map<string, number>()
-  for (const row of rows) {
-    const value = draftOf(row, drafts)
-    if (value) counts.set(value, (counts.get(value) ?? 0) + 1)
-  }
+  const taken = duplicates ?? duplicateNumbers(rows, drafts)
 
   return (
     <TableContainer component={Paper} variant="outlined">
@@ -74,7 +88,7 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact }:
         <TableBody>
           {rows.map((row) => {
             const value = draftOf(row, drafts)
-            const duplicate = Boolean(value) && (counts.get(value) ?? 0) > 1
+            const duplicate = Boolean(value) && taken.has(value)
 
             return (
               <TableRow hover key={row.id}>

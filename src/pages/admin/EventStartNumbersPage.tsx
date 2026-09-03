@@ -34,7 +34,7 @@ import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { StartDaySelector } from './eventStartNumbersPage/StartDaySelector'
-import { StartNumbersTable } from './eventStartNumbersPage/StartNumbersTable'
+import { duplicateNumbers, StartNumbersTable } from './eventStartNumbersPage/StartNumbersTable'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom } from './state'
 
 /**
@@ -105,6 +105,17 @@ export default function EventStartNumbersPage() {
     [classRegistrations, day, days.length]
   )
 
+  // A number belongs to one dog across every day of the class (KOE-1303): Friday 1–24, Saturday
+  // 25–48. The day filter narrows the list, not the check.
+  const duplicates = useMemo(
+    () =>
+      duplicateNumbers(
+        classRegistrations.map((reg) => ({ id: reg.id, startNumber: reg.startGroup?.number })),
+        drafts
+      ),
+    [classRegistrations, drafts]
+  )
+
   const handleChange = useCallback((id: string, value: string) => {
     setDrafts((prev) => ({ ...prev, [id]: value }))
   }, [])
@@ -163,7 +174,13 @@ export default function EventStartNumbersPage() {
       <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
 
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: { md: 2, xs: 1 } }}>
-        <StartNumbersTable compact={compact} drafts={drafts} onChange={handleChange} rows={rows} />
+        <StartNumbersTable
+          compact={compact}
+          drafts={drafts}
+          duplicates={duplicates}
+          onChange={handleChange}
+          rows={rows}
+        />
       </Box>
 
       <Stack

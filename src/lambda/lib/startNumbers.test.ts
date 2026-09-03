@@ -77,12 +77,12 @@ describe('startNumbers', () => {
       // same day's public list. Refusing names the fix: enter the missing number and publish again.
       // The code is structured so the client can show that fix instead of a generic failure (KOE-1218).
       await expect(freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO')).rejects.toThrow(
-        /startNumbersIncomplete.*Start numbers are missing for 1 dogs \(ALO 2026-09-12\)/
+        /startNumbersIncomplete.*Start numbers are missing for 1 dogs \(ALO\)/
       )
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })
 
-    it('freezes an undrawn day beside a fully drawn one', async () => {
+    it('refuses to freeze an undrawn day beside a drawn one when the whole class is published', async () => {
       const drawn = registration('run-1', {
         startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' },
       })
@@ -90,12 +90,10 @@ describe('startNumbers', () => {
         group: { date: '2026-09-13', key: 'ALO-AP', number: 2, time: 'ap' },
       })
 
-      // Uniqueness is scoped to class and day, so the days publish independently.
-      const patches = await freezeStartNumbers('event-1', [drawn, otherDay], 'ALO')
-
-      expect(patches).toEqual([
-        { id: 'run-2', startGroup: { date: '2026-09-13', key: 'ALO-AP', number: 2, time: 'ap' } },
-      ])
+      // A number belongs to one dog across every day of the class (KOE-1303), so Saturday's working
+      // order could collide with Friday's draw. The days publish one at a time instead (KOE-1304).
+      await expect(freezeStartNumbers('event-1', [drawn, otherDay], 'ALO')).rejects.toThrow(/startNumbersIncomplete/)
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })
 
     it('freezes only the named day, and lets a stray number on the other day be (KOE-1304)', async () => {
@@ -164,6 +162,26 @@ describe('startNumbers', () => {
           { id: 'run-2', startNumber: 3 },
         ])
       ).rejects.toThrow('Start number 3 assigned twice')
+    })
+
+    it('refuses a number another day of the class already holds (KOE-1303)', async () => {
+      const friday = registration('run-1', {
+        startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' },
+      })
+      const saturday = registration('run-2', {
+        group: { date: '2026-09-13', key: 'ALO-AP', number: 2, time: 'ap' },
+      })
+      const otherClass = registration('run-3', { class: 'AVO' })
+
+      // Friday 1–24, Saturday 25–48: one number, one dog, whichever day it runs.
+      await expect(
+        assignStartNumbers('event-1', [friday, saturday], [{ id: 'run-2', startNumber: 7 }])
+      ).rejects.toThrow('Start number 7 is already taken')
+      // Another class keeps its own numbering.
+      const patches = await assignStartNumbers('event-1', [friday, otherClass], [{ id: 'run-3', startNumber: 7 }])
+      expect(patches).toEqual([
+        { id: 'run-3', startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' } },
+      ])
     })
 
     it('lets a cancelled holder yield its number, which fills the vacated place properly', async () => {
