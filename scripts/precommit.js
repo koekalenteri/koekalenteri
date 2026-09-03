@@ -9,7 +9,7 @@ const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 const { result } = concurrently(
   [
     { command: `${npmCommand} run lint`, name: 'lint' },
-    { command: `${npmCommand} run check-chart-screenshots`, name: 'screenshots' },
+    { command: `${npmCommand} run check-screenshots`, name: 'screenshots' },
     { command: `${npmCommand} run knip`, name: 'knip' },
     { command: `${npmCommand} test -- --onlyChanged`, name: 'test' },
   ],

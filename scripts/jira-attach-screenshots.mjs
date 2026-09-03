@@ -5,7 +5,7 @@
 // Env:   JIRA_USER_EMAIL, JIRA_API_TOKEN, JIRA_BASE_URL (default https://koekalenteri.atlassian.net)
 //
 // Pairing is per commit: a commit's own KOE-keys get that commit's own changed baselines. Only the
-// linux baselines are sent -- both platforms change together (scripts/checkChartScreenshots.js
+// linux baselines are sent -- both platforms change together (scripts/checkScreenshots.js
 // enforces it), so sending one of the pair is enough. An attachment replaces any earlier one with
 // the same name, so a ticket shows one current image per component rather than a pile of versions.
 import { execFileSync } from 'node:child_process'

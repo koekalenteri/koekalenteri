@@ -18,11 +18,11 @@ const coverage: { provider: 'v8' } & CoverageV8Options = {
         'src/types/**',
         'src/service-worker.js',
         'src/service-worker-unregister.js',
-        // Browser-mode chart tests and their scaffolding: exercised by the `charts` project,
+        // Browser-mode visual tests and their scaffolding: exercised by the `visual` project,
         // which runs separately and reports no coverage into this run.
         'src/**/*.visual.test.tsx',
         'src/pages/components/stats/statsVisualFixtures.tsx',
-        'src/setupChartTests.ts',
+        'src/setupVisualTests.ts',
       ],
 }
 
@@ -50,7 +50,7 @@ export default defineConfig({
         resolve: {
           alias: {
             // Deliberately NOT aliasing react-i18next here, unlike the other projects: the mock
-            // echoes the key back, so every label would be three characters wide and a chart that
+            // echoes the key back, so every label would be three characters wide and a layout that
             // overflows with real text would still screenshot clean. These run the real
             // translations -- "chesapeakelahdennoutaja", not "263".
             'test-utils': new URL('./src/test-utils', import.meta.url).pathname,
@@ -63,13 +63,13 @@ export default defineConfig({
           'process.env': {},
         },
         test: {
-          name: 'charts',
+          name: 'visual',
           globals: true,
           testTimeout: 30_000,
-          // Charts are laid out by the browser and by d3 scales; jsdom reports no element sizes,
-          // so a chart rendered there is not the chart anyone sees. These run in a real browser.
+          // Layout is done by the browser (and, for charts, by d3 scales); jsdom reports no element
+          // sizes, so a component rendered there is not the one anyone sees. These run in a real browser.
           include: ['src/**/*.visual.{spec,test}.{ts,tsx}'],
-          setupFiles: ['./src/setupChartTests.ts'],
+          setupFiles: ['./src/setupVisualTests.ts'],
           browser: {
             enabled: true,
             // The test iframe is scaled down to fit the browser window, and Playwright's default window

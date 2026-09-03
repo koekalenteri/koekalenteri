@@ -1,4 +1,4 @@
-// Run the browser-based chart visual tests. Kept out of scripts/test.js on purpose: these need a
+// Run the browser-based visual (screenshot) tests. Kept out of scripts/test.js on purpose: these need a
 // Playwright browser, and their reference screenshots are per-platform, so they are opt-in.
 process.env.BABEL_ENV = 'test'
 process.env.NODE_ENV = 'test'
@@ -11,7 +11,7 @@ const argv = process.argv.slice(2)
 if (process.env.CI && !argv.includes('--run')) argv.push('--run')
 
 const vitestCli = path.join(path.dirname(require.resolve('vitest/package.json')), 'vitest.mjs')
-const result = spawnSync(process.execPath, [vitestCli, '--project=charts', ...argv], {
+const result = spawnSync(process.execPath, [vitestCli, '--project=visual', ...argv], {
   stdio: 'inherit',
   env: process.env,
 })

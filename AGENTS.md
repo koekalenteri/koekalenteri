@@ -47,12 +47,12 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 
 - When you change or create a user-visible component, ensure it has a screenshot test
   (`*.visual.test.tsx` beside the component). If one does not exist, create it in the same change.
-- Visual tests run in a real browser with real Finnish translations via `npm run test-charts`
-  (the `charts` vitest project picks up `src/**/*.visual.test.tsx` anywhere). Wrap the capture in a
+- Visual tests run in a real browser with real Finnish translations via `npm run test-visual`
+  (the `visual` vitest project picks up `src/**/*.visual.test.tsx` anywhere). Wrap the capture in a
   fixed-width, opaque `data-testid` frame and the app `ThemeProvider`; see
   `src/pages/admin/eventResultsPage/ResultsTable.visual.test.tsx` for the pattern.
-- Generate both platform baselines: `npm run test-charts -- <TestName> -u` (darwin) and
-  `npm run test-charts-linux -- <TestName> -u` (linux, via Docker). The pre-commit hook refuses a
+- Generate both platform baselines: `npm run test-visual -- <TestName> -u` (darwin) and
+  `npm run test-visual-linux -- <TestName> -u` (linux, via Docker). The pre-commit hook refuses a
   commit that updates one platform's baseline without the other.
 - Name the relevant KOE issue keys in the commit message: on push, the `jira-screenshots` workflow
   attaches the changed linux baselines to those Jira issues, so the ticket always shows the current
