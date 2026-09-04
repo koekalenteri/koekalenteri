@@ -5,10 +5,7 @@ import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOu
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
@@ -23,8 +20,9 @@ import {
 } from '../../../../lib/event'
 import { isObject } from '../../../../lib/utils'
 import { Path } from '../../../../routeConfig'
-import { getPublishingRow, isStartNumbersPublished } from './publishingRow'
-import { actionButtonSx, sectionSx } from './styles'
+import { PublishingSection } from './PublishingSection'
+import { getPublishingRows, isStartNumbersPublished } from './publishingRow'
+import { actionButtonSx } from './styles'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
 
@@ -113,103 +111,13 @@ const StartNumbersPublishing = ({
     }
   }
 
+  const rows = getPublishingRows({ event, eventWithCurrentAttachments, selectedByClass, stateByClass }, numbersByClass)
+
   return (
-    <Box sx={sectionSx}>
-      <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-        {t('eventManagement.startList.numbersPublishing')}
-      </Typography>
-      <TableContainer>
-        <Table>
-          <TableBody>
-            {Object.entries(numbersByClass).map(([className]) => {
-              const row = getPublishingRow(
-                { event, eventWithCurrentAttachments, selectedByClass, stateByClass },
-                className
-              )
-              const { publishable, startListEventClass, startListPublished } = row
-              const numbersPublished = isStartNumbersPublished(event, row.eventClass)
-              // Numbers can only be public on a published list, so the buttons wait for the list.
-              const canManageStartNumbers =
-                Boolean(onSetStartNumbersPublished) && row.manageable && row.invitationsSent && startListPublished
-              const days = classDays(event, className)
-              const publishedDays = startListPublished ? getPublishedStartNumbersDays(event, startListEventClass) : []
-              const partlyPublished = !numbersPublished && publishedDays.length > 0
-              const numbersButtons = days.length > 1 ? days : [undefined]
-
-              return (
-                <TableRow key={className}>
-                  <TableCell align="left">
-                    <Box ml={2}>
-                      <Typography variant="caption" noWrap fontWeight="bold">
-                        {className}
-                      </Typography>
-                      {numbersPublished && (
-                        <Typography variant="caption" color="info.main" display="block" noWrap>
-                          {t('eventManagement.startList.numbersPublished')}
-                        </Typography>
-                      )}
-                      {partlyPublished && (
-                        <Typography variant="caption" color="info.main" display="block" noWrap>
-                          {t('eventManagement.startList.numbersPublishedDays', {
-                            days: days
-                              .filter((day) => publishedDays.includes(day.key))
-                              .map((day) => t('dateFormat.wdshort', { date: day.date }))
-                              .join(', '),
-                          })}
-                        </Typography>
-                      )}
-                      {/* The list is the numbers' only transport, so say why the buttons are dead. */}
-                      {!startListPublished && (
-                        <Typography variant="caption" color="text.secondary" display="block" noWrap>
-                          {t('eventManagement.results.startListRequired')}
-                        </Typography>
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Stack direction="row" flexWrap="wrap" justifyContent="flex-end" spacing={1} useFlexGap>
-                      {numbersButtons.map((day) => {
-                        // One button per day of a multi-day class; the whole class otherwise.
-                        const dayPublished = day
-                          ? startListPublished && isStartNumbersPublishedForDay(event, startListEventClass, day.date)
-                          : numbersPublished
-                        const dayLabelKey = dayPublished
-                          ? 'eventManagement.startList.hideNumbersDay'
-                          : 'eventManagement.startList.publishNumbersDay'
-                        const classLabelKey = dayPublished
-                          ? 'eventManagement.startList.hideNumbers'
-                          : 'eventManagement.startList.publishNumbers'
-                        const label = day
-                          ? t(dayLabelKey, { day: t('dateFormat.wdshort', { date: day.date }) })
-                          : t(classLabelKey)
-
-                        return (
-                          <Button
-                            key={day?.key ?? 'all'}
-                            size="small"
-                            disabled={!canManageStartNumbers}
-                            onClick={() => {
-                              if (publishable) handleSetStartNumbersPublished(startListEventClass, !dayPublished, day)
-                            }}
-                            color={dayPublished ? 'secondary' : 'primary'}
-                            // A day never splits from its verb; when the row is short the whole button wraps.
-                            sx={{ whiteSpace: 'nowrap' }}
-                            variant={canManageStartNumbers ? 'contained' : 'outlined'}
-                          >
-                            {label}
-                          </Button>
-                        )
-                      })}
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Box sx={{ pb: 1, pt: 0.5, px: 1 }}>
-        {/* The draw entry lives with the publish/hide buttons its numbers feed (KOE-1274). */}
+    <PublishingSection
+      title={t('eventManagement.startList.numbersPublishing')}
+      action={
+        /* The draw entry lives with the publish/hide buttons its numbers feed (KOE-1274). */
         <Button
           fullWidth
           href={Path.admin.startNumbers(event.id)}
@@ -219,8 +127,89 @@ const StartNumbersPublishing = ({
         >
           {t('eventManagement.enterStartNumbers')}
         </Button>
-      </Box>
-    </Box>
+      }
+    >
+      {rows.map((row) => {
+        const { className, publishable, startListEventClass, startListPublished } = row
+        const numbersPublished = isStartNumbersPublished(event, row.eventClass)
+        // Numbers can only be public on a published list, so the buttons wait for the list.
+        const canManageStartNumbers =
+          Boolean(onSetStartNumbersPublished) && row.manageable && row.invitationsSent && startListPublished
+        const days = classDays(event, className)
+        const publishedDays = startListPublished ? getPublishedStartNumbersDays(event, startListEventClass) : []
+        const partlyPublished = !numbersPublished && publishedDays.length > 0
+        const numbersButtons = days.length > 1 ? days : [undefined]
+
+        return (
+          <TableRow key={className}>
+            <TableCell align="left">
+              <Box ml={2}>
+                <Typography variant="caption" noWrap fontWeight="bold">
+                  {className}
+                </Typography>
+                {numbersPublished && (
+                  <Typography variant="caption" color="info.main" display="block" noWrap>
+                    {t('eventManagement.startList.numbersPublished')}
+                  </Typography>
+                )}
+                {partlyPublished && (
+                  <Typography variant="caption" color="info.main" display="block" noWrap>
+                    {t('eventManagement.startList.numbersPublishedDays', {
+                      days: days
+                        .filter((day) => publishedDays.includes(day.key))
+                        .map((day) => t('dateFormat.wdshort', { date: day.date }))
+                        .join(', '),
+                    })}
+                  </Typography>
+                )}
+                {/* The list is the numbers' only transport, so say why the buttons are dead. */}
+                {!startListPublished && (
+                  <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                    {t('eventManagement.results.startListRequired')}
+                  </Typography>
+                )}
+              </Box>
+            </TableCell>
+            <TableCell align="right">
+              <Stack direction="row" flexWrap="wrap" justifyContent="flex-end" spacing={1} useFlexGap>
+                {numbersButtons.map((day) => {
+                  // One button per day of a multi-day class; the whole class otherwise.
+                  const dayPublished = day
+                    ? startListPublished && isStartNumbersPublishedForDay(event, startListEventClass, day.date)
+                    : numbersPublished
+                  const dayLabelKey = dayPublished
+                    ? 'eventManagement.startList.hideNumbersDay'
+                    : 'eventManagement.startList.publishNumbersDay'
+                  const classLabelKey = dayPublished
+                    ? 'eventManagement.startList.hideNumbers'
+                    : 'eventManagement.startList.publishNumbers'
+                  const label = day
+                    ? t(dayLabelKey, { day: t('dateFormat.wdshort', { date: day.date }) })
+                    : t(classLabelKey)
+
+                  return (
+                    <Button
+                      key={day?.key ?? 'all'}
+                      size="small"
+                      disabled={!canManageStartNumbers}
+                      onClick={() => {
+                        if (publishable) handleSetStartNumbersPublished(startListEventClass, !dayPublished, day)
+                      }}
+                      color={dayPublished ? 'secondary' : 'primary'}
+                      // A day never splits from its verb; when the row is short the whole button wraps.
+                      sx={{ whiteSpace: 'nowrap' }}
+                      variant={canManageStartNumbers ? 'contained' : 'outlined'}
+                    >
+                      {label}
+                    </Button>
+                  )
+                })}
+              </Stack>
+            </TableCell>
+          </TableRow>
+        )
+      })}
+    </PublishingSection>
   )
 }
 
