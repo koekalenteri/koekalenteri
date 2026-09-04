@@ -30,6 +30,14 @@
         version: 0.1
         frontend:
           phases:
+            preBuild:
+              commands:
+                # The build image's default node is older than the toolchain this repo is built and
+                # tested with, and its npm reads the lock file more strictly than the npm that wrote
+                # it. Pin the same version .nvmrc and package.json engines name.
+                - nvm install "$(cat .nvmrc)"
+                - nvm use "$(cat .nvmrc)"
+                - node --version && npm --version
             build:
               commands:
                 - npm ci
