@@ -18,7 +18,6 @@ export const mockRegistrations: { [key: string]: Registration[] } = {
     {
       agreeToTerms: true,
       breeder: {
-        location: 'breeder location',
         name: 'breeder name',
       },
       // NOTE: Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent). Use a stable instant.

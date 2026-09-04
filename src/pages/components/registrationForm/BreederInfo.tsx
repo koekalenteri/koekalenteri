@@ -19,27 +19,19 @@ interface Props {
 
 export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
-  const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'breeder')
-
-  // Group local state for all form fields with a single debounced update
-  const [formValues, updateField] = useLocalStateGroup(
-    {
-      location: reg.breeder?.location ?? '',
-      name: reg.breeder?.name ?? '',
-    },
-    (values) => {
-      // Handle all field updates as a group
-      handleChange(values)
-    }
-  )
+  const [, setCache] = useDogCacheKey(reg.dog?.regNo, 'breeder')
 
   const handleChange = useCallback(
-    (props: Partial<RegistrationBreeder>) => {
-      const breeder = setCache({ ...cache, ...props })
+    ({ name }: RegistrationBreeder) => {
+      // Only the name is written: a cache from before KOE-1264 may still hold the breeder's home
+      // town, and it leaves the cache with the first edit.
+      const breeder = setCache({ name })
       onChange?.({ breeder })
     },
-    [cache, onChange, setCache]
+    [onChange, setCache]
   )
+
+  const [formValues, updateField] = useLocalStateGroup({ name: reg.breeder?.name ?? '' }, handleChange)
 
   return (
     <CollapsibleSection
@@ -59,17 +51,6 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
             label={t('contact.name')}
             value={formValues.name}
             onChange={(e) => updateField('name', e.target.value)}
-          />
-        </Grid>
-        <Grid size={{ sm: 6, xs: 12 }}>
-          <TextField
-            disabled={disabled}
-            error={!reg.breeder?.location}
-            fullWidth
-            id="breeder_location"
-            label={t('contact.city')}
-            value={formValues.location}
-            onChange={(e) => updateField('location', e.target.value)}
           />
         </Grid>
       </Grid>

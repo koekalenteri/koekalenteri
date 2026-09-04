@@ -1136,45 +1136,6 @@ exports[`RegistrationForm > renders 1`] = `
                         </div>
                       </div>
                     </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
-                    >
-                      <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                      >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="true"
-                          for="breeder_location"
-                          id="breeder_location-label"
-                        >
-                          contact.city
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-invalid="false"
-                            class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                            id="breeder_location"
-                            type="text"
-                            value="Breeder Location"
-                          />
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-ex8a5f-MuiNotchedOutlined-root"
-                            >
-                              <span>
-                                contact.city
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1491,7 +1452,7 @@ exports[`RegistrationForm > renders 1`] = `
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r1c:"
+                                name=":r1b:"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -1537,7 +1498,7 @@ exports[`RegistrationForm > renders 1`] = `
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r1c:"
+                                name=":r1b:"
                                 type="radio"
                                 value=""
                               />
@@ -1598,7 +1559,7 @@ exports[`RegistrationForm > renders 1`] = `
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r1d:"
+                                name=":r1c:"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -1644,7 +1605,7 @@ exports[`RegistrationForm > renders 1`] = `
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r1d:"
+                                name=":r1c:"
                                 type="radio"
                                 value=""
                               />
@@ -2362,8 +2323,8 @@ exports[`RegistrationForm > renders 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r1s:"
-                      id=":r1s:-label"
+                      for=":r1r:"
+                      id=":r1r:-label"
                     >
                       registration.notes
                     </label>
@@ -2373,7 +2334,7 @@ exports[`RegistrationForm > renders 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r1s:"
+                        id=":r1r:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
@@ -2738,8 +2699,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r22:"
-                            id=":r22:-label"
+                            for=":r21:"
+                            id=":r21:-label"
                           >
                             registration.class
                           </label>
@@ -2753,7 +2714,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r22:"
+                              id=":r21:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2811,8 +2772,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r25:"
-                            id=":r25:-label"
+                            for=":r24:"
+                            id=":r24:-label"
                           >
                             registration.reserve
                           </label>
@@ -2821,13 +2782,13 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           >
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r25:-helper-text"
+                              aria-describedby=":r24:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r25:"
+                              id=":r24:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2871,7 +2832,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r25:-helper-text"
+                            id=":r24:-helper-text"
                           >
                             registration.reserveHelp
                           </p>
@@ -2891,8 +2852,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r28:"
-                            id=":r28:-label"
+                            for=":r27:"
+                            id=":r27:-label"
                           >
                             registration.datesFilter
                           </label>
@@ -2924,13 +2885,13 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r28:-helper-text"
+                              aria-describedby=":r27:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r28:"
+                              id=":r27:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2993,7 +2954,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r28:-helper-text"
+                            id=":r27:-helper-text"
                           >
                             registration.datesFilterInfo
                           </p>
@@ -3013,8 +2974,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r2c:"
-                            id=":r2c:-label"
+                            for=":r2b:"
+                            id=":r2b:-label"
                           >
                             registration.dates
                           </label>
@@ -3046,13 +3007,13 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r2c:-helper-text"
+                              aria-describedby=":r2b:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2c:"
+                              id=":r2b:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3115,7 +3076,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r2c:-helper-text"
+                            id=":r2b:-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -3281,8 +3242,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2k:"
-                          id=":r2k:-label"
+                          for=":r2j:"
+                          id=":r2j:-label"
                         >
                           dog.rfid
                         </label>
@@ -3293,7 +3254,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r2k:"
+                            id=":r2j:"
                             type="text"
                             value=""
                           />
@@ -3412,8 +3373,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2n:"
-                            id=":r2n:-label"
+                            for=":r2m:"
+                            id=":r2m:-label"
                           >
                             dog.dob
                           </label>
@@ -3425,7 +3386,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2n:"
+                              id=":r2m:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -3483,8 +3444,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2q:"
-                            id=":r2q:-label"
+                            for=":r2p:"
+                            id=":r2p:-label"
                           >
                             dog.gender
                           </label>
@@ -3499,7 +3460,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2q:"
+                              id=":r2p:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3558,8 +3519,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2t:"
-                            id=":r2t:-label"
+                            for=":r2s:"
+                            id=":r2s:-label"
                           >
                             dog.breed
                           </label>
@@ -3574,7 +3535,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2t:"
+                              id=":r2s:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3793,45 +3754,6 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             >
                               <span>
                                 contact.name
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
-                    >
-                      <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                      >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="true"
-                          for="breeder_location"
-                          id="breeder_location-label"
-                        >
-                          contact.city
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-invalid="false"
-                            class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                            id="breeder_location"
-                            type="text"
-                            value="Breeder Location"
-                          />
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-ex8a5f-MuiNotchedOutlined-root"
-                            >
-                              <span>
-                                contact.city
                               </span>
                             </legend>
                           </fieldset>
@@ -4154,7 +4076,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r3c:"
+                                name=":r3a:"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -4200,7 +4122,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r3c:"
+                                name=":r3a:"
                                 type="radio"
                                 value=""
                               />
@@ -4261,7 +4183,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r3d:"
+                                name=":r3b:"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -4307,7 +4229,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r3d:"
+                                name=":r3b:"
                                 type="radio"
                                 value=""
                               />
@@ -5025,8 +4947,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r3s:"
-                      id=":r3s:-label"
+                      for=":r3q:"
+                      id=":r3q:-label"
                     >
                       registration.notes
                     </label>
@@ -5036,7 +4958,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r3s:"
+                        id=":r3q:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"

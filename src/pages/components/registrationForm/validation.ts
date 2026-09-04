@@ -1,25 +1,14 @@
 import type { ValidationResult, Validators2, WideValidationResult } from '../../../i18n/validation'
-import type {
-  BreedCode,
-  Dog,
-  PublicConfirmedEvent,
-  Registration,
-  RegistrationBreeder,
-  TestResult,
-} from '../../../types'
+import type { BreedCode, Dog, PublicConfirmedEvent, Registration, TestResult } from '../../../types'
 import { differenceInMonths } from 'date-fns'
 import { validName } from '../../../lib/name'
 import { getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '../../../lib/registration'
 import { REQUIREMENTS } from '../../../rules'
 import { validatePerson } from './personValidation'
 
-function validateBreeder(breeder: RegistrationBreeder | undefined) {
-  return !breeder?.name || !breeder.location
-}
-
 const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent> = {
   agreeToTerms: (reg) => (reg.agreeToTerms ? false : 'terms'),
-  breeder: (reg) => (validateBreeder(reg.breeder) ? 'required' : false),
+  breeder: (reg) => (reg.breeder?.name ? false : 'required'),
   class: (reg, _req, evt) => evt.classes.length > 0 && !reg.class,
   dates: (reg) => reg.dates.length === 0,
   dog: (reg, _req, evt) => validateDog(evt, reg),

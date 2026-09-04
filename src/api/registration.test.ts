@@ -16,7 +16,6 @@ import {
 const mockRegistration: Registration = {
   agreeToTerms: true,
   breeder: {
-    location: 'test-location',
     name: 'test-breeder',
   },
   cancelled: false,

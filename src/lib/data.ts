@@ -257,7 +257,6 @@ export const emptyDog: Dog = {
   results: [],
 }
 export const emptyBreeder: RegistrationBreeder = {
-  location: '',
   name: '',
 }
 export const emptyPerson: RegistrationPerson = {

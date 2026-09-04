@@ -1276,20 +1276,15 @@ describe('validation', () => {
       expect(result1.some((e) => e.opts?.field === 'breeder')).toBe(true)
 
       // Test with empty name
-      const reg2: Registration = { ...registrationWithStaticDates, breeder: { location: 'Helsinki', name: '' } }
+      const reg2: Registration = { ...registrationWithStaticDates, breeder: { name: '' } }
       const result2 = validateRegistration(reg2, mockEvent)
       expect(result2.some((e) => e.opts?.field === 'breeder')).toBe(true)
-
-      // Test with empty location
-      const reg3: Registration = { ...registrationWithStaticDates, breeder: { location: '', name: 'Test Breeder' } }
-      const result3 = validateRegistration(reg3, mockEvent)
-      expect(result3.some((e) => e.opts?.field === 'breeder')).toBe(true)
 
       // Test with valid breeder
       const reg4: Registration = {
         ...registrationWithStaticDates,
         agreeToTerms: true,
-        breeder: { location: 'Helsinki', name: 'Test Breeder' },
+        breeder: { name: 'Test Breeder' },
         dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
         dog: testDog,
         owner: { email: 'owner@example.com', membership: false, name: 'Owner' },

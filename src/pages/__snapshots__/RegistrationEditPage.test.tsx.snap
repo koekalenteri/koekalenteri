@@ -1315,46 +1315,6 @@ exports[`RegistrationEditPage > should render 1`] = `
                         </div>
                       </div>
                     </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
-                    >
-                      <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                      >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="true"
-                          for="breeder_location"
-                          id="breeder_location-label"
-                        >
-                          contact.city
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o12ouy-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-invalid="false"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                            disabled=""
-                            id="breeder_location"
-                            type="text"
-                            value="Breeder Location"
-                          />
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-ex8a5f-MuiNotchedOutlined-root"
-                            >
-                              <span>
-                                contact.city
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1678,7 +1638,7 @@ exports[`RegistrationEditPage > should render 1`] = `
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                                 disabled=""
-                                name=":r1b:"
+                                name=":r1a:"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -1725,7 +1685,7 @@ exports[`RegistrationEditPage > should render 1`] = `
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                                 disabled=""
-                                name=":r1b:"
+                                name=":r1a:"
                                 type="radio"
                                 value=""
                               />
@@ -1787,7 +1747,7 @@ exports[`RegistrationEditPage > should render 1`] = `
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                                 disabled=""
-                                name=":r1c:"
+                                name=":r1b:"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -1834,7 +1794,7 @@ exports[`RegistrationEditPage > should render 1`] = `
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                                 disabled=""
-                                name=":r1c:"
+                                name=":r1b:"
                                 type="radio"
                                 value=""
                               />
@@ -2561,8 +2521,8 @@ exports[`RegistrationEditPage > should render 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r1r:"
-                      id=":r1r:-label"
+                      for=":r1q:"
+                      id=":r1q:-label"
                     >
                       registration.notes
                     </label>
@@ -2573,7 +2533,7 @@ exports[`RegistrationEditPage > should render 1`] = `
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
-                        id=":r1r:"
+                        id=":r1q:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"

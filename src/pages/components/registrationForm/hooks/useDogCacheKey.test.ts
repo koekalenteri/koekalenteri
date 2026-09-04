@@ -22,12 +22,10 @@ describe('useDogCache', () => {
       setCache({ name: 'Breeder Name' })
     })
     expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"TEST2222":{"breeder":{"name":"Breeder Name"}}}')
+    // The setter replaces the key's cache: the name written above is gone, not merged into.
     act(() => {
-      setCache({ location: 'Breeder Location' })
+      setCache({ id: 42 })
     })
-    expect(localStorage.setItem).toHaveBeenCalledWith(
-      'dog-cache',
-      '{"TEST2222":{"breeder":{"location":"Breeder Location"}}}'
-    )
+    expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"TEST2222":{"breeder":{"id":42}}}')
   })
 })

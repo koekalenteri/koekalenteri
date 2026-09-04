@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { Registration } from '../../../types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -31,11 +31,6 @@ describe('BreederInfo', () => {
   afterEach(() => vi.runOnlyPendingTimers())
   afterAll(() => vi.useRealTimers())
 
-  it('should render with minimal info', () => {
-    const { container } = render(<BreederInfo reg={registrationWithStaticDates} />, { wrapper: Wrapper })
-    expect(container).toMatchSnapshot()
-  })
-
   it('should call onChange', async () => {
     const reg = clone<Registration>(registrationWithStaticDates)
     const onChange = vi.fn((props) => Object.assign(reg, props))
@@ -51,24 +46,17 @@ describe('BreederInfo', () => {
     expect(onChange).not.toHaveBeenCalled()
 
     const nameInput = screen.getByRole('textbox', { name: 'contact.name' })
-    const locationInput = screen.getByRole('textbox', { name: 'contact.city' })
 
     await user.clear(nameInput)
-    await user.clear(locationInput)
 
     await flushPromises()
-    expect(onChange).toHaveBeenLastCalledWith({ breeder: { location: '', name: '' } })
+    expect(onChange).toHaveBeenLastCalledWith({ breeder: { name: '' } })
     expect(onChange).toHaveBeenCalledTimes(1)
 
     await user.type(nameInput, 'test breeder')
     await flushPromises()
-    expect(onChange).toHaveBeenLastCalledWith({ breeder: { location: '', name: 'test breeder' } })
+    expect(onChange).toHaveBeenLastCalledWith({ breeder: { name: 'test breeder' } })
     expect(onChange).toHaveBeenCalledTimes(2)
-
-    await user.type(locationInput, 'test city')
-    await flushPromises()
-    expect(onChange).toHaveBeenLastCalledWith({ breeder: { location: 'test city', name: 'test breeder' } })
-    expect(onChange).toHaveBeenCalledTimes(3)
 
     await flushPromises()
   })

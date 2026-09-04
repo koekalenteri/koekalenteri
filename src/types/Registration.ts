@@ -426,7 +426,7 @@ export interface RegistrationOwner extends RegistrationPerson {
   key: string
 }
 
-export type RegistrationBreeder = Omit<Person, 'email' | 'phone'>
+export type RegistrationBreeder = Omit<Person, 'email' | 'phone' | 'location'>
 
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
 

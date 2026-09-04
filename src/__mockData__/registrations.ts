@@ -18,7 +18,6 @@ const mockRegistrationDefaults: Omit<
 > = {
   agreeToTerms: true,
   breeder: {
-    location: 'Breeder Location',
     name: 'Breeder Name',
   },
   cancelled: false,
@@ -54,7 +53,6 @@ const mockRegistrationDefaults: Omit<
 export const registrationWithStaticDates: Registration = {
   agreeToTerms: true,
   breeder: {
-    location: 'Breeder Location',
     name: 'Breeder Name',
   },
   createdAt: eventWithStaticDates.entryStartDate,
