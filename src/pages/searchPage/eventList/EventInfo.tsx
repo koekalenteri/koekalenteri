@@ -99,6 +99,11 @@ export const EventInfo = ({ event }: Props) => {
           <PriorityChips priority={event.priority} />
         </ItemWithCaption>
       ) : null}
+      {event.retrieveType ? (
+        <ItemWithCaption label={t('event.retrieveType')} order={{ xs: 7 }}>
+          {t(`event.retrieveTypes.${event.retrieveType}`)}
+        </ItemWithCaption>
+      ) : null}
       {rankingPeriod ? (
         <ItemWithCaption label={t('registration.rankingTime')} order={{ xs: 8 }}>
           {t('dateFormat.datespan', { end: rankingPeriod.maxResultDate, start: rankingPeriod.minResultDate })}

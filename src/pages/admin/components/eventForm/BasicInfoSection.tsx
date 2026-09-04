@@ -8,11 +8,17 @@ import type {
   Organizer,
   Person,
   RegistrationClass,
+  RetrieveType,
   User,
 } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { BasicInfoEvent, PartialEvent, SectionProps } from './types'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormLabel from '@mui/material/FormLabel'
 import Grid from '@mui/material/Grid'
+import Radio from '@mui/material/Radio'
+import RadioGroup from '@mui/material/RadioGroup'
 import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
 import { memo, useCallback, useMemo } from 'react'
@@ -24,6 +30,7 @@ import {
   defaultEntryEndDate,
   defaultEntryStartDate,
   EVENT_TRANSLATION_LANGUAGES,
+  hasRetrieveTypeChoice,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   OFFICIAL_EVENT_TYPES,
@@ -47,6 +54,10 @@ export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
 
 /** A stable default for `useLocalState`, so its initial-value effect does not fire on every render. */
 const EMPTY_TRANSLATIONS: Partial<Record<Language, string>> = {}
+
+const RETRIEVE_TYPES: RetrieveType[] = ['game', 'dummies']
+
+const isRetrieveType = (value: string): value is RetrieveType => RETRIEVE_TYPES.some((type) => type === value)
 
 const getTypeClasses = (eventType?: string, eventTypeClasses?: Record<string, RegistrationClass[]>) =>
   OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
@@ -136,9 +147,17 @@ function BasicInfoSection({
         official && (event.judges.length === 0 || !event.judges[0].official)
           ? [{ id: 0, name: '', official: true }, ...event.judges]
           : event.judges
-      onChange?.({ classes, eventType, judges })
+      // The game-or-dummies choice (KOE-439) is a B-trial's; a trial that changes format drops it.
+      const retrieveType = hasRetrieveTypeChoice(eventType) ? event.retrieveType : null
+      onChange?.({ classes, eventType, judges, retrieveType })
     },
-    [event.classes, event.judges, eventTypeClasses, onChange]
+    [event.classes, event.judges, event.retrieveType, eventTypeClasses, onChange]
+  )
+  const handleRetrieveTypeChange = useCallback(
+    (_e: ChangeEvent<HTMLInputElement>, value: string) => {
+      if (isRetrieveType(value)) onChange?.({ retrieveType: value })
+    },
+    [onChange]
   )
   const handleClassesChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>
@@ -219,6 +238,31 @@ function BasicInfoSection({
             />
           </Grid>
         </Grid>
+        {hasRetrieveTypeChoice(event.eventType) ? (
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 600 }}>
+              <FormControl disabled={disabled}>
+                <FormLabel id="retrieveType-label">{t('event.retrieveType')}</FormLabel>
+                <RadioGroup
+                  aria-labelledby="retrieveType-label"
+                  name="retrieveType"
+                  onChange={handleRetrieveTypeChange}
+                  row
+                  value={event.retrieveType ?? ''}
+                >
+                  {RETRIEVE_TYPES.map((type) => (
+                    <FormControlLabel
+                      control={<Radio />}
+                      key={type}
+                      label={t(`event.retrieveTypes.${type}`)}
+                      value={type}
+                    />
+                  ))}
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+          </Grid>
+        ) : null}
         <Grid container spacing={1}>
           <Grid sx={{ width: 600 }}>
             <TextField

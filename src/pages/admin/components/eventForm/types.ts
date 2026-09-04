@@ -53,6 +53,7 @@ export type BasicInfoEvent = Pick<
   | 'official'
   | 'organizer'
   | 'placesPerDay'
+  | 'retrieveType'
   | 'secretary'
   | 'startDate'
 >

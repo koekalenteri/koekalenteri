@@ -231,6 +231,12 @@ export const registrationDates = (event: PublicDogEvent, times: RegistrationTime
 
 export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
 
+/** The event types that choose between game and dummies (KOE-439): the B-trials. */
+const RETRIEVE_TYPE_EVENT_TYPES = new Set(['NOME-B', 'NOME-B SM'])
+
+export const hasRetrieveTypeChoice = (eventType?: string | null) =>
+  !!eventType && RETRIEVE_TYPE_EVENT_TYPES.has(eventType)
+
 /**
  * Event types are official when the Kennel Club knows them, which the event type sync records in
  * `official`. Rows predating that flag - and the SM types, which have no Kennel Club counterpart of

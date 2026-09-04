@@ -37,6 +37,7 @@ import {
   getUniqueEventClasses,
   hasExplicitPlacesForClass,
   hasPublishedResults,
+  hasRetrieveTypeChoice,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEventDeletable,
@@ -1329,6 +1330,16 @@ describe('registrationDatesOutsideClass', () => {
       expect(isOfficialEventType('Koulutus', false)).toEqual(false)
       expect(isOfficialEventType(undefined, true)).toEqual(false)
       expect(isOfficialEventType(null)).toEqual(false)
+    })
+  })
+
+  describe('hasRetrieveTypeChoice', () => {
+    it.each(['NOME-B', 'NOME-B SM'])('is the B-trials (%s) that choose between game and dummies', (eventType) => {
+      expect(hasRetrieveTypeChoice(eventType)).toEqual(true)
+    })
+
+    it.each(['NOU', 'NOME-A', 'NOWT', 'NKM', 'Koulutus', '', undefined, null])('does not apply to %s', (eventType) => {
+      expect(hasRetrieveTypeChoice(eventType)).toEqual(false)
     })
   })
 })

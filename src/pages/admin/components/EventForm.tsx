@@ -122,6 +122,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       official: event.official,
       organizer: event.organizer,
       placesPerDay: event.placesPerDay,
+      retrieveType: event.retrieveType,
       secretary: event.secretary,
       startDate: event.startDate,
     }),
@@ -143,6 +144,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       event.official,
       event.organizer,
       event.placesPerDay,
+      event.retrieveType,
       event.secretary,
       event.startDate,
     ]

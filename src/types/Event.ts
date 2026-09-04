@@ -20,6 +20,8 @@ import type {
 import type { DogEventCost } from './Cost'
 
 export type PaymentTime = 'registration' | 'confirmation'
+/** What a B-trial's dogs retrieve (KOE-439): shot game, or dummies standing in for it. */
+export type RetrieveType = 'game' | 'dummies'
 export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
 
 /**
@@ -93,6 +95,12 @@ export interface JsonDogEvent extends JsonDbRecord {
   placesPerDay?: Record<string, number>
   priority?: string[]
   qualificationStartDate?: string
+  /**
+   * Whether the trial is run with game or with dummies (KOE-439). A B-trial's choice, made when the
+   * trial is created and shown in the calendar; absent where the format does not choose, and on
+   * B-trials created before the field.
+   */
+  retrieveType?: RetrieveType
   season?: string
   secretary: Partial<User>
   startDate: string

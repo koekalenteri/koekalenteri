@@ -44,3 +44,29 @@ it('shows a name field per language, Finnish first (KOE-1263)', async () => {
   await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-names')
 })
+
+it('lets a B-trial choose between game and dummies (KOE-439)', async () => {
+  const event = {
+    classes: [],
+    description: '',
+    endDate: new TZDate('2026-06-02', TIME_ZONE),
+    eventType: 'NOME-B',
+    id: 'test',
+    judges: [],
+    name: 'Kevätkoe',
+    retrieveType: 'game' as const,
+    startDate: new TZDate('2026-06-01', TIME_ZONE),
+  }
+
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+      <Frame>
+        <BasicInfoSection event={event} eventTypes={['NOME-B']} open />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByRole('radio', { name: 'riistoilla' })).toBeChecked()
+  await expect.element(screen.getByRole('radio', { name: 'dameilla' })).not.toBeChecked()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-retrieve-type')
+})

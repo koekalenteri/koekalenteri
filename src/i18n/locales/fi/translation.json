@@ -253,6 +253,11 @@
       "total": "Yhteensä"
     },
     "priority": "Etusijat",
+    "retrieveType": "Koe pidetään",
+    "retrieveTypes": {
+      "dummies": "dameilla",
+      "game": "riistoilla"
+    },
     "saved": "Muutokset tallennettu",
     "secretary": "Koesihteeri",
     "staleData": "Tapahtumaa on muokattu muualla sen avaamisen jälkeen. Lataa sivu uudelleen ja tee muutokset uudestaan.",

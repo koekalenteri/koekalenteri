@@ -253,6 +253,11 @@
       "total": "Total"
     },
     "priority": "Priorities",
+    "retrieveType": "The trial is run with",
+    "retrieveTypes": {
+      "dummies": "dummies",
+      "game": "game"
+    },
     "saved": "Changes saved",
     "secretary": "Secretary",
     "staleData": "This event was edited elsewhere after you opened it. Reload the page and apply your changes again.",

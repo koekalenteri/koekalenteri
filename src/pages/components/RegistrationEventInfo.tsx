@@ -107,6 +107,11 @@ export default function RegistrationEventInfo({
             <PriorityChips priority={event.priority} />
           </ItemWithCaption>
         ) : null}
+        {event.retrieveType ? (
+          <ItemWithCaption label={t('event.retrieveType')}>
+            {t(`event.retrieveTypes.${event.retrieveType}`)}
+          </ItemWithCaption>
+        ) : null}
         <EventDescription event={event} />
         {attachmentEvent && getEventStateForClass(event, eventClass) === 'invited' ? (
           <ItemWithCaption label={t('event.attachments')}>
