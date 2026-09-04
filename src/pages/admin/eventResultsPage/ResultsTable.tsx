@@ -14,6 +14,7 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { getRegistrationPlacement } from '../../../lib/registration'
 import { parseEventResultCode, scoresAtPosts } from '../../../lib/results'
 import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'
@@ -254,7 +255,7 @@ function ResultsTable({
 
             return (
               <TableRow hover key={registration.id}>
-                <TableCell align="right">{registration.group?.number}</TableCell>
+                <TableCell align="right">{getRegistrationPlacement(registration)?.number}</TableCell>
                 <TableCell>{registration.dog.name}</TableCell>
                 <TableCell>{registration.dog.regNo}</TableCell>
                 <TableCell>{registration.handler?.name}</TableCell>
@@ -287,13 +288,14 @@ interface CardProps {
  */
 const ResultCard = ({ registration, qualitative, controls }: CardProps) => {
   const identity = [registration.dog.regNo, registration.handler?.name].filter(Boolean).join(' · ')
+  const placementNumber = getRegistrationPlacement(registration)?.number
 
   return (
     <Paper variant="outlined" sx={{ p: 1.5 }}>
       <Stack alignItems="flex-start" direction="row" justifyContent="space-between" spacing={1} sx={{ mb: 1 }}>
         <Box>
           <Typography variant="subtitle1" fontWeight={600} lineHeight={1.3}>
-            {registration.group?.number != null && `${registration.group.number}. `}
+            {placementNumber != null && `${placementNumber}. `}
             {registration.dog.name}
           </Typography>
           <Typography variant="body2" color="text.secondary">

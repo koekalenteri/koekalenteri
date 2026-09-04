@@ -2,7 +2,7 @@ import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '../../../assets/Theme'
-import { StartDaySelector } from './StartDaySelector'
+import { StartDaySelector } from '../components/StartDaySelector'
 import { StartNumbersTable } from './StartNumbersTable'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

@@ -4,7 +4,7 @@ import { zonedStartOfDay } from '../i18n/dates'
 import { emptyEvent } from './emptyEvent'
 import { registrationWithStaticDates } from './registrations'
 
-const RESULTS_EVENT_DAY = zonedStartOfDay(parseISO('2021-02-10T12:00:00Z'))
+export const RESULTS_EVENT_DAY = zonedStartOfDay(parseISO('2021-02-10T12:00:00Z'))
 
 /**
  * A working test with a course to score against: two posts, one splitting its 20 points into two

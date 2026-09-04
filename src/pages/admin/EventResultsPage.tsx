@@ -1,6 +1,7 @@
 import type { Theme } from '@mui/material'
 import type { EventResultsResponse } from '../../api/registration'
 import type { DogEvent, EventResult, EventStation, Patch, PublicJudge } from '../../types'
+import type { StartDay } from './components/StartDaySelector'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import type { ResultEdit } from './eventResultsPage/types'
 import ArrowBack from '@mui/icons-material/ArrowBack'
@@ -24,6 +25,7 @@ import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
+import { zonedDateString } from '../../i18n/dates'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { liveViewEnabled } from '../../lib/features'
@@ -31,6 +33,7 @@ import { IMPLICIT_STATION_ID, liveFormat } from '../../lib/liveFormat'
 import {
   compareRegistrationClasses,
   getRegistrationClass,
+  getRegistrationPlacement,
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
@@ -41,6 +44,7 @@ import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { makeArray } from './components/eventForm/judgeSection/utils'
 import { KcIdLookupButton } from './components/KcIdLookupButton'
+import { StartDaySelector } from './components/StartDaySelector'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { emptyEdit } from './eventResultsPage/types'
@@ -81,6 +85,7 @@ export default function EventResultsPage() {
     [registrations]
   )
   const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])
+  const [selectedDay, setSelectedDay] = useState<string | undefined>()
   const [scope, setScope] = useState<string>(WHOLE_ROUND)
   const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
   const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
@@ -95,12 +100,36 @@ export default function EventResultsPage() {
     [event?.eventType, event?.stations]
   )
 
-  const rows = useMemo(
+  const classRegistrations = useMemo(
     () =>
       registrations
         .filter((reg) => isScorableRegistration(reg) && getRegistrationClass(reg) === eventClass)
         .sort(sortRegistrationsByDateClassTimeAndNumber),
     [eventClass, registrations]
+  )
+
+  // A multi-day class runs one day at a time and is scored the same way, so the entry is split by day
+  // exactly as the number entry is (KOE-1353). The days are the class's own placements.
+  const days = useMemo<StartDay[]>(
+    () =>
+      classRegistrations
+        .map((reg) => getRegistrationPlacement(reg)?.date)
+        .filter((date): date is Date => !!date)
+        .map((date) => ({ date, key: zonedDateString(date) }))
+        .filter((day, index, all) => all.findIndex((other) => other.key === day.key) === index)
+        .sort((a, b) => a.key.localeCompare(b.key)),
+    [classRegistrations]
+  )
+  // A day picked on one class tab may not exist on the next; fall back to the first rather than an empty list.
+  const day = days.find((item) => item.key === selectedDay)?.key ?? days[0]?.key
+
+  const rows = useMemo(
+    () =>
+      classRegistrations.filter((reg) => {
+        const date = getRegistrationPlacement(reg)?.date
+        return days.length < 2 || (date && zonedDateString(date) === day)
+      }),
+    [classRegistrations, day, days.length]
   )
 
   const fullRound = useMemo(() => {
@@ -319,6 +348,8 @@ export default function EventResultsPage() {
         )}
       </Stack>
 
+      <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
+
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: { md: 2, xs: 1 } }}>
         <ResultsTable
           compact={compact}
@@ -364,7 +395,7 @@ export default function EventResultsPage() {
         onChoose={(id, choice) => setChoices((prev) => ({ ...prev, [id]: choice }))}
         onClose={() => setConflicts([])}
         onResolve={handleResolve}
-        registrations={rows}
+        registrations={classRegistrations}
       />
     </Paper>
   )

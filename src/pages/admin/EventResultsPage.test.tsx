@@ -1,17 +1,18 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-import type { EventResult } from '../../types'
+import type { EventResult, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { cleanup, screen, within } from '@testing-library/react'
+import { addDays } from 'date-fns'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../__mockData__/events'
-import { eventWithStations, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
+import { eventWithStations, RESULTS_EVENT_DAY, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
 import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
@@ -146,6 +147,21 @@ const rowFor = (dogName: string): HTMLElement => {
   if (!row) throw new Error(`no row for ${dogName}`)
   return row
 }
+
+const firstCellText = (row: HTMLElement): string => row.querySelectorAll('td')[0]?.textContent ?? ''
+
+/** The dog as the venue drew it: a frozen number that need not match the working order it entered with. */
+const drawn = (registration: Registration, number: number): Registration => ({
+  ...registration,
+  startGroup: { ...registration.group, date: registration.group?.date, key: registration.group?.key ?? '', number },
+})
+
+const SECOND_DAY = addDays(RESULTS_EVENT_DAY, 1)
+
+const onSecondDay = (registration: Registration): Registration => ({
+  ...registration,
+  group: { ...registration.group, date: SECOND_DAY, key: registration.group?.key ?? '', number: 1 },
+})
 
 describe('EventResultsPage', () => {
   beforeAll(() => vi.useFakeTimers())
@@ -745,5 +761,44 @@ describe('a pass/fail event type', () => {
     await flushPromises()
 
     expect(within(rowFor('Ensimmainen')).queryByLabelText('results.column.result')).not.toBeInTheDocument()
+  })
+
+  it('numbers the dogs by the drawn start number, not the working order (KOE-1353)', async () => {
+    const { i18n } = useTranslation()
+    // The draw put the second dog first: the row order and the number shown both follow it, because
+    // the number on the collar is what the secretary reads off the sheet in front of them.
+    renderScoringPage(i18n.language as Language, [
+      drawn(registrationsToEventWithStations[0], 12),
+      drawn(registrationsToEventWithStations[1], 7),
+    ])
+    await flushPromises()
+
+    expect(within(rowFor('Ensimmainen')).getByText('12')).toBeInTheDocument()
+    expect(within(rowFor('Toinen')).getByText('7')).toBeInTheDocument()
+    // The working-order numbers the dogs carried (1 and 2) are gone from the column.
+    const numbers = screen.getAllByRole('row').slice(1).map(firstCellText)
+    expect(numbers).toEqual(['7', '12'])
+  })
+
+  it('splits a multi-day class into its days (KOE-1353)', async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderScoringPage(i18n.language as Language, [
+      registrationsToEventWithStations[0],
+      onSecondDay(registrationsToEventWithStations[1]),
+    ])
+    await flushPromises()
+
+    // The first day stands alone: the other day's dog is not on the sheet being scored.
+    expect(screen.getByText('Ensimmainen')).toBeInTheDocument()
+    expect(screen.queryByText('Toinen')).not.toBeInTheDocument()
+
+    // The key-echoing translation mock gives both day buttons the same label, so the day itself picks it.
+    const [, secondDay] = screen.getAllByRole('button', { name: 'dateFormat.wdshort date' })
+    expect(secondDay).toHaveValue('2021-02-11')
+    await user.click(secondDay)
+    await flushPromises()
+
+    expect(screen.getByText('Toinen')).toBeInTheDocument()
+    expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
   })
 })
