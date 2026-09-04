@@ -1490,7 +1490,7 @@ describe('validation', () => {
           owners: [fullOwner, { ...namedCoOwner, email: 'not-an-address' }],
         }
 
-        expect(ownerErrors(reg)).toEqual([{ key: 'email', opts: { field: 'owner' } }])
+        expect(ownerErrors(reg)).toEqual([{ key: 'emailOptional', opts: { field: 'owner' } }])
       })
 
       it('asks nothing but names when someone else handles and pays', () => {

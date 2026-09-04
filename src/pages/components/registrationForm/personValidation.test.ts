@@ -1,5 +1,5 @@
 import type { Person } from '../../../types'
-import { validateOwner, validateOwnerContact, validatePerson } from './personValidation'
+import { hasEmailError, hasPhoneError, validateOwner, validateOwnerContact, validatePerson } from './personValidation'
 
 const testPerson: Person = {
   email: 'email@domain.com',
@@ -38,8 +38,8 @@ describe('validateOwnerContact', () => {
   })
 
   it('validates contact details that were given anyway', () => {
-    expect(validateOwnerContact({ ...reachablePerson, email: '-@a' })).toEqual('email')
-    expect(validateOwnerContact({ ...reachablePerson, phone: '040' })).toEqual('phone')
+    expect(validateOwnerContact({ ...reachablePerson, email: '-@a' })).toEqual('emailOptional')
+    expect(validateOwnerContact({ ...reachablePerson, phone: '040' })).toEqual('phoneOptional')
     expect(validateOwnerContact(reachablePerson)).toBe(false)
   })
 
@@ -48,7 +48,7 @@ describe('validateOwnerContact', () => {
     // invalid number, or an optional field could not be emptied again.
     expect(validateOwnerContact({ ...reachablePerson, phone: '+358' })).toBe(false)
     expect(validateOwnerContact({ ...reachablePerson, phone: '+358 ' })).toBe(false)
-    expect(validateOwnerContact({ ...reachablePerson, phone: '+3584' })).toEqual('phone')
+    expect(validateOwnerContact({ ...reachablePerson, phone: '+3584' })).toEqual('phoneOptional')
   })
 })
 
@@ -67,5 +67,33 @@ describe('validateOwner', () => {
 
   it('asks a co-owner for a name only', () => {
     expect(validateOwner(namedOnly, 'none')).toBe(false)
+  })
+})
+
+describe('hasEmailError', () => {
+  it('flags a missing address only when it is required', () => {
+    expect(hasEmailError('', true)).toBe(true)
+    expect(hasEmailError(undefined, true)).toBe(true)
+    expect(hasEmailError('', false)).toBe(false)
+  })
+
+  it('flags an address that does not validate, required or not', () => {
+    expect(hasEmailError('not-an-address', false)).toBe(true)
+    expect(hasEmailError('email@domain.com', false)).toBe(false)
+  })
+})
+
+describe('hasPhoneError', () => {
+  it('flags a missing number only when it is required', () => {
+    expect(hasPhoneError('', true)).toBe(true)
+    expect(hasPhoneError('+358', true)).toBe(true)
+    expect(hasPhoneError('+358', false)).toBe(false)
+    expect(hasPhoneError(undefined, false)).toBe(false)
+  })
+
+  it('flags a number that does not validate, required or not', () => {
+    expect(hasPhoneError('+35841234', false)).toBe(true)
+    expect(hasPhoneError('040 123 4567', false)).toBe(true)
+    expect(hasPhoneError('+35840123456', false)).toBe(false)
   })
 })

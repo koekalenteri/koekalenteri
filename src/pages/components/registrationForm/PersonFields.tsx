@@ -4,6 +4,7 @@ import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
 import { useTranslation } from 'react-i18next'
 import { useLocalStateGroup } from './hooks/useLocalStateGroup'
+import { hasEmailError, hasPhoneError } from './personValidation'
 
 /** Contact details asked for beside the name, which is always asked for. */
 export type PersonContactField = 'location' | 'email' | 'phone'
@@ -93,7 +94,7 @@ export function PersonFields({
         <Grid size={{ sm: 6, xs: 12 }}>
           <TextField
             disabled={disabled}
-            error={email === 'required' && !person?.email}
+            error={hasEmailError(person?.email, email === 'required')}
             fullWidth
             id={`${idPrefix}_email`}
             label={t('contact.email')}
@@ -114,7 +115,7 @@ export function PersonFields({
             forceCallingCode
             autoComplete="tel"
             disabled={disabled}
-            error={phone === 'required' && !person?.phone}
+            error={hasPhoneError(person?.phone, phone === 'required')}
             fullWidth
             id={`${idPrefix}_phone`}
             label={t('contact.phone')}
