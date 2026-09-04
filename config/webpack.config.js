@@ -152,6 +152,10 @@ module.exports = function (webpackEnv) {
         new EsbuildPlugin({
           target: 'es2020',
           css: true,
+          // Explicit: without it esbuild-loader falls back to
+          // `optimization.minimize`, which webpack >= 5.110 normalizes into an
+          // object that esbuild rejects.
+          minify: isEnvProduction,
         }),
       ],
       runtimeChunk: {
