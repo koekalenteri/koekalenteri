@@ -780,6 +780,7 @@
       "ip": "iltapäivä",
       "kp": "ei ryhmiä"
     },
+    "toBePaid": "Maksettava",
     "tooltip": {
       "invitation": {
         "read": "Koekutsu on kuitattu",

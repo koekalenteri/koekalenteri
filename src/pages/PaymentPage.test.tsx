@@ -260,7 +260,7 @@ describe('PaymentPage', () => {
       await flushPromises()
 
       expect(container).toHaveTextContent('paymentStatus.waitingForConfirmation')
-      expect(container).toHaveTextContent('registration.paymentToBePaid')
+      expect(container).toHaveTextContent('registration.toBePaid')
       // Should not show payment method selector
       expect(container).not.toHaveTextContent('paymentPage.choosePaymentMethod')
     })

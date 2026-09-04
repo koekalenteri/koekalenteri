@@ -18,6 +18,7 @@ import { Path } from '../routeConfig'
 import CancelDialog from './components/CancelDialog'
 import Header from './components/Header'
 import LinkButton from './components/LinkButton'
+import { PaymentDetails } from './components/PaymentDetails'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import { LoadingPage } from './LoadingPage'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
@@ -66,6 +67,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     [allDisabled, event]
   )
   const costResult = event && registration && calculateCost(event, registration)
+  const payable = registration?.cancelled ? 0 : (costResult?.amount ?? 0) - (registration?.paidAmount ?? 0)
 
   const handleCancel = useCallback(
     (reason: string) => {
@@ -288,6 +290,12 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           rows={registration ? [registration] : []}
           onUnregister={() => setCancelOpen(true)}
         />
+        {/* What this registration bought and at what price - the event's full price list says nothing
+            about the choices made in it (KOE-1055). */}
+        <Box sx={{ mb: 1, p: { md: 1, xs: 0.5 }, width: '100%' }}>
+          <Typography variant="h5">{t('paymentDetails')}</Typography>
+          <PaymentDetails event={event} registration={registration} includeTotal includePayable={payable > 0} />
+        </Box>
         <CancelDialog
           disabled={cancelDisabled}
           event={event}

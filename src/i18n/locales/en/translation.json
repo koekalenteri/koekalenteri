@@ -780,6 +780,7 @@
       "ip": "afternoon",
       "kp": "no groups"
     },
+    "toBePaid": "To be paid",
     "tooltip": {
       "invitation": {
         "read": "The invitation has been acknowledged",

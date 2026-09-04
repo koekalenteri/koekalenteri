@@ -118,6 +118,18 @@ describe('RegistrationListPage', () => {
     expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
   })
 
+  it('itemizes what the registration bought and what has been paid for it', async () => {
+    renderWithRouter('/r/test1/nou-registration')
+    await flushPromises()
+
+    // KOE-1055: the event's price list is not an answer to "what did I buy, and at what price".
+    expect(screen.getByText('paymentDetails')).toBeInTheDocument()
+    expect(screen.getByText('costTotal')).toBeInTheDocument()
+    expect(screen.getByText('registration.paid')).toBeInTheDocument()
+    // The fee, the total, and the same sum again as what has already been paid of it
+    expect(screen.getAllByText('123,00 €')).toHaveLength(3)
+  })
+
   it('opens cancel dialog when on cancel route', async () => {
     // allow couple of minutes margin for timers
     vi.setSystemTime(new Date('2021-02-08T23:55:00.000+02:00')) // must be before event.endDate

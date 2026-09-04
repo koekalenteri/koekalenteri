@@ -2692,30 +2692,38 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
               class="MuiStack-root css-1je84qz-MuiStack-root"
             >
               <div
-                class="MuiStack-root css-1k7wcam-MuiStack-root"
+                class="MuiBox-root css-lgmhq1"
               >
                 <div
-                  class="MuiBox-root css-mro3c9"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
                 >
-                  <p
-                    class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-7 css-1a2rhj7-MuiGrid-root"
                   >
                     costNames.normal name
-                     
-                    123,00 €
-                  </p>
-                  <hr
-                    class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
-                  />
-                  <hr
-                    class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
-                  />
-                  <p
-                    class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-5 css-rsifgp-MuiGrid-root"
                   >
-                    Aiemmin maksettu 
                     123,00 €
-                  </p>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 css-yqiqnf-MuiGrid-root"
+                  >
+                    <hr
+                      class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
+                    />
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-7 css-1a2rhj7-MuiGrid-root"
+                  >
+                    registration.paid
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-5 css-rsifgp-MuiGrid-root"
+                  >
+                    123,00 €
+                  </div>
                 </div>
               </div>
             </div>
@@ -5583,30 +5591,38 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
               class="MuiStack-root css-1je84qz-MuiStack-root"
             >
               <div
-                class="MuiStack-root css-1k7wcam-MuiStack-root"
+                class="MuiBox-root css-lgmhq1"
               >
                 <div
-                  class="MuiBox-root css-mro3c9"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
                 >
-                  <p
-                    class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-7 css-1a2rhj7-MuiGrid-root"
                   >
                     costNames.normal name
-                     
-                    123,00 €
-                  </p>
-                  <hr
-                    class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
-                  />
-                  <hr
-                    class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
-                  />
-                  <p
-                    class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-5 css-rsifgp-MuiGrid-root"
                   >
-                    Aiemmin maksettu 
                     123,00 €
-                  </p>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 css-yqiqnf-MuiGrid-root"
+                  >
+                    <hr
+                      class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
+                    />
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-7 css-1a2rhj7-MuiGrid-root"
+                  >
+                    registration.paid
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-5 css-rsifgp-MuiGrid-root"
+                  >
+                    123,00 €
+                  </div>
                 </div>
               </div>
             </div>
