@@ -46,6 +46,7 @@ describe('startListSpreadsheetRows', () => {
         'Handler',
         'Breeder',
         'Result',
+        'Additional marks',
       ],
       [
         // The fixture is cancelled: since KOE-1017 a cancelled row exports its number and the
@@ -55,6 +56,7 @@ describe('startListSpreadsheetRows', () => {
         'ALO',
         2,
         'ABSENT',
+        '',
         '',
         '',
         '',
@@ -86,6 +88,26 @@ describe('a published result on the exported list', () => {
 
     // The download is what gets circulated, so a result missing here is a file that disagrees with
     // the page it came from.
-    expect(row.at(-1)).toBe('ALO1')
+    expect(row.at(-2)).toBe('ALO1')
+    expect(row.at(-1)).toBe('')
+  })
+
+  it("keeps a stopped trial's mark in its own column, the way Koiranet asks for it", () => {
+    const event = { classes: [], startDate: new Date('2023-02-01') } as unknown as PublicConfirmedEvent
+    const registration = {
+      breeder: 'Test Breeder',
+      class: 'AVO',
+      dog: { name: 'Test Dog', regNo: 'REG1' },
+      group: { key: 'AVO', number: 2 },
+      handler: 'Test Handler',
+      marks: ['interrupted'],
+      owner: 'Test Owner',
+      result: 'AVO0',
+    } as PublicRegistration
+
+    const [, row] = startListSpreadsheetRows([registration], event, t)
+
+    expect(row.at(-2)).toBe('AVO0')
+    expect(row.at(-1)).toBe('Stopped')
   })
 })

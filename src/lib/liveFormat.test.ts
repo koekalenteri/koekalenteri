@@ -40,11 +40,6 @@ describe('liveFormat', () => {
     expect(liveFormat('NOU').marks).toEqual([])
   })
 
-  it('offers the interruption only where a judge may stop a dog short of an eliminating fault', () => {
-    expect(liveFormat('NOME-A').interruption).toBe(true)
-    expect(liveFormat('NOWT').interruption).toBeUndefined()
-  })
-
   describe('stationDogsAtOnce', () => {
     it("takes the post's own form where the format leaves it open", () => {
       expect(stationDogsAtOnce('NOWT', { dogsAtOnce: 4 })).toBe(4)

@@ -23,21 +23,15 @@ import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 
-// The live entry link is a release switch (KOE-1259): the tests describe the feature with it on,
-// and one test checks that the switch alone takes the link away.
-const features = vi.hoisted(() => ({ liveViewEnabled: true }))
+// Two release switches: the live entry link (KOE-1259) and the reason a round ended (KOE-1299). The
+// tests describe both features with them on, and one test each checks what the switch alone takes away.
+const features = vi.hoisted(() => ({ liveViewEnabled: true, outcomeReasonEnabled: true }))
 vi.mock('../../lib/features', () => features)
 
 vi.mock('../../api/user')
 vi.mock('../../api/event')
 vi.mock('../../api/eventType')
 vi.mock('../../hooks/useEventSubscription', () => ({ useEventSubscription: vi.fn(() => ({ viewers: [] })) }))
-// The outcome field is built and wired but not taken into use yet; these tests exercise the wiring, so
-// they run with it shown. StationScoring.test.tsx covers that the screens leave it out by default.
-vi.mock('./eventResultsPage/RoundOutcome', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('./eventResultsPage/RoundOutcome')>()),
-  ROUND_OUTCOME_ENABLED: true,
-}))
 vi.mock('../../api/judge')
 vi.mock('../../api/official')
 vi.mock('../../api/organizer')
@@ -227,6 +221,35 @@ describe('EventResultsPage', () => {
     // A dog that is eliminated or withdrawn is common rather than exceptional, so the column exists
     // for every event type — the points grid alone could not record it.
     expect(screen.getByText('results.column.outcome')).toBeInTheDocument()
+  })
+
+  it('asks only whether the judge stopped the trial while the reason is switched off', async () => {
+    const { i18n } = useTranslation()
+    features.outcomeReasonEnabled = false
+    try {
+      const { user } = renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.interruption'))
+
+      // Recording *why* is KOE-1299 and still switched off, so the column narrows to the one question
+      // the secretary can answer, and its heading narrows with it.
+      const options = within(screen.getByRole('listbox')).getAllByRole('option')
+      expect(options.map((option) => option.textContent)).toEqual([
+        'results.notInterrupted',
+        'results.retirement.judgeStopped',
+      ])
+
+      await user.click(screen.getByRole('option', { name: 'results.retirement.judgeStopped' }))
+      await flushPromises()
+
+      // A stop is published as the nought, with the mark beside it saying the trial ended early — the
+      // shape the breeding database shows (ALO0, Kesk.).
+      expect(within(rowFor('Ensimmainen')).getByText('ALO0')).toBeInTheDocument()
+      expect(within(rowFor('Ensimmainen')).getByText('results.marks.interrupted')).toBeInTheDocument()
+    } finally {
+      features.outcomeReasonEnabled = true
+    }
   })
 
   it('shows the koetunnus, so the secretary can see which event they are scoring', async () => {

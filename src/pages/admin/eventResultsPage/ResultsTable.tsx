@@ -18,7 +18,7 @@ import { getRegistrationPlacement } from '../../../lib/registration'
 import { parseEventResultCode, scoresAtPosts } from '../../../lib/results'
 import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'
-import { ROUND_OUTCOME_ENABLED, RoundOutcome } from './RoundOutcome'
+import { outcomeLabelKeys, RoundOutcome } from './RoundOutcome'
 import { TaskScore } from './TaskScore'
 import { emptyEdit, isVoided, sameResultEdit } from './types'
 
@@ -88,6 +88,7 @@ function ResultsTable({
 }: Props) {
   const { t } = useTranslation()
   const qualitative = !scoresAtPosts(eventType)
+  const outcomeColumn = outcomeLabelKeys().column
 
   // The stored result seeds the row, so an edit cannot quietly drop what is already recorded. For a
   // qualitative type that is the judge's decision; for a post-scored round it is every task the posts
@@ -175,7 +176,7 @@ function ResultsTable({
           value={edit.judge ?? defaultJudges[EVENT_JUDGE_KEY] ?? judges[0]}
         />
       ) : undefined,
-      outcome: ROUND_OUTCOME_ENABLED ? (
+      outcome: (
         <RoundOutcome
           disabled={disabled}
           eventType={eventType}
@@ -184,7 +185,7 @@ function ResultsTable({
           onChange={(next) => report(registration, attributed(next))}
           value={edit}
         />
-      ) : undefined,
+      ),
       result: (
         <ResultSummary
           disabled={disabled}
@@ -245,7 +246,7 @@ function ResultsTable({
                 {t('results.column.task', { number: index + 1 })}
               </TableCell>
             ))}
-            {ROUND_OUTCOME_ENABLED && <TableCell>{t('results.column.outcome')}</TableCell>}
+            <TableCell>{t(outcomeColumn)}</TableCell>
             <TableCell align="right">{t('results.column.result')}</TableCell>
           </TableRow>
         </TableHead>
@@ -265,7 +266,7 @@ function ResultsTable({
                     {task}
                   </TableCell>
                 ))}
-                {ROUND_OUTCOME_ENABLED && <TableCell>{controls.outcome}</TableCell>}
+                <TableCell>{controls.outcome}</TableCell>
                 <TableCell align="right">{controls.result}</TableCell>
               </TableRow>
             )

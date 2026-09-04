@@ -58,11 +58,6 @@ interface LiveFormat {
   marks: readonly LiveMark[]
   /** The fixed phases of the day, where the format has them; absent, a `phases` post names its own. */
   phases?: readonly LivePhase[]
-  /**
-   * Whether a judge may stop a dog's trial short of an eliminating fault — NOME-A's two serious
-   * faults. Such a stop publishes as an interruption rather than as the dash an elimination takes.
-   */
-  interruption?: boolean
 }
 
 /**
@@ -80,14 +75,7 @@ const NOME_A_MARKS: readonly LiveMark[] = ['onRetrieve', 'gotRetrieve', 'noRetri
  */
 const DEFAULT_LIVE_FORMAT: LiveFormat = { flow: 'queue', marks: [], posts: 'one', tasks: 'none' }
 
-const NOME_A: LiveFormat = {
-  dogsAtOnce: 4,
-  flow: 'field',
-  interruption: true,
-  marks: NOME_A_MARKS,
-  posts: 'one',
-  tasks: 'retrieve',
-}
+const NOME_A: LiveFormat = { dogsAtOnce: 4, flow: 'field', marks: NOME_A_MARKS, posts: 'one', tasks: 'retrieve' }
 /**
  * A taipumuskoe opens with the whole entry at the briefing, then each dog in turn goes to the water
  * mark and from there to the search. What the search records beyond its time is not decided yet.

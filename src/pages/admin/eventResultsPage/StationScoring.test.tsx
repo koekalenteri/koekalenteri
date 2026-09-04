@@ -65,13 +65,48 @@ describe('StationScoring', () => {
       expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     })
 
-    it('leaves the outcome out, since recording why a round ended is not taken into use yet', async () => {
+    it('asks whether the judge stopped the trial, and nothing else about why it ended', async () => {
       const user = userEvent.setup()
       renderScoring()
 
       await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+      await user.click(screen.getByLabelText('results.interruption'))
 
-      expect(screen.queryByLabelText('results.outcome')).not.toBeInTheDocument()
+      // Recording the *reason* is KOE-1299 and still switched off, so the format's hylkäävät virheet
+      // and the retirements that are not the judge's call stay out of the list.
+      const options = within(screen.getByRole('listbox')).getAllByRole('option')
+      expect(options.map((option) => option.textContent)).toEqual([
+        'results.notInterrupted',
+        'results.retirement.judgeStopped',
+      ])
+    })
+
+    it("saves a judge's stop as the nought, with the mark that says the trial ended early", async () => {
+      const user = userEvent.setup()
+      const { onSave } = renderScoring()
+
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+      await user.click(screen.getByLabelText('results.interruption'))
+      await user.click(screen.getByRole('option', { name: 'results.retirement.judgeStopped' }))
+
+      // The stop is one thing to record, not two: the nought follows from it, and the "Kesk." beside it
+      // is what a reader needs to tell the stop from a dog that simply went unplaced.
+      expect(screen.getByText('results.marks.interrupted')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      expect(onSave).toHaveBeenCalledWith({
+        basedOn: undefined,
+        eventResult: {
+          elimination: undefined,
+          judge,
+          resultCode: '0',
+          retirement: { cause: 'judgeStopped', stationId: '1' },
+          tasks: [],
+        },
+        id: 'run-1',
+        stationId: '1',
+      })
     })
 
     it("saves the judge's decision, attributed to the lone judge without asking", async () => {

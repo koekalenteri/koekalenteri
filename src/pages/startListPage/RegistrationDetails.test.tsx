@@ -123,6 +123,21 @@ describe('RegistrationDetails', () => {
     expect(screen.getByText('(i. Sire Dog, e. Dam Dog)')).toBeInTheDocument()
   })
 
+  it("puts a judge's stop beside the result, which the code alone could not say", () => {
+    render(
+      <table>
+        <tbody>
+          <RegistrationDetails
+            registration={{ ...mockRegistration, marks: ['interrupted'], result: 'AVO0' }}
+            index={0}
+          />
+        </tbody>
+      </table>
+    )
+
+    expect(screen.getByText('AVO0 results.marks.interrupted')).toBeInTheDocument()
+  })
+
   it('applies top-border class when index > 0', () => {
     const { container } = render(
       <table>

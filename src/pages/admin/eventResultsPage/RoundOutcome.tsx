@@ -8,15 +8,19 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { liveFormat } from '../../../lib/liveFormat'
-import { eliminatingFaults } from '../../../lib/results'
+import { outcomeReasonEnabled } from '../../../lib/features'
+import { eliminatingFaults, STOPPED_RESULT_CODE, scoresAtPosts } from '../../../lib/results'
 
 /**
- * Whether the entry screens show the outcome at all. The vocabulary follows the rules edition in force
- * and the server accepts it, but recording the reason a round ended is not taken into use yet — Jukka's
- * call on 2.9.2026 — so every screen leaves the field out until this is flipped.
+ * What the control is asking, which narrows with it while the reason list waits on KOE-1299: with only
+ * the judge's stop on offer, "hylkäys / keskeytys" would name two things the secretary cannot record.
+ *
+ * A function rather than three constants because the switch is a module the tests steer.
  */
-export const ROUND_OUTCOME_ENABLED = false
+export const outcomeLabelKeys = () =>
+  outcomeReasonEnabled
+    ? ({ column: 'results.column.outcome', field: 'results.outcome', notEnded: 'results.outcomeNone' } as const)
+    : ({ column: 'results.interruption', field: 'results.interruption', notEnded: 'results.notInterrupted' } as const)
 
 const SCORED = ''
 const INJURY = 'injury'
@@ -44,16 +48,41 @@ const stationOf = (edit: ResultEdit) => edit.elimination?.stationId ?? edit.reti
  * Elimination and withdrawal sit in one control because they answer the same question — the dog did not
  * finish — even though the rules treat them differently: every elimination is a dash, while a handler's
  * own withdrawal is a dash only if the judge holds the dog could still have placed.
+ *
+ * While `outcomeReasonEnabled` is off the control asks only whether the judge stopped the trial
+ * (KOE-1300); the rest of the list waits on KOE-1299 rather than being rebuilt then.
  */
 export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, onChange }: Props) => {
   const { t } = useTranslation()
-  const faults = eliminatingFaults(eventType)
+  const labels = outcomeLabelKeys()
   const outcome = outcomeOf(value)
-  // Only NOME-A's judge may stop a dog short of an eliminating fault, and only there does the option
-  // belong in the list: everywhere else there is no such call to record.
-  const stopsOnSeriousFaults = Boolean(liveFormat(eventType).interruption)
   // A post's own view already knows where it happened; the whole-round view has to ask.
   const where = stationId ?? stationOf(value)
+  // A qualitative type collects its result rather than deriving one, so a stop fills its nought in here
+  // — the secretary records the stop, not the stop and then the code it is published as. A result
+  // already entered stands: rewriting the judge's decision is not this control's to do. Nothing is
+  // filled in for a post-scored round, where the code is derived from the scores.
+  const stopped = eventType && !scoresAtPosts(eventType) ? STOPPED_RESULT_CODE : undefined
+  // Why the round ended, where that is asked at all: each format's own hylkäävät virheet, then the
+  // retirements that are not the judge's stop. Built as a list so the one question that is always asked
+  // reads as one item in the menu rather than as a gate around every line of it.
+  const reasons = outcomeReasonEnabled
+    ? [
+        <ListSubheader key="eliminated">{t('results.outcomeEliminated')}</ListSubheader>,
+        ...eliminatingFaults(eventType).map((fault) => (
+          <MenuItem key={fault} value={fault}>
+            {t(`results.eliminatingFaults.${fault}`)}
+          </MenuItem>
+        )),
+        <ListSubheader key="retired">{t('results.outcomeRetired')}</ListSubheader>,
+        <MenuItem key={INJURY} value={INJURY}>
+          {t('results.retirement.injury')}
+        </MenuItem>,
+        <MenuItem key={HANDLER_CHOICE} value={HANDLER_CHOICE}>
+          {t('results.retirement.handlerChoice')}
+        </MenuItem>,
+      ]
+    : []
 
   const handleOutcome = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,14 +97,21 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
 
       if (next === SCORED) return onChange(kept)
       if (next === INJURY) return onChange({ retirement: { cause: 'injury', ...at }, ...kept })
-      if (next === JUDGE_STOPPED) return onChange({ retirement: { cause: 'judgeStopped', ...at }, ...kept })
+      if (next === JUDGE_STOPPED) {
+        const code = value.resultCode ?? stopped
+        return onChange({
+          ...kept,
+          ...(code ? { resultCode: code } : {}),
+          retirement: { cause: 'judgeStopped', ...at },
+        })
+      }
       if (next === HANDLER_CHOICE) {
         return onChange({ retirement: { cause: 'handlerChoice', ...at }, ...kept })
       }
 
       return onChange({ elimination: { fault: next as EliminatingFault, ...at }, ...kept })
     },
-    [onChange, value.resultCode, value.tasks, where]
+    [onChange, stopped, value.resultCode, value.tasks, where]
   )
 
   const handleWhere = useCallback(
@@ -102,7 +138,7 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
     <Stack spacing={0.5}>
       <TextField
         disabled={disabled}
-        label={t('results.outcome')}
+        label={t(labels.field)}
         onChange={handleOutcome}
         select
         size="small"
@@ -110,22 +146,14 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
         value={outcome}
       >
         {/* Completing the round is the default, so this reads as the absence of a note rather than an
-            outcome of its own — but it stays selectable, since an elimination entered by mistake has to
-            be undoable. */}
-        <MenuItem value={SCORED}>{t('results.outcomeNone')}</MenuItem>
-        <ListSubheader>{t('results.outcomeEliminated')}</ListSubheader>
-        {faults.map((fault) => (
-          <MenuItem key={fault} value={fault}>
-            {t(`results.eliminatingFaults.${fault}`)}
-          </MenuItem>
-        ))}
-        <ListSubheader>{t('results.outcomeRetired')}</ListSubheader>
-        <MenuItem value={INJURY}>{t('results.retirement.injury')}</MenuItem>
-        <MenuItem value={HANDLER_CHOICE}>{t('results.retirement.handlerChoice')}</MenuItem>
-        {stopsOnSeriousFaults && <MenuItem value={JUDGE_STOPPED}>{t('results.retirement.judgeStopped')}</MenuItem>}
+            outcome of its own — but it stays selectable, since an outcome entered by mistake has to be
+            undoable. */}
+        <MenuItem value={SCORED}>{t(labels.notEnded)}</MenuItem>
+        {reasons}
+        <MenuItem value={JUDGE_STOPPED}>{t('results.retirement.judgeStopped')}</MenuItem>
       </TextField>
 
-      {/* An elimination happens somewhere, and which post is worth keeping rather than losing. */}
+      {/* A round ends somewhere, and which post is worth keeping rather than losing. */}
       {outcome !== SCORED && stations.length > 0 && !stationId && (
         <TextField
           disabled={disabled}

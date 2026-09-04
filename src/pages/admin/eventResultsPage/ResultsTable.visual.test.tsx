@@ -24,8 +24,9 @@ const noop = () => {}
 const runners = registrationsToEventWithStations.filter((reg) => reg.group?.key !== 'reserve')
 
 const round = classRound(eventWithStations.stations ?? [])
-// One dog through the whole course on a first prize, one thrown out at the second post with its
-// first-post score intact — the two shapes a real screenful mixes.
+// One dog through the whole course on a first prize, one the judge stopped at the second post with its
+// first-post score intact — the two shapes a real screenful mixes. The stop reads as the nought and
+// carries "Kesk." beside it (KOE-1300).
 const nowtEdits: Record<string, ResultEdit> = {
   'run-1': {
     tasks: [
@@ -35,7 +36,7 @@ const nowtEdits: Record<string, ResultEdit> = {
     ],
   },
   'run-2': {
-    elimination: { fault: 'hardMouth', stationId: 'post-2' },
+    retirement: { cause: 'judgeStopped', stationId: 'post-2' },
     tasks: [{ index: 0, judge, points: 12, stationId: 'post-1' }],
   },
 }
@@ -46,11 +47,12 @@ const nouRegistrations: Registration[] = runners.map((reg) => ({
   class: undefined,
   eventType: 'NOU',
 }))
-// A pass with its judge chosen, and an injury retirement taking the fail — nothing derivable, so
-// every mark on screen is the judge's own.
+// A pass with its judge chosen, and a stopped trial beside it — nothing derivable, so every mark on
+// screen is the judge's own. A stop fills in the nought it is published as, and the mark beside it says
+// the trial ended early rather than the dog going unplaced on its merits.
 const nouEdits: Record<string, ResultEdit> = {
   'run-1': { judge: nouJudges[0], resultCode: '1', tasks: [] },
-  'run-2': { judge: nouJudges[0], resultCode: '0', retirement: { cause: 'injury' }, tasks: [] },
+  'run-2': { judge: nouJudges[0], resultCode: '0', retirement: { cause: 'judgeStopped' }, tasks: [] },
 }
 
 it('shows a working test round as the secretary scores it', async () => {

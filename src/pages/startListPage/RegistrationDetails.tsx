@@ -5,6 +5,7 @@ import TableCell from '@mui/material/TableCell'
 import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation, formatDogName } from '../../lib/dog'
+import { formatResultMarks } from '../../lib/results'
 import { StyledTableRow } from './StyledTableRow'
 
 interface RegistrationDetailsProps {
@@ -25,6 +26,9 @@ export const RegistrationDetails = ({ registration: reg, index, warnNumberPendin
     : `${t('startList.owner')} ${reg.owner}, ${t('startList.handler')} ${reg.handler}`
   const sire = formatDogName(reg.dog.sire)
   const dam = formatDogName(reg.dog.dam)
+  // Koiranet's "Lisämerkinnät" beside the code: a stopped trial takes the same dash an eliminated dog
+  // takes, and this is what tells the two apart (KOE-1300).
+  const result = [reg.result, formatResultMarks(reg.marks, t)].filter(Boolean).join(' ')
 
   return (
     <StyledTableRow key={`${reg.group.number}-a`} className={index > 0 ? 'top-border' : ''}>
@@ -65,7 +69,7 @@ export const RegistrationDetails = ({ registration: reg, index, warnNumberPendin
             {ownerHandler}, {t('startList.breeder')} {reg.breeder}
           </Box>
           {/* Its own line, bold: this is what a reader came for, and what a Koiranet screenshot omits. */}
-          {reg.result && <Box sx={{ fontWeight: 'bold' }}>{reg.result}</Box>}
+          {result && <Box sx={{ fontWeight: 'bold' }}>{result}</Box>}
         </Box>
       </TableCell>
     </StyledTableRow>

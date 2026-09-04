@@ -12,6 +12,7 @@ import {
   resolveOwnerSelection,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
+import { resultMarks } from '../../lib/results'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
@@ -110,6 +111,8 @@ const getStartListLambda = lambda('getStartList', async (event) => {
         publicGroup = { ...group, number: undefined }
       }
 
+      const marks = resultMarks(reg.eventResult)
+
       publicRegs.push({
         ...(preview ? { numberProvisional: !reg.startGroup } : {}),
         breeder: reg.breeder?.name,
@@ -119,7 +122,11 @@ const getStartListLambda = lambda('getStartList', async (event) => {
         handler: getHandlingPerson(reg)?.name ?? '',
         owner: formatOwnerNames(reg),
         ownerHandles: publishedOwnerHandles(reg),
-        ...(isResultsAvailableForRegistration(confirmedEvent, registered) ? { result: reg.eventResult?.result } : {}),
+        // The marks ride with the result and only where it does: a mark on its own would tell a reader
+        // something about a dog whose result is not published yet (KOE-1300).
+        ...(isResultsAvailableForRegistration(confirmedEvent, registered)
+          ? { ...(marks.length ? { marks } : {}), result: reg.eventResult?.result }
+          : {}),
       })
     }
 

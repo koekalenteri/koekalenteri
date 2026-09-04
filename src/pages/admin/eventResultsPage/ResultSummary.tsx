@@ -1,5 +1,5 @@
 import type { RoundTask } from '../../../lib/results'
-import type { EventResult } from '../../../types'
+import type { EventResult, ResultMark } from '../../../types'
 import type { ResultEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
@@ -10,6 +10,7 @@ import {
   deriveNowtResult,
   formatEventResult,
   nowtTotals,
+  resultMarks,
   scoresAtPosts,
   toScoredTasks,
 } from '../../../lib/results'
@@ -33,6 +34,9 @@ interface Props {
  */
 export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disabled, onChange }: Props) => {
   const { t } = useTranslation()
+  // What rides beside the result once it is published, shown here so the secretary reads the line the
+  // public will read rather than only the choice they made in the outcome control (KOE-1300).
+  const marks = <ResultMarks marks={resultMarks(edit)} />
 
   // A qualitative type has nothing to derive a result from — the judge's decision is the result — so
   // for it this column collects the result rather than displays one. The codes on offer are the type's
@@ -41,30 +45,36 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
     const codes = availableResultCodes(eventType)
 
     return (
-      <TextField
-        disabled={disabled}
-        label={t('results.column.result')}
-        onChange={(event) => onChange({ ...edit, resultCode: codes.find((code) => code === event.target.value) })}
-        select
-        size="small"
-        sx={{ minWidth: 110 }}
-        value={edit.resultCode ?? ''}
-      >
-        <MenuItem value="">{t('results.resultNone')}</MenuItem>
-        {codes.map((code) => (
-          <MenuItem key={code} value={code}>
-            {formatEventResult(code, eventType, eventClass)}
-          </MenuItem>
-        ))}
-      </TextField>
+      <>
+        <TextField
+          disabled={disabled}
+          label={t('results.column.result')}
+          onChange={(event) => onChange({ ...edit, resultCode: codes.find((code) => code === event.target.value) })}
+          select
+          size="small"
+          sx={{ minWidth: 110 }}
+          value={edit.resultCode ?? ''}
+        >
+          <MenuItem value="">{t('results.resultNone')}</MenuItem>
+          {codes.map((code) => (
+            <MenuItem key={code} value={code}>
+              {formatEventResult(code, eventType, eventClass)}
+            </MenuItem>
+          ))}
+        </TextField>
+        {marks}
+      </>
     )
   }
 
   if (!round) {
     return (
-      <Typography variant="body2" color="text.secondary">
-        {stored?.result ?? ''}
-      </Typography>
+      <>
+        <Typography variant="body2" color="text.secondary">
+          {stored?.result ?? ''}
+        </Typography>
+        {marks}
+      </>
     )
   }
 
@@ -77,6 +87,7 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
       <Typography variant="body2" fontWeight={600}>
         {code ? formatEventResult(code, eventType, eventClass) : '–'}
       </Typography>
+      {marks}
       {/* A voided round has no total worth showing beside dogs that ran everything. */}
       {!edit.elimination && !edit.retirement && (
         <Typography variant="caption" color="text.secondary">
@@ -84,5 +95,17 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
         </Typography>
       )}
     </>
+  )
+}
+
+/** The marks published beside the result — Koiranet's "Lisämerkinnät", and nothing at all when empty. */
+const ResultMarks = ({ marks }: { readonly marks: ResultMark[] }) => {
+  const { t } = useTranslation()
+  if (!marks.length) return null
+
+  return (
+    <Typography variant="caption" color="text.secondary" display="block">
+      {marks.map((mark) => t(`results.marks.${mark}`)).join(' ')}
+    </Typography>
   )
 }

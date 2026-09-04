@@ -839,10 +839,15 @@
       "swappedGame": "Swapped game",
       "unauthorizedRun": "Running in"
     },
+    "interruption": "Interruption",
     "judge": "Judge",
     "liveEntryLinkCopied": "Live entry link copied to clipboard",
     "liveEntryLinkInvalid": "This link is not valid. Ask the event secretary for a new one.",
     "liveEntryLinkRevoked": "Live entry link revoked. Share a new link with the judge's secretary.",
+    "marks": {
+      "interrupted": "Stopped"
+    },
+    "notInterrupted": "Not interrupted",
     "openLiveEntry": "Live entry",
     "outcome": "Elimination / retirement",
     "outcomeAt": "Where",
@@ -913,6 +918,7 @@
     "dateOfBirth": "Date of birth",
     "dog": "Dog",
     "handler": "Handler",
+    "marks": "Additional marks",
     "number": "Number",
     "owner": "Owner",
     "registrationNumber": "Registration number",

@@ -98,10 +98,11 @@ export interface EventResultElimination {
 /** Why a round ended before it was scored. Only a handler's own withdrawal is conditional. */
 export interface EventResultRetirement {
   /**
-   * `judgeStopped` is the judge ending the dog's trial on two serious faults (NOME-A) — an eye-wipe or
-   * a first dog down among the first three retrieves does it alone. It is deliberately not an
-   * `EventResultElimination`: a stop on serious faults is not a hylkäävä virhe, so it publishes as an
-   * interruption rather than the dash every elimination takes.
+   * `judgeStopped` is the judge ending the dog's trial — in NOME-A on two serious faults, where an
+   * eye-wipe or a first dog down among the first three retrieves does it alone. It is deliberately not
+   * an `EventResultElimination`: such a stop is not a hylkäävä virhe. Both take the dash on the result
+   * line, there being no completed round to judge; what tells them apart is the `ResultMark` the stop
+   * publishes beside it (KOE-1300).
    */
   cause: 'handlerChoice' | 'injury' | 'judgeStopped'
   /**
@@ -112,6 +113,18 @@ export interface EventResultRetirement {
   /** Where it happened. An injury in particular is worth locating, not just counting. */
   stationId?: string
 }
+
+/**
+ * A note published beside the result rather than in place of it — Koiranet's "Lisämerkinnät" (KOE-1300).
+ *
+ * The result line says how the dog placed, and a dog whose trial ended early has no placing to report:
+ * it takes the dash, the same dash an eliminated dog takes. The mark is what distinguishes them, which
+ * is why it rides alongside instead of replacing the code. Stored as a code, never as a label — the
+ * Finnish wording is an i18n key.
+ *
+ * Derived from what is recorded, never entered: see `resultMarks` in `lib/results.ts`.
+ */
+export type ResultMark = 'interrupted'
 
 /** One task's score for one dog. A task is identified by its post and its position within it. */
 export interface JsonEventResultTask {
@@ -361,6 +374,11 @@ export interface JsonPublicRegistration {
   numberProvisional?: boolean
   /** Present only where the class's results have been published. Composed, e.g. `AVO1` or `ALO-`. */
   result?: string
+  /**
+   * Published with the result and only where it is: what the code alone cannot say, such as a trial the
+   * judge stopped (KOE-1300). Absent rather than empty when there is nothing to add.
+   */
+  marks?: ResultMark[]
 }
 
 export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' | 'group'> {

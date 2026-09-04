@@ -140,3 +140,23 @@ it('publishes the result on its own line under the start list row', async () => 
   await expect.element(screen.getByText('AVO1')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-result')
 })
+
+it("carries a judge's stop beside the result, on the same line", async () => {
+  // KOE-1300: the nought on its own says the dog was judged and went unplaced, which is not what
+  // happened. "Kesk." is Koiranet's lisämerkintä, and it belongs where the result is rather than in a
+  // note somewhere else — the breeding database prints the pair the same way.
+  const stopped: PublicRegistration = { ...registration, marks: ['interrupted'], result: 'AVO0' }
+
+  const screen = await render(
+    <Frame>
+      <Table>
+        <TableBody>
+          <RegistrationDetails index={0} registration={stopped} />
+        </TableBody>
+      </Table>
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('AVO0 Kesk.')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-result-interrupted')
+})

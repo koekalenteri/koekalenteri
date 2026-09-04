@@ -11,6 +11,8 @@ import {
   nowtTotals,
   parseEventResultCode,
   resolveEventResult,
+  resultMarks,
+  STOPPED_RESULT_CODE,
   sameEventResult,
   sameStationTasks,
   stationVersion,
@@ -124,12 +126,10 @@ describe('deriveNowtResult', () => {
       expect(deriveNowtResult({ elimination: { fault: 'gunShyness' }, tasks: [] })).toBe('-')
     })
 
-    it("records a judge's stop as an interruption, which is neither a dash nor a nought", () => {
-      // A stop on two serious faults is not a hylkäävä virhe, so it does not take the dash every
-      // elimination takes — and the dog was not judged and unplaced either, so it is not a nought.
-      expect(deriveNowtResult({ retirement: { cause: 'judgeStopped' }, tasks: round(17, null, null, null) })).toBe(
-        'KES'
-      )
+    it("records a judge's stop as a nought rather than a dash", () => {
+      // The breeding database publishes a stopped dog as ALO0 with Kesk. beside it: the code says the
+      // dog was not placed, and the mark says why. A dash would read as an elimination.
+      expect(deriveNowtResult({ retirement: { cause: 'judgeStopped' }, tasks: round(17, null, null, null) })).toBe('0')
     })
   })
 })
@@ -325,10 +325,25 @@ describe('availableResultCodes', () => {
     expect(availableResultCodes('NOWT SM')).toEqual(['1', '2', '3', '0', '-'])
   })
 
-  it('offers the interruption only where a judge may stop a dog short of an eliminating fault', () => {
-    expect(availableResultCodes('NOME-A')).toEqual(['1', '2', '3', '0', '-', 'KES'])
-    expect(availableResultCodes('NOME-A SM')).toEqual(['1', '2', '3', '0', '-', 'KES'])
-    expect(availableResultCodes('NOWT')).not.toContain('KES')
+  it("offers a stopped trial's code in every format, pass/fail tests included", () => {
+    // The nought the breeding database publishes a stop as is in every alphabet, so no format is left
+    // with nothing to record a stop as.
+    for (const eventType of ['NOME-A', 'NOME-B', 'NOWT', 'NOU', 'NKM']) {
+      expect(availableResultCodes(eventType)).toContain(STOPPED_RESULT_CODE)
+    }
+  })
+})
+
+describe('resultMarks', () => {
+  it("marks a judge's stop, which the dash it shares with an elimination cannot say", () => {
+    expect(resultMarks({ retirement: { cause: 'judgeStopped' } })).toEqual(['interrupted'])
+  })
+
+  it('marks nothing else, an unrecorded result included', () => {
+    expect(resultMarks({ retirement: { cause: 'injury' } })).toEqual([])
+    expect(resultMarks({ retirement: { cause: 'handlerChoice' } })).toEqual([])
+    expect(resultMarks({})).toEqual([])
+    expect(resultMarks()).toEqual([])
   })
 })
 
@@ -337,11 +352,6 @@ describe('parseEventResultCode', () => {
     expect(parseEventResultCode('NOU1', 'NOU')).toBe('1')
     expect(parseEventResultCode('ALO2', 'NOWT', 'ALO')).toBe('2')
     expect(parseEventResultCode('AVO-', 'NOWT', 'AVO')).toBe('-')
-  })
-
-  it('reads the interruption back, and only for a type that awards it', () => {
-    expect(parseEventResultCode('AVOKES', 'NOME-A', 'AVO')).toBe('KES')
-    expect(parseEventResultCode('AVOKES', 'NOWT', 'AVO')).toBeUndefined()
   })
 
   it('refuses a foreign prefix and a code the type cannot award', () => {
@@ -448,13 +458,19 @@ describe('resolveEventResult', () => {
     expect(resolveEventResult({ resultCode: '0' }, { eventType: 'NOU' }).result).toBe('NOU0')
   })
 
-  it('publishes a stopped trial as the interruption without being told the code as well', () => {
+  it('publishes a stopped trial as the nought without being told the code as well', () => {
     const result = resolveEventResult(
       { retirement: { cause: 'judgeStopped', stationId: 'post-1' } },
       { eventClass: 'AVO', eventType: 'NOME-A' }
     )
 
-    expect(result).toEqual({ result: 'AVOKES', retirement: { cause: 'judgeStopped', stationId: 'post-1' } })
+    expect(result).toEqual({ result: 'AVO0', retirement: { cause: 'judgeStopped', stationId: 'post-1' } })
+  })
+
+  it('publishes a stopped pass/fail test the same way, its alphabet having the nought too', () => {
+    const result = resolveEventResult({ retirement: { cause: 'judgeStopped' } }, { eventType: 'NOU' })
+
+    expect(result).toEqual({ result: 'NOU0', retirement: { cause: 'judgeStopped' } })
   })
 
   it('still lets the secretary say otherwise about a stopped trial', () => {

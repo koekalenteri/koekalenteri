@@ -22,6 +22,7 @@ import {
 } from '../../lib/event'
 import { startListFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
+import { formatResultMarks } from '../../lib/results'
 import { startListSpreadsheetRows } from '../../lib/startList'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
@@ -387,7 +388,7 @@ function formatRegistration(reg: PublicRegistration, t: TFunction) {
     `${ownerHandler}, ${t('startList.breeder')} ${reg.breeder}`,
     // The copied list is the one that gets pasted into a forum post, so it has to carry what the
     // screen shows. Leaving the result out here is how the two quietly stop matching.
-    reg.result,
+    [reg.result, formatResultMarks(reg.marks, t)].filter(Boolean).join(' '),
   ]
     .filter(Boolean)
     .join('\n')

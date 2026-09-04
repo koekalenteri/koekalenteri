@@ -3,6 +3,7 @@ import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import { zonedDateString } from '../i18n/dates'
 import { formatDogName } from './dog'
+import { formatResultMarks } from './results'
 
 export function startListSpreadsheetRows(
   participants: PublicRegistration[],
@@ -24,6 +25,7 @@ export function startListSpreadsheetRows(
       t('startListExport.handler'),
       t('startListExport.breeder'),
       t('startListExport.result'),
+      t('startListExport.marks'),
     ],
     ...participants.map((registration) =>
       // A cancelled row carries its frozen number and the mark, nothing else (KOE-1017).
@@ -34,7 +36,7 @@ export function startListSpreadsheetRows(
             registration.class ?? '',
             registration.group.number ?? '',
             t('startList.absent'),
-            ...Array.from({ length: 8 }, () => ''),
+            ...Array.from({ length: 9 }, () => ''),
           ]
         : [
             spreadsheetDate(registration.group.date ?? event.startDate),
@@ -50,6 +52,8 @@ export function startListSpreadsheetRows(
             registration.ownerHandles ? registration.owner : registration.handler,
             registration.breeder,
             registration.result ?? '',
+            // Koiranet keeps these apart from the result, and so does the sheet someone types into it.
+            formatResultMarks(registration.marks, t),
           ]
     ),
   ]

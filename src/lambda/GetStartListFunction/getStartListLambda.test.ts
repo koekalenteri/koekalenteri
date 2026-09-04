@@ -755,4 +755,80 @@ describe('getStartListLambda', () => {
     expect(published[0]).toMatchObject({ class: 'ALO', result: 'ALO1' })
     expect(published[1].result).toBeUndefined()
   })
+
+  it("publishes a judge's stop as a mark beside the result, and only where the result goes", async () => {
+    const eventId = 'event123'
+    const confirmedEvent = {
+      classes: [
+        { class: 'ALO', state: 'ended' },
+        { class: 'AVO', state: 'ended' },
+      ],
+      id: eventId,
+      resultsPublished: { ALO: true },
+      startDate: '2025-01-01',
+      startListPublished: true,
+      state: 'ended',
+    }
+    const reg = (eventClass: string, number: number) => ({
+      cancelled: false,
+      class: eventClass,
+      dog: { name: `Dog ${number}`, regNo: `REG${number}` },
+      eventId,
+      eventResult: {
+        result: `${eventClass}0`,
+        retirement: { cause: 'judgeStopped' },
+        updatedAt: 'x',
+        updatedBy: 'y',
+      },
+      group: { date: '2025-01-01', key: eventClass, number },
+      handler: { name: 'Handler' },
+      owner: { name: 'Owner' },
+    })
+
+    mockGetParam.mockReturnValueOnce(eventId)
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([reg('ALO', 1), reg('AVO', 2)])
+
+    await getStartListLambda(event)
+
+    const [, published] = mockResponse.mock.calls[0]
+
+    expect(published[0]).toMatchObject({ marks: ['interrupted'], result: 'ALO0' })
+    // The mark says something about a dog whose class has not released its results, so it waits with
+    // the result rather than leaking ahead of it.
+    expect(published[1].marks).toBeUndefined()
+  })
+
+  it('leaves the marks off a row that has nothing to add to its result', async () => {
+    const eventId = 'event123'
+    const confirmedEvent = {
+      classes: [{ class: 'ALO', state: 'ended' }],
+      id: eventId,
+      resultsPublished: { ALO: true },
+      startDate: '2025-01-01',
+      startListPublished: true,
+      state: 'ended',
+    }
+
+    mockGetParam.mockReturnValueOnce(eventId)
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      {
+        cancelled: false,
+        class: 'ALO',
+        dog: { name: 'Dog 1', regNo: 'REG1' },
+        eventId,
+        eventResult: { result: 'ALO1', updatedAt: 'x', updatedBy: 'y' },
+        group: { date: '2025-01-01', key: 'ALO', number: 1 },
+        handler: { name: 'Handler' },
+        owner: { name: 'Owner' },
+      },
+    ])
+
+    await getStartListLambda(event)
+
+    const [, published] = mockResponse.mock.calls[0]
+
+    expect(published[0]).not.toHaveProperty('marks')
+  })
 })

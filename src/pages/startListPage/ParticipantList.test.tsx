@@ -563,6 +563,7 @@ describe('ParticipantList', () => {
         'Handler',
         'Breeder',
         'Result',
+        'Additional marks',
       ],
       [
         new Date(2023, 0, 1, 12),
@@ -577,6 +578,7 @@ describe('ParticipantList', () => {
         'Test Owner',
         'Test Handler',
         'Test Breeder',
+        '',
         '',
       ],
     ])

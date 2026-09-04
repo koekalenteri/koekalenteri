@@ -839,10 +839,15 @@
       "swappedGame": "Riistan vaihtaminen",
       "unauthorizedRun": "Luvaton lähtö noutoon"
     },
+    "interruption": "Keskeytys",
     "judge": "Tuomari",
     "liveEntryLinkCopied": "Live-kirjauslinkki kopioitu leikepöydälle",
     "liveEntryLinkInvalid": "Linkki ei ole voimassa. Pyydä koesihteeriltä uusi linkki.",
     "liveEntryLinkRevoked": "Live-kirjauslinkki mitätöity. Jaa tuomarin sihteerille uusi linkki.",
+    "marks": {
+      "interrupted": "Kesk."
+    },
+    "notInterrupted": "Ei keskeytystä",
     "openLiveEntry": "Live-kirjaus",
     "outcome": "Hylkäys / keskeytys",
     "outcomeAt": "Missä",
@@ -913,6 +918,7 @@
     "dateOfBirth": "Syntymäaika",
     "dog": "Koira",
     "handler": "Ohjaaja",
+    "marks": "Lisämerkinnät",
     "number": "Numero",
     "owner": "Omistaja",
     "registrationNumber": "Rekisterinumero",
