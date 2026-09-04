@@ -115,4 +115,38 @@ describe('PersonFields', () => {
     expect(screen.getByRole('textbox', { name: 'contact.city' })).not.toHaveAttribute('aria-invalid', 'true')
     expect(screen.getByRole('textbox', { name: 'contact.phone' })).not.toHaveAttribute('aria-invalid', 'true')
   })
+
+  it('flags a contact detail that was given but does not validate, required or not', () => {
+    // The section header only says that some phone number is wrong; without this the entrant has to
+    // guess which of several owners it means.
+    renderWithUserEvents(
+      <PersonFields
+        contactFields={{ email: 'optional', location: 'optional', phone: 'optional' }}
+        idPrefix="owner_2"
+        onChange={vi.fn()}
+        person={{ email: 'not-an-address', location: '', name: 'Co Owner', phone: '+35841234' }}
+      />,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    expect(screen.getByRole('textbox', { name: 'contact.email' })).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('textbox', { name: 'contact.phone' })).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('textbox', { name: 'contact.city' })).not.toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('reads a bare calling code as an empty phone number', () => {
+    renderWithUserEvents(
+      <PersonFields
+        contactFields={{ email: 'optional', phone: 'optional' }}
+        idPrefix="owner_2"
+        onChange={vi.fn()}
+        person={{ email: '', name: 'Co Owner', phone: '+358' }}
+      />,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    expect(screen.getByRole('textbox', { name: 'contact.phone' })).not.toHaveAttribute('aria-invalid', 'true')
+  })
 })
