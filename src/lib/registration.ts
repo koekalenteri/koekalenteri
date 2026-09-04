@@ -223,6 +223,41 @@ export function resolveOwnerSelection<O extends { key?: string }, L>(
 }
 
 /**
+ * Key of the owner an `ownerHandles`/`ownerPays` selection names, or `undefined` when the selection
+ * points outside the owner list ("someone else", or a stale key that matches nobody). Keyless
+ * (legacy/API-written) owners are keyed by position, exactly as the form keys them.
+ */
+const selectedOwnerKey = (owners: readonly unknown[], selection: boolean | string | undefined): string | undefined => {
+  const keys = owners.map(ownerKeyAt)
+  if (typeof selection === 'string') return keys.includes(selection) ? selection : undefined
+  return withDefaultOwnerSelection(selection) ? keys[0] : undefined
+}
+
+/** How much contact information an owner has to give. */
+export type OwnerRole = 'handles' | 'pays' | 'none'
+
+/**
+ * The role that decides what an owner must tell about themselves: the handling owner is the one the
+ * organizer has to reach at the trial, the paying owner receives the receipt, and a co-owner who
+ * does neither is only named — their phone, hometown and email are nobody's business (KOE-1351).
+ */
+export const getOwnerRole = (
+  registration: {
+    owners?: { key?: string }[]
+    owner?: unknown
+    ownerHandles?: boolean | string
+    ownerPays?: boolean | string
+  },
+  ownerKey: string | undefined
+): OwnerRole => {
+  if (!ownerKey) return 'none'
+  const owners = getRegistrationOwners(registration)
+  if (selectedOwnerKey(owners, registration.ownerHandles) === ownerKey) return 'handles'
+  if (selectedOwnerKey(owners, registration.ownerPays) === ownerKey) return 'pays'
+  return 'none'
+}
+
+/**
  * Drops the client-only owner list `key`, for persisting anywhere a plain unkeyed
  * `RegistrationPerson` is expected (`owner`, `handler`, `payer`).
  */

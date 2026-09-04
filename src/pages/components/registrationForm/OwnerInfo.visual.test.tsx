@@ -36,6 +36,13 @@ const registration: DeepPartial<Registration> = {
   ],
 }
 
+/** The same two owners, but the co-owner neither handles nor pays and has given nothing but a name. */
+const registrationWithNamedCoOwner: DeepPartial<Registration> = {
+  ...registration,
+  ownerPays: 'owner-1',
+  owners: [registration.owners![0], { email: '', key: 'owner-2', membership: false, name: 'Matti Meikäläinen' }],
+}
+
 it('keeps the owner rows to contact details — membership moved to its own section', async () => {
   // KOE-1276: the owner rows no longer carry membership checkboxes; those live in MembershipInfo.
   const screen = await render(
@@ -48,4 +55,18 @@ it('keeps the owner rows to contact details — membership moved to its own sect
 
   await expect.element(screen.getByText('Lisää omistaja')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('owner-info-two-owners')
+})
+
+it('asks a co-owner who neither handles nor pays for a name only', async () => {
+  // KOE-1351: a co-owner's phone, hometown and email are nobody's business unless they handle or pay.
+  const screen = await render(
+    <TestProvider>
+      <Frame>
+        <OwnerInfo reg={registrationWithNamedCoOwner} orgId="org" open />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Lisää yhteystiedot')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('owner-info-named-co-owner')
 })

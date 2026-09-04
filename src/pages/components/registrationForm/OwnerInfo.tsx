@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { emptyPerson } from '../../../lib/data'
-import { stripOwnerKey } from '../../../lib/registration'
+import { getOwnerRole, stripOwnerKey } from '../../../lib/registration'
 import CollapsibleSection from '../CollapsibleSection'
 import { useRegistrationOwners } from './hooks/useRegistrationOwners'
 import OwnerRow from './ownerInfo/OwnerRow'
@@ -75,6 +75,10 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
     [cache, onChange, setCache]
   )
 
+  // Roles are resolved against the rows the form is showing: a blank registration has no owners of
+  // its own yet, but the first row it starts with is already the one that handles and pays.
+  const regWithOwnerRows = { ...reg, owners }
+
   return (
     <CollapsibleSection
       title={t('registration.owners')}
@@ -91,6 +95,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             idPrefix={`owner_${index}`}
             owner={owner}
             removable={owners.length > 1}
+            role={getOwnerRole(regWithOwnerRows, owner.key)}
             onChange={(props) => handleOwnerChange(owner.key, props)}
             onRemove={() => handleRemoveOwner(owner.key)}
           />
