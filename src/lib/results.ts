@@ -22,11 +22,11 @@ export type ResultCode = '1' | '2' | '3' | '0' | '-'
 /**
  * The marks published beside a result (KOE-1300).
  *
- * The rules say when a judge stops a dog's trial — NOME-A's two serious faults, an eye-wipe or a first
- * dog down among the first three retrieves — but not what the result line then reads. The breeding
- * database answers it: a stopped NOME-B dog is published as `ALO0` with `Kesk.` beside it. So the code
- * says the dog was not placed, and this mark says the trial ended before it could be — the way Koiranet
- * carries it, in "Lisämerkinnät" beside the result rather than inside it.
+ * The rules say what a stopped dog's result line reads — a nought, see `STOPPED_RESULT_CODE` — but a
+ * nought is also what a dog that simply failed to place gets, and NOME-B §4.3.3 requires more than that:
+ * "Keskeyttämisen syy ja se, kenen toimesta keskeyttäminen on tapahtunut, merkitään arvosteluun." The
+ * mark carries the second half of that beside the code, the way Koiranet carries it in "Lisämerkinnät"
+ * rather than inside the result. (The first half — the reason — is KOE-1299.)
  *
  * Derived rather than entered: the secretary records what happened, and the mark follows.
  */
@@ -38,7 +38,7 @@ export const formatResultMarks = (marks: readonly ResultMark[] | undefined, t: T
   (marks ?? []).map((mark) => t(`results.marks.${mark}`)).join(' ')
 
 /**
- * Prize thresholds as percentages of the round's maximum (NOWT rules §5.8.1).
+ * Prize thresholds as percentages of the round's maximum (NOWT rules §5.4.1).
  *
  * The rules print these as the absolute points 80 / 65 / 50, but that is the same percentage against a
  * five-post round. Events now commonly run four posts for a maximum of 80, where a dog on 65 points has
@@ -47,8 +47,9 @@ export const formatResultMarks = (marks: readonly ResultMark[] | undefined, t: T
 const NOWT_PRIZE_THRESHOLD_PERCENT = { 1: 80, 2: 65, 3: 50 } as const
 
 /**
- * A post is always worth 20, whether it sets one task of 20 or two of 10. The rules never state this,
- * so a change of convention stays a change to this one value.
+ * A post is always worth 20, whether it sets one task of 20 or two of 10: §5.3.1, "Jokaisen rastin
+ * enimmäispistemäärä on 20 pistettä". Splitting a post into two tasks is not in the rules, so a change
+ * of convention stays a change to this one value.
  */
 const STATION_MAX_POINTS = 20
 
@@ -253,9 +254,12 @@ export const nowtTotals = (tasks: readonly ScoredTask[]) => {
 const atLeastPercent = (points: number, maxPoints: number, percent: number) => points * 100 >= percent * maxPoints
 
 /**
- * Every post must yield at least half its points for a first prize (§5.8.1). A post worth 20 therefore
- * has a floor of 10, which is what the rules' "(10 pistettä)" states outright. Where a post splits into
- * two tasks the floor applies to their sum, so 9 + 8 clears it although neither task reaches 10.
+ * Every post must yield at least half its points for a first prize. A post worth 20 therefore has a
+ * floor of 10. Where a post splits into two tasks the floor applies to their sum, so 9 + 8 clears it
+ * although neither task reaches 10.
+ *
+ * Not printed in §5.4.1, which gives the thresholds and nothing else — Jukka asserted the rule, so it
+ * is practice or lives in the ohjeet. Tracked as unverified in the rules conformance ledger.
  */
 const everyPostAtLeastHalf = (tasks: readonly ScoredTask[]): boolean => {
   const posts = new Map<string, { points: number; maxPoints: number }>()
@@ -282,11 +286,12 @@ const everyPostAtLeastHalf = (tasks: readonly ScoredTask[]): boolean => {
  * thrown out.
  */
 export const deriveNowtResult = ({ tasks, elimination, retirement }: NowtResultInput): ResultCode | undefined => {
-  // A hylkäävä virhe voids the round: nothing was judged, which is what the dash says. (In NOME-B the
-  // same act is a keskeytyssyy and would be published as a stop — the reason list is KOE-1299's, and
-  // whether it should say so there rather than here belongs to it.)
+  // §5.4.1 puts a hylkäävä virhe in the same sentence as an insufficient score and gives both a nought,
+  // so by the rules this is '0'. An earlier ruling in this project put eliminations on the dash and
+  // stands until Jukka revisits it; the divergence is in the rules conformance ledger, and the field
+  // that would reach this is switched off meanwhile (KOE-1299).
   if (elimination) return '-'
-  // §5.8.1 grants the handler's own withdrawal a zero where the dog could no longer have placed.
+  // §5.4.1 grants the handler's own withdrawal the dash only where a prize was still in reach.
   if (retirement?.cause === 'handlerChoice') return retirement.couldStillHavePlaced ? '-' : '0'
   if (retirement?.cause === 'judgeStopped') return STOPPED_RESULT_CODE
   if (retirement) return '-'
@@ -317,19 +322,23 @@ const PASS_FAIL_EVENT_TYPES = new Set(['NOU', 'NKM'])
 /**
  * The codes a secretary may record for an event type.
  *
- * Neither pass/fail type offers the dash: their rules (§2.7, §6.7) describe only a pass and a fail, and
- * a dash on a test with nothing to place against would mean nothing.
+ * Neither pass/fail type offers the dash: their rules (NOU §2.4, NKM §6.4) describe only a pass and a
+ * fail, and a dash on a test with nothing to place against would mean nothing. Published results bear
+ * it out — NOU rows are NOU1 and NOU0, never NOU-.
  */
 export const availableResultCodes = (eventType: string): ResultCode[] =>
   PASS_FAIL_EVENT_TYPES.has(eventType) ? ['1', '0'] : ['1', '2', '3', '0', '-']
 
 /**
- * What a trial the judge stopped reads as: a nought, with `Kesk.` beside it.
+ * What a trial the judge stopped reads as: a nought.
  *
- * Taken from a published row rather than from the rules, which do not say — the breeding database has
- * a stopped NOME-B dog as `ALO0 Kesk.`. Every format's alphabet has the nought, pass/fail tests
- * included, so this needs no per-format answer. Shared by the entry screen and the write boundary so
- * the secretary sees the line that gets stored.
+ * Every format's rules agree, so this needs no per-format answer — NOME-B §4.4 ("tuomari joutuu
+ * keskeyttämään kokeen, merkitään palkintosijan kohdalle nolla (0)"), NKM §6.4 in the same words,
+ * NOME-A §3.4 and NOWT §5.4.1 for the stops those name. The dash is reserved for a *handler* retiring
+ * while a prize was still in reach, and in NOWT for a judge stopping over injury or illness; a judge's
+ * stop on the dog's work is never the dash. A published NOME-B row reads `ALO0` with `Kesk.` beside it.
+ *
+ * Shared by the entry screen and the write boundary so the secretary sees the line that gets stored.
  */
 export const STOPPED_RESULT_CODE = '0' satisfies ResultCode
 
