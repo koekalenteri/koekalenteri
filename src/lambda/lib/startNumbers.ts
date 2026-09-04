@@ -4,6 +4,7 @@ import { getStartNumbersClassDays, getStartNumbersDayScope, getStartNumbersPubli
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
 import { removeRegistrationField, updateRegistrationField } from './registration'
 
@@ -24,6 +25,14 @@ const inScope = (registration: JsonRegistration, eventClass?: RegistrationClass,
   (!date || (!!registration.group?.date && placementDay(registration.group.date) === date))
 
 /**
+ * The dog's own trail says what its number is (KOE-1355). The event trail records the publish as one
+ * line for the whole class, which does not answer the secretary's question about one dog: the work
+ * list shows number 13, and the trail has to say where that came from and when it went public.
+ */
+const auditStartNumber = (registration: JsonRegistration, message: string, user: string) =>
+  audit({ auditKey: registrationAuditKey(registration), message, user })
+
+/**
  * Freeze the published order: each scorable participant's current group becomes its `startGroup`.
  *
  * Publishing is the moment the number turns from a derived ordinal into the dog's own (KOE-1017), so
@@ -38,6 +47,7 @@ export const freezeStartNumbers = async (
   eventId: string,
   registrations: JsonRegistration[],
   eventClass: RegistrationClass | undefined,
+  user: string,
   date?: string
 ): Promise<Patch<JsonRegistration>[]> => {
   const scoped = registrations.filter(
@@ -68,15 +78,19 @@ export const freezeStartNumbers = async (
 
   const patches: Patch<JsonRegistration>[] = []
   for (const registration of scoped) {
-    // An existing snapshot is already the dog's own number — the venue's entered draw (KOE-1218) or
-    // an earlier publish. Freezing over it would replace the drawn numbers with the working order in
-    // the same request that makes them public, so publishing only fills the gaps.
-    if (registration.startGroup) continue
     if (!registration.group?.date) continue
 
-    const startGroup = { ...registration.group }
-    await updateRegistrationField(eventId, registration.id, 'startGroup', startGroup)
-    patches.push({ id: registration.id, startGroup })
+    // An existing snapshot is already the dog's own number — the venue's entered draw (KOE-1218) or
+    // an earlier publish. Freezing over it would replace the drawn numbers with the working order in
+    // the same request that makes them public, so publishing only fills the gaps. The number still
+    // goes public here, so the dog's trail records the publish either way (KOE-1355).
+    const startGroup = registration.startGroup ?? { ...registration.group }
+    if (!registration.startGroup) {
+      await updateRegistrationField(eventId, registration.id, 'startGroup', startGroup)
+      patches.push({ id: registration.id, startGroup })
+    }
+
+    await auditStartNumber(registration, `Starttinumero julkaistu: ${startGroup.number}`, user)
   }
 
   return patches
@@ -90,7 +104,8 @@ export const freezeStartNumbers = async (
 export const assignStartNumbers = async (
   eventId: string,
   registrations: JsonRegistration[],
-  entries: StartNumberEntry[]
+  entries: StartNumberEntry[],
+  user: string
 ): Promise<Patch<JsonRegistration>[]> => {
   const patches: Patch<JsonRegistration>[] = []
   const byId = new Map(registrations.map((registration) => [registration.id, registration]))
@@ -130,6 +145,7 @@ export const assignStartNumbers = async (
         // patch is what tells the clients' patchMerge to delete the field rather than skip it.
         await removeRegistrationField(eventId, other.id, 'startGroup')
         patches.push({ id: other.id, startGroup: null })
+        await auditStartNumber(other, `Starttinumero vapautettu: ${entry.startNumber}`, user)
         continue
       }
 
@@ -139,6 +155,12 @@ export const assignStartNumbers = async (
     const startGroup = { ...placement, number: entry.startNumber }
     await updateRegistrationField(eventId, entry.id, 'startGroup', startGroup)
     patches.push({ id: entry.id, startGroup })
+
+    // The previous number is part of the answer: a corrected entry reads as the correction it is,
+    // not as a number that has always been the dog's (KOE-1355).
+    const previous = registration.startGroup?.number
+    const change = previous !== undefined && previous !== entry.startNumber ? `${previous} -> ` : ''
+    await auditStartNumber(registration, `Starttinumero tallennettu: ${change}${entry.startNumber}`, user)
   }
 
   return patches

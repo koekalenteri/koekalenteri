@@ -76,7 +76,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
 
     if (typeof body.published === 'boolean') {
       if (body.published) {
-        patches.push(...(await freezeStartNumbers(eventId, registrations, eventClass, date)))
+        patches.push(...(await freezeStartNumbers(eventId, registrations, eventClass, user.name, date)))
       }
       const state = await setStartNumbersPublishedState(confirmedEvent, eventClass, body.published, date)
       confirmedEvent.startNumbersPublished = state.startNumbersPublished
@@ -92,7 +92,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
     }
 
     if (numbers.length) {
-      patches.push(...(await assignStartNumbers(eventId, registrations, numbers)))
+      patches.push(...(await assignStartNumbers(eventId, registrations, numbers, user.name)))
       await audit({
         auditKey: eventAuditKey(confirmedEvent),
         message: `Starttinumerot syötetty ${numbers.length} koiralle${eventClass ? ` (${eventClass})` : ''}`,

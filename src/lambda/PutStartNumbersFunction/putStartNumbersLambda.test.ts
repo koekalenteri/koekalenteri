@@ -8,6 +8,7 @@ const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockAudit = vi.fn()
 const mockEventAuditKey = vi.fn(({ id }) => `event:${id}`)
+const mockRegistrationAuditKey = vi.fn(({ eventId, id }) => `${eventId}:${id}`)
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetAuthorizedEvent = vi.fn()
 const mockLockRegistrationGroups = vi.fn()
@@ -32,7 +33,11 @@ vi.doMock('../lib/lambda', () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../lib/audit', () => ({ audit: mockAudit, eventAuditKey: mockEventAuditKey }))
+vi.doMock('../lib/audit', () => ({
+  audit: mockAudit,
+  eventAuditKey: mockEventAuditKey,
+  registrationAuditKey: mockRegistrationAuditKey,
+}))
 vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMemberOf }))
 vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEvent }))
 vi.doMock('../lib/event', () => ({ lockRegistrationGroups: mockLockRegistrationGroups }))
@@ -105,6 +110,13 @@ describe('putStartNumbersLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'Starttinumerot julkaistu (ALO)', user: 'Sihteeri' })
     )
+    // The class-wide line does not answer "what number does this dog have": the dog's own trail
+    // carries the number the secretary sees on the work list (KOE-1355).
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event-1:run-1',
+      message: 'Starttinumero julkaistu: 1',
+      user: 'Sihteeri',
+    })
     expect(mockPublishRegistrationPatches).toHaveBeenCalled()
     // The notice above the rows lives on the event, so the event patch has to go out too, or an open
     // start list keeps saying the order is unconfirmed while showing the numbers (KOE-1352).
@@ -212,6 +224,11 @@ describe('putStartNumbersLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'Starttinumerot syötetty 1 koiralle (ALO)' })
     )
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event-1:run-1',
+      message: 'Starttinumero tallennettu: 1 -> 4',
+      user: 'Sihteeri',
+    })
     // Entering the draw changes no publication state, so the event is left where it stands.
     expect(mockPublishEventPatch).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()

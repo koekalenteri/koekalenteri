@@ -5,10 +5,15 @@ import { asJsonConfirmedEvent } from '../test-utils/helpers'
 const mockUpdateRegistrationField = vi.fn()
 const mockRemoveRegistrationField = vi.fn()
 const mockUpdate = vi.fn()
+const mockAudit = vi.fn()
 
 vi.doMock('./registration', () => ({
   removeRegistrationField: mockRemoveRegistrationField,
   updateRegistrationField: mockUpdateRegistrationField,
+}))
+vi.doMock('./audit', () => ({
+  audit: mockAudit,
+  registrationAuditKey: ({ eventId, id }: JsonRegistration) => `${eventId}:${id}`,
 }))
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
@@ -17,6 +22,8 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 }))
 
 const { assignStartNumbers, freezeStartNumbers, setStartNumbersPublishedState } = await import('./startNumbers')
+
+const USER = 'Sihteeri'
 
 const registration = (id: string, overrides: Partial<JsonRegistration> = {}): JsonRegistration =>
   ({
@@ -42,7 +49,8 @@ describe('startNumbers', () => {
           registration('res-3', { group: { key: 'reserve', number: 1 } } as Partial<JsonRegistration>),
           registration('can-4', { cancelled: true }),
         ],
-        'ALO'
+        'ALO',
+        USER
       )
 
       expect(patches).toEqual([
@@ -54,13 +62,37 @@ describe('startNumbers', () => {
         number: 1,
         time: 'ap',
       })
+      // The dog's own trail says which number went public, and the reserve and the cancelled entry
+      // get no line: neither has a number to publish (KOE-1355).
+      expect(mockAudit).toHaveBeenCalledTimes(1)
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:run-1',
+        message: 'Starttinumero julkaistu: 1',
+        user: USER,
+      })
+    })
+
+    it('records the publish in the trail of a dog whose number was already drawn (KOE-1355)', async () => {
+      const drawn = registration('run-1', {
+        startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' },
+      })
+
+      await freezeStartNumbers('event-1', [drawn], 'ALO', USER)
+
+      // Nothing is written — the snapshot stands — but the number is out now, and the trail says so.
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:run-1',
+        message: 'Starttinumero julkaistu: 7',
+        user: USER,
+      })
     })
 
     it('keeps a fully entered draw when publishing', async () => {
       const drawn = (id: string, number: number) =>
         registration(id, { startGroup: { date: '2026-09-12', key: 'ALO-AP', number, time: 'ap' } })
 
-      const patches = await freezeStartNumbers('event-1', [drawn('run-1', 7), drawn('run-2', 3)], 'ALO')
+      const patches = await freezeStartNumbers('event-1', [drawn('run-1', 7), drawn('run-2', 3)], 'ALO', USER)
 
       // Freezing over an existing snapshot would replace the venue's drawn numbers with the working
       // order in the same request that makes them public (KOE-1218).
@@ -76,12 +108,12 @@ describe('startNumbers', () => {
       // The gap would freeze to its working-order number, which can collide with a drawn one on the
       // same day's public list. Refusing names the fix: enter the missing number and publish again.
       // The code is structured so the client can show that fix instead of a generic failure (KOE-1218).
-      await expect(freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO')).rejects.toThrow(
+      await expect(freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO', USER)).rejects.toThrow(
         /startNumbersIncomplete.*Start numbers are missing for 1 dogs \(ALO\)/
       )
       // Nor can an undrawn class freeze beside a drawn one: the number is one dog's in the whole trial.
       await expect(
-        freezeStartNumbers('event-1', [drawn, registration('run-3', { class: 'AVO' })], 'AVO')
+        freezeStartNumbers('event-1', [drawn, registration('run-3', { class: 'AVO' })], 'AVO', USER)
       ).rejects.toThrow(/startNumbersIncomplete.*Start numbers are missing for 1 dogs \(AVO\)/)
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })
@@ -96,7 +128,9 @@ describe('startNumbers', () => {
 
       // A number belongs to one dog across every day of the class (KOE-1303), so Saturday's working
       // order could collide with Friday's draw. The days publish one at a time instead (KOE-1304).
-      await expect(freezeStartNumbers('event-1', [drawn, otherDay], 'ALO')).rejects.toThrow(/startNumbersIncomplete/)
+      await expect(freezeStartNumbers('event-1', [drawn, otherDay], 'ALO', USER)).rejects.toThrow(
+        /startNumbersIncomplete/
+      )
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })
 
@@ -113,7 +147,13 @@ describe('startNumbers', () => {
         group: { date: '2026-09-13', key: 'ALO-AP', number: 3, time: 'ap' },
       })
 
-      const patches = await freezeStartNumbers('event-1', [friday, strayOnSaturday, saturday], 'ALO', '2026-09-12')
+      const patches = await freezeStartNumbers(
+        'event-1',
+        [friday, strayOnSaturday, saturday],
+        'ALO',
+        USER,
+        '2026-09-12'
+      )
 
       // Friday's draw is complete and already frozen; Saturday's working order stays untouched.
       expect(patches).toEqual([])
@@ -124,7 +164,8 @@ describe('startNumbers', () => {
       const patches = await freezeStartNumbers(
         'event-1',
         [registration('run-1'), registration('run-2', { class: 'AVO' })],
-        undefined
+        undefined,
+        USER
       )
 
       expect(patches.map((patch) => patch.id)).toEqual(['run-1', 'run-2'])
@@ -137,7 +178,7 @@ describe('startNumbers', () => {
         startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 1, time: 'ap' },
       })
 
-      const patches = await assignStartNumbers('event-1', [frozen], [{ id: 'run-1', startNumber: 7 }])
+      const patches = await assignStartNumbers('event-1', [frozen], [{ id: 'run-1', startNumber: 7 }], USER)
 
       expect(patches).toEqual([
         { id: 'run-1', startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' } },
@@ -150,21 +191,26 @@ describe('startNumbers', () => {
         registration('run-2', { startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' } }),
       ]
 
-      await expect(assignStartNumbers('event-1', regs, [{ id: 'run-1', startNumber: 0 }])).rejects.toThrow(
+      await expect(assignStartNumbers('event-1', regs, [{ id: 'run-1', startNumber: 0 }], USER)).rejects.toThrow(
         "Invalid start number '0'"
       )
-      await expect(assignStartNumbers('event-1', regs, [{ id: 'nobody', startNumber: 1 }])).rejects.toThrow(
+      await expect(assignStartNumbers('event-1', regs, [{ id: 'nobody', startNumber: 1 }], USER)).rejects.toThrow(
         "Registration 'nobody' not found"
       )
       // The duplicate the server refuses is the one two phones would otherwise both claim.
-      await expect(assignStartNumbers('event-1', regs, [{ id: 'run-1', startNumber: 7 }])).rejects.toThrow(
+      await expect(assignStartNumbers('event-1', regs, [{ id: 'run-1', startNumber: 7 }], USER)).rejects.toThrow(
         'Start number 7 is already taken'
       )
       await expect(
-        assignStartNumbers('event-1', regs, [
-          { id: 'run-1', startNumber: 3 },
-          { id: 'run-2', startNumber: 3 },
-        ])
+        assignStartNumbers(
+          'event-1',
+          regs,
+          [
+            { id: 'run-1', startNumber: 3 },
+            { id: 'run-2', startNumber: 3 },
+          ],
+          USER
+        )
       ).rejects.toThrow('Start number 3 assigned twice')
     })
 
@@ -179,10 +225,10 @@ describe('startNumbers', () => {
 
       // Friday 1–24, Saturday 25–48: one number, one dog, whichever day or class it runs in.
       await expect(
-        assignStartNumbers('event-1', [friday, saturday], [{ id: 'run-2', startNumber: 7 }])
+        assignStartNumbers('event-1', [friday, saturday], [{ id: 'run-2', startNumber: 7 }], USER)
       ).rejects.toThrow('Start number 7 is already taken')
       await expect(
-        assignStartNumbers('event-1', [friday, otherClass], [{ id: 'run-3', startNumber: 7 }])
+        assignStartNumbers('event-1', [friday, otherClass], [{ id: 'run-3', startNumber: 7 }], USER)
       ).rejects.toThrow('Start number 7 is already taken')
     })
 
@@ -193,7 +239,7 @@ describe('startNumbers', () => {
       })
       const riser = registration('run-1')
 
-      const patches = await assignStartNumbers('event-1', [riser, cancelled], [{ id: 'run-1', startNumber: 5 }])
+      const patches = await assignStartNumbers('event-1', [riser, cancelled], [{ id: 'run-1', startNumber: 5 }], USER)
 
       // The POISSA row disappears from the public list "kunnolla": the number now belongs to the
       // dog that took the place. Yielding is a REMOVE expression — DynamoDB refuses a SET to
@@ -204,6 +250,41 @@ describe('startNumbers', () => {
       ])
       expect(mockRemoveRegistrationField).toHaveBeenCalledWith('event-1', 'can-2', 'startGroup')
       expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith('event-1', 'can-2', 'startGroup', undefined)
+      // Losing the number is as much a fact about the cancelled dog as gaining it is about the riser.
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:can-2',
+        message: 'Starttinumero vapautettu: 5',
+        user: USER,
+      })
+    })
+
+    it("records the entered number in the dog's own trail (KOE-1355)", async () => {
+      const undrawn = registration('run-1')
+      const corrected = registration('run-2', {
+        startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 9, time: 'ap' },
+      })
+
+      await assignStartNumbers(
+        'event-1',
+        [undrawn, corrected],
+        [
+          { id: 'run-1', startNumber: 4 },
+          { id: 'run-2', startNumber: 13 },
+        ],
+        USER
+      )
+
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:run-1',
+        message: 'Starttinumero tallennettu: 4',
+        user: USER,
+      })
+      // A corrected number reads as the correction it is, which is what the work list showed.
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:run-2',
+        message: 'Starttinumero tallennettu: 9 -> 13',
+        user: USER,
+      })
     })
   })
 
