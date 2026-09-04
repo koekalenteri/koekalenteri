@@ -106,6 +106,13 @@ export interface JsonDogEvent extends JsonDbRecord {
    * the secretary's. A day list publishes part of a multi-day class (KOE-1304).
    */
   startNumbersPublished?: StartNumbersPublishedState
+  /**
+   * Versions the class secretaries' start number links (KOE-1267), keyed by the class the link opens
+   * — or by the event type where the trial has no classes, which is the key its dogs carry too.
+   * Bumping a class's number revokes every link issued for it; absent reads as version 1, the way a
+   * post's `tokenVersion` does.
+   */
+  startNumberLinkVersions?: Record<string, number>
   resultsPublished?: ResultsPublishedState
   /** Scoring posts, for event types that score at posts (NOWT). */
   stations?: JsonEventStation[]
@@ -275,12 +282,22 @@ export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'>
     Partial<Pick<EventResult, 'updatedAt'>>
 }
 
+/**
+ * The trial as a tokenized link may see it: what the screen needs to head its sheet, and no more.
+ * Every link family serves the same head, so they share the reading of what "no more" means.
+ */
+export type JsonLinkedEvent = Pick<
+  JsonPublicDogEvent,
+  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
+>
+export type LinkedEvent = Pick<
+  PublicDogEvent,
+  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
+>
+
 /** What the tokenized station link serves: the post, its slice of the course, and the dogs that run. */
 export interface JsonStationEntry {
-  event: Pick<
-    JsonPublicDogEvent,
-    'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
-  >
+  event: JsonLinkedEvent
   /** Without `tokenVersion`: the link must not reveal its own revocation counter. */
   station: Omit<JsonEventStation, 'tokenVersion'>
   registrations: JsonStationEntryDog[]
@@ -288,10 +305,46 @@ export interface JsonStationEntry {
   turns?: JsonPublicStationTurn[]
 }
 export type StationEntry = {
-  event: Pick<PublicDogEvent, 'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'>
+  event: LinkedEvent
   station: Omit<EventStation, 'tokenVersion'>
   registrations: StationEntryDog[]
   turns?: PublicStationTurn[]
+}
+
+/**
+ * One dog as a class secretary's start number link may see it (KOE-1267). The draw happens with the
+ * dogs and their handlers present, so this is the same sheet the event secretary works from: the
+ * working order the class has, and the number drawn against it.
+ */
+export interface JsonClassStartNumberDog {
+  id: string
+  class?: RegistrationClass | null
+  eventType: string
+  dog: { name?: string; regNo?: string }
+  handler?: { name?: string }
+  group?: JsonRegistrationGroup
+  /** The frozen placement, once the draw has been entered or the numbers published. */
+  startGroup?: JsonRegistrationGroup
+}
+export type ClassStartNumberDog = Omit<JsonClassStartNumberDog, 'group' | 'startGroup'> & {
+  group?: RegistrationGroup
+  startGroup?: RegistrationGroup
+}
+
+/**
+ * What the tokenized start number link serves: one class of one trial, and the dogs that run in it.
+ * The class is the whole scope — the link neither sees nor writes another class's dogs.
+ */
+export interface JsonClassStartNumbers {
+  event: JsonLinkedEvent
+  /** The class the link opens, or the event type where the trial runs no classes. */
+  eventClass: string
+  registrations: JsonClassStartNumberDog[]
+}
+export type ClassStartNumbers = {
+  event: LinkedEvent
+  eventClass: string
+  registrations: ClassStartNumberDog[]
 }
 
 /**

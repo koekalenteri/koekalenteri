@@ -17,6 +17,16 @@ export interface StartNumberEntry {
   startNumber: number
 }
 
+const isStartNumberEntry = (value: unknown): value is StartNumberEntry =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as StartNumberEntry).id === 'string' &&
+  typeof (value as StartNumberEntry).startNumber === 'number'
+
+/** The entries of a request body, whatever the body turned out to be. */
+export const parseStartNumberEntries = (numbers: unknown): StartNumberEntry[] =>
+  Array.isArray(numbers) ? numbers.filter(isStartNumberEntry) : []
+
 /** The day a placement falls on, in the event's time zone — the key the published-days list holds. */
 const placementDay = (date: string | Date) => formatDate(date, 'yyyy-MM-dd')
 

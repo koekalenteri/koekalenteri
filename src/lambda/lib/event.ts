@@ -4,6 +4,7 @@ import type {
   EventState,
   JsonConfirmedEvent,
   JsonDogEvent,
+  JsonLinkedEvent,
   JsonRegistration,
   JsonRegistrationGroupInfo,
   JsonUser,
@@ -420,3 +421,19 @@ export const repairReadyRegistrationGroups = async (
     await releaseGroupsLock()
   }
 }
+
+/**
+ * The trial as a tokenized link may see it (KOE-1258, KOE-1267): what a link's screen heads its sheet
+ * with, and nothing else off the event record. One reading for every link family, so a field added to
+ * one link's head cannot quietly stay off another's.
+ */
+export const linkedEventProjection = (confirmedEvent: JsonConfirmedEvent): JsonLinkedEvent => ({
+  classes: confirmedEvent.classes,
+  endDate: confirmedEvent.endDate,
+  eventType: confirmedEvent.eventType,
+  id: confirmedEvent.id,
+  location: confirmedEvent.location,
+  name: confirmedEvent.name,
+  names: confirmedEvent.names,
+  startDate: confirmedEvent.startDate,
+})

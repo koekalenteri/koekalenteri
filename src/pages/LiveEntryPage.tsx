@@ -2,11 +2,12 @@ import type { EventResultSubmission } from '../api/registration'
 import type { StationEntry, StationTurnOp } from '../types'
 import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { getStationEntry, putStationEntry, putStationEntryTurn } from '../api/station'
-import { localizedEventName } from '../lib/event'
+import { useLinkedEntry } from '../hooks/useLinkedEntry'
+import { linkedEventSubtitle } from '../lib/event'
 import { StationScoring } from './admin/eventResultsPage/StationScoring'
 import LoadingIndicator from './components/LoadingIndicator'
 import { languageAtom } from './state'
@@ -21,20 +22,11 @@ export function Component() {
   const { t } = useTranslation()
   const language = useAtomValue(languageAtom)
   const { eventId = '', stationId = '', token = '' } = useParams()
-  const [entry, setEntry] = useState<StationEntry>()
-  const [failed, setFailed] = useState(false)
-
-  useEffect(() => {
-    const abort = new AbortController()
-
-    getStationEntry(eventId, stationId, token, abort.signal)
-      .then((data) => setEntry(data))
-      .catch(() => {
-        if (!abort.signal.aborted) setFailed(true)
-      })
-
-    return () => abort.abort()
-  }, [eventId, stationId, token])
+  const load = useCallback(
+    (signal: AbortSignal) => getStationEntry(eventId, stationId, token, signal),
+    [eventId, stationId, token]
+  )
+  const { entry, failed, setEntry } = useLinkedEntry<StationEntry>(load)
 
   const handleSave = useCallback(
     async (submission: EventResultSubmission) => {
@@ -56,7 +48,7 @@ export function Component() {
 
       return response
     },
-    [eventId, stationId, token]
+    [eventId, setEntry, stationId, token]
   )
 
   const handleTurn = useCallback(
@@ -64,7 +56,7 @@ export function Component() {
       const response = await putStationEntryTurn(eventId, stationId, op, token)
       setEntry((previous) => previous && { ...previous, turns: response.turns })
     },
-    [eventId, stationId, token]
+    [eventId, setEntry, stationId, token]
   )
 
   // A wrong link, a revoked one and a station that never existed all read the same, on purpose.
@@ -78,14 +70,7 @@ export function Component() {
 
   if (!entry) return <LoadingIndicator />
 
-  const subtitle = [
-    t('dateFormat.datespan', { end: entry.event.endDate, start: entry.event.startDate }),
-    entry.event.eventType,
-    entry.event.location,
-    localizedEventName(entry.event, language),
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const subtitle = linkedEventSubtitle(entry.event, language, t)
 
   return (
     <StationScoring

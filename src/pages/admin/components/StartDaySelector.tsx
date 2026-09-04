@@ -1,4 +1,4 @@
-import type { Registration } from '../../../types'
+import type { RegistrationGroup } from '../../../types'
 import Stack from '@mui/material/Stack'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
@@ -13,7 +13,11 @@ export interface StartDay {
   key: string
 }
 
-type PlacedRegistration = Pick<Registration, 'group' | 'startGroup'>
+/**
+ * Anything with a placement: the admin's registrations, and the lighter dogs a tokenized link is
+ * served (KOE-1267). Only the placement is read, so the day screens need no more of a dog than this.
+ */
+export type PlacedRegistration = { group?: RegistrationGroup; startGroup?: RegistrationGroup }
 
 /** The day a dog is placed on, or undefined for one that has no placement yet (a reserve). */
 export const startDayKey = (registration: PlacedRegistration): string | undefined => {

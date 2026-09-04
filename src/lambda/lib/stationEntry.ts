@@ -9,43 +9,28 @@ import type {
   JsonStationEntryDog,
   JsonStationTurn,
 } from '../../types'
-import { createHmac, timingSafeEqual } from 'node:crypto'
 import { resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
 import { scoresAtPosts } from '../../lib/results'
+import { linkedEventProjection } from './event'
 import { LambdaError } from './lambda'
+import { DEFAULT_LINK_TOKEN_VERSION, deriveLinkToken, getBearerToken, linkTokensMatch } from './linkToken'
 import { getRegistrationEditTokenSecret } from './secrets'
-
-/** Stations created before the field existed have version 1 implicitly, like registration links do. */
-const DEFAULT_STATION_TOKEN_VERSION = 1
 
 type StationTokenFields = Pick<JsonEventStation, 'id' | 'tokenVersion'>
 
 /**
- * The station link's token, mirroring `deriveRegistrationEditToken`: HMAC over a domain-prefixed
- * message, revoked by bumping the station's `tokenVersion`. The secret is shared with the registration
- * links on purpose — the `station-entry:` prefix is what keeps the two token families apart, and one
- * secret means no second piece of infrastructure to rotate.
+ * The station link's token: an HMAC over a domain-prefixed message, revoked by bumping the station's
+ * `tokenVersion`.
  */
 export const deriveStationEntryToken = (eventId: string, station: StationTokenFields, secret: string): string =>
-  createHmac('sha256', secret)
-    .update(`station-entry:${eventId}:${station.id}:${station.tokenVersion ?? DEFAULT_STATION_TOKEN_VERSION}`)
-    .digest('base64url')
+  deriveLinkToken(
+    `station-entry:${eventId}:${station.id}:${station.tokenVersion ?? DEFAULT_LINK_TOKEN_VERSION}`,
+    secret
+  )
 
 export const getStationEntryToken = async (eventId: string, station: StationTokenFields): Promise<string> =>
   deriveStationEntryToken(eventId, station, await getRegistrationEditTokenSecret())
-
-const getBearerToken = (event: Pick<APIGatewayProxyEvent, 'headers'>): string => {
-  const authorization = event.headers.Authorization ?? event.headers.authorization ?? ''
-  const match = /^Bearer\s+(\S+)$/i.exec(authorization)
-  return match?.[1] ?? ''
-}
-
-const tokensMatch = (actual: string, expected: string): boolean => {
-  const actualBuffer = Buffer.from(actual)
-  const expectedBuffer = Buffer.from(expected)
-  return actualBuffer.length === expectedBuffer.length && timingSafeEqual(actualBuffer, expectedBuffer)
-}
 
 /**
  * The station a request's Bearer token opens, or a 404 that does not say why. A wrong token, a revoked
@@ -67,7 +52,7 @@ export const authorizeStationEntry = async (
   if (!token) throw new LambdaError(404, 'not found')
 
   const expected = await getStationEntryToken(eventId, station)
-  if (!tokensMatch(token, expected)) throw new LambdaError(404, 'not found')
+  if (!linkTokensMatch(token, expected)) throw new LambdaError(404, 'not found')
 
   return station
 }
@@ -133,16 +118,7 @@ export const stationEntryResponse = (
   const { tokenVersion: _tokenVersion, ...publicStation } = station
 
   return {
-    event: {
-      classes: confirmedEvent.classes,
-      endDate: confirmedEvent.endDate,
-      eventType: confirmedEvent.eventType,
-      id: confirmedEvent.id,
-      location: confirmedEvent.location,
-      name: confirmedEvent.name,
-      names: confirmedEvent.names,
-      startDate: confirmedEvent.startDate,
-    },
+    event: linkedEventProjection(confirmedEvent),
     registrations: registrations
       .filter(isScorableRegistration)
       .sort(sortRegistrationsByDateClassTimeAndNumber)

@@ -9,7 +9,12 @@ import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
-import { assignStartNumbers, freezeStartNumbers, setStartNumbersPublishedState } from '../lib/startNumbers'
+import {
+  assignStartNumbers,
+  freezeStartNumbers,
+  parseStartNumberEntries,
+  setStartNumbersPublishedState,
+} from '../lib/startNumbers'
 import { publishEventPatch, publishRegistrationPatches } from '../lib/ws/actions'
 
 interface StartNumbersRequest {
@@ -24,12 +29,6 @@ interface StartNumbersRequest {
 }
 
 const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/
-
-const isEntry = (value: unknown): value is StartNumberEntry =>
-  typeof value === 'object' &&
-  value !== null &&
-  typeof (value as StartNumberEntry).id === 'string' &&
-  typeof (value as StartNumberEntry).startNumber === 'number'
 
 /** "4.9.2026" from a day key, for the audit trail's Finnish reader. */
 const auditDay = (date: string) => date.split('-').reverse().map(Number).join('.')
@@ -48,7 +47,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
   const eventId = getParam(event, 'eventId')
   const body = parseJSONWithFallback<StartNumbersRequest>(event.body, {})
   const eventClass: RegistrationClass | undefined = isRegistrationClass(body.eventClass) ? body.eventClass : undefined
-  const numbers = Array.isArray(body.numbers) ? body.numbers.filter(isEntry) : []
+  const numbers = parseStartNumberEntries(body.numbers)
 
   if (typeof body.published !== 'boolean' && numbers.length === 0) {
     return response(422, 'nothing to do', event)

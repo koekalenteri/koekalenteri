@@ -41,6 +41,8 @@ export const Path = {
     users: `${ADMIN_ROOT}/users`,
     viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
   },
+  classStartNumbers: (eventId: string, eventClass: string, token: string) =>
+    `/start-numbers/${eventId}/${encodeURIComponent(eventClass)}/access/${encodeURIComponent(token)}`,
   home: '/',
   invitation: (registration: ParticipantRegistration) => participantPath('r', registration, '/invitation'),
   invitationAttachment: (item: InvitationAttachmentItem) =>

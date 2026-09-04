@@ -11,7 +11,8 @@ import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStations, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
-import { putStartNumbers } from '../../api/event'
+import { putEvent, putStartNumbers } from '../../api/event'
+import { getStartNumberLink } from '../../api/startNumbers'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
@@ -27,6 +28,7 @@ vi.mock('../../api/judge')
 vi.mock('../../api/official')
 vi.mock('../../api/organizer')
 vi.mock('../../api/registration')
+vi.mock('../../api/startNumbers')
 
 const renderPage = (language: Language, registrations: Registration[] = registrationsToEventWithStations) => {
   const routes: RouteObject[] = [{ element: <EventStartNumbersPage />, path: Path.admin.startNumbers() }]
@@ -238,5 +240,37 @@ describe('EventStartNumbersPage', () => {
 
     // The form catches the same pair of eyes typing twice; the server catches two phones.
     expect(screen.getAllByText('startNumbers.duplicate')).toHaveLength(2)
+  })
+  it("hands the open class's sheet on as a link of its own (KOE-1267)", async () => {
+    const { i18n } = useTranslation()
+    const { user } = renderPage(i18n.language as Language)
+    await flushPromises()
+
+    // Defined after render on purpose: userEvent's setup installs its own clipboard stub, and this
+    // must land on top of it to observe the page's write.
+    const writeText = vi.fn()
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+
+    await user.click(screen.getByRole('button', { name: 'startNumbers.copyLink' }))
+    await flushPromises()
+
+    expect(getStartNumberLink).toHaveBeenCalledWith('test-results', 'ALO', TEST_ID_TOKEN)
+    // The mock mints `token-<class>`; what lands on the clipboard is the shareable public path.
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/start-numbers/test-results/ALO/access/token-ALO'))
+  })
+
+  it('revokes the open class links without touching the other classes', async () => {
+    const { i18n } = useTranslation()
+    vi.mocked(putEvent).mockResolvedValueOnce({ ...eventWithStations, startNumberLinkVersions: { ALO: 2 } })
+    const { user } = renderPage(i18n.language as Language)
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'startNumbers.revokeLink' }))
+    await flushPromises()
+
+    expect(putEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ startNumberLinkVersions: { ALO: 2 } }),
+      expect.anything()
+    )
   })
 })

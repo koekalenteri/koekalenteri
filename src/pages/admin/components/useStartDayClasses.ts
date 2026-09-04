@@ -1,15 +1,17 @@
-import type { Registration } from '../../../types'
-import type { StartDay } from './StartDaySelector'
+import type { PlacedRegistration, StartDay } from './StartDaySelector'
 import { useMemo, useState } from 'react'
 import { compareRegistrationClasses, getRegistrationClass } from '../../../lib/registration'
 import { startDayKey, startDaysOf } from './StartDaySelector'
+
+/** What the day-then-class navigation reads of a dog: where it runs and which class it runs in. */
+type DayClassRegistration = PlacedRegistration & { class?: string | null; eventType?: string }
 
 /**
  * The day-then-class navigation the batch entry screens share. A multi-day trial is worked one day
  * at a time, the same way its numbers are drawn, so the day is picked first and holds while the
  * classes are worked through (KOE-1350, KOE-1353). The days are the event's own, not one class's.
  */
-export const useStartDayClasses = (registrations: Registration[]) => {
+export const useStartDayClasses = <T extends DayClassRegistration>(registrations: T[]) => {
   const [selectedClass, setSelectedClass] = useState<string | undefined>()
   const [selectedDay, setSelectedDay] = useState<string | undefined>()
 

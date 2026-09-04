@@ -51,6 +51,22 @@
           LoggingLevel: INFO
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 20
+        # A class secretary's draw sheet (KOE-1267): a handful of classes per event, loaded once
+        # and saved a few times while the numbers are drawn.
+        - ResourcePath: '/start-numbers/{eventId}/{eventClass}'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          MetricsEnabled: true
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 20
+        - ResourcePath: '/start-numbers/{eventId}/{eventClass}'
+          HttpMethod: 'POST'
+          DataTraceEnabled: false
+          MetricsEnabled: true
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 20
 
       AccessLogSetting:
         DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'

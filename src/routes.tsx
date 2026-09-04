@@ -31,6 +31,10 @@ const routes: RouteObject[] = [
         path: 'live-entry/:eventId/:stationId/access/:token',
       },
       {
+        lazy: () => reloadOnChunkLoadError(() => import('./pages/ClassStartNumbersPage')),
+        path: 'start-numbers/:eventId/:eventClass/access/:token',
+      },
+      {
         // Links already handed to a judge's secretary keep working under the name the view had before.
         loader: ({ params }) =>
           redirect(Path.liveEntry(params.eventId ?? '', params.stationId ?? '', params.token ?? '')),
