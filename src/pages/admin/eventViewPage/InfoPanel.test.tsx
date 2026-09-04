@@ -100,7 +100,6 @@ describe('InfoPanel>', () => {
       (participantRow.lastElementChild as HTMLTableCellElement).cellIndex
     )
     expect(screen.queryByText('Valmistelu')).not.toBeInTheDocument()
-    expect(screen.getByText('Kokeen tiedot')).toBeInTheDocument()
     expect(screen.queryByText('Koko koe')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'eventManagement.attachment.addPdf' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'eventManagement.attachment.addPdf' }).closest('td')).toHaveClass(
@@ -164,27 +163,15 @@ describe('InfoPanel>', () => {
     ).toBeTruthy()
   })
 
-  it('shows the Kennel Club ID when the event has one', async () => {
+  it('leaves the koetunnus out of the panel, which the event details and the results entry both already show', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel event={{ ...eventWithStaticDatesAndClass, kcId: 12345 }} registrations={[]} />,
       { wrapper: Provider }
     )
     await openInfoPanel(user)
 
-    expect(screen.getByText('Kokeen tiedot')).toBeInTheDocument()
-    expect(screen.getByText('Koetunnus')).toBeInTheDocument()
-    expect(screen.getByText('12345')).toBeInTheDocument()
-  })
-
-  it('leaves out the Kennel Club ID section when the event has no koetunnus', async () => {
-    const { user } = renderWithUserEvents(
-      <InfoPanel event={{ ...eventWithStaticDatesAndClass, kcId: undefined }} registrations={[]} />,
-      { wrapper: Provider }
-    )
-    await openInfoPanel(user)
-
-    expect(screen.queryByText('Kokeen tiedot')).not.toBeInTheDocument()
     expect(screen.queryByText('Koetunnus')).not.toBeInTheDocument()
+    expect(screen.queryByText('12345')).not.toBeInTheDocument()
   })
 
   it('expands and collapses correctly', async () => {

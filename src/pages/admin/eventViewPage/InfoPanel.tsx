@@ -10,7 +10,6 @@ import IconButton from '@mui/material/IconButton'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -32,7 +31,6 @@ import ParticipantSelection from './infoPanel/ParticipantSelection'
 import ResultsPublishing from './infoPanel/ResultsPublishing'
 import StartListPublishing from './infoPanel/StartListPublishing'
 import StartNumbersPublishing from './infoPanel/StartNumbersPublishing'
-import { sectionSx } from './infoPanel/styles'
 
 interface Props {
   readonly event: ConfirmedEvent
@@ -266,19 +264,6 @@ const InfoPanel = ({
             scrollbarGutter: 'stable',
           }}
         >
-          {event.kcId !== undefined && (
-            <Box sx={sectionSx}>
-              <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-                Kokeen tiedot
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, px: 2.5, py: 1 }}>
-                <Typography variant="caption" fontWeight="bold">
-                  Koetunnus
-                </Typography>
-                <Typography variant="caption">{event.kcId}</Typography>
-              </Box>
-            </Box>
-          )}
           <ParticipantSelection
             entryEnded={entryEnded}
             event={event}
