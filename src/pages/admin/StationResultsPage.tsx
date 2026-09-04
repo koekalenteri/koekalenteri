@@ -101,7 +101,16 @@ export default function StationResultsPage() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}>
-      <Stack alignItems="center" direction="row" flexWrap="wrap" justifyContent="flex-end" spacing={1} sx={{ pb: 1 }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          justifyContent: 'flex-end',
+          pb: 1,
+        }}
+      >
         {/* The event secretary came from the results page and goes back there; the token link has no such page. */}
         <Button
           component={Link}
@@ -115,7 +124,11 @@ export default function StationResultsPage() {
         {ownPhases && (
           <StationPhasesEditor onSave={(phases) => saveStation({ phases })} phases={station.phases ?? []} />
         )}
-        <Box flexGrow={1} />
+        <Box
+          sx={{
+            flexGrow: 1,
+          }}
+        />
         <Button onClick={handleRevokeLink} size="small">
           {t('results.revokeLiveEntryLink')}
         </Button>

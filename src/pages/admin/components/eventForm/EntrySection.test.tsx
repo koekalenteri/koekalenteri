@@ -1,7 +1,7 @@
 import type { ConfirmedEvent } from '../../../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'

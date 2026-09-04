@@ -1,7 +1,7 @@
 import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render } from 'vitest-browser-react'
 import theme from '../../../../assets/Theme'
 import { locales } from '../../../../i18n'

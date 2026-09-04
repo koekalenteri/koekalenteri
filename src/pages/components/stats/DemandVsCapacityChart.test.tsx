@@ -6,14 +6,7 @@ import DemandVsCapacityChart from './DemandVsCapacityChart'
 vi.mock('@mui/x-charts', () => ({
   BarPlot: () => null,
   ChartsAxisHighlight: () => null,
-  ChartsGrid: () => null,
-  ChartsLegend: () => null,
-  ChartsTooltip: () => null,
-  ChartsXAxis: () => null,
-  ChartsYAxis: () => null,
-  LinePlot: () => null,
-  MarkPlot: () => null,
-  ResponsiveChartContainer: ({ series, xAxis }: any) => (
+  ChartsDataProvider: ({ series, xAxis }: any) => (
     <div
       data-testid="chart"
       data-months={JSON.stringify(xAxis[0].data)}
@@ -22,6 +15,15 @@ vi.mock('@mui/x-charts', () => ({
       )}
     />
   ),
+  ChartsGrid: () => null,
+  ChartsLegend: () => null,
+  ChartsSurface: ({ children }: any) => <>{children}</>,
+  ChartsTooltip: () => null,
+  ChartsWrapper: ({ children }: any) => <>{children}</>,
+  ChartsXAxis: () => null,
+  ChartsYAxis: () => null,
+  LinePlot: () => null,
+  MarkPlot: () => null,
 }))
 
 const entry = (

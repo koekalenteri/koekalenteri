@@ -11,7 +11,13 @@ interface Props {
 
 export default function ChartTitle({ title, info }: Props) {
   return (
-    <Stack direction="row" alignItems="center" spacing={0.5}>
+    <Stack
+      direction="row"
+      spacing={0.5}
+      sx={{
+        alignItems: 'center',
+      }}
+    >
       <Typography variant="h6">{title}</Typography>
       {info ? (
         <Tooltip title={info} enterTouchDelay={0}>

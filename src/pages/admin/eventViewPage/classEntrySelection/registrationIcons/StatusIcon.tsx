@@ -1,8 +1,9 @@
+import type React from 'react'
 import { cloneElement } from 'react'
 
 interface StatusIconProps {
   condition?: boolean
-  icon: JSX.Element
+  icon: React.JSX.Element
   alwaysShow?: boolean
 }
 

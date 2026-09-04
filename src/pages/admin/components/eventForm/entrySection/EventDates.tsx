@@ -29,7 +29,11 @@ export const EventDates = ({
   }
 
   return (
-    <Stack gap={1}>
+    <Stack
+      sx={{
+        gap: 1,
+      }}
+    >
       {classes.map((c) => (
         <ClassGroups
           key={c}

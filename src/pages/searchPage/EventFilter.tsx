@@ -115,15 +115,16 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
   return (
     <Box
       component="nav"
-      p={0}
       sx={{
         border: '1px solid #708f85',
         borderRadius: '4px',
         m: '1px',
+        p: 0,
         position: 'sticky',
         top: `calc(${HEADER_HEIGHT} - 1px)`,
-        zIndex: 2,
+
         // borderTop: '1px solid #708f85',
+        zIndex: 2,
       }}
     >
       <Accordion
@@ -149,7 +150,13 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             sx={{ bgcolor: 'background.filterHeader', color: 'black' }}
             fullWidth
           >
-            <Typography variant="caption" noWrap textOverflow="ellipsis">
+            <Typography
+              variant="caption"
+              noWrap
+              sx={{
+                textOverflow: 'ellipsis',
+              }}
+            >
               <b>
                 {titleLabel} ({filters.length})
               </b>{' '}
@@ -158,7 +165,13 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
           </Button>
         </AccordionSummary>
         <AccordionDetails sx={{ bgcolor: 'background.filter' }}>
-          <Grid container justifyContent="start" spacing={1}>
+          <Grid
+            container
+            spacing={1}
+            sx={{
+              justifyContent: 'start',
+            }}
+          >
             <Grid size={{ md: 6, xs: 12 }}>
               <DateRange
                 start={filter.start}
@@ -209,7 +222,14 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             <Grid size={{ md: 12, xs: 12 }}>
               <Grid container>
                 <Grid size="auto">
-                  <Stack direction={{ sm: 'row', xs: 'column' }} spacing={0} alignItems="start" justifyContent="start">
+                  <Stack
+                    direction={{ sm: 'row', xs: 'column' }}
+                    spacing={0}
+                    sx={{
+                      alignItems: 'start',
+                      justifyContent: 'start',
+                    }}
+                  >
                     <FormControlLabel
                       value="withOpenEntry"
                       checked={filter.withOpenEntry}
@@ -238,7 +258,12 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                     />
                   </Stack>
                 </Grid>
-                <Grid display={{ md: 'none', xs: undefined }} alignSelf="end">
+                <Grid
+                  sx={{
+                    alignSelf: 'end',
+                    display: { md: 'none', xs: undefined },
+                  }}
+                >
                   <Button variant="contained" onClick={() => setExpanded(false)}>
                     OK
                   </Button>

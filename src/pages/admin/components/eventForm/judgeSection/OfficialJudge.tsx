@@ -1,6 +1,6 @@
 import type { EventType, Judge, PublicJudge } from '../../../../../types'
 import type { JudgesEvent, SectionProps } from '../types'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { useCallback } from 'react'
@@ -35,7 +35,14 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
   )
 
   return (
-    <Grid container spacing={1} alignItems="center" width="100%">
+    <Grid
+      container
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+        width: '100%',
+      }}
+    >
       <Grid sx={{ width: 300 }}>
         <AutocompleteSingle
           disabled={disabled}

@@ -22,7 +22,7 @@ exports[`PaymentPage > renders properly 1`] = `
         </a>
       </div>
       <h5
-        class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h5 css-kc0zv6-MuiTypography-root"
       >
         paymentPage.choosePaymentMethod
       </h5>

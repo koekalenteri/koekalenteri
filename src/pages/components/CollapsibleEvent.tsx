@@ -39,7 +39,15 @@ export const CollapsibleEvent = ({ eventId, odd, cancelled, header, children }: 
       }}
       component="article"
     >
-      <Grid container spacing={0} alignItems="start" role="heading" aria-level={2}>
+      <Grid
+        container
+        spacing={0}
+        role="heading"
+        aria-level={2}
+        sx={{
+          alignItems: 'start',
+        }}
+      >
         <Grid>
           <IconButton aria-label="expand row" size="small" color="primary" onClick={handleClick}>
             {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}

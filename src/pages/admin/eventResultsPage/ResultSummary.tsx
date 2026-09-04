@@ -70,7 +70,12 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
   if (!round) {
     return (
       <>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {stored?.result ?? ''}
         </Typography>
         {marks}
@@ -84,13 +89,23 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
 
   return (
     <>
-      <Typography variant="body2" fontWeight={600}>
+      <Typography
+        variant="body2"
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         {code ? formatEventResult(code, eventType, eventClass) : '–'}
       </Typography>
       {marks}
       {/* A voided round has no total worth showing beside dogs that ran everything. */}
       {!edit.elimination && !edit.retirement && (
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {t('results.runningTotal', { maxPoints, points })}
         </Typography>
       )}
@@ -104,7 +119,13 @@ const ResultMarks = ({ marks }: { readonly marks: ResultMark[] }) => {
   if (!marks.length) return null
 
   return (
-    <Typography variant="caption" color="text.secondary" display="block">
+    <Typography
+      variant="caption"
+      sx={{
+        color: 'text.secondary',
+        display: 'block',
+      }}
+    >
       {marks.map((mark) => t(`results.marks.${mark}`)).join(' ')}
     </Typography>
   )

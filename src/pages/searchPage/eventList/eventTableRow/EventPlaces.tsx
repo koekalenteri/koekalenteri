@@ -17,5 +17,13 @@ export const EventPlaces = ({ event }: { event: PublicDogEvent }) => {
     return ''
   }, [event, t])
 
-  return <Box textAlign="right">{text}</Box>
+  return (
+    <Box
+      sx={{
+        textAlign: 'right',
+      }}
+    >
+      {text}
+    </Box>
+  )
 }

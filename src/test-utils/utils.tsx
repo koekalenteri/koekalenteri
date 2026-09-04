@@ -42,6 +42,32 @@ export function DataMemoryRouter({
 }
 
 /**
+ * React 19 drops the work of a component that suspends inside a *synchronous* `act` scope: the
+ * boundary keeps its fallback and the retry is never flushed, so a page behind `Suspense` rendered
+ * with Testing Library's `render` alone stays on "loading" forever. Awaiting the render inside
+ * `act` keeps the retry, so anything behind a boundary is rendered through these.
+ */
+const awaitingAct = async <T,>(renderTree: () => T): Promise<T> => {
+  let result: T | undefined
+  await act(async () => {
+    result = renderTree()
+  })
+  if (result === undefined) throw new Error('the render produced no result')
+  return result
+}
+
+/** `render` for a tree behind `Suspense`. */
+export const renderSuspended = (ui: React.ReactElement, options?: Omit<RenderOptions, 'queries'>) =>
+  awaitingAct(() => render(ui, options))
+
+/** `renderWithUserEvents` for a tree behind `Suspense`. */
+export const renderSuspendedWithUserEvents = (
+  ui: React.ReactElement,
+  options?: Omit<RenderOptions, 'queries'>,
+  userEventOptions?: Options
+) => awaitingAct(() => renderWithUserEvents(ui, options, userEventOptions))
+
+/**
  * Lets the rendered tree settle: React work, resolved promises and roughly 300 ms of clock time, enough
  * for a debounced change or a MUI transition but not for a snackbar to hide itself. Under a faked clock
  * that time passes instantly, in rounds so React flushes the effects a fired timer queued before the

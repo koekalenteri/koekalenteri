@@ -262,12 +262,28 @@ export default function EventResultsPage() {
           {event.name ? ` (${event.name})` : ''}
         </Typography>
         {event.kcId ? (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {t('event.kcId')}: {event.kcId}
           </Typography>
         ) : (
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Typography variant="body2" color="text.secondary">
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {t('event.kcIdEmpty')}
             </Typography>
             <KcIdLookupButton event={event} onChange={saveKcId} variant="text" />
@@ -278,11 +294,16 @@ export default function EventResultsPage() {
       <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
 
       <Stack
-        alignItems="center"
         direction="row"
-        flexWrap="wrap"
-        sx={{ columnGap: 2, pt: 1, px: { md: 2, xs: 1 }, rowGap: 1 }}
         useFlexGap
+        sx={{
+          alignItems: 'center',
+          columnGap: 2,
+          flexWrap: 'wrap',
+          pt: 1,
+          px: { md: 2, xs: 1 },
+          rowGap: 1,
+        }}
       >
         <Tabs onChange={(_event, value) => setSelectedClass(value)} value={eventClass ?? false}>
           {classes.map((item) => (
@@ -339,9 +360,13 @@ export default function EventResultsPage() {
 
       <Stack
         direction="row"
-        justifyContent="flex-end"
         spacing={1}
-        sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', p: 1 }}
+        sx={{
+          borderColor: '#bdbdbd',
+          borderTop: '1px solid',
+          justifyContent: 'flex-end',
+          p: 1,
+        }}
       >
         <Button disabled={Object.keys(edits).length === 0} onClick={() => setEdits({})}>
           {t('cancel')}

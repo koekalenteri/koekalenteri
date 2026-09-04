@@ -13,7 +13,7 @@ exports[`RegistrationForm > renders 1`] = `
         class="MuiBox-root css-1igggo6"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -75,13 +75,13 @@ exports[`RegistrationForm > renders 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2:"
-                            id=":r2:-label"
+                            for="_r_2_"
+                            id="_r_2_-label"
                           >
                             registration.class
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -89,8 +89,8 @@ exports[`RegistrationForm > renders 1`] = `
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2:"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              id="_r_2_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -101,7 +101,7 @@ exports[`RegistrationForm > renders 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -148,23 +148,23 @@ exports[`RegistrationForm > renders 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r5:"
-                            id=":r5:-label"
+                            for="_r_5_"
+                            id="_r_5_-label"
                           >
                             registration.reserve
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r5:-helper-text"
+                              aria-describedby="_r_5_-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r5:"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              id="_r_5_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -175,7 +175,7 @@ exports[`RegistrationForm > renders 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -208,7 +208,7 @@ exports[`RegistrationForm > renders 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r5:-helper-text"
+                            id="_r_5_-helper-text"
                           >
                             registration.reserveHelp
                           </p>
@@ -228,28 +228,28 @@ exports[`RegistrationForm > renders 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r8:"
-                            id=":r8:-label"
+                            for="_r_8_"
+                            id="_r_8_-label"
                           >
                             registration.datesFilter
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-rlgfmd-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-o79jym-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="0"
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1l2q6oc-MuiButtonBase-root-MuiChip-root"
+                              data-item-index="0"
                               role="button"
                               tabindex="-1"
                             >
                               <span
-                                class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                                class="MuiChip-label css-1dybbl5-MuiChip-label"
                               >
                                 dateFormat.wdshort date
                               </span>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon css-1umw9bq-MuiSvgIcon-root"
                                 data-testid="CancelIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -261,13 +261,13 @@ exports[`RegistrationForm > renders 1`] = `
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r8:-helper-text"
+                              aria-describedby="_r_8_-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r8:"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                              id="_r_8_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -278,7 +278,7 @@ exports[`RegistrationForm > renders 1`] = `
                             >
                               <button
                                 aria-label="Clear"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-37xmc3-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
                                 tabindex="-1"
                                 title="Clear"
                                 type="button"
@@ -297,7 +297,7 @@ exports[`RegistrationForm > renders 1`] = `
                               </button>
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -330,7 +330,7 @@ exports[`RegistrationForm > renders 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r8:-helper-text"
+                            id="_r_8_-helper-text"
                           >
                             registration.datesFilterInfo
                           </p>
@@ -350,28 +350,28 @@ exports[`RegistrationForm > renders 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rc:"
-                            id=":rc:-label"
+                            for="_r_c_"
+                            id="_r_c_-label"
                           >
                             registration.dates
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-rlgfmd-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-o79jym-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="0"
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1l2q6oc-MuiButtonBase-root-MuiChip-root"
+                              data-item-index="0"
                               role="button"
                               tabindex="-1"
                             >
                               <span
-                                class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                                class="MuiChip-label css-1dybbl5-MuiChip-label"
                               >
                                 dateFormat.weekday date registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon css-1umw9bq-MuiSvgIcon-root"
                                 data-testid="CancelIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -383,13 +383,13 @@ exports[`RegistrationForm > renders 1`] = `
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":rc:-helper-text"
+                              aria-describedby="_r_c_-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":rc:"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                              id="_r_c_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -400,7 +400,7 @@ exports[`RegistrationForm > renders 1`] = `
                             >
                               <button
                                 aria-label="Clear"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-37xmc3-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
                                 tabindex="-1"
                                 title="Clear"
                                 type="button"
@@ -419,7 +419,7 @@ exports[`RegistrationForm > renders 1`] = `
                               </button>
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -452,7 +452,7 @@ exports[`RegistrationForm > renders 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":rc:-helper-text"
+                            id="_r_c_-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -470,7 +470,7 @@ exports[`RegistrationForm > renders 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -575,7 +575,7 @@ exports[`RegistrationForm > renders 1`] = `
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-1xiji1l-MuiButtonBase-root-MuiButton-root"
                             disabled=""
                             tabindex="-1"
                             type="button"
@@ -592,7 +592,7 @@ exports[`RegistrationForm > renders 1`] = `
                               viewBox="22 22 44 44"
                             >
                               <circle
-                                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-19t5dcl-MuiCircularProgress-circle"
+                                class="MuiCircularProgress-circle css-19t5dcl-MuiCircularProgress-circle"
                                 cx="44"
                                 cy="44"
                                 fill="none"
@@ -618,8 +618,8 @@ exports[`RegistrationForm > renders 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
-                          for=":rk:"
-                          id=":rk:-label"
+                          for="_r_k_"
+                          id="_r_k_-label"
                         >
                           dog.rfid
                         </label>
@@ -630,7 +630,7 @@ exports[`RegistrationForm > renders 1`] = `
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":rk:"
+                            id="_r_k_"
                             type="text"
                             value="1234567890123456"
                           />
@@ -744,36 +744,119 @@ exports[`RegistrationForm > renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth fact css-ytlejw-MuiFormControl-root"
                       >
                         <div
-                          class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
+                          class="MuiFormControl-root MuiPickersTextField-root Mui-disabled css-eqc3kq-MuiFormControl-root-MuiPickersTextField-root"
                         >
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rn:"
-                            id=":rn:-label"
+                            for="_r_n_"
+                            id="_r_n_-label"
                           >
                             dog.dob
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
+                            aria-invalid="false"
+                            aria-labelledby="_r_n_-label"
+                            class="MuiPickersInputBase-root MuiPickersOutlinedInput-root Mui-disabled MuiPickersInputBase-colorPrimary MuiPickersInputBase-adornedEnd css-r9xk0u-MuiPickersInputBase-root-MuiPickersOutlinedInput-root"
+                            role="group"
                           >
-                            <input
-                              aria-invalid="false"
-                              autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              disabled=""
-                              id=":rn:"
-                              inputmode="text"
-                              placeholder="DD.MM.YYYY"
-                              type="text"
-                              value="10.04.2020"
-                            />
+                            <div
+                              class="MuiPickersSectionList-root MuiPickersInputBase-sectionsContainer css-1fb7els-MuiPickersSectionList-root-MuiPickersInputBase-sectionsContainer-MuiPickersOutlinedInput-sectionsContainer"
+                              contenteditable="false"
+                              tabindex="-1"
+                            >
+                              <span
+                                class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                data-sectionindex="0"
+                              >
+                                <span
+                                  class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                />
+                                <span
+                                  aria-disabled="true"
+                                  aria-label="Day"
+                                  aria-readonly="false"
+                                  aria-valuemax="30"
+                                  aria-valuemin="1"
+                                  aria-valuenow="10"
+                                  aria-valuetext="10"
+                                  class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                  contenteditable="false"
+                                  inputmode="numeric"
+                                  role="spinbutton"
+                                  tabindex="-1"
+                                >
+                                  10
+                                </span>
+                                <span
+                                  class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                >
+                                  .
+                                </span>
+                              </span>
+                              <span
+                                class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                data-sectionindex="1"
+                              >
+                                <span
+                                  class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                />
+                                <span
+                                  aria-disabled="true"
+                                  aria-label="Month"
+                                  aria-readonly="false"
+                                  aria-valuemax="12"
+                                  aria-valuemin="1"
+                                  aria-valuenow="4"
+                                  aria-valuetext="huhtikuu"
+                                  class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                  contenteditable="false"
+                                  inputmode="numeric"
+                                  role="spinbutton"
+                                  tabindex="-1"
+                                >
+                                  04
+                                </span>
+                                <span
+                                  class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                >
+                                  .
+                                </span>
+                              </span>
+                              <span
+                                class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                data-sectionindex="2"
+                              >
+                                <span
+                                  class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                />
+                                <span
+                                  aria-disabled="true"
+                                  aria-label="Year"
+                                  aria-readonly="false"
+                                  aria-valuemax="9999"
+                                  aria-valuemin="0"
+                                  aria-valuenow="2020"
+                                  class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                  contenteditable="false"
+                                  inputmode="numeric"
+                                  role="spinbutton"
+                                  tabindex="-1"
+                                >
+                                  2020
+                                </span>
+                                <span
+                                  class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                />
+                              </span>
+                            </div>
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
                                 aria-label="Choose date, selected date is 10. huhti 2020"
-                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1cidym2-MuiButtonBase-root-MuiIconButton-root"
+                                data-mui-picker-open-button="true"
                                 disabled=""
                                 tabindex="-1"
                                 type="button"
@@ -793,16 +876,26 @@ exports[`RegistrationForm > renders 1`] = `
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                              class="MuiPickersOutlinedInput-notchedOutline css-lqwr9g-MuiPickersOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-ex8a5f-MuiNotchedOutlined-root"
+                                class="css-kg5swy"
                               >
-                                <span>
+                                <span
+                                  class="css-w48gsk"
+                                >
                                   dog.dob
                                 </span>
                               </legend>
                             </fieldset>
+                            <input
+                              aria-hidden="true"
+                              class="MuiPickersInputBase-input MuiPickersOutlinedInput-input css-7bxtqs-MuiPickersInputBase-input"
+                              disabled=""
+                              id="_r_n_"
+                              tabindex="-1"
+                              value="10.04.2020"
+                            />
                           </div>
                         </div>
                       </div>
@@ -820,13 +913,13 @@ exports[`RegistrationForm > renders 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rq:"
-                            id=":rq:-label"
+                            for="_r_q_"
+                            id="_r_q_-label"
                           >
                             dog.gender
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -834,9 +927,9 @@ exports[`RegistrationForm > renders 1`] = `
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rq:"
+                              id="_r_q_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -847,7 +940,7 @@ exports[`RegistrationForm > renders 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
                                 tabindex="-1"
                                 title="Open"
@@ -895,13 +988,13 @@ exports[`RegistrationForm > renders 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rt:"
-                            id=":rt:-label"
+                            for="_r_t_"
+                            id="_r_t_-label"
                           >
                             dog.breed
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -909,9 +1002,9 @@ exports[`RegistrationForm > renders 1`] = `
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rt:"
+                              id="_r_t_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -922,7 +1015,7 @@ exports[`RegistrationForm > renders 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
                                 tabindex="-1"
                                 title="Open"
@@ -1048,7 +1141,7 @@ exports[`RegistrationForm > renders 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -1147,7 +1240,7 @@ exports[`RegistrationForm > renders 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -1354,8 +1447,8 @@ exports[`RegistrationForm > renders 1`] = `
                                 <button
                                   aria-expanded="false"
                                   aria-haspopup="listbox"
-                                  aria-label="Open flags menu"
-                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                                  aria-label="Finland, Open flags menu"
+                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-195yqpm-MuiButtonBase-root-MuiIconButton-root"
                                   tabindex="0"
                                   type="button"
                                 >
@@ -1364,7 +1457,7 @@ exports[`RegistrationForm > renders 1`] = `
                                     data-testid="FI"
                                   >
                                     <img
-                                      alt="Finland"
+                                      alt=""
                                       class="MuiTelInput-FlagImg"
                                       loading="lazy"
                                       src="https://flagcdn.com/w40/fi.webp"
@@ -1382,7 +1475,7 @@ exports[`RegistrationForm > renders 1`] = `
                               <input
                                 aria-invalid="false"
                                 autocomplete="tel"
-                                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="owner_0_phone"
                                 name="phone"
                                 type="tel"
@@ -1406,12 +1499,12 @@ exports[`RegistrationForm > renders 1`] = `
                       </div>
                     </div>
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-a5nan9-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-19iihun-MuiButtonBase-root-MuiButton-root"
                       tabindex="0"
                       type="button"
                     >
                       <span
-                        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                        class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                       >
                         <svg
                           aria-hidden="true"
@@ -1448,11 +1541,11 @@ exports[`RegistrationForm > renders 1`] = `
                             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-m52o5m-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r1b:"
+                                name="_r_1b_"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -1493,12 +1586,12 @@ exports[`RegistrationForm > renders 1`] = `
                             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-m52o5m-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
                             >
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r1b:"
+                                name="_r_1b_"
                                 type="radio"
                                 value=""
                               />
@@ -1555,11 +1648,11 @@ exports[`RegistrationForm > renders 1`] = `
                             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-m52o5m-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r1c:"
+                                name="_r_1c_"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -1600,12 +1693,12 @@ exports[`RegistrationForm > renders 1`] = `
                             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-m52o5m-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
                             >
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r1c:"
+                                name="_r_1c_"
                                 type="radio"
                                 value=""
                               />
@@ -1666,7 +1759,7 @@ exports[`RegistrationForm > renders 1`] = `
               class="MuiBox-root css-qxc3vx"
             >
               <button
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                 tabindex="0"
                 type="button"
               >
@@ -1867,8 +1960,8 @@ exports[`RegistrationForm > renders 1`] = `
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Open flags menu"
-                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                                    aria-label="Finland, Open flags menu"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-195yqpm-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -1877,7 +1970,7 @@ exports[`RegistrationForm > renders 1`] = `
                                       data-testid="FI"
                                     >
                                       <img
-                                        alt="Finland"
+                                        alt=""
                                         class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
@@ -1895,7 +1988,7 @@ exports[`RegistrationForm > renders 1`] = `
                                 <input
                                   aria-invalid="false"
                                   autocomplete="tel"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="handler_phone"
                                   name="phone"
                                   type="tel"
@@ -1940,7 +2033,7 @@ exports[`RegistrationForm > renders 1`] = `
               class="MuiBox-root css-qxc3vx"
             >
               <button
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                 tabindex="0"
                 type="button"
               >
@@ -2100,8 +2193,8 @@ exports[`RegistrationForm > renders 1`] = `
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Open flags menu"
-                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                                    aria-label="Finland, Open flags menu"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-195yqpm-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -2110,7 +2203,7 @@ exports[`RegistrationForm > renders 1`] = `
                                       data-testid="FI"
                                     >
                                       <img
-                                        alt="Finland"
+                                        alt=""
                                         class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
@@ -2128,7 +2221,7 @@ exports[`RegistrationForm > renders 1`] = `
                                 <input
                                   aria-invalid="false"
                                   autocomplete="tel"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="payer_phone"
                                   name="phone"
                                   type="tel"
@@ -2163,7 +2256,7 @@ exports[`RegistrationForm > renders 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -2222,16 +2315,16 @@ exports[`RegistrationForm > renders 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiStack-root css-1k3liqh-MuiStack-root"
+                      class="MuiStack-root css-1tu0wyr-MuiStack-root"
                     >
                       <button
-                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-1qwfpyj-MuiButtonBase-root-MuiButton-root"
                         disabled=""
                         tabindex="-1"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
@@ -2248,7 +2341,7 @@ exports[`RegistrationForm > renders 1`] = `
                         registration.cta.addResult
                       </button>
                       <div
-                        class="MuiStack-root css-1w9onfo-MuiStack-root"
+                        class="MuiStack-root css-1rawtx8-MuiStack-root"
                       >
                         <span
                           class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
@@ -2256,7 +2349,7 @@ exports[`RegistrationForm > renders 1`] = `
                           Karsintapisteet yht.:
                         </span>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-9f04nt-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -2273,7 +2366,7 @@ exports[`RegistrationForm > renders 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -2323,8 +2416,8 @@ exports[`RegistrationForm > renders 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r1r:"
-                      id=":r1r:-label"
+                      for="_r_1r_"
+                      id="_r_1r_-label"
                     >
                       registration.notes
                     </label>
@@ -2333,8 +2426,8 @@ exports[`RegistrationForm > renders 1`] = `
                     >
                       <textarea
                         aria-invalid="false"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r1r:"
+                        class="MuiInputBase-input MuiOutlinedInput-input css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                        id="_r_1r_"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
@@ -2343,7 +2436,7 @@ exports[`RegistrationForm > renders 1`] = `
                       </textarea>
                       <textarea
                         aria-hidden="true"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                         readonly=""
                         style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                         tabindex="-1"
@@ -2372,7 +2465,7 @@ exports[`RegistrationForm > renders 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           disabled=""
           tabindex="-1"
           type="button"
@@ -2424,7 +2517,7 @@ exports[`RegistrationForm > renders 1`] = `
                       class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1n7mo35-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
                           class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -2455,7 +2548,7 @@ exports[`RegistrationForm > renders 1`] = `
                       class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1n7mo35-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
                           class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -2499,7 +2592,7 @@ exports[`RegistrationForm > renders 1`] = `
             class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
           >
             <span
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1n7mo35-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
             >
               <input
                 checked=""
@@ -2583,13 +2676,13 @@ exports[`RegistrationForm > renders 1`] = `
       class="MuiStack-root css-1tokk9g-MuiStack-root"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-10gbnq1-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-1xiji1l-MuiButtonBase-root-MuiButton-root"
         disabled=""
         tabindex="-1"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -2606,12 +2699,12 @@ exports[`RegistrationForm > renders 1`] = `
         registration.cta.saveChanges
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-1qwfpyj-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -2645,7 +2738,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
         class="MuiBox-root css-1igggo6"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -2707,13 +2800,13 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r21:"
-                            id=":r21:-label"
+                            for="_r_21_"
+                            id="_r_21_-label"
                           >
                             registration.class
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -2721,8 +2814,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r21:"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              id="_r_21_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2733,7 +2826,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -2780,23 +2873,23 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r24:"
-                            id=":r24:-label"
+                            for="_r_24_"
+                            id="_r_24_-label"
                           >
                             registration.reserve
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r24:-helper-text"
+                              aria-describedby="_r_24_-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r24:"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              id="_r_24_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2807,7 +2900,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -2840,7 +2933,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r24:-helper-text"
+                            id="_r_24_-helper-text"
                           >
                             registration.reserveHelp
                           </p>
@@ -2860,28 +2953,28 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r27:"
-                            id=":r27:-label"
+                            for="_r_27_"
+                            id="_r_27_-label"
                           >
                             registration.datesFilter
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-rlgfmd-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-o79jym-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="0"
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1l2q6oc-MuiButtonBase-root-MuiChip-root"
+                              data-item-index="0"
                               role="button"
                               tabindex="-1"
                             >
                               <span
-                                class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                                class="MuiChip-label css-1dybbl5-MuiChip-label"
                               >
                                 dateFormat.wdshort date
                               </span>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon css-1umw9bq-MuiSvgIcon-root"
                                 data-testid="CancelIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -2893,13 +2986,13 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r27:-helper-text"
+                              aria-describedby="_r_27_-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r27:"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                              id="_r_27_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2910,7 +3003,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             >
                               <button
                                 aria-label="Clear"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-37xmc3-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
                                 tabindex="-1"
                                 title="Clear"
                                 type="button"
@@ -2929,7 +3022,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               </button>
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -2962,7 +3055,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r27:-helper-text"
+                            id="_r_27_-helper-text"
                           >
                             registration.datesFilterInfo
                           </p>
@@ -2982,28 +3075,28 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r2b:"
-                            id=":r2b:-label"
+                            for="_r_2b_"
+                            id="_r_2b_-label"
                           >
                             registration.dates
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-rlgfmd-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-o79jym-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="0"
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1l2q6oc-MuiButtonBase-root-MuiChip-root"
+                              data-item-index="0"
                               role="button"
                               tabindex="-1"
                             >
                               <span
-                                class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                                class="MuiChip-label css-1dybbl5-MuiChip-label"
                               >
                                 dateFormat.weekday date registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon css-1umw9bq-MuiSvgIcon-root"
                                 data-testid="CancelIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -3015,13 +3108,13 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r2b:-helper-text"
+                              aria-describedby="_r_2b_-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2b:"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                              id="_r_2b_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3032,7 +3125,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             >
                               <button
                                 aria-label="Clear"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-37xmc3-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
                                 tabindex="-1"
                                 title="Clear"
                                 type="button"
@@ -3051,7 +3144,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               </button>
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -3084,7 +3177,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r2b:-helper-text"
+                            id="_r_2b_-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -3102,7 +3195,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -3207,7 +3300,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-1xiji1l-MuiButtonBase-root-MuiButton-root"
                             disabled=""
                             tabindex="-1"
                             type="button"
@@ -3224,7 +3317,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               viewBox="22 22 44 44"
                             >
                               <circle
-                                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-19t5dcl-MuiCircularProgress-circle"
+                                class="MuiCircularProgress-circle css-19t5dcl-MuiCircularProgress-circle"
                                 cx="44"
                                 cy="44"
                                 fill="none"
@@ -3250,8 +3343,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2j:"
-                          id=":r2j:-label"
+                          for="_r_2j_"
+                          id="_r_2j_-label"
                         >
                           dog.rfid
                         </label>
@@ -3262,7 +3355,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r2j:"
+                            id="_r_2j_"
                             type="text"
                             value=""
                           />
@@ -3376,36 +3469,117 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
                       >
                         <div
-                          class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
+                          class="MuiFormControl-root MuiPickersTextField-root Mui-disabled css-eqc3kq-MuiFormControl-root-MuiPickersTextField-root"
                         >
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2m:"
-                            id=":r2m:-label"
+                            for="_r_2m_"
+                            id="_r_2m_-label"
                           >
                             dog.dob
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
+                            aria-invalid="true"
+                            aria-labelledby="_r_2m_-label"
+                            class="MuiPickersInputBase-root MuiPickersOutlinedInput-root Mui-disabled Mui-error MuiPickersInputBase-colorPrimary MuiPickersInputBase-adornedEnd css-r9xk0u-MuiPickersInputBase-root-MuiPickersOutlinedInput-root"
+                            role="group"
                           >
-                            <input
-                              aria-invalid="true"
-                              autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              disabled=""
-                              id=":r2m:"
-                              inputmode="text"
-                              placeholder="DD.MM.YYYY"
-                              type="text"
-                              value=""
-                            />
+                            <div
+                              class="MuiPickersSectionList-root MuiPickersInputBase-sectionsContainer css-1kz4zng-MuiPickersSectionList-root-MuiPickersInputBase-sectionsContainer-MuiPickersOutlinedInput-sectionsContainer"
+                              contenteditable="false"
+                              tabindex="-1"
+                            >
+                              <span
+                                class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                data-sectionindex="0"
+                              >
+                                <span
+                                  class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                />
+                                <span
+                                  aria-disabled="true"
+                                  aria-label="Day"
+                                  aria-readonly="false"
+                                  aria-valuemax="31"
+                                  aria-valuemin="1"
+                                  aria-valuetext="Empty"
+                                  class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                  contenteditable="false"
+                                  inputmode="numeric"
+                                  role="spinbutton"
+                                  tabindex="-1"
+                                >
+                                  DD
+                                </span>
+                                <span
+                                  class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                >
+                                  .
+                                </span>
+                              </span>
+                              <span
+                                class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                data-sectionindex="1"
+                              >
+                                <span
+                                  class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                />
+                                <span
+                                  aria-disabled="true"
+                                  aria-label="Month"
+                                  aria-readonly="false"
+                                  aria-valuemax="12"
+                                  aria-valuemin="1"
+                                  aria-valuetext="Empty"
+                                  class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                  contenteditable="false"
+                                  inputmode="numeric"
+                                  role="spinbutton"
+                                  tabindex="-1"
+                                >
+                                  MM
+                                </span>
+                                <span
+                                  class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                >
+                                  .
+                                </span>
+                              </span>
+                              <span
+                                class="MuiPickersSectionList-section css-joz0rk-MuiPickersSectionList-section-MuiPickersInputBase-section"
+                                data-sectionindex="2"
+                              >
+                                <span
+                                  class="MuiPickersInputBase-sectionBefore css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                />
+                                <span
+                                  aria-disabled="true"
+                                  aria-label="Year"
+                                  aria-readonly="false"
+                                  aria-valuemax="9999"
+                                  aria-valuemin="0"
+                                  aria-valuetext="Empty"
+                                  class="MuiPickersSectionList-sectionContent MuiPickersInputBase-sectionContent css-1udt458-MuiPickersSectionList-sectionContent-MuiPickersInputBase-sectionContent"
+                                  contenteditable="false"
+                                  inputmode="numeric"
+                                  role="spinbutton"
+                                  tabindex="-1"
+                                >
+                                  YYYY
+                                </span>
+                                <span
+                                  class="MuiPickersInputBase-sectionAfter css-w1q93y-MuiPickersSectionList-sectionSeparator-MuiPickersInputBase-separator"
+                                />
+                              </span>
+                            </div>
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1cidym2-MuiButtonBase-root-MuiIconButton-root"
+                                data-mui-picker-open-button="true"
                                 disabled=""
                                 tabindex="-1"
                                 type="button"
@@ -3425,16 +3599,26 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                              class="MuiPickersOutlinedInput-notchedOutline css-lqwr9g-MuiPickersOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
+                                class="css-1pbc52w"
                               >
-                                <span>
+                                <span
+                                  class="css-w48gsk"
+                                >
                                   dog.dob
                                 </span>
                               </legend>
                             </fieldset>
+                            <input
+                              aria-hidden="true"
+                              class="MuiPickersInputBase-input MuiPickersOutlinedInput-input css-7bxtqs-MuiPickersInputBase-input"
+                              disabled=""
+                              id="_r_2m_"
+                              tabindex="-1"
+                              value=""
+                            />
                           </div>
                         </div>
                       </div>
@@ -3452,13 +3636,13 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2p:"
-                            id=":r2p:-label"
+                            for="_r_2p_"
+                            id="_r_2p_-label"
                           >
                             dog.gender
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -3466,9 +3650,9 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2p:"
+                              id="_r_2p_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3479,7 +3663,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
                                 tabindex="-1"
                                 title="Open"
@@ -3527,13 +3711,13 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2s:"
-                            id=":r2s:-label"
+                            for="_r_2s_"
+                            id="_r_2s_-label"
                           >
                             dog.breed
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1p8zhnz-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -3541,9 +3725,9 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2s:"
+                              id="_r_2s_"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3554,7 +3738,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
                                 tabindex="-1"
                                 title="Open"
@@ -3680,7 +3864,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -3779,7 +3963,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -3986,8 +4170,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                                 <button
                                   aria-expanded="false"
                                   aria-haspopup="listbox"
-                                  aria-label="Open flags menu"
-                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                                  aria-label="Finland, Open flags menu"
+                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-195yqpm-MuiButtonBase-root-MuiIconButton-root"
                                   tabindex="0"
                                   type="button"
                                 >
@@ -3996,7 +4180,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                                     data-testid="FI"
                                   >
                                     <img
-                                      alt="Finland"
+                                      alt=""
                                       class="MuiTelInput-FlagImg"
                                       loading="lazy"
                                       src="https://flagcdn.com/w40/fi.webp"
@@ -4014,7 +4198,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                               <input
                                 aria-invalid="false"
                                 autocomplete="tel"
-                                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="owner_0_phone"
                                 name="phone"
                                 type="tel"
@@ -4038,12 +4222,12 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                       </div>
                     </div>
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-a5nan9-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-19iihun-MuiButtonBase-root-MuiButton-root"
                       tabindex="0"
                       type="button"
                     >
                       <span
-                        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                        class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                       >
                         <svg
                           aria-hidden="true"
@@ -4080,11 +4264,11 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-m52o5m-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r3a:"
+                                name="_r_3a_"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -4125,12 +4309,12 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-m52o5m-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
                             >
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r3a:"
+                                name="_r_3a_"
                                 type="radio"
                                 value=""
                               />
@@ -4187,11 +4371,11 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary MuiRadio-root MuiRadio-colorPrimary css-m52o5m-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
                             >
                               <input
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r3b:"
+                                name="_r_3b_"
                                 type="radio"
                                 value="owner-1"
                               />
@@ -4232,12 +4416,12 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-o5u4e-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
+                              class="MuiButtonBase-root MuiRadio-root MuiRadio-colorPrimary PrivateSwitchBase-root MuiRadio-root MuiRadio-colorPrimary Mui-checked MuiRadio-root MuiRadio-colorPrimary css-m52o5m-MuiButtonBase-root-MuiSwitchBase-root-MuiRadio-root"
                             >
                               <input
                                 checked=""
                                 class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
-                                name=":r3b:"
+                                name="_r_3b_"
                                 type="radio"
                                 value=""
                               />
@@ -4298,7 +4482,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
               class="MuiBox-root css-qxc3vx"
             >
               <button
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                 tabindex="0"
                 type="button"
               >
@@ -4499,8 +4683,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Open flags menu"
-                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                                    aria-label="Finland, Open flags menu"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-195yqpm-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -4509,7 +4693,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                                       data-testid="FI"
                                     >
                                       <img
-                                        alt="Finland"
+                                        alt=""
                                         class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
@@ -4527,7 +4711,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                                 <input
                                   aria-invalid="false"
                                   autocomplete="tel"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="handler_phone"
                                   name="phone"
                                   type="tel"
@@ -4572,7 +4756,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
               class="MuiBox-root css-qxc3vx"
             >
               <button
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                 tabindex="0"
                 type="button"
               >
@@ -4732,8 +4916,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Open flags menu"
-                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                                    aria-label="Finland, Open flags menu"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-195yqpm-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -4742,7 +4926,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                                       data-testid="FI"
                                     >
                                       <img
-                                        alt="Finland"
+                                        alt=""
                                         class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
@@ -4760,7 +4944,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                                 <input
                                   aria-invalid="false"
                                   autocomplete="tel"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-2u11ia-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="payer_phone"
                                   name="phone"
                                   type="tel"
@@ -4795,7 +4979,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -4854,16 +5038,16 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiStack-root css-1k3liqh-MuiStack-root"
+                      class="MuiStack-root css-1tu0wyr-MuiStack-root"
                     >
                       <button
-                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-1qwfpyj-MuiButtonBase-root-MuiButton-root"
                         disabled=""
                         tabindex="-1"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
@@ -4880,7 +5064,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                         registration.cta.addResult
                       </button>
                       <div
-                        class="MuiStack-root css-1w9onfo-MuiStack-root"
+                        class="MuiStack-root css-1rawtx8-MuiStack-root"
                       >
                         <span
                           class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
@@ -4888,7 +5072,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                           Karsintapisteet yht.:
                         </span>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-9f04nt-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -4905,7 +5089,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -4955,8 +5139,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r3q:"
-                      id=":r3q:-label"
+                      for="_r_3q_"
+                      id="_r_3q_-label"
                     >
                       registration.notes
                     </label>
@@ -4965,8 +5149,8 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                     >
                       <textarea
                         aria-invalid="false"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r3q:"
+                        class="MuiInputBase-input MuiOutlinedInput-input css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                        id="_r_3q_"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
@@ -4975,7 +5159,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                       </textarea>
                       <textarea
                         aria-hidden="true"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                         readonly=""
                         style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                         tabindex="-1"
@@ -5004,7 +5188,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
-          class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           disabled=""
           tabindex="-1"
           type="button"
@@ -5058,7 +5242,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                       class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1n7mo35-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
                           class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -5089,7 +5273,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
                       class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1n7mo35-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
                           class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -5133,7 +5317,7 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
             class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
           >
             <span
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1n7mo35-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
             >
               <input
                 checked=""
@@ -5217,13 +5401,13 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
       class="MuiStack-root css-1tokk9g-MuiStack-root"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-10gbnq1-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-1xiji1l-MuiButtonBase-root-MuiButton-root"
         disabled=""
         tabindex="-1"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -5240,12 +5424,12 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
         registration.cta.saveChanges
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1np81v0-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-1qwfpyj-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1v1j2p3-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon css-wj0o18-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
@@ -5270,12 +5454,12 @@ exports[`RegistrationForm > renders with invalid dog information 1`] = `
       >
         <button
           aria-expanded="false"
-          class="MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters css-1f1pi2l-MuiButtonBase-root-MuiAccordionSummary-root"
+          class="MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters css-gkux1a-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
+            class="MuiAccordionSummary-content css-yfrx4k-MuiAccordionSummary-content"
           >
             registration.accordionTitle
           </span>

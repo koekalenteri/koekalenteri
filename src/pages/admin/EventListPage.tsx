@@ -1,8 +1,8 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
 import type { DogEvent } from '../../types'
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutlined'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatDistance } from '../../i18n/dates'
+import { firstSelectedRow, rowSelectionModel } from '../../lib/datagrid'
 import { isDevEnv } from '../../lib/env'
 import { hasEntryStarted, isEventDeletable } from '../../lib/event'
 import { isConfirmedEvent } from '../../lib/typeGuards'
@@ -111,7 +112,8 @@ export default function EventListPage() {
 
   const handleSelectionModeChange = useCallback(
     (selection: GridRowSelectionModel) => {
-      const value = typeof selection[0] === 'string' ? selection[0] : undefined
+      const selected = firstSelectedRow(selection)
+      const value = typeof selected === 'string' ? selected : undefined
       setSelectedEventID(value)
     },
     [setSelectedEventID]
@@ -177,14 +179,23 @@ export default function EventListPage() {
         onRowDoubleClick={handleDoubleClick}
         onRowSelectionModelChange={handleSelectionModeChange}
         rows={events}
-        rowSelectionModel={selectedEventID ? [selectedEventID] : []}
+        rowSelectionModel={rowSelectionModel(selectedEventID ? [selectedEventID] : [])}
         slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           toolbar: {
             children: (
               // The organizer picker keeps a usable width and the switch keeps its label on one line; where
               // both do not fit side by side, the switch drops to the next row, at the right edge.
-              <Stack direction="row" mx={1} flex={1} flexWrap="wrap" useFlexGap sx={{ rowGap: 0.5 }}>
+              <Stack
+                direction="row"
+                useFlexGap
+                sx={{
+                  flex: 1,
+                  flexWrap: 'wrap',
+                  mx: 1,
+                  rowGap: 0.5,
+                }}
+              >
                 <AutocompleteSingle
                   disabled={orgs.length < 2}
                   size="small"

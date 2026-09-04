@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { Registration, RegistrationClass } from '../../../types'
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -8,7 +8,7 @@ import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
 import { GROUP_KEY_RESERVE } from '../../../lib/registration'
-import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { idTokenAtom } from '../../state'
 import ClassEntrySelection from './ClassEntrySelection'
 
@@ -34,9 +34,12 @@ describe('ClassEntrySelection', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    const { container } = render(<ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="AVO" />, {
-      wrapper: Wrapper,
-    })
+    const { container } = await renderSuspended(
+      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="AVO" />,
+      {
+        wrapper: Wrapper,
+      }
+    )
     await flushPromises()
     expect(container).toMatchSnapshot()
   })
@@ -46,7 +49,7 @@ describe('ClassEntrySelection', () => {
       (r) => ({ ...r, setGroup: vi.fn() })
     )
 
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="ALO" registrations={registrations} />,
       {
         wrapper: Wrapper,
@@ -68,7 +71,7 @@ describe('ClassEntrySelection', () => {
       id,
     })
 
-    render(
+    await renderSuspended(
       <ClassEntrySelection
         event={eventWithStaticDatesAnd3Classes}
         registrations={[reserve('r-alo', 'ALO', 'ALO-1'), reserve('r-voi', 'VOI', 'VOI-1')]}
@@ -96,7 +99,7 @@ describe('ClassEntrySelection', () => {
       },
     ]
 
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="VOI" registrations={registrations} />,
       { wrapper: Wrapper }
     )
@@ -113,7 +116,7 @@ describe('ClassEntrySelection', () => {
       },
     ]
 
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="VOI" registrations={registrations} />,
       { wrapper: Wrapper }
     )

@@ -97,7 +97,7 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, d
                     disabled={disabled}
                     error={duplicate}
                     helperText={duplicate ? t('startNumbers.duplicate') : undefined}
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                    slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '[0-9]*' } }}
                     onChange={(event) => onChange(row.id, event.target.value.replace(/\D/g, ''))}
                     placeholder={row.groupNumber != null ? String(row.groupNumber) : undefined}
                     size="small"
@@ -108,7 +108,13 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, d
                 {compact ? (
                   <TableCell>
                     {row.dog.name}
-                    <Typography variant="caption" color="text.secondary" component="div">
+                    <Typography
+                      variant="caption"
+                      component="div"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       {[row.dog.regNo, row.handler?.name, placementLabel(row, t)].filter(Boolean).join(' · ')}
                     </Typography>
                   </TableCell>

@@ -3,7 +3,7 @@ import type { Language } from '../../i18n'
 import type { Registration, RegistrationClass } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen, within } from '@testing-library/react'
 import { addDays } from 'date-fns'
 import { SnackbarProvider } from 'notistack'
@@ -16,7 +16,7 @@ import { getStartNumberLink } from '../../api/startNumbers'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventStartNumbersPage from './EventStartNumbersPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
@@ -33,7 +33,7 @@ vi.mock('../../api/startNumbers')
 const renderPage = (language: Language, registrations: Registration[] = registrationsToEventWithStations) => {
   const routes: RouteObject[] = [{ element: <EventStartNumbersPage />, path: Path.admin.startNumbers() }]
 
-  return renderWithUserEvents(
+  return renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider
@@ -72,7 +72,7 @@ describe('EventStartNumbersPage', () => {
 
   it('lists the dogs that ran with a number field each, and leaves the reserve out', async () => {
     const { i18n } = useTranslation()
-    renderPage(i18n.language as Language)
+    await renderPage(i18n.language as Language)
     await flushPromises()
 
     expect(screen.getByText('Ensimmainen')).toBeInTheDocument()
@@ -83,7 +83,7 @@ describe('EventStartNumbersPage', () => {
 
   it('saves only the entered numbers, as one batch for the class', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderPage(i18n.language as Language)
+    const { user } = await renderPage(i18n.language as Language)
     await flushPromises()
 
     await user.type(within(rowFor('Ensimmainen')).getByRole('textbox'), '7')
@@ -102,7 +102,7 @@ describe('EventStartNumbersPage', () => {
     const { i18n } = useTranslation()
     const [first, second] = registrationsToEventWithStations
     const nextDay = addDays(first.group?.date ?? new Date(), 1)
-    const { user } = renderPage(i18n.language as Language, [
+    const { user } = await renderPage(i18n.language as Language, [
       first,
       second,
       // A dog whose draw is the next morning (KOE-1303) — the frozen placement decides its day.
@@ -171,7 +171,7 @@ describe('EventStartNumbersPage', () => {
       id,
     })
 
-    const { user } = renderPage(i18n.language as Language, [
+    const { user } = await renderPage(i18n.language as Language, [
       dog('run-1', 'AloPerjantai', 'ALO', friday, 1),
       dog('run-2', 'AloLauantai', 'ALO', saturday, 2),
       dog('run-3', 'AvoPerjantai', 'AVO', friday, 3),
@@ -207,7 +207,7 @@ describe('EventStartNumbersPage', () => {
     const friday = first.group?.date ?? new Date()
     const saturday = addDays(friday, 1)
 
-    const { user } = renderPage(i18n.language as Language, [
+    const { user } = await renderPage(i18n.language as Language, [
       { ...first, group: { date: friday, key: 'ALO-AP', number: 1, time: 'ap' }, id: 'run-1' },
       {
         ...first,
@@ -231,7 +231,7 @@ describe('EventStartNumbersPage', () => {
 
   it('flags a duplicate as it is typed', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderPage(i18n.language as Language)
+    const { user } = await renderPage(i18n.language as Language)
     await flushPromises()
 
     await user.type(within(rowFor('Ensimmainen')).getByRole('textbox'), '5')
@@ -243,7 +243,7 @@ describe('EventStartNumbersPage', () => {
   })
   it("hands the open class's sheet on as a link of its own (KOE-1267)", async () => {
     const { i18n } = useTranslation()
-    const { user } = renderPage(i18n.language as Language)
+    const { user } = await renderPage(i18n.language as Language)
     await flushPromises()
 
     // Defined after render on purpose: userEvent's setup installs its own clipboard stub, and this
@@ -262,7 +262,7 @@ describe('EventStartNumbersPage', () => {
   it('revokes the open class links without touching the other classes', async () => {
     const { i18n } = useTranslation()
     vi.mocked(putEvent).mockResolvedValueOnce({ ...eventWithStations, startNumberLinkVersions: { ALO: 2 } })
-    const { user } = renderPage(i18n.language as Language)
+    const { user } = await renderPage(i18n.language as Language)
     await flushPromises()
 
     await user.click(screen.getByRole('button', { name: 'startNumbers.revokeLink' }))

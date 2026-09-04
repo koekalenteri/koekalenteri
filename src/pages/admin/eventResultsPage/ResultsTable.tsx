@@ -293,13 +293,32 @@ const ResultCard = ({ registration, qualitative, controls }: CardProps) => {
 
   return (
     <Paper variant="outlined" sx={{ p: 1.5 }}>
-      <Stack alignItems="flex-start" direction="row" justifyContent="space-between" spacing={1} sx={{ mb: 1 }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          mb: 1,
+        }}
+      >
         <Box>
-          <Typography variant="subtitle1" fontWeight={600} lineHeight={1.3}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+              lineHeight: 1.3,
+            }}
+          >
             {placementNumber != null && `${placementNumber}. `}
             {registration.dog.name}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {identity}
           </Typography>
         </Box>
@@ -308,7 +327,15 @@ const ResultCard = ({ registration, qualitative, controls }: CardProps) => {
       <Stack spacing={1.5}>
         {controls.judge}
         {controls.tasks.length > 0 && (
-          <Stack direction="row" flexWrap="wrap" useFlexGap sx={{ columnGap: 1.5, rowGap: 1 }}>
+          <Stack
+            direction="row"
+            useFlexGap
+            sx={{
+              columnGap: 1.5,
+              flexWrap: 'wrap',
+              rowGap: 1,
+            }}
+          >
             {controls.tasks}
           </Stack>
         )}

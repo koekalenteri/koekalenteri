@@ -68,7 +68,13 @@ function JudgesSection({ event, disabled, judges, fields, onChange, onOpenChange
       error={error}
       helperText={helperText}
     >
-      <Grid container spacing={1} maxWidth={1280}>
+      <Grid
+        container
+        spacing={1}
+        sx={{
+          maxWidth: 1280,
+        }}
+      >
         {event.judges.map((judge, index) =>
           judge.official ? (
             <OfficialJudge

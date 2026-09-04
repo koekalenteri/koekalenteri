@@ -22,8 +22,8 @@ export default function EventTypeBarChart({ data = [] }: Props) {
       isEmpty={eventTypes.length === 0}
       chartProps={{
         colors: [SINGLE_SERIES_CHART_COLOR],
+        hideLegend: true,
         series: [{ data: eventTypes.map(countFor), label: t('stats.participationCount') }],
-        slotProps: { legend: { hidden: true } },
         xAxis: [{ data: eventTypes, scaleType: 'band' }],
       }}
     />

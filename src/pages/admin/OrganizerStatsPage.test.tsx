@@ -1,11 +1,11 @@
 import { ThemeProvider } from '@mui/material'
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getAdminCapacityStats, getAllYearlyStats, getOrganizerEventStats } from '../../api/stats'
 import theme from '../../assets/Theme'
-import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import OrganizerStatsPage from './OrganizerStatsPage'
 import { adminCapacityStatsEventTypeAtom, adminStatsOrganizerIdAtom } from './state'
@@ -31,7 +31,7 @@ describe('OrganizerStatsPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('fetches organizer stats once, unfiltered, and filters client-side by the selection', async () => {
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider
           initializeState={({ set }) => {
@@ -62,7 +62,7 @@ describe('OrganizerStatsPage', () => {
       { organizerId: '2', PK: 'ORG#2', SK: '2024-01-01#event' },
     ])
 
-    const { rerender } = render(
+    const { rerender } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
@@ -105,7 +105,7 @@ describe('OrganizerStatsPage', () => {
       { date: new Date('2024-03-10T22:00:00.000Z'), organizerId: '1', PK: 'ORG#1', SK: '2024-03-11#b' },
     ])
 
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
@@ -132,7 +132,7 @@ describe('OrganizerStatsPage', () => {
     // so it must be excluded from the filter and the selection corrected to the only valid choice.
     vi.mocked(getOrganizerEventStats).mockResolvedValue([{ organizerId: '1', PK: 'ORG#1', SK: '2024-01-01#event' }])
 
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider
           initializeState={({ set }) => {
@@ -179,7 +179,7 @@ describe('OrganizerStatsPage', () => {
       },
     ])
 
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider
           initializeState={({ set }) => {

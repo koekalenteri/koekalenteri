@@ -136,9 +136,13 @@ export function StartNumbersEntry({ registrations, onSave, header, renderClassAc
 
       <Stack
         direction="row"
-        justifyContent="flex-end"
         spacing={1}
-        sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', p: 1 }}
+        sx={{
+          borderColor: '#bdbdbd',
+          borderTop: '1px solid',
+          justifyContent: 'flex-end',
+          p: 1,
+        }}
       >
         <Button disabled={Object.keys(drafts).length === 0} onClick={() => setDrafts({})}>
           {t('cancel')}

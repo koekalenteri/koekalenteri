@@ -22,8 +22,8 @@ export default function DogHandlerBucketChart({ data }: Props) {
       isEmpty={buckets.length === 0}
       chartProps={{
         colors: [SINGLE_SERIES_CHART_COLOR],
+        hideLegend: true,
         series: [{ data: buckets.map(countFor), label: t('stats.count') }],
-        slotProps: { legend: { hidden: true } },
         xAxis: [{ data: buckets, scaleType: 'band' }],
       }}
     />

@@ -1,8 +1,7 @@
 import type { Language } from '../../i18n'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render } from '@testing-library/react'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { createStore } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -11,7 +10,7 @@ import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { flushPromises } from '../../test-utils/utils'
+import { flushPromises, renderSuspended } from '../../test-utils/utils'
 import EventCreatePage from './EventCreatePage'
 import { adminNewEventAtom } from './state'
 
@@ -49,7 +48,7 @@ describe('EventEditPage', () => {
       startDate: eventDate,
     }
 
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <Provider initializeState={({ set }) => set(adminNewEventAtom, initialValue)}>

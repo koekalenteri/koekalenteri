@@ -2,7 +2,7 @@ import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -12,7 +12,7 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventStationsPage from './EventStationsPage'
 
@@ -27,7 +27,7 @@ vi.mock('../../api/registration')
 const renderPage = (language: Language) => {
   const routes: RouteObject[] = [{ element: <EventStationsPage />, path: Path.admin.stations() }]
 
-  return renderWithUserEvents(
+  return renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
@@ -54,7 +54,7 @@ describe('EventStationsPage', () => {
 
   it('finds the event and offers its posts for editing', async () => {
     const { i18n } = useTranslation()
-    renderPage(i18n.language as Language)
+    await renderPage(i18n.language as Language)
     await flushPromises()
 
     expect(screen.queryByText('error.eventNotFound')).not.toBeInTheDocument()
@@ -64,7 +64,7 @@ describe('EventStationsPage', () => {
 
   it('keeps the event after the first edit', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderPage(i18n.language as Language)
+    const { user } = await renderPage(i18n.language as Language)
     await flushPromises()
 
     await user.click(screen.getAllByRole('button', { name: 'event.stationAdd' })[0])
@@ -78,7 +78,7 @@ describe('EventStationsPage', () => {
 
   it("reports what it saved, not the event's publication state", async () => {
     const { i18n } = useTranslation()
-    const { user } = renderPage(i18n.language as Language)
+    const { user } = await renderPage(i18n.language as Language)
     await flushPromises()
 
     await user.click(screen.getAllByRole('button', { name: 'event.stationAdd' })[0])

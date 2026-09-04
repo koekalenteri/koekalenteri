@@ -3,11 +3,14 @@ import type { PropsWithChildren } from 'react'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
+export type ItemOrder = Partial<Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', number | undefined>>
+
 interface Props {
   label: string
+  order?: ItemOrder
 }
 
-export const ItemWithCaption = ({ label, children, ...gridProps }: PropsWithChildren<Props> & GridProps) => (
+export const ItemWithCaption = ({ label, order, children, ...gridProps }: PropsWithChildren<Props> & GridProps) => (
   <Grid
     size={{
       lg: 4,
@@ -15,15 +18,20 @@ export const ItemWithCaption = ({ label, children, ...gridProps }: PropsWithChil
       xl: 2,
       xs: 12,
     }}
+    sx={{ order }}
     {...gridProps}
   >
     <Typography
       variant="caption"
-      color="text.secondary"
-      bgcolor="background.caption"
-      borderRadius="4px"
-      sx={{ display: 'block', pt: 0.5, width: '100%' }}
       component="div"
+      sx={{
+        bgcolor: 'background.caption',
+        borderRadius: '4px',
+        color: 'text.secondary',
+        display: 'block',
+        pt: 0.5,
+        width: '100%',
+      }}
     >
       {label}
     </Typography>

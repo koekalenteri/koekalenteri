@@ -74,7 +74,7 @@ describe('RegistrationCreateDialog', () => {
           resetRegistration: expect.any(Function),
           setRegistration: mockSetRegistration,
         }),
-        expect.anything()
+        undefined
       )
     })
 
@@ -87,7 +87,7 @@ describe('RegistrationCreateDialog', () => {
         expect.objectContaining({
           onClose: mockOnClose,
         }),
-        expect.anything()
+        undefined
       )
     })
 
@@ -125,7 +125,7 @@ describe('RegistrationCreateDialog', () => {
         expect.objectContaining({
           registration: customRegistration,
         }),
-        expect.anything()
+        undefined
       )
     })
   })
@@ -266,7 +266,7 @@ describe('RegistrationCreateDialog', () => {
         expect.objectContaining({
           registration: emptyRegistration,
         }),
-        expect.anything()
+        undefined
       )
     })
   })
@@ -299,7 +299,7 @@ describe('RegistrationCreateDialog', () => {
           resetRegistration: expect.any(Function),
           setRegistration: mockSetRegistration,
         }),
-        expect.anything()
+        undefined
       )
     })
 

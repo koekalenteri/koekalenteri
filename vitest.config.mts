@@ -76,7 +76,14 @@ export default defineConfig({
             // is 1280x720: shorter than the iframe below, so every capture came out at 80 %. A window no
             // test outgrows keeps the captures pixel for pixel -- a whole form on a phone runs well past
             // a screen's height.
-            provider: playwright({ contextOptions: { viewport: { height: 3000, width: 1280 } } }),
+            provider: playwright({
+              contextOptions: {
+                // The charts skip their grow/draw animation when the viewer prefers reduced motion,
+                // so a capture never catches a half-drawn bar.
+                reducedMotion: 'reduce',
+                viewport: { height: 3000, width: 1280 },
+              },
+            }),
             headless: true,
             screenshotFailures: false,
             instances: [{ browser: 'chromium' }],
@@ -106,7 +113,19 @@ export default defineConfig({
             // Timers are faked alongside Date so that flushPromises can run a pending debounce or a
             // MUI transition instantly instead of sleeping through it. Testing Library's waitFor
             // cooperates with the faked clock through the `jest` shim in setupTests.
-            toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'setImmediate', 'clearImmediate'],
+            toFake: [
+              'Date',
+              'setTimeout',
+              'clearTimeout',
+              'setInterval',
+              'clearInterval',
+              'setImmediate',
+              'clearImmediate',
+              // The DataGrid defers its ResizeObserver callback to the next animation frame, so a
+              // clock that does not drive rAF leaves the grid believing it has no size, and no rows.
+              'requestAnimationFrame',
+              'cancelAnimationFrame',
+            ],
           },
           globals: true,
           unstubEnvs: true,

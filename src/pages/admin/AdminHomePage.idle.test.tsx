@@ -1,12 +1,11 @@
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
-import { render } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspended } from '../../test-utils/utils'
 import AdminHomePage from './AdminHomePage'
 
 vi.mock('../../api/user', () => ({ getUser: () => undefined }))
@@ -32,7 +31,7 @@ describe('AdminHomePage', () => {
         path: Path.login,
       },
     ]
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider>
           <SnackbarProvider>
@@ -48,9 +47,9 @@ describe('AdminHomePage', () => {
 
     await flushPromises()
     expect(container).toMatchInlineSnapshot(`
-<div>
-  Login
-</div>
-`)
+      <div>
+        Login
+      </div>
+    `)
   })
 })

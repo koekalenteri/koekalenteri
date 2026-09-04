@@ -23,7 +23,12 @@ export const JudgeSelect = ({ judges, value, disabled, onChange }: Props) => {
 
   if (judges.length === 1) {
     return (
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {judges[0].name}
       </Typography>
     )

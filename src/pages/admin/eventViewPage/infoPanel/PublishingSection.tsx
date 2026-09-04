@@ -17,7 +17,15 @@ interface Props {
 /** A publishing step of the panel: a titled table of class rows with one action beneath it. */
 export const PublishingSection = ({ action, children, title }: Props) => (
   <Box sx={sectionSx}>
-    <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+    <Typography
+      variant="overline"
+      sx={{
+        color: 'text.secondary',
+        display: 'block',
+        pt: 1,
+        px: 1.5,
+      }}
+    >
       {title}
     </Typography>
     <TableContainer>

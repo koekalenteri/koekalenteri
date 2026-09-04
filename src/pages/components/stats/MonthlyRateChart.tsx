@@ -36,6 +36,8 @@ export default function MonthlyRateChart({ emptyMessage, entries, info, label, t
       isEmpty={entries.length === 0}
       chartProps={{
         colors: [SINGLE_SERIES_CHART_COLOR],
+        // One series: the title already names it, so the legend box is redundant.
+        hideLegend: true,
         series: [
           {
             data: entries.map((entry) => entry.rate),
@@ -43,8 +45,6 @@ export default function MonthlyRateChart({ emptyMessage, entries, info, label, t
             valueFormatter: (value: number | null) => (value === null ? '–' : `${value} %`),
           },
         ],
-        // One series: the title already names it, so the legend box is redundant.
-        slotProps: { legend: { hidden: true } },
         xAxis: [{ data: entries.map((entry) => entry.month), scaleType: 'band' }],
         yAxis: [{ valueFormatter: (value: number) => `${value} %` }],
       }}

@@ -6,7 +6,7 @@ exports[`KcIdSection > should render 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"
@@ -65,18 +65,18 @@ exports[`KcIdSection > should render 1`] = `
                     event.kcId
                   </div>
                   <p
-                    class="MuiTypography-root MuiTypography-body1 css-zsblli-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body1 css-m4t3jl-MuiTypography-root"
                   >
                     event.kcIdEmpty
                   </p>
                 </div>
                 <button
-                  class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-1nkm392-MuiButtonBase-root-MuiButton-root"
+                  class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeSmall MuiButton-colorPrimary css-nos3w0-MuiButtonBase-root-MuiButton-root"
                   tabindex="0"
                   type="button"
                 >
                   <span
-                    class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
+                    class="MuiButton-icon MuiButton-startIcon css-t70kls-MuiButton-startIcon"
                   >
                     <svg
                       aria-hidden="true"

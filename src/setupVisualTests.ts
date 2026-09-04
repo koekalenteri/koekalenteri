@@ -1,15 +1,7 @@
-import { Globals } from '@react-spring/web'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { registerFormatters } from './i18n/formatters'
 import { en, enBreed, enBreedAbbr, enCountry, fi, fiBreed, fiBreedAbbr, fiCountry } from './i18n/locales'
-
-// MUI charts grow their bars and draw their lines with react-spring, so a screenshot taken
-// before the springs settle catches a half-drawn chart -- which looks like a layout bug and
-// is not one. Turning animation off globally makes every capture deterministic.
-//
-// Test-only on purpose: the app keeps its animation.
-Globals.assign({ skipAnimation: true })
 
 // Real translations, not the key-echoing mock the other projects use. Label length is part of
 // what these screenshots are for: Finnish breed names run past 30 characters, and a legend that

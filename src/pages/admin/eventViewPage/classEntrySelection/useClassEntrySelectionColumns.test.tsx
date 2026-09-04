@@ -1,9 +1,10 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type React from 'react'
-import type { ReactElement } from 'react'
+import type { MouseEventHandler, ReactElement, ReactNode } from 'react'
 import type { Registration, RegistrationDate, RegistrationGroup } from '../../../../types'
 import CircularProgress from '@mui/material/CircularProgress'
 import { renderHook } from '@testing-library/react'
+import { isValidElement } from 'react'
 import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
 import * as registrationUtils from '../../../../lib/registration'
@@ -16,8 +17,40 @@ import { useClassEntrySelectionColumns } from './useClassEntrySelectionColumns'
 const asRegistration = (row: Omit<Partial<Registration>, 'group'> & { group?: Partial<RegistrationGroup> }) =>
   row as Registration
 
+/**
+ * The column builder hands back GridActionsCellItem elements and these tests read the props it set
+ * on them. `GridActionsCellItemProps` is a union of the button and menu-item shapes, so `onClick`
+ * there demands a mouse event and `icon` widens to `ReactNode`; this view names just the props the
+ * assertions touch, in the shape the builder actually gives them.
+ */
+interface ActionProps {
+  disabled?: boolean
+  icon?: unknown
+  label?: ReactNode
+  onClick?: MouseEventHandler<HTMLElement>
+}
+
+type ActionElement = ReactElement<ActionProps>
+
+/**
+ * Every handler the builder attaches ignores the click event, so firing one needs no event to be
+ * faked; the guard states that, and the throw keeps a renamed or dropped action from passing as a
+ * silent no-op.
+ */
+const isNoArgHandler = (value: unknown): value is () => void => typeof value === 'function'
+
+/** The icon prop is typed wide enough to hold a component or plain text, so narrow before reading. */
+const actionIconType = (action?: ActionElement) =>
+  isValidElement(action?.props.icon) ? action.props.icon.type : undefined
+
+const clickAction = (action?: ActionElement) => {
+  const onClick: unknown = action?.props.onClick
+  if (!isNoArgHandler(onClick)) throw new Error('action has no onClick handler')
+  onClick()
+}
+
 /** GridColDef is a union and only the actions column member carries getActions; `in` narrows to it. */
-const getRowActions = (column: GridColDef<Registration> | undefined, row: Registration): readonly ReactElement[] => {
+const getRowActions = (column: GridColDef<Registration> | undefined, row: Registration): readonly ActionElement[] => {
   if (!column || !('getActions' in column)) throw new Error('Expected an actions column')
   return column.getActions({ columns: [], id: row.id, row })
 }
@@ -139,15 +172,15 @@ describe('useClassEntrySectionColumns', () => {
     expect(actions.length).toBeGreaterThan(0)
 
     // Simulate clicking the edit action
-    const editAction = actions.find((action: ReactElement) => action.key === 'edit')
-    editAction?.props.onClick()
+    const editAction = actions.find((action: ActionElement) => action.key === 'edit')
+    clickAction(editAction)
 
     // Check that the openEditDialog callback was called with the correct ID
     expect(openEditDialogMock).toHaveBeenCalledWith('test-id')
 
     // Simulate clicking the cancel action
-    const cancelAction = actions.find((action: ReactElement) => action.key === 'cancel')
-    cancelAction?.props.onClick()
+    const cancelAction = actions.find((action: ActionElement) => action.key === 'cancel')
+    clickAction(cancelAction)
 
     // Check that the cancelRegistration callback was called with the correct ID
     expect(cancelRegistrationMock).toHaveBeenCalledWith('test-id')
@@ -195,7 +228,7 @@ describe('useClassEntrySectionColumns', () => {
     expect(actions).toBeDefined()
 
     // Check that there's no cancel action for cancelled registrations
-    expect(actions.every((action: ReactElement) => action.key !== 'cancel')).toBe(true)
+    expect(actions.every((action: ActionElement) => action.key !== 'cancel')).toBe(true)
   })
 
   it('should include refund action for registrations that can be refunded', () => {
@@ -223,11 +256,11 @@ describe('useClassEntrySectionColumns', () => {
     expect(actions).toBeDefined()
 
     // Check that there's a refund action
-    const refundAction = actions.find((action: ReactElement) => action.key === 'refund')
+    const refundAction = actions.find((action: ActionElement) => action.key === 'refund')
     expect(refundAction).not.toBeNull()
 
     // Simulate clicking the refund action
-    refundAction?.props.onClick()
+    clickAction(refundAction)
 
     // Check that the refundRegistration callback was called with the correct ID
     expect(refundRegistrationMock).toHaveBeenCalledWith('test-refundable-id')
@@ -259,13 +292,13 @@ describe('useClassEntrySectionColumns', () => {
 
     // For a fully refunded registration, the refund action might not be present at all
     // or it might be present but disabled. Let's check both possibilities.
-    const refundAction = actions.find((action: ReactElement) => action.key === 'refund')
+    const refundAction = actions.find((action: ActionElement) => action.key === 'refund')
     if (refundAction) {
       // If present, it should be disabled
       expect(refundAction.props.disabled).toBeTruthy()
     } else {
       // If not present, that's also acceptable
-      expect(actions.map((action: ReactElement) => action.key)).not.toContain('refund')
+      expect(actions.map((action: ActionElement) => action.key)).not.toContain('refund')
     }
   })
 
@@ -395,7 +428,7 @@ describe('useClassEntrySectionColumns', () => {
     expect(actions).toBeDefined()
 
     // Check that there's no refund action
-    const refundAction = actions.find((action: ReactElement) => action.key === 'refund')
+    const refundAction = actions.find((action: ActionElement) => action.key === 'refund')
     expect(refundAction).toBeUndefined()
   })
 
@@ -610,7 +643,7 @@ describe('Action column in detail', () => {
       expect(actions).toBeDefined()
 
       // Check that the expected actions are present
-      const actionKeys = actions.map((a: ReactElement) => a.key)
+      const actionKeys = actions.map((a: ActionElement) => a.key)
       testCase.expectedActions.forEach((expectedAction) => {
         expect(actionKeys).toContain(expectedAction)
       })
@@ -650,10 +683,10 @@ describe('Action column in detail', () => {
 
     const getActions = (row: Registration) => getRowActions(actionsColumn, row)
 
-    const clickByKey = (actions: readonly ReactElement[], key: string) => {
+    const clickByKey = (actions: readonly ActionElement[], key: string) => {
       const action = actions.find((a) => a.key === key)
       expect(action).toBeDefined()
-      action?.props.onClick()
+      clickAction(action)
     }
 
     // participant row
@@ -723,8 +756,8 @@ describe('Action column in detail', () => {
 
     expect(moveToParticipants?.props.disabled).toBe(true)
     expect(moveToPosition?.props.disabled).toBe(true)
-    expect(moveToParticipants?.props.icon.type).toBe(CircularProgress)
-    expect(moveToPosition?.props.icon.type).toBe(CircularProgress)
+    expect(actionIconType(moveToParticipants)).toBe(CircularProgress)
+    expect(actionIconType(moveToPosition)).toBe(CircularProgress)
   })
 
   it('should disable reserve move to position when there are no participants yet', () => {
@@ -748,7 +781,7 @@ describe('Action column in detail', () => {
     const moveToPosition = reserveActions.find((a) => a.key === 'moveToPosition')
 
     expect(moveToPosition?.props.disabled).toBe(true)
-    expect(moveToPosition?.props.icon.type).not.toBe(CircularProgress)
+    expect(actionIconType(moveToPosition)).not.toBe(CircularProgress)
   })
 
   it('should disable participant move to position when only current position is valid', () => {
@@ -854,11 +887,11 @@ describe('Action column in detail', () => {
     expect(actions).toBeDefined()
 
     // Check that the edit action exists
-    const editAction = actions.find((action: ReactElement) => action.key === 'edit')
+    const editAction = actions.find((action: ActionElement) => action.key === 'edit')
     expect(editAction).toBeDefined()
 
     // Simulate clicking the edit action - should not throw an error
-    expect(() => editAction?.props.onClick()).not.toThrow()
+    expect(() => clickAction(editAction)).not.toThrow()
 
     // Check that there are actions but don't fail on missing callbacks
     expect(actions.length).toBeGreaterThan(0)

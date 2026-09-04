@@ -19,8 +19,19 @@ const MissingKcId = () => {
   const { t } = useTranslation()
 
   return (
-    <Stack direction="row" spacing={1} alignItems="center">
-      <Typography variant="body2" color="text.secondary">
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+      }}
+    >
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {t('event.kcIdEmpty')}
       </Typography>
       <KcIdLookupButton event={{ ...eventWithStations, kcId: undefined }} onChange={async () => {}} variant="text" />

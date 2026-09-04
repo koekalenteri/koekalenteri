@@ -95,7 +95,12 @@ export default function EventStartNumbersPage() {
       <StartNumbersEntry
         header={
           <EntryPageHeader eventId={eventId} title={t('startNumbers.title')}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {t('startNumbers.info')}
             </Typography>
           </EntryPageHeader>
@@ -103,7 +108,15 @@ export default function EventStartNumbersPage() {
         onSave={handleSave}
         registrations={registrations}
         renderClassActions={(eventClass) => (
-          <Stack direction="row" flexWrap="wrap" justifyContent="flex-end" spacing={1} sx={{ px: 2 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              flexWrap: 'wrap',
+              justifyContent: 'flex-end',
+              px: 2,
+            }}
+          >
             <Button
               onClick={() => handleCopyLink(eventClass)}
               size="small"

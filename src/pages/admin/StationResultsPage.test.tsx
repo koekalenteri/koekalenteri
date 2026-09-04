@@ -4,7 +4,7 @@ import type { Language } from '../../i18n'
 import type { ConfirmedEvent } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -17,7 +17,7 @@ import { putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import StationResultsPage from './StationResultsPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
@@ -35,7 +35,7 @@ vi.mock('../../api/station')
 const renderPage = (language: Language, stationId: string) => {
   const routes: RouteObject[] = [{ element: <StationResultsPage />, path: Path.admin.stationResults() }]
 
-  return renderWithUserEvents(
+  return renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
@@ -59,7 +59,7 @@ const renderPage = (language: Language, stationId: string) => {
 const renderStation = (language: Language, stationId = 'post-2', event = eventWithStations) => {
   const routes: RouteObject[] = [{ element: <StationResultsPage />, path: Path.admin.stationResults() }]
 
-  return renderWithUserEvents(
+  return renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider
@@ -104,7 +104,7 @@ describe('StationResultsPage', () => {
 
   it('copies the tokenized station link for sharing', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderStation(i18n.language as Language)
+    const { user } = await renderStation(i18n.language as Language)
     await flushPromises()
 
     // Defined after render on purpose: userEvent's setup installs its own clipboard stub, and this
@@ -125,7 +125,7 @@ describe('StationResultsPage', () => {
 
   it('opens on the implicit post of a format that lays out no course', async () => {
     const { i18n } = useTranslation()
-    renderStation(i18n.language as Language, '1', singlePostEvent)
+    await renderStation(i18n.language as Language, '1', singlePostEvent)
     await flushPromises()
 
     // Nothing is stored for the post, yet the day is run from here: the queue is up and the link is
@@ -136,7 +136,7 @@ describe('StationResultsPage', () => {
 
   it('writes the implicit post onto the event when its link is revoked, so the version has a home', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderStation(i18n.language as Language, '1', singlePostEvent)
+    const { user } = await renderStation(i18n.language as Language, '1', singlePostEvent)
     await flushPromises()
     // The mock store knows nothing of this event; the save only has to be observed, not stored.
     vi.mocked(putEvent).mockResolvedValueOnce(singlePostEvent)
@@ -155,7 +155,7 @@ describe('StationResultsPage', () => {
 
   it("writes the phases of a B trial's day onto its post, as the secretary types them", async () => {
     const { i18n } = useTranslation()
-    const { user } = renderStation(i18n.language as Language, '1', singlePostEvent)
+    const { user } = await renderStation(i18n.language as Language, '1', singlePostEvent)
     await flushPromises()
     vi.mocked(putEvent).mockResolvedValueOnce(singlePostEvent)
 
@@ -173,7 +173,7 @@ describe('StationResultsPage', () => {
 
   it('marks a dog as done the moment its result is stored, so the post does not score it twice', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderStation(i18n.language as Language, '1', singlePostEvent)
+    const { user } = await renderStation(i18n.language as Language, '1', singlePostEvent)
     await flushPromises()
     const judge = { id: 223, name: 'Tuomari 2' }
     vi.mocked(putEventResults).mockResolvedValueOnce({
@@ -194,7 +194,7 @@ describe('StationResultsPage', () => {
 
   it('leads back to the results page the secretary came from', async () => {
     const { i18n } = useTranslation()
-    renderStation(i18n.language as Language)
+    await renderStation(i18n.language as Language)
     await flushPromises()
 
     expect(screen.getByRole('link', { name: 'results.backToResults' })).toHaveAttribute(
@@ -205,7 +205,7 @@ describe('StationResultsPage', () => {
 
   it('will not open on a post the event does not have', async () => {
     const { i18n } = useTranslation()
-    renderPage(i18n.language as Language, 'no-such-post')
+    await renderPage(i18n.language as Language, 'no-such-post')
     await flushPromises()
 
     // The post is part of the address, so a stale link must not land on an empty scoring screen.
@@ -214,7 +214,7 @@ describe('StationResultsPage', () => {
 
   it('names the post and queues the dogs due through it', async () => {
     const { i18n } = useTranslation()
-    renderStation(i18n.language as Language)
+    await renderStation(i18n.language as Language)
     await flushPromises()
 
     expect(screen.getByText(/event\.station/)).toBeInTheDocument()
@@ -226,7 +226,7 @@ describe('StationResultsPage', () => {
 
   it('scores only the tasks its own post sets', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderStation(i18n.language as Language)
+    const { user } = await renderStation(i18n.language as Language)
     await flushPromises()
 
     await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
@@ -238,7 +238,7 @@ describe('StationResultsPage', () => {
 
   it('withholds the prize, which depends on posts it cannot see', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderStation(i18n.language as Language)
+    const { user } = await renderStation(i18n.language as Language)
     await flushPromises()
 
     await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
@@ -252,7 +252,7 @@ describe('StationResultsPage', () => {
 
   it('moves on to the next dog that has not been through, since at a post the queue is the job', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderStation(i18n.language as Language)
+    const { user } = await renderStation(i18n.language as Language)
     await flushPromises()
 
     await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))

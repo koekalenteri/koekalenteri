@@ -68,7 +68,13 @@ const RegistrationListItemIcons = ({
       icons={<RegistrationListItemTooltipIcons registration={registration} priority={priority} event={event} />}
       placement="bottom-start"
     >
-      <Box height="28px" display="flex" alignItems="center">
+      <Box
+        sx={{
+          alignItems: 'center',
+          display: 'flex',
+          height: '28px',
+        }}
+      >
         <PriorityIcon dim priority={priority} fontSize="small" />
         <PaymentIcon dim paymentStatus={registration.paymentStatus} fontSize="small" />
       </Box>
@@ -130,8 +136,11 @@ export default function RegistrationList({
               showInMenu
               closeMenuOnClick
               disabled
-              label={t('event.states.cancelled')}
-              sx={{ color: 'warning.main !important', cursor: 'default', textTransform: 'uppercase' }}
+              label={
+                <Box component="span" sx={{ color: 'warning.main', cursor: 'default', textTransform: 'uppercase' }}>
+                  {t('event.states.cancelled')}
+                </Box>
+              }
             />,
           ]
         }
@@ -139,16 +148,14 @@ export default function RegistrationList({
           <GridActionsCellItem
             disabled={disabled}
             key="edit"
-            color="info"
-            icon={<EditOutlined />}
+            icon={<EditOutlined color="info" />}
             label={t('registration.actions.edit')}
             onClick={() => onEdit(params.row)}
           />,
           <GridActionsCellItem
             disabled={disabled}
             key="cancel"
-            color="error"
-            icon={<CancelOutlined />}
+            icon={<CancelOutlined color="error" />}
             label={t('registration.actions.cancel')}
             onClick={() => onUnregister(params.row)}
           />,
@@ -164,8 +171,7 @@ export default function RegistrationList({
             <GridActionsCellItem
               disabled={disabled}
               key="pay"
-              color="info"
-              icon={<EuroOutlined />}
+              icon={<EuroOutlined color="info" />}
               label={t('registration.actions.pay')}
               onClick={() => navigate(Path.payment(params.row))}
             />,

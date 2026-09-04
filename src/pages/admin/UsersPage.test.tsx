@@ -1,11 +1,11 @@
 import { ThemeProvider } from '@mui/material'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
-import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import { adminUserIdAtom } from './state'
 import UsersPage from './UsersPage'
@@ -19,7 +19,7 @@ describe('OrganizerListPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
@@ -40,7 +40,7 @@ describe('OrganizerListPage', () => {
     // A suspending read of the selected row would swap the whole page for the Suspense fallback,
     // dropping the grid's scroll position and focus on every selection.
     const Fallback = vi.fn(() => <div>loading...</div>)
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider
           initializeState={({ set }) => {

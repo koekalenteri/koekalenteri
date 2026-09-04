@@ -1,12 +1,12 @@
 import type { AllYearlyStatsResponse } from '../api/stats'
 import { ThemeProvider } from '@mui/material'
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getAllYearlyStats } from '../api/stats'
 import theme from '../assets/Theme'
-import { flushPromises, TEST_ID_TOKEN } from '../test-utils/utils'
+import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../test-utils/utils'
 import { Component as StatsPage } from './StatsPage'
 import { idTokenAtom } from './state'
 
@@ -20,7 +20,7 @@ describe('StatsPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders yearly stats once loaded', async () => {
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter initialEntries={['/tilastot']}>
@@ -37,7 +37,7 @@ describe('StatsPage', () => {
   })
 
   it('takes the selected year out of the all-years payload instead of re-requesting it', async () => {
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter initialEntries={['/tilastot?year=2024']}>
@@ -56,7 +56,7 @@ describe('StatsPage', () => {
   })
 
   const renderPage = () =>
-    render(
+    renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter initialEntries={['/tilastot']}>
@@ -86,7 +86,7 @@ describe('StatsPage', () => {
   it('shows the retention chart once any year has a retention record', async () => {
     vi.mocked(getAllYearlyStats).mockResolvedValue(payload({ new: 40, returning: 160 }))
 
-    renderPage()
+    await renderPage()
     await flushPromises()
 
     await screen.findByText('stats.retentionTitle')
@@ -97,7 +97,7 @@ describe('StatsPage', () => {
     // be worse than none.
     vi.mocked(getAllYearlyStats).mockResolvedValue(payload())
 
-    renderPage()
+    await renderPage()
     await flushPromises()
 
     await screen.findByText('stats.title', { exact: false })

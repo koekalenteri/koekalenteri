@@ -1,11 +1,10 @@
 import { ThemeProvider } from '@mui/material'
-import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
-import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import OfficialListPage from './OfficialListPage'
 
@@ -18,7 +17,7 @@ describe('OfficialListPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>

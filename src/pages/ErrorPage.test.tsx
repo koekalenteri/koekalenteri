@@ -1,3 +1,4 @@
+import type React from 'react'
 import type { RouteObject } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
@@ -52,7 +53,7 @@ describe('ErrorPage', () => {
   })
 })
 
-function ErrorThrowingComponent(): JSX.Element {
+function ErrorThrowingComponent(): React.JSX.Element {
   throw new Error('TEST ERROR')
 }
 

@@ -29,11 +29,17 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
     // On a phone the page's own filters take a row of their own under the search, instead of the three
     // sharing one that fits none of them.
     <Stack
-      sx={{ columnGap: 1, flexWrap: 'wrap', p: 0.5, pb: 0, rowGap: 0.5 }}
       direction="row"
-      justifyContent="space-between"
-      alignItems="center"
       useFlexGap
+      sx={{
+        alignItems: 'center',
+        columnGap: 1,
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        p: 0.5,
+        pb: 0,
+        rowGap: 0.5,
+      }}
     >
       {props.columnSelector ? <GridToolbarColumnsButton /> : null}
       <GridToolbarContainer sx={{ flex: { sm: 'none', xs: 1 }, p: 0 }}>

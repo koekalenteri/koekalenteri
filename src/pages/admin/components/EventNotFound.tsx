@@ -1,5 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlined'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
@@ -17,9 +17,13 @@ const EventNotFound = () => {
       <Stack
         direction="column"
         spacing={4}
-        alignItems="center"
-        justifyContent="center"
-        sx={{ height: '100%', p: 4, width: '100%' }}
+        sx={{
+          alignItems: 'center',
+          height: '100%',
+          justifyContent: 'center',
+          p: 4,
+          width: '100%',
+        }}
       >
         <Paper
           elevation={3}

@@ -20,7 +20,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
           event.eventType
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -28,7 +28,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="eventType"
             role="combobox"
             spellcheck="false"
@@ -40,7 +40,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
           >
             <button
               aria-label="Open"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
               tabindex="-1"
               title="Open"
               type="button"
@@ -73,7 +73,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -114,7 +114,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
           event.eventType
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -123,7 +123,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="eventType"
             role="combobox"
             spellcheck="false"
@@ -135,7 +135,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
           >
             <button
               aria-label="Close"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-dmsga6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-va1zwj-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
               tabindex="-1"
               title="Close"
               type="button"
@@ -168,7 +168,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -209,7 +209,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
           event.eventType
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -218,7 +218,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="eventType"
             role="combobox"
             spellcheck="false"
@@ -230,7 +230,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
           >
             <button
               aria-label="Close"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-dmsga6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-va1zwj-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
               tabindex="-1"
               title="Close"
               type="button"
@@ -263,7 +263,7 @@ exports[`EventProperty > freeSolo=false > should display options when typing and
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -304,7 +304,7 @@ exports[`EventProperty > freeSolo=false > should render with minimal information
           event.name
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -312,7 +312,7 @@ exports[`EventProperty > freeSolo=false > should render with minimal information
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="name"
             role="combobox"
             spellcheck="false"
@@ -324,7 +324,7 @@ exports[`EventProperty > freeSolo=false > should render with minimal information
           >
             <button
               aria-label="Clear"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-37xmc3-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -343,7 +343,7 @@ exports[`EventProperty > freeSolo=false > should render with minimal information
             </button>
             <button
               aria-label="Open"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
               tabindex="-1"
               title="Open"
               type="button"
@@ -376,7 +376,7 @@ exports[`EventProperty > freeSolo=false > should render with minimal information
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -417,7 +417,7 @@ exports[`EventProperty > freeSolo=false > should render with undefined property 
           event.eventType
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -425,7 +425,7 @@ exports[`EventProperty > freeSolo=false > should render with undefined property 
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="eventType"
             role="combobox"
             spellcheck="false"
@@ -437,7 +437,7 @@ exports[`EventProperty > freeSolo=false > should render with undefined property 
           >
             <button
               aria-label="Open"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1bdwhv1-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
               tabindex="-1"
               title="Open"
               type="button"
@@ -470,7 +470,7 @@ exports[`EventProperty > freeSolo=false > should render with undefined property 
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -511,7 +511,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
           event.name
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -519,7 +519,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="name"
             role="combobox"
             spellcheck="false"
@@ -531,7 +531,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
           >
             <button
               aria-label="Clear"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-37xmc3-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -564,7 +564,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -605,7 +605,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
           event.name
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -613,7 +613,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="name"
             role="combobox"
             spellcheck="false"
@@ -625,7 +625,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
           >
             <button
               aria-label="Clear"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-37xmc3-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -658,7 +658,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -699,7 +699,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
           event.name
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -708,7 +708,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="name"
             role="combobox"
             spellcheck="false"
@@ -720,7 +720,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
           >
             <button
               aria-label="Clear"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-37xmc3-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -753,7 +753,7 @@ exports[`EventProperty > freeSolo=true > should display options when typing and 
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -794,7 +794,7 @@ exports[`EventProperty > freeSolo=true > should render with minimal information 
           event.name
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -802,7 +802,7 @@ exports[`EventProperty > freeSolo=true > should render with minimal information 
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="name"
             role="combobox"
             spellcheck="false"
@@ -814,7 +814,7 @@ exports[`EventProperty > freeSolo=true > should render with minimal information 
           >
             <button
               aria-label="Clear"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-37xmc3-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -847,7 +847,7 @@ exports[`EventProperty > freeSolo=true > should render with minimal information 
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -888,7 +888,7 @@ exports[`EventProperty > freeSolo=true > should render with undefined property a
           event.eventType
         </label>
         <div
-          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1n04w30-MuiInputBase-root-MuiOutlinedInput-root"
+          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-hx4bss-MuiInputBase-root-MuiOutlinedInput-root"
         >
           <input
             aria-autocomplete="list"
@@ -896,7 +896,7 @@ exports[`EventProperty > freeSolo=true > should render with undefined property a
             aria-invalid="false"
             autocapitalize="none"
             autocomplete="off"
-            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+            class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
             id="eventType"
             role="combobox"
             spellcheck="false"
@@ -918,7 +918,7 @@ exports[`EventProperty > freeSolo=true > should render with undefined property a
         </div>
       </div>
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1y3yeh5-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >

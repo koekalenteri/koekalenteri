@@ -22,8 +22,8 @@ export default function JudgeWorkloadChart({ data }: Props) {
       isEmpty={entries.length === 0}
       chartProps={{
         colors: [SINGLE_SERIES_CHART_COLOR],
+        hideLegend: true,
         series: [{ data: entries.map((entry) => entry.count), label: t('stats.admin.judgedEvents') }],
-        slotProps: { legend: { hidden: true } },
         // Bands are keyed by judgeId: names are not unique (two judges can share one, and the
         // same person can appear id-keyed and name-keyed), and the band scale dedupes its
         // domain, which would shift bars onto the wrong judges.

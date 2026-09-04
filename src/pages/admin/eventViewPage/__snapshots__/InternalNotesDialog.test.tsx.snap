@@ -33,9 +33,9 @@ exports[`InternalNotesDialog > renders the stored note 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":r3:"
+        aria-labelledby="_r_3_"
         aria-modal="true"
-        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm MuiDialog-paperFullWidth css-16htz67-MuiPaper-root-MuiDialog-paper"
+        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperWidthSm MuiDialog-paperFullWidth css-1fy56kq-MuiPaper-root-MuiDialog-paper"
         data-mui-focusable=""
         role="dialog"
         style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
@@ -43,7 +43,7 @@ exports[`InternalNotesDialog > renders the stored note 1`] = `
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-b9dmvt-MuiTypography-root-MuiDialogTitle-root"
-          id=":r3:"
+          id="_r_3_"
         >
           registration.internalNotesDialog.title name
         </h2>
@@ -56,8 +56,8 @@ exports[`InternalNotesDialog > renders the stored note 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-focused MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="true"
-              for=":r4:"
-              id=":r4:-label"
+              for="_r_4_"
+              id="_r_4_-label"
             >
               registration.internalNotes
             </label>
@@ -66,8 +66,8 @@ exports[`InternalNotesDialog > renders the stored note 1`] = `
             >
               <textarea
                 aria-invalid="false"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r4:"
+                class="MuiInputBase-input MuiOutlinedInput-input css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                id="_r_4_"
                 name="internalNotes"
                 rows="4"
                 style="height: 0px; overflow: hidden;"
@@ -76,7 +76,7 @@ exports[`InternalNotesDialog > renders the stored note 1`] = `
               </textarea>
               <textarea
                 aria-hidden="true"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiInputBase-input MuiOutlinedInput-input css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                 readonly=""
                 style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                 tabindex="-1"
@@ -100,14 +100,14 @@ exports[`InternalNotesDialog > renders the stored note 1`] = `
           class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fonuzi-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary css-1xiji1l-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >
             save
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-11q1rtt-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorPrimary css-1qwfpyj-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >

@@ -1,6 +1,6 @@
 import type { EventType, PublicJudge } from '../../../../../types'
 import type { JudgesEvent, SectionProps } from '../types'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
@@ -37,7 +37,15 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
   const [name, setName] = useLocalState(judge.name, (value) => handleChange({ name: value }))
 
   return (
-    <Grid key={`unofficial-${index}`} container spacing={1} alignItems="center" width="100%">
+    <Grid
+      key={`unofficial-${index}`}
+      container
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+        width: '100%',
+      }}
+    >
       <Grid sx={{ width: 300 }}>
         <TextField fullWidth label={title} value={name} onChange={(e) => setName(e.target.value)} />
       </Grid>

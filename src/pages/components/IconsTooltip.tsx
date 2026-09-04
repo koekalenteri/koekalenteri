@@ -1,4 +1,5 @@
 import type { TooltipProps } from '@mui/material/Tooltip'
+import type React from 'react'
 import type { PropsWithChildren, ReactNode } from 'react'
 import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
@@ -11,16 +12,27 @@ export const TooltipIcon = ({
   text,
   condition = true,
 }: {
-  icon: JSX.Element
+  icon: React.JSX.Element
   text: string
   condition?: boolean
 }) => {
   if (!condition) return null
 
   return (
-    <Box display="flex" alignItems="center">
-      {icon}&nbsp;
-      <Typography fontSize="small" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+    <Box
+      sx={{
+        alignItems: 'center',
+        display: 'flex',
+      }}
+    >
+      {icon}
+      <Typography
+        sx={{
+          fontSize: 'small',
+          minWidth: 0,
+          overflowWrap: 'anywhere',
+        }}
+      >
         {text}
       </Typography>
     </Box>
@@ -42,7 +54,7 @@ export const IconsTooltip = styled(({ className, icons, children, ...props }: Pr
     if (items.length === 0) return false
 
     return items.some((child) => {
-      if (!isValidElement(child)) return true // strings/numbers
+      if (!isValidElement<{ children?: ReactNode }>(child)) return true // strings/numbers
       if (child.type === Fragment) return hasIcons(child.props.children)
       return true
     })

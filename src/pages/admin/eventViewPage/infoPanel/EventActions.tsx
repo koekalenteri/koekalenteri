@@ -1,7 +1,7 @@
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutlined'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
-import MailOutline from '@mui/icons-material/MailOutline'
+import MailOutline from '@mui/icons-material/MailOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
@@ -35,7 +35,15 @@ const EventActions = ({
 
   return (
     <Box sx={sectionSx}>
-      <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+      <Typography
+        variant="overline"
+        sx={{
+          color: 'text.secondary',
+          display: 'block',
+          pt: 1,
+          px: 1.5,
+        }}
+      >
         {t('eventManagement.actions')}
       </Typography>
       <Stack spacing={1} sx={{ p: 1 }}>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { ManualTestResult } from '../../../types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
 import {
   registrationWithManualResults,

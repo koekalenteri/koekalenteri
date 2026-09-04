@@ -89,10 +89,20 @@ export function Component() {
         header={
           <Box sx={{ pt: 2, px: 2 }}>
             <Typography variant="h6">{t('startNumbers.title')}</Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {subtitle}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {t('startNumbers.linkInfo', { eventClass: entry.eventClass })}
             </Typography>
           </Box>

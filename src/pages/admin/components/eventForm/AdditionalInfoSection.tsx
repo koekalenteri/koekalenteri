@@ -50,7 +50,11 @@ function AdditionalInfoSection({
 
   return (
     <CollapsibleSection title={t('event.description')} open={open} onOpenChange={onOpenChange}>
-      <Box maxWidth={1280}>
+      <Box
+        sx={{
+          maxWidth: 1280,
+        }}
+      >
         <TextField
           disabled={disabled}
           label={`${t('event.description')} (${t('locale.fi')})`}

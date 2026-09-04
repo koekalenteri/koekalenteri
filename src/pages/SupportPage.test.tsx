@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import theme from '../assets/Theme'

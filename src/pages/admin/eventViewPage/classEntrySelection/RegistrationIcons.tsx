@@ -3,10 +3,10 @@ import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
-import MailOutline from '@mui/icons-material/MailOutline'
+import MailOutline from '@mui/icons-material/MailOutlined'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import MarkEmailUnreadOutlined from '@mui/icons-material/MarkEmailUnreadOutlined'
-import PersonOutline from '@mui/icons-material/PersonOutline'
+import PersonOutline from '@mui/icons-material/PersonOutlined'
 import ScheduleSendOutlined from '@mui/icons-material/ScheduleSendOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import Stack from '@mui/material/Stack'
@@ -51,7 +51,13 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
 
   return (
     <IconsTooltip placement="top-end" icons={tooltipIcons} arrow>
-      <Stack direction="row" alignItems="center" mt="3px">
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          mt: '3px',
+        }}
+      >
         {/* Keep the icons column width in useClassEntrySelectionColumns in sync when adding icons here. */}
         <StatusIcon condition={!!priority} icon={<PriorityIcon dim priority={priority} fontSize="small" />} />
         <StatusIcon condition={isMember(reg)} icon={<PersonOutline fontSize="small" />} />

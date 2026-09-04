@@ -194,7 +194,11 @@ function BasicInfoSection({
     (language: Language, value: string) => setNames((prev) => ({ ...prev, [language]: value })),
     [setNames]
   )
-  const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
+  const isEqualId = useCallback(
+    (option?: { id?: number | string }, value?: string | { id?: number | string }) =>
+      typeof value !== 'string' && option?.id === value?.id,
+    []
+  )
   const getId = useCallback((o?: string | { id?: number | string }) => (typeof o === 'string' ? o : (o?.id ?? '')), [])
   const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : (o?.name ?? '')), [])
   const getNameOrEmail = useCallback(
@@ -210,7 +214,13 @@ function BasicInfoSection({
       error={error}
       helperText={helperText}
     >
-      <Grid container spacing={1} maxWidth={1280}>
+      <Grid
+        container
+        spacing={1}
+        sx={{
+          maxWidth: 1280,
+        }}
+      >
         <Grid container spacing={1}>
           <Grid sx={{ width: 600 }}>
             <DateRange

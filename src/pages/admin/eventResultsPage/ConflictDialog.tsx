@@ -53,7 +53,13 @@ export const ConflictDialog = ({ conflicts, registrations, choices, onChoose, on
         <Stack spacing={2}>
           {conflicts.map((conflict) => (
             <Stack key={conflict.id} spacing={0.5}>
-              <Typography fontWeight={600}>{nameOf(conflict.id)}</Typography>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
+                {nameOf(conflict.id)}
+              </Typography>
               <RadioGroup
                 onChange={(_event, value) => onChoose(conflict.id, value as ConflictChoice)}
                 value={choices[conflict.id] ?? 'stored'}

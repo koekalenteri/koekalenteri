@@ -2,7 +2,7 @@ import type { Props } from './BasicInfoSection'
 import type { PartialEvent } from './types'
 import { TZDate } from '@date-fns/tz'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen, waitFor } from '@testing-library/react'
 import { add, format } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -23,7 +23,7 @@ const renderComponent = (props: Props) => {
     undefined
   )
 
-  const inputs = screen.getAllByRole<HTMLInputElement>('textbox') //'Choose date', { exact: false })
+  const inputs = screen.getAllByRole('group')
   const buttons = screen.getAllByTestId('CalendarIcon')
   return { ...res, endCalendar: buttons[1], endInput: inputs[1], startCalendar: buttons[0], startInput: inputs[0] }
 }
@@ -143,7 +143,13 @@ describe('BasicInfoSection', () => {
 
       expect(changeHandler).not.toHaveBeenCalled()
 
-      await user.type(startInput, otherDateString)
+      // The picker field is a group of per-section spinbuttons, so the date is pasted into the
+      // first section rather than typed through the separators.
+      const startDay = startInput.querySelector<HTMLElement>('[role="spinbutton"]')
+      if (!startDay) throw new Error('Start date day section not found')
+      await user.click(startDay)
+      await user.keyboard('{Control>}a{/Control}')
+      await user.paste(otherDateString)
       await waitFor(() => expect(changeHandler).toHaveBeenCalledTimes(1))
       expect(changeHandler).toHaveBeenCalledWith({
         classes: [],
@@ -172,7 +178,13 @@ describe('BasicInfoSection', () => {
 
       expect(changeHandler).not.toHaveBeenCalled()
 
-      await user.type(startInput, otherDateString)
+      // The picker field is a group of per-section spinbuttons, so the date is pasted into the
+      // first section rather than typed through the separators.
+      const startDay = startInput.querySelector<HTMLElement>('[role="spinbutton"]')
+      if (!startDay) throw new Error('Start date day section not found')
+      await user.click(startDay)
+      await user.keyboard('{Control>}a{/Control}')
+      await user.paste(otherDateString)
       await waitFor(() => expect(changeHandler).toHaveBeenCalledTimes(1))
       expect(changeHandler).toHaveBeenCalledWith({
         classes: [],

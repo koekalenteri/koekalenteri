@@ -1,8 +1,8 @@
 import type { RouteObject } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { act, fireEvent, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -14,7 +14,7 @@ import * as registrationApi from '../api/registration'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { Path } from '../routeConfig'
-import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspended, renderSuspendedWithUserEvents } from '../test-utils/utils'
 import { RegistrationListPage } from './RegistrationListPage'
 
 vi.mock('../lib/client/navigation', async () => ({
@@ -51,7 +51,7 @@ describe('RegistrationListPage', () => {
   })
 
   // Helper function to render the component with router
-  const renderWithRouter = (
+  const renderWithRouter = async (
     path: string,
     props: { cancel?: boolean; confirm?: boolean; invitation?: boolean } = {}
   ) => {
@@ -86,7 +86,7 @@ describe('RegistrationListPage', () => {
       },
     ]
 
-    const result = renderWithUserEvents(
+    const result = await renderSuspendedWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -108,9 +108,8 @@ describe('RegistrationListPage', () => {
   }
 
   it('renders the page with all components', async () => {
-    renderWithRouter('/r/test1/nou-registration')
+    await renderWithRouter('/r/test1/nou-registration')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -119,7 +118,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('itemizes what the registration bought and what has been paid for it', async () => {
-    renderWithRouter('/r/test1/nou-registration')
+    await renderWithRouter('/r/test1/nou-registration')
     await flushPromises()
 
     // KOE-1055: the event's price list is not an answer to "what did I buy, and at what price".
@@ -133,9 +132,8 @@ describe('RegistrationListPage', () => {
   it('opens cancel dialog when on cancel route', async () => {
     // allow couple of minutes margin for timers
     vi.setSystemTime(new Date('2021-02-08T23:55:00.000+02:00')) // must be before event.endDate
-    renderWithRouter('/r/test1/nou-registration/cancel')
+    await renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -150,9 +148,8 @@ describe('RegistrationListPage', () => {
 
   it('opens cancel dialog when on cancel route (late)', async () => {
     vi.setSystemTime(new Date('2021-02-09T00:00:01.000+02:00')) // one second after cancellation closes
-    renderWithRouter('/r/test1/nou-registration/cancel')
+    await renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -165,9 +162,8 @@ describe('RegistrationListPage', () => {
 
   it('opens confirm dialog when on confirm route', async () => {
     vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
-    renderWithRouter('/r/test1/nou-registration/confirm')
+    await renderWithRouter('/r/test1/nou-registration/confirm')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -182,7 +178,7 @@ describe('RegistrationListPage', () => {
       messagesSent: { picked: true },
     })
 
-    const { user } = renderWithRouter('/r/test1/nou-registration')
+    const { user } = await renderWithRouter('/r/test1/nou-registration')
 
     await flushPromises()
 
@@ -202,9 +198,8 @@ describe('RegistrationListPage', () => {
       eventId: 'pending-event',
     })
 
-    renderWithRouter('/r/pending-event/nou-registration/confirm')
+    await renderWithRouter('/r/pending-event/nou-registration/confirm')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
 
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
@@ -218,9 +213,8 @@ describe('RegistrationListPage', () => {
       .spyOn(registrationApi, 'patchRegistration')
       .mockResolvedValueOnce({ ...registrationWithStaticDates, cancelled: true, cancelReason: 'dog-heat' })
 
-    const { user } = renderWithRouter('/r/test1/nou-registration/cancel')
+    const { user } = await renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -258,9 +252,8 @@ describe('RegistrationListPage', () => {
     const patchRegistrationSpy = vi.spyOn(registrationApi, 'patchRegistration').mockReturnValue(confirmRequest as never)
 
     vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
-    renderWithRouter('/r/test1/nou-registration/confirm')
+    await renderWithRouter('/r/test1/nou-registration/confirm')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -292,9 +285,8 @@ describe('RegistrationListPage', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
     vi.setSystemTime(new Date('2021-02-08'))
-    const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
+    const { user } = await renderWithRouter('/r/test1/nou-registration/confirm')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -316,9 +308,8 @@ describe('RegistrationListPage', () => {
     const patchRegistrationSpy = vi.spyOn(registrationApi, 'patchRegistration')
 
     vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
-    renderWithRouter('/r/test1/nou-registration/invitation')
+    await renderWithRouter('/r/test1/nou-registration/invitation')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -347,7 +338,7 @@ describe('RegistrationListPage', () => {
       },
     ]
 
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -361,7 +352,6 @@ describe('RegistrationListPage', () => {
       </ThemeProvider>
     )
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -375,9 +365,8 @@ describe('RegistrationListPage', () => {
   })
 
   it('closes cancel dialog when close button is clicked', async () => {
-    const { user } = renderWithRouter('/r/test1/nou-registration/cancel')
+    const { user } = await renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -395,9 +384,8 @@ describe('RegistrationListPage', () => {
   it('closes confirm dialog when close button is clicked', async () => {
     vi.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
 
-    const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
+    const { user } = await renderWithRouter('/r/test1/nou-registration/confirm')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -414,9 +402,8 @@ describe('RegistrationListPage', () => {
   })
 
   it('opens payment dialog automatically', async () => {
-    renderWithRouter('/r/test1/unpaid-picked-nou-registration')
+    await renderWithRouter('/r/test1/unpaid-picked-nou-registration')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -438,10 +425,8 @@ describe('RegistrationListPage', () => {
         paymentStatus: 'SUCCESS',
       })
 
-    renderWithRouter('/r/test1/unpaid-nou-registration')
+    await renderWithRouter('/r/test1/unpaid-nou-registration')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
-    vi.runOnlyPendingTimers()
     await flushPromises(false)
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -471,10 +456,8 @@ describe('RegistrationListPage', () => {
         paymentStatus: 'SUCCESS',
       })
 
-    renderWithRouter('/r/test1/unpaid-nou-registration/saved?payment=verifying')
+    await renderWithRouter('/r/test1/unpaid-nou-registration/saved?payment=verifying')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
-    vi.runOnlyPendingTimers()
     await flushPromises(false)
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -507,7 +490,7 @@ describe('RegistrationListPage', () => {
       },
     ]
 
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -524,7 +507,6 @@ describe('RegistrationListPage', () => {
       </ThemeProvider>
     )
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -538,9 +520,8 @@ describe('RegistrationListPage', () => {
   })
 
   it('redirects to invitation attachment', async () => {
-    renderWithRouter('/r/testInvited/invitation-attachment-registration/invitation')
+    await renderWithRouter('/r/testInvited/invitation-attachment-registration/invitation')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -570,7 +551,7 @@ describe('RegistrationListPage', () => {
     vi.spyOn(registrationApi, 'getRegistration').mockResolvedValueOnce(registration)
     vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({ ...registration, invitationRead: true })
 
-    renderWithRouter(`/r/${event.id}/${registration.id}/invitation`)
+    await renderWithRouter(`/r/${event.id}/${registration.id}/invitation`)
     await flushPromises()
     await flushPromises()
 
@@ -579,9 +560,8 @@ describe('RegistrationListPage', () => {
 
   it('hides cancel controls when event start is close', async () => {
     vi.setSystemTime(new Date('2021-02-09T00:00:01.000+02:00')) // after cancellation closes
-    renderWithRouter('/r/test1/nou-registration/cancel')
+    await renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 

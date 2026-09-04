@@ -1,7 +1,7 @@
 import type { PublicDogEvent, Registration } from '../../types'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
-import PersonOutline from '@mui/icons-material/PersonOutline'
+import PersonOutline from '@mui/icons-material/PersonOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import List from '@mui/material/List'
@@ -65,7 +65,7 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
           </ListItemIcon>
           <ListItemText
             primary={t(priorityStatus(event, registration))}
-            slotProps={{ primary: { fontWeight: 'bold', variant: 'subtitle1' } }}
+            slotProps={{ primary: { sx: { fontWeight: 'bold' }, variant: 'subtitle1' } }}
           />
         </ListItem>
         <ListItem
@@ -90,7 +90,7 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
             primary={
               registration.totalAmount ? `${paymentStatusText} (${registration.totalAmount}€)` : paymentStatusText
             }
-            slotProps={{ primary: { fontWeight: 'bold', variant: 'subtitle1' } }}
+            slotProps={{ primary: { sx: { fontWeight: 'bold' }, variant: 'subtitle1' } }}
             sx={{ pr: needsPayment ? 12 : 0 }}
           />
         </ListItem>
@@ -100,7 +100,7 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
           </ListItemIcon>
           <ListItemText
             primary={t(registrationStatus(registration))}
-            slotProps={{ primary: { fontWeight: 'bold', variant: 'subtitle1' } }}
+            slotProps={{ primary: { sx: { fontWeight: 'bold' }, variant: 'subtitle1' } }}
             sx={{ minWidth: 0, mr: { sm: 1 } }}
           />
           {needsConfirmation ? (

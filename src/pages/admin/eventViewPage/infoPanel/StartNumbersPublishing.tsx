@@ -143,17 +143,41 @@ const StartNumbersPublishing = ({
         return (
           <TableRow key={className}>
             <TableCell align="left">
-              <Box ml={2}>
-                <Typography variant="caption" noWrap fontWeight="bold">
+              <Box
+                sx={{
+                  ml: 2,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{
+                    fontWeight: 'bold',
+                  }}
+                >
                   {className}
                 </Typography>
                 {numbersPublished && (
-                  <Typography variant="caption" color="info.main" display="block" noWrap>
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      color: 'info.main',
+                      display: 'block',
+                    }}
+                  >
                     {t('eventManagement.startList.numbersPublished')}
                   </Typography>
                 )}
                 {partlyPublished && (
-                  <Typography variant="caption" color="info.main" display="block" noWrap>
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      color: 'info.main',
+                      display: 'block',
+                    }}
+                  >
                     {t('eventManagement.startList.numbersPublishedDays', {
                       days: days
                         .filter((day) => publishedDays.includes(day.key))
@@ -164,14 +188,29 @@ const StartNumbersPublishing = ({
                 )}
                 {/* The list is the numbers' only transport, so say why the buttons are dead. */}
                 {!startListPublished && (
-                  <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      color: 'text.secondary',
+                      display: 'block',
+                    }}
+                  >
                     {t('eventManagement.results.startListRequired')}
                   </Typography>
                 )}
               </Box>
             </TableCell>
             <TableCell align="right">
-              <Stack direction="row" flexWrap="wrap" justifyContent="flex-end" spacing={1} useFlexGap>
+              <Stack
+                direction="row"
+                spacing={1}
+                useFlexGap
+                sx={{
+                  flexWrap: 'wrap',
+                  justifyContent: 'flex-end',
+                }}
+              >
                 {numbersButtons.map((day) => {
                   // One button per day of a multi-day class; the whole class otherwise.
                   const dayPublished = day

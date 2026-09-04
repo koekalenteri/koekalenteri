@@ -67,7 +67,12 @@ export const TaskScore = ({ task, value, disabled, label, judges, defaultJudge, 
   )
 
   return (
-    <Stack spacing={0.5} alignItems="center">
+    <Stack
+      spacing={0.5}
+      sx={{
+        alignItems: 'center',
+      }}
+    >
       <NumberInput
         disabled={disabled}
         label={label}
@@ -82,7 +87,12 @@ export const TaskScore = ({ task, value, disabled, label, judges, defaultJudge, 
           and the previous dog's judge is the likely answer because a post is manned all day.
         */}
       {judges.length === 1 && (
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {judges[0].name}
         </Typography>
       )}

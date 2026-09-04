@@ -1,7 +1,7 @@
 import type { DataGridProps } from '@mui/x-data-grid'
 import type { DropTargetMonitor } from 'react-dnd'
 import type { DragItem } from './types'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useDrop } from 'react-dnd'
 import StyledDataGrid from '../../../components/StyledDataGrid'
 import DraggableRow from './droppableDataGrid/DraggableRow'
@@ -51,6 +51,15 @@ const DroppableDataGrid = (props: Props) => {
     [props.onDrop]
   )
 
+  // react-dnd's connector returns a ReactElement, which React 19 rejects as a ref callback's
+  // cleanup value; wrap it so the return is dropped.
+  const dropRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      ref(node)
+    },
+    [ref]
+  )
+
   const className = useMemo(() => {
     const result = []
     if (canDrop) {
@@ -65,7 +74,7 @@ const DroppableDataGrid = (props: Props) => {
   }, [canDrop, isDragging, isOver])
 
   return (
-    <div ref={ref} className={className} style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}>
+    <div ref={dropRef} className={className} style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}>
       <StyledDataGrid
         {...props}
         // NOTE: keep these AFTER `{...props}` so they can't be accidentally

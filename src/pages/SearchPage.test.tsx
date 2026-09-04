@@ -1,15 +1,15 @@
 import type { Locale } from 'date-fns'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { act, render, screen } from '@testing-library/react'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { act, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { createMatchMedia } from '../test-utils/utils'
+import { createMatchMedia, renderSuspended } from '../test-utils/utils'
 import { SearchPage } from './SearchPage'
 
 vi.mock('../api/event')
@@ -20,7 +20,7 @@ vi.mock('../api/organizer')
 vi.mock('../api/registration')
 
 const renderPage = (path: string, locale: Locale) =>
-  render(
+  renderSuspended(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
         <Provider>
@@ -60,48 +60,48 @@ describe('SearchPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    renderPage('', locales.fi)
+    await renderPage('', locales.fi)
     await flushPage()
     expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
   it('filters by date/start', async () => {
-    renderPage('/?s=2021-03-01', locales.fi)
+    await renderPage('/?s=2021-03-01', locales.fi)
     await flushPage()
-    expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeStart' })).toHaveTextContent('01.03.2021')
     expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
   it('filters by date/end', async () => {
     // start is required for fetching events
-    const { container } = renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
+    const { container } = await renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
     await flushPage()
-    expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeEnd' })).toHaveTextContent('01.03.2021')
     expect(screen.getAllByRole('article')).toHaveLength(4)
     expect(container).toMatchSnapshot()
   })
 
   it('filters by date', async () => {
-    const { container } = renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
+    const { container } = await renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
     await flushPage()
-    expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.01.2021')
-    expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeStart' })).toHaveTextContent('01.01.2021')
+    expect(screen.getByRole('group', { name: 'daterangeEnd' })).toHaveTextContent('01.03.2021')
     expect(screen.getAllByRole('article')).toHaveLength(4)
     expect(container).toMatchSnapshot()
   })
 
   it('filters by date - no-results', async () => {
-    const { container } = renderPage('/?s=2021-03-01&e=2021-03-02', locales.fi)
+    const { container } = await renderPage('/?s=2021-03-01&e=2021-03-02', locales.fi)
     await flushPage()
-    expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
-    expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('02.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeStart' })).toHaveTextContent('01.03.2021')
+    expect(screen.getByRole('group', { name: 'daterangeEnd' })).toHaveTextContent('02.03.2021')
     expect(screen.getByText('noResults')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
   })
 
   it('filters by event type', async () => {
     // start is required for fetching events
-    const { container } = renderPage('/?s=2021-01-01&t=NOME-B', locales.fi)
+    const { container } = await renderPage('/?s=2021-01-01&t=NOME-B', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'NOME-B' })).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(5)
@@ -110,7 +110,7 @@ describe('SearchPage', () => {
 
   it('filters by event class', async () => {
     // start is required for fetching events
-    const { container } = renderPage('/?s=2021-01-01&c=AVO', locales.fi)
+    const { container } = await renderPage('/?s=2021-01-01&c=AVO', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'AVO' })).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(5)
@@ -119,7 +119,7 @@ describe('SearchPage', () => {
 
   it('filters by organizer', async () => {
     // start is required for fetching events
-    const { container } = renderPage('/?s=2021-01-01&o=2', locales.fi)
+    const { container } = await renderPage('/?s=2021-01-01&o=2', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'Järjestäjä 2' })).toBeInTheDocument()
     expect(screen.getByText(/filter.results count/i)).toBeInTheDocument()
@@ -128,14 +128,14 @@ describe('SearchPage', () => {
   })
 
   it('filters by judge', async () => {
-    renderPage('/?j=Tuomari%202', locales.fi)
+    await renderPage('/?j=Tuomari%202', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'Tuomari 2' })).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
   it('filters by entryUpcoming', async () => {
-    renderPage('/?b=u', locales.fi)
+    await renderPage('/?b=u', locales.fi)
     await flushPage()
     expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getAllByRole('article')).toHaveLength(1)
@@ -144,7 +144,7 @@ describe('SearchPage', () => {
   it('filters by entryOpen', async () => {
     const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => undefined)
     try {
-      renderPage('/?b=o', locales.fi)
+      await renderPage('/?b=o', locales.fi)
       await flushPage()
       expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
 
@@ -174,7 +174,7 @@ describe('SearchPage', () => {
   })
 
   it('filters by both entryOpen and entryUpcoming', async () => {
-    renderPage('/?b=o&b=u', locales.fi)
+    await renderPage('/?b=o&b=u', locales.fi)
     await flushPage()
     expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()

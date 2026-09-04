@@ -55,7 +55,12 @@ export default function EventStationsPage() {
     >
       <Box sx={{ pt: 2, px: 2 }}>
         <Typography variant="h6">{t('event.stationsSectionTitle')}</Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {t('event.stationsInfo')}
         </Typography>
       </Box>
@@ -65,8 +70,12 @@ export default function EventStationsPage() {
       <Stack
         spacing={1}
         direction="row"
-        justifyContent="flex-end"
-        sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', p: 1 }}
+        sx={{
+          borderColor: '#bdbdbd',
+          borderTop: '1px solid',
+          justifyContent: 'flex-end',
+          p: 1,
+        }}
       >
         <AsyncButton color="primary" disabled={!canSave} startIcon={<Save />} variant="contained" onClick={handleSave}>
           {t('save')}

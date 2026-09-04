@@ -264,7 +264,7 @@ function useEvent(eventId: string | undefined) {
   const metadata = useAtomValue(eventMetadataAtom)
   const fetchEvents = useFetchEvents()
   const singleFresh = eventId ? isSingleFresh(metadata, eventId) : false
-  const pendingId = useRef<string>()
+  const pendingId = useRef<string | undefined>(undefined)
 
   useEffect(() => {
     // A stored copy is no proof of what the event looks like now: only the calendar page syncs the

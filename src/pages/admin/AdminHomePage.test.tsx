@@ -1,12 +1,11 @@
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
-import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import AdminHomePage from './AdminHomePage'
 
@@ -33,7 +32,7 @@ describe('AdminHomePage', () => {
         path: Path.login,
       },
     ]
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <SnackbarProvider>
@@ -68,7 +67,7 @@ describe('AdminHomePage', () => {
         path: Path.login,
       },
     ]
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <SnackbarProvider>

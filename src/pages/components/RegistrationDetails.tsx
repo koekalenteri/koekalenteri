@@ -18,8 +18,17 @@ export const RegistrationDetails = ({ event, registration }: Props) => {
   const name = localizedEventName(event, language)
 
   return (
-    <Stack direction="row" justifyContent="start">
-      <Box px={1}>
+    <Stack
+      direction="row"
+      sx={{
+        justifyContent: 'start',
+      }}
+    >
+      <Box
+        sx={{
+          px: 1,
+        }}
+      >
         <Typography variant="subtitle2" color="textSecondary">
           {t('eventInfo')}
         </Typography>

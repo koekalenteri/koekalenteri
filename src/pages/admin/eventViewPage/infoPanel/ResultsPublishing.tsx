@@ -119,17 +119,41 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
         return (
           <TableRow key={eventClass}>
             <TableCell align="left">
-              <Box ml={2}>
-                <Typography variant="caption" noWrap fontWeight="bold">
+              <Box
+                sx={{
+                  ml: 2,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{
+                    fontWeight: 'bold',
+                  }}
+                >
                   {eventClass}
                 </Typography>
                 {published && (
-                  <Typography variant="caption" color="info.main" display="block" noWrap>
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      color: 'info.main',
+                      display: 'block',
+                    }}
+                  >
                     {t('eventManagement.results.published')}
                   </Typography>
                 )}
                 {!published && !startListPublished && (
-                  <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      color: 'text.secondary',
+                      display: 'block',
+                    }}
+                  >
                     {t('eventManagement.results.startListRequired')}
                   </Typography>
                 )}

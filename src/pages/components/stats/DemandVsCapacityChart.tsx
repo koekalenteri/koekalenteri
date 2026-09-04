@@ -3,14 +3,16 @@ import Typography from '@mui/material/Typography'
 import {
   BarPlot,
   ChartsAxisHighlight,
+  ChartsDataProvider,
   ChartsGrid,
   ChartsLegend,
+  ChartsSurface,
   ChartsTooltip,
+  ChartsWrapper,
   ChartsXAxis,
   ChartsYAxis,
   LinePlot,
   MarkPlot,
-  ResponsiveChartContainer,
 } from '@mui/x-charts'
 import { useTranslation } from 'react-i18next'
 import { ALL_CLASSES_ID } from './CapacityUtilizationChart'
@@ -60,7 +62,13 @@ export default function DemandVsCapacityChart({ data, classKey }: Props) {
     return (
       <>
         <ChartTitle title={t('stats.admin.demandTitle')} info={t('stats.admin.demandTitleInfo')} />
-        <Typography color="text.secondary">{t('stats.admin.noCapacityData')}</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {t('stats.admin.noCapacityData')}
+        </Typography>
       </>
     )
   }
@@ -70,7 +78,7 @@ export default function DemandVsCapacityChart({ data, classKey }: Props) {
   return (
     <>
       <Typography variant="h6">{t('stats.admin.demandTitle')}</Typography>
-      <ResponsiveChartContainer
+      <ChartsDataProvider
         height={340}
         series={[
           {
@@ -101,16 +109,20 @@ export default function DemandVsCapacityChart({ data, classKey }: Props) {
         xAxis={[{ data: months, id: 'months', scaleType: 'band' }]}
         yAxis={[{ id: 'people' }]}
       >
-        <ChartsGrid horizontal />
-        <BarPlot />
-        <LinePlot />
-        <MarkPlot />
-        <ChartsXAxis axisId="months" />
-        <ChartsYAxis axisId="people" />
-        <ChartsAxisHighlight x="band" />
-        <ChartsTooltip trigger="axis" />
-        <ChartsLegend />
-      </ResponsiveChartContainer>
+        <ChartsWrapper>
+          <ChartsLegend />
+          <ChartsSurface>
+            <ChartsGrid horizontal />
+            <BarPlot />
+            <LinePlot />
+            <MarkPlot />
+            <ChartsXAxis axisId="months" />
+            <ChartsYAxis axisId="people" />
+            <ChartsAxisHighlight x="band" />
+          </ChartsSurface>
+          <ChartsTooltip trigger="axis" />
+        </ChartsWrapper>
+      </ChartsDataProvider>
     </>
   )
 }

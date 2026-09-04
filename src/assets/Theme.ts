@@ -72,11 +72,6 @@ const theme = createTheme({
       },
     },
   },
-  mixins: {
-    MuiDataGrid: {
-      containerBackground: '#d8d8d8',
-    },
-  },
   palette: {
     background: {
       caption: 'transparent',
@@ -90,6 +85,9 @@ const theme = createTheme({
       ok: '#c1d4c9',
       selected: '#D5E1DB',
       tableHead: '#d8d8d8',
+    },
+    DataGrid: {
+      headerBg: '#d8d8d8',
     },
     error: {
       main: red.A400,

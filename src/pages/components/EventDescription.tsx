@@ -1,5 +1,6 @@
 import type { GridProps } from '@mui/material'
 import type { PublicDogEvent } from '../../types'
+import type { ItemOrder } from './ItemWithCaption'
 import Box from '@mui/material/Box'
 import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
@@ -18,7 +19,7 @@ interface Props {
  *
  * KOE-1263: the text is shown in the viewer's language when the secretary gave a translation.
  */
-export const EventDescription = ({ event, ...gridProps }: Props & GridProps) => {
+export const EventDescription = ({ event, ...gridProps }: Props & GridProps & { order?: ItemOrder }) => {
   const { t } = useTranslation()
   const language = useAtomValue(languageAtom)
   const description = localizedEventDescription(event, language)

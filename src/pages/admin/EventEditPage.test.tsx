@@ -2,8 +2,8 @@ import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { cleanup, render, screen } from '@testing-library/react'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { cleanup, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -12,7 +12,7 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventEditPage from './EventEditPage'
 
@@ -64,7 +64,7 @@ describe('EventEditPage', () => {
       },
     ]
 
-    const { container, unmount } = render(
+    const { container, unmount } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
@@ -99,7 +99,7 @@ describe('EventEditPage', () => {
       },
     ]
 
-    const { unmount } = render(
+    const { unmount } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>

@@ -4,7 +4,7 @@ import type { Language } from '../../i18n'
 import type { EventResult, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen, within } from '@testing-library/react'
 import { addDays } from 'date-fns'
 import { SnackbarProvider } from 'notistack'
@@ -18,7 +18,7 @@ import { putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
@@ -40,7 +40,7 @@ vi.mock('../../api/registration')
 const renderPage = (language: Language) => {
   const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
 
-  return renderWithUserEvents(
+  return renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
@@ -65,7 +65,7 @@ const renderPage = (language: Language) => {
 const renderScoringPage = (language: Language, registrations = registrationsToEventWithStations) => {
   const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
 
-  return renderWithUserEvents(
+  return renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider
@@ -106,7 +106,7 @@ const renderQualitativePage = (
   }))
   const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
 
-  return renderWithUserEvents(
+  return renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider
@@ -167,7 +167,7 @@ describe('EventResultsPage', () => {
 
   it('lists the dogs of a class with somewhere to record a result', async () => {
     const { i18n } = useTranslation()
-    renderPage(i18n.language as Language)
+    await renderPage(i18n.language as Language)
     await flushPromises()
 
     expect(screen.queryByText('error.eventNotFound')).not.toBeInTheDocument()
@@ -178,7 +178,7 @@ describe('EventResultsPage', () => {
 
   it('has nothing to save until something is entered', async () => {
     const { i18n } = useTranslation()
-    renderPage(i18n.language as Language)
+    await renderPage(i18n.language as Language)
     await flushPromises()
 
     expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
@@ -186,7 +186,7 @@ describe('EventResultsPage', () => {
 
   it('has nothing to save again once a change is taken back', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
     const input = within(rowFor('Ensimmainen')).getAllByRole('textbox')[0]
 
@@ -201,7 +201,7 @@ describe('EventResultsPage', () => {
 
   it('takes a picked result back as no change for a qualitative type', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderQualitativePage(i18n.language as Language)
+    const { user } = await renderQualitativePage(i18n.language as Language)
     await flushPromises()
 
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
@@ -215,7 +215,7 @@ describe('EventResultsPage', () => {
 
   it('offers a way to record a round that was not scored', async () => {
     const { i18n } = useTranslation()
-    renderPage(i18n.language as Language)
+    await renderPage(i18n.language as Language)
     await flushPromises()
 
     // A dog that is eliminated or withdrawn is common rather than exceptional, so the column exists
@@ -227,7 +227,7 @@ describe('EventResultsPage', () => {
     const { i18n } = useTranslation()
     features.outcomeReasonEnabled = false
     try {
-      const { user } = renderScoringPage(i18n.language as Language)
+      const { user } = await renderScoringPage(i18n.language as Language)
       await flushPromises()
 
       await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.interruption'))
@@ -254,7 +254,7 @@ describe('EventResultsPage', () => {
 
   it('shows the koetunnus, so the secretary can see which event they are scoring', async () => {
     const { i18n } = useTranslation()
-    renderPage(i18n.language as Language)
+    await renderPage(i18n.language as Language)
     await flushPromises()
 
     // KOE-72 asks for this outright: entering a whole class against the wrong event is a silent and
@@ -266,7 +266,7 @@ describe('EventResultsPage', () => {
 
   it('lists the dogs that ran, one row each, with a slot for every task in the round', async () => {
     const { i18n } = useTranslation()
-    renderScoringPage(i18n.language as Language)
+    await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     expect(screen.getByText('Ensimmainen')).toBeInTheDocument()
@@ -277,7 +277,7 @@ describe('EventResultsPage', () => {
 
   it('leaves out a reserve who never ran', async () => {
     const { i18n } = useTranslation()
-    renderScoringPage(i18n.language as Language)
+    await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     // The dog is entered and not cancelled, which is why filtering on cancellation alone let it
@@ -287,7 +287,7 @@ describe('EventResultsPage', () => {
 
   it('shows the class tabs of the classes that have dogs', async () => {
     const { i18n } = useTranslation()
-    renderScoringPage(i18n.language as Language)
+    await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     expect(screen.getByRole('tab', { name: 'ALO' })).toBeInTheDocument()
@@ -297,7 +297,7 @@ describe('EventResultsPage', () => {
 
   it('narrows to one post, and offers that post its own view', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     // The whole round is three slots; post 2 alone is the two it splits into.
@@ -314,7 +314,7 @@ describe('EventResultsPage', () => {
 
   it('states a lone post judge rather than offering a choice', async () => {
     const { i18n } = useTranslation()
-    renderScoringPage(i18n.language as Language)
+    await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     // Post 1 names one judge, so there is nothing to choose; post 2 names none and falls back to the
@@ -325,7 +325,7 @@ describe('EventResultsPage', () => {
 
   it('derives the prize from what is on screen as it is typed', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     const row = rowFor('Ensimmainen')
@@ -344,7 +344,7 @@ describe('EventResultsPage', () => {
 
   it('asks why a task scored nothing, and will not let the zero stand unexplained', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     expect(screen.queryByLabelText('results.zeroFault')).not.toBeInTheDocument()
@@ -368,7 +368,7 @@ describe('EventResultsPage', () => {
 
   it('voids the round on an eliminating fault and asks where it happened', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     expect(screen.queryByLabelText('results.outcomeAt')).not.toBeInTheDocument()
@@ -385,7 +385,7 @@ describe('EventResultsPage', () => {
 
   it('asks of a handler withdrawal only whether a prize was still in reach', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
@@ -404,7 +404,7 @@ describe('EventResultsPage', () => {
 
   it('sends only the dogs that were actually scored', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
@@ -434,7 +434,7 @@ describe('EventResultsPage', () => {
           }
         : reg
     )
-    const { user } = renderScoringPage(i18n.language as Language, registrations)
+    const { user } = await renderScoringPage(i18n.language as Language, registrations)
     await flushPromises()
 
     // The stored score seeds the row rather than leaving it blank: the whole-round save replaces the
@@ -465,7 +465,7 @@ describe('EventResultsPage', () => {
         unchanged: [],
       })
     )
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
@@ -489,7 +489,7 @@ describe('EventResultsPage', () => {
     vi.mocked(putEventResults).mockRejectedValueOnce(
       new APIError(new Response(null, { status: 422, statusText: 'Unprocessable' }), 'did not run')
     )
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
@@ -512,7 +512,7 @@ describe('EventResultsPage', () => {
         unchanged: [],
       })
     )
-    const { user } = renderScoringPage(i18n.language as Language)
+    const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
@@ -532,7 +532,7 @@ describe('EventResultsPage', () => {
 
   it('offers no scope selector for an event type that is not scored at posts', async () => {
     const { i18n } = useTranslation()
-    renderPage(i18n.language as Language)
+    await renderPage(i18n.language as Language)
     await flushPromises()
 
     // The mock event is a NOU: there are no posts, so there is nothing to narrow to.
@@ -541,7 +541,7 @@ describe('EventResultsPage', () => {
 
   it('offers a single-post format its one post without asking which', async () => {
     const { i18n } = useTranslation()
-    renderQualitativePage(i18n.language as Language)
+    await renderQualitativePage(i18n.language as Language)
     await flushPromises()
 
     // Nothing to narrow to, but the day is still run from the post: the clock and the queue live there.
@@ -555,7 +555,7 @@ describe('EventResultsPage', () => {
     const { i18n } = useTranslation()
     features.liveViewEnabled = false
     try {
-      renderQualitativePage(i18n.language as Language)
+      await renderQualitativePage(i18n.language as Language)
       await flushPromises()
 
       expect(screen.queryByRole('link', { name: 'results.openLiveEntry' })).not.toBeInTheDocument()
@@ -643,7 +643,7 @@ describe('a pass/fail event type', () => {
 
   it('keeps a saved result on screen: the row re-seeds from what the server stored', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderQualitativePage(i18n.language as Language)
+    const { user } = await renderQualitativePage(i18n.language as Language)
     await flushPromises()
     const judge = { id: 223, name: 'Tuomari 2' }
     vi.mocked(putEventResults).mockResolvedValueOnce({
@@ -664,7 +664,7 @@ describe('a pass/fail event type', () => {
 
   it('offers the codes the type can award, and sends the chosen one', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderQualitativePage(i18n.language as Language)
+    const { user } = await renderQualitativePage(i18n.language as Language)
     await flushPromises()
 
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
@@ -688,7 +688,7 @@ describe('a pass/fail event type', () => {
   it('keeps the stored result when only the lisätieto changes', async () => {
     const { i18n } = useTranslation()
     const stored: EventResult = { result: 'NOU1', updatedAt: new Date('2026-08-30T10:00:00Z'), updatedBy: 'joku' }
-    const { user } = renderQualitativePage(i18n.language as Language, { 'run-1': stored })
+    const { user } = await renderQualitativePage(i18n.language as Language, { 'run-1': stored })
     await flushPromises()
 
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
@@ -707,7 +707,7 @@ describe('a pass/fail event type', () => {
 
   it('shows the registration number beside the dog, as the AC lists it', async () => {
     const { i18n } = useTranslation()
-    renderQualitativePage(i18n.language as Language)
+    await renderQualitativePage(i18n.language as Language)
     await flushPromises()
 
     expect(within(rowFor('Ensimmainen')).getByText('REG-run-1')).toBeInTheDocument()
@@ -715,7 +715,7 @@ describe('a pass/fail event type', () => {
 
   it('states a lone event judge and attributes the result to them', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderQualitativePage(i18n.language as Language)
+    const { user } = await renderQualitativePage(i18n.language as Language)
     await flushPromises()
 
     // One judge is a fact to state, not a choice to offer — same shape as a post's judge control.
@@ -743,7 +743,7 @@ describe('a pass/fail event type', () => {
         { id: 223, name: 'Tuomari 2' },
       ],
     }
-    const { user } = renderQualitativePage(i18n.language as Language, {}, twoJudges)
+    const { user } = await renderQualitativePage(i18n.language as Language, {}, twoJudges)
     await flushPromises()
 
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.judge'))
@@ -764,7 +764,7 @@ describe('a pass/fail event type', () => {
 
   it('discards the entered results on cancel rather than saving them', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderQualitativePage(i18n.language as Language)
+    const { user } = await renderQualitativePage(i18n.language as Language)
     await flushPromises()
 
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
@@ -780,7 +780,7 @@ describe('a pass/fail event type', () => {
 
   it('offers no result entry for a post-scored type, whose result is derived instead', async () => {
     const { i18n } = useTranslation()
-    renderScoringPage(i18n.language as Language)
+    await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
     expect(within(rowFor('Ensimmainen')).queryByLabelText('results.column.result')).not.toBeInTheDocument()
@@ -790,7 +790,7 @@ describe('a pass/fail event type', () => {
     const { i18n } = useTranslation()
     // The draw put the second dog first: the row order and the number shown both follow it, because
     // the number on the collar is what the secretary reads off the sheet in front of them.
-    renderScoringPage(i18n.language as Language, [
+    await renderScoringPage(i18n.language as Language, [
       drawn(registrationsToEventWithStations[0], 12),
       drawn(registrationsToEventWithStations[1], 7),
     ])
@@ -805,7 +805,7 @@ describe('a pass/fail event type', () => {
 
   it('splits a multi-day class into its days (KOE-1353)', async () => {
     const { i18n } = useTranslation()
-    const { user } = renderScoringPage(i18n.language as Language, [
+    const { user } = await renderScoringPage(i18n.language as Language, [
       registrationsToEventWithStations[0],
       onSecondDay(registrationsToEventWithStations[1]),
     ])

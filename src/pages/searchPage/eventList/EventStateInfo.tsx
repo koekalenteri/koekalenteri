@@ -49,7 +49,13 @@ export function EventStateInfo({
 
     // The day is on: the same page now shows who is at the post, which is worth a word in the list.
     return (
-      <Stack alignItems="center" direction="row" spacing={0.5}>
+      <Stack
+        direction="row"
+        spacing={0.5}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         <Chip color="error" label={t('liveStatus.title')} size="small" sx={{ fontWeight: 600, height: 20 }} />
         {link}
       </Stack>

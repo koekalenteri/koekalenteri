@@ -60,7 +60,14 @@ it("offers the open class's sheet as a link of its own", async () => {
       onSave={noop}
       registrations={registrations}
       renderClassActions={(eventClass) => (
-        <Stack direction="row" justifyContent="flex-end" spacing={1} sx={{ px: 2 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            justifyContent: 'flex-end',
+            px: 2,
+          }}
+        >
           <Button size="small">Kopioi luokkasihteerin linkki</Button>
           <Button size="small">Mitätöi luokan linkit ({eventClass})</Button>
         </Stack>
@@ -77,7 +84,13 @@ it('is the same sheet through a class link, without the link controls', async ()
   const screen = await renderSheet(
     <StartNumbersEntry
       header={
-        <Typography sx={{ pb: 1 }} variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            pb: 1,
+          }}
+        >
           12.9.2026 NOWT Ranua Syyskoe
         </Typography>
       }

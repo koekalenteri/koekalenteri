@@ -1,14 +1,14 @@
 import type { AllYearlyStatsResponse } from '../../api/stats'
 import type { EventBreakdownEntry } from '../../types/Stats'
 import { ThemeProvider } from '@mui/material'
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getAllYearlyStats } from '../../api/stats'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS } from '../../types/Stats'
 import { idTokenAtom } from '../state'
 import EventBreakdownPage from './EventBreakdownPage'
@@ -35,7 +35,7 @@ const payload = (eventBreakdown?: EventBreakdownEntry[]): AllYearlyStatsResponse
 })
 
 const renderAsAdmin = () =>
-  render(
+  renderSuspended(
     <ThemeProvider theme={theme}>
       <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
         <MemoryRouter>
@@ -58,7 +58,7 @@ describe('EventBreakdownPage', () => {
       { element: <>Admin Index</>, path: Path.admin.index },
     ]
 
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider>
           <Suspense fallback={<div>loading...</div>}>
@@ -133,7 +133,7 @@ describe('EventBreakdownPage', () => {
       ])
     )
 
-    renderAsAdmin()
+    await renderAsAdmin()
     await flushPromises()
 
     await screen.findByText('stats.admin.eventBreakdownTitle')
@@ -185,7 +185,7 @@ describe('EventBreakdownPage', () => {
   it('shows the empty state when there is no data for the selected year', async () => {
     vi.mocked(getAllYearlyStats).mockResolvedValue(payload(undefined))
 
-    renderAsAdmin()
+    await renderAsAdmin()
     await flushPromises()
 
     await screen.findByText('stats.noDataForYear')

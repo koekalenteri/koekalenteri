@@ -203,7 +203,13 @@ export default function EventViewPage() {
         onSendMessage={() => setRecipientsOpen(true)}
       />
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <Tabs value={activeTab} onChange={handleTabChange}>
           {tabs.map((eventClass) => (
             <Tab

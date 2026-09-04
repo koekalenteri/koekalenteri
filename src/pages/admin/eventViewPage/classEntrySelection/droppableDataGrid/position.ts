@@ -11,7 +11,7 @@ export const determinePosition = (
   sameGroup: boolean,
   dragIndex: number,
   hoverIndex: number,
-  ref: React.RefObject<HTMLDivElement>,
+  ref: React.RefObject<HTMLDivElement | null>,
   item: DragItem,
   monitor: DropTargetMonitor
 ): 'before' | 'after' => {

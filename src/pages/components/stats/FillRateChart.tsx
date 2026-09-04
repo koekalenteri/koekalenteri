@@ -45,7 +45,13 @@ export default function FillRateChart({ data }: Props) {
     <>
       <ChartTitle title={t('stats.fillRate')} info={t('stats.fillRateInfo')} />
       {entries.length === 0 ? (
-        <Typography color="text.secondary">{t('stats.noDataForYear')}</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {t('stats.noDataForYear')}
+        </Typography>
       ) : (
         <LineChart
           height={320}

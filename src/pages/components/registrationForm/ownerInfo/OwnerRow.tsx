@@ -1,5 +1,5 @@
 import type { DeepPartial, RegistrationOwner } from '../../../../types'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import { useTranslation } from 'react-i18next'

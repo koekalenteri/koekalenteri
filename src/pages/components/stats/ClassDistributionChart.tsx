@@ -24,8 +24,8 @@ export default function ClassDistributionChart({ data = [] }: Props) {
       isEmpty={classes.length === 0}
       chartProps={{
         colors: [SINGLE_SERIES_CHART_COLOR],
+        hideLegend: true,
         series: [{ data: classes.map(countFor), label: t('stats.participationCount') }],
-        slotProps: { legend: { hidden: true } },
         xAxis: [{ data: classes, scaleType: 'band' }],
       }}
     />

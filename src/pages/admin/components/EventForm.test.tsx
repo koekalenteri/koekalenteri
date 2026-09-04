@@ -1,6 +1,6 @@
 import type { DogEvent } from '../../../types'
 import { ThemeProvider } from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
 import { Provider } from 'jotai'
@@ -8,7 +8,7 @@ import { Suspense } from 'react'
 import { eventWithEntryNotYetOpen, eventWithStaticDates } from '../../../__mockData__/events'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
-import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
+import { flushPromises, renderSuspendedWithUserEvents } from '../../../test-utils/utils'
 import EventForm from './EventForm'
 
 vi.mock('../../../api/user')
@@ -20,7 +20,7 @@ vi.mock('../../../api/organizer')
 vi.mock('../../../api/registration')
 
 const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel?: () => void, onChange?: () => void) =>
-  renderWithUserEvents(
+  renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <Provider>
@@ -40,7 +40,7 @@ describe('EventForm', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render', async () => {
-    const { container } = renderComponent(eventWithStaticDates)
+    const { container } = await renderComponent(eventWithStaticDates)
     await flushPromises()
     expect(container).toMatchSnapshot()
   })
@@ -50,7 +50,7 @@ describe('EventForm', () => {
     const cancelHandler = vi.fn()
     const changeHandler = vi.fn()
 
-    const { user } = renderComponent(eventWithEntryNotYetOpen, saveHandler, cancelHandler, changeHandler)
+    const { user } = await renderComponent(eventWithEntryNotYetOpen, saveHandler, cancelHandler, changeHandler)
     await flushPromises()
 
     // Find the save button by its role and icon
@@ -75,7 +75,7 @@ describe('EventForm', () => {
   it('keeps an unsaved past event editable', async () => {
     const saveHandler = vi.fn()
 
-    renderComponent({ ...eventWithStaticDates, id: '' }, saveHandler)
+    await renderComponent({ ...eventWithStaticDates, id: '' }, saveHandler)
     await flushPromises()
 
     const saveButton = screen.getAllByRole('button').find((button) => button.querySelector('[data-testid="SaveIcon"]'))
@@ -85,7 +85,7 @@ describe('EventForm', () => {
   it('keeps a past draft editable', async () => {
     const saveHandler = vi.fn()
 
-    renderComponent({ ...eventWithStaticDates, state: 'draft' }, saveHandler)
+    await renderComponent({ ...eventWithStaticDates, state: 'draft' }, saveHandler)
     await flushPromises()
 
     const saveButton = screen.getAllByRole('button').find((button) => button.querySelector('[data-testid="SaveIcon"]'))
@@ -95,7 +95,7 @@ describe('EventForm', () => {
   it('locks a saved non-draft past event', async () => {
     const saveHandler = vi.fn()
 
-    renderComponent(eventWithStaticDates, saveHandler)
+    await renderComponent(eventWithStaticDates, saveHandler)
     await flushPromises()
 
     const saveButton = screen.getAllByRole('button').find((button) => button.querySelector('[data-testid="SaveIcon"]'))

@@ -17,12 +17,22 @@ export const EventHeader = ({ event, now }: EventHeaderProps) => {
 
   return (
     <Grid container>
-      <Grid display="flex" flexGrow={1}>
+      <Grid
+        sx={{
+          display: 'flex',
+          flexGrow: 1,
+        }}
+      >
         <h1>
           {eventTypeLabel(event)} {event.location} {name ? `(${name})` : ''}
         </h1>
       </Grid>
-      <Grid display="flex" justifyContent="end">
+      <Grid
+        sx={{
+          display: 'flex',
+          justifyContent: 'end',
+        }}
+      >
         {t('dateFormat.dtshort', { date: now })}
       </Grid>
     </Grid>

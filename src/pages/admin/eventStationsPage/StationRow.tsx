@@ -1,6 +1,6 @@
 import type { EventStation, PublicJudge } from '../../../types'
 import type { StationsEditorEvent } from './StationsEditor'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -44,7 +44,14 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
   const asksDogsAtOnce = liveFormat(event.eventType).dogsAtOnce === undefined
 
   return (
-    <Grid container spacing={1} alignItems="center" width="100%">
+    <Grid
+      container
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+        width: '100%',
+      }}
+    >
       <Grid sx={{ width: 90 }}>
         <Typography color={disabled ? 'text.disabled' : 'text.primary'}>
           {t('event.station')} {station.number}

@@ -98,7 +98,13 @@ function CostTableSection({
           <TableBody>{children}</TableBody>
         </Table>
       </TableContainer>
-      <Stack direction="row" justifyContent="end" p={1}>
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: 'end',
+          p: 1,
+        }}
+      >
         {action}
       </Stack>
     </>
@@ -364,7 +370,13 @@ function PaymentSection({
       error={error}
       helperText={helperText}
     >
-      <Grid container spacing={1} maxWidth={1280}>
+      <Grid
+        container
+        spacing={1}
+        sx={{
+          maxWidth: 1280,
+        }}
+      >
         <Grid sx={{ minWidth: { sm: 600 }, width: { sm: 'auto', xs: '100%' } }}>
           <FormControl fullWidth>
             <InputLabel id="payment-time-label">{t('paymentTime')}</InputLabel>

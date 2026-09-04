@@ -29,6 +29,7 @@ export default function BreedStartRateChart({ data = [] }: Props) {
       isEmpty={entries.length === 0}
       chartProps={{
         colors: [SINGLE_SERIES_CHART_COLOR],
+        hideLegend: true,
         series: [
           {
             data: entries.map(rateFor),
@@ -36,7 +37,6 @@ export default function BreedStartRateChart({ data = [] }: Props) {
             valueFormatter: (value: number | null) => (value === null ? '–' : `${value} %`),
           },
         ],
-        slotProps: { legend: { hidden: true } },
         xAxis: [{ data: entries.map((entry) => abbreviateBreed(entry.entityId)), scaleType: 'band' }],
         yAxis: [{ valueFormatter: (value: number) => `${value} %` }],
       }}

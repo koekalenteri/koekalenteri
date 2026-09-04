@@ -51,9 +51,22 @@ export default function EventBreakdownPage() {
   return (
     <Stack spacing={2} sx={{ p: 1, width: '100%' }}>
       <Typography variant="h4">{t('stats.admin.eventBreakdownTitle')}</Typography>
-      <Typography color="text.secondary">{t('stats.admin.eventBreakdownTitleInfo')}</Typography>
+      <Typography
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
+        {t('stats.admin.eventBreakdownTitleInfo')}
+      </Typography>
 
-      <Stack alignItems="center" direction="row" flexWrap="wrap" gap={2}>
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
         <YearSelector years={years} value={year} onChange={setYear} />
         <Button
           disabled={rows.length === 0}
@@ -73,7 +86,13 @@ export default function EventBreakdownPage() {
       </Stack>
 
       {rows.length === 0 ? (
-        <Typography color="text.secondary">{t('stats.noDataForYear')}</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {t('stats.noDataForYear')}
+        </Typography>
       ) : (
         <Table size="small">
           <TableHead>

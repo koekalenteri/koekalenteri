@@ -91,3 +91,29 @@ Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
     return this
   },
 })
+
+// The DataGrid measures itself through ResizeObserver, which jsdom does not implement. Without one
+// the grid believes it has no size and renders no rows at all, so every test that reads a cell sees
+// an empty grid. This reports the size the mocked getBoundingClientRect above hands out.
+class TestResizeObserver implements ResizeObserver {
+  private readonly callback: ResizeObserverCallback
+
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback
+  }
+
+  observe(target: Element) {
+    const contentRect = target.getBoundingClientRect()
+    const size: ResizeObserverSize[] = [{ blockSize: contentRect.height, inlineSize: contentRect.width }]
+    this.callback(
+      [{ borderBoxSize: size, contentBoxSize: size, contentRect, devicePixelContentBoxSize: size, target }],
+      this
+    )
+  }
+
+  unobserve() {}
+
+  disconnect() {}
+}
+
+Object.defineProperty(globalThis, 'ResizeObserver', { configurable: true, value: TestResizeObserver })

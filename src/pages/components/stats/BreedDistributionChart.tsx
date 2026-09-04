@@ -1,3 +1,4 @@
+import type { BarItem, BarLabelContext } from '@mui/x-charts/BarChart'
 import type { YearlyStatsResponse } from '../../../api/stats'
 import Typography from '@mui/material/Typography'
 import { BarChart } from '@mui/x-charts/BarChart'
@@ -78,6 +79,8 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
     yearTotals[i] > 0 ? Math.round((count / yearTotals[i]) * 1000) / 10 : 0
   const percentSeries = series.map((s) => ({
     ...s,
+    barLabel: (item: BarItem, context: BarLabelContext) =>
+      context.bar.height >= MIN_LABEL_HEIGHT && item.value ? `${item.value} %` : null,
     data: s.data.map((count, i) => toPercent(count, i)),
     valueFormatter: (value: number | null) => (value === null ? '–' : `${value} %`),
   }))
@@ -110,7 +113,13 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
     <>
       <ChartTitle title={t('stats.breedDistribution')} info={info} />
       {isEmpty ? (
-        <Typography color="text.secondary">{t('stats.noDataForYear')}</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {t('stats.noDataForYear')}
+        </Typography>
       ) : (
         <BarChart
           height={420}
@@ -118,9 +127,6 @@ export default function BreedDistributionChart({ stats, limit = 7 }: Props) {
           series={percentSeries}
           xAxis={[{ data: years, scaleType: 'band', valueFormatter: (year: number) => `${year}` }]}
           yAxis={[{ max: 100, min: 0, valueFormatter: (value: number) => `${value} %` }]}
-          barLabel={(item, context) =>
-            context.bar.height >= MIN_LABEL_HEIGHT && item.value ? `${item.value} %` : null
-          }
           sx={labelInk}
         />
       )}

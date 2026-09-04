@@ -53,8 +53,21 @@ export const ClassGroups = ({ disabled, error, event, eventClass, helperText, on
   )
 
   return (
-    <Stack direction="row" gap={1} alignItems="center" key={eventClass}>
-      <Box minWidth={40}>{eventClass}</Box>
+    <Stack
+      direction="row"
+      key={eventClass}
+      sx={{
+        alignItems: 'center',
+        gap: 1,
+      }}
+    >
+      <Box
+        sx={{
+          minWidth: 40,
+        }}
+      >
+        {eventClass}
+      </Box>
       <AutocompleteMulti
         disabled={disabled}
         error={error}

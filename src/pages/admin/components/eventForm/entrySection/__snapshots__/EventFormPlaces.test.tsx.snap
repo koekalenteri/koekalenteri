@@ -9,7 +9,7 @@ exports[`EventFormPlaces > should render a classed event in per-day mode 1`] = `
       class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="MuiStack-root css-1cmifix-MuiStack-root"
+        class="MuiStack-root css-ca49iu-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -22,7 +22,7 @@ exports[`EventFormPlaces > should render a classed event in per-day mode 1`] = `
         >
           <button
             aria-pressed="false"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-firstButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-firstButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
             tabindex="0"
             type="button"
             value="total"
@@ -31,8 +31,8 @@ exports[`EventFormPlaces > should render a classed event in per-day mode 1`] = `
           </button>
           <button
             aria-pressed="true"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-middleButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
-            tabindex="0"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-middleButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
+            tabindex="-1"
             type="button"
             value="perDay"
           >
@@ -40,8 +40,8 @@ exports[`EventFormPlaces > should render a classed event in per-day mode 1`] = `
           </button>
           <button
             aria-pressed="false"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-lastButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
-            tabindex="0"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-lastButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
+            tabindex="-1"
             type="button"
             value="perClass"
           >
@@ -96,8 +96,8 @@ exports[`EventFormPlaces > should render a classed event in per-day mode 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r6:"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    id="_r_6_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -143,8 +143,8 @@ exports[`EventFormPlaces > should render a classed event in per-day mode 1`] = `
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r7:"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    id="_r_7_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -203,7 +203,7 @@ exports[`EventFormPlaces > should render with class places (per-class mode) 1`] 
       class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="MuiStack-root css-1cmifix-MuiStack-root"
+        class="MuiStack-root css-ca49iu-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -216,7 +216,7 @@ exports[`EventFormPlaces > should render with class places (per-class mode) 1`] 
         >
           <button
             aria-pressed="false"
-            class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root Mui-disabled MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-firstButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
+            class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButton-root Mui-disabled MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-firstButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
             disabled=""
             tabindex="-1"
             title="event.placesEditor.locked"
@@ -227,7 +227,7 @@ exports[`EventFormPlaces > should render with class places (per-class mode) 1`] 
           </button>
           <button
             aria-pressed="false"
-            class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root Mui-disabled MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-middleButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
+            class="MuiButtonBase-root Mui-disabled MuiToggleButtonGroup-grouped MuiToggleButton-root Mui-disabled MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-middleButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
             disabled=""
             tabindex="-1"
             title="event.placesEditor.locked"
@@ -238,7 +238,7 @@ exports[`EventFormPlaces > should render with class places (per-class mode) 1`] 
           </button>
           <button
             aria-pressed="true"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-lastButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-lastButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
             tabindex="0"
             type="button"
             value="perClass"
@@ -300,8 +300,8 @@ exports[`EventFormPlaces > should render with class places (per-class mode) 1`] 
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r2:"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    id="_r_2_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -352,8 +352,8 @@ exports[`EventFormPlaces > should render with class places (per-class mode) 1`] 
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r3:"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    id="_r_3_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -422,7 +422,7 @@ exports[`EventFormPlaces > should render with classes but no class places (total
       class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="MuiStack-root css-1cmifix-MuiStack-root"
+        class="MuiStack-root css-ca49iu-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -435,7 +435,7 @@ exports[`EventFormPlaces > should render with classes but no class places (total
         >
           <button
             aria-pressed="true"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-firstButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-firstButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
             tabindex="0"
             type="button"
             value="total"
@@ -444,8 +444,8 @@ exports[`EventFormPlaces > should render with classes but no class places (total
           </button>
           <button
             aria-pressed="false"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-middleButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
-            tabindex="0"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-middleButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
+            tabindex="-1"
             type="button"
             value="perDay"
           >
@@ -453,8 +453,8 @@ exports[`EventFormPlaces > should render with classes but no class places (total
           </button>
           <button
             aria-pressed="false"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-lastButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
-            tabindex="0"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-lastButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
+            tabindex="-1"
             type="button"
             value="perClass"
           >
@@ -474,7 +474,7 @@ exports[`EventFormPlaces > should render with classes but no class places (total
           >
             <input
               aria-invalid="false"
-              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+              class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
               id="event.places"
               pattern="[0-9]{1,3}"
               style="padding: 4px; text-align: right;"
@@ -516,7 +516,7 @@ exports[`EventFormPlaces > should render with minimal information 1`] = `
       class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="MuiStack-root css-1cmifix-MuiStack-root"
+        class="MuiStack-root css-ca49iu-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -529,7 +529,7 @@ exports[`EventFormPlaces > should render with minimal information 1`] = `
         >
           <button
             aria-pressed="true"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
             tabindex="0"
             type="button"
             value="total"
@@ -550,7 +550,7 @@ exports[`EventFormPlaces > should render with minimal information 1`] = `
           >
             <input
               aria-invalid="false"
-              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+              class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
               id="event.places"
               pattern="[0-9]{1,3}"
               style="padding: 4px; text-align: right;"
@@ -592,7 +592,7 @@ exports[`EventFormPlaces > should render with placesPerDay (per-day mode) 1`] = 
       class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="MuiStack-root css-1cmifix-MuiStack-root"
+        class="MuiStack-root css-ca49iu-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
@@ -605,7 +605,7 @@ exports[`EventFormPlaces > should render with placesPerDay (per-day mode) 1`] = 
         >
           <button
             aria-pressed="false"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-firstButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-firstButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
             tabindex="0"
             type="button"
             value="total"
@@ -614,8 +614,8 @@ exports[`EventFormPlaces > should render with placesPerDay (per-day mode) 1`] = 
           </button>
           <button
             aria-pressed="true"
-            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal MuiToggleButtonGroup-lastButton css-qofxz1-MuiButtonBase-root-MuiToggleButton-root"
-            tabindex="0"
+            class="MuiButtonBase-root MuiToggleButtonGroup-grouped MuiToggleButton-root Mui-selected MuiToggleButton-sizeSmall MuiToggleButton-standard MuiToggleButtonGroup-grouped MuiToggleButtonGroup-lastButton css-1iki0ml-MuiButtonBase-root-MuiToggleButton-root"
+            tabindex="-1"
             type="button"
             value="perDay"
           >
@@ -670,8 +670,8 @@ exports[`EventFormPlaces > should render with placesPerDay (per-day mode) 1`] = 
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r4:"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    id="_r_4_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"
@@ -717,8 +717,8 @@ exports[`EventFormPlaces > should render with placesPerDay (per-day mode) 1`] = 
                 >
                   <input
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r5:"
+                    class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
+                    id="_r_5_"
                     pattern="[0-9]{1,3}"
                     style="padding: 4px; text-align: right;"
                     type="text"

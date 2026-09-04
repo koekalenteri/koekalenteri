@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next'
+import type React from 'react'
 import type { EventClass, PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
@@ -114,7 +115,7 @@ export const ParticipantList = ({
       <Table size="small">
         <TableBody>
           {startListItems.map((item) => {
-            const result: JSX.Element[] = []
+            const result: React.JSX.Element[] = []
             const date = item.date
 
             // Add date header if date changed

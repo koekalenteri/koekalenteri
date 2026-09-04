@@ -263,12 +263,23 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
             {selected.group?.number}. {selected.dog.name}
           </Typography>
           {selected.handler?.name && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {selected.handler.name}
             </Typography>
           )}
 
-          <Stack alignItems="center" direction="row" spacing={2}>
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             {qualitative && (
               <>
                 <ResultSummary edit={edit} eventClass={eventClass} eventType={eventType} onChange={setEdit} />
@@ -320,7 +331,15 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
         </Stack>
       )}
 
-      <Stack direction="row" justifyContent="flex-end" sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', p: 1 }}>
+      <Stack
+        direction="row"
+        sx={{
+          borderColor: '#bdbdbd',
+          borderTop: '1px solid',
+          justifyContent: 'flex-end',
+          p: 1,
+        }}
+      >
         <AsyncButton color="primary" disabled={!selected} onClick={handleSave} startIcon={<Save />} variant="contained">
           {t('results.save')}
         </AsyncButton>

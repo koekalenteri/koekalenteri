@@ -2,7 +2,7 @@ import type { UserEvent } from '@testing-library/user-event/dist/types/setup/set
 import type { Judge, Organizer, RegistrationClass } from '../../types'
 import type { FilterProps } from '../state'
 import { ThemeProvider } from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen, within } from '@testing-library/react'
 import { subMonths } from 'date-fns'

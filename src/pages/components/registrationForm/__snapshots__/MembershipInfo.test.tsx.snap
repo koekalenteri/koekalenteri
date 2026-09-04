@@ -6,7 +6,7 @@ exports[`MembershipInfo > should render only the owner checkbox when owner handl
     class="MuiBox-root css-137nj4n"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"
@@ -58,7 +58,7 @@ exports[`MembershipInfo > should render only the owner checkbox when owner handl
                   class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                 >
                   <span
-                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1ml7hhy-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                   >
                     <input
                       checked=""
@@ -101,7 +101,7 @@ exports[`MembershipInfo > should render with minimal info 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"
@@ -155,7 +155,7 @@ exports[`MembershipInfo > should render with minimal info 1`] = `
                   class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                 >
                   <span
-                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1ml7hhy-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                   >
                     <input
                       class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -185,7 +185,7 @@ exports[`MembershipInfo > should render with minimal info 1`] = `
                   class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                 >
                   <span
-                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-vuhw6e-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
+                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1ml7hhy-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                   >
                     <input
                       class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"

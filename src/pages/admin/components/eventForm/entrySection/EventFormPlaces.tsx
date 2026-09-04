@@ -136,8 +136,21 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
 
   return (
     <Box sx={{ border: '1px dashed #ddd', borderRadius: 1, p: 1 }}>
-      <Stack direction="column" alignItems="normal">
-        <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
+      <Stack
+        direction="column"
+        sx={{
+          alignItems: 'normal',
+        }}
+      >
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 1,
+            justifyContent: 'space-between',
+          }}
+        >
           <Typography variant="subtitle1">{t('event.placesEditor.title')}</Typography>
           <ToggleButtonGroup exclusive size="small" disabled={disabled} value={mode} onChange={handleModeChange}>
             <ToggleButton

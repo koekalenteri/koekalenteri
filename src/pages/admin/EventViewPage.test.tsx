@@ -1,8 +1,8 @@
 import type { RouteObject } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render, screen } from '@testing-library/react'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -16,7 +16,7 @@ import theme from '../../assets/Theme'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderSuspended, renderSuspendedWithUserEvents } from '../../test-utils/utils'
 import EventViewPage from './EventViewPage'
 import { adminEventClassAtom, adminEventIdAtom } from './state'
 
@@ -60,7 +60,7 @@ describe('EventViewPage', () => {
       },
     ]
 
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -87,7 +87,7 @@ describe('EventViewPage', () => {
       },
     ]
 
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -117,7 +117,7 @@ describe('EventViewPage', () => {
       },
     ]
 
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider
@@ -159,7 +159,7 @@ describe('EventViewPage', () => {
     ]
 
     try {
-      const { user } = renderWithUserEvents(
+      const { user } = await renderSuspendedWithUserEvents(
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
             <Provider>
@@ -204,7 +204,7 @@ describe('EventViewPage', () => {
       },
     ]
 
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -242,7 +242,7 @@ describe('EventViewPage', () => {
       },
     ]
 
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>

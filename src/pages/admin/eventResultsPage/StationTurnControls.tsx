@@ -187,11 +187,23 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
 
   return (
     <Box sx={{ px: 2 }}>
-      <Stack alignItems="center" direction="row" flexWrap="wrap" spacing={1} useFlexGap>
+      <Stack
+        direction="row"
+        spacing={1}
+        useFlexGap
+        sx={{
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
         <Typography sx={{ fontWeight: open && !isBreakTurn(open) ? 'bold' : undefined }} variant="body2">
           {statusLine()}
         </Typography>
-        <Box flexGrow={1} />
+        <Box
+          sx={{
+            flexGrow: 1,
+          }}
+        />
 
         {/* A phase the whole entry attends at once is started on its own, like a break: nobody is picked. */}
         {wholePhases.map((item) => (
@@ -291,7 +303,15 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
 
       {/* What each dog of the open group did, for the formats whose live facts are marks. */}
       {markableDogs.length > 0 && (
-        <Stack direction="row" flexWrap="wrap" gap={1} sx={{ pb: 1 }} useFlexGap>
+        <Stack
+          direction="row"
+          useFlexGap
+          sx={{
+            flexWrap: 'wrap',
+            gap: 1,
+            pb: 1,
+          }}
+        >
           {markableDogs.map((dog, index) => (
             <Chip
               key={`${dog.number ?? ''}-${dog.name}`}
@@ -318,7 +338,12 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
         </Stack>
       )}
 
-      <Typography color="text.secondary" variant="caption">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {t('liveStatus.through', { count: through })}
         {throughput
           ? ` · ${t('liveStatus.throughput', {

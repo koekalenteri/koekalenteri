@@ -12,7 +12,7 @@ import {
   eventWithParticipantsInvited,
 } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
-import { AtomObserver, flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { AtomObserver, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventListPage, { canViewEvent, getEventDoubleClickPath } from './EventListPage'
 import { adminEventIdAtom } from './state'
@@ -30,7 +30,7 @@ describe('EventListPage', () => {
 
   it('renders', async () => {
     const onChange = vi.fn()
-    const { container, user } = renderWithUserEvents(
+    const { container, user } = await renderSuspendedWithUserEvents(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <AtomObserver node={adminEventIdAtom} onChange={onChange} />
@@ -66,7 +66,7 @@ describe('EventListPage', () => {
     // A suspending read of the selected event would swap the whole page for the Suspense fallback,
     // dropping the grid's scroll position and focus on every selection.
     const Fallback = vi.fn(() => <div>loading...</div>)
-    renderWithUserEvents(
+    await renderSuspendedWithUserEvents(
       <ThemeProvider theme={theme}>
         <Provider
           initializeState={({ set }) => {

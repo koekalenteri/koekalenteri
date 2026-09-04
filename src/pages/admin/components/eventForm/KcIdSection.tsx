@@ -38,18 +38,41 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
       error={error}
       helperText={helperText}
     >
-      <Stack direction="row" spacing={2} alignItems="center">
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         <Box sx={{ minWidth: 160 }}>
-          <Typography variant="caption" color="text.secondary" component="div">
+          <Typography
+            variant="caption"
+            component="div"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {t('event.kcId')}
           </Typography>
-          <Typography color={hasKcId ? 'text.primary' : 'text.secondary'} fontStyle={hasKcId ? undefined : 'italic'}>
+          <Typography
+            color={hasKcId ? 'text.primary' : 'text.secondary'}
+            sx={{
+              fontStyle: hasKcId ? undefined : 'italic',
+            }}
+          >
             {event.kcId ?? t('event.kcIdEmpty')}
           </Typography>
         </Box>
         {canEditKcId && <KcIdLookupButton editable event={event} onChange={onChange} />}
         {!hasKcId && !organizerId && !disabled && (
-          <Typography variant="body2" color="text.secondary" fontStyle="italic">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              fontStyle: 'italic',
+            }}
+          >
             {t('event.kcIdRequiresOrganizer')}
           </Typography>
         )}

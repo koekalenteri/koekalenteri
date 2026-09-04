@@ -16,7 +16,13 @@ export default function StatsBarChart({ title, info, emptyMessage, isEmpty, char
     <>
       <ChartTitle title={title} info={info} />
       {isEmpty ? (
-        <Typography color="text.secondary">{emptyMessage}</Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
+          {emptyMessage}
+        </Typography>
       ) : (
         <BarChart height={320} {...chartProps} />
       )}

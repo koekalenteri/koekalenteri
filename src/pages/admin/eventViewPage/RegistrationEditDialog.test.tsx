@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render, screen } from '@testing-library/react'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -12,7 +12,7 @@ import { registrationWithStaticDates, registrationWithStaticDatesCancelled } fro
 import { putAdminRegistrationNotes } from '../../../api/registration'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
-import { flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { flushPromises, renderSuspended, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { idTokenAtom } from '../../state'
 import RegistrationEditDialog from './RegistrationEditDialog'
 
@@ -46,7 +46,7 @@ describe('RegistrationEditDialog', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders hidden when open is false', async () => {
-    const { container } = render(
+    const { container } = await renderSuspended(
       <RegistrationEditDialog
         event={eventWithStaticDates}
         open={false}
@@ -61,7 +61,7 @@ describe('RegistrationEditDialog', () => {
   })
 
   it('renders with minimal parameters', async () => {
-    const { baseElement } = render(
+    const { baseElement } = await renderSuspended(
       <RegistrationEditDialog
         event={eventWithStaticDates}
         open={true}
@@ -76,7 +76,7 @@ describe('RegistrationEditDialog', () => {
   })
 
   it('renders when registration is cancelled', async () => {
-    const { baseElement } = render(
+    const { baseElement } = await renderSuspended(
       <RegistrationEditDialog
         event={eventWithStaticDates}
         open={true}
@@ -92,7 +92,7 @@ describe('RegistrationEditDialog', () => {
   })
 
   it('saves an internal note on its own, without enabling the form save button', async () => {
-    const { user } = renderWithUserEvents(
+    const { user } = await renderSuspendedWithUserEvents(
       <RegistrationEditDialog
         event={eventWithStaticDates}
         open={true}

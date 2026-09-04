@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render } from '@testing-library/react'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -10,7 +9,7 @@ import { MemoryRouter, useParams } from 'react-router'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { flushPromises } from '../test-utils/utils'
+import { flushPromises, renderSuspended } from '../test-utils/utils'
 import RegistrationEditPage from './RegistrationEditPage'
 
 vi.mock('../api/user')
@@ -57,7 +56,7 @@ describe('RegistrationEditPage', () => {
   it('should render', async () => {
     const { eventId, id } = registrationWithStaticDates
     mockUseParams.mockImplementation(() => ({ id: eventId, registrationId: id }))
-    const { container } = render(<RegistrationEditPage />, { wrapper: Wrapper })
+    const { container } = await renderSuspended(<RegistrationEditPage />, { wrapper: Wrapper })
     // One pass resolves the page's chained derived atoms; a second is needed for the
     // Collapse sections that only start their (now fake-timer-driven) exit transition once
     // that data has settled, matching the RegistrationListPage double-flush convention.

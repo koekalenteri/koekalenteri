@@ -1,9 +1,10 @@
+import type React from 'react'
 import type { DogEvent, Registration } from '../../../../../types'
 import { render, screen } from '@testing-library/react'
 import RegistrationTooltipContent from './RegistrationTooltipContent'
 
 vi.mock('../../../../components/IconsTooltip', () => ({
-  TooltipIcon: ({ condition, text, icon }: { condition: boolean; text: string; icon: JSX.Element }) =>
+  TooltipIcon: ({ condition, text, icon }: { condition: boolean; text: string; icon: React.JSX.Element }) =>
     condition ? (
       <div data-testid="tooltip-icon" data-text={text}>
         {icon}

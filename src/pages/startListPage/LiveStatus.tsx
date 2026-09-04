@@ -89,14 +89,25 @@ const LiveStationCard = ({ event, stationId, turns, starters, single }: StationC
     <Paper sx={{ minWidth: 220, p: 1.5 }} variant="outlined">
       {/* A format with one post has nothing to call it; the section's own heading is enough. */}
       {!single && (
-        <Typography color="text.secondary" variant="overline">
+        <Typography
+          variant="overline"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {t('liveStatus.station', { number: station?.number ?? stationId })}
         </Typography>
       )}
       <Typography sx={{ fontWeight: open && !isBreakTurn(open) ? 'bold' : undefined }} variant="body2">
         {statusLine()}
       </Typography>
-      <Typography color="text.secondary" variant="caption" component="div">
+      <Typography
+        variant="caption"
+        component="div"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {t('liveStatus.through', { count: through })}
         {throughput
           ? ` · ${t('liveStatus.throughput', {
@@ -109,7 +120,13 @@ const LiveStationCard = ({ event, stationId, turns, starters, single }: StationC
       {/* The number most people actually want. A range, and never a promise — and withheld entirely
           where the whole entry walks the ground together, since minutes describe nothing there. */}
       {wait && (
-        <Typography color="text.secondary" variant="caption" component="div">
+        <Typography
+          variant="caption"
+          component="div"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {t('liveStatus.waitEstimate', {
             count: wait.groupsAhead,
             max: minutes(wait.maxMs),
@@ -172,9 +189,20 @@ export const LiveStatus = ({
   const starters = (participants ?? []).filter((participant) => !participant.cancelled).length
 
   return (
-    <Box my={1}>
+    <Box
+      sx={{
+        my: 1,
+      }}
+    >
       <Typography variant="h6">{t('liveStatus.title')}</Typography>
-      <Stack direction="row" flexWrap="wrap" gap={1} useFlexGap>
+      <Stack
+        direction="row"
+        useFlexGap
+        sx={{
+          flexWrap: 'wrap',
+          gap: 1,
+        }}
+      >
         {stationIds.map((stationId) => (
           <LiveStationCard
             event={event}

@@ -12,7 +12,7 @@ const MIN_REPEATED_REFRESH_DELAY_MS = 30_000
 export function useAuthSessionRefresh(idToken: string | undefined) {
   const setIdToken = useSetAtom(idTokenAtom)
   const invalidateTokenValidity = useSetAtom(tokenValidityRevisionAtom)
-  const lastRefreshAtRef = useRef<number>()
+  const lastRefreshAtRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     if (!idToken) return

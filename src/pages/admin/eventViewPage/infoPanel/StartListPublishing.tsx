@@ -101,24 +101,56 @@ const StartListPublishing = ({
         return (
           <TableRow key={className}>
             <TableCell align="left">
-              <Box ml={2}>
-                <Typography variant="caption" noWrap fontWeight="bold">
+              <Box
+                sx={{
+                  ml: 2,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{
+                    fontWeight: 'bold',
+                  }}
+                >
                   {className}
                 </Typography>
                 {startListPublished && (
-                  <Typography variant="caption" color="info.main" display="block" noWrap>
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      color: 'info.main',
+                      display: 'block',
+                    }}
+                  >
                     {t('eventManagement.startList.published')}
                   </Typography>
                 )}
                 {!startListPublished && !canManageStartList && Boolean(onSetStartListPublished) && (
-                  <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      color: 'text.secondary',
+                      display: 'block',
+                    }}
+                  >
                     {t(blockedReasonKey)}
                   </Typography>
                 )}
               </Box>
             </TableCell>
             <TableCell align="right">
-              <Stack direction="row" flexWrap="wrap" justifyContent="flex-end" spacing={1} useFlexGap>
+              <Stack
+                direction="row"
+                spacing={1}
+                useFlexGap
+                sx={{
+                  flexWrap: 'wrap',
+                  justifyContent: 'flex-end',
+                }}
+              >
                 <Button
                   size="small"
                   disabled={!canManageStartList}

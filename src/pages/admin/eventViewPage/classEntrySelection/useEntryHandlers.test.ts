@@ -1,6 +1,7 @@
 import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEvent } from '@mui/x-data-grid'
 import type React from 'react'
 import { renderHook } from '@testing-library/react'
+import { rowSelectionModel } from '../../../../lib/datagrid'
 import { useEntryHandlers } from './useEntryHandlers'
 
 const { mockEnqueueSnackbar } = vi.hoisted(() => ({ mockEnqueueSnackbar: vi.fn() }))
@@ -119,7 +120,7 @@ describe('useEntryHandlers', () => {
     it('should set selected registration ID when valid selection is provided', () => {
       const { result } = renderHook(() => useEntryHandlers(defaultProps))
 
-      const selection: GridRowSelectionModel = ['reg1']
+      const selection: GridRowSelectionModel = rowSelectionModel(['reg1'])
       const details = {} as GridCallbackDetails
 
       result.current.handleSelectionModeChange(selection, details)
@@ -130,7 +131,7 @@ describe('useEntryHandlers', () => {
     it('should not set selected registration ID when selection is empty', () => {
       const { result } = renderHook(() => useEntryHandlers(defaultProps))
 
-      const selection: GridRowSelectionModel = []
+      const selection: GridRowSelectionModel = rowSelectionModel()
       const details = {} as GridCallbackDetails
 
       result.current.handleSelectionModeChange(selection, details)
@@ -141,7 +142,7 @@ describe('useEntryHandlers', () => {
     it('should not set selected registration ID when registration is not found', () => {
       const { result } = renderHook(() => useEntryHandlers(defaultProps))
 
-      const selection: GridRowSelectionModel = ['nonexistent']
+      const selection: GridRowSelectionModel = rowSelectionModel(['nonexistent'])
       const details = {} as GridCallbackDetails
 
       result.current.handleSelectionModeChange(selection, details)

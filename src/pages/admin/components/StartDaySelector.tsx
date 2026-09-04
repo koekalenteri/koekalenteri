@@ -51,8 +51,23 @@ export function StartDaySelector({ days, value, onChange }: Props) {
   if (days.length < 2) return null
 
   return (
-    <Stack alignItems="center" direction="row" spacing={2} sx={{ pt: 1, px: 2 }} useFlexGap flexWrap="wrap">
-      <Typography variant="body2" color="text.secondary">
+    <Stack
+      direction="row"
+      spacing={2}
+      useFlexGap
+      sx={{
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        pt: 1,
+        px: 2,
+      }}
+    >
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {t('startNumbers.day')}
       </Typography>
       <ToggleButtonGroup

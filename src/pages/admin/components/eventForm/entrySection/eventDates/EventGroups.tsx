@@ -59,7 +59,13 @@ export const EventGroups = ({ disabled, event, onChange }: Readonly<Props>) => {
   if (typeGroups.length <= 1) return null
 
   return (
-    <Stack direction="row" gap={1} alignItems="center">
+    <Stack
+      direction="row"
+      sx={{
+        alignItems: 'center',
+        gap: 1,
+      }}
+    >
       <AutocompleteMulti
         disabled={disabled}
         label={t('registration.dates')}

@@ -78,7 +78,13 @@ function StationsEditor({ event, disabled, onChange }: Props) {
   )
 
   return (
-    <Grid container spacing={2} maxWidth={1280}>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        maxWidth: 1280,
+      }}
+    >
       {days.map((day) => (
         <Box key={zonedDateString(day)} sx={{ width: '100%' }}>
           {days.length > 1 && (

@@ -1,4 +1,4 @@
-import type { GridColDef } from '@mui/x-data-grid'
+import type { GridActionsCellItemProps, GridColDef } from '@mui/x-data-grid'
 import type { ReactElement } from 'react'
 import type { DogEvent, Registration, RegistrationDate } from '../../../../types'
 import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
@@ -61,8 +61,8 @@ const getParticipantMovementActions = ({
   isPendingMove,
   row,
   t,
-}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => {
-  const actions: ReactElement[] = []
+}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement<GridActionsCellItemProps>[] => {
+  const actions: ReactElement<GridActionsCellItemProps>[] = []
 
   if (available.length > 1) {
     actions.push(
@@ -106,7 +106,7 @@ const getReserveMovementActions = ({
   isPendingMove,
   row,
   t,
-}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => [
+}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement<GridActionsCellItemProps>[] => [
   <GridActionsCellItem
     key="moveToParticipants"
     disabled={isPendingMove || Boolean(callbacks?.movementDisabled)}
@@ -130,7 +130,7 @@ const getCancelledMovementActions = ({
   isPendingMove,
   row,
   t,
-}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => [
+}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement<GridActionsCellItemProps>[] => [
   <GridActionsCellItem
     key="moveToReserve"
     disabled={isPendingMove || Boolean(callbacks?.movementDisabled)}
@@ -147,7 +147,7 @@ const getMovementActions = (options: RegistrationActionsOptions & { groupKey: st
   return getParticipantMovementActions(options)
 }
 
-const createRegistrationActions = (options: RegistrationActionsOptions): ReactElement[] => {
+const createRegistrationActions = (options: RegistrationActionsOptions): ReactElement<GridActionsCellItemProps>[] => {
   const { callbacks, row, t } = options
   const actionsDisabled = Boolean(callbacks?.actionsDisabled)
   const groupKey = getRegistrationGroupKey(row)

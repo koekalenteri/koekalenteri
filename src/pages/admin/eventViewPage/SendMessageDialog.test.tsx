@@ -2,8 +2,8 @@ import type { ReactNode } from 'react'
 import type { EmailTemplate, Registration } from '../../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render, screen } from '@testing-library/react'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -16,7 +16,7 @@ import {
 } from '../../../__mockData__/registrations'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
-import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { idTokenAtom } from '../../state'
 import { adminEmailTemplatesAtom, adminEventsAtom } from '../state'
 import SendMessageDialog from './SendMessageDialog'
@@ -91,17 +91,23 @@ describe('SendMessageDialog', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders hidden when open is false', async () => {
-    const { container } = render(<SendMessageDialog registrations={[]} open={false} event={eventWithStaticDates} />, {
-      wrapper: createWrapper(),
-    })
+    const { container } = await renderSuspended(
+      <SendMessageDialog registrations={[]} open={false} event={eventWithStaticDates} />,
+      {
+        wrapper: createWrapper(),
+      }
+    )
     await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
   it('renders with minimal parameters', async () => {
-    const { baseElement } = render(<SendMessageDialog registrations={[]} open={true} event={eventWithStaticDates} />, {
-      wrapper: createWrapper(),
-    })
+    const { baseElement } = await renderSuspended(
+      <SendMessageDialog registrations={[]} open={true} event={eventWithStaticDates} />,
+      {
+        wrapper: createWrapper(),
+      }
+    )
     await flushPromises()
     expect(baseElement).toMatchSnapshot()
   })
@@ -109,7 +115,7 @@ describe('SendMessageDialog', () => {
   it('renders with all parameters', async () => {
     const registrations: Registration[] = [registrationWithStaticDates, registrationWithStaticDatesCancelled]
 
-    const { baseElement } = render(
+    const { baseElement } = await renderSuspended(
       <SendMessageDialog
         registrations={registrations}
         open={true}
@@ -123,7 +129,7 @@ describe('SendMessageDialog', () => {
   })
 
   it('shows the recipient class explicitly', async () => {
-    render(
+    await renderSuspended(
       <SendMessageDialog
         registrations={[registrationWithStaticDatesAndClass]}
         open={true}
@@ -137,7 +143,7 @@ describe('SendMessageDialog', () => {
   })
 
   it('renders a selected template preview when templates are loaded', async () => {
-    const { baseElement } = render(
+    const { baseElement } = await renderSuspended(
       <SendMessageDialog
         registrations={[registrationWithStaticDates]}
         open={true}
@@ -154,7 +160,7 @@ describe('SendMessageDialog', () => {
   })
 
   it('shows the event invitation attachment when sending invitations', async () => {
-    render(
+    await renderSuspended(
       <SendMessageDialog
         registrations={[registrationWithStaticDates]}
         open={true}
@@ -173,7 +179,7 @@ describe('SendMessageDialog', () => {
   })
 
   it('shows the class-specific invitation attachment instead of the common attachment', async () => {
-    render(
+    await renderSuspended(
       <SendMessageDialog
         registrations={[registrationWithStaticDatesAndClass]}
         open={true}
@@ -195,7 +201,7 @@ describe('SendMessageDialog', () => {
   })
 
   it('shows when an invitation has no attachment', async () => {
-    render(
+    await renderSuspended(
       <SendMessageDialog
         registrations={[registrationWithStaticDates]}
         open={true}

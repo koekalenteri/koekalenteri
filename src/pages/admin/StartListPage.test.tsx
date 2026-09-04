@@ -1,13 +1,13 @@
 import type { Registration, RegistrationClass } from '../../types'
 import { ThemeProvider } from '@mui/material'
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { mockRegistrations } from '../../api/__mocks__/registration'
 import theme from '../../assets/Theme'
-import { flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import StartListPage from './StartListPage'
 
@@ -29,7 +29,7 @@ describe('OrganizerListPage', () => {
   it('renders', async () => {
     mockRegistrations.testInvited = [...startListRegistrations].reverse()
 
-    const { container } = render(
+    const { container } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
@@ -63,7 +63,7 @@ describe('OrganizerListPage', () => {
     })
     mockRegistrations.testInvited = [reserve('r-alo', 'ALO', 'ALO-1', 2), reserve('r-voi', 'VOI', 'VOI-1', 1)]
 
-    render(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>

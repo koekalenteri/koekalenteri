@@ -11,7 +11,12 @@ export const TimeLeft = ({ date }: Props) => {
   if (!date) return null
 
   return (
-    <Typography display="inline" ml={1}>
+    <Typography
+      sx={{
+        display: 'inline',
+        ml: 1,
+      }}
+    >
       {t('dateFormat.distanceLeft', { date })}
     </Typography>
   )

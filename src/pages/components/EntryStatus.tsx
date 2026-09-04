@@ -12,7 +12,12 @@ export const EntryStatus = ({ event }: Props) => {
   if (!status) return null
 
   return (
-    <Typography display="inline" ml={1}>
+    <Typography
+      sx={{
+        display: 'inline',
+        ml: 1,
+      }}
+    >
       {status}
     </Typography>
   )
