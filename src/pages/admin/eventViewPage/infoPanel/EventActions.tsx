@@ -1,35 +1,26 @@
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
-import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
-import PlaceOutlined from '@mui/icons-material/PlaceOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { scoresAtPosts } from '../../../../lib/results'
 import { Path } from '../../../../routeConfig'
 import { actionButtonSx, sectionSx } from './styles'
 
 interface Props {
-  /** Results can only be entered once there is something to score. */
-  readonly eventStarted: boolean
   readonly eventFinished: boolean
   readonly eventId: string
-  readonly eventType: string
   readonly onCreateRegistration?: () => void
   readonly onOpenDetails?: () => void
 }
 
-const EventActions = ({
-  eventFinished,
-  eventStarted,
-  eventId,
-  eventType,
-  onCreateRegistration,
-  onOpenDetails,
-}: Props) => {
+/**
+ * What the panel offers apart from the trial's own steps. Scoring is a step, not a general action, so
+ * defining the posts and entering the results live in the results section (KOE-1354).
+ */
+const EventActions = ({ eventFinished, eventId, onCreateRegistration, onOpenDetails }: Props) => {
   const { t } = useTranslation()
 
   return (
@@ -56,27 +47,6 @@ const EventActions = ({
           variant="outlined"
         >
           {t('createRegistration')}
-        </Button>
-        {scoresAtPosts(eventType) && (
-          <Button
-            fullWidth
-            href={Path.admin.stations(eventId)}
-            startIcon={<PlaceOutlined />}
-            sx={actionButtonSx}
-            variant="outlined"
-          >
-            {t('eventManagement.stations')}
-          </Button>
-        )}
-        <Button
-          disabled={!eventStarted}
-          fullWidth
-          href={Path.admin.results(eventId)}
-          startIcon={<EditNoteOutlined />}
-          sx={actionButtonSx}
-          variant="outlined"
-        >
-          {t('eventManagement.enterResults')}
         </Button>
         <Button
           fullWidth

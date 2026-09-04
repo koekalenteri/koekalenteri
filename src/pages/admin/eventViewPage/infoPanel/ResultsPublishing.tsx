@@ -1,7 +1,11 @@
 import type { ConfirmedEvent, RegistrationClass } from '../../../../types'
+import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined'
+import PlaceOutlined from '@mui/icons-material/PlaceOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
+import TableCell from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
@@ -15,10 +19,15 @@ import {
   isStartListAvailableForClass,
   uniqueClasses,
 } from '../../../../lib/event'
-import { actionButtonSx, sectionSx } from './styles'
+import { scoresAtPosts } from '../../../../lib/results'
+import { Path } from '../../../../routeConfig'
+import { PublishingSection } from './PublishingSection'
+import { actionButtonSx } from './styles'
 
 interface Props {
   readonly event: ConfirmedEvent
+  /** Results can only be entered once there is something to score. */
+  readonly eventStarted?: boolean
   /**
    * Passed in rather than taken from the action hook here: that hook reads an async atom, and reading
    * it during this render suspends the whole panel on a click.
@@ -27,13 +36,17 @@ interface Props {
 }
 
 /**
- * Publishing results, per class.
+ * Publishing results, per class — and the entry that feeds it (KOE-1354).
  *
  * Saving, publishing and sending to Omakoira are three different things, and the ticket is emphatic
  * that they must read that way. Entering a score changes nothing outside this office; publishing is
  * what puts it in front of the public; Omakoira is somewhere else entirely and this does not touch it.
+ *
+ * The entry sits under the buttons its scores feed, the way the draw entry sits under the start
+ * numbers it fills (KOE-1297): a step of the trial reads as one section, not as a decision here and
+ * its own doing among the general actions at the foot of the panel.
  */
-const ResultsPublishing = ({ event, onSetResultsPublished }: Props) => {
+const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props) => {
   const { t } = useTranslation()
   const confirm = useConfirm()
   const classes = uniqueClasses(event)
@@ -64,41 +77,80 @@ const ResultsPublishing = ({ event, onSetResultsPublished }: Props) => {
   )
 
   return (
-    <Box sx={sectionSx}>
-      <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-        {t('eventManagement.results.title')}
-      </Typography>
-      <Stack spacing={1} sx={{ p: 1 }}>
-        {classes.map((eventClass) => {
-          const published = isResultsPublishedForClass(event, eventClass)
-          const classState = getEventStateForClass(event, eventClass)
-          // Results travel on the start list's rows, so publishing them while it is hidden would
-          // change nothing a spectator can see. Say so rather than leaving a dead button.
-          const classEntry = event.classes.find((item) => item.class === eventClass) ?? { class: eventClass }
-          const startListPublished = isStartListAvailableForClass(event, classEntry)
-          // Nothing to publish before the dogs have run.
-          const ready = startListPublished && canPublishResults(classState, event)
+    <PublishingSection
+      title={t('eventManagement.results.title')}
+      action={
+        <Stack spacing={1}>
+          {/* Where the scoring happens at posts, defining them is the first half of entering results. */}
+          {scoresAtPosts(event.eventType) && (
+            <Button
+              fullWidth
+              href={Path.admin.stations(event.id)}
+              startIcon={<PlaceOutlined />}
+              sx={actionButtonSx}
+              variant="outlined"
+            >
+              {t('eventManagement.stations')}
+            </Button>
+          )}
+          <Button
+            disabled={!eventStarted}
+            fullWidth
+            href={Path.admin.results(event.id)}
+            startIcon={<EditNoteOutlined />}
+            sx={actionButtonSx}
+            variant="outlined"
+          >
+            {t('eventManagement.enterResults')}
+          </Button>
+        </Stack>
+      }
+    >
+      {classes.map((eventClass) => {
+        const published = isResultsPublishedForClass(event, eventClass)
+        const classState = getEventStateForClass(event, eventClass)
+        // Results travel on the start list's rows, so publishing them while it is hidden would
+        // change nothing a spectator can see. Say so rather than leaving a dead button.
+        const classEntry = event.classes.find((item) => item.class === eventClass) ?? { class: eventClass }
+        const startListPublished = isStartListAvailableForClass(event, classEntry)
+        // Nothing to publish before the dogs have run.
+        const ready = startListPublished && canPublishResults(classState, event)
 
-          return (
-            <Stack alignItems="center" direction="row" key={eventClass} spacing={1}>
-              <Typography sx={{ minWidth: 48 }}>{eventClass}</Typography>
+        return (
+          <TableRow key={eventClass}>
+            <TableCell align="left">
+              <Box ml={2}>
+                <Typography variant="caption" noWrap fontWeight="bold">
+                  {eventClass}
+                </Typography>
+                {published && (
+                  <Typography variant="caption" color="info.main" display="block" noWrap>
+                    {t('eventManagement.results.published')}
+                  </Typography>
+                )}
+                {!published && !startListPublished && (
+                  <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                    {t('eventManagement.results.startListRequired')}
+                  </Typography>
+                )}
+              </Box>
+            </TableCell>
+            <TableCell align="right">
               <Button
+                color={published ? 'secondary' : 'primary'}
                 disabled={!ready}
                 onClick={() => toggle(eventClass, !published)}
-                sx={actionButtonSx}
-                variant="outlined"
+                size="small"
+                sx={{ whiteSpace: 'nowrap' }}
+                variant={ready ? 'contained' : 'outlined'}
               >
                 {published ? t('eventManagement.results.hide') : t('eventManagement.results.publish')}
               </Button>
-              <Typography variant="caption" color="text.secondary">
-                {published && t('eventManagement.results.published')}
-                {!published && !startListPublished && t('eventManagement.results.startListRequired')}
-              </Typography>
-            </Stack>
-          )
-        })}
-      </Stack>
-    </Box>
+            </TableCell>
+          </TableRow>
+        )
+      })}
+    </PublishingSection>
   )
 }
 

@@ -318,12 +318,10 @@ const InfoPanel = ({
             selectedByClass={selectedByClass}
             stateByClass={stateByClass}
           />
-          <ResultsPublishing event={event} onSetResultsPublished={onSetResultsPublished} />
+          <ResultsPublishing event={event} eventStarted={eventStarted} onSetResultsPublished={onSetResultsPublished} />
           <EventActions
             eventFinished={eventFinished}
             eventId={event.id}
-            eventStarted={eventStarted}
-            eventType={event.eventType}
             onCreateRegistration={onCreateRegistration}
             onOpenDetails={onOpenDetails}
           />

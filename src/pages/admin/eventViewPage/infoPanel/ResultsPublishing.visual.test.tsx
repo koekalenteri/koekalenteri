@@ -23,10 +23,11 @@ const event: ConfirmedEvent = {
   state: 'started',
 }
 
-it('offers publishing per class, saving and publishing kept explicitly apart', async () => {
+// The scoring entry belongs to this section (KOE-1354); the trial has run, so it is live in the shot.
+it('offers publishing per class with the scoring entry beneath, saving and publishing kept apart', async () => {
   const screen = await render(
     <Frame>
-      <ResultsPublishing event={event} />
+      <ResultsPublishing event={event} eventStarted />
     </Frame>
   )
 
