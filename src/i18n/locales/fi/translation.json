@@ -359,11 +359,11 @@
     "startList": {
       "hide": "Piilota starttilista",
       "hideNumbers": "Piilota starttinumerot",
-      "hideNumbersDay": "Piilota starttinumerot {{day}}",
+      "hideNumbersDay": "Piilota {{day}}",
       "invitationsRequired": "Lähetä ensin koekutsut",
       "numbersIncomplete": "Starttinumeroiden syöttäminen on kesken. Syötä ensin kaikki starttinumerot.",
-      "numbersPublished": "Starttinumerot julkaistu",
-      "numbersPublishedDays": "Starttinumerot julkaistu: {{days}}",
+      "numbersPublished": "Julkaistu",
+      "numbersPublishedDays": "Julkaistu: {{days}}",
       "numbersPublishing": "Starttinumeroiden julkaisu",
       "participantsRequired": "Valitse ensin osallistujat",
       "preview": "Katso julkinen starttilista",
@@ -372,7 +372,7 @@
       "published": "Starttilista julkaistu",
       "publishing": "Starttilistan julkaisu",
       "publishNumbers": "Julkaise starttinumerot",
-      "publishNumbersDay": "Julkaise starttinumerot {{day}}",
+      "publishNumbersDay": "Julkaise {{day}}",
       "saveFailed": "Starttilistan julkaisutilan tallennus epäonnistui. Yritä uudelleen.",
       "secretary": "Sihteerin starttilista"
     },

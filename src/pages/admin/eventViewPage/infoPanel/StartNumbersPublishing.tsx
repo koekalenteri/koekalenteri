@@ -192,6 +192,8 @@ const StartNumbersPublishing = ({
                               if (publishable) handleSetStartNumbersPublished(startListEventClass, !dayPublished, day)
                             }}
                             color={dayPublished ? 'secondary' : 'primary'}
+                            // A day never splits from its verb; when the row is short the whole button wraps.
+                            sx={{ whiteSpace: 'nowrap' }}
                             variant={canManageStartNumbers ? 'contained' : 'outlined'}
                           >
                             {label}

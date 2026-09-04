@@ -37,7 +37,7 @@ it('is its own step, with the draw entry under it', async () => {
     </Frame>
   )
 
-  await expect.element(screen.getByText('Starttinumerot julkaistu')).toBeVisible()
+  await expect.element(screen.getByText('Julkaistu')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing')
 })
 
@@ -72,6 +72,6 @@ it('publishes a two-day class one day at a time', async () => {
     </Frame>
   )
 
-  await expect.element(screen.getByText('Piilota starttinumerot pe 4.9.')).toBeVisible()
+  await expect.element(screen.getByText('Piilota pe 4.9.')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-two-days')
 })

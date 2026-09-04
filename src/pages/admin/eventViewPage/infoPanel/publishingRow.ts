@@ -31,7 +31,7 @@ export const isStartNumbersPublished: ClassPredicate = (event, eventClass) =>
 export const isPublishedForEveryClass = (event: ConfirmedEvent, published: ClassPredicate) =>
   event.classes.length === 0 ? published(event) : event.classes.every((eventClass) => published(event, eventClass))
 
-interface PublishingRowProps {
+interface PublishingRowsProps {
   readonly event: ConfirmedEvent
   readonly eventWithCurrentAttachments: ConfirmedEvent
   readonly selectedByClass: RegistrationInfo['selectedByClass']
@@ -39,6 +39,7 @@ interface PublishingRowProps {
 }
 
 interface PublishingRow {
+  readonly className: string
   /** The class entry the row stands for; a classless event has none. */
   readonly eventClass: EventClass | undefined
   /** Every invited participant has had the invitation, which is what the start list waits on. */
@@ -53,9 +54,8 @@ interface PublishingRow {
   readonly startListPublished: boolean
 }
 
-/** What the publishing sections know about one class row before drawing its buttons. */
-export const getPublishingRow = (
-  { event, eventWithCurrentAttachments, selectedByClass, stateByClass }: PublishingRowProps,
+const getPublishingRow = (
+  { event, eventWithCurrentAttachments, selectedByClass, stateByClass }: PublishingRowsProps,
   className: string
 ): PublishingRow => {
   const selected = selectedByClass[className] ?? []
@@ -68,6 +68,7 @@ export const getPublishingRow = (
   const publishable = classlessEventRow || startListEventClass !== undefined
 
   return {
+    className,
     eventClass,
     invitationsSent,
     manageable: publishable && canPublishStartList(classState, event),
@@ -77,3 +78,9 @@ export const getPublishingRow = (
     startListPublished: isStartListPublished(event, eventClass),
   }
 }
+
+/** What the publishing sections know about each class row before drawing its buttons. */
+export const getPublishingRows = (
+  props: PublishingRowsProps,
+  numbersByClass: RegistrationInfo['numbersByClass']
+): PublishingRow[] => Object.keys(numbersByClass).map((className) => getPublishingRow(props, className))
