@@ -221,7 +221,10 @@ const InfoPanel = ({
         },
       }}
     >
+      {/* The panel is captured whole in the screenshot test, and the drawer renders through a portal:
+          without a handle of its own there is nothing to point the capture at. */}
       <Box
+        data-testid="info-panel"
         sx={{
           '& .MuiTableContainer-root': { '& .MuiTableCell-root': { px: 1, py: 0.5 }, width: '100%' },
           display: 'flex',
