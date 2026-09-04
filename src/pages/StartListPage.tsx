@@ -29,10 +29,15 @@ export const StartListPage = () => {
   const [participants, setParticipants] = useState(loaded)
   useEffect(() => setParticipants(loaded), [loaded])
 
-  // The event arrives live over the socket, the list does not: when the results (or another class's
-  // start list) get published while the page is open, the list is fetched again so it shows them —
-  // the event patch alone would only take the live section away and leave the old rows standing.
-  const publication = JSON.stringify([event?.startListPublished ?? null, event?.resultsPublished ?? null])
+  // The event arrives live over the socket, the list does not: when the results, the start numbers
+  // (or another class's start list) get published while the page is open, the list is fetched again
+  // so it shows them — the event patch alone would only take the live section away and leave the old
+  // rows standing. The numbers are on the rows, so publishing them has to bring the rows (KOE-1352).
+  const publication = JSON.stringify([
+    event?.startListPublished ?? null,
+    event?.startNumbersPublished ?? null,
+    event?.resultsPublished ?? null,
+  ])
   const seenPublication = useRef(publication)
   useEffect(() => {
     if (!id || seenPublication.current === publication) return

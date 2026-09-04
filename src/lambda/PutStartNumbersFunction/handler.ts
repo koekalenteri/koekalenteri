@@ -10,7 +10,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import { assignStartNumbers, freezeStartNumbers, setStartNumbersPublishedState } from '../lib/startNumbers'
-import { publishRegistrationPatches } from '../lib/ws/actions'
+import { publishEventPatch, publishRegistrationPatches } from '../lib/ws/actions'
 
 interface StartNumbersRequest {
   /** Scopes a publish or a batch of numbers to one class; absent for a classless event. */
@@ -70,6 +70,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
 
   const releaseGroupsLock = await lockRegistrationGroups(eventId, 8)
   const patches: Patch<JsonRegistration>[] = []
+  let publicationChanged = false
   try {
     const registrations = await getRegistrationsByEventId(eventId)
 
@@ -77,12 +78,10 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
       if (body.published) {
         patches.push(...(await freezeStartNumbers(eventId, registrations, eventClass, date)))
       }
-      confirmedEvent.startNumbersPublished = await setStartNumbersPublishedState(
-        confirmedEvent,
-        eventClass,
-        body.published,
-        date
-      )
+      const state = await setStartNumbersPublishedState(confirmedEvent, eventClass, body.published, date)
+      confirmedEvent.startNumbersPublished = state.startNumbersPublished
+      confirmedEvent.updatedAt = state.updatedAt
+      publicationChanged = true
       const scope = [eventClass, date && auditDay(date)].filter(Boolean).join(', ')
       const scopeSuffix = scope ? ` (${scope})` : ''
       await audit({
@@ -105,6 +104,19 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
   }
 
   if (patches.length) await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
+  // The flag lives on the event, so an open start list only learns the numbers are out if the event
+  // patch reaches it: the registration patches carry the numbers but say nothing about the notice
+  // above them (KOE-1352).
+  if (publicationChanged) {
+    await publishEventPatch(
+      {
+        eventId,
+        startNumbersPublished: confirmedEvent.startNumbersPublished,
+        updatedAt: confirmedEvent.updatedAt,
+      },
+      confirmedEvent.organizer.id
+    )
+  }
 
   return response(200, { event: confirmedEvent, patches }, event)
 })

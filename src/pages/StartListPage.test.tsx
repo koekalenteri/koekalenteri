@@ -144,6 +144,41 @@ describe('StartListPage', () => {
 
     expect(getStartList).toHaveBeenCalledWith('event-1', undefined, expect.any(AbortSignal))
     await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
+
+    // And withdrawn again: the rows on screen still carry results the public may no longer see.
+    vi.mocked(getStartList).mockResolvedValueOnce(mockParticipants)
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({ ...mockEvent, resultsPublished: false })
+    rerender(<StartListPage />)
+
+    expect(getStartList).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 1'))
+  })
+
+  it('fetches the list again when the start numbers are published or withdrawn (KOE-1352)', async () => {
+    const { rerender } = render(<StartListPage />)
+    expect(getStartList).not.toHaveBeenCalled()
+
+    // The numbers ride on the rows, so the notice above them cannot go without them.
+    vi.mocked(getStartList).mockResolvedValueOnce([...mockParticipants, { ...mockParticipants[0], class: 'ALO' }])
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
+      ...mockEvent,
+      startNumbersPublished: { ALO: ['2026-09-12'] },
+    })
+    rerender(<StartListPage />)
+
+    expect(getStartList).toHaveBeenCalledWith('event-1', undefined, expect.any(AbortSignal))
+    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
+
+    // And withdrawing them just as much: the rows on screen still carry numbers that are no longer public.
+    vi.mocked(getStartList).mockResolvedValueOnce(mockParticipants)
+    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
+      ...mockEvent,
+      startNumbersPublished: { ALO: false },
+    })
+    rerender(<StartListPage />)
+
+    expect(getStartList).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 1'))
   })
 
   it('shows export actions to a global admin', () => {

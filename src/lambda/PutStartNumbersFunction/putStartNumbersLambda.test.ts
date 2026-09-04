@@ -16,6 +16,7 @@ const mockGetRegistrationsByEventId = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockUpdate = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
+const mockPublishEventPatch = vi.fn()
 
 vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
@@ -44,7 +45,10 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
     return { update: mockUpdate }
   }),
 }))
-vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
+vi.doMock('../lib/ws/actions', () => ({
+  publishEventPatch: mockPublishEventPatch,
+  publishRegistrationPatches: mockPublishRegistrationPatches,
+}))
 
 const { default: putStartNumbersLambda } = await import('./handler')
 
@@ -95,13 +99,19 @@ describe('putStartNumbersLambda', () => {
     )
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: true } } },
+      { set: { startNumbersPublished: { ALO: true }, updatedAt: expect.any(String) } },
       expect.anything()
     )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'Starttinumerot julkaistu (ALO)', user: 'Sihteeri' })
     )
     expect(mockPublishRegistrationPatches).toHaveBeenCalled()
+    // The notice above the rows lives on the event, so the event patch has to go out too, or an open
+    // start list keeps saying the order is unconfirmed while showing the numbers (KOE-1352).
+    expect(mockPublishEventPatch).toHaveBeenCalledWith(
+      { eventId: 'event-1', startNumbersPublished: { ALO: true }, updatedAt: expect.any(String) },
+      'org-1'
+    )
 
     const [status, payload] = mockResponse.mock.calls[0]
     expect(status).toBe(200)
@@ -137,7 +147,7 @@ describe('putStartNumbersLambda', () => {
     )
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: ['2026-09-12'] } } },
+      { set: { startNumbersPublished: { ALO: ['2026-09-12'] }, updatedAt: expect.any(String) } },
       expect.anything()
     )
     expect(mockAudit).toHaveBeenCalledWith(
@@ -175,8 +185,14 @@ describe('putStartNumbersLambda', () => {
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: false } } },
+      { set: { startNumbersPublished: { ALO: false }, updatedAt: expect.any(String) } },
       expect.anything()
+    )
+    // Withdrawing has to reach an open list as surely as publishing: its rows are still showing
+    // numbers the public may no longer see (KOE-1352).
+    expect(mockPublishEventPatch).toHaveBeenCalledWith(
+      { eventId: 'event-1', startNumbersPublished: { ALO: false }, updatedAt: expect.any(String) },
+      'org-1'
     )
   })
 
@@ -196,6 +212,9 @@ describe('putStartNumbersLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'Starttinumerot syötetty 1 koiralle (ALO)' })
     )
+    // Entering the draw changes no publication state, so the event is left where it stands.
+    expect(mockPublishEventPatch).not.toHaveBeenCalled()
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
   it('releases the lock when a validation refuses the write', async () => {

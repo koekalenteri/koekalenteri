@@ -224,19 +224,23 @@ describe('startNumbers', () => {
 
       // Friday out: the class holds a day list, the other class is untouched.
       expect(
-        await setStartNumbersPublishedState(twoDays({ ALO: false, AVO: false }), 'ALO', true, '2026-09-12')
+        (await setStartNumbersPublishedState(twoDays({ ALO: false, AVO: false }), 'ALO', true, '2026-09-12'))
+          .startNumbersPublished
       ).toEqual({ ALO: ['2026-09-12'], AVO: false })
       // Saturday out too: the list covers every day the class runs, so it collapses to plain true.
       expect(
-        await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-12'], AVO: false }), 'ALO', true, '2026-09-13')
+        (await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-12'], AVO: false }), 'ALO', true, '2026-09-13'))
+          .startNumbersPublished
       ).toEqual({ ALO: true, AVO: false })
       // Hiding one day of a fully published class expands it back into the days that stay out.
       expect(
-        await setStartNumbersPublishedState(twoDays({ ALO: true, AVO: false }), 'ALO', false, '2026-09-12')
+        (await setStartNumbersPublishedState(twoDays({ ALO: true, AVO: false }), 'ALO', false, '2026-09-12'))
+          .startNumbersPublished
       ).toEqual({ ALO: ['2026-09-13'], AVO: false })
       // And hiding the last day is plain false.
       expect(
-        await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-13'], AVO: false }), 'ALO', false, '2026-09-13')
+        (await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-13'], AVO: false }), 'ALO', false, '2026-09-13'))
+          .startNumbersPublished
       ).toEqual({ ALO: false, AVO: false })
     })
 
@@ -249,10 +253,14 @@ describe('startNumbers', () => {
         startNumbersPublished: false,
       })
 
-      expect(await setStartNumbersPublishedState(confirmedEvent, undefined, true, '2026-09-12')).toEqual(['2026-09-12'])
+      const now = new Date('2026-09-11T09:00:00.000Z')
+      expect(
+        (await setStartNumbersPublishedState(confirmedEvent, undefined, true, '2026-09-12', now)).startNumbersPublished
+      ).toEqual(['2026-09-12'])
+      // `updatedAt` moves so the change reaches a browser that already holds the event (KOE-1352).
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
-        { set: { startNumbersPublished: ['2026-09-12'] } },
+        { set: { startNumbersPublished: ['2026-09-12'], updatedAt: '2026-09-11T09:00:00.000Z' } },
         expect.anything()
       )
     })
@@ -264,12 +272,16 @@ describe('startNumbers', () => {
         startNumbersPublished: false,
       })
 
-      const state = await setStartNumbersPublishedState(confirmedEvent, 'ALO', true)
+      const now = new Date('2026-09-11T09:00:00.000Z')
+      const state = await setStartNumbersPublishedState(confirmedEvent, 'ALO', true, undefined, now)
 
-      expect(state).toEqual({ ALO: true, AVO: false })
+      expect(state).toEqual({
+        startNumbersPublished: { ALO: true, AVO: false },
+        updatedAt: '2026-09-11T09:00:00.000Z',
+      })
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
-        { set: { startNumbersPublished: { ALO: true, AVO: false } } },
+        { set: { startNumbersPublished: { ALO: true, AVO: false }, updatedAt: '2026-09-11T09:00:00.000Z' } },
         expect.anything()
       )
     })

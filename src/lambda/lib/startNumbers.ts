@@ -169,13 +169,18 @@ const withDay = (
 /**
  * Flip the published flag for the class (or the whole classless event) on the event record. With a
  * `date` (yyyy-MM-dd) only that day's numbers change state.
+ *
+ * `updatedAt` moves with the flag so an incremental fetch carries it: a browser that already holds
+ * the event reads nothing older, and without this it kept showing the numbers as unconfirmed after
+ * they went out (KOE-1352). `modifiedAt` stays — publishing is not an edit to the event.
  */
 export const setStartNumbersPublishedState = async (
   confirmedEvent: JsonConfirmedEvent,
   eventClass: RegistrationClass | undefined,
   published: boolean,
-  date?: string
-): Promise<JsonConfirmedEvent['startNumbersPublished']> => {
+  date?: string,
+  now: Date = new Date()
+): Promise<Pick<JsonConfirmedEvent, 'startNumbersPublished' | 'updatedAt'>> => {
   const scope: StartNumbersDayScope = date
     ? withDay(
         getStartNumbersDayScope(confirmedEvent, eventClass),
@@ -188,7 +193,8 @@ export const setStartNumbersPublishedState = async (
     ? { ...getStartNumbersPublishedClassMap(confirmedEvent), [eventClass]: scope }
     : scope
 
-  await dynamoDB.update({ id: confirmedEvent.id }, { set: { startNumbersPublished } }, eventTable)
+  const updatedAt = now.toISOString()
+  await dynamoDB.update({ id: confirmedEvent.id }, { set: { startNumbersPublished, updatedAt } }, eventTable)
 
-  return startNumbersPublished
+  return { startNumbersPublished, updatedAt }
 }
