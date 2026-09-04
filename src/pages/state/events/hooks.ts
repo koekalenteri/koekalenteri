@@ -2,7 +2,7 @@ import type { DogEvent, PublicDogEvent } from '../../../types'
 import type { EventMetadata } from './types'
 import { useAtomValue } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { getEvent, getEvents } from '../../../api/event'
 import { compareEventsByDate } from '../../../lib/event'
 import { isConfirmedEvent } from '../../../lib/typeGuards'
@@ -264,13 +264,22 @@ function useEvent(eventId: string | undefined) {
   const metadata = useAtomValue(eventMetadataAtom)
   const fetchEvents = useFetchEvents()
   const singleFresh = eventId ? isSingleFresh(metadata, eventId) : false
+  const pendingId = useRef<string>()
 
   useEffect(() => {
-    // Only fetch if we don't already have a value (including a known `null` for 404).
-    if (eventId && event === undefined && !singleFresh) {
-      fetchEvents(undefined, undefined, eventId)
-    }
-  }, [eventId, event, singleFresh, fetchEvents])
+    // A stored copy is no proof of what the event looks like now: only the calendar page syncs the
+    // range, so a page reached by its own link (a start list, a registration) would otherwise show
+    // whatever an earlier visit left behind - the start numbers published since would be missing
+    // (KOE-1352). Fetching whenever the copy is stale covers the empty cache too. The freshness
+    // throttle holds this to one request per event per five minutes, and the stored copy stays on
+    // screen while it runs, so nothing flashes.
+    if (!eventId || singleFresh || pendingId.current === eventId) return
+
+    pendingId.current = eventId
+    fetchEvents(undefined, undefined, eventId).finally(() => {
+      if (pendingId.current === eventId) pendingId.current = undefined
+    })
+  }, [eventId, singleFresh, fetchEvents])
 
   if (eventId && event === undefined && singleFresh) {
     return null
@@ -282,17 +291,12 @@ function useEvent(eventId: string | undefined) {
 export function useConfirmedEvent(eventId: string | undefined) {
   const event = useEvent(eventId)
   const metadata = useAtomValue(eventMetadataAtom)
-  const fetchEvents = useFetchEvents()
   const singleFresh = eventId ? isSingleFresh(metadata, eventId) : false
   const usable = !!event && isConfirmedEvent(event)
 
-  useEffect(() => {
-    // The cache can hold a pre-confirmation copy from an earlier visit while the server already
-    // has a usable one. Left alone it would read as "loading" forever (KOE-1262), so refresh it.
-    if (eventId && event && !usable && !singleFresh) {
-      fetchEvents(undefined, undefined, eventId)
-    }
-  }, [eventId, event, usable, singleFresh, fetchEvents])
+  // A stored pre-confirmation copy from an earlier visit, while the server already has a usable one,
+  // would read as "loading" forever (KOE-1262). Refreshing it is `useEvent`'s job now: it revalidates
+  // every stale copy, whatever state the copy is in.
 
   if (event === null) {
     return null

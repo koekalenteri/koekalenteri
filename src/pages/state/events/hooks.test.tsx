@@ -3,9 +3,9 @@ import type { EventMetadata } from './types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAtomValue } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { getEvents } from '../../../api/event'
+import { getEvent, getEvents } from '../../../api/event'
 import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
-import { useFetchEvents } from './hooks'
+import { useConfirmedEvent, useFetchEvents } from './hooks'
 
 vi.mock('../../../api/event', () => ({
   getEvent: vi.fn(),
@@ -415,6 +415,52 @@ describe('useFetchEvents', () => {
       expect(getEvents).toHaveBeenCalledWith(start, end, undefined)
       expect(result.current.events).toEqual([fetched])
       expect(result.current.metadata.lastSyncAt).toEqual(expect.any(Number))
+    })
+  })
+})
+
+describe('useConfirmedEvent', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    localStorage.clear()
+  })
+
+  const stored = { ...makeEvent('event-1', '2026-09-04T00:00:00.000Z', '2026-09-05T00:00:00.000Z'), state: 'invited' }
+
+  it('revalidates a stored copy whose start numbers may have been published since', async () => {
+    const fresh = { ...stored, startNumbersPublished: { VOI: ['2026-09-04'] } }
+    ;(getEvent as import('vitest').Mock).mockResolvedValue(fresh)
+
+    const { result } = renderHook(() => useConfirmedEvent('event-1'), {
+      wrapper: wrapperWithState([stored as PublicDogEvent], { singles: { 'event-1': Date.now() - 10 * 60 * 1000 } }),
+    })
+
+    // The stored copy carries the page while the request runs: no loading state, no flash.
+    expect(result.current).toEqual(stored)
+
+    await waitFor(() => {
+      expect(getEvent).toHaveBeenCalledWith('event-1')
+      expect(result.current?.startNumbersPublished).toEqual({ VOI: ['2026-09-04'] })
+    })
+  })
+
+  it('leaves a freshly fetched copy alone', async () => {
+    const { result } = renderHook(() => useConfirmedEvent('event-1'), {
+      wrapper: wrapperWithState([stored as PublicDogEvent], { singles: { 'event-1': Date.now() - 1000 } }),
+    })
+
+    await waitFor(() => expect(result.current).toEqual(stored))
+    expect(getEvent).not.toHaveBeenCalled()
+  })
+
+  it('fetches an event that is not stored at all', async () => {
+    ;(getEvent as import('vitest').Mock).mockResolvedValue(stored)
+
+    const { result } = renderHook(() => useConfirmedEvent('event-1'), { wrapper: wrapperWithState([], {}) })
+
+    await waitFor(() => {
+      expect(getEvent).toHaveBeenCalledWith('event-1')
+      expect(result.current).toEqual(stored)
     })
   })
 })
