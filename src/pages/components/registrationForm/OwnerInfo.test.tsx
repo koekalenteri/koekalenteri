@@ -143,6 +143,61 @@ describe('OwnerInfo', () => {
     await flushPromises()
   })
 
+  describe('co-owner contact details (KOE-1351)', () => {
+    const withCoOwner = (): Registration => {
+      const reg = clone<Registration>(registrationWithStaticDates)
+      reg.ownerHandles = 'owner-1'
+      reg.ownerPays = 'owner-1'
+      reg.owners = [
+        { ...reg.owner!, key: 'owner-1' },
+        { email: '', key: 'owner-2', membership: false, name: 'Co Owner' },
+      ]
+      return reg
+    }
+
+    it('asks a co-owner who neither handles nor pays for a name only', () => {
+      render(<OwnerInfo reg={withCoOwner()} orgId="test" />, { wrapper: Wrapper })
+
+      expect(screen.getAllByRole('textbox', { name: 'contact.name' })).toHaveLength(2)
+      expect(screen.getAllByRole('textbox', { name: 'contact.city' })).toHaveLength(1)
+      expect(screen.getAllByRole('textbox', { name: 'contact.email' })).toHaveLength(1)
+      expect(screen.getAllByRole('textbox', { name: 'contact.phone' })).toHaveLength(1)
+    })
+
+    it('lets a co-owner give contact details anyway', async () => {
+      const { user } = renderWithUserEvents(
+        <OwnerInfo reg={withCoOwner()} orgId="test" />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+
+      await user.click(screen.getByRole('button', { name: 'registration.cta.addOwnerContact' }))
+      await flushPromises()
+
+      expect(screen.getAllByRole('textbox', { name: 'contact.email' })).toHaveLength(2)
+      expect(screen.queryByRole('button', { name: 'registration.cta.addOwnerContact' })).not.toBeInTheDocument()
+    })
+
+    it('keeps details already on file visible, so nothing is edited out of sight', () => {
+      const reg = withCoOwner()
+      reg.owners![1] = { ...reg.owners![1], phone: '+3584012399' }
+      render(<OwnerInfo reg={reg} orgId="test" />, { wrapper: Wrapper })
+
+      expect(screen.getAllByRole('textbox', { name: 'contact.phone' })).toHaveLength(2)
+      expect(screen.queryByRole('button', { name: 'registration.cta.addOwnerContact' })).not.toBeInTheDocument()
+    })
+
+    it('asks the co-owner for everything once they are the one who handles', () => {
+      const reg = withCoOwner()
+      reg.ownerHandles = 'owner-2'
+      render(<OwnerInfo reg={reg} orgId="test" />, { wrapper: Wrapper })
+
+      expect(screen.getAllByRole('textbox', { name: 'contact.city' })).toHaveLength(2)
+      expect(screen.getAllByRole('textbox', { name: 'contact.email' })).toHaveLength(2)
+      expect(screen.getAllByRole('textbox', { name: 'contact.phone' })).toHaveLength(2)
+    })
+  })
+
   it('should not call onChange when dog is not selected', async () => {
     const reg = {} // no registration number
     const onChange = vi.fn((props) => Object.assign(reg, props))

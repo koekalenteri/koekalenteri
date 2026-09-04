@@ -608,6 +608,7 @@
     "createdAt": "Registration time",
     "cta": {
       "addOwner": "Add owner",
+      "addOwnerContact": "Add contact details",
       "addResult": "Add result",
       "autofetch": "Fetch dog information",
       "confirmAndPay": "Confirm and proceed to payment",

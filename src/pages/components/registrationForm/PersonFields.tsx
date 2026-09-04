@@ -5,29 +5,52 @@ import { MuiTelInput } from 'mui-tel-input'
 import { useTranslation } from 'react-i18next'
 import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
+/** Contact details asked for beside the name, which is always asked for. */
+export type PersonContactField = 'location' | 'email' | 'phone'
+
+/**
+ * Which contact details a person is asked for and which of them they must give. A field left out is
+ * not rendered at all: the payer has no hometown, and a co-owner who neither handles nor pays is
+ * only named (KOE-1351).
+ */
+export type PersonContactFields = Partial<Record<PersonContactField, 'required' | 'optional'>>
+
+export const ALL_CONTACT_DETAILS_REQUIRED: PersonContactFields = {
+  email: 'required',
+  location: 'required',
+  phone: 'required',
+}
+
 interface PersonFieldValues {
-  readonly email: string
+  readonly email?: string
   readonly location?: string
   readonly name: string
-  readonly phone: string
+  readonly phone?: string
 }
 
 interface Props {
+  readonly contactFields?: PersonContactFields
   readonly disabled?: boolean
   readonly idPrefix: string
-  readonly includeLocation?: boolean
   readonly onChange?: (values: PersonFieldValues) => void
   readonly person?: DeepPartial<Person>
 }
 
-export function PersonFields({ disabled, idPrefix, includeLocation = true, onChange, person }: Props) {
+export function PersonFields({
+  contactFields = ALL_CONTACT_DETAILS_REQUIRED,
+  disabled,
+  idPrefix,
+  onChange,
+  person,
+}: Props) {
   const { t, i18n } = useTranslation()
-  const [formValues, updateField] = useLocalStateGroup(
+  const { email, location, phone } = contactFields
+  const [formValues, updateField] = useLocalStateGroup<PersonFieldValues>(
     {
-      email: person?.email ?? '',
-      ...(includeLocation ? { location: person?.location ?? '' } : {}),
+      ...(email ? { email: person?.email ?? '' } : {}),
+      ...(location ? { location: person?.location ?? '' } : {}),
       name: person?.name ?? '',
-      phone: person?.phone ?? '',
+      ...(phone ? { phone: person?.phone ?? '' } : {}),
     },
     onChange
   )
@@ -49,11 +72,11 @@ export function PersonFields({ disabled, idPrefix, includeLocation = true, onCha
           }}
         />
       </Grid>
-      {includeLocation && (
+      {location && (
         <Grid size={{ sm: 6, xs: 12 }}>
           <TextField
             disabled={disabled}
-            error={!person?.location}
+            error={location === 'required' && !person?.location}
             fullWidth
             id={`${idPrefix}_city`}
             label={t('contact.city')}
@@ -66,37 +89,41 @@ export function PersonFields({ disabled, idPrefix, includeLocation = true, onCha
           />
         </Grid>
       )}
-      <Grid size={{ sm: 6, xs: 12 }}>
-        <TextField
-          disabled={disabled}
-          error={!person?.email}
-          fullWidth
-          id={`${idPrefix}_email`}
-          label={t('contact.email')}
-          name="email"
-          onChange={(e) => updateField('email', e.target.value.trim())}
-          value={formValues.email}
-          slotProps={{
-            input: { autoComplete: 'email' },
-          }}
-        />
-      </Grid>
-      <Grid size={{ sm: 6, xs: 12 }}>
-        <MuiTelInput
-          langOfCountryName={i18n.language}
-          defaultCountry="FI"
-          forceCallingCode
-          autoComplete="tel"
-          disabled={disabled}
-          error={!person?.phone}
-          fullWidth
-          id={`${idPrefix}_phone`}
-          label={t('contact.phone')}
-          name="phone"
-          onChange={(value) => updateField('phone', value)}
-          value={formValues.phone}
-        />
-      </Grid>
+      {email && (
+        <Grid size={{ sm: 6, xs: 12 }}>
+          <TextField
+            disabled={disabled}
+            error={email === 'required' && !person?.email}
+            fullWidth
+            id={`${idPrefix}_email`}
+            label={t('contact.email')}
+            name="email"
+            onChange={(e) => updateField('email', e.target.value.trim())}
+            value={formValues.email}
+            slotProps={{
+              input: { autoComplete: 'email' },
+            }}
+          />
+        </Grid>
+      )}
+      {phone && (
+        <Grid size={{ sm: 6, xs: 12 }}>
+          <MuiTelInput
+            langOfCountryName={i18n.language}
+            defaultCountry="FI"
+            forceCallingCode
+            autoComplete="tel"
+            disabled={disabled}
+            error={phone === 'required' && !person?.phone}
+            fullWidth
+            id={`${idPrefix}_phone`}
+            label={t('contact.phone')}
+            name="phone"
+            onChange={(value) => updateField('phone', value)}
+            value={formValues.phone ?? ''}
+          />
+        </Grid>
+      )}
     </Grid>
   )
 }

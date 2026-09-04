@@ -608,6 +608,7 @@
     "createdAt": "Ilmoittautumisaika",
     "cta": {
       "addOwner": "Lisää omistaja",
+      "addOwnerContact": "Lisää yhteystiedot",
       "addResult": "Lisää tulos",
       "autofetch": "Hae koiran tiedot",
       "confirmAndPay": "Vahvista ja siirry maksamaan",

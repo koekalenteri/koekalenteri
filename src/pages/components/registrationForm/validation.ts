@@ -9,9 +9,9 @@ import type {
 } from '../../../types'
 import { differenceInMonths } from 'date-fns'
 import { validName } from '../../../lib/name'
-import { getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '../../../lib/registration'
+import { getOwnerRole, getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '../../../lib/registration'
 import { REQUIREMENTS } from '../../../rules'
-import { validatePerson } from './personValidation'
+import { validateOwner, validatePerson } from './personValidation'
 
 function validateBreeder(breeder: RegistrationBreeder | undefined) {
   return !breeder?.name || !breeder.location
@@ -30,11 +30,13 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
   id: () => false,
   notes: () => false,
   optionalCosts: () => false,
+  // Only the owner who handles (and the one who pays) has to give contact details; the rest are
+  // named and nothing more, so a co-owner's phone and hometown are never asked for (KOE-1351).
   owner: (reg) => {
     const owners = getRegistrationOwners(reg)
     if (!owners.length) return validatePerson(undefined)
-    for (const owner of owners) {
-      const result = validatePerson(owner)
+    for (const [index, owner] of owners.entries()) {
+      const result = validateOwner(owner, getOwnerRole(reg, ownerKeyAt(owner, index)))
       if (result) return result
     }
     return false

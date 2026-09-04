@@ -1415,6 +1415,97 @@ describe('validation', () => {
       expect(result3.some((e) => e.opts?.field === 'payer')).toBe(false)
     })
 
+    describe('owner contact details (KOE-1351)', () => {
+      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
+      const fullOwner = {
+        email: 'owner@example.com',
+        key: 'owner-1',
+        location: 'somewhere',
+        membership: false,
+        name: 'Owner',
+        phone: '+35840123456',
+      }
+      const namedCoOwner = { email: '', key: 'owner-2', membership: false, name: 'Co Owner' }
+      const ownerErrors = (reg: Registration) =>
+        validateRegistration(reg, mockEvent).filter((e) => e.opts?.field === 'owner')
+
+      it('accepts a co-owner who is only named', () => {
+        const reg: Registration = {
+          ...registrationWithStaticDates,
+          owner: fullOwner,
+          ownerHandles: 'owner-1',
+          ownerPays: 'owner-1',
+          owners: [fullOwner, namedCoOwner],
+        }
+
+        expect(ownerErrors(reg)).toEqual([])
+      })
+
+      it('requires a name of every owner', () => {
+        const reg: Registration = {
+          ...registrationWithStaticDates,
+          owner: fullOwner,
+          ownerHandles: 'owner-1',
+          ownerPays: 'owner-1',
+          owners: [fullOwner, { ...namedCoOwner, name: '' }],
+        }
+
+        expect(ownerErrors(reg)).toEqual([{ key: 'required', opts: { field: 'owner' } }])
+      })
+
+      it('still requires the full contact details of the owner who handles', () => {
+        const reg: Registration = {
+          ...registrationWithStaticDates,
+          owner: namedCoOwner,
+          ownerHandles: 'owner-2',
+          ownerPays: 'owner-1',
+          owners: [fullOwner, namedCoOwner],
+        }
+
+        expect(ownerErrors(reg)).toEqual([{ key: 'required', opts: { field: 'owner' } }])
+      })
+
+      it('requires the owner who pays to be reachable, but not to name a hometown', () => {
+        const payingCoOwner = { ...namedCoOwner, email: 'co@example.com', phone: '+35840123457' }
+        const reg: Registration = {
+          ...registrationWithStaticDates,
+          owner: fullOwner,
+          ownerHandles: 'owner-1',
+          ownerPays: 'owner-2',
+          owners: [fullOwner, payingCoOwner],
+        }
+
+        expect(ownerErrors(reg)).toEqual([])
+        expect(ownerErrors({ ...reg, owners: [fullOwner, { ...payingCoOwner, email: '' }] })).toEqual([
+          { key: 'required', opts: { field: 'owner' } },
+        ])
+      })
+
+      it('rejects contact details a co-owner volunteered but got wrong', () => {
+        const reg: Registration = {
+          ...registrationWithStaticDates,
+          owner: fullOwner,
+          ownerHandles: 'owner-1',
+          ownerPays: 'owner-1',
+          owners: [fullOwner, { ...namedCoOwner, email: 'not-an-address' }],
+        }
+
+        expect(ownerErrors(reg)).toEqual([{ key: 'email', opts: { field: 'owner' } }])
+      })
+
+      it('asks nothing but names when someone else handles and pays', () => {
+        const reg: Registration = {
+          ...registrationWithStaticDates,
+          owner: namedCoOwner,
+          ownerHandles: false,
+          ownerPays: false,
+          owners: [namedCoOwner],
+        }
+
+        expect(ownerErrors(reg)).toEqual([])
+      })
+    })
+
     it('should validate id, notes, results, and optionalCosts fields', () => {
       const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
 

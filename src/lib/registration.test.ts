@@ -18,6 +18,7 @@ import {
   getCurrentInvitationAttachment,
   getInvitationReadStatus,
   getNextClass,
+  getOwnerRole,
   getParticipantMessageInfo,
   getRegistrationClass,
   getRegistrationEmailTemplateData,
@@ -591,6 +592,52 @@ describe('lib/registration', () => {
     it('resolves a key against the legacy owner when there is no owner list', () => {
       expect(resolveOwnerSelection(undefined, legacy, 'owner-1')).toBe(legacy)
       expect(resolveOwnerSelection([], legacy, 'owner-1')).toBe(legacy)
+    })
+  })
+
+  describe('getOwnerRole', () => {
+    const owners = [
+      { key: 'owner-1', name: 'First' },
+      { key: 'owner-2', name: 'Second' },
+    ]
+
+    it('names the selected owners as the one who handles and the one who pays', () => {
+      const reg = { ownerHandles: 'owner-2', ownerPays: 'owner-1', owners }
+
+      expect(getOwnerRole(reg, 'owner-2')).toEqual('handles')
+      expect(getOwnerRole(reg, 'owner-1')).toEqual('pays')
+    })
+
+    it('gives the first owner both roles for a legacy boolean selection', () => {
+      const reg = { ownerHandles: true, ownerPays: true, owners }
+
+      expect(getOwnerRole(reg, 'owner-1')).toEqual('handles')
+      expect(getOwnerRole(reg, 'owner-2')).toEqual('none')
+    })
+
+    it('defaults an unset selection to the first owner, as the form does', () => {
+      expect(getOwnerRole({ owners }, 'owner-1')).toEqual('handles')
+    })
+
+    it('gives a co-owner who neither handles nor pays no role at all', () => {
+      const reg = { ownerHandles: 'owner-1', ownerPays: 'owner-1', owners }
+
+      expect(getOwnerRole(reg, 'owner-2')).toEqual('none')
+    })
+
+    it('leaves every owner roleless when someone else handles and pays', () => {
+      const reg = { ownerHandles: false, ownerPays: false, owners }
+
+      expect(getOwnerRole(reg, 'owner-1')).toEqual('none')
+      expect(getOwnerRole(reg, 'owner-2')).toEqual('none')
+    })
+
+    it('keys a legacy single owner by position', () => {
+      expect(getOwnerRole({ owner: { name: 'Legacy' }, ownerHandles: true }, 'owner-1')).toEqual('handles')
+    })
+
+    it('gives no role to an owner without a key, rather than matching an unresolved selection', () => {
+      expect(getOwnerRole({ ownerHandles: false, owners }, undefined)).toEqual('none')
     })
   })
 

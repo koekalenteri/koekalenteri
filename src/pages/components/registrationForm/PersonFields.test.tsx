@@ -64,8 +64,8 @@ describe('PersonFields', () => {
     const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <PersonFields
+        contactFields={{ email: 'required', phone: 'required' }}
         idPrefix="payer"
-        includeLocation={false}
         onChange={onChange}
         person={{ email: '', name: '', phone: '' }}
       />,
@@ -79,5 +79,40 @@ describe('PersonFields', () => {
     await flushPromises()
 
     expect(onChange).toHaveBeenCalledWith({ email: '', name: 'Test Payer', phone: '' })
+  })
+
+  it('asks for the name alone when no contact details are wanted', async () => {
+    const onChange = vi.fn()
+    const { user } = renderWithUserEvents(
+      <PersonFields contactFields={{}} idPrefix="owner_1" onChange={onChange} person={{ name: '' }} />,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    expect(screen.queryByRole('textbox', { name: 'contact.city' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'contact.email' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'contact.phone' })).not.toBeInTheDocument()
+
+    await user.type(screen.getByRole('textbox', { name: 'contact.name' }), 'Co Owner')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({ name: 'Co Owner' })
+  })
+
+  it('does not flag an empty optional contact field', () => {
+    renderWithUserEvents(
+      <PersonFields
+        contactFields={{ email: 'optional', location: 'optional', phone: 'optional' }}
+        idPrefix="owner_2"
+        onChange={vi.fn()}
+        person={{ email: '', location: '', name: 'Co Owner', phone: '' }}
+      />,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    expect(screen.getByRole('textbox', { name: 'contact.email' })).not.toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('textbox', { name: 'contact.city' })).not.toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('textbox', { name: 'contact.phone' })).not.toHaveAttribute('aria-invalid', 'true')
   })
 })

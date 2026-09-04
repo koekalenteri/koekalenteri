@@ -1,9 +1,13 @@
 import type { DeepPartial, Registration, RegistrationPerson } from '../../../types'
+import type { PersonContactFields } from './PersonFields'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { PersonFields } from './PersonFields'
+
+/** The payer is billed and receives the receipt, but their hometown is of no interest. */
+const PAYER_CONTACT_DETAILS: PersonContactFields = { email: 'required', phone: 'required' }
 
 interface Props {
   readonly reg: DeepPartial<Registration>
@@ -36,9 +40,9 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
       onOpenChange={onOpenChange}
     >
       <PersonFields
+        contactFields={PAYER_CONTACT_DETAILS}
         disabled={disabled}
         idPrefix="payer"
-        includeLocation={false}
         onChange={handleChange}
         person={reg.payer}
       />
