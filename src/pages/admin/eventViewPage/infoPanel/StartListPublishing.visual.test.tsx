@@ -1,6 +1,7 @@
 import type { ConfirmedEvent } from '../../../../types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
+import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
 import { eventWithStations } from '../../../../__mockData__/resultsEvent'
 import theme from '../../../../assets/Theme'
 import StartListPublishing from './StartListPublishing'
@@ -14,7 +15,8 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 
 // One class out and one still to go, so both faces of the button are in the picture. The numbers are
 // a step of their own now (KOE-1297) and are not in this section; the preview stays, because the
-// numbers are a column of the very list it shows.
+// numbers are a column of the very list it shows. AVO has its participants picked but not yet
+// invited, which is the reason its button is dead and says so (KOE-1313).
 const event: ConfirmedEvent = {
   ...eventWithStations,
   classes: eventWithStations.classes.map((eventClass) => ({ ...eventClass, state: 'invited' as const })),
@@ -31,7 +33,7 @@ it('publishes the list per class, and keeps the preview', async () => {
         eventWithCurrentAttachments={event}
         numbersByClass={{ ALO: [], AVO: [] } as never}
         onSetStartListPublished={async () => {}}
-        selectedByClass={{}}
+        selectedByClass={{ ALO: [registrationWithStaticDates], AVO: [registrationWithStaticDates] }}
         stateByClass={{}}
       />
     </Frame>

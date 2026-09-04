@@ -118,6 +118,53 @@ describe('InfoPanel>', () => {
     })
   })
 
+  it('says why publishing is dead: the invitations are still to go (KOE-1313)', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+        {children}
+      </Provider>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, startListPublished: { ALO: false, AVO: false } }}
+        onSetStartListPublished={vi.fn()}
+        // Participants are picked, but nobody has had the invitation yet.
+        registrations={registrationsToEventWithParticipantsInvited}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getAllByRole('button', { name: 'eventManagement.startList.publish' })[0]).toBeDisabled()
+    expect(screen.getAllByText('eventManagement.startList.invitationsRequired')).not.toHaveLength(0)
+    expect(screen.queryByText('eventManagement.startList.participantsRequired')).not.toBeInTheDocument()
+  })
+
+  it('says why publishing is dead: nobody is picked yet (KOE-1313)', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+        {children}
+      </Provider>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, startListPublished: { ALO: false, AVO: false } }}
+        onSetStartListPublished={vi.fn()}
+        // Entries are in, but none of them has been picked into a group yet.
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          group: undefined,
+        }))}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    // Nothing to invite anyone to yet, so the invitations are not the thing to name.
+    expect(screen.getAllByText('eventManagement.startList.participantsRequired')).not.toHaveLength(0)
+    expect(screen.queryByText('eventManagement.startList.invitationsRequired')).not.toBeInTheDocument()
+  })
+
   it('allows publishing an invited class start list even when the event is only confirmed', async () => {
     const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
     const event = {

@@ -106,6 +106,13 @@ const StartListPublishing = ({
                 (classlessEventRow || Boolean(startListEventClass)) &&
                 canPublishStartList(classState, event)
               const canManageStartList = invitationsSent && startListManageable
+              // A dead button with no reason beside it is the thing this whole step reads as broken
+              // (KOE-1313). Publishing waits on the invitations, and those wait on the participants
+              // being picked, so name whichever of the two is still outstanding.
+              const blockedReasonKey =
+                selected.length === 0
+                  ? 'eventManagement.startList.participantsRequired'
+                  : 'eventManagement.startList.invitationsRequired'
 
               return (
                 <TableRow key={className}>
@@ -117,6 +124,11 @@ const StartListPublishing = ({
                       {startListPublished && (
                         <Typography variant="caption" color="info.main" display="block" noWrap>
                           {t('eventManagement.startList.published')}
+                        </Typography>
+                      )}
+                      {!startListPublished && !canManageStartList && Boolean(onSetStartListPublished) && (
+                        <Typography variant="caption" color="text.secondary" display="block" noWrap>
+                          {t(blockedReasonKey)}
                         </Typography>
                       )}
                     </Box>
