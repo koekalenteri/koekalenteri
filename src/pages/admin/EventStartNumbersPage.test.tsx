@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-import type { Registration } from '../../types'
+import type { Registration, RegistrationClass } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -148,6 +148,83 @@ describe('EventStartNumbersPage', () => {
     await user.type(within(rowFor('Ensimmainen')).getByRole('textbox'), '30')
     await flushPromises()
     expect(screen.getByText('startNumbers.duplicate')).toBeInTheDocument()
+  })
+
+  it('picks the day before the class, and holds it while the classes are worked through (KOE-1350)', async () => {
+    const { i18n } = useTranslation()
+    const [first] = registrationsToEventWithStations
+    const friday = first.group?.date ?? new Date()
+    const saturday = addDays(friday, 1)
+    const dog = (
+      id: string,
+      name: string,
+      eventClass: RegistrationClass,
+      date: Date,
+      number: number
+    ): Registration => ({
+      ...first,
+      class: eventClass,
+      dog: { ...first.dog, name, regNo: `REG-${id}` },
+      group: { date, key: `${eventClass}-AP`, number, time: 'ap' },
+      id,
+    })
+
+    const { user } = renderPage(i18n.language as Language, [
+      dog('run-1', 'AloPerjantai', 'ALO', friday, 1),
+      dog('run-2', 'AloLauantai', 'ALO', saturday, 2),
+      dog('run-3', 'AvoPerjantai', 'AVO', friday, 3),
+      dog('run-4', 'AvoLauantai', 'AVO', saturday, 4),
+    ])
+    await flushPromises()
+
+    // The day comes first on screen: the secretary works a morning, then moves through its classes.
+    const dayGroup = screen.getByRole('group')
+    const classTabs = screen.getByRole('tablist')
+    expect(dayGroup.compareDocumentPosition(classTabs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+    // Friday to begin with, and its own two classes to choose from.
+    expect(screen.getByText('AloPerjantai')).toBeInTheDocument()
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'AVO'])
+
+    // Changing class leaves the day where it was.
+    await user.click(screen.getByRole('tab', { name: 'AVO' }))
+    await flushPromises()
+    expect(screen.getByText('AvoPerjantai')).toBeInTheDocument()
+    expect(screen.queryByText('AvoLauantai')).not.toBeInTheDocument()
+
+    // And changing day leaves the class where it was.
+    await user.click(screen.getAllByRole('button', { pressed: false })[0])
+    await flushPromises()
+    expect(screen.getByText('AvoLauantai')).toBeInTheDocument()
+    expect(screen.queryByText('AvoPerjantai')).not.toBeInTheDocument()
+  })
+
+  it('offers only the classes that run on the chosen day (KOE-1350)', async () => {
+    const { i18n } = useTranslation()
+    const [first] = registrationsToEventWithStations
+    const friday = first.group?.date ?? new Date()
+    const saturday = addDays(friday, 1)
+
+    const { user } = renderPage(i18n.language as Language, [
+      { ...first, group: { date: friday, key: 'ALO-AP', number: 1, time: 'ap' }, id: 'run-1' },
+      {
+        ...first,
+        class: 'AVO',
+        dog: { ...first.dog, name: 'AvoLauantai', regNo: 'REG-run-2' },
+        group: { date: saturday, key: 'AVO-AP', number: 2, time: 'ap' },
+        id: 'run-2',
+      },
+    ])
+    await flushPromises()
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO'])
+
+    // AVO runs on Saturday only, so it is the Saturday sheet that offers it — and ALO is gone from it.
+    await user.click(screen.getAllByRole('button', { pressed: false })[0])
+    await flushPromises()
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['AVO'])
+    expect(screen.getByText('AvoLauantai')).toBeInTheDocument()
   })
 
   it('flags a duplicate as it is typed', async () => {

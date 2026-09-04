@@ -1,5 +1,7 @@
 import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
 import { render } from 'vitest-browser-react'
 import theme from '../../../assets/Theme'
 import { StartDaySelector } from '../components/StartDaySelector'
@@ -19,6 +21,15 @@ const days = [
   { date: friday, key: '2026-09-04' },
   { date: saturday, key: '2026-09-05' },
 ]
+
+/** The class tabs sit under the day: the day is chosen first and held while its classes are worked
+ *  through (KOE-1350), and the capture is what says so. */
+const ClassTabs = () => (
+  <Tabs value="ALO">
+    <Tab label="ALO" value="ALO" />
+    <Tab label="AVO" value="AVO" />
+  </Tabs>
+)
 
 // Saturday's draw, picked out of a two-day class (KOE-1303): Friday's dogs took 1–24, so these carry on
 // from 25 and the list shows only the day being entered.
@@ -51,6 +62,7 @@ it('enters a two-day class one day at a time', async () => {
   const screen = await render(
     <Frame>
       <StartDaySelector days={days} onChange={() => {}} value="2026-09-05" />
+      <ClassTabs />
       <div style={{ paddingTop: 16 }}>
         <StartNumbersTable drafts={{ 'run-5': '26' }} onChange={() => {}} rows={saturdayRows} />
       </div>
@@ -66,6 +78,7 @@ it('keeps the day choice on a phone', async () => {
   const screen = await render(
     <Frame width={360}>
       <StartDaySelector days={days} onChange={() => {}} value="2026-09-05" />
+      <ClassTabs />
       <div style={{ paddingTop: 16 }}>
         <StartNumbersTable compact drafts={{ 'run-5': '26' }} onChange={() => {}} rows={saturdayRows} />
       </div>

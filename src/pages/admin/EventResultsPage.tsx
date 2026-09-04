@@ -25,7 +25,6 @@ import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
-import { zonedDateString } from '../../i18n/dates'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { liveViewEnabled } from '../../lib/features'
@@ -33,7 +32,6 @@ import { IMPLICIT_STATION_ID, liveFormat } from '../../lib/liveFormat'
 import {
   compareRegistrationClasses,
   getRegistrationClass,
-  getRegistrationPlacement,
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
@@ -44,7 +42,7 @@ import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { makeArray } from './components/eventForm/judgeSection/utils'
 import { KcIdLookupButton } from './components/KcIdLookupButton'
-import { StartDaySelector } from './components/StartDaySelector'
+import { StartDaySelector, startDayKey, startDaysOf } from './components/StartDaySelector'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { emptyEdit } from './eventResultsPage/types'
@@ -77,14 +75,8 @@ export default function EventResultsPage() {
   // A whole NOWT round is a thousand pixels of columns; short of that the dogs go one under another (KOE-1280).
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
-  const classes = useMemo(
-    () =>
-      [...new Set(registrations.filter(isScorableRegistration).map(getRegistrationClass))].sort(
-        compareRegistrationClasses
-      ),
-    [registrations]
-  )
-  const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])
+  const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
+  const [selectedClass, setSelectedClass] = useState<string | undefined>()
   const [selectedDay, setSelectedDay] = useState<string | undefined>()
   const [scope, setScope] = useState<string>(WHOLE_ROUND)
   const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
@@ -94,42 +86,45 @@ export default function EventResultsPage() {
   // A whole round's scores can ride on these edits; one stray swipe must not discard them (KOE-1283).
   useUnsavedChangesWarning(Object.keys(edits).length > 0)
 
-  const eventClass = selectedClass ?? classes[0]
   const stations: EventStation[] = useMemo(
     () => (scoresAtPosts(event?.eventType) ? (event?.stations ?? []) : []),
     [event?.eventType, event?.stations]
   )
 
-  const classRegistrations = useMemo(
-    () =>
-      registrations
-        .filter((reg) => isScorableRegistration(reg) && getRegistrationClass(reg) === eventClass)
-        .sort(sortRegistrationsByDateClassTimeAndNumber),
-    [eventClass, registrations]
+  // A multi-day trial is scored one day at a time, the same way its numbers are drawn, so the day is
+  // picked first and holds while the classes are worked through (KOE-1353, KOE-1350).
+  const days = useMemo<StartDay[]>(() => startDaysOf(scorable), [scorable])
+  const day = days.find((item) => item.key === selectedDay)?.key ?? days[0]?.key
+
+  const dayRegistrations = useMemo(
+    () => scorable.filter((reg) => days.length < 2 || startDayKey(reg) === day),
+    [day, days.length, scorable]
   )
 
-  // A multi-day class runs one day at a time and is scored the same way, so the entry is split by day
-  // exactly as the number entry is (KOE-1353). The days are the class's own placements.
-  const days = useMemo<StartDay[]>(
-    () =>
-      classRegistrations
-        .map((reg) => getRegistrationPlacement(reg)?.date)
-        .filter((date): date is Date => !!date)
-        .map((date) => ({ date, key: zonedDateString(date) }))
-        .filter((day, index, all) => all.findIndex((other) => other.key === day.key) === index)
-        .sort((a, b) => a.key.localeCompare(b.key)),
-    [classRegistrations]
+  // Only the classes that run on the chosen day: a tab leading to an empty sheet is a dead end.
+  const classes = useMemo(
+    () => [...new Set(dayRegistrations.map(getRegistrationClass))].sort(compareRegistrationClasses),
+    [dayRegistrations]
   )
-  // A day picked on one class tab may not exist on the next; fall back to the first rather than an empty list.
-  const day = days.find((item) => item.key === selectedDay)?.key ?? days[0]?.key
+  // A class chosen on one day may not run on the next; fall back rather than show an empty list.
+  const eventClass = classes.find((item) => item === selectedClass) ?? classes[0]
+
+  // The dogs of the class being scored, and — for the conflict dialog — every dog of it: edits
+  // survive a day switch, so a disputed dog may no longer be on screen when the answer comes back.
+  const classRegistrations = useMemo(
+    () =>
+      scorable
+        .filter((reg) => getRegistrationClass(reg) === eventClass)
+        .sort(sortRegistrationsByDateClassTimeAndNumber),
+    [eventClass, scorable]
+  )
 
   const rows = useMemo(
     () =>
-      classRegistrations.filter((reg) => {
-        const date = getRegistrationPlacement(reg)?.date
-        return days.length < 2 || (date && zonedDateString(date) === day)
-      }),
-    [classRegistrations, day, days.length]
+      dayRegistrations
+        .filter((reg) => getRegistrationClass(reg) === eventClass)
+        .sort(sortRegistrationsByDateClassTimeAndNumber),
+    [dayRegistrations, eventClass]
   )
 
   const fullRound = useMemo(() => {
@@ -307,6 +302,8 @@ export default function EventResultsPage() {
         )}
       </Box>
 
+      <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
+
       <Stack
         alignItems="center"
         direction="row"
@@ -347,8 +344,6 @@ export default function EventResultsPage() {
           </TextField>
         )}
       </Stack>
-
-      <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
 
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: { md: 2, xs: 1 } }}>
         <ResultsTable

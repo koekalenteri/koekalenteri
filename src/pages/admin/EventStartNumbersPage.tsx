@@ -18,7 +18,6 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { putStartNumbers } from '../../api/event'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
-import { zonedDateString } from '../../i18n/dates'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import {
@@ -33,7 +32,7 @@ import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
-import { StartDaySelector } from './components/StartDaySelector'
+import { StartDaySelector, startDayKey, startDaysOf } from './components/StartDaySelector'
 import { duplicateNumbers, StartNumbersTable } from './eventStartNumbersPage/StartNumbersTable'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom } from './state'
 
@@ -51,48 +50,36 @@ export default function EventStartNumbersPage() {
   // Four columns need more than a phone has; there the dog's details fold into one (KOE-1282).
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
 
-  const classes = useMemo(
-    () =>
-      [...new Set(registrations.filter(isScorableRegistration).map(getRegistrationClass))].sort(
-        compareRegistrationClasses
-      ),
-    [registrations]
-  )
-  const [selectedClass, setSelectedClass] = useState<string | undefined>(classes[0])
+  const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
+  const [selectedClass, setSelectedClass] = useState<string | undefined>()
   const [selectedDay, setSelectedDay] = useState<string | undefined>()
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   // The on-site draw is typed in as a batch; losing it to a stray navigation would mean redoing it (KOE-1283).
   useUnsavedChangesWarning(Object.values(drafts).some((value) => value !== ''))
 
-  const eventClass = selectedClass ?? classes[0]
-
-  const classRegistrations = useMemo(
-    () => registrations.filter((reg) => isScorableRegistration(reg) && getRegistrationClass(reg) === eventClass),
-    [eventClass, registrations]
-  )
-
-  // A multi-day class draws its numbers one morning at a time, so the entry goes day by day too
-  // (KOE-1303). The days are the class's own placements, keyed the way the server scopes uniqueness.
-  const days = useMemo<StartDay[]>(
-    () =>
-      classRegistrations
-        .map((reg) => getRegistrationPlacement(reg)?.date)
-        .filter((date): date is Date => !!date)
-        .map((date) => ({ date, key: zonedDateString(date) }))
-        .filter((day, index, all) => all.findIndex((other) => other.key === day.key) === index)
-        .sort((a, b) => a.key.localeCompare(b.key)),
-    [classRegistrations]
-  )
-  // A day picked on one class tab may not exist on the next; fall back to the first rather than an empty list.
+  // The draw runs day by day and the secretary works a whole morning before moving on, so the day is
+  // picked first and holds while the classes are worked through (KOE-1350). The days are therefore the
+  // event's own, not one class's.
+  const days = useMemo<StartDay[]>(() => startDaysOf(scorable), [scorable])
   const day = days.find((item) => item.key === selectedDay)?.key ?? days[0]?.key
+
+  const dayRegistrations = useMemo(
+    () => scorable.filter((reg) => days.length < 2 || startDayKey(reg) === day),
+    [day, days.length, scorable]
+  )
+
+  // Only the classes that run on the chosen day: a tab leading to an empty sheet is a dead end.
+  const classes = useMemo(
+    () => [...new Set(dayRegistrations.map(getRegistrationClass))].sort(compareRegistrationClasses),
+    [dayRegistrations]
+  )
+  // A class chosen on one day may not run on the next; fall back rather than show an empty list.
+  const eventClass = classes.find((item) => item === selectedClass) ?? classes[0]
 
   const rows = useMemo<StartNumberRow[]>(
     () =>
-      classRegistrations
-        .filter((reg) => {
-          const date = getRegistrationPlacement(reg)?.date
-          return days.length < 2 || (date && zonedDateString(date) === day)
-        })
+      dayRegistrations
+        .filter((reg) => getRegistrationClass(reg) === eventClass)
         .sort(sortRegistrationsByDateClassTimeAndNumber)
         .map((reg) => ({
           dog: { name: reg.dog.name, regNo: reg.dog.regNo },
@@ -102,7 +89,7 @@ export default function EventStartNumbersPage() {
           placement: getRegistrationPlacement(reg),
           startNumber: reg.startGroup?.number,
         })),
-    [classRegistrations, day, days.length]
+    [dayRegistrations, eventClass]
   )
 
   // A number belongs to one dog in the whole trial, every class and every day (KOE-1303): Friday
@@ -110,12 +97,10 @@ export default function EventStartNumbersPage() {
   const duplicates = useMemo(
     () =>
       duplicateNumbers(
-        registrations
-          .filter(isScorableRegistration)
-          .map((reg) => ({ id: reg.id, startNumber: reg.startGroup?.number })),
+        scorable.map((reg) => ({ id: reg.id, startNumber: reg.startGroup?.number })),
         drafts
       ),
-    [drafts, registrations]
+    [drafts, scorable]
   )
 
   const handleChange = useCallback((id: string, value: string) => {
@@ -167,13 +152,13 @@ export default function EventStartNumbersPage() {
         </Typography>
       </Box>
 
+      <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
+
       <Tabs onChange={(_event, value) => setSelectedClass(value)} sx={{ px: 2 }} value={eventClass ?? false}>
         {classes.map((item) => (
           <Tab key={item} label={item} value={item} />
         ))}
       </Tabs>
-
-      <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
 
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: { md: 2, xs: 1 } }}>
         <StartNumbersTable
