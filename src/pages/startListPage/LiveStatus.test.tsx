@@ -23,6 +23,15 @@ const turn = (overrides: Partial<NonNullable<PublicConfirmedEvent['liveTurns']>[
 })
 
 describe('LiveStatus', () => {
+  // The view reads "today" off the clock, and a span 17 minutes old falls on yesterday when the
+  // suite runs just after midnight. Pinning the clock to the fixtures' own day is what makes the
+  // spans below mean what they say.
+  beforeAll(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-09-12T12:00:00Z'))
+  })
+  afterAll(() => vi.useRealTimers())
+
   it('renders nothing before any span exists', () => {
     const { container } = render(<LiveStatus event={baseEvent} />)
 
