@@ -31,6 +31,7 @@ import InvitationDelivery from './infoPanel/InvitationDelivery'
 import ParticipantSelection from './infoPanel/ParticipantSelection'
 import ResultsPublishing from './infoPanel/ResultsPublishing'
 import StartListPublishing from './infoPanel/StartListPublishing'
+import StartNumbersPublishing from './infoPanel/StartNumbersPublishing'
 import { sectionSx } from './infoPanel/styles'
 
 interface Props {
@@ -306,6 +307,13 @@ const InfoPanel = ({
             eventWithCurrentAttachments={eventWithCurrentAttachments}
             numbersByClass={numbersByClass}
             onSetStartListPublished={onSetStartListPublished}
+            selectedByClass={selectedByClass}
+            stateByClass={stateByClass}
+          />
+          <StartNumbersPublishing
+            event={event}
+            eventWithCurrentAttachments={eventWithCurrentAttachments}
+            numbersByClass={numbersByClass}
             onSetStartNumbersPublished={onSetStartNumbersPublished}
             selectedByClass={selectedByClass}
             stateByClass={stateByClass}

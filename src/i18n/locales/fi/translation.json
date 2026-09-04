@@ -363,6 +363,7 @@
       "numbersIncomplete": "Starttinumeroiden syöttäminen on kesken. Syötä ensin kaikki starttinumerot.",
       "numbersPublished": "Starttinumerot julkaistu",
       "numbersPublishedDays": "Starttinumerot julkaistu: {{days}}",
+      "numbersPublishing": "Starttinumeroiden julkaisu",
       "preview": "Katso julkinen starttilista",
       "previewUnpublished": "Katso starttilistan esikatselu",
       "publish": "Julkaise starttilista",

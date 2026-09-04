@@ -1,6 +1,6 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Registration } from '../../../../types'
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { addDays } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import {
@@ -47,6 +47,13 @@ function _getGroupKey(r: Registration, i: number) {
 
 async function openInfoPanel(user: UserEvent) {
   await user.click(screen.getByRole('button', { name: 'eventManagement.open' }))
+}
+
+/** A panel section, found by the heading that names it — the sections are what this ticket is about. */
+function sectionOf(headingKey: string): HTMLElement {
+  const section = screen.getByText(headingKey).parentElement
+  if (!section) throw new Error(`no section for ${headingKey}`)
+  return section
 }
 
 describe('InfoPanel>', () => {
@@ -391,5 +398,46 @@ describe('InfoPanel>', () => {
     await openInfoPanel(user)
 
     expect(screen.getByRole('link', { name: 'eventManagement.startList.previewUnpublished' })).toBeInTheDocument()
+  })
+
+  it('gives the numbers a section of their own, with the draw entry in it (KOE-1297)', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+        {children}
+      </Provider>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, startListPublished: true, startNumbersPublished: { ALO: false } }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    const listSection = sectionOf('eventManagement.startList.publishing')
+    const numbersSection = sectionOf('eventManagement.startList.numbersPublishing')
+
+    // The list's own decision and the preview stay together: the numbers are a column of that list.
+    // One button per class, so these are counted rather than singled out.
+    expect(within(listSection).getAllByRole('button', { name: 'eventManagement.startList.hide' })).not.toHaveLength(0)
+    expect(
+      within(listSection).getByRole('link', { name: 'eventManagement.startList.previewUnpublished' })
+    ).toBeInTheDocument()
+
+    // Everything about the numbers moved out from under it, the draw entry included.
+    expect(
+      within(numbersSection).getAllByRole('button', { name: 'eventManagement.startList.publishNumbers' })
+    ).not.toHaveLength(0)
+    expect(within(numbersSection).getByRole('link', { name: 'eventManagement.enterStartNumbers' })).toBeInTheDocument()
+    expect(
+      within(listSection).queryAllByRole('button', { name: 'eventManagement.startList.publishNumbers' })
+    ).toHaveLength(0)
+    expect(
+      within(listSection).queryByRole('link', { name: 'eventManagement.enterStartNumbers' })
+    ).not.toBeInTheDocument()
   })
 })

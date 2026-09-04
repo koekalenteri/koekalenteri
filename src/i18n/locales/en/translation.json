@@ -363,6 +363,7 @@
       "numbersIncomplete": "Start number entry is incomplete. Enter all start numbers first.",
       "numbersPublished": "Start numbers published",
       "numbersPublishedDays": "Start numbers published: {{days}}",
+      "numbersPublishing": "Publishing start numbers",
       "preview": "View public start list",
       "previewUnpublished": "Preview start list",
       "publish": "Publish start list",
