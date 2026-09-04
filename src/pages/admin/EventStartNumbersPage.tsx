@@ -1,7 +1,5 @@
 import type { Theme } from '@mui/material'
-import type { StartDay } from './components/StartDaySelector'
 import type { StartNumberRow } from './eventStartNumbersPage/StartNumbersTable'
-import ArrowBack from '@mui/icons-material/ArrowBack'
 import Save from '@mui/icons-material/Save'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
@@ -15,24 +13,24 @@ import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { putStartNumbers } from '../../api/event'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import {
-  compareRegistrationClasses,
   getRegistrationClass,
   getRegistrationPlacement,
   isRegistrationClass,
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
-import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
+import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
-import { StartDaySelector, startDayKey, startDaysOf } from './components/StartDaySelector'
+import { StartDaySelector } from './components/StartDaySelector'
+import { useStartDayClasses } from './components/useStartDayClasses'
 import { duplicateNumbers, StartNumbersTable } from './eventStartNumbersPage/StartNumbersTable'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom } from './state'
 
@@ -51,30 +49,13 @@ export default function EventStartNumbersPage() {
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
 
   const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
-  const [selectedClass, setSelectedClass] = useState<string | undefined>()
-  const [selectedDay, setSelectedDay] = useState<string | undefined>()
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   // The on-site draw is typed in as a batch; losing it to a stray navigation would mean redoing it (KOE-1283).
   useUnsavedChangesWarning(Object.values(drafts).some((value) => value !== ''))
 
-  // The draw runs day by day and the secretary works a whole morning before moving on, so the day is
-  // picked first and holds while the classes are worked through (KOE-1350). The days are therefore the
-  // event's own, not one class's.
-  const days = useMemo<StartDay[]>(() => startDaysOf(scorable), [scorable])
-  const day = days.find((item) => item.key === selectedDay)?.key ?? days[0]?.key
-
-  const dayRegistrations = useMemo(
-    () => scorable.filter((reg) => days.length < 2 || startDayKey(reg) === day),
-    [day, days.length, scorable]
-  )
-
-  // Only the classes that run on the chosen day: a tab leading to an empty sheet is a dead end.
-  const classes = useMemo(
-    () => [...new Set(dayRegistrations.map(getRegistrationClass))].sort(compareRegistrationClasses),
-    [dayRegistrations]
-  )
-  // A class chosen on one day may not run on the next; fall back rather than show an empty list.
-  const eventClass = classes.find((item) => item === selectedClass) ?? classes[0]
+  // The draw runs day by day and the secretary works a whole morning before moving on (KOE-1350).
+  const { classes, day, dayRegistrations, days, eventClass, setSelectedClass, setSelectedDay } =
+    useStartDayClasses(scorable)
 
   const rows = useMemo<StartNumberRow[]>(
     () =>
@@ -136,21 +117,11 @@ export default function EventStartNumbersPage() {
       elevation={2}
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
-      <Box sx={{ pt: 2, px: 2 }}>
-        <Button
-          component={Link}
-          size="small"
-          startIcon={<ArrowBack fontSize="small" />}
-          sx={{ ml: -1 }}
-          to={Path.admin.viewEvent(eventId)}
-        >
-          {t('results.backToEvent')}
-        </Button>
-        <Typography variant="h6">{t('startNumbers.title')}</Typography>
+      <EntryPageHeader eventId={eventId} title={t('startNumbers.title')}>
         <Typography variant="body2" color="text.secondary">
           {t('startNumbers.info')}
         </Typography>
-      </Box>
+      </EntryPageHeader>
 
       <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
 

@@ -17,17 +17,13 @@ import { APIError } from '../../../../api/http'
 import { zonedParseDate } from '../../../../i18n/dates'
 import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
 import {
-  canPublishStartList,
   getPublishedStartNumbersDays,
   getStartNumbersClassDays,
-  isStartListAvailable,
-  isStartListAvailableForClass,
-  isStartNumbersPublishedForClass,
   isStartNumbersPublishedForDay,
 } from '../../../../lib/event'
-import { getInvitationRecipients, isRegistrationClass } from '../../../../lib/registration'
 import { isObject } from '../../../../lib/utils'
 import { Path } from '../../../../routeConfig'
+import { getPublishingRow, isStartNumbersPublished } from './publishingRow'
 import { actionButtonSx, sectionSx } from './styles'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
@@ -94,16 +90,6 @@ const StartNumbersPublishing = ({
   stateByClass,
 }: Props) => {
   const { t } = useTranslation()
-  const isStartListPublished = (eventClass?: ConfirmedEvent['classes'][number]) =>
-    eventClass
-      ? isStartListAvailableForClass(event, eventClass)
-      : event.classes.length === 0 && isStartListAvailable(event)
-  // Every day of the class: a multi-day class publishes one draw at a time (KOE-1304), and the
-  // class only counts as done once the last day is out.
-  const isNumbersPublished = (eventClass?: ConfirmedEvent['classes'][number]) =>
-    eventClass
-      ? isStartListAvailableForClass(event, eventClass) && isStartNumbersPublishedForClass(event, eventClass.class)
-      : event.classes.length === 0 && isStartListAvailable(event) && isStartNumbersPublishedForClass(event)
 
   const handleSetStartNumbersPublished = async (
     eventClass: RegistrationClass | undefined,
@@ -136,25 +122,15 @@ const StartNumbersPublishing = ({
         <Table>
           <TableBody>
             {Object.entries(numbersByClass).map(([className]) => {
-              const selected = selectedByClass[className] ?? []
-              const invitationsSent =
-                selected.length > 0 && getInvitationRecipients(eventWithCurrentAttachments, selected).length === 0
-              const classState = stateByClass[className] ?? event.state
-              const startListPublished = isStartListPublished(
-                event.classes.find((eventClass) => eventClass.class === className)
+              const row = getPublishingRow(
+                { event, eventWithCurrentAttachments, selectedByClass, stateByClass },
+                className
               )
-              const classlessEventRow = event.classes.length === 0 && className === event.eventType
-              const startListEventClass = isRegistrationClass(className) ? className : undefined
-              const numbersPublished = isNumbersPublished(
-                event.classes.find((eventClass) => eventClass.class === className)
-              )
+              const { publishable, startListEventClass, startListPublished } = row
+              const numbersPublished = isStartNumbersPublished(event, row.eventClass)
               // Numbers can only be public on a published list, so the buttons wait for the list.
               const canManageStartNumbers =
-                Boolean(onSetStartNumbersPublished) &&
-                (classlessEventRow || Boolean(startListEventClass)) &&
-                canPublishStartList(classState, event) &&
-                invitationsSent &&
-                startListPublished
+                Boolean(onSetStartNumbersPublished) && row.manageable && row.invitationsSent && startListPublished
               const days = classDays(event, className)
               const publishedDays = startListPublished ? getPublishedStartNumbersDays(event, startListEventClass) : []
               const partlyPublished = !numbersPublished && publishedDays.length > 0
@@ -213,9 +189,7 @@ const StartNumbersPublishing = ({
                             size="small"
                             disabled={!canManageStartNumbers}
                             onClick={() => {
-                              if (classlessEventRow || startListEventClass) {
-                                handleSetStartNumbersPublished(startListEventClass, !dayPublished, day)
-                              }
+                              if (publishable) handleSetStartNumbersPublished(startListEventClass, !dayPublished, day)
                             }}
                             color={dayPublished ? 'secondary' : 'primary'}
                             variant={canManageStartNumbers ? 'contained' : 'outlined'}

@@ -1,10 +1,8 @@
 import type { Theme } from '@mui/material'
 import type { EventResultsResponse } from '../../api/registration'
 import type { DogEvent, EventResult, EventStation, Patch, PublicJudge } from '../../types'
-import type { StartDay } from './components/StartDaySelector'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import type { ResultEdit } from './eventResultsPage/types'
-import ArrowBack from '@mui/icons-material/ArrowBack'
 import Save from '@mui/icons-material/Save'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
@@ -30,7 +28,6 @@ import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { liveViewEnabled } from '../../lib/features'
 import { IMPLICIT_STATION_ID, liveFormat } from '../../lib/liveFormat'
 import {
-  compareRegistrationClasses,
   getRegistrationClass,
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
@@ -39,10 +36,12 @@ import { classRound, scoresAtPosts, stationVersion } from '../../lib/results'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { idTokenAtom } from '../state'
+import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import { makeArray } from './components/eventForm/judgeSection/utils'
 import { KcIdLookupButton } from './components/KcIdLookupButton'
-import { StartDaySelector, startDayKey, startDaysOf } from './components/StartDaySelector'
+import { StartDaySelector } from './components/StartDaySelector'
+import { useStartDayClasses } from './components/useStartDayClasses'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { emptyEdit } from './eventResultsPage/types'
@@ -76,8 +75,6 @@ export default function EventResultsPage() {
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
   const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
-  const [selectedClass, setSelectedClass] = useState<string | undefined>()
-  const [selectedDay, setSelectedDay] = useState<string | undefined>()
   const [scope, setScope] = useState<string>(WHOLE_ROUND)
   const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
   const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
@@ -91,23 +88,9 @@ export default function EventResultsPage() {
     [event?.eventType, event?.stations]
   )
 
-  // A multi-day trial is scored one day at a time, the same way its numbers are drawn, so the day is
-  // picked first and holds while the classes are worked through (KOE-1353, KOE-1350).
-  const days = useMemo<StartDay[]>(() => startDaysOf(scorable), [scorable])
-  const day = days.find((item) => item.key === selectedDay)?.key ?? days[0]?.key
-
-  const dayRegistrations = useMemo(
-    () => scorable.filter((reg) => days.length < 2 || startDayKey(reg) === day),
-    [day, days.length, scorable]
-  )
-
-  // Only the classes that run on the chosen day: a tab leading to an empty sheet is a dead end.
-  const classes = useMemo(
-    () => [...new Set(dayRegistrations.map(getRegistrationClass))].sort(compareRegistrationClasses),
-    [dayRegistrations]
-  )
-  // A class chosen on one day may not run on the next; fall back rather than show an empty list.
-  const eventClass = classes.find((item) => item === selectedClass) ?? classes[0]
+  // A multi-day trial is scored one day at a time, the same way its numbers are drawn (KOE-1353).
+  const { classes, day, dayRegistrations, days, eventClass, setSelectedClass, setSelectedDay } =
+    useStartDayClasses(scorable)
 
   // The dogs of the class being scored, and — for the conflict dialog — every dog of it: edits
   // survive a day switch, so a disputed dog may no longer be on screen when the answer comes back.
@@ -271,17 +254,7 @@ export default function EventResultsPage() {
       elevation={2}
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
-      <Box sx={{ pt: 2, px: 2 }}>
-        <Button
-          component={Link}
-          size="small"
-          startIcon={<ArrowBack fontSize="small" />}
-          sx={{ ml: -1 }}
-          to={Path.admin.viewEvent(eventId)}
-        >
-          {t('results.backToEvent')}
-        </Button>
-        <Typography variant="h6">{t('results.title')}</Typography>
+      <EntryPageHeader eventId={eventId} title={t('results.title')}>
         {/* Which trial these results belong to, so the secretary is never entering against the wrong
             event: the day, the format, the venue and the name, same order as the AC gives them. */}
         <Typography variant="body2">
@@ -300,7 +273,7 @@ export default function EventResultsPage() {
             <KcIdLookupButton event={event} onChange={saveKcId} variant="text" />
           </Stack>
         )}
-      </Box>
+      </EntryPageHeader>
 
       <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
 

@@ -1,8 +1,8 @@
 import type { CapacityStatsEntry } from '../../../types/Stats'
+import type { MonthlyRate } from './MonthlyRateChart'
 import { useTranslation } from 'react-i18next'
 import { ALL_CLASSES_ID } from './CapacityUtilizationChart'
-import { SINGLE_SERIES_CHART_COLOR } from './chartColors'
-import StatsBarChart from './StatsBarChart'
+import MonthlyRateChart, { percentageOf } from './MonthlyRateChart'
 
 interface Props {
   readonly data: CapacityStatsEntry[]
@@ -12,16 +12,12 @@ interface Props {
 /**
  * Share of registrations that were cancelled, per month.
  *
- * A rate rather than a count, and therefore its own chart: months with wildly different entry
- * numbers are only comparable once the count is divided out, and a percentage cannot share an
- * axis with the people-counts next to it.
- *
  * The denominator is every registration: starters, those left in reserve and the cancelled. A
  * withdrawal from the waiting list is as much a cancellation as one from a place — many come in
  * before the participants are even picked — and a cancelled entry no longer records which of the
  * two it was, so the only honest base is everyone who entered.
  */
-const rateByMonth = (data: CapacityStatsEntry[]) => {
+const rateByMonth = (data: CapacityStatsEntry[]): MonthlyRate[] => {
   const totals = new Map<string, { cancelled: number; month: string; registered: number }>()
   for (const entry of data) {
     const total = totals.get(entry.month) ?? { cancelled: 0, month: entry.month, registered: 0 }
@@ -31,11 +27,7 @@ const rateByMonth = (data: CapacityStatsEntry[]) => {
   }
   return [...totals.values()]
     .sort((a, b) => a.month.localeCompare(b.month))
-    .map((total) => ({
-      month: total.month,
-      // A month with no registrations has no rate to speak of; 0 would read as "nobody cancelled".
-      rate: total.registered > 0 ? Math.round((total.cancelled / total.registered) * 1000) / 10 : null,
-    }))
+    .map((total) => ({ month: total.month, rate: percentageOf(total.cancelled, total.registered) }))
 }
 
 export default function CancellationRateChart({ data, classKey }: Props) {
@@ -44,25 +36,12 @@ export default function CancellationRateChart({ data, classKey }: Props) {
   const entries = rateByMonth(classKey === ALL_CLASSES_ID ? data : data.filter((entry) => entry.class === classKey))
 
   return (
-    <StatsBarChart
-      title={t('stats.admin.cancellationRateTitle')}
-      info={t('stats.admin.cancellationRateTitleInfo')}
+    <MonthlyRateChart
       emptyMessage={t('stats.admin.noCapacityData')}
-      isEmpty={entries.length === 0}
-      chartProps={{
-        colors: [SINGLE_SERIES_CHART_COLOR],
-        series: [
-          {
-            data: entries.map((entry) => entry.rate),
-            label: t('stats.admin.cancellationRate'),
-            valueFormatter: (value: number | null) => (value === null ? '–' : `${value} %`),
-          },
-        ],
-        // One series: the title already names it, so the legend box is redundant.
-        slotProps: { legend: { hidden: true } },
-        xAxis: [{ data: entries.map((entry) => entry.month), scaleType: 'band' }],
-        yAxis: [{ valueFormatter: (value: number) => `${value} %` }],
-      }}
+      entries={entries}
+      info={t('stats.admin.cancellationRateTitleInfo')}
+      label={t('stats.admin.cancellationRate')}
+      title={t('stats.admin.cancellationRateTitle')}
     />
   )
 }

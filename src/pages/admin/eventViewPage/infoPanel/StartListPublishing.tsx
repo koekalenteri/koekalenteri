@@ -13,14 +13,14 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
-import {
-  canPublishStartList,
-  isStartListAvailable,
-  isStartListAvailableForClass,
-  isStartNumbersPublishedForClass,
-} from '../../../../lib/event'
-import { getInvitationRecipients, isRegistrationClass } from '../../../../lib/registration'
+import { canPublishStartList } from '../../../../lib/event'
 import { Path } from '../../../../routeConfig'
+import {
+  getPublishingRow,
+  isPublishedForEveryClass,
+  isStartListPublished,
+  isStartNumbersPublished,
+} from './publishingRow'
 import { actionButtonSx, sectionSx } from './styles'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
@@ -48,25 +48,9 @@ const StartListPublishing = ({
   stateByClass,
 }: Props) => {
   const { t } = useTranslation()
-  const isStartListPublished = (eventClass?: ConfirmedEvent['classes'][number]) =>
-    eventClass
-      ? isStartListAvailableForClass(event, eventClass)
-      : event.classes.length === 0 && isStartListAvailable(event)
-  // Every day of the class: a multi-day class publishes one draw at a time (KOE-1304), and the
-  // class only counts as done once the last day is out.
-  const isNumbersPublished = (eventClass?: ConfirmedEvent['classes'][number]) =>
-    eventClass
-      ? isStartListAvailableForClass(event, eventClass) && isStartNumbersPublishedForClass(event, eventClass.class)
-      : event.classes.length === 0 && isStartListAvailable(event) && isStartNumbersPublishedForClass(event)
-  const startListFullyPublished =
-    event.classes.length === 0
-      ? isStartListPublished()
-      : event.classes.every((eventClass) => isStartListPublished(eventClass))
+  const startListFullyPublished = isPublishedForEveryClass(event, isStartListPublished)
   // With numbers still withheld the secretary sees more than the public does, so the link is a preview.
-  const startNumbersFullyPublished =
-    event.classes.length === 0
-      ? isNumbersPublished()
-      : event.classes.every((eventClass) => isNumbersPublished(eventClass))
+  const startNumbersFullyPublished = isPublishedForEveryClass(event, isStartNumbersPublished)
 
   const handleSetStartListPublished = async (eventClass: RegistrationClass | undefined, published: boolean) => {
     const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
@@ -89,30 +73,21 @@ const StartListPublishing = ({
         <Table>
           <TableBody>
             {Object.entries(numbersByClass).map(([className]) => {
-              const selected = selectedByClass[className] ?? []
-              const invitationsSent =
-                selected.length > 0 && getInvitationRecipients(eventWithCurrentAttachments, selected).length === 0
-              const classState = stateByClass[className] ?? event.state
-              const startListPublished = isStartListPublished(
-                event.classes.find((eventClass) => eventClass.class === className)
+              const row = getPublishingRow(
+                { event, eventWithCurrentAttachments, selectedByClass, stateByClass },
+                className
               )
-              const classlessEventRow = event.classes.length === 0 && className === event.eventType
-              const startListEventClass = isRegistrationClass(className) ? className : undefined
+              const { publishable, startListEventClass, startListPublished } = row
               // A finished event deliberately does not disable this. Publishing the list is what carries
               // the results to the public, and results are entered after the dogs have run — unlike
               // picking participants or sending invitations, which a finished event should not reopen.
-              const startListManageable =
-                Boolean(onSetStartListPublished) &&
-                (classlessEventRow || Boolean(startListEventClass)) &&
-                canPublishStartList(classState, event)
-              const canManageStartList = invitationsSent && startListManageable
+              const canManageStartList = Boolean(onSetStartListPublished) && row.manageable && row.invitationsSent
               // A dead button with no reason beside it is the thing this whole step reads as broken
               // (KOE-1313). Publishing waits on the invitations, and those wait on the participants
               // being picked, so name whichever of the two is still outstanding.
-              const blockedReasonKey =
-                selected.length === 0
-                  ? 'eventManagement.startList.participantsRequired'
-                  : 'eventManagement.startList.invitationsRequired'
+              const blockedReasonKey = row.participantsPicked
+                ? 'eventManagement.startList.invitationsRequired'
+                : 'eventManagement.startList.participantsRequired'
 
               return (
                 <TableRow key={className}>
@@ -139,9 +114,7 @@ const StartListPublishing = ({
                         size="small"
                         disabled={!canManageStartList}
                         onClick={() => {
-                          if (classlessEventRow || startListEventClass) {
-                            handleSetStartListPublished(startListEventClass, !startListPublished)
-                          }
+                          if (publishable) handleSetStartListPublished(startListEventClass, !startListPublished)
                         }}
                         color={startListPublished ? 'secondary' : 'primary'}
                         variant={canManageStartList ? 'contained' : 'outlined'}
