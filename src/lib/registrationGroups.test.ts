@@ -182,6 +182,48 @@ describe('applyRegistrationGroupMoves', () => {
   })
 })
 
+describe("a WT trial's shared reserve list", () => {
+  const wtRegistration = (id: string, cls: string, number: number): JsonRegistration =>
+    ({
+      cancelled: false,
+      class: cls,
+      eventId: 'event',
+      eventType: 'NOWT',
+      group: { key: 'reserve', number },
+      id,
+    }) as JsonRegistration
+
+  it('numbers every class into one queue (KOE-912)', () => {
+    const items = normalizeRegistrationGroups([
+      wtRegistration('alo-1', 'ALO', 1),
+      wtRegistration('avo-1', 'AVO', 1),
+      wtRegistration('voi-1', 'VOI', 1),
+      wtRegistration('alo-2', 'ALO', 2),
+    ])
+
+    expect(items.map((item) => [item.id, item.group?.number])).toEqual([
+      ['alo-1', 1],
+      ['alo-2', 2],
+      ['avo-1', 3],
+      ['voi-1', 4],
+    ])
+  })
+
+  it('closes the gap in the other classes when a dog is raised into its own class', () => {
+    const result = applyRegistrationGroupMoves(
+      [wtRegistration('alo-1', 'ALO', 1), wtRegistration('avo-1', 'AVO', 2), wtRegistration('voi-1', 'VOI', 3)],
+      [{ group: { date: '2021-02-10', key: '2021-02-10-kp', time: 'kp' }, id: 'alo-1' }]
+    )
+
+    expect(result.invalid).toEqual([])
+    expect(result.items.map((item) => [item.id, item.group?.key, item.group?.number])).toEqual([
+      ['avo-1', 'reserve', 1],
+      ['voi-1', 'reserve', 2],
+      ['alo-1', '2021-02-10-kp', 1],
+    ])
+  })
+})
+
 describe('normalizeRegistrationGroups', () => {
   it('uses the same missing-number ordering as move normalization', () => {
     const source = [

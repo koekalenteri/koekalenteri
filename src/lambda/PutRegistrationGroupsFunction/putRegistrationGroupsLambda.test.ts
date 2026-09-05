@@ -1,4 +1,4 @@
-import type { JsonRegistration, JsonRegistrationGroupInfo, JsonUser } from '../../types'
+import type { JsonRegistration, JsonRegistrationGroupInfo, JsonUser, RegistrationClass } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { eventWithALOClassInvited, eventWithParticipantsInvited } from '../../__mockData__/events'
@@ -515,6 +515,56 @@ describe('putRegistrationGroupsLambda', () => {
     expect(mockSend).toHaveBeenNthCalledWith(4, 'registration', event, [], undefined, '', 'Test User', 'cancel')
     expect(mockSend).toHaveBeenCalledTimes(4)
     expect(res.statusCode).toBe(200)
+  })
+
+  it('sends the updated reserve notice to every class of a WT trial', async () => {
+    // A WT trial's reserve list is the whole trial's (KOE-912): raising the top dog moves the dogs
+    // of the other classes up too, and each of them is owed the corrected position.
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    event.eventType = 'NOWT'
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+
+    const base = jsonRegistrationsToEventWithParticipantsInvited.find((r) => r.group?.key === 'reserve')
+    if (!base) throw new Error('Expected a reserve registration fixture')
+    const reserve = (id: string, cls: RegistrationClass, number: number): JsonRegistration => ({
+      ...base,
+      class: cls,
+      eventType: 'NOWT',
+      group: { key: 'reserve', number },
+      id,
+      reserveNotified: number,
+    })
+    const storedItems = [reserve('wt-1', 'ALO', 1), reserve('wt-2', 'AVO', 2), reserve('wt-3', 'VOI', 3)]
+    mockDynamoDB.query.mockResolvedValueOnce(storedItems)
+    mockDynamoDB.read.mockResolvedValue(event)
+
+    const res = await putRegistrationGroupsLambda(
+      constructAPIGwEvent(
+        [
+          {
+            cancelled: false,
+            eventId: event.id,
+            group: { date: event.startDate, key: 'ALO-AP', time: 'ap' },
+            id: 'wt-1',
+          },
+        ] as JsonRegistrationGroupInfo[],
+        { pathParameters: { eventId: event.id } }
+      )
+    )
+
+    expect(res.statusCode).toBe(200)
+    expect(mockSend).toHaveBeenCalledWith(
+      'reserve',
+      event,
+      [
+        expect.objectContaining({ class: 'AVO', group: { key: 'reserve', number: 1 }, id: 'wt-2' }),
+        expect.objectContaining({ class: 'VOI', group: { key: 'reserve', number: 2 }, id: 'wt-3' }),
+      ],
+      undefined,
+      '',
+      'Test User',
+      ''
+    )
   })
 
   /** Lifts the first ALO reserve into the participants of a class that has already been invited. */

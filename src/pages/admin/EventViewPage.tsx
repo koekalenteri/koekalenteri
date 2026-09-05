@@ -8,10 +8,12 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import { useAtom, useAtomValue } from 'jotai'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
+import { hasSharedReserveList } from '../../lib/event'
 import { getRegistrationClass, isRegistrationClass } from '../../lib/registration'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
@@ -38,7 +40,11 @@ import {
 } from './state'
 import { useAdminRegistrationActions } from './state/registrations/actions'
 
+/** Tab id of the whole-trial list a shared reserve list gets; no class can carry this name. */
+const ALL_CLASSES_TAB = '*'
+
 export default function EventViewPage() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
@@ -72,16 +78,31 @@ export default function EventViewPage() {
   )
   const backgroundActionsRunning = useAtomValue(adminBackgroundActionsRunningAtom)
 
-  const activeTab = useMemo(() => Math.max(allClasses.indexOf(currentEventClass), 0), [allClasses, currentEventClass])
+  // A WT trial's reserve list is the whole trial's, so it gets a tab of its own that spans every
+  // class: one list to pick from, and a dropped dog lands in the class it entered (KOE-912).
+  const [allClassesTabSelected, setAllClassesTabSelected] = useState(false)
+  const tabs = useMemo(
+    () => (hasSharedReserveList(event?.eventType) ? [...allClasses, ALL_CLASSES_TAB] : allClasses),
+    [allClasses, event?.eventType]
+  )
+  const allClassesTabIndex = tabs.indexOf(ALL_CLASSES_TAB)
+  const activeTab = useMemo(
+    () =>
+      allClassesTabSelected && allClassesTabIndex >= 0
+        ? allClassesTabIndex
+        : Math.max(tabs.indexOf(currentEventClass), 0),
+    [allClassesTabIndex, allClassesTabSelected, currentEventClass, tabs]
+  )
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
-      const next = allClasses[newValue]
+      const next = tabs[newValue]
+      setAllClassesTabSelected(next === ALL_CLASSES_TAB)
       if (next && isRegistrationClass(next)) {
         setSelectedEventClass(next)
       }
     },
-    [allClasses, setSelectedEventClass]
+    [setSelectedEventClass, tabs]
   )
 
   const handleClose = useCallback(() => setOpen(false), [])
@@ -184,7 +205,7 @@ export default function EventViewPage() {
 
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Tabs value={activeTab} onChange={handleTabChange}>
-          {allClasses.map((eventClass) => (
+          {tabs.map((eventClass) => (
             <Tab
               key={`tab-${eventClass}`}
               id={`tab-${eventClass}`}
@@ -193,7 +214,7 @@ export default function EventViewPage() {
                 borderLeft: '1px solid',
                 borderLeftColor: 'divider',
               }}
-              label={eventClass}
+              label={eventClass === ALL_CLASSES_TAB ? t('eventManagement.allClasses') : eventClass}
             ></Tab>
           ))}
         </Tabs>
@@ -204,27 +225,35 @@ export default function EventViewPage() {
         />
       </Stack>
 
-      {allClasses.map((eventClass, index) => (
-        <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
-          {missingClasses.includes(eventClass) ? (
-            <Alert severity="info" sx={{ m: 1 }}>
-              Nämä ilmoittautumiset ovat koeluokassa, jota ei enää ole kokeessa. Ilmoittautumisten luokat täytyy
-              korjata.
-            </Alert>
-          ) : null}
-          <ClassEntrySelection
-            event={event}
-            eventClass={eventClass}
-            registrations={allRegistrations.filter((registration) => getRegistrationClass(registration) === eventClass)}
-            setOpen={setOpen}
-            setCancelOpen={setCancelOpen}
-            setRefundOpen={setRefundOpen}
-            selectedRegistrationId={selectedRegistrationId}
-            setSelectedRegistrationId={setSelectedRegistrationId}
-            state={stateByClass[eventClass]}
-          />
-        </TabPanel>
-      ))}
+      {tabs.map((eventClass, index) => {
+        const allClassesTab = eventClass === ALL_CLASSES_TAB
+
+        return (
+          <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
+            {missingClasses.includes(eventClass) ? (
+              <Alert severity="info" sx={{ m: 1 }}>
+                Nämä ilmoittautumiset ovat koeluokassa, jota ei enää ole kokeessa. Ilmoittautumisten luokat täytyy
+                korjata.
+              </Alert>
+            ) : null}
+            <ClassEntrySelection
+              event={event}
+              eventClass={allClassesTab ? undefined : eventClass}
+              registrations={
+                allClassesTab
+                  ? allRegistrations
+                  : allRegistrations.filter((registration) => getRegistrationClass(registration) === eventClass)
+              }
+              setOpen={setOpen}
+              setCancelOpen={setCancelOpen}
+              setRefundOpen={setRefundOpen}
+              selectedRegistrationId={selectedRegistrationId}
+              setSelectedRegistrationId={setSelectedRegistrationId}
+              state={allClassesTab ? event.state : stateByClass[eventClass]}
+            />
+          </TabPanel>
+        )
+      })}
       <Suspense
         fallback={
           <Modal open>

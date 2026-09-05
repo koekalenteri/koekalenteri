@@ -310,6 +310,7 @@
   "eventInfo": "Tapahtuman tiedot",
   "eventManagement": {
     "actions": "Toiminnot",
+    "allClasses": "Kaikki luokat",
     "attachment": {
       "addPdf": "Lisää PDF",
       "date": "{{date, dtshort2}}",

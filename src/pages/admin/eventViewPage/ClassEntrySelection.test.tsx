@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
-import type { Registration } from '../../../types'
-import { render } from '@testing-library/react'
+import type { Registration, RegistrationClass } from '../../../types'
+import { render, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
+import { GROUP_KEY_RESERVE } from '../../../lib/registration'
 import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { idTokenAtom } from '../../state'
 import ClassEntrySelection from './ClassEntrySelection'
@@ -53,6 +54,36 @@ describe('ClassEntrySelection', () => {
     )
     await flushPromises()
     expect(container).toMatchSnapshot()
+  })
+
+  it('lists every class in one reserve list when it covers the whole trial', async () => {
+    // The WT tab has no class of its own (KOE-912): one reserve list for the trial, each row naming
+    // the class the dog is waiting for a place in.
+    const reserve = (id: string, eventClass: RegistrationClass, regNo: string): Registration => ({
+      ...registrationWithStaticDates,
+      class: eventClass,
+      dates: [{ date: eventWithStaticDatesAnd3Classes.startDate, time: 'kp' }],
+      dog: { ...registrationWithStaticDates.dog, regNo },
+      group: { key: GROUP_KEY_RESERVE, number: eventClass === 'ALO' ? 1 : 2 },
+      id,
+    })
+
+    render(
+      <ClassEntrySelection
+        event={eventWithStaticDatesAnd3Classes}
+        registrations={[reserve('r-alo', 'ALO', 'ALO-1'), reserve('r-voi', 'VOI', 'VOI-1')]}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+
+    // Translations are not loaded in this suite, so the keys stand in for the Finnish labels.
+    expect(screen.getByRole('heading', { level: 6, name: /Osallistujat/ }).textContent).toContain(
+      'eventManagement.allClasses'
+    )
+    expect(screen.getByText('ALO-1')).toBeInTheDocument()
+    expect(screen.getByText('VOI-1')).toBeInTheDocument()
+    expect(screen.getAllByRole('columnheader', { name: 'startListExport.class' }).length).toBeGreaterThan(0)
   })
 
   it('shows a warning icon for a registration whose dates are not on the class days', async () => {

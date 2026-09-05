@@ -250,6 +250,16 @@ export const eventTypeLabel = (event: { eventType: string; mockTrial?: boolean }
   event.mockTrial ? `${event.eventType} (Mock trial)` : event.eventType
 
 /**
+ * The event types whose reserve list belongs to the whole trial rather than to each class (KOE-912):
+ * the WT trials. A dog waits for a place in the trial, so the position it is told has to count every
+ * class's reserves, and the secretary picks from one list instead of keeping a per-class tally.
+ */
+const SHARED_RESERVE_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
+
+export const hasSharedReserveList = (eventType?: string | null) =>
+  !!eventType && SHARED_RESERVE_EVENT_TYPES.has(eventType)
+
+/**
  * Event types are official when the Kennel Club knows them, which the event type sync records in
  * `official`. Rows predating that flag - and the SM types, which have no Kennel Club counterpart of
  * their own - fall back to the list above, so that stays the source of truth for the event types

@@ -76,6 +76,34 @@ it('shows entered numbers and flags a dog whose number is still undrawn', async 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('startlist-secretary-group-number-pending')
 })
 
+it("shows a WT trial's shared reserve list with the class on every row", async () => {
+  // One reserve list for the whole trial (KOE-912): no class heading above it, a class column instead.
+  const regs = [
+    entry('wt-1', 'Ykkösvara', 1, { class: 'VOI', group: { key: 'reserve', number: 1 }, reserve: 'ANY' }),
+    entry('wt-2', 'Kakkosvara', 2, { class: 'ALO', group: { key: 'reserve', number: 2 }, reserve: 'DAY' }),
+  ]
+  const group: Record<string, Record<string, Registration[]>> = { '*': { kp: regs } }
+
+  const screen = await render(
+    <Frame>
+      <StartListGroup
+        colSpan={11}
+        eventClass="*"
+        group={group}
+        heading="Varalla"
+        nameLen={12}
+        reserve
+        sharedReserve
+        time="kp"
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('REG-wt-1')).toBeVisible()
+  await expect.element(screen.getByText('Kotikunta')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('startlist-secretary-shared-reserve')
+})
+
 it('shows the reserve group with location and notice columns', async () => {
   const regs = [
     entry('reserve-1', 'Varakoira', 1, { group: { key: 'reserve', number: 1 }, reserve: 'DAY' }),

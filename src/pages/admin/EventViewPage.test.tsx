@@ -7,12 +7,16 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
+import {
+  eventWithStaticDates,
+  eventWithStaticDatesAnd3Classes,
+  eventWithStaticDatesAndClass,
+} from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 import EventViewPage from './EventViewPage'
 import { adminEventClassAtom, adminEventIdAtom } from './state'
 
@@ -139,6 +143,88 @@ describe('EventViewPage', () => {
 
     await flushPromises()
     expect(container).toMatchSnapshot()
+  })
+
+  it('gives a WT trial a tab of its own for the shared reserve list', async () => {
+    // The reserve list of a WT trial belongs to the whole trial (KOE-912), so it gets a tab that
+    // spans every class next to the per-class ones.
+    const originalEventType = eventWithStaticDatesAnd3Classes.eventType
+    eventWithStaticDatesAnd3Classes.eventType = 'NOWT'
+
+    const routes: RouteObject[] = [
+      {
+        element: <EventViewPage />,
+        path: Path.admin.viewEvent(),
+      },
+    ]
+
+    try {
+      const { user } = renderWithUserEvents(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <Provider>
+              <Suspense fallback={<div>loading...</div>}>
+                <SnackbarProvider>
+                  <ConfirmProvider>
+                    <DataMemoryRouter
+                      initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAnd3Classes.id)]}
+                      routes={routes}
+                    />
+                  </ConfirmProvider>
+                </SnackbarProvider>
+              </Suspense>
+            </Provider>
+          </LocalizationProvider>
+        </ThemeProvider>
+      )
+      await flushPromises()
+
+      // Translations are not loaded in this suite, so the key stands in for the Finnish label.
+      const sharedTab = screen.getByRole('tab', { name: 'eventManagement.allClasses' })
+      expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
+        'ALO',
+        'AVO',
+        'VOI',
+        'eventManagement.allClasses',
+      ])
+
+      await user.click(sharedTab)
+      await flushPromises()
+      expect(sharedTab).toHaveAttribute('aria-selected', 'true')
+    } finally {
+      eventWithStaticDatesAnd3Classes.eventType = originalEventType
+    }
+  })
+
+  it("does not add the shared reserve tab to a trial whose reserves are the class's own", async () => {
+    const routes: RouteObject[] = [
+      {
+        element: <EventViewPage />,
+        path: Path.admin.viewEvent(),
+      },
+    ]
+
+    render(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <ConfirmProvider>
+                  <DataMemoryRouter
+                    initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAnd3Classes.id)]}
+                    routes={routes}
+                  />
+                </ConfirmProvider>
+              </SnackbarProvider>
+            </Suspense>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'AVO', 'VOI'])
   })
 
   it('shows other viewers and hides the current user from the viewer banner', async () => {

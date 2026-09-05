@@ -490,6 +490,19 @@ describe('lib/registration', () => {
         })
       ).toEqual('reserve-NOU')
     })
+
+    it.each(['NOWT', 'NOWT SM'])('numbers the reserves of a %s trial across its classes', (eventType) => {
+      // The WT reserve list belongs to the trial, not the class (KOE-912), so every class shares
+      // one numbering group and the position a dog is told counts the whole trial.
+      expect(getRegistrationNumberingGroupKey({ class: 'ALO', eventType })).toEqual('reserve')
+      expect(getRegistrationNumberingGroupKey({ class: 'VOI', eventType })).toEqual('reserve')
+    })
+
+    it("still numbers a WT trial's cancelled entries by class", () => {
+      expect(getRegistrationNumberingGroupKey({ cancelled: true, class: 'ALO', eventType: 'NOWT' })).toEqual(
+        'cancelled-ALO'
+      )
+    })
   })
 
   describe('getRegistrationGroupKey', () => {

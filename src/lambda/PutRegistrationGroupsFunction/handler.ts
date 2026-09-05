@@ -1,4 +1,5 @@
 import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonUser, RegistrationGroupMove } from '../../types'
+import { hasSharedReserveList } from '../../lib/event'
 import { isRegistrationPaid } from '../../lib/payment'
 import {
   GROUP_KEY_CANCELLED,
@@ -123,7 +124,10 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     return response(422, 'no groups', event)
   }
 
-  await getAuthorizedEvent(user, memberOf, eventId)
+  const authorizedEvent = await getAuthorizedEvent(user, memberOf, eventId)
+  // A WT trial's reserve list is the whole trial's (KOE-912), so raising one dog shifts every class's
+  // reserves up and the updated reserve notice can not stay inside the moved dog's class.
+  const sharedReserve = hasSharedReserveList(authorizedEvent.eventType)
 
   // Keep the read, normalization, writes, and count recalculation on one event
   // snapshot. A concurrent request receives 409 instead of applying stale
@@ -255,7 +259,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
      */
     const movedReserve = updatedItems.filter(
       (reg) =>
-        classEquals(reg.class, cls) &&
+        (sharedReserve || classEquals(reg.class, cls)) &&
         getRegistrationGroupKey(reg) === GROUP_KEY_RESERVE &&
         reg.reserveNotified &&
         (reg.reserveNotified === true

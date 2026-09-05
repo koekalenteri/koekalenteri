@@ -20,6 +20,7 @@ import {
   canRefund,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
+  getRegistrationClass,
   getRegistrationGroupKey,
   isPredefinedReason,
 } from '../../../../lib/registration'
@@ -218,7 +219,9 @@ export function useClassEntrySelectionColumns(
   available: RegistrationDate[],
   event: DogEvent,
   callbacks?: RegistrationActionCallbacks,
-  registrations: Registration[] = []
+  registrations: Registration[] = [],
+  /** The grid spans every class, so each row has to name its own (KOE-912). */
+  showClass = false
 ) {
   const { t } = useTranslation()
 
@@ -346,12 +349,22 @@ export function useClassEntrySelectionColumns(
       },
     ]
 
+    if (showClass) {
+      columnConfigs.splice(2, 0, {
+        field: 'class',
+        headerName: t('startListExport.class'),
+        minWidth: 56,
+        valueGetter: (_value, row) => getRegistrationClass(row),
+        width: 56,
+      })
+    }
+
     // Apply common properties to all columns
     return columnConfigs.map((config) => ({
       ...config,
       sortable: false, // Common property for all columns
     })) as GridColDef<Registration>[]
-  }, [available, callbacks, drawnDates, event, t])
+  }, [available, callbacks, drawnDates, event, showClass, t])
 
   return useMemo(() => {
     const entryColumns = createColumnDefinitions()

@@ -21,7 +21,7 @@ import type {
 } from '../types'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
-import { isEntryClosed, localizedEventDescription, localizedEventName } from './event'
+import { hasSharedReserveList, isEntryClosed, localizedEventDescription, localizedEventName } from './event'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
 import { isObject, unique } from './utils'
@@ -408,7 +408,8 @@ export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Re
   if (reg.group?.date) {
     return 'participants'
   }
-  return `${GROUP_KEY_RESERVE}-${classOrType}`
+  // A WT trial's reserve list is the whole trial's, so its numbers run across the classes (KOE-912).
+  return hasSharedReserveList(reg.eventType) ? GROUP_KEY_RESERVE : `${GROUP_KEY_RESERVE}-${classOrType}`
 }
 
 export const getRegistrationGroupKey = <T extends JsonRegistration | Registration>(

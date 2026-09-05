@@ -21,6 +21,7 @@ import { eventRegistrationDateKey, isEventOver } from '../../../lib/event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
+  getRegistrationClass,
   getRegistrationGroupKey,
   isRegistrationClass,
 } from '../../../lib/registration'
@@ -56,7 +57,8 @@ import SendMessageDialog from './SendMessageDialog'
 
 interface Props {
   readonly event: DogEvent
-  readonly eventClass: string
+  /** The class this list covers, or undefined for the whole trial - the WT tab (KOE-912). */
+  readonly eventClass?: string
   readonly registrations?: Registration[]
   readonly setOpen?: Dispatch<SetStateAction<boolean>>
   readonly setCancelOpen?: Dispatch<SetStateAction<boolean>>
@@ -273,7 +275,8 @@ const ClassEntrySelection = ({
     dates,
     event,
     callbacks,
-    registrations
+    registrations,
+    !eventClass
   )
 
   const reserveNotNotified = useMemo(
@@ -298,7 +301,7 @@ const ClassEntrySelection = ({
   return (
     <DndProvider backend={HTML5Backend}>
       <Typography variant="h6">
-        Osallistujat {eventClass} {stateText ? ` - ${stateText}` : ''}
+        Osallistujat {eventClass ?? t('eventManagement.allClasses')} {stateText ? ` - ${stateText}` : ''}
       </Typography>
       {/* column headers only */}
       <Box sx={{ flexShrink: 0, height: 40, overflow: 'hidden', width: '100%' }}>
@@ -497,10 +500,12 @@ const ClassEntrySelection = ({
                       throw new Error('Moving the registration to the day failed')
                     }
                   }
+                  // On the whole-trial tab the numbers belong to the dog's own class (KOE-912).
+                  const numberClass = eventClass ?? getRegistrationClass(selectedForAction)
                   await putStartNumbers(
                     event.id,
                     {
-                      ...(isRegistrationClass(eventClass) ? { eventClass } : {}),
+                      ...(isRegistrationClass(numberClass) ? { eventClass: numberClass } : {}),
                       numbers: [{ id: selectedForAction.id, startNumber: position }],
                     },
                     token ?? ''

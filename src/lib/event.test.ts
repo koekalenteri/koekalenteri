@@ -40,6 +40,7 @@ import {
   hasMockTrialChoice,
   hasPublishedResults,
   hasRetrieveTypeChoice,
+  hasSharedReserveList,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEventDeletable,
@@ -1375,6 +1376,19 @@ describe('registrationDatesOutsideClass', () => {
     it.each([false, undefined])('is the bare event type otherwise (mockTrial: %s)', (mockTrial) => {
       expect(eventTypeLabel({ eventType: 'NOWT', mockTrial })).toEqual('NOWT')
     })
+  })
+
+  describe('hasSharedReserveList', () => {
+    it.each(['NOWT', 'NOWT SM'])('is the WT trials (%s) that keep one reserve list for the trial', (eventType) => {
+      expect(hasSharedReserveList(eventType)).toEqual(true)
+    })
+
+    it.each(['NOU', 'NOME-A', 'NOME-B', 'NKM', 'Koulutus', '', undefined, null])(
+      'does not apply to %s',
+      (eventType) => {
+        expect(hasSharedReserveList(eventType)).toEqual(false)
+      }
+    )
   })
 })
 

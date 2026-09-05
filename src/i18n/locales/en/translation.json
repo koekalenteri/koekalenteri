@@ -310,6 +310,7 @@
   "eventInfo": "Event information",
   "eventManagement": {
     "actions": "Actions",
+    "allClasses": "All classes",
     "attachment": {
       "addPdf": "Add PDF",
       "date": "{{date, dtshort2}}",

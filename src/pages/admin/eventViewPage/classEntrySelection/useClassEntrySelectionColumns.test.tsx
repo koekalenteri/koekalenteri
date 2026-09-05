@@ -75,6 +75,34 @@ describe('useClassEntrySectionColumns', () => {
     expect(cancelReasonColumn).toBeDefined()
   })
 
+  it("names each dog's class when the list spans them all", () => {
+    // The WT trial's shared reserve list is one list for every class (KOE-912), so the row has to
+    // say which class the dog is waiting for a place in.
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, undefined, [], true)
+    )
+
+    const { entryColumns } = result.current
+    expect(entryColumns.map((col) => col.field)).toEqual([
+      'dates',
+      'number',
+      'class',
+      'dog.name',
+      'dog.regNo',
+      'dob.breed',
+      'handler',
+      'lastEmail',
+      'icons',
+      'actions',
+    ])
+
+    const classGetter = entryColumns.find((col) => col.field === 'class')?.valueGetter as (
+      value: unknown,
+      row: Registration
+    ) => string
+    expect(classGetter(undefined, asRegistration({ class: 'VOI' }))).toBe('VOI')
+  })
+
   it('should include callback functions in action column when provided', () => {
     const openEditDialogMock = vi.fn()
     const cancelRegistrationMock = vi.fn()
