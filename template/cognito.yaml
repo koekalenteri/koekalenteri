@@ -60,8 +60,8 @@
       # The frontend uses the code flow (responseType: 'code'); the implicit flow
       # is deprecated and leaks tokens via URL fragments, so it stays disabled.
       AllowedOAuthFlows: ['code']
-      CallbackURLs: ['http://localhost:3000/login', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain, '/login']], !Join ['', ['https://', !Ref CustomDomain, '/login']]]
-      LogoutURLs: ['http://localhost:3000/logout', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain, '/logout']], !Join ['', ['https://', !Ref CustomDomain, '/logout']]]
+      CallbackURLs: ['http://localhost:3000/login', !Join ['', ['https://', !Ref Branch, '.', !GetAtt AmplifyApp.DefaultDomain, '/login']], !Join ['', ['https://', !Ref CustomDomain, '/login']]]
+      LogoutURLs: ['http://localhost:3000/logout', !Join ['', ['https://', !Ref Branch, '.', !GetAtt AmplifyApp.DefaultDomain, '/logout']], !Join ['', ['https://', !Ref CustomDomain, '/logout']]]
       SupportedIdentityProviders: ['COGNITO', 'Google']
       AllowedOAuthScopes: ['email', 'openid', 'profile']
       ExplicitAuthFlows:

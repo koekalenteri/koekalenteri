@@ -86,6 +86,11 @@ Parameters:
     Description: Google Client Secret
     NoEcho: true
 
+Conditions:
+  # Prod's frontend differs from the other stages twice over: its Cognito custom domain carries no
+  # stage suffix, and it is the only stage with a RUM monitor.
+  IsProdStage: !Equals [!Ref StageNameParam, prod]
+
 Resources:
   # This secret signs every participant registration link. Never attach an
   # AWS::SecretsManager::RotationSchedule: changing it invalidates all links.

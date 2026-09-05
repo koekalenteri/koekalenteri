@@ -118,11 +118,13 @@ jobs:
             --no-confirm-changeset --no-fail-on-empty-changeset
 
   deploy-frontend:
-    # Independent of deploy-backend: the Amplify build reads nothing from the SAM stack (its env vars
-    # are static on the app), so the two deploys run side by side. Only a brand-new environment needs
-    # the backend first, for the AmplifyBranch resource the stack creates.
-    needs: [setup]
-    if: ${{ needs.setup.outputs.deploy_frontend == 'true' }}
+    # After the backend, never beside it: the Amplify build reads its configuration from environment
+    # variables this stack owns (AmplifyBranch.EnvironmentVariables) and builds on the image the stack
+    # pins, so a build started while the stack update is still running uses the previous values -- or,
+    # the first time a variable moves, none at all. Running the two side by side is also what hid a
+    # broken build spec for a whole commit: the build that introduced it ran against the old one.
+    needs: [setup, deploy-backend]
+    if: ${{ always() && !failure() && !cancelled() && needs.setup.outputs.deploy_frontend == 'true' }}
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     steps:

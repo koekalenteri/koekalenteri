@@ -8,6 +8,7 @@ const inputPaths = [
   './template/api.yaml',
   './template/ws-api.yaml',
   './template/cognito.yaml',
+  './template/rum.yaml',
   './template/buckets',
   './template/functions',
   './template/layers.yaml',

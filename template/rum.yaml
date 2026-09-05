@@ -1,0 +1,65 @@
+  # CloudWatch RUM, one monitor per stack. Before this the monitor existed only on prod and only in
+  # the console, which is why its four identifiers had to be pasted into the Amplify app by hand.
+  #
+  # The guest role and its identity pool are part of the monitor rather than shared with the app's
+  # own KoekalenteriIdentityPool: RUM reports from the browser before anyone signs in, so its pool
+  # must allow unauthenticated identities, which the app's pool deliberately does not.
+  RumIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowUnauthenticatedIdentities: true
+      IdentityPoolName: !Sub 'KoekalenteriRum-${AWS::StackName}'
+
+  RumGuestRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                'cognito-identity.amazonaws.com:aud': !Ref RumIdentityPool
+              'ForAnyValue:StringLike':
+                'cognito-identity.amazonaws.com:amr': unauthenticated
+      Policies:
+        - PolicyName: RumPutEvents
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Named rather than !Ref'd: the monitor names this role, so referring back to the
+              # monitor here would close a dependency cycle.
+              - Effect: Allow
+                Action: rum:PutRumEvents
+                Resource: !Sub 'arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-${AWS::StackName}'
+
+  RumIdentityPoolRoleAttachment:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId: !Ref RumIdentityPool
+      Roles:
+        unauthenticated: !GetAtt RumGuestRole.Arn
+
+  KoekalenteriRumAppMonitor:
+    Type: AWS::RUM::AppMonitor
+    Properties:
+      # Must match the name the guest role's policy grants PutRumEvents on.
+      Name: !Sub 'Koekalenteri-${AWS::StackName}'
+      Domain: !Ref CustomDomain
+      CwLogEnabled: false
+      CustomEvents:
+        Status: ENABLED
+      AppMonitorConfiguration:
+        AllowCookies: true
+        EnableXRay: false
+        GuestRoleArn: !GetAtt RumGuestRole.Arn
+        IdentityPoolId: !Ref RumIdentityPool
+        # The browser samples further (RUM_CONFIG in amplify-env.ts); this is the server-side ceiling.
+        SessionSampleRate: 1
+        Telemetries:
+          - errors
+          - http
+          - performance

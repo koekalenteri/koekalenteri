@@ -38,6 +38,16 @@
             baseDirectory: build
             files:
               - '**/*'
+      # The build image is an app-wide setting, so it is the one variable that belongs here; the
+      # frontend's own configuration is per-branch and lives on AmplifyBranch below. It has to,
+      # in fact: the Cognito client's callback URLs already reference this app, so referencing the
+      # client back from here would close a dependency cycle (cfn-lint E3004).
+      EnvironmentVariables:
+        # Amplify's default image is older than the toolchain .nvmrc and engines name. Setting it
+        # here rather than in the console is what makes the version reviewable and updatable in one
+        # place -- an `nvm` call in the build spec is not the way, nvm is not on PATH in the image.
+        - Name: _CUSTOM_IMAGE
+          Value: node:24
       CustomHeaders: !Sub |-
         customHeaders:
           - pattern: '**'
@@ -63,6 +73,39 @@
       AppId: !GetAtt AmplifyApp.AppId
       Description: Amplify Console main branch
       EnableAutoBuild: false
+      # Every variable the frontend build reads. CloudFormation replaces this list wholesale, so it
+      # has to be complete: a variable left out here is not set for the build. What this stack creates
+      # is referenced rather than copied, so a rebuilt API or user pool carries the value with it
+      # instead of drifting from a console entry.
+      EnvironmentVariables:
+        - Name: REACT_APP_API_BASE_URL
+          Value: !Sub "https://${KoekalenteriApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
+        - Name: REACT_APP_CLIENT_ID
+          Value: !Ref KoekalenteriUserPoolTokenClient
+        - Name: REACT_APP_IDENTITY_POOL_ID
+          Value: !Ref KoekalenteriIdentityPool
+        # The Cognito custom domain is created outside this stack. Prod alone has no stage suffix.
+        - Name: REACT_APP_OAUTH_DOMAIN
+          Value: !If [IsProdStage, auth.koekalenteri.snj.fi, !Sub 'auth-${StageNameParam}.koekalenteri.snj.fi']
+        - Name: REACT_APP_REDIRECT_SIGNIN
+          Value: !Sub 'https://${CustomDomain}/login'
+        - Name: REACT_APP_REDIRECT_SIGNOUT
+          Value: !Sub 'https://${CustomDomain}/logout'
+        - Name: REACT_APP_REGION
+          Value: !Ref AWS::Region
+        - Name: REACT_APP_USER_POOL_ID
+          Value: !Ref KoekalenteriUserPool
+        # The trailing slash is part of the stored value: the client appends a path to it.
+        - Name: REACT_APP_WS_API_URL
+          Value: !Sub "wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}/"
+        - Name: REACT_APP_RUM_APPLICATION_ID
+          Value: !GetAtt KoekalenteriRumAppMonitor.Id
+        - Name: REACT_APP_RUM_ENDPOINT
+          Value: !Sub 'https://dataplane.rum.${AWS::Region}.amazonaws.com'
+        - Name: REACT_APP_RUM_IDENTITY_POOL_ID
+          Value: !Ref RumIdentityPool
+        - Name: REACT_APP_RUM_ROLE_ARN
+          Value: !GetAtt RumGuestRole.Arn
       Tags:
         - Key: Name
           Value: koekalenteri-amplify-console
