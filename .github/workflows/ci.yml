@@ -288,8 +288,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: visual-screenshot-diffs
-          path: |
-            src/**/__screenshots__/**
+          # The actual and diff images vitest writes for a failed comparison; the references
+          # themselves are in git, so uploading them would only repeat the checkout.
+          path: .vitest-attachments/**
           retention-days: 7
 
   frontend-coverage:
