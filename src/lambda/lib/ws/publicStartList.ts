@@ -11,7 +11,7 @@ import { publicStartListAudience } from './connectionSelectors'
 // degrades into a request to fetch the list again.
 const MAX_MESSAGE_BYTES = 120_000
 
-export const PUBLIC_START_LIST_SCOPE = 'public:start-list'
+const PUBLIC_START_LIST_SCOPE = 'public:start-list'
 
 /**
  * Event fields the published start list is derived from. Every other event change reaches an open
