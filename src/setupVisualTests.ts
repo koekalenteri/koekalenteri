@@ -32,3 +32,11 @@ i18n.use(initReactI18next).init({
 // The date and span formats the app registers on top of i18next: without these a screenshot shows a
 // raw Date.toString() wherever a label formats one, which is not the label anyone gets.
 registerFormatters(i18n)
+
+// The test files run in the same browser origin, and the app's storage-backed atoms (the language
+// above all) read their initial value from it. A file that set the language to English left the
+// next file reading English — on the CI runner the payment details captured "Saturday
+// accommodation" where the reference says "Majoitus lauantaina", and which file ran before which
+// depended on the machine. Every file starts from empty storage instead.
+localStorage.clear()
+sessionStorage.clear()

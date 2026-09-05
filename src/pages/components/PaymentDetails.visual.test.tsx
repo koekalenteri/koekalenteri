@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
 import { TestProvider } from '../../test-utils/AtomProvider'
+import { languageAtom } from '../state'
 import { PaymentDetails } from './PaymentDetails'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -41,10 +42,13 @@ const registration: MinimalRegistrationForCost = {
   selectedCost: 'earlyBird',
 }
 
+// The optional cost names come through the language atom, which is backed by browser storage that
+// the test files share — so pin it, or the capture reads whatever language the previous file left.
+
 it('itemizes what the registration bought and at what price', async () => {
   // KOE-1055: the event's price list says nothing about which of it this registrant chose.
   const screen = await render(
-    <TestProvider>
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
       <Frame>
         <PaymentDetails event={event} registration={registration} includeTotal />
       </Frame>
@@ -57,7 +61,7 @@ it('itemizes what the registration bought and at what price', async () => {
 
 it('shows what is still payable after a partial payment', async () => {
   const screen = await render(
-    <TestProvider>
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
       <Frame width={PHONE}>
         <PaymentDetails event={event} registration={{ ...registration, paidAmount: 30 }} includeTotal includePayable />
       </Frame>
