@@ -58,6 +58,26 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   attaches the changed linux baselines to those Jira issues, so the ticket always shows the current
   look of the components it covers.
 
+### A screenshot test is also an accessibility test
+
+- `toMatchScreenshot` is wrapped in `src/setupVisualTests.ts`: after the image comparison passes, the
+  captured element is audited with axe-core. There is nothing to call — taking a picture runs the
+  audit, so a component that only a visual test covers cannot skip it. A screenshot test is
+  therefore the place a missing `aria-label`, an unlabelled field or a bad contrast is caught.
+- The audit runs *after* the comparison on purpose. `expect.element` polls the matcher until the
+  screenshot matches, so a DOM still settling is retried rather than reported; auditing first made a
+  disabled button's contrast come and go between runs.
+- Known violations are ratcheted per test file and screenshot in `scripts/a11y-baseline.json`
+  (`scripts/a11yRatchet.mjs`), the same model as the assertion ratchet above. **A rule with more
+  nodes than its allowance fails the test**, and the failure names the rule, the Deque help page and
+  every failing element with axe's own fix advice. Fewer nodes lower the allowance in the file, so
+  the numbers only ever go down; commit the lowered baseline with the fix.
+- Raising an allowance is a hand edit of the baseline, visible in review. Seeding it, or accepting a
+  violation that was decided to stay (one inside a library component, say), is
+  `A11Y_RATCHET=record npm run test-visual -- --run`, which writes whatever the run finds.
+- The page-level `region` rule is off: a component fragment has no landmarks, and that is the page's
+  business, not the component's.
+
 ## Jira Automation
 
 - Taking an issue up as work starts with moving it to In Progress (transition it before the first

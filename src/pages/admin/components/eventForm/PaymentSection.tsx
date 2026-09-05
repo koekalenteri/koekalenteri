@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { ValidationError } from '../../../../i18n/validation'
 import type { BreedCode } from '../../../../types'
 import type { DogEventCost, DogEventCostKey } from '../../../../types/Cost'
@@ -92,7 +93,12 @@ function CostTableSection({
               <TableCell align="right" sx={{ width: { sm: 140 } }}>
                 <Typography variant="subtitle1">{t('costMemberAmount')}</Typography>
               </TableCell>
-              <TableCell sx={{ width: { sm: 40 } }}></TableCell>
+              {/* The actions column shows nothing but the row's own buttons, so its header is blank
+                  on screen. A table header still has to say what the column is, and the rule wants
+                  text rather than an aria-label -- hence a caption clipped out of sight. */}
+              <TableCell sx={{ width: { sm: 40 } }}>
+                <span style={SCREEN_READER_ONLY}>{t('actions')}</span>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>{children}</TableBody>
@@ -113,6 +119,18 @@ function CostTableSection({
 
 interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: PaymentEvent
+}
+
+/** Text for a screen reader that takes up no room on screen; the standard clip rectangle. */
+const SCREEN_READER_ONLY: CSSProperties = {
+  border: 0,
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  padding: 0,
+  position: 'absolute',
+  whiteSpace: 'nowrap',
+  width: 1,
 }
 
 function PaymentSection({

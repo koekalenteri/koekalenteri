@@ -293,11 +293,12 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
                 />
               </>
             )}
-            {round.map((task) => (
+            {round.map((task, index) => (
               <TaskScore
                 defaultJudge={lastJudge}
                 disabled={isVoided(edit)}
                 judges={judges}
+                name={t('results.column.task', { number: index + 1 })}
                 key={`${task.stationId}#${task.index}`}
                 onChange={(item, points, zeroFault) =>
                   setEdit((prev) => ({

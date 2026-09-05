@@ -4,17 +4,25 @@ import type { Judge } from '../../../../types'
 import Switch from '@mui/material/Switch'
 import { useAtomValue } from 'jotai'
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { isAdminAtom } from '../../../state'
 import { useAdminJudgesActions } from '../../state'
 
 /** The judge's flags that the app keeps itself, outside the Kennel Club sync. */
 type JudgeFlag = 'active' | 'mockTrial'
 
+/** The column header each flag is filed under; a switch alone in a cell has to say which one it is. */
+const FLAG_LABEL_KEY = { active: 'judgeActive', mockTrial: 'judgeMockTrial' } as const satisfies Record<
+  JudgeFlag,
+  string
+>
+
 /** A switch on one of the judge's own flags: an admin flips it, everyone else sees where it stands. */
 export const createJudgeFlagCell = (flag: JudgeFlag) => {
   const JudgeFlagCell = (props: GridRenderCellParams<Judge, boolean>) => {
     const actions = useAdminJudgesActions()
     const isAdmin = useAtomValue(isAdminAtom)
+    const { t } = useTranslation()
 
     const toggle = useCallback(
       (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
@@ -25,6 +33,7 @@ export const createJudgeFlagCell = (flag: JudgeFlag) => {
 
     return (
       <Switch
+        slotProps={{ input: { 'aria-label': t(FLAG_LABEL_KEY[flag]) } }}
         checked={!!props.value}
         onChange={toggle}
         disabled={!isAdmin}

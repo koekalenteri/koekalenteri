@@ -6,6 +6,7 @@ exports[`OwnerInfo > should render with minimal info 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="registration.owners"
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"

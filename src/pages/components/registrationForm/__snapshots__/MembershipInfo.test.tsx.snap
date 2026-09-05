@@ -6,6 +6,7 @@ exports[`MembershipInfo > should render only the owner checkbox when owner handl
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="registration.membership"
       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
@@ -101,6 +102,7 @@ exports[`MembershipInfo > should render with minimal info 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="registration.membership"
       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"

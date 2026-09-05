@@ -55,6 +55,7 @@ export default function CollapsibleSection({
       }}
     >
       <IconButton
+        aria-label={title}
         size="small"
         color={'primary'}
         disabled={controlled && !onOpenChange}

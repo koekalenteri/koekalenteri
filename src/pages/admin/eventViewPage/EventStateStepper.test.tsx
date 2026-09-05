@@ -13,7 +13,7 @@ describe('EventStateStepper', () => {
   it('does not shrink vertically when the event page runs out of space', () => {
     const { container } = render(<EventStateStepper event={eventWithEntryOpen} />)
 
-    expect(container.firstChild).toHaveStyle({ flexShrink: 0 })
+    expect(container.firstChild).toHaveStyle({ flexShrink: '0' })
   })
 
   it.each<Exclude<ConfirmedEventStates, 'confirmed' | 'completed'>>(['picked', 'invited', 'started', 'ended'])(

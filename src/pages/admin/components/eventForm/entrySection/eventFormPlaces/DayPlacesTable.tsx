@@ -33,7 +33,14 @@ export default function DayPlacesTable({ event, disabled, handleDayPlacesChange 
               {t('dateFormat.wdshort', { date: day })}
             </TableCell>
             <TableCell align="center">
-              <NumberInput disabled={disabled} value={places} onChange={(value) => handleDayPlacesChange(day, value)} />
+              <NumberInput
+                slotProps={{
+                  input: { inputProps: { 'aria-label': `${t('dateFormat.wdshort', { date: day })} ${headers[1]}` } },
+                }}
+                disabled={disabled}
+                value={places}
+                onChange={(value) => handleDayPlacesChange(day, value)}
+              />
             </TableCell>
           </TableRow>
         )

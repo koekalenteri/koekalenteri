@@ -66,6 +66,10 @@ export const NumberInput = ({
         input: {
           ...props.slotProps?.input,
           inputProps: {
+            // Whatever the caller put on the input itself -- an aria-label, above all, since a number
+            // field is often named by a column header rather than a <label> of its own.
+            // @ts-expect-error wtf
+            ...props.slotProps?.input?.inputProps,
             pattern,
             // @ts-expect-error wtf
             style: { padding: 4, textAlign: 'right', ...props.slotProps?.input?.inputProps?.style },

@@ -18,7 +18,7 @@ export default function AutoButton(props: Readonly<Props>) {
       // The buttons share the row evenly, and the caption wraps at its spaces rather than being cut
       // off at a fixed width; a size small enough that the longest one-word caption still fits a phone.
       <Stack sx={{ alignItems: 'center', flex: '1 1 0', minWidth: 0 }}>
-        <IconButton color="primary" {...rest}>
+        <IconButton aria-label={text} color="primary" {...rest}>
           {startIcon ?? endIcon}
         </IconButton>
         <Typography

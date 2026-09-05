@@ -1005,6 +1005,7 @@ exports[`JudgeListPage > renders 1`] = `
                             class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-d8phek-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           >
                             <input
+                              aria-label="judgeActive"
                               checked=""
                               class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                               role="switch"
@@ -2235,6 +2236,7 @@ exports[`JudgeListPage > renders 2`] = `
           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-d8phek-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
         >
           <input
+            aria-label="judgeActive"
             checked=""
             class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
             role="switch"

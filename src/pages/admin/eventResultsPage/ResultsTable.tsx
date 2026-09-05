@@ -203,7 +203,8 @@ function ResultsTable({
           disabled={disabled || voided}
           judges={judgesFor(task.stationId)}
           key={taskKey(task)}
-          label={compact ? t('results.column.task', { number: index + 1 }) : undefined}
+          name={t('results.column.task', { number: index + 1 })}
+          showName={compact}
           onChange={setTask}
           onJudgeChange={(item, judge) => {
             onJudgeChange(item.stationId, judge)

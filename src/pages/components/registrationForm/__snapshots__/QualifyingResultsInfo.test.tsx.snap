@@ -6,6 +6,7 @@ exports[`QualifyingResultsInfo > should render a NOME-B ALO registraton 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="registration.qualifyingResults"
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"
@@ -560,6 +561,7 @@ exports[`QualifyingResultsInfo > should render a NOME-B AVO registraton with man
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="registration.qualifyingResults"
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"
@@ -2000,6 +2002,7 @@ exports[`QualifyingResultsInfo > should render with minimal input 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="registration.qualifyingResults"
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"

@@ -6,6 +6,7 @@ exports[`EntryInfo > should render with event with classes 1`] = `
     class="MuiBox-root css-1rqkuwh"
   >
     <button
+      aria-label="registration.class"
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"
@@ -461,6 +462,7 @@ exports[`EntryInfo > should render with event without classes 1`] = `
     class="MuiBox-root css-1rqkuwh"
   >
     <button
+      aria-label="registration.class"
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"

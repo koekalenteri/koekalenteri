@@ -39,6 +39,9 @@ export default function ClassPlacesTable({ event, disabled, handleChange }: Read
                 <TableCell key={c} align="center">
                   {active ? (
                     <NumberInput
+                      slotProps={{
+                        input: { inputProps: { 'aria-label': `${t('dateFormat.wdshort', { date: day })} ${c}` } },
+                      }}
                       disabled={disabled}
                       value={cls.places || undefined}
                       onChange={(value) => handleChange(cls, value)}

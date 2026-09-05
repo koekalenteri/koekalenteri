@@ -88,6 +88,7 @@ exports[`EventForm > should render 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
+          aria-label="eventInfo"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
@@ -1185,6 +1186,7 @@ exports[`EventForm > should render 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
+          aria-label="event.kcIdSectionTitle"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
@@ -1259,6 +1261,7 @@ exports[`EventForm > should render 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
+          aria-label="judges"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
@@ -1609,6 +1612,7 @@ exports[`EventForm > should render 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
+          aria-label="Ilmoittautuminen"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
@@ -2231,6 +2235,7 @@ exports[`EventForm > should render 1`] = `
                               >
                                 <input
                                   aria-invalid="false"
+                                  aria-label="event.placesEditor.title"
                                   class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id="event.places"
@@ -2447,6 +2452,7 @@ exports[`EventForm > should render 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
+          aria-label="paymentDetails"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
@@ -2603,7 +2609,13 @@ exports[`EventForm > should render 1`] = `
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-8z1hqv-MuiTableCell-root"
                                 scope="col"
-                              />
+                              >
+                                <span
+                                  style="border: 0px; clip-path: inset(50%); height: 1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+                                >
+                                  actions
+                                </span>
+                              </th>
                             </tr>
                           </thead>
                           <tbody
@@ -2630,6 +2642,7 @@ exports[`EventForm > should render 1`] = `
                                   >
                                     <input
                                       aria-invalid="false"
+                                      aria-label="costNames.normal code costAmount"
                                       class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                                       id="_r_24_"
                                       name="cost.normal"
@@ -2669,6 +2682,7 @@ exports[`EventForm > should render 1`] = `
                                   >
                                     <input
                                       aria-invalid="false"
+                                      aria-label="costNames.normal code costMemberAmount"
                                       class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                                       id="_r_25_"
                                       name="costMember.normal"
@@ -2699,6 +2713,7 @@ exports[`EventForm > should render 1`] = `
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
                               >
                                 <button
+                                  aria-label="delete"
                                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium css-io3cf4-MuiButtonBase-root-MuiIconButton-root"
                                   data-testid="cost.normal-delete"
                                   disabled=""
@@ -2794,7 +2809,13 @@ exports[`EventForm > should render 1`] = `
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-8z1hqv-MuiTableCell-root"
                                 scope="col"
-                              />
+                              >
+                                <span
+                                  style="border: 0px; clip-path: inset(50%); height: 1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+                                >
+                                  actions
+                                </span>
+                              </th>
                             </tr>
                           </thead>
                           <tbody
@@ -2840,6 +2861,7 @@ exports[`EventForm > should render 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
+          aria-label="event.headquarters.title"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
@@ -3066,6 +3088,7 @@ exports[`EventForm > should render 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
+          aria-label="event.contactInfo"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
@@ -3227,6 +3250,7 @@ exports[`EventForm > should render 1`] = `
                             >
                               <input
                                 aria-invalid="false"
+                                aria-label="contact.name"
                                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id="_r_2h_"
@@ -3259,6 +3283,7 @@ exports[`EventForm > should render 1`] = `
                             >
                               <input
                                 aria-invalid="false"
+                                aria-label="contact.email"
                                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id="_r_2i_"
@@ -3291,6 +3316,7 @@ exports[`EventForm > should render 1`] = `
                             >
                               <input
                                 aria-invalid="false"
+                                aria-label="contact.phone"
                                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id="_r_2j_"
@@ -3428,6 +3454,7 @@ exports[`EventForm > should render 1`] = `
                             >
                               <input
                                 aria-invalid="false"
+                                aria-label="contact.name"
                                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id="_r_2k_"
@@ -3460,6 +3487,7 @@ exports[`EventForm > should render 1`] = `
                             >
                               <input
                                 aria-invalid="false"
+                                aria-label="contact.email"
                                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id="_r_2l_"
@@ -3492,6 +3520,7 @@ exports[`EventForm > should render 1`] = `
                             >
                               <input
                                 aria-invalid="false"
+                                aria-label="contact.phone"
                                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id="_r_2m_"
@@ -3530,6 +3559,7 @@ exports[`EventForm > should render 1`] = `
         class="MuiBox-root css-qxc3vx"
       >
         <button
+          aria-label="event.description"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"

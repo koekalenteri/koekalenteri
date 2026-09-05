@@ -6,6 +6,7 @@ exports[`InternalNotesInfo > should render with minimal info 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="registration.secretaryNotes"
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"
@@ -115,6 +116,7 @@ exports[`InternalNotesInfo > should render with text 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="registration.secretaryNotes"
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"
@@ -226,6 +228,7 @@ exports[`InternalNotesInfo > should rerender with new value 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="registration.secretaryNotes"
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       tabindex="0"
       type="button"

@@ -96,6 +96,7 @@ exports[`EventFormPlaces > should render a classed event in per-day mode 1`] = `
                 >
                   <input
                     aria-invalid="false"
+                    aria-label="dateFormat.wdshort date Paikat"
                     class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     id="_r_6_"
                     pattern="[0-9]{1,3}"
@@ -143,6 +144,7 @@ exports[`EventFormPlaces > should render a classed event in per-day mode 1`] = `
                 >
                   <input
                     aria-invalid="false"
+                    aria-label="dateFormat.wdshort date Paikat"
                     class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     id="_r_7_"
                     pattern="[0-9]{1,3}"
@@ -300,6 +302,7 @@ exports[`EventFormPlaces > should render with class places (per-class mode) 1`] 
                 >
                   <input
                     aria-invalid="false"
+                    aria-label="dateFormat.wdshort date ALO"
                     class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     id="_r_2_"
                     pattern="[0-9]{1,3}"
@@ -352,6 +355,7 @@ exports[`EventFormPlaces > should render with class places (per-class mode) 1`] 
                 >
                   <input
                     aria-invalid="false"
+                    aria-label="dateFormat.wdshort date ALO"
                     class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     id="_r_3_"
                     pattern="[0-9]{1,3}"
@@ -474,6 +478,7 @@ exports[`EventFormPlaces > should render with classes but no class places (total
           >
             <input
               aria-invalid="false"
+              aria-label="event.placesEditor.title"
               class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
               id="event.places"
               pattern="[0-9]{1,3}"
@@ -550,6 +555,7 @@ exports[`EventFormPlaces > should render with minimal information 1`] = `
           >
             <input
               aria-invalid="false"
+              aria-label="event.placesEditor.title"
               class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
               id="event.places"
               pattern="[0-9]{1,3}"
@@ -670,6 +676,7 @@ exports[`EventFormPlaces > should render with placesPerDay (per-day mode) 1`] = 
                 >
                   <input
                     aria-invalid="false"
+                    aria-label="dateFormat.wdshort date Paikat"
                     class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     id="_r_4_"
                     pattern="[0-9]{1,3}"
@@ -717,6 +724,7 @@ exports[`EventFormPlaces > should render with placesPerDay (per-day mode) 1`] = 
                 >
                   <input
                     aria-invalid="false"
+                    aria-label="dateFormat.wdshort date Paikat"
                     class="MuiInputBase-input MuiOutlinedInput-input css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                     id="_r_5_"
                     pattern="[0-9]{1,3}"

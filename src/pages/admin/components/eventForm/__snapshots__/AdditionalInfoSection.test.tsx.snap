@@ -6,6 +6,7 @@ exports[`AdditionalInfoSection > should render 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
+      aria-label="event.description"
       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1sqi82i-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"

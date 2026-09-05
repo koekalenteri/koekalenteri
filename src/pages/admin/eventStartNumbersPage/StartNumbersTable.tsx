@@ -97,7 +97,15 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, d
                     disabled={disabled}
                     error={duplicate}
                     helperText={duplicate ? t('startNumbers.duplicate') : undefined}
-                    slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+                    slotProps={{
+                      // The column header names the field on screen; the input carries the same name
+                      // for anyone reading a row on its own.
+                      htmlInput: {
+                        'aria-label': t('startNumbers.column.number'),
+                        inputMode: 'numeric',
+                        pattern: '[0-9]*',
+                      },
+                    }}
                     onChange={(event) => onChange(row.id, event.target.value.replace(/\D/g, ''))}
                     placeholder={row.groupNumber != null ? String(row.groupNumber) : undefined}
                     size="small"

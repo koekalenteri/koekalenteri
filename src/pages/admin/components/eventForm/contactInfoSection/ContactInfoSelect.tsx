@@ -69,9 +69,29 @@ export default function ContactInfoSelect({ disabled, name, show, defaults, onCh
         control={<Checkbox checked={state.phone !== ''} name="phone" onChange={handleCheck} />}
         label={t('contact.phone')}
       />
-      <TextField disabled={disabled} name="name" value={state.name} onChange={handleChange} />
-      <TextField disabled={disabled} name="email" value={state.email} onChange={handleChange} />
-      <TextField disabled={disabled} name="phone" value={state.phone} onChange={handleChange} />
+      {/* The checkbox above each field carries the visible label, so the field itself has none;
+          it still has to say which contact detail it holds. */}
+      <TextField
+        disabled={disabled}
+        name="name"
+        slotProps={{ htmlInput: { 'aria-label': t('contact.name') } }}
+        value={state.name}
+        onChange={handleChange}
+      />
+      <TextField
+        disabled={disabled}
+        name="email"
+        slotProps={{ htmlInput: { 'aria-label': t('contact.email') } }}
+        value={state.email}
+        onChange={handleChange}
+      />
+      <TextField
+        disabled={disabled}
+        name="phone"
+        slotProps={{ htmlInput: { 'aria-label': t('contact.phone') } }}
+        value={state.phone}
+        onChange={handleChange}
+      />
     </FormGroup>
   )
 }

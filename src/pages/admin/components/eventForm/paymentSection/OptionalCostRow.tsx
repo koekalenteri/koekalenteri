@@ -39,13 +39,19 @@ export const OptionalCostRow = ({
         <TableCell>
           <div style={{ alignItems: 'center', display: 'flex' }}>
             <span>{optCost.description.fi}</span>
-            <IconButton data-testid={`edit-optional-${index}`} size="small" onClick={() => onEditDescription(index)}>
+            <IconButton
+              aria-label={t('edit')}
+              data-testid={`edit-optional-${index}`}
+              size="small"
+              onClick={() => onEditDescription(index)}
+            >
               <EditIcon fontSize="small" />
             </IconButton>
           </div>
         </TableCell>
         <TableCell align="right">
           <NumberInput
+            slotProps={{ input: { inputProps: { 'aria-label': `${optCost.description.fi} ${t('costAmount')}` } } }}
             data-testid={`cost.optionalAdditionalCosts.${index}`}
             name={`cost.optionalAdditionalCosts.${index}`}
             value={optCost.cost}
@@ -55,6 +61,9 @@ export const OptionalCostRow = ({
         </TableCell>
         <TableCell align="right">
           <NumberInput
+            slotProps={{
+              input: { inputProps: { 'aria-label': `${optCost.description.fi} ${t('costMemberAmount')}` } },
+            }}
             data-testid={`costMember.optionalAdditionalCosts.${index}`}
             name={`costMember.optionalAdditionalCosts.${index}`}
             value={(event.costMember as DogEventCost).optionalAdditionalCosts?.[index]?.cost ?? optCost.cost}
@@ -63,7 +72,7 @@ export const OptionalCostRow = ({
           />
         </TableCell>
         <TableCell>
-          <IconButton onClick={() => onRemove(index)}>
+          <IconButton aria-label={t('delete')} onClick={() => onRemove(index)}>
             <DeleteOutline />
           </IconButton>
         </TableCell>

@@ -75,6 +75,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.secretaryNotes"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -179,6 +180,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-1igggo6"
               >
                 <button
+                  aria-label="registration.class"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -606,6 +608,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.dog"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -1277,6 +1280,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.breeder"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -1377,6 +1381,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.owners"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -1906,6 +1911,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                       class="MuiBox-root css-qxc3vx"
                     >
                       <button
+                        aria-label="registration.handler"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                         tabindex="0"
                         type="button"
@@ -2185,6 +2191,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                       class="MuiBox-root css-qxc3vx"
                     >
                       <button
+                        aria-label="registration.payer"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                         tabindex="0"
                         type="button"
@@ -2412,6 +2419,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.qualifyingResults"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -2522,6 +2530,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.notes"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -2622,6 +2631,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.membership"
                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
                   tabindex="-1"
@@ -2883,6 +2893,7 @@ exports[`RegistrationEditDialog > renders when registration is cancelled 1`] = `
             class="MuiBox-root css-qxc3vx"
           >
             <button
+              aria-label="audit.title count"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-7ybo0u-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"
@@ -3043,6 +3054,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.secretaryNotes"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -3147,6 +3159,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                 class="MuiBox-root css-1igggo6"
               >
                 <button
+                  aria-label="registration.class"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -3604,6 +3617,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.dog"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -4293,6 +4307,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.breeder"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -4392,6 +4407,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.owners"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -4911,6 +4927,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                       class="MuiBox-root css-qxc3vx"
                     >
                       <button
+                        aria-label="registration.handler"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                         tabindex="0"
                         type="button"
@@ -5185,6 +5202,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                       class="MuiBox-root css-qxc3vx"
                     >
                       <button
+                        aria-label="registration.payer"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                         tabindex="0"
                         type="button"
@@ -5408,6 +5426,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.qualifyingResults"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -5518,6 +5537,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.notes"
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
@@ -5617,6 +5637,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
+                  aria-label="registration.membership"
                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-w7baqv-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
                   tabindex="-1"
@@ -5875,6 +5896,7 @@ exports[`RegistrationEditDialog > renders with minimal parameters 1`] = `
             class="MuiBox-root css-qxc3vx"
           >
             <button
+              aria-label="audit.title count"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-7ybo0u-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"

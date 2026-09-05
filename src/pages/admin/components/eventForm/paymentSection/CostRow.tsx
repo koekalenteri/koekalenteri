@@ -39,13 +39,29 @@ export const CostRow = ({
   const costPath = `cost.${innerKey}`
   const memberCostPath = `costMember.${innerKey}`
 
+  // `cost` is a number for the plain single-fee event and the object below for every other shape;
+  // the one narrowing serves the whole row.
+  const cost = event.cost as DogEventCost
+
+  // What the row is called, for the two amount fields: on screen the first cell says it and the
+  // column header says which of the two amounts this is, but neither is a <label>.
+  const costName =
+    costKey === 'custom'
+      ? t('costNames.custom', { name: cost?.custom?.description?.fi })
+      : t(`costNames.${costKey}`, { code: breedCode })
+
   const renderCellContent = () => {
     if (costKey === 'custom') {
       return (
         <div style={{ alignItems: 'flex-start', display: 'flex', flexDirection: 'column' }}>
           <div style={{ alignItems: 'center', display: 'flex' }}>
-            <span>{t('costNames.custom', { name: (event.cost as DogEventCost)?.custom?.description?.fi })}</span>
-            <IconButton size="small" data-testid={`${costPath}-edit`} onClick={() => onEditDescription('custom')}>
+            <span>{costName}</span>
+            <IconButton
+              aria-label={t('edit')}
+              size="small"
+              data-testid={`${costPath}-edit`}
+              onClick={() => onEditDescription('custom')}
+            >
               <EditIcon fontSize="small" />
             </IconButton>
           </div>
@@ -58,16 +74,17 @@ export const CostRow = ({
         <div style={{ alignItems: 'flex-start', display: 'flex', flexDirection: 'column' }}>
           <span>
             {t(`costNames.${costKey}`, {
-              days: (event.cost as DogEventCost)?.earlyBird?.days ?? 0,
-              ...getEarlyBirdDates(event, event.cost as DogEventCost),
+              days: cost?.earlyBird?.days ?? 0,
+              ...getEarlyBirdDates(event, cost),
             })}
           </span>
           <div style={{ alignItems: 'center', display: 'flex', marginTop: '4px' }}>
             <Box sx={{ color: 'text.secondary', fontSize: '0.75rem', mr: 1 }}>{t('costDescription.earlyBirdDays')}</Box>
             <NumberInput
               name="earlyBirdDays"
+              slotProps={{ input: { inputProps: { 'aria-label': t('costDescription.earlyBirdDays') } } }}
               data-testid="earlyBirdDays"
-              value={(event.cost as DogEventCost)?.earlyBird?.days ?? 0}
+              value={cost?.earlyBird?.days ?? 0}
               onChange={onEarlyBirdDaysChange}
               sx={{ width: '6ch !important' }}
             />
@@ -89,6 +106,7 @@ export const CostRow = ({
         <TableCell align="right">
           <NumberInput
             name={costPath}
+            slotProps={{ input: { inputProps: { 'aria-label': `${costName} ${t('costAmount')}` } } }}
             data-testid={costPath}
             value={getCostValue(event.cost ?? 0, costKey, breedCode)}
             onChange={(v) => onCostChange(costPath, v)}
@@ -98,6 +116,7 @@ export const CostRow = ({
         <TableCell align="right">
           <NumberInput
             name={memberCostPath}
+            slotProps={{ input: { inputProps: { 'aria-label': `${costName} ${t('costMemberAmount')}` } } }}
             data-testid={memberCostPath}
             value={getCostValue(event.costMember ?? 0, costKey, breedCode)}
             onChange={(v) => onCostChange(memberCostPath, v)}
@@ -106,6 +125,7 @@ export const CostRow = ({
         </TableCell>
         <TableCell>
           <IconButton
+            aria-label={t('delete')}
             disabled={costKey === 'normal'}
             data-testid={`${costPath}-delete`}
             onClick={() => onRemove(costKey, breedCode)}
