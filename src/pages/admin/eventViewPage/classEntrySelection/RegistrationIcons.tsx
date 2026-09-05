@@ -7,10 +7,13 @@ import MailOutline from '@mui/icons-material/MailOutline'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import MarkEmailUnreadOutlined from '@mui/icons-material/MarkEmailUnreadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
+import ScheduleSendOutlined from '@mui/icons-material/ScheduleSendOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import Stack from '@mui/material/Stack'
 import { useMemo } from 'react'
+import { isInvitationAwaitingPayment } from '../../../../lib/payment'
 import { getInvitationReadStatus, hasPriority, isMember } from '../../../../lib/registration'
+import { isConfirmedEvent } from '../../../../lib/typeGuards'
 import { IconsTooltip } from '../../../components/IconsTooltip'
 import { PriorityIcon } from '../../../components/icons/PriorityIcon'
 import RankingPoints from '../../../components/RankingPoints'
@@ -35,7 +38,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
   )
   const rankingPoints = useMemo(() => reg.qualifyingResults.reduce((acc, r) => acc + (r.rankingPoints ?? 0), 0), [reg])
 
-  const tooltipIcons = hasRegistrationTooltipContent({ manualResultCount, priority, rankingPoints, reg }) ? (
+  const tooltipIcons = hasRegistrationTooltipContent({ event, manualResultCount, priority, rankingPoints, reg }) ? (
     <RegistrationTooltipContent
       key="tooltip-content"
       event={event}
@@ -68,6 +71,10 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
               />
             )
           }
+        />
+        <StatusIcon
+          condition={isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg)}
+          icon={<ScheduleSendOutlined color="warning" fontSize="small" />}
         />
         <StatusIcon condition={manualResultCount > 0} icon={<ErrorOutlineOutlined fontSize="small" />} />
         <StatusIcon condition={!!reg.notes.trim()} icon={<CommentOutlined fontSize="small" />} />

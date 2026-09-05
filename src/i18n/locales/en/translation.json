@@ -333,6 +333,8 @@
       }
     },
     "invitation": {
+      "awaitingPayment_one": "{{count}} invitation is waiting for the place to be paid",
+      "awaitingPayment_other": "{{count}} invitations are waiting for the place to be paid",
       "canSendAfterEntry": "Invitations can be sent after the entry period has ended",
       "canSendAfterPicked": "Invitations can be sent after participant notifications",
       "class": "{{className}} class",
@@ -801,6 +803,7 @@
     "toBePaid": "To be paid",
     "tooltip": {
       "invitation": {
+        "awaitingPayment": "The invitation goes out once the place has been paid for",
         "read": "The invitation has been acknowledged",
         "read-latest": "The latest invitation has been acknowledged",
         "read-previous": "An earlier invitation has been acknowledged; the latest is still awaiting acknowledgement",

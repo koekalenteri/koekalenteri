@@ -20,6 +20,7 @@ import Typography from '@mui/material/Typography'
 import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { invitationAttachmentFileName } from '../../../../lib/fileName'
+import { isInvitationAwaitingPayment } from '../../../../lib/payment'
 import { getInvitationRecipients, isRegistrationClass } from '../../../../lib/registration'
 import { Path } from '../../../../routeConfig'
 import { sectionSx } from './styles'
@@ -149,6 +150,11 @@ const InvitationDelivery = ({
             {Object.entries(numbersByClass).map(([className, numbers]) => {
               const selected = selectedByClass[className] ?? []
               const recipients = getInvitationRecipients(eventWithCurrentAttachments, selected)
+              // Those the automatic send held back until the fee arrives (KOE-1191): they are still
+              // recipients, since the secretary may invite them by hand.
+              const awaitingPayment = selected.filter((registration) =>
+                isInvitationAwaitingPayment(eventWithCurrentAttachments, registration)
+              )
               const invitationsSent = selected.length > 0 && recipients.length === 0
               const classState = stateByClass[className] ?? event.state
               const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
@@ -228,6 +234,11 @@ const InvitationDelivery = ({
                         {!invitationsSent && classState !== 'confirmed' && !entryEnded && !classFinished && (
                           <Typography variant="caption" color="text.secondary">
                             {t('eventManagement.invitation.canSendAfterEntry')}
+                          </Typography>
+                        )}
+                        {awaitingPayment.length > 0 && !classFinished && (
+                          <Typography variant="caption" color="warning.main" display="block">
+                            {t('eventManagement.invitation.awaitingPayment', { count: awaitingPayment.length })}
                           </Typography>
                         )}
                       </Box>

@@ -231,6 +231,89 @@ describe('RegistrationTooltipContent', () => {
     ).toBeInTheDocument()
   })
 
+  describe('koekutsu awaiting payment (KOE-1191)', () => {
+    // A confirmed trial with a fee, whose ALO class has already been invited.
+    const invitedEvent = {
+      ...mockEvent,
+      classes: [{ class: 'ALO', state: 'invited' }],
+      cost: 40,
+      entryStartDate: new Date('2026-01-01'),
+      state: 'invited',
+    } as unknown as DogEvent
+
+    const unpaidParticipant = {
+      ...mockRegistration,
+      class: 'ALO',
+      createdAt: new Date('2026-01-02'),
+      dog: { breedCode: '110' },
+      eventType: 'NOME-B',
+      group: { key: 'ALO-AP', number: 3 },
+      messagesSent: { picked: true },
+      paidAmount: undefined,
+      paidAt: undefined,
+      paymentStatus: undefined,
+    } as unknown as Registration
+
+    const findText = (text: string) =>
+      screen.queryAllByTestId('tooltip-icon').find((element) => element.getAttribute('data-text') === text)
+
+    it('tells that the invitation waits for the fee', () => {
+      render(
+        <RegistrationTooltipContent
+          event={invitedEvent}
+          reg={unpaidParticipant}
+          priority={false}
+          manualResultCount={0}
+          rankingPoints={0}
+        />
+      )
+
+      expect(findText('registration.tooltip.invitation.awaitingPayment')).toBeInTheDocument()
+    })
+
+    it('says nothing once the place has been paid for', () => {
+      render(
+        <RegistrationTooltipContent
+          event={invitedEvent}
+          reg={{ ...unpaidParticipant, paidAmount: 40, paymentStatus: 'SUCCESS' }}
+          priority={false}
+          manualResultCount={0}
+          rankingPoints={0}
+        />
+      )
+
+      expect(findText('registration.tooltip.invitation.awaitingPayment')).toBeUndefined()
+    })
+
+    it('says nothing for a dog still on the reserve list', () => {
+      render(
+        <RegistrationTooltipContent
+          event={invitedEvent}
+          reg={{ ...unpaidParticipant, group: { key: 'reserve', number: 1 } }}
+          priority={false}
+          manualResultCount={0}
+          rankingPoints={0}
+        />
+      )
+
+      expect(findText('registration.tooltip.invitation.awaitingPayment')).toBeUndefined()
+    })
+
+    it('says nothing before the class has been invited', () => {
+      render(
+        <RegistrationTooltipContent
+          event={{ ...invitedEvent, classes: [{ class: 'ALO', state: 'picked' }], state: 'picked' } as DogEvent}
+          reg={unpaidParticipant}
+          priority={false}
+          manualResultCount={0}
+          rankingPoints={0}
+        />
+      )
+
+      expect(findText('registration.tooltip.invitation.awaitingPayment')).toBeUndefined()
+    })
+  })
+
   it('describes the acknowledgement as the latest when multiple invitations have been sent', () => {
     render(
       <RegistrationTooltipContent

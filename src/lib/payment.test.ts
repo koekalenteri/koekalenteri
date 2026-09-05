@@ -4,8 +4,10 @@ import {
   getPaymentStatus,
   getProviderName,
   getRegistrationPaymentDetails,
+  isInvitationAwaitingPayment,
   isRegistrationPaid,
   PROVIDER_NAMES,
+  shouldSendInvitationAfterPayment,
 } from './payment'
 
 describe('payment', () => {
@@ -89,6 +91,66 @@ describe('payment', () => {
 
     it('is not paid while the payment is only pending', () => {
       expect(isRegistrationPaid(event, { ...registration, paymentStatus: 'PENDING' })).toBe(false)
+    })
+  })
+
+  describe('invitation payment gate', () => {
+    // The ALO class has been invited; the trial itself is only picked, as it is when one class is ahead.
+    const event = {
+      classes: [{ class: 'ALO' as const, state: 'invited' as const }],
+      cost: 40,
+      costMember: 40,
+      entryStartDate: new Date('2026-01-01'),
+      state: 'picked' as const,
+    }
+    const participant = {
+      class: 'ALO' as const,
+      createdAt: new Date('2026-01-02'),
+      dog: { breedCode: '110' as const },
+      eventType: 'NOME-B',
+      group: { key: 'ALO-AP', number: 3 },
+      messagesSent: { picked: true },
+      owner: { membership: false },
+      ownerHandles: true,
+    }
+    const paid = { ...participant, paidAmount: 40, paymentStatus: 'SUCCESS' as const }
+
+    it('waits for an unpaid place lifted into an invited class', () => {
+      expect(isInvitationAwaitingPayment(event, participant)).toBe(true)
+      expect(shouldSendInvitationAfterPayment(event, participant)).toBe(false)
+    })
+
+    it('sends once that place is paid for', () => {
+      expect(isInvitationAwaitingPayment(event, paid)).toBe(false)
+      expect(shouldSendInvitationAfterPayment(event, paid)).toBe(true)
+    })
+
+    it('leaves a dog on the reserve list out of both', () => {
+      const reserve = { ...participant, group: { key: 'reserve', number: 1 } }
+
+      expect(isInvitationAwaitingPayment(event, reserve)).toBe(false)
+      expect(shouldSendInvitationAfterPayment(event, { ...reserve, ...paid, group: reserve.group })).toBe(false)
+    })
+
+    it('leaves a cancelled entry out of both', () => {
+      const cancelled = { ...paid, cancelled: true }
+
+      expect(isInvitationAwaitingPayment(event, { ...participant, cancelled: true })).toBe(false)
+      expect(shouldSendInvitationAfterPayment(event, cancelled)).toBe(false)
+    })
+
+    it('waits for the class to be invited', () => {
+      const pickedEvent = { ...event, classes: [{ class: 'ALO' as const, state: 'picked' as const }] }
+
+      expect(isInvitationAwaitingPayment(pickedEvent, participant)).toBe(false)
+      expect(shouldSendInvitationAfterPayment(pickedEvent, paid)).toBe(false)
+    })
+
+    it('does not repeat an invitation that has been sent', () => {
+      const invited = { ...paid, messagesSent: { invitation: true, picked: true } }
+
+      expect(isInvitationAwaitingPayment(event, { ...participant, messagesSent: invited.messagesSent })).toBe(false)
+      expect(shouldSendInvitationAfterPayment(event, invited)).toBe(false)
     })
   })
 

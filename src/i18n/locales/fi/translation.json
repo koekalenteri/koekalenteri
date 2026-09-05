@@ -333,6 +333,8 @@
       }
     },
     "invitation": {
+      "awaitingPayment_one": "{{count}} koekutsu odottaa koepaikan maksua",
+      "awaitingPayment_other": "{{count}} koekutsua odottaa koepaikan maksua",
       "canSendAfterEntry": "Koekutsut voi lähettää ilmoittautumisajan päätyttyä",
       "canSendAfterPicked": "Koekutsut voi lähettää koepaikkailmoitusten jälkeen",
       "class": "{{className}}-luokka",
@@ -801,6 +803,7 @@
     "toBePaid": "Maksettava",
     "tooltip": {
       "invitation": {
+        "awaitingPayment": "Koekutsu lähtee, kun koepaikka on maksettu",
         "read": "Koekutsu on kuitattu",
         "read-latest": "Viimeksi lähetetty koekutsu on kuitattu",
         "read-previous": "Aiempi koekutsu on kuitattu, viimeisin odottaa kuittausta",

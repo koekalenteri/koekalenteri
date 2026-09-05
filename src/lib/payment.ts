@@ -1,6 +1,20 @@
-import type { CustomCost, MinimalEventForCost, MinimalRegistrationForCost, Registration } from '../types'
+import type {
+  CustomCost,
+  JsonRegistration,
+  MinimalEventForCost,
+  MinimalRegistrationForCost,
+  Registration,
+} from '../types'
+import type { InvitationAttachmentEvent, InvitationAttachmentRegistration } from './registration'
 import { additionalCost, calculateCost, getApplicableStrategy, getEarlyBirdDates, selectCost } from './cost'
-import { isMember } from './registration'
+import { getEventStateForClass } from './event'
+import {
+  getRegistrationClass,
+  getRegistrationGroupKey,
+  isMember,
+  isParticipantGroup,
+  shouldSendInvitationToRegistration,
+} from './registration'
 import { capitalize } from './string'
 
 export const PROVIDER_NAMES: Record<string, string> = {
@@ -61,6 +75,45 @@ export const isRegistrationPaid = (
   registration.paymentStatus === 'SUCCESS' ||
   (registration.paidAmount ?? 0) > 0 ||
   calculateCost(event, registration).amount <= 0
+
+type InvitationPaymentEvent = InvitationAttachmentEvent &
+  MinimalEventForCost &
+  Parameters<typeof getEventStateForClass>[0]
+
+type InvitationPaymentRegistration = InvitationAttachmentRegistration &
+  MinimalRegistrationForCost &
+  Pick<JsonRegistration | Registration, 'cancelled' | 'group' | 'paymentStatus'>
+
+/**
+ * Whether the koekutsu round has been sent for this registration: its own class is invited, or the
+ * trial as a whole is. Both are what the group move reads when it decides to invite a dog it lifts.
+ */
+const isInvitedRound = (event: InvitationPaymentEvent, registration: InvitationPaymentRegistration): boolean =>
+  event.state === 'invited' || getEventStateForClass(event, getRegistrationClass(registration)) === 'invited'
+
+/**
+ * Whether this participant is still owed the koekutsu of a round that has already gone out — the
+ * dog lifted from the reserve list after the others were invited.
+ */
+const isInvitationDue = (event: InvitationPaymentEvent, registration: InvitationPaymentRegistration): boolean =>
+  isParticipantGroup(getRegistrationGroupKey(registration)) &&
+  isInvitedRound(event, registration) &&
+  shouldSendInvitationToRegistration(event, registration)
+
+/**
+ * The koekutsu that the automatic send held back until the place is paid for (KOE-1191). The
+ * secretary can still send it by hand; this only says what the trial is waiting for.
+ */
+export const isInvitationAwaitingPayment = (
+  event: InvitationPaymentEvent,
+  registration: InvitationPaymentRegistration
+): boolean => isInvitationDue(event, registration) && !isRegistrationPaid(event, registration)
+
+/** The same koekutsu once the money is in: what the payment callback sends. */
+export const shouldSendInvitationAfterPayment = (
+  event: InvitationPaymentEvent,
+  registration: InvitationPaymentRegistration
+): boolean => isInvitationDue(event, registration) && isRegistrationPaid(event, registration)
 
 export const getRegistrationPaymentDetails = (event: MinimalEventForCost, registration: MinimalRegistrationForCost) => {
   const cost = selectCost(event, registration)

@@ -1,6 +1,6 @@
 import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonUser, RegistrationGroupMove } from '../../types'
 import { hasSharedReserveList } from '../../lib/event'
-import { isRegistrationPaid } from '../../lib/payment'
+import { isInvitationAwaitingPayment, shouldSendInvitationAfterPayment } from '../../lib/payment'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
@@ -222,9 +222,8 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
      * must not hold an invitation to a place it never paid (KOE-1191). The rest get theirs from the
      * payment callback once the money is in, and the secretary can always send one by hand before that.
      */
-    const paidForPlace = (reg: JsonRegistration) => isRegistrationPaid(confirmedEvent, reg)
-    const invitedParticipants = newParticipants.filter(paidForPlace)
-    const awaitingPayment = invited ? newParticipants.filter((reg) => !paidForPlace(reg)) : []
+    const invitedParticipants = newParticipants.filter((reg) => shouldSendInvitationAfterPayment(confirmedEvent, reg))
+    const awaitingPayment = newParticipants.filter((reg) => isInvitationAwaitingPayment(confirmedEvent, reg))
 
     const { ok: invitedOk, failed: invitedFailed } = invited
       ? await sendTemplatedEmailToEventRegistrations(

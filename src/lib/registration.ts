@@ -450,13 +450,13 @@ export const getSelectedAdditionalCosts = (
   return registration.optionalCosts?.map((n) => cost.optionalAdditionalCosts?.[n]).filter(isDefined) ?? []
 }
 
-type InvitationAttachmentEvent = Partial<
+export type InvitationAttachmentEvent = Partial<
   Pick<
     ConfirmedEvent | JsonConfirmedEvent,
     'entryEndDate' | 'invitationAttachment' | 'invitationAttachments' | 'startDate'
   >
 >
-type InvitationAttachmentRegistration = Pick<
+export type InvitationAttachmentRegistration = Pick<
   JsonRegistration | Registration,
   'class' | 'eventType' | 'invitationAttachmentRead' | 'invitationAttachmentSent' | 'invitationRead' | 'messagesSent'
 >

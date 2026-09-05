@@ -9,22 +9,31 @@ import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import MarkEmailUnreadOutlined from '@mui/icons-material/MarkEmailUnreadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
+import ScheduleSendOutlined from '@mui/icons-material/ScheduleSendOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import { useTranslation } from 'react-i18next'
 import { formatMoney } from '../../../../../lib/money'
+import { isInvitationAwaitingPayment } from '../../../../../lib/payment'
 import { getInvitationReadStatus, getRegistrationOwners, priorityDescriptionKey } from '../../../../../lib/registration'
+import { isConfirmedEvent } from '../../../../../lib/typeGuards'
 import { TooltipIcon } from '../../../../components/IconsTooltip'
 import { PriorityIcon } from '../../../../components/icons/PriorityIcon'
 import RankingPoints from '../../../../components/RankingPoints'
 
 const formatEmailDeliveryReason = (reason?: string) => (reason ? ` (${reason})` : '')
 
+/** Only a confirmed trial has places to invite to, and only it carries the fee to compare against. */
+const awaitsInvitationPayment = (event: DogEvent, reg: Registration): boolean =>
+  isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg)
+
 export const hasRegistrationTooltipContent = ({
+  event,
   reg,
   priority,
   manualResultCount,
   rankingPoints,
 }: {
+  event: DogEvent
   reg: Registration
   priority: boolean | 0.5
   manualResultCount: number
@@ -38,6 +47,7 @@ export const hasRegistrationTooltipContent = ({
   if (reg.confirmed) return true
   if (reg.emailDeliveryStatus) return true
   if (getInvitationReadStatus(reg) !== 'not-sent') return true
+  if (awaitsInvitationPayment(event, reg)) return true
   if (manualResultCount > 0) return true
   if (reg.notes.trim()) return true
   if (reg.internalNotes?.trim()) return true
@@ -65,7 +75,7 @@ const RegistrationTooltipContent = ({
 }: RegistrationTooltipContentProps) => {
   const { t } = useTranslation()
 
-  if (!hasRegistrationTooltipContent({ manualResultCount, priority, rankingPoints, reg })) return null
+  if (!hasRegistrationTooltipContent({ event, manualResultCount, priority, rankingPoints, reg })) return null
 
   // Get priority description
   const key = priority ? priorityDescriptionKey(event, reg) : null
@@ -174,6 +184,12 @@ const RegistrationTooltipContent = ({
           )
         }
         text={invitationReadText}
+      />
+      <TooltipIcon
+        key="invitation-awaiting-payment"
+        condition={awaitsInvitationPayment(event, reg)}
+        icon={<ScheduleSendOutlined color="warning" fontSize="small" />}
+        text={t('registration.tooltip.invitation.awaitingPayment')}
       />
       <TooltipIcon
         key="manual-results"

@@ -120,6 +120,48 @@ describe('InfoPanel>', () => {
     expect(screen.getByText('eventManagement.invitation.canSendAfterEntry')).toBeInTheDocument()
   })
 
+  it('tells how many koekutsu are waiting for the place to be paid', async () => {
+    const event = {
+      ...eventWithParticipantsInvited,
+      classes: [{ class: 'ALO' as const, date: eventWithParticipantsInvited.startDate, state: 'invited' as const }],
+    }
+    const [invited, lifted] = registrationsToEventWithParticipantsInvited
+    const registrations = [
+      { ...invited, class: 'ALO' as const, messagesSent: { invitation: true, picked: true }, paidAmount: 123 },
+      // just lifted from the reserve list, its place still unpaid
+      { ...lifted, class: 'ALO' as const, messagesSent: { picked: true }, paidAmount: undefined },
+    ]
+
+    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
+      wrapper: Provider,
+    })
+    await openInfoPanel(user)
+
+    expect(screen.getByText('eventManagement.invitation.awaitingPayment count')).toBeInTheDocument()
+  })
+
+  it('says nothing about payment when every invitation has been sent', async () => {
+    const event = {
+      ...eventWithParticipantsInvited,
+      classes: [{ class: 'ALO' as const, date: eventWithParticipantsInvited.startDate, state: 'invited' as const }],
+    }
+    const registrations = registrationsToEventWithParticipantsInvited
+      .filter((registration) => registration.group?.date)
+      .map((registration) => ({
+        ...registration,
+        class: 'ALO' as const,
+        messagesSent: { invitation: true, picked: true },
+        paidAmount: 123,
+      }))
+
+    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
+      wrapper: Provider,
+    })
+    await openInfoPanel(user)
+
+    expect(screen.queryByText('eventManagement.invitation.awaitingPayment count')).not.toBeInTheDocument()
+  })
+
   it('shows status when reserve notifications have been sent', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
