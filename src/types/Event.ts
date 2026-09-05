@@ -83,6 +83,13 @@ export interface JsonDogEvent extends JsonDbRecord {
   kcEvent?: JsonKcEventInfo
   location: string
   members?: number
+  /**
+   * Whether a NOWT trial is a Mock trial (KOE-308): a rehearsal of the A-trial run under the working
+   * test's rules, in the AVO and VOI classes only, and judged by A-trial judges or by NOWT judges
+   * named for it (KOE-1357). The Kennel Club knows it only as a working test. Absent on every other
+   * trial.
+   */
+  mockTrial?: boolean
   name: string
   /** The event name in other languages (KOE-1263), keyed like `descriptions`; `name` is the fallback. */
   names?: Partial<Record<Language, string>>

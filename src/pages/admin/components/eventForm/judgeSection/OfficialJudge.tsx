@@ -3,7 +3,9 @@ import type { JudgesEvent, SectionProps } from '../types'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { judgesMockTrialIndependently } from '../../../../../lib/judge'
 import AutocompleteSingle from '../../../../components/AutocompleteSingle'
 import JudgeClasses from './JudgeClasses'
 import { filterClassesByJudgeId, filterJudges, updateJudge } from './utils'
@@ -21,6 +23,16 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
 
   const title = selectedEventType?.official && index === 0 ? t('judgeChief') : `${t('judge')} ${index + 1}`
   const value = judges.find((j) => j.id === judge.id)
+  // On a Mock trial the secretary sees which judges may judge it on their own (KOE-1357).
+  const getOptionLabel = useCallback(
+    (option?: Judge) => {
+      if (!option?.name) return ''
+      return event.mockTrial && judgesMockTrialIndependently(option)
+        ? `${option.name} (${t('judgeMockTrial')})`
+        : option.name
+    },
+    [event.mockTrial, t]
+  )
 
   return (
     <Grid container spacing={1} alignItems="center" width="100%">
@@ -31,8 +43,8 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
           label={title}
           error={!!judge.id && !value}
           helperText={judge.id && !value ? `Tuomari ${judge.name} (${judge.id}) ei ole käytettävissä` : ''}
-          getOptionLabel={(o) => o?.name || ''}
-          options={filterJudges(judges, event.judges, judge.id, selectedEventType)}
+          getOptionLabel={getOptionLabel}
+          options={filterJudges(judges, event.judges, judge.id, selectedEventType, event.mockTrial)}
           onChange={(value) => {
             const newJudge: PublicJudge | undefined = value
               ? { id: value.id, name: value.name, official: true }

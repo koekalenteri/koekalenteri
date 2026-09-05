@@ -5,6 +5,7 @@ import OfficialCell from '../components/OfficialCell'
 import { createOfficialDirectoryColumns } from '../officialDirectoryColumns'
 import ActiveCell from './cells/ActiveCell'
 import LanguagesCell from './cells/LanguagesCell'
+import MockTrialCell from './cells/MockTrialCell'
 
 export default function useJudgeListColumns(): GridColDef<Judge>[] {
   const { t } = useTranslation()
@@ -29,6 +30,13 @@ export default function useJudgeListColumns(): GridColDef<Judge>[] {
       headerName: t('official'),
       renderCell: OfficialCell,
       width: 80,
+    },
+    {
+      align: 'center',
+      field: 'mockTrial',
+      headerName: t('judgeMockTrial'),
+      renderCell: MockTrialCell,
+      width: 150,
     },
     ...directoryColumns,
     {

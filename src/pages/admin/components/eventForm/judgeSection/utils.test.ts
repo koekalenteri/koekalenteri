@@ -1,6 +1,6 @@
-import type { EventClass, PublicJudge } from '../../../../../types'
+import type { EventClass, EventType, Judge, PublicJudge } from '../../../../../types'
 import type { PartialEvent } from '../types'
-import { filterClassesByJudgeId, hasJudge, makeArray, updateJudge } from './utils'
+import { filterClassesByJudgeId, filterJudges, hasJudge, makeArray, updateJudge } from './utils'
 
 describe('judgeSection utils', () => {
   // Test data
@@ -12,6 +12,54 @@ describe('judgeSection utils', () => {
   const class1: EventClass = { class: 'ALO', date: startDate }
   const class2: EventClass = { class: 'AVO', date: startDate }
   const class3: EventClass = { class: 'VOI', date: startDate }
+
+  describe('filterJudges', () => {
+    const judge = (id: number, eventTypes: string[]): Judge => ({
+      active: true,
+      district: '',
+      email: '',
+      eventTypes,
+      id,
+      languages: [],
+      location: '',
+      name: `Judge ${id}`,
+      phone: '',
+    })
+    const aTrialJudge = judge(1, ['NOME-A'])
+    const nowtJudge = judge(2, ['NOWT'])
+    const bTrialJudge = judge(3, ['NOME-B'])
+    const directory = [aTrialJudge, nowtJudge, bTrialJudge]
+    const eventType = (type: string, official: boolean): EventType => ({
+      createdAt: startDate,
+      createdBy: 'test',
+      description: { en: '', fi: '', sv: '' },
+      eventType: type,
+      modifiedAt: startDate,
+      modifiedBy: 'test',
+      official,
+    })
+    const nowt = eventType('NOWT', true)
+
+    it('offers the judges of the official event type', () => {
+      expect(filterJudges(directory, [], undefined, nowt)).toEqual([nowtJudge])
+    })
+
+    it('offers every judge for an unofficial event type', () => {
+      expect(filterJudges(directory, [], undefined, eventType('Koulutus', false))).toEqual(directory)
+    })
+
+    it('offers the A-trial judges alongside the NOWT judges for a Mock trial (KOE-308)', () => {
+      expect(filterJudges(directory, [], undefined, nowt, true)).toEqual([aTrialJudge, nowtJudge])
+    })
+
+    it('leaves out the judges the event already has, except the one being edited', () => {
+      const eventJudges: PublicJudge[] = [
+        { id: 1, name: 'Judge 1', official: true },
+        { id: 2, name: 'Judge 2', official: true },
+      ]
+      expect(filterJudges(directory, eventJudges, 2, nowt, true)).toEqual([nowtJudge])
+    })
+  })
 
   describe('makeArray', () => {
     it('should convert a single judge to an array', () => {

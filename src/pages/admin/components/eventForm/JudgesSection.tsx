@@ -37,8 +37,8 @@ function JudgesSection({ event, disabled, judges, fields, onChange, onOpenChange
   const otherJudges = event.judges.filter((j) => !j.official)
   const unofficialJudges = otherJudges.filter((j) => !j.foreing)
   const validationError = useMemo(
-    () => event && fields?.required.judges && validateEventField(event, 'judges', true),
-    [event, fields?.required.judges]
+    () => event && fields?.required.judges && validateEventField(event, 'judges', true, { judges }),
+    [event, fields?.required.judges, judges]
   )
   const error = useMemo(
     () => !!validationError || officialJudges.some((ej) => ej.id && !judges.some((j) => j.id === ej.id)),

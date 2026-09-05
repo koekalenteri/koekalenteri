@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedStartOfDay } from '../../../i18n/dates'
 import {
+  eventTypeLabel,
   getParticipantsPhase,
   isEntryClosed,
   isEntryOpen,
@@ -104,7 +105,7 @@ const EventHeader = ({ event }: Props) => {
             xs: 'grow',
           }}
         >
-          {event.eventType}
+          {eventTypeLabel(event)}
         </Grid>
         <Grid display={{ sm: 'none' }} offset="auto">
           {showPlaces ? <EventPlaces event={event} /> : null}

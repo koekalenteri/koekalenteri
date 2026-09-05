@@ -1,14 +1,31 @@
-import type { ValidationResult, Validators } from '../../../../i18n/validation'
-import type { DogEvent, EventState, PublicContactInfo } from '../../../../types'
+import type { ValidationResult, WideValidationResult } from '../../../../i18n/validation'
+import type { DogEvent, EventState, Judge, PublicContactInfo } from '../../../../types'
 import type { DogEventCost } from '../../../../types/Cost'
 import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './types'
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { getCostValue } from '../../../../lib/cost'
 import { isDevEnv } from '../../../../lib/env'
 import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'
+import { judgesMockTrialIndependently, MIN_INDEPENDENT_MOCK_TRIAL_JUDGES } from '../../../../lib/judge'
 import { keysOf } from '../../../../lib/typeGuards'
 import { unique } from '../../../../lib/utils'
 import { requiresClassPlaces } from './places'
+
+/**
+ * What the event alone cannot tell a validator: the judge directory, for the rights of the judges
+ * the event names (KOE-1357). A section validating on its own may leave it out.
+ */
+interface EventValidationContext {
+  judges?: Judge[]
+}
+
+type EventValidationResult = WideValidationResult<PartialEvent, 'event'>
+type EventValidator = (
+  event: PartialEvent,
+  required: boolean,
+  context?: EventValidationContext
+) => EventValidationResult
+type EventValidators = { [Property in keyof PartialEvent]?: EventValidator }
 
 const STATE_INCLUSION: Record<EventState, EventState[]> = {
   cancelled: ['cancelled'],
@@ -65,6 +82,21 @@ const getMinJudgeCount = (event: PartialEvent) => {
   return 1
 }
 
+/**
+ * A Mock trial needs judges who may judge it on their own (KOE-1357), which the event's judge rows
+ * cannot tell: the directory can. Without one, the count goes unjudged.
+ */
+const validateMockTrialJudges = (event: PartialEvent, judges?: Judge[]): EventValidationResult => {
+  if (!event.mockTrial || !judges) return false
+  const independent = event.judges.filter((eventJudge) => {
+    const judge = judges.find((j) => j.id === eventJudge.id)
+    return !!judge && judgesMockTrialIndependently(judge)
+  })
+  return independent.length < MIN_INDEPENDENT_MOCK_TRIAL_JUDGES
+    ? { key: 'mockTrialJudges', opts: { field: 'judges', length: MIN_INDEPENDENT_MOCK_TRIAL_JUDGES } }
+    : false
+}
+
 const ZIPCODE_REGEXP = /^\d{5}$/
 
 const allowPastEventDates = (event: PartialEvent) => event.state === 'draft' || !event.id
@@ -118,7 +150,7 @@ const validateComplexCostMember = (cost: DogEventCost, costMember: DogEventCost)
   return list
 }
 
-export const VALIDATORS: Validators<PartialEvent, 'event'> = {
+export const VALIDATORS: EventValidators = {
   classes: (event, required) => {
     if (!required) {
       return false
@@ -170,7 +202,7 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
     }
     return false
   },
-  judges: (event, required) => {
+  judges: (event, required, context) => {
     if (!required) {
       return false
     }
@@ -178,6 +210,11 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
     const minCount = getMinJudgeCount(event)
     if (event.judges?.filter((j) => j.id || j.name).length < minCount) {
       return { key: 'judgeCount', opts: { field: 'judges', length: minCount } }
+    }
+
+    const mockTrialResult = validateMockTrialJudges(event, context?.judges)
+    if (mockTrialResult) {
+      return mockTrialResult
     }
 
     if (event.eventType === 'NOWT') {
@@ -235,10 +272,11 @@ function resolve(value: EventFlag | undefined, event: PartialEvent): boolean {
 export function validateEventField(
   event: PartialEvent,
   field: keyof DogEvent,
-  required: boolean
+  required: boolean,
+  context?: EventValidationContext
 ): ValidationResult<PartialEvent, 'event'> {
   const validator = VALIDATORS[field] ?? (() => required && (event[field] === undefined || event[field] === ''))
-  const result = validator(event, required)
+  const result = validator(event, required, context)
   if (!result) {
     return false
   }
@@ -261,12 +299,12 @@ export function validateEventField(
   }
 }
 
-export function validateEvent(event: PartialEvent) {
+export function validateEvent(event: PartialEvent, context?: EventValidationContext) {
   const required = requiredFields(event).required
   const errors = []
   const fields = unique(Object.keys(event).concat(keysOf(required))) as Array<keyof DogEvent>
   for (const field of fields) {
-    const result = validateEventField(event, field, !!required[field])
+    const result = validateEventField(event, field, !!required[field], context)
     if (result) {
       if (isDevEnv()) {
         console.debug(result)

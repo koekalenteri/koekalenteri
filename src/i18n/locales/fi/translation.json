@@ -238,6 +238,7 @@
     "kcIdWarningLocation": "Kokeen paikkakunta ({{location}}) ei vastaa Kennelliiton paikkakuntaa ({{kcLocation}}).",
     "kcIdWarningType": "Kokeen koemuoto ({{eventType}}) ei vastaa Kennelliiton koemuotoa ({{kcEventType}}).",
     "location": "Paikkakunta",
+    "mockTrial": "Mock trial",
     "modifiedAt": "Muokkausaika",
     "modifiedBy": "Muokkaaja",
     "name": "Nimi",
@@ -451,6 +452,7 @@
   "judge": "Tuomari",
   "judgeActive": "Arvostelee",
   "judgeChief": "Ylituomari",
+  "judgeMockTrial": "Mock trial -tuomari",
   "judges": "Tuomarit",
   "language": {
     "en": "englanti",
@@ -1109,6 +1111,7 @@
       "judgeCount": "{{type}}: Vähintään {{length}} $t(validation.event.judges, {\"count\": {{length}} }) tarvitaan",
       "judges_one": "tuomari",
       "judges_other": "tuomaria",
+      "mockTrialJudges": "Mock trial: vähintään {{length}} $t(validation.event.judges, {\"count\": {{length}} }) pitää voida arvostella Mock trialia itsenäisesti (NOME-A-tuomari tai Mock trial -tuomariksi merkitty NOWT-tuomari).",
       "placesClass": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu koepaikat.",
       "secretaryEmail": "Koesihteerin sähköpostiosoite täytyy olla yhteystiedoissa.",
       "startDate": "Alkamispäivä ei voi olla menneisyydessä",

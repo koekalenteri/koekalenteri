@@ -61,7 +61,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers, locations] =
     useAtomValue(eventFormOptionsAtom)
-  const [errors, setErrors] = useState(event ? validateEvent(event) : [])
+  const [errors, setErrors] = useState(event ? validateEvent(event, { judges: activeJudges }) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,
     contact: md,
@@ -118,6 +118,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       kcEvent: event.kcEvent,
       kcId: event.kcId,
       location: event.location,
+      mockTrial: event.mockTrial,
       name: event.name,
       official: event.official,
       organizer: event.organizer,
@@ -140,6 +141,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       event.kcEvent,
       event.kcId,
       event.location,
+      event.mockTrial,
       event.name,
       event.official,
       event.organizer,
@@ -155,9 +157,10 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       endDate: event.endDate,
       eventType: event.eventType,
       judges: event.judges,
+      mockTrial: event.mockTrial,
       startDate: event.startDate,
     }),
-    [event.classes, event.endDate, event.eventType, event.judges, event.startDate]
+    [event.classes, event.endDate, event.eventType, event.judges, event.mockTrial, event.startDate]
   )
   const entryEvent = useMemo(
     () => ({
@@ -235,12 +238,12 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       // Keep the previous errors reference when nothing actually changed, so the errorStates/
       // helperTexts memo below (and any memoized section relying on them) can skip recomputing.
       setErrors((prev) => {
-        const next = validateEvent(newState)
+        const next = validateEvent(newState, { judges: activeJudges })
         return objectsDiffer(prev, next) ? next : prev
       })
       onChange?.(newState)
     },
-    [onChange]
+    [activeJudges, onChange]
   )
 
   const handleOpenChange = useCallback(

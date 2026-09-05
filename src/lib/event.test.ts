@@ -23,6 +23,7 @@ import {
   defaultEntryEndDate,
   defaultEntryStartDate,
   eventRegistrationDateKey,
+  eventTypeLabel,
   getEventClassesByDays,
   getEventDays,
   getEventProgress,
@@ -36,12 +37,14 @@ import {
   getStartListPublishedClassMap,
   getUniqueEventClasses,
   hasExplicitPlacesForClass,
+  hasMockTrialChoice,
   hasPublishedResults,
   hasRetrieveTypeChoice,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEventDeletable,
   isEventLive,
+  isMockTrialClass,
   isOfficialEventType,
   isResultsAvailableForClass,
   isResultsAvailableForRegistration,
@@ -1340,6 +1343,37 @@ describe('registrationDatesOutsideClass', () => {
 
     it.each(['NOU', 'NOME-A', 'NOWT', 'NKM', 'Koulutus', '', undefined, null])('does not apply to %s', (eventType) => {
       expect(hasRetrieveTypeChoice(eventType)).toEqual(false)
+    })
+  })
+
+  describe('hasMockTrialChoice (KOE-308)', () => {
+    it('is the NOWT that can be a Mock trial', () => {
+      expect(hasMockTrialChoice('NOWT')).toEqual(true)
+    })
+
+    it.each(['NOWT SM', 'NOME-A', 'NOME-B', 'NOU', 'Koulutus', '', undefined, null])(
+      'does not apply to %s',
+      (eventType) => {
+        expect(hasMockTrialChoice(eventType)).toEqual(false)
+      }
+    )
+  })
+
+  describe('isMockTrialClass (KOE-308)', () => {
+    it('runs AVO and VOI, never ALO', () => {
+      expect(isMockTrialClass('ALO')).toEqual(false)
+      expect(isMockTrialClass('AVO')).toEqual(true)
+      expect(isMockTrialClass('VOI')).toEqual(true)
+    })
+  })
+
+  describe('eventTypeLabel (KOE-308)', () => {
+    it('marks a Mock trial after the event type', () => {
+      expect(eventTypeLabel({ eventType: 'NOWT', mockTrial: true })).toEqual('NOWT (Mock trial)')
+    })
+
+    it.each([false, undefined])('is the bare event type otherwise (mockTrial: %s)', (mockTrial) => {
+      expect(eventTypeLabel({ eventType: 'NOWT', mockTrial })).toEqual('NOWT')
     })
   })
 })

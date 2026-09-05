@@ -30,6 +30,12 @@ export interface Judge extends OfficialPerson {
   languages: string[]
   active?: boolean
   official?: boolean
+  /**
+   * A NOWT judge the judges' committee has named to judge Mock trials on their own (KOE-1357).
+   * Kept by an admin; the Kennel Club sync does not know it. A-trial judges need no flag: they
+   * judge Mock trials by right.
+   */
+  mockTrial?: boolean
 }
 
 export type JsonJudge = Omit<Judge, keyof DbRecord> & Omit<JsonDbRecord, 'id'> & { id: number }

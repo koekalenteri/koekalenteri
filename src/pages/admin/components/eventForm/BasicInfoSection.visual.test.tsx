@@ -70,3 +70,31 @@ it('lets a B-trial choose between game and dummies (KOE-439)', async () => {
   await expect.element(screen.getByRole('radio', { name: 'dameilla' })).not.toBeChecked()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-retrieve-type')
 })
+
+it('lets a NOWT say it is a Mock trial, run in AVO and VOI (KOE-308)', async () => {
+  const event = {
+    classes: [
+      { class: 'AVO' as const, date: new TZDate('2026-06-01', TIME_ZONE) },
+      { class: 'VOI' as const, date: new TZDate('2026-06-01', TIME_ZONE) },
+    ],
+    description: '',
+    endDate: new TZDate('2026-06-01', TIME_ZONE),
+    eventType: 'NOWT',
+    id: 'test',
+    judges: [],
+    mockTrial: true,
+    name: 'Harjoituskoe',
+    startDate: new TZDate('2026-06-01', TIME_ZONE),
+  }
+
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+      <Frame>
+        <BasicInfoSection event={event} eventTypeClasses={{ NOWT: ['ALO', 'AVO', 'VOI'] }} eventTypes={['NOWT']} open />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByRole('checkbox', { name: 'Mock trial' })).toBeChecked()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-mock-trial')
+})

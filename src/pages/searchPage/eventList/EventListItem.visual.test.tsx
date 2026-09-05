@@ -40,3 +40,24 @@ it('says the invitations are out while the start list is still unpublished (KOE-
   await expect.element(screen.getByText('Koekutsut lähetetty')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-item-invited-unpublished')
 })
+
+it('names a NOWT that is a Mock trial as one (KOE-308)', async () => {
+  const mockTrial = {
+    ...invitedEvent,
+    classes: [
+      { class: 'AVO' as const, date: day('2026-09-09') },
+      { class: 'VOI' as const, date: day('2026-09-09') },
+    ],
+    eventType: 'NOWT',
+    mockTrial: true,
+  }
+
+  const screen = await render(
+    <Frame>
+      <EventListItem event={mockTrial} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('NOWT (Mock trial)')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-item-mock-trial')
+})

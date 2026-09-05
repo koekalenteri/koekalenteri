@@ -1,18 +1,27 @@
 import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../../types'
 import type { PartialEvent } from '../types'
 import { isSameDay } from 'date-fns'
+import { canJudgeMockTrial } from '../../../../../lib/judge'
 
 type PartialPublicJudge = Partial<PublicJudge>
 type PartialPublicJudgeValue = PartialPublicJudge | PartialPublicJudge[]
+
+const canJudge = (judge: Judge, eventType?: EventType, mockTrial?: boolean) => {
+  if (!eventType?.official) return true
+  // A Mock trial is judged by A-trial judges as well as NOWT judges (KOE-308).
+  if (mockTrial) return canJudgeMockTrial(judge)
+  return judge.eventTypes.includes(eventType.eventType)
+}
 
 export const filterJudges = (
   judges: Judge[],
   eventJudges: PublicJudge[],
   id: number | undefined,
-  eventType?: EventType
+  eventType?: EventType,
+  mockTrial?: boolean
 ) =>
   judges
-    .filter((j) => !eventType?.official || j.eventTypes.includes(eventType.eventType))
+    .filter((j) => canJudge(j, eventType, mockTrial))
     .filter((j) => j.id === id || !eventJudges.some((ej) => ej.id === j.id))
 
 export const hasJudge = (c: DeepPartial<EventClass>, id?: number): boolean =>

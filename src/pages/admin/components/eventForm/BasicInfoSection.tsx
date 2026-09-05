@@ -13,6 +13,7 @@ import type {
 } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { BasicInfoEvent, PartialEvent, SectionProps } from './types'
+import Checkbox from '@mui/material/Checkbox'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormLabel from '@mui/material/FormLabel'
@@ -30,9 +31,11 @@ import {
   defaultEntryEndDate,
   defaultEntryStartDate,
   EVENT_TRANSLATION_LANGUAGES,
+  hasMockTrialChoice,
   hasRetrieveTypeChoice,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
+  isMockTrialClass,
   OFFICIAL_EVENT_TYPES,
 } from '../../../../lib/event'
 import { getRuleDate } from '../../../../rules'
@@ -59,10 +62,17 @@ const RETRIEVE_TYPES: RetrieveType[] = ['game', 'dummies']
 
 const isRetrieveType = (value: string): value is RetrieveType => RETRIEVE_TYPES.some((type) => type === value)
 
-const getTypeClasses = (eventType?: string, eventTypeClasses?: Record<string, RegistrationClass[]>) =>
-  OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
+const getTypeClasses = (
+  eventType?: string,
+  eventTypeClasses?: Record<string, RegistrationClass[]>,
+  mockTrial?: boolean
+) => {
+  const classes = OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
     ? (eventTypeClasses?.[eventType ?? ''] ?? [])
     : (eventTypeClasses?.unofficialEvents ?? [])
+  // A Mock trial runs AVO and VOI only (KOE-308).
+  return mockTrial ? classes.filter(isMockTrialClass) : classes
+}
 
 function BasicInfoSection({
   disabled,
@@ -82,7 +92,7 @@ function BasicInfoSection({
   selectedEventType,
 }: Props) {
   const { t } = useTranslation()
-  const typeOptions = eventClassOptions(event, getTypeClasses(event.eventType, eventTypeClasses))
+  const typeOptions = eventClassOptions(event, getTypeClasses(event.eventType, eventTypeClasses, event.mockTrial))
   const error =
     (errorStates &&
       (errorStates.startDate ||
@@ -140,7 +150,9 @@ function BasicInfoSection({
   )
   const handleTypeChange = useCallback(
     ({ eventType }: Partial<DogEvent>) => {
-      const filterClasses = getTypeClasses(eventType, eventTypeClasses)
+      // Only a NOWT can be a Mock trial (KOE-308); a trial that changes format drops the mark.
+      const mockTrial = hasMockTrialChoice(eventType) ? event.mockTrial : null
+      const filterClasses = getTypeClasses(eventType, eventTypeClasses, !!mockTrial)
       const classes = event.classes.filter((c) => filterClasses.includes(c.class))
       const official = OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
       const judges =
@@ -149,9 +161,17 @@ function BasicInfoSection({
           : event.judges
       // The game-or-dummies choice (KOE-439) is a B-trial's; a trial that changes format drops it.
       const retrieveType = hasRetrieveTypeChoice(eventType) ? event.retrieveType : null
-      onChange?.({ classes, eventType, judges, retrieveType })
+      onChange?.({ classes, eventType, judges, mockTrial, retrieveType })
     },
-    [event.classes, event.judges, event.retrieveType, eventTypeClasses, onChange]
+    [event.classes, event.judges, event.mockTrial, event.retrieveType, eventTypeClasses, onChange]
+  )
+  const handleMockTrialChange = useCallback(
+    (_e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
+      // A Mock trial runs AVO and VOI only (KOE-308): marking the trial one drops its ALO classes.
+      const classes = checked ? event.classes.filter((c) => isMockTrialClass(c.class)) : event.classes
+      onChange?.({ classes, mockTrial: checked })
+    },
+    [event.classes, onChange]
   )
   const handleRetrieveTypeChange = useCallback(
     (_e: ChangeEvent<HTMLInputElement>, value: string) => {
@@ -238,6 +258,23 @@ function BasicInfoSection({
             />
           </Grid>
         </Grid>
+        {hasMockTrialChoice(event.eventType) ? (
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 600 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={!!event.mockTrial}
+                    disabled={hasEntries || disabled}
+                    name="mockTrial"
+                    onChange={handleMockTrialChange}
+                  />
+                }
+                label={t('event.mockTrial')}
+              />
+            </Grid>
+          </Grid>
+        ) : null}
         {hasRetrieveTypeChoice(event.eventType) ? (
           <Grid container spacing={1}>
             <Grid sx={{ width: 600 }}>

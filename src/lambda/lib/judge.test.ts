@@ -144,6 +144,7 @@ describe('judge', () => {
         id: 0,
         languages: [],
         location: 'location',
+        mockTrial: true,
         modifiedAt: 'modifiedAt',
         modifiedBy: 'modifiedBy',
         name: 'name',
@@ -151,6 +152,7 @@ describe('judge', () => {
         phone: 'phone',
         updatedAt: 'updatedAt',
       }
+      // `mockTrial` is the app's own (KOE-1357), like `active`: the Kennel Club sync must not compare or overwrite it.
       expect(partializeJudge(fullJudge)).toMatchInlineSnapshot(`
         {
           "district": "district",

@@ -7,7 +7,7 @@ import { fetchOfficialDirectory, mapOfficialDirectoryEntry, syncOfficialDirector
 
 const { judgeTable } = CONFIG
 
-export type PartialJsonJudge = Omit<Judge, 'languages' | 'active'>
+export type PartialJsonJudge = Omit<Judge, 'languages' | 'active' | 'mockTrial'>
 
 export const fetchJudgesForEventTypes = async (
   klapi: KLAPI,

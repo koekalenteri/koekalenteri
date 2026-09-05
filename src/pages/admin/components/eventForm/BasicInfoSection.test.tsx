@@ -48,6 +48,64 @@ describe('BasicInfoSection', () => {
   })
 
   describe('interactions', () => {
+    it('marks a NOWT as a Mock trial and drops its ALO classes (KOE-308)', async () => {
+      const testEvent: PartialEvent = {
+        classes: [
+          { class: 'ALO', date: newEventStartDate },
+          { class: 'AVO', date: newEventStartDate },
+        ],
+        endDate: newEventStartDate,
+        eventType: 'NOWT',
+        judges: [],
+        startDate: newEventStartDate,
+      }
+      const changeHandler = vi.fn()
+      const { user } = renderComponent({
+        event: testEvent,
+        eventTypeClasses: { NOWT: ['ALO', 'AVO', 'VOI'] },
+        onChange: changeHandler,
+        open: true,
+      })
+
+      await user.click(screen.getByRole('checkbox', { name: 'event.mockTrial' }))
+
+      expect(changeHandler).toHaveBeenCalledTimes(1)
+      expect(changeHandler).toHaveBeenCalledWith({
+        classes: [{ class: 'AVO', date: newEventStartDate }],
+        mockTrial: true,
+      })
+    })
+
+    it('keeps the classes when the Mock trial mark comes off', async () => {
+      const testEvent: PartialEvent = {
+        classes: [{ class: 'AVO', date: newEventStartDate }],
+        endDate: newEventStartDate,
+        eventType: 'NOWT',
+        judges: [],
+        mockTrial: true,
+        startDate: newEventStartDate,
+      }
+      const changeHandler = vi.fn()
+      const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+
+      await user.click(screen.getByRole('checkbox', { name: 'event.mockTrial' }))
+
+      expect(changeHandler).toHaveBeenCalledWith({ classes: testEvent.classes, mockTrial: false })
+    })
+
+    it('has no Mock trial mark for the other event types', () => {
+      const testEvent: PartialEvent = {
+        classes: [],
+        endDate: newEventStartDate,
+        eventType: 'NOME-B',
+        judges: [],
+        startDate: newEventStartDate,
+      }
+      renderComponent({ event: testEvent, open: true })
+
+      expect(screen.queryByRole('checkbox', { name: 'event.mockTrial' })).toBeNull()
+    })
+
     it('should fire onChange with the translations map for a translated name', async () => {
       // KOE-1263: the name can also be given in the other app languages.
       const testEvent: PartialEvent = {

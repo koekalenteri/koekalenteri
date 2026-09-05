@@ -238,6 +238,7 @@
     "kcIdWarningLocation": "The event's location ({{location}}) doesn't match the Kennel Club's location ({{kcLocation}}).",
     "kcIdWarningType": "The event's type ({{eventType}}) doesn't match the Kennel Club's type ({{kcEventType}}).",
     "location": "Location",
+    "mockTrial": "Mock trial",
     "modifiedAt": "Modified at",
     "modifiedBy": "Modified by",
     "name": "Name",
@@ -451,6 +452,7 @@
   "judge": "Judge",
   "judgeActive": "Active",
   "judgeChief": "Chief judge",
+  "judgeMockTrial": "Mock trial judge",
   "judges": "Judges",
   "language": {
     "en": "english",
@@ -1109,6 +1111,7 @@
       "judgeCount": "{{type}}: At least {{length}} $t(validation.event.judges, {\"count\": {{length}} }) are needed",
       "judges_one": "judge",
       "judges_other": "judges",
+      "mockTrialJudges": "Mock trial: at least {{length}} $t(validation.event.judges, {\"count\": {{length}} }) must be able to judge a Mock trial on their own (an A-trial judge, or a NOWT judge marked as a Mock trial judge).",
       "placesClass": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) is missing places.",
       "secretaryEmail": "Secretary's email address must be in the contact information.",
       "startDate": "Start date cannot be in the past",

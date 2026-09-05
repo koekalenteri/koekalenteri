@@ -237,6 +237,18 @@ const RETRIEVE_TYPE_EVENT_TYPES = new Set(['NOME-B', 'NOME-B SM'])
 export const hasRetrieveTypeChoice = (eventType?: string | null) =>
   !!eventType && RETRIEVE_TYPE_EVENT_TYPES.has(eventType)
 
+/** The NOWT is the format that can be a Mock trial (KOE-308); its championship cannot. */
+export const hasMockTrialChoice = (eventType?: string | null) => eventType === 'NOWT'
+
+/** The classes a Mock trial runs (KOE-308): AVO and VOI, never ALO. */
+const MOCK_TRIAL_CLASSES = new Set<RegistrationClass>(['AVO', 'VOI'])
+
+export const isMockTrialClass = (eventClass: RegistrationClass) => MOCK_TRIAL_CLASSES.has(eventClass)
+
+/** The trial's type as people read it: the event type, marked "(Mock trial)" where the NOWT is one (KOE-308). */
+export const eventTypeLabel = (event: { eventType: string; mockTrial?: boolean }) =>
+  event.mockTrial ? `${event.eventType} (Mock trial)` : event.eventType
+
 /**
  * Event types are official when the Kennel Club knows them, which the event type sync records in
  * `official`. Rows predating that flag - and the SM types, which have no Kennel Club counterpart of

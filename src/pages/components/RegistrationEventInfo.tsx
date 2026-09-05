@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getEventStateForClass, localizedEventName } from '../../lib/event'
+import { eventTypeLabel, getEventStateForClass, localizedEventName } from '../../lib/event'
 import { invitationAttachmentFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
 import { printContactInfo } from '../../lib/utils'
@@ -34,7 +34,7 @@ const Header = ({ event }: HeaderProps) => {
   const language = useAtomValue(languageAtom)
   const name = localizedEventName(event, language)
 
-  const title = `${event.eventType} ${t('dateFormat.datespan', { end: event.endDate, start: event.startDate })} ${
+  const title = `${eventTypeLabel(event)} ${t('dateFormat.datespan', { end: event.endDate, start: event.startDate })} ${
     event.location + (name ? ` (${name})` : '')
   }`
 

@@ -31,7 +31,7 @@ export type FieldRequirements = {
   state: RequiredFieldState
   required: RequiredFields
 }
-export type JudgesEvent = Pick<PartialEvent, 'classes' | 'endDate' | 'eventType' | 'judges' | 'startDate'>
+export type JudgesEvent = Pick<PartialEvent, 'classes' | 'endDate' | 'eventType' | 'judges' | 'mockTrial' | 'startDate'>
 
 export type BasicInfoEvent = Pick<
   PartialEvent,
@@ -48,6 +48,7 @@ export type BasicInfoEvent = Pick<
   | 'kcEvent'
   | 'kcId'
   | 'location'
+  | 'mockTrial'
   | 'name'
   | 'names'
   | 'official'

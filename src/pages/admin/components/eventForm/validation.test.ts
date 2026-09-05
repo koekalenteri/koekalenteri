@@ -1,3 +1,4 @@
+import type { Judge } from '../../../../types'
 import type { PartialEvent } from './types'
 import { emptyEvent } from '../../../../__mockData__/emptyEvent'
 import * as env from '../../../../lib/env'
@@ -368,6 +369,74 @@ describe('validation', () => {
     it('returns false when required is false', () => {
       const ev: PartialEvent = { ...emptyEvent, judges: [] }
       expect(VALIDATORS.judges?.(ev, false)).toBe(false)
+    })
+
+    describe('Mock trial (KOE-1357)', () => {
+      const judge = (id: number, eventTypes: string[], mockTrial?: boolean): Judge => ({
+        active: true,
+        district: '',
+        email: '',
+        eventTypes,
+        id,
+        languages: [],
+        location: '',
+        mockTrial,
+        name: `Judge ${id}`,
+        phone: '',
+      })
+      const aTrialJudge = judge(1, ['NOME-A'])
+      const namedNowtJudge = judge(2, ['NOWT'], true)
+      const nowtJudge = judge(3, ['NOWT'])
+      const bTrialJudge = judge(4, ['NOME-B'])
+      const directory = [aTrialJudge, namedNowtJudge, nowtJudge, bTrialJudge]
+      const mockTrial = (...judges: Judge[]): PartialEvent => ({
+        ...emptyEvent,
+        eventType: 'NOWT',
+        judges: judges.map(({ id, name }) => ({ id, name, official: true })),
+        mockTrial: true,
+        state: 'confirmed',
+      })
+
+      it('needs two judges who may judge a Mock trial on their own', () => {
+        expect(VALIDATORS.judges?.(mockTrial(aTrialJudge, nowtJudge), true, { judges: directory })).toEqual({
+          key: 'mockTrialJudges',
+          opts: { field: 'judges', length: 2 },
+        })
+        expect(VALIDATORS.judges?.(mockTrial(nowtJudge, bTrialJudge), true, { judges: directory })).toEqual({
+          key: 'mockTrialJudges',
+          opts: { field: 'judges', length: 2 },
+        })
+      })
+
+      it('is satisfied by an A-trial judge and a NOWT judge named for Mock trials', () => {
+        expect(
+          VALIDATORS.judges?.(mockTrial(aTrialJudge, namedNowtJudge, nowtJudge), true, { judges: directory })
+        ).toBe(false)
+      })
+
+      it('still asks for the two judges every working test needs first', () => {
+        expect(VALIDATORS.judges?.(mockTrial(aTrialJudge), true, { judges: directory })).toEqual({
+          key: 'judgeCount',
+          opts: { field: 'judges', length: 2 },
+        })
+      })
+
+      it('leaves the rights unjudged without the judge directory', () => {
+        expect(VALIDATORS.judges?.(mockTrial(nowtJudge, bTrialJudge), true)).toBe(false)
+      })
+
+      it('does not apply to a working test that is no Mock trial', () => {
+        const event = { ...mockTrial(nowtJudge, bTrialJudge), mockTrial: false }
+        expect(VALIDATORS.judges?.(event, true, { judges: directory })).toBe(false)
+      })
+
+      it('reaches the form through validateEvent', () => {
+        const errors = validateEvent(mockTrial(aTrialJudge, nowtJudge), { judges: directory })
+        expect(errors).toContainEqual({
+          key: 'mockTrialJudges',
+          opts: { field: 'judges', length: 2, state: 'confirmed', type: 'NOWT' },
+        })
+      })
     })
 
     it('counts judges with only name but no id', () => {

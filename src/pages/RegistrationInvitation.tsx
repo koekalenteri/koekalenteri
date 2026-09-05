@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { Await, Navigate, useLoaderData } from 'react-router'
 import { getEvent } from '../api/event'
 import { getRegistration, patchRegistration } from '../api/registration'
-import { localizedEventName } from '../lib/event'
+import { eventTypeLabel, localizedEventName } from '../lib/event'
 import { invitationAttachmentFileName } from '../lib/fileName'
 import { createPatchOperations } from '../lib/patch'
 import { getInvitationReadStatus } from '../lib/registration'
@@ -93,7 +93,7 @@ export const Component = () => {
               <Paper sx={{ p: 1 }}>
                 <Typography variant="caption">{t('invitation.event')}</Typography>
                 <Typography>
-                  {event.eventType} {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}{' '}
+                  {eventTypeLabel(event)} {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}{' '}
                   {event.location} ({localizedEventName(event, language)})
                 </Typography>
                 <Typography variant="caption">{t('invitation.registeredDog')}</Typography>

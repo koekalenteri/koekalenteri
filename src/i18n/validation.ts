@@ -16,14 +16,6 @@ export type WideValidationResult<T extends Record<string, any>, NS extends keyof
   | boolean
   | WideValidationError<T, NS>
 
-type Validator<T extends Record<string, any>, NS extends keyof ValidationErrorKey> = (
-  value: T,
-  required: boolean
-) => WideValidationResult<T, NS>
-
-export type Validators<T extends Record<string, any>, NS extends keyof ValidationErrorKey> = {
-  [Property in keyof T]?: Validator<T, NS>
-}
 type Validator2<T extends Record<string, any>, NS extends keyof ValidationErrorKey, T2 extends Record<string, any>> = (
   value: T,
   required: boolean,

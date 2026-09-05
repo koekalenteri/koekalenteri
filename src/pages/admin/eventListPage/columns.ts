@@ -2,7 +2,7 @@ import type { GridColDef } from '@mui/x-data-grid'
 import type { DogEvent, EventClass } from '../../../types'
 import { useTranslation } from 'react-i18next'
 import { localeSortComparator } from '../../../lib/datagrid'
-import { getEventTitle } from '../../../lib/event'
+import { eventTypeLabel, getEventTitle } from '../../../lib/event'
 
 type StartEndDate = { start: Date; end: Date }
 
@@ -30,6 +30,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       headerName: t('event.eventType'),
       hideable: false,
       minWidth: 100,
+      valueGetter: (_value, row) => eventTypeLabel(row),
     },
     {
       field: 'classes',
