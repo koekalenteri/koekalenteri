@@ -43,7 +43,7 @@ const registrations: Registration[] = registrationsToEventWithStations.map((regi
 // The drawer is as tall as the window, so the window has to be taller than the panel's content for
 // the capture to hold all of it.
 const openPanel = async () => {
-  await page.viewport(900, 1400)
+  await page.viewport(900, 1500)
 
   const screen = await render(
     <ThemeProvider theme={theme}>

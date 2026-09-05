@@ -145,6 +145,7 @@
     "cancel-picked": "Peruutusilmoitus koepaikalta",
     "cancel-reserve": "Peruutusilmoitus sihteerille: varasija",
     "invitation": "Koekutsu",
+    "message": "Viesti osallistujille",
     "picked": "Koepaikkailmoitus",
     "receipt": "Kuitti",
     "refund": "Maksun palautus",
@@ -336,6 +337,15 @@
       "delivery": "Koekutsun lähetys",
       "send": "Lähetä koekutsu",
       "sent": "Koekutsut lähetetty"
+    },
+    "message": {
+      "action": "Lähetä viesti",
+      "continue": "Jatka",
+      "participants": "Osallistujat ({{num}})",
+      "recipients": "Vastaanottajia yhteensä: {{num}}",
+      "reserve": "Varasijalla ({{num}})",
+      "templateMissing": "Viestipohjaa ei ole vielä laadittu. Laadi se Viestipohjat-sivulla, ennen kuin lähetät viestin.",
+      "title": "Kenelle viesti lähetetään?"
     },
     "open": "Avaa tapahtuman hallinta",
     "participantSelection": {

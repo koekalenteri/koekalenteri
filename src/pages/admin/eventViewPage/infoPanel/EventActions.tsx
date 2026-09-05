@@ -1,6 +1,7 @@
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
+import MailOutline from '@mui/icons-material/MailOutline'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
@@ -12,15 +13,24 @@ import { actionButtonSx, sectionSx } from './styles'
 interface Props {
   readonly eventFinished: boolean
   readonly eventId: string
+  readonly hasRegistrations?: boolean
   readonly onCreateRegistration?: () => void
   readonly onOpenDetails?: () => void
+  readonly onSendMessage?: () => void
 }
 
 /**
  * What the panel offers apart from the trial's own steps. Scoring is a step, not a general action, so
  * defining the posts and entering the results live in the results section (KOE-1354).
  */
-const EventActions = ({ eventFinished, eventId, onCreateRegistration, onOpenDetails }: Props) => {
+const EventActions = ({
+  eventFinished,
+  eventId,
+  hasRegistrations,
+  onCreateRegistration,
+  onOpenDetails,
+  onSendMessage,
+}: Props) => {
   const { t } = useTranslation()
 
   return (
@@ -47,6 +57,16 @@ const EventActions = ({ eventFinished, eventId, onCreateRegistration, onOpenDeta
           variant="outlined"
         >
           {t('createRegistration')}
+        </Button>
+        <Button
+          disabled={!hasRegistrations}
+          fullWidth
+          onClick={onSendMessage}
+          startIcon={<MailOutline />}
+          sx={actionButtonSx}
+          variant="outlined"
+        >
+          {t('eventManagement.message.action')}
         </Button>
         <Button
           fullWidth

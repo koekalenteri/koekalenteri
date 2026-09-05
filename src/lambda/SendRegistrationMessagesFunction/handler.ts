@@ -26,6 +26,7 @@ const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const templateAuditLabels: Partial<Record<RegistrationMessage['template'], string>> = {
   invitation: 'Koekutsu',
+  message: 'Viesti osallistujille',
   picked: 'Koepaikkailmoitus',
   registration: 'Vahvistusviesti',
   reserve: 'Varasijailmoitus',
@@ -33,6 +34,7 @@ const templateAuditLabels: Partial<Record<RegistrationMessage['template'], strin
 
 const templateAuditLabelKeys: Partial<Record<RegistrationMessage['template'], string>> = {
   invitation: 'emailTemplate.invitation',
+  message: 'emailTemplate.message',
   picked: 'emailTemplate.picked',
   registration: 'emailTemplate.registration',
   reserve: 'emailTemplate.reserve',

@@ -15,6 +15,7 @@ export type EmailTemplateId =
   | 'picked'
   | 'reserve'
   | 'invitation'
+  | 'message'
   | 'access'
   | 'refund'
   | 'cancel-early'

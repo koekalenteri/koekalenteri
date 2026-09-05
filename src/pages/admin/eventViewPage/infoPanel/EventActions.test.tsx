@@ -104,4 +104,31 @@ describe('InfoPanel>', () => {
       within(actionsSection).getByRole('link', { name: 'eventManagement.startList.secretary' })
     ).toBeInTheDocument()
   })
+
+  it('sends a message to a chosen group of recipients (KOE-1073)', async () => {
+    const onSendMessage = vi.fn()
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={eventWithStations}
+        onSendMessage={onSendMessage}
+        registrations={registrationsToEventWithStations}
+      />,
+      { wrapper: Provider }
+    )
+    await openInfoPanel(user)
+
+    const actionsSection = sectionOf('eventManagement.actions')
+    await user.click(within(actionsSection).getByRole('button', { name: 'eventManagement.message.action' }))
+
+    expect(onSendMessage).toHaveBeenCalledTimes(1)
+  })
+
+  it('has nobody to message before anyone has entered', async () => {
+    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
+      wrapper: Provider,
+    })
+    await openInfoPanel(user)
+
+    expect(screen.getByRole('button', { name: 'eventManagement.message.action' })).toBeDisabled()
+  })
 })

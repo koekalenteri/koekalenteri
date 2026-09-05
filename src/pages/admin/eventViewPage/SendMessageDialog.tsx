@@ -4,6 +4,7 @@ import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -109,6 +110,10 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       }
     }
   }, [templates, templateId, selectedTemplate])
+
+  // A template nobody has written yet has no SES counterpart to send, so the send would only fail
+  // at the last step (KOE-1073).
+  const templateMissing = Boolean(selectedTemplate && !selectedTemplate.ses)
 
   const handleTemplateChange = (value: EmailTemplate | null) => setSelectedTemplate(value ?? undefined)
   const preview = useMemo(() => {
@@ -254,6 +259,11 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                 label={'Viestin tyyppi'}
                 value={selectedTemplate}
               />
+              {templateMissing && (
+                <Alert severity="warning" sx={{ my: 1 }}>
+                  {t('eventManagement.message.templateMissing')}
+                </Alert>
+              )}
               <FormControl component="fieldset" fullWidth>
                 <FormLabel component="legend">Voit lisätä tähän halutessasi lisäviestin:</FormLabel>
                 <TextField fullWidth multiline rows={4} value={text} onChange={(e) => setText(e.target.value)} />
@@ -306,7 +316,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         </Stack>
       </DialogContent>
       <DialogActions>
-        <AsyncButton disabled={!selectedTemplate} variant="contained" onClick={handleSend}>
+        <AsyncButton disabled={!selectedTemplate || templateMissing} variant="contained" onClick={handleSend}>
           Lähetä
         </AsyncButton>
         <Button variant="outlined" onClick={onClose}>

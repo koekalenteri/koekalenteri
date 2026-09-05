@@ -19,6 +19,7 @@ import EventNotFound from './components/EventNotFound'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import InfoPanel from './eventViewPage/InfoPanel'
+import MessageRecipientsDialog from './eventViewPage/MessageRecipientsDialog'
 import OtherViewers from './eventViewPage/OtherViewers'
 import { RefundDailog } from './eventViewPage/RefundDialog'
 import RegistrationCreateDialog from './eventViewPage/RegistrationCreateDialog'
@@ -42,6 +43,7 @@ export default function EventViewPage() {
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
   const [msgDlgOpen, setMsgDlgOpen] = useState(false)
+  const [recipientsOpen, setRecipientsOpen] = useState(false)
   const [refundOpen, setRefundOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
 
@@ -88,11 +90,18 @@ export default function EventViewPage() {
   const handleDetailsClose = useCallback(() => setDetailsOpen(false), [])
   const handleRefundClose = useCallback(() => setRefundOpen(false), [])
   const closeMsgDlg = useCallback(() => setMsgDlgOpen(false), [])
+  const closeRecipients = useCallback(() => setRecipientsOpen(false), [])
 
   const handleOpenMsgDialog = (recipients: Registration[], templateId?: EmailTemplateId) => {
     setRecipientRegistrations(recipients)
     setMessageTemplateId(templateId)
     setMsgDlgOpen(true)
+  }
+
+  // The secretary picks the recipient groups first, and writes the message to them after (KOE-1073).
+  const handleRecipientsContinue = (recipients: Registration[]) => {
+    setRecipientsOpen(false)
+    handleOpenMsgDialog(recipients, 'message')
   }
 
   const handleCancel = useCallback(
@@ -170,6 +179,7 @@ export default function EventViewPage() {
         }
         registrations={allRegistrations}
         onOpenMessageDialog={handleOpenMsgDialog}
+        onSendMessage={() => setRecipientsOpen(true)}
       />
 
       <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -246,6 +256,13 @@ export default function EventViewPage() {
           open={msgDlgOpen}
           registrations={recipientRegistrations}
           templateId={messageTemplateId}
+        />
+        <MessageRecipientsDialog
+          event={event}
+          onCancel={closeRecipients}
+          onContinue={handleRecipientsContinue}
+          open={recipientsOpen}
+          registrations={allRegistrations}
         />
         <EventDetailsDialog eventId={eventId} open={detailsOpen} onClose={handleDetailsClose} />
         {selectedRegistration && (

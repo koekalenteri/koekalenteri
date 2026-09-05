@@ -45,6 +45,7 @@ interface Props {
   ) => Promise<unknown>
   readonly registrations: Registration[]
   readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
+  readonly onSendMessage?: () => void
 }
 
 const APP_HEADER_HEIGHT = 36
@@ -58,6 +59,7 @@ const InfoPanel = ({
   onSetStartNumbersPublished,
   registrations,
   onOpenMessageDialog,
+  onSendMessage,
 }: Props) => {
   const { t } = useTranslation()
   const token = useAtomValue(validIdTokenAtom)
@@ -310,8 +312,10 @@ const InfoPanel = ({
           <EventActions
             eventFinished={eventFinished}
             eventId={event.id}
+            hasRegistrations={registrations.length > 0}
             onCreateRegistration={onCreateRegistration}
             onOpenDetails={onOpenDetails}
+            onSendMessage={onSendMessage}
           />
         </Box>
         <Box sx={{ display: activeTab === 1 ? 'flex' : 'none', flex: 1, minHeight: 0, p: 1.5 }}>

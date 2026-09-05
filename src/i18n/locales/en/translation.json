@@ -145,6 +145,7 @@
     "cancel-picked": "Cancel notice (picked)",
     "cancel-reserve": "Cancel notice (reserve)",
     "invitation": "Invitation",
+    "message": "Message to participants",
     "picked": "Picked notification",
     "receipt": "Receipt",
     "refund": "Refund",
@@ -336,6 +337,15 @@
       "delivery": "Invitation delivery",
       "send": "Send invitation",
       "sent": "Invitations sent"
+    },
+    "message": {
+      "action": "Send a message",
+      "continue": "Continue",
+      "participants": "Participants ({{num}})",
+      "recipients": "Recipients in total: {{num}}",
+      "reserve": "Reserve ({{num}})",
+      "templateMissing": "The message template has not been written yet. Write it on the Email templates page before sending.",
+      "title": "Who is the message for?"
     },
     "open": "Open event management",
     "participantSelection": {

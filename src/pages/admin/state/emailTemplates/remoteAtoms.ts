@@ -10,6 +10,7 @@ const templateIds = exhaustiveStringTuple<EmailTemplateId>()(
   'cancel-picked',
   'cancel-reserve',
   'invitation',
+  'message',
   'picked',
   'receipt',
   'refund',
