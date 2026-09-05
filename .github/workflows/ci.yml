@@ -291,6 +291,8 @@ jobs:
           # The actual and diff images vitest writes for a failed comparison; the references
           # themselves are in git, so uploading them would only repeat the checkout.
           path: .vitest-attachments/**
+          # A dot-directory is hidden, and upload-artifact skips hidden files unless told not to.
+          include-hidden-files: true
           retention-days: 7
 
   frontend-coverage:
