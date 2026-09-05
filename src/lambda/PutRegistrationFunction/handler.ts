@@ -23,6 +23,7 @@ import {
   isParticipantGroup,
   isPublicRegistrationOperationField,
 } from '../../lib/registration'
+import { registrationBodySchema } from '../../lib/schema/registration'
 import { isObject, patchMerge, unique } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getFrontendOrigin } from '../lib/api-gw'
@@ -57,6 +58,7 @@ import {
   registrationConflictBody,
 } from '../lib/registration'
 import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
+import { validateBody } from '../lib/request'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
 import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 import { publishPublicStartList } from '../lib/ws/publicStartList'
@@ -439,14 +441,19 @@ const applyPublicPatchRequest = (
   return normalizeRegistrationEmails(cloneRegistrationPeople(registration))
 }
 
-const parsePublicRegistrationRequest = (body: string | null, patchRequest: boolean) => {
-  const parsed: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(body)
+/**
+ * Takes the body already checked against `registrationBodySchema`, which is where a field of the
+ * wrong type is now rejected. What is left here is the part a schema cannot see: whether this body is
+ * a list of patch operations or a whole registration, and whether it carries the metadata a patch
+ * needs.
+ */
+const parsePublicRegistrationRequest = (
+  parsed: Patch<JsonRegistration> | JsonRegistrationPatchRequest,
+  patchRequest: boolean
+) => {
   const operationRequest = patchRequest && isPatchOperationRequest(parsed) ? parsed : undefined
   if (patchRequest && isObject(parsed) && Object.hasOwn(parsed, 'operations') && !operationRequest) {
     return { invalid: 'invalid patch operations' as const }
-  }
-  if (!operationRequest && hasInvalidRegistrationArrayFields(parsed)) {
-    return { invalid: 'registration array fields must be arrays' as const }
   }
   if (operationRequest && (typeof operationRequest.eventId !== 'string' || typeof operationRequest.id !== 'string')) {
     return { invalid: 'invalid patch metadata' as const }
@@ -520,7 +527,11 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const linkOrigin = getFrontendOrigin(event)
   const patchRequest = isPatchRequest(event)
 
-  const request = parsePublicRegistrationRequest(event.body, patchRequest)
+  const body: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(event.body)
+  const validated = validateBody(event, registrationBodySchema, body)
+  if ('badRequest' in validated) return validated.badRequest
+
+  const request = parsePublicRegistrationRequest(body, patchRequest)
   if ('invalid' in request) return response(400, { message: `Bad request: ${request.invalid}` }, event)
   let { registration } = request
   const { operationRequest } = request

@@ -512,6 +512,27 @@ describe('putEventLambda', () => {
     expect(patchEventMock).not.toHaveBeenCalled()
   })
 
+  it.each([
+    [{ places: 'monta' }, 'places must be a number'],
+    [
+      { state: 'julkaistu' },
+      'state must be one of: draft, tentative, cancelled, confirmed, picked, invited, started, ended, completed',
+    ],
+    [{ paymentTime: 'later' }, 'paymentTime must be one of: registration, confirmation'],
+    [{ organizer: { id: 2 } }, 'organizer.id must be a string'],
+    [{ priority: 'members' }, 'priority must be an array'],
+  ])('should return 400 for %p before looking the event up', async (body, message) => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+
+    const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', ...body }))
+
+    expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body).message).toEqual(`Bad request: ${message}`)
+    expect(getEventMock).not.toHaveBeenCalled()
+    expect(saveEventMock).not.toHaveBeenCalled()
+    expect(patchEventMock).not.toHaveBeenCalled()
+  })
+
   it.each(['classes', 'judges'] as const)('should return 400 when %s is not an array', async (field) => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
 
@@ -525,7 +546,10 @@ describe('putEventLambda', () => {
     )
 
     expect(res.statusCode).toEqual(400)
-    expect(JSON.parse(res.body)).toEqual({ message: `Bad request: ${field} must be an array` })
+    expect(JSON.parse(res.body)).toEqual({
+      errors: [{ field, message: 'must be an array' }],
+      message: `Bad request: ${field} must be an array`,
+    })
     expect(getEventMock).not.toHaveBeenCalled()
     expect(saveEventMock).not.toHaveBeenCalled()
     expect(patchEventMock).not.toHaveBeenCalled()

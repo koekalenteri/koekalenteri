@@ -9,6 +9,7 @@ import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { calculateCost } from '../../lib/cost'
 import { isParticipantGroup } from '../../lib/registration'
+import { paymentCreateSchema } from '../../lib/schema/payment'
 import { splitName } from '../../lib/string'
 import { CONFIG } from '../config'
 import { getFrontendOrigin } from '../lib/api-gw'
@@ -26,6 +27,7 @@ import {
 } from '../lib/payment'
 import { createPayment, PaytrailError } from '../lib/paytrail'
 import { authorizeRegistrationEdit, getRegistration } from '../lib/registration'
+import { validateBody } from '../lib/request'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
 
@@ -81,7 +83,9 @@ const inspectExistingTransactions = async (reference: string) => {
  * paymentCreate is called by client to start the payment process
  */
 const paymentCreateLambda = lambda('paymentCreate', async (event) => {
-  const { eventId, registrationId } = parseJSONWithFallback<{ eventId: string; registrationId: string }>(event.body)
+  const parsed = validateBody(event, paymentCreateSchema, parseJSONWithFallback(event.body))
+  if ('badRequest' in parsed) return parsed.badRequest
+  const { eventId, registrationId } = parsed.data
 
   const registration = await getRegistration(eventId, registrationId)
   const editToken = await authorizeRegistrationEdit(event, registration)

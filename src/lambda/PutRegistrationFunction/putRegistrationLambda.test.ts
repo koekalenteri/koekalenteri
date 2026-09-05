@@ -1355,6 +1355,35 @@ describe('putRegistrationLabmda', () => {
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
+  it.each([
+    [{ dates: { 0: { date: '2026-05-16' } } }, 'dates must be an array'],
+    [{ dog: { regNo: 42 } }, 'dog.regNo must be a string'],
+    [{ class: 'KVA' }, 'class must be one of: ALO, AVO, VOI'],
+    [{ language: 'sv' }, 'language must be one of: fi, en'],
+    [{ agreeToTerms: 'yes' }, 'agreeToTerms must be a boolean'],
+    [{ optionalCosts: { 0: 1 } }, 'optionalCosts must be an array'],
+  ])('should return 400 for %p before touching the event or the registration', async (body, message) => {
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ eventId: 'test1', id: 'reg1', ...body }))
+
+    expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body).message).toEqual(`Bad request: ${message}`)
+    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
+  })
+
+  it('names every malformed field, not only the first', async () => {
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({ eventId: 'test1', id: 'reg1', notes: 5, reserve: 'MAYBE' })
+    )
+
+    expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body).errors).toEqual([
+      { field: 'notes', message: 'must be a string' },
+      { field: 'reserve', message: 'must be one of: ANY, DAY, WEEK, NO, ' },
+    ])
+  })
+
   it('should return 410 when creating new registration before entry window opens', async () => {
     // Move current time 1 minute before entryStartDate
     vi.setSystemTime(addMinutes(eventWithStaticDates.entryStartDate, -1))

@@ -270,6 +270,21 @@ describe('paymentCreateLambda', () => {
     }
   })
 
+  it.each([
+    [{}, 'eventId is required'],
+    [{ eventId: 'test1' }, 'registrationId is required'],
+    [{ eventId: '', registrationId: '' }, 'eventId is required'],
+    [{ eventId: 1, registrationId: 2 }, 'eventId must be a string'],
+  ])('rejects %p with 400 before looking the registration up', async (body, message) => {
+    const result = await paymentCreateLambda(constructAPIGwEvent(body, { method: 'POST' }))
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body).message).toEqual(`Bad request: ${message}`)
+    expect(mockRead).not.toHaveBeenCalled()
+    expect(mockAuthorizeRegistrationEdit).not.toHaveBeenCalled()
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
   it('rejects requests without a valid registration edit token before inspecting payment state', async () => {
     const error = new LambdaError(404, 'not found')
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)

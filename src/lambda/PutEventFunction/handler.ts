@@ -7,6 +7,7 @@ import {
   isStartNumbersAvailable,
   isStartNumbersAvailableForClass,
 } from '../../lib/event'
+import { eventBodySchema } from '../../lib/schema/event'
 import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
@@ -20,6 +21,7 @@ import {
 } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
+import { validateBody } from '../lib/request'
 import { moveOrganizerEventStats } from '../lib/stats'
 
 const isUserForbidden = (
@@ -33,9 +35,6 @@ const isUserForbidden = (
 
   return false
 }
-
-const invalidArrayField = (item: Patch<JsonConfirmedEvent>) =>
-  (['classes', 'judges'] as const).find((field) => Object.hasOwn(item, field) && !Array.isArray(item[field]))
 
 const shouldStoreOriginalEntryEndDate = (
   existing: JsonConfirmedEvent | undefined,
@@ -140,11 +139,6 @@ const checkPutEventRequestShape = (
   if (patchRequest && !item.id) {
     return { body: { message: 'Bad request: PATCH requires id' }, status: 400 }
   }
-
-  const invalidField = invalidArrayField(item)
-  if (invalidField) {
-    return { body: { message: `Bad request: ${invalidField} must be an array` }, status: 400 }
-  }
 }
 
 /** Checks that depend on the previously stored event, once it has been looked up. */
@@ -190,6 +184,9 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const patchRequest = isPatchRequest(event)
 
   const item: Patch<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
+  const validated = validateBody(event, eventBodySchema, item)
+  if ('badRequest' in validated) return validated.badRequest
+
   const clientModifiedAt = item.modifiedAt
 
   const requestShapeError = checkPutEventRequestShape(patchRequest, item)
