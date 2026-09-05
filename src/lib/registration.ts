@@ -228,7 +228,7 @@ export function resolveOwnerSelection<O extends { key?: string }, L>(
  * (legacy/API-written) owners are keyed by position, exactly as the form keys them.
  */
 const selectedOwnerKey = (owners: readonly unknown[], selection: boolean | string | undefined): string | undefined => {
-  const keys = owners.map(ownerKeyAt)
+  const keys = owners.map((owner, index) => ownerKeyAt(owner, index))
   if (typeof selection === 'string') return keys.includes(selection) ? selection : undefined
   return withDefaultOwnerSelection(selection) ? keys[0] : undefined
 }
