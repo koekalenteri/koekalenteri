@@ -6,26 +6,23 @@ import type {
   RegistrationGroup,
   RegistrationGroupMove,
 } from '../../../../types'
+import type { ConfirmMove } from './moveConfirmation'
 import type { DragItem } from './types'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { rum } from '../../../../lib/client/rum'
 import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
 import { eventRegistrationDateKey } from '../../../../lib/event'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../../lib/registration'
+import { GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../../lib/registration'
 import { determineChangesFromDrop } from './dnd'
+import { confirmMoveToParticipants } from './moveConfirmation'
 
 interface UseDnDHandlersArgs {
   disabled?: boolean
   registrations: Registration[]
   state?: EventClassState | EventState
   canArrangeReserve: boolean
-  confirm: (opts: {
-    title: string
-    description: string
-    confirmationText: string
-    cancellationText: string
-  }) => Promise<{ confirmed: boolean }>
+  confirm: ConfirmMove
   setSelectedRegistrationId?: (id: string | undefined) => void
   saveGroups: (eventId: string, groups: RegistrationGroupMove[]) => Promise<false | undefined>
   onCancelOpen: (id: string) => void
@@ -59,20 +56,15 @@ export const useDnDHandlers = ({
     const reg = registrations.find((r) => r.id === item.id)
     if (!reg) return
 
-    const isToParticipants = group.key !== GROUP_KEY_CANCELLED && group.key !== GROUP_KEY_RESERVE
-    const isChangingGroup = (item.targetGroupKey && item.targetGroupKey !== group.key) || item.groupKey !== group.key
-    const requiresConfirm = (state === 'picked' || state === 'invited') && isToParticipants && isChangingGroup
-
-    if (requiresConfirm) {
-      const extra = state === 'invited' ? ' sekä koekutsu' : ''
-      const { confirmed } = await confirm({
-        cancellationText: t('cancel'),
-        confirmationText: 'Lisää osallistujiin',
-        description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${reg.dog.name} osallistujiin?`,
-        title: `Olet lisäämässä koiraa ${reg.dog.name} osallistujiin`,
-      })
-      if (!confirmed) return
-    }
+    const mayMove = await confirmMoveToParticipants({
+      confirm,
+      dogName: reg.dog.name,
+      fromGroupKey: item.groupKey,
+      state,
+      t,
+      toGroupKey: group.key,
+    })
+    if (!mayMove) return
 
     setSelectedRegistrationId?.(reg.id)
 

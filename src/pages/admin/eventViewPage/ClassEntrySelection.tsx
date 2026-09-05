@@ -46,6 +46,7 @@ import {
   getNouGroupRuleIssues,
   isDrawnNumberMove,
 } from './classEntrySelection/helpers'
+import { confirmMoveToParticipants } from './classEntrySelection/moveConfirmation'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 import UnlockArrange from './classEntrySelection/UnlockArrange'
 import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySelectionColumns'
@@ -299,6 +300,106 @@ const ClassEntrySelection = ({
   })
   const stateText = state ? t(`event.states.${state}`) : ''
 
+  /**
+   * The kebab menu raises a dog the same way dragging it does, and the dog is mailed its place the
+   * same way too — so both dialogs ask first, through the shared prompt (KOE-289).
+   */
+  const confirmPlaceMessage = useCallback(
+    (registration: Registration, toGroupKey: string) =>
+      confirmMoveToParticipants({
+        confirm,
+        dogName: registration.dog.name,
+        fromGroupKey: getRegistrationGroupKey(registration),
+        state,
+        t,
+        toGroupKey,
+      }),
+    [confirm, state, t]
+  )
+
+  const handleMoveToGroup = useCallback(
+    async (groupKey: string): Promise<false | undefined> => {
+      if (!selectedForAction || movementDisabled) return
+      const change = buildMoveToGroupChange(selectedForAction, groupKey, groups)
+      if (!change) return
+      if (!(await confirmPlaceMessage(selectedForAction, change.group.key))) return false
+
+      setPendingMoveId(selectedForAction.id)
+      try {
+        await actions.saveGroups(event.id, [change])
+      } finally {
+        setPendingMoveId(undefined)
+      }
+    },
+    [actions, confirmPlaceMessage, event.id, groups, movementDisabled, selectedForAction]
+  )
+
+  /** The day's draw has begun, so the chosen place becomes the dog's own start number (KOE-1273). */
+  const handleAssignStartNumber = useCallback(
+    async (registration: Registration, position: number): Promise<false | undefined> => {
+      // A reserve dog first takes its place on the day; only then is the number its own.
+      const dayChange = moveToPositionDay
+        ? buildMoveToGroupChange(registration, moveToPositionDay.key, groups)
+        : undefined
+      if (moveToPositionDay && !dayChange) return
+      if (dayChange && !(await confirmPlaceMessage(registration, dayChange.group.key))) return false
+
+      setPendingMoveId(registration.id)
+      try {
+        if (dayChange && (await actions.saveGroups(event.id, [dayChange])) === false) {
+          throw new Error('Moving the registration to the day failed')
+        }
+        // On the whole-trial tab the numbers belong to the dog's own class (KOE-912).
+        const numberClass = eventClass ?? getRegistrationClass(registration)
+        await putStartNumbers(
+          event.id,
+          {
+            ...(isRegistrationClass(numberClass) ? { eventClass: numberClass } : {}),
+            numbers: [{ id: registration.id, startNumber: position }],
+          },
+          token ?? ''
+        )
+      } finally {
+        setPendingMoveId(undefined)
+      }
+    },
+    [actions, confirmPlaceMessage, event.id, eventClass, groups, moveToPositionDay, token]
+  )
+
+  const handleMoveToPosition = useCallback(
+    async (position: number): Promise<false | undefined> => {
+      if (!selectedForAction || movementDisabled) return
+      if (assignNumberMove) return handleAssignStartNumber(selectedForAction, position)
+
+      const change = buildMoveToPositionGroupChange(
+        selectedForAction,
+        position,
+        moveToPositionGroups,
+        registrationsByGroup
+      )
+      if (!change) return
+      if (!(await confirmPlaceMessage(selectedForAction, change.group.key))) return false
+
+      setPendingMoveId(selectedForAction.id)
+      try {
+        await actions.saveGroups(event.id, [change])
+      } finally {
+        setPendingMoveId(undefined)
+      }
+    },
+    [
+      actions,
+      assignNumberMove,
+      confirmPlaceMessage,
+      event.id,
+      handleAssignStartNumber,
+      movementDisabled,
+      moveToPositionGroups,
+      registrationsByGroup,
+      selectedForAction,
+    ]
+  )
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Typography variant="h6">
@@ -489,18 +590,7 @@ const ClassEntrySelection = ({
             registration={selectedForAction}
             event={event}
             groups={groups}
-            onMove={async (groupKey) => {
-              if (movementDisabled) return
-              setPendingMoveId(selectedForAction.id)
-              try {
-                const change = buildMoveToGroupChange(selectedForAction, groupKey, groups)
-                if (!change) return
-
-                await actions.saveGroups(event.id, [change])
-              } finally {
-                setPendingMoveId(undefined)
-              }
-            }}
+            onMove={handleMoveToGroup}
           />
 
           <MoveToPositionDialog
@@ -512,44 +602,7 @@ const ClassEntrySelection = ({
             days={moveToPositionDays}
             selectedDay={moveToPositionDay?.key}
             onSelectDay={setMoveToPositionDayKey}
-            onMove={async (position) => {
-              if (movementDisabled) return
-              setPendingMoveId(selectedForAction.id)
-              try {
-                if (assignNumberMove) {
-                  if (moveToPositionDay) {
-                    // A reserve dog first takes its place on the day; only then is the number its own.
-                    const change = buildMoveToGroupChange(selectedForAction, moveToPositionDay.key, groups)
-                    if (!change) return
-                    if ((await actions.saveGroups(event.id, [change])) === false) {
-                      throw new Error('Moving the registration to the day failed')
-                    }
-                  }
-                  // On the whole-trial tab the numbers belong to the dog's own class (KOE-912).
-                  const numberClass = eventClass ?? getRegistrationClass(selectedForAction)
-                  await putStartNumbers(
-                    event.id,
-                    {
-                      ...(isRegistrationClass(numberClass) ? { eventClass: numberClass } : {}),
-                      numbers: [{ id: selectedForAction.id, startNumber: position }],
-                    },
-                    token ?? ''
-                  )
-                  return
-                }
-                const change = buildMoveToPositionGroupChange(
-                  selectedForAction,
-                  position,
-                  moveToPositionGroups,
-                  registrationsByGroup
-                )
-                if (!change) return
-
-                await actions.saveGroups(event.id, [change])
-              } finally {
-                setPendingMoveId(undefined)
-              }
-            }}
+            onMove={handleMoveToPosition}
           />
 
           {isConfirmedEvent(event) && (

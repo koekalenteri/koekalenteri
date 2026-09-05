@@ -404,4 +404,113 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(screen.getByTestId('move-position-max')).toHaveTextContent('1')
   })
+
+  describe('raising a reserve dog once the places are picked (KOE-289)', () => {
+    const bothDays = [
+      { date: mockedGroups[0].date, time: 'ap' as const },
+      { date: mockedGroups[1].date, time: 'ip' as const },
+    ]
+    const reserveAndParticipant: Registration[] = [
+      {
+        ...registrationWithStaticDates,
+        dates: bothDays,
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' as const },
+        id: 'participant-1',
+      },
+      {
+        ...registrationWithStaticDates,
+        dates: bothDays,
+        group: { date: mockedGroups[1].date, key: '2021-02-10-ip', number: 2, time: 'ip' as const },
+        id: 'participant-2',
+      },
+      {
+        ...registrationWithStaticDates,
+        dates: bothDays,
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+        id: 'reserve-1',
+      },
+    ]
+
+    const openReserveMove = async (action: 'moveToParticipants' | 'moveToPosition') => {
+      const rendered = renderWithUserEvents(
+        <ClassEntrySelection
+          event={activeEvent}
+          eventClass="ALO"
+          registrations={reserveAndParticipant}
+          state="picked"
+        />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await act(async () => {
+        mockLastCallbacks[action]('reserve-1')
+      })
+      await flushPromises()
+
+      await rendered.user.click(
+        screen.getByRole('button', { name: action === 'moveToParticipants' ? 'move-group' : 'move-position' })
+      )
+      await flushPromises()
+
+      return rendered.user
+    }
+
+    it.each(['moveToParticipants', 'moveToPosition'] as const)(
+      'warns about the koepaikkailmoitus before %s saves anything',
+      async (action) => {
+        await openReserveMove(action)
+
+        expect(screen.getByRole('button', { name: 'Lisää osallistujiin' })).toBeInTheDocument()
+        expect(mockSaveGroups).not.toHaveBeenCalled()
+      }
+    )
+
+    it('leaves the dog on the reserve list when the secretary backs out', async () => {
+      const user = await openReserveMove('moveToParticipants')
+
+      await user.click(screen.getByRole('button', { name: 'cancel' }))
+      await flushPromises()
+
+      expect(mockSaveGroups).not.toHaveBeenCalled()
+    })
+
+    it('saves the move once the secretary accepts', async () => {
+      const user = await openReserveMove('moveToParticipants')
+
+      await user.click(screen.getByRole('button', { name: 'Lisää osallistujiin' }))
+      await flushPromises()
+
+      expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
+        expect.objectContaining({ group: expect.objectContaining({ key: '2021-02-10-ip' }), id: 'reserve-1' }),
+      ])
+    })
+
+    it('moves a dog that already holds a place without a warning', async () => {
+      const rendered = renderWithUserEvents(
+        <ClassEntrySelection
+          event={activeEvent}
+          eventClass="ALO"
+          registrations={reserveAndParticipant}
+          state="picked"
+        />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await act(async () => {
+        mockLastCallbacks.moveToGroup('participant-1')
+      })
+      await flushPromises()
+      await rendered.user.click(screen.getByRole('button', { name: 'move-group' }))
+      await flushPromises()
+
+      expect(screen.queryByRole('button', { name: 'Lisää osallistujiin' })).not.toBeInTheDocument()
+      expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
+        expect.objectContaining({ group: expect.objectContaining({ key: '2021-02-10-ip' }), id: 'participant-1' }),
+      ])
+    })
+  })
 })

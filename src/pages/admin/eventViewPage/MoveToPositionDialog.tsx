@@ -38,7 +38,8 @@ interface Props {
    * so it is passed on as-is instead of the working-order insertion anchor.
    */
   assignNumber?: boolean
-  onMove: (position: number) => Promise<void>
+  /** Answers false when the move was called off, so the dialog stays open and reports nothing. */
+  onMove: (position: number) => Promise<false | undefined>
 }
 
 export default function MoveToPositionDialog({
@@ -76,7 +77,7 @@ export default function MoveToPositionDialog({
             ? selectedPosition + 0.5
             : selectedPosition - 0.5
       }
-      await onMove(movePosition)
+      if ((await onMove(movePosition)) === false) return
       enqueueSnackbar(
         t('registration.moveToPositionDialog.moved', { name: registration.dog.name, position: selectedPosition }),
         {

@@ -23,7 +23,8 @@ interface Props {
   registration: Registration
   event: DogEvent
   groups: RegistrationGroup[]
-  onMove: (groupKey: string) => Promise<void>
+  /** Answers false when the move was called off, so the dialog stays open and reports nothing. */
+  onMove: (groupKey: string) => Promise<false | undefined>
 }
 
 const getGroupLabel = (dateLabel: string, timeLabel: string | undefined, currentGroupLabel: string | undefined) =>
@@ -79,7 +80,7 @@ export default function MoveToGroupDialog({
 
     setSaving(true)
     try {
-      await onMove(selectedGroup)
+      if ((await onMove(selectedGroup)) === false) return
       enqueueSnackbar(t('registration.moveToGroupDialog.moved', { name: registration.dog.name }), {
         variant: 'success',
       })

@@ -164,6 +164,25 @@ describe('useDnDHandlers', () => {
       )
     })
 
+    it('should not confirm when a dog that already holds a place changes day', async () => {
+      // Only a dog coming off the reserve or cancelled list is mailed its place (KOE-289), so a
+      // move between two participant groups must not promise a message the backend never sends.
+      const mockUnusedConfirm = vi.fn().mockResolvedValue({ confirmed: true })
+
+      const props = {
+        ...defaultProps,
+        confirm: mockUnusedConfirm,
+        state: 'picked' as const,
+      }
+
+      const { result } = renderHook(() => useDnDHandlers(props))
+
+      await result.current.handleDrop(mockGroup)(mockDragItem)
+
+      expect(mockUnusedConfirm).not.toHaveBeenCalled()
+      expect(mockSetSelectedRegistrationId).toHaveBeenCalledWith('reg1')
+    })
+
     it('should set selected registration ID', async () => {
       const { result } = renderHook(() => useDnDHandlers(defaultProps))
 
