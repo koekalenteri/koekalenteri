@@ -1,4 +1,5 @@
 import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonUser, RegistrationGroupMove } from '../../types'
+import { isRegistrationPaid } from '../../lib/payment'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
@@ -9,6 +10,7 @@ import { applyRegistrationGroupMoves } from '../../lib/registrationGroups'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
+import { emailTo } from '../lib/email'
 import { lockRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
@@ -166,6 +168,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   const emails = {
     cancelledFailed: [],
     cancelledOk: [],
+    invitationAwaitingPayment: [],
     invitedFailed: [],
     invitedOk: [],
     pickedFailed: [],
@@ -209,11 +212,20 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user
     )
 
+    /**
+     * The koekutsu only goes to a place that has been paid for: a dog lifted from the reserve list
+     * must not hold an invitation to a place it never paid (KOE-1191). The rest get theirs from the
+     * payment callback once the money is in, and the secretary can always send one by hand before that.
+     */
+    const paidForPlace = (reg: JsonRegistration) => isRegistrationPaid(confirmedEvent, reg)
+    const invitedParticipants = newParticipants.filter(paidForPlace)
+    const awaitingPayment = invited ? newParticipants.filter((reg) => !paidForPlace(reg)) : []
+
     const { ok: invitedOk, failed: invitedFailed } = invited
       ? await sendTemplatedEmailToEventRegistrations(
           'invitation',
           confirmedEvent,
-          newParticipants,
+          invitedParticipants,
           origin,
           '',
           user.name,
@@ -224,11 +236,19 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       confirmedEvent,
       'Koekutsu',
       'emailTemplate.invitation',
-      newParticipants,
+      invitedParticipants,
       invitedOk,
       invitedFailed,
       user
     )
+
+    for (const reg of awaitingPayment) {
+      await audit({
+        auditKey: registrationAuditKey(reg),
+        message: 'Koekutsu lähetetään, kun koepaikka on maksettu',
+        user: user.name,
+      })
+    }
 
     /**
      * Registrations in reserve group that moved up from previous 'reserve' email, receive updated 'reserve' email
@@ -270,6 +290,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     await updateReserveNotified(movedReserve)
 
     Object.assign(emails, {
+      invitationAwaitingPayment: awaitingPayment.flatMap(emailTo),
       invitedFailed,
       invitedOk,
       pickedFailed,

@@ -1,5 +1,5 @@
 import type { CustomCost, MinimalEventForCost, MinimalRegistrationForCost, Registration } from '../types'
-import { additionalCost, getApplicableStrategy, getEarlyBirdDates, selectCost } from './cost'
+import { additionalCost, calculateCost, getApplicableStrategy, getEarlyBirdDates, selectCost } from './cost'
 import { isMember } from './registration'
 import { capitalize } from './string'
 
@@ -49,6 +49,18 @@ export const getPaymentStatus = (
   }
   return 'paymentStatus.missing'
 }
+
+/**
+ * Whether the place has been paid for. A trial that costs nothing has nothing to wait for, and a
+ * part payment counts too: a missing remainder is the secretary's business, not the invitation's.
+ */
+export const isRegistrationPaid = (
+  event: MinimalEventForCost,
+  registration: MinimalRegistrationForCost & Pick<Registration, 'paymentStatus'>
+): boolean =>
+  registration.paymentStatus === 'SUCCESS' ||
+  (registration.paidAmount ?? 0) > 0 ||
+  calculateCost(event, registration).amount <= 0
 
 export const getRegistrationPaymentDetails = (event: MinimalEventForCost, registration: MinimalRegistrationForCost) => {
   const cost = selectCost(event, registration)

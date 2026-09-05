@@ -28,6 +28,7 @@ const mockRegistrationEmailTemplateData = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishParticipantRegistrationPatch = vi.fn()
 const mockGetRegistrationEditToken = vi.fn().mockResolvedValue('test-edit-token')
+const mockSendTemplatedEmailToEventRegistrations = vi.fn().mockResolvedValue({ failed: [], ok: [] })
 
 const phaseUpdate = (field: string) => [
   { transactionId: 'tx123' },
@@ -67,6 +68,7 @@ vi.doMock('../lib/registration', () => ({
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
   getRegistrationEditToken: mockGetRegistrationEditToken,
+  sendTemplatedEmailToEventRegistrations: mockSendTemplatedEmailToEventRegistrations,
 }))
 
 vi.doMock('../lib/audit', () => ({
@@ -667,5 +669,77 @@ describe('paymentSuccessLambda', () => {
       ],
       'org-1'
     )
+  })
+
+  describe('invitation held back until the place is paid (KOE-1191)', () => {
+    const participant = {
+      class: 'ALO',
+      eventId: 'event123',
+      eventType: 'NOME-B',
+      group: { key: 'ALO-AP', number: 3 },
+      id: 'reg456',
+      language: 'fi',
+      messagesSent: { picked: true },
+      paidAmount: 0,
+      payer: { email: 'test@example.com' },
+      paymentStatus: 'PENDING',
+      state: 'ready',
+    }
+    const eventWithClassState = (state: string) => ({
+      classes: [{ class: 'ALO', state }],
+      cost: 50,
+      id: 'event123',
+      name: 'Test Event',
+      organizer: { id: 'org-1' },
+      state: 'picked',
+    })
+
+    it('sends the invitation to a participant of an invited class', async () => {
+      mockGetRegistration.mockResolvedValue(participant)
+      mockUpdateRegistrations.mockResolvedValue(eventWithClassState('invited'))
+
+      await paymentSuccessLambda(event)
+
+      expect(mockSendTemplatedEmailToEventRegistrations).toHaveBeenCalledWith(
+        'invitation',
+        expect.objectContaining({ id: 'event123' }),
+        [expect.objectContaining({ id: 'reg456', paymentStatus: 'SUCCESS' })],
+        'https://koekalenteri.snj.fi',
+        '',
+        'user123',
+        ''
+      )
+      expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('invitationSentAt'))
+    })
+
+    it('does not send the invitation before the class has been invited', async () => {
+      mockGetRegistration.mockResolvedValue(participant)
+      mockUpdateRegistrations.mockResolvedValue(eventWithClassState('picked'))
+
+      await paymentSuccessLambda(event)
+
+      expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
+    })
+
+    it('does not send the invitation to a registration left in the reserve list', async () => {
+      mockGetRegistration.mockResolvedValue({ ...participant, group: { key: 'reserve', number: 1 } })
+      mockUpdateRegistrations.mockResolvedValue(eventWithClassState('invited'))
+
+      await paymentSuccessLambda(event)
+
+      expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
+    })
+
+    it('does not repeat an invitation that has already been sent', async () => {
+      mockGetRegistration.mockResolvedValue({
+        ...participant,
+        messagesSent: { invitation: true, picked: true },
+      })
+      mockUpdateRegistrations.mockResolvedValue(eventWithClassState('invited'))
+
+      await paymentSuccessLambda(event)
+
+      expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
+    })
   })
 })

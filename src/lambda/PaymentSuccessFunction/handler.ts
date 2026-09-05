@@ -1,9 +1,11 @@
-import type { JsonRegistration, JsonTransaction } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { i18n } from '../../i18n/lambda'
 import { getCostSegmentName } from '../../lib/cost'
+import { getEventStateForClass } from '../../lib/event'
 import { formatMoney } from '../../lib/money'
-import { getProviderName, getRegistrationPaymentDetails } from '../../lib/payment'
+import { getProviderName, getRegistrationPaymentDetails, isRegistrationPaid } from '../../lib/payment'
+import { getRegistrationClass, isParticipantGroup, shouldSendInvitationToRegistration } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
@@ -23,6 +25,7 @@ import {
   getReadyRegistrationsByEventId,
   getRegistration,
   getRegistrationEditToken,
+  sendTemplatedEmailToEventRegistrations,
 } from '../lib/registration'
 import { publishParticipantRegistrationPatch, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 import { buildParticipantPaymentPatch } from '../lib/ws/payloads'
@@ -34,6 +37,7 @@ const POST_PAYMENT_LEASE_DURATION_MS = 90 * 1000
 
 type PostPaymentPhase =
   | 'confirmationSentAt'
+  | 'invitationSentAt'
   | 'paymentAuditAt'
   | 'postPaymentProcessedAt'
   | 'postPaymentPublishedAt'
@@ -237,6 +241,16 @@ const sendPaymentReceipt = async ({
   })
 }
 
+/**
+ * A place that was still unpaid when it was picked has no koekutsu yet: the group move deliberately
+ * held it back (KOE-1191). The payment is what it was waiting for, so the invitation follows here.
+ */
+const shouldSendInvitationAfterPayment = (confirmedEvent: JsonConfirmedEvent, registration: JsonRegistration) =>
+  isParticipantGroup(registration.group?.key) &&
+  getEventStateForClass(confirmedEvent, getRegistrationClass(registration)) === 'invited' &&
+  shouldSendInvitationToRegistration(confirmedEvent, registration) &&
+  isRegistrationPaid(confirmedEvent, registration)
+
 const publishSuccessfulPayment = async (registration: JsonRegistration, registrationId: string) => {
   const releaseGroupsLock = await lockRegistrationGroups(registration.eventId, 8)
   try {
@@ -357,6 +371,19 @@ const handleSuccessfulPayment = async (
         user: transaction.user ?? 'anonymous',
       })
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'confirmationSentAt')
+    }
+
+    if (!workflow.invitationSentAt && shouldSendInvitationAfterPayment(confirmedEvent, registration)) {
+      await sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        confirmedEvent,
+        [registration],
+        frontendURL,
+        '',
+        transaction.user ?? 'anonymous',
+        ''
+      )
+      await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'invitationSentAt')
     }
 
     if (!workflow.postPaymentPublishedAt) {

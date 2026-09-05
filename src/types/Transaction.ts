@@ -25,6 +25,7 @@ export interface JsonTransaction {
   receiptSentAt?: string
   paymentAuditAt?: string
   confirmationSentAt?: string
+  invitationSentAt?: string
   postPaymentProcessedAt?: string
   /** Short-lived owner token for serializing post-payment side effects. */
   postPaymentLease?: { expiresAt: number; token: string }

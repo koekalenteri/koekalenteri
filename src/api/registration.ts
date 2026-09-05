@@ -120,6 +120,8 @@ type RegistrationGroupResponse = Pick<ConfirmedEvent, 'classes' | 'entries'> & {
   items: Registration[]
   invitedOk: string[]
   invitedFailed: string[]
+  /** Lifted from the reserve list into an invited class, but the place is not paid for yet. */
+  invitationAwaitingPayment?: string[]
   pickedOk: string[]
   pickedFailed: string[]
   reserveOk: string[]

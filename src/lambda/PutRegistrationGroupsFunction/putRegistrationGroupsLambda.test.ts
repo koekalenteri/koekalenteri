@@ -50,6 +50,15 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   }),
 }))
 
+const libAudit = await import('../lib/audit')
+
+const mockAudit = vi.fn()
+
+vi.doMock('../lib/audit', () => ({
+  ...libAudit,
+  audit: mockAudit,
+}))
+
 const libRegistration = await import('../lib/registration')
 
 const mockSend = vi.fn<(...args: any[]) => { failed: string[]; ok: string[] }>(() => ({ failed: [], ok: [] }))
@@ -508,13 +517,17 @@ describe('putRegistrationGroupsLambda', () => {
     expect(res.statusCode).toBe(200)
   })
 
-  it('should send "invitation" message, when moved to a class that is invited (and event is only picked)', async () => {
+  /** Lifts the first ALO reserve into the participants of a class that has already been invited. */
+  const liftFirstAloReserve = async (payment: Partial<JsonRegistration>) => {
     const event = JSON.parse(JSON.stringify(eventWithALOClassInvited))
     authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+
+    const isLifted = (r: JsonRegistration) => r.class === 'ALO' && r.group?.key === 'reserve' && r.group?.number === 1
 
     // stored registrations before update
     const storedItems = jsonRegistrationsToEventWithALOInvited.map((r) => ({
       ...r,
+      ...(isLifted(r) ? payment : {}),
       reserveNotified: r.group?.key === 'reserve' ? (r.group?.number ?? 999) : undefined,
     }))
     mockDynamoDB.query.mockResolvedValueOnce(storedItems)
@@ -522,13 +535,11 @@ describe('putRegistrationGroupsLambda', () => {
     // event
     mockDynamoDB.read.mockResolvedValue(event)
 
-    const updated = jsonRegistrationsToEventWithALOInvited.map((r) => ({
+    const updated = storedItems.map((r) => ({
       ...r,
-      group:
-        r.class === 'ALO' && r.group?.key === 'reserve' && r.group?.number === 1
-          ? { date: eventWithParticipantsInvited.startDate.toISOString(), key: 'ALO-AP', number: 2, time: 'ap' }
-          : r.group,
-      reserveNotified: r.group?.key === 'reserve' ? (r.group?.number ?? 999) : undefined,
+      group: isLifted(r)
+        ? { date: eventWithParticipantsInvited.startDate.toISOString(), key: 'ALO-AP', number: 2, time: 'ap' }
+        : r.group,
     }))
 
     const res = await putRegistrationGroupsLambda(
@@ -537,6 +548,12 @@ describe('putRegistrationGroupsLambda', () => {
         { pathParameters: { eventId: event.id } }
       )
     )
+
+    return { event, res, updated }
+  }
+
+  it('should send "invitation" message, when moved to a class that is invited (and event is only picked)', async () => {
+    const { event, res, updated } = await liftFirstAloReserve({ paidAmount: 123, paymentStatus: 'SUCCESS' })
 
     expect(mockSend).toHaveBeenNthCalledWith(1, 'picked', event, [updated[5]], undefined, '', 'Test User', '')
     expect(mockSend).toHaveBeenNthCalledWith(2, 'invitation', event, [updated[5]], undefined, '', 'Test User', '')
@@ -555,6 +572,20 @@ describe('putRegistrationGroupsLambda', () => {
     expect(mockSend).toHaveBeenNthCalledWith(4, 'registration', event, [], undefined, '', 'Test User', 'cancel')
     expect(mockSend).toHaveBeenCalledTimes(4)
     expect(res.statusCode).toBe(200)
+  })
+
+  it('holds the "invitation" message back, when the place lifted from reserve is not paid for', async () => {
+    const { event, res, updated } = await liftFirstAloReserve({})
+
+    // the koepaikkailmoitus still goes out: it is what asks for the payment
+    expect(mockSend).toHaveBeenNthCalledWith(1, 'picked', event, [updated[5]], undefined, '', 'Test User', '')
+    expect(mockSend).toHaveBeenNthCalledWith(2, 'invitation', event, [], undefined, '', 'Test User', '')
+
+    expect(res.statusCode).toBe(200)
+    expect(JSON.parse(res.body).invitationAwaitingPayment).toEqual([updated[5].handler?.email, updated[5].owner?.email])
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Koekutsu lähetetään, kun koepaikka on maksettu' })
+    )
   })
 
   it('should update counts when moved to cancelled', async () => {

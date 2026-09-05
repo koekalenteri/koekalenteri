@@ -1,6 +1,12 @@
-import type { PaymentStatus } from '../types'
+import type { MinimalEventForCost, MinimalRegistrationForCost, PaymentStatus, Registration } from '../types'
 import { addDays } from 'date-fns'
-import { getPaymentStatus, getProviderName, getRegistrationPaymentDetails, PROVIDER_NAMES } from './payment'
+import {
+  getPaymentStatus,
+  getProviderName,
+  getRegistrationPaymentDetails,
+  isRegistrationPaid,
+  PROVIDER_NAMES,
+} from './payment'
 
 describe('payment', () => {
   describe('getProviderName', () => {
@@ -53,6 +59,36 @@ describe('payment', () => {
           getPaymentStatus({ confirmed: false, paymentStatus: 'PENDING' }, { paymentTime: 'confirmation' })
         ).toEqual('paymentStatus.pending')
       })
+    })
+  })
+
+  describe('isRegistrationPaid', () => {
+    const event: MinimalEventForCost = { cost: 40, costMember: 40, entryStartDate: new Date('2026-01-01') }
+    const registration: MinimalRegistrationForCost & Pick<Registration, 'paymentStatus'> = {
+      createdAt: new Date('2026-01-02'),
+      dog: { breedCode: '110' },
+      owner: { membership: false },
+      ownerHandles: true,
+    }
+
+    it('is not paid when nothing has been paid for a place that costs', () => {
+      expect(isRegistrationPaid(event, registration)).toBe(false)
+    })
+
+    it('is paid when the payment succeeded', () => {
+      expect(isRegistrationPaid(event, { ...registration, paidAmount: 40, paymentStatus: 'SUCCESS' })).toBe(true)
+    })
+
+    it('is paid when only part of the fee has arrived', () => {
+      expect(isRegistrationPaid(event, { ...registration, paidAmount: 10 })).toBe(true)
+    })
+
+    it('is paid when the place costs nothing', () => {
+      expect(isRegistrationPaid({ ...event, cost: 0, costMember: 0 }, registration)).toBe(true)
+    })
+
+    it('is not paid while the payment is only pending', () => {
+      expect(isRegistrationPaid(event, { ...registration, paymentStatus: 'PENDING' })).toBe(false)
     })
   })
 

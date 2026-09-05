@@ -246,6 +246,28 @@ describe('useAdminRegistrationActions', () => {
     expect(putGroups).toHaveBeenNthCalledWith(2, expect.any(String), [queuedMove], expect.anything())
   })
 
+  it('tells the secretary that a koekutsu waits for the place to be paid', async () => {
+    vi.spyOn(registrationApi, 'putRegistrationGroups').mockResolvedValueOnce({
+      ...groupResponse,
+      invitationAwaitingPayment: ['handler@example.com'],
+    })
+
+    const { result } = renderHook(() => useAdminRegistrationActions(eventWithStaticDates.id), {
+      wrapper: groupQueueWrapper,
+    })
+
+    await act(async () => {
+      await result.current.saveGroups(eventWithStaticDates.id, [
+        { group: { key: 'ALO-AP' }, id: registrationWithStaticDates.id },
+      ])
+    })
+
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
+      'Koekutsu lähetetään, kun koepaikka on maksettu\n\nhandler@example.com',
+      expect.objectContaining({ variant: 'info' })
+    )
+  })
+
   it('refreshes authoritative registrations after a group move failure', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     vi.spyOn(registrationApi, 'putRegistrationGroups').mockRejectedValueOnce(new Error('network failure'))

@@ -51,6 +51,7 @@ const notifyGroupMoveResult = (result: GroupMoveResult, enqueueSnackbar: Enqueue
     ['Koekutsu lähetetty onnistuneesti', result.invitedOk, 'success'],
     ['Varasijailmoitus lähetetty onnistuneesti', result.reserveOk, 'success'],
     ['Peruutusilmoitus lähetetty onnistuneesti', result.cancelledOk, 'success'],
+    ['Koekutsu lähetetään, kun koepaikka on maksettu', result.invitationAwaitingPayment ?? [], 'info'],
     ['Koepaikkailmoituksen lähetys epäonnistui 💩', result.pickedFailed, 'success'],
     ['Koekutsun lähetys epäonnistui 💩', result.invitedFailed, 'success'],
     ['Varasijailmoituksen lähetys epäonnistui 💩', result.reserveFailed, 'success'],
