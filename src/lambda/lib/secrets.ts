@@ -3,6 +3,7 @@ import type { KLAPIConfig } from '../types/KLAPI'
 import type { PaytrailConfig } from '../types/paytrail'
 import { GetParametersCommand, SSMClient } from '@aws-sdk/client-ssm'
 import { CONFIG } from '../config'
+import { logger } from './log'
 
 const { stackName } = CONFIG
 
@@ -103,7 +104,7 @@ const fetchAndUpdateParams = (names: string[], resolved: Record<string, string>)
  * Exported for testing
  */
 export async function getSSMParams<T extends Record<string, string>>(names: Extract<keyof T, string>[]): Promise<T> {
-  console.log('getSSMParams', names)
+  logger.info('getSSMParams', { names })
 
   const { resolved, toFetch, pending } = resolveCachedParams<T>(names)
 
@@ -133,7 +134,7 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
   if (!cfg.PAYTRAIL_SECRET || !cfg.PAYTRAIL_MERCHANT_ID) {
     throw new Error('Missing Paytrail Config!')
   }
-  console.log(`merchantId: ${cfg.PAYTRAIL_MERCHANT_ID}`)
+  logger.debug('paytrail config loaded', { merchantId: cfg.PAYTRAIL_MERCHANT_ID })
   return cfg
 }
 

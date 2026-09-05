@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
@@ -113,7 +114,7 @@ afterAll(() => {
 
 // Mock console methods
 vi.spyOn(console, 'info').mockImplementation(() => {})
-vi.spyOn(console, 'error').mockImplementation(() => {})
+const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
 const { default: putEmailTemplateLambda } = await import('./handler')
 
@@ -336,7 +337,12 @@ describe('putEmailTemplateLambda', () => {
     expect(mockWrite).not.toHaveBeenCalled()
 
     // Check if error was logged
-    expect(console.error).toHaveBeenCalledWith(error)
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'SES error' }),
+        message: 'failed to update email template',
+      })
+    )
   })
 
   it('throws an error if SES create fails', async () => {

@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 const mockSend = vi.fn<() => Promise<void>>()
 
@@ -20,14 +21,13 @@ describe('email', () => {
   })
 
   it('logs delivery metadata without sender or recipient addresses', async () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
     await sendTemplatedMail('registration', 'fi', 'sender@example.com', ['first@example.com', 'second@example.com'], {})
 
-    expect(logSpy).toHaveBeenCalledWith('Sending email', {
-      recipientCount: 2,
-      template: 'registration',
-    })
+    expect(loggedLines(infoSpy)).toContainEqual(
+      expect.objectContaining({ message: 'sending email', recipientCount: 2, template: 'registration' })
+    )
     expect(mockSend).toHaveBeenCalledTimes(1)
   })
 })

@@ -3,6 +3,7 @@ import type { KLPaikkakunta } from '../types/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 import { capitalize } from '../../lib/string'
+import { logger } from './log'
 
 /**
  * The whole municipality list lives in a single row. It is read on every /user call (through
@@ -56,25 +57,28 @@ export const fetchLocations = async (klapi: LocationApi): Promise<Location[] | u
     collectLocations(entries, all.json)
     return sortLocations([...entries.values()])
   }
-  console.warn('luePaikkakunnat returned nothing without a district, falling back to per district', {
+  logger.warn('luePaikkakunnat returned nothing without a district, falling back to per district', {
     error: all.error,
     status: all.status,
   })
 
   const districts = await klapi.lueKennelpiirit()
   if (districts.status !== 200 || !districts.json?.length) {
-    console.error(
-      `fetchLocations: Failed to fetch districts. Status: ${districts.status}, error: ${districts.error}. Aborting.`
-    )
+    logger.error('fetchLocations: failed to fetch districts, aborting', {
+      error: districts.error,
+      status: districts.status,
+    })
     return undefined
   }
 
   for (const district of districts.json) {
     const { status, json, error } = await klapi.luePaikkakunnat({ KennelpiirinNumero: district.numero })
     if (status !== 200 || !json) {
-      console.error(
-        `fetchLocations: Failed to fetch locations for district ${district.numero}. Status: ${status}, error: ${error}. Aborting.`
-      )
+      logger.error('fetchLocations: failed to fetch locations for district, aborting', {
+        district: district.numero,
+        error,
+        status,
+      })
       return undefined
     }
     collectLocations(entries, json)
@@ -96,11 +100,11 @@ export const syncLocations = async (dynamoDB: LocationStore, locations: Location
 
   const existing = await getLocationSnapshot(dynamoDB)
   if (existing?.items && JSON.stringify(existing.items) === JSON.stringify(locations)) {
-    console.log(`locations unchanged (${locations.length}), not writing`)
+    logger.info('locations unchanged, not writing', { count: locations.length })
     return false
   }
 
-  console.log(`writing ${locations.length} locations (previously ${existing?.count ?? 0})`)
+  logger.info('writing locations', { count: locations.length, previously: existing?.count ?? 0 })
   await dynamoDB.write<LocationSnapshot>({
     count: locations.length,
     id: LOCATIONS_ID,

@@ -1,5 +1,6 @@
 import type { JsonRefundTransaction, JsonTransaction } from '../../types'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 const mockDocumentTransaction = vi.fn()
 const mockRead = vi.fn()
@@ -54,7 +55,7 @@ describe('atomic payment registration updates', () => {
   })
 
   it('treats a conditional race as an idempotent retry after a consistent read', async () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
     const error = new Error('conditional check failed')
     error.name = 'TransactionCanceledException'
     mockDocumentTransaction.mockRejectedValueOnce(error)
@@ -64,7 +65,12 @@ describe('atomic payment registration updates', () => {
 
     expect(result.applied).toBe(false)
     expect(mockRead).toHaveBeenCalledWith({ transactionId: 'transaction-1' }, expect.any(String), true)
-    expect(logSpy).toHaveBeenCalledWith("Transaction 'transaction-1' was already applied to its registration")
+    expect(loggedLines(infoSpy)).toContainEqual(
+      expect.objectContaining({
+        message: 'transaction was already applied to its registration',
+        transactionId: 'transaction-1',
+      })
+    )
   })
 
   it('increments refund and handling-cost totals atomically', async () => {

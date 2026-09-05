@@ -1,6 +1,7 @@
 import { authorize } from '../lib/auth'
 import { changedItemsSince, collectionCursor, parseDateParam } from '../lib/incremental'
 import { lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { dedupeUsersByEmail, filterRelevantUsers, getAllUsers, userIsMemberOf } from '../lib/user'
 
 const getUsersLambda = lambda('getUsers', async (event) => {
@@ -10,7 +11,7 @@ const getUsersLambda = lambda('getUsers', async (event) => {
   }
   const memberOf = userIsMemberOf(user)
   if (!memberOf.length && !user?.admin) {
-    console.error(`User ${user.id} is not admin or member of any organizations.`)
+    logger.error('user is not admin or member of any organization', { userId: user.id })
     return response(403, 'Forbidden', event)
   }
   const users = await getAllUsers()

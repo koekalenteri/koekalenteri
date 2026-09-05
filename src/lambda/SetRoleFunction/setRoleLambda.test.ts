@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
@@ -45,6 +46,8 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: setRoleLambda } = await import('./handler')
 
 describe('setRoleLambda', () => {
+  let warnSpy = vi.spyOn(console, 'warn')
+
   const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       orgId: 'org789',
@@ -58,7 +61,7 @@ describe('setRoleLambda', () => {
     vi.clearAllMocks()
 
     // Spy on console methods to prevent logs from being displayed
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
@@ -280,7 +283,9 @@ describe('setRoleLambda', () => {
     await setRoleLambda(event)
 
     // Verify warning was logged
-    expect(console.warn).toHaveBeenCalledWith('Trying to set own roles', expect.any(Object))
+    expect(loggedLines(warnSpy)).toContainEqual(
+      expect.objectContaining({ message: 'trying to set own roles', userId: 'user123' })
+    )
   })
 
   it('logs warning when user does not have right to set role', async () => {
@@ -296,6 +301,8 @@ describe('setRoleLambda', () => {
     await setRoleLambda(event)
 
     // Verify warning was logged
-    expect(console.warn).toHaveBeenCalledWith('User does not have right to set role', expect.any(Object))
+    expect(loggedLines(warnSpy)).toContainEqual(
+      expect.objectContaining({ message: 'user does not have right to set role', targetUserId: 'user456' })
+    )
   })
 })

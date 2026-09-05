@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 const mockReadAll = vi.fn()
 const mockRead = vi.fn()
@@ -39,9 +40,11 @@ const setup = () => {
 }
 
 describe('repairDataVersions', () => {
+  let infoSpy = vi.spyOn(console, 'info')
+
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
     mockWriteFingerprint.mockResolvedValue(undefined)
   })
 
@@ -117,7 +120,9 @@ describe('repairDataVersions', () => {
       { count: 1, fingerprintAt: '2026-01-02T00:00:00.000Z' },
       true
     )
-    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('data version drift repaired: users#org1'))
+    expect(loggedLines(infoSpy)).toContainEqual(
+      expect.objectContaining({ message: 'data version drift repaired', reminted: ['users#org1'] })
+    )
   })
 
   it('empties a scope that has no records left', async () => {

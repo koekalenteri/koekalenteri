@@ -4,6 +4,7 @@ import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { setUserRole } from '../lib/user'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -26,12 +27,17 @@ const setRoleLambda = lambda('setRole', async (event) => {
   }
 
   if (user.id === item.userId) {
-    console.warn('Trying to set own roles', { item, user })
+    logger.warn('trying to set own roles', { orgId: item.orgId, role: item.role, userId: user.id })
     return response(403, 'Forbidden', event)
   }
 
   if (!user.admin && user.roles?.[item.orgId] !== 'admin') {
-    console.warn('User does not have right to set role', { item, user })
+    logger.warn('user does not have right to set role', {
+      orgId: item.orgId,
+      role: item.role,
+      targetUserId: item.userId,
+      userId: user.id,
+    })
     return response(403, 'Forbidden', event)
   }
 

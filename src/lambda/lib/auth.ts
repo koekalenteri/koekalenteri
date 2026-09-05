@@ -7,6 +7,7 @@ import { response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { normalizeEmail } from './email'
 import { appendEmailHistory } from './emailHistory'
+import { logger } from './log'
 import { findUserByEmail, updateUser, userIsMemberOf } from './user'
 
 export interface UserLink {
@@ -35,7 +36,7 @@ const getAuthorizerClaims = (event?: Partial<APIGatewayProxyEvent>): Record<stri
       const parsed = JSON.parse(rawClaims)
       return parsed && typeof parsed === 'object' ? parsed : undefined
     } catch {
-      console.warn('authorizer.claims was a non-JSON string')
+      logger.warn('authorizer.claims was a non-JSON string')
       return undefined
     }
   }
@@ -82,7 +83,7 @@ async function updateExistingUser(
 
   const changedKeys = getChangedTopLevelKeys(existing, final)
   if (changedKeys.length > 0) {
-    console.log('updating user', { changedKeys, userId: existing.id })
+    logger.info('updating user', { changedKeys, userId: existing.id })
     // Only bump modifiedAt when something meaningful changed (not just lastSeen).
     // lastSeen updates on every login and must not invalidate dataVersions caches.
     const onlyLastSeenChanged = changedKeys.every((k) => k === 'lastSeen')
@@ -98,13 +99,13 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
   const claims = getAuthorizerClaims(event)
 
   if (!claims) {
-    console.log('no authorizer claims in request')
+    logger.info('no authorizer claims in request')
     return null
   }
 
   const cognitoUser = claims.sub
   if (!cognitoUser) {
-    console.log('no subject in authorizer claims')
+    logger.info('no subject in authorizer claims')
     return null
   }
 
@@ -132,7 +133,7 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
     // Linking by email hands this cognito identity the existing user's roles,
     // so an unverified email claim must never take over an existing account.
     if (existingByEmail && !emailVerified) {
-      console.warn('refusing to link cognito user to existing user: email not verified', {
+      logger.warn('refusing to link cognito user to existing user: email not verified', {
         cognitoUser,
         userId: existingByEmail.id,
       })
@@ -140,7 +141,7 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
     }
 
     if (existingByEmail) {
-      console.warn('no user link found; linking cognito user to existing user by email', {
+      logger.warn('no user link found; linking cognito user to existing user by email', {
         cognitoUser,
         userId: existingByEmail.id,
       })
@@ -148,11 +149,11 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
       // Update lastSeen/name on the existing user record.
       user = await updateExistingUser(existingByEmail, { name }, false, updateLastSeen)
       await dynamoDB.write({ cognitoUser, userId: existingByEmail.id }, userLinkTable)
-      console.log('added user link', { cognitoUser, userId: existingByEmail.id })
+      logger.info('added user link', { cognitoUser, userId: existingByEmail.id })
     } else {
       user = await getAndUpdateUserByEmail(email, { name }, false, updateLastSeen)
       await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
-      console.log('added user link', { cognitoUser, userId: user.id })
+      logger.info('added user link', { cognitoUser, userId: user.id })
     }
   }
   return user
@@ -190,7 +191,7 @@ export async function getAndUpdateUserByEmail(
   const existing = await findUserByEmail(email)
 
   if (existing && existing.email !== email) {
-    console.warn('getAndUpdateUserByEmail: existing user email differs from claims email', {
+    logger.warn('getAndUpdateUserByEmail: existing user email differs from claims email', {
       userId: existing.id,
     })
   }
@@ -222,7 +223,7 @@ export async function getAndUpdateUserByEmail(
   }
   const changedKeys = getChangedTopLevelKeys(existing, final)
   if (changedKeys.length > 0) {
-    console.log(existing ? 'updating user' : 'creating user', { changedKeys, userId: final.id })
+    logger.info(existing ? 'updating user' : 'creating user', { changedKeys, userId: final.id })
     // Only bump modifiedAt when something meaningful changed (not just lastSeen).
     // lastSeen updates on every login and must not invalidate dataVersions caches.
     const onlyLastSeenChanged = existing !== undefined && changedKeys.every((k) => k === 'lastSeen')
@@ -257,11 +258,11 @@ export const authorizeWithMemberOf = async (event: APIGatewayProxyEvent) => {
 
   const memberOf = userIsMemberOf(user)
   if (!memberOf.length && !user?.admin) {
-    console.error(`User ${user.id} is not admin or member of any organizations.`)
+    logger.error('user is not admin or member of any organization', { userId: user.id })
     return { res: response(403, 'Forbidden', event), user }
   }
 
-  console.log(`User ${user.id} is member of ['${memberOf.join("', '")}'].`)
+  logger.info('user is member of organizations', { memberOf, userId: user.id })
 
   return { memberOf, user }
 }

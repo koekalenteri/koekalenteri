@@ -3,6 +3,7 @@ import { differenceInMinutes } from 'date-fns/differenceInMinutes'
 import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -34,7 +35,7 @@ const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<Jso
   const apiResult = await klapi.lueKoiranKoetulokset({ Kieli: KLKieli.Suomi, Rekisterinumero: regNo })
 
   if (apiResult.status !== 200) {
-    console.error('lueKoiranKoetulokset failed', JSON.stringify(apiResult))
+    logger.error('lueKoiranKoetulokset failed', { error: apiResult.error, regNo, status: apiResult.status })
 
     return []
   }
@@ -119,7 +120,7 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
     try {
       dog.results = await readDogResultsFromKlapi(klapi, dog.regNo)
     } catch (err) {
-      console.error(err, 'readDogResultsFromKlapi failed')
+      logger.error('readDogResultsFromKlapi failed', { error: err, regNo: dog.regNo })
       dog.results = []
     }
 
@@ -131,7 +132,7 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
       dog.dam = await readParentFromKlapi(klapi, json.id_Emä)
     }
   } else {
-    console.error('lueKoiranPerustiedot failed', { error, json, status })
+    logger.error('lueKoiranPerustiedot failed', { error, regNo, status })
   }
 
   return { dog, error, status }
@@ -145,8 +146,7 @@ const getDogLambda = lambda('getDog', async (event) => {
   const itemAge = item?.refreshDate ? differenceInMinutes(new Date(), new Date(item.refreshDate)) : 0
   const refresh = (event.queryStringParameters && 'refresh' in event.queryStringParameters) || itemAge > 60
 
-  console.log(`cached: ${JSON.stringify(item)}`)
-  console.log(`itemAge: ${itemAge}, refresh: ${refresh}`)
+  logger.debug('cached dog', { cached: Boolean(item), itemAge, refresh, regNo })
 
   if (!item || refresh) {
     const { dog, status, error } = await readDogFromKlapi(regNo, item)

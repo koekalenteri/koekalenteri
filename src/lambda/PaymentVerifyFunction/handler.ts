@@ -7,6 +7,7 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { parseParams, verifyParams } from '../lib/payment'
 import { getRegistration, getRegistrationEditToken } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
@@ -66,7 +67,7 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
 
     return response<VerifyPaymentResponse>(200, { editToken, eventId, paymentStatus, registrationId, status }, event)
   } catch (e) {
-    console.error(e)
+    logger.error('failed to verify payment', { error: e, eventId, registrationId })
     return response<VerifyPaymentResponse>(200, { eventId, paymentStatus, registrationId, status: 'error' }, event)
   }
 })

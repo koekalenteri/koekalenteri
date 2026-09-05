@@ -4,7 +4,7 @@ import { ServiceException } from '@smithy/smithy-client'
 import { metricScope } from 'aws-embedded-metrics'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
-import { debugProxyEvent } from './log'
+import { debugProxyEvent, logger, withLogContext } from './log'
 import { metricsError, metricsSuccess } from './metrics'
 
 type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
@@ -43,7 +43,7 @@ export const getParam = (
   try {
     return decodeURIComponent(event.pathParameters?.[name] ?? defaultValue)
   } catch (e) {
-    console.error(e)
+    logger.error('failed to decode path parameter', { error: e, param: name })
   }
   return defaultValue
 }
@@ -117,30 +117,36 @@ export const response = <T = unknown>(
  * Lambda function wrapper with error handling and default metrics
  */
 export const lambda = (service: string, handler: LambdaHandler) =>
-  metricScope((metrics) => async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    debugProxyEvent(event)
-    try {
-      const result = await handler(event)
+  metricScope(
+    (metrics) =>
+      async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>
+        // Every line the handler writes gets the request id and the service name, so one request's
+        // lines can be collected in CloudWatch Insights without threading the context through calls.
+        withLogContext({ requestId: event.requestContext?.requestId, service }, async () => {
+          debugProxyEvent(event)
+          try {
+            const result = await handler(event)
 
-      if (result.statusCode === 200) {
-        metricsSuccess(metrics, event.requestContext, service)
-      } else {
-        metricsError(metrics, event.requestContext, service)
-      }
-      return result
-    } catch (err) {
-      console.error(err)
+            if (result.statusCode === 200) {
+              metricsSuccess(metrics, event.requestContext, service)
+            } else {
+              metricsError(metrics, event.requestContext, service)
+            }
+            return result
+          } catch (err) {
+            logger.error('unhandled error', { error: err })
 
-      metricsError(metrics, event.requestContext, service)
+            metricsError(metrics, event.requestContext, service)
 
-      if (err instanceof LambdaError) {
-        return response(err.status, lambdaErrorBody(err.error), event)
-      }
+            if (err instanceof LambdaError) {
+              return response(err.status, lambdaErrorBody(err.error), event)
+            }
 
-      if (err instanceof ServiceException) {
-        return response(err.$metadata?.httpStatusCode ?? 501, err.message, event)
-      }
+            if (err instanceof ServiceException) {
+              return response(err.$metadata?.httpStatusCode ?? 501, err.message, event)
+            }
 
-      return response(501, err, event)
-    }
-  })
+            return response(501, err, event)
+          }
+        })
+  )

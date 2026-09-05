@@ -5,6 +5,7 @@ import { authorize } from '../lib/auth'
 import { collectionChangesSince, parseDateParam } from '../lib/incremental'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { getKLAPIConfig } from '../lib/secrets'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import { KLKieli, KLKieliToLang } from '../types/KLAPI'
@@ -21,7 +22,7 @@ const getEventTypesFromKlapi = async (user: JsonUser) => {
   for (const kieli of [KLKieli.Suomi, KLKieli.Ruotsi, KLKieli.Englanti]) {
     const { status, json, error } = await klapi.lueKoemuodot({ Kieli: kieli })
     if (status !== 200 || !json) {
-      console.error('lueKoemuodot', kieli, { error, json, status })
+      logger.error('lueKoemuodot failed', { error, language: kieli, status })
       continue
     }
     for (const item of json) {
@@ -51,7 +52,7 @@ const refreshEventTypes = async (user: JsonUser) => {
   const insert = eventTypes.filter((et) => !existing?.find((ex) => ex.eventType === et.eventType))
 
   if (insert.length) {
-    console.log('new eventTypes', insert)
+    logger.info('new event types', { eventTypes: insert.map((et) => et.eventType) })
     await dynamoDB.batchWrite(insert)
   }
 
@@ -62,7 +63,11 @@ const refreshEventTypes = async (user: JsonUser) => {
 
   for (const updated of updates) {
     const ex = existing?.find((ex) => ex.eventType === updated.eventType)
-    console.log(`description changed for ${updated.eventType}`, ex?.description, updated.description)
+    logger.info('event type description changed', {
+      description: updated.description,
+      eventType: updated.eventType,
+      previous: ex?.description,
+    })
     await dynamoDB.update(
       { eventType: updated.eventType },
       {

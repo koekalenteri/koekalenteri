@@ -9,6 +9,7 @@ import { CONFIG } from '../config'
 import { authorizeAdmin, getUsername } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
@@ -20,21 +21,21 @@ const updateOrCreateTemplate = async (template: EmailTemplateContent) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     const command = new UpdateTemplateCommand({ Template: template })
-    const res = await ses.send(command)
-    console.info(res)
+    await ses.send(command)
+    logger.info('email template updated', { template: template.TemplateName })
   } catch (e) {
     if (e instanceof TemplateDoesNotExistException) {
       try {
         await new Promise((resolve) => setTimeout(resolve, 1000))
         const command = new CreateTemplateCommand({ Template: template })
-        const res = await ses.send(command)
-        console.info(res)
+        await ses.send(command)
+        logger.info('email template created', { template: template.TemplateName })
       } catch (createError) {
-        console.error(createError)
+        logger.error('failed to create email template', { error: createError, template: template.TemplateName })
         throw createError
       }
     } else {
-      console.error(e)
+      logger.error('failed to update email template', { error: e, template: template.TemplateName })
       throw e
     }
   }

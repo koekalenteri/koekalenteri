@@ -96,6 +96,42 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `scripts/jira-mark-testable.mjs` builds its comment the same way: the sha links to the GitHub
   commit and the subject's keys to their issues. `--dry-run` prints the ADF it would post.
 
+## Lambda Logging
+
+- Lambdas do not call `console.*`; `suspicious/noConsole` is an error under `src/lambda/**`, with
+  `lib/log.ts` as the only exception. Use `logger` from `src/lambda/lib/log.ts`:
+  `logger.info('locations written', { count: locations.length })`.
+- One line is one JSON object: `level`, `message`, the context, and whatever fields the call passes.
+  The message is a fixed string — put the varying parts in the fields, so Insights can filter and
+  count on them instead of matching free text.
+- The `lambda()` wrapper puts `requestId` and `service` (the name given to `lambda()`) on every line
+  the handler writes, through an `AsyncLocalStorage`; the three WebSocket handlers set the same
+  context themselves and add `connectionId`. Nothing needs to be threaded through call arguments.
+- An `Error` is passed as a field (`{ error }`) and unpacked into name, message and stack; plain
+  `JSON.stringify` would have turned it into `{}`.
+- No personal data in a log line. A user is identified by `userId`; where an email is the only handle
+  there is, `hashIdentity(email)` gives a stable non-reversible one. Names and email addresses stay
+  out.
+- Two CloudWatch metric filters match a phrase in a message (`registrations it could not attribute to
+  a capacity class`, `data version drift repaired`). Keep those phrases intact when editing the line.
+
+All the lines of one request, oldest first:
+
+```
+fields @timestamp, level, message, @message
+| filter requestId = 'abcd1234-...'
+| sort @timestamp asc
+```
+
+Errors per API over the selected range:
+
+```
+fields service
+| filter level = 'error'
+| stats count(*) by service, message
+| sort count(*) desc
+```
+
 ## Static Analysis (Sonar)
 
 SonarQube runs on every push and its findings have cost this repo ~40 follow-up commits.

@@ -10,6 +10,7 @@ import type { FileInfo } from 'busboy'
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import Busboy from 'busboy'
 import { CONFIG } from '../config'
+import { logger } from './log'
 
 const s3 = new S3Client()
 const { fileBucket } = CONFIG
@@ -23,13 +24,13 @@ interface ParseResult {
 
 export const parsePostFile = (event: APIGatewayProxyEvent) =>
   new Promise<ParseResult>((resolve, reject) => {
-    console.log('Parsing File from event...')
+    logger.debug('parsing file from event')
     const bb = Busboy({
       headers: {
         'content-type': event.headers['content-type'] ?? event.headers['Content-Type'],
       },
     })
-    console.log('busboy initialized')
+    logger.debug('busboy initialized')
 
     const result: ParseResult = {
       data: undefined,
@@ -41,12 +42,12 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
 
     bb.on('file', (_name: string, file: Readable, info: FileInfo): void => {
       file.on('data', (data) => {
-        console.log('on data', data.length)
+        logger.debug('file chunk received', { bytes: data.length })
         buffers.push(data)
       })
 
       file.on('end', () => {
-        console.log('on end')
+        logger.debug('file ended')
         result.error = file.errored
         result.info = info
         result.data = Buffer.concat(buffers)
@@ -54,25 +55,25 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
     })
 
     bb.on('field', (name, value) => {
-      console.log('on field', name)
+      logger.debug('field received', { field: name })
       result.fields[name] = value
     })
 
     bb.on('error', (error) => {
-      console.error(error)
+      logger.error('busboy failed to parse the request', { error })
       reject(new Error('bb error'))
     })
     bb.on('finish', () => {
-      console.log('on finish')
+      logger.debug('parse finished')
       resolve(result)
     })
     bb.write(event.body, event.isBase64Encoded ? 'base64' : 'binary')
     bb.end()
-    console.log('parse end')
+    logger.debug('parse end')
   })
 
 export const uploadFile = async (key: string, buffer: PutObjectCommandInput['Body']): Promise<void> => {
-  console.log(`Uploading file to S3 bucket "${fileBucket}" with key "${key}"`)
+  logger.info('uploading file to S3', { bucket: fileBucket, key })
   const params: PutObjectCommandInput = {
     Body: buffer,
     Bucket: fileBucket,
@@ -83,13 +84,13 @@ export const uploadFile = async (key: string, buffer: PutObjectCommandInput['Bod
   try {
     await s3.send(new PutObjectCommand(params))
   } catch (error) {
-    console.error(error)
+    logger.error('S3 upload failed', { bucket: fileBucket, error, key })
     throw error
   }
 }
 
 export const downloadFile = async (key: string): Promise<GetObjectOutput> => {
-  console.log(`Downloading file from S3 bucket "${fileBucket}" with key "${key}"`)
+  logger.info('downloading file from S3', { bucket: fileBucket, key })
   const params: GetObjectCommandInput = {
     Bucket: fileBucket,
     Key: key,
@@ -98,13 +99,13 @@ export const downloadFile = async (key: string): Promise<GetObjectOutput> => {
   try {
     return await s3.send(new GetObjectCommand(params))
   } catch (error) {
-    console.error(error)
+    logger.error('S3 download failed', { bucket: fileBucket, error, key })
     throw error
   }
 }
 
 export const deleteFile = async (key: string): Promise<void> => {
-  console.log(`Deleting form from S3 bucket "${fileBucket}" with key "${key}"`)
+  logger.info('deleting file from S3', { bucket: fileBucket, key })
   const params: DeleteObjectCommandInput = {
     Bucket: fileBucket,
     Key: key,
@@ -113,7 +114,7 @@ export const deleteFile = async (key: string): Promise<void> => {
   try {
     await s3.send(new DeleteObjectCommand(params))
   } catch (error) {
-    console.error(error)
+    logger.error('S3 delete failed', { bucket: fileBucket, error, key })
     throw error
   }
 }

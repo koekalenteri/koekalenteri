@@ -1,5 +1,6 @@
 import type { TransactWriteItemWithoutTable } from './CustomDynamoClient'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 // Mock AWS SDK v3
 let sentCommand: Record<string, any> | undefined
@@ -73,12 +74,12 @@ const { default: CustomDynamoClient } = await import('./CustomDynamoClient')
 describe('CustomDynamoClient', () => {
   // Store original env vars to restore after tests
   const originalEnv = process.env
+  let infoSpy = vi.spyOn(console, 'info')
 
   beforeEach(() => {
     vi.clearAllMocks()
     // Reset console mocks
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.spyOn(console, 'info').mockImplementation(() => {})
+    infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     // Reset mockSend for each test
     mockSend.mockClear()
@@ -649,9 +650,12 @@ describe('CustomDynamoClient', () => {
 
       await client.batchWrite(items)
 
-      expect(console.info).toHaveBeenCalledWith('DB.batchWrite', 'test-table: 25 items, 0 unprocessed, attempt 1')
-      expect(console.info).toHaveBeenCalledWith('DB.batchWrite', 'test-table: 5 items, 0 unprocessed, attempt 1')
-      expect(console.info).not.toHaveBeenCalledWith(expect.anything(), expect.stringContaining('not-for-the-log'))
+      const summaries = loggedLines(infoSpy).filter((line) => line.message === 'DB.batchWrite')
+      expect(summaries).toEqual([
+        { attempt: 1, items: 25, level: 'info', message: 'DB.batchWrite', table: 'test-table', unprocessed: 0 },
+        { attempt: 1, items: 5, level: 'info', message: 'DB.batchWrite', table: 'test-table', unprocessed: 0 },
+      ])
+      expect(JSON.stringify(summaries)).not.toContain('not-for-the-log')
     })
 
     it('retries the items DynamoDB could not process, after a backoff', async () => {
@@ -1014,7 +1018,9 @@ describe('CustomDynamoClient', () => {
       const result = await client.delete({ id: '1' })
 
       expect(result).toBe(false)
-      expect(errorSpy).toHaveBeenCalledWith('Error deleting item:', error)
+      expect(loggedLines(errorSpy)).toContainEqual(
+        expect.objectContaining({ key: { id: '1' }, message: 'error deleting item' })
+      )
     })
 
     it('uses provided table name', async () => {
@@ -1155,7 +1161,6 @@ describe('CustomDynamoClient', () => {
 
     it('handles TransactionCanceledException', async () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       const client = new CustomDynamoClient('TestTable')
       const items = [{ Put: { Item: { id: { S: '1' } } } }]
@@ -1169,15 +1174,16 @@ describe('CustomDynamoClient', () => {
 
       await expect(client.transaction(items)).rejects.toBe(error)
 
-      expect(errorSpy).toHaveBeenCalledWith('❌ Transaction was canceled')
-      expect(logSpy).toHaveBeenCalledWith('🔹 Operation 1:')
-      expect(logSpy).toHaveBeenCalledWith('   Code: ConditionalCheckFailed')
-      expect(logSpy).toHaveBeenCalledWith('   Message: Condition check failed')
+      expect(loggedLines(errorSpy)).toContainEqual(
+        expect.objectContaining({
+          message: 'transaction was canceled',
+          reasons: [{ Code: 'ConditionalCheckFailed', Message: 'Condition check failed' }],
+        })
+      )
     })
 
     it('handles TransactionCanceledException without reasons', async () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       const client = new CustomDynamoClient('TestTable')
       const items = [{ Put: { Item: { id: { S: '1' } } } }]
@@ -1189,8 +1195,9 @@ describe('CustomDynamoClient', () => {
 
       await expect(client.transaction(items)).rejects.toBe(error)
 
-      expect(errorSpy).toHaveBeenCalledWith('❌ Transaction was canceled')
-      expect(logSpy).toHaveBeenCalledWith('No cancellation reasons returned')
+      expect(loggedLines(errorSpy)).toContainEqual(
+        expect.objectContaining({ message: 'transaction was canceled', reasons: [] })
+      )
     })
 
     it('handles unexpected errors in transaction', async () => {
@@ -1208,7 +1215,12 @@ describe('CustomDynamoClient', () => {
 
       await expect(client.transaction(items)).rejects.toBe(error)
 
-      expect(errorSpy).toHaveBeenCalledWith('❗ Unexpected error:', error)
+      expect(loggedLines(errorSpy)).toContainEqual(
+        expect.objectContaining({
+          error: expect.objectContaining({ message: 'Unexpected error' }),
+          message: 'unexpected error in transaction',
+        })
+      )
     })
   })
 

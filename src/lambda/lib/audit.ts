@@ -15,6 +15,7 @@ import { getStartListPublishedClassMap, isStartListPublishedClassMap } from '../
 import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { logger } from './log'
 import { publishAuditRecord } from './ws/auditPublisher'
 
 const { auditTable } = CONFIG
@@ -231,7 +232,7 @@ export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
     await dynamoDB.write(record, auditTable)
     await publishAuditRecord(record)
   } catch (e) {
-    console.error(e)
+    logger.error('failed to write audit record', { auditKey: item.auditKey, error: e })
   }
 }
 
@@ -257,7 +258,7 @@ export const auditTrail = async (auditKey: string) => {
     })
     return items ?? []
   } catch (e) {
-    console.error(e)
+    logger.error('failed to read audit trail', { auditKey, error: e })
   }
   return []
 }

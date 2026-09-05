@@ -28,6 +28,7 @@ import { audit, eventAuditKey, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
 import { createDynamoLease } from './lease'
+import { logger } from './log'
 import { createPatch } from './patch'
 import { getRegistrationEditTokenSecret } from './secrets'
 
@@ -467,7 +468,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
         message: `FAILED ${auditSubject}: ${to.join(', ')}`,
         user,
       })
-      console.error(e)
+      logger.error('failed to send registration email', { error: e, template: auditSubject })
     }
   }
   return { failed, ok }
@@ -613,7 +614,7 @@ export const getCancelAuditMessage = (data: JsonRegistration) => {
 export const getRegistrationChanges = (existing: JsonRegistration, data: JsonRegistration) => {
   const t = i18n.getFixedT('fi')
   const changes = getNestedChanges(existing, data)
-  console.debug('Audit changes', changes)
+  logger.debug('audit changes', { changes })
   const changedKeys = new Set(getChangedTopLevelKeys(existing, data))
   const keys = ['class', 'dog', 'breeder', 'owners', 'handler', 'qualifyingResults', 'notes'] as const
   const modified: string[] = []

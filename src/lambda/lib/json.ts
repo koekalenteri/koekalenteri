@@ -1,3 +1,5 @@
+import { logger } from './log'
+
 export const parseJSONWithFallback = <T>(json?: any, fallback = {}): T => {
   if (!json || typeof json !== 'string') return fallback as T
 
@@ -5,7 +7,7 @@ export const parseJSONWithFallback = <T>(json?: any, fallback = {}): T => {
     const parsed = JSON.parse(json)
     return parsed
   } catch (e) {
-    console.error(e)
+    logger.error('failed to parse json, using fallback', { error: e })
 
     return fallback as T
   }

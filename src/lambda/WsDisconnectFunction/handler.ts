@@ -1,4 +1,5 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { withLogContext } from '../lib/log'
 import { publishEventViewers } from '../lib/ws/actions'
 import { disconnectWebSocket } from '../lib/ws/connectionLifecycle'
 
@@ -9,13 +10,18 @@ const wsDisconnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayPr
     return { body: 'Bad request', statusCode: 400 }
   }
 
-  await disconnectWebSocket(connectionId, {
-    notifyEventViewers: async (eventId, organizerId) => {
-      await publishEventViewers(eventId, organizerId)
-    },
-  })
+  return withLogContext(
+    { connectionId, requestId: event.requestContext.requestId, service: 'wsDisconnect' },
+    async () => {
+      await disconnectWebSocket(connectionId, {
+        notifyEventViewers: async (eventId, organizerId) => {
+          await publishEventViewers(eventId, organizerId)
+        },
+      })
 
-  return { body: 'Disconnected', statusCode: 200 }
+      return { body: 'Disconnected', statusCode: 200 }
+    }
+  )
 }
 
 export default wsDisconnectHandler

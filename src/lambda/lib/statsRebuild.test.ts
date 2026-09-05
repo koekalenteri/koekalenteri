@@ -1,6 +1,7 @@
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { EventStatsEvent } from './statsRebuild'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 const mockBatchDelete = vi.fn<CustomDynamoClient['batchDelete']>()
 const mockBatchWrite = vi.fn<CustomDynamoClient['batchWrite']>()
@@ -54,7 +55,7 @@ const registration = (id: string, eventId: string, overrides = {}) => ({
 })
 
 describe('statsRebuild', () => {
-  const mockLog = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+  const mockLog = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -931,8 +932,14 @@ describe('statsRebuild', () => {
 
     expect(mockBatchDelete).not.toHaveBeenCalled()
     expect(mockBatchWrite).not.toHaveBeenCalled()
-    expect(mockLog).toHaveBeenLastCalledWith(
-      'Stats regeneration completed. Records: 0, Skipped: 2, Unclassified stats: 0, Registrations without a capacity class: 0'
+    expect(loggedLines(mockLog)).toContainEqual(
+      expect.objectContaining({
+        message: 'stats regeneration completed',
+        records: 0,
+        skipped: 2,
+        unattributedCapacity: 0,
+        unclassifiedStats: 0,
+      })
     )
   })
 
@@ -945,8 +952,14 @@ describe('statsRebuild', () => {
     await handler()
 
     expect(mockBatchDelete).not.toHaveBeenCalled()
-    expect(mockLog).toHaveBeenLastCalledWith(
-      'Stats regeneration completed. Records: 0, Skipped: 0, Unclassified stats: 1, Registrations without a capacity class: 0'
+    expect(loggedLines(mockLog)).toContainEqual(
+      expect.objectContaining({
+        message: 'stats regeneration completed',
+        records: 0,
+        skipped: 0,
+        unattributedCapacity: 0,
+        unclassifiedStats: 1,
+      })
     )
   })
 

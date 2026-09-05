@@ -6,6 +6,7 @@ import {
   jsonRegistrationsToEventWithALOInvited,
   registrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
+import { loggedLines } from '../test-utils/logs'
 
 const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
   delete: vi.fn(),
@@ -601,10 +602,12 @@ describe('registration', () => {
 
       try {
         expect(getRegistrationChanges(existing, updated)).toBe('Muutti: Koiran tiedot, Lisätiedot')
-        expect(debugSpy).toHaveBeenCalledWith('Audit changes', {
-          dog: { name: 'Changed name' },
-          notes: null,
-        })
+        expect(loggedLines(debugSpy)).toContainEqual(
+          expect.objectContaining({
+            changes: { dog: { name: 'Changed name' }, notes: null },
+            message: 'audit changes',
+          })
+        )
       } finally {
         debugSpy.mockRestore()
       }

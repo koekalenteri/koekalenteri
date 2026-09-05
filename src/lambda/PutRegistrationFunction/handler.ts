@@ -39,6 +39,7 @@ import {
 import { getEvent, repairReadyRegistrationGroups, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import {
   applyOwnerOverrides,
   authorizeRegistrationEdit,
@@ -308,7 +309,7 @@ const sendMessages = async (
       }
     }
   } catch (e) {
-    console.error('error notifying cancellation to secretary', e)
+    logger.error('error notifying cancellation to secretary', { error: e, eventId: registration.eventId })
   }
 }
 

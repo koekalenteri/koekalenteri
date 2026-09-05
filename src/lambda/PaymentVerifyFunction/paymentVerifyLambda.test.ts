@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn().mockImplementation((statusCode: number, body: any) => ({
@@ -291,7 +292,12 @@ describe('paymentVerifyLambda', () => {
     await paymentVerifyLambda(event)
 
     // Verify error was logged
-    expect(consoleSpy).toHaveBeenCalledWith(error)
+    expect(loggedLines(consoleSpy)).toContainEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'Verification failed' }),
+        message: 'failed to verify payment',
+      })
+    )
 
     // Verify response was returned with error status
     expect(mockResponse).toHaveBeenCalledWith(
@@ -316,7 +322,12 @@ describe('paymentVerifyLambda', () => {
     await paymentVerifyLambda(event)
 
     // Verify error was logged
-    expect(consoleSpy).toHaveBeenCalledWith(error)
+    expect(loggedLines(consoleSpy)).toContainEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'Unexpected error' }),
+        message: 'failed to verify payment',
+      })
+    )
 
     // Verify response was returned with error status
     expect(mockResponse).toHaveBeenCalledWith(

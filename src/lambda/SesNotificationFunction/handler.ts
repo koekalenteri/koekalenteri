@@ -3,6 +3,7 @@ import type { EmailTemplateId, JsonConfirmedEvent, JsonEmailDeliveryStatus, Json
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getEvent } from '../lib/event'
+import { logger } from '../lib/log'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -38,7 +39,7 @@ const parseNotification = (message: string): SesNotification | undefined => {
   try {
     return JSON.parse(message) as SesNotification
   } catch (error) {
-    console.error('Failed to parse SES notification', error)
+    logger.error('failed to parse SES notification', { error })
     return undefined
   }
 }

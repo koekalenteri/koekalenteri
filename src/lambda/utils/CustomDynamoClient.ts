@@ -13,7 +13,7 @@ import type {
   TransactWriteCommandInput,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
-import { inspect, isDeepStrictEqual } from 'node:util'
+import { isDeepStrictEqual } from 'node:util'
 import { DynamoDBClient, TransactionCanceledException, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
 import {
   BatchGetCommand,
@@ -27,6 +27,7 @@ import {
   TransactWriteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
+import { logger } from '../lib/log'
 
 interface QueryParams {
   key: string
@@ -173,10 +174,6 @@ const processRemoveOperations = (
 }
 
 /**
- * Default CloudWatch/Lambda object logging is shallow and will collapse arrays/objects into `[Object]`.
- * Force deep inspection so DynamoDB request payloads (e.g. batchWrite items) are fully visible.
- */
-/**
  * The SDK error may cross a bundling boundary where instanceof fails, so fall back to
  * matching the error name, as the AWS SDK documentation recommends.
  */
@@ -184,8 +181,10 @@ const isTransactionCanceled = (err: unknown): err is TransactionCanceledExceptio
   err instanceof TransactionCanceledException || (err instanceof Error && err.name === 'TransactionCanceledException')
 
 const logDb = (operation: string, payload: unknown) => {
-  // Keep the operation token as the first argument for easy CW filtering (e.g. "DB.batchWrite")
-  console.info(operation, inspect(payload, { colors: false, compact: false, depth: null, maxArrayLength: null }))
+  // The operation stays the message, so a CloudWatch filter on it still works (e.g. "DB.batchWrite").
+  // The payload is a field: JSON keeps it whole, where the default object logging collapsed nested
+  // arrays and objects into `[Object]`.
+  logger.info(operation, { payload })
 }
 
 export default class CustomDynamoClient {
@@ -202,7 +201,7 @@ export default class CustomDynamoClient {
       // Override endpoint when in local development
       options.endpoint = 'http://dynamodb:8000'
 
-      console.info(`LOCAL DynamoDB: endpoint=${options.endpoint}, table: ${this.table}`)
+      logger.info('using local DynamoDB', { endpoint: options.endpoint, table: this.table })
     }
 
     this.client = new DynamoDBClient(options)
@@ -300,7 +299,7 @@ export default class CustomDynamoClient {
     consistent = false
   ): Promise<T | undefined> {
     if (!key) {
-      console.warn('CustomDynamoClient.read: no key provided, returning undefined')
+      logger.warn('CustomDynamoClient.read: no key provided, returning undefined')
       return
     }
     const params: GetCommandInput = {
@@ -320,7 +319,7 @@ export default class CustomDynamoClient {
    */
   async query<T extends object>(params: QueryParams): Promise<T[] | undefined> {
     if (!params.key) {
-      console.warn('CustomDynamoClient.query: no key provided, returning undefined')
+      logger.warn('CustomDynamoClient.query: no key provided, returning undefined')
       return
     }
     const queryParams: QueryCommandInput = {
@@ -403,10 +402,12 @@ export default class CustomDynamoClient {
         const unprocessed = result.UnprocessedItems?.[tableName]
         // A summary, not the items: the stats rebuild alone sends 17 500 of them a night, and a
         // full dump of every request was megabytes of log nobody could read anything from.
-        console.info(
-          'DB.batchWrite',
-          `${tableName}: ${pending.length} items, ${unprocessed?.length ?? 0} unprocessed, attempt ${attempt}`
-        )
+        logger.info('DB.batchWrite', {
+          attempt,
+          items: pending.length,
+          table: tableName,
+          unprocessed: unprocessed?.length ?? 0,
+        })
         pending = unprocessed?.length ? unprocessed : undefined
       }
 
@@ -509,7 +510,7 @@ export default class CustomDynamoClient {
 
   async delete(key: Record<string, number | string | undefined> | null, table?: string): Promise<boolean> {
     if (!key) {
-      console.warn('CustomDynamoClient.delete: no key provided, returning false')
+      logger.warn('CustomDynamoClient.delete: no key provided, returning false')
       return false
     }
     const params: DeleteCommandInput = {
@@ -522,7 +523,7 @@ export default class CustomDynamoClient {
       await this.docClient.send(new DeleteCommand(params))
       return true
     } catch (error) {
-      console.error('Error deleting item:', error)
+      logger.error('error deleting item', { error, key })
       return false
     }
   }
@@ -550,22 +551,11 @@ export default class CustomDynamoClient {
       )
     } catch (err) {
       if (isTransactionCanceled(err)) {
-        console.error('❌ Transaction was canceled')
-
-        const reasons = err.CancellationReasons
-        if (reasons) {
-          reasons.forEach((reason, index) => {
-            console.log(`🔹 Operation ${index + 1}:`)
-            console.log(`   Code: ${reason.Code}`)
-            if (reason.Message) {
-              console.log(`   Message: ${reason.Message}`)
-            }
-          })
-        } else {
-          console.log('No cancellation reasons returned')
-        }
+        // One line per transaction rather than three per operation: the reasons are in the order the
+        // items were sent, so the index in the array is the operation the reason belongs to.
+        logger.error('transaction was canceled', { reasons: err.CancellationReasons ?? [] })
       } else {
-        console.error('❗ Unexpected error:', err)
+        logger.error('unexpected error in transaction', { error: err })
       }
       throw err
     }

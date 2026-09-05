@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockAuthorize = vi.fn()
 const mockLambda = vi.fn((_name, fn) => fn)
@@ -53,7 +54,9 @@ describe('getUsersHandler', () => {
     mockUserIsMemberOf.mockReturnValueOnce([])
     await getUsersHandler(event)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
-    expect(errorSpy).toHaveBeenCalledWith('User user1 is not admin or member of any organizations.')
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({ message: 'user is not admin or member of any organization', userId: 'user1' })
+    )
   })
 
   it('returns 200 and filtered users if authorized and member/admin', async () => {

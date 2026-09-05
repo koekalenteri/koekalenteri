@@ -1,5 +1,6 @@
 import type { SendOutcome } from './gatewaySender'
 import type { WebSocketConnection } from './types'
+import { logger } from '../../lib/log'
 import { sendToConnection } from './gatewaySender'
 
 type BroadcastArgs<TPayload> = {
@@ -39,7 +40,7 @@ export const broadcast = async <TPayload>({
           outcome = await send(connectionId, data)
         } catch (error) {
           counts.failed += 1
-          console.error('ws.broadcast.unexpected-error', { connectionId, error })
+          logger.error('ws.broadcast.unexpected-error', { connectionId, error })
           return
         }
         if (outcome === 'sent') {
@@ -56,6 +57,6 @@ export const broadcast = async <TPayload>({
     )
   }
 
-  console.log('ws.broadcast.summary', counts)
+  logger.info('ws.broadcast.summary', { ...counts })
   return counts
 }

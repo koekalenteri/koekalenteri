@@ -16,6 +16,7 @@ import { createHmac } from 'node:crypto'
 import { nanoid } from 'nanoid'
 import { currentFinnishTime } from '../../i18n/dates'
 import { keysOf } from '../../lib/typeGuards'
+import { logger } from './log'
 import { getPaytrailConfig } from './secrets'
 
 const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
@@ -98,7 +99,7 @@ const paytrailRequest = async <T extends object>(
     signature: calculateHmac(cfg.PAYTRAIL_SECRET, paytrailHeaders, body),
   }
 
-  console.log('Paytrail request', {
+  logger.info('Paytrail request', {
     method,
     path: transactionId ? path.replace(transactionId, ':transactionId') : path,
   })
@@ -119,14 +120,14 @@ const paytrailRequest = async <T extends object>(
       }
       if (!json) {
         error = await res.text()
-        console.error('not ok', status, error)
+        logger.error('Paytrail request was not ok', { error, method, status })
       }
     } catch (error_) {
-      console.error(error_)
+      logger.error('Paytrail response could not be read', { error: error_, method, status })
       if (error_ instanceof Error) error = error_.message
     }
   } catch (e: unknown) {
-    console.error(e)
+    logger.error('Paytrail request failed', { error: e, method })
     if (e instanceof Error) error = e.message
   }
 

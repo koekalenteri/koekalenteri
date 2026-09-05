@@ -4,6 +4,7 @@ import { CONFIG } from '../config'
 import { authorizeAdmin } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { getKLAPIConfig } from '../lib/secrets'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import { KLYhdistysRajaus } from '../types/KLAPI'
@@ -26,7 +27,7 @@ const refreshOrganizersLambda = lambda('refreshOrganizers', async (event) => {
         const org: Organizer = { id: nanoid(10), kcId: item.jäsennumero, name: item.strYhdistys }
         insert.push(org)
       } else if (old.name !== item.strYhdistys) {
-        console.log(`Organizer ${old.kcId} name changed from ${old.name} to ${item.strYhdistys}`, old, item)
+        logger.info('organizer name changed', { kcId: old.kcId, name: item.strYhdistys, previous: old.name })
         await dynamoDB.update(
           { id: old.id },
           {

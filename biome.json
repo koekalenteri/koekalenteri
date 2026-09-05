@@ -126,6 +126,22 @@
                 }
               }
             }
+          },
+          "suspicious": {
+            "noConsole": {
+              "level": "error",
+              "options": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lambda/lib/log.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
           }
         }
       }
@@ -137,6 +153,9 @@
           "style": {
             "noNonNullAssertion": "off",
             "noRestrictedImports": "off"
+          },
+          "suspicious": {
+            "noConsole": "off"
           }
         }
       }

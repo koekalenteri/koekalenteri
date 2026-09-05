@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockPublishAdminDataInvalidation = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
@@ -75,7 +76,7 @@ describe('getOrganizersLambda', () => {
   let consoleLogSpy: import('vitest').MockInstance<any>
 
   beforeAll(() => {
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    consoleLogSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
   })
 
   afterAll(() => {
@@ -203,11 +204,14 @@ describe('getOrganizersLambda', () => {
     expect(mockUpdate).toHaveBeenCalledWith({ id: 'org1' }, { set: { name: 'New Name' } })
     expect(mockResponse).toHaveBeenCalledWith(200, [{ id: 'org1', kcId: '123', name: 'New Name' }], eventWithRefresh)
 
-    // Verify console.log was called with the name change message
-    expect(consoleLogSpy).toHaveBeenCalledWith(
-      `Organizer ${organizers[0].kcId} name changed from ${organizers[0].name} to New Name`,
-      organizers[0],
-      { jäsennumero: '123', strYhdistys: 'New Name' }
+    // Verify the name change was logged
+    expect(loggedLines(consoleLogSpy)).toContainEqual(
+      expect.objectContaining({
+        kcId: organizers[0].kcId,
+        message: 'organizer name changed',
+        name: 'New Name',
+        previous: organizers[0].name,
+      })
     )
   })
 })

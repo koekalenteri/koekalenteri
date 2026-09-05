@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 import { parseJSONWithFallback } from './json'
 
 describe('parseJSONWithFallback', () => {
@@ -12,8 +13,12 @@ describe('parseJSONWithFallback', () => {
 
     expect(parseJSONWithFallback('koira', ['kissa'])).toEqual(['kissa'])
 
-    expect(errorSpy).toHaveBeenCalledTimes(1)
-    expect(errorSpy).toHaveBeenCalledWith(expect.any(Error))
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({
+        error: expect.objectContaining({ name: 'SyntaxError' }),
+        message: 'failed to parse json, using fallback',
+      }),
+    ])
   })
 
   it('should parse valid json', () => {

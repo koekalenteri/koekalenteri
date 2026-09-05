@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -75,6 +76,8 @@ vi.doMock('../lib/ws/actions', () => ({
 const { default: refundSuccessLambda } = await import('./handler')
 
 describe('refundSuccessLambda', () => {
+  let errorSpy = vi.spyOn(console, 'error')
+
   const event = constructPartialAPIGwEvent({
     queryStringParameters: {
       'checkout-amount': '1000',
@@ -117,7 +120,7 @@ describe('refundSuccessLambda', () => {
     vi.clearAllMocks()
 
     vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.spyOn(console, 'error').mockImplementation(() => {})
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Default mock implementations
     mockVerifyParams.mockResolvedValue(undefined)
@@ -254,7 +257,12 @@ describe('refundSuccessLambda', () => {
     await refundSuccessLambda(event)
 
     // Verify error was logged
-    expect(console.error).toHaveBeenCalledWith('failed to send refund email', expect.any(Error))
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'Email sending failed' }),
+        message: 'failed to send refund email',
+      })
+    )
 
     // Verify audit entry was still created
     expect(mockAudit).toHaveBeenCalled()

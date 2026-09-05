@@ -8,6 +8,7 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { applySuccessfulRefund, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationEditToken } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
@@ -51,7 +52,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   }
 
   if (transaction.registrationAppliedAt) {
-    console.log('transaction already has status "ok", ignoring request')
+    logger.info('transaction already has status ok, ignoring request', { transactionId })
     return response(200, undefined, event)
   }
 
@@ -135,7 +136,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
     })
   } catch (e) {
     // this is not fatal
-    console.error('failed to send refund email', e)
+    logger.error('failed to send refund email', { error: e, transactionId })
   }
 
   await audit({

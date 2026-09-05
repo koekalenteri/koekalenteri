@@ -2,6 +2,7 @@ import type { JsonDogEvent } from '../../../types'
 import type { WebSocketConnection } from './types'
 import { getEvent } from '../../lib/event'
 import { LambdaError } from '../../lib/lambda'
+import { hashIdentity, logger } from '../../lib/log'
 import {
   authenticateConnection,
   createConnection,
@@ -19,7 +20,7 @@ const expiresAtForMaxGatewayLifetime = () =>
   Math.floor(Date.now() / 1000) + API_GATEWAY_WEBSOCKET_MAX_CONNECTION_SECONDS
 
 export const connectWebSocket = async (connection: WebSocketConnection) => {
-  console.log(`wsConnect: ${connection.connectionId}`, connection)
+  logger.info('wsConnect', { connectionId: connection.connectionId })
 
   const publicConnections = await queryPublicConnections()
   if (publicConnections.length >= MAX_PUBLIC_CONNECTIONS) {
@@ -32,14 +33,15 @@ export const connectWebSocket = async (connection: WebSocketConnection) => {
 export const authenticateWebSocket = async (connection: WebSocketConnection) => {
   if (!connection.userId) throw new Error('Cannot authenticate websocket connection without userId')
 
-  console.log(`wsAuthenticate: ${connection.connectionId}`, {
+  // The email is hashed and the name left out: the connection is identified by userId, and the
+  // hash is only there to tie a person's connections together while looking into a problem.
+  logger.info('wsAuthenticate', {
     admin: connection.admin,
     connectionId: connection.connectionId,
+    emailHash: connection.userEmail ? hashIdentity(connection.userEmail) : undefined,
     expiresAt: connection.expiresAt,
     memberOf: connection.memberOf,
-    userEmail: connection.userEmail,
     userId: connection.userId,
-    userName: connection.userName,
   })
   await authenticateConnection(connection)
 }
@@ -52,7 +54,7 @@ export const disconnectWebSocket = async (
     notifyEventViewers?: NotifyEventViewers
   }
 ) => {
-  console.log(`wsDisconnect: ${connectionId}`)
+  logger.info('wsDisconnect', { connectionId })
 
   const connection = await getConnection(connectionId)
   await removeConnection(connectionId)
@@ -62,7 +64,7 @@ export const disconnectWebSocket = async (
       const event = await getEvent<JsonDogEvent>(connection.eventId)
       await deps.notifyEventViewers(connection.eventId, event.organizer.id)
     } catch (err: unknown) {
-      console.error({ err }, 'failed to publish event viewers')
+      logger.error('failed to publish event viewers', { error: err, eventId: connection.eventId })
     }
   }
 

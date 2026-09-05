@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { loggedLines } from '../../test-utils/logs'
 
 const mockCreateConnection = vi.fn()
 const mockAuthenticateConnection = vi.fn()
@@ -22,7 +23,7 @@ vi.doMock('../../lib/event', () => ({
 const { authenticateWebSocket, connectWebSocket, disconnectWebSocket } = await import('./connectionLifecycle')
 
 describe('ws/connectionLifecycle', () => {
-  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+  const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -31,7 +32,7 @@ describe('ws/connectionLifecycle', () => {
   })
 
   afterAll(() => {
-    logSpy.mockRestore()
+    infoSpy.mockRestore()
   })
 
   it('connectWebSocket writes connection', async () => {
@@ -41,7 +42,7 @@ describe('ws/connectionLifecycle', () => {
 
     expect(mockQueryPublicConnections).toHaveBeenCalledWith()
     expect(mockCreateConnection).toHaveBeenCalledWith({ connectionId: 'c1', expiresAt: 1779570000 })
-    expect(logSpy).toHaveBeenCalledWith('wsConnect: c1', { connectionId: 'c1' })
+    expect(loggedLines(infoSpy)).toContainEqual(expect.objectContaining({ connectionId: 'c1', message: 'wsConnect' }))
   })
 
   it('connectWebSocket rejects when public connection limit is reached', async () => {
@@ -72,15 +73,20 @@ describe('ws/connectionLifecycle', () => {
       userId: 'u1',
       userName: 'User One',
     })
-    expect(logSpy).toHaveBeenCalledWith('wsAuthenticate: c1', {
-      admin: undefined,
-      connectionId: 'c1',
-      expiresAt: undefined,
-      memberOf: ['org-1'],
-      userEmail: 'user@example.com',
-      userId: 'u1',
-      userName: 'User One',
-    })
+    const authenticated = loggedLines(infoSpy).filter((line) => line.message === 'wsAuthenticate')
+    expect(authenticated).toEqual([
+      {
+        connectionId: 'c1',
+        emailHash: expect.any(String),
+        level: 'info',
+        memberOf: ['org-1'],
+        message: 'wsAuthenticate',
+        userId: 'u1',
+      },
+    ])
+    // Neither the email nor the name of the person behind the connection ends up in the log.
+    expect(JSON.stringify(authenticated)).not.toContain('user@example.com')
+    expect(JSON.stringify(authenticated)).not.toContain('User One')
   })
 
   it('disconnectWebSocket removes and notifies viewers when subscribed', async () => {
@@ -92,6 +98,8 @@ describe('ws/connectionLifecycle', () => {
 
     expect(mockRemoveConnection).toHaveBeenCalledWith('c1')
     expect(notifyEventViewers).toHaveBeenCalledWith('e1', 'org-1')
-    expect(logSpy).toHaveBeenCalledWith('wsDisconnect: c1')
+    expect(loggedLines(infoSpy)).toContainEqual(
+      expect.objectContaining({ connectionId: 'c1', message: 'wsDisconnect' })
+    )
   })
 })

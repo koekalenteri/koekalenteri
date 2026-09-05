@@ -21,6 +21,7 @@ import {
 } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { validateBody } from '../lib/request'
 import { moveOrganizerEventStats } from '../lib/stats'
 
@@ -157,7 +158,7 @@ const checkPutEventAgainstExisting = (
   }
 
   if (item.deletedAt && !isEventDeletable(existing)) {
-    console.log('Event is not deletable', { existing, item })
+    logger.info('event is not deletable', { eventId: item.id })
     return { body: 'Forbidden', status: 403 }
   }
 }

@@ -1,5 +1,6 @@
 import type { AuditRecord, JsonAuditRecord, JsonConfirmedEvent } from '../../types'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 const mockQuery = vi.fn()
 const mockWrite = vi.fn()
@@ -163,8 +164,13 @@ describe('audit', () => {
 
       await audit({ auditKey: 'key', message: 'msg', user: 'user' })
 
-      expect(errorSpy).toHaveBeenCalledWith(error)
-      expect(errorSpy).toHaveBeenCalledTimes(1)
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({
+          auditKey: 'key',
+          error: expect.objectContaining({ message: 'DB error' }),
+          message: 'failed to write audit record',
+        }),
+      ])
     })
   })
 
@@ -198,8 +204,13 @@ describe('audit', () => {
       const res = await auditTrail('key')
 
       expect(res).toStrictEqual([])
-      expect(errorSpy).toHaveBeenCalledWith(error)
-      expect(errorSpy).toHaveBeenCalledTimes(1)
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({
+          auditKey: 'key',
+          error: expect.objectContaining({ message: 'DB error' }),
+          message: 'failed to read audit trail',
+        }),
+      ])
     })
   })
 })

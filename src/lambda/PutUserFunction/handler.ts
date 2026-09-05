@@ -3,6 +3,7 @@ import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { setUserRole } from '../lib/user'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 
@@ -24,7 +25,7 @@ const putUserLambda = lambda('putUser', async (event) => {
 
   for (const orgId of Object.keys(item.roles ?? [])) {
     if (!canSetRoleFor(user, orgId)) {
-      console.warn('User does not have right to set role', { item, orgId, user })
+      logger.warn('user does not have right to set role', { orgId, targetUserId: item.id, userId: user.id })
       return response(403, 'Forbidden', event)
     }
   }

@@ -3,6 +3,7 @@ import type { VersionedCollection, VersionRecord } from '../lib/dataVersions'
 import { CONFIG } from '../config'
 import { GLOBAL_SCOPE, readStoredDataVersions, writeDataVersionFingerprint } from '../lib/dataVersions'
 import { LOCATIONS_ID } from '../lib/location'
+import { logger } from '../lib/log'
 import { userScopes } from '../lib/user'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -105,9 +106,10 @@ const repairDataVersions = async (): Promise<void> => {
   }
 
   if (reminted.length) {
-    console.log(`data version drift repaired: ${reminted.join(', ')}`)
+    // The phrase is matched verbatim by the metric filter; keep it in the message.
+    logger.info('data version drift repaired', { reminted })
   }
-  console.log(`checked ${fingerprints.size} data versions, reminted ${reminted.length}`)
+  logger.info('data versions checked', { checked: fingerprints.size, reminted: reminted.length })
 }
 
 export default repairDataVersions

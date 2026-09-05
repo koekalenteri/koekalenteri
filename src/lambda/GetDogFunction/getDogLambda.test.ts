@@ -2,8 +2,8 @@ import type KLAPI from '../lib/KLAPI'
 import type { KLKoira } from '../types/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
-import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines, unhandledError } from '../test-utils/logs'
 
 const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
   delete: vi.fn(),
@@ -39,7 +39,7 @@ const { default: getDogHandler, filterDogResults } = await import('./handler')
 
 describe('getDogHandler', () => {
   vi.spyOn(console, 'debug').mockImplementation(() => undefined)
-  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+  const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
   const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
   beforeAll(() => {
@@ -101,15 +101,13 @@ describe('getDogHandler', () => {
     expect(res.statusCode).toBe(404)
     expect(res.body).toBe(JSON.stringify({ error: 'Upstream error: not found' }))
 
-    expect(logSpy).toHaveBeenCalledWith('cached: undefined')
-    expect(logSpy).toHaveBeenCalledWith('itemAge: 0, refresh: false')
-    expect(logSpy).toHaveBeenCalledTimes(2)
-    expect(errorSpy).toHaveBeenCalledWith('lueKoiranPerustiedot failed', {
-      error: 'not found',
-      json: undefined,
-      status: 404,
-    })
-    expect(errorSpy).toHaveBeenCalledWith(expect.any(LambdaError))
+    expect(loggedLines(debugSpy)).toContainEqual(
+      expect.objectContaining({ cached: false, itemAge: 0, message: 'cached dog', refresh: false })
+    )
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({ error: 'not found', message: 'lueKoiranPerustiedot failed', status: 404 })
+    )
+    expect(loggedLines(errorSpy)).toContainEqual(unhandledError('404 Upstream error: not found'))
     expect(errorSpy).toHaveBeenCalledTimes(2)
   })
 
@@ -132,15 +130,13 @@ describe('getDogHandler', () => {
     expect(res.statusCode).toBe(404)
     expect(res.body).toBe(JSON.stringify({ error: 'Upstream error: diseased' }))
 
-    expect(logSpy).toHaveBeenCalledWith('cached: {"refreshDate":"2023-01-01","regNo":"FI12345/24"}')
-    expect(logSpy).toHaveBeenCalledWith('itemAge: 772440, refresh: true')
-    expect(logSpy).toHaveBeenCalledTimes(2)
-    expect(errorSpy).toHaveBeenCalledWith('lueKoiranPerustiedot failed', {
-      error: 'diseased',
-      json: undefined,
-      status: 404,
-    })
-    expect(errorSpy).toHaveBeenCalledWith(expect.any(LambdaError))
+    expect(loggedLines(debugSpy)).toContainEqual(
+      expect.objectContaining({ cached: true, itemAge: 772440, message: 'cached dog', refresh: true })
+    )
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({ error: 'diseased', message: 'lueKoiranPerustiedot failed', status: 404 })
+    )
+    expect(loggedLines(errorSpy)).toContainEqual(unhandledError('404 Upstream error: diseased'))
     expect(errorSpy).toHaveBeenCalledTimes(2)
   })
 
@@ -183,9 +179,9 @@ describe('getDogHandler', () => {
     expect(res.statusCode).toBe(200)
     expect(JSON.parse(res.body)).toEqual(refreshedDog)
 
-    expect(logSpy).toHaveBeenCalledWith('cached: {"refreshDate":"2023-01-01","regNo":"FI12345/24"}')
-    expect(logSpy).toHaveBeenCalledWith('itemAge: 772440, refresh: true')
-    expect(logSpy).toHaveBeenCalledTimes(2)
+    expect(loggedLines(debugSpy)).toContainEqual(
+      expect.objectContaining({ cached: true, itemAge: 772440, message: 'cached dog', refresh: true })
+    )
   })
 
   it('should return dog with empty results when lueKoiranKoetulokset fails', async () => {
@@ -227,7 +223,13 @@ describe('getDogHandler', () => {
     expect(res.statusCode).toBe(200)
     expect(JSON.parse(res.body)).toEqual(refreshedDog)
 
-    expect(errorSpy).toHaveBeenCalledWith(new Error('KLAPI error'), 'readDogResultsFromKlapi failed')
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'KLAPI error' }),
+        message: 'readDogResultsFromKlapi failed',
+        regNo: 'FI12345/24',
+      })
+    )
   })
 
   it('should not refresh fresh data', async () => {
@@ -248,9 +250,9 @@ describe('getDogHandler', () => {
     expect(res.statusCode).toBe(200)
     expect(res.body).toEqual(JSON.stringify(cachedDog))
 
-    expect(logSpy).toHaveBeenCalledWith('cached: {"refreshDate":"2024-06-20T09:55:00.000Z","regNo":"FI12345/24"}')
-    expect(logSpy).toHaveBeenCalledWith('itemAge: 5, refresh: false')
-    expect(logSpy).toHaveBeenCalledTimes(2)
+    expect(loggedLines(debugSpy)).toContainEqual(
+      expect.objectContaining({ cached: true, itemAge: 5, message: 'cached dog', refresh: false })
+    )
   })
 
   it('filters cached results in the endpoint response using active event types', async () => {
@@ -314,7 +316,9 @@ describe('getDogHandler', () => {
     }
 
     expect(JSON.parse(res.body)).toEqual(refreshedDog)
-    expect(errorSpy).toHaveBeenCalledWith('lueKoiranKoetulokset failed', '{"json":[],"status":500}')
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({ message: 'lueKoiranKoetulokset failed', regNo: 'FI12345/24', status: 500 })
+    )
   })
 
   it('should parse results from KLAPI', async () => {
@@ -558,7 +562,9 @@ describe('getDogHandler', () => {
     expect(mockDynamoDB.read).toHaveBeenCalledWith({ regNo: 'FI12345/24' })
     expect(mockDynamoDB.write).toHaveBeenCalled()
     expect(res.statusCode).toBe(200)
-    expect(logSpy).toHaveBeenCalledWith('itemAge: 5, refresh: true')
+    expect(loggedLines(debugSpy)).toContainEqual(
+      expect.objectContaining({ itemAge: 5, message: 'cached dog', refresh: true })
+    )
   })
 
   it('should handle sire and dam API failures', async () => {

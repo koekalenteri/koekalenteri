@@ -2,6 +2,7 @@ import type { JsonUser } from '../../types'
 import type KLAPI from '../lib/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 const mockPublishAdminDataInvalidation = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
@@ -64,7 +65,7 @@ const mockAdminUser: JsonUser = {
 
 describe('getEventTypesLambda', () => {
   vi.spyOn(console, 'debug').mockImplementation(() => undefined)
-  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+  const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
   afterEach(() => {
     vi.clearAllMocks()
@@ -118,15 +119,15 @@ describe('getEventTypesLambda', () => {
     expect(mockKLAPI.lueKoemuodot).toHaveBeenCalledWith({ Kieli: 3 })
     expect(mockKLAPI.lueKoemuodot).toHaveBeenCalledTimes(3)
 
-    expect(logSpy).toHaveBeenCalledWith('new eventTypes', [
-      expect.objectContaining({ description: { en: 'en', fi: 'fi', sv: 'sv' }, eventType: 'x' }),
+    expect(loggedLines(infoSpy)).toEqual([
+      expect.objectContaining({ eventTypes: ['x'], message: 'new event types' }),
+      expect.objectContaining({
+        description: { en: 'new en', fi: 'new fi', sv: 'old sv' },
+        eventType: 'y',
+        message: 'event type description changed',
+        previous: { en: 'old en', fi: 'old fi', sv: 'old sv' },
+      }),
     ])
-    expect(logSpy).toHaveBeenCalledWith(
-      'description changed for y',
-      { en: 'old en', fi: 'old fi', sv: 'old sv' },
-      { en: 'new en', fi: 'new fi', sv: 'old sv' }
-    )
-    expect(logSpy).toHaveBeenCalledTimes(2)
 
     expect(mockDynamoDB.batchWrite).toHaveBeenCalledWith([
       expect.objectContaining({

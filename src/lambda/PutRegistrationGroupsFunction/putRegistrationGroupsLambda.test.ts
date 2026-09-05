@@ -7,6 +7,7 @@ import {
   jsonRegistrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
 import { constructAPIGwEvent as constructRawAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines, unhandledError } from '../test-utils/logs'
 
 // Keep existing move fixtures concise while exercising the semantic API
 // contract used by the only client.
@@ -182,9 +183,7 @@ describe('putRegistrationGroupsLambda', () => {
     )
 
     expect(res.statusCode).toBe(403)
-    expect(mockConsoleError).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'Forbidden', message: '403 Forbidden', status: 403 })
-    )
+    expect(loggedLines(mockConsoleError)).toContainEqual(unhandledError('403 Forbidden'))
     expect(mockDynamoDB.query).not.toHaveBeenCalled()
     expect(mockDynamoDB.update).not.toHaveBeenCalled()
   })

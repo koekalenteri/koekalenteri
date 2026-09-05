@@ -11,6 +11,7 @@ import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
 import { i18n } from '../../i18n/lambda'
 import { getRegistrationEmailTemplateData, getRegistrationOwners } from '../../lib/registration'
 import { CONFIG } from '../config'
+import { logger } from './log'
 
 const ses = new SESClient()
 
@@ -25,7 +26,7 @@ export async function sendTemplatedMail(
   tags?: MessageTag[]
 ) {
   if (to.length === 0) {
-    console.log('sendTemplatedEmail: no recipients')
+    logger.info('sendTemplatedEmail: no recipients', { template })
     return
   }
   const params: SendTemplatedEmailCommandInput = {
@@ -39,7 +40,7 @@ export async function sendTemplatedMail(
   }
   if (tags) params.Tags = tags
 
-  console.log('Sending email', { recipientCount: to.length, template })
+  logger.info('sending email', { recipientCount: to.length, template })
   return ses.send(new SendTemplatedEmailCommand(params))
 }
 

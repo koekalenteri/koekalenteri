@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
@@ -38,6 +39,8 @@ vi.doMock('../lib/user', () => ({
 const { default: putUserLambda } = await import('./handler')
 
 describe('putUserLambda', () => {
+  let warnSpy = vi.spyOn(console, 'warn')
+
   const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       email: 'test@example.com',
@@ -54,7 +57,7 @@ describe('putUserLambda', () => {
     vi.clearAllMocks()
 
     // Spy on console methods to prevent logs from being displayed
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
@@ -166,7 +169,9 @@ describe('putUserLambda', () => {
 
     expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
     expect(mockSetUserRole).not.toHaveBeenCalled()
-    expect(console.warn).toHaveBeenCalledWith('User does not have right to set role', expect.any(Object))
+    expect(loggedLines(warnSpy)).toContainEqual(
+      expect.objectContaining({ message: 'user does not have right to set role', orgId: 'org456' })
+    )
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
   })
 

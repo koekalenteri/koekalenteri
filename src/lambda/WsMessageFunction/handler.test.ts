@@ -1,6 +1,7 @@
 import type { APIGatewayEvent } from 'aws-lambda'
 import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
+import { loggedLines } from '../test-utils/logs'
 
 const mockSubscribeToAdmin = vi.fn()
 const mockSubscribeToEvent = vi.fn()
@@ -363,7 +364,13 @@ describe('wsMessageHandler', () => {
       })
     )
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: 'Forbidden', status: 403 }))
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        action: 'subscribe',
+        error: expect.objectContaining({ message: '403 Forbidden' }),
+        message: 'websocket message failed',
+      })
+    )
     expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 403 })
   })
 
@@ -378,7 +385,13 @@ describe('wsMessageHandler', () => {
       })
     )
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: 'Forbidden', status: 403 }))
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        action: 'subscribe',
+        error: expect.objectContaining({ message: '403 Forbidden' }),
+        message: 'websocket message failed',
+      })
+    )
     expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 403 })
   })
 
@@ -393,7 +406,12 @@ describe('wsMessageHandler', () => {
       })
     )
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'unexpected' }))
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'unexpected' }),
+        message: 'websocket message failed',
+      })
+    )
     expect(result).toEqual({ body: { error: 'Internal server error', ok: false, status: 500 }, statusCode: 500 })
   })
 })

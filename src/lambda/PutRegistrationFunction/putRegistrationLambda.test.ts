@@ -8,6 +8,7 @@ import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
 import { ISO8601DateTimeRE } from '../test-utils/constants'
 import { constructAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockSES = {
   send: vi.fn(),
@@ -1175,7 +1176,12 @@ describe('putRegistrationLabmda', () => {
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true }))
     expect(res.statusCode).toEqual(200)
-    expect(errorSpy).toHaveBeenCalledWith('error notifying cancellation to secretary', error)
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'test error' }),
+        message: 'error notifying cancellation to secretary',
+      })
+    )
   })
 
   it('should send invitation read email', async () => {

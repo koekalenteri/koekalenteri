@@ -6,6 +6,7 @@ import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { deleteFile, parsePostFile, uploadFile } from '../lib/file'
 import { getParam, lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { getRegistrationsByEventId } from '../lib/registration'
 import { publishAdminEventPatch } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -40,7 +41,7 @@ const deleteStaleAttachment = async (key: string) => {
   try {
     await deleteFile(key)
   } catch (error) {
-    console.error('Failed to delete unused invitation attachment', error)
+    logger.error('failed to delete unused invitation attachment', { error, key })
   }
 }
 
@@ -59,18 +60,18 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
 
   const file = await parsePostFile(event)
   if (file.error) {
-    console.error(file.error)
+    logger.error('invitation attachment could not be parsed', { error: file.error, eventId })
     return response(400, file.error, event)
   }
 
   if (!file.data) {
-    console.error('no data')
+    logger.error('invitation attachment has no data', { eventId })
     return response(400, 'no data', event)
   }
 
   // The attachment is stored and served as application/pdf, so require a PDF.
   if (!file.data.subarray(0, 5).equals(Buffer.from('%PDF-'))) {
-    console.error('uploaded file is not a PDF')
+    logger.error('uploaded invitation attachment is not a PDF', { eventId })
     return response(400, 'file is not a PDF', event)
   }
 

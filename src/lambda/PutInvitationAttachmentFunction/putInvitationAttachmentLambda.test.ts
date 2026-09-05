@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -62,11 +63,13 @@ describe('putInvitationAttachmentLambda', () => {
     },
   })
 
+  let errorSpy = vi.spyOn(console, 'error')
+
   beforeEach(() => {
     vi.clearAllMocks()
 
     // Spy on console.error to prevent logs from being displayed
-    vi.spyOn(console, 'error').mockImplementation(() => {})
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
@@ -160,8 +163,14 @@ describe('putInvitationAttachmentLambda', () => {
     expect(mockDeleteFile).not.toHaveBeenCalled()
     expect(mockUploadFile).not.toHaveBeenCalled()
 
-    // Verify console.error was called with the expected message
-    expect(console.error).toHaveBeenCalledWith('Invalid file format')
+    // Verify the failure was logged
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        error: 'Invalid file format',
+        eventId: 'event123',
+        message: 'invitation attachment could not be parsed',
+      })
+    )
   })
 
   it('returns 400 if no file data', async () => {
@@ -180,8 +189,10 @@ describe('putInvitationAttachmentLambda', () => {
     expect(mockDeleteFile).not.toHaveBeenCalled()
     expect(mockUploadFile).not.toHaveBeenCalled()
 
-    // Verify console.error was called with the expected message
-    expect(console.error).toHaveBeenCalledWith('no data')
+    // Verify the failure was logged
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({ eventId: 'event123', message: 'invitation attachment has no data' })
+    )
   })
 
   it('returns 400 if the file is not a PDF', async () => {
@@ -197,7 +208,9 @@ describe('putInvitationAttachmentLambda', () => {
     expect(mockDeleteFile).not.toHaveBeenCalled()
     expect(mockUploadFile).not.toHaveBeenCalled()
 
-    expect(console.error).toHaveBeenCalledWith('uploaded file is not a PDF')
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({ eventId: 'event123', message: 'uploaded invitation attachment is not a PDF' })
+    )
   })
 
   it('uploads new attachment and preserves the old one', async () => {
@@ -338,7 +351,12 @@ describe('putInvitationAttachmentLambda', () => {
 
     expect(mockUpdate).toHaveBeenCalled()
     expect(mockPublishAdminEventPatch).toHaveBeenCalled()
-    expect(console.error).toHaveBeenCalledWith('Failed to delete unused invitation attachment', error)
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'delete failed' }),
+        message: 'failed to delete unused invitation attachment',
+      })
+    )
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       expect.objectContaining({

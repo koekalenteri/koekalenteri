@@ -3,6 +3,7 @@ import { vi } from 'vitest'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines, unhandledError } from '../test-utils/logs'
 
 // --- Mock setup ---
 const mockAuthorize = vi.fn<() => Promise<{ id: string; name: string } | null>>()
@@ -294,7 +295,7 @@ describe('paymentCreateLambda', () => {
       const result = await paymentCreateLambda(event)
 
       expect(result.statusCode).toBe(404)
-      expect(errorSpy).toHaveBeenCalledWith(error)
+      expect(loggedLines(errorSpy)).toContainEqual(unhandledError('404 not found'))
       expect(mockAuthorizeRegistrationEdit).toHaveBeenCalledWith(event, createMockRegistration())
       expect(mockGetEvent).not.toHaveBeenCalled()
       expect(mockRead).toHaveBeenCalledTimes(1)

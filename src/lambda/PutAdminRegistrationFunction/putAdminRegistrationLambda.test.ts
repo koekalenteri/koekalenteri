@@ -2,6 +2,7 @@ import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines, unhandledError } from '../test-utils/logs'
 
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetEvent = vi.fn()
@@ -250,9 +251,7 @@ describe('putAdminRegistrationLambda', () => {
     const result = await putAdminRegistrationLambda(event)
 
     expect(result.statusCode).toBe(403)
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ error: 'Forbidden', message: '403 Forbidden', status: 403 })
-    )
+    expect(loggedLines(errorSpy)).toContainEqual(unhandledError('403 Forbidden'))
     expect(mockGetEvent).toHaveBeenCalledWith('event123')
     expect(mockGetRegistration).not.toHaveBeenCalled()
     expect(mockSaveRegistration).not.toHaveBeenCalled()

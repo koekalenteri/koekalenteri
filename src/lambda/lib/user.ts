@@ -13,6 +13,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { bumpDataVersion } from './dataVersions'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
+import { hashIdentity, logger } from './log'
 
 const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
 
@@ -153,7 +154,7 @@ export const getAllUsers = async (): Promise<JsonUser[]> => {
 
 export const findUserByEmail = async (email?: string): Promise<JsonUser | undefined> => {
   if (!email) {
-    console.warn('findUserByEmail called without email')
+    logger.warn('findUserByEmail called without email')
     return undefined
   }
 
@@ -177,11 +178,12 @@ export const findUserByEmail = async (email?: string): Promise<JsonUser | undefi
   if (!exact) {
     // If we got items back but none match exactly, highlight possible data-normalization issues.
     if (activeUsers?.length) {
-      console.error('findUserByEmail: queried users but none matched normalized email', {
+      logger.error('findUserByEmail: queried users but none matched normalized email', {
+        emailHash: hashIdentity(normalizedEmail),
         resultCount: activeUsers.length,
       })
     } else {
-      console.warn('findUserByEmail: user not found')
+      logger.warn('findUserByEmail: user not found', { emailHash: hashIdentity(normalizedEmail) })
     }
   }
 
@@ -397,7 +399,7 @@ const updateExistingUserFromItem = (
   }
   const changes = getChangedTopLevelKeys(existing, updated)
   if (changes.length > 0) {
-    console.log('updating user from official directory', { changedKeys: changes, userId: existing.id })
+    logger.info('updating user from official directory', { changedKeys: changes, userId: existing.id })
     return {
       ...updated,
       modifiedAt: dateString,
@@ -420,7 +422,7 @@ const buildUserUpdates = (
   const { itemByEmail, itemByKcId } = buildItemIndexMaps(itemsWithEmail)
 
   for (const item of newItems) {
-    console.log('creating user from official directory', { sourceId: item.id })
+    logger.info('creating user from official directory', { sourceId: item.id })
     write.push(createNewUserFromItem(item, dateString, eventTypesFiled))
   }
 
@@ -630,7 +632,7 @@ const applyUserSyncPlan = async (dynamoDB: CustomDynamoClient, ctx: UserSyncCont
     try {
       await dynamoDB.batchWrite(write, userTable)
     } catch (e) {
-      console.error('Failed to batch write user sync', { userCount: write.length })
+      logger.error('failed to batch write user sync', { error: e, userCount: write.length })
       throw e
     }
 

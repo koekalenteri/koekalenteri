@@ -1,5 +1,6 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { LambdaError, response } from '../lib/lambda'
+import { logger, withLogContext } from '../lib/log'
 import { publishEventViewers } from '../lib/ws/actions'
 import { authenticateWebSocketToken } from '../lib/ws/authentication'
 import { authenticateWebSocket, getWebSocketConnection } from '../lib/ws/connectionLifecycle'
@@ -134,21 +135,11 @@ const handleUnsubscribeMessage = async (
   return response(200, { connectionId, unsubscribed: true }, event)
 }
 
-const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
-  const connectionId = event.requestContext.connectionId
-  const message = parseBody(event.body)
-
-  if (!connectionId || !message) {
-    return response(400, 'Bad request', event)
-  }
-
-  // A keepalive only has to be traffic: API Gateway closes a WebSocket after 10 minutes of
-  // silence, and each reconnect costs two lambda invocations. Answer before the connection
-  // lookup so a ping costs nothing beyond the invocation itself.
-  if (message.action === 'ping') {
-    return response(200, { pong: true }, event)
-  }
-
+const handleMessage = async (
+  event: APIGatewayEvent,
+  connectionId: string,
+  message: ValidWsMessage
+): Promise<APIGatewayProxyResult> => {
   const connection = await getWebSocketConnection(connectionId)
 
   if (!connection) {
@@ -171,7 +162,7 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
       return handleUnsubscribeMessage(message, connectionId, connection, event)
     }
   } catch (err) {
-    console.error(err)
+    logger.error('websocket message failed', { action: message.action, error: err })
     if (err instanceof LambdaError) {
       return response(err.status, { error: err.error, ok: false, status: err.status }, event)
     }
@@ -179,6 +170,28 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
   }
 
   return response(400, 'Bad request', event)
+}
+
+const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  const connectionId = event.requestContext.connectionId
+  const message = parseBody(event.body)
+
+  if (!connectionId || !message) {
+    return response(400, 'Bad request', event)
+  }
+
+  // A keepalive only has to be traffic: API Gateway closes a WebSocket after 10 minutes of
+  // silence, and each reconnect costs two lambda invocations. Answer before the connection
+  // lookup so a ping costs nothing beyond the invocation itself.
+  if (message.action === 'ping') {
+    return response(200, { pong: true }, event)
+  }
+
+  // The socket lambdas get no `lambda()` wrapper, so the log context is set here. Both ids are
+  // worth having: the request id collects one invocation, the connection id one socket's whole life.
+  return withLogContext({ connectionId, requestId: event.requestContext.requestId, service: 'wsMessage' }, () =>
+    handleMessage(event, connectionId, message)
+  )
 }
 
 export default wsMessageHandler

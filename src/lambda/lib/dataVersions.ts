@@ -2,6 +2,7 @@ import type { DataVersion, DataVersions } from '../../types'
 import { nanoid } from 'nanoid'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { logger } from './log'
 
 /** Every collection but `users` has a single version; see `userScopes()` in lib/user.ts. */
 export const GLOBAL_SCOPE = '*'
@@ -105,7 +106,7 @@ export async function bumpDataVersion(collection: VersionedCollection, scopes: s
   try {
     await Promise.all(unique.map((scope) => client.update({ collection, scope }, { set: { modifiedAt, revision } })))
   } catch (error) {
-    console.error('failed to bump data version', { collection, error, scopes: unique })
+    logger.error('failed to bump data version', { collection, error, scopes: unique })
   }
 }
 

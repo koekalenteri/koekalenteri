@@ -7,6 +7,7 @@ import { capitalize } from '../../lib/string'
 import { authorize } from './auth'
 import { collectionChangesSince, parseDateParam } from './incremental'
 import { lambda, response } from './lambda'
+import { logger } from './log'
 import { updateUsersFromOfficialsOrJudges } from './user'
 import { publishAdminDataInvalidation } from './ws/actions'
 
@@ -54,9 +55,13 @@ export const fetchOfficialDirectory = async <T extends OfficialDirectoryEntry>(
   for (const eventType of eventTypes) {
     const { status, json, error } = await options.fetch(klapi, eventType)
     if (status !== 200 || !json || error) {
-      console.error(
-        `${options.errorContext}: Failed to fetch ${options.errorLabel} for event type ${eventType}. Status: ${status}, error: ${error}. Aborting.`
-      )
+      logger.error('failed to fetch official directory, aborting', {
+        context: options.errorContext,
+        error,
+        eventType,
+        label: options.errorLabel,
+        status,
+      })
       return undefined
     }
 
@@ -99,7 +104,9 @@ export const syncOfficialDirectory = async <
   for (const entry of entries) {
     const existing = existingById.get(entry.id)
     if (!existing) {
-      console.log(`new ${options.label}: ${entry.name} (${entry.id})`)
+      // The id, not the name: a judge's or officer's name is personal data that has no business
+      // sitting in CloudWatch for the whole retention period.
+      logger.info('new directory entry', { id: entry.id, label: options.label })
       write.push(options.create(entry, now))
       continue
     }
@@ -107,7 +114,7 @@ export const syncOfficialDirectory = async <
     const partial = options.partialize(existing)
     const changes = getChangedTopLevelKeys(partial, { ...partial, ...entry })
     if (changes.length) {
-      console.log(`updating ${options.label} ${entry.id}: changes: ${changes.join(', ')}`)
+      logger.info('updating directory entry', { changedKeys: changes, id: entry.id, label: options.label })
       Object.assign(existing, entry, { modifiedAt: now, modifiedBy: 'system' })
       write.push(existing)
     }
@@ -115,7 +122,7 @@ export const syncOfficialDirectory = async <
 
   for (const existing of existingEntries) {
     if (existing.deletedAt || incomingIds.has(existing.id)) continue
-    console.log(`deleting ${options.label}: ${existing.name} (${existing.id})`)
+    logger.info('deleting directory entry', { id: existing.id, label: options.label })
     existing.deletedAt = now
     existing.deletedBy = 'system'
     write.push(existing)

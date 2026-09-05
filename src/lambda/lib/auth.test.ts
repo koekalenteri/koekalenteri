@@ -1,6 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonUser } from '../../types'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 vi.useFakeTimers()
 vi.setSystemTime(new Date('2023-11-30T20:00:00Z'))
@@ -25,7 +26,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   }),
 }))
 
-const logSpy = vi.spyOn(console, 'log').mockImplementation(() => null)
+const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => null)
 const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null)
 const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => null)
 
@@ -46,7 +47,7 @@ const asEvent = (event: {
 describe('auth', () => {
   beforeEach(() => {
     vi.resetAllMocks()
-    logSpy.mockImplementation(() => null)
+    infoSpy.mockImplementation(() => null)
     warnSpy.mockImplementation(() => null)
     errorSpy.mockImplementation(() => null)
   })
@@ -62,7 +63,9 @@ describe('auth', () => {
       const result = await authorize({ requestContext })
 
       expect(result).toBeNull()
-      expect(logSpy).toHaveBeenCalledWith('no authorizer claims in request')
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({ message: 'no authorizer claims in request' })
+      )
     })
 
     it('should return null if missing cognitoUser', async () => {
@@ -70,7 +73,9 @@ describe('auth', () => {
       const result = await authorize(event)
 
       expect(result).toBeNull()
-      expect(logSpy).toHaveBeenCalledWith('no subject in authorizer claims')
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({ message: 'no subject in authorizer claims' })
+      )
     })
 
     it('should parse JSON-string claims from ws custom authorizer context', async () => {
@@ -84,7 +89,7 @@ describe('auth', () => {
 
       await authorize(event)
 
-      expect(logSpy).not.toHaveBeenCalledWith('claims', claims)
+      expect(JSON.stringify(loggedLines(infoSpy))).not.toContain(claims.email)
       expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
     })
 
@@ -98,8 +103,12 @@ describe('auth', () => {
       const result = await authorize(event)
 
       expect(result).toBeNull()
-      expect(warnSpy).toHaveBeenCalledWith('authorizer.claims was a non-JSON string')
-      expect(logSpy).toHaveBeenCalledWith('no authorizer claims in request')
+      expect(loggedLines(warnSpy)).toContainEqual(
+        expect.objectContaining({ message: 'authorizer.claims was a non-JSON string' })
+      )
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({ message: 'no authorizer claims in request' })
+      )
     })
 
     it('should create link if not found', async () => {
@@ -113,10 +122,10 @@ describe('auth', () => {
 
       const result = await authorize(event)
 
-      expect(logSpy).not.toHaveBeenCalledWith('claims', event.requestContext?.authorizer?.claims)
+      expect(JSON.stringify(loggedLines(infoSpy))).not.toContain('test@example.com')
       expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
       expect(mockWrite).toHaveBeenCalledWith(link, 'user-link-table-not-found-in-env')
-      expect(logSpy).toHaveBeenCalledWith('added user link', link)
+      expect(loggedLines(infoSpy)).toContainEqual(expect.objectContaining({ message: 'added user link', ...link }))
       expect(result).toEqual({
         createdAt: '2023-11-30T20:00:00.000Z',
         createdBy: 'system',
@@ -152,10 +161,13 @@ describe('auth', () => {
 
       const result = await authorize(event)
 
-      expect(warnSpy).toHaveBeenCalledWith('no user link found; linking cognito user to existing user by email', {
-        cognitoUser,
-        userId: 'existing-id',
-      })
+      expect(loggedLines(warnSpy)).toContainEqual(
+        expect.objectContaining({
+          cognitoUser,
+          message: 'no user link found; linking cognito user to existing user by email',
+          userId: 'existing-id',
+        })
+      )
 
       // First: mitigation lookup by normalized email.
       expect(findUserByEmail).toHaveBeenCalledWith('test@example.com')
@@ -188,10 +200,13 @@ describe('auth', () => {
 
       const result = await authorize(event)
 
-      expect(warnSpy).toHaveBeenCalledWith('refusing to link cognito user to existing user: email not verified', {
-        cognitoUser,
-        userId: 'existing-id',
-      })
+      expect(loggedLines(warnSpy)).toContainEqual(
+        expect.objectContaining({
+          cognitoUser,
+          message: 'refusing to link cognito user to existing user: email not verified',
+          userId: 'existing-id',
+        })
+      )
       expect(mockWrite).not.toHaveBeenCalled()
       expect(result).toBeNull()
     })
@@ -220,10 +235,10 @@ describe('auth', () => {
 
       const result = await authorize(event)
 
-      expect(logSpy).not.toHaveBeenCalledWith('claims', event.requestContext?.authorizer?.claims)
+      expect(JSON.stringify(loggedLines(infoSpy))).not.toContain('test@example.com')
       expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
       expect(mockWrite).not.toHaveBeenCalled()
-      expect(logSpy).not.toHaveBeenCalledWith('added user link', link)
+      expect(loggedLines(infoSpy)).not.toContainEqual(expect.objectContaining({ message: 'added user link' }))
       expect(result).toEqual(existingUser)
     })
 
@@ -359,10 +374,13 @@ describe('auth', () => {
       }
 
       expect(findUserByEmail).toHaveBeenCalledWith('address@domain.com')
-      expect(logSpy).toHaveBeenCalledWith('creating user', {
-        changedKeys: Object.keys(expectedUser),
-        userId: 'test-id',
-      })
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({
+          changedKeys: Object.keys(expectedUser),
+          message: 'creating user',
+          userId: 'test-id',
+        })
+      )
       expect(updateUser).toHaveBeenCalledWith(expectedUser, undefined)
     })
 
@@ -380,10 +398,13 @@ describe('auth', () => {
       }
 
       expect(findUserByEmail).toHaveBeenCalledWith('address@domain.com')
-      expect(logSpy).toHaveBeenCalledWith('creating user', {
-        changedKeys: Object.keys(expectedUser),
-        userId: 'test-id',
-      })
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({
+          changedKeys: Object.keys(expectedUser),
+          message: 'creating user',
+          userId: 'test-id',
+        })
+      )
       expect(updateUser).toHaveBeenCalledWith(expectedUser, undefined)
     })
 
@@ -476,9 +497,12 @@ describe('auth', () => {
 
       await getAndUpdateUserByEmail('NEW@EXAMPLE.COM', {})
 
-      expect(warnSpy).toHaveBeenCalledWith('getAndUpdateUserByEmail: existing user email differs from claims email', {
-        userId: 'test-id',
-      })
+      expect(loggedLines(warnSpy)).toContainEqual(
+        expect.objectContaining({
+          message: 'getAndUpdateUserByEmail: existing user email differs from claims email',
+          userId: 'test-id',
+        })
+      )
 
       // We do not overwrite stored email on login, but we do record the observed change in emailHistory.
       expect(updateUser).toHaveBeenCalledWith(
@@ -561,7 +585,9 @@ describe('auth', () => {
 
       expect(result.res?.statusCode).toBe(403)
       expect(result.user).toEqual(existingUser)
-      expect(errorSpy).toHaveBeenCalledWith('User test-id is not admin or member of any organizations.')
+      expect(loggedLines(errorSpy)).toContainEqual(
+        expect.objectContaining({ message: 'user is not admin or member of any organization', userId: 'test-id' })
+      )
     })
 
     it('should return memberOf list when user is a member', async () => {

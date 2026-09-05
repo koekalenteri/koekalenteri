@@ -2,6 +2,7 @@ import type { JsonRefundTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { formatMoney } from '../../lib/money'
 import { lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { cancelTransaction } from '../lib/payment'
 
 /**
@@ -11,8 +12,8 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
   const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
 
   if (!params['checkout-transaction-id']) {
-    console.log(
-      'Request did not contain transaction-id, this happens when transaction was not actually created. Ignoring request.'
+    logger.info(
+      'request did not contain transaction-id, this happens when transaction was not actually created, ignoring request'
     )
     return response(200, undefined, event)
   }

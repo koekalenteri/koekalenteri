@@ -16,6 +16,7 @@ import { lockRegistrationGroups, saveGroup, updateRegistrations } from '../lib/e
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import {
   createRegistrationPatches,
   createSentRegistrationMessagesAudit,
@@ -34,8 +35,10 @@ const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | und
 
 const classEquals = (a: string | null | undefined, b: string | null | undefined) => (!a && !b) || a === b
 
+// Identifies the registration in a log line. The handler's name is deliberately left out: it is
+// personal data, and the registration id already says which entry this is.
 const regString = (r: JsonRegistration) =>
-  `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler?.name} [${r.reserveNotified}]`
+  `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo} [${r.reserveNotified}]`
 
 const auditSentMessages = async (
   event: JsonConfirmedEvent,
@@ -104,9 +107,9 @@ const parseMoves = (json: string | null): RegistrationGroupMove[] => {
   )
 
   if (filtered.length === 0) {
-    console.error('no valid registration group moves', parsed)
+    logger.error('no valid registration group moves', { moves: parsed.length })
   } else if (filtered.length !== parsed.length) {
-    console.error('invalid registration group moves', parsed)
+    logger.error('invalid registration group moves', { moves: parsed.length, valid: filtered.length })
     return []
   }
   return filtered
@@ -194,9 +197,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
         classEquals(reg.class, cls) && isParticipantGroup(reg.group?.key) && oldResCan.some((old) => old.id === reg.id)
     )
 
-    console.log({
-      newParticipants: newParticipants.map(regString),
-    })
+    logger.info('new participants picked from reserve', { newParticipants: newParticipants.map(regString) })
 
     const { ok: pickedOk, failed: pickedFailed } = await sendTemplatedEmailToEventRegistrations(
       'picked',
@@ -314,7 +315,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       !oldCancelled.some((old) => old.id === reg.id)
   )
 
-  console.log({ cancelled: cancelled.map(regString) })
+  logger.info('cancelled registrations', { cancelled: cancelled.map(regString) })
 
   const { ok: cancelledOk, failed: cancelledFailed } = await sendTemplatedEmailToEventRegistrations(
     'registration',

@@ -21,6 +21,7 @@ import { splitEvenly } from '../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { logger } from './log'
 import {
   bucketForCount,
   eventStatsMonth,
@@ -747,7 +748,10 @@ const processRegistrationStats = (
 ): { skipped: boolean; unattributedCapacity: boolean } => {
   const dated = eventsById.get(registration.eventId)
   if (dated?.year === undefined) {
-    console.log(`Skipping registration ${registration.id}: event is missing or has an invalid start date`)
+    logger.info('skipping registration: event is missing or has an invalid start date', {
+      eventId: registration.eventId,
+      registrationId: registration.id,
+    })
     return { skipped: true, unattributedCapacity: false }
   }
   const { event, year } = dated
@@ -871,7 +875,7 @@ const groupStatsByYear = <T extends EventStatKey>(records: T[]) => {
 export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITIONS) {
   return async function handler(): Promise<void> {
     const wanted = new Set(partitions)
-    console.log(`Starting stats regeneration for partitions: ${partitions.join(', ')}`)
+    logger.info('starting stats regeneration', { partitions })
 
     const [allEvents, registrations, allStatKeys] = await Promise.all([
       dynamoDB.readAll<EventStatsEvent>({
@@ -910,9 +914,12 @@ export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITION
     const unclassifiedStatsCount = everyStatKey.filter((key) => getEventStatsRecordYear(key) === undefined).length
     const years = [...new Set([...existingStatsByYear.keys(), ...recordsByYear.keys()])].sort((a, b) => a - b)
 
-    console.log(
-      `Found ${events.length} events, ${registrationRecords.length} registrations, ${statKeys.length} stats records in scope, rebuilding ${records.length} records`
-    )
+    logger.info('stats regeneration scope resolved', {
+      events: events.length,
+      rebuilding: records.length,
+      registrations: registrationRecords.length,
+      statsRecordsInScope: statKeys.length,
+    })
     for (const year of years) {
       const oldRecords = existingStatsByYear.get(year) ?? []
       const newRecords = recordsByYear.get(year) ?? []
@@ -925,20 +932,22 @@ export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITION
       // Keep each year independently regenerable if a manual run fails midway.
       if (newRecords.length > 0) await dynamoDB.batchWrite(newRecords)
       if (staleRecords.length > 0) await dynamoDB.batchDelete(staleRecords.map(({ PK, SK }) => ({ PK, SK })))
-      console.log(
-        `Regenerated ${year}: wrote ${newRecords.length} records and removed ${staleRecords.length} stale stats`
-      )
+      logger.info('regenerated stats for year', { removed: staleRecords.length, wrote: newRecords.length, year })
     }
 
-    console.log(
-      `Stats regeneration completed. Records: ${records.length}, Skipped: ${skippedCount}, Unclassified stats: ${unclassifiedStatsCount}, Registrations without a capacity class: ${unattributedCapacityCount}`
-    )
+    logger.info('stats regeneration completed', {
+      records: records.length,
+      skipped: skippedCount,
+      unattributedCapacity: unattributedCapacityCount,
+      unclassifiedStats: unclassifiedStatsCount,
+    })
     // Matched by RebuildStatsFunctionUnattributedCapacityMetricFilter in rebuild-stats.yaml: a
     // dropped registration otherwise has no signal short of grepping this log by hand.
     if (unattributedCapacityCount > 0) {
-      console.warn(
-        `Stats rebuild found ${unattributedCapacityCount} registrations it could not attribute to a capacity class`
-      )
+      // The phrase is matched verbatim by the metric filter; keep it in the message.
+      logger.warn('stats rebuild found registrations it could not attribute to a capacity class', {
+        count: unattributedCapacityCount,
+      })
     }
   }
 }

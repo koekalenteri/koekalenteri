@@ -25,6 +25,7 @@ import type {
   KLYhdistys,
   KLYhdistysParametrit,
 } from '../types/KLAPI'
+import { logger } from './log'
 
 function toURLParams(params: Record<string, string | number | undefined> = {}): Record<string, string> {
   const result: Record<string, string> = {}
@@ -60,7 +61,7 @@ export default class KLAPI {
   ): KLAPIResult<T> {
     const cfg = await this._getConfig()
     const sp = new URLSearchParams(toURLParams(params))
-    console.log(`KLAPI: ${path}?${sp}`)
+    logger.info('KLAPI request', { params: sp.toString(), path })
     let json: T | undefined
     let status = 204
     let error: string | undefined
@@ -79,26 +80,24 @@ export default class KLAPI {
         if (res.ok) {
           json = (await res.json()) as T
         } else {
-          console.error('KLAPI: !res.ok', {
-            body: res.body,
-            headers: res.headers,
+          logger.error('KLAPI request was not ok', {
+            path,
             status: res.status,
             statusText: res.statusText,
           })
         }
         if (json) {
           const time = Number((process.hrtime.bigint() - start) / 100000n) / 10
-          console.log(`KLAPI response (in ${time}ms):${JSON.stringify(json)}`)
+          logger.info('KLAPI response', { durationMs: time, path, response: json })
         } else {
           error = await res.text()
-          console.error('KLAPI not ok', status, error)
+          logger.error('KLAPI returned no json', { error, path, status })
         }
       } catch (err) {
-        console.error('KLAPI JSON expection', err)
-        console.log(status, JSON.stringify(res))
+        logger.error('KLAPI response could not be read', { error: err, path, status })
       }
     } catch (e: unknown) {
-      console.error('KLAPI exception', e)
+      logger.error('KLAPI request failed', { error: e, path })
       if (e instanceof Error) {
         error = e.message
       }
@@ -113,11 +112,11 @@ export default class KLAPI {
     }
     const result = await this.get<KLKoira>('Koira/Lue/Perustiedot', parametrit)
     if (!result.json?.rekisterinumero) {
-      console.warn('KLAPI returned json without rekisterinumero, converting to 404')
+      logger.warn('KLAPI returned json without rekisterinumero, converting to 404')
       return { error: 'not found', status: 404 }
     }
     if (result.json?.kuollut && !allowDead) {
-      console.warn('KLAPI returned json with kuollut -date, converting to 404')
+      logger.warn('KLAPI returned json with kuollut -date, converting to 404')
       return { error: 'diseased', status: 404 }
     }
     return result

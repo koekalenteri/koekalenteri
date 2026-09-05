@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 vi.useFakeTimers()
 vi.setSystemTime(new Date('2026-08-30T12:00:00Z'))
@@ -133,11 +134,14 @@ describe('bumpDataVersion', () => {
     mockUpdate.mockRejectedValueOnce(new Error('AccessDenied'))
 
     await expect(bumpDataVersion('judges')).resolves.toBeUndefined()
-    expect(error).toHaveBeenCalledWith('failed to bump data version', {
-      collection: 'judges',
-      error: expect.any(Error),
-      scopes: ['*'],
-    })
+    expect(loggedLines(error)).toContainEqual(
+      expect.objectContaining({
+        collection: 'judges',
+        error: expect.objectContaining({ message: 'AccessDenied' }),
+        message: 'failed to bump data version',
+        scopes: ['*'],
+      })
+    )
     error.mockRestore()
   })
 

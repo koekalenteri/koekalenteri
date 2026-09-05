@@ -16,6 +16,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { getEvent } from './event'
 import { LambdaError } from './lambda'
+import { logger } from './log'
 import { calculateHmac, getPayment, HMAC_KEY_PREFIX, parsePaytrailErrorMessage } from './paytrail'
 import { getRegistration } from './registration'
 import { getPaytrailConfig } from './secrets'
@@ -90,7 +91,7 @@ export const releaseTransactionCreation = async (
       },
     ])
   } catch (error) {
-    console.error(`Failed to release ${type} creation claim`, error)
+    logger.error('failed to release creation claim', { error, registrationId, type })
   }
 }
 
@@ -123,7 +124,7 @@ export const cancelTransaction = async <T extends JsonTransaction>({
   const updated = await updateTransactionStatus(transaction, 'fail', updateProvider ? provider : undefined)
 
   if (!updated) {
-    console.log(`Transaction '${transactionId}' already marked as failed`)
+    logger.info('transaction already marked as failed', { transactionId })
     return
   }
 
@@ -169,7 +170,7 @@ export const parseParams = (params: Partial<PaytrailCallbackParams>) => {
 
 export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   if (!params['checkout-transaction-id']) {
-    console.error('Missing checkout-transaction-id from payment callback')
+    logger.error('missing checkout-transaction-id from payment callback')
     throw new Error('Missing checkout-transaction-id from params')
   }
 
@@ -179,7 +180,7 @@ export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   const hmac = Buffer.from(calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams))
 
   if (hmac.length !== signature.length || !timingSafeEqual(hmac, signature)) {
-    console.error('Verifying payment signature failed')
+    logger.error('verifying payment signature failed')
     throw new Error('Verifying payment signature failed')
   }
 }
@@ -193,7 +194,7 @@ export const updateTransactionStatus = async (
 
   // Skip update if no changes
   if (transaction.statusAt && transaction.status === status && (!provider || transaction.provider === provider)) {
-    console.log('skipping no-op transaction status/provider update')
+    logger.info('skipping no-op transaction status/provider update', { transactionId: transaction.transactionId })
     return false
   }
 
@@ -236,7 +237,7 @@ const runRegistrationTransaction = async (
       (error as Error).name === 'TransactionCanceledException' &&
       (await transactionWasAlreadyApplied(transactionId))
     ) {
-      console.log(`Transaction '${transactionId}' was already applied to its registration`)
+      logger.info('transaction was already applied to its registration', { transactionId })
       return false
     }
     throw error

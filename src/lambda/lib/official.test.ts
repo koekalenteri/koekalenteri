@@ -2,6 +2,7 @@ import type { JsonOfficial, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 vi.useFakeTimers()
 vi.setSystemTime(new Date('2024-05-30T20:00:00Z'))
@@ -10,7 +11,7 @@ vi.doMock('nanoid', () => ({ nanoid: () => 'test-id' }))
 const { fetchOfficialsForEventTypes, updateOfficials } = await import('./official')
 
 describe('official', () => {
-  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+  const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
   afterEach(() => {
     vi.clearAllMocks()
@@ -44,10 +45,16 @@ describe('official', () => {
       const result = await fetchOfficialsForEventTypes(mockKlapi, ['NOME-A', 'NOME-B'])
 
       expect(result).toBeUndefined()
-      expect(errorSpy).toHaveBeenCalledTimes(1)
-      expect(errorSpy).toHaveBeenCalledWith(
-        'fetchOfficialsForEventTypes: Failed to fetch officials for event type NOME-B. Status: 500, error: error. Aborting.'
-      )
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({
+          context: 'fetchOfficialsForEventTypes',
+          error: 'error',
+          eventType: 'NOME-B',
+          label: 'officials',
+          message: 'failed to fetch official directory, aborting',
+          status: 500,
+        }),
+      ])
     })
 
     it('should not return duplicates', async () => {
@@ -173,8 +180,9 @@ describe('official', () => {
         ],
         'official-table-not-found-in-env'
       )
-      expect(logSpy).toHaveBeenCalledWith('new official: test (0)')
-      expect(logSpy).toHaveBeenCalledTimes(1)
+      expect(loggedLines(infoSpy)).toEqual([
+        expect.objectContaining({ id: 0, label: 'official', message: 'new directory entry' }),
+      ])
     })
 
     it('should update officials', async () => {
@@ -215,8 +223,14 @@ describe('official', () => {
         ],
         'official-table-not-found-in-env'
       )
-      expect(logSpy).toHaveBeenCalledWith('updating official 123: changes: eventTypes, location')
-      expect(logSpy).toHaveBeenCalledTimes(1)
+      expect(loggedLines(infoSpy)).toEqual([
+        expect.objectContaining({
+          changedKeys: ['eventTypes', 'location'],
+          id: 123,
+          label: 'official',
+          message: 'updating directory entry',
+        }),
+      ])
     })
 
     it('should delete officials', async () => {
@@ -263,9 +277,10 @@ describe('official', () => {
         ],
         'official-table-not-found-in-env'
       )
-      expect(logSpy).toHaveBeenCalledWith('new official: other (222)')
-      expect(logSpy).toHaveBeenCalledWith('deleting official: test (123)')
-      expect(logSpy).toHaveBeenCalledTimes(2)
+      expect(loggedLines(infoSpy)).toEqual([
+        expect.objectContaining({ id: 222, label: 'official', message: 'new directory entry' }),
+        expect.objectContaining({ id: 123, label: 'official', message: 'deleting directory entry' }),
+      ])
     })
 
     it('should undefined dynamoDB result', async () => {

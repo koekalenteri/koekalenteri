@@ -2,6 +2,7 @@ import type { JsonDbRecord, JsonUser, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { PartialJsonJudge } from './judge'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 vi.useFakeTimers()
 vi.setSystemTime(new Date('2024-05-30T20:00:00Z'))
@@ -305,7 +306,7 @@ describe('dedupeUsersByEmail', () => {
 })
 
 describe('lib/user', () => {
-  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+  const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
   afterEach(() => {
     vi.clearAllMocks()
@@ -392,7 +393,9 @@ describe('lib/user', () => {
     it('findUserByEmail returns undefined and warns when called without email', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
       await expect(findUserByEmail(undefined)).resolves.toBeUndefined()
-      expect(warnSpy).toHaveBeenCalledWith('findUserByEmail called without email')
+      expect(loggedLines(warnSpy)).toContainEqual(
+        expect.objectContaining({ message: 'findUserByEmail called without email' })
+      )
       warnSpy.mockRestore()
     })
 
@@ -409,7 +412,9 @@ describe('lib/user', () => {
           values: { ':email': 'missing@example.com' },
         })
       )
-      expect(warnSpy).toHaveBeenCalledWith('findUserByEmail: user not found')
+      expect(loggedLines(warnSpy)).toContainEqual(
+        expect.objectContaining({ emailHash: expect.any(String), message: 'findUserByEmail: user not found' })
+      )
       warnSpy.mockRestore()
     })
 
@@ -419,9 +424,13 @@ describe('lib/user', () => {
 
       await expect(findUserByEmail('target@example.com')).resolves.toBeUndefined()
 
-      expect(errorSpy).toHaveBeenCalledWith('findUserByEmail: queried users but none matched normalized email', {
-        resultCount: 1,
-      })
+      expect(loggedLines(errorSpy)).toContainEqual(
+        expect.objectContaining({
+          emailHash: expect.any(String),
+          message: 'findUserByEmail: queried users but none matched normalized email',
+          resultCount: 1,
+        })
+      )
       errorSpy.mockRestore()
     })
 
@@ -716,7 +725,9 @@ describe('lib/user', () => {
       )
       expect(batchWriteArguments?.[1]).toBe('user-table-not-found-in-env')
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('creating user from official directory', { sourceId: 222 })
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({ message: 'creating user from official directory', sourceId: 222 })
+      )
     })
 
     it('should update user from official', async () => {
@@ -769,10 +780,13 @@ describe('lib/user', () => {
         'user-table-not-found-in-env'
       )
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('updating user from official directory', {
-        changedKeys: ['email', 'emailHistory', 'officer', 'phone', 'kcEmail'],
-        userId: 'test-id',
-      })
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({
+          changedKeys: ['email', 'emailHistory', 'officer', 'phone', 'kcEmail'],
+          message: 'updating user from official directory',
+          userId: 'test-id',
+        })
+      )
     })
 
     it('should preserve email for linked user while updating other fields', async () => {
@@ -825,10 +839,13 @@ describe('lib/user', () => {
         ],
         'user-table-not-found-in-env'
       )
-      expect(logSpy).toHaveBeenCalledWith('updating user from official directory', {
-        changedKeys: ['officer', 'phone', 'kcEmail'],
-        userId: 'test-id',
-      })
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({
+          changedKeys: ['officer', 'phone', 'kcEmail'],
+          message: 'updating user from official directory',
+          userId: 'test-id',
+        })
+      )
     })
 
     it('should add user from judge', async () => {
@@ -879,7 +896,9 @@ describe('lib/user', () => {
       )
       expect(batchWriteArguments?.[1]).toBe('user-table-not-found-in-env')
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('creating user from official directory', { sourceId: 222 })
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({ message: 'creating user from official directory', sourceId: 222 })
+      )
     })
 
     it('should update user from judge', async () => {
@@ -930,10 +949,13 @@ describe('lib/user', () => {
         'user-table-not-found-in-env'
       )
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('updating user from official directory', {
-        changedKeys: ['email', 'judge', 'phone', 'kcEmail'],
-        userId: 'test-id',
-      })
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({
+          changedKeys: ['email', 'judge', 'phone', 'kcEmail'],
+          message: 'updating user from official directory',
+          userId: 'test-id',
+        })
+      )
     })
 
     it('merges duplicate users by kcId when the event scan returns undefined', async () => {
@@ -1317,7 +1339,9 @@ describe('lib/user', () => {
 
       await expect(updateUsersFromOfficialsOrJudges(mockDB, [added], 'officer')).rejects.toThrow('batch write failed')
 
-      expect(errorSpy).toHaveBeenCalledWith('Failed to batch write user sync', { userCount: 1 })
+      expect(loggedLines(errorSpy)).toContainEqual(
+        expect.objectContaining({ message: 'failed to batch write user sync', userCount: 1 })
+      )
 
       errorSpy.mockRestore()
     })
@@ -1362,7 +1386,7 @@ describe('lib/user', () => {
           officer: ['NOME-B'],
         })
       )
-      expect(logSpy).not.toHaveBeenCalledWith('skipping item due to invalid email: invalid new, email: not-an-email')
+      expect(JSON.stringify(loggedLines(infoSpy))).not.toContain('not-an-email')
     })
 
     it('triggers canonical-id path compression through updateUsersFromOfficialsOrJudges with inconsistent duplicate ids', async () => {

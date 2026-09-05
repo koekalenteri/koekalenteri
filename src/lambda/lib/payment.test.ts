@@ -3,6 +3,7 @@ import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { jsonEmptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
+import { loggedLines } from '../test-utils/logs'
 
 const mockAudit = vi.fn<() => Promise<void>>()
 const mockGetEvent = vi.fn<() => Promise<{ organizer: { id: string } }>>()
@@ -101,7 +102,9 @@ describe('payment', () => {
         'Missing checkout-transaction-id from params'
       )
 
-      expect(consoleSpy).toHaveBeenCalledWith('Missing checkout-transaction-id from payment callback')
+      expect(loggedLines(consoleSpy)).toEqual([
+        { level: 'error', message: 'missing checkout-transaction-id from payment callback' },
+      ])
     })
 
     it('does not log the supplied signature or calculated HMAC when verification fails', async () => {
@@ -111,7 +114,7 @@ describe('payment', () => {
         'Verifying payment signature failed'
       )
 
-      expect(consoleSpy).toHaveBeenCalledWith('Verifying payment signature failed')
+      expect(loggedLines(consoleSpy)).toEqual([{ level: 'error', message: 'verifying payment signature failed' }])
     })
   })
 
@@ -205,7 +208,14 @@ describe('payment', () => {
       await expect(
         releaseTransactionCreation(client, 'refund', 'event-1', 'registration-1', 'stamp-1')
       ).resolves.toBeUndefined()
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to release refund creation claim', failure)
+      expect(loggedLines(consoleSpy)).toContainEqual(
+        expect.objectContaining({
+          error: expect.objectContaining({ message: 'claim changed' }),
+          message: 'failed to release creation claim',
+          registrationId: 'registration-1',
+          type: 'refund',
+        })
+      )
     })
   })
 
@@ -250,7 +260,7 @@ describe('payment', () => {
     })
 
     it('does not patch or audit a transaction already marked failed', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
       mockRead.mockResolvedValueOnce({
         ...paymentTransaction,
         provider: 'paytrail',
@@ -266,7 +276,9 @@ describe('payment', () => {
         updateProvider: true,
       })
 
-      expect(consoleSpy).toHaveBeenCalledWith("Transaction 'transaction-1' already marked as failed")
+      expect(loggedLines(consoleSpy)).toContainEqual(
+        expect.objectContaining({ message: 'transaction already marked as failed', transactionId: 'transaction-1' })
+      )
       expect(mockUpdate).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
