@@ -6,15 +6,17 @@ import { authenticateWebSocket, getWebSocketConnection } from '../lib/ws/connect
 import {
   subscribeToAdmin,
   subscribeToEvent,
+  subscribeToPublicStartList,
   subscribeToRegistration,
   unsubscribeFromAdmin,
   unsubscribeFromEvent,
+  unsubscribeFromPublicStartList,
   unsubscribeFromRegistration,
 } from '../lib/ws/subscriptionService'
 
 interface WsMessage {
   action?: 'authenticate' | 'ping' | 'subscribe' | 'unsubscribe'
-  channel?: 'admin' | 'event' | 'registration'
+  channel?: 'admin' | 'event' | 'public-event' | 'registration'
   eventId?: string
   registrationId?: string
   token?: string
@@ -25,8 +27,11 @@ type ValidWsMessage =
   | { action: 'ping' }
   | { action: 'subscribe'; channel: 'admin' }
   | { action: 'subscribe'; channel: 'event'; eventId: string }
+  | { action: 'subscribe'; channel: 'public-event'; eventId: string }
   | { action: 'subscribe'; channel: 'registration'; editToken: string; eventId: string; registrationId: string }
-  | { action: 'unsubscribe'; channel: 'admin' | 'event' | 'registration' }
+  | { action: 'unsubscribe'; channel: 'admin' | 'event' | 'public-event' | 'registration' }
+
+const UNSUBSCRIBE_CHANNELS = new Set(['admin', 'event', 'public-event', 'registration'])
 
 const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
 
@@ -47,6 +52,10 @@ const parseObjectMessage = (message: WsMessage): ValidWsMessage | undefined => {
     return { action: 'subscribe', channel: 'event', eventId: message.eventId }
   }
 
+  if (message.action === 'subscribe' && message.channel === 'public-event' && isNonEmptyString(message.eventId)) {
+    return { action: 'subscribe', channel: 'public-event', eventId: message.eventId }
+  }
+
   if (
     message.action === 'subscribe' &&
     message.channel === 'registration' &&
@@ -63,10 +72,7 @@ const parseObjectMessage = (message: WsMessage): ValidWsMessage | undefined => {
     }
   }
 
-  if (
-    message.action === 'unsubscribe' &&
-    (message.channel === 'admin' || message.channel === 'event' || message.channel === 'registration')
-  ) {
+  if (message.action === 'unsubscribe' && message.channel && UNSUBSCRIBE_CHANNELS.has(message.channel)) {
     return { action: 'unsubscribe', channel: message.channel }
   }
 }
@@ -92,6 +98,10 @@ const handleSubscribeMessage = async (
     return subscribeToRegistration(connection, message.eventId, message.registrationId, message.editToken)
   }
 
+  if (message.channel === 'public-event') {
+    return subscribeToPublicStartList(connection.connectionId, message.eventId)
+  }
+
   return subscribeToEvent(connection, message.eventId, publishEventViewers)
 }
 
@@ -108,6 +118,11 @@ const handleUnsubscribeMessage = async (
 
   if (message.channel === 'registration') {
     const result = await unsubscribeFromRegistration(connectionId)
+    return response(200, { connectionId, ...result }, event)
+  }
+
+  if (message.channel === 'public-event') {
+    const result = await unsubscribeFromPublicStartList(connectionId)
     return response(200, { connectionId, ...result }, event)
   }
 

@@ -16,6 +16,7 @@ const mockGetRegistrationsByEventId = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockRemoveRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
+const mockPublishPublicStartList = vi.fn()
 
 vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
@@ -43,6 +44,7 @@ vi.doMock('../lib/registration', () => ({
   updateRegistrationField: mockUpdateRegistrationField,
 }))
 vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
+vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
 
 const { default: putClassStartNumbersLambda } = await import('./handler')
 
@@ -101,6 +103,8 @@ describe('putClassStartNumbersLambda', () => {
     expect(status).toBe(200)
     expect(payload.patches).toHaveLength(2)
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith('event-1', payload.patches, 'org-1')
+    // The numbers are on the public rows as well, once the class has published them (KOE-1358).
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith(confirmedEvent)
   })
 
   it('attributes the write to the class, so the trail says who drew', async () => {

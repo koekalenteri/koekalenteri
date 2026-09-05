@@ -12,6 +12,7 @@ const mockGetAuthorizedEvent = vi.fn()
 const mockGetRegistrationsByEventId = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
+const mockPublishPublicStartList = vi.fn()
 
 vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
@@ -35,6 +36,7 @@ vi.doMock('../lib/registration', () => ({
   updateRegistrationField: mockUpdateRegistrationField,
 }))
 vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
+vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
 
 const { default: putEventResultsLambda } = await import('./handler')
 
@@ -146,6 +148,8 @@ describe('putEventResultsLambda', () => {
       ],
       'org-1'
     )
+    // A published result shows on the public row too, so the readers of the list get it (KOE-1358).
+    expect(mockPublishPublicStartList).toHaveBeenCalledTimes(1)
   })
 
   it('audits each dog whose result was recorded', async () => {

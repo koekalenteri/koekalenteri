@@ -7,9 +7,11 @@ import { canReceiveAnyAdminEvent, isConnectionExpired } from './connectionPolicy
 import {
   subscribeAdminChannel,
   subscribeConnection,
+  subscribePublicEventConnection,
   subscribeRegistrationConnection,
   unsubscribeAdminChannel,
   unsubscribeConnection,
+  unsubscribePublicEventConnection,
   unsubscribeRegistrationConnection,
 } from './connectionRepository'
 import { buildParticipantPaymentPatch } from './payloads'
@@ -73,6 +75,21 @@ export const unsubscribeFromEvent = async (
     const event = await getEvent<JsonDogEvent>(connection.eventId)
     await publishEventViewers(connection.eventId, event.organizer.id, { excludeConnectionId: connectionId })
   }
+}
+
+/**
+ * Watching one event's published start list (KOE-1358). Nothing is authorized here on purpose: the
+ * subscription only selects which readers a publicly readable list is pushed to, and the rows
+ * themselves are composed from published truth alone.
+ */
+export const subscribeToPublicStartList = async (connectionId: string, eventId: string) => {
+  await subscribePublicEventConnection(connectionId, eventId)
+  return { eventId, subscribed: true }
+}
+
+export const unsubscribeFromPublicStartList = async (connectionId: string) => {
+  await unsubscribePublicEventConnection(connectionId)
+  return { unsubscribed: true }
 }
 
 export const unsubscribeFromAdmin = async (connectionId: string) => {

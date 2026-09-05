@@ -32,9 +32,11 @@ const {
   removeConnection,
   subscribeAdminChannel,
   subscribeConnection,
+  subscribePublicEventConnection,
   subscribeRegistrationConnection,
   unsubscribeAdminChannel,
   unsubscribeConnection,
+  unsubscribePublicEventConnection,
   unsubscribeRegistrationConnection,
 } = await import('./connectionRepository')
 
@@ -52,6 +54,16 @@ describe('ws/connectionRepository', () => {
     mockRead.mockResolvedValueOnce({ connectionId: 'c1' })
     await expect(getConnection('c1')).resolves.toEqual({ connectionId: 'c1' })
     expect(mockRead).toHaveBeenCalledWith({ connectionId: 'c1' })
+  })
+
+  it('subscribePublicEventConnection stores the event and leaves the audience alone', async () => {
+    await subscribePublicEventConnection('c1', 'e1')
+    expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { set: { publicEventId: 'e1' } })
+  })
+
+  it('unsubscribePublicEventConnection removes the event', async () => {
+    await unsubscribePublicEventConnection('c1')
+    expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { remove: ['publicEventId'] })
   })
 
   it('createConnection writes minimal payload when optional fields are missing', async () => {

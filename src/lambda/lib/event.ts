@@ -19,6 +19,7 @@ import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { isDefined } from '../../lib/typeGuards'
 import { CONFIG } from '../config'
 import { publishAdminEventPatch, publishEventPatch } from '../lib/ws/actions'
+import { affectsPublicStartList, publishPublicStartList } from '../lib/ws/publicStartList'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
@@ -83,6 +84,9 @@ export const saveEvent = async (data: JsonDogEvent) => {
     await publishAdminEventPatch(patch, data.organizer.id)
   } else {
     await publishEventPatch(patch, data.organizer.id)
+    // The publication flags live on the event, so publishing or hiding the list changes what its
+    // readers may see without any registration changing (KOE-1358).
+    await publishPublicStartList(data)
   }
 }
 
@@ -112,6 +116,7 @@ export const patchEvent = async (
     await publishAdminEventPatch({ eventId, ...changes }, next.organizer.id)
   } else {
     await publishEventPatch({ eventId, ...(becomesPublic ? next : changes) }, next.organizer.id)
+    if (becomesPublic || affectsPublicStartList(changes)) await publishPublicStartList(next)
   }
 
   return getEvent<JsonDogEvent>(eventId)

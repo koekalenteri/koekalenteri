@@ -1,6 +1,6 @@
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import * as jotai from 'jotai'
 import * as router from 'react-router'
 import { getStartList } from '../api/registration'
@@ -8,6 +8,15 @@ import { StartListPage } from './StartListPage'
 import * as pageState from './state'
 
 vi.mock('../api/registration', () => ({ getStartList: vi.fn() }))
+
+// The page is tested through the subscription's own contract: the hook hands it either the rows the
+// server composed or, when they did not fit in one message, nothing at all.
+let liveListener: ((participants: PublicRegistration[] | undefined) => void) | undefined
+vi.mock('../hooks/usePublicStartListSubscription', () => ({
+  usePublicStartListSubscription: (_eventId: string | undefined, listener: typeof liveListener) => {
+    liveListener = listener
+  },
+}))
 
 // Mock react-router
 vi.mock('react-router', () => ({
@@ -113,6 +122,7 @@ describe('StartListPage', () => {
   ]
 
   beforeEach(() => {
+    liveListener = undefined
     vi.mocked(getStartList).mockReset()
     mockUseParams.mockReturnValue({ id: 'event-1' })
     mockUseLoaderData.mockReturnValue(mockParticipants)
@@ -133,52 +143,29 @@ describe('StartListPage', () => {
     expect(screen.getByTestId('participant-list')).toHaveTextContent('Exports: false')
   })
 
-  it('fetches the list again when the results are published while the page is open', async () => {
-    const { rerender } = render(<StartListPage />)
-    expect(getStartList).not.toHaveBeenCalled()
+  it('takes the rows the socket brings without fetching them again (KOE-1358)', async () => {
+    render(<StartListPage />)
 
-    // The socket brings the event's publication; the rows with the results have to be fetched.
-    vi.mocked(getStartList).mockResolvedValueOnce([...mockParticipants, { ...mockParticipants[0], class: 'ALO' }])
-    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({ ...mockEvent, resultsPublished: true })
-    rerender(<StartListPage />)
+    act(() => liveListener?.([...mockParticipants, { ...mockParticipants[0], class: 'ALO' }]))
 
-    expect(getStartList).toHaveBeenCalledWith('event-1', undefined, expect.any(AbortSignal))
     await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
-
-    // And withdrawn again: the rows on screen still carry results the public may no longer see.
-    vi.mocked(getStartList).mockResolvedValueOnce(mockParticipants)
-    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({ ...mockEvent, resultsPublished: false })
-    rerender(<StartListPage />)
-
-    expect(getStartList).toHaveBeenCalledTimes(2)
-    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 1'))
-  })
-
-  it('fetches the list again when the start numbers are published or withdrawn (KOE-1352)', async () => {
-    const { rerender } = render(<StartListPage />)
     expect(getStartList).not.toHaveBeenCalled()
-
-    // The numbers ride on the rows, so the notice above them cannot go without them.
-    vi.mocked(getStartList).mockResolvedValueOnce([...mockParticipants, { ...mockParticipants[0], class: 'ALO' }])
-    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
-      ...mockEvent,
-      startNumbersPublished: { ALO: ['2026-09-12'] },
-    })
-    rerender(<StartListPage />)
-
-    expect(getStartList).toHaveBeenCalledWith('event-1', undefined, expect.any(AbortSignal))
-    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
 
     // And withdrawing them just as much: the rows on screen still carry numbers that are no longer public.
-    vi.mocked(getStartList).mockResolvedValueOnce(mockParticipants)
-    ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
-      ...mockEvent,
-      startNumbersPublished: { ALO: false },
-    })
-    rerender(<StartListPage />)
+    act(() => liveListener?.(mockParticipants))
 
-    expect(getStartList).toHaveBeenCalledTimes(2)
     await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 1'))
+    expect(getStartList).not.toHaveBeenCalled()
+  })
+
+  it('fetches the list when the rows did not fit in one message', async () => {
+    vi.mocked(getStartList).mockResolvedValueOnce([...mockParticipants, { ...mockParticipants[0], class: 'ALO' }])
+    render(<StartListPage />)
+
+    act(() => liveListener?.(undefined))
+
+    expect(getStartList).toHaveBeenCalledWith('event-1')
+    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
   })
 
   it('shows export actions to a global admin', () => {

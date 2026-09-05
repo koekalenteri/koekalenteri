@@ -63,6 +63,18 @@ export const unsubscribeConnection = async (connectionId: string) => {
   await dynamoDB.update({ connectionId }, { remove: ['eventId'] })
 }
 
+/**
+ * The public start list subscription deliberately leaves `audience` alone: the reader stays in the
+ * `public` audience and keeps receiving the event patches broadcast to every anonymous connection.
+ */
+export const subscribePublicEventConnection = async (connectionId: string, publicEventId: string) => {
+  await dynamoDB.update({ connectionId }, { set: { publicEventId } })
+}
+
+export const unsubscribePublicEventConnection = async (connectionId: string) => {
+  await dynamoDB.update({ connectionId }, { remove: ['publicEventId'] })
+}
+
 export const subscribeRegistrationConnection = async (
   connectionId: string,
   registrationEventId: string,

@@ -8,6 +8,12 @@ export interface WebSocketConnection {
   eventId?: string
   expiresAt?: number
   memberOf?: string[]
+  /**
+   * Event whose published start list the connection is watching (KOE-1358). Unlike `eventId` this
+   * needs no authentication and leaves the connection in the `public` audience, so a reader keeps
+   * receiving the public event patches that every anonymous connection gets.
+   */
+  publicEventId?: string
   registrationEventId?: string
   registrationId?: string
   userEmail?: string

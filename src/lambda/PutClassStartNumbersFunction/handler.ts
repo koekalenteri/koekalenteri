@@ -7,6 +7,7 @@ import { getRegistrationsByEventId } from '../lib/registration'
 import { assertEntriesInClassSpace, authorizeStartNumberLink } from '../lib/startNumberLink'
 import { assignStartNumbers, parseStartNumberEntries } from '../lib/startNumbers'
 import { publishRegistrationPatches } from '../lib/ws/actions'
+import { publishPublicStartList } from '../lib/ws/publicStartList'
 
 /**
  * The drawn numbers from a class secretary's tokenized link (KOE-1267). The same write as the event
@@ -43,7 +44,10 @@ const putClassStartNumbersLambda = lambda('putClassStartNumbers', async (event) 
     await releaseGroupsLock()
   }
 
-  if (patches.length) await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
+  if (patches.length) {
+    await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
+    await publishPublicStartList(confirmedEvent)
+  }
 
   return response(200, { patches }, event)
 })

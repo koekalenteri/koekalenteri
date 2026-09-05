@@ -4,9 +4,11 @@ import { LambdaError } from '../lib/lambda'
 
 const mockSubscribeToAdmin = vi.fn()
 const mockSubscribeToEvent = vi.fn()
+const mockSubscribeToPublicStartList = vi.fn()
 const mockSubscribeToRegistration = vi.fn()
 const mockUnsubscribeFromAdmin = vi.fn()
 const mockUnsubscribeFromEvent = vi.fn()
+const mockUnsubscribeFromPublicStartList = vi.fn()
 const mockUnsubscribeFromRegistration = vi.fn()
 const mockGetWsConnection = vi.fn()
 const mockAuthenticateToken = vi.fn()
@@ -30,9 +32,11 @@ vi.doMock('../lib/ws/actions', () => ({
 vi.doMock('../lib/ws/subscriptionService', () => ({
   subscribeToAdmin: mockSubscribeToAdmin,
   subscribeToEvent: mockSubscribeToEvent,
+  subscribeToPublicStartList: mockSubscribeToPublicStartList,
   subscribeToRegistration: mockSubscribeToRegistration,
   unsubscribeFromAdmin: mockUnsubscribeFromAdmin,
   unsubscribeFromEvent: mockUnsubscribeFromEvent,
+  unsubscribeFromPublicStartList: mockUnsubscribeFromPublicStartList,
   unsubscribeFromRegistration: mockUnsubscribeFromRegistration,
 }))
 
@@ -267,6 +271,7 @@ describe('wsMessageHandler', () => {
 
   it.each([
     ['subscribing to an event without eventId', { action: 'subscribe', channel: 'event' }],
+    ['subscribing to a public start list without eventId', { action: 'subscribe', channel: 'public-event' }],
     ['subscribing with an unknown channel', { action: 'subscribe', channel: 'unknown' }],
     ['unsubscribing from an event without eventId', { action: 'unsubscribe', channel: 'event' }],
     ['unsubscribing with an unknown channel', { action: 'unsubscribe', channel: 'unknown' }],
@@ -281,6 +286,37 @@ describe('wsMessageHandler', () => {
     )
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
+  })
+
+  it('subscribes an anonymous reader to a public start list', async () => {
+    mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
+    mockSubscribeToPublicStartList.mockResolvedValueOnce({ eventId: 'event-1', subscribed: true })
+
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'subscribe', channel: 'public-event', eventId: 'event-1' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
+
+    expect(mockSubscribeToPublicStartList).toHaveBeenCalledWith('conn-1', 'event-1')
+    expect(mockSubscribeToEvent).not.toHaveBeenCalled()
+    expect(result).toEqual({ body: { eventId: 'event-1', subscribed: true }, statusCode: 200 })
+  })
+
+  it('unsubscribes from a public start list', async () => {
+    mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1', publicEventId: 'event-1' })
+    mockUnsubscribeFromPublicStartList.mockResolvedValueOnce({ unsubscribed: true })
+
+    const result = await wsMessageHandler(
+      asEvent({
+        body: JSON.stringify({ action: 'unsubscribe', channel: 'public-event' }),
+        requestContext: { connectionId: 'conn-1' },
+      })
+    )
+
+    expect(mockUnsubscribeFromPublicStartList).toHaveBeenCalledWith('conn-1')
+    expect(result).toEqual({ body: { connectionId: 'conn-1', unsubscribed: true }, statusCode: 200 })
   })
 
   it('unsubscribes from admin channel', async () => {

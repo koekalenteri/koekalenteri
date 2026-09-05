@@ -27,6 +27,7 @@ import {
   updateReserveNotified,
 } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
+import { publishPublicStartList } from '../lib/ws/publicStartList'
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
   Boolean(event.state === state || (cls && event.classes.some((c) => c.class === cls && c.state === state)))
@@ -349,6 +350,8 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   const changedRegistrations = createRegistrationPatches(updatedItems, oldItems)
   await publishRegistrationPatches(eventId, changedRegistrations, confirmedEvent.organizer.id)
+  // Moving a dog between groups, and cancelling one, both change the published rows.
+  await publishPublicStartList(confirmedEvent)
   const responseItems = await Promise.all(
     updatedItems.map(async (registration) =>
       participantRegistrationResponse(registration, await getRegistrationEditToken(registration))

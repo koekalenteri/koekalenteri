@@ -3,10 +3,11 @@ import type { PublicRegistration } from '../types/Registration'
 import Box from '@mui/material/Box'
 import { useAtomValue } from 'jotai'
 import { unwrap } from 'jotai/utils'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLoaderData, useParams } from 'react-router'
 import { getStartList } from '../api/registration'
+import { usePublicStartListSubscription } from '../hooks/usePublicStartListSubscription'
 import { isStartListAvailable } from '../lib/event'
 import { liveViewEnabled } from '../lib/features'
 import LoadingIndicator from './components/LoadingIndicator'
@@ -29,25 +30,23 @@ export const StartListPage = () => {
   const [participants, setParticipants] = useState(loaded)
   useEffect(() => setParticipants(loaded), [loaded])
 
-  // The event arrives live over the socket, the list does not: when the results, the start numbers
-  // (or another class's start list) get published while the page is open, the list is fetched again
-  // so it shows them — the event patch alone would only take the live section away and leave the old
-  // rows standing. The numbers are on the rows, so publishing them has to bring the rows (KOE-1352).
-  const publication = JSON.stringify([
-    event?.startListPublished ?? null,
-    event?.startNumbersPublished ?? null,
-    event?.resultsPublished ?? null,
-  ])
-  const seenPublication = useRef(publication)
-  useEffect(() => {
-    if (!id || seenPublication.current === publication) return
-    seenPublication.current = publication
-    const abort = new AbortController()
-    getStartList(id, undefined, abort.signal)
-      .then((fresh) => setParticipants(fresh))
-      .catch(() => {})
-    return () => abort.abort()
-  }, [id, publication])
+  // The rows arrive over the socket as the server composes them, so publishing the numbers, hiding
+  // them again or cancelling a dog reaches an open page without fetching anything (KOE-1358). A
+  // list too large for one message comes as a request to fetch it instead.
+  const handleLiveParticipants = useCallback(
+    (fresh: PublicRegistration[] | undefined) => {
+      if (fresh) {
+        setParticipants(fresh)
+        return
+      }
+      if (!id) return
+      getStartList(id)
+        .then((fetched) => setParticipants(fetched))
+        .catch(() => {})
+    },
+    [id]
+  )
+  usePublicStartListSubscription(id, handleLiveParticipants)
 
   const now = new Date()
 

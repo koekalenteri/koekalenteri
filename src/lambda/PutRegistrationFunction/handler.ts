@@ -59,6 +59,7 @@ import {
 import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
 import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
+import { publishPublicStartList } from '../lib/ws/publicStartList'
 
 const { emailFrom } = CONFIG
 
@@ -238,6 +239,7 @@ const completeNewRegistration = async (
         [createRegistrationPatch(saved), ...groupPatches.filter((patch) => patch.id !== saved.id)],
         updatedEvent.organizer.id
       )
+      await publishPublicStartList(updatedEvent)
       await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationPublishedAt')
     }
 
@@ -323,6 +325,7 @@ const handleDuplicateRegistration = async (
     if (groupPatches.length) {
       const updatedEvent = await updateRegistrations(duplicate.eventId)
       await publishRegistrationPatches(duplicate.eventId, groupPatches, updatedEvent.organizer.id)
+      await publishPublicStartList(updatedEvent)
     }
     return { conflict: duplicate }
   }
@@ -489,6 +492,7 @@ const finalizeRegistrationUpdate = async ({
       [createRegistrationPatch(savedData, existing), ...groupPatches.filter((patch) => patch.id !== savedData.id)],
       updatedEvent.organizer.id
     )
+    await publishPublicStartList(updatedEvent)
   }
   const message = getAuditMessage(cancel, confirm, savedData, existing)
   if (message) await audit({ auditKey: registrationAuditKey(savedData), message, user: username })

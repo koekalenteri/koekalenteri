@@ -18,6 +18,7 @@ const mockUpdateRegistrationField = vi.fn()
 const mockUpdate = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishEventPatch = vi.fn()
+const mockPublishPublicStartList = vi.fn()
 
 vi.doMock('../lib/lambda', () => ({
   getParam: mockGetParam,
@@ -54,6 +55,7 @@ vi.doMock('../lib/ws/actions', () => ({
   publishEventPatch: mockPublishEventPatch,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
+vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
 
 const { default: putStartNumbersLambda } = await import('./handler')
 
@@ -206,6 +208,8 @@ describe('putStartNumbersLambda', () => {
       { eventId: 'event-1', startNumbersPublished: { ALO: false }, updatedAt: expect.any(String) },
       'org-1'
     )
+    // And the rows themselves, so the reader gets them without fetching the list (KOE-1358).
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith(expect.objectContaining({ id: 'event-1' }))
   })
 
   it('writes drawn numbers through the same endpoint', async () => {
@@ -232,6 +236,8 @@ describe('putStartNumbersLambda', () => {
     // Entering the draw changes no publication state, so the event is left where it stands.
     expect(mockPublishEventPatch).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()
+    // The numbers are on the rows, though, so a published list has to be sent again.
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith(expect.objectContaining({ id: 'event-1' }))
   })
 
   it('releases the lock when a validation refuses the write', async () => {

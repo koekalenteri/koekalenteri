@@ -497,6 +497,98 @@ describe('useWebSocket', () => {
     expect(listener).not.toHaveBeenCalled()
   })
 
+  it('subscribes an anonymous reader to a public start list and applies the rows it brings', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const listener = vi.fn()
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      result.current.subscribePublicStartList('event-1', listener)
+    })
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(
+      JSON.stringify({ action: 'subscribe', channel: 'public-event', eventId: 'event-1' })
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          eventId: 'event-1',
+          participants: [{ class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } }],
+          scope: 'public:start-list',
+        }),
+      })
+    })
+
+    expect(listener).toHaveBeenCalledWith([
+      { class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } },
+    ])
+  })
+
+  it('passes on a start list that did not fit in one message as nothing to apply', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const listener = vi.fn()
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      result.current.subscribePublicStartList('event-1', listener)
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', scope: 'public:start-list', stale: true }),
+      })
+    })
+
+    expect(listener).toHaveBeenCalledWith(undefined)
+  })
+
+  it('ignores a start list for another event', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const listener = vi.fn()
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      result.current.subscribePublicStartList('event-1', listener)
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-2', participants: [], scope: 'public:start-list' }),
+      })
+    })
+
+    expect(listener).not.toHaveBeenCalled()
+  })
+
+  it('re-sends the public start list subscription after a reconnect, and not after unsubscribing', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      result.current.subscribePublicStartList('event-1', vi.fn())
+    })
+    mockWebSocketInstance.send.mockClear()
+
+    act(() => {
+      mockWebSocketInstance.onopen?.()
+    })
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(
+      JSON.stringify({ action: 'subscribe', channel: 'public-event', eventId: 'event-1' })
+    )
+
+    act(() => {
+      result.current.unsubscribePublicStartList()
+    })
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(
+      JSON.stringify({ action: 'unsubscribe', channel: 'public-event' })
+    )
+    mockWebSocketInstance.send.mockClear()
+
+    act(() => {
+      mockWebSocketInstance.onopen?.()
+    })
+
+    expect(mockWebSocketInstance.send).not.toHaveBeenCalledWith(
+      JSON.stringify({ action: 'subscribe', channel: 'public-event', eventId: 'event-1' })
+    )
+  })
+
   it('should subscribe to admin channel when subscribeAdmin is called', async () => {
     mockWebSocketInstance.readyState = WebSocket.OPEN
     const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })

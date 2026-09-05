@@ -20,8 +20,21 @@ export const eventSubscriberAudience = async (eventId: string) =>
     (connection) => connection.eventId === eventId && !isConnectionExpired(connection)
   )
 
+/** For subscriptions that are not an admin's: the one socket a tab has may be in either audience. */
+const allConnections = async () => [...(await queryPublicConnections()), ...(await queryAdminConnections())]
+
+/**
+ * Readers of one event's published start list. Both audiences are scanned: an organizer who has the
+ * admin section open in the same tab shares the one socket, and the start list they navigate to is
+ * still the public one.
+ */
+export const publicStartListAudience = async (eventId: string) => {
+  const connections = await allConnections()
+  return connections.filter((connection) => connection.publicEventId === eventId && !isConnectionExpired(connection))
+}
+
 export const registrationAudience = async (eventId: string, registrationId: string) => {
-  const connections = [...(await queryPublicConnections()), ...(await queryAdminConnections())]
+  const connections = await allConnections()
   return connections.filter(
     (connection) =>
       connection.registrationEventId === eventId &&

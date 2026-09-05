@@ -7,9 +7,11 @@ const mockCanReceiveAnyAdminEvent = vi.fn()
 const mockGetConnection = vi.fn()
 const mockSubscribeAdminChannel = vi.fn()
 const mockSubscribeConnection = vi.fn()
+const mockSubscribePublicEventConnection = vi.fn()
 const mockSubscribeRegistrationConnection = vi.fn()
 const mockUnsubscribeAdminChannel = vi.fn()
 const mockUnsubscribeConnection = vi.fn()
+const mockUnsubscribePublicEventConnection = vi.fn()
 const mockUnsubscribeRegistrationConnection = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockVerifyRegistrationEditToken = vi.fn()
@@ -32,18 +34,22 @@ vi.doMock('./connectionRepository', () => ({
   getConnection: mockGetConnection,
   subscribeAdminChannel: mockSubscribeAdminChannel,
   subscribeConnection: mockSubscribeConnection,
+  subscribePublicEventConnection: mockSubscribePublicEventConnection,
   subscribeRegistrationConnection: mockSubscribeRegistrationConnection,
   unsubscribeAdminChannel: mockUnsubscribeAdminChannel,
   unsubscribeConnection: mockUnsubscribeConnection,
+  unsubscribePublicEventConnection: mockUnsubscribePublicEventConnection,
   unsubscribeRegistrationConnection: mockUnsubscribeRegistrationConnection,
 }))
 
 const {
   subscribeToAdmin,
   subscribeToEvent,
+  subscribeToPublicStartList,
   subscribeToRegistration,
   unsubscribeFromAdmin,
   unsubscribeFromEvent,
+  unsubscribeFromPublicStartList,
   unsubscribeFromRegistration,
 } = await import('./subscriptionService')
 
@@ -52,6 +58,22 @@ describe('ws/subscriptionService', () => {
     vi.clearAllMocks()
     mockIsConnectionExpired.mockReturnValue(false)
     mockCanReceiveAnyAdminEvent.mockReturnValue(true)
+  })
+
+  it('subscribeToPublicStartList stores the event without reading or authorizing it', async () => {
+    await expect(subscribeToPublicStartList('c1', 'e1')).resolves.toEqual({ eventId: 'e1', subscribed: true })
+
+    expect(mockSubscribePublicEventConnection).toHaveBeenCalledWith('c1', 'e1')
+    // Nothing about the reader is checked: the rows are published truth, and the connection must
+    // stay in the public audience.
+    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockSubscribeConnection).not.toHaveBeenCalled()
+  })
+
+  it('unsubscribeFromPublicStartList clears the subscription', async () => {
+    await expect(unsubscribeFromPublicStartList('c1')).resolves.toEqual({ unsubscribed: true })
+
+    expect(mockUnsubscribePublicEventConnection).toHaveBeenCalledWith('c1')
   })
 
   it('subscribeToAdmin throws 401 when connection is expired', async () => {

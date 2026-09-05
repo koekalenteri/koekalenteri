@@ -23,6 +23,7 @@ const {
   eventSubscriberAudience,
   organizerAudience,
   publicAudience,
+  publicStartListAudience,
   registrationAudience,
 } = await import('./connectionSelectors')
 
@@ -47,6 +48,30 @@ describe('ws/connectionSelectors', () => {
 
     await expect(publicAudience()).resolves.toEqual([{ audience: 'public', connectionId: 'p1' }])
     expect(mockQueryAdminConnections).not.toHaveBeenCalled()
+  })
+
+  it('collects public start list readers from both audiences', async () => {
+    mockQueryPublicConnections.mockResolvedValueOnce([
+      { connectionId: 'reader', publicEventId: 'e1' },
+      { connectionId: 'other-event', publicEventId: 'e2' },
+      { connectionId: 'no-subscription' },
+    ])
+    mockQueryAdminConnections.mockResolvedValueOnce([
+      // The organizer's own tab shares the socket, and the start list they opened is the public one.
+      { adminSubscribed: true, connectionId: 'organizer', publicEventId: 'e1' },
+    ])
+
+    await expect(publicStartListAudience('e1')).resolves.toEqual([
+      { connectionId: 'reader', publicEventId: 'e1' },
+      { adminSubscribed: true, connectionId: 'organizer', publicEventId: 'e1' },
+    ])
+  })
+
+  it('leaves an expired connection out of the public start list audience', async () => {
+    mockQueryPublicConnections.mockResolvedValueOnce([{ connectionId: 'gone', publicEventId: 'e1' }])
+    mockIsConnectionExpired.mockReturnValueOnce(true)
+
+    await expect(publicStartListAudience('e1')).resolves.toEqual([])
   })
 
   it('filters organizer audience from admin connections — adminSubscribed', async () => {

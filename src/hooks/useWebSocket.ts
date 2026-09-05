@@ -1,4 +1,12 @@
-import type { AdminDataCollection, AuditRecord, DogEvent, Patch, PublicDogEvent, Registration } from '../types'
+import type {
+  AdminDataCollection,
+  AuditRecord,
+  DogEvent,
+  Patch,
+  PublicDogEvent,
+  PublicRegistration,
+  Registration,
+} from '../types'
 import { useAtomValue } from 'jotai'
 import { unwrap, useAtomCallback } from 'jotai/utils'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
@@ -215,10 +223,17 @@ export const applyViewers = (current: EventViewer[], next: EventViewer[]) => {
 
 // ── Context ──────────────────────────────────────────────────────────────────
 
+/**
+ * Receives the published start list of the subscribed event, or `undefined` when the rows did not
+ * fit in one message and have to be fetched instead.
+ */
+export type PublicStartListListener = (participants: PublicRegistration[] | undefined) => void
+
 interface WebSocketContextValue {
   viewers: EventViewer[]
   subscribeAdmin: () => void
   subscribeEvent: (eventId: string) => void
+  subscribePublicStartList: (eventId: string, listener: PublicStartListListener) => void
   subscribeRegistration: (
     eventId: string,
     registrationId: string,
@@ -226,6 +241,7 @@ interface WebSocketContextValue {
     listener: (patch: Patch<Registration>) => void
   ) => void
   unsubscribeEvent: () => void
+  unsubscribePublicStartList: () => void
   unsubscribeRegistration: () => void
   subscribeAuditRecords: (listener: (record: AuditRecord) => void) => () => void
 }
@@ -250,6 +266,7 @@ export const useWebSocket = () => {
     listener: (patch: Patch<Registration>) => void
     registrationId: string
   }>()
+  const publicStartListRef = useRef<{ eventId: string; listener: PublicStartListListener }>()
   const rawViewersRef = useRef<EventViewer[]>([])
   const auditRecordListenersRef = useRef(new Set<(record: AuditRecord) => void>())
   const adminDataCursorsRef = useRef<Partial<Record<AdminDataCollection, number | null>>>({})
@@ -432,6 +449,10 @@ export const useWebSocket = () => {
       if (eventIdRef.current) {
         sendIfOpen({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }, socket)
       }
+      const publicStartList = publicStartListRef.current
+      if (publicStartList) {
+        sendIfOpen({ action: 'subscribe', channel: 'public-event', eventId: publicStartList.eventId }, socket)
+      }
       const registration = registrationSubscriptionRef.current
       if (registration) {
         sendIfOpen(
@@ -478,6 +499,20 @@ export const useWebSocket = () => {
     rawViewersRef.current = []
     setViewers([])
     console.debug('ws:event unsubscribe state cleared', { eventId, sent })
+  }, [sendIfOpen])
+
+  const subscribePublicStartList = useCallback(
+    (eventId: string, listener: PublicStartListListener) => {
+      publicStartListRef.current = { eventId, listener }
+      sendIfOpen({ action: 'subscribe', channel: 'public-event', eventId })
+    },
+    [sendIfOpen]
+  )
+
+  const unsubscribePublicStartList = useCallback(() => {
+    if (!publicStartListRef.current) return
+    sendIfOpen({ action: 'unsubscribe', channel: 'public-event' })
+    publicStartListRef.current = undefined
   }, [sendIfOpen])
 
   const subscribeRegistration = useCallback(
@@ -549,11 +584,24 @@ export const useWebSocket = () => {
     [patchRegistrations, refreshAdminData]
   )
 
+  const handlePublicStartListMessage = useCallback((data: any): boolean => {
+    const subscription = publicStartListRef.current
+    if (data.scope !== 'public:start-list' || !subscription || data.eventId !== subscription.eventId) return false
+
+    // The rows were composed and sanitized by the server, and parseJSON has revived their dates —
+    // the same trust boundary as an event patch. `stale` means they did not fit in one message.
+    if (Array.isArray(data.participants)) subscription.listener(data.participants)
+    else if (data.stale === true) subscription.listener(undefined)
+
+    return true
+  }, [])
+
   const handleMessageData = useCallback(
     (data: any, token: string | undefined, ws: WebSocket, connectionId: number) => {
       console.debug('ws: ', data)
 
       if (handleAdminMessage(data, token)) return
+      if (handlePublicStartListMessage(data)) return
 
       const registrationSubscription = registrationSubscriptionRef.current
       if (
@@ -594,7 +642,7 @@ export const useWebSocket = () => {
         handleEventPatchMessage(data)
       }
     },
-    [handleAdminMessage, handleEventPatchMessage, resendActiveSubscriptions]
+    [handleAdminMessage, handleEventPatchMessage, handlePublicStartListMessage, resendActiveSubscriptions]
   )
 
   const connect = useCallback(() => {
@@ -706,8 +754,10 @@ export const useWebSocket = () => {
     subscribeAdmin,
     subscribeAuditRecords,
     subscribeEvent,
+    subscribePublicStartList,
     subscribeRegistration,
     unsubscribeEvent,
+    unsubscribePublicStartList,
     unsubscribeRegistration,
     viewers,
   }

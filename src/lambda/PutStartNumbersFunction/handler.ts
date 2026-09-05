@@ -16,6 +16,7 @@ import {
   setStartNumbersPublishedState,
 } from '../lib/startNumbers'
 import { publishEventPatch, publishRegistrationPatches } from '../lib/ws/actions'
+import { publishPublicStartList } from '../lib/ws/publicStartList'
 
 interface StartNumbersRequest {
   /** Scopes a publish or a batch of numbers to one class; absent for a classless event. */
@@ -116,6 +117,8 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
       confirmedEvent.organizer.id
     )
   }
+
+  if (patches.length || publicationChanged) await publishPublicStartList(confirmedEvent)
 
   return response(200, { event: confirmedEvent, patches }, event)
 })

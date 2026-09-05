@@ -83,6 +83,9 @@ vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
 
+const mockPublishPublicStartList = vi.fn()
+vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
+
 const { default: putRegistrationGroupsLambda } = await import('./handler')
 
 const mockUser: JsonUser = {
@@ -346,6 +349,8 @@ describe('putRegistrationGroupsLambda', () => {
       expect.not.arrayContaining([expect.objectContaining({ dog: expect.anything() })]),
       event.organizer.id
     )
+    // Moving a dog, and cancelling one, both rewrite the published rows (KOE-1358).
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith(expect.objectContaining({ id: event.id }))
   })
 
   it('should move to last place', async () => {

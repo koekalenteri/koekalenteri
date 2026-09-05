@@ -19,9 +19,11 @@ All client messages are JSON objects sent to `$default`.
 | Authenticate | `{ "action": "authenticate", "token": "<cognito-id-token>" }` | Verifies the Cognito ID token, resolves application authorization, and stores `userId`, `memberOf`, `admin`, and token expiry on the connection. |
 | Subscribe to admin | `{ "action": "subscribe", "channel": "admin" }` | Marks the connection as admin-subscribed. The connection must be an admin or belong to at least one organizer. |
 | Subscribe to event | `{ "action": "subscribe", "channel": "event", "eventId": "<event-id>" }` | Subscribes the connection to one event's admin updates. The connection must be an admin or member of the event organizer. |
+| Subscribe to public start list | `{ "action": "subscribe", "channel": "public-event", "eventId": "<event-id>" }` | Watches one event's published start list. No authentication, and the connection stays in the public audience, so it keeps receiving the event patches broadcast to every anonymous connection. |
 | Subscribe to registration | `{ "action": "subscribe", "channel": "registration", "eventId": "<event-id>", "registrationId": "<registration-id>", "token": "<edit-token>" }` | Verifies the participant edit token, subscribes to payment updates for that registration, and returns its current payment state. |
 | Unsubscribe from admin | `{ "action": "unsubscribe", "channel": "admin" }` | Removes the admin-channel subscription and returns the connection to the public audience. |
 | Unsubscribe from event | `{ "action": "unsubscribe", "channel": "event" }` | Removes the current event subscription and publishes updated event viewers. |
+| Unsubscribe from public start list | `{ "action": "unsubscribe", "channel": "public-event" }` | Removes the published start list subscription. |
 | Unsubscribe from registration | `{ "action": "unsubscribe", "channel": "registration" }` | Removes the current participant registration subscription. |
 | Keepalive | `{ "action": "ping" }` | Answered with `{ pong: true }` without a connection lookup. API Gateway closes a WebSocket after 10 minutes without traffic, so clients ping well inside that window rather than reconnecting. |
 
@@ -34,6 +36,7 @@ Outbound messages include a `scope` field so clients can route updates.
 | Scope | Audience | Payload |
 | --- | --- | --- |
 | `public:event-patch` | Public connections, excluding admin recipients that already received the admin patch | Sanitized public event patch with `eventId`. |
+| `public:start-list` | Connections watching the event's published start list | `{ eventId, participants }` with the rows exactly as the public fetch composes them, or `{ eventId, stale: true }` when they exceed the message size and must be fetched instead. |
 | `admin:event-patch` | Admin channel subscribers and event subscribers allowed to see the organizer's event | Admin event patch with `eventId`. |
 | `admin:event-registrations` | Admin channel subscribers and event subscribers allowed to see the organizer's event | `{ eventId, patch }` registration patch list. |
 | `participant:registration-patch` | Connections whose edit token was verified for the specific registration | `{ eventId, registrationId, patch }` with participant-visible payment state only. |
@@ -54,6 +57,7 @@ Important fields:
 - `admin`: application-wide admin flag.
 - `adminSubscribed`: whether the connection receives general admin broadcasts.
 - `eventId`: currently subscribed event. A connection can be subscribed to at most one event at a time.
+- `publicEventId`: event whose published start list the connection watches. Unlike `eventId` it does not move the connection to the `admin` audience.
 - `registrationEventId` and `registrationId`: participant registration whose payment updates the connection receives.
 - `expiresAt`: epoch-seconds expiry used by authorization checks and DynamoDB TTL.
 
@@ -68,6 +72,7 @@ Important fields:
 - `connectionSelectors.ts`: builds public, admin, organizer, and event audiences from persisted connections.
 - `gatewaySender.ts`: wraps API Gateway Management API `PostToConnection` and normalizes send outcomes.
 - `payloads.ts`: constructs outbound payloads and derives distinct event viewers.
+- `publicStartList.ts`: composes the published start list with `lib/startList.ts` and sends it to the connections watching that event.
 - `subscriptionService.ts`: authorizes and persists admin, event, and participant registration subscriptions; the message handler composes viewer-update publishing into event subscription changes.
 - `types.ts`: shared WebSocket connection and payload types.
 
@@ -76,5 +81,6 @@ Important fields:
 - Public connection creation is capped to avoid unbounded fan-out; currently the service rejects new public connections after 1000 public connections.
 - Admin/event authorization also checks `expiresAt`, so long-lived sockets must re-authenticate by reconnecting with a fresh token before the stored token expiry.
 - Event patches are published twice when needed: admin recipients receive the full admin patch, while public recipients receive only the sanitized public fields.
+- The public event patch deliberately goes to every anonymous connection rather than to subscribers of that event: the event list is left open in a tab and is meant to stay current. The start list rows are the targeted publication, because they are the payload no unrelated reader needs.
 - `GoneException` from API Gateway means the client socket no longer exists. Broadcast cleanup removes that connection from the repository.
 - Event viewer updates intentionally use distinct `userId` values, not connection IDs, so multiple tabs for the same user count as one viewer.

@@ -40,6 +40,12 @@ vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
 
+const mockPublishPublicStartList = vi.fn()
+vi.doMock('../lib/ws/publicStartList', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./ws/publicStartList')>()),
+  publishPublicStartList: mockPublishPublicStartList,
+}))
+
 const {
   findQualificationStartDate,
   fixRegistrationGroups,
@@ -915,6 +921,7 @@ describe('lib/event', () => {
       mockUpdate.mockReset()
       mockBroadcastAdminEvent.mockReset()
       mockPublishEventPatch.mockReset()
+      mockPublishPublicStartList.mockReset()
       mockRead.mockReset()
     })
 
@@ -927,6 +934,37 @@ describe('lib/event', () => {
       expect(mockUpdate).not.toHaveBeenCalled()
       expect(mockPublishEventPatch).not.toHaveBeenCalled()
       expect(mockRead).not.toHaveBeenCalled()
+    })
+
+    it('publishes the start list when the change is one its readers can see', async () => {
+      const existing = {
+        classes: [{ class: 'ALO', state: 'invited' }],
+        id: 'e-published',
+        organizer: { id: 'org-1', name: 'Org' },
+        startListPublished: { ALO: false },
+        state: 'invited',
+      } as JsonDogEvent
+      const next = { ...existing, startListPublished: { ALO: true } } as JsonDogEvent
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockPublishPublicStartList).toHaveBeenCalledWith(next)
+    })
+
+    it('leaves the start list alone for a change no reader of it can see', async () => {
+      const existing = {
+        id: 'e-renamed',
+        name: 'Old name',
+        organizer: { id: 'org-1', name: 'Org' },
+        state: 'confirmed',
+      } as JsonDogEvent
+      const next = { ...existing, name: 'New name' } as JsonDogEvent
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockPublishPublicStartList).not.toHaveBeenCalled()
     })
 
     it('updates set/remove fields and publishes admin patch', async () => {

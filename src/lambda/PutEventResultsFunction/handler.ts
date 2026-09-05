@@ -5,6 +5,7 @@ import { parseSubmissions, processResultSubmissions } from '../lib/eventResults'
 import { getParam, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
+import { publishPublicStartList } from '../lib/ws/publicStartList'
 
 const putEventResultsLambda = lambda('putEventResults', async (event) => {
   const { user, memberOf, res } = await authorizeWithMemberOf(event)
@@ -29,7 +30,10 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
 
   // One broadcast for the batch: a class secretary saves a screenful at a time, and other open clients
   // should see the whole screenful rather than watch it arrive dog by dog.
-  if (patches.length) await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
+  if (patches.length) {
+    await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
+    await publishPublicStartList(confirmedEvent)
+  }
 
   // The dogs that did not conflict are already written, so a resubmission only has to carry the ones
   // still in dispute — losing a screenful of work to one contested dog would be its own bug.
