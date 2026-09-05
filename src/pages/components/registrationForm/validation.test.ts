@@ -513,6 +513,28 @@ describe('validation', () => {
           expect(filterRelevantResults(testEvent, 'VOI', [VOI2]).relevant).toEqual([{ ...VOI2, official: true }])
         })
 
+        it('Should allow a dog with only an AVO0 result to enter AVO (KOE-688)', () => {
+          const testEvent = { eventType: 'NOME-B', startDate: new Date('2024-08-01') }
+          const AVO0 = {
+            class: 'AVO',
+            date: new Date('2023-06-15'),
+            judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO0',
+            type: 'NOME-B',
+          }
+
+          expect(filterRelevantResults(testEvent, 'AVO', [AVO0])).toEqual({
+            qualifies: true,
+            relevant: [{ ...AVO0, official: true }],
+          })
+          expect(filterRelevantResults(testEvent, 'AVO', [], [AVO0 as ManualTestResult])).toEqual({
+            qualifies: true,
+            relevant: [{ ...AVO0, official: false }],
+          })
+          expect(filterRelevantResults(testEvent, 'ALO', [AVO0]).qualifies).toEqual(false)
+        })
+
         it('Should allow a dog with 1xALO1 2009..2015', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2015-06-01') }
           const ALO1 = {
