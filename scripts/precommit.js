@@ -20,6 +20,7 @@ const { result } = concurrently(
     { command: `${npmCommand} run lint`, name: 'lint' },
     { command: `${npmCommand} run check-screenshots`, name: 'screenshots' },
     { command: `${npmCommand} run knip`, name: 'knip' },
+    { command: `${npmCommand} run ratchet`, name: 'ratchet' },
     { command: `${npmCommand} test -- --onlyChanged`, name: 'test' },
   ],
   { prefix: 'name', timings: true }
@@ -31,6 +32,9 @@ result.then(
       console.error('precommit: the index changed while the checks ran; stage the commit again and retry')
       process.exit(1)
     }
+    // The ratchet lowers its baseline in the working tree when the commit removes assertions or
+    // `any`s; carry the new number into this same commit so main never holds a stale baseline.
+    execFileSync('git', ['add', 'scripts/ratchet-baseline.json'])
     process.exit(0)
   },
   () => process.exit(1)

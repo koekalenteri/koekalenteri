@@ -190,6 +190,34 @@ A finding is a prompt to look, not an order. Two optional-chain suggestions in `
 reasoning went into the commit message. Do the same rather than silently breaking something to
 clear a rule.
 
+## Lint Gates
+
+- `npm run lint-biome` fails on every Biome warning (`--error-on-warnings`), not only on errors:
+  an unused variable, an accumulating spread, a `let` never reassigned or a `biome-ignore` that
+  suppresses nothing all stop the commit. Fix the code rather than lowering the rule.
+- Explicit `any` is the one warning `lint-biome` skips (`--skip=suspicious/noExplicitAny`), because
+  the tree still holds hundreds of them. It is gated by the ratchet below instead, so editors keep
+  showing the warning while the count can only go down.
+
+### The assertion ratchet
+
+`npm run ratchet` (`scripts/ratchet.js`) parses every `.ts`/`.tsx` under `src/` and counts two
+things AGENTS.md forbids: type assertions (`x as T`, `<T>x`; `as const` does not count) outside
+tests, and explicit `any` anywhere. Both numbers are compared with `scripts/ratchet-baseline.json`.
+
+- **How a commit fails.** A count above its baseline fails the ratchet, which runs alongside the
+  other pre-commit checks and in both CI lint steps. The message lists the assertions and `any`s in
+  the files changed against HEAD, so the new one is easy to find. Model or narrow the value instead
+  of asserting; if a boundary conversion is truly unavoidable, remove another assertion in the same
+  commit and leave the specific comment LLM_CONTEXT.md asks for.
+- **How the baseline updates.** A count below its baseline is written back to the file, and the
+  pre-commit hook stages the lowered baseline into the same commit. Nobody edits the file by hand.
+- **Rebase conflicts.** Two branches that each lowered a number conflict on that line. Take either
+  side and run `npm run ratchet`: it writes the real count. A baseline that is merely behind
+  (higher than the count) never fails, it just gets lowered on the next run.
+- Tests are excluded from the assertion count on purpose: `fn as MockedFunction<typeof fn>` is the
+  recommended mock idiom. `any` is counted in tests too.
+
 ## Formatting
 
 - Use Biome for formatting files:

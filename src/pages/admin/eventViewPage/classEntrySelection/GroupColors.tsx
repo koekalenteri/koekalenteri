@@ -7,7 +7,10 @@ import GroupColorTooltip from './groupColors/GroupColorTooltip'
 export const GROUP_COLORS = ['#2D9CDB', '#BB6BD9', '#F2994A', '#27AE60', '#828282', '#56CCF2']
 
 export const availableGroups = (dates: Date[]) =>
-  dates.reduce<RegistrationDate[]>((acc, date) => [...acc, { date, time: 'ap' }, { date, time: 'ip' }], [])
+  dates.flatMap<RegistrationDate>((date) => [
+    { date, time: 'ap' },
+    { date, time: 'ip' },
+  ])
 
 interface Props {
   readonly available: RegistrationDate[]

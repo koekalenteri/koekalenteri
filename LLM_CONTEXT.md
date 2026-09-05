@@ -40,3 +40,5 @@
   signatures, narrow unknown values safely, or express behavior directly with
   Vitest matchers. Any unavoidable boundary conversion needs a specific comment
   explaining why it is safe.
+  The count of assertions and `any`s is ratcheted: `npm run ratchet` fails a commit
+  that adds one. See "Lint Gates" in `AGENTS.md`.

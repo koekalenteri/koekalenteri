@@ -316,7 +316,6 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   const origin = getOrigin(event)
   const patchRequest = isPatchRequest(event)
 
-  let existing: JsonRegistration | undefined
   const request = parseAdminRegistrationRequest(event.body, patchRequest)
   if ('invalid' in request) return response(400, { message: `Bad request: ${request.invalid}` }, event)
   let { registration } = request
@@ -343,7 +342,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     return response(409, { error: 'staleData', message: 'Registration has been modified since it was loaded' }, event)
   }
   if ('invalid' in prepared) return response(400, { message: `Bad request: ${prepared.invalid}` }, event)
-  existing = prepared.existing
+  const existing = prepared.existing
   registration = prepared.registration
 
   const creation = await prepareAdminRegistrationCreation(registration, update, timestamp, user, origin, event)

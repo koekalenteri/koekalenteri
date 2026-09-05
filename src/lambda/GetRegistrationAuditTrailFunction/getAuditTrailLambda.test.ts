@@ -72,7 +72,6 @@ describe('getAuditTrailLambda', () => {
   })
 
   it('returns audit trail if authorized', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const regId = 'reg456'
     const auditTrailData = [
@@ -93,7 +92,6 @@ describe('getAuditTrailLambda', () => {
   })
 
   it('returns empty array if no audit trail found', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const regId = 'reg456'
     const emptyAuditTrail: any[] = []
@@ -111,7 +109,6 @@ describe('getAuditTrailLambda', () => {
   })
 
   it('handles missing eventId or id parameters', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = undefined
     const regId = undefined
     const emptyAuditTrail: any[] = []
@@ -129,7 +126,6 @@ describe('getAuditTrailLambda', () => {
   })
 
   it('handles errors from auditTrail', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const regId = 'reg456'
     const emptyAuditTrail: any[] = []

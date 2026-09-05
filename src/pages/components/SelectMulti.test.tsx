@@ -190,7 +190,6 @@ describe('SelectMulti', () => {
 
   it('closes after selection but allows multiple selections by reopening', async () => {
     let value: string[] = []
-    // biome-ignore lint/suspicious/noAssignInExpressions: its a test
     const onChange = vi.fn().mockImplementation((val) => (value = [...val]))
     const { user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
@@ -284,7 +283,6 @@ describe('SelectMulti', () => {
   it('handles multiple selections and deselections correctly', async () => {
     // Setup with initial selection
     let value: string[] = ['Option 1']
-    // biome-ignore lint/suspicious/noAssignInExpressions: its a test
     const onChange = vi.fn().mockImplementation((val) => (value = [...val]))
     const { user, rerender } = renderWithUserEvents(
       <ThemeProvider theme={theme}>

@@ -336,7 +336,7 @@ describe('ClassEntrySelection behavior coverage', () => {
       },
     ]
 
-    const { user } = renderWithUserEvents(
+    renderWithUserEvents(
       <ClassEntrySelection event={activeEvent} eventClass="ALO" registrations={registrations} />,
       { wrapper: Wrapper },
       { advanceTimers: vi.advanceTimersByTime }
@@ -390,7 +390,7 @@ describe('ClassEntrySelection behavior coverage', () => {
       },
     ]
 
-    const { user } = renderWithUserEvents(
+    renderWithUserEvents(
       <ClassEntrySelection event={activeEvent} eventClass="ALO" registrations={registrations} />,
       { wrapper: Wrapper },
       { advanceTimers: vi.advanceTimersByTime }

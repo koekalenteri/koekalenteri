@@ -79,7 +79,7 @@ describe('PaymentPage', () => {
       },
     ]
 
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>

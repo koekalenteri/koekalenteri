@@ -82,7 +82,6 @@ describe('getRegistrationTransactionsLambda', () => {
   })
 
   it('returns transactions if authorized', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const regId = 'reg456'
     const reference = `${eventId}:${regId}`
@@ -134,7 +133,6 @@ describe('getRegistrationTransactionsLambda', () => {
   })
 
   it('returns empty array if no transactions found', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const regId = 'reg456'
     const reference = `${eventId}:${regId}`
@@ -154,7 +152,6 @@ describe('getRegistrationTransactionsLambda', () => {
   })
 
   it('returns undefined if getTransactionsByReference returns undefined', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const regId = 'reg456'
     const reference = `${eventId}:${regId}`
@@ -173,7 +170,6 @@ describe('getRegistrationTransactionsLambda', () => {
   })
 
   it('handles missing eventId or id parameters', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = undefined
     const regId = undefined
     const reference = 'undefined:undefined'
@@ -193,7 +189,6 @@ describe('getRegistrationTransactionsLambda', () => {
   })
 
   it('passes through errors from getTransactionsByReference', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const regId = 'reg456'
     const reference = `${eventId}:${regId}`
@@ -213,7 +208,6 @@ describe('getRegistrationTransactionsLambda', () => {
   })
 
   it('passes through errors from refreshTransactionStatusesFromPaytrail', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const regId = 'reg456'
     const reference = `${eventId}:${regId}`

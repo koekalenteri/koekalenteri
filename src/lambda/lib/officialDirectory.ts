@@ -124,10 +124,7 @@ export const syncOfficialDirectory = async <
   if (write.length) await dynamoDB.batchWrite(write, options.table)
 }
 
-interface OfficialDirectoryLambdaOptions<
-  TIncoming extends OfficialDirectoryEntry,
-  TStored extends StoredOfficialDirectoryEntry,
-> {
+interface OfficialDirectoryLambdaOptions<TIncoming extends OfficialDirectoryEntry> {
   collection: 'judges' | 'officials'
   dynamoDB: CustomDynamoClient
   eventTypeTable: string
@@ -142,7 +139,7 @@ export const createOfficialDirectoryLambda = <
   TIncoming extends OfficialDirectoryEntry,
   TStored extends StoredOfficialDirectoryEntry,
 >(
-  options: OfficialDirectoryLambdaOptions<TIncoming, TStored>
+  options: OfficialDirectoryLambdaOptions<TIncoming>
 ) =>
   lambda(options.service, async (event) => {
     const user = await authorize(event)
