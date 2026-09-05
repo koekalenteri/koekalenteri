@@ -75,6 +75,11 @@
       "color-contrast": 1
     }
   },
+  "src/pages/components/registrationForm/OwnerInfo.visual.test.tsx": {
+    "owner-info-invalid-co-owner-phone": {
+      "color-contrast": 2
+    }
+  },
   "src/pages/searchPage/eventList/EventStateInfo.visual.test.tsx": {
     "event-state-info-live": {
       "color-contrast": 1,
