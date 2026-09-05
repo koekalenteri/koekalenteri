@@ -101,6 +101,12 @@ export interface JsonDogEvent extends JsonDbRecord {
    */
   placesPerDay?: Record<string, number>
   priority?: string[]
+  /**
+   * Who may enter at all (KOE-524): the organizer's members, the named breeds, or both. Same values
+   * as `priority` bar the organizer's invitations, which single out dogs rather than narrow the entry.
+   * A priority favours a group when places run short; a restriction keeps everyone else out.
+   */
+  restrictions?: string[]
   qualificationStartDate?: string
   /**
    * Whether the trial is run with game or with dummies (KOE-439). A B-trial's choice, made when the

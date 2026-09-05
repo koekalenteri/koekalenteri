@@ -11,7 +11,7 @@ import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { isDevEnv } from '../../../../lib/env'
-import { getPrioritySort, PRIORITY, priorityValuesToPriority } from '../../../../lib/priority'
+import { getPrioritySort, PRIORITY, priorityValuesToPriority, RESTRICTION } from '../../../../lib/priority'
 import AutocompleteMulti from '../../../components/AutocompleteMulti'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
@@ -59,6 +59,11 @@ function EntrySection(props: Props) {
     [event.priority, prioritySort]
   )
   const sortedPriorities = useMemo(() => PRIORITY.slice().sort(prioritySort), [prioritySort])
+  const eventRestrictions = useMemo(
+    () => priorityValuesToPriority(event.restrictions, RESTRICTION).sort(prioritySort),
+    [event.restrictions, prioritySort]
+  )
+  const sortedRestrictions = useMemo(() => RESTRICTION.slice().sort(prioritySort), [prioritySort])
   const allowPastRegistrationDates = isDevEnv()
   let registrationStartDate: Date | undefined
   if (!allowPastRegistrationDates) {
@@ -90,6 +95,11 @@ function EntrySection(props: Props) {
   const handlePriorityChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, value: readonly Priority[]) =>
       onChange?.({ priority: value.map((p) => p.value) }),
+    [onChange]
+  )
+  const handleRestrictionsChange = useCallback(
+    (_e: SyntheticEvent<Element, Event>, value: readonly Priority[]) =>
+      onChange?.({ restrictions: value.map((p) => p.value) }),
     [onChange]
   )
 
@@ -168,6 +178,19 @@ function EntrySection(props: Props) {
             onChange={handlePriorityChange}
             value={eventPriority}
             label={'Etusijat'}
+          />
+        </Grid>
+        <Grid width="100%">
+          <AutocompleteMulti
+            disabled={disabled}
+            disablePortal
+            groupBy={(o) => t(o.group)}
+            isOptionEqualToValue={(o, v) => o?.value === v?.value}
+            getOptionLabel={(o) => t(o.name)}
+            options={sortedRestrictions}
+            onChange={handleRestrictionsChange}
+            value={eventRestrictions}
+            label={'Rajoitukset'}
           />
         </Grid>
       </Grid>

@@ -255,6 +255,7 @@
       "total": "Yhteensä"
     },
     "priority": "Etusijat",
+    "restrictions": "Rajoitukset",
     "retrieveType": "Koe pidetään",
     "retrieveTypes": {
       "dummies": "dameilla",

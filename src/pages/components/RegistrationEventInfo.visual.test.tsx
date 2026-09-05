@@ -49,3 +49,22 @@ it('tells the registrant whether the B-trial is run with game or dummies (KOE-43
   await expect.element(screen.getByText('dameilla')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-event-info-retrieve-type')
 })
+
+it('tells the registrant who the entry is restricted to (KOE-524)', async () => {
+  const screen = await render(
+    <TestProvider
+      initializeState={({ set }) => {
+        set(languageAtom, 'fi')
+        set(openedEventAtom(event.id), true)
+      }}
+    >
+      <Frame>
+        <RegistrationEventInfo event={{ ...event, restrictions: ['member', '312'] }} eventClass="AVO" />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Rajoitukset')).toBeVisible()
+  await expect.element(screen.getByText('novascotiannoutaja')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-event-info-restrictions')
+})

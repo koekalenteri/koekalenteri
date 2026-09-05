@@ -23,12 +23,22 @@ export const PRIORITY: Priority[] = [
   { group: 'priorityGroup.invited', name: 'priority.invited', value: 'invited' },
 ]
 
-export const priorityValuesToPriority = (values: Partial<PublicDogEvent['priority']> = []) => {
+/**
+ * What an event can restrict its entry to (KOE-524): the same groups a priority favours, bar the
+ * organizer's invitations -- an invitation singles out dogs, it does not describe who may enter.
+ */
+export const RESTRICTION: Priority[] = PRIORITY.filter((p) => p.value !== PRIORITY_INVITED)
+
+/** Resolves stored values to their options, dropping unknowns and duplicates. */
+export const priorityValuesToPriority = (
+  values: Partial<PublicDogEvent['priority']> = [],
+  options: readonly Priority[] = PRIORITY
+) => {
   const result: Priority[] = []
   if (!Array.isArray(values)) return result
 
   for (const value of unique(values)) {
-    const priority = PRIORITY.find((p) => p.value === value)
+    const priority = options.find((p) => p.value === value)
     if (priority) result.push(priority)
   }
   return result

@@ -47,3 +47,17 @@ it('tells whether a B-trial is run with game or dummies (KOE-439)', async () => 
   await expect.element(screen.getByText('riistoilla')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-info-retrieve-type')
 })
+
+it('shows the entry restrictions beside the priorities (KOE-524)', async () => {
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
+      <Frame>
+        <EventInfo event={{ ...event, restrictions: ['member', '111', '122'] }} />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Rajoitukset')).toBeVisible()
+  await expect.element(screen.getByText('labradorinnoutaja')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-info-restrictions')
+})

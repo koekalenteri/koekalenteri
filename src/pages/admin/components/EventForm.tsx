@@ -174,6 +174,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       places: event.places,
       placesPerDay: event.placesPerDay,
       priority: event.priority,
+      restrictions: event.restrictions,
       startDate: event.startDate,
     }),
     [
@@ -187,6 +188,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       event.places,
       event.placesPerDay,
       event.priority,
+      event.restrictions,
       event.startDate,
     ]
   )

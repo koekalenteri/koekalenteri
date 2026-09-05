@@ -73,6 +73,7 @@ export type EntryEvent = Pick<
   | 'places'
   | 'placesPerDay'
   | 'priority'
+  | 'restrictions'
   | 'startDate'
 >
 

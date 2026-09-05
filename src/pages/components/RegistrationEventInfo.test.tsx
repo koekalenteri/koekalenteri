@@ -46,6 +46,15 @@ describe('RegistrationEventInfo', () => {
     expect(container).toMatchSnapshot()
   })
 
+  it('shows the registrant who the entry is restricted to (KOE-524)', async () => {
+    const event: PublicConfirmedEvent = { ...eventWithStaticDates, restrictions: ['122'] }
+    render(<RegistrationEventInfo event={event} invitationAttachment={undefined} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByText('event.restrictions')).toBeInTheDocument()
+    expect(screen.getByText('breed:122')).toBeInTheDocument()
+  })
+
   it('does not render empty contact info', async () => {
     const event: PublicConfirmedEvent = {
       ...eventWithStaticDates,

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { eventTypeLabel, getEventStateForClass, localizedEventName } from '../../lib/event'
 import { invitationAttachmentFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
+import { RESTRICTION } from '../../lib/priority'
 import { printContactInfo } from '../../lib/utils'
 import { Path } from '../../routeConfig'
 import { languageAtom } from '../state'
@@ -105,6 +106,11 @@ export default function RegistrationEventInfo({
         {event.priority ? (
           <ItemWithCaption label={t('event.priority')}>
             <PriorityChips priority={event.priority} />
+          </ItemWithCaption>
+        ) : null}
+        {event.restrictions?.length ? (
+          <ItemWithCaption label={t('event.restrictions')}>
+            <PriorityChips priority={event.restrictions} options={RESTRICTION} />
           </ItemWithCaption>
         ) : null}
         {event.retrieveType ? (

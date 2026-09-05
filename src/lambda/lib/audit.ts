@@ -57,6 +57,7 @@ const eventFieldTranslationKeys: Partial<Record<EventField, EventFieldTranslatio
   organizer: 'event.organizer',
   places: 'event.places',
   priority: 'event.priority',
+  restrictions: 'event.restrictions',
   secretary: 'event.secretary',
   startDate: 'event.startDate',
   state: 'event.state',

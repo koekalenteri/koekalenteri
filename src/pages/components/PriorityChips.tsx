@@ -1,18 +1,21 @@
+import type { Priority } from '../../lib/priority'
 import Chip from '@mui/material/Chip'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getPrioritySort, priorityValuesToPriority } from '../../lib/priority'
+import { getPrioritySort, PRIORITY, priorityValuesToPriority } from '../../lib/priority'
 
 interface Props {
   readonly priority: string[]
+  /** The vocabulary the values are read against: priorities by default, `RESTRICTION` for the entry restrictions (KOE-524). */
+  readonly options?: readonly Priority[]
 }
 
-export const PriorityChips = ({ priority }: Props) => {
+export const PriorityChips = ({ priority, options = PRIORITY }: Props) => {
   const { t } = useTranslation(['translation', 'breed'])
   const prioritySort = getPrioritySort(t)
   const sortedPriorities = useMemo(
-    () => priorityValuesToPriority(priority).sort(prioritySort),
-    [priority, prioritySort]
+    () => priorityValuesToPriority(priority, options).sort(prioritySort),
+    [options, priority, prioritySort]
   )
 
   return (

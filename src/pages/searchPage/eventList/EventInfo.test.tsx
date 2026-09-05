@@ -69,6 +69,23 @@ describe('EventInfo', () => {
     expect(screen.getByText('registration.rankingTime')).toBeInTheDocument()
   })
 
+  it('shows who the entry is restricted to (KOE-524)', async () => {
+    const event: DogEvent = { ...testEvent, restrictions: ['member', '122'] }
+    render(
+      <Provider>
+        <Suspense fallback={<div>loading...</div>}>
+          <EventInfo event={event} />
+        </Suspense>
+      </Provider>
+    )
+    await flushPromises()
+
+    expect(screen.getByText('event.restrictions')).toBeInTheDocument()
+    // the members are both favoured (the mock event's priority) and the only ones let in
+    expect(screen.getAllByText('priority.members')).toHaveLength(2)
+    expect(screen.getByText('breed:122')).toBeInTheDocument()
+  })
+
   it('should render contact info', async () => {
     const event: DogEvent = {
       ...testEvent,

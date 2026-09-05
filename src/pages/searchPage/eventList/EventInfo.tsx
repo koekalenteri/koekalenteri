@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { zonedEndOfDay } from '../../../i18n/dates'
 import { hasExplicitPlacesForClass, isEntryOpen } from '../../../lib/event'
 import { judgeName } from '../../../lib/judge'
+import { RESTRICTION } from '../../../lib/priority'
 import { printContactInfo, unique } from '../../../lib/utils'
 import { getRankingPeriod } from '../../../rules_ch'
 import CostInfo from '../../components/CostInfo'
@@ -97,6 +98,11 @@ export const EventInfo = ({ event }: Props) => {
       {event.priority?.length ? (
         <ItemWithCaption label={t('event.priority')} order={{ xs: 7 }}>
           <PriorityChips priority={event.priority} />
+        </ItemWithCaption>
+      ) : null}
+      {event.restrictions?.length ? (
+        <ItemWithCaption label={t('event.restrictions')} order={{ xs: 7 }}>
+          <PriorityChips priority={event.restrictions} options={RESTRICTION} />
         </ItemWithCaption>
       ) : null}
       {event.retrieveType ? (

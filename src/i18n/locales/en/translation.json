@@ -255,6 +255,7 @@
       "total": "Total"
     },
     "priority": "Priorities",
+    "restrictions": "Restrictions",
     "retrieveType": "The trial is run with",
     "retrieveTypes": {
       "dummies": "dummies",

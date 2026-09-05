@@ -186,4 +186,42 @@ describe('EntrySection', () => {
     expect(groupSelectors[2]).toHaveAttribute('aria-invalid', 'true')
     expect(screen.getAllByText('validation.event.classesGroups field, length, list')).toHaveLength(1)
   })
+
+  it('lets the secretary restrict the entry to members and named breeds (KOE-524)', async () => {
+    const onChange = vi.fn()
+    const testEvent = { ...eventWithStaticDates, restrictions: ['member'] }
+    const { user } = renderWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider>
+            <MemoryRouter>
+              <Suspense fallback={<div>loading...</div>}>
+                <SnackbarProvider>
+                  <EntrySection event={testEvent} onChange={onChange} open />
+                </SnackbarProvider>
+              </Suspense>
+            </MemoryRouter>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    const restrictions = screen.getByTestId('Rajoitukset')
+    expect(within(restrictions).getByText('priority.members')).toBeInTheDocument()
+
+    await user.click(within(restrictions).getByRole('combobox'))
+    await flushPromises()
+
+    const listbox = await screen.findByRole('listbox')
+    // an invitation singles out dogs; it is not something the entry can be restricted to
+    expect(within(listbox).queryByText('priority.invited')).not.toBeInTheDocument()
+
+    await user.click(within(listbox).getByText('breed:312'))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({ restrictions: ['member', '312'] })
+  })
 })
