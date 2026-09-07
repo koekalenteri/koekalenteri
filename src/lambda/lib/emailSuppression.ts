@@ -56,15 +56,34 @@ export const shouldClearRegistrationEmailDeliveryStatus = (
   return !getRegistrationEmails(registration).includes(normalizeEmail(failedEmail))
 }
 
-const findRegistrationEmailSuppressions = async (registration: JsonRegistration) => {
-  const emails = getRegistrationEmails(registration)
+const findEmailSuppressions = async (emails: string[]) => {
   const suppressions = await Promise.all(emails.map((email) => dynamoDB.read<JsonEmailSuppression>({ email })))
 
   return suppressions.filter((suppression): suppression is JsonEmailSuppression => !!suppression)
 }
 
-export const assertRegistrationEmailsNotSuppressed = async (registration: JsonRegistration) => {
-  const suppressions = await findRegistrationEmailSuppressions(registration)
+/**
+ * The addresses this save puts on the registration that were not already on it.
+ *
+ * An address only reaches the suppression list after a message to it has already bounced, so a
+ * stored one cannot be rejected without trapping the participant (KOE-1381): confirming a place or
+ * reading the invitation changes no contact information at all, and a co-owner's address is not
+ * something those views even show. Checking only what the save introduces still stops a bad address
+ * exactly where it is typed — on the registration form, where it can be corrected.
+ */
+const getAddedRegistrationEmails = (registration: JsonRegistration, existing?: JsonRegistration) => {
+  const emails = getRegistrationEmails(registration)
+  if (!existing) return emails
+
+  const stored = new Set(getRegistrationEmails(existing))
+  return emails.filter((email) => !stored.has(email))
+}
+
+export const assertRegistrationEmailsNotSuppressed = async (
+  registration: JsonRegistration,
+  existing?: JsonRegistration
+) => {
+  const suppressions = await findEmailSuppressions(getAddedRegistrationEmails(registration, existing))
   const suppression = suppressions[0]
 
   if (suppression) {

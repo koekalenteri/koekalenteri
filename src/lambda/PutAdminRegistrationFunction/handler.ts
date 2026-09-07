@@ -360,7 +360,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   const data = mergeAdminRegistration(existing, registration, operationRequest, patchRequest)
   applyOwnerOverrides(data)
-  await assertRegistrationEmailsNotSuppressed(data)
+  await assertRegistrationEmailsNotSuppressed(data, existing)
   const clearEmailDeliveryStatus = shouldClearRegistrationEmailDeliveryStatus(existing, data)
   if (clearEmailDeliveryStatus) {
     delete data.emailDeliveryStatus

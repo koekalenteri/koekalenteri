@@ -470,7 +470,8 @@ describe('putAdminRegistrationLambda', () => {
       expect.objectContaining({
         handler: expect.objectContaining({ email: 'handler@example.com' }),
         notes: 'updated notes',
-      })
+      }),
+      expect.objectContaining({ id: 'reg456' })
     )
     expect(result.statusCode).toBe(409)
     expect(JSON.parse(result.body)).toEqual({

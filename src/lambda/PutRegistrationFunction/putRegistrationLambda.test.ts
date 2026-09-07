@@ -433,7 +433,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockAssertRegistrationEmailsNotSuppressed).toHaveBeenCalledWith(
       expect.objectContaining({
         owner: expect.objectContaining({ email: 'owner@example.com' }),
-      })
+      }),
+      undefined
     )
     expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(res.statusCode).toEqual(409)
@@ -473,7 +474,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         handler: expect.objectContaining({ email: 'handler@example.com' }),
         notes: 'updated notes',
-      })
+      }),
+      existingJson
     )
     expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(res.statusCode).toEqual(409)

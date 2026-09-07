@@ -581,7 +581,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     return response(304, undefined, event)
   }
 
-  await assertRegistrationEmailsNotSuppressed(data)
+  await assertRegistrationEmailsNotSuppressed(data, existing)
 
   if (shouldClearRegistrationEmailDeliveryStatus(existing, data)) {
     delete data.emailDeliveryStatus

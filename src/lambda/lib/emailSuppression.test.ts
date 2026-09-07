@@ -1,5 +1,21 @@
 import type { JsonRegistration, RegistrationOwner } from '../../types'
-import { normalizeRegistrationEmails, shouldClearRegistrationEmailDeliveryStatus } from './emailSuppression'
+import { vi } from 'vitest'
+
+const mockRead = vi.fn()
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  __esModule: true,
+  default: vi.fn(function MockCustomDynamoClient() {
+    return {
+      read: mockRead,
+    }
+  }),
+}))
+
+const {
+  assertRegistrationEmailsNotSuppressed,
+  normalizeRegistrationEmails,
+  shouldClearRegistrationEmailDeliveryStatus,
+} = await import('./emailSuppression')
 
 const person = (email: string) => ({ email, membership: false, name: 'Test Person' })
 
@@ -92,5 +108,77 @@ describe('normalizeRegistrationEmails', () => {
 
     expect(() => normalizeRegistrationEmails(reg)).not.toThrow()
     expect(reg.owners?.[0]?.email).toBeUndefined()
+  })
+})
+
+describe('assertRegistrationEmailsNotSuppressed', () => {
+  beforeEach(() => {
+    mockRead.mockReset()
+    mockRead.mockResolvedValue(undefined)
+  })
+
+  const suppressed = (email: string) => ({
+    email,
+    eventId: 'event-id',
+    reason: 'smtp; 550 user unknown',
+    registrationId: 'registration-id',
+    status: 'bounce',
+    updatedAt: '2026-05-27T10:00:00.000Z',
+  })
+
+  it('rejects a new registration using a suppressed address', async () => {
+    mockRead.mockImplementation(async ({ email }: { email: string }) =>
+      email === 'owner@example.com' ? suppressed(email) : undefined
+    )
+
+    await expect(assertRegistrationEmailsNotSuppressed(registration())).rejects.toMatchObject({
+      error: JSON.stringify({
+        email: 'owner@example.com',
+        error: 'emailSuppressed',
+        reason: 'smtp; 550 user unknown',
+      }),
+      status: 409,
+    })
+  })
+
+  it('rejects an update that introduces a suppressed address', async () => {
+    mockRead.mockImplementation(async ({ email }: { email: string }) =>
+      email === 'new-handler@example.com' ? suppressed(email) : undefined
+    )
+
+    await expect(
+      assertRegistrationEmailsNotSuppressed(
+        registration({ handler: person('new-handler@example.com') }),
+        registration()
+      )
+    ).rejects.toMatchObject({ status: 409 })
+  })
+
+  it('accepts a save that leaves a stored suppressed address untouched (KOE-1381)', async () => {
+    mockRead.mockImplementation(async ({ email }: { email: string }) =>
+      email === 'co-owner@example.com' ? suppressed(email) : undefined
+    )
+    const owners = [
+      { ...person('owner@example.com'), key: 'owner-1' },
+      { ...person('co-owner@example.com'), key: 'owner-2' },
+    ]
+    const existing = registration({ owners })
+
+    await expect(
+      assertRegistrationEmailsNotSuppressed(registration({ confirmed: true, owners }), existing)
+    ).resolves.toBeUndefined()
+    expect(mockRead).not.toHaveBeenCalled()
+  })
+
+  it('accepts fixing one address while another stays suppressed (KOE-1381)', async () => {
+    mockRead.mockImplementation(async ({ email }: { email: string }) =>
+      email === 'owner@example.com' ? suppressed(email) : undefined
+    )
+    const existing = registration()
+
+    await expect(
+      assertRegistrationEmailsNotSuppressed(registration({ handler: person('new-handler@example.com') }), existing)
+    ).resolves.toBeUndefined()
+    expect(mockRead).toHaveBeenCalledWith({ email: 'new-handler@example.com' })
   })
 })
