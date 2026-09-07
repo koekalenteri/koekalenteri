@@ -23,8 +23,10 @@ describe('GroupHeader', () => {
   const mockGroup = { date: mockDate, time: 'ap' as const }
 
   it('renders', async () => {
-    const { container } = renderWithUserEvents(<GroupHeader available={mockAvailable} group={mockGroup} />)
-    expect(container).toMatchSnapshot()
+    renderWithUserEvents(<GroupHeader available={mockAvailable} group={mockGroup} />)
+
+    expect(screen.getByText('dateFormat.wdshort date registration.timeLong.ap')).toBeInTheDocument()
+    expect(screen.getByTestId('group-colors')).toBeInTheDocument()
   })
 
   it('renders with the correct date and time', () => {

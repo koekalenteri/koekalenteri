@@ -4,13 +4,13 @@ import UnlockArrange from './UnlockArrange'
 
 describe('UnlockArrange', () => {
   it('renders', async () => {
-    const { container } = renderWithUserEvents(<UnlockArrange />)
-    expect(container).toMatchSnapshot()
+    renderWithUserEvents(<UnlockArrange />)
+    expect(screen.getByRole('switch')).not.toBeChecked()
   })
 
   it('renders checked', async () => {
-    const { container } = renderWithUserEvents(<UnlockArrange checked />)
-    expect(container).toMatchSnapshot()
+    renderWithUserEvents(<UnlockArrange checked />)
+    expect(screen.getByRole('switch')).toBeChecked()
   })
 
   it('renders empty when disabled', () => {

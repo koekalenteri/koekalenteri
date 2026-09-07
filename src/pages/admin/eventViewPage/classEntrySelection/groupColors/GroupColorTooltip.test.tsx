@@ -7,12 +7,12 @@ describe('GroupColorTooltip', () => {
   const mockSelected = [{ date: mockDate, time: 'ap' as const }]
 
   it('renders', async () => {
-    const { container } = renderWithUserEvents(
+    renderWithUserEvents(
       <GroupColorTooltip selected={mockSelected}>
         <div data-testid="child-element">Test Child</div>
       </GroupColorTooltip>
     )
-    expect(container).toMatchSnapshot()
+    expect(screen.getByTestId('child-element')).toBeInTheDocument()
   })
 
   it('renders the child element', () => {

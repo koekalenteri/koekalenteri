@@ -50,6 +50,11 @@
       "color-contrast": 2
     }
   },
+  "src/pages/admin/eventViewPage/ClassEntrySelection.visual.test.tsx": {
+    "class-entry-selection-groups-and-reserve": {
+      "empty-table-header": 15
+    }
+  },
   "src/pages/admin/eventViewPage/InfoPanel.visual.test.tsx": {
     "info-panel": {
       "color-contrast": 1
@@ -58,6 +63,11 @@
   "src/pages/admin/eventViewPage/MessageRecipientsDialog.visual.test.tsx": {
     "message-recipients": {
       "heading-order": 1
+    }
+  },
+  "src/pages/admin/eventViewPage/classEntrySelection/groupColors/GroupColorTooltip.visual.test.tsx": {
+    "group-color-tooltip-colors": {
+      "aria-prohibited-attr": 1
     }
   },
   "src/pages/admin/eventViewPage/infoPanel/InvitationDelivery.visual.test.tsx": {

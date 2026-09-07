@@ -4,8 +4,8 @@ import NoRowsOverlay from './NoRowsOverlay'
 
 describe('NoRowsOverlay', () => {
   it('renders', async () => {
-    const { container } = renderWithUserEvents(<NoRowsOverlay />)
-    expect(container).toMatchSnapshot()
+    renderWithUserEvents(<NoRowsOverlay />)
+    expect(screen.getByText('Raahaa osallistujat tähän!')).toBeInTheDocument()
   })
 
   it('displays the correct text', () => {

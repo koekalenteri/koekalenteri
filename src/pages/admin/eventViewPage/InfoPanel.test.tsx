@@ -36,7 +36,7 @@ describe('InfoPanel>', () => {
   afterAll(() => localStorage.removeItem('idToken'))
 
   it('renders with no registrations', () => {
-    const { container } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+    renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper: ({ children }) => (
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>{children}</Provider>
       ),
@@ -45,20 +45,21 @@ describe('InfoPanel>', () => {
     const openButton = screen.getByRole('button', { name: 'eventManagement.open' })
     expect(openButton).toHaveStyle({ flexDirection: 'row' })
     expect(screen.getByTestId('MenuOpenIcon')).toBeInTheDocument()
-    expect(container).toMatchSnapshot()
   })
 
   it('renders with event with closed entry and registrations', () => {
-    const { container } = renderWithUserEvents(
+    renderWithUserEvents(
       <InfoPanel event={eventWithEntryClosed} registrations={registrationsToEventWithEntryClosed} />,
       { wrapper: Provider }
     )
 
-    expect(container).toMatchSnapshot()
+    // Closed by default: only the drawer handle shows until it's opened.
+    expect(screen.getByRole('button', { name: 'eventManagement.open' })).toBeInTheDocument()
+    expect(screen.queryByText('eventManagement.participantSelection.title')).not.toBeInTheDocument()
   })
 
   it('renders with event with closed entry and registrations with groups', () => {
-    const { container } = renderWithUserEvents(
+    renderWithUserEvents(
       <InfoPanel
         event={eventWithEntryClosed}
         registrations={registrationsToEventWithEntryClosed.map((r, i) => ({
@@ -73,7 +74,8 @@ describe('InfoPanel>', () => {
       { wrapper: Provider }
     )
 
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('button', { name: 'eventManagement.open' })).toBeInTheDocument()
+    expect(screen.queryByText('eventManagement.participantSelection.title')).not.toBeInTheDocument()
   })
 
   it('shows status and task sections when opened', async () => {

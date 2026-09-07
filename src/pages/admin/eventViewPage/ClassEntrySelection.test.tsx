@@ -34,14 +34,13 @@ describe('ClassEntrySelection', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    const { container } = await renderSuspended(
-      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="AVO" />,
-      {
-        wrapper: Wrapper,
-      }
-    )
+    await renderSuspended(<ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="AVO" />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
-    expect(container).toMatchSnapshot()
+
+    // No registrations were given: every group's grid falls back to its drop-target overlay.
+    expect(screen.getAllByText('Raahaa osallistujat tähän!').length).toBeGreaterThan(0)
   })
 
   it('renders with cancelled registration(s)', async () => {
@@ -49,14 +48,17 @@ describe('ClassEntrySelection', () => {
       (r) => ({ ...r, setGroup: vi.fn() })
     )
 
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="ALO" registrations={registrations} />,
       {
         wrapper: Wrapper,
       }
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+
+    // The active registration lists among the participants; the cancelled one gets its own group.
+    expect(screen.getByText(registrationWithStaticDates.dog.regNo)).toBeInTheDocument()
+    expect(screen.getByText(registrationWithStaticDatesCancelled.dog.regNo)).toBeInTheDocument()
   })
 
   it('lists every class in one reserve list when it covers the whole trial', async () => {
