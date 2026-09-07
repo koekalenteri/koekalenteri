@@ -31,15 +31,13 @@ describe('EventProperty', () => {
 
   describe('freeSolo=true', () => {
     it('should render with minimal information', () => {
-      const { container } = render(<EventProperty id={'name'} options={[]} event={testEvent} freeSolo />)
-      expect(container).toMatchSnapshot()
+      render(<EventProperty id={'name'} options={[]} event={testEvent} freeSolo />)
+      expect(screen.getByRole('combobox')).toHaveValue('test')
     })
 
     it('should render with undefined property and options', () => {
-      const { container } = render(
-        <EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} freeSolo />
-      )
-      expect(container).toMatchSnapshot()
+      render(<EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} freeSolo />)
+      expect(screen.getByRole('combobox')).toHaveValue('')
     })
 
     it('should fire onChange with no options', async () => {
@@ -117,7 +115,7 @@ describe('EventProperty', () => {
     it('should display options when typing and fire onChange when selecting an option or clearing input', async () => {
       const onChange = vi.fn()
 
-      const { container, user } = renderWithUserEvents(
+      const { user } = renderWithUserEvents(
         <EventProperty
           id={'name'}
           options={['alfa', 'beta', 'gamma']}
@@ -128,16 +126,16 @@ describe('EventProperty', () => {
         undefined,
         { advanceTimers: vi.advanceTimersByTime }
       )
-      expect(container).toMatchSnapshot()
-
       const input = screen.getByRole('combobox')
+      expect(input).toHaveValue('test')
+
       await user.type(input, 'a')
       await flushPromises()
-      expect(container).toMatchSnapshot()
+      expect(input).toHaveValue('testa')
 
       await user.clear(input)
       await flushPromises()
-      expect(container).toMatchSnapshot()
+      expect(input).toHaveValue('')
 
       await user.type(input, 'b{ArrowDown}{Enter}')
       await flushPromises()
@@ -148,33 +146,34 @@ describe('EventProperty', () => {
 
   describe('freeSolo=false', () => {
     it('should render with minimal information', () => {
-      const { container } = render(<EventProperty id={'name'} options={[]} event={testEvent} />)
-      expect(container).toMatchSnapshot()
+      render(<EventProperty id={'name'} options={[]} event={testEvent} />)
+      expect(screen.getByRole('combobox')).toHaveValue('test')
     })
 
     it('should render with undefined property and options', () => {
-      const { container } = render(<EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} />)
-      expect(container).toMatchSnapshot()
+      render(<EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} />)
+      expect(screen.getByRole('combobox')).toHaveValue('')
     })
 
     it('should display options when typing and fire onChange when selecting an option or clearing input', async () => {
       const onChange = vi.fn((changes) => Object.assign(testEvent, changes))
 
-      const { container, user } = renderWithUserEvents(
+      const { user } = renderWithUserEvents(
         <EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} onChange={onChange} />,
         undefined,
         { advanceTimers: vi.advanceTimersByTime }
       )
-      expect(container).toMatchSnapshot()
-
       const input = screen.getByRole('combobox')
+      expect(input).toHaveValue('')
+
       await user.type(input, 'a')
       await flushPromises()
-      expect(container).toMatchSnapshot()
+      expect(input).toHaveValue('a')
+      expect(screen.getByRole('option', { name: 'test-a' })).toBeInTheDocument()
 
       await user.clear(input)
       await flushPromises()
-      expect(container).toMatchSnapshot()
+      expect(input).toHaveValue('')
 
       await user.type(input, 'b{ArrowDown}{Enter}')
       await flushPromises()

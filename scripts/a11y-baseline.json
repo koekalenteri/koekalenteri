@@ -29,6 +29,11 @@
       "color-contrast": 3
     }
   },
+  "src/pages/admin/components/eventForm/components/EventProperty.visual.test.tsx": {
+    "event-property-states": {
+      "color-contrast": 3
+    }
+  },
   "src/pages/admin/eventResultsPage/ResultsTable.visual.test.tsx": {
     "results-entry-nowt": {
       "color-contrast": 3

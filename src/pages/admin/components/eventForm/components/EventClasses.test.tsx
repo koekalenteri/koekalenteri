@@ -13,14 +13,14 @@ describe('EventClasses', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal properties', () => {
-    const { container } = render(
-      <EventClasses id={''} eventStartDate={date} eventEndDate={date} value={undefined} classes={[]} label={''} />
-    )
-    expect(container).toMatchSnapshot()
+    render(<EventClasses id={''} eventStartDate={date} eventEndDate={date} value={undefined} classes={[]} label={''} />)
+
+    // No classes to pick from: the field disables itself rather than offer an empty list.
+    expect(screen.getByRole('combobox')).toBeDisabled()
   })
 
   it('should render with classes', () => {
-    const { container } = render(
+    render(
       <EventClasses
         id={''}
         eventStartDate={date}
@@ -30,11 +30,13 @@ describe('EventClasses', () => {
         label={''}
       />
     )
-    expect(container).toMatchSnapshot()
+
+    expect(screen.getByRole('combobox')).toBeEnabled()
+    expect(screen.queryByText('ALO')).not.toBeInTheDocument()
   })
 
   it('should render with classes and value', () => {
-    const { container } = render(
+    render(
       <EventClasses
         id={''}
         eventStartDate={date}
@@ -47,11 +49,14 @@ describe('EventClasses', () => {
         label={''}
       />
     )
-    expect(container).toMatchSnapshot()
+
+    // A class with a judge already assigned gets the "ok" chip, not the bare outlined one.
+    expect(screen.getByText('ALO').closest('.MuiChip-filled')).toBeInTheDocument()
+    expect(screen.queryByText('AVO')).not.toBeInTheDocument()
   })
 
   it('should render with classes and values', () => {
-    const { container } = render(
+    render(
       <EventClasses
         id={''}
         eventStartDate={date}
@@ -75,11 +80,14 @@ describe('EventClasses', () => {
         showCount
       />
     )
-    expect(container).toMatchSnapshot()
+
+    // showCount adds the judge tally to a class with more than one judge, not to a single-judge one.
+    expect(screen.getByText('ALO')).toBeInTheDocument()
+    expect(screen.getByText('AVO x2')).toBeInTheDocument()
   })
 
   it('should render with classes and values, open', async () => {
-    const { container, user } = renderWithUserEvents(
+    const { user } = renderWithUserEvents(
       <EventClasses
         id={''}
         eventStartDate={date}
@@ -110,11 +118,13 @@ describe('EventClasses', () => {
     await user.type(input, '{ArrowDown}')
     await flushPromises()
 
-    expect(container).toMatchSnapshot()
+    // A single-day event has nothing to group the options by, so the listbox is flat.
+    expect(screen.getAllByRole('option', { name: /^(ALO|AVO)$/ })).toHaveLength(2)
+    expect(screen.queryByText('dateFormat.wdshort date')).not.toBeInTheDocument()
   })
 
   it('should render with classes and values for 2 day event, open', async () => {
-    const { container, user } = renderWithUserEvents(
+    const { user } = renderWithUserEvents(
       <EventClasses
         id={''}
         eventStartDate={date}
@@ -146,6 +156,10 @@ describe('EventClasses', () => {
     await user.type(input, '{ArrowDown}')
     await flushPromises()
 
-    expect(container).toMatchSnapshot()
+    // A multi-day event groups its options by weekday instead of listing them flat. The mocked
+    // translation echoes the same text for every date, so the group label itself just needs to
+    // exist -- the real difference between the two days is real Finnish weekday names.
+    expect(screen.getAllByRole('option', { name: /^(ALO|AVO)$/ })).toHaveLength(3)
+    expect(screen.getByText('dateFormat.wdshort date')).toBeInTheDocument()
   })
 })

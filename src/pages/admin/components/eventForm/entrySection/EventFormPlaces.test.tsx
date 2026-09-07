@@ -31,13 +31,16 @@ describe('EventFormPlaces', () => {
       startDate: new Date('2023-06-14T12:00:00Z'),
     }
 
-    const { container } = render(<EventFormPlaces event={event} />)
-    expect(container).toMatchSnapshot()
+    render(<EventFormPlaces event={event} />)
+
+    expect(isPressed('total')).toBe(true)
+    expect(screen.getAllByRole('textbox')).toHaveLength(1)
   })
 
   it('should render with classes but no class places (total mode)', () => {
-    const { container } = render(<EventFormPlaces event={eventWithStaticDatesAndClass} />)
-    expect(container).toMatchSnapshot()
+    render(<EventFormPlaces event={eventWithStaticDatesAndClass} />)
+
+    expect(isPressed('total')).toBe(true)
   })
 
   it('should render with class places (per-class mode)', () => {
@@ -48,8 +51,10 @@ describe('EventFormPlaces', () => {
         { ...eventWithStaticDatesAndClass.classes[1], places: 5 },
       ],
     }
-    const { container } = render(<EventFormPlaces event={event} />)
-    expect(container).toMatchSnapshot()
+    render(<EventFormPlaces event={event} />)
+
+    expect(isPressed('perClass')).toBe(true)
+    expect(screen.getAllByRole('textbox').map((input) => (input as HTMLInputElement).value)).toEqual(['5', '5'])
   })
 
   it('should render with placesPerDay (per-day mode)', () => {
@@ -62,8 +67,10 @@ describe('EventFormPlaces', () => {
       },
     }
 
-    const { container } = render(<EventFormPlaces event={eventWithPlacesPerDay} />)
-    expect(container).toMatchSnapshot()
+    render(<EventFormPlaces event={eventWithPlacesPerDay} />)
+
+    expect(isPressed('perDay')).toBe(true)
+    expect(screen.getAllByRole('textbox').map((input) => (input as HTMLInputElement).value)).toEqual(['5', '5'])
   })
 
   it('should render a classed event in per-day mode', () => {
@@ -74,8 +81,10 @@ describe('EventFormPlaces', () => {
       places: 10,
       placesPerDay: { '2021-02-10': 5, '2021-02-11': 5 },
     }
-    const { container } = render(<EventFormPlaces event={event} />)
-    expect(container).toMatchSnapshot()
+    render(<EventFormPlaces event={event} />)
+
+    expect(isPressed('perDay')).toBe(true)
+    expect(screen.getAllByRole('textbox').map((input) => (input as HTMLInputElement).value)).toEqual(['5', '5'])
   })
 
   describe('mode inference', () => {

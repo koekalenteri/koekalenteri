@@ -12,19 +12,21 @@ describe('ClassPlacesTable', () => {
   it('should render correctly', () => {
     const handleChange = vi.fn()
 
-    const { container } = render(
-      <ClassPlacesTable event={eventWithStaticDatesAndClass} disabled={false} handleChange={handleChange} />
-    )
-    expect(container).toMatchSnapshot()
+    render(<ClassPlacesTable event={eventWithStaticDatesAndClass} disabled={false} handleChange={handleChange} />)
+
+    for (const input of screen.getAllByRole('textbox')) {
+      expect(input).toBeEnabled()
+    }
   })
 
   it('should render with disabled=true', () => {
     const handleChange = vi.fn()
 
-    const { container } = render(
-      <ClassPlacesTable event={eventWithStaticDatesAndClass} disabled={true} handleChange={handleChange} />
-    )
-    expect(container).toMatchSnapshot()
+    render(<ClassPlacesTable event={eventWithStaticDatesAndClass} disabled={true} handleChange={handleChange} />)
+
+    for (const input of screen.getAllByRole('textbox')) {
+      expect(input).toBeDisabled()
+    }
   })
 
   it('should call handleChange when class places are changed', async () => {

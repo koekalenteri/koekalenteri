@@ -21,19 +21,23 @@ describe('DayPlacesTable', () => {
   it('should render correctly', () => {
     const handleDayPlacesChange = vi.fn()
 
-    const { container } = render(
+    render(
       <DayPlacesTable event={eventWithPlacesPerDay} disabled={false} handleDayPlacesChange={handleDayPlacesChange} />
     )
-    expect(container).toMatchSnapshot()
+
+    expect(screen.getAllByRole('textbox').map((input) => (input as HTMLInputElement).value)).toEqual(['5', '5'])
   })
 
   it('should render with disabled=true', () => {
     const handleDayPlacesChange = vi.fn()
 
-    const { container } = render(
+    render(
       <DayPlacesTable event={eventWithPlacesPerDay} disabled={true} handleDayPlacesChange={handleDayPlacesChange} />
     )
-    expect(container).toMatchSnapshot()
+
+    for (const input of screen.getAllByRole('textbox')) {
+      expect(input).toBeDisabled()
+    }
   })
 
   it('should call handleDayPlacesChange when day places are changed', async () => {
