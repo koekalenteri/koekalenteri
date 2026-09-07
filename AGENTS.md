@@ -58,6 +58,21 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   attaches the changed linux baselines to those Jira issues, so the ticket always shows the current
   look of the components it covers.
 
+### A DOM dump is not an acceptable test
+
+- `expect(container).toMatchSnapshot()` (or `container.firstChild`, `baseElement`, `asFragment()`) is
+  not a test anyone can read a failure from — a false positive on every refactor, and no record of
+  what it was actually checking. KOE-1315 spent thirteen tickets replacing 67 of these: a screenshot
+  (`*.visual.test.tsx`) for the visual concern, a role/text/value assertion for the behavioral one.
+  A data snapshot — a plain object, array, or rendered string, not a rendered container — is still
+  fine; `toMatchSnapshot`/`toMatchInlineSnapshot` on those is unaffected.
+- `npm run check-dom-snapshots` (`scripts/checkDomSnapshots.js`) enforces this on every commit,
+  alongside `check-screenshots`: it scans each staged test file's lines for `toMatchSnapshot`/
+  `toMatchInlineSnapshot` called on one of the four DOM-dump targets above, and rejects the commit
+  if it finds one. An explicit allowlist inside the script names the eleven files that already
+  hold legitimate data snapshots (KOE-1315's own accounting), so touching one of those for an
+  unrelated reason never trips the check.
+
 ### A screenshot test is also an accessibility test
 
 - `toMatchScreenshot` is wrapped in `src/setupVisualTests.ts`: after the image comparison passes, the
