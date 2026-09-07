@@ -10,6 +10,7 @@ on:
       - 'src/**/__screenshots__/**'
 
 permissions:
+  actions: read
   contents: read
 
 jobs:
@@ -24,13 +25,50 @@ jobs:
         with:
           node-version: 24
 
+      # github.event.before is the previous *push*, not the previous *successful run of this
+      # job*. If this job failed on an intermediate push (a transient Jira API error, say),
+      # the next successful push would only diff against its own immediate parent and that
+      # push's screenshots would be skipped forever. Walk completed runs of this workflow on
+      # main for the head_sha of the most recent one where the attach job actually succeeded,
+      # so the next success always covers everything since the last one that got through.
+      - name: Find the last commit this job successfully attached
+        id: last-attached
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'jira-screenshots.yml',
+              branch: 'main',
+              event: 'push',
+              status: 'completed',
+              per_page: 30,
+            })
+            for (const run of data.workflow_runs) {
+              if (run.id === context.runId) continue
+              const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id,
+              })
+              const job = jobs.jobs.find((j) => j.name === 'attach')
+              if (job?.conclusion === 'success') {
+                core.info(`last successful attach run: ${run.id} at ${run.head_sha}`)
+                core.setOutput('sha', run.head_sha)
+                return
+              }
+            }
+            core.info('no previous successful attach run found')
+            core.setOutput('sha', '')
+
       - name: Attach changed screenshots to the Jira issues the commits name
         env:
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
-          BEFORE="${{ github.event.before }}"
-          if [[ -z "$BEFORE" || "$BEFORE" == 0000000000000000000000000000000000000000 ]] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
-            BEFORE="$(git rev-parse '${{ github.sha }}^')"
+          BASE="${{ steps.last-attached.outputs.sha }}"
+          if [[ -z "$BASE" ]] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            BASE="$(git rev-parse '${{ github.sha }}^')"
           fi
-          node scripts/jira-attach-screenshots.mjs "$BEFORE" "${{ github.sha }}"
+          node scripts/jira-attach-screenshots.mjs "$BASE" "${{ github.sha }}"
