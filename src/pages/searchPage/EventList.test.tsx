@@ -13,14 +13,14 @@ vi.mock('../../api/judge')
 
 describe('EventList', () => {
   it('should render with empty result', () => {
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <Provider>
           <EventList events={[]} />
         </Provider>
       </ThemeProvider>
     )
-    expect(container).toMatchSnapshot()
+    expect(screen.getByText('noResults')).toBeInTheDocument()
   })
 
   it('should render', async () => {
@@ -30,14 +30,17 @@ describe('EventList', () => {
       endDate: parseISO('2021-02-11T12:00:00Z'),
       startDate: parseISO('2021-02-10T12:00:00Z'),
     }
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <Provider>
           <EventList events={[event]} />
         </Provider>
       </ThemeProvider>
     )
-    expect(container).toMatchSnapshot()
+
+    const header = within(screen.getByRole('heading'))
+    expect(header.getByText(event.organizer.name)).toBeInTheDocument()
+    expect(header.getByText('dateFormat.datespan end, start')).toBeInTheDocument()
   })
 
   it('should render registration link', async () => {

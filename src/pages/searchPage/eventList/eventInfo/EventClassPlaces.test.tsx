@@ -22,14 +22,13 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 describe('EventStateInfo', () => {
   it('should render without classes', () => {
     const event = { classes: [], entries: 2, members: 1, places: 3, startDate: new Date() }
-    const { container } = render(<EventClassPlaces event={event} eventClass={''} />, {
+    render(<EventClassPlaces event={event} eventClass={''} />, {
       wrapper: Wrapper,
     })
 
     expect(screen.getByText('1')).toBeInTheDocument()
     expect(screen.getByText('2')).toBeInTheDocument()
     expect(screen.getByText('3')).toBeInTheDocument()
-    expect(container.firstChild).toMatchSnapshot()
   })
 
   it('should render with one class', () => {
@@ -41,14 +40,13 @@ describe('EventStateInfo', () => {
       places: 3,
       startDate: new Date(),
     }
-    const { container } = render(<EventClassPlaces event={event} eventClass={''} />, {
+    render(<EventClassPlaces event={event} eventClass={''} />, {
       wrapper: Wrapper,
     })
 
     expect(screen.getByText('1')).toBeInTheDocument()
     expect(screen.getByText('2')).toBeInTheDocument()
     expect(screen.getByText('3')).toBeInTheDocument()
-    expect(container.firstChild).toMatchSnapshot()
   })
 
   it('should render with two classes', () => {
@@ -63,7 +61,7 @@ describe('EventStateInfo', () => {
       places: 0,
       startDate: new Date(),
     }
-    const { container } = render(
+    render(
       <>
         <EventClassPlaces event={event} eventClass={'ALO'} />
         <EventClassPlaces event={event} eventClass={'AVO'} />
@@ -82,7 +80,6 @@ describe('EventStateInfo', () => {
     expect(screen.getByText('11')).toBeInTheDocument()
     expect(screen.getByText('12')).toBeInTheDocument()
     expect(screen.getByText('13')).toBeInTheDocument()
-    expect(container.firstChild).toMatchSnapshot()
   })
 
   it('should fall back to the class’s day totals when capacity is tracked per day, not per class', () => {

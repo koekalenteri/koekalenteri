@@ -74,57 +74,52 @@ describe('SearchPage', () => {
 
   it('filters by date/end', async () => {
     // start is required for fetching events
-    const { container } = await renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
+    await renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
     await flushPage()
     expect(screen.getByRole('group', { name: 'daterangeEnd' })).toHaveTextContent('01.03.2021')
     expect(screen.getAllByRole('article')).toHaveLength(4)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by date', async () => {
-    const { container } = await renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
+    await renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
     await flushPage()
     expect(screen.getByRole('group', { name: 'daterangeStart' })).toHaveTextContent('01.01.2021')
     expect(screen.getByRole('group', { name: 'daterangeEnd' })).toHaveTextContent('01.03.2021')
     expect(screen.getAllByRole('article')).toHaveLength(4)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by date - no-results', async () => {
-    const { container } = await renderPage('/?s=2021-03-01&e=2021-03-02', locales.fi)
+    await renderPage('/?s=2021-03-01&e=2021-03-02', locales.fi)
     await flushPage()
     expect(screen.getByRole('group', { name: 'daterangeStart' })).toHaveTextContent('01.03.2021')
     expect(screen.getByRole('group', { name: 'daterangeEnd' })).toHaveTextContent('02.03.2021')
     expect(screen.getByText('noResults')).toBeInTheDocument()
-    expect(container).toMatchSnapshot()
+    expect(screen.queryAllByRole('article')).toHaveLength(0)
   })
 
   it('filters by event type', async () => {
     // start is required for fetching events
-    const { container } = await renderPage('/?s=2021-01-01&t=NOME-B', locales.fi)
+    await renderPage('/?s=2021-01-01&t=NOME-B', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'NOME-B' })).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(5)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by event class', async () => {
     // start is required for fetching events
-    const { container } = await renderPage('/?s=2021-01-01&c=AVO', locales.fi)
+    await renderPage('/?s=2021-01-01&c=AVO', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'AVO' })).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(5)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by organizer', async () => {
     // start is required for fetching events
-    const { container } = await renderPage('/?s=2021-01-01&o=2', locales.fi)
+    await renderPage('/?s=2021-01-01&o=2', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'Järjestäjä 2' })).toBeInTheDocument()
     expect(screen.getByText(/filter.results count/i)).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(1)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by judge', async () => {

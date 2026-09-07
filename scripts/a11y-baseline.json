@@ -1,4 +1,21 @@
 {
+  "src/pages/SearchPage.visual.test.tsx": {
+    "debug-article0": {
+      "nested-interactive": 1
+    },
+    "search-page-empty-desktop": {
+      "nested-interactive": 1
+    },
+    "search-page-empty-phone": {
+      "nested-interactive": 1
+    },
+    "search-page-full-desktop": {
+      "nested-interactive": 3
+    },
+    "search-page-full-phone": {
+      "nested-interactive": 3
+    }
+  },
   "src/pages/admin/JudgeListPage.visual.test.tsx": {
     "judge-list-mock-trial": {
       "color-contrast": 4

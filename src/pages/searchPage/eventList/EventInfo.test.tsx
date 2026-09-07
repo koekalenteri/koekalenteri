@@ -43,7 +43,7 @@ describe('EventInfo', () => {
 
   it('should render event information', async () => {
     const event: DogEvent = { ...testEvent }
-    const { container } = render(
+    render(
       <Provider>
         <Suspense fallback={<div>loading...</div>}>
           <EventInfo event={event} />
@@ -52,7 +52,11 @@ describe('EventInfo', () => {
     )
     await flushPromises()
 
-    expect(container).toMatchSnapshot()
+    expect(screen.getByText('entryTime')).toBeInTheDocument()
+    expect(screen.getByText('ALO')).toBeInTheDocument()
+    expect(screen.getByText('22')).toBeInTheDocument()
+    expect(screen.getByText('11')).toBeInTheDocument()
+    expect(screen.getByText('event description text')).toBeInTheDocument()
   })
 
   it('should render ranking period', async () => {
@@ -94,7 +98,7 @@ describe('EventInfo', () => {
         secretary: { email: 'secretary@example.com', name: 'secretary name', phone: '0700-secretary' },
       },
     }
-    const { container } = render(
+    render(
       <Provider>
         <Suspense fallback={<div>loading...</div>}>
           <EventInfo event={event} />
@@ -107,8 +111,6 @@ describe('EventInfo', () => {
     expect(screen.getByText('official name, 0700-official, official@example.com')).toBeInTheDocument()
     expect(screen.getByText('event.secretary')).toBeInTheDocument()
     expect(screen.getByText('secretary name, 0700-secretary, secretary@example.com')).toBeInTheDocument()
-
-    expect(container).toMatchSnapshot()
   })
 
   it('should not render empty contact info', async () => {
