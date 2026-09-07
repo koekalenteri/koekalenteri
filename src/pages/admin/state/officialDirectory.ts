@@ -21,24 +21,17 @@ const sortOfficialDirectory = <T extends Official>(entries: T[]): T[] => {
 export const atomWithOfficialDirectory = <T extends Official>({ cacheKey, fetch }: OfficialDirectoryAtomOptions<T>) =>
   atomWithCachedRemoteCollection({ cacheKey, fetch, sort: sortOfficialDirectory })
 
-export const filterOfficialDirectory = <T extends Official>(
-  entries: T[],
-  filter: string,
-  includeEventTypes = false
-): T[] => {
+/**
+ * Matches the search text against every column the directory shows, event types included: an
+ * official's list carries them just like a judge's, so "nowt" finds everyone with NOWT rights on
+ * both pages (KOE-1385).
+ */
+export const filterOfficialDirectory = <T extends Official>(entries: T[], filter: string): T[] => {
   const normalized = filter.toLocaleLowerCase(i18next.language)
   if (!normalized) return entries
 
   return entries.filter((entry) =>
-    [
-      entry.id,
-      entry.email,
-      entry.name,
-      entry.location,
-      entry.phone,
-      entry.district,
-      ...(includeEventTypes ? entry.eventTypes : []),
-    ]
+    [entry.id, entry.email, entry.name, entry.location, entry.phone, entry.district, ...entry.eventTypes]
       .join(' ')
       .toLocaleLowerCase(i18next.language)
       .includes(normalized)

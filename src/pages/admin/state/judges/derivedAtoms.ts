@@ -8,6 +8,6 @@ export const adminActiveJudgesAtom = atom(async (get) => (await get(adminJudgesA
 // unwrap keeps serving the previous list synchronously while a new filter/data promise settles,
 // instead of re-suspending (and remounting the page) on every filter keystroke.
 export const adminFilteredJudgesAtom = unwrap(
-  atom(async (get) => filterOfficialDirectory(await get(adminJudgesAtom), get(adminJudgeFilterAtom), true)),
+  atom(async (get) => filterOfficialDirectory(await get(adminJudgesAtom), get(adminJudgeFilterAtom))),
   (prev) => prev ?? []
 )
