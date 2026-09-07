@@ -8,9 +8,13 @@ import { RECENTLY_UPDATED_ROW_CLASS_NAME } from '../state/recentUpdates'
 
 const DataGridWithDefaults = (props: DataGridProps) => {
   const [page, setPage] = useState(0)
+  // Since x-data-grid v8 the toolbar slot is only rendered when showToolbar is set, so a grid that
+  // gives one gets it shown; without this the search, the column selector and the page's own filters
+  // are silently dropped.
+  const showToolbar = Boolean(props.slots?.toolbar)
 
   if (props.autoPageSize) {
-    return <DataGrid initialState={{ density: 'compact' }} disableColumnMenu {...props} />
+    return <DataGrid initialState={{ density: 'compact' }} disableColumnMenu showToolbar={showToolbar} {...props} />
   }
 
   return (
@@ -20,6 +24,7 @@ const DataGridWithDefaults = (props: DataGridProps) => {
       pageSizeOptions={[100]}
       initialState={{ density: 'compact' }}
       disableColumnMenu
+      showToolbar={showToolbar}
       {...props}
     />
   )

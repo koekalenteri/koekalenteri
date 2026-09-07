@@ -4,7 +4,7 @@ import Search from '@mui/icons-material/Search'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
-import { GridToolbarColumnsButton, GridToolbarContainer } from '@mui/x-data-grid'
+import { GridToolbarColumnsButton } from '@mui/x-data-grid'
 import { useTranslation } from 'react-i18next'
 
 // augment the props for the toolbar slot
@@ -42,7 +42,9 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
       }}
     >
       {props.columnSelector ? <GridToolbarColumnsButton /> : null}
-      <GridToolbarContainer sx={{ flex: { sm: 'none', xs: 1 }, p: 0 }}>
+      {/* Plain stacks, not GridToolbarContainer: since v9 that one is a Toolbar with flex 0 1 1px,
+          which collapses both halves and wraps the page's filters onto a row of their own. */}
+      <Stack direction="row" sx={{ alignItems: 'center', flex: { sm: 'none', xs: 1 } }}>
         <TextField
           variant="standard"
           value={props.value}
@@ -79,8 +81,12 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
             },
           }}
         />
-      </GridToolbarContainer>
-      <GridToolbarContainer sx={{ p: 0, width: { sm: '50vw', xs: '100%' } }}>{props.children}</GridToolbarContainer>
+      </Stack>
+      {props.children ? (
+        <Stack direction="row" sx={{ alignItems: 'center', width: { sm: '50vw', xs: '100%' } }}>
+          {props.children}
+        </Stack>
+      ) : null}
     </Stack>
   )
 }
