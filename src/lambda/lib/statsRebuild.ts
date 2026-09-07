@@ -667,13 +667,16 @@ interface JudgeWorkloadBucket {
   count: number
   judgeId: string
   name: string
+  organizerId: string
   year: number
 }
 
 /**
- * How many events each judge officiated per year, counted straight from the events table --
- * unlike participation, this needs no registration at all, just the event's own judge list.
- * A judge assigned to several classes of the same event only counts once for that event.
+ * How many events each judge officiated per year and organizer, counted straight from the
+ * events table -- unlike participation, this needs no registration at all, just the event's
+ * own judge list. A judge assigned to several classes of the same event only counts once for
+ * that event. Split by organizer so the admin stats page can honour its organizer picker; the
+ * read side sums the rows back together for wider views.
  */
 const seedJudgeWorkloadFromEvents = (
   eventsById: Map<string, EventStatsEvent>,
@@ -690,8 +693,9 @@ const seedJudgeWorkloadFromEvents = (
       if (!judgeId || seen.has(judgeId)) continue
       seen.add(judgeId)
 
-      const key = `${year}#${judgeId}`
-      const bucket = buckets.get(key) ?? { count: 0, judgeId, name: judge.name, year }
+      const organizerId = event.organizer.id
+      const key = `${year}#${organizerId}#${judgeId}`
+      const bucket = buckets.get(key) ?? { count: 0, judgeId, name: judge.name, organizerId, year }
       bucket.count += 1
       buckets.set(key, bucket)
     }
@@ -701,9 +705,11 @@ const seedJudgeWorkloadFromEvents = (
 const judgeWorkloadRecords = (buckets: Map<string, JudgeWorkloadBucket>, updatedAt: string): JsonJudgeWorkloadItem[] =>
   [...buckets.values()].map((bucket) => ({
     count: bucket.count,
+    judgeId: bucket.judgeId,
     name: bucket.name,
+    organizerId: bucket.organizerId,
     PK: `JUDGE#${bucket.year}`,
-    SK: bucket.judgeId,
+    SK: `${bucket.organizerId}#${bucket.judgeId}`,
     updatedAt,
   }))
 

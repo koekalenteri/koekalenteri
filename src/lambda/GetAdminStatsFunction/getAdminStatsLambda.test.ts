@@ -266,18 +266,78 @@ describe('getAdminStatsLambda', () => {
   })
 
   describe('judge workload (?judges)', () => {
-    it('returns judgeWorkload for the requested year without organizer scoping', async () => {
-      mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1'], user: mockUser })
-      mockQuery.mockResolvedValueOnce([{ count: 5, name: 'Matti Meikäläinen', SK: '1' }])
+    const judgeRow = { count: 5, judgeId: '1', name: 'Matti Meikäläinen', organizerId: 'org1', SK: 'org1#1' }
+
+    it('returns judgeWorkload for the requested year over every organizer for an admin', async () => {
+      mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: mockAdminUser })
+      mockQuery.mockResolvedValueOnce([judgeRow])
 
       const event = constructAPIGwEvent({}, { query: { judges: '2025' } })
       const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
 
-      expect(mockQuery).toHaveBeenCalledWith({ key: 'PK = :pk', values: { ':pk': 'JUDGE#2025' } })
+      expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: undefined,
+        key: '#pk = :pk',
+        names: { '#pk': 'PK' },
+        values: { ':pk': 'JUDGE#2025' },
+      })
       expect(JSON.parse(result.body)).toEqual({
         judgeWorkload: [{ count: 5, judgeId: '1', name: 'Matti Meikäläinen' }],
       })
       expect(result.statusCode).toBe(200)
+    })
+
+    it('scopes a non-admin to the organizers they belong to', async () => {
+      mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1', 'org2'], user: mockUser })
+      mockQuery.mockResolvedValueOnce([judgeRow])
+
+      const event = constructAPIGwEvent({}, { query: { judges: '2025' } })
+      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: '#organizerId IN (:organizerId0, :organizerId1)',
+        key: '#pk = :pk',
+        names: { '#organizerId': 'organizerId', '#pk': 'PK' },
+        values: { ':organizerId0': 'org1', ':organizerId1': 'org2', ':pk': 'JUDGE#2025' },
+      })
+      expect(result.statusCode).toBe(200)
+    })
+
+    it('narrows to an explicitly selected organizer', async () => {
+      mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1', 'org2'], user: mockUser })
+      mockQuery.mockResolvedValueOnce([judgeRow])
+
+      const event = constructAPIGwEvent({}, { query: { judges: '2025', organizerId: 'org1' } })
+      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: '#organizerId IN (:organizerId0)',
+        key: '#pk = :pk',
+        names: { '#organizerId': 'organizerId', '#pk': 'PK' },
+        values: { ':organizerId0': 'org1', ':pk': 'JUDGE#2025' },
+      })
+      expect(result.statusCode).toBe(200)
+    })
+
+    it('rejects an organizer the caller does not belong to', async () => {
+      mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1'], user: mockUser })
+
+      const event = constructAPIGwEvent({}, { query: { judges: '2025', organizerId: 'org-elsewhere' } })
+      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+
+      expect(result.statusCode).toBe(403)
+      expect(mockQuery).not.toHaveBeenCalled()
+    })
+
+    it('returns nothing for a non-admin who belongs to no organizer', async () => {
+      mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: mockUser })
+
+      const event = constructAPIGwEvent({}, { query: { judges: '2025' } })
+      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+
+      expect(result.statusCode).toBe(200)
+      expect(JSON.parse(result.body)).toEqual({ judgeWorkload: [] })
+      expect(mockQuery).not.toHaveBeenCalled()
     })
 
     // Number() alone would accept several of these ('0x7E9', '2025.5', 'Infinity'), and a

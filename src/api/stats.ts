@@ -80,14 +80,21 @@ export async function getAdminCapacityStats(
   return result.capacityStats ?? []
 }
 
-/** Per-judge event counts for a year. Authenticated, but not organizer-scoped: judging isn't tied to one organizer. */
+/**
+ * Per-judge event counts for a year, over the events of the given organizer. An empty
+ * organizerId means "every organizer I'm a member of" (all of them for an admin), matching
+ * getAdminCapacityStats.
+ */
 export async function getAdminJudgeWorkload(
   token: string,
   year: number,
+  organizerId?: string,
   signal?: AbortSignal
 ): Promise<JudgeWorkloadEntry[]> {
+  const params = new URLSearchParams({ judges: `${year}` })
+  if (organizerId) params.set('organizerId', organizerId)
   const result = await http.get<{ judgeWorkload?: JudgeWorkloadEntry[] }>(
-    `${ADMIN_PATH}?judges=${year}`,
+    `${ADMIN_PATH}?${params.toString()}`,
     withToken({ signal }, token)
   )
   return result.judgeWorkload ?? []

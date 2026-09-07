@@ -44,7 +44,7 @@ export default function OrganizerStatsPage() {
   }, [orgs, organizerId, setOrganizerId])
 
   const allOrganizerStats = useAtomValue(adminOrganizerEventStatsAtom)
-  const judgeWorkload = useAtomValue(adminJudgeWorkloadAtom(year))
+  const judgeWorkload = useAtomValue(adminJudgeWorkloadAtom(`${year}|${organizerId}`))
 
   // Derived from the stats already loaded rather than from /stats: the global year list would
   // cost four queries per year, and years with no events of your own are not selectable anyway.

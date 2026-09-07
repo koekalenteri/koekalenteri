@@ -53,5 +53,10 @@ export const getAdminCapacityStats = vi.fn(
 )
 
 export const getAdminJudgeWorkload = vi.fn(
-  async (_token: string, _year: number, _signal?: AbortSignal): Promise<JudgeWorkloadEntry[]> => []
+  async (
+    _token: string,
+    _year: number,
+    _organizerId?: string,
+    _signal?: AbortSignal
+  ): Promise<JudgeWorkloadEntry[]> => []
 )

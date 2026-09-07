@@ -48,13 +48,18 @@ export const adminCapacityStatsAtom = atomFamily((key: string) =>
   )
 )
 
-/** Per-judge event counts for one year. Not organizer-scoped, so keyed by year alone. */
-export const adminJudgeWorkloadAtom = atomFamily((year: number) =>
+/**
+ * Per-judge event counts for one year over one organizer's events. Keyed by
+ * `${year}|${organizerId}` like adminCapacityStatsAtom, and for the same reason: switching
+ * either picker re-fetches, and an empty organizerId means every organizer the user may see.
+ */
+export const adminJudgeWorkloadAtom = atomFamily((key: string) =>
   unwrap(
     atom(async (get) => {
+      const [year, organizerId] = key.split('|')
       const token = get(validIdTokenAtom)
-      if (!token) return []
-      return getAdminJudgeWorkload(token, year)
+      if (!year || !token) return []
+      return getAdminJudgeWorkload(token, Number(year), organizerId)
     }),
     (prev) => prev ?? []
   )

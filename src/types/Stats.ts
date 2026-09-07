@@ -114,17 +114,25 @@ export interface JsonBreedStartStatsItem {
   updatedAt: string
 }
 
-/** How many events a judge officiated in one year, keyed by judge id (or name, for judges without one). */
+/**
+ * How many events a judge officiated in one year, keyed by judge id (or name, for judges
+ * without one). Summed over whichever organizers the query covered: an event has exactly one
+ * organizer, so per-organizer counts add up without double-counting.
+ */
 export interface JudgeWorkloadEntry {
   judgeId: string
   name: string
   count: number
 }
 
-// DynamoDB item / wire shape: PK = JUDGE#{year}, SK = judgeId
+// DynamoDB item / wire shape: PK = JUDGE#{year}, SK = {organizerId}#{judgeId} (unique, not parsed
+// back: the parts are stored as attributes so the organizer filter and the judge key need no
+// splitting on a name that may itself contain '#').
 export interface JsonJudgeWorkloadItem {
   PK: string
   SK: string
+  organizerId: string
+  judgeId: string
   name: string
   count: number
   updatedAt: string

@@ -1,9 +1,15 @@
+import type { TestStore } from 'test-utils/AtomProvider'
 import { ThemeProvider } from '@mui/material'
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { getAdminCapacityStats, getAllYearlyStats, getOrganizerEventStats } from '../../api/stats'
+import {
+  getAdminCapacityStats,
+  getAdminJudgeWorkload,
+  getAllYearlyStats,
+  getOrganizerEventStats,
+} from '../../api/stats'
 import theme from '../../assets/Theme'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
@@ -97,6 +103,43 @@ describe('OrganizerStatsPage', () => {
     await flushPromises()
 
     expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
+  })
+
+  it('fetches the judge workload for the selected organizer and year, and again when the organizer changes', async () => {
+    vi.mocked(getOrganizerEventStats).mockResolvedValue([
+      { organizerId: '1', PK: 'ORG#1', SK: '2024-01-01#event' },
+      { organizerId: '2', PK: 'ORG#2', SK: '2024-01-01#event' },
+    ])
+
+    let store: TestStore | undefined
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={(s) => {
+            store = s
+            s.set(idTokenAtom, TEST_ID_TOKEN)
+            s.set(adminStatsOrganizerIdAtom, '1')
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <OrganizerStatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    await screen.findByText('stats.admin.overviewTitle')
+
+    const currentYear = new Date().getFullYear()
+    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, currentYear, '1')
+
+    // The organizer picker is honoured: a new selection fetches that organizer's figures.
+    act(() => store?.set(adminStatsOrganizerIdAtom, '2'))
+    await flushPromises()
+
+    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, currentYear, '2')
   })
 
   it('derives the selectable years from the organizer stats without fetching yearly stats', async () => {

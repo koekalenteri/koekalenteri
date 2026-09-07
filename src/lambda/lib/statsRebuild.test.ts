@@ -847,10 +847,67 @@ describe('statsRebuild', () => {
 
       expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual(
         expect.arrayContaining([
-          { count: 1, name: 'Matti Meikäläinen', PK: 'JUDGE#2025', SK: '1', updatedAt: '2025-01-01T00:00:00.000Z' },
-          { count: 1, name: 'Maija Mallikas', PK: 'JUDGE#2025', SK: '2', updatedAt: '2025-01-01T00:00:00.000Z' },
+          {
+            count: 1,
+            judgeId: '1',
+            name: 'Matti Meikäläinen',
+            organizerId: 'organizer-nome-b-event',
+            PK: 'JUDGE#2025',
+            SK: 'organizer-nome-b-event#1',
+            updatedAt: '2025-01-01T00:00:00.000Z',
+          },
+          {
+            count: 1,
+            judgeId: '2',
+            name: 'Maija Mallikas',
+            organizerId: 'organizer-nome-b-event',
+            PK: 'JUDGE#2025',
+            SK: 'organizer-nome-b-event#2',
+            updatedAt: '2025-01-01T00:00:00.000Z',
+          },
         ])
       )
+    })
+
+    it('keeps a row per organizer for a judge who officiated for several clubs', () => {
+      const first: EventStatsEvent = {
+        ...event('first-event', '2025-06-01'),
+        judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+      }
+      const second: EventStatsEvent = {
+        ...event('second-event', '2025-07-01'),
+        judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+      }
+
+      const { records } = buildStatsRecords(
+        [],
+        new Map([
+          [first.id, first],
+          [second.id, second],
+        ]),
+        '2025-01-01T00:00:00.000Z'
+      )
+
+      expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
+        {
+          count: 1,
+          judgeId: '1',
+          name: 'Matti Meikäläinen',
+          organizerId: 'organizer-first-event',
+          PK: 'JUDGE#2025',
+          SK: 'organizer-first-event#1',
+          updatedAt: '2025-01-01T00:00:00.000Z',
+        },
+        {
+          count: 1,
+          judgeId: '1',
+          name: 'Matti Meikäläinen',
+          organizerId: 'organizer-second-event',
+          PK: 'JUDGE#2025',
+          SK: 'organizer-second-event#1',
+          updatedAt: '2025-01-01T00:00:00.000Z',
+        },
+      ])
     })
 
     it('counts a judge only once per event even when assigned to several classes', () => {
@@ -865,6 +922,7 @@ describe('statsRebuild', () => {
       const other: EventStatsEvent = {
         ...event('other-event', '2025-07-01'),
         judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+        organizer: nomeB.organizer,
       }
 
       const { records } = buildStatsRecords(
@@ -877,7 +935,15 @@ describe('statsRebuild', () => {
       )
 
       expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
-        { count: 2, name: 'Matti Meikäläinen', PK: 'JUDGE#2025', SK: '1', updatedAt: '2025-01-01T00:00:00.000Z' },
+        {
+          count: 2,
+          judgeId: '1',
+          name: 'Matti Meikäläinen',
+          organizerId: 'organizer-nome-b-event',
+          PK: 'JUDGE#2025',
+          SK: 'organizer-nome-b-event#1',
+          updatedAt: '2025-01-01T00:00:00.000Z',
+        },
       ])
     })
 
@@ -892,9 +958,11 @@ describe('statsRebuild', () => {
       expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
         {
           count: 1,
+          judgeId: 'Foreign Judge',
           name: 'Foreign Judge',
+          organizerId: 'organizer-nome-b-event',
           PK: 'JUDGE#2025',
-          SK: 'Foreign Judge',
+          SK: 'organizer-nome-b-event#Foreign Judge',
           updatedAt: '2025-01-01T00:00:00.000Z',
         },
       ])

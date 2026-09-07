@@ -754,22 +754,52 @@ describe('lib/stats', () => {
   })
 
   describe('getJudgeWorkload', () => {
-    it('queries per-judge event counts with correct key', async () => {
+    it('queries per-judge event counts with correct key, unfiltered when no organizers are given', async () => {
       mockQuery.mockResolvedValueOnce([
-        { count: 12, name: 'Matti Meikäläinen', SK: '1' },
-        { count: 4, name: 'Foreign Judge', SK: 'Foreign Judge' },
+        { count: 12, judgeId: '1', name: 'Matti Meikäläinen', organizerId: 'org1', SK: 'org1#1' },
+        { count: 4, judgeId: 'Foreign Judge', name: 'Foreign Judge', organizerId: 'org1', SK: 'org1#Foreign Judge' },
       ])
 
       const result = await getJudgeWorkload(2024)
 
       expect(mockQuery).toHaveBeenCalledWith({
-        key: 'PK = :pk',
+        filterExpression: undefined,
+        key: '#pk = :pk',
+        names: { '#pk': 'PK' },
         values: { ':pk': 'JUDGE#2024' },
       })
       expect(result).toEqual([
         { count: 12, judgeId: '1', name: 'Matti Meikäläinen' },
         { count: 4, judgeId: 'Foreign Judge', name: 'Foreign Judge' },
       ])
+    })
+
+    it('filters by organizer and sums a judge who officiated for several of them', async () => {
+      mockQuery.mockResolvedValueOnce([
+        { count: 3, judgeId: '1', name: 'Matti Meikäläinen', organizerId: 'org1', SK: 'org1#1' },
+        { count: 2, judgeId: '1', name: 'Matti Meikäläinen', organizerId: 'org2', SK: 'org2#1' },
+        { count: 1, judgeId: '2', name: 'Maija Mallikas', organizerId: 'org2', SK: 'org2#2' },
+      ])
+
+      const result = await getJudgeWorkload(2024, ['org1', 'org2'])
+
+      expect(mockQuery).toHaveBeenCalledWith({
+        filterExpression: '#organizerId IN (:organizerId0, :organizerId1)',
+        key: '#pk = :pk',
+        names: { '#organizerId': 'organizerId', '#pk': 'PK' },
+        values: { ':organizerId0': 'org1', ':organizerId1': 'org2', ':pk': 'JUDGE#2024' },
+      })
+      expect(result).toEqual([
+        { count: 5, judgeId: '1', name: 'Matti Meikäläinen' },
+        { count: 1, judgeId: '2', name: 'Maija Mallikas' },
+      ])
+    })
+
+    it('returns nothing without querying for an explicit empty organizer list', async () => {
+      const result = await getJudgeWorkload(2024, [])
+
+      expect(result).toEqual([])
+      expect(mockQuery).not.toHaveBeenCalled()
     })
 
     it('handles empty results', async () => {

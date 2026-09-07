@@ -6,6 +6,7 @@ import type {
   EventBreakdownEntry,
   JsonCapacityStatsItem,
   JsonEventStatsItem,
+  JsonJudgeWorkloadItem,
   JudgeWorkloadEntry,
   RetentionStats,
   YearlyBreakdownType,
@@ -299,6 +300,25 @@ export async function getAvailableYears(): Promise<number[]> {
 }
 
 /**
+ * `organizerId IN (...)` filter over a partition whose rows carry an `organizerId` attribute,
+ * registering the placeholders it needs in `names` / `values`. Undefined means no filter (every
+ * organizer); an empty list is the caller's job to short-circuit before querying at all.
+ */
+const organizerFilterExpression = (
+  organizerIds: string[] | undefined,
+  names: Record<string, string>,
+  values: Record<string, string>
+): string | undefined => {
+  if (!organizerIds) return undefined
+  names['#organizerId'] = 'organizerId'
+  const placeholders = organizerIds.map((id, index) => {
+    values[`:organizerId${index}`] = id
+    return `:organizerId${index}`
+  })
+  return `#organizerId IN (${placeholders.join(', ')})`
+}
+
+/**
  * Get monthly available-places-vs-actual-starters stats for one event type,
  * optionally bounded to a yyyy-mm month range. Uses a key condition (not a
  * filter) since SK = {yyyy-mm}#{class}#{organizerId} sorts naturally within
@@ -340,19 +360,8 @@ export async function getCapacityStats(
     values[':to'] = `${to}#￿`
   }
 
-  let filterExpression: string | undefined
-  if (organizerIds) {
-    names['#organizerId'] = 'organizerId'
-    filterExpression = `#organizerId IN (${organizerIds
-      .map((id, index) => {
-        values[`:organizerId${index}`] = id
-        return `:organizerId${index}`
-      })
-      .join(', ')})`
-  }
-
   const items = await dynamoDB.query<JsonCapacityStatsItem>({
-    filterExpression,
+    filterExpression: organizerFilterExpression(organizerIds, names, values),
     key: keyCondition,
     names,
     values,
@@ -409,18 +418,35 @@ export async function getCapacityStatsAllEventTypes(from?: string, to?: string):
 /**
  * Get per-judge event counts for a specific year: how many events each judge officiated.
  * Written by the nightly rebuild from the events table alone, independent of registrations.
+ *
+ * Stored as one row per organizer + judge, so `organizerIds` narrows which organizers' events
+ * are counted the same way it does for capacity stats; undefined means every organizer. The
+ * rows are always summed into one entry per judge -- an event has exactly one organizer, so a
+ * judge who officiated for several clubs gets the sum, never a duplicate.
  */
-export async function getJudgeWorkload(year: number): Promise<JudgeWorkloadEntry[]> {
-  const items = await dynamoDB.query<{ SK: string; name: string; count: number }>({
-    key: 'PK = :pk',
-    values: { ':pk': `JUDGE#${year}` },
+export async function getJudgeWorkload(year: number, organizerIds?: string[]): Promise<JudgeWorkloadEntry[]> {
+  // An explicit empty list means "no organizers the caller may see", not "all of them".
+  if (organizerIds?.length === 0) return []
+
+  const names: Record<string, string> = { '#pk': 'PK' }
+  const values: Record<string, string> = { ':pk': `JUDGE#${year}` }
+  const items = await dynamoDB.query<JsonJudgeWorkloadItem>({
+    filterExpression: organizerFilterExpression(organizerIds, names, values),
+    key: '#pk = :pk',
+    names,
+    values,
   })
 
-  return (items || []).map((item) => ({
-    count: item.count,
-    judgeId: item.SK,
-    name: item.name,
-  }))
+  const totalsByJudge = new Map<string, JudgeWorkloadEntry>()
+  for (const item of items || []) {
+    const total = totalsByJudge.get(item.judgeId)
+    if (total) {
+      total.count += item.count
+    } else {
+      totalsByJudge.set(item.judgeId, { count: item.count, judgeId: item.judgeId, name: item.name })
+    }
+  }
+  return [...totalsByJudge.values()]
 }
 
 /**
