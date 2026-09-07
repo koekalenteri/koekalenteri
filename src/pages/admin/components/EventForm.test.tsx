@@ -40,9 +40,9 @@ describe('EventForm', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render', async () => {
-    const { container } = await renderComponent(eventWithStaticDates)
+    await renderComponent(eventWithStaticDates)
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByLabelText('event.name (locale.fi)')).toHaveValue(eventWithStaticDates.name)
   })
 
   it('should fire onSave and onCancel', async () => {

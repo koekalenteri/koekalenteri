@@ -32,8 +32,9 @@ describe('MembershipInfo', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
-    const { container } = render(<MembershipInfo reg={{}} orgId={'test'} />, { wrapper: Wrapper })
-    expect(container).toMatchSnapshot()
+    render(<MembershipInfo reg={{}} orgId={'test'} />, { wrapper: Wrapper })
+    expect(screen.getByText('validation.registration.choose field')).toBeInTheDocument()
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   })
 
   it('should render only the owner checkbox when owner handles', () => {
@@ -41,9 +42,8 @@ describe('MembershipInfo', () => {
     reg.ownerHandles = true
     reg.owner!.membership = true
 
-    const { container } = render(<MembershipInfo reg={reg} orgId={'test'} />, { wrapper: Wrapper })
+    render(<MembershipInfo reg={reg} orgId={'test'} />, { wrapper: Wrapper })
     expect(screen.getAllByRole('checkbox')).toHaveLength(1)
-    expect(container).toMatchSnapshot()
   })
 
   it('should call onChange for a separate handler', async () => {

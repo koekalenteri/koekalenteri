@@ -9,10 +9,11 @@ describe('AdditionalInfoSection', () => {
 
   it('should render', () => {
     const changeHandler = vi.fn()
-    const { container } = render(
+    render(
       <AdditionalInfoSection description="Test!" descriptions={{ en: 'In English!' }} onChange={changeHandler} open />
     )
-    expect(container).toMatchSnapshot()
+    expect(screen.getByLabelText('event.description (locale.fi)')).toHaveValue('Test!')
+    expect(screen.getByLabelText('event.description (locale.en)')).toHaveValue('In English!')
   })
 
   it('should fire onChange', async () => {

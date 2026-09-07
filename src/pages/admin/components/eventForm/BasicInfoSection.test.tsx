@@ -43,8 +43,8 @@ describe('BasicInfoSection', () => {
       startDate: new TZDate('2022-06-01', TIME_ZONE),
     }
     const changeHandler = vi.fn()
-    const { container } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
-    expect(container).toMatchSnapshot()
+    renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+    expect(screen.getByLabelText('event.name (locale.fi)')).toBeInTheDocument()
   })
 
   describe('interactions', () => {

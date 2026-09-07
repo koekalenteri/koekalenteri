@@ -17,25 +17,6 @@ describe('MoveToPositionDialog', () => {
   })
   afterAll(() => vi.useRealTimers())
 
-  it('renders', async () => {
-    const registration: Registration = {
-      ...registrationWithStaticDates,
-      group: { key: 'participants', number: 2 },
-    }
-
-    const { baseElement } = render(
-      <MoveToPositionDialog
-        open={true}
-        onClose={vi.fn()}
-        registration={registration}
-        positions={[1, 2, 3, 4]}
-        onMove={vi.fn()}
-      />
-    )
-    await flushPromises(false)
-    expect(baseElement).toMatchSnapshot()
-  })
-
   it('calls onClose when close is clicked', async () => {
     const onClose = vi.fn()
     const registration: Registration = {

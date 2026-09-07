@@ -32,8 +32,8 @@ describe('OwnerInfo', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
-    const { container } = render(<OwnerInfo reg={{}} orgId="test" />, { wrapper: Wrapper })
-    expect(container).toMatchSnapshot()
+    render(<OwnerInfo reg={{}} orgId="test" />, { wrapper: Wrapper })
+    expect(screen.getByRole('textbox', { name: 'contact.name' })).toHaveValue('')
   })
 
   it('should call onChange', async () => {

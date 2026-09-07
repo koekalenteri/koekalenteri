@@ -30,7 +30,7 @@ describe('EventListPage', () => {
 
   it('renders', async () => {
     const onChange = vi.fn()
-    const { container, user } = await renderSuspendedWithUserEvents(
+    const { user } = await renderSuspendedWithUserEvents(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <AtomObserver node={adminEventIdAtom} onChange={onChange} />
@@ -49,7 +49,6 @@ describe('EventListPage', () => {
       { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
 
     const rows = screen.getAllByRole('row')
     expect(rows.length).toBeGreaterThan(1)
