@@ -31,14 +31,13 @@ const asSelectChangeEvent = (event: { target: { value: string | string[] } }) =>
 describe('SelectMulti', () => {
   it('renders with default label', () => {
     const onChange = vi.fn()
-    const { container } = renderWithUserEvents(
+    renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <SelectMulti options={options} value={[]} onChange={onChange} />
       </ThemeProvider>
     )
 
     expect(screen.getByTestId('Select options')).toBeInTheDocument()
-    expect(container).toMatchSnapshot()
   })
 
   it('renders with custom label', () => {

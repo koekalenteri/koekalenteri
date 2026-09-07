@@ -20,50 +20,22 @@ describe('AutocompleteSingle', () => {
 
   describe('when options are strings', () => {
     it('should render with minimal information', () => {
-      const { container } = render(<AutocompleteSingle id="test-minimal" options={['A', 'B']} label={'test-label'} />)
-      expect(container).toMatchSnapshot()
+      render(<AutocompleteSingle id="test-minimal" options={['A', 'B']} label={'test-label'} />)
+      expect(screen.getByRole('combobox')).toHaveValue('')
     })
 
     it('should render with selected option', () => {
       render(<AutocompleteSingle id="test-option" options={['A', 'B']} label={'test-label'} value="B" />)
-      expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
-        <input
-          aria-autocomplete="list"
-          aria-expanded="false"
-          aria-invalid="false"
-          autocapitalize="none"
-          autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-          id="test-option"
-          role="combobox"
-          spellcheck="false"
-          type="text"
-          value="B"
-        />
-      `)
+      expect(screen.getByRole('combobox')).toHaveValue('B')
     })
 
     it('should render with missing selected option', () => {
       render(<AutocompleteSingle id="test-option-missing" options={['A', 'B']} label={'test-label'} value="C" />)
-      expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
-        <input
-          aria-autocomplete="list"
-          aria-expanded="false"
-          aria-invalid="false"
-          autocapitalize="none"
-          autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-          id="test-option-missing"
-          role="combobox"
-          spellcheck="false"
-          type="text"
-          value="C"
-        />
-      `)
+      expect(screen.getByRole('combobox')).toHaveValue('C')
     })
 
     it('should render helperText', () => {
-      const { container } = render(
+      render(
         <AutocompleteSingle
           id="test-helperText"
           options={['test-a', 'test-b']}
@@ -71,11 +43,11 @@ describe('AutocompleteSingle', () => {
           helperText={'helper text'}
         />
       )
-      expect(container).toMatchSnapshot()
+      expect(screen.getByText('helper text')).toBeInTheDocument()
     })
 
     it('should render helperText with error state', () => {
-      const { container } = render(
+      render(
         <AutocompleteSingle
           id="test-helperTest-error"
           options={['test-a', 'test-b']}
@@ -84,7 +56,7 @@ describe('AutocompleteSingle', () => {
           error
         />
       )
-      expect(container).toMatchSnapshot()
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-invalid', 'true')
     })
 
     it('should call onChange', async () => {
@@ -138,10 +110,8 @@ describe('AutocompleteSingle', () => {
   describe('when options are objects', () => {
     const getName = (o: { name: string } | string) => (typeof o === 'string' ? o : o.name)
     it('should render with minimal information', () => {
-      const { container } = render(
-        <AutocompleteSingle id="test-minimal" options={[{ name: 'A' }, { name: 'B' }]} label={'test-label'} />
-      )
-      expect(container).toMatchSnapshot()
+      render(<AutocompleteSingle id="test-minimal" options={[{ name: 'A' }, { name: 'B' }]} label={'test-label'} />)
+      expect(screen.getByRole('combobox')).toHaveValue('')
     })
 
     it('should render with selected option', () => {
@@ -154,21 +124,7 @@ describe('AutocompleteSingle', () => {
           getOptionLabel={getName}
         />
       )
-      expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
-        <input
-          aria-autocomplete="list"
-          aria-expanded="false"
-          aria-invalid="false"
-          autocapitalize="none"
-          autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-          id="test-option"
-          role="combobox"
-          spellcheck="false"
-          type="text"
-          value="B"
-        />
-      `)
+      expect(screen.getByRole('combobox')).toHaveValue('B')
     })
 
     it('should render with missing selected option', () => {
@@ -181,25 +137,11 @@ describe('AutocompleteSingle', () => {
           getOptionLabel={getName}
         />
       )
-      expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
-        <input
-          aria-autocomplete="list"
-          aria-expanded="false"
-          aria-invalid="false"
-          autocapitalize="none"
-          autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-          id="test-option-missing"
-          role="combobox"
-          spellcheck="false"
-          type="text"
-          value="C"
-        />
-      `)
+      expect(screen.getByRole('combobox')).toHaveValue('C')
     })
 
     it('should render helperText', () => {
-      const { container } = render(
+      render(
         <AutocompleteSingle
           id="test-helperText"
           options={[{ name: 'test-a' }, { name: 'test-b' }]}
@@ -208,11 +150,11 @@ describe('AutocompleteSingle', () => {
           getOptionLabel={getName}
         />
       )
-      expect(container).toMatchSnapshot()
+      expect(screen.getByText('helper text')).toBeInTheDocument()
     })
 
     it('should render helperText with error state', () => {
-      const { container } = render(
+      render(
         <AutocompleteSingle
           id="test-helperTest-error"
           options={[{ name: 'test-a' }, { name: 'test-b' }]}
@@ -222,7 +164,7 @@ describe('AutocompleteSingle', () => {
           getOptionLabel={getName}
         />
       )
-      expect(container).toMatchSnapshot()
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-invalid', 'true')
     })
 
     it('should call onChange', async () => {

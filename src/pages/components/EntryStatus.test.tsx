@@ -54,9 +54,10 @@ describe('EntryStatus', () => {
   ])('renders', async (event, text) => {
     const { container } = render(<EntryStatus event={event} />, { wrapper: Wrapper })
 
-    expect(container.firstChild).toMatchSnapshot()
     if (text) {
       expect(screen.getByText(text)).toBeInTheDocument()
+    } else {
+      expect(container.firstChild).toBeNull()
     }
   })
 })

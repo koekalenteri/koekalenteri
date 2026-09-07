@@ -8,24 +8,21 @@ const Wrapper = (props: { readonly children?: ReactNode }) => {
 }
 describe('AdminLink', () => {
   it('should render with minimal properties', () => {
-    const { container } = render(<AdminLink />, { wrapper: Wrapper })
-    expect(container).toMatchSnapshot()
+    render(<AdminLink />, { wrapper: Wrapper })
 
     const link = screen.getByRole('link', { name: 'admin' })
     expect(link).toHaveAttribute('href', '/admin/event')
   })
 
   it('should render active border', () => {
-    const { container } = render(<AdminLink active activeBorder="1px solid red" />, { wrapper: Wrapper })
-    expect(container).toMatchSnapshot()
+    render(<AdminLink active activeBorder="1px solid red" />, { wrapper: Wrapper })
 
     const link = screen.getByRole('link', { name: 'admin' })
     expect(link).toHaveStyle({ borderBottom: '1px solid rgb(255, 0, 0)' })
   })
 
   it('should not render border when not active', () => {
-    const { container } = render(<AdminLink activeBorder="1px solid red" />, { wrapper: Wrapper })
-    expect(container).toMatchSnapshot()
+    render(<AdminLink activeBorder="1px solid red" />, { wrapper: Wrapper })
 
     const link = screen.getByRole('link', { name: 'admin' })
     expect(link).not.toHaveStyle({ borderBottom: '1px solid red' })

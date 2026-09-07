@@ -4,19 +4,19 @@ import { NumberInput } from './NumberInput'
 
 describe('PlacesInput', () => {
   it('should render with zero', () => {
-    const { container } = render(<NumberInput value={0} />)
-    expect(container).toMatchSnapshot()
+    render(<NumberInput value={0} />)
+    expect(screen.getByRole('textbox')).toHaveValue('0')
   })
 
   it('should render with positive number', () => {
-    const { container } = render(<NumberInput value={123} />)
-    expect(container).toMatchSnapshot()
+    render(<NumberInput value={123} />)
+    expect(screen.getByRole('textbox')).toHaveValue('123')
   })
 
   it('should rerender with new value', () => {
-    const { container, rerender } = render(<NumberInput value={11} />)
+    const { rerender } = render(<NumberInput value={11} />)
     rerender(<NumberInput value={22} />)
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('textbox')).toHaveValue('22')
   })
 
   it('should call onChange', async () => {

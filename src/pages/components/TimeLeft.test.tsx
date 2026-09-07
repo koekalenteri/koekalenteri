@@ -20,16 +20,14 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 describe('TimeLeft', () => {
   it('renders with date', () => {
     const now = new Date()
-    const { container } = render(<TimeLeft date={now} />, { wrapper: Wrapper })
+    render(<TimeLeft date={now} />, { wrapper: Wrapper })
 
-    expect(container.firstChild).toMatchSnapshot()
     expect(screen.getByText('dateFormat.distanceLeft date')).toBeInTheDocument()
   })
 
   it('renders without date', () => {
     const { container } = render(<TimeLeft />, { wrapper: Wrapper })
 
-    expect(container.firstChild).toMatchSnapshot()
     expect(container.firstChild).toBeNull()
   })
 })

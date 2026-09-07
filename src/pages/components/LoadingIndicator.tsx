@@ -3,7 +3,7 @@ import { forwardRef } from 'react'
 
 const LoadingIndicator = forwardRef((_props, ref) => (
   <div style={{ alignItems: 'center', display: 'flex', height: '100%', justifyContent: 'center', minHeight: '50vh' }}>
-    <CircularProgress ref={ref} />
+    <CircularProgress aria-label="loading" ref={ref} />
   </div>
 ))
 
