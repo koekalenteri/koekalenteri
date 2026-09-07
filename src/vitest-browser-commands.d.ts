@@ -6,5 +6,7 @@ declare module 'vitest/internal/browser' {
       screenshot: string,
       found: Record<string, number>
     ): Promise<{ allowed: number; found: number; rule: string }[]>
+    /** Moves the mouse out of the viewport so nothing renders hovered; see scripts/resetMouse.mjs. */
+    resetMouse(): Promise<void>
   }
 }

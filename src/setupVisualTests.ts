@@ -41,6 +41,13 @@ registerFormatters(i18n)
 localStorage.clear()
 sessionStorage.clear()
 
+// The mouse is the other thing a file inherits from the one before it in the same browser page:
+// it stays wherever that file last clicked, and Chromium hovers whatever this file then renders
+// underneath it. The judge list captured its third row highlighted whenever the event info panel's
+// button click happened to run just before it (KOE-1387). Each file starts with the cursor outside
+// the viewport instead.
+beforeAll(() => commands.resetMouse())
+
 // Every screenshot is also an accessibility audit. The real-browser render that pixel comparison
 // needs is the render axe needs, and a component that only appears in a screenshot test would
 // otherwise never meet it. The matcher itself is wrapped, rather than a helper offered beside it,

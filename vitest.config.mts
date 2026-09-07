@@ -2,6 +2,7 @@ import type { CoverageV8Options } from 'vitest/node'
 import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vitest/config'
 import { a11yRatchet } from './scripts/a11yRatchet.mjs'
+import { resetMouse } from './scripts/resetMouse.mjs'
 
 const backendProject = process.argv.includes('--project=backend')
 
@@ -89,7 +90,7 @@ export default defineConfig({
             screenshotFailures: false,
             // Every screenshot is also an axe audit (setupVisualTests); this is the Node side that
             // keeps the known violations in scripts/a11y-baseline.json.
-            commands: { a11yRatchet },
+            commands: { a11yRatchet, resetMouse },
             instances: [{ browser: 'chromium' }],
             viewport: { width: 1200, height: 900 },
             expect: {
