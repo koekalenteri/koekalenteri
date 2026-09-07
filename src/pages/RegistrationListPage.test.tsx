@@ -117,6 +117,21 @@ describe('RegistrationListPage', () => {
     expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
   })
 
+  it('keeps editing and cancelling behind the row menu', async () => {
+    const { user } = await renderWithRouter('/r/test1/nou-registration')
+    await flushPromises()
+
+    // Not on the row as bare icons any more (KOE-973): the red cross was read as a payment mark and
+    // an entrant paid the same place twice over it. Nothing but the menu button until it is opened.
+    expect(screen.queryByRole('menuitem', { name: 'registration.actions.edit' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('menuitem', { name: 'registration.actions.cancel' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('menuitem', { name: 'more' }))
+
+    expect(await screen.findByRole('menuitem', { name: 'registration.actions.edit' })).toBeVisible()
+    expect(screen.getByRole('menuitem', { name: 'registration.actions.cancel' })).toBeVisible()
+  })
+
   it('itemizes what the registration bought and what has been paid for it', async () => {
     await renderWithRouter('/r/test1/nou-registration')
     await flushPromises()

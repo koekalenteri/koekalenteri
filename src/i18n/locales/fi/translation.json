@@ -784,6 +784,7 @@
     "state": {
       "cancelled": "Tämä ilmoittautuminen on peruttu"
     },
+    "stateAndPayment": "Etusija ja maksu",
     "status": {
       "cancelled": "Olen perunut ilmoittautumiseni",
       "confirmed": "Olen vahvistanut osallistumiseni",

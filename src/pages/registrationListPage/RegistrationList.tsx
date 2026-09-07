@@ -20,6 +20,22 @@ import StyledDataGrid from '../components/StyledDataGrid'
 
 type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
 
+/**
+ * A column of icons still needs a name a screen reader can read out; the design has no room to show
+ * one, so the header carries it out of sight.
+ */
+const headerLabelSx = {
+  border: 0,
+  clip: 'rect(0 0 0 0)',
+  height: '1px',
+  margin: -1,
+  overflow: 'hidden',
+  padding: 0,
+  position: 'absolute',
+  whiteSpace: 'nowrap',
+  width: '1px',
+} as const
+
 interface Props {
   readonly disabled?: boolean
   readonly event: PublicDogEvent
@@ -124,6 +140,11 @@ export default function RegistrationList({
       field: 'icons',
       headerName: '',
       renderCell: (params) => <RegistrationListItemIcons event={event} registration={params.row} />,
+      renderHeader: () => (
+        <Box component="span" sx={headerLabelSx}>
+          {t('registration.stateAndPayment')}
+        </Box>
+      ),
       width: 48,
     },
     {
@@ -144,6 +165,9 @@ export default function RegistrationList({
             />,
           ]
         }
+        // Behind the menu, named rather than drawn (KOE-973): as bare icons on the row, the red cross
+        // was read as a payment mark and the entrant paid a second time. Paying stays on the row —
+        // it only appears when there is something to pay, so it says what the icons were mistaken for.
         const always = [
           <GridActionsCellItem
             disabled={disabled}
@@ -151,6 +175,7 @@ export default function RegistrationList({
             icon={<EditOutlined color="info" />}
             label={t('registration.actions.edit')}
             onClick={() => onEdit(params.row)}
+            showInMenu
           />,
           <GridActionsCellItem
             disabled={disabled}
@@ -158,6 +183,7 @@ export default function RegistrationList({
             icon={<CancelOutlined color="error" />}
             label={t('registration.actions.cancel')}
             onClick={() => onUnregister(params.row)}
+            showInMenu
           />,
         ]
         if (
@@ -180,8 +206,14 @@ export default function RegistrationList({
         }
         return always
       },
+      renderHeader: () => (
+        <Box component="span" sx={headerLabelSx}>
+          {t('actions')}
+        </Box>
+      ),
       type: 'actions',
-      width: 116,
+      // At most the payment icon and the menu button now.
+      width: 80,
     },
   ]
 

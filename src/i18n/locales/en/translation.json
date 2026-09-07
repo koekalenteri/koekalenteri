@@ -784,6 +784,7 @@
     "state": {
       "cancelled": "This registration is cancelled"
     },
+    "stateAndPayment": "Priority and payment",
     "status": {
       "cancelled": "I have cancelled my registration",
       "confirmed": "I have confirmed my participation",
