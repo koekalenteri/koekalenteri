@@ -48,8 +48,10 @@ describe('JudgeSection', () => {
       judges: [{ id: 1, name: 'Test Judge 1' }],
       startDate: new Date('2022-06-01'),
     }
-    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
-    expect(container).toMatchSnapshot()
+    render(<JudgesSection event={testEvent} judges={JUDGES} />)
+
+    expect(screen.getByRole('textbox', { name: 'judge 1' })).toHaveValue('Test Judge 1')
+    expect(screen.queryByRole('textbox', { name: 'judge 2' })).not.toBeInTheDocument()
   })
 
   it('should render properly with two judges selected', () => {
@@ -63,8 +65,11 @@ describe('JudgeSection', () => {
       ],
       startDate: new Date('2022-06-01'),
     }
-    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
-    expect(container).toMatchSnapshot()
+    render(<JudgesSection event={testEvent} judges={JUDGES} />)
+
+    expect(screen.getByRole('textbox', { name: 'judge 1' })).toHaveValue('Test Judge 1')
+    expect(screen.getByRole('textbox', { name: 'judge 2' })).toHaveValue('Test Judge 2')
+    expect(screen.queryByRole('textbox', { name: 'judge 3' })).not.toBeInTheDocument()
   })
 
   it('should render properly with three judges selected', () => {
@@ -79,8 +84,11 @@ describe('JudgeSection', () => {
       ],
       startDate: new Date('2022-06-01'),
     }
-    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
-    expect(container).toMatchSnapshot()
+    render(<JudgesSection event={testEvent} judges={JUDGES} />)
+
+    expect(screen.getByRole('textbox', { name: 'judge 1' })).toHaveValue('Test Judge 1')
+    expect(screen.getByRole('textbox', { name: 'judge 2' })).toHaveValue('Test Judge 2')
+    expect(screen.getByRole('textbox', { name: 'judge 3' })).toHaveValue('Test Judge 3')
   })
 
   it('should not warn about judge 0 not beign available (KOE-357)', () => {
@@ -91,8 +99,11 @@ describe('JudgeSection', () => {
       judges: [{ id: 0, name: '' }],
       startDate: new Date('2022-06-01'),
     }
-    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
-    expect(container).toMatchSnapshot()
+    render(<JudgesSection event={testEvent} judges={JUDGES} />)
+
+    const input = screen.getByRole('textbox', { name: 'judge 1' })
+    expect(input).toHaveValue('')
+    expect(input).toHaveAttribute('aria-invalid', 'false')
   })
 
   it('should hide classes for NOWT event (KOE-317)', () => {
@@ -104,8 +115,9 @@ describe('JudgeSection', () => {
       judges: [{ id: 0, name: '' }],
       startDate: new Date('2022-06-01'),
     }
-    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
-    expect(container).toMatchSnapshot()
+    render(<JudgesSection event={testEvent} judges={JUDGES} />)
+
+    expect(screen.getByLabelText('Arvostelee luokat')).not.toBeVisible()
   })
 
   it('should fire onChange', async () => {

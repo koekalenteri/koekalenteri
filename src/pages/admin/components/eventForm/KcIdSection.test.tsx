@@ -53,8 +53,9 @@ describe('KcIdSection', () => {
       organizer: { id: 'org-id', name: 'Organizer' },
       startDate: new TZDate('2022-06-01', TIME_ZONE),
     }
-    const { container } = renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
-    expect(container).toMatchSnapshot()
+    renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+
+    expect(screen.getByText('event.kcIdLookup')).toBeInTheDocument()
   })
 
   it('should tell the user to pick an organizer before a lookup is possible', () => {

@@ -1,5 +1,5 @@
 import type { EventType, Judge } from '../../../../types'
-import type { FieldRequirements, JudgesEvent } from './types'
+import type { FieldRequirements, JudgesEvent, PartialEvent } from './types'
 import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
@@ -72,4 +72,49 @@ it('tells a Mock trial short of judges who may judge it on their own (KOE-1357)'
     .element(screen.getByRole('combobox', { name: 'Ylituomari' }))
     .toHaveValue('Aino A-tuomari (Mock trial -tuomari)')
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('judges-section-mock-trial-short')
+})
+
+// The two-official-judge, everything-assigned case already has a screenshot: EventForm's own
+// desktop capture shows this section that way. These two cover what that one doesn't.
+
+it('assigns a judge to only some of the classes', async () => {
+  const testEvent: PartialEvent = {
+    classes: [
+      { class: 'ALO', date: new Date('2026-06-01') },
+      { class: 'AVO', date: new Date('2026-06-01') },
+      { class: 'VOI', date: new Date('2026-06-01'), judge: [{ id: 1, name: 'Aino A-tuomari' }] },
+    ],
+    endDate: new Date('2026-06-01'),
+    id: 'test',
+    judges: [{ id: 1, name: 'Aino A-tuomari' }],
+    startDate: new Date('2026-06-01'),
+  }
+
+  const screen = await render(
+    <Frame>
+      <JudgesSection event={testEvent} judges={judges} open />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('VOI')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('judges-section-partial-classes')
+})
+
+it('flags a judge id that is no longer available', async () => {
+  const testEvent: PartialEvent = {
+    classes: [],
+    endDate: new Date('2026-06-01'),
+    id: 'test',
+    judges: [{ id: 99, name: 'Poistunut Tuomari', official: true }],
+    startDate: new Date('2026-06-01'),
+  }
+
+  const screen = await render(
+    <Frame>
+      <JudgesSection event={testEvent} judges={judges} open />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText(/ei ole käytettävissä/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('judges-section-unavailable-judge')
 })

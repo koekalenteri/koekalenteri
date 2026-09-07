@@ -13,16 +13,19 @@ const testRenderHQ: Headquarters = {
 describe('HeadquartersSection', () => {
   it('should render open', () => {
     const changeHandler = vi.fn()
-    const { container } = render(<HeadquartersSection headquarters={testRenderHQ} onChange={changeHandler} open />)
-    expect(container).toMatchSnapshot()
+    render(<HeadquartersSection headquarters={testRenderHQ} onChange={changeHandler} open />)
+
+    expect(screen.getByRole('textbox', { name: 'event.headquarters.name' })).toHaveValue('HQ')
+    expect(screen.getByRole('textbox', { name: 'event.headquarters.address' })).toHaveValue('HQ Address')
+    expect(screen.getByRole('textbox', { name: 'event.headquarters.zipCode' })).toHaveValue('123456')
+    expect(screen.getByRole('textbox', { name: 'event.headquarters.postalDistrict' })).toHaveValue('HQ Postal District')
   })
 
   it('should render collapsed', () => {
     const changeHandler = vi.fn()
-    const { container } = render(
-      <HeadquartersSection headquarters={testRenderHQ} onChange={changeHandler} open={false} />
-    )
-    expect(container).toMatchSnapshot()
+    render(<HeadquartersSection headquarters={testRenderHQ} onChange={changeHandler} open={false} />)
+
+    expect(screen.queryByRole('textbox', { name: 'event.headquarters.name' })).not.toBeInTheDocument()
   })
 
   it('should fire onChange', async () => {

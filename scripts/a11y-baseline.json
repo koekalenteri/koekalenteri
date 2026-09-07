@@ -24,6 +24,9 @@
   "src/pages/admin/components/eventForm/JudgesSection.visual.test.tsx": {
     "judges-section-mock-trial-short": {
       "color-contrast": 1
+    },
+    "judges-section-unavailable-judge": {
+      "color-contrast": 3
     }
   },
   "src/pages/admin/eventResultsPage/ResultsTable.visual.test.tsx": {

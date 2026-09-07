@@ -1,5 +1,5 @@
 import type { ContactInfo, User } from '../../../../types'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import ContactInfoSection from './ContactInfoSection'
 
 describe('ContactInfoSection', () => {
@@ -37,9 +37,9 @@ describe('ContactInfoSection', () => {
     phone: '+3584054321',
   }
 
-  it.each(variants)('renders with %j', (contactInfo: ContactInfo) => {
+  it.each(variants)('checks exactly the fields %j has set', (contactInfo: ContactInfo) => {
     const changeHandler = vi.fn()
-    const { container } = render(
+    render(
       <ContactInfoSection
         contactInfo={contactInfo}
         official={official}
@@ -47,6 +47,17 @@ describe('ContactInfoSection', () => {
         onChange={changeHandler}
       />
     )
-    expect(container).toMatchSnapshot()
+
+    // DOM order matches ContactInfoSection's own layout: official's name/email/phone, then
+    // secretary's -- the same order the 64 variants above pack into their bits.
+    const checked = screen.getAllByRole('checkbox').map((checkbox) => (checkbox as HTMLInputElement).checked)
+    expect(checked).toEqual([
+      contactInfo.official?.name !== '',
+      contactInfo.official?.email !== '',
+      contactInfo.official?.phone !== '',
+      contactInfo.secretary?.name !== '',
+      contactInfo.secretary?.email !== '',
+      contactInfo.secretary?.phone !== '',
+    ])
   })
 })

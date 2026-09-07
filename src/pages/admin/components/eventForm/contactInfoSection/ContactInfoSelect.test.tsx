@@ -7,8 +7,11 @@ describe('PersonContactInfo', () => {
 
   it('should render', () => {
     const changeHandler = vi.fn()
-    const { container } = render(<ContactInfoSelect defaults={defaults} name="official" onChange={changeHandler} />)
-    expect(container).toMatchSnapshot()
+    render(<ContactInfoSelect defaults={defaults} name="official" onChange={changeHandler} />)
+
+    expect(screen.getByRole('checkbox', { name: 'contact.name' })).not.toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'contact.email' })).not.toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'contact.phone' })).not.toBeChecked()
   })
 
   it('should fire onChange when uncontrolled', async () => {

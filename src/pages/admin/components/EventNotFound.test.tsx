@@ -25,7 +25,7 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('EventNotFound', () => {
   it('renders with error message', async () => {
-    const { container } = await renderSuspended(<EventNotFound />, { wrapper: Wrapper })
+    await renderSuspended(<EventNotFound />, { wrapper: Wrapper })
 
     // Check that the error icon is displayed
     expect(screen.getByTestId('ErrorOutlinedIcon')).toBeInTheDocument()
@@ -37,9 +37,6 @@ describe('EventNotFound', () => {
     const backButton = screen.getByRole('link', { name: 'backToEventsList' })
     expect(backButton).toBeInTheDocument()
     expect(backButton).toHaveAttribute('href', Path.admin.events)
-
-    // Snapshot test
-    expect(container).toMatchSnapshot()
   })
 
   it('displays the correct text for event deletion message', async () => {
