@@ -93,6 +93,23 @@ export default function OrganizerStatsPage() {
     [capacityClasses, t]
   )
 
+  // The pickers scroll out of sight above the charts, so every title repeats what its chart is
+  // drawn for. A picker left at "all" narrows nothing and is left out; the event type and class
+  // go in by their codes (NOME-B, ALO), which is how they are spoken of and short enough to fit.
+  const organizerFilters = useMemo(() => {
+    const name = orgs.find((org) => org.id === organizerId)?.name
+    return name ? [name] : []
+  }, [organizerId, orgs])
+  const yearFilters = useMemo(() => [...organizerFilters, `${year}`], [organizerFilters, year])
+  const capacityFilters = useMemo(
+    () => [
+      ...organizerFilters,
+      ...(capacityEventType !== ALL_EVENT_TYPES_ID ? [capacityEventType] : []),
+      ...(capacityClass && capacityClass !== ALL_CLASSES_ID ? [capacityClass] : []),
+    ],
+    [capacityClass, capacityEventType, organizerFilters]
+  )
+
   return (
     <Stack spacing={4} sx={{ p: 1, width: '100%' }}>
       <Typography variant="h4">{t('stats.admin.overviewTitle')}</Typography>
@@ -110,13 +127,13 @@ export default function OrganizerStatsPage() {
 
       <YearSelector years={years} value={year} onChange={setYear} />
 
-      <OrganizerFinanceChart items={organizerStats} />
+      <OrganizerFinanceChart items={organizerStats} filters={yearFilters} />
 
-      <OrganizerRegistrationsChart items={organizerStats} />
+      <OrganizerRegistrationsChart items={organizerStats} filters={yearFilters} />
 
-      <MemberShareChart items={organizerStats} />
+      <MemberShareChart items={organizerStats} filters={yearFilters} />
 
-      <JudgeWorkloadChart data={judgeWorkload} />
+      <JudgeWorkloadChart data={judgeWorkload} filters={yearFilters} />
 
       <Stack direction="row" spacing={2}>
         <AutocompleteSingle
@@ -142,9 +159,9 @@ export default function OrganizerStatsPage() {
 
       {capacityEventType && (
         <>
-          <CapacityUtilizationChart data={capacityStats} classKey={capacityClass} />
-          <DemandVsCapacityChart data={capacityStats} classKey={capacityClass} />
-          <CancellationRateChart data={capacityStats} classKey={capacityClass} />
+          <CapacityUtilizationChart data={capacityStats} classKey={capacityClass} filters={capacityFilters} />
+          <DemandVsCapacityChart data={capacityStats} classKey={capacityClass} filters={capacityFilters} />
+          <CancellationRateChart data={capacityStats} classKey={capacityClass} filters={capacityFilters} />
         </>
       )}
     </Stack>

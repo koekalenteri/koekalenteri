@@ -22,6 +22,7 @@ import { CAPACITY_LINE_CHART_COLOR, CATEGORICAL_CHART_COLORS } from './chartColo
 interface Props {
   readonly data: CapacityStatsEntry[]
   readonly classKey: string
+  readonly filters?: readonly string[]
 }
 
 interface MonthTotals {
@@ -53,7 +54,7 @@ const sumByMonth = (data: CapacityStatsEntry[]): MonthTotals[] => {
  * segment, so it is a line instead. Where the line dips below the bar, demand was turned away —
  * which is the whole question this chart exists to answer.
  */
-export default function DemandVsCapacityChart({ data, classKey }: Props) {
+export default function DemandVsCapacityChart({ data, classKey, filters }: Props) {
   const { t } = useTranslation()
 
   const entries = sumByMonth(classKey === ALL_CLASSES_ID ? data : data.filter((entry) => entry.class === classKey))
@@ -61,7 +62,7 @@ export default function DemandVsCapacityChart({ data, classKey }: Props) {
   if (entries.length === 0) {
     return (
       <>
-        <ChartTitle title={t('stats.admin.demandTitle')} info={t('stats.admin.demandTitleInfo')} />
+        <ChartTitle title={t('stats.admin.demandTitle')} info={t('stats.admin.demandTitleInfo')} filters={filters} />
         <Typography
           sx={{
             color: 'text.secondary',
@@ -77,7 +78,7 @@ export default function DemandVsCapacityChart({ data, classKey }: Props) {
 
   return (
     <>
-      <Typography variant="h6">{t('stats.admin.demandTitle')}</Typography>
+      <ChartTitle title={t('stats.admin.demandTitle')} info={t('stats.admin.demandTitleInfo')} filters={filters} />
       <ChartsDataProvider
         height={340}
         series={[

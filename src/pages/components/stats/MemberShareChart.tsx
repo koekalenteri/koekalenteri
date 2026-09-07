@@ -6,6 +6,7 @@ import MonthlyRateChart, { percentageOf } from './MonthlyRateChart'
 
 interface Props {
   readonly items: EventStatsItem[]
+  readonly filters?: readonly string[]
 }
 
 const monthKey = (date?: Date): string | undefined => (date ? zonedDateString(date).slice(0, 7) : undefined)
@@ -30,7 +31,7 @@ const rateByMonth = (items: EventStatsItem[]): MonthlyRate[] => {
     .map((total) => ({ month: total.month, rate: percentageOf(total.members, total.starters) }))
 }
 
-export default function MemberShareChart({ items }: Props) {
+export default function MemberShareChart({ items, filters }: Props) {
   const { t } = useTranslation()
 
   const entries = rateByMonth(items)
@@ -39,6 +40,7 @@ export default function MemberShareChart({ items }: Props) {
     <MonthlyRateChart
       emptyMessage={t('stats.noDataForYear')}
       entries={entries}
+      filters={filters}
       info={t('stats.admin.memberShareTitleInfo')}
       label={t('stats.admin.memberShare')}
       title={t('stats.admin.memberShareTitle')}

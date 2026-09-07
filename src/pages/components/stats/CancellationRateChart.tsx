@@ -7,6 +7,7 @@ import MonthlyRateChart, { percentageOf } from './MonthlyRateChart'
 interface Props {
   readonly data: CapacityStatsEntry[]
   readonly classKey: string
+  readonly filters?: readonly string[]
 }
 
 /**
@@ -30,7 +31,7 @@ const rateByMonth = (data: CapacityStatsEntry[]): MonthlyRate[] => {
     .map((total) => ({ month: total.month, rate: percentageOf(total.cancelled, total.registered) }))
 }
 
-export default function CancellationRateChart({ data, classKey }: Props) {
+export default function CancellationRateChart({ data, classKey, filters }: Props) {
   const { t } = useTranslation()
 
   const entries = rateByMonth(classKey === ALL_CLASSES_ID ? data : data.filter((entry) => entry.class === classKey))
@@ -39,6 +40,7 @@ export default function CancellationRateChart({ data, classKey }: Props) {
     <MonthlyRateChart
       emptyMessage={t('stats.admin.noCapacityData')}
       entries={entries}
+      filters={filters}
       info={t('stats.admin.cancellationRateTitleInfo')}
       label={t('stats.admin.cancellationRate')}
       title={t('stats.admin.cancellationRateTitle')}

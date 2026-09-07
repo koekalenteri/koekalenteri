@@ -35,10 +35,10 @@ const data = [
 it('draws the waiting list above the places line only where demand exceeded capacity', async () => {
   const screen = await render(
     <div data-testid="chart-root" style={{ background: '#fff', padding: 16, width: 1000 }}>
-      <DemandVsCapacityChart classKey={ALL_CLASSES_ID} data={data} />
+      <DemandVsCapacityChart classKey={ALL_CLASSES_ID} data={data} filters={['Auran Nuuskut ry', 'NOME-B']} />
     </div>
   )
 
-  await expect.element(screen.getByText('Kysyntä suhteessa paikkoihin')).toBeVisible()
+  await expect.element(screen.getByText('Kysyntä suhteessa paikkoihin – Auran Nuuskut ry – NOME-B')).toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('demand-vs-capacity')
 })

@@ -8,6 +8,7 @@ it('plots the cancelled share per month as a percentage', async () => {
     <ChartFrame>
       <CancellationRateChart
         classKey={ALL_CLASSES_ID}
+        filters={['Auran Nuuskut ry', 'NOME-B']}
         data={[
           capacityEntry('2025-03', 'ALO', 40, 22, { cancelledRegistrations: 4 }),
           capacityEntry('2025-04', 'ALO', 40, 35, { cancelledRegistrations: 6 }),
@@ -19,6 +20,6 @@ it('plots the cancelled share per month as a percentage', async () => {
     </ChartFrame>
   )
 
-  await expect.element(screen.getByText('Peruutusprosentti')).toBeVisible()
+  await expect.element(screen.getByText('Peruutusprosentti – Auran Nuuskut ry – NOME-B')).toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('cancellation-rate')
 })

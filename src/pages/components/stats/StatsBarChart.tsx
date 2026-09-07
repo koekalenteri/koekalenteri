@@ -6,15 +6,16 @@ import ChartTitle from './ChartTitle'
 interface Props {
   readonly title: string
   readonly info?: string
+  readonly filters?: readonly string[]
   readonly emptyMessage: string
   readonly isEmpty: boolean
   readonly chartProps: BarChartProps
 }
 
-export default function StatsBarChart({ title, info, emptyMessage, isEmpty, chartProps }: Props) {
+export default function StatsBarChart({ title, info, filters, emptyMessage, isEmpty, chartProps }: Props) {
   return (
     <>
-      <ChartTitle title={title} info={info} />
+      <ChartTitle title={title} info={info} filters={filters} />
       {isEmpty ? (
         <Typography
           sx={{

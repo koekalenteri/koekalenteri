@@ -6,11 +6,12 @@ import StatsBarChart from './StatsBarChart'
 
 interface Props {
   readonly items: EventStatsItem[]
+  readonly filters?: readonly string[]
 }
 
 const monthKey = (date?: Date): string | undefined => (date ? zonedDateString(date).slice(0, 7) : undefined)
 
-export default function OrganizerRegistrationsChart({ items }: Props) {
+export default function OrganizerRegistrationsChart({ items, filters }: Props) {
   const { t } = useTranslation()
 
   const reserveByMonth = new Map<string, number>()
@@ -29,6 +30,7 @@ export default function OrganizerRegistrationsChart({ items }: Props) {
     <StatsBarChart
       title={t('stats.admin.reserveCancelledTitle')}
       info={t('stats.admin.reserveCancelledTitleInfo')}
+      filters={filters}
       emptyMessage={t('stats.noDataForYear')}
       isEmpty={months.length === 0}
       chartProps={{

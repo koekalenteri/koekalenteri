@@ -56,7 +56,10 @@ describe('OrganizerStatsPage', () => {
     await flushPromises()
 
     await screen.findByText('stats.admin.overviewTitle')
-    expect(screen.getByText('stats.admin.title')).toBeInTheDocument()
+    // The title carries the filters the chart is drawn for, so it still says what it shows once
+    // the pickers have scrolled out of sight.
+    // No organizer in it: none of them has any stats, so the picker offers none either.
+    expect(screen.getByText(`stats.admin.title – ${new Date().getFullYear()}`)).toBeInTheDocument()
     // No organizerId/date-range args: the whole dataset is fetched once and filtered in memory.
     expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
     expect(getOrganizerEventStats).toHaveBeenCalledWith(TEST_ID_TOKEN)
@@ -241,10 +244,11 @@ describe('OrganizerStatsPage', () => {
     await flushPromises()
 
     await screen.findByText('stats.admin.overviewTitle')
-    // All three capacity charts hang off the same fetched data.
-    expect(screen.getByText('stats.admin.capacityTitle')).toBeInTheDocument()
-    expect(screen.getByText('stats.admin.demandTitle')).toBeInTheDocument()
-    expect(screen.getByText('stats.admin.cancellationRateTitle')).toBeInTheDocument()
+    // All three capacity charts hang off the same fetched data, and each names the event type and
+    // class it was drawn for, after the organizer the page settled on.
+    expect(screen.getByText('stats.admin.capacityTitle – Järjestäjä 1 – NOME-B – ALO')).toBeInTheDocument()
+    expect(screen.getByText('stats.admin.demandTitle – Järjestäjä 1 – NOME-B – ALO')).toBeInTheDocument()
+    expect(screen.getByText('stats.admin.cancellationRateTitle – Järjestäjä 1 – NOME-B – ALO')).toBeInTheDocument()
     // Classes come from the data, sorted, and the selection falls back to the first one.
     expect(screen.getByDisplayValue('ALO')).toBeInTheDocument()
   })

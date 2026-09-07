@@ -17,6 +17,7 @@ export const percentageOf = (part: number, whole: number): number | null =>
 interface Props {
   readonly emptyMessage: string
   readonly entries: MonthlyRate[]
+  readonly filters?: readonly string[]
   readonly info: string
   readonly label: string
   readonly title: string
@@ -27,11 +28,12 @@ interface Props {
  * next to it, and months with wildly different entry numbers are only comparable once the count
  * is divided out.
  */
-export default function MonthlyRateChart({ emptyMessage, entries, info, label, title }: Props) {
+export default function MonthlyRateChart({ emptyMessage, entries, filters, info, label, title }: Props) {
   return (
     <StatsBarChart
       title={title}
       info={info}
+      filters={filters}
       emptyMessage={emptyMessage}
       isEmpty={entries.length === 0}
       chartProps={{

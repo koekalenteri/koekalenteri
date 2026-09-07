@@ -5,10 +5,11 @@ import StatsBarChart from './StatsBarChart'
 
 interface Props {
   readonly data: JudgeWorkloadEntry[]
+  readonly filters?: readonly string[]
 }
 
 /** How many events each judge officiated in the selected year, busiest first. */
-export default function JudgeWorkloadChart({ data }: Props) {
+export default function JudgeWorkloadChart({ data, filters }: Props) {
   const { t } = useTranslation()
 
   const entries = [...data].sort((a, b) => b.count - a.count)
@@ -18,6 +19,7 @@ export default function JudgeWorkloadChart({ data }: Props) {
     <StatsBarChart
       title={t('stats.admin.judgeWorkloadTitle')}
       info={t('stats.admin.judgeWorkloadTitleInfo')}
+      filters={filters}
       emptyMessage={t('stats.admin.noJudgeData')}
       isEmpty={entries.length === 0}
       chartProps={{

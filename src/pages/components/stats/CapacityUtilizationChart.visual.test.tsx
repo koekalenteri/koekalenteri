@@ -9,6 +9,7 @@ it('sums a class across event types instead of repeating the month on the axis',
     <ChartFrame>
       <CapacityUtilizationChart
         classKey="ALO"
+        filters={['Auran Nuuskut ry', 'NOME-B', 'ALO']}
         data={[
           capacityEntry('2025-06', 'ALO', 20, 15),
           capacityEntry('2025-06', 'ALO', 10, 9, { eventType: 'NOME-A' }),
@@ -18,15 +19,19 @@ it('sums a class across event types instead of repeating the month on the axis',
     </ChartFrame>
   )
 
-  await expect.element(screen.getByText('Osallistujamäärä suhteessa paikkoihin')).toBeVisible()
+  await expect
+    .element(screen.getByText('Osallistujamäärä suhteessa paikkoihin – Auran Nuuskut ry – NOME-B – ALO'))
+    .toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('capacity-one-class-across-event-types')
 })
 
 it('sums every class into one series per month', async () => {
   const screen = await render(
     <ChartFrame>
+      {/* "All classes" is a filter that narrows nothing, so the page leaves it out of the title. */}
       <CapacityUtilizationChart
         classKey={ALL_CLASSES_ID}
+        filters={['Auran Nuuskut ry', 'NOME-B']}
         data={[
           capacityEntry('2025-06', 'ALO', 20, 15),
           capacityEntry('2025-06', 'AVO', 10, 9),

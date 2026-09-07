@@ -9,6 +9,7 @@ export const ALL_CLASSES_ID = 'ALL'
 interface Props {
   readonly data: CapacityStatsEntry[]
   readonly classKey: string
+  readonly filters?: readonly string[]
 }
 
 /**
@@ -29,7 +30,7 @@ const sumByMonth = (data: CapacityStatsEntry[]): { month: string; places: number
     .sort((a, b) => a.month.localeCompare(b.month))
 }
 
-export default function CapacityUtilizationChart({ data, classKey }: Props) {
+export default function CapacityUtilizationChart({ data, classKey, filters }: Props) {
   const { t } = useTranslation()
 
   const entries = sumByMonth(classKey === ALL_CLASSES_ID ? data : data.filter((entry) => entry.class === classKey))
@@ -38,6 +39,7 @@ export default function CapacityUtilizationChart({ data, classKey }: Props) {
     <StatsBarChart
       title={t('stats.admin.capacityTitle')}
       info={t('stats.admin.capacityTitleInfo')}
+      filters={filters}
       emptyMessage={t('stats.admin.noCapacityData')}
       isEmpty={entries.length === 0}
       chartProps={{

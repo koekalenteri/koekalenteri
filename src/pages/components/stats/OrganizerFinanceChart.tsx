@@ -6,11 +6,12 @@ import StatsBarChart from './StatsBarChart'
 
 interface Props {
   readonly items: EventStatsItem[]
+  readonly filters?: readonly string[]
 }
 
 const monthKey = (date?: Date): string | undefined => (date ? zonedDateString(date).slice(0, 7) : undefined)
 
-export default function OrganizerFinanceChart({ items }: Props) {
+export default function OrganizerFinanceChart({ items, filters }: Props) {
   const { t } = useTranslation()
 
   const paidByMonth = new Map<string, number>()
@@ -29,6 +30,7 @@ export default function OrganizerFinanceChart({ items }: Props) {
     <StatsBarChart
       title={t('stats.admin.title')}
       info={t('stats.admin.titleInfo')}
+      filters={filters}
       emptyMessage={t('stats.noDataForYear')}
       isEmpty={months.length === 0}
       chartProps={{
