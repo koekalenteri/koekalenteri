@@ -23,6 +23,8 @@
         - DynamoDBReadPolicy:
             TableName: !Ref OfficialTable
         - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
             TableName: !Ref LocationTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
