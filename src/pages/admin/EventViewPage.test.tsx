@@ -79,6 +79,35 @@ describe('EventViewPage', () => {
     expect(container).toMatchSnapshot()
   })
 
+  it('offers a way back to the event list', async () => {
+    const routes: RouteObject[] = [
+      {
+        element: <EventViewPage />,
+        path: Path.admin.viewEvent(),
+      },
+    ]
+
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <ConfirmProvider>
+                  <DataMemoryRouter initialEntries={[Path.admin.viewEvent(eventWithStaticDates.id)]} routes={routes} />
+                </ConfirmProvider>
+              </SnackbarProvider>
+            </Suspense>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    // KOE-541: the browser's own back button was the only way out of a trial opened from the list.
+    expect(screen.getByRole('link', { name: 'backToEventsList' })).toHaveAttribute('href', Path.admin.events)
+  })
+
   it('renders properly for event with classes', async () => {
     const routes: RouteObject[] = [
       {
