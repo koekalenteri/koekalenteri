@@ -1,4 +1,4 @@
-import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
+import type { GridColDef, GridRowParams, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { Organizer } from '../../types'
 import CloudSync from '@mui/icons-material/CloudSync'
 import EditOutlined from '@mui/icons-material/EditOutlined'
@@ -112,7 +112,12 @@ export default function OrganizerListPage() {
           columns={columns}
           columnVisibilityModel={visibilityModel}
           onColumnVisibilityModelChange={setVisibilityModel}
-          onRowDoubleClick={() => setEditOpen(true)}
+          onRowDoubleClick={(params: GridRowParams<Organizer>) => {
+            // Select the row the pointer landed on: a double click's own click has not settled the
+            // selection yet, so opening on state alone opened an empty dialog.
+            setSelectedID(params.row.id)
+            setEditOpen(true)
+          }}
           onRowSelectionModelChange={handleSelectionModeChange}
           rows={organizers}
           rowSelectionModel={rowSelectionModel(selectedID ? [selectedID] : [])}

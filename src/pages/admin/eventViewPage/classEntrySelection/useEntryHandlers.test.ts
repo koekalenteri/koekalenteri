@@ -1,4 +1,10 @@
-import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEvent } from '@mui/x-data-grid'
+import type {
+  GridCallbackDetails,
+  GridCellParams,
+  GridRowParams,
+  GridRowSelectionModel,
+  MuiEvent,
+} from '@mui/x-data-grid'
 import type React from 'react'
 import { renderHook } from '@testing-library/react'
 import { rowSelectionModel } from '../../../../lib/datagrid'
@@ -29,6 +35,9 @@ Object.defineProperty(navigator, 'clipboard', {
 
 /** The handlers touch only defaultMuiPrevented; the minimal event converts at this boundary. */
 const asMuiEvent = (event: { defaultMuiPrevented: boolean }) => event as MuiEvent<React.MouseEvent>
+
+/** The double-click handler touches only params.row.id; the minimal params convert here. */
+const asRowParams = (id: string) => ({ row: { id } }) as GridRowParams<{ id: string }>
 
 describe('useEntryHandlers', () => {
   // Common test data
@@ -200,11 +209,12 @@ describe('useEntryHandlers', () => {
   })
 
   describe('handleDoubleClick', () => {
-    it('should open dialog when row is double-clicked', () => {
+    it('should open the double-clicked row, not whatever the selection holds', () => {
       const { result } = renderHook(() => useEntryHandlers(defaultProps))
 
-      result.current.handleDoubleClick()
+      result.current.handleDoubleClick(asRowParams('reg2'))
 
+      expect(mockSetSelectedRegistrationId).toHaveBeenCalledWith('reg2')
       expect(mockSetOpen).toHaveBeenCalledWith(true)
     })
 
@@ -216,7 +226,7 @@ describe('useEntryHandlers', () => {
       )
 
       // This should not throw an error
-      expect(() => result.current.handleDoubleClick()).not.toThrow()
+      expect(() => result.current.handleDoubleClick(asRowParams('reg1'))).not.toThrow()
     })
   })
 })

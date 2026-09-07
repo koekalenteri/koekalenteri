@@ -39,6 +39,36 @@ describe('OrganizerListPage', () => {
     expect(screen.getByText('Järjestäjä 1')).toBeInTheDocument()
   })
 
+  it('opens the double-clicked row, with no click to select it first', async () => {
+    // The dialog used to open on whatever the selection state held, which a double click has not
+    // yet settled: it rendered nothing until the selected organizer caught up.
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminOrganizerIdAtom, undefined)
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <OrganizerListPage />
+              </SnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    fireEvent.doubleClick(screen.getByText('Järjestäjä 1'))
+    await flushPromises()
+
+    // The dialog renders nothing at all without an organizer, so its presence is the assertion.
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
   it('keeps the page mounted when a row is selected', async () => {
     // A suspending read of the selected row would swap the whole page for the Suspense fallback,
     // dropping the grid's scroll position and focus on every selection.

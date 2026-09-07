@@ -39,6 +39,34 @@ describe('OrganizerListPage', () => {
     expect(screen.getByText('Test User')).toBeInTheDocument()
   })
 
+  it('refuses to open the roles dialog for your own row', async () => {
+    // The button is disabled for your own roles; the double click used to walk straight past that.
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminUserIdAtom, undefined)
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <UsersPage />
+              </SnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    fireEvent.doubleClick(screen.getByText('Test User'))
+    await flushPromises()
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
   it('keeps the page mounted when a row is selected', async () => {
     // A suspending read of the selected row would swap the whole page for the Suspense fallback,
     // dropping the grid's scroll position and focus on every selection.

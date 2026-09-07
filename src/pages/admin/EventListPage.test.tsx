@@ -3,7 +3,7 @@ import { fireEvent, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter, useLocation } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import {
   eventWithEntryClosed,
@@ -99,6 +99,42 @@ describe('EventListPage', () => {
 
     expect(rows[1]).toHaveClass('Mui-selected')
     expect(Fallback).toHaveBeenCalledTimes(fallbackRendersWhileLoading)
+  })
+
+  it('opens the double-clicked row, with no click to select it first', async () => {
+    // The handler used to navigate to whatever the selection state held, which a double click has
+    // not yet settled: the first double click on a row did nothing at all.
+    const Where = () => <div data-testid="where">{useLocation().pathname}</div>
+    await renderSuspendedWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminEventIdAtom, undefined)
+          }}
+        >
+          <MemoryRouter>
+            <Where />
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <ConfirmProvider>
+                  <EventListPage />
+                </ConfirmProvider>
+              </SnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    const rows = screen.getAllByRole('row')
+    fireEvent.doubleClick(rows[1])
+    await flushPromises()
+
+    expect(screen.getByTestId('where')).toHaveTextContent(/^\/admin\/event\//)
   })
 
   it('selects the double-click destination based on entry start and event state', () => {

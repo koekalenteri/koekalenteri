@@ -1,4 +1,4 @@
-import type { GridRowSelectionModel } from '@mui/x-data-grid'
+import type { GridRowParams, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { DogEvent } from '../../types'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutlined'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
@@ -105,10 +105,12 @@ export default function EventListPage() {
   const editAction = useCallback(() => navigate(Path.admin.editEvent(selectedEventID)), [navigate, selectedEventID])
   const viewAction = useCallback(() => navigate(Path.admin.viewEvent(selectedEventID)), [navigate, selectedEventID])
 
-  const handleDoubleClick = useCallback(() => {
-    if (!selectedEvent) return
-    navigate(getEventDoubleClickPath(selectedEvent))
-  }, [navigate, selectedEvent])
+  // The row the pointer landed on, not the selection: a double click's own click has not settled
+  // the selected event yet, so reading state here left the first double click doing nothing.
+  const handleDoubleClick = useCallback(
+    (params: GridRowParams<DogEvent>) => navigate(getEventDoubleClickPath(params.row)),
+    [navigate]
+  )
 
   const handleSelectionModeChange = useCallback(
     (selection: GridRowSelectionModel) => {

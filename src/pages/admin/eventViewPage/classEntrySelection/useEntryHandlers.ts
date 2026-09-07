@@ -1,4 +1,10 @@
-import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEvent } from '@mui/x-data-grid'
+import type {
+  GridCallbackDetails,
+  GridCellParams,
+  GridRowParams,
+  GridRowSelectionModel,
+  MuiEvent,
+} from '@mui/x-data-grid'
 import type React from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { useSnackbar } from 'notistack'
@@ -61,7 +67,12 @@ export const useEntryHandlers = ({
     }
   }
 
-  const handleDoubleClick = () => setOpen?.(true)
+  // Open the row the pointer landed on, not the selected one: a double click's own click has not
+  // settled the selection yet, so the first double click opened an empty dialog.
+  const handleDoubleClick = (params: GridRowParams<{ id: string }>) => {
+    setSelectedRegistrationId?.(params.row.id)
+    setOpen?.(true)
+  }
 
   return {
     handleCancel,

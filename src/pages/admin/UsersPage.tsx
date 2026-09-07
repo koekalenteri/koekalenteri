@@ -1,5 +1,5 @@
 import type { TooltipProps } from '@mui/material/Tooltip'
-import type { GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid'
+import type { GridColDef, GridRenderCellParams, GridRowParams, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { User } from '../../types'
 import Accessibility from '@mui/icons-material/Accessibility'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutlined'
@@ -268,7 +268,13 @@ export default function UsersPage() {
           columns={columns}
           columnVisibilityModel={visibilityModel}
           onColumnVisibilityModelChange={setVisibilityModel}
-          onRowDoubleClick={editAction}
+          onRowDoubleClick={(params: GridRowParams<User>) => {
+            // Select the row the pointer landed on -- a double click's own click has not settled the
+            // selection yet -- and keep the edit button's guard: your own roles are not yours to edit.
+            if (!isOrgAdmin || params.row.id === user?.id) return
+            setSelectedUserID(params.row.id)
+            setRolesOpen(true)
+          }}
           slots={{ toolbar: QuickSearchToolbar }}
           slotProps={{
             toolbar: {
