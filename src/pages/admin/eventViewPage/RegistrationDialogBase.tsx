@@ -19,6 +19,8 @@ interface Props {
   readonly auditTrail?: AuditRecord[]
   readonly changes: boolean
   readonly classDisabled?: boolean
+  /** Show the entry without letting it be edited - a trial that is over (KOE-1388). */
+  readonly disabled?: boolean
   readonly event: DogEvent
   readonly onClose?: () => void
   readonly open: boolean
@@ -33,6 +35,7 @@ export default function RegistrationDialogBase({
   auditTrail,
   changes,
   classDisabled,
+  disabled,
   event,
   onClose,
   open,
@@ -137,7 +140,7 @@ export default function RegistrationDialogBase({
           admin
           changes={changes}
           classDisabled={classDisabled}
-          disabled={registration.cancelled}
+          disabled={disabled || registration.cancelled}
           event={event as ConfirmedEvent}
           onCancel={handleCancel}
           onChange={handleChange}

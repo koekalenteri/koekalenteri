@@ -54,3 +54,31 @@ it('scrolls a long registration form inside a fixed-height frame', async () => {
   await expect.element(saveButton).toBeVisible()
   await expect(screen.getByRole('dialog')).toMatchScreenshot('registration-edit-dialog-actions')
 })
+
+it('shows the entry read-only once the trial is over', async () => {
+  // An entry of a trial that is over stays readable but not editable (KOE-1388): every field greys
+  // out, the way a cancelled entry's already did, and the save button never wakes up.
+  const screen = await render(
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+        <SnackbarProvider>
+          <ConfirmProvider>
+            <RegistrationDialogBase
+              changes={false}
+              disabled
+              event={eventWithStaticDates}
+              open
+              registration={registrationWithStaticDates}
+              savedRegistration={registrationWithStaticDates}
+              resetRegistration={() => {}}
+              setRegistration={() => {}}
+            />
+          </ConfirmProvider>
+        </SnackbarProvider>
+      </LocalizationProvider>
+    </ThemeProvider>
+  )
+
+  await expect.element(screen.getByLabelText('Rekisterinumero')).toBeVisible()
+  await expect(screen.getByRole('dialog')).toMatchScreenshot('registration-edit-dialog-read-only')
+})

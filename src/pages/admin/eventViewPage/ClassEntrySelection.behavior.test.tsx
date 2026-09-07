@@ -12,6 +12,7 @@ import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import ClassEntrySelection from './ClassEntrySelection'
 
 const mockSaveGroups = vi.fn().mockResolvedValue(undefined)
+const mockHandleOpen = vi.fn()
 const activeEvent = {
   ...eventWithStaticDatesAnd3Classes,
   endDate: new Date('2099-12-31'),
@@ -43,7 +44,7 @@ vi.mock('./classEntrySelection/useEntryHandlers', () => ({
     handleCancel: vi.fn(),
     handleCellClick: vi.fn(),
     handleDoubleClick: vi.fn(),
-    handleOpen: vi.fn(),
+    handleOpen: mockHandleOpen,
     handleRefund: vi.fn(),
     handleSelectionModeChange: vi.fn(),
   }),
@@ -121,6 +122,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
   beforeEach(() => {
     mockSaveGroups.mockClear()
+    mockHandleOpen.mockClear()
     mockLastCallbacks = undefined
     mockDroppableProps = []
   })
@@ -173,7 +175,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     ])
   })
 
-  it('prevents moving registrations after the event has ended', async () => {
+  it('prevents changing registrations after the event has ended, but still opens them', async () => {
     const setOpen = vi.fn()
     const setCancelOpen = vi.fn()
     const registration = {
@@ -207,8 +209,11 @@ describe('ClassEntrySelection behavior coverage', () => {
     })
 
     expect(mockSaveGroups).not.toHaveBeenCalled()
-    expect(setOpen).not.toHaveBeenCalled()
     expect(setCancelOpen).not.toHaveBeenCalled()
+    // Opening is reading, not acting: the entry stays reachable, and the dialog locks its own
+    // fields instead (KOE-1388). Every list keeps its double click for the same reason.
+    expect(mockHandleOpen).toHaveBeenCalledWith(registration.id)
+    expect(mockDroppableProps.every((props) => props.onRowDoubleClick)).toBe(true)
     expect(screen.queryByText('send-message-open')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'move-group' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'move-position' })).not.toBeInTheDocument()

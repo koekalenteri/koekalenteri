@@ -11,13 +11,15 @@ import { adminEditableEventRegistrationByEventIdAndIdAtom, adminEventRegistratio
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
+  /** Show the entry without letting it be edited - a trial that is over (KOE-1388). */
+  readonly disabled?: boolean
   readonly event: DogEvent
   readonly onClose?: () => void
   readonly open: boolean
   readonly registrationId: string
 }
 
-export default function RegistrationEditDialog({ event, registrationId, open, onClose }: Props) {
+export default function RegistrationEditDialog({ disabled, event, registrationId, open, onClose }: Props) {
   const savedRegistration = useAtomValue(adminEventRegistrationAtom({ eventId: event.id, id: registrationId }))
   const key = { eventId: event.id, id: registrationId }
   const [registration, setRegistration] = useAtom(adminEditableEventRegistrationByEventIdAndIdAtom(key))
@@ -63,6 +65,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
   return (
     <RegistrationDialogBase
       changes={changes}
+      disabled={disabled}
       event={event}
       onClose={onClose}
       open={open}

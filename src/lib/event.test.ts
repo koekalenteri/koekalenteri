@@ -43,6 +43,7 @@ import {
   hasSharedReserveList,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
+  isEntryEditingClosed,
   isEventDeletable,
   isEventLive,
   isMockTrialClass,
@@ -1664,5 +1665,27 @@ describe('getParticipantsPhase', () => {
   it('has nothing to say about an event that is not confirmed', () => {
     expect(getParticipantsPhase({ classes: classes('invited'), state: 'cancelled' })).toBeUndefined()
     expect(getParticipantsPhase({ classes: [], state: 'tentative' })).toBeUndefined()
+  })
+})
+
+describe('isEntryEditingClosed', () => {
+  const past = { endDate: new Date('2020-01-02'), startDate: new Date('2020-01-01') }
+  const future = { endDate: new Date('2100-01-02'), startDate: new Date('2100-01-01') }
+
+  it('closes once the trial day has gone', () => {
+    expect(isEntryEditingClosed(past)).toBe(true)
+    expect(isEntryEditingClosed(future)).toBe(false)
+  })
+
+  it('closes once the class has been judged, whatever the calendar says', () => {
+    expect(isEntryEditingClosed(future, 'ended')).toBe(true)
+    expect(isEntryEditingClosed(future, 'completed')).toBe(true)
+  })
+
+  it('stays open while the trial is still ahead of its results', () => {
+    expect(isEntryEditingClosed(future, 'confirmed')).toBe(false)
+    expect(isEntryEditingClosed(future, 'picked')).toBe(false)
+    expect(isEntryEditingClosed(future, 'invited')).toBe(false)
+    expect(isEntryEditingClosed(future, 'started')).toBe(false)
   })
 })

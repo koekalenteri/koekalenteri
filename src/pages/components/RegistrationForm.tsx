@@ -276,6 +276,7 @@ export default function RegistrationForm({
       >
         {admin && onInternalNotesChange && registration.id ? (
           <InternalNotesInfo
+            disabled={disabled}
             notes={registration.internalNotes}
             onChange={onInternalNotesChange}
             onOpenChange={(value) => handleOpenChange('internalNotes', value)}

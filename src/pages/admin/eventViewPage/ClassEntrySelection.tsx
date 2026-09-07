@@ -18,7 +18,7 @@ import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegi
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { rowSelectionModel } from '../../../lib/datagrid'
-import { eventRegistrationDateKey, isEventOver } from '../../../lib/event'
+import { eventRegistrationDateKey, isEntryEditingClosed } from '../../../lib/event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
@@ -101,7 +101,7 @@ const ClassEntrySelection = ({
   const [internalNotesDialogOpen, setInternalNotesDialogOpen] = useState(false)
   const [pendingMoveId, setPendingMoveId] = useState<string>()
   const [selectedForAction, setSelectedForAction] = useState<Registration | undefined>()
-  const actionsDisabled = isEventOver(event) || (state ? ['ended', 'completed'].includes(state) : false)
+  const actionsDisabled = isEntryEditingClosed(event, state)
   const movementDisabled = actionsDisabled
 
   // Extract entry handlers to dedicated hook
@@ -244,10 +244,9 @@ const ClassEntrySelection = ({
           setPendingMoveId(undefined)
         }
       },
-      openEditDialog: (id: string) => {
-        if (actionsDisabled) return
-        handleOpen(id)
-      },
+      // Opening is reading, not acting: an entry of a trial that is over stays readable, and the
+      // dialog itself locks its fields (KOE-1388).
+      openEditDialog: handleOpen,
       pendingMoveId,
       refundRegistration: handleRefund,
       sendMessage: (id: string) => {
@@ -447,7 +446,7 @@ const ClassEntrySelection = ({
                 onRowSelectionModelChange={handleSelectionModeChange}
                 rowSelectionModel={rowSelectionModel(selectedRegistrationId ? [selectedRegistrationId] : [])}
                 onCellClick={handleCellClick}
-                onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
+                onRowDoubleClick={handleDoubleClick}
                 slots={{
                   noRowsOverlay: NoRowsOverlay,
                   toolbar: GroupHeader,
@@ -558,7 +557,7 @@ const ClassEntrySelection = ({
           onRowSelectionModelChange={handleSelectionModeChange}
           rowSelectionModel={rowSelectionModel(selectedRegistrationId ? [selectedRegistrationId] : [])}
           onCellClick={handleCellClick}
-          onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
+          onRowDoubleClick={handleDoubleClick}
           onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
           onReject={handleReject({ key: 'reserve', number: 0 })}
         />
@@ -577,7 +576,7 @@ const ClassEntrySelection = ({
           onRowSelectionModelChange={handleSelectionModeChange}
           rowSelectionModel={rowSelectionModel(selectedRegistrationId ? [selectedRegistrationId] : [])}
           onCellClick={handleCellClick}
-          onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
+          onRowDoubleClick={handleDoubleClick}
           onDrop={handleDrop({ key: GROUP_KEY_CANCELLED, number: registrationsByGroup.cancelled.length + 1 })}
         />
       </ScrollDiv>

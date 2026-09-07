@@ -13,7 +13,7 @@ import { useParams } from 'react-router'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
-import { hasSharedReserveList } from '../../lib/event'
+import { hasSharedReserveList, isEntryEditingClosed } from '../../lib/event'
 import { getRegistrationClass, isRegistrationClass } from '../../lib/registration'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
@@ -71,6 +71,13 @@ export default function EventViewPage() {
   const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
   const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
   const { eventClasses, stateByClass, missingClasses } = useAdminEventRegistrationInfo(event, allRegistrations)
+  // The entry stays readable after its class has been judged, but not editable; the class the entry
+  // sits in decides, the same way the list's own actions are gated (KOE-1388).
+  const entryEditingClosed = useMemo(() => {
+    if (!event) return false
+    const registrationClass = selectedRegistration ? getRegistrationClass(selectedRegistration) : undefined
+    return isEntryEditingClosed(event, registrationClass ? stateByClass[registrationClass] : event.state)
+  }, [event, selectedRegistration, stateByClass])
   const allClasses = useMemo(() => eventClasses.concat(missingClasses), [eventClasses, missingClasses])
   const currentEventClass = useMemo(
     () => (selectedEventClass && allClasses.includes(selectedEventClass) ? selectedEventClass : allClasses[0]),
@@ -271,6 +278,7 @@ export default function EventViewPage() {
         }
       >
         <RegistrationEditDialog
+          disabled={entryEditingClosed}
           event={event}
           onClose={handleClose}
           open={open}

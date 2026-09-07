@@ -5,6 +5,7 @@ import type {
   DeepPartial,
   DogEvent,
   EventClass,
+  EventClassState,
   EventState,
   JsonDogEvent,
   JsonPublicDogEvent,
@@ -128,6 +129,16 @@ export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now =
   state !== 'confirmed'
 
 export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => !!endDate && zonedEndOfDay(endDate) < now
+
+/**
+ * Whether an entry is past changing: the trial's day has gone, or this class has been judged. The
+ * entries stay readable either way - only editing, cancelling, moving and messaging close (KOE-1388).
+ */
+export const isEntryEditingClosed = (
+  event: EventVitals,
+  state?: EventClassState | EventState,
+  now = new Date()
+): boolean => isEventOver(event, now) || state === 'ended' || state === 'completed'
 
 export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' | 'endDate'> | null) => {
   if (!event) return []

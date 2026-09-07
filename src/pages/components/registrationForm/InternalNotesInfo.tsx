@@ -8,6 +8,8 @@ import CollapsibleSection from '../CollapsibleSection'
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
 interface Props {
+  /** Read the note without letting it be changed - a trial that is over (KOE-1388). */
+  readonly disabled?: boolean
   readonly notes?: string
   readonly onChange?: (notes: string) => void | Promise<void>
   readonly onOpenChange?: (value: boolean) => void
@@ -23,7 +25,7 @@ interface Props {
  * never counts as a pending change on the form's own one - which is why it has to say out loud
  * where each edit got to.
  */
-export function InternalNotesInfo({ notes, onChange, onOpenChange, open }: Props) {
+export function InternalNotesInfo({ disabled, notes, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
   const [status, setStatus] = useState<SaveStatus>('idle')
 
@@ -43,6 +45,7 @@ export function InternalNotesInfo({ notes, onChange, onOpenChange, open }: Props
   return (
     <CollapsibleSection title={t('registration.secretaryNotes')} open={open} onOpenChange={onOpenChange}>
       <TextField
+        disabled={disabled}
         error={shown === 'error'}
         helperText={t(`registration.internalNotesStatus.${shown}`)}
         label={t('registration.internalNotes')}

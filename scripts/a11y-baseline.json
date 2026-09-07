@@ -113,6 +113,11 @@
       "heading-order": 1
     }
   },
+  "src/pages/admin/eventViewPage/RegistrationEditDialog.visual.test.tsx": {
+    "registration-edit-dialog-read-only": {
+      "color-contrast": 4
+    }
+  },
   "src/pages/admin/eventViewPage/SendMessageDialog.visual.test.tsx": {
     "send-message-dialog-open": {
       "heading-order": 1,

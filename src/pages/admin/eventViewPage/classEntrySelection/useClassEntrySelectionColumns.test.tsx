@@ -186,7 +186,7 @@ describe('useClassEntrySectionColumns', () => {
     expect(cancelRegistrationMock).toHaveBeenCalledWith('test-id')
   })
 
-  it('disables editing, cancellation, and messaging when event actions are disabled', () => {
+  it('disables cancellation and messaging, but not opening, when event actions are disabled', () => {
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
         actionsDisabled: true,
@@ -198,7 +198,8 @@ describe('useClassEntrySectionColumns', () => {
       asRegistration({ cancelled: false, group: { key: 'P' }, id: 'test-id' })
     )
 
-    expect(actions.find((action) => action.key === 'edit')?.props.disabled).toBe(true)
+    // Opening is reading, not acting: the entry of a trial that is over stays readable (KOE-1388).
+    expect(actions.find((action) => action.key === 'edit')?.props.disabled).toBeUndefined()
     expect(actions.find((action) => action.key === 'cancel')?.props.disabled).toBe(true)
     expect(actions.find((action) => action.key === 'sendMessage')?.props.disabled).toBe(true)
   })

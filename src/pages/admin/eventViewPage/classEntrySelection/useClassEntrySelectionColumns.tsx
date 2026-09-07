@@ -167,9 +167,10 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
   }
 
   actions.push(
+    // Opening is reading, not acting: an entry of a trial that is over stays readable, and the dialog
+    // itself locks its fields (KOE-1388).
     <GridActionsCellItem
       key="edit"
-      disabled={actionsDisabled}
       icon={<EditOutlined fontSize="small" />}
       label={t('registration.actions.edit')}
       onClick={() => callbacks?.openEditDialog?.(row.id)}

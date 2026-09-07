@@ -91,6 +91,27 @@ describe('RegistrationEditDialog', () => {
     expect(screen.getByRole('dialog')).toHaveTextContent('PERUTTU: ')
   })
 
+  it('shows the entry without letting it be edited when the trial is over', async () => {
+    // The trial's entries stay readable afterwards, but nothing in them is still ours to change
+    // (KOE-1388); the form's own lock, the one a cancelled entry gets, does the work.
+    await renderSuspended(
+      <RegistrationEditDialog
+        disabled
+        event={eventWithStaticDates}
+        open={true}
+        registrationId={registrationWithStaticDates.id}
+      />,
+      {
+        wrapper: Wrapper,
+      }
+    )
+    await flushPromises()
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'registration.cta.saveChanges' })).toBeDisabled()
+    expect(screen.getByLabelText('registration.internalNotes')).toBeDisabled()
+  })
+
   it('saves an internal note on its own, without enabling the form save button', async () => {
     const { user } = await renderSuspendedWithUserEvents(
       <RegistrationEditDialog
