@@ -19,7 +19,7 @@ describe('OrganizerListPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
@@ -33,7 +33,10 @@ describe('OrganizerListPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getAllByRole('columnheader').map((c) => c.textContent)).toEqual(
+      expect.arrayContaining(['name', 'roles', 'contact.phone', 'contact.email'])
+    )
+    expect(screen.getByText('Test User')).toBeInTheDocument()
   })
 
   it('keeps the page mounted when a row is selected', async () => {

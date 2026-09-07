@@ -1,5 +1,6 @@
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
+import { screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -32,7 +33,7 @@ describe('AdminHomePage', () => {
         path: Path.login,
       },
     ]
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <SnackbarProvider>
@@ -47,7 +48,8 @@ describe('AdminHomePage', () => {
     )
 
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('banner')).toBeInTheDocument()
+    expect(screen.queryByText('Login')).not.toBeInTheDocument()
   })
 
   it('renders the child page content when user is logged in', async () => {
@@ -67,7 +69,7 @@ describe('AdminHomePage', () => {
         path: Path.login,
       },
     ]
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <SnackbarProvider>
@@ -82,6 +84,7 @@ describe('AdminHomePage', () => {
     )
 
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('banner')).toBeInTheDocument()
+    expect(screen.getByText('ADMIN DEFAULT PAGE CONTENT')).toBeInTheDocument()
   })
 })

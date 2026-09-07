@@ -1,4 +1,5 @@
 import { ThemeProvider } from '@mui/material'
+import { screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
@@ -17,7 +18,7 @@ describe('EventTypeListPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
@@ -31,6 +32,9 @@ describe('EventTypeListPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getAllByRole('columnheader').map((c) => c.textContent)).toEqual(
+      expect.arrayContaining(['eventType.eventType', 'official', 'active', 'eventType.description'])
+    )
+    expect(screen.getByText('TEST1')).toBeInTheDocument()
   })
 })

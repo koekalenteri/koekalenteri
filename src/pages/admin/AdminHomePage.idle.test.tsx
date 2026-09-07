@@ -1,5 +1,6 @@
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
+import { screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -31,7 +32,7 @@ describe('AdminHomePage', () => {
         path: Path.login,
       },
     ]
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider>
           <SnackbarProvider>
@@ -46,10 +47,6 @@ describe('AdminHomePage', () => {
     )
 
     await flushPromises()
-    expect(container).toMatchInlineSnapshot(`
-      <div>
-        Login
-      </div>
-    `)
+    expect(screen.getByText('Login')).toBeInTheDocument()
   })
 })

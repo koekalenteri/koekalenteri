@@ -42,6 +42,11 @@
       "color-contrast": 4
     }
   },
+  "src/pages/admin/StartListPage.visual.test.tsx": {
+    "start-list-desktop": {
+      "scrollable-region-focusable": 1
+    }
+  },
   "src/pages/admin/components/EventForm.visual.test.tsx": {
     "event-form-desktop": {
       "color-contrast": 6

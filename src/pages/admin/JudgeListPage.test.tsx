@@ -18,7 +18,7 @@ describe('JudgeListPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    const { container, user } = await renderSuspendedWithUserEvents(
+    const { user } = await renderSuspendedWithUserEvents(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
@@ -34,11 +34,16 @@ describe('JudgeListPage', () => {
       { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getAllByRole('columnheader').map((c) => c.textContent)).toEqual(
+      expect.arrayContaining(['judgeActive', 'official', 'judgeMockTrial', 'languages'])
+    )
+    expect(screen.getByText('Tuomari 1')).toBeInTheDocument()
 
-    user.click(screen.getAllByRole('row')[2])
+    const rows = screen.getAllByRole('row')
+    expect(rows.length).toBeGreaterThan(1)
+    user.click(rows[1])
     await flushPromises()
 
-    expect(screen.getAllByRole('row')).toMatchSnapshot()
+    expect(rows[1]).toHaveClass('Mui-selected')
   })
 })

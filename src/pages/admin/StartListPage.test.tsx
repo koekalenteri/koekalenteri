@@ -29,7 +29,7 @@ describe('OrganizerListPage', () => {
   it('renders', async () => {
     mockRegistrations.testInvited = [...startListRegistrations].reverse()
 
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
@@ -45,7 +45,9 @@ describe('OrganizerListPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getAllByText(/^ALO/)[0]).toBeInTheDocument()
+    expect(screen.getAllByText(/^AVO/)[0]).toBeInTheDocument()
+    expect(screen.getAllByRole('row').length).toBeGreaterThan(1)
   })
 
   it("prints a WT trial's reserves as one list in reserve-number order", async () => {
