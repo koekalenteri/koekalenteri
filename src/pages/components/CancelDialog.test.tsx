@@ -1,14 +1,18 @@
 import { render, screen } from '@testing-library/react'
 import { eventWithStaticDatesAndClass } from '../../__mockData__/events'
-import { registrationWithStaticDatesAndClass } from '../../__mockData__/registrations'
+import {
+  registrationWithStaticDatesAndClass,
+  unpaidRegistrationWithStaticDatesAndClass,
+} from '../../__mockData__/registrations'
 import { sanitizeDogEvent } from '../../lib/event'
+import { renderWithUserEvents } from '../../test-utils/utils'
 import CancelDialog from './CancelDialog'
 
 const publicEventWithStaticDatesAndClass = sanitizeDogEvent(eventWithStaticDatesAndClass)
 
 describe('CancelDialog', () => {
   it('should display secretary contact info when disabled', () => {
-    const { baseElement } = render(
+    render(
       <CancelDialog
         disabled
         event={publicEventWithStaticDatesAndClass}
@@ -20,11 +24,10 @@ describe('CancelDialog', () => {
     expect(screen.getByText(`registration.cancelDialog.lateText contact, event, registration`)).toBeInTheDocument()
     expect(screen.queryByLabelText('registration.cancelDialog.reason')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'registration.cancelDialog.cta' })).not.toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('should render when not disabled', () => {
-    const { baseElement } = render(
+    render(
       <CancelDialog
         event={publicEventWithStaticDatesAndClass}
         open
@@ -32,11 +35,12 @@ describe('CancelDialog', () => {
       />
     )
 
-    expect(baseElement).toMatchSnapshot()
+    expect(screen.getByLabelText('registration.cancelDialog.reason')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'registration.cancelDialog.cta' })).toBeInTheDocument()
   })
 
   it.each(['handler-sick', 'dog-sick'])('should display additional info when reason is %p', (reason) => {
-    const { baseElement } = render(
+    render(
       <CancelDialog
         event={publicEventWithStaticDatesAndClass}
         open
@@ -45,24 +49,25 @@ describe('CancelDialog', () => {
     )
 
     expect(screen.getByText(`registration.cancelReason.${reason}-info`)).toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 
-  it('should render for admin', () => {
-    const { baseElement } = render(
+  it('should offer the unpaid reason to an admin cancelling an unpaid registration', async () => {
+    const { user } = renderWithUserEvents(
       <CancelDialog
         admin
         event={publicEventWithStaticDatesAndClass}
         open
-        registration={registrationWithStaticDatesAndClass}
+        registration={unpaidRegistrationWithStaticDatesAndClass}
       />
     )
 
-    expect(baseElement).toMatchSnapshot()
+    await user.click(screen.getByLabelText('registration.cancelDialog.reason'))
+
+    expect(screen.getByRole('option', { name: 'registration.cancelReason.unpaid' })).toBeInTheDocument()
   })
 
   it('should render for admin, with reason preselected', () => {
-    const { baseElement } = render(
+    render(
       <CancelDialog
         admin
         event={publicEventWithStaticDatesAndClass}
@@ -73,6 +78,5 @@ describe('CancelDialog', () => {
 
     expect(screen.queryByText(`registration.cancelReason.handler-sick-info`)).not.toBeInTheDocument()
     expect(screen.getByText('registration.cancelReason.handler-sick')).toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 })

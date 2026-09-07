@@ -43,17 +43,33 @@ describe('RegistrationForm', () => {
   afterEach(() => vi.runOnlyPendingTimers())
   afterAll(() => vi.useRealTimers())
 
+  // Each section's toggle button carries the section title as its accessible name (see
+  // CollapsibleSection): the section content itself is covered by KOE-1318's own tests, so this
+  // only checks the sections are all present and in the right order.
+  const sectionTitles = () =>
+    screen.getAllByRole('button', { name: /^registration\.\w+$/ }).map((el) => el.getAttribute('aria-label'))
+
   it('renders', async () => {
-    const { container } = render(
-      <RegistrationForm event={eventWithStaticDates} registration={registrationWithStaticDates} />,
-      { wrapper: Wrapper }
-    )
+    render(<RegistrationForm event={eventWithStaticDates} registration={registrationWithStaticDates} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
-    expect(container).toMatchSnapshot()
+
+    expect(sectionTitles()).toEqual([
+      'registration.class',
+      'registration.dog',
+      'registration.breeder',
+      'registration.owners',
+      'registration.handler',
+      'registration.payer',
+      'registration.qualifyingResults',
+      'registration.notes',
+      'registration.membership',
+    ])
   })
 
   it('renders with invalid dog information', async () => {
-    const { container } = render(
+    render(
       <RegistrationForm
         event={eventWithStaticDates}
         // @ts-expect-error Type 'undefined' is not assignable to type 'Dog'.ts(2322)
@@ -62,7 +78,10 @@ describe('RegistrationForm', () => {
       { wrapper: Wrapper }
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+
+    // The section order is unaffected; the dog section itself falls back to an empty search.
+    expect(sectionTitles()).toContain('registration.dog')
+    expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toHaveValue('')
   })
 
   it('should call onChange', async () => {
