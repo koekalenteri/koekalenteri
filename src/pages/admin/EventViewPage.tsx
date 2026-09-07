@@ -225,6 +225,7 @@ export default function EventViewPage() {
           ))}
         </Tabs>
         <CircularProgress
+          aria-label={t('loading')}
           size={20}
           color="info"
           sx={{ opacity: backgroundActionsRunning ? 1 : 0, transition: 'opacity 0.1s ease-in-out' }}

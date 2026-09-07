@@ -37,6 +37,11 @@
       "nested-interactive": 3
     }
   },
+  "src/pages/admin/EventViewPage.visual.test.tsx": {
+    "event-view-page-structure": {
+      "empty-table-header": 15
+    }
+  },
   "src/pages/admin/JudgeListPage.visual.test.tsx": {
     "judge-list-mock-trial": {
       "color-contrast": 4

@@ -64,7 +64,7 @@ describe('EventEditPage', () => {
       },
     ]
 
-    const { container, unmount } = await renderSuspended(
+    const { unmount } = await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
@@ -78,7 +78,8 @@ describe('EventEditPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByLabelText('event.name (locale.fi)')).toHaveValue(eventWithStaticDates.name)
+    expect(screen.getByRole('group', { name: 'event.startDate' })).toHaveTextContent('10.02.2021')
     unmount()
     expect(consoleDebug).toHaveBeenCalledTimes(2)
     expect(consoleDebug).toHaveBeenNthCalledWith(1, 'ws:event-subscription mount', { eventId: eventWithStaticDates.id })

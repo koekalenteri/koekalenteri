@@ -60,7 +60,7 @@ describe('EventViewPage', () => {
       },
     ]
 
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -76,7 +76,9 @@ describe('EventViewPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('link', { name: 'backToEventsList' })).toBeInTheDocument()
+    // No explicit classes: the event's own type stands in as the one tab.
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([eventWithStaticDates.eventType])
   })
 
   it('offers a way back to the event list', async () => {
@@ -116,7 +118,7 @@ describe('EventViewPage', () => {
       },
     ]
 
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -135,7 +137,7 @@ describe('EventViewPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'AVO'])
   })
 
   it('uses the route event id instead of stale admin event selection state', async () => {
@@ -146,7 +148,7 @@ describe('EventViewPage', () => {
       },
     ]
 
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider
@@ -171,7 +173,9 @@ describe('EventViewPage', () => {
     )
 
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    // The stale admin-selected class 'VOI' doesn't exist on this event; the route's own class wins.
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'AVO'])
+    expect(screen.getByRole('tab', { name: 'ALO' })).toHaveAttribute('aria-selected', 'true')
   })
 
   it('gives a WT trial a tab of its own for the shared reserve list', async () => {

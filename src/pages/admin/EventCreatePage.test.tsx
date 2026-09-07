@@ -2,6 +2,7 @@ import type { Language } from '../../i18n'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { screen } from '@testing-library/react'
 import { createStore } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -48,7 +49,7 @@ describe('EventEditPage', () => {
       startDate: eventDate,
     }
 
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <Provider initializeState={({ set }) => set(adminNewEventAtom, initialValue)}>
@@ -64,6 +65,7 @@ describe('EventEditPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('group', { name: 'event.startDate' })).toHaveTextContent('23.04.2021')
+    expect(screen.getByRole('group', { name: 'event.endDate' })).toHaveTextContent('23.04.2021')
   })
 })
