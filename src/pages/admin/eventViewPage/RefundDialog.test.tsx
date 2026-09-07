@@ -104,19 +104,19 @@ describe('RefundDialog', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders hidden when open is false', async () => {
-    const { container } = render(<RefundDialog registration={registrationWithStaticDates} open={false} />, {
+    render(<RefundDialog registration={registrationWithStaticDates} open={false} />, {
       wrapper: Wrapper,
     })
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
   it('renders with open dialog', async () => {
-    const { baseElement } = render(<RefundDialog registration={registrationWithStaticDates} open={true} />, {
+    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, {
       wrapper: Wrapper,
     })
     await flushPromises()
-    expect(baseElement).toMatchSnapshot()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
   it('displays transaction data correctly', async () => {

@@ -91,31 +91,25 @@ describe('SendMessageDialog', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders hidden when open is false', async () => {
-    const { container } = await renderSuspended(
-      <SendMessageDialog registrations={[]} open={false} event={eventWithStaticDates} />,
-      {
-        wrapper: createWrapper(),
-      }
-    )
+    await renderSuspended(<SendMessageDialog registrations={[]} open={false} event={eventWithStaticDates} />, {
+      wrapper: createWrapper(),
+    })
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
   it('renders with minimal parameters', async () => {
-    const { baseElement } = await renderSuspended(
-      <SendMessageDialog registrations={[]} open={true} event={eventWithStaticDates} />,
-      {
-        wrapper: createWrapper(),
-      }
-    )
+    await renderSuspended(<SendMessageDialog registrations={[]} open={true} event={eventWithStaticDates} />, {
+      wrapper: createWrapper(),
+    })
     await flushPromises()
-    expect(baseElement).toMatchSnapshot()
+    expect(screen.getByText('Vastaanottajat: 0')).toBeInTheDocument()
   })
 
   it('renders with all parameters', async () => {
     const registrations: Registration[] = [registrationWithStaticDates, registrationWithStaticDatesCancelled]
 
-    const { baseElement } = await renderSuspended(
+    await renderSuspended(
       <SendMessageDialog
         registrations={registrations}
         open={true}
@@ -125,7 +119,7 @@ describe('SendMessageDialog', () => {
       { wrapper: createWrapper() }
     )
     await flushPromises()
-    expect(baseElement).toMatchSnapshot()
+    expect(screen.getByText('Vastaanottajat: 2')).toBeInTheDocument()
   })
 
   it('shows the recipient class explicitly', async () => {

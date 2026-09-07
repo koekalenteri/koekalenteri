@@ -72,6 +72,7 @@ export const RefundFooter = ({
                         </InputAdornment>
                       ),
                       inputProps: {
+                        'aria-label': 'Käsittelykulu',
                         style: { fontSize: 14 },
                       },
                     },

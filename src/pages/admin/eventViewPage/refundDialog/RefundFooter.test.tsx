@@ -1,11 +1,11 @@
 import { DataGrid } from '@mui/x-data-grid'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
 import { RefundFooter } from './RefundFooter'
 
 describe('RefundFooter', () => {
   it('renders', async () => {
-    const { container } = render(
+    render(
       <DataGrid
         columns={[]}
         slots={{ footer: RefundFooter }}
@@ -20,6 +20,10 @@ describe('RefundFooter', () => {
         }}
       />
     )
-    expect(container).toMatchSnapshot()
+
+    // total 10,00 € minus a 5,00 € handling cost leaves 5,00 € to refund.
+    expect(screen.getByText('10,00 €')).toBeInTheDocument()
+    expect(screen.getByRole('textbox')).toHaveValue('5,00')
+    expect(screen.getByText('5,00 €')).toBeInTheDocument()
   })
 })

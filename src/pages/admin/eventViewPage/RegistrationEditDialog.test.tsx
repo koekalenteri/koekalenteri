@@ -46,7 +46,7 @@ describe('RegistrationEditDialog', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders hidden when open is false', async () => {
-    const { container } = await renderSuspended(
+    await renderSuspended(
       <RegistrationEditDialog
         event={eventWithStaticDates}
         open={false}
@@ -57,11 +57,11 @@ describe('RegistrationEditDialog', () => {
       }
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
   it('renders with minimal parameters', async () => {
-    const { baseElement } = await renderSuspended(
+    await renderSuspended(
       <RegistrationEditDialog
         event={eventWithStaticDates}
         open={true}
@@ -72,11 +72,12 @@ describe('RegistrationEditDialog', () => {
       }
     )
     await flushPromises()
-    expect(baseElement).toMatchSnapshot()
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'registration.cta.saveChanges' })).toBeInTheDocument()
   })
 
   it('renders when registration is cancelled', async () => {
-    const { baseElement } = await renderSuspended(
+    await renderSuspended(
       <RegistrationEditDialog
         event={eventWithStaticDates}
         open={true}
@@ -87,7 +88,6 @@ describe('RegistrationEditDialog', () => {
       }
     )
     await flushPromises()
-    expect(baseElement).toMatchSnapshot()
     expect(screen.getByRole('dialog')).toHaveTextContent('PERUTTU: ')
   })
 

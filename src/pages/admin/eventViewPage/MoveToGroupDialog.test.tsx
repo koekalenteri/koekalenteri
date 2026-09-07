@@ -40,7 +40,7 @@ describe('MoveToGroupDialog', () => {
       group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time },
     }
 
-    const { baseElement } = render(
+    render(
       <MoveToGroupDialog
         open={true}
         onClose={vi.fn()}
@@ -51,7 +51,13 @@ describe('MoveToGroupDialog', () => {
       />
     )
     await flushPromises()
-    expect(baseElement).toMatchSnapshot()
+
+    expect(
+      screen.getByRole('radio', {
+        name: 'dateFormat.wdshort date registration.timeLong.ap registration.moveToGroupDialog.currentGroup',
+      })
+    ).toBeChecked()
+    expect(screen.getByRole('button', { name: 'registration.moveToGroupDialog.moveToGroup' })).toBeDisabled()
   })
 
   it('prevents moving to a day/time the dog is not registered for', async () => {

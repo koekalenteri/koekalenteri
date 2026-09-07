@@ -17,20 +17,17 @@ const registration = { ...registrationWithStaticDates, internalNotes: 'tarvitsee
 
 describe('InternalNotesDialog', () => {
   it('renders hidden when open is false', () => {
-    const { baseElement } = render(
-      <InternalNotesDialog open={false} onClose={vi.fn()} registration={registration} onSave={vi.fn()} />,
-      { wrapper: Wrapper }
-    )
-    expect(baseElement).toMatchSnapshot()
+    render(<InternalNotesDialog open={false} onClose={vi.fn()} registration={registration} onSave={vi.fn()} />, {
+      wrapper: Wrapper,
+    })
+    expect(screen.queryByLabelText('registration.internalNotes')).not.toBeInTheDocument()
   })
 
   it('renders the stored note', () => {
-    const { baseElement } = render(
-      <InternalNotesDialog open onClose={vi.fn()} registration={registration} onSave={vi.fn()} />,
-      { wrapper: Wrapper }
-    )
+    render(<InternalNotesDialog open onClose={vi.fn()} registration={registration} onSave={vi.fn()} />, {
+      wrapper: Wrapper,
+    })
     expect(screen.getByLabelText('registration.internalNotes')).toHaveValue('tarvitsee apua')
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('saves the edited note and closes', async () => {

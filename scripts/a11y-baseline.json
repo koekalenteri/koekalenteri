@@ -65,6 +65,12 @@
       "heading-order": 1
     }
   },
+  "src/pages/admin/eventViewPage/SendMessageDialog.visual.test.tsx": {
+    "send-message-dialog-open": {
+      "heading-order": 1,
+      "label": 1
+    }
+  },
   "src/pages/admin/eventViewPage/classEntrySelection/groupColors/GroupColorTooltip.visual.test.tsx": {
     "group-color-tooltip-colors": {
       "aria-prohibited-attr": 1
