@@ -38,19 +38,18 @@ describe('EntryInfo', () => {
   })
 
   it('should render with event without classes', async () => {
-    const { container } = render(
+    render(
       <EntryInfo reg={registrationWithStaticDates} event={eventWithStaticDates} errorStates={{}} helperTexts={{}} />,
       { wrapper: Wrapper }
     )
     await flushPromises()
 
-    expect(container).toMatchSnapshot()
     expect(screen.queryByRole('combobox', { name: 'registration.class' })).not.toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: 'registration.reserve' })).toBeInTheDocument()
   })
 
   it('should render with event with classes', async () => {
-    const { container } = render(
+    render(
       <EntryInfo
         reg={registrationWithStaticDatesAndClass}
         event={eventWithStaticDatesAndClass}
@@ -61,7 +60,6 @@ describe('EntryInfo', () => {
     )
     await flushPromises()
 
-    expect(container).toMatchSnapshot()
     expect(screen.getByRole('combobox', { name: 'registration.class' })).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: 'registration.reserve' })).toBeInTheDocument()
   })

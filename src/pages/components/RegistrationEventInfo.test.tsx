@@ -33,17 +33,15 @@ describe('RegistrationEventInfo', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
-    const { container } = render(
-      <RegistrationEventInfo event={eventWithStaticDates} invitationAttachment={undefined} />,
-      { wrapper: Wrapper }
-    )
+    render(<RegistrationEventInfo event={eventWithStaticDates} invitationAttachment={undefined} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     expect(screen.getByText('event.official')).toBeInTheDocument()
     expect(screen.getByText('Teemu Toimitsija, 040-official, official@example.com')).toBeInTheDocument()
     expect(screen.getByText('event.secretary')).toBeInTheDocument()
     expect(screen.getByText('Siiri Sihteeri, 040-secretary, secretary@example.com')).toBeInTheDocument()
-    expect(container).toMatchSnapshot()
   })
 
   it('shows the registrant who the entry is restricted to (KOE-524)', async () => {
@@ -60,14 +58,13 @@ describe('RegistrationEventInfo', () => {
       ...eventWithStaticDates,
       contactInfo: { official: {} },
     }
-    const { container } = render(<RegistrationEventInfo event={event} invitationAttachment={undefined} />, {
+    render(<RegistrationEventInfo event={event} invitationAttachment={undefined} />, {
       wrapper: Wrapper,
     })
     await flushPromises()
 
     expect(screen.queryByText('event.official:')).toBeNull()
     expect(screen.queryByText('event.secretary:')).toBeNull()
-    expect(container).toMatchSnapshot()
   })
 
   it('shows the invitation attachment when the registration class is invited', async () => {

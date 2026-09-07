@@ -39,13 +39,13 @@ describe('DogInfo', () => {
   })
 
   it('should render', async () => {
-    const { container } = render(
-      <DogInfo reg={registrationWithStaticDates} eventDate={eventDate} minDogAgeMonths={0} orgId="test" />,
-      { wrapper: Wrapper }
-    )
+    render(<DogInfo reg={registrationWithStaticDates} eventDate={eventDate} minDogAgeMonths={0} orgId="test" />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toHaveValue(registrationWithStaticDates.dog.regNo)
+    expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeInTheDocument()
   })
 
   it('should allow changing dog', async () => {

@@ -32,8 +32,12 @@ describe('PayerInfo', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
-    const { container } = render(<PayerInfo reg={{}} />, { wrapper: Wrapper })
-    expect(container).toMatchSnapshot()
+    render(<PayerInfo reg={{}} />, { wrapper: Wrapper })
+
+    expect(screen.getByRole('textbox', { name: 'contact.name' })).toHaveValue('')
+    expect(screen.getByRole('textbox', { name: 'contact.email' })).toHaveValue('')
+    expect(screen.getByRole('textbox', { name: 'contact.phone' })).toHaveValue('')
+    expect(screen.queryByRole('textbox', { name: 'contact.city' })).not.toBeInTheDocument()
   })
 
   it('should call onChange', async () => {

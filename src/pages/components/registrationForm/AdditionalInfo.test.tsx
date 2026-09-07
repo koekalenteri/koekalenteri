@@ -8,19 +8,22 @@ describe('AdditionalInfo', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
-    const { container } = render(<AdditionalInfo />)
-    expect(container).toMatchSnapshot()
+    render(<AdditionalInfo />)
+
+    expect(screen.getByRole('textbox')).toHaveValue('')
   })
 
   it('should render with text', () => {
-    const { container } = render(<AdditionalInfo notes="test" />)
-    expect(container).toMatchSnapshot()
+    render(<AdditionalInfo notes="test" />)
+
+    expect(screen.getByRole('textbox')).toHaveValue('test')
   })
 
   it('should rerender with new value', () => {
-    const { container, rerender } = render(<AdditionalInfo notes="test a" />)
+    const { rerender } = render(<AdditionalInfo notes="test a" />)
     rerender(<AdditionalInfo notes="changed notes" />)
-    expect(container).toMatchSnapshot()
+
+    expect(screen.getByRole('textbox')).toHaveValue('changed notes')
   })
 
   it('should call onChange', async () => {

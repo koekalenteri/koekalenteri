@@ -68,3 +68,31 @@ it('tells the registrant who the entry is restricted to (KOE-524)', async () => 
   await expect.element(screen.getByText('novascotiannoutaja')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-event-info-restrictions')
 })
+
+it('shows the official and secretary contact details', async () => {
+  const screen = await render(
+    <TestProvider
+      initializeState={({ set }) => {
+        set(languageAtom, 'fi')
+        set(openedEventAtom(event.id), true)
+      }}
+    >
+      <Frame>
+        <RegistrationEventInfo
+          event={{
+            ...event,
+            contactInfo: {
+              official: { email: 'official@example.com', name: 'Teemu Toimitsija', phone: '040-official' },
+              secretary: { email: 'secretary@example.com', name: 'Siiri Sihteeri', phone: '040-secretary' },
+            },
+          }}
+          eventClass="AVO"
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Vastaava koetoimitsija')).toBeVisible()
+  await expect.element(screen.getByText('Teemu Toimitsija, 040-official, official@example.com')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-event-info-contacts')
+})

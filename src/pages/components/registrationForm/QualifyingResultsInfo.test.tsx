@@ -21,15 +21,16 @@ const Provider = ({ children }: { readonly children: ReactNode }) => (
 
 describe('QualifyingResultsInfo', () => {
   it('should render with minimal input', () => {
-    const { container } = render(<QualifyingResultsInfo />, { wrapper: Provider })
+    render(<QualifyingResultsInfo />, { wrapper: Provider })
 
-    expect(container).toMatchSnapshot()
+    expect(screen.getByText('registration.qualifyingResults')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'registration.cta.addResult' })).toBeDisabled()
   })
 
   it('should render a NOME-B ALO registraton', () => {
     const reg = registrationWithStaticDatesAndClass
     const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
-    const { container } = render(
+    render(
       <QualifyingResultsInfo
         regNo={reg.dog.regNo}
         requirements={requirements}
@@ -41,13 +42,14 @@ describe('QualifyingResultsInfo', () => {
 
     expect(registrationWithStaticDatesAndClass.eventType).toEqual('NOME-B')
     expect(registrationWithStaticDatesAndClass.class).toEqual('ALO')
-    expect(container).toMatchSnapshot()
+    expect(screen.getByDisplayValue('test judge')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('test location')).toBeInTheDocument()
   })
 
   it('should render a NOME-B AVO registraton with manual results', () => {
     const reg = registrationWithManualResults
     const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
-    const { container } = render(
+    render(
       <QualifyingResultsInfo
         regNo={reg.dog.regNo}
         requirements={requirements}
@@ -59,7 +61,8 @@ describe('QualifyingResultsInfo', () => {
 
     expect(registrationWithManualResults.eventType).toEqual('NOME-B')
     expect(registrationWithManualResults.class).toEqual('AVO')
-    expect(container).toMatchSnapshot()
+    expect(screen.getByDisplayValue('Manual Judge')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Manual Judge 2')).toBeInTheDocument()
   })
 
   it('should not allow entering results for NOU test', async () => {

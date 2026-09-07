@@ -8,19 +8,22 @@ describe('InternalNotesInfo', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
-    const { container } = render(<InternalNotesInfo />)
-    expect(container).toMatchSnapshot()
+    render(<InternalNotesInfo />)
+
+    expect(screen.getByRole('textbox')).toHaveValue('')
   })
 
   it('should render with text', () => {
-    const { container } = render(<InternalNotesInfo notes="secretary note" />)
-    expect(container).toMatchSnapshot()
+    render(<InternalNotesInfo notes="secretary note" />)
+
+    expect(screen.getByRole('textbox')).toHaveValue('secretary note')
   })
 
   it('should rerender with new value', () => {
-    const { container, rerender } = render(<InternalNotesInfo notes="note a" />)
+    const { rerender } = render(<InternalNotesInfo notes="note a" />)
     rerender(<InternalNotesInfo notes="note b" />)
-    expect(container).toMatchSnapshot()
+
+    expect(screen.getByRole('textbox')).toHaveValue('note b')
   })
 
   it('should call onChange with the notes as plain text', async () => {

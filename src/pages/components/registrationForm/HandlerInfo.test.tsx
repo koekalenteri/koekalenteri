@@ -32,8 +32,12 @@ describe('HadnlerInfo', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
-    const { container } = render(<HandlerInfo reg={{}} orgId="test" />, { wrapper: Wrapper })
-    expect(container).toMatchSnapshot()
+    render(<HandlerInfo reg={{}} orgId="test" />, { wrapper: Wrapper })
+
+    expect(screen.getByRole('textbox', { name: 'contact.name' })).toHaveValue('')
+    expect(screen.getByRole('textbox', { name: 'contact.city' })).toHaveValue('')
+    expect(screen.getByRole('textbox', { name: 'contact.email' })).toHaveValue('')
+    expect(screen.getByRole('textbox', { name: 'contact.phone' })).toHaveValue('')
   })
 
   it('should call onChange', async () => {

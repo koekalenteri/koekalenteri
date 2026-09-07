@@ -8,12 +8,14 @@ describe('TitlesAndName', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal properties', () => {
-    const { container } = render(<TitlesAndName id="id" nameLabel="name label" titlesLabel="titles label" />)
-    expect(container).toMatchSnapshot()
+    render(<TitlesAndName id="id" nameLabel="name label" titlesLabel="titles label" />)
+
+    expect(screen.getByRole('textbox', { name: 'name label' })).toHaveValue('')
+    expect(screen.getByRole('textbox', { name: 'titles label' })).toHaveValue('')
   })
 
   it('should render with disabled name', () => {
-    const { container } = render(
+    render(
       <TitlesAndName
         id="id"
         nameLabel="name label"
@@ -23,11 +25,13 @@ describe('TitlesAndName', () => {
         disabledName
       />
     )
-    expect(container).toMatchSnapshot()
+
+    expect(screen.getByRole('textbox', { name: 'name label' })).toBeDisabled()
+    expect(screen.getByRole('textbox', { name: 'titles label' })).toBeEnabled()
   })
 
   it('should render with disabled titles', () => {
-    const { container } = render(
+    render(
       <TitlesAndName
         id="id"
         nameLabel="name label"
@@ -37,11 +41,13 @@ describe('TitlesAndName', () => {
         disabledTitles
       />
     )
-    expect(container).toMatchSnapshot()
+
+    expect(screen.getByRole('textbox', { name: 'name label' })).toBeEnabled()
+    expect(screen.getByRole('textbox', { name: 'titles label' })).toBeDisabled()
   })
 
   it('should render with disabled name and titles', () => {
-    const { container } = render(
+    render(
       <TitlesAndName
         id="id"
         nameLabel="name label"
@@ -52,7 +58,9 @@ describe('TitlesAndName', () => {
         disabledTitles
       />
     )
-    expect(container).toMatchSnapshot()
+
+    expect(screen.getByRole('textbox', { name: 'name label' })).toBeDisabled()
+    expect(screen.getByRole('textbox', { name: 'titles label' })).toBeDisabled()
   })
 
   it('should not call onChange on initial values', async () => {
