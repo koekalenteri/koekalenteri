@@ -68,9 +68,7 @@ it('tells a Mock trial short of judges who may judge it on their own (KOE-1357)'
   )
 
   await expect.element(screen.getByText(/Mock trial: vähintään 2 tuomaria/)).toBeVisible()
-  await expect
-    .element(screen.getByRole('combobox', { name: 'Ylituomari' }))
-    .toHaveValue('Aino A-tuomari (Mock trial -tuomari)')
+  await expect.element(screen.getByRole('combobox', { name: 'Ylituomari' })).toHaveValue('Aino A-tuomari (Mock trial)')
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('judges-section-mock-trial-short')
 })
 

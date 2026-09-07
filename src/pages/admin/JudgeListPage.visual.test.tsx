@@ -81,7 +81,7 @@ it('shows who judges a Mock trial on their own, and lets an admin name a NOWT ju
     </div>
   )
 
-  await expect.element(screen.getByText('Mock trial -tuomari')).toBeVisible()
+  await expect.element(screen.getByText('Mock trial')).toBeVisible()
   await expect.element(screen.getByText('Maija Mock-tuomari')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('judge-list-mock-trial')
 })
