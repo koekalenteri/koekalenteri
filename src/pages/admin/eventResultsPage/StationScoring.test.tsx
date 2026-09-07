@@ -109,6 +109,39 @@ describe('StationScoring', () => {
       })
     })
 
+    it("takes a judge's stop back when a prize is picked over it", async () => {
+      const user = userEvent.setup()
+      const { onSave } = renderScoring()
+
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+      await user.click(screen.getByLabelText('results.interruption'))
+      await user.click(screen.getByRole('option', { name: 'results.retirement.judgeStopped' }))
+
+      // A stop can only stand beside the nought (KOE-1300): the prize says the trial was judged after
+      // all, so it goes out with the stop rather than beside it — and the control that recorded the stop
+      // is greyed out at a prize, so it could not have taken the stop back itself.
+      await user.click(screen.getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: 'ALO1' }))
+
+      expect(screen.queryByText('results.marks.interrupted')).not.toBeInTheDocument()
+      expect(screen.getByLabelText('results.interruption')).toHaveAttribute('aria-disabled', 'true')
+
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      expect(onSave).toHaveBeenCalledWith({
+        basedOn: undefined,
+        eventResult: {
+          elimination: undefined,
+          judge,
+          resultCode: '1',
+          retirement: undefined,
+          tasks: [],
+        },
+        id: 'run-1',
+        stationId: '1',
+      })
+    })
+
     it("saves the judge's decision, attributed to the lone judge without asking", async () => {
       const user = userEvent.setup()
       const { onSave } = renderScoring()

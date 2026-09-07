@@ -1,5 +1,6 @@
 import type { ResultCode, SubmittedTask } from '../../../lib/results'
 import type { EventResultElimination, EventResultRetirement, PublicJudge } from '../../../types'
+import { canBeStopped } from '../../../lib/results'
 
 /**
  * One task as the secretary has it on screen. Identical to what goes on the wire: the server assigns
@@ -24,6 +25,22 @@ export interface ResultEdit {
 }
 
 export const emptyEdit: ResultEdit = { tasks: [] }
+
+/**
+ * The edit with its result replaced. A code that cannot carry a judge's stop (`canBeStopped`) takes the
+ * stop away with it: picking the prize is the secretary saying the trial was judged after all, and the
+ * control that recorded the stop is greyed out at that code, so it could not take it back itself.
+ */
+export const withResultCode = (edit: ResultEdit, resultCode?: ResultCode): ResultEdit => {
+  const { resultCode: _replaced, retirement, ...rest } = edit
+  const keepsStop = retirement?.cause !== 'judgeStopped' || canBeStopped(resultCode)
+
+  return {
+    ...rest,
+    ...(retirement && keepsStop ? { retirement } : {}),
+    ...(resultCode ? { resultCode } : {}),
+  }
+}
 
 /** Whether the round ended before it could be scored, so the task inputs have nothing to collect. */
 export const isVoided = (edit: ResultEdit): boolean => Boolean(edit.elimination ?? edit.retirement)

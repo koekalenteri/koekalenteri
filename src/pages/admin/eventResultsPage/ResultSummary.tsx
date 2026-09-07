@@ -14,6 +14,7 @@ import {
   scoresAtPosts,
   toScoredTasks,
 } from '../../../lib/results'
+import { withResultCode } from './types'
 
 interface Props {
   readonly round?: RoundTask[]
@@ -49,7 +50,14 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
         <TextField
           disabled={disabled}
           label={t('results.column.result')}
-          onChange={(event) => onChange({ ...edit, resultCode: codes.find((code) => code === event.target.value) })}
+          onChange={(event) =>
+            onChange(
+              withResultCode(
+                edit,
+                codes.find((code) => code === event.target.value)
+              )
+            )
+          }
           select
           size="small"
           sx={{ minWidth: 110 }}

@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { outcomeReasonEnabled } from '../../../lib/features'
-import { eliminatingFaults, STOPPED_RESULT_CODE, scoresAtPosts } from '../../../lib/results'
+import { canBeStopped, eliminatingFaults, STOPPED_RESULT_CODE, scoresAtPosts } from '../../../lib/results'
 
 /**
  * What the control is asking, which narrows with it while the reason list waits on KOE-1299: with only
@@ -59,10 +59,14 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
   // A post's own view already knows where it happened; the whole-round view has to ask.
   const where = stationId ?? stationOf(value)
   // A qualitative type collects its result rather than deriving one, so a stop fills its nought in here
-  // — the secretary records the stop, not the stop and then the code it is published as. A result
-  // already entered stands: rewriting the judge's decision is not this control's to do. Nothing is
+  // — the secretary records the stop, not the stop and then the code it is published as. Nothing is
   // filled in for a post-scored round, where the code is derived from the scores.
   const stopped = eventType && !scoresAtPosts(eventType) ? STOPPED_RESULT_CODE : undefined
+  // A prize already entered cannot take a stop beside it (`canBeStopped`): a `1` with "Kesk." under it
+  // would say two things at once, which is what Minsu found the screen allowing. Picking the nought, or
+  // clearing the result, opens the choice again — and picking a prize over a recorded stop takes the
+  // stop away (`withResultCode`), so the control is never greyed out while showing one.
+  const stopLocked = stopped !== undefined && !canBeStopped(value.resultCode)
   // Why the round ended, where that is asked at all: each format's own hylkäävät virheet, then the
   // retirements that are not the judge's stop. Built as a list so the one question that is always asked
   // reads as one item in the menu rather than as a gate around every line of it.
@@ -98,10 +102,9 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
       if (next === SCORED) return onChange(kept)
       if (next === INJURY) return onChange({ retirement: { cause: 'injury', ...at }, ...kept })
       if (next === JUDGE_STOPPED) {
-        const code = value.resultCode ?? stopped
         return onChange({
           ...kept,
-          ...(code ? { resultCode: code } : {}),
+          ...(stopped ? { resultCode: stopped } : {}),
           retirement: { cause: 'judgeStopped', ...at },
         })
       }
@@ -136,8 +139,10 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
 
   return (
     <Stack spacing={0.5}>
+      {/* With the stop the only thing on offer, a locked stop is a locked control; with the reasons of
+          KOE-1299 beside it, only the stop's own line goes grey. */}
       <TextField
-        disabled={disabled}
+        disabled={disabled || (stopLocked && reasons.length === 0)}
         label={t(labels.field)}
         onChange={handleOutcome}
         select
@@ -150,7 +155,9 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
             undoable. */}
         <MenuItem value={SCORED}>{t(labels.notEnded)}</MenuItem>
         {reasons}
-        <MenuItem value={JUDGE_STOPPED}>{t('results.retirement.judgeStopped')}</MenuItem>
+        <MenuItem disabled={stopLocked} value={JUDGE_STOPPED}>
+          {t('results.retirement.judgeStopped')}
+        </MenuItem>
       </TextField>
 
       {/* A round ends somewhere, and which post is worth keeping rather than losing. */}

@@ -49,7 +49,8 @@ const nouRegistrations: Registration[] = runners.map((reg) => ({
 }))
 // A pass with its judge chosen, and a stopped trial beside it — nothing derivable, so every mark on
 // screen is the judge's own. A stop fills in the nought it is published as, and the mark beside it says
-// the trial ended early rather than the dog going unplaced on its merits.
+// the trial ended early rather than the dog going unplaced on its merits. Beside the pass the stop is
+// greyed out: a prize cannot carry one (KOE-1300).
 const nouEdits: Record<string, ResultEdit> = {
   'run-1': { judge: nouJudges[0], resultCode: '1', tasks: [] },
   'run-2': { judge: nouJudges[0], resultCode: '0', retirement: { cause: 'judgeStopped' }, tasks: [] },

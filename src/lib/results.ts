@@ -343,6 +343,15 @@ export const availableResultCodes = (eventType: string): ResultCode[] =>
 export const STOPPED_RESULT_CODE = '0' satisfies ResultCode
 
 /**
+ * Whether a result can carry a judge's stop. The rules give the stop the nought and nothing else, so a
+ * prize or a dash with `Kesk.` beside it would say two things at once — the shape the entry screen let
+ * through until Minsu found it there (KOE-1300). Nothing entered yet can carry one: the stop fills the
+ * nought in.
+ */
+export const canBeStopped = (resultCode?: ResultCode): boolean =>
+  resultCode === undefined || resultCode === STOPPED_RESULT_CODE
+
+/**
  * Results are written as a prefix and a code: `ALO1`, `AVO-`, and for event types without classes
  * `NOU1` or `NKM0`. This is the same class-or-event-type rule `getEventProgress` already applies when
  * it falls back to `[event.eventType]` for an event with no classes.
@@ -412,10 +421,9 @@ export const resolveEventResult = (
 
   if (!scoresAtPosts(eventType)) {
     // Nothing to derive: a qualitative type is whatever the judge decided — except a stopped trial,
-    // which is published as a nought, so that is filled in rather than left to the secretary to pick as
-    // well as recording the stop.
-    const stopped = submitted.retirement?.cause === 'judgeStopped' ? STOPPED_RESULT_CODE : undefined
-    const code = resultCode ?? stopped
+    // which the rules publish as the nought whatever else came in with it (`canBeStopped`), so that is
+    // filled in rather than left to the secretary to pick as well as recording the stop.
+    const code = submitted.retirement?.cause === 'judgeStopped' ? STOPPED_RESULT_CODE : resultCode
 
     return {
       ...rest,

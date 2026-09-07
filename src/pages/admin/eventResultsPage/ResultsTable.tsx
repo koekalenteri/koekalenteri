@@ -247,8 +247,11 @@ function ResultsTable({
                 {t('results.column.task', { number: index + 1 })}
               </TableCell>
             ))}
+            {/* An entered result comes first, since whether a stop can stand depends on it; a derived one
+                sums the row up and closes it. */}
+            {qualitative && <TableCell>{t('results.column.result')}</TableCell>}
             <TableCell>{t(outcomeColumn)}</TableCell>
-            <TableCell align="right">{t('results.column.result')}</TableCell>
+            {!qualitative && <TableCell align="right">{t('results.column.result')}</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -267,8 +270,9 @@ function ResultsTable({
                     {task}
                   </TableCell>
                 ))}
+                {qualitative && <TableCell>{controls.result}</TableCell>}
                 <TableCell>{controls.outcome}</TableCell>
-                <TableCell align="right">{controls.result}</TableCell>
+                {!qualitative && <TableCell align="right">{controls.result}</TableCell>}
               </TableRow>
             )
           })}
@@ -340,8 +344,8 @@ const ResultCard = ({ registration, qualitative, controls }: CardProps) => {
             {controls.tasks}
           </Stack>
         )}
-        {controls.outcome}
         {qualitative && controls.result}
+        {controls.outcome}
       </Stack>
     </Paper>
   )

@@ -213,6 +213,45 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
   })
 
+  it("lets a judge's stop be recorded only beside the nought", async () => {
+    const { i18n } = useTranslation()
+    features.outcomeReasonEnabled = false
+    try {
+      const { user } = await renderQualitativePage(i18n.language as Language)
+      await flushPromises()
+
+      // A prize with "Kesk." beside it would say two things at once, so once a prize is picked the
+      // interruption control is greyed out rather than offered (Minsu, KOE-1300).
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: 'NOU1' }))
+      expect(within(rowFor('Ensimmainen')).getByLabelText('results.interruption')).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      )
+
+      // The nought opens it again, and the stop is recorded beside it.
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: 'NOU0' }))
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.interruption'))
+      await user.click(screen.getByRole('option', { name: 'results.retirement.judgeStopped' }))
+      await flushPromises()
+      expect(within(rowFor('Ensimmainen')).getByText('results.marks.interrupted')).toBeInTheDocument()
+
+      // Picking a prize over a recorded stop takes the stop away with it, so the control never sits
+      // greyed out while still showing one.
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: 'NOU1' }))
+      await flushPromises()
+      expect(within(rowFor('Ensimmainen')).queryByText('results.marks.interrupted')).not.toBeInTheDocument()
+      expect(within(rowFor('Ensimmainen')).getByLabelText('results.interruption')).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      )
+    } finally {
+      features.outcomeReasonEnabled = true
+    }
+  })
+
   it('offers a way to record a round that was not scored', async () => {
     const { i18n } = useTranslation()
     await renderPage(i18n.language as Language)

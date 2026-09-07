@@ -2,6 +2,7 @@ import type { JsonEventResult, JsonEventResultTask } from '../types'
 import type { ScoredTask, SubmittedEventResult } from './results'
 import {
   availableResultCodes,
+  canBeStopped,
   classRound,
   deriveNowtResult,
   eliminatingFaults,
@@ -334,6 +335,19 @@ describe('availableResultCodes', () => {
   })
 })
 
+describe('canBeStopped', () => {
+  it("lets the nought, and nothing entered yet, carry a judge's stop", () => {
+    expect(canBeStopped(STOPPED_RESULT_CODE)).toBe(true)
+    expect(canBeStopped(undefined)).toBe(true)
+  })
+
+  it('refuses a prize or a dash, which would say two things beside the mark', () => {
+    for (const code of ['1', '2', '3', '-'] as const) {
+      expect(canBeStopped(code)).toBe(false)
+    }
+  })
+})
+
 describe('resultMarks', () => {
   it("marks a judge's stop, which the dash it shares with an elimination cannot say", () => {
     expect(resultMarks({ retirement: { cause: 'judgeStopped' } })).toEqual(['interrupted'])
@@ -473,13 +487,15 @@ describe('resolveEventResult', () => {
     expect(result).toEqual({ result: 'NOU0', retirement: { cause: 'judgeStopped' } })
   })
 
-  it('still lets the secretary say otherwise about a stopped trial', () => {
+  it('publishes a stopped trial as the nought whatever code came in with it', () => {
+    // The entry screen no longer lets a prize and a stop be recorded together (KOE-1300), and a client
+    // that still does is not let through here either: the rules give the stop the nought and nothing else.
     const result = resolveEventResult(
       { resultCode: '-', retirement: { cause: 'judgeStopped' } },
       { eventClass: 'AVO', eventType: 'NOME-A' }
     )
 
-    expect(result.result).toBe('AVO-')
+    expect(result.result).toBe('AVO0')
   })
 
   it('honours a class that splits a post differently from the course', () => {
