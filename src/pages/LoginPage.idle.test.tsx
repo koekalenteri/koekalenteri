@@ -1,6 +1,6 @@
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../assets/Theme'
@@ -20,7 +20,7 @@ describe('LoginPage', () => {
         path: Path.login,
       },
     ]
-    const { container } = render(
+    render(
       <Provider initializeState={({ set }) => set(idTokenAtom, undefined)}>
         <ThemeProvider theme={theme}>
           <SnackbarProvider
@@ -37,6 +37,7 @@ describe('LoginPage', () => {
       </Provider>
     )
 
-    expect(container).toMatchSnapshot()
+    expect(screen.getByText('HEADER')).toBeInTheDocument()
+    expect(screen.getByText('MOCK AUTHENTICATOR')).toBeInTheDocument()
   })
 })

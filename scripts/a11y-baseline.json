@@ -1,4 +1,25 @@
 {
+  "src/pages/ErrorPage.visual.test.tsx": {
+    "error-page-404": {
+      "nested-interactive": 1
+    },
+    "error-page-500": {
+      "nested-interactive": 1
+    }
+  },
+  "src/pages/PaymentPage.visual.test.tsx": {
+    "payment-page-methods-desktop": {
+      "nested-interactive": 1
+    },
+    "payment-page-methods-phone": {
+      "nested-interactive": 1
+    }
+  },
+  "src/pages/RegistrationInvitation.visual.test.tsx": {
+    "registration-invitation-open": {
+      "nested-interactive": 2
+    }
+  },
   "src/pages/SearchPage.visual.test.tsx": {
     "debug-article0": {
       "nested-interactive": 1

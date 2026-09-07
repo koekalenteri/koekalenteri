@@ -38,7 +38,7 @@ describe('RegistrationInvitation', () => {
       },
     ]
 
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -52,7 +52,6 @@ describe('RegistrationInvitation', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
   })
 
@@ -115,7 +114,7 @@ describe('RegistrationInvitation', () => {
       },
     ]
 
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -129,7 +128,6 @@ describe('RegistrationInvitation', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
 
     // Check that event information is displayed
     expect(screen.getByText(eventWithStaticDates.eventType, { exact: false })).toBeInTheDocument()

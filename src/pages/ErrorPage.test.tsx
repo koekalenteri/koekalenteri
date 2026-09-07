@@ -1,7 +1,7 @@
 import type React from 'react'
 import type { RouteObject } from 'react-router'
 import { ThemeProvider } from '@mui/material'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import theme from '../assets/Theme'
 import { DataMemoryRouter } from '../test-utils/utils'
 import { ErrorPage } from './ErrorPage'
@@ -28,12 +28,13 @@ describe('ErrorPage', () => {
         path: '/',
       },
     ]
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <DataMemoryRouter initialEntries={['/woot']} routes={routes} />
       </ThemeProvider>
     )
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('heading', { name: '404' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'goHome' })).toHaveAttribute('href', '/')
   })
 
   it('should render 500', () => {
@@ -44,12 +45,13 @@ describe('ErrorPage', () => {
         path: '/',
       },
     ]
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <DataMemoryRouter initialEntries={['/']} routes={routes} />
       </ThemeProvider>
     )
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('heading', { name: 'error.somethingWentWrong' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'goHome' })).toHaveAttribute('href', '/')
   })
 })
 

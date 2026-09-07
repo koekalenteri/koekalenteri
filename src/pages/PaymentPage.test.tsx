@@ -119,7 +119,7 @@ describe('PaymentPage', () => {
       },
     ]
 
-    const { container } = render(
+    render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
@@ -133,8 +133,8 @@ describe('PaymentPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
     expect(screen.queryByRole('progressbar')).toBeNull()
+    expect(screen.getByText('paymentPage.choosePaymentMethod')).toBeInTheDocument()
   })
 
   describe('PaymentPageWithData', () => {

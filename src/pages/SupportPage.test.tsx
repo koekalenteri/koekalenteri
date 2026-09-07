@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
@@ -27,8 +27,16 @@ describe('SupportPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('should render', async () => {
-    const { container } = render(<SupportPage />, { wrapper: Wrapper })
+    render(<SupportPage />, { wrapper: Wrapper })
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByText('header')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'täältä' })).toHaveAttribute(
+      'href',
+      'https://koekalenteri.atlassian.net/servicedesk/customer/portal/1/group/1/create/1'
+    )
+    expect(screen.getByRole('link', { name: 'support@koekalenteri.atlassian.net' })).toHaveAttribute(
+      'href',
+      'mailto:support@koekalenteri.atlassian.net?subject="Palaute'
+    )
   })
 })

@@ -82,9 +82,11 @@ describe('RegistrationCreatePage', () => {
     const { eventType, id } = eventWithStaticDates
     const path = `/event/${eventType}/${id}`
 
-    const { container } = renderWithRouter(path)
+    renderWithRouter(path)
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('link', { name: 'goHome' })).toBeInTheDocument()
+    expect(screen.getByText(eventWithStaticDates.location, { exact: false })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'registration.cta.confirmAndPay' })).toBeInTheDocument()
   })
 
   it('should select the class on event/eventType/id/class path', async () => {
@@ -104,9 +106,9 @@ describe('RegistrationCreatePage', () => {
     const date = format(classes[2].date ?? new Date(), 'dd.MM.')
     const path = `/event/${eventType}/${id}/${classes[2].class}/${date}`
 
-    const { container } = renderWithRouter(path)
+    renderWithRouter(path)
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('combobox', { name: 'registration.class' })).toHaveValue(classes[2].class)
   })
 
   it('should navigate to registration details when paymentTime is confirmation', async () => {
@@ -135,12 +137,11 @@ describe('RegistrationCreatePage', () => {
     const path = `/event/qwerty/asdf`
 
     vi.spyOn(eventApi, 'getEvent').mockRejectedValueOnce(new Error('not found'))
-    const { container } = renderWithRouter(path)
+    renderWithRouter(path)
 
     await flushPromises()
     expect(mockConsoleError).toHaveBeenCalled()
     expect(screen.getByText('error.eventNotFound')).toBeInTheDocument()
-    expect(container).toMatchSnapshot()
   })
 
   it('should throw 410 when entry is not open', async () => {
@@ -151,11 +152,10 @@ describe('RegistrationCreatePage', () => {
     const path = `/event/${eventType}/${id}`
 
     vi.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(eventWithStaticDates)
-    const { container } = renderWithRouter(path)
+    renderWithRouter(path)
 
     await flushPromises()
     expect(mockConsoleError).toHaveBeenCalled()
     expect(screen.getByText('error.entryNotOpen')).toBeInTheDocument()
-    expect(container).toMatchSnapshot()
   })
 })

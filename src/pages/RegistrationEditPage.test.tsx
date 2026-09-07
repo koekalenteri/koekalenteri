@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -56,12 +57,13 @@ describe('RegistrationEditPage', () => {
   it('should render', async () => {
     const { eventId, id } = registrationWithStaticDates
     mockUseParams.mockImplementation(() => ({ id: eventId, registrationId: id }))
-    const { container } = await renderSuspended(<RegistrationEditPage />, { wrapper: Wrapper })
+    await renderSuspended(<RegistrationEditPage />, { wrapper: Wrapper })
     // One pass resolves the page's chained derived atoms; a second is needed for the
     // Collapse sections that only start their (now fake-timer-driven) exit transition once
     // that data has settled, matching the RegistrationListPage double-flush convention.
     await flushPromises()
     await flushPromises()
-    expect(container).toMatchSnapshot()
+    expect(screen.getByRole('button', { name: 'registration.cta.saveChanges' })).toBeInTheDocument()
+    expect(screen.getByText(registrationWithStaticDates.handler?.name ?? 'UNDEFINED!')).toBeInTheDocument()
   })
 })
