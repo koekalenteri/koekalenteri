@@ -331,6 +331,10 @@ describe('refundCreateLambda', () => {
           Item: expect.objectContaining({
             amount: 1000,
             handlingCost: 500,
+            // The refund keeps the application's own line shape, naming the payment line it
+            // refunds. The fixture above is a row in the old, provider-shaped form, which still
+            // works because `stamp` is the field that carries over (KOE-1337).
+            items: [{ amount: 1000, eventId: 'event123', registrationId: 'reg456', stamp: 'item123' }],
             status: 'ok',
             transactionId: 'refund123',
             type: 'refund',

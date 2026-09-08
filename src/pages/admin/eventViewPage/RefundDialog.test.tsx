@@ -37,13 +37,12 @@ const defaultMockTransactions: Transaction[] = [
     createdAt: new Date('2024-01-01T12:00:00Z'),
     items: [
       {
-        merchant: 'merchant-123',
-        productCode: 'registration-fee',
-        reference: 'item-ref-123',
+        amount: 5000,
+        description: 'registration-fee',
+        eventId: 'event-123',
+        merchantId: 'merchant-123',
+        registrationId: 'item-ref-123',
         stamp: 'item-stamp-123',
-        unitPrice: 5000,
-        units: 1,
-        vatPercentage: 24,
       },
     ],
     provider: 'nordea',

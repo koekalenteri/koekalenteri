@@ -4,6 +4,7 @@ import type {
   JsonPaymentTransaction,
   Organizer,
   PaymentItem,
+  TransactionItem,
 } from '../../types'
 import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
@@ -33,6 +34,21 @@ import { getApiHost } from '../utils/proxyEvent'
 
 const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
+
+/**
+ * Paytrail's line shape, built from ours. Units and VAT are its concerns, not the application's:
+ * one entry, one fee, and no VAT on a trial fee.
+ */
+const toPaytrailItem = (item: TransactionItem): PaymentItem => ({
+  description: item.description,
+  merchant: item.merchantId ?? '',
+  productCode: item.eventId ?? '',
+  reference: item.registrationId ?? '',
+  stamp: item.stamp,
+  unitPrice: item.amount ?? 0,
+  units: 1,
+  vatPercentage: 0,
+})
 const STALE_PENDING_PAYMENT_AGE_MS = 5 * 60 * 1000
 
 const isStalePendingPayment = (createdAt?: string, statusAt?: string) => {
@@ -128,16 +144,14 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
   const stamp = nanoid()
 
-  const items: PaymentItem[] = [
+  const items: TransactionItem[] = [
     {
+      amount,
       description: paymentDescription(jsonEvent, 'fi'),
-      merchant: organizer.paytrailMerchantId,
-      productCode: eventId,
-      reference: registrationId,
+      eventId,
+      merchantId: organizer.paytrailMerchantId,
+      registrationId,
       stamp: nanoid(),
-      unitPrice: amount,
-      units: 1,
-      vatPercentage: 0,
     },
   ]
 
@@ -163,7 +177,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
       apiHost: getApiHost(event),
       customer,
       editToken,
-      items,
+      items: items.map(toPaytrailItem),
       language,
       origin: getFrontendOrigin(event),
       reference,

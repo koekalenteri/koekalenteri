@@ -230,6 +230,18 @@ describe('paymentCreateLambda', () => {
           Item: expect.objectContaining({
             amount: expectedAmount,
             bankReference: 'ref123',
+            // What is kept is the application's own shape, not Paytrail's: the provider's line
+            // shape is built from this on the way out (KOE-1337).
+            items: [
+              {
+                amount: expectedAmount,
+                description: 'Test Type 1.–2.1. Test Location Test Event',
+                eventId: 'event123',
+                merchantId: 'merchant123',
+                registrationId: 'reg456',
+                stamp: expect.any(String),
+              },
+            ],
             paymentResponse: createMockPaymentResponse(),
             reference: 'event123:reg456',
             status: 'new',

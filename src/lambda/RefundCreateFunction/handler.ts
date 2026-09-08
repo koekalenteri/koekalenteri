@@ -6,6 +6,7 @@ import type {
   Organizer,
   RefundItem,
   RefundPaymentResponse,
+  TransactionItem,
 } from '../../types'
 import { nanoid } from 'nanoid'
 import { formatMoney } from '../../lib/money'
@@ -80,14 +81,17 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
 
   const paymentItem = paymentTransaction.items?.[0]
 
-  const items: RefundItem[] | undefined = paymentItem && [
-    {
-      amount,
-      refundReference: registrationId,
-      refundStamp: nanoid(),
-      stamp: paymentItem.stamp,
-    },
+  // What is recorded on the refund transaction, and what Paytrail is asked to refund. `stamp` names
+  // the payment line being refunded; the refund line gets a stamp of its own.
+  const items: TransactionItem[] | undefined = paymentItem && [
+    { amount, eventId, registrationId, stamp: paymentItem.stamp },
   ]
+  const refundItems: RefundItem[] | undefined = items?.map((item) => ({
+    amount,
+    refundReference: registrationId,
+    refundStamp: nanoid(),
+    stamp: item.stamp,
+  }))
 
   if (
     !(await claimTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp, STALE_REFUND_CREATION_AGE_MS))
@@ -102,9 +106,9 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
       transactionId,
       reference,
       stamp,
-      items,
+      refundItems,
       // if there are no items, this is a full refund and needs amount provided.
-      items ? undefined : amount,
+      refundItems ? undefined : amount,
       registration?.payer?.email
     )
   } catch (error: unknown) {
