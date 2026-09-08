@@ -15,4 +15,6 @@
           Value: "koekalenteri"
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
-        SSEEnabled: false
+        SSEEnabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true

@@ -23,4 +23,7 @@
           Value: "koekalenteri"
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
-        SSEEnabled: false
+        SSEEnabled: true
+      # No point-in-time recovery: the versions are counters the next write bumps again.
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
