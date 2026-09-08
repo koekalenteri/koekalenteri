@@ -109,7 +109,7 @@ function JudgesSection({ event, disabled, judges, fields, onChange, onOpenChange
               })
             }}
           >
-            Lisää tuomari
+            {t('event.judgesEditor.add')}
           </Button>
           <Button
             disabled={disabled}
@@ -125,7 +125,7 @@ function JudgesSection({ event, disabled, judges, fields, onChange, onOpenChange
               })
             }}
           >
-            Lisää ulkomainen tuomari
+            {t('event.judgesEditor.addForeign')}
           </Button>
           <Button
             disabled={disabled || (selectedEventType?.official ?? true)}
@@ -137,7 +137,7 @@ function JudgesSection({ event, disabled, judges, fields, onChange, onOpenChange
               })
             }
           >
-            Lisää epävirallinen tuomari
+            {t('event.judgesEditor.addUnofficial')}
           </Button>
         </Grid>
       </Grid>

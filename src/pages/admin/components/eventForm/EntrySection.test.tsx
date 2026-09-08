@@ -95,9 +95,7 @@ describe('EntrySection', () => {
     )
     await flushPromises()
 
-    expect(
-      screen.queryByText('Ilmoittautumisaika on menneisyydessä. Tämä on sallittu vain kehitysympäristössä.')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText('event.entryInPastDevOnly')).not.toBeInTheDocument()
 
     const calendarButtons = screen.getAllByTestId('CalendarIcon')
     const startCalendarButton = calendarButtons[0]
@@ -141,9 +139,7 @@ describe('EntrySection', () => {
     )
     await flushPromises()
 
-    expect(
-      screen.getByText('Ilmoittautumisaika on menneisyydessä. Tämä on sallittu vain kehitysympäristössä.')
-    ).toBeInTheDocument()
+    expect(screen.getByText('event.entryInPastDevOnly')).toBeInTheDocument()
   })
 
   it('shows a missing NOWT day error only on the affected class group', async () => {

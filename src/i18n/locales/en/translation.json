@@ -83,6 +83,7 @@
     "optionalAdditionalCosts": "Optional additional costs"
   },
   "costOptionalAdd": "Name the optional service to add",
+  "costOptionalNew": "New optional cost",
   "costTotal": "Total",
   "create": "Create",
   "createEvent": "Create event",
@@ -197,8 +198,12 @@
     "descriptions": "Description translations",
     "endDate": "Event end date",
     "entries": "Entries",
+    "entryEnd": "Registration closes",
     "entryEndDate": "Entry end date",
+    "entryInPastDevOnly": "The registration period is in the past. This is only allowed in the development environment.",
     "entryOrigEndDate": "Original entry start date",
+    "entrySectionTitle": "Registration",
+    "entryStart": "Registration opens",
     "entryStartDate": "Entry start date",
     "eventType": "Event type",
     "headquarters": {
@@ -211,6 +216,13 @@
     "id": "ID",
     "invitationAttachment": "Invitation attachment",
     "judges": "Judges",
+    "judgesEditor": {
+      "add": "Add judge",
+      "addForeign": "Add foreign judge",
+      "addUnofficial": "Add unofficial judge",
+      "classes": "Judges classes",
+      "remove": "Remove judge"
+    },
     "kcId": "Kennel Club ID",
     "kcIdChoiceClasses": "Classes",
     "kcIdChoiceId": "Kennel Club ID",

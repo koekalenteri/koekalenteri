@@ -83,6 +83,7 @@
     "optionalAdditionalCosts": "Lisäpalvelut"
   },
   "costOptionalAdd": "Nimeä lisättävä lisäpalvelu",
+  "costOptionalNew": "Uusi vapaaehtoinen maksu",
   "costTotal": "Summa yhteensä",
   "create": "Lisää uusi",
   "createEvent": "Uusi tapahtuma",
@@ -197,8 +198,12 @@
     "descriptions": "Lisätietojen käännökset",
     "endDate": "Tapahtuman päättymispäivä",
     "entries": "Ilmoittautumisia",
+    "entryEnd": "Ilmoittautumisaika päättyy",
     "entryEndDate": "Ilmoittautumisen päättymispäivä",
+    "entryInPastDevOnly": "Ilmoittautumisaika on menneisyydessä. Tämä on sallittu vain kehitysympäristössä.",
     "entryOrigEndDate": "Alkuperäinen ilmoittautumisen päättymispäivä",
+    "entrySectionTitle": "Ilmoittautuminen",
+    "entryStart": "Ilmoittautumisaika alkaa",
     "entryStartDate": "Ilmoittautumisen alkamispäivä",
     "eventType": "Tyyppi",
     "headquarters": {
@@ -211,6 +216,13 @@
     "id": "Tunnus",
     "invitationAttachment": "Koekutsu liite",
     "judges": "Tuomarit",
+    "judgesEditor": {
+      "add": "Lisää tuomari",
+      "addForeign": "Lisää ulkomainen tuomari",
+      "addUnofficial": "Lisää epävirallinen tuomari",
+      "classes": "Arvostelee luokat",
+      "remove": "Poista tuomari"
+    },
     "kcId": "Kennelliiton koetunnus",
     "kcIdChoiceClasses": "Luokat",
     "kcIdChoiceId": "Koetunnus",

@@ -117,7 +117,7 @@ describe('JudgeSection', () => {
     }
     render(<JudgesSection event={testEvent} judges={JUDGES} />)
 
-    expect(screen.getByLabelText('Arvostelee luokat')).not.toBeVisible()
+    expect(screen.getByLabelText('event.judgesEditor.classes')).not.toBeVisible()
   })
 
   it('should fire onChange', async () => {
@@ -169,7 +169,7 @@ describe('JudgeSection', () => {
     expect(testEvent.judges).toHaveLength(1)
     expect(testEvent.judges[0]).toEqual(expect.objectContaining({ id: 3, name: 'Test Judge 3', official: true }))
 
-    fireEvent.click(screen.getByText(/Lisää tuomari/i))
+    fireEvent.click(screen.getByText('event.judgesEditor.add'))
     expect(changeHandler).toHaveBeenCalledTimes(2)
     expect(testEvent.judges).toHaveLength(2)
     expect(testEvent.judges[1]).toEqual(expect.objectContaining({ id: 0, name: '', official: true }))
@@ -184,7 +184,7 @@ describe('JudgeSection', () => {
 
     rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} selectedEventType={eventType} />)
 
-    const buttons = screen.getAllByText(/Poista Tuomari/i)
+    const buttons = screen.getAllByText('event.judgesEditor.remove')
     expect(buttons).toHaveLength(2)
 
     fireEvent.click(buttons[1])

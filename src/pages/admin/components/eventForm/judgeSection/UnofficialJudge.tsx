@@ -83,7 +83,7 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
             })
           }
         >
-          Poista tuomari
+          {t('event.judgesEditor.remove')}
         </Button>
       </Grid>
     </Grid>

@@ -126,7 +126,7 @@ function EntrySection(props: Props) {
 
   return (
     <CollapsibleSection
-      title="Ilmoittautuminen"
+      title={t('event.entrySectionTitle')}
       open={open}
       onOpenChange={onOpenChange}
       error={!!error}
@@ -146,8 +146,8 @@ function EntrySection(props: Props) {
         >
           <DateRange
             startDisabled={disabled}
-            startLabel="Ilmoittautumisaika alkaa"
-            endLabel="Ilmoittautumisaika päättyy"
+            startLabel={t('event.entryStart')}
+            endLabel={t('event.entryEnd')}
             start={event.entryStartDate ?? null}
             defaultStart={sub(event.startDate, { weeks: 6 })}
             end={event.entryEndDate ?? null}
@@ -159,9 +159,7 @@ function EntrySection(props: Props) {
           />
           <FormHelperText error>{helperTexts?.entryStartDate ?? helperTexts?.entryEndDate}</FormHelperText>
           {allowPastRegistrationDates && entryDatesChanged && hasPastRegistrationDate && (
-            <FormHelperText>
-              Ilmoittautumisaika on menneisyydessä. Tämä on sallittu vain kehitysympäristössä.
-            </FormHelperText>
+            <FormHelperText>{t('event.entryInPastDevOnly')}</FormHelperText>
           )}
         </Grid>
         <Grid

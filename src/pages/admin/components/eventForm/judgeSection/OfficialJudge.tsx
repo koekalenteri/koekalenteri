@@ -80,7 +80,7 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
             })
           }
         >
-          Poista tuomari
+          {t('event.judgesEditor.remove')}
         </Button>
       </Grid>
     </Grid>

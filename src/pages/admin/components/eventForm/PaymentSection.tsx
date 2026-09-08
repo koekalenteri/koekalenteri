@@ -219,7 +219,10 @@ function PaymentSection({
       if (key === 'optionalAdditionalCosts') {
         const newOptionalCost = {
           cost: 0,
-          description: data.description ?? { en: 'New optional cost', fi: 'Uusi vapaaehtoinen maksu' },
+          description: data.description ?? {
+            en: t('costOptionalNew', { lng: 'en' }),
+            fi: t('costOptionalNew', { lng: 'fi' }),
+          },
         }
         const newCost = { ...cost }
         newCost.optionalAdditionalCosts = [...(newCost.optionalAdditionalCosts ?? []), newOptionalCost]
@@ -230,7 +233,7 @@ function PaymentSection({
         onChange?.({ cost: setCostValue(cost, key, 0, data), costMember: setCostValue(costMember, key, 0, data) })
       }
     },
-    [event.cost, event.costMember, onChange]
+    [event.cost, event.costMember, onChange, t]
   )
 
   const handleRemove = useCallback(

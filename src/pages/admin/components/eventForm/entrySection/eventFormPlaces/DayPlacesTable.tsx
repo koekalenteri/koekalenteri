@@ -19,7 +19,7 @@ export default function DayPlacesTable({ event, disabled, handleDayPlacesChange 
   const { t } = useTranslation()
   const eventDays = getEventDays(event)
 
-  const headers = [t('date'), 'Paikat']
+  const headers = [t('date'), t('event.classPlaces')]
 
   return (
     <BasePlacesTable headers={headers}>
@@ -47,7 +47,7 @@ export default function DayPlacesTable({ event, disabled, handleDayPlacesChange 
       })}
       <TableRow>
         <TableCell component="th" scope="row">
-          Yhteensä
+          {t('event.placesEditor.total')}
         </TableCell>
         <TableCell align="center">
           <PlacesDisplay value={calculateTotalFromDays(event.placesPerDay)} />

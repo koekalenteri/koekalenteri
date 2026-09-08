@@ -1,6 +1,7 @@
 import type { PublicJudge } from '../../../../../types'
 import type { JudgesEvent, SectionProps } from '../types'
 import Grid from '@mui/material/Grid'
+import { useTranslation } from 'react-i18next'
 import EventClasses from '../components/EventClasses'
 import { filterClassesByJudgeId, updateJudge } from './utils'
 
@@ -11,6 +12,8 @@ interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
 }
 
 const JudgeClasses = ({ disabled, event, index, judge, onChange }: Props) => {
+  const { t } = useTranslation()
+
   return (
     // Fills the row beside the judge's name; on a phone, where there is no such room, takes a row of its own.
     <Grid
@@ -26,7 +29,7 @@ const JudgeClasses = ({ disabled, event, index, judge, onChange }: Props) => {
         eventEndDate={event.endDate}
         value={filterClassesByJudgeId(event.classes, judge.id)}
         classes={[...event.classes]}
-        label="Arvostelee luokat"
+        label={t('event.judgesEditor.classes')}
         onChange={(_e, values) =>
           onChange?.({
             classes: updateJudge(event, judge.id, judge, [...values]),

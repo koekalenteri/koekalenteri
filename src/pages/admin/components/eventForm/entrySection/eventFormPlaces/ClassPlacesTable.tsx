@@ -21,7 +21,7 @@ export default function ClassPlacesTable({ event, disabled, handleChange }: Read
   const classesByDays = getEventClassesByDays(event)
 
   // Create headers array with date and class columns
-  const headers = [t('date'), ...uniqueClasses.map((c) => c), 'Yhteensä']
+  const headers = [t('date'), ...uniqueClasses.map((c) => c), t('event.placesEditor.total')]
 
   return (
     <BasePlacesTable headers={headers}>
@@ -60,7 +60,7 @@ export default function ClassPlacesTable({ event, disabled, handleChange }: Read
       })}
       <TableRow>
         <TableCell component="th" scope="row">
-          Yhteensä
+          {t('event.placesEditor.total')}
         </TableCell>
         {uniqueClasses.map((c) => {
           const classTotal = calculateTotalFromClasses(event.classes.filter((ec) => ec.class === c))
