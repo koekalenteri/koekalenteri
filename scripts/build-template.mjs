@@ -73,6 +73,7 @@ async function concatYAML() {
   }
   output = output.replace(marker, generated + marker)
 
+  await fs.mkdir(path.dirname(outputFile), { recursive: true })
   await fs.writeFile(outputFile, output)
   console.log(`✅ Concatenated ${files.length} files into ${outputFile}`)
 }
