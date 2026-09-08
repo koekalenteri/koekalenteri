@@ -207,3 +207,1226 @@ export const releaseNotes: Readonly<Record<string, readonly ReleaseNote[]>> = {
     },
   ],
 }
+
+export interface RulesSection {
+  /** Rendered from the extracted markdown at build time; it is the Kennel Club's text, not user input. */
+  readonly html: string
+  /** `s-4-4` for §4.4: the anchor the application links to. */
+  readonly id: string
+  /** 1 for a section (§4.4), 2 for a subsection (§4.2.1). */
+  readonly level: number
+  readonly number: string
+  /** The section's words, lowercased, for the page's search. */
+  readonly text: string
+  readonly title: string
+}
+
+interface RulesChapter {
+  readonly id: string
+  readonly intro?: string
+  readonly sections: readonly RulesSection[]
+  readonly title: string
+}
+
+export interface RulesPart {
+  readonly chapters: readonly RulesChapter[]
+  readonly intro?: string
+  /** "OSA 1" */
+  readonly number: string
+  readonly title: string
+}
+
+export interface RulesDocument {
+  /** The date of the newest amendment the text carries, when it is newer than the edition. */
+  readonly amended?: string
+  readonly approved?: string
+  /** The date the edition came into force, yyyy-mm-dd: the document's version, not the application's. */
+  readonly edition: string
+  readonly parts: readonly RulesPart[]
+  /** Path under /ohjeet. */
+  readonly path: string
+  /** The official document this was extracted from. */
+  readonly source: string
+  readonly title: string
+}
+
+/** The rules exist in Finnish only; a reader of another language gets the Finnish text. */
+export const rules: Readonly<Record<string, readonly RulesDocument[]>> = {
+  fi: [
+    {
+      "amended": "2025-05-07",
+      "approved": "2022-11-26",
+      "edition": "2023-04-15",
+      "parts": [
+        {
+          "chapters": [
+            {
+              "id": "c-1-1",
+              "sections": [
+                {
+                  "html": "<p>Muutokset sääntöihin sekä niihin liittyviin ohjeistuksiin valmistelee rotujärjestöjen alainen noutajien rodunomaisten kokeiden tuomaritoimikunta/tuomarikunta yhteistyössä rotujärjestöjen kanssa. Rotujärjestöjen hallitukset esittävät hyväksymänsä sääntömuutokset Suomen Kennelliiton – Finska Kennelklubben ry:n (myöhemmin näissä säännöissä ”Kennelliitto”) vahvistettavaksi.</p>\n",
+                  "id": "s-1-1",
+                  "level": 1,
+                  "number": "1.1",
+                  "text": "muutokset sääntöihin sekä niihin liittyviin ohjeistuksiin valmistelee rotujärjestöjen alainen noutajien rodunomaisten kokeiden tuomaritoimikunta/tuomarikunta yhteistyössä rotujärjestöjen kanssa. rotujärjestöjen hallitukset esittävät hyväksymänsä sääntömuutokset suomen kennelliiton – finska kennelklubben ry:n (myöhemmin näissä säännöissä ”kennelliitto”) vahvistettavaksi.",
+                  "title": "MUUTOKSET SÄÄNTÖIHIN"
+                },
+                {
+                  "html": "<ul>\n<li>Noutajien taipumuskokeet (NOU) ovat joko yleisiä, yhdistysten jäsenille tarkoitettuja tai rotukohtaisia kokeita.</li>\n<li>Noutajien A-metsästyskokeet (NOME A) ja Noutajien Working Test (NOWT) ovat yleisiä kokeita ja kilpailuja, valtakunnallisia tai rotukohtaisia mestaruuskokeita tai kansainvälisiä kokeita.</li>\n<li>Noutajien B-metsästyskokeet (NOME B) ovat joko yleisiä, yhdistysten jäsenille tarkoitettuja tai rotukohtaisia kokeita ja kilpailuja tai valtakunnallisia mestaruuskokeita.</li>\n<li>Noutajien käytännön metsästyskoe (NKM) on yleinen koe.</li>\n</ul>\n",
+                  "id": "s-1-2",
+                  "level": 1,
+                  "number": "1.2",
+                  "text": "noutajien taipumuskokeet (nou) ovat joko yleisiä, yhdistysten jäsenille tarkoitettuja tai rotukohtaisia kokeita. noutajien a-metsästyskokeet (nome a) ja noutajien working test (nowt) ovat yleisiä kokeita ja kilpailuja, valtakunnallisia tai rotukohtaisia mestaruuskokeita tai kansainvälisiä kokeita. noutajien b-metsästyskokeet (nome b) ovat joko yleisiä, yhdistysten jäsenille tarkoitettuja tai rotukohtaisia kokeita ja kilpailuja tai valtakunnallisia mestaruuskokeita. noutajien käytännön metsästyskoe (nkm) on yleinen koe.",
+                  "title": "KOELAJIT"
+                },
+                {
+                  "html": "<p>Kokeisiin saavat osallistua noutajarotuiset koirat, jotka ovat vähintään 9 kk:n ikäisiä ja täyttävät Kennelliiton rokotusvaatimukset. Koirien tulee olla joko Kennelliiton tai FCI:n muiden jäsenjärjestöjen rekisteröimiä. Ulkomaalaisten koirien tulosvaatimuksista päättää tuomaritoimikunta tapauskohtaisesti. Lisäksi on koemuotokohtaisia lisävaatimuksia, jotka on esitetty kyseessä olevan koemuodon säännöissä.</p>\n<p>Kokeeseen ei saa osallistua:</p>\n<ul>\n<li>sairas, vammautunut tai loukkaantunut koira</li>\n<li>kiimainen narttu</li>\n<li>narttu 30 vrk ennen odotettua synnytystä (arvioitu aika = 63 vrk ensimmäisestä astutuksesta) ja alle 75 vrk synnytyksen jälkeen</li>\n<li>koira, joka ei täytä Kennelliiton voimassa olevia antidopingmääräyksiä</li>\n<li>vihaisesti käyttäytyvä koira</li>\n<li>koira, jolle on maa- ja metsätalousministeriön asetuksen (1070/2000) vastaisesti suoritettu eläimen ulkonäön muuttamiseksi leikkaus</li>\n</ul>\n<p>Koetoimikunnan on tarkistettava osallistumisoikeus. Koetoimikunnalla on oikeus rajoittaa osallistuvien koirien lukumäärä kulloinkin voimassa olevien Kennelliiton ohjeiden mukaisesti. Rotukohtaisiin ja jäsenten välisiin kokeisiin ja kilpailuihin osallistumisesta määrätään erillisillä Kennelliiton vahvistamilla ohjeilla.</p>\n",
+                  "id": "s-1-3",
+                  "level": 1,
+                  "number": "1.3",
+                  "text": "kokeisiin saavat osallistua noutajarotuiset koirat, jotka ovat vähintään 9 kk:n ikäisiä ja täyttävät kennelliiton rokotusvaatimukset. koirien tulee olla joko kennelliiton tai fci:n muiden jäsenjärjestöjen rekisteröimiä. ulkomaalaisten koirien tulosvaatimuksista päättää tuomaritoimikunta tapauskohtaisesti. lisäksi on koemuotokohtaisia lisävaatimuksia, jotka on esitetty kyseessä olevan koemuodon säännöissä. kokeeseen ei saa osallistua: sairas, vammautunut tai loukkaantunut koira kiimainen narttu narttu 30 vrk ennen odotettua synnytystä (arvioitu aika = 63 vrk ensimmäisestä astutuksesta) ja alle 75 vrk synnytyksen jälkeen koira, joka ei täytä kennelliiton voimassa olevia antidopingmääräyksiä vihaisesti käyttäytyvä koira koira, jolle on maa- ja metsätalousministeriön asetuksen (1070/2000) vastaisesti suoritettu eläimen ulkonäön muuttamiseksi leikkaus koetoimikunnan on tarkistettava osallistumisoikeus. koetoimikunnalla on oikeus rajoittaa osallistuvien koirien lukumäärä kulloinkin voimassa olevien kennelliiton ohjeiden mukaisesti. rotukohtaisiin ja jäsenten välisiin kokeisiin ja kilpailuihin osallistumisesta määrätään erillisillä kennelliiton vahvistamilla ohjeilla.",
+                  "title": "OSALLISTUMISOIKEUS JA SEN RAJOITTAMINEN"
+                },
+                {
+                  "html": "<p>Noudatetaan kulloinkin voimassa olevaa Kennelliiton yleistä jääviyssääntöä.</p>\n",
+                  "id": "s-1-4",
+                  "level": 1,
+                  "number": "1.4",
+                  "text": "noudatetaan kulloinkin voimassa olevaa kennelliiton yleistä jääviyssääntöä.",
+                  "title": "JÄÄVIYS"
+                },
+                {
+                  "html": "<p>Kokeiden siirrossa ja peruuttamisessa noudatetaan kulloinkin voimassa olevaa Kennelliiton yleistä sääntöä.</p>\n",
+                  "id": "s-1-5",
+                  "level": 1,
+                  "number": "1.5",
+                  "text": "kokeiden siirrossa ja peruuttamisessa noudatetaan kulloinkin voimassa olevaa kennelliiton yleistä sääntöä.",
+                  "title": "KOKEIDEN JA KILPAILUJEN AJANKOHDAN SIIRTO TAI NIIDEN PERUUTTAMINEN"
+                },
+                {
+                  "html": "<p>Kokeen ylituomarin on oltava Kennelliiton pätevöimä, kyseisen koemuodon ylituomari, jolla on voimassa oleva arvosteluoikeus. Arvostelevana tuomarina voi toimia Kennelliton pätevöimä tai jonkin FCI:n jäsenmaan hyväksymän kenneljärjestön pätevöimä ja Kennelliiton hyväksymä ylituomari, jolla on voimassa oleva arvosteluoikeus. Suomalaisen ylituomarin on oltava myös Kennelliiton ja rotujärjestön jäsen.</p>\n<p>Jos tuomari joutuu keskeyttämään kokeen arvostelun sairauden tai muun vastaavan pakottavan syyn takia, kokeen arvostelua voi jatkaa toinen koemuotoon pätevä tuomari.</p>\n",
+                  "id": "s-1-6",
+                  "level": 1,
+                  "number": "1.6",
+                  "text": "kokeen ylituomarin on oltava kennelliiton pätevöimä, kyseisen koemuodon ylituomari, jolla on voimassa oleva arvosteluoikeus. arvostelevana tuomarina voi toimia kennelliton pätevöimä tai jonkin fci:n jäsenmaan hyväksymän kenneljärjestön pätevöimä ja kennelliiton hyväksymä ylituomari, jolla on voimassa oleva arvosteluoikeus. suomalaisen ylituomarin on oltava myös kennelliiton ja rotujärjestön jäsen. jos tuomari joutuu keskeyttämään kokeen arvostelun sairauden tai muun vastaavan pakottavan syyn takia, kokeen arvostelua voi jatkaa toinen koemuotoon pätevä tuomari.",
+                  "title": "KOKEEN TUOMARIT"
+                },
+                {
+                  "html": "<p>Koiranohjaaja on kokeen aikana aina koiran virallinen edustaja riippumatta koiran omistussuhteista. Koiralla tulee olla sama ohjaaja koko koesuorituksen ajan. Koiranohjaajan tulee noudattaa arvostelevan tuomarin antamia ohjeita. Koiran aiheuttamista ja koiralle aiheutuneista vahingoista vastaa koiran omistaja.</p>\n",
+                  "id": "s-1-7",
+                  "level": 1,
+                  "number": "1.7",
+                  "text": "koiranohjaaja on kokeen aikana aina koiran virallinen edustaja riippumatta koiran omistussuhteista. koiralla tulee olla sama ohjaaja koko koesuorituksen ajan. koiranohjaajan tulee noudattaa arvostelevan tuomarin antamia ohjeita. koiran aiheuttamista ja koiralle aiheutuneista vahingoista vastaa koiran omistaja.",
+                  "title": "KOIRANOHJAAJA"
+                },
+                {
+                  "html": "<p>Kaulapannan tai muun varusteen käyttö koesuorituksen aikana on kielletty. Suoritusten aikana ohjaaja ei saa käyttää apuvälineitä, jotka voidaan tulkita pakotteiksi.</p>\n<p>Arvostelevan tuomarin on keskeytettävä koe, jos ohjaaja kurittaa koiraa koepaikalla tai jos koira loukkaantuu tai sairastuu. Keskeyttämisestä on ilmoitettava viivyttelemättä kokeen ylituomarille.</p>\n<p>Kaikki koirat arvostellaan rodusta riippumatta samoin arvosteluperustein.</p>\n<p>Muutoin arvostelu tapahtuu koemuotokohtaisten sääntöjen ja sääntöjen liitteenä olevien arvosteluohjeiden mukaisesti.</p>\n",
+                  "id": "s-1-8",
+                  "level": 1,
+                  "number": "1.8",
+                  "text": "kaulapannan tai muun varusteen käyttö koesuorituksen aikana on kielletty. suoritusten aikana ohjaaja ei saa käyttää apuvälineitä, jotka voidaan tulkita pakotteiksi. arvostelevan tuomarin on keskeytettävä koe, jos ohjaaja kurittaa koiraa koepaikalla tai jos koira loukkaantuu tai sairastuu. keskeyttämisestä on ilmoitettava viivyttelemättä kokeen ylituomarille. kaikki koirat arvostellaan rodusta riippumatta samoin arvosteluperustein. muutoin arvostelu tapahtuu koemuotokohtaisten sääntöjen ja sääntöjen liitteenä olevien arvosteluohjeiden mukaisesti.",
+                  "title": "KOKEEN SUORITTAMINEN JA ARVOSTELU"
+                },
+                {
+                  "html": "<p>Ylituomarin, arvostelevan tuomarin, koiranohjaajan, koetoimikunnan ja vastaavan koetoimitsijan tehtävät ja velvollisuudet määritellään tarkemmin rotujärjestöjen hallitusten hyväksymillä ohjeilla.</p>\n",
+                  "id": "s-1-9",
+                  "level": 1,
+                  "number": "1.9",
+                  "text": "ylituomarin, arvostelevan tuomarin, koiranohjaajan, koetoimikunnan ja vastaavan koetoimitsijan tehtävät ja velvollisuudet määritellään tarkemmin rotujärjestöjen hallitusten hyväksymillä ohjeilla.",
+                  "title": "ERILLISOHJEET"
+                },
+                {
+                  "html": "<p>Sääntöjen mukaisesta arvostelusta ja tuomarin näkemyksestä ei voi valittaa. Kokeissa ja kilpailuissa syntyneissä erimielisyyksissä noudatetaan kulloinkin voimassa olevaa Kennelliiton yleistä muutoksenhakusääntöä.</p>\n",
+                  "id": "s-1-10",
+                  "level": 1,
+                  "number": "1.10",
+                  "text": "sääntöjen mukaisesta arvostelusta ja tuomarin näkemyksestä ei voi valittaa. kokeissa ja kilpailuissa syntyneissä erimielisyyksissä noudatetaan kulloinkin voimassa olevaa kennelliiton yleistä muutoksenhakusääntöä.",
+                  "title": "ERIMIELISYYDET JA VALITUKSET"
+                },
+                {
+                  "html": "<p>Kennelliiton hallitus voi pakottavista syistä rajoittaa kokeisiin ja kilpailuihin osallistumista tai antaa muita niiden toimeenpanoa koskevia erikoismääräyksiä, sekä hyväksyä muita poikkeustoimia tämän säännön osalta.</p>\n",
+                  "id": "s-1-11",
+                  "level": 1,
+                  "number": "1.11",
+                  "text": "kennelliiton hallitus voi pakottavista syistä rajoittaa kokeisiin ja kilpailuihin osallistumista tai antaa muita niiden toimeenpanoa koskevia erikoismääräyksiä, sekä hyväksyä muita poikkeustoimia tämän säännön osalta.",
+                  "title": "PAKOTTAVAT SYYT"
+                }
+              ],
+              "title": "YLEISET MÄÄRÄYKSET"
+            },
+            {
+              "id": "c-1-2",
+              "sections": [
+                {
+                  "html": "<p>Taipumuskokeen tarkoituksena on todeta, onko koiran luonne kyseiselle noutajarodulle tyypillinen ja onko koiralla edellytyksiä koulutettavaksi pienriistan talteenottoon ja noutajien metsästyskokeeseen. Koiria arvosteltaessa otetaan huomioon metsästysominaisuuksia koskevat jalostukselliset tavoitteet.</p>\n",
+                  "id": "s-2-1",
+                  "level": 1,
+                  "number": "2.1",
+                  "text": "taipumuskokeen tarkoituksena on todeta, onko koiran luonne kyseiselle noutajarodulle tyypillinen ja onko koiralla edellytyksiä koulutettavaksi pienriistan talteenottoon ja noutajien metsästyskokeeseen. koiria arvosteltaessa otetaan huomioon metsästysominaisuuksia koskevat jalostukselliset tavoitteet.",
+                  "title": "KOKEEN TARKOITUS"
+                },
+                {
+                  "html": "",
+                  "id": "s-2-2",
+                  "level": 1,
+                  "number": "2.2",
+                  "text": "",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Koiran ominaisuuksien ja luonteenpiirteiden arvioiminen taipumuskokeen avulla edellyttää koeolosuhteiden järjestämistä mahdollisimman tasapuoliseksi kaikille koirille. Koirien suoritusjärjestys arvotaan.</p>\n",
+                  "id": "s-2-2-1",
+                  "level": 2,
+                  "number": "2.2.1",
+                  "text": "koiran ominaisuuksien ja luonteenpiirteiden arvioiminen taipumuskokeen avulla edellyttää koeolosuhteiden järjestämistä mahdollisimman tasapuoliseksi kaikille koirille. koirien suoritusjärjestys arvotaan.",
+                  "title": "Yleistä"
+                },
+                {
+                  "html": "<p>Koiran noudettavissa tulee olla vähintään kahta eri riistalintua tai rauhoittamatonta lintulajia. Vesityöskentelyssä on käytettävä vesilintuja. Hakualueella saa käyttää vain yhtä riistalajia. Jälki vedetään kanilla. Noudettavan kanin paino tulee olla noin 1,5-3 kg. Kaikilla koirilla on oltava samat riistalajit. Riistan tulee olla hyväkuntoista ja pakastetun riistan täysin sulanutta.</p>\n",
+                  "id": "s-2-2-2",
+                  "level": 2,
+                  "number": "2.2.2",
+                  "text": "koiran noudettavissa tulee olla vähintään kahta eri riistalintua tai rauhoittamatonta lintulajia. vesityöskentelyssä on käytettävä vesilintuja. hakualueella saa käyttää vain yhtä riistalajia. jälki vedetään kanilla. noudettavan kanin paino tulee olla noin 1,5-3 kg. kaikilla koirilla on oltava samat riistalajit. riistan tulee olla hyväkuntoista ja pakastetun riistan täysin sulanutta.",
+                  "title": "Riista"
+                },
+                {
+                  "html": "<p>Kokeen alussa koirien ohjaajille pidetään alkupuhuttelu, jossa kerrotaan pääpiirteittäin kokeen kulku. Tarkemmat toimintaohjeet annetaan jokaiselle ohjaajalle suorituspaikoilla. Koira pidetään kytkettynä suoritusten alussa.</p>\n<p>Vesi- ja hakutyön jälkeen annetaan koiran suorituksesta suullinen arvio. Jäljelle pääsyn edellytyksenä on koiran siihenastisten suoritusten hyväksyminen.</p>\n<p>Kokeen tehtävät etenevät seuraavalla tavalla:</p>\n<p><strong>Sosiaalinen käyttäytyminen</strong></p>\n<p>Kokeen alussa tuomari kokoaa ryhmän ohjaajineen arvosteltavaksi. Ryhmässä on oltava vähintään kaksi urosta ja kaksi narttua. Jos arvosteltavana on vain toista sukupuolta olevia koiria, niin riittää, että ryhmässä on yksi kokeen ulkopuolinen vastakkaisen sukupuolen edustaja. Tuomari selostaa lyhyesti kokeen kulun ja muut järjestelyt. Samalla tuomari tarkkailee koirien käyttäytymistä ryhmässä sekä tutustuu erikseen jokaiseen koiraan. Tuomari seuraa koirien käyttäytymistä eri tilanteissa koko kokeen ajan.</p>\n<p><strong>Vesityö</strong></p>\n<p>Rannan tulee olla helppokulkuinen ja sellainen, että kahluumatka jää mahdollisimman lyhyeksi. Vesialueen tulee olla niin suuri, että koiralle ei tule kiusausta nousta vastarannalle eikä kiertää rantaa tai laituria pitkin linnulle.</p>\n<p>Koiran uimahalu testataan vesilinnun noudon avulla. Koiralle tehdään kaksi vesinoutoa, joista ensimmäinen heitto tehdään rannalta ja toinen veneestä, jolloin vähimmäisnoutoetäisyys on 20 metriä. Jälkimmäisen heiton yhteydessä ammutaan laukaus haulikolla. Ampuja on sopivalla etäisyydellä koirasta siten, että koiralla on mahdollisuus nähdä ampuja laukauksen ja heiton aikana.</p>\n<p><strong>Haku</strong></p>\n<p>Hakualueen tulee olla sellainen, että koira ei näe jatkuvasti ohjaajaa työskennellessään maastossa. Alueelle sijoitetaan viisi (5) riistaa suoritusvuorossa olevan koiran näkemättä. Pisin noutoetäisyys on vähintään 50 metriä. Haku voidaan suunnitella myös siten, että ohjaaja saa lähettää koiran alueelle eri kohdista.</p>\n<p>Hakutehtävän alussa koira pidetään lähetyspaikalla kytkettynä, ammutaan laukaus haulikolla ja heitetään motivointiheitto linnulla. Koiralla tulee olla mahdollisuus nähdä heitto, mutta ei välttämättä linnun putoamispaikkaa. Ampuja on sopivalla etäisyydellä koirasta heiton suunnassa. Tarvittaessa riistan heittäjä voi äännellä tuomarin kehotuksesta ennen laukausta kiinnittääkseen koiran huomion. Toimitsijat poistuvat alueelta ennen kuin tuomari antaa luvan lähettää koira hakuun.</p>\n<p>Katsojat sijoitetaan niin, että he eivät häiritse koiran ja ohjaajan työskentelyä. Muiden koirien tulee olla näkösuojassa ja riittävän kaukana suorituspaikasta.</p>\n<p><strong>Jälkitehtävä</strong></p>\n<p>Laahausjälki vedetään kanilla metsään. Jäljen pituus on noin 80 metriä. Koirat on pidettävä näkösuojassa jälkien vetämisen aikana. Vetokanin sijaan jäljen päähän voidaan laittaa toinen kani. Tuomarilla tulee olla mahdollisuus seurata koiran etenemistä ja käyttäytymistä kanilla.</p>\n<p>Jälkien välinen etäisyys tulee olla riittävä. Avomaasto, harva aluskasvillisuus ja voimakas tuuli edellyttävät jälkien välisen etäisyyden lisäämistä.</p>\n",
+                  "id": "s-2-2-3",
+                  "level": 2,
+                  "number": "2.2.3",
+                  "text": "kokeen alussa koirien ohjaajille pidetään alkupuhuttelu, jossa kerrotaan pääpiirteittäin kokeen kulku. tarkemmat toimintaohjeet annetaan jokaiselle ohjaajalle suorituspaikoilla. koira pidetään kytkettynä suoritusten alussa. vesi- ja hakutyön jälkeen annetaan koiran suorituksesta suullinen arvio. jäljelle pääsyn edellytyksenä on koiran siihenastisten suoritusten hyväksyminen. kokeen tehtävät etenevät seuraavalla tavalla: sosiaalinen käyttäytyminen kokeen alussa tuomari kokoaa ryhmän ohjaajineen arvosteltavaksi. ryhmässä on oltava vähintään kaksi urosta ja kaksi narttua. jos arvosteltavana on vain toista sukupuolta olevia koiria, niin riittää, että ryhmässä on yksi kokeen ulkopuolinen vastakkaisen sukupuolen edustaja. tuomari selostaa lyhyesti kokeen kulun ja muut järjestelyt. samalla tuomari tarkkailee koirien käyttäytymistä ryhmässä sekä tutustuu erikseen jokaiseen koiraan. tuomari seuraa koirien käyttäytymistä eri tilanteissa koko kokeen ajan. vesityö rannan tulee olla helppokulkuinen ja sellainen, että kahluumatka jää mahdollisimman lyhyeksi. vesialueen tulee olla niin suuri, että koiralle ei tule kiusausta nousta vastarannalle eikä kiertää rantaa tai laituria pitkin linnulle. koiran uimahalu testataan vesilinnun noudon avulla. koiralle tehdään kaksi vesinoutoa, joista ensimmäinen heitto tehdään rannalta ja toinen veneestä, jolloin vähimmäisnoutoetäisyys on 20 metriä. jälkimmäisen heiton yhteydessä ammutaan laukaus haulikolla. ampuja on sopivalla etäisyydellä koirasta siten, että koiralla on mahdollisuus nähdä ampuja laukauksen ja heiton aikana. haku hakualueen tulee olla sellainen, että koira ei näe jatkuvasti ohjaajaa työskennellessään maastossa. alueelle sijoitetaan viisi (5) riistaa suoritusvuorossa olevan koiran näkemättä. pisin noutoetäisyys on vähintään 50 metriä. haku voidaan suunnitella myös siten, että ohjaaja saa lähettää koiran alueelle eri kohdista. hakutehtävän alussa koira pidetään lähetyspaikalla kytkettynä, ammutaan laukaus haulikolla ja heitetään motivointiheitto linnulla. koiralla tulee olla mahdollisuus nähdä heitto, mutta ei välttämättä linnun putoamispaikkaa. ampuja on sopivalla etäisyydellä koirasta heiton suunnassa. tarvittaessa riistan heittäjä voi äännellä tuomarin kehotuksesta ennen laukausta kiinnittääkseen koiran huomion. toimitsijat poistuvat alueelta ennen kuin tuomari antaa luvan lähettää koira hakuun. katsojat sijoitetaan niin, että he eivät häiritse koiran ja ohjaajan työskentelyä. muiden koirien tulee olla näkösuojassa ja riittävän kaukana suorituspaikasta. jälkitehtävä laahausjälki vedetään kanilla metsään. jäljen pituus on noin 80 metriä. koirat on pidettävä näkösuojassa jälkien vetämisen aikana. vetokanin sijaan jäljen päähän voidaan laittaa toinen kani. tuomarilla tulee olla mahdollisuus seurata koiran etenemistä ja käyttäytymistä kanilla. jälkien välinen etäisyys tulee olla riittävä. avomaasto, harva aluskasvillisuus ja voimakas tuuli edellyttävät jälkien välisen etäisyyden lisäämistä.",
+                  "title": "Kokeen tehtävät ja suoritusten kuvaus"
+                },
+                {
+                  "html": "",
+                  "id": "s-2-3",
+                  "level": 1,
+                  "number": "2.3",
+                  "text": "",
+                  "title": "ARVOSTELU"
+                },
+                {
+                  "html": "<p>Kaikki osasuoritukset arvostelee sama tuomari.</p>\n<p>Tuomari toimii niin, että koira saa suoritusten aikana kaiken mahdollisen avun taipumustensa osoittamiseksi. Tuomarilla on oikeus kokeilla koiraa useampia kertoja erilaisissa tilanteissa saadakseen mahdollisimman perusteellisen kuvan koiran taipumuksista ja luonteenpiirteistä.</p>\n<p>Tuomari päättää arvostelukohdittain tuleeko koira hyväksytyksi. Jos kaikki arvostelukohdat on hyväksytty, on koiran kokonaissuoritus hyväksyttävä.</p>\n",
+                  "id": "s-2-3-1",
+                  "level": 2,
+                  "number": "2.3.1",
+                  "text": "kaikki osasuoritukset arvostelee sama tuomari. tuomari toimii niin, että koira saa suoritusten aikana kaiken mahdollisen avun taipumustensa osoittamiseksi. tuomarilla on oikeus kokeilla koiraa useampia kertoja erilaisissa tilanteissa saadakseen mahdollisimman perusteellisen kuvan koiran taipumuksista ja luonteenpiirteistä. tuomari päättää arvostelukohdittain tuleeko koira hyväksytyksi. jos kaikki arvostelukohdat on hyväksytty, on koiran kokonaissuoritus hyväksyttävä.",
+                  "title": "Yleistä"
+                },
+                {
+                  "html": "<p>Sosiaalinen käyttäytyminen, suhtautuminen vieraisiin ihmisiin ja koiriin</p>\n<p>Noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria. Noutajat suhtautuvat myönteisesti vieraisiin ihmisiin ja koiriin. Arvostelussa on otettava huomioon noutajien rotumääritelmissä mainitut luonteenpiirteet. Selvästi pelokkaan, hyökkäävän, häiritsevästi ääntelevän tai ylikiihkeän koiran sosiaalinen käyttäytyminen on hylättävä. Hylkäämisestä seuraa, ettei koira osallistu muihin suorituksiin.</p>\n<p>Sosiaalista käyttäytymistä seurataan koko kokeen ajan ja se voidaan hylätä vielä myöhemmin kokeen aikana.</p>\n<p><strong>Uimahalu</strong></p>\n<p>Noutajan tulee työskennellä mielellään vedessä. Koira, joka kieltäytyy uimisesta tai menee uimaan ainoastaan jatkuvista kehotuksista, on hylättävä. Suoritus on syytä toistaa, kunnes tuomari on vakuuttunut koiran ominaisuudesta. Vesityössä hylätty koira ei osallistu hakuun.</p>\n<p><strong>Hakuinto</strong></p>\n<p>Noutajat työskentelevät itsenäisesti, innokkaasti ja vauhtinsa säilyttäen koko hakutyön ajan. Innoltaan olematon tai selvästi laskeva, tai pelkästään pakonomaisesti tapahtuva hakutyöskentely on hylättävä. Jatkuva reviirin merkkaaminen kertoo puutteellisesta hakuinnosta ja johtaa suorituksen hylkäämiseen.</p>\n<p><strong>Noutohalu</strong></p>\n<p>Noutajan tulee tarttua riistaan empimättä ja oma-aloitteisesti. Vähäisiä ohjaajan kehotuksia tai tuomarin apu voidaan sallia eri riistalajeilla. Toistuvat kehotukset tai kieltäytyminen noudosta johtavat arvostelukohdan hylkäämiseen.</p>\n<p><strong>Riistankäsittely</strong></p>\n<p>Noutajien ote riistoista on pehmeä, tasapainoinen ja varma. Riistan vahingoittaminen, riistan päällä kieriminen tai liiallinen leikittely riistan kanssa ovat hylkääviä virheitä.</p>\n<p><strong>Palauttaminen</strong></p>\n<p>Ripeä riistan palauttaminen ohjaajan käteen on toivottavaa. Lievä aikailu sekä riistojen pudottelu ohjaajan lähelle ovat hyväksyttävissä. Noutojen kesken jättäminen johtaa suorituksen hylkäämiseen.</p>\n<p><strong>Reagointi laukauksiin</strong></p>\n<p>Noutajat ovat laukauksen aikana rauhallisia, keskittyneitä ja hiljaisia. Lievä rauhattomuus ja vaimea ääntely voidaan kuitenkin hyväksyä. Koira, joka selvästi pelkää laukausta ja menettää toimintakykynsä tai on häiritsevän äänekäs, on hylättävä.</p>\n<p><strong>Itseluottamus ja aloitekyky</strong></p>\n<p>Noutajat työskentelevät itsenäisesti ja selvittävät annetun tehtävän ohjaajaansa liiaksi tukeutumatta. Itseluottamusta ja aloitekykyä arvostellaan kaikissa osasuorituksissa. Koira, joka ei työskentele itsenäisesti eikä uskalla edetä oma-aloitteisesti tehtävän vaatimalle etäisyydelle, on hylättävä.</p>\n<p><strong>Yhteistyö</strong></p>\n<p>Noutajat haluavat toimia yhteistyössä ohjaajansa kanssa. Hyväksyttävään suoritukseen vaaditaan, että koira on ohjaajansa hallittavissa. Koira, jonka yhteistyö ohjaajan kanssa on niin puutteellista, että kokeen suorittaminen ei onnistu, on hylättävä.</p>\n<p><strong>Yleisvaikutelma</strong></p>\n<p>Yleisvaikutelmaan kirjataan yhteenvetona koiran ominaisuudet suoritettujen tehtävien perusteella. Yhteenveto on pyrittävä kirjaamaan mahdollisemman positiiviseen sävyyn, mutta selvät puutteet on mainittava.</p>\n",
+                  "id": "s-2-3-2",
+                  "level": 2,
+                  "number": "2.3.2",
+                  "text": "sosiaalinen käyttäytyminen, suhtautuminen vieraisiin ihmisiin ja koiriin noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria. noutajat suhtautuvat myönteisesti vieraisiin ihmisiin ja koiriin. arvostelussa on otettava huomioon noutajien rotumääritelmissä mainitut luonteenpiirteet. selvästi pelokkaan, hyökkäävän, häiritsevästi ääntelevän tai ylikiihkeän koiran sosiaalinen käyttäytyminen on hylättävä. hylkäämisestä seuraa, ettei koira osallistu muihin suorituksiin. sosiaalista käyttäytymistä seurataan koko kokeen ajan ja se voidaan hylätä vielä myöhemmin kokeen aikana. uimahalu noutajan tulee työskennellä mielellään vedessä. koira, joka kieltäytyy uimisesta tai menee uimaan ainoastaan jatkuvista kehotuksista, on hylättävä. suoritus on syytä toistaa, kunnes tuomari on vakuuttunut koiran ominaisuudesta. vesityössä hylätty koira ei osallistu hakuun. hakuinto noutajat työskentelevät itsenäisesti, innokkaasti ja vauhtinsa säilyttäen koko hakutyön ajan. innoltaan olematon tai selvästi laskeva, tai pelkästään pakonomaisesti tapahtuva hakutyöskentely on hylättävä. jatkuva reviirin merkkaaminen kertoo puutteellisesta hakuinnosta ja johtaa suorituksen hylkäämiseen. noutohalu noutajan tulee tarttua riistaan empimättä ja oma-aloitteisesti. vähäisiä ohjaajan kehotuksia tai tuomarin apu voidaan sallia eri riistalajeilla. toistuvat kehotukset tai kieltäytyminen noudosta johtavat arvostelukohdan hylkäämiseen. riistankäsittely noutajien ote riistoista on pehmeä, tasapainoinen ja varma. riistan vahingoittaminen, riistan päällä kieriminen tai liiallinen leikittely riistan kanssa ovat hylkääviä virheitä. palauttaminen ripeä riistan palauttaminen ohjaajan käteen on toivottavaa. lievä aikailu sekä riistojen pudottelu ohjaajan lähelle ovat hyväksyttävissä. noutojen kesken jättäminen johtaa suorituksen hylkäämiseen. reagointi laukauksiin noutajat ovat laukauksen aikana rauhallisia, keskittyneitä ja hiljaisia. lievä rauhattomuus ja vaimea ääntely voidaan kuitenkin hyväksyä. koira, joka selvästi pelkää laukausta ja menettää toimintakykynsä tai on häiritsevän äänekäs, on hylättävä. itseluottamus ja aloitekyky noutajat työskentelevät itsenäisesti ja selvittävät annetun tehtävän ohjaajaansa liiaksi tukeutumatta. itseluottamusta ja aloitekykyä arvostellaan kaikissa osasuorituksissa. koira, joka ei työskentele itsenäisesti eikä uskalla edetä oma-aloitteisesti tehtävän vaatimalle etäisyydelle, on hylättävä. yhteistyö noutajat haluavat toimia yhteistyössä ohjaajansa kanssa. hyväksyttävään suoritukseen vaaditaan, että koira on ohjaajansa hallittavissa. koira, jonka yhteistyö ohjaajan kanssa on niin puutteellista, että kokeen suorittaminen ei onnistu, on hylättävä. yleisvaikutelma yleisvaikutelmaan kirjataan yhteenvetona koiran ominaisuudet suoritettujen tehtävien perusteella. yhteenveto on pyrittävä kirjaamaan mahdollisemman positiiviseen sävyyn, mutta selvät puutteet on mainittava.",
+                  "title": "Arvosteltavat ominaisuudet"
+                },
+                {
+                  "html": "<p>Koiran koe keskeytetään aina hylätyn osasuorituksen jälkeen tai jos koiralla on sellaisia ominaisuuksia, että kokeen jatkaminen ei ole mielekästä.</p>\n",
+                  "id": "s-2-3-3",
+                  "level": 2,
+                  "number": "2.3.3",
+                  "text": "koiran koe keskeytetään aina hylätyn osasuorituksen jälkeen tai jos koiralla on sellaisia ominaisuuksia, että kokeen jatkaminen ei ole mielekästä.",
+                  "title": "Kokeen keskeyttäminen"
+                },
+                {
+                  "html": "<p>Koiran suoritus arvioidaan hyväksytty-/hylätty- periaatteella. Jos useita arvostelukohtia tulee hylätyksi, niin pääasiallinen hylkäyksen syy merkitään. Kaikkien arvostelukohtien tulee olla hyväksyttyjä, jotta koira voidaan hyväksyä kokeessa. Arvostelu kirjataan rotujärjestöjen hyväksymälle arvostelulomakkeelle. Hyväksytystä koesuorituksesta annetaan kunniakirja. Taipumuskoe on luonteeltaan testi, jossa ei ole soveliasta valita parasta koiraa.</p>\n",
+                  "id": "s-2-4",
+                  "level": 1,
+                  "number": "2.4",
+                  "text": "koiran suoritus arvioidaan hyväksytty-/hylätty- periaatteella. jos useita arvostelukohtia tulee hylätyksi, niin pääasiallinen hylkäyksen syy merkitään. kaikkien arvostelukohtien tulee olla hyväksyttyjä, jotta koira voidaan hyväksyä kokeessa. arvostelu kirjataan rotujärjestöjen hyväksymälle arvostelulomakkeelle. hyväksytystä koesuorituksesta annetaan kunniakirja. taipumuskoe on luonteeltaan testi, jossa ei ole soveliasta valita parasta koiraa.",
+                  "title": "PALKITSEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN TAIPUMUSKOKEEN SÄÄNNÖT (NOU)"
+            },
+            {
+              "id": "c-1-3",
+              "sections": [
+                {
+                  "html": "<p>Kokeen tarkoituksena on saada tietoa koirien metsästysominaisuuksista jalostusta varten sekä edistää koirien kouluttamista metsästyskäyttöön.</p>\n",
+                  "id": "s-3-1",
+                  "level": 1,
+                  "number": "3.1",
+                  "text": "kokeen tarkoituksena on saada tietoa koirien metsästysominaisuuksista jalostusta varten sekä edistää koirien kouluttamista metsästyskäyttöön.",
+                  "title": "KOKEEN TARKOITUS"
+                },
+                {
+                  "html": "",
+                  "id": "s-3-2",
+                  "level": 1,
+                  "number": "3.2",
+                  "text": "",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Noutajien A-metsästyskokeen järjestämisessä tulee huomioida voimassa olevat metsästysajat. Kokeet järjestetään metsästystilanteessa niin, että noudettava riista metsästetään osallistuvien koirien läsnä ollessa. Kokeessa tulee olla vähintään 6 koiraa.</p>\n",
+                  "id": "s-3-2-1",
+                  "level": 2,
+                  "number": "3.2.1",
+                  "text": "noutajien a-metsästyskokeen järjestämisessä tulee huomioida voimassa olevat metsästysajat. kokeet järjestetään metsästystilanteessa niin, että noudettava riista metsästetään osallistuvien koirien läsnä ollessa. kokeessa tulee olla vähintään 6 koiraa.",
+                  "title": "Yleistä"
+                },
+                {
+                  "html": "<p>Kokeessa voivat arvostella NOME A arvosteluoikeuden omaavat tuomarit. Kokeen arvostelevat ylituomari sekä hänen lisäkseen vähintään yksi arvostelutuomari.</p>\n",
+                  "id": "s-3-2-2",
+                  "level": 2,
+                  "number": "3.2.2",
+                  "text": "kokeessa voivat arvostella nome a arvosteluoikeuden omaavat tuomarit. kokeen arvostelevat ylituomari sekä hänen lisäkseen vähintään yksi arvostelutuomari.",
+                  "title": "Tuomarit"
+                },
+                {
+                  "html": "<p>Kokeeseen saa osallistua koira, jolla on osallistumisoikeus VOI-luokkaan joko noutajien B- metsästyskokeessa tai noutajien working testissä, tai se on palkittu noutajien kansainvälisessä field trial- kokeessa.</p>\n",
+                  "id": "s-3-2-3",
+                  "level": 2,
+                  "number": "3.2.3",
+                  "text": "kokeeseen saa osallistua koira, jolla on osallistumisoikeus voi-luokkaan joko noutajien b- metsästyskokeessa tai noutajien working testissä, tai se on palkittu noutajien kansainvälisessä field trial- kokeessa.",
+                  "title": "Osallistumisoikeus"
+                },
+                {
+                  "html": "<p>Noudettavina voi olla kaikkia riistalintujalajeja, rauhoittamattomia lintulajeja sekä jäniseläimiä.</p>\n",
+                  "id": "s-3-2-4",
+                  "level": 2,
+                  "number": "3.2.4",
+                  "text": "noudettavina voi olla kaikkia riistalintujalajeja, rauhoittamattomia lintulajeja sekä jäniseläimiä.",
+                  "title": "Riista"
+                },
+                {
+                  "html": "<p>NOME A kokeen tulee noudattaa metsästyspäivän kulkua.</p>\n<p>Tuomarin tulee huolehtia, että jokainen koira saa mahdollisimman hyvän ja tasapuolisen mahdollisuuden osoittaa kykynsä noutavana koirana. Tuomarin tulee antaa kullekin ohjaajalle tehtävän suorittamiseen tarvittavat samankaltaiset ohjeet. Ohjeita voidaan antaa myös ohjaajille yhteisesti.</p>\n",
+                  "id": "s-3-2-5",
+                  "level": 2,
+                  "number": "3.2.5",
+                  "text": "nome a kokeen tulee noudattaa metsästyspäivän kulkua. tuomarin tulee huolehtia, että jokainen koira saa mahdollisimman hyvän ja tasapuolisen mahdollisuuden osoittaa kykynsä noutavana koirana. tuomarin tulee antaa kullekin ohjaajalle tehtävän suorittamiseen tarvittavat samankaltaiset ohjeet. ohjeita voidaan antaa myös ohjaajille yhteisesti.",
+                  "title": "Kokeen suorittaminen"
+                },
+                {
+                  "html": "",
+                  "id": "s-3-3",
+                  "level": 1,
+                  "number": "3.3",
+                  "text": "",
+                  "title": "ARVOSTELU"
+                },
+                {
+                  "html": "<p>Arvosteluperusteet ovat samat kuin noutajien kansainvälisessä kokeessa.</p>\n<p>Ollessaan arvostelun alaisena koiran on herkeämättä seurattava jahdin etenemistä ja oltava hiljaa paikallaan. Sen tulee painaa mieleensä riistan putoamispaikat ja muistaa ne riittävän pitkään. Noutotehtävien aikana koiran tulee esittää kunkin tehtävän edellyttämiä ominaisuuksia, kuten tehokasta hakua, hyvää ohjattavuutta, oma-aloitteisuutta, hyvää vainunkäyttöä ja riistanlöytökykyä.</p>\n",
+                  "id": "s-3-3-1",
+                  "level": 2,
+                  "number": "3.3.1",
+                  "text": "arvosteluperusteet ovat samat kuin noutajien kansainvälisessä kokeessa. ollessaan arvostelun alaisena koiran on herkeämättä seurattava jahdin etenemistä ja oltava hiljaa paikallaan. sen tulee painaa mieleensä riistan putoamispaikat ja muistaa ne riittävän pitkään. noutotehtävien aikana koiran tulee esittää kunkin tehtävän edellyttämiä ominaisuuksia, kuten tehokasta hakua, hyvää ohjattavuutta, oma-aloitteisuutta, hyvää vainunkäyttöä ja riistanlöytökykyä.",
+                  "title": "Yleistä"
+                },
+                {
+                  "html": "<p>Koiran tulee tehdä hyvää, koko osoitetun hakualueen kattavaa hakutyötä, olla oma-aloitteinen ja käyttää hyvin vainuaan. Määrätietoinen haku ja tehokas riistan löytäminen ovat merkki erinomaisesta riistanlöytökyvystä.</p>\n<p>Koiran on pystyttävä itsenäiseen työskentelyyn, mutta sen on myös tarvittaessa seurattava ohjaajansa merkkejä.</p>\n<p><strong>Vainu</strong></p>\n<p>Koiran on vainunsa avulla ja olosuhteita hyväksikäyttäen kyettävä löytämään riistat.</p>\n<p><strong>Tehokkuus ja kestävyys</strong></p>\n<p>Tehokas koira työskentelee hyvällä vauhdilla ja on erinomainen riistanlöytäjä. Hyvä kestävyys ilmenee muuttumattomana vauhtina ja intona koko tehtävän ajan.</p>\n<p><strong>Reagointi laukaukseen</strong></p>\n<p>Koiran on oltava laukausten aikana hallinnassa ja tarkkailtava valppaana laukausten suuntaan.</p>\n<p><strong>Paikallistamiskyky</strong></p>\n<p>Koiran tulee omata hyvä paikallistamiskyky ja muistaa putoamispaikat. Luvan saatuaan sen on noudettava riista. Määrätietoinen, itsenäinen eteneminen pudotusalueelle sekä siellä metsästäminen ja riistan löytäminen ovat merkki erinomaisesta paikallistamiskyvystä.</p>\n<p><strong>Riistankäsittely</strong></p>\n<p>Koiran on noudettava vainuamansa riista empimättä hyvällä, pehmeällä otteella ja palautettava se nopeasti ohjaajalle käteen.</p>\n<p><strong>Työskentelyhalu</strong></p>\n<p>Koira ei vältä minkäänlaista maastoa tai esteitä ja menee veteen epäröimättä sekä ui tehokkaasti ja määrätietoisesti.</p>\n<p><strong>Yhteistyö</strong></p>\n<p>Koiran on oltava helposti hallittavissa. Siirtymissä koiran on seurattava ohjaajaa.</p>\n<p><strong>Ohjattavuus</strong></p>\n<p>Koiraa ohjataan vaivattomasti ja hillitysti haluttuun kohteeseen.</p>\n<p><strong>Passityö</strong></p>\n<p>Koiran on pysyttävä käskystä paikallaan sekä oltava hiljainen, rauhallinen ja tarkkaavainen.</p>\n<p><strong>Muut ominaisuudet</strong></p>\n<p>Noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria, jotka suhtautuvat avoimesti vieraisiin ihmisiin ja koiriin.</p>\n",
+                  "id": "s-3-3-2",
+                  "level": 2,
+                  "number": "3.3.2",
+                  "text": "koiran tulee tehdä hyvää, koko osoitetun hakualueen kattavaa hakutyötä, olla oma-aloitteinen ja käyttää hyvin vainuaan. määrätietoinen haku ja tehokas riistan löytäminen ovat merkki erinomaisesta riistanlöytökyvystä. koiran on pystyttävä itsenäiseen työskentelyyn, mutta sen on myös tarvittaessa seurattava ohjaajansa merkkejä. vainu koiran on vainunsa avulla ja olosuhteita hyväksikäyttäen kyettävä löytämään riistat. tehokkuus ja kestävyys tehokas koira työskentelee hyvällä vauhdilla ja on erinomainen riistanlöytäjä. hyvä kestävyys ilmenee muuttumattomana vauhtina ja intona koko tehtävän ajan. reagointi laukaukseen koiran on oltava laukausten aikana hallinnassa ja tarkkailtava valppaana laukausten suuntaan. paikallistamiskyky koiran tulee omata hyvä paikallistamiskyky ja muistaa putoamispaikat. luvan saatuaan sen on noudettava riista. määrätietoinen, itsenäinen eteneminen pudotusalueelle sekä siellä metsästäminen ja riistan löytäminen ovat merkki erinomaisesta paikallistamiskyvystä. riistankäsittely koiran on noudettava vainuamansa riista empimättä hyvällä, pehmeällä otteella ja palautettava se nopeasti ohjaajalle käteen. työskentelyhalu koira ei vältä minkäänlaista maastoa tai esteitä ja menee veteen epäröimättä sekä ui tehokkaasti ja määrätietoisesti. yhteistyö koiran on oltava helposti hallittavissa. siirtymissä koiran on seurattava ohjaajaa. ohjattavuus koiraa ohjataan vaivattomasti ja hillitysti haluttuun kohteeseen. passityö koiran on pysyttävä käskystä paikallaan sekä oltava hiljainen, rauhallinen ja tarkkaavainen. muut ominaisuudet noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria, jotka suhtautuvat avoimesti vieraisiin ihmisiin ja koiriin.",
+                  "title": "Arvosteltavat ominaisuudet Haku"
+                },
+                {
+                  "html": "<p>Jos koira tekee kaksi vakavaa virhettä, hylkäävän virheen tai nouto on kokonaisuutena heikko, sen koe keskeytetään. Samoin menetellään, jos molemmat tuomarit ovat sitä mieltä, että koiraa ei voida enää palkita. Koira voidaan hylätä, jollei se kutsuttaessa arvosteltavaksi ole välittömästi paikalla.</p>\n<p><strong>Vakavat virheet</strong></p>\n<ul>\n<li>liika riippuvaisuus ohjaajasta</li>\n<li>äänekäs ohjaaminen</li>\n<li>rauhattomuus ja/tai ohjaajan huomion vaatiminen passipaikalla</li>\n<li>huono paikallistamiskyky ja/tai huono muistikuva putoamispaikan sijainnista</li>\n<li>huono seuraaminen</li>\n<li>huolimaton nouto-ote</li>\n<li>hidas ja/tai haluton työskentely</li>\n<li>huono hallittavuus</li>\n<li>“first dog down”</li>\n<li>“eye-wipe”</li>\n</ul>\n<p>“first dog down” = Koira havaitsee haavoittuneen riistan putoamispaikan, mutta ei löydä riistaa, vaikka se tuomarin mukaan olisi ollut löydettävissä. Muutkaan noutoon lähetetyt koirat, tuomarin määräämät avustajat tai tuomari eivät löydä riistaa. “eye-wipe” = Koira ei onnistu noutamaan riistaa, jonka noudossa toinen koira onnistuu vastaavissa olosuhteissa, tai tuomari käy hakemassa riistan.</p>\n<p>Jos koira saa vakavista virheistä ”eye-wipen” tai ”first dog downin”, koiran koe keskeytyy.</p>\n<p><strong>Hylkäävät virheet</strong></p>\n<ul>\n<li>aggressiivinen käyttäytyminen</li>\n<li>laukausarkuus</li>\n<li>liiallinen arkuus tai pelokkuus</li>\n<li>vinkuminen tai haukkuminen</li>\n<li>kieltäytyminen vesityöskentelystä</li>\n<li>kieltäytyminen riistasta tai noudon jättäminen kesken</li>\n<li>riistan vahingoittaminen</li>\n<li>riistan vaihtaminen</li>\n<li>ampumattoman riistan takaa-ajaminen</li>\n<li>metsästäminen riista suussa</li>\n<li>luvaton lähtö noutoon</li>\n<li>fyysinen kosketus koiraan</li>\n<li>karkaaminen ohjaajan hallinnasta</li>\n</ul>\n",
+                  "id": "s-3-3-3",
+                  "level": 2,
+                  "number": "3.3.3",
+                  "text": "jos koira tekee kaksi vakavaa virhettä, hylkäävän virheen tai nouto on kokonaisuutena heikko, sen koe keskeytetään. samoin menetellään, jos molemmat tuomarit ovat sitä mieltä, että koiraa ei voida enää palkita. koira voidaan hylätä, jollei se kutsuttaessa arvosteltavaksi ole välittömästi paikalla. vakavat virheet liika riippuvaisuus ohjaajasta äänekäs ohjaaminen rauhattomuus ja/tai ohjaajan huomion vaatiminen passipaikalla huono paikallistamiskyky ja/tai huono muistikuva putoamispaikan sijainnista huono seuraaminen huolimaton nouto-ote hidas ja/tai haluton työskentely huono hallittavuus “first dog down” “eye-wipe” “first dog down” = koira havaitsee haavoittuneen riistan putoamispaikan, mutta ei löydä riistaa, vaikka se tuomarin mukaan olisi ollut löydettävissä. muutkaan noutoon lähetetyt koirat, tuomarin määräämät avustajat tai tuomari eivät löydä riistaa. “eye-wipe” = koira ei onnistu noutamaan riistaa, jonka noudossa toinen koira onnistuu vastaavissa olosuhteissa, tai tuomari käy hakemassa riistan. jos koira saa vakavista virheistä ”eye-wipen” tai ”first dog downin”, koiran koe keskeytyy. hylkäävät virheet aggressiivinen käyttäytyminen laukausarkuus liiallinen arkuus tai pelokkuus vinkuminen tai haukkuminen kieltäytyminen vesityöskentelystä kieltäytyminen riistasta tai noudon jättäminen kesken riistan vahingoittaminen riistan vaihtaminen ampumattoman riistan takaa-ajaminen metsästäminen riista suussa luvaton lähtö noutoon fyysinen kosketus koiraan karkaaminen ohjaajan hallinnasta",
+                  "title": "Vakavat ja hylkäävät virheet sekä koiran kokeen keskeyttäminen"
+                },
+                {
+                  "html": "<p>Ensimmäinen (1.) palkinto annetaan koirille, joiden kokonaissuoritus on erinomainen. Palkintosija edellyttää, että koira ei ole tehnyt hylkäävää tai vakavaa virhettä. 1. palkinnon saaneet asetetaan paremmuusjärjestykseen. Kokeen voittaneelle koiralle voidaan antaa sertifikaatti (SERT), mikäli kokeeseen on osallistunut vähintään kuusi koiraa ja voittanut koira on noutanut vähintään viisi riistaa. Varasertifikaatti (vara-SERT) voidaan antaa toiseksi sijoittuneelle koiralle.</p>\n<p>Toinen (2.) palkinto annetaan koirille, joiden kokonaissuoritus on hyvä. Yksi vakava virhe voidaan sallia, mikäli koiran suoritus on muilta osin moitteeton.</p>\n<p>Kolmas (3.) palkinto annetaan koirille, joiden kokonaissuoritus on tyydyttävä.</p>\n<p>Koiran palkitseminen edellyttää vähintään kolmen riistan noutamista ilman hylkäävää virhettä. Jos koira tekee hylkäävän virheen tai sen kokonaissuoritus on heikko, merkitään palkintosijan kohdalle nolla (0).</p>\n<p>Laatuarvostelu voidaan jättää antamatta, jos koira ei tuomareiden mielestä ole tehnyt riittävän hyvää noutotyötä tai sillä ei ole riittävästi noutoja palkinnon saamiseksi. Jos koiran laatuarvostelu jätetään antamatta tai ohjaaja keskeyttää tilanteessa, jossa tuomarin mielestä koiralla olisi vielä ollut mahdollisuus yltää palkintosijoille, merkitään tulokseksi viiva (-).</p>\n",
+                  "id": "s-3-4",
+                  "level": 1,
+                  "number": "3.4",
+                  "text": "ensimmäinen (1.) palkinto annetaan koirille, joiden kokonaissuoritus on erinomainen. palkintosija edellyttää, että koira ei ole tehnyt hylkäävää tai vakavaa virhettä. 1. palkinnon saaneet asetetaan paremmuusjärjestykseen. kokeen voittaneelle koiralle voidaan antaa sertifikaatti (sert), mikäli kokeeseen on osallistunut vähintään kuusi koiraa ja voittanut koira on noutanut vähintään viisi riistaa. varasertifikaatti (vara-sert) voidaan antaa toiseksi sijoittuneelle koiralle. toinen (2.) palkinto annetaan koirille, joiden kokonaissuoritus on hyvä. yksi vakava virhe voidaan sallia, mikäli koiran suoritus on muilta osin moitteeton. kolmas (3.) palkinto annetaan koirille, joiden kokonaissuoritus on tyydyttävä. koiran palkitseminen edellyttää vähintään kolmen riistan noutamista ilman hylkäävää virhettä. jos koira tekee hylkäävän virheen tai sen kokonaissuoritus on heikko, merkitään palkintosijan kohdalle nolla (0). laatuarvostelu voidaan jättää antamatta, jos koira ei tuomareiden mielestä ole tehnyt riittävän hyvää noutotyötä tai sillä ei ole riittävästi noutoja palkinnon saamiseksi. jos koiran laatuarvostelu jätetään antamatta tai ohjaaja keskeyttää tilanteessa, jossa tuomarin mielestä koiralla olisi vielä ollut mahdollisuus yltää palkintosijoille, merkitään tulokseksi viiva (-).",
+                  "title": "PALKITSEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN A-METSÄSTYSKOKEEN SÄÄNNÖT (NOME-A)"
+            },
+            {
+              "id": "c-1-4",
+              "sections": [
+                {
+                  "html": "<p>Kokeen tarkoituksena on saada tietoa koirien metsästysominaisuuksista jalostusta varten sekä edistää koirien kouluttamista metsästyskäyttöön.</p>\n",
+                  "id": "s-4-1",
+                  "level": 1,
+                  "number": "4.1",
+                  "text": "kokeen tarkoituksena on saada tietoa koirien metsästysominaisuuksista jalostusta varten sekä edistää koirien kouluttamista metsästyskäyttöön.",
+                  "title": "KOKEEN TARKOITUS"
+                },
+                {
+                  "html": "",
+                  "id": "s-4-2",
+                  "level": 1,
+                  "number": "4.2",
+                  "text": "",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Koe tulee järjestää alueella, joka vastaa mahdollisimman hyvin todellista metsästysmaastoa.</p>\n",
+                  "id": "s-4-2-1",
+                  "level": 2,
+                  "number": "4.2.1",
+                  "text": "koe tulee järjestää alueella, joka vastaa mahdollisimman hyvin todellista metsästysmaastoa.",
+                  "title": "Yleistä"
+                },
+                {
+                  "html": "<p>Kokeessa on arvosteluoikeus NOME B arvosteluoikeuden omaavilla tuomareilla. Kokeen arvostelevat ylituomari sekä tarvittava määrä muita arvostelevia tuomareita.</p>\n",
+                  "id": "s-4-2-2",
+                  "level": 2,
+                  "number": "4.2.2",
+                  "text": "kokeessa on arvosteluoikeus nome b arvosteluoikeuden omaavilla tuomareilla. kokeen arvostelevat ylituomari sekä tarvittava määrä muita arvostelevia tuomareita.",
+                  "title": "Tuomarit"
+                },
+                {
+                  "html": "<p>Alokasluokka (ALO), johon saavat osallistua noutajien taipumuskokeen hyväksytysti suorittaneet koirat.</p>\n<p>Avoin luokka (AVO), johon saavat osallistua ALO 1-palkinnon saaneet koirat. Voittajaluokka (VOI), johon saavat osallistua AVO 1-palkinnon saaneet koirat.</p>\n<p>Saatuaan luokkanousuun oikeuttavat tulokset, koiralla oikeus jatkaa alemmassa luokassa kuluvan vuoden loppuun saakka. Jos koira osallistuu ylempään luokkaan, se ei voi enää osallistua alempaan luokkaan.</p>\n",
+                  "id": "s-4-2-3",
+                  "level": 2,
+                  "number": "4.2.3",
+                  "text": "alokasluokka (alo), johon saavat osallistua noutajien taipumuskokeen hyväksytysti suorittaneet koirat. avoin luokka (avo), johon saavat osallistua alo 1-palkinnon saaneet koirat. voittajaluokka (voi), johon saavat osallistua avo 1-palkinnon saaneet koirat. saatuaan luokkanousuun oikeuttavat tulokset, koiralla oikeus jatkaa alemmassa luokassa kuluvan vuoden loppuun saakka. jos koira osallistuu ylempään luokkaan, se ei voi enää osallistua alempaan luokkaan.",
+                  "title": "Koeluokat"
+                },
+                {
+                  "html": "<p>Noudettavina tulee olla vähintään kahta eri riistalintujalajia tai rauhoittamatonta lintulajia. Lisäksi voidaan käyttää jäniseläimiä. Vesityöskentelyssä on käytettävä vesilintua. Kaikilla koirilla pyritään käyttämään samoja riistalajeja. Riistan tulee olla hyväkuntoista ja pakastetun riistan täysin sulaa.</p>\n<p>AVO- ja VOI-luokassa voidaan riistojen sijasta käyttää kangaspäällysteisiä noutoesineitä, dameja. Kun säännöissä myöhemmin puhutaan riistasta, voidaan sillä tarkoittaa myös dameja.</p>\n",
+                  "id": "s-4-2-4",
+                  "level": 2,
+                  "number": "4.2.4",
+                  "text": "noudettavina tulee olla vähintään kahta eri riistalintujalajia tai rauhoittamatonta lintulajia. lisäksi voidaan käyttää jäniseläimiä. vesityöskentelyssä on käytettävä vesilintua. kaikilla koirilla pyritään käyttämään samoja riistalajeja. riistan tulee olla hyväkuntoista ja pakastetun riistan täysin sulaa. avo- ja voi-luokassa voidaan riistojen sijasta käyttää kangaspäällysteisiä noutoesineitä, dameja. kun säännöissä myöhemmin puhutaan riistasta, voidaan sillä tarkoittaa myös dameja.",
+                  "title": "Riista ja noutoesineet"
+                },
+                {
+                  "html": "<p>Kokeessa koiralle suoritetaan haku-, ohjaus- sekä paikallistamistehtäviä. Lisäksi voidaan suorittaa jälkitehtäviä.</p>\n<p>Koira suorittaa koko kokeen kytkemättömänä, ellei tuomari erikseen muuta määrää.</p>\n<p>Tarkemmat kuvaukset tehtävistä ovat erillisessä NOME-B-kokeen järjestämis-, suoritus- ja arvosteluohjeessa.</p>\n",
+                  "id": "s-4-2-5",
+                  "level": 2,
+                  "number": "4.2.5",
+                  "text": "kokeessa koiralle suoritetaan haku-, ohjaus- sekä paikallistamistehtäviä. lisäksi voidaan suorittaa jälkitehtäviä. koira suorittaa koko kokeen kytkemättömänä, ellei tuomari erikseen muuta määrää. tarkemmat kuvaukset tehtävistä ovat erillisessä nome-b-kokeen järjestämis-, suoritus- ja arvosteluohjeessa.",
+                  "title": "Kokeen tehtävät ja suorittaminen"
+                },
+                {
+                  "html": "",
+                  "id": "s-4-3",
+                  "level": 1,
+                  "number": "4.3",
+                  "text": "",
+                  "title": "ARVOSTELU"
+                },
+                {
+                  "html": "<p>Koiran kaikki osasuoritukset arvostelee yksi tuomari. Tästä poiketen erillisen jälkitehtävän voi arvostella toinen tuomari. Kokeessa arvostellaan koiran kykyä ja halua noutaa riistaa vedestä ja maalta sekä kykyä toimia käyttökelpoisena metsästyskoirana noutajille tyypillisessä metsästyksessä. Kokeessa suoritetaan vain laatuarvostelu järjestämättä koiria paremmuusjärjestykseen.</p>\n",
+                  "id": "s-4-3-1",
+                  "level": 2,
+                  "number": "4.3.1",
+                  "text": "koiran kaikki osasuoritukset arvostelee yksi tuomari. tästä poiketen erillisen jälkitehtävän voi arvostella toinen tuomari. kokeessa arvostellaan koiran kykyä ja halua noutaa riistaa vedestä ja maalta sekä kykyä toimia käyttökelpoisena metsästyskoirana noutajille tyypillisessä metsästyksessä. kokeessa suoritetaan vain laatuarvostelu järjestämättä koiria paremmuusjärjestykseen.",
+                  "title": "Yleistä"
+                },
+                {
+                  "html": "<p>Koiran tulee tehdä hyvää, koko osoitetun hakualueen kattavaa hakutyötä, olla oma-aloitteinen ja käyttää hyvin vainuaan. Määrätietoinen haku ja tehokas riistan löytäminen ovat merkki erinomaisesta riistanlöytökyvystä.</p>\n<p>Koiran on pystyttävä itsenäiseen työskentelyyn, mutta sen on myös tarvittaessa seurattava ohjaajansa merkkejä.</p>\n<p><strong>Vainu</strong></p>\n<p>Koiran on vainunsa avulla ja olosuhteita hyväksikäyttäen kyettävä löytämään riistat.</p>\n<p><strong>Tehokkuus ja kestävyys</strong></p>\n<p>Tehokas koira työskentelee erilaisissa maastoissa hyvällä vauhdilla ja on erinomainen riistanlöytäjä. Hyvä kestävyys ilmenee muuttumattomana vauhtina ja intona koko kokeen ajan.</p>\n<p><strong>Reagointi laukaukseen</strong></p>\n<p>Koiran on oltava laukausten aikana hallinnassa ja tarkkailtava valppaana laukausten suuntaan.</p>\n<p><strong>Paikallistamiskyky</strong></p>\n<p>Koiran tulee omata hyvä paikallistamiskyky ja muistaa putoamispaikat. Luvan saatuaan sen on noudettava riista. Määrätietoinen, itsenäinen eteneminen pudotusalueelle sekä siellä metsästäminen ja riistan löytäminen ovat merkki erinomaisesta paikallistamiskyvystä.</p>\n<p><strong>Riistankäsittely</strong></p>\n<p>Koiran on noudettava vainuamansa riista empimättä hyvällä, pehmeällä otteella ja palautettava se nopeasti ohjaajalle käteen.</p>\n<p><strong>Vesityöskentely</strong></p>\n<p>Koiran on mentävä epäröimättä veteen sekä uitava tehokkaasti ja määrätietoisesti.</p>\n<p><strong>Yhteistyö</strong></p>\n<p>Koiran on oltava helposti hallittavissa. Siirtymissä koiran on seurattava ohjaajaa.</p>\n<p><strong>Ohjattavuus</strong></p>\n<p>Koiraa ohjataan vaivattomasti ja hillitysti haluttuun kohteeseen.</p>\n<p><strong>Passityö</strong></p>\n<p>Koira on pysyttävä käskystä paikallaan, sekä oltava hiljainen, rauhallinen ja tarkkaavainen.</p>\n<p><strong>Muut ominaisuudet</strong></p>\n<p>Noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria, jotka suhtautuvat avoimesti vieraisiin ihmisiin ja koiriin.</p>\n<p><strong>Yleisvaikutelma</strong></p>\n<p>Yleisvaikutelmassa arvostellaan koiran soveltuvuutta ja käyttökelpoisuutta toimia metsästyskoirana. Arvostelussa huomioidaan koiran kaikki suoritukset.</p>\n",
+                  "id": "s-4-3-2",
+                  "level": 2,
+                  "number": "4.3.2",
+                  "text": "koiran tulee tehdä hyvää, koko osoitetun hakualueen kattavaa hakutyötä, olla oma-aloitteinen ja käyttää hyvin vainuaan. määrätietoinen haku ja tehokas riistan löytäminen ovat merkki erinomaisesta riistanlöytökyvystä. koiran on pystyttävä itsenäiseen työskentelyyn, mutta sen on myös tarvittaessa seurattava ohjaajansa merkkejä. vainu koiran on vainunsa avulla ja olosuhteita hyväksikäyttäen kyettävä löytämään riistat. tehokkuus ja kestävyys tehokas koira työskentelee erilaisissa maastoissa hyvällä vauhdilla ja on erinomainen riistanlöytäjä. hyvä kestävyys ilmenee muuttumattomana vauhtina ja intona koko kokeen ajan. reagointi laukaukseen koiran on oltava laukausten aikana hallinnassa ja tarkkailtava valppaana laukausten suuntaan. paikallistamiskyky koiran tulee omata hyvä paikallistamiskyky ja muistaa putoamispaikat. luvan saatuaan sen on noudettava riista. määrätietoinen, itsenäinen eteneminen pudotusalueelle sekä siellä metsästäminen ja riistan löytäminen ovat merkki erinomaisesta paikallistamiskyvystä. riistankäsittely koiran on noudettava vainuamansa riista empimättä hyvällä, pehmeällä otteella ja palautettava se nopeasti ohjaajalle käteen. vesityöskentely koiran on mentävä epäröimättä veteen sekä uitava tehokkaasti ja määrätietoisesti. yhteistyö koiran on oltava helposti hallittavissa. siirtymissä koiran on seurattava ohjaajaa. ohjattavuus koiraa ohjataan vaivattomasti ja hillitysti haluttuun kohteeseen. passityö koira on pysyttävä käskystä paikallaan, sekä oltava hiljainen, rauhallinen ja tarkkaavainen. muut ominaisuudet noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria, jotka suhtautuvat avoimesti vieraisiin ihmisiin ja koiriin. yleisvaikutelma yleisvaikutelmassa arvostellaan koiran soveltuvuutta ja käyttökelpoisuutta toimia metsästyskoirana. arvostelussa huomioidaan koiran kaikki suoritukset.",
+                  "title": "Arvosteltavat ominaisuudet Haku"
+                },
+                {
+                  "html": "<p>Koiran koe keskeytetään, jos koiran ja ohjaajan välinen yhteistyö on niin puutteellista, että kokeen suorittaminen ei onnistu tai koiralla on sellaisia ominaisuuksia, että kokeen jatkaminen ei ole mielekästä. Koiran koe keskeytetään myös, jos koiralla ei ole enää mahdollisuutta saavuttaa palkintosijaa tai seuraavista syistä:</p>\n<ul>\n<li>aggressiivinen käyttäytyminen</li>\n<li>liiallinen arkuus tai pelokkuus</li>\n<li>haukkuminen tai toistuva vinkuminen</li>\n<li>laukausarkuus</li>\n<li>täysin riittämätön työskentelyhalu</li>\n<li>kieltäytyminen vesityöskentelystä</li>\n<li>kieltäytyminen noudosta</li>\n<li>kieltäytyminen riistasta tai noudon jättäminen kesken</li>\n<li>riistan vahingoittaminen tai kieriminen riistan päällä</li>\n<li>metsästäminen riista suussa</li>\n<li>riistan vaihtaminen tai toistuva riistan pudottelu</li>\n<li>luvaton lähtö noutoon</li>\n<li>karkaaminen ohjaajan hallinnasta</li>\n</ul>\n<p>Hylkäävien virheiden arvostelusta eri koeluokissa on määrätty tarkemmin arvosteluohjeessa.</p>\n<p>Keskeyttämisen syy ja se, kenen toimesta keskeyttäminen on tapahtunut, merkitään arvosteluun.</p>\n",
+                  "id": "s-4-3-3",
+                  "level": 2,
+                  "number": "4.3.3",
+                  "text": "koiran koe keskeytetään, jos koiran ja ohjaajan välinen yhteistyö on niin puutteellista, että kokeen suorittaminen ei onnistu tai koiralla on sellaisia ominaisuuksia, että kokeen jatkaminen ei ole mielekästä. koiran koe keskeytetään myös, jos koiralla ei ole enää mahdollisuutta saavuttaa palkintosijaa tai seuraavista syistä: aggressiivinen käyttäytyminen liiallinen arkuus tai pelokkuus haukkuminen tai toistuva vinkuminen laukausarkuus täysin riittämätön työskentelyhalu kieltäytyminen vesityöskentelystä kieltäytyminen noudosta kieltäytyminen riistasta tai noudon jättäminen kesken riistan vahingoittaminen tai kieriminen riistan päällä metsästäminen riista suussa riistan vaihtaminen tai toistuva riistan pudottelu luvaton lähtö noutoon karkaaminen ohjaajan hallinnasta hylkäävien virheiden arvostelusta eri koeluokissa on määrätty tarkemmin arvosteluohjeessa. keskeyttämisen syy ja se, kenen toimesta keskeyttäminen on tapahtunut, merkitään arvosteluun.",
+                  "title": "Koiran kokeen keskeyttäminen ja hylkäävät virheet"
+                },
+                {
+                  "html": "<p>Osatehtävien avulla tuomarin on muodostettava kuva koiran ominaisuuksista, koulutustasosta ja sen käyttökelpoisuudesta metsästyskoirana. Palkintosijaa päätettäessä ratkaisee tuomarille muodostunut kokonaisvaikutelma koirasta.</p>\n<p>Ensimmäinen (1.) palkinto annetaan koiralle, jonka kokonaissuoritus on erinomainen. Toinen (2.) palkinto annetaan koiralle, jonka kokonaissuoritus on hyvä.</p>\n<p>Kolmas (3.) palkinto annetaan koiralle, jonka kokonaissuoritus on tyydyttävä.</p>\n<p>Jos koiran kokonaissuoritus ei riitä hyväksyttyyn palkintoon tai tuomari joutuu keskeyttämään kokeen, merkitään palkintosijan kohdalle nolla (0). Ohjaajan keskeyttäessä tilanteessa, jossa tuomarin mielestä koiralla olisi vielä ollut mahdollisuus yltää palkintosijoille, merkitään tulokseksi viiva (-).</p>\n",
+                  "id": "s-4-4",
+                  "level": 1,
+                  "number": "4.4",
+                  "text": "osatehtävien avulla tuomarin on muodostettava kuva koiran ominaisuuksista, koulutustasosta ja sen käyttökelpoisuudesta metsästyskoirana. palkintosijaa päätettäessä ratkaisee tuomarille muodostunut kokonaisvaikutelma koirasta. ensimmäinen (1.) palkinto annetaan koiralle, jonka kokonaissuoritus on erinomainen. toinen (2.) palkinto annetaan koiralle, jonka kokonaissuoritus on hyvä. kolmas (3.) palkinto annetaan koiralle, jonka kokonaissuoritus on tyydyttävä. jos koiran kokonaissuoritus ei riitä hyväksyttyyn palkintoon tai tuomari joutuu keskeyttämään kokeen, merkitään palkintosijan kohdalle nolla (0). ohjaajan keskeyttäessä tilanteessa, jossa tuomarin mielestä koiralla olisi vielä ollut mahdollisuus yltää palkintosijoille, merkitään tulokseksi viiva (-).",
+                  "title": "PALKITSEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN B-METSÄSTYSKOKEEN SÄÄNNÖT (NOME-B)"
+            },
+            {
+              "id": "c-1-5",
+              "sections": [
+                {
+                  "html": "<p>Kokeen tarkoituksena on saada tietoa koirien metsästysominaisuuksista jalostusta varten sekä edistää koirien kouluttamista metsästyskäyttöön.</p>\n",
+                  "id": "s-5-1",
+                  "level": 1,
+                  "number": "5.1",
+                  "text": "kokeen tarkoituksena on saada tietoa koirien metsästysominaisuuksista jalostusta varten sekä edistää koirien kouluttamista metsästyskäyttöön.",
+                  "title": "KOKEEN TARKOITUS"
+                },
+                {
+                  "html": "",
+                  "id": "s-5-2",
+                  "level": 1,
+                  "number": "5.2",
+                  "text": "",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Koe voidaan järjestää rastikokeena tai avoimessa ja voittajaluokassa mock trialina.</p>\n",
+                  "id": "s-5-2-1",
+                  "level": 2,
+                  "number": "5.2.1",
+                  "text": "koe voidaan järjestää rastikokeena tai avoimessa ja voittajaluokassa mock trialina.",
+                  "title": "Yleistä"
+                },
+                {
+                  "html": "<p>Kokeessa voivat arvostella NOWT- tai NOME A arvosteluoikeuden omaavat tuomarit. Kokeen arvostelevat ylituomari sekä hänen lisäkseen vähintään yksi arvostelutuomari.</p>\n",
+                  "id": "s-5-2-2",
+                  "level": 2,
+                  "number": "5.2.2",
+                  "text": "kokeessa voivat arvostella nowt- tai nome a arvosteluoikeuden omaavat tuomarit. kokeen arvostelevat ylituomari sekä hänen lisäkseen vähintään yksi arvostelutuomari.",
+                  "title": "Tuomarit"
+                },
+                {
+                  "html": "<p>Alokasluokka (ALO), johon saavat osallistua noutajien taipumuskokeen hyväksytysti suorittaneet koirat.</p>\n<p>Avoin luokka (AVO), johon saavat osallistua NOWT ALO-luokasta 1. palkinnon saaneet koirat. Voittajaluokka (VOI), johon saavat osallistua NOWT AVO- luokasta 1. palkinnon saaneet koirat.</p>\n<p>Saatuaan luokkanousuun oikeuttavan tuloksen, koiralla on oikeus jatkaa alemmassa luokassa kuluvan vuoden loppuun saakka. Jos koira osallistuu ylempään luokkaan, se ei voi enää osallistua alempaan luokkaan.</p>\n",
+                  "id": "s-5-2-3",
+                  "level": 2,
+                  "number": "5.2.3",
+                  "text": "alokasluokka (alo), johon saavat osallistua noutajien taipumuskokeen hyväksytysti suorittaneet koirat. avoin luokka (avo), johon saavat osallistua nowt alo-luokasta 1. palkinnon saaneet koirat. voittajaluokka (voi), johon saavat osallistua nowt avo- luokasta 1. palkinnon saaneet koirat. saatuaan luokkanousuun oikeuttavan tuloksen, koiralla on oikeus jatkaa alemmassa luokassa kuluvan vuoden loppuun saakka. jos koira osallistuu ylempään luokkaan, se ei voi enää osallistua alempaan luokkaan.",
+                  "title": "Koeluokat"
+                },
+                {
+                  "html": "<p>Noutajien working testissä koirat noutavat kangaspäällysteisiä noutoesineitä, dameja.</p>\n",
+                  "id": "s-5-2-4",
+                  "level": 2,
+                  "number": "5.2.4",
+                  "text": "noutajien working testissä koirat noutavat kangaspäällysteisiä noutoesineitä, dameja.",
+                  "title": "Noutoesineet"
+                },
+                {
+                  "html": "<p>Tehtävät laaditaan siten, että ne vastaavat mahdollisimman hyvin todellisia metsästystilanteita. Rastimuotoinen koe koostuu vähintään neljästä tehtävästä.</p>\n<p>Mock trial toteutetaan NOME A kokeen sääntöjä ja ohjeita noudattaen.</p>\n<p>Tuomarin tulee huolehtia, että jokainen koira saa mahdollisimman hyvän ja tasapuolisen mahdollisuuden osoittaa kykynsä noutavana koirana. Tuomarin tulee antaa kullekin ohjaajalle tehtävän suorittamiseen tarvittavat samankaltaiset ohjeet. Ohjeita voidaan antaa myös ohjaajille yhteisesti.</p>\n",
+                  "id": "s-5-2-5",
+                  "level": 2,
+                  "number": "5.2.5",
+                  "text": "tehtävät laaditaan siten, että ne vastaavat mahdollisimman hyvin todellisia metsästystilanteita. rastimuotoinen koe koostuu vähintään neljästä tehtävästä. mock trial toteutetaan nome a kokeen sääntöjä ja ohjeita noudattaen. tuomarin tulee huolehtia, että jokainen koira saa mahdollisimman hyvän ja tasapuolisen mahdollisuuden osoittaa kykynsä noutavana koirana. tuomarin tulee antaa kullekin ohjaajalle tehtävän suorittamiseen tarvittavat samankaltaiset ohjeet. ohjeita voidaan antaa myös ohjaajille yhteisesti.",
+                  "title": "Kokeen tehtävät ja suorittaminen"
+                },
+                {
+                  "html": "",
+                  "id": "s-5-3",
+                  "level": 1,
+                  "number": "5.3",
+                  "text": "",
+                  "title": "ARVOSTELU"
+                },
+                {
+                  "html": "<p>Tuomari voi arvostella yhden tai useamman rastin. Samalla rastilla voi olla arvostelemassa useita tuomareita.</p>\n<p>Jokaisen rastin enimmäispistemäärä on 20 pistettä. Koiran tulos ilmoitetaan prosentteina maksimipistemäärästä prosentin tarkkuudella.</p>\n",
+                  "id": "s-5-3-1",
+                  "level": 2,
+                  "number": "5.3.1",
+                  "text": "tuomari voi arvostella yhden tai useamman rastin. samalla rastilla voi olla arvostelemassa useita tuomareita. jokaisen rastin enimmäispistemäärä on 20 pistettä. koiran tulos ilmoitetaan prosentteina maksimipistemäärästä prosentin tarkkuudella.",
+                  "title": "Yleistä"
+                },
+                {
+                  "html": "<p>Koiran tulee tehdä hyvää, koko osoitetun hakualueen kattavaa hakutyötä, olla oma-aloitteinen ja käyttää hyvin vainuaan. Määrätietoinen haku ja tehokas damin löytäminen ovat merkki erinomaisesta riistanlöytökyvystä.</p>\n<p>Koiran on pystyttävä itsenäiseen työskentelyyn, mutta sen on myös tarvittaessa seurattava ohjaajansa merkkejä.</p>\n<p><strong>Vainu</strong></p>\n<p>Koiran on vainunsa avulla ja olosuhteita hyväksikäyttäen kyettävä löytämään damit.</p>\n<p><strong>Tehokkuus ja kestävyys</strong></p>\n<p>Tehokas koira työskentelee hyvällä vauhdilla ja on erinomainen riistanlöytäjä. Hyvä kestävyys ilmenee muuttumattomana vauhtina ja intona koko tehtävän ajan.</p>\n<p><strong>Reagointi laukaukseen</strong></p>\n<p>Koiran on oltava laukausten aikana hallinnassa ja tarkkailtava valppaana laukausten suuntaan.</p>\n<p><strong>Paikallistamiskyky</strong></p>\n<p>Koiran tulee omata hyvä paikallistamiskyky ja muistaa putoamispaikat. Luvan saatuaan sen on noudettava dami. Määrätietoinen, itsenäinen eteneminen pudotusalueelle sekä siellä metsästäminen ja damin löytäminen ovat merkki erinomaisesta paikallistamiskyvystä.</p>\n<p><strong>Riistankäsittely</strong></p>\n<p>Koiran on noudettava vainuamansa dami empimättä hyvällä, pehmeällä otteella ja palautettava se nopeasti ohjaajalle käteen.</p>\n<p><strong>Työskentelyhalu</strong></p>\n<p>Koira ei vältä minkäänlaista maastoa tai esteitä ja menee veteen epäröimättä sekä ui tehokkaasti ja määrätietoisesti.</p>\n<p><strong>Yhteistyö</strong></p>\n<p>Koiran on oltava helposti hallittavissa. Siirtymissä koiran on seurattava ohjaajaa.</p>\n<p><strong>Ohjattavuus</strong></p>\n<p>Koiraa ohjataan vaivattomasti ja hillitysti haluttuun kohteeseen.</p>\n<p><strong>Passityö</strong></p>\n<p>Koiran on pysyttävä käskystä paikallaan sekä oltava hiljainen, rauhallinen ja tarkkaavainen.</p>\n<p><strong>Muut ominaisuudet</strong></p>\n<p>Noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria, jotka suhtautuvat avoimesti vieraisiin ihmisiin ja koiriin.</p>\n",
+                  "id": "s-5-3-2",
+                  "level": 2,
+                  "number": "5.3.2",
+                  "text": "koiran tulee tehdä hyvää, koko osoitetun hakualueen kattavaa hakutyötä, olla oma-aloitteinen ja käyttää hyvin vainuaan. määrätietoinen haku ja tehokas damin löytäminen ovat merkki erinomaisesta riistanlöytökyvystä. koiran on pystyttävä itsenäiseen työskentelyyn, mutta sen on myös tarvittaessa seurattava ohjaajansa merkkejä. vainu koiran on vainunsa avulla ja olosuhteita hyväksikäyttäen kyettävä löytämään damit. tehokkuus ja kestävyys tehokas koira työskentelee hyvällä vauhdilla ja on erinomainen riistanlöytäjä. hyvä kestävyys ilmenee muuttumattomana vauhtina ja intona koko tehtävän ajan. reagointi laukaukseen koiran on oltava laukausten aikana hallinnassa ja tarkkailtava valppaana laukausten suuntaan. paikallistamiskyky koiran tulee omata hyvä paikallistamiskyky ja muistaa putoamispaikat. luvan saatuaan sen on noudettava dami. määrätietoinen, itsenäinen eteneminen pudotusalueelle sekä siellä metsästäminen ja damin löytäminen ovat merkki erinomaisesta paikallistamiskyvystä. riistankäsittely koiran on noudettava vainuamansa dami empimättä hyvällä, pehmeällä otteella ja palautettava se nopeasti ohjaajalle käteen. työskentelyhalu koira ei vältä minkäänlaista maastoa tai esteitä ja menee veteen epäröimättä sekä ui tehokkaasti ja määrätietoisesti. yhteistyö koiran on oltava helposti hallittavissa. siirtymissä koiran on seurattava ohjaajaa. ohjattavuus koiraa ohjataan vaivattomasti ja hillitysti haluttuun kohteeseen. passityö koiran on pysyttävä käskystä paikallaan sekä oltava hiljainen, rauhallinen ja tarkkaavainen. muut ominaisuudet noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria, jotka suhtautuvat avoimesti vieraisiin ihmisiin ja koiriin.",
+                  "title": "Arvosteltavat ominaisuudet Haku"
+                },
+                {
+                  "html": "<p>Koiran tekemät vakavat virheet vähentävät sen tehtävästä saamia pisteitä. Vakavia virheitä ovat:</p>\n<ul>\n<li>liika riippuvaisuus ohjaajasta</li>\n<li>äänekäs ohjaaminen</li>\n<li>rauhattomuus tai ohjaajan huomion vaatiminen passipaikalla</li>\n<li>heikko paikallistamiskyky tai muistikuva pudotuksesta</li>\n<li>huono seuraaminen</li>\n<li>huolimaton nouto-ote</li>\n<li>huono hallittavuus</li>\n<li>hidas tai haluton työskentely</li>\n</ul>\n",
+                  "id": "s-5-3-3",
+                  "level": 2,
+                  "number": "5.3.3",
+                  "text": "koiran tekemät vakavat virheet vähentävät sen tehtävästä saamia pisteitä. vakavia virheitä ovat: liika riippuvaisuus ohjaajasta äänekäs ohjaaminen rauhattomuus tai ohjaajan huomion vaatiminen passipaikalla heikko paikallistamiskyky tai muistikuva pudotuksesta huono seuraaminen huolimaton nouto-ote huono hallittavuus hidas tai haluton työskentely",
+                  "title": "Vakavat virheet"
+                },
+                {
+                  "html": "<p>Jos koira tekee nollatulokseen johtavan virheen, se saa tehtävästä 0 pistettä. Nollatulokseen johtavia virheitä ovat:</p>\n<ul>\n<li>noudon epäonnistuminen</li>\n<li>luvaton lähtö noutoon</li>\n<li>karkaaminen ohjaajan hallinnasta</li>\n<li>fyysinen kosketus koiraan</li>\n<li>vinkuminen tai haukkuminen</li>\n<li>kieltäytyminen vesityöskentelystä</li>\n<li>metsästäminen dami suussa</li>\n<li>damin vaihtaminen</li>\n<li>“eye-wipe”= Koira ei onnistu noutamaan damia, jonka noudossa toinen koira onnistuu vastaavissa olosuhteissa, tai tuomari käy hakemassa damin.</li>\n</ul>\n",
+                  "id": "s-5-3-4",
+                  "level": 2,
+                  "number": "5.3.4",
+                  "text": "jos koira tekee nollatulokseen johtavan virheen, se saa tehtävästä 0 pistettä. nollatulokseen johtavia virheitä ovat: noudon epäonnistuminen luvaton lähtö noutoon karkaaminen ohjaajan hallinnasta fyysinen kosketus koiraan vinkuminen tai haukkuminen kieltäytyminen vesityöskentelystä metsästäminen dami suussa damin vaihtaminen “eye-wipe”= koira ei onnistu noutamaan damia, jonka noudossa toinen koira onnistuu vastaavissa olosuhteissa, tai tuomari käy hakemassa damin.",
+                  "title": "Nollatulokseen johtavat virheet"
+                },
+                {
+                  "html": "<p>Jos koira tekee jonkun hylkäävistä virheistä, sen koe keskeytetään. Hylkääviä virheitä ovat:</p>\n<ul>\n<li>aggressiivinen käyttäytyminen</li>\n<li>laukausarkuus</li>\n<li>liiallinen arkuus tai pelokkuus</li>\n<li>damin vahingoittaminen</li>\n</ul>\n",
+                  "id": "s-5-3-5",
+                  "level": 2,
+                  "number": "5.3.5",
+                  "text": "jos koira tekee jonkun hylkäävistä virheistä, sen koe keskeytetään. hylkääviä virheitä ovat: aggressiivinen käyttäytyminen laukausarkuus liiallinen arkuus tai pelokkuus damin vahingoittaminen",
+                  "title": "Hylkäävät virheet"
+                },
+                {
+                  "html": "<p>Mikäli kolme parasta koiraa ja niiden keskinäinen järjestys ei ole kokeen rastien jälkeen selvillä, vaan kaksi tai useampia koiria on tasapisteissä, järjestetään loppukilpailu. Loppukilpailussa koirille annetaan niin monta noutomahdollisuutta kuin tuomaristo katsoo tarpeelliseksi. Suoritukset loppukilpailussa eivät enää vaikuta koiran saamaan palkintoon, ellei se tee hylkäävää virhettä.</p>\n",
+                  "id": "s-5-3-6",
+                  "level": 2,
+                  "number": "5.3.6",
+                  "text": "mikäli kolme parasta koiraa ja niiden keskinäinen järjestys ei ole kokeen rastien jälkeen selvillä, vaan kaksi tai useampia koiria on tasapisteissä, järjestetään loppukilpailu. loppukilpailussa koirille annetaan niin monta noutomahdollisuutta kuin tuomaristo katsoo tarpeelliseksi. suoritukset loppukilpailussa eivät enää vaikuta koiran saamaan palkintoon, ellei se tee hylkäävää virhettä.",
+                  "title": "Loppukilpailu"
+                },
+                {
+                  "html": "",
+                  "id": "s-5-4",
+                  "level": 1,
+                  "number": "5.4",
+                  "text": "",
+                  "title": "PALKITSEMINEN"
+                },
+                {
+                  "html": "<p>ALO-, AVO- ja VOI luokassa ensimmäinen (1.) palkinto annetaan koiralle, joka on saanut vähintään 80 % maksimipistemäärästä.</p>\n<p>Toinen (2.) palkinto annetaan koiralle, joka on saanut vähintään 65% maksimipistemäärästä.</p>\n<p>Kolmas (3.) palkinto annetaan koiralle, joka on saanut vähintään 50% maksimipistemäärästä.</p>\n<p>Jos koiran pistemäärä ei riitä palkintoon tai se on tehnyt nollatulokseen johtavan tai hylkäävän virheen, tai koe on keskeytetty koepaikalla tapahtuneen koiran kurittamisen vuoksi, merkitään palkinnon kohdalle nolla (0). Ohjaajan keskeyttäessä tilanteessa, jossa tuomarin mielestä koiralla olisi vielä ollut mahdollisuus yltää palkinnoille, tai tuomarin keskeytettyä kokeen koiran loukkaantumisen tai sairastumisen vuoksi, merkitään tulokseksi viiva (-).</p>\n<p>VOI luokassa kokeen voittajalle annetaan sertifikaatti (SERT), mikäli luokkaan on osallistunut vähintään kuusi koiraa ja koira on saanut 1. palkinnon. Varasertifikaatti (vara-SERT) annetaan toiseksi sijoittuneelle koiralle samoin perustein.</p>\n<p>Palkintojenjakotilaisuudessa tuomarit kertovat tulokset ja antavat lyhyet suulliset arviot palkittujen koirien suorituksista.</p>\n",
+                  "id": "s-5-4-1",
+                  "level": 2,
+                  "number": "5.4.1",
+                  "text": "alo-, avo- ja voi luokassa ensimmäinen (1.) palkinto annetaan koiralle, joka on saanut vähintään 80 % maksimipistemäärästä. toinen (2.) palkinto annetaan koiralle, joka on saanut vähintään 65% maksimipistemäärästä. kolmas (3.) palkinto annetaan koiralle, joka on saanut vähintään 50% maksimipistemäärästä. jos koiran pistemäärä ei riitä palkintoon tai se on tehnyt nollatulokseen johtavan tai hylkäävän virheen, tai koe on keskeytetty koepaikalla tapahtuneen koiran kurittamisen vuoksi, merkitään palkinnon kohdalle nolla (0). ohjaajan keskeyttäessä tilanteessa, jossa tuomarin mielestä koiralla olisi vielä ollut mahdollisuus yltää palkinnoille, tai tuomarin keskeytettyä kokeen koiran loukkaantumisen tai sairastumisen vuoksi, merkitään tulokseksi viiva (-). voi luokassa kokeen voittajalle annetaan sertifikaatti (sert), mikäli luokkaan on osallistunut vähintään kuusi koiraa ja koira on saanut 1. palkinnon. varasertifikaatti (vara-sert) annetaan toiseksi sijoittuneelle koiralle samoin perustein. palkintojenjakotilaisuudessa tuomarit kertovat tulokset ja antavat lyhyet suulliset arviot palkittujen koirien suorituksista.",
+                  "title": "Rastikoe"
+                },
+                {
+                  "html": "<p>Mock Trial arvostellaan NOME A-kokeen sääntöjen ja ohjeiden mukaisesti.</p>\n<p>Ensimmäinen (1.) palkinto annetaan koirille, joiden kokonaissuoritus on erinomainen. Palkinto edellyttää, että koira ei ole tehnyt hylkäävää tai vakavaa virhettä. 1. palkinnon saaneet asetetaan paremmuusjärjestykseen. VOI-luokan voittaneelle koiralle voidaan antaa sertifikaatti (SERT), mikäli kokeeseen on osallistunut vähintään kuusi koiraa, koira on noutanut vähintään viisi damia, ja työskennellyt sertifikaatin arvoisesti. Varasertifikaatti (vara-SERT) voidaan antaa toiseksi sijoittuneelle koiralle samoin perustein.</p>\n<p>Toinen (2.) palkinto annetaan koirille, joiden kokonaissuoritus on hyvä. Yksi vakava virhe voidaan sallia, mikäli koiran suoritus on muilta osin moitteeton.</p>\n<p>Kolmas (3.) palkinto annetaan koirille, joiden kokonaissuoritus on tyydyttävä.</p>\n<p>Koiran palkitseminen edellyttää vähintään kolmen damin noutamista ilman hylkäävää tai nollatulokseen johtavaa virhettä. Jos koira tekee hylkäävän tai nollatulokseen johtavan virheen, tai sen kokonaissuoritus on huono, merkitään palkinnon kohdalle nolla (0).</p>\n<p>Jos koiralla ei ole riittävästi noutoja tuloksen saamiseksi, eikä sillä ole hylkäävää tai nollatulokseen johtavaa virhettä, tai ohjaaja keskeyttää tilanteessa, jossa tuomarin mielestä koiralla olisi vielä ollut mahdollisuus yltää palkintosijoille, tai tuomarin keskeytettyä kokeen koiran loukkaantumisen tai sairastumisen vuoksi, merkitään tulokseksi viiva (-).</p>\n",
+                  "id": "s-5-4-2",
+                  "level": 2,
+                  "number": "5.4.2",
+                  "text": "mock trial arvostellaan nome a-kokeen sääntöjen ja ohjeiden mukaisesti. ensimmäinen (1.) palkinto annetaan koirille, joiden kokonaissuoritus on erinomainen. palkinto edellyttää, että koira ei ole tehnyt hylkäävää tai vakavaa virhettä. 1. palkinnon saaneet asetetaan paremmuusjärjestykseen. voi-luokan voittaneelle koiralle voidaan antaa sertifikaatti (sert), mikäli kokeeseen on osallistunut vähintään kuusi koiraa, koira on noutanut vähintään viisi damia, ja työskennellyt sertifikaatin arvoisesti. varasertifikaatti (vara-sert) voidaan antaa toiseksi sijoittuneelle koiralle samoin perustein. toinen (2.) palkinto annetaan koirille, joiden kokonaissuoritus on hyvä. yksi vakava virhe voidaan sallia, mikäli koiran suoritus on muilta osin moitteeton. kolmas (3.) palkinto annetaan koirille, joiden kokonaissuoritus on tyydyttävä. koiran palkitseminen edellyttää vähintään kolmen damin noutamista ilman hylkäävää tai nollatulokseen johtavaa virhettä. jos koira tekee hylkäävän tai nollatulokseen johtavan virheen, tai sen kokonaissuoritus on huono, merkitään palkinnon kohdalle nolla (0). jos koiralla ei ole riittävästi noutoja tuloksen saamiseksi, eikä sillä ole hylkäävää tai nollatulokseen johtavaa virhettä, tai ohjaaja keskeyttää tilanteessa, jossa tuomarin mielestä koiralla olisi vielä ollut mahdollisuus yltää palkintosijoille, tai tuomarin keskeytettyä kokeen koiran loukkaantumisen tai sairastumisen vuoksi, merkitään tulokseksi viiva (-).",
+                  "title": "Mock trial"
+                }
+              ],
+              "title": "NOUTAJIEN WORKING TESTIN SÄÄNNÖT (NOWT)"
+            },
+            {
+              "id": "c-1-6",
+              "sections": [
+                {
+                  "html": "<p>Kokeen tarkoituksena on saada tietoa jalostusta varten koirien ominaisuuksista metsästystilanteessa sekä edistää koirien metsästyskäyttöä.</p>\n",
+                  "id": "s-6-1",
+                  "level": 1,
+                  "number": "6.1",
+                  "text": "kokeen tarkoituksena on saada tietoa jalostusta varten koirien ominaisuuksista metsästystilanteessa sekä edistää koirien metsästyskäyttöä.",
+                  "title": "KOKEEN TARKOITUS"
+                },
+                {
+                  "html": "",
+                  "id": "s-6-2",
+                  "level": 1,
+                  "number": "6.2",
+                  "text": "",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Osallistumisoikeus on koirilla, jotka ovat saavuttaneet NO-ME-B- kokeessa vähintään kaksi (2) kertaa VOI1-tuloksen tai NOWT-kokeessa vähintään kaksi (2) sertifikaattia.</p>\n<p>Koiran omistaja/ohjaaja, jonka koiralla on kokeeseen osallistumiseen oikeuttavat tulokset, ilmoittaa tuomaritoimikunnalle halukkuutensa suorittaa NKM-kokeen.</p>\n",
+                  "id": "s-6-2-1",
+                  "level": 2,
+                  "number": "6.2.1",
+                  "text": "osallistumisoikeus on koirilla, jotka ovat saavuttaneet no-me-b- kokeessa vähintään kaksi (2) kertaa voi1-tuloksen tai nowt-kokeessa vähintään kaksi (2) sertifikaattia. koiran omistaja/ohjaaja, jonka koiralla on kokeeseen osallistumiseen oikeuttavat tulokset, ilmoittaa tuomaritoimikunnalle halukkuutensa suorittaa nkm-kokeen.",
+                  "title": "Yleistä"
+                },
+                {
+                  "html": "<p>Kokeessa arvosteluoikeus on sekä NOME B että NOME A kokeen tuomareilla. Yksi tuomari arvostelee enintään kaksi koiraa metsästyspäivää kohti.</p>\n",
+                  "id": "s-6-2-2",
+                  "level": 2,
+                  "number": "6.2.2",
+                  "text": "kokeessa arvosteluoikeus on sekä nome b että nome a kokeen tuomareilla. yksi tuomari arvostelee enintään kaksi koiraa metsästyspäivää kohti.",
+                  "title": "Tuomarit"
+                },
+                {
+                  "html": "<p>Metsästettävä riista voi olla riistalintujalajeja, rauhoittamattomia lintulajeja sekä jäniseläimiä.</p>\n",
+                  "id": "s-6-2-3",
+                  "level": 2,
+                  "number": "6.2.3",
+                  "text": "metsästettävä riista voi olla riistalintujalajeja, rauhoittamattomia lintulajeja sekä jäniseläimiä.",
+                  "title": "Riista"
+                },
+                {
+                  "html": "<p>Koiraa käytetään kokeessa kyseisen metsästystilanteen vaatimalla tavalla. Kokeessa on aina oltava mukana vähintään kaksi (2) koiraa, joista toisen ei tarvitse osallistua kokeeseen.</p>\n",
+                  "id": "s-6-2-4",
+                  "level": 2,
+                  "number": "6.2.4",
+                  "text": "koiraa käytetään kokeessa kyseisen metsästystilanteen vaatimalla tavalla. kokeessa on aina oltava mukana vähintään kaksi (2) koiraa, joista toisen ei tarvitse osallistua kokeeseen.",
+                  "title": "Kokeen suorittaminen"
+                },
+                {
+                  "html": "<p>Koe arvostellaan Noutajien B –metsästyskokeen VOI-luokan sääntöjen mukaisesti. Metsästystilanne huomioiden kokeessa ei välttämättä voida arvostella kaikkia säännöissä mainittuja arvostelukohtia.</p>\n",
+                  "id": "s-6-3",
+                  "level": 1,
+                  "number": "6.3",
+                  "text": "koe arvostellaan noutajien b –metsästyskokeen voi-luokan sääntöjen mukaisesti. metsästystilanne huomioiden kokeessa ei välttämättä voida arvostella kaikkia säännöissä mainittuja arvostelukohtia.",
+                  "title": "ARVOSTELU"
+                },
+                {
+                  "html": "<p>Suoritusten jälkeen koirasta annetaan suullinen ja kirjallinen arvostelu. Kokeessa noudatetaan laatuarvostelua ja koira arvostellaan hyväksytty/ hylätty-periaatteella.</p>\n<p>Hyväksytty tulos merkitään palkintosijalla ensimmäinen (1.) palkinto ja se annetaan koiralle, jonka toiminta on moitteetonta ja tehokasta koko metsästyksen ajan.</p>\n<p>Jos koiran kokonaissuoritus on hylätty tai jos tuomari joutuu keskeyttämään kokeen, merkitään palkintosijan kohdalle nolla (0).</p>\n",
+                  "id": "s-6-4",
+                  "level": 1,
+                  "number": "6.4",
+                  "text": "suoritusten jälkeen koirasta annetaan suullinen ja kirjallinen arvostelu. kokeessa noudatetaan laatuarvostelua ja koira arvostellaan hyväksytty/ hylätty-periaatteella. hyväksytty tulos merkitään palkintosijalla ensimmäinen (1.) palkinto ja se annetaan koiralle, jonka toiminta on moitteetonta ja tehokasta koko metsästyksen ajan. jos koiran kokonaissuoritus on hylätty tai jos tuomari joutuu keskeyttämään kokeen, merkitään palkintosijan kohdalle nolla (0).",
+                  "title": "PALKITSEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN KÄYTÄNNÖN METSÄSTYSKOKEEN SÄÄNNÖT (NKM)"
+            }
+          ],
+          "number": "OSA 1",
+          "title": "NOUTAJIEN RODUNOMAISTEN KOKEIDEN",
+          "intro": "<p>Hyväksytty Kennelliiton valtuustossa 26.11.2022.</p>\n<p>Voimassa 15.4.2023 alkaen.</p>\n<p>Osallistuessaan kokeeseen koiran omistaja tai ohjaaja sitoutuu noudattamaan näitä sääntöjä ja näihin liittyviä ohjeita sekä Kennelliiton yleisiä kokeita ja kilpailuja koskevia sääntöjä ja ohjeita.</p>\n<p>Näiden sääntöjen lisäksi noudatetaan Kennelliiton yleisiä kokeita ja kilpailuja koskevia sääntöjä ja ohjeita. (Liitevihko).</p>\n"
+        },
+        {
+          "chapters": [
+            {
+              "id": "c-2-1",
+              "sections": [
+                {
+                  "html": "<p>Näitä sääntöjä noudatetaan FCI:n, Kennelliiton hallituksen sekä kennelpiirien myöntämissä ja hyväksymissä noutajien rodunomaisissa kokeissa. FCI myöntää kansainväliset kokeet. Kennelliiton hallitus myöntää valtakunnalliset mestaruuskilpailut, niiden valintakokeet sekä maaottelut. Kennelpiirit myöntävät yleiset ja jäsenten väliset kokeet.</p>\n",
+                  "id": "s-7-1",
+                  "level": 1,
+                  "number": "7.1",
+                  "text": "näitä sääntöjä noudatetaan fci:n, kennelliiton hallituksen sekä kennelpiirien myöntämissä ja hyväksymissä noutajien rodunomaisissa kokeissa. fci myöntää kansainväliset kokeet. kennelliiton hallitus myöntää valtakunnalliset mestaruuskilpailut, niiden valintakokeet sekä maaottelut. kennelpiirit myöntävät yleiset ja jäsenten väliset kokeet.",
+                  "title": "JÄRJESTÄMISLUVAN MYÖNTÄMINEN"
+                },
+                {
+                  "html": "<p>Kokeiden toimeenpanoluvan anoo järjestävä yhdistys, jonka tulee olla Kennelliiton jäsen. Kokeen järjestelyistä huolehtii järjestävän yhdistyksen nimeämä koetoimikunta. Kokeen vastaavan koetoimitsijan on oltava Kennelliiton pätevöimä noutajien rodunomaisten kokeiden koetoimitsija. Noutajien käytännön metsästyskokeita (NKM) ei tarvitse anoa.</p>\n<p>Kokeet on anottava Kennelliiton kulloinkin määräämänä aikana ja noudatettava anomisessa Kennelliiton yleisiä kokeita ja kilpailuja koskevia sääntöjä ja ohjeita.</p>\n",
+                  "id": "s-7-2",
+                  "level": 1,
+                  "number": "7.2",
+                  "text": "kokeiden toimeenpanoluvan anoo järjestävä yhdistys, jonka tulee olla kennelliiton jäsen. kokeen järjestelyistä huolehtii järjestävän yhdistyksen nimeämä koetoimikunta. kokeen vastaavan koetoimitsijan on oltava kennelliiton pätevöimä noutajien rodunomaisten kokeiden koetoimitsija. noutajien käytännön metsästyskokeita (nkm) ei tarvitse anoa. kokeet on anottava kennelliiton kulloinkin määräämänä aikana ja noudatettava anomisessa kennelliiton yleisiä kokeita ja kilpailuja koskevia sääntöjä ja ohjeita.",
+                  "title": "KOELUVAN ANOMINEN"
+                },
+                {
+                  "html": "",
+                  "id": "s-7-3",
+                  "level": 1,
+                  "number": "7.3",
+                  "text": "",
+                  "title": "ILMOITTAUTUMINEN KOKEESEEN JA SIITÄ POIS JÄÄMINEN"
+                },
+                {
+                  "html": "<p>Kokeeseen ilmoittaudutaan järjestävän yhdistyksen antamaa määräaikaa ja maksuohjeita noudattaen. Koetoimikunnalla on oikeus ottaa vastaan jälki-ilmoittautumisia, mikäli kokeessa on tilaa.</p>\n",
+                  "id": "s-7-3-1",
+                  "level": 2,
+                  "number": "7.3.1",
+                  "text": "kokeeseen ilmoittaudutaan järjestävän yhdistyksen antamaa määräaikaa ja maksuohjeita noudattaen. koetoimikunnalla on oikeus ottaa vastaan jälki-ilmoittautumisia, mikäli kokeessa on tilaa.",
+                  "title": "Ilmoittautuminen"
+                },
+                {
+                  "html": "<p>Osanottomaksua ei palauteta ilman pätevää syytä. Päteviksi syiksi poisjäämiseen katsotaan koiran alkanut kiima sekä koiran tai omistajan sairaus, jotka on pyydettäessä lääkärintodistuksella todistettava. Poisjäämisestä on ilmoitettava välittömästi koetoimikunnalle, kuitenkin viimeistään ennen kokeen alkua.</p>\n",
+                  "id": "s-7-3-2",
+                  "level": 2,
+                  "number": "7.3.2",
+                  "text": "osanottomaksua ei palauteta ilman pätevää syytä. päteviksi syiksi poisjäämiseen katsotaan koiran alkanut kiima sekä koiran tai omistajan sairaus, jotka on pyydettäessä lääkärintodistuksella todistettava. poisjäämisestä on ilmoitettava välittömästi koetoimikunnalle, kuitenkin viimeistään ennen kokeen alkua.",
+                  "title": "Poisjääminen"
+                },
+                {
+                  "html": "<p>Kokeen tulokset tallennetaan ja toimitetaan eteenpäin Kennelliiton kulloinkin voimassa olevien ohjeiden mukaisesti.</p>\n",
+                  "id": "s-7-4",
+                  "level": 1,
+                  "number": "7.4",
+                  "text": "kokeen tulokset tallennetaan ja toimitetaan eteenpäin kennelliiton kulloinkin voimassa olevien ohjeiden mukaisesti.",
+                  "title": "KOKEIDEN TULOKSET"
+                }
+              ],
+              "title": "YLEISET OHJEET"
+            },
+            {
+              "id": "c-2-2",
+              "sections": [
+                {
+                  "html": "<p>Koirien työskentely- ja metsästysominaisuuksien arvioiminen tapahtuu metsästystilanteissa. Koirien suoritusjärjestys määrätään arvalla.</p>\n",
+                  "id": "s-8-1",
+                  "level": 1,
+                  "number": "8.1",
+                  "text": "koirien työskentely- ja metsästysominaisuuksien arvioiminen tapahtuu metsästystilanteissa. koirien suoritusjärjestys määrätään arvalla.",
+                  "title": "YLEISTÄ"
+                },
+                {
+                  "html": "<p>Tuomareiden varaamisessa tulee ottaa huomioon kokeeseen alustavasti suunniteltu koiramäärä. Kokeen ylituomarin tulee olla Suomen Kennelliiton hyväksymä ylituomari. Arvosteleva tuomari voi olla oman maansa kansallinen A-koetuomari, FCI:n field trial paneelin tuomari tai Ison Britannian Kennel Clubin virallinen A- tai B-paneelin tuomari. Ulkomaisten tuomarien arvosteluoikeuden vahvistaa kunkin maan Kennelliitto.</p>\n<p>Tuomarit kutsutaan aina kirjallisesti ja tuomarille ilmoitetaan välittömästi ilmoittautumisajan päätyttyä koiramäärä.</p>\n<p>Koe voidaan järjestää yksi- tai kaksipäiväisenä. Kokeen sujuvuuden kannalta suositellaan 4 tuomarin käyttämistä. Kokeeseen suositellaan otettavaksi enintään 24 koiraa, kahdelle tuomarille kuitenkin enintään 14 koiraa.</p>\n<p>Koiramäärää päätettäessä on otettava huomioon metsästystapahtuman oletettu saalismäärä. Kokeen onnistunut läpivienti edellyttää riittävää määrää noudettavaa riistaa.</p>\n<p>Metsästyksen tulee tapahtua eettisesti kestävällä tavalla. Kokeessa metsästettävän riistan tulee olla vapaana maastossa ennen koepäivän alkua.</p>\n<p>Koepäivää edeltävänä päivänä tulee tarkistaa sääennuste koepäivälle. Talven kokeiden osalta lumi- ja pakkastilanne tulee huomioida. Vastaava koetoimitsija on yhteydessä ylituomariin kokeen peruuttamisen osalta.</p>\n<p>Mikäli kokeeseen on ilmoittautunut enemmän koiria, kuin mitä kokeessa on starttipaikkoja, valitaan osallistuvat koirat voimassa olevan noutajien rotujärjestöjen yhteisesti hyväksymän valintaohjeen perusteella.</p>\n<p>Kokeeseen tulee varata SERT- ja vara-SERT- ruusukkeet.</p>\n",
+                  "id": "s-8-2",
+                  "level": 1,
+                  "number": "8.2",
+                  "text": "tuomareiden varaamisessa tulee ottaa huomioon kokeeseen alustavasti suunniteltu koiramäärä. kokeen ylituomarin tulee olla suomen kennelliiton hyväksymä ylituomari. arvosteleva tuomari voi olla oman maansa kansallinen a-koetuomari, fci:n field trial paneelin tuomari tai ison britannian kennel clubin virallinen a- tai b-paneelin tuomari. ulkomaisten tuomarien arvosteluoikeuden vahvistaa kunkin maan kennelliitto. tuomarit kutsutaan aina kirjallisesti ja tuomarille ilmoitetaan välittömästi ilmoittautumisajan päätyttyä koiramäärä. koe voidaan järjestää yksi- tai kaksipäiväisenä. kokeen sujuvuuden kannalta suositellaan 4 tuomarin käyttämistä. kokeeseen suositellaan otettavaksi enintään 24 koiraa, kahdelle tuomarille kuitenkin enintään 14 koiraa. koiramäärää päätettäessä on otettava huomioon metsästystapahtuman oletettu saalismäärä. kokeen onnistunut läpivienti edellyttää riittävää määrää noudettavaa riistaa. metsästyksen tulee tapahtua eettisesti kestävällä tavalla. kokeessa metsästettävän riistan tulee olla vapaana maastossa ennen koepäivän alkua. koepäivää edeltävänä päivänä tulee tarkistaa sääennuste koepäivälle. talven kokeiden osalta lumi- ja pakkastilanne tulee huomioida. vastaava koetoimitsija on yhteydessä ylituomariin kokeen peruuttamisen osalta. mikäli kokeeseen on ilmoittautunut enemmän koiria, kuin mitä kokeessa on starttipaikkoja, valitaan osallistuvat koirat voimassa olevan noutajien rotujärjestöjen yhteisesti hyväksymän valintaohjeen perusteella. kokeeseen tulee varata sert- ja vara-sert- ruusukkeet.",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Kokeen järjestäjä nimeää kokeeseen vastaavan koetoimitsijan sekä tuomariryhmistä vastaavat toimitsijat. Heidän tehtävänsä on avustaa tuomaria kokeen aikana kutsumalla koirat arvosteltaviksi ja huolehtimalla muiden osallistuvien koirakoiden sekä katsojien siirtymisistä kokeen aikana. Toimitsijat pitävät huolta tiedonkulusta jahdin eri osapuolten kesken ja täten varmistavat koepäivän sujuvan ja turvallisen läpiviennin.</p>\n",
+                  "id": "s-8-3",
+                  "level": 1,
+                  "number": "8.3",
+                  "text": "kokeen järjestäjä nimeää kokeeseen vastaavan koetoimitsijan sekä tuomariryhmistä vastaavat toimitsijat. heidän tehtävänsä on avustaa tuomaria kokeen aikana kutsumalla koirat arvosteltaviksi ja huolehtimalla muiden osallistuvien koirakoiden sekä katsojien siirtymisistä kokeen aikana. toimitsijat pitävät huolta tiedonkulusta jahdin eri osapuolten kesken ja täten varmistavat koepäivän sujuvan ja turvallisen läpiviennin.",
+                  "title": "KOETOIMITSIJAT"
+                },
+                {
+                  "html": "<p>Ohjaajan tulee noudattaa tuomareiden ja toimitsijoiden ohjeita. Koirat pidetään kytkemättöminä arvostelun ajan, ellei tuomari toisin määrää.</p>\n",
+                  "id": "s-8-4",
+                  "level": 1,
+                  "number": "8.4",
+                  "text": "ohjaajan tulee noudattaa tuomareiden ja toimitsijoiden ohjeita. koirat pidetään kytkemättöminä arvostelun ajan, ellei tuomari toisin määrää.",
+                  "title": "KOIRANOHJAAJA"
+                },
+                {
+                  "html": "<p>Kokeet järjestetään seuraavilla tavoilla:</p>\n<ul>\n<li>Metsästysmuodossa, jossa koirat ovat passissa ampumaketjun takana ja riista ajetaan liikkeelle ajoketjun avulla (drive). Ajojahdissa tuomarit pyrkivät asettamaan koirat niin, että niillä on mahdollisuus nähdä pudotukset. Haavoittunut riistaa pyritään noutamaan välittömästi pudotuksen jälkeen. Muille pudotuksille koirat lähetetään tilanteen mukaan.</li>\n<li>Metsästysmuodossa, jossa koirat ohjaajineen, tuomarit, ampujat ja ajomiehet etenevät samalla linjalla karkottaen edessä olevan riistan (walk up). Kun riista on ammuttu, linja pysähtyy ja tuomarin pyynnöstä vuorossa oleva koira lähetetään noutamaan riistaa.</li>\n<li>Metsästysmuodossa (vesilinnustus, kyyhky, hanhi yms.), jossa koirat ovat passissa ampujien läheisyydessä. Tuomarit pyrkivät asettamaan koirat siten, että niillä on mahdollisuus nähdä pudotukset. Haavoittunut riistaa pyritään noutamaan välittömästi pudotuksen jälkeen. Muille pudotuksille koirat lähetetään tilanteen mukaan.</li>\n</ul>\n<p>Ennen kokeen alkua tuomarit päättävät koirien arvostelujärjestyksen ja tiedottavat tästä vastaavalle koetoimitsijalle.</p>\n<p>Kokeen sujuva läpivienti edellyttää, että myös koiranohjaajat ovat tutustuneet kokeen sääntöihin ja että koirat ovat oikeaan aikaan arvosteltavina.</p>\n<p>Kokeen järjestäjällä on oikeus rajoittaa joidenkin huomiota herättävien tai liian räikeiden asusteiden käyttöä niiden häiritessä metsästystä.</p>\n",
+                  "id": "s-8-5",
+                  "level": 1,
+                  "number": "8.5",
+                  "text": "kokeet järjestetään seuraavilla tavoilla: metsästysmuodossa, jossa koirat ovat passissa ampumaketjun takana ja riista ajetaan liikkeelle ajoketjun avulla (drive). ajojahdissa tuomarit pyrkivät asettamaan koirat niin, että niillä on mahdollisuus nähdä pudotukset. haavoittunut riistaa pyritään noutamaan välittömästi pudotuksen jälkeen. muille pudotuksille koirat lähetetään tilanteen mukaan. metsästysmuodossa, jossa koirat ohjaajineen, tuomarit, ampujat ja ajomiehet etenevät samalla linjalla karkottaen edessä olevan riistan (walk up). kun riista on ammuttu, linja pysähtyy ja tuomarin pyynnöstä vuorossa oleva koira lähetetään noutamaan riistaa. metsästysmuodossa (vesilinnustus, kyyhky, hanhi yms.), jossa koirat ovat passissa ampujien läheisyydessä. tuomarit pyrkivät asettamaan koirat siten, että niillä on mahdollisuus nähdä pudotukset. haavoittunut riistaa pyritään noutamaan välittömästi pudotuksen jälkeen. muille pudotuksille koirat lähetetään tilanteen mukaan. ennen kokeen alkua tuomarit päättävät koirien arvostelujärjestyksen ja tiedottavat tästä vastaavalle koetoimitsijalle. kokeen sujuva läpivienti edellyttää, että myös koiranohjaajat ovat tutustuneet kokeen sääntöihin ja että koirat ovat oikeaan aikaan arvosteltavina. kokeen järjestäjällä on oikeus rajoittaa joidenkin huomiota herättävien tai liian räikeiden asusteiden käyttöä niiden häiritessä metsästystä.",
+                  "title": "KOKEEN SUORITTAMINEN"
+                },
+                {
+                  "html": "<p>Kokeen alkaessa koirat jaetaan ryhmiin tuomareiden arvosteltaviksi. Ensimmäisen tuomarin arvosteltua koiran, se siirtyy seuraavan tuomarin ryhmään. Kun koirat ovat suorittaneet kolme noutoa, tuomarit vertaavat arvostelujaan ja päättävät koetta jatkavat koirat. Tämän jälkeen tuomarit pääsääntöisesti arvostelevat jatkoon päässeet koirat yhdessä.</p>\n",
+                  "id": "s-8-6",
+                  "level": 1,
+                  "number": "8.6",
+                  "text": "kokeen alkaessa koirat jaetaan ryhmiin tuomareiden arvosteltaviksi. ensimmäisen tuomarin arvosteltua koiran, se siirtyy seuraavan tuomarin ryhmään. kun koirat ovat suorittaneet kolme noutoa, tuomarit vertaavat arvostelujaan ja päättävät koetta jatkavat koirat. tämän jälkeen tuomarit pääsääntöisesti arvostelevat jatkoon päässeet koirat yhdessä.",
+                  "title": "KOKEEN ARVOSTELEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN A-METSÄSTYSKOKEEN JÄRJESTÄMIS-, SUORITUS JA ARVOSTELUOHJE"
+            },
+            {
+              "id": "c-2-3",
+              "sections": [
+                {
+                  "html": "<p>Koirien ominaisuuksien arvioiminen metsästyskokeen avulla edellyttää koeolosuhteiden järjestämistä mahdollisimman tasapuoliseksi kaikille saman luokan koirille. Kokeissa ei noudateta tiettyä kaavaa, vaan koejärjestelyt vaihtelevat koemaaston ja kuvitellun metsästystilanteen mukaan. Tehtävien ei kuitenkaan tarvitse olla täysin samat kaikille koirille ja niitä voidaan tarvittaessa muuttaa kokeen aikana. Noutotyöskentely on kaikissa luokissa järjestettävä siten, että tuomarin on mahdollista arvostella koiran paikallistamiskykyä ja koiran itsenäistä sekä ohjattua työskentelyä.</p>\n<p>Koiran ominaisuuksien ja koulutustason arvioimiseksi sille annetaan mahdollisuus suorittaa vähintään kuusi (6) noutoa, osa maalta ja osa vedestä. Työskentelyn aikana ammutaan vähintään kolme (3) laukausta haulikolla.</p>\n<p>Koirien suoritusjärjestys määrätään pääsääntöisesti arvalla. Kokeessa voi olla suoritusvuorossa samanaikaisesti useampia koiria, mutta osatehtävät on laadittava siten, että tuomari arvostelee enintään kahta koiraa yhtäaikaisesti.</p>\n",
+                  "id": "s-9-1",
+                  "level": 1,
+                  "number": "9.1",
+                  "text": "koirien ominaisuuksien arvioiminen metsästyskokeen avulla edellyttää koeolosuhteiden järjestämistä mahdollisimman tasapuoliseksi kaikille saman luokan koirille. kokeissa ei noudateta tiettyä kaavaa, vaan koejärjestelyt vaihtelevat koemaaston ja kuvitellun metsästystilanteen mukaan. tehtävien ei kuitenkaan tarvitse olla täysin samat kaikille koirille ja niitä voidaan tarvittaessa muuttaa kokeen aikana. noutotyöskentely on kaikissa luokissa järjestettävä siten, että tuomarin on mahdollista arvostella koiran paikallistamiskykyä ja koiran itsenäistä sekä ohjattua työskentelyä. koiran ominaisuuksien ja koulutustason arvioimiseksi sille annetaan mahdollisuus suorittaa vähintään kuusi (6) noutoa, osa maalta ja osa vedestä. työskentelyn aikana ammutaan vähintään kolme (3) laukausta haulikolla. koirien suoritusjärjestys määrätään pääsääntöisesti arvalla. kokeessa voi olla suoritusvuorossa samanaikaisesti useampia koiria, mutta osatehtävät on laadittava siten, että tuomari arvostelee enintään kahta koiraa yhtäaikaisesti.",
+                  "title": "YLEISTÄ"
+                },
+                {
+                  "html": "<p>Tuomareiden varaamisessa tulee ottaa huomioon kokeeseen alustavasti suunniteltu koiramäärä. Arvostelumäärät luokittain:</p>\n<p>ALO: enintään 15 koiraa</p>\n<p>AVO: enintään 15 koiraa, parityöskentelyssä 16 koiraa VOI: enintään 12 koiraa, tuomarin luvalla 14 koiraa</p>\n<p>Jos koe järjestetään iltakokeena, on arvosteltavien koirien enimmäismäärästä sovittava erikseen kokeen tuomarin kanssa.</p>\n<p>Jos NOME B - kokeessa on noudettavina dameja, tulisi tästä olla maininta koeilmoituksessa ennen ilmoittautumisajan alkua.</p>\n",
+                  "id": "s-9-2",
+                  "level": 1,
+                  "number": "9.2",
+                  "text": "tuomareiden varaamisessa tulee ottaa huomioon kokeeseen alustavasti suunniteltu koiramäärä. arvostelumäärät luokittain: alo: enintään 15 koiraa avo: enintään 15 koiraa, parityöskentelyssä 16 koiraa voi: enintään 12 koiraa, tuomarin luvalla 14 koiraa jos koe järjestetään iltakokeena, on arvosteltavien koirien enimmäismäärästä sovittava erikseen kokeen tuomarin kanssa. jos nome b - kokeessa on noudettavina dameja, tulisi tästä olla maininta koeilmoituksessa ennen ilmoittautumisajan alkua.",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Kokeen tulee tapahtua noutajan kanssa metsästykseen soveltuvassa maastossa. Kasvillisuuden sekä maa- että vesialueella tulee olla niin tiheää, että riistat ovat useimmissa tehtävissä näkymättömissä.</p>\n<p>Kokeen alussa oletetaan metsästäjien pudottaneen koealueelle tietyn määrän riistaa. Jotkut riistojen putoamispaikoista ovat tarkasti tiedossa, mutta joistakin tiedetään vain putoamisalue. Kokeen aikana jäljitellään riistan pudotuksia heitoin sekä haulikon laukauksin ja koiralle annetaan tilaisuus painaa putoamispaikat mieleensä, kun tarkoituksena on arvostella koiran paikallistamiskykyä. Tehtäviä voi olla useampia sekä maalla että vedessä.</p>\n<p>Tehtävät laaditaan siten, että ne vastaavat mahdollisimman hyvin todellisia metsästystilanteita. Houkutuskuvia voidaan käyttää metsästykseen soveltuvalla tavalla. Työskentely voidaan suunnitella tapahtuvaksi veneestä varsinkin AVO- ja VOI-luokissa.</p>\n<p>Kokeen alussa jokaiselle koiran ohjaajalle kerrotaan kokeen kulku ja annetaan tarvittavat ohjeet. Ohjeita voidaan antaa myös koko osallistujajoukolle alkupuhuttelun yhteydessä suorituspaikalla. Tuomari määrittelee ohjaajan toiminta-alueen ja tehtävien suoritusjärjestyksen.</p>\n<p>Ennen kokeen aloittamista on käytettävä ns. ”nollakoiraa” tehtävien tason varmistamiseksi ja alueen hajustamiseksi. Kun kyseessä on damikoe, on huomioitava noutoesineiden riistaa vaikeampi vainuaminen. Damikokeessa käytetään samassa tehtävässä samansuuruisia ja värisiä dameja.</p>\n<p><strong>Haku</strong></p>\n<p>Hakualueen tulee olla sellainen, että koira ei näe jatkuvasti ohjaajaa työskennellessään maastossa. Hakualue voi olla joko maa-alueella, vesialueella tai molemmissa riippuen luokasta ja maaston vaikeusasteesta. Alueelle sijoitetaan riistoja suoritusvuorossa olevan koiran näkemättä selkeästi putoamispaikkaa tai -aluetta. Haku voidaan suunnitella myös liikkuvaksi. Haun aikana voidaan ampua haulikon laukauksia. Voittajaluokassa koiraa voidaan kokeilla myös tyhjällä alueella.</p>\n<p><strong>Ohjattavuus</strong></p>\n<p>Koiran ohjattavuutta voidaan kokeilla maalla, vedessä tai molemmissa. Maaston tulee olla sellaista, että ohjaajalla on mahdollisuus nähdä koiransa suurimman osan aikaa. Ohjausetäisyydet riippuvat luokasta ja maaston vaikeudesta sekä vallitsevista olosuhteista.</p>\n<p><strong>Paikallistamiskyky</strong></p>\n<p>Koiran paikallistamiskykyä voidaan kokeilla yhden tai useamman pudotetun riistan noudoilla, sekä maalla että vedessä. Tehtävät on järjestettävä siten, että koiralla on mahdollisuus nähdä riista heiton aikana. Heittojen yhteydessä ammutaan laukauksia haulikolla. Tehtävässä tulee käyttää sorsapilliä tai vastaavaa heittojen yhteydessä. Ampuja sijoitetaan niin, että ampumaetäisyydet vastaavat todellisia pudotusetäisyyksiä. Noutoetäisyydet ja pudotusten määrät riippuvat luokasta ja maaston vaikeudesta.</p>\n<p><strong>Jälkitehtävä</strong></p>\n<p>Koiran itseluottamusta ja riistanlöytökykyä voidaan arvioida myös vetämällä riistalla laahausjälkiä. Jäljet voivat olla itsenäisiä tehtäviä tai niitä voidaan yhdistää kokeen muihin tehtäviin.</p>\n<p>ALO-luokan koirien itseluottamusta testataan erillisellä jälkitehtävällä. Jälkitehtävä suoritetaan ALO-luokassa viimeisenä osasuorituksena vain niille koirille, joilla on mahdollisuus ALO1-palkintoon ja jotka eivät ole aikaisemmin suorittaneet ko. tehtävää hyväksytysti (voimassa 7.5.2025 alkaen).</p>\n<p>Laahausjäljen pituus on noin 200 metriä ja se vedetään jäniseläimellä tai linnulla maaston luonnollisia kulkureittejä myötäillen. Jälkitehtävässä on käytettävä samaa riistalajia kaikille kokeen koirille ja linnun ollessa kyseessä, on sen oltava ollut käytössä kokeen aikaisemmassa osasuorituksessa. Vetoriistan sijaan jäljen päähän voidaan laittaa toinen samaa lajia oleva riista. Vetäjä poistuu paikalta jälkiä sotkematta.</p>\n<p>Koiralle ei näytetä jäljen alkua, vaan se lähetetään jäljelle noin 10 metrin etäisyydeltä kohtisuoraan jäljen kulkusuuntaan nähden. Koira voidaan ohjata osoitetulle jälkiuralle.</p>\n<p>Jälkien vähimmäisetäisyys toisistaan on riittävä ja vierekkäiset jäljet pyritään kaartamaan vastakkaisiin suuntiin. Avomaasto, harva aluskasvillisuus ja voimakas tuuli edellyttävät jälkien välisen etäisyyden lisäämistä. Koirat on pidettävä näkösuojassa jälkien vetämisen aikana.</p>\n<p>AVO- ja VOI-luokassa jälkitehtävät eivät ole pakollisia, mutta niitä voidaan hyödyntää kokeissa, jos koemaasto ja kokeen luonne sen mahdollistavat.</p>\n<p><strong>Vesityöskentely</strong></p>\n<p>Vesialue on valittava siten, että se vastaa mahdollisimman hyvin todellista metsästysmaastoa. Maaston vaikeus on kuitenkin oltava sopusoinnussa luokan vaatimusten kanssa. Koemaasto on pyrittävä valitsemaan niin, että koira joutuu uimaan työskentelyn aikana.</p>\n<p>Vesityöskentely on yksi tärkeimmistä noutajien ominaisuuksista ja tehtävät tulee suunnitella vastaamaan tyypillistä vesilinnun metsästystä.</p>\n<p><strong>Passityö</strong></p>\n<p>Kokeessa on suotavaa järjestää luokan vaikeusasteen mukaisesti tilanteita, joissa koiran on seurattava toisen koiran työskentelyä.</p>\n<p><strong>Muut ominaisuudet</strong></p>\n<p>Noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria, jotka suhtautuvat ystävällisesti ihmisiin ja muihin koiriin sekä käyttäytyvät ja työskentelevät rodunomaisesti.</p>\n<p>Ylemmissä koeluokissa voivat koirat työskennellä samanaikaisesti, jos kokeen tehtävät sen mahdollistavat. Koirien työskennellessä samanaikaisesti, on tehtävät laadittava siten, että koirien työskentely ei häiritse toista koiraa tai aseta koiria eriarvoiseen asemaan.</p>\n",
+                  "id": "s-9-3",
+                  "level": 1,
+                  "number": "9.3",
+                  "text": "kokeen tulee tapahtua noutajan kanssa metsästykseen soveltuvassa maastossa. kasvillisuuden sekä maa- että vesialueella tulee olla niin tiheää, että riistat ovat useimmissa tehtävissä näkymättömissä. kokeen alussa oletetaan metsästäjien pudottaneen koealueelle tietyn määrän riistaa. jotkut riistojen putoamispaikoista ovat tarkasti tiedossa, mutta joistakin tiedetään vain putoamisalue. kokeen aikana jäljitellään riistan pudotuksia heitoin sekä haulikon laukauksin ja koiralle annetaan tilaisuus painaa putoamispaikat mieleensä, kun tarkoituksena on arvostella koiran paikallistamiskykyä. tehtäviä voi olla useampia sekä maalla että vedessä. tehtävät laaditaan siten, että ne vastaavat mahdollisimman hyvin todellisia metsästystilanteita. houkutuskuvia voidaan käyttää metsästykseen soveltuvalla tavalla. työskentely voidaan suunnitella tapahtuvaksi veneestä varsinkin avo- ja voi-luokissa. kokeen alussa jokaiselle koiran ohjaajalle kerrotaan kokeen kulku ja annetaan tarvittavat ohjeet. ohjeita voidaan antaa myös koko osallistujajoukolle alkupuhuttelun yhteydessä suorituspaikalla. tuomari määrittelee ohjaajan toiminta-alueen ja tehtävien suoritusjärjestyksen. ennen kokeen aloittamista on käytettävä ns. ”nollakoiraa” tehtävien tason varmistamiseksi ja alueen hajustamiseksi. kun kyseessä on damikoe, on huomioitava noutoesineiden riistaa vaikeampi vainuaminen. damikokeessa käytetään samassa tehtävässä samansuuruisia ja värisiä dameja. haku hakualueen tulee olla sellainen, että koira ei näe jatkuvasti ohjaajaa työskennellessään maastossa. hakualue voi olla joko maa-alueella, vesialueella tai molemmissa riippuen luokasta ja maaston vaikeusasteesta. alueelle sijoitetaan riistoja suoritusvuorossa olevan koiran näkemättä selkeästi putoamispaikkaa tai -aluetta. haku voidaan suunnitella myös liikkuvaksi. haun aikana voidaan ampua haulikon laukauksia. voittajaluokassa koiraa voidaan kokeilla myös tyhjällä alueella. ohjattavuus koiran ohjattavuutta voidaan kokeilla maalla, vedessä tai molemmissa. maaston tulee olla sellaista, että ohjaajalla on mahdollisuus nähdä koiransa suurimman osan aikaa. ohjausetäisyydet riippuvat luokasta ja maaston vaikeudesta sekä vallitsevista olosuhteista. paikallistamiskyky koiran paikallistamiskykyä voidaan kokeilla yhden tai useamman pudotetun riistan noudoilla, sekä maalla että vedessä. tehtävät on järjestettävä siten, että koiralla on mahdollisuus nähdä riista heiton aikana. heittojen yhteydessä ammutaan laukauksia haulikolla. tehtävässä tulee käyttää sorsapilliä tai vastaavaa heittojen yhteydessä. ampuja sijoitetaan niin, että ampumaetäisyydet vastaavat todellisia pudotusetäisyyksiä. noutoetäisyydet ja pudotusten määrät riippuvat luokasta ja maaston vaikeudesta. jälkitehtävä koiran itseluottamusta ja riistanlöytökykyä voidaan arvioida myös vetämällä riistalla laahausjälkiä. jäljet voivat olla itsenäisiä tehtäviä tai niitä voidaan yhdistää kokeen muihin tehtäviin. alo-luokan koirien itseluottamusta testataan erillisellä jälkitehtävällä. jälkitehtävä suoritetaan alo-luokassa viimeisenä osasuorituksena vain niille koirille, joilla on mahdollisuus alo1-palkintoon ja jotka eivät ole aikaisemmin suorittaneet ko. tehtävää hyväksytysti (voimassa 7.5.2025 alkaen). laahausjäljen pituus on noin 200 metriä ja se vedetään jäniseläimellä tai linnulla maaston luonnollisia kulkureittejä myötäillen. jälkitehtävässä on käytettävä samaa riistalajia kaikille kokeen koirille ja linnun ollessa kyseessä, on sen oltava ollut käytössä kokeen aikaisemmassa osasuorituksessa. vetoriistan sijaan jäljen päähän voidaan laittaa toinen samaa lajia oleva riista. vetäjä poistuu paikalta jälkiä sotkematta. koiralle ei näytetä jäljen alkua, vaan se lähetetään jäljelle noin 10 metrin etäisyydeltä kohtisuoraan jäljen kulkusuuntaan nähden. koira voidaan ohjata osoitetulle jälkiuralle. jälkien vähimmäisetäisyys toisistaan on riittävä ja vierekkäiset jäljet pyritään kaartamaan vastakkaisiin suuntiin. avomaasto, harva aluskasvillisuus ja voimakas tuuli edellyttävät jälkien välisen etäisyyden lisäämistä. koirat on pidettävä näkösuojassa jälkien vetämisen aikana. avo- ja voi-luokassa jälkitehtävät eivät ole pakollisia, mutta niitä voidaan hyödyntää kokeissa, jos koemaasto ja kokeen luonne sen mahdollistavat. vesityöskentely vesialue on valittava siten, että se vastaa mahdollisimman hyvin todellista metsästysmaastoa. maaston vaikeus on kuitenkin oltava sopusoinnussa luokan vaatimusten kanssa. koemaasto on pyrittävä valitsemaan niin, että koira joutuu uimaan työskentelyn aikana. vesityöskentely on yksi tärkeimmistä noutajien ominaisuuksista ja tehtävät tulee suunnitella vastaamaan tyypillistä vesilinnun metsästystä. passityö kokeessa on suotavaa järjestää luokan vaikeusasteen mukaisesti tilanteita, joissa koiran on seurattava toisen koiran työskentelyä. muut ominaisuudet noutajat ovat yhteistyöhaluisia ja luonteeltaan eri tilanteisiin sopeutuvia metsästyskoiria, jotka suhtautuvat ystävällisesti ihmisiin ja muihin koiriin sekä käyttäytyvät ja työskentelevät rodunomaisesti. ylemmissä koeluokissa voivat koirat työskennellä samanaikaisesti, jos kokeen tehtävät sen mahdollistavat. koirien työskennellessä samanaikaisesti, on tehtävät laadittava siten, että koirien työskentely ei häiritse toista koiraa tai aseta koiria eriarvoiseen asemaan.",
+                  "title": "KOKEEN SUORITTAMINEN"
+                },
+                {
+                  "html": "<p>Kokeen tehtävien avulla tuomarin on muodostettava kuva koiran ominaisuuksista, koulutustasosta ja sen käyttökelpoisuudesta metsästyskoirana.</p>\n<p>Kokeessa suoritetaan vain laatuarvostelu asettamatta koiria paremmuusjärjestykseen. Paras koira voidaan kuitenkin valita kokeen järjestäjien sitä halutessa tai jos kokeen luonteen sitä vaatii (esim. mestaruuskokeet). Suoritusten jälkeen koirasta annetaan suullinen arvostelu, mutta ei kerrota lopullista palkintosijaa. Lisäksi ALO-luokan koirille kerrotaan, että jatkaako koira jälkitehtävään vai ei.</p>\n<p>Kokeiden arvostelussa huomioidaan eri noutajarotujen rodunomainen tapa työskennellä sen asettamatta rotuja eriarvoiseen asemaan keskenään.</p>\n<p><strong>Haku</strong></p>\n<p>Hakutyön arvioinnissa on kiinnitettävä huomiota vainun käyttöön, koiran kykyyn löytää riistaa ja hyödyntää olosuhteita, työskentelyn itsenäisyyteen sekä tapaan, jolla koiran työskentely kattaa sille osoitetun alueen. Tehoton tai epäitsenäinen hakutyö johtavat palkintosijan alenemiseen.</p>\n<p><strong>Jälkitehtävä</strong></p>\n<p>Jälkitehtävän arvioinnissa on kiinnitettävä huomiota vainun käyttöön ja määrätietoiseen, itsenäiseen etenemiseen riistalle. Eri luokkien arvostelussa noudatetaan seuraavia tulkintoja:</p>\n<p>ALO: Koira voidaan lähettää kerran uudelleen jäljelle, jos se palaa lähtöpaikalle ilman riistaa. Jos koira ei itsenäisesti etene riistalle, hylätään osasuoritus. Jos koira tekee suorituksen aikana hylkäävän virheen, keskeytetään koe.</p>\n<p>AVO ja VOI: Koiran on suoritettava jälki ensimmäisellä lähetyskerralla. Jos koira ei itsenäisesti etene riistalle, hylätään osasuoritus. Jos koira tekee suorituksen aikana hylkäävän virheen, keskeytetään koe.</p>\n<p><strong>Ohjattavuus</strong></p>\n<p>Koiran tulee olla halukas noudattamaan ohjaajan käskyjä ja ohjeita noutojen aikana myös silloin, kun se ei ole nähnyt riistan pudotusta. Koiran odotetaan olevan hillitysti ja mahdollisimman vähin käskyin ohjattavissa ohjaajalle kerrottuun kohteeseen. Erityistä huomiota tulee kiinnittää koiran etenemisen vaivattomuuteen ja tehtävän nopeaan suorittamiseen. Jos kokeessa on useampia ohjaustehtäviä, pidetään vaativampaa tehtävää merkitsevämpänä arvostelussa. Heikko ohjattavuus johtaa palkintosijan alenemiseen.</p>\n<p><strong>Paikallistamiskyky</strong></p>\n<p>Koiran on muistettava riistojen putoamispaikat ja suoritettava tehtävä itsenäisesti. Tuomarin luvalla annettu lievä tuki ei välttämättä vaikuta palkintosijaan.</p>\n<p><strong>Reagointi laukaukseen</strong></p>\n<p>Laukausarkuus tai heikko hallittavuus laukausten aikana aiheuttavat kokeen keskeyttämisen. Mikäli koira liikkuu laukauksen aikana hieman, mutta ei tarvitse ohjaajan huomiota, ei tämä välttämättä vaikuta palkintosijaan.</p>\n<p>Eri luokkien arvostelussa noudatetaan seuraavia tulkintoja:</p>\n<p>ALO: Luvaton lähtö laukaukseen johtaa palkintosijan alenemiseen. Mikäli koiraa ei saada välittömästi takaisin hallintaan, keskeytetään koe. Toistuva luvaton lähtö laukaukseen johtaa kokeen keskeyttämiseen.</p>\n<p>AVO ja VOI: Luvaton lähtö laukaukseen keskeyttää kokeen. Riistankäsittely</p>\n<p>Riistan vahingoittaminen, jatkuva pudottelu, kieriminen riistan päällä, riistan kätkeminen, noudon jättäminen kesken, selkeä riista suussa metsästäminen sekä kieltäytyminen noudosta johtavat kokeen keskeyttämiseen luokasta riippumatta. Koiran tulee palauttaa riistat ohjaajalleen ripeästi, hyvällä otteella ja luovuttaa ne mielellään.</p>\n<p>Eri luokkien arvostelussa noudatetaan seuraavia tulkintoja:</p>\n<p>ALO: Toistuva riistan pudottelu johtaa palkintosijan alentamiseen ja jatkuessaan aiheuttaa riistankäsittelyn hylkäämisen ja kokeen keskeyttämisen. Kerran tapahtuva riistan vaihtaminen ei välttämättä vaikuta palkintosijaan, mutta useampi vaihto johtaa riistankäsittelyn hylkäämiseen ja kokeen keskeyttämiseen.</p>\n<p>AVO ja VOI: Toistuvat huolimattomat luovutukset johtavat palkintosijan alentamiseen ja ääritapauksissa aiheuttavat riistankäsittelyn hylkäämisen ja kokeen keskeyttämisen. Riistan vaihto tai riistojen pudottelu aiheuttavat kokeen keskeyttämisen.</p>\n<p><strong>Vesityöskentely</strong></p>\n<p>Haluton vesityöskentely johtavat palkintosijan alentamiseen ja ääritapauksessa kokeen keskeyttämiseen. Mikäli koira kieltäytyy veteen menosta tai sitä joudutaan toistuvasti kehottamaan, koe keskeytetään.</p>\n<p><strong>Passityö</strong></p>\n<p>Noutaja on passissa rauhallinen ja tarkkaavainen. Siirtymissä noutaja seuraa ohjaajaa välittömässä läheisyydessä. Puutteellinen hallinta siirtymissä sekä levottomuus passissa vaikuttaa palkintosijaan ja ääritapauksissa johtaa kokeen keskeyttämiseen. Vinkuminen johtaa kaikissa luokissa palkintosijan alentamiseen. Jos vinkuminen on toistuvaa tai koira haukkuu, niin koe keskeytetään. Koiran ääntäminen arvostellaan osana passityötä riippumatta tilanteesta, missä ääntämistä tapahtuu. Yleisvaikutelma</p>\n<p>Yleisvaikutelmassa arvostellaan koiran soveltuvuutta ja käyttökelpoisuutta toimia metsästyskoirana. Arvostelussa on huomioitava koiran kaikki suoritukset. Yleisvaikutelmassa tulee näkyä positiivisten seikkojen lisäksi myös palkintosijan alentamiseen ja kokeen keskeyttämiseen johtavat syyt. Siihen tulee kirjata myös kaikki kokeen aikana ilmenneet erityispiirteet, kuten esimerkiksi poikkeavan hyvä tai huono vainun käyttö. Kirjoitetun tekstin tulee olla sopusoinnussa muiden arvostelukohtien tekstin ja annetun palkinnon kanssa.</p>\n",
+                  "id": "s-9-4",
+                  "level": 1,
+                  "number": "9.4",
+                  "text": "kokeen tehtävien avulla tuomarin on muodostettava kuva koiran ominaisuuksista, koulutustasosta ja sen käyttökelpoisuudesta metsästyskoirana. kokeessa suoritetaan vain laatuarvostelu asettamatta koiria paremmuusjärjestykseen. paras koira voidaan kuitenkin valita kokeen järjestäjien sitä halutessa tai jos kokeen luonteen sitä vaatii (esim. mestaruuskokeet). suoritusten jälkeen koirasta annetaan suullinen arvostelu, mutta ei kerrota lopullista palkintosijaa. lisäksi alo-luokan koirille kerrotaan, että jatkaako koira jälkitehtävään vai ei. kokeiden arvostelussa huomioidaan eri noutajarotujen rodunomainen tapa työskennellä sen asettamatta rotuja eriarvoiseen asemaan keskenään. haku hakutyön arvioinnissa on kiinnitettävä huomiota vainun käyttöön, koiran kykyyn löytää riistaa ja hyödyntää olosuhteita, työskentelyn itsenäisyyteen sekä tapaan, jolla koiran työskentely kattaa sille osoitetun alueen. tehoton tai epäitsenäinen hakutyö johtavat palkintosijan alenemiseen. jälkitehtävä jälkitehtävän arvioinnissa on kiinnitettävä huomiota vainun käyttöön ja määrätietoiseen, itsenäiseen etenemiseen riistalle. eri luokkien arvostelussa noudatetaan seuraavia tulkintoja: alo: koira voidaan lähettää kerran uudelleen jäljelle, jos se palaa lähtöpaikalle ilman riistaa. jos koira ei itsenäisesti etene riistalle, hylätään osasuoritus. jos koira tekee suorituksen aikana hylkäävän virheen, keskeytetään koe. avo ja voi: koiran on suoritettava jälki ensimmäisellä lähetyskerralla. jos koira ei itsenäisesti etene riistalle, hylätään osasuoritus. jos koira tekee suorituksen aikana hylkäävän virheen, keskeytetään koe. ohjattavuus koiran tulee olla halukas noudattamaan ohjaajan käskyjä ja ohjeita noutojen aikana myös silloin, kun se ei ole nähnyt riistan pudotusta. koiran odotetaan olevan hillitysti ja mahdollisimman vähin käskyin ohjattavissa ohjaajalle kerrottuun kohteeseen. erityistä huomiota tulee kiinnittää koiran etenemisen vaivattomuuteen ja tehtävän nopeaan suorittamiseen. jos kokeessa on useampia ohjaustehtäviä, pidetään vaativampaa tehtävää merkitsevämpänä arvostelussa. heikko ohjattavuus johtaa palkintosijan alenemiseen. paikallistamiskyky koiran on muistettava riistojen putoamispaikat ja suoritettava tehtävä itsenäisesti. tuomarin luvalla annettu lievä tuki ei välttämättä vaikuta palkintosijaan. reagointi laukaukseen laukausarkuus tai heikko hallittavuus laukausten aikana aiheuttavat kokeen keskeyttämisen. mikäli koira liikkuu laukauksen aikana hieman, mutta ei tarvitse ohjaajan huomiota, ei tämä välttämättä vaikuta palkintosijaan. eri luokkien arvostelussa noudatetaan seuraavia tulkintoja: alo: luvaton lähtö laukaukseen johtaa palkintosijan alenemiseen. mikäli koiraa ei saada välittömästi takaisin hallintaan, keskeytetään koe. toistuva luvaton lähtö laukaukseen johtaa kokeen keskeyttämiseen. avo ja voi: luvaton lähtö laukaukseen keskeyttää kokeen. riistankäsittely riistan vahingoittaminen, jatkuva pudottelu, kieriminen riistan päällä, riistan kätkeminen, noudon jättäminen kesken, selkeä riista suussa metsästäminen sekä kieltäytyminen noudosta johtavat kokeen keskeyttämiseen luokasta riippumatta. koiran tulee palauttaa riistat ohjaajalleen ripeästi, hyvällä otteella ja luovuttaa ne mielellään. eri luokkien arvostelussa noudatetaan seuraavia tulkintoja: alo: toistuva riistan pudottelu johtaa palkintosijan alentamiseen ja jatkuessaan aiheuttaa riistankäsittelyn hylkäämisen ja kokeen keskeyttämisen. kerran tapahtuva riistan vaihtaminen ei välttämättä vaikuta palkintosijaan, mutta useampi vaihto johtaa riistankäsittelyn hylkäämiseen ja kokeen keskeyttämiseen. avo ja voi: toistuvat huolimattomat luovutukset johtavat palkintosijan alentamiseen ja ääritapauksissa aiheuttavat riistankäsittelyn hylkäämisen ja kokeen keskeyttämisen. riistan vaihto tai riistojen pudottelu aiheuttavat kokeen keskeyttämisen. vesityöskentely haluton vesityöskentely johtavat palkintosijan alentamiseen ja ääritapauksessa kokeen keskeyttämiseen. mikäli koira kieltäytyy veteen menosta tai sitä joudutaan toistuvasti kehottamaan, koe keskeytetään. passityö noutaja on passissa rauhallinen ja tarkkaavainen. siirtymissä noutaja seuraa ohjaajaa välittömässä läheisyydessä. puutteellinen hallinta siirtymissä sekä levottomuus passissa vaikuttaa palkintosijaan ja ääritapauksissa johtaa kokeen keskeyttämiseen. vinkuminen johtaa kaikissa luokissa palkintosijan alentamiseen. jos vinkuminen on toistuvaa tai koira haukkuu, niin koe keskeytetään. koiran ääntäminen arvostellaan osana passityötä riippumatta tilanteesta, missä ääntämistä tapahtuu. yleisvaikutelma yleisvaikutelmassa arvostellaan koiran soveltuvuutta ja käyttökelpoisuutta toimia metsästyskoirana. arvostelussa on huomioitava koiran kaikki suoritukset. yleisvaikutelmassa tulee näkyä positiivisten seikkojen lisäksi myös palkintosijan alentamiseen ja kokeen keskeyttämiseen johtavat syyt. siihen tulee kirjata myös kaikki kokeen aikana ilmenneet erityispiirteet, kuten esimerkiksi poikkeavan hyvä tai huono vainun käyttö. kirjoitetun tekstin tulee olla sopusoinnussa muiden arvostelukohtien tekstin ja annetun palkinnon kanssa.",
+                  "title": "KOKEEN ARVOSTELEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN B-METSÄSTYSKOKEEN JÄRJESTÄMIS-, SUORITUS- JA ARVOSTELUOHJE"
+            },
+            {
+              "id": "c-2-4",
+              "sections": [
+                {
+                  "html": "<p>Koirien ominaisuuksien arvioiminen metsästyskokeen avulla edellyttää koeolosuhteiden järjestämistä mahdollisimman tasapuoliseksi kaikille saman luokan koirille. Kokeissa ei noudateta tiettyä kaavaa, vaan koejärjestelyt vaihtelevat koemaaston ja kuvitellun metsästystilanteen mukaan. Koetehtävät eivät ole välttämättä kaikille osallistujille samat. Koirien suoritusjärjestys määrätään arvalla.</p>\n<p>Kokeessa voi olla suoritusvuorossa samanaikaisesti useampia koiria, mutta osatehtävät on laadittava siten, että tuomari arvostelee enintään kahta koiraa yhtäaikaisesti.</p>\n",
+                  "id": "s-10-1",
+                  "level": 1,
+                  "number": "10.1",
+                  "text": "koirien ominaisuuksien arvioiminen metsästyskokeen avulla edellyttää koeolosuhteiden järjestämistä mahdollisimman tasapuoliseksi kaikille saman luokan koirille. kokeissa ei noudateta tiettyä kaavaa, vaan koejärjestelyt vaihtelevat koemaaston ja kuvitellun metsästystilanteen mukaan. koetehtävät eivät ole välttämättä kaikille osallistujille samat. koirien suoritusjärjestys määrätään arvalla. kokeessa voi olla suoritusvuorossa samanaikaisesti useampia koiria, mutta osatehtävät on laadittava siten, että tuomari arvostelee enintään kahta koiraa yhtäaikaisesti.",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Tuomareiden varaamisessa tulee ottaa huomioon kokeeseen alustavasti suunniteltu koiramäärä.</p>\n<p>Ohjeena pidetään sitä, että kokeessa arvosteltavia rastisuorituksia voi olla 80 yhtä tuomaria kohti.</p>\n<p>Mock trial -kokeita voivat arvostella itsenäisesti NOME A -tuomarit sekä tuomaritoimikunnan nimeämät NOWT -tuomarit. Kokeen sujuvuuden kannalta suositellaan 4 tuomarin käyttämistä. Tällöin kaksi tuomareista voivat olla NOWT-tuomareita, joilla ei vielä ole oikeutta arvostella itsenäisesti Mock trial -koetta.</p>\n",
+                  "id": "s-10-2",
+                  "level": 1,
+                  "number": "10.2",
+                  "text": "tuomareiden varaamisessa tulee ottaa huomioon kokeeseen alustavasti suunniteltu koiramäärä. ohjeena pidetään sitä, että kokeessa arvosteltavia rastisuorituksia voi olla 80 yhtä tuomaria kohti. mock trial -kokeita voivat arvostella itsenäisesti nome a -tuomarit sekä tuomaritoimikunnan nimeämät nowt -tuomarit. kokeen sujuvuuden kannalta suositellaan 4 tuomarin käyttämistä. tällöin kaksi tuomareista voivat olla nowt-tuomareita, joilla ei vielä ole oikeutta arvostella itsenäisesti mock trial -koetta.",
+                  "title": "TUOMARIT"
+                },
+                {
+                  "html": "<p>Noudot ovat metsästyksellisiä ohjaus-, paikallistamis- tai hakutehtäviä tai niiden yhdistelmiä. Koirille on järjestettävä mahdollisuuksien mukaan tehtäviä, joissa voidaan arvioida niiden vesityöskentelyä. Tehtävissä voidaan käyttää ylösajavia koiria.</p>\n<p>Mock-trial kokeessa koejärjestelyt ovat NOME A kokeen kaltaisia ja tehtävät jäljittelevät NOME A kokeiden noutotilanteita. Rastikokeessa voi myös olla mock trial- tyyppisiä tehtäviä. Tyypillisiä mock trial tehtäviä ovat:</p>\n<p><strong>Passimetsästys</strong></p>\n<p>Koirat ovat passissa ampujien läheisyydessä. Tuomarit pyrkivät asettamaan koirat siten, että niillä on mahdollisuus nähdä pudotukset.</p>\n<p><strong>Drive</strong></p>\n<p>Tehtävässä jäljitellään ajometsästystä, jossa ajomiehet ja/ tai ylösajavat koirat ajavat riistaa ylös ammuttavaksi. Drivetehtävissä tuomarit pyrkivät asettamaan koirat niin, että niillä on mahdollisuus nähdä pudotukset.</p>\n<p><strong>Walk up</strong></p>\n<p>Tehtävässä jäljitellään liikkuvaa metsästystä, jossa koirat ohjaajineen, tuomarit, ampujat ja ajomiehet ja/tai ylösajavat koirat etenevät linjassa karkottaen edessä olevan riistan ammuttavaksi.</p>\n<p>Huomioitavia asioita:</p>\n<ul>\n<li>Koirat kytketään irti tehtävän alkaessa ja tehtävä päättyy kun koira kytketään.</li>\n<li>Koirat työskentelevät rastilla yksi kerrallaan.</li>\n<li>Tehtävien vaikeustaso ja noutomatkat riippuvat luokasta ja maastosta sekä vallitsevista olosuhteista.</li>\n<li>Jokaisella koiralla tulee olla mahdollisuus suorittaa vähintään kuusi (6) noutoa</li>\n<li>Noutomatkan ei pitäisi ylittää 150 metriä</li>\n<li>Kokeessa käytetään samassa tehtävässä samansuuruisia ja värisiä dameja. Pääsääntöisesti käytetään väriltään vihreitä, noin 500 gramman painoisia dameja.</li>\n<li>Tehtävän vaatiessa on mahdollista käyttää myös muun värisiä dameja.</li>\n<li>Nouto ei saa edellyttää toisen, noutamattoman damin ohittamista kohtuuttoman läheltä.</li>\n<li>Laukaukset ammutaan luvallisella ampuma-aseella, mieluiten haulikolla.</li>\n<li>Ampuja sijoitetaan niin, että ampumaetäisyydet vastaavat todellisia pudotusetäisyyksiä.</li>\n<li>Kaikilla rasteilla ei välttämättä ammuta laukauksia, mutta heiton yhteydessä ammutaan aina.</li>\n<li>Paikallistamistehtävät olisi hyvä järjestää siten, että koiralla on mahdollisuus pudotusten paikallistamiseen.</li>\n<li>Hakutehtävät toteutetaan siten, että ohjaajille kerrotaan hakualue.</li>\n<li>Damien sijoituspaikkoja voidaan vaihtaa niin, että olosuhteet eri koirille ovat mahdollisimman tasapuoliset.</li>\n<li>Ohjaustehtävässä ohjaajalle kerrotaan damin sijaintialue, mikäli pudotus ei ole ohjaajan nähtävissä.</li>\n<li>Maaston ja vesialueen tulee olla sellaista, että ohjaajalla on riittävä mahdollisuus nähdä koiransa</li>\n</ul>\n",
+                  "id": "s-10-3",
+                  "level": 1,
+                  "number": "10.3",
+                  "text": "noudot ovat metsästyksellisiä ohjaus-, paikallistamis- tai hakutehtäviä tai niiden yhdistelmiä. koirille on järjestettävä mahdollisuuksien mukaan tehtäviä, joissa voidaan arvioida niiden vesityöskentelyä. tehtävissä voidaan käyttää ylösajavia koiria. mock-trial kokeessa koejärjestelyt ovat nome a kokeen kaltaisia ja tehtävät jäljittelevät nome a kokeiden noutotilanteita. rastikokeessa voi myös olla mock trial- tyyppisiä tehtäviä. tyypillisiä mock trial tehtäviä ovat: passimetsästys koirat ovat passissa ampujien läheisyydessä. tuomarit pyrkivät asettamaan koirat siten, että niillä on mahdollisuus nähdä pudotukset. drive tehtävässä jäljitellään ajometsästystä, jossa ajomiehet ja/ tai ylösajavat koirat ajavat riistaa ylös ammuttavaksi. drivetehtävissä tuomarit pyrkivät asettamaan koirat niin, että niillä on mahdollisuus nähdä pudotukset. walk up tehtävässä jäljitellään liikkuvaa metsästystä, jossa koirat ohjaajineen, tuomarit, ampujat ja ajomiehet ja/tai ylösajavat koirat etenevät linjassa karkottaen edessä olevan riistan ammuttavaksi. huomioitavia asioita: koirat kytketään irti tehtävän alkaessa ja tehtävä päättyy kun koira kytketään. koirat työskentelevät rastilla yksi kerrallaan. tehtävien vaikeustaso ja noutomatkat riippuvat luokasta ja maastosta sekä vallitsevista olosuhteista. jokaisella koiralla tulee olla mahdollisuus suorittaa vähintään kuusi (6) noutoa noutomatkan ei pitäisi ylittää 150 metriä kokeessa käytetään samassa tehtävässä samansuuruisia ja värisiä dameja. pääsääntöisesti käytetään väriltään vihreitä, noin 500 gramman painoisia dameja. tehtävän vaatiessa on mahdollista käyttää myös muun värisiä dameja. nouto ei saa edellyttää toisen, noutamattoman damin ohittamista kohtuuttoman läheltä. laukaukset ammutaan luvallisella ampuma-aseella, mieluiten haulikolla. ampuja sijoitetaan niin, että ampumaetäisyydet vastaavat todellisia pudotusetäisyyksiä. kaikilla rasteilla ei välttämättä ammuta laukauksia, mutta heiton yhteydessä ammutaan aina. paikallistamistehtävät olisi hyvä järjestää siten, että koiralla on mahdollisuus pudotusten paikallistamiseen. hakutehtävät toteutetaan siten, että ohjaajille kerrotaan hakualue. damien sijoituspaikkoja voidaan vaihtaa niin, että olosuhteet eri koirille ovat mahdollisimman tasapuoliset. ohjaustehtävässä ohjaajalle kerrotaan damin sijaintialue, mikäli pudotus ei ole ohjaajan nähtävissä. maaston ja vesialueen tulee olla sellaista, että ohjaajalla on riittävä mahdollisuus nähdä koiransa",
+                  "title": "KOKEEN SUORITTAMINEN"
+                },
+                {
+                  "html": "<p>Tehokas koira työskentelee ripeästi ja suoraviivaisesti.</p>\n<p>Damin pudottaminen luovutuksessa arvostellaan joko ”noudon epäonnistuminen” (nollatulokseen johtava virhe) tai ”huolimaton nouto-ote” (vakava virhe, vähentää pisteitä) -kohdan mukaan. Otteen korjaamista damista ei välttämättä tulkita virheeksi.</p>\n<p>Nollatulokseen johtavissa virheissä kohta ”noudon epäonnistuminen” yhdistää kaikki tilanteet, joissa koira ei tuo noudettavaksi tarkoitettua damia ohjaajalle.</p>\n<p>Mikäli ohjaaja kutsuu koiran takaisin tai koira palaa ohjaajan sivulle kesken suorituksen, katsotaan se AVO- ja VOI-luokassa tehtävän keskeyttämiseksi. ALO-luokassa koira voidaan tuomarin luvalla lähettää uudelleen. Uudelleen lähetys puolittaa tehtävän maksimipisteet.</p>\n<p>Tehtävän jälkeen tuomari voi halutessaan arvioida koiran suoritusta muutamin sanoin. Koiran saamaa pistemäärää ei tässä vaiheessa kerrota. Koiran tehdessä jonkun kokeen keskeyttämiseen tai nollaan johtavan virheen, tulee tuomarin kertoa tästä ohjaajalle.</p>\n<p>Nollaan johtaneen virheen jälkeen koira voi ohjaajan niin halutessa jatkaa kokeen tehtävien tekemistä. Tuomari voi kuitenkin kieltää koiraa jatkamasta koetta, mikäli sen katsotaan olevan koiralle haitallista, aikataulun tai muun syyn takia kohtuutonta muita osallistujia tai järjestäjiä kohtaan. Koiran tehdessä hylkäävän virheen, koira ei saa jatkaa enää muille rasteille, vaan koe päättyy.</p>\n",
+                  "id": "s-10-4",
+                  "level": 1,
+                  "number": "10.4",
+                  "text": "tehokas koira työskentelee ripeästi ja suoraviivaisesti. damin pudottaminen luovutuksessa arvostellaan joko ”noudon epäonnistuminen” (nollatulokseen johtava virhe) tai ”huolimaton nouto-ote” (vakava virhe, vähentää pisteitä) -kohdan mukaan. otteen korjaamista damista ei välttämättä tulkita virheeksi. nollatulokseen johtavissa virheissä kohta ”noudon epäonnistuminen” yhdistää kaikki tilanteet, joissa koira ei tuo noudettavaksi tarkoitettua damia ohjaajalle. mikäli ohjaaja kutsuu koiran takaisin tai koira palaa ohjaajan sivulle kesken suorituksen, katsotaan se avo- ja voi-luokassa tehtävän keskeyttämiseksi. alo-luokassa koira voidaan tuomarin luvalla lähettää uudelleen. uudelleen lähetys puolittaa tehtävän maksimipisteet. tehtävän jälkeen tuomari voi halutessaan arvioida koiran suoritusta muutamin sanoin. koiran saamaa pistemäärää ei tässä vaiheessa kerrota. koiran tehdessä jonkun kokeen keskeyttämiseen tai nollaan johtavan virheen, tulee tuomarin kertoa tästä ohjaajalle. nollaan johtaneen virheen jälkeen koira voi ohjaajan niin halutessa jatkaa kokeen tehtävien tekemistä. tuomari voi kuitenkin kieltää koiraa jatkamasta koetta, mikäli sen katsotaan olevan koiralle haitallista, aikataulun tai muun syyn takia kohtuutonta muita osallistujia tai järjestäjiä kohtaan. koiran tehdessä hylkäävän virheen, koira ei saa jatkaa enää muille rasteille, vaan koe päättyy.",
+                  "title": "KOKEEN ARVOSTELEMINEN"
+                },
+                {
+                  "html": "<p>Tuloksen saaneet koirat asetetaan luokittain paremmuusjärjestykseen pisteiden perusteella. Koirien pisteet tulee olla nähtävissä välittömästi kokeen jälkeen. Tulokset kirjataan omakoiraan.</p>\n<p>Kokeeseen tulee varata SERT ja vara-SERT ruusukkeet.</p>\n",
+                  "id": "s-10-5",
+                  "level": 1,
+                  "number": "10.5",
+                  "text": "tuloksen saaneet koirat asetetaan luokittain paremmuusjärjestykseen pisteiden perusteella. koirien pisteet tulee olla nähtävissä välittömästi kokeen jälkeen. tulokset kirjataan omakoiraan. kokeeseen tulee varata sert ja vara-sert ruusukkeet.",
+                  "title": "TULOKSET JA PALKITSEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN WORKING TEST -KOKEEN JÄRJESTÄMIS-, SUORITUS- JA ARVOSTELUOHJE"
+            },
+            {
+              "id": "c-2-5",
+              "sections": [
+                {
+                  "html": "<p>Kokeita ei anota erikseen kennelpiiriltä, vaan niitä järjestettäessä on oltava yhteydessä tuomaritoimikuntaan. Koiran ohjaaja on ensisijaisesti itse vastuussa metsästystapahtuman käytännön järjestelyistä ja mahdollisista kustannuksista.</p>\n<p>Tuomareiden varaamisessa tulee ottaa huomioon kokeeseen alustavasti suunniteltu koiramäärä. Yksi tuomari arvostelee enintään kaksi koiraa metsästyspäivää kohti.</p>\n<p>Kukin koira suorittaa NKM-kokeen vain kerran koeurallaan. Hylätty koe on mahdollista uusia.</p>\n",
+                  "id": "s-11-1",
+                  "level": 1,
+                  "number": "11.1",
+                  "text": "kokeita ei anota erikseen kennelpiiriltä, vaan niitä järjestettäessä on oltava yhteydessä tuomaritoimikuntaan. koiran ohjaaja on ensisijaisesti itse vastuussa metsästystapahtuman käytännön järjestelyistä ja mahdollisista kustannuksista. tuomareiden varaamisessa tulee ottaa huomioon kokeeseen alustavasti suunniteltu koiramäärä. yksi tuomari arvostelee enintään kaksi koiraa metsästyspäivää kohti. kukin koira suorittaa nkm-kokeen vain kerran koeurallaan. hylätty koe on mahdollista uusia.",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Koirien suoritusjärjestyksen määrää tuomari. Metsästysmaasto on valittava siten, että koiralla on onnistuneen jahdin tuloksena mahdollisuus vähintään kolmen (3) vasta-ammutun riistan noutoon. Erityisesti rauhoittamattomien tai tarhattujen lintujen metsästyksessä tulee huolehtia, että koeolosuhteet ovat mahdollisimman metsästyksenomaiset. Kokeen tapahtumat etenevät metsästystilanteen mukaan.</p>\n",
+                  "id": "s-11-2",
+                  "level": 1,
+                  "number": "11.2",
+                  "text": "koirien suoritusjärjestyksen määrää tuomari. metsästysmaasto on valittava siten, että koiralla on onnistuneen jahdin tuloksena mahdollisuus vähintään kolmen (3) vasta-ammutun riistan noutoon. erityisesti rauhoittamattomien tai tarhattujen lintujen metsästyksessä tulee huolehtia, että koeolosuhteet ovat mahdollisimman metsästyksenomaiset. kokeen tapahtumat etenevät metsästystilanteen mukaan.",
+                  "title": "SUORITUSTEN KUVAUS"
+                },
+                {
+                  "html": "<p>Koe kestää ajan, joka on tyypillinen kyseiselle metsästykselle. Mikäli noutoja ei saada riittävästi tai mikäli tuomari ei ole mielestään saanut riittävää kuvaa koiran ominaisuuksista, koetta voidaan jatkaa seuraavana päivänä.</p>\n",
+                  "id": "s-11-3",
+                  "level": 1,
+                  "number": "11.3",
+                  "text": "koe kestää ajan, joka on tyypillinen kyseiselle metsästykselle. mikäli noutoja ei saada riittävästi tai mikäli tuomari ei ole mielestään saanut riittävää kuvaa koiran ominaisuuksista, koetta voidaan jatkaa seuraavana päivänä.",
+                  "title": "KOKEEN KESTO"
+                },
+                {
+                  "html": "<p>Kokeessa arvostellaan koiran kykyä ja halua noutaa vasta ammuttua riistaa sekä koiran ominaisuuksia toimia käyttökelpoisena metsästyskoirana. Arvostelussa huomioidaan koiran suoritus koko metsästystapahtuman ajan.</p>\n<p>Arvosteluperusteet ovat samat kuin noutajien B-metsästyskokeessa. Suoritusten jälkeen koirasta annetaan suullinen ja kirjallinen arvostelu. Kokeessa suoritetaan laatuarvostelu.</p>\n<p>Kokeessa sihteerinä toiminut kirjaa tuloksen Omakoiraan. Useimmiten kokeen ylituomari toimii myös kokeen sihteerinä.</p>\n",
+                  "id": "s-11-4",
+                  "level": 1,
+                  "number": "11.4",
+                  "text": "kokeessa arvostellaan koiran kykyä ja halua noutaa vasta ammuttua riistaa sekä koiran ominaisuuksia toimia käyttökelpoisena metsästyskoirana. arvostelussa huomioidaan koiran suoritus koko metsästystapahtuman ajan. arvosteluperusteet ovat samat kuin noutajien b-metsästyskokeessa. suoritusten jälkeen koirasta annetaan suullinen ja kirjallinen arvostelu. kokeessa suoritetaan laatuarvostelu. kokeessa sihteerinä toiminut kirjaa tuloksen omakoiraan. useimmiten kokeen ylituomari toimii myös kokeen sihteerinä.",
+                  "title": "KOKEEN ARVOSTELU"
+                }
+              ],
+              "title": "NOUTAJIEN KÄYTÄNNÖN METSÄSTYSKOKEEN JÄRJESTÄMIS-, SUORITUS JA ARVOSTELUOHJE"
+            }
+          ],
+          "number": "OSA 2",
+          "title": "NOUTAJIEN RODUNOMAISTEN KOKEIDEN SÄÄNTÖIHIN LIITTYVÄT YLEISOHJEET SEKÄ JÄRJESTÄMIS-, SUORITUS- JA ARVOSTELUOHJEET",
+          "intro": "<p>Hyväksytty Kennelliitossa 17.8.2022</p>\n<p>Voimassa 15.4.2023 alkaen.</p>\n"
+        },
+        {
+          "chapters": [
+            {
+              "id": "c-3-1",
+              "sections": [
+                {
+                  "html": "<p>Kokeen tarkoituksena on valita parhaat koirat sekä tehdä tunnetuksi noutajien metsästysominaisuuksia ja käyttökelpoisuutta pienriistan talteenottajina.</p>\n",
+                  "id": "s-12-1",
+                  "level": 1,
+                  "number": "12.1",
+                  "text": "kokeen tarkoituksena on valita parhaat koirat sekä tehdä tunnetuksi noutajien metsästysominaisuuksia ja käyttökelpoisuutta pienriistan talteenottajina.",
+                  "title": "TARKOITUS"
+                },
+                {
+                  "html": "<p>NOME A SM–kokeessa noudatetaan voimassa olevia NOME A -kokeen sääntöjä. Kokeen järjestämisestä vastaavat rotujärjestöt, jotka voivat myöntää järjestämisoikeuden jollekin jäsenyhdistyksistään. Kokeen järjestäjänä voi toimia myös useampi yhdistys yhdessä. Rotujärjestöjen alainen tuomaritoimikunta vahvistaa SM-kokeen tuomarit. Jos päädytään järjestämään karsintakokeita, nimeää tuomaritoimikunta niiden ylituomarit ja tarvittavan määrän arvostelutuomareita.</p>\n",
+                  "id": "s-12-2",
+                  "level": 1,
+                  "number": "12.2",
+                  "text": "nome a sm–kokeessa noudatetaan voimassa olevia nome a -kokeen sääntöjä. kokeen järjestämisestä vastaavat rotujärjestöt, jotka voivat myöntää järjestämisoikeuden jollekin jäsenyhdistyksistään. kokeen järjestäjänä voi toimia myös useampi yhdistys yhdessä. rotujärjestöjen alainen tuomaritoimikunta vahvistaa sm-kokeen tuomarit. jos päädytään järjestämään karsintakokeita, nimeää tuomaritoimikunta niiden ylituomarit ja tarvittavan määrän arvostelutuomareita.",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Kokeen taloudesta on ensisijaisesti vastuussa kokeen järjestävät yhdistykset yhdessä rotujärjestön kanssa.</p>\n",
+                  "id": "s-12-3",
+                  "level": 1,
+                  "number": "12.3",
+                  "text": "kokeen taloudesta on ensisijaisesti vastuussa kokeen järjestävät yhdistykset yhdessä rotujärjestön kanssa.",
+                  "title": "KOKEEN TALOUS"
+                },
+                {
+                  "html": "<p>Osallistumisoikeus kokeeseen on kaikilla Suomessa rekisteröidyillä noutajarotuisilla koirilla, joilla on osallistumisoikeus NOME A -kokeisiin sekä ovat saavuttaneet A1- palkinnon tai vastaavan palkinnon KV-kokeesta. Kokeeseen valitaan kulloinkin voimassa olevien ohjeiden mukainen määrä koiria joko tulosten tai karsintakokeiden perusteella. Valintaperusteista pidetään yllä erillistä rotujärjestöjen hyväksymää ohjeistusta. Edellisen vuoden mestari on oikeutettu osallistumaan kokeeseen ilman esikarsintoja. Kokeeseen on ilmoittauduttava viimeistään kaksi viikkoa ennen koetta. Kokeen järjestävä yhdistys päättää ilmoittautumismaksun suuruuden ja ilmoittautumisten vastaanottajan.</p>\n",
+                  "id": "s-12-4",
+                  "level": 1,
+                  "number": "12.4",
+                  "text": "osallistumisoikeus kokeeseen on kaikilla suomessa rekisteröidyillä noutajarotuisilla koirilla, joilla on osallistumisoikeus nome a -kokeisiin sekä ovat saavuttaneet a1- palkinnon tai vastaavan palkinnon kv-kokeesta. kokeeseen valitaan kulloinkin voimassa olevien ohjeiden mukainen määrä koiria joko tulosten tai karsintakokeiden perusteella. valintaperusteista pidetään yllä erillistä rotujärjestöjen hyväksymää ohjeistusta. edellisen vuoden mestari on oikeutettu osallistumaan kokeeseen ilman esikarsintoja. kokeeseen on ilmoittauduttava viimeistään kaksi viikkoa ennen koetta. kokeen järjestävä yhdistys päättää ilmoittautumismaksun suuruuden ja ilmoittautumisten vastaanottajan.",
+                  "title": "KOIRIEN VALINTA KOKEESEEN"
+                },
+                {
+                  "html": "<p>Koe järjestetään yksi- tai kaksipäiväisenä virallisena NO-ME A – kokeena. Voittajaa kutsutaan NOME A -mestariksi (FTW+vuosiluku).</p>\n",
+                  "id": "s-12-5",
+                  "level": 1,
+                  "number": "12.5",
+                  "text": "koe järjestetään yksi- tai kaksipäiväisenä virallisena no-me a – kokeena. voittajaa kutsutaan nome a -mestariksi (ftw+vuosiluku).",
+                  "title": "KOKEEN SUORITTAMINEN JA PALKITSEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN NOME A-MESTARUUSKOKEEN JÄRJESTÄMIS- JA ARVOSTELUOHJE"
+            },
+            {
+              "id": "c-3-2",
+              "sections": [
+                {
+                  "html": "<p>Kokeen tarkoituksena on valita parhaat koirat sekä tehdä tunnetuksi noutajien metsästysominaisuuksia ja käyttökelpoisuutta pienriistan talteenottajina.</p>\n",
+                  "id": "s-13-1",
+                  "level": 1,
+                  "number": "13.1",
+                  "text": "kokeen tarkoituksena on valita parhaat koirat sekä tehdä tunnetuksi noutajien metsästysominaisuuksia ja käyttökelpoisuutta pienriistan talteenottajina.",
+                  "title": "TARKOITUS"
+                },
+                {
+                  "html": "<p>Kokeessa noudatetaan voimassa olevia NOME B -sääntöjä. Kokeen järjestämisestä vastaavat rotujärjestöt, jotka voivat myöntää järjestämisoikeuden jollekin jäsenyhdistyksistään. Kokeen järjestäjänä voi toimia myös useampi yhdistys yhdessä. Rotujärjestöjen alainen tuomaritoimikunta vahvistaa SM-kokeen tuomarit. Jos päädytään järjestämään karsintakokeita, nimeää tuomaritoimikunta niiden ylituomarit ja tarvittavan määrän arvostelutuomareita.</p>\n",
+                  "id": "s-13-2",
+                  "level": 1,
+                  "number": "13.2",
+                  "text": "kokeessa noudatetaan voimassa olevia nome b -sääntöjä. kokeen järjestämisestä vastaavat rotujärjestöt, jotka voivat myöntää järjestämisoikeuden jollekin jäsenyhdistyksistään. kokeen järjestäjänä voi toimia myös useampi yhdistys yhdessä. rotujärjestöjen alainen tuomaritoimikunta vahvistaa sm-kokeen tuomarit. jos päädytään järjestämään karsintakokeita, nimeää tuomaritoimikunta niiden ylituomarit ja tarvittavan määrän arvostelutuomareita.",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Kokeen taloudesta on ensisijaisesti vastuussa kokeen järjestävät yhdistykset yhdessä rotujärjestön kanssa.</p>\n",
+                  "id": "s-13-3",
+                  "level": 1,
+                  "number": "13.3",
+                  "text": "kokeen taloudesta on ensisijaisesti vastuussa kokeen järjestävät yhdistykset yhdessä rotujärjestön kanssa.",
+                  "title": "KOKEEN TALOUS"
+                },
+                {
+                  "html": "<p>Osallistumisoikeus kokeeseen on kaikilla Suomessa rekisteröidyillä noutajarotuisilla koirilla, jotka kilpailevat noutajien B-metsästyskokeen VOI-luokassa. Kokeeseen valitaan kulloinkin voimassa olevien ohjeiden mukainen määrä koiria joko tulosten tai karsintakokeiden perusteella. Edellisen vuoden mestari on oikeutettu osallistumaan kokeeseen ilman esikarsintoja. Noutajien SM-kokeen valintaperusteista pidetään yllä erillistä rotujärjestöjen hyväksymää ohjeistusta. Kokeeseen on ilmoittauduttava viimeistään kaksi viikkoa ennen koetta. Kokeen järjestävä yhdistys päättää ilmoittautumismaksun suuruuden ja ilmoittautumisten vastaanottajan.</p>\n",
+                  "id": "s-13-4",
+                  "level": 1,
+                  "number": "13.4",
+                  "text": "osallistumisoikeus kokeeseen on kaikilla suomessa rekisteröidyillä noutajarotuisilla koirilla, jotka kilpailevat noutajien b-metsästyskokeen voi-luokassa. kokeeseen valitaan kulloinkin voimassa olevien ohjeiden mukainen määrä koiria joko tulosten tai karsintakokeiden perusteella. edellisen vuoden mestari on oikeutettu osallistumaan kokeeseen ilman esikarsintoja. noutajien sm-kokeen valintaperusteista pidetään yllä erillistä rotujärjestöjen hyväksymää ohjeistusta. kokeeseen on ilmoittauduttava viimeistään kaksi viikkoa ennen koetta. kokeen järjestävä yhdistys päättää ilmoittautumismaksun suuruuden ja ilmoittautumisten vastaanottajan.",
+                  "title": "KOIRIEN VALINTA KOKEESEEN"
+                },
+                {
+                  "html": "<p>Koe järjestetään kaksi- tai useampipäiväisenä ja se koostuu karsintakokeesta sekä loppukilpailusta. Karsintakoe on virallinen VOI-luokan NOME B -koe. Tuomarit valitsevat loppukilpailuun pääsevät koirat karsintakokeen tulosten perusteella. Loppukilpailu toteutetaan mahdollisimman metsästyksenomaisesti ja se voidaan toteuttaa myös linnun metsästyksessä niin, että riistaa metsästetään koirien läsnä ollessa. Loppukilpailussa noudatetaan kilpailuarvostelua. Voittajaa kutsutaan noutajamestariksi (NM+vuosiluku).</p>\n",
+                  "id": "s-13-5",
+                  "level": 1,
+                  "number": "13.5",
+                  "text": "koe järjestetään kaksi- tai useampipäiväisenä ja se koostuu karsintakokeesta sekä loppukilpailusta. karsintakoe on virallinen voi-luokan nome b -koe. tuomarit valitsevat loppukilpailuun pääsevät koirat karsintakokeen tulosten perusteella. loppukilpailu toteutetaan mahdollisimman metsästyksenomaisesti ja se voidaan toteuttaa myös linnun metsästyksessä niin, että riistaa metsästetään koirien läsnä ollessa. loppukilpailussa noudatetaan kilpailuarvostelua. voittajaa kutsutaan noutajamestariksi (nm+vuosiluku).",
+                  "title": "KOKEEN SUORITTAMINEN JA PALKITSEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN NOME B-MESTARUUSKOKEEN JÄRJESTÄMIS- JA ARVOSTELUOHJE"
+            },
+            {
+              "id": "c-3-3",
+              "sections": [
+                {
+                  "html": "<p>Kokeen tarkoituksena on valita parhaat koirat sekä tehdä tunnetuksi noutajien metsästysominaisuuksia.</p>\n",
+                  "id": "s-14-1",
+                  "level": 1,
+                  "number": "14.1",
+                  "text": "kokeen tarkoituksena on valita parhaat koirat sekä tehdä tunnetuksi noutajien metsästysominaisuuksia.",
+                  "title": "TARKOITUS"
+                },
+                {
+                  "html": "<p>Kokeessa noudatetaan voimassa olevia Noutajien Working Test - koesääntöjä. Kokeen järjestämisestä vastaavat rotujärjestöt, jotka voivat myöntää järjestämisoikeuden jollekin jäsenyhdistyksistään. Kokeen järjestäjänä voi toimia myös useampi yhdistys yhdessä. Rotujärjestöjen alainen tuomaritoimikunta vahvistaa mestaruuskokeen tuomarit. Jos päädytään järjestämään karsintakokeita, nimeää tuomaritoimikunta niiden ylituomarit ja tarvittavan määrän arvostelutuomareita.</p>\n",
+                  "id": "s-14-2",
+                  "level": 1,
+                  "number": "14.2",
+                  "text": "kokeessa noudatetaan voimassa olevia noutajien working test - koesääntöjä. kokeen järjestämisestä vastaavat rotujärjestöt, jotka voivat myöntää järjestämisoikeuden jollekin jäsenyhdistyksistään. kokeen järjestäjänä voi toimia myös useampi yhdistys yhdessä. rotujärjestöjen alainen tuomaritoimikunta vahvistaa mestaruuskokeen tuomarit. jos päädytään järjestämään karsintakokeita, nimeää tuomaritoimikunta niiden ylituomarit ja tarvittavan määrän arvostelutuomareita.",
+                  "title": "KOKEEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Kokeen taloudesta on ensisijaisesti vastuussa kokeen järjestävät yhdistykset yhdessä rotujärjestön kanssa.</p>\n",
+                  "id": "s-14-3",
+                  "level": 1,
+                  "number": "14.3",
+                  "text": "kokeen taloudesta on ensisijaisesti vastuussa kokeen järjestävät yhdistykset yhdessä rotujärjestön kanssa.",
+                  "title": "KOKEEN TALOUS"
+                },
+                {
+                  "html": "<p>Osallistumisoikeus kokeeseen on kaikilla Suomessa rekisteröidyillä noutajarotuisilla koirilla, jotka kilpailevat noutajien WT-metsästyskokeen voittajaluokassa. WT-mestaruuskokeeseen valitaan kulloinkin voimassa olevien ohjeiden mukainen määrä koiria joko tulosten tai karsintakokeiden perusteella. Rotujärjestöt päättävät valintaperusteista. Edellisen vuoden mestari on oikeutettu osallistumaan kokeeseen ilman esikarsintoja. Kokeeseen on ilmoittauduttava viimeistään kaksi viikkoa ennen koetta. Kokeen järjestävä yhdistys päättää ilmoittautumismaksun suuruuden ja ilmoittautumisten vastaanottajan.</p>\n",
+                  "id": "s-14-4",
+                  "level": 1,
+                  "number": "14.4",
+                  "text": "osallistumisoikeus kokeeseen on kaikilla suomessa rekisteröidyillä noutajarotuisilla koirilla, jotka kilpailevat noutajien wt-metsästyskokeen voittajaluokassa. wt-mestaruuskokeeseen valitaan kulloinkin voimassa olevien ohjeiden mukainen määrä koiria joko tulosten tai karsintakokeiden perusteella. rotujärjestöt päättävät valintaperusteista. edellisen vuoden mestari on oikeutettu osallistumaan kokeeseen ilman esikarsintoja. kokeeseen on ilmoittauduttava viimeistään kaksi viikkoa ennen koetta. kokeen järjestävä yhdistys päättää ilmoittautumismaksun suuruuden ja ilmoittautumisten vastaanottajan.",
+                  "title": "KOIRIEN VALINTA KOKEESEEN"
+                },
+                {
+                  "html": "<p>Koe järjestetään yksi- tai kaksipäiväisenä voittajaluokan NOWT-kokeena. Kokeessa voi olla erillinen loppukilpailu, johon tuomarit valitsevat koirat tulosten perusteella. Loppukilpailussa koirat suorittavat yhden tai useampia tehtäviä. Voittajaa kutsutaan Working Test-mestariksi (WTW+vuosiluku).</p>\n",
+                  "id": "s-14-5",
+                  "level": 1,
+                  "number": "14.5",
+                  "text": "koe järjestetään yksi- tai kaksipäiväisenä voittajaluokan nowt-kokeena. kokeessa voi olla erillinen loppukilpailu, johon tuomarit valitsevat koirat tulosten perusteella. loppukilpailussa koirat suorittavat yhden tai useampia tehtäviä. voittajaa kutsutaan working test-mestariksi (wtw+vuosiluku).",
+                  "title": "KOKEEN SUORITTAMINEN JA PALKITSEMINEN"
+                }
+              ],
+              "title": "NOUTAJIEN WORKING TEST-MESTARUUS-KOKEEN JÄRJESTÄMIS- JA ARVOSTELUOHJE"
+            }
+          ],
+          "number": "OSA 3",
+          "title": "SM-KOKEIDEN JÄRJESTÄMISOHJEET",
+          "intro": "<p>Hyväksytty Kennelliitossa 17.8.2022</p>\n<p>Voimassa 15.4.2023 alkaen</p>\n<p>Näitä järjestämisohjeita koskevat muutosehdotukset laativat yhteistyössä rotujärjestöt ja tuomaritoimikunta ja ne hyväksyy Kennelliitto.</p>\n"
+        },
+        {
+          "chapters": [
+            {
+              "id": "c-4-1",
+              "sections": [
+                {
+                  "html": "<p>NOME A SM-kokeeseen ovat oikeutettuja ilmoittautumaan Suomessa rekisteröidyt koirat, joilla on osallistumisoikeus NOME A -kokeeseen ja jotka ovat saavuttaneet korkeimman palkintosijan NOME A -kokeesta tai KV-kokeesta.</p>\n<p>SM-kokeeseen voidaan ottaa enintään 24 koiraa. Edellisen vuoden NOME A - mestaruuden voittajalla on oikeus osallistua kokeeseen ilman tulosvaatimuksia. Loput koepaikat täytetään alla olevan taulukon mukaan laskettujen pisteiden perusteella. Tuloksissa huomioidaan viiden parhaan NOME A- ja KV-kokeista saadun koetuloksen mukaiset pisteet, jotka on saatu kokeen ilmoittautumisajan päättymistä edeltävän kahden vuoden aikana. KVA-FT koiralla on oltava vähintään yksi pisteisiin oikeuttava tulos, joka on saatu yllä mainittuna ajanjaksona. Ulkomailta saadut KV-kokeiden tulokset sekä Pohjoismaista saadut NOME A –kokeiden tulokset hyväksytään. Tasapistetilanteissa kokeen järjestäjä suorittaa arvonnan.</p>\n<table>\n<thead>\n<tr>\n<th>Tulos</th>\n<th>Pisteet</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>KVA-FT</td>\n<td>6</td>\n</tr>\n<tr>\n<td>A 1 + sert/cacit</td>\n<td>6</td>\n</tr>\n<tr>\n<td>A 1 + varasert/re-cacit</td>\n<td>5</td>\n</tr>\n<tr>\n<td>A 1</td>\n<td>4</td>\n</tr>\n<tr>\n<td>A 2</td>\n<td>2</td>\n</tr>\n<tr>\n<td>A 3</td>\n<td>1</td>\n</tr>\n</tbody>\n</table>\n",
+                  "id": "s-15-1",
+                  "level": 1,
+                  "number": "15.1",
+                  "text": "nome a sm-kokeeseen ovat oikeutettuja ilmoittautumaan suomessa rekisteröidyt koirat, joilla on osallistumisoikeus nome a -kokeeseen ja jotka ovat saavuttaneet korkeimman palkintosijan nome a -kokeesta tai kv-kokeesta. sm-kokeeseen voidaan ottaa enintään 24 koiraa. edellisen vuoden nome a - mestaruuden voittajalla on oikeus osallistua kokeeseen ilman tulosvaatimuksia. loput koepaikat täytetään alla olevan taulukon mukaan laskettujen pisteiden perusteella. tuloksissa huomioidaan viiden parhaan nome a- ja kv-kokeista saadun koetuloksen mukaiset pisteet, jotka on saatu kokeen ilmoittautumisajan päättymistä edeltävän kahden vuoden aikana. kva-ft koiralla on oltava vähintään yksi pisteisiin oikeuttava tulos, joka on saatu yllä mainittuna ajanjaksona. ulkomailta saadut kv-kokeiden tulokset sekä pohjoismaista saadut nome a –kokeiden tulokset hyväksytään. tasapistetilanteissa kokeen järjestäjä suorittaa arvonnan. tulos pisteet kva-ft 6 a 1 + sert/cacit 6 a 1 + varasert/re-cacit 5 a 1 4 a 2 2 a 3 1",
+                  "title": "NOME A SUOMEN MESTARUUS"
+                },
+                {
+                  "html": "<p>SM-kokeeseen ovat oikeutettuja ilmoittautumaan Suomessa rekisteröidyt noutajat, jotka ovat saavuttaneet vähintään yhden VOI1-tuloksen NOME B -kokeesta ajanjaksona, joka alkaa edellisen vuoden SM-kokeen viimeisestä ilmoittautumispäivästä ja päättyy seuraavan vuoden SM-kokeen viimeiseen ilmoittautumispäivään.</p>\n<p>SM-kokeeseen voidaan ottaa enintään 48 koiraa. Mikäli koiramäärää on tarpeen rajata tätä pienemmäksi, tulee kokeen järjestäjän sopia asiasta rotujärjestöjen kanssa. Edellisen vuoden SM- voittajalla on oikeus osallistua kokeeseen ilman tulosvaatimuksia. Ne kennelpiirien hallitsevat piirinmestarit, jotka ovat voittaneet piirinmestaruuden VOI1-tuloksella, ovat etuoikeutettuja osallistumaan kokeeseen.</p>\n<p>Koirat, jotka ovat saavuttaneet kolme VOI1-tulosta yllä mainittuna ajanjaksona, pääsevät varmasti kokeeseen. Koiralle, joka on saavuttanut KVA-arvon ennen edellisen SM-kokeen viimeistä ilmoittautumispäivää, riittää kaksi VOI1-tulosta varmistamaan osallistumisen. Kuluneella kaudella KVA-arvon saavuttaneilta koirilta vaaditaan kolme VOI1-tulosta varmistamaan osallistumisen kokeeseen.</p>\n<p>Jos kokeeseen pääseviä koiria ei voi ratkaista yllä olevan ohjeen mukaan, täytetään loput koepaikat alla olevan taulukon mukaan. Tuloksissa huomioidaan viiden parhaan koetuloksen pisteet, tasapistetilanteissa suoritetaan arvonta.</p>\n<table>\n<thead>\n<tr>\n<th>Tulos</th>\n<th>Pisteet</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>KVA-B</td>\n<td>6</td>\n</tr>\n<tr>\n<td>VOI1</td>\n<td>6</td>\n</tr>\n<tr>\n<td>VOI2</td>\n<td>3</td>\n</tr>\n<tr>\n<td>VOI3</td>\n<td>1</td>\n</tr>\n</tbody>\n</table>\n",
+                  "id": "s-15-2",
+                  "level": 1,
+                  "number": "15.2",
+                  "text": "sm-kokeeseen ovat oikeutettuja ilmoittautumaan suomessa rekisteröidyt noutajat, jotka ovat saavuttaneet vähintään yhden voi1-tuloksen nome b -kokeesta ajanjaksona, joka alkaa edellisen vuoden sm-kokeen viimeisestä ilmoittautumispäivästä ja päättyy seuraavan vuoden sm-kokeen viimeiseen ilmoittautumispäivään. sm-kokeeseen voidaan ottaa enintään 48 koiraa. mikäli koiramäärää on tarpeen rajata tätä pienemmäksi, tulee kokeen järjestäjän sopia asiasta rotujärjestöjen kanssa. edellisen vuoden sm- voittajalla on oikeus osallistua kokeeseen ilman tulosvaatimuksia. ne kennelpiirien hallitsevat piirinmestarit, jotka ovat voittaneet piirinmestaruuden voi1-tuloksella, ovat etuoikeutettuja osallistumaan kokeeseen. koirat, jotka ovat saavuttaneet kolme voi1-tulosta yllä mainittuna ajanjaksona, pääsevät varmasti kokeeseen. koiralle, joka on saavuttanut kva-arvon ennen edellisen sm-kokeen viimeistä ilmoittautumispäivää, riittää kaksi voi1-tulosta varmistamaan osallistumisen. kuluneella kaudella kva-arvon saavuttaneilta koirilta vaaditaan kolme voi1-tulosta varmistamaan osallistumisen kokeeseen. jos kokeeseen pääseviä koiria ei voi ratkaista yllä olevan ohjeen mukaan, täytetään loput koepaikat alla olevan taulukon mukaan. tuloksissa huomioidaan viiden parhaan koetuloksen pisteet, tasapistetilanteissa suoritetaan arvonta. tulos pisteet kva-b 6 voi1 6 voi2 3 voi3 1",
+                  "title": "NOME B SUOMEN MESTARUUS"
+                },
+                {
+                  "html": "<p>Kokeeseen ovat oikeutettuja ilmoittautumaan Suomessa rekisteröidyt noutajat, jotka ovat saavuttaneet KVA-WT arvon tai vähintään yhden VOI1-tuloksen WT-kokeessa, joka on saatu kokeen ilmoittautumisajan päättymistä edeltävän 12 kuukauden aikana. Mikäli kokeeseen osallistuvaa koiramäärää on tarpeen rajoittaa, tulee kokeen järjestäjän sopia asiasta rotujärjestöjen kanssa. Tällöin koepaikat täytetään alla olevan taulukon mukaan laskettujen pisteiden perusteella. Tuloksissa huomioidaan viiden parhaan NOWT saadun koetuloksen mukaiset pisteet, jotka on saatu kokeen ilmoittautumisajan päättymistä edeltävän 12 kuukauden aikana. KVA-WT koira pääsee kokeeseen ilman karsintaa, kun sillä on yksi pisteisiin oikeuttava tulos, joka on saatu yllä mainittuna ajanjaksona. Tasapistetilanteissa kokeen järjestäjä suorittaa arvonnan. Edellisen vuoden WTW- mestarilla on oikeus osallistua kokeeseen ilman tulosvaatimuksia.</p>\n<table>\n<thead>\n<tr>\n<th>Tulos</th>\n<th>Pisteet</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>KVA-WT</td>\n<td>6</td>\n</tr>\n<tr>\n<td>VOI1 + sert</td>\n<td>6</td>\n</tr>\n<tr>\n<td>VOI1 + varasert</td>\n<td>5</td>\n</tr>\n<tr>\n<td>VOI1</td>\n<td>4</td>\n</tr>\n<tr>\n<td>VOI2</td>\n<td>2</td>\n</tr>\n<tr>\n<td>VOI3</td>\n<td>1</td>\n</tr>\n</tbody>\n</table>\n",
+                  "id": "s-15-3",
+                  "level": 1,
+                  "number": "15.3",
+                  "text": "kokeeseen ovat oikeutettuja ilmoittautumaan suomessa rekisteröidyt noutajat, jotka ovat saavuttaneet kva-wt arvon tai vähintään yhden voi1-tuloksen wt-kokeessa, joka on saatu kokeen ilmoittautumisajan päättymistä edeltävän 12 kuukauden aikana. mikäli kokeeseen osallistuvaa koiramäärää on tarpeen rajoittaa, tulee kokeen järjestäjän sopia asiasta rotujärjestöjen kanssa. tällöin koepaikat täytetään alla olevan taulukon mukaan laskettujen pisteiden perusteella. tuloksissa huomioidaan viiden parhaan nowt saadun koetuloksen mukaiset pisteet, jotka on saatu kokeen ilmoittautumisajan päättymistä edeltävän 12 kuukauden aikana. kva-wt koira pääsee kokeeseen ilman karsintaa, kun sillä on yksi pisteisiin oikeuttava tulos, joka on saatu yllä mainittuna ajanjaksona. tasapistetilanteissa kokeen järjestäjä suorittaa arvonnan. edellisen vuoden wtw- mestarilla on oikeus osallistua kokeeseen ilman tulosvaatimuksia. tulos pisteet kva-wt 6 voi1 + sert 6 voi1 + varasert 5 voi1 4 voi2 2 voi3 1",
+                  "title": "NOWT MESTARUUS"
+                }
+              ],
+              "title": "NOUTAJIEN SM-KOKEIDEN KARSINTAOHJE",
+              "intro": "<p>Näitä rotujärjestöjen hyväksymiä karsintaohjeita koskevat muutosehdotukset laativat yhteistyössä rotujärjestöt ja tuomaritoimikunta.</p>\n"
+            },
+            {
+              "id": "c-4-2",
+              "sections": [
+                {
+                  "html": "<p>Kennelliiton koetuomareiden koulutus-, pätevöinti- ja toimintaohjeen lisäksi noudatetaan tätä ohjetta.</p>\n",
+                  "id": "s-16-1",
+                  "level": 1,
+                  "number": "16.1",
+                  "text": "kennelliiton koetuomareiden koulutus-, pätevöinti- ja toimintaohjeen lisäksi noudatetaan tätä ohjetta.",
+                  "title": "YLEISTÄ"
+                },
+                {
+                  "html": "<p>Ylituomareiden koulutuksen järjestää rotujärjestöjen alainen tuomaritoimikunta yhteistyössä rotujärjestöjen ja Kennelliiton kanssa. Tuomaritoimikunta nimeää järjestettävälle kurssille johtajan ja muut kouluttajat. Kurssianomus tehdään kennelpiirille voimassa olevien ohjeiden mukaisesti.</p>\n",
+                  "id": "s-16-2",
+                  "level": 1,
+                  "number": "16.2",
+                  "text": "ylituomareiden koulutuksen järjestää rotujärjestöjen alainen tuomaritoimikunta yhteistyössä rotujärjestöjen ja kennelliiton kanssa. tuomaritoimikunta nimeää järjestettävälle kurssille johtajan ja muut kouluttajat. kurssianomus tehdään kennelpiirille voimassa olevien ohjeiden mukaisesti.",
+                  "title": "KURSSIEN JÄRJESTÄMINEN JA ANOMINEN"
+                },
+                {
+                  "html": "<p>Tuomaritoimikunta valitsee hakijoiden joukosta koulutukseen pääsevät henkilöt ottaen huomioon hakijan koemuotokohtaisten vaatimusten täyttymisen sekä muut ominaisuudet toimia ko. koemuodon tuomarina. Kursseille hyväksyttävien tulee luotettavasti osoittaa täyttävänsä seuraavat vaatimukset:</p>\n",
+                  "id": "s-16-3",
+                  "level": 1,
+                  "number": "16.3",
+                  "text": "tuomaritoimikunta valitsee hakijoiden joukosta koulutukseen pääsevät henkilöt ottaen huomioon hakijan koemuotokohtaisten vaatimusten täyttymisen sekä muut ominaisuudet toimia ko. koemuodon tuomarina. kursseille hyväksyttävien tulee luotettavasti osoittaa täyttävänsä seuraavat vaatimukset:",
+                  "title": "KURSSEILLE HYVÄKSYMINEN"
+                },
+                {
+                  "html": "<ul>\n<li>ovat Kennelliiton ja rotujärjestön jäseniä</li>\n<li>ovat toimineet aktiivisina noutajaharrastajina vähintään viisi (5) vuotta, johon on sisällyttävä tehtäviä rotujärjestön tai sen jäsenyhdistysten kouluttajana, kokeiden järjestelyissä ja toimitsijana</li>\n<li>ovat toimineet vähintään kaksi (2) kertaa noutajien taipumuskokeen ylitoimitsijana.</li>\n<li>omaavat voimassa olevan metsästyskortin ja metsästysaseen hallussapitoluvan.</li>\n<li>ovat osallistuneet noutajien NOME B -metsästyskokeen VOI-luokkaan kouluttamallaan koiralla</li>\n<li>ovat perehtyneet noutavien koirien käyttöön metsästystehtävissä ja toimineet noutajan ohjaajana metsästyksessä</li>\n<li>hakijoilla tulee olla rotujärjestön tai sen jäsenyhdistyksen kirjallinen suositus</li>\n</ul>\n",
+                  "id": "s-16-3-1",
+                  "level": 2,
+                  "number": "16.3.1",
+                  "text": "ovat kennelliiton ja rotujärjestön jäseniä ovat toimineet aktiivisina noutajaharrastajina vähintään viisi (5) vuotta, johon on sisällyttävä tehtäviä rotujärjestön tai sen jäsenyhdistysten kouluttajana, kokeiden järjestelyissä ja toimitsijana ovat toimineet vähintään kaksi (2) kertaa noutajien taipumuskokeen ylitoimitsijana. omaavat voimassa olevan metsästyskortin ja metsästysaseen hallussapitoluvan. ovat osallistuneet noutajien nome b -metsästyskokeen voi-luokkaan kouluttamallaan koiralla ovat perehtyneet noutavien koirien käyttöön metsästystehtävissä ja toimineet noutajan ohjaajana metsästyksessä hakijoilla tulee olla rotujärjestön tai sen jäsenyhdistyksen kirjallinen suositus",
+                  "title": "Noutajien taipumuskoe"
+                },
+                {
+                  "html": "<ul>\n<li>ovat Kennelliiton ja rotujärjestön jäseniä</li>\n<li>ovat toimineet aktiivisina noutajaharrastajina vähintään viisi (5) vuotta, johon on sisällyttävä tehtäviä rotujärjestön tai sen jäsenyhdistysten kouluttajana, kokeiden järjestelyissä ja toimitsijana</li>\n<li>omaavat riittävän kokemuksen NOWT-kokeiden järjestelytehtävissä.</li>\n<li>omaavat voimassa olevan metsästyskortin ja metsästysaseen hallussapitoluvan.</li>\n<li>ovat osallistuneet noutajien Working Testin VOI-luokkaan kouluttamallaan koiralla ja saavuttaneet vähintään VOI 2 -palkinnon</li>\n<li>ovat perehtyneet noutavien koirien käyttöön ja toimineet noutajan ohjaajana jahdeissa, joita tässä koemuodossa kuvataan</li>\n<li>harrastavat metsästystä noutajan kanssa</li>\n<li>hakijoilla tulee olla rotujärjestön tai sen jäsenyhdistyksen kirjallinen suositus</li>\n</ul>\n",
+                  "id": "s-16-3-2",
+                  "level": 2,
+                  "number": "16.3.2",
+                  "text": "ovat kennelliiton ja rotujärjestön jäseniä ovat toimineet aktiivisina noutajaharrastajina vähintään viisi (5) vuotta, johon on sisällyttävä tehtäviä rotujärjestön tai sen jäsenyhdistysten kouluttajana, kokeiden järjestelyissä ja toimitsijana omaavat riittävän kokemuksen nowt-kokeiden järjestelytehtävissä. omaavat voimassa olevan metsästyskortin ja metsästysaseen hallussapitoluvan. ovat osallistuneet noutajien working testin voi-luokkaan kouluttamallaan koiralla ja saavuttaneet vähintään voi 2 -palkinnon ovat perehtyneet noutavien koirien käyttöön ja toimineet noutajan ohjaajana jahdeissa, joita tässä koemuodossa kuvataan harrastavat metsästystä noutajan kanssa hakijoilla tulee olla rotujärjestön tai sen jäsenyhdistyksen kirjallinen suositus",
+                  "title": "Noutajien Working Test"
+                },
+                {
+                  "html": "<p>NOME B -kokeen tuomarikurssit järjestetään jatkokoulutuksena. Jatkokoulutukseen ei ole yleistä hakumenettelyä, vaan siihen voivat ilmoittaa halukkuutensa hakuvaatimukset täyttävät henkilöt, jotka:</p>\n<ul>\n<li>ovat Kennelliiton ja rotujärjestön jäseniä</li>\n<li>ovat toimineet taipumuskokeiden tai Working Testin ylituomarina.</li>\n<li>ovat osallistuneet noutajien B -metsästyskokeen VOI-luokkaan kouluttamallaan koiralla ja saavuttaneet vähintään VOI 2–palkinnon</li>\n<li>omaavat riittävän kokemuksen NOME B kokeiden järjestelytehtävissä.</li>\n<li>harrastavat metsästystä noutajan kanssa</li>\n</ul>\n",
+                  "id": "s-16-3-3",
+                  "level": 2,
+                  "number": "16.3.3",
+                  "text": "nome b -kokeen tuomarikurssit järjestetään jatkokoulutuksena. jatkokoulutukseen ei ole yleistä hakumenettelyä, vaan siihen voivat ilmoittaa halukkuutensa hakuvaatimukset täyttävät henkilöt, jotka: ovat kennelliiton ja rotujärjestön jäseniä ovat toimineet taipumuskokeiden tai working testin ylituomarina. ovat osallistuneet noutajien b -metsästyskokeen voi-luokkaan kouluttamallaan koiralla ja saavuttaneet vähintään voi 2–palkinnon omaavat riittävän kokemuksen nome b kokeiden järjestelytehtävissä. harrastavat metsästystä noutajan kanssa",
+                  "title": "Noutajien B – metsästyskoe"
+                },
+                {
+                  "html": "<p>NOME A -kokeen tuomarikurssit järjestetään jatkokoulutuksena. Jatkokoulukseen ei ole yleistä hakumenettelyä, vaan siihen voivat ilmoittaa halukkuutensa hakuvaatimukset täyttävät henkilöt, jotka:</p>\n<ul>\n<li>ovat Kennelliiton ja rotujärjestön jäseniä</li>\n<li>ovat toimineet NOME B- tai NOWT-kokeiden ylituomarina ja omaavat riittävän arvostelukokemuksen</li>\n<li>ovat osallistuneet kouluttamallaan koiralla noutajien A -metsästyskokeeseen vähintään 3 kertaa ja ovat saavuttaneet vähintään A2–palkinnon.</li>\n<li>ovat aktiivisesti toimineet koiran ohjaajana sellaisissa jahdeissa, joissa näitä kokeita järjestetään</li>\n<li>omaavat riittävän kokemuksen NOME A kokeiden järjestelytehtävissä.</li>\n<li>harrastavat metsästystä noutajan kanssa</li>\n</ul>\n",
+                  "id": "s-16-3-4",
+                  "level": 2,
+                  "number": "16.3.4",
+                  "text": "nome a -kokeen tuomarikurssit järjestetään jatkokoulutuksena. jatkokoulukseen ei ole yleistä hakumenettelyä, vaan siihen voivat ilmoittaa halukkuutensa hakuvaatimukset täyttävät henkilöt, jotka: ovat kennelliiton ja rotujärjestön jäseniä ovat toimineet nome b- tai nowt-kokeiden ylituomarina ja omaavat riittävän arvostelukokemuksen ovat osallistuneet kouluttamallaan koiralla noutajien a -metsästyskokeeseen vähintään 3 kertaa ja ovat saavuttaneet vähintään a2–palkinnon. ovat aktiivisesti toimineet koiran ohjaajana sellaisissa jahdeissa, joissa näitä kokeita järjestetään omaavat riittävän kokemuksen nome a kokeiden järjestelytehtävissä. harrastavat metsästystä noutajan kanssa",
+                  "title": "Noutajien A - metsästyskoe"
+                },
+                {
+                  "html": "<p>Koulutus järjestetään rotujärjestöjen hyväksymän kurssiohjelman mukaisesti. Kurssin johtajan on täytettävä seuraavat vaatimukset:</p>\n<ul>\n<li>Taipumuskokeen tuomarikurssin johtajalta vaaditaan, että hän on toiminut sekä taipumus- että NOME B -kokeen ylituomarina.</li>\n<li>Working Testin tuomarikurssin johtajalta vaaditaan, että hän on toiminut Working Test - kokeen ylituomarina sekä joko NOME A tai NOME B kokeen ylituomarina.</li>\n<li>NOME B -kokeen tuomarikurssin johtajalta vaaditaan, että hän on toiminut NOME B -kokeen ylituomarina.</li>\n<li>NOME A -kokeen tuomarikurssin johtajalta vaaditaan, että hän on toiminut NOME A -kokeen ylituomarina.</li>\n</ul>\n",
+                  "id": "s-16-4",
+                  "level": 1,
+                  "number": "16.4",
+                  "text": "koulutus järjestetään rotujärjestöjen hyväksymän kurssiohjelman mukaisesti. kurssin johtajan on täytettävä seuraavat vaatimukset: taipumuskokeen tuomarikurssin johtajalta vaaditaan, että hän on toiminut sekä taipumus- että nome b -kokeen ylituomarina. working testin tuomarikurssin johtajalta vaaditaan, että hän on toiminut working test - kokeen ylituomarina sekä joko nome a tai nome b kokeen ylituomarina. nome b -kokeen tuomarikurssin johtajalta vaaditaan, että hän on toiminut nome b -kokeen ylituomarina. nome a -kokeen tuomarikurssin johtajalta vaaditaan, että hän on toiminut nome a -kokeen ylituomarina.",
+                  "title": "TUOMARIKOULUTUKSEN JÄRJESTÄMINEN"
+                },
+                {
+                  "html": "<p>Rotujärjestöjen ja rodunomaisten kokeiden tuomaritoimikunnan järjestämän karsintatilaisuuden yhteydessä arvioidaan hakijan kyky tulkita noutajan käyttäytymistä ja ominaisuuksia metsästyskäyttöä vastaavissa tilanteissa.</p>\n<p>Hakijoiden on suoritettava Kennelliiton järjestämä ylituomarikoulutus ennen varsinaisen koulutuksen aloittamista.</p>\n<p>Tuomaritoimikunta järjestää erikoiskoulutuksen, joka sisältää sekä teoriaosuuden että käytännön harjoitukset.</p>\n<p>Koearvosteluoikeuden saaminen edellyttää:</p>\n<ul>\n<li>hyväksyttyä suullista ja kirjallista kuulustelua</li>\n<li>maastossa tapahtuvan arvostelukokeen hyväksyttyä suorittamista</li>\n<li>Kokelaan on suoritettava kolme (3) hyväksyttyä harjoitusarvostelua vähintään kahdelle (2) eri tuomarille.</li>\n</ul>\n<p>Koearvostelut</p>\n<ul>\n<li>Kokelaan on suoritettava kolme (3) hyväksyttyä koearvostelua vähintään kahdelle (2) eri tuomarille.</li>\n<li>Koearvostelu voidaan hylätä, jos kokelaan antama tulos poikkeaa kahden (2) tai useamman koiran kohdalla arvostelevan tuomarin antamasta tuloksesta.</li>\n<li>Koearvostelu suoritetaan kirjallisena. Hyväksytty/hylätty-arvostelu merkitään pätevöimiskorttiin ja Kennelliiton koepöytäkirjaan.</li>\n<li>Koearvostelut on suoritettava viimeistään kahden (2) vuoden kuluessa erikoiskoulutuksen päättymisestä.</li>\n<li>Kokelaan tulee arvostella kaikki koetuomarin yhtenä päivänä arvostelemat koirat.</li>\n<li>Kokelaan tulee itse ottaa yhteyttä koearvostelua varten koetuomariin ja koetoimikuntaan.</li>\n<li>Koearvosteluoikeuden saamisesta tuomarikokelaan tulee ilmoittaa kirjallisesti koeluvan myöntäneelle kennelpiirille.</li>\n</ul>\n",
+                  "id": "s-16-5",
+                  "level": 1,
+                  "number": "16.5",
+                  "text": "rotujärjestöjen ja rodunomaisten kokeiden tuomaritoimikunnan järjestämän karsintatilaisuuden yhteydessä arvioidaan hakijan kyky tulkita noutajan käyttäytymistä ja ominaisuuksia metsästyskäyttöä vastaavissa tilanteissa. hakijoiden on suoritettava kennelliiton järjestämä ylituomarikoulutus ennen varsinaisen koulutuksen aloittamista. tuomaritoimikunta järjestää erikoiskoulutuksen, joka sisältää sekä teoriaosuuden että käytännön harjoitukset. koearvosteluoikeuden saaminen edellyttää: hyväksyttyä suullista ja kirjallista kuulustelua maastossa tapahtuvan arvostelukokeen hyväksyttyä suorittamista kokelaan on suoritettava kolme (3) hyväksyttyä harjoitusarvostelua vähintään kahdelle (2) eri tuomarille. koearvostelut kokelaan on suoritettava kolme (3) hyväksyttyä koearvostelua vähintään kahdelle (2) eri tuomarille. koearvostelu voidaan hylätä, jos kokelaan antama tulos poikkeaa kahden (2) tai useamman koiran kohdalla arvostelevan tuomarin antamasta tuloksesta. koearvostelu suoritetaan kirjallisena. hyväksytty/hylätty-arvostelu merkitään pätevöimiskorttiin ja kennelliiton koepöytäkirjaan. koearvostelut on suoritettava viimeistään kahden (2) vuoden kuluessa erikoiskoulutuksen päättymisestä. kokelaan tulee arvostella kaikki koetuomarin yhtenä päivänä arvostelemat koirat. kokelaan tulee itse ottaa yhteyttä koearvostelua varten koetuomariin ja koetoimikuntaan. koearvosteluoikeuden saamisesta tuomarikokelaan tulee ilmoittaa kirjallisesti koeluvan myöntäneelle kennelpiirille.",
+                  "title": "NOUTAJIEN TAIPUMUSKOE"
+                },
+                {
+                  "html": "<p>Rotujärjestöjen ja rodunomaisten kokeiden tuomaritoimikunnan järjestämän karsintatilaisuuden yhteydessä arvioidaan hakijan kyky tulkita noutajan käyttäytymistä ja ominaisuuksia käyttöä vastaavissa tilanteissa.</p>\n<p>Hakijoiden on suoritettava Kennelliiton järjestämä ylituomarikoulutus ennen varsinaisen koulutuksen aloittamista.</p>\n<p>Tuomaritoimikunta järjestää erikoiskoulutuksen, joka sisältää sekä teoriaosuuden että käytännön harjoitukset.</p>\n<p>Harjoitusarvostelut</p>\n<ul>\n<li>Kokelaan on tehtävä kolme (3) hyväksyttyä harjoitusarvostelua, kahdelle (2) eri tuomarille. Suoritettuaan harjoitusarvostelut hyväksytysti kokelas saa koearvosteluluvan.</li>\n<li>Harjoitusarvostelu on koulutustapahtuma ja vastaanottavan tuomarin on ohjattava kokelasta tilanteiden arvioinnissa.</li>\n</ul>\n<p>Koearvostelut</p>\n<ul>\n<li>Kokelaan on suoritettava kolme (3) hyväksyttyä koearvostelua vähintään kahdelle (2) eri tuomarille, niin että koiria kaikista luokista tulee arvostelluksi.</li>\n<li>Koearvostelut on suoritettava viimeistään kahden (2) vuoden kuluessa erikoiskoulutuksen päättymisestä.</li>\n<li>Koearvostelu hylätään, jos kokelaan arvostelu tuomarin mielestä poikkeaa merkittävästi hänen omasta arvostelustaan.</li>\n<li>Kokelaan tulee itse ottaa yhteyttä harjoitus- ja koearvostelua varten kokeen tuomariin ja koetoimikuntaan.</li>\n</ul>\n",
+                  "id": "s-16-6",
+                  "level": 1,
+                  "number": "16.6",
+                  "text": "rotujärjestöjen ja rodunomaisten kokeiden tuomaritoimikunnan järjestämän karsintatilaisuuden yhteydessä arvioidaan hakijan kyky tulkita noutajan käyttäytymistä ja ominaisuuksia käyttöä vastaavissa tilanteissa. hakijoiden on suoritettava kennelliiton järjestämä ylituomarikoulutus ennen varsinaisen koulutuksen aloittamista. tuomaritoimikunta järjestää erikoiskoulutuksen, joka sisältää sekä teoriaosuuden että käytännön harjoitukset. harjoitusarvostelut kokelaan on tehtävä kolme (3) hyväksyttyä harjoitusarvostelua, kahdelle (2) eri tuomarille. suoritettuaan harjoitusarvostelut hyväksytysti kokelas saa koearvosteluluvan. harjoitusarvostelu on koulutustapahtuma ja vastaanottavan tuomarin on ohjattava kokelasta tilanteiden arvioinnissa. koearvostelut kokelaan on suoritettava kolme (3) hyväksyttyä koearvostelua vähintään kahdelle (2) eri tuomarille, niin että koiria kaikista luokista tulee arvostelluksi. koearvostelut on suoritettava viimeistään kahden (2) vuoden kuluessa erikoiskoulutuksen päättymisestä. koearvostelu hylätään, jos kokelaan arvostelu tuomarin mielestä poikkeaa merkittävästi hänen omasta arvostelustaan. kokelaan tulee itse ottaa yhteyttä harjoitus- ja koearvostelua varten kokeen tuomariin ja koetoimikuntaan.",
+                  "title": "NOUTAJIEN WORKING TEST"
+                },
+                {
+                  "html": "<p>Tuomaritoimikunnan järjestämä erikoiskoulutus sisältää sekä teoriaosuuden että käytännön harjoituksia.</p>\n<p>Kurssin läpäiseminen edellyttää suullisen ja kirjallisen kuulustelun hyväksyttyä suorittamista Harjoitus- ja koearvostelut Koearvostelut suoritetaan kirjallisina. Hyväksytty/hylätty harjoitus- ja koearvostelu merkitään pätevöimiskorttiin ja Kennelliiton koepöytäkirjaan.</p>\n<p>Kokelaan tulee itse ottaa yhteyttä harjoitus- ja koearvostelua varten kokeen tuomariin ja koetoimikuntaan.</p>\n<ul>\n<li>Kokelaan tulee arvostella kaikki koetuomarin yhtenä päivänä arvostelemat koirat. Tuomarilla saa olla yksi harjoitus- tai koearvostelija kerrallaan.</li>\n</ul>\n<p>Harjoitusarvostelut</p>\n<p>Kokelaan on tehtävä kolme (3) hyväksyttyä harjoitusarvostelua, yksi (1) jokaisessa luokassa ja vähintään kahdelle (2) eri tuomarille. Suoritettuaan kaikki harjoitusarvostelut hyväksytysti kokelas saa koearvosteluluvan.</p>\n<ul>\n<li>Harjoitusarvostelu on koulutustapahtuma ja vastaanottavan tuomarin on ohjattava kokelasta tilanteiden arvioinnissa.</li>\n<li>Arvosteltavia koiria tulee olla vähintään kahdeksan (8) jokaisessa luokassa.</li>\n<li>Tarvittaessa kokelaalle voidaan määrätä lisäkoulutusta, jonka määrä ja laatu sovitaan kurssin pääkouluttajan kanssa.</li>\n</ul>\n<p>Koearvostelut</p>\n<ul>\n<li>Kokelaan on suoritettava kolme (3) hyväksyttyä koearvostelua, yksi (1) jokaisessa luokassa ja vähintään kahdelle (2) eri tuomarille.</li>\n<li>Koearvostelut on suoritettava viimeistään kahden (2) vuoden kuluessa erikoiskoulutuksen päättymisestä.</li>\n<li>Koearvostelu voidaan hylätä, jos kokelaan antama tulos poikkeaa kahden (2) tai useamman koiran kohdalla arvostelevan tuomarin tuloksesta.</li>\n</ul>\n",
+                  "id": "s-16-7",
+                  "level": 1,
+                  "number": "16.7",
+                  "text": "tuomaritoimikunnan järjestämä erikoiskoulutus sisältää sekä teoriaosuuden että käytännön harjoituksia. kurssin läpäiseminen edellyttää suullisen ja kirjallisen kuulustelun hyväksyttyä suorittamista harjoitus- ja koearvostelut koearvostelut suoritetaan kirjallisina. hyväksytty/hylätty harjoitus- ja koearvostelu merkitään pätevöimiskorttiin ja kennelliiton koepöytäkirjaan. kokelaan tulee itse ottaa yhteyttä harjoitus- ja koearvostelua varten kokeen tuomariin ja koetoimikuntaan. kokelaan tulee arvostella kaikki koetuomarin yhtenä päivänä arvostelemat koirat. tuomarilla saa olla yksi harjoitus- tai koearvostelija kerrallaan. harjoitusarvostelut kokelaan on tehtävä kolme (3) hyväksyttyä harjoitusarvostelua, yksi (1) jokaisessa luokassa ja vähintään kahdelle (2) eri tuomarille. suoritettuaan kaikki harjoitusarvostelut hyväksytysti kokelas saa koearvosteluluvan. harjoitusarvostelu on koulutustapahtuma ja vastaanottavan tuomarin on ohjattava kokelasta tilanteiden arvioinnissa. arvosteltavia koiria tulee olla vähintään kahdeksan (8) jokaisessa luokassa. tarvittaessa kokelaalle voidaan määrätä lisäkoulutusta, jonka määrä ja laatu sovitaan kurssin pääkouluttajan kanssa. koearvostelut kokelaan on suoritettava kolme (3) hyväksyttyä koearvostelua, yksi (1) jokaisessa luokassa ja vähintään kahdelle (2) eri tuomarille. koearvostelut on suoritettava viimeistään kahden (2) vuoden kuluessa erikoiskoulutuksen päättymisestä. koearvostelu voidaan hylätä, jos kokelaan antama tulos poikkeaa kahden (2) tai useamman koiran kohdalla arvostelevan tuomarin tuloksesta.",
+                  "title": "NOUTAJIEN B-METSÄSTYSKOE"
+                },
+                {
+                  "html": "<p>Tuomaritoimikunnan järjestämä erikoiskoulutus sisältää sekä teoriaosuuden että käytännön harjoituksia.</p>\n<p>Kurssin läpäiseminen edellyttää suullisen ja kirjallisen kuulustelun hyväksyttyä suorittamista.</p>\n<p>Harjoitus- ja koearvostelut</p>\n<p>Koearvostelut suoritetaan kirjallisina. Hyväksytty/hylätty harjoitus- ja koearvostelu merkitään pätevöimiskorttiin ja Kennelliiton koepöytäkirjaan.</p>\n<p>Kokelaan tulee itse ottaa yhteyttä harjoitus- ja koearvostelua varten kokeen tuomariin ja koetoimikuntaan.</p>\n<p>Kokelaan tulee arvostella kaikki koetuomarin yhtenä päivänä arvostelemat koirat. Tuomarilla saa olla yksi harjoitus tai koearvostelija kerrallaan.</p>\n<p>Harjoitusarvostelut</p>\n<ul>\n<li>Kokelaan on tehtävä kaksi (2) hyväksyttyä harjoitusarvostelua ja vähintään kahdelle (2) eri tuomarille.</li>\n<li>Suoritettuaan kaikki harjoitusarvostelut hyväksytysti kokelas saa koearvosteluluvan.</li>\n<li>Harjoitusarvostelu on koulutustapahtuma ja vastaanottavan tuomarin on ohjattava kokelasta tilanteiden arvioinnissa.</li>\n<li>Arvosteltavia koiria tulee olla vähintään kahdeksan (8).</li>\n<li>Tarvittaessa kokelaalle voidaan määrätä lisäkoulutusta, jonka määrä ja laatu sovitaan kurssin pääkouluttajan kanssa.</li>\n</ul>\n<p>Koearvostelut</p>\n<ul>\n<li>Kokelaan on suoritettava kaksi (2) hyväksyttyä koearvostelua ja vähintään kahdelle (2) eri tuomarille.</li>\n<li>Koearvostelut on suoritettava viimeistään kahden (2) vuoden kuluessa erikoiskoulutuksen päättymisestä.</li>\n<li>Koearvostelu voidaan hylätä, jos kokelaan antama tulos poikkeaa kahden (2) tai useamman koiran kohdalla arvostelevan tuomarin tuloksesta.</li>\n</ul>\n",
+                  "id": "s-16-8",
+                  "level": 1,
+                  "number": "16.8",
+                  "text": "tuomaritoimikunnan järjestämä erikoiskoulutus sisältää sekä teoriaosuuden että käytännön harjoituksia. kurssin läpäiseminen edellyttää suullisen ja kirjallisen kuulustelun hyväksyttyä suorittamista. harjoitus- ja koearvostelut koearvostelut suoritetaan kirjallisina. hyväksytty/hylätty harjoitus- ja koearvostelu merkitään pätevöimiskorttiin ja kennelliiton koepöytäkirjaan. kokelaan tulee itse ottaa yhteyttä harjoitus- ja koearvostelua varten kokeen tuomariin ja koetoimikuntaan. kokelaan tulee arvostella kaikki koetuomarin yhtenä päivänä arvostelemat koirat. tuomarilla saa olla yksi harjoitus tai koearvostelija kerrallaan. harjoitusarvostelut kokelaan on tehtävä kaksi (2) hyväksyttyä harjoitusarvostelua ja vähintään kahdelle (2) eri tuomarille. suoritettuaan kaikki harjoitusarvostelut hyväksytysti kokelas saa koearvosteluluvan. harjoitusarvostelu on koulutustapahtuma ja vastaanottavan tuomarin on ohjattava kokelasta tilanteiden arvioinnissa. arvosteltavia koiria tulee olla vähintään kahdeksan (8). tarvittaessa kokelaalle voidaan määrätä lisäkoulutusta, jonka määrä ja laatu sovitaan kurssin pääkouluttajan kanssa. koearvostelut kokelaan on suoritettava kaksi (2) hyväksyttyä koearvostelua ja vähintään kahdelle (2) eri tuomarille. koearvostelut on suoritettava viimeistään kahden (2) vuoden kuluessa erikoiskoulutuksen päättymisestä. koearvostelu voidaan hylätä, jos kokelaan antama tulos poikkeaa kahden (2) tai useamman koiran kohdalla arvostelevan tuomarin tuloksesta.",
+                  "title": "NOUTAJIEN NOME A-METSÄSTYSKOE"
+                },
+                {
+                  "html": "<p>FCI-tuomariksi ei ole yleistä hakumenettelyä, vaan siihen voivat A-metsästyskoetuomarit ilmoittaa halukkuutensa. Tuomaritoimikunta arvioi A-metsästyskoetuomarin pätevyyden edetä FCI- tuomariksi. A-metsästyskoetuomari voi pätevöityä FCI-tuomariksi hankittuaan riittävän osaamisen A-kokeiden arvostelusta ja saatuaan kaksi (2) suositusta ulkomaalaiselta FCI-tuomarilta.</p>\n",
+                  "id": "s-16-9",
+                  "level": 1,
+                  "number": "16.9",
+                  "text": "fci-tuomariksi ei ole yleistä hakumenettelyä, vaan siihen voivat a-metsästyskoetuomarit ilmoittaa halukkuutensa. tuomaritoimikunta arvioi a-metsästyskoetuomarin pätevyyden edetä fci- tuomariksi. a-metsästyskoetuomari voi pätevöityä fci-tuomariksi hankittuaan riittävän osaamisen a-kokeiden arvostelusta ja saatuaan kaksi (2) suositusta ulkomaalaiselta fci-tuomarilta.",
+                  "title": "KV-KOE"
+                },
+                {
+                  "html": "<p>NKM-tuomariksi ei ole yleistä hakumenettelyä, vaan siihen voi A tai B-metsästyskoetuomari ilmoittaa halukkuutensa tuomaritoimikunnalle. Kennelliitto myöntää NKM-tuomarointioikeuden samassa yhteydessä, kun tuomari pätevöityy A tai B metsästyskoetuomariksi. Ennen NKM arvostelujen aloittamista tuomarilla on oltava lajistaan kahden vuoden arvostelukokemus ja tuomarin tulee tehdä harjoitusarvostelu kokeneemman tuomarin ohjauksessa.</p>\n",
+                  "id": "s-16-10",
+                  "level": 1,
+                  "number": "16.10",
+                  "text": "nkm-tuomariksi ei ole yleistä hakumenettelyä, vaan siihen voi a tai b-metsästyskoetuomari ilmoittaa halukkuutensa tuomaritoimikunnalle. kennelliitto myöntää nkm-tuomarointioikeuden samassa yhteydessä, kun tuomari pätevöityy a tai b metsästyskoetuomariksi. ennen nkm arvostelujen aloittamista tuomarilla on oltava lajistaan kahden vuoden arvostelukokemus ja tuomarin tulee tehdä harjoitusarvostelu kokeneemman tuomarin ohjauksessa.",
+                  "title": "NKM-KOE"
+                },
+                {
+                  "html": "<p>Mock trial -tuomariksi ei ole yleistä hakumenettelyä. A-metsästyskoetuomareilla on oikeus arvostella mock trial kokeita ilman eri vaatimuksia. NOWT tuomari voi ilmoittaa halukkuutensa koemuodon arvosteluun tuomaritoimikunnalle. Ennen mock trial arvostelujen aloittamista tuomarilla on oltava lajistaan kahden vuoden arvostelukokemus, omata riittävä kokemus NOME A - koemuodosta ja tuomarin tulee tehdä harjoitusarvostelu mock trial tuomarille.</p>\n",
+                  "id": "s-16-11",
+                  "level": 1,
+                  "number": "16.11",
+                  "text": "mock trial -tuomariksi ei ole yleistä hakumenettelyä. a-metsästyskoetuomareilla on oikeus arvostella mock trial kokeita ilman eri vaatimuksia. nowt tuomari voi ilmoittaa halukkuutensa koemuodon arvosteluun tuomaritoimikunnalle. ennen mock trial arvostelujen aloittamista tuomarilla on oltava lajistaan kahden vuoden arvostelukokemus, omata riittävä kokemus nome a - koemuodosta ja tuomarin tulee tehdä harjoitusarvostelu mock trial tuomarille.",
+                  "title": "MOCK TRIAL"
+                },
+                {
+                  "html": "<p>Täydennyskoulutusta järjestetään tarvittaessa ja siitä vastaa tuomaritoimikunta, joka ylläpitää rekisteriä koulutukseen osallistuneista.</p>\n",
+                  "id": "s-16-12",
+                  "level": 1,
+                  "number": "16.12",
+                  "text": "täydennyskoulutusta järjestetään tarvittaessa ja siitä vastaa tuomaritoimikunta, joka ylläpitää rekisteriä koulutukseen osallistuneista.",
+                  "title": "TÄYDENNYSKOULUTUS"
+                },
+                {
+                  "html": "<p>Tuomarin on säilyttääkseen yli- tai arvostelutuomarioikeudet:</p>\n<ul>\n<li>täytettävä yleiset ylituomareita koskevat Kennelliiton vaatimukset</li>\n<li>pysyttävä ajan tasalla tuomaritehtävien hoidossa</li>\n<li>osallistuttava tuomareille suunnattuun täydennyskoulutukseen</li>\n<li>arvosteltava vähintään kerran kolmessa vuodessa</li>\n</ul>\n<p>Rotujärjestöjen tuomaritoimikunnan esityksestä Kennelliitto voi evätä tuomarilta arvosteluoikeuden, kunnes hän on hyväksyttävästi suorittanut yhden (1) hyväksytyn koearvostelun kyseisessä koemuodossa.</p>\n<p>............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ...............................................................................................</p>\n",
+                  "id": "s-16-13",
+                  "level": 1,
+                  "number": "16.13",
+                  "text": "tuomarin on säilyttääkseen yli- tai arvostelutuomarioikeudet: täytettävä yleiset ylituomareita koskevat kennelliiton vaatimukset pysyttävä ajan tasalla tuomaritehtävien hoidossa osallistuttava tuomareille suunnattuun täydennyskoulutukseen arvosteltava vähintään kerran kolmessa vuodessa rotujärjestöjen tuomaritoimikunnan esityksestä kennelliitto voi evätä tuomarilta arvosteluoikeuden, kunnes hän on hyväksyttävästi suorittanut yhden (1) hyväksytyn koearvostelun kyseisessä koemuodossa. ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ............................................................................................... ...............................................................................................",
+                  "title": "ARVOSTELU- TAI YLITUOMARIOIKEUKSIEN PERUUTTAMINEN"
+                }
+              ],
+              "title": "KOETUOMAREIDEN KOULUTUS JA PÄTEVÖINTIOHJE"
+            }
+          ],
+          "number": "OSA 4",
+          "title": "TOIMINTAOHJEET",
+          "intro": "<p>Hyväksytty noutajien yhteistyötoimikunnassa 2022</p>\n<p>Voimassa 1.4.2023 alkaen.</p>\n"
+        }
+      ],
+      "path": "saannot/noutajien-kokeet",
+      "source": "https://www.kennelliitto.fi/lomakkeet/noutajien-rodunomaisten-kokeiden-saannot",
+      "title": "Noutajien rodunomaisten kokeiden säännöt ja ohjeet"
+    }
+  ],
+}

@@ -124,6 +124,16 @@
       "secretary": "For trial secretaries"
     },
     "notFound": "Guide not found",
+    "rules": "Rules",
+    "rulesAmended": "Includes the amendments in force from {{amended, date}}.",
+    "rulesCount_one": "{{count}} section",
+    "rulesCount_other": "{{count}} sections",
+    "rulesEdition": "In force from {{edition, date}}.",
+    "rulesNoMatch": "No section matches the search.",
+    "rulesNotice": "The Kennel Club's text in Finnish, extracted from the official PDF by machine: hyphenation and paragraphs were put back together. Where they differ, the official PDF prevails.",
+    "rulesSearch": "Search the rules",
+    "rulesSource": "Official PDF",
+    "rulesToc": "Contents",
     "title": "Guides",
     "version": "Version {{version}}",
     "whatsNew": "What's new in Koekalenteri"

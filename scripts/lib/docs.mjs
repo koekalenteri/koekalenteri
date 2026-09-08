@@ -297,6 +297,111 @@ const readReleaseNote = async (file, screenshots) => {
   return { ...document, date: data.date, version }
 }
 
+/** The Kennel Club's rules live under this path: extracted, not written, and Finnish only. */
+const RULES_PATH = 'saannot'
+const isRules = (file) => pageIdentity(file).path.startsWith(`${RULES_PATH}/`)
+
+const RULES_HEADING = /^(#{2,5}) (.+)$/
+const RULES_NUMBER = /^(\d+(?:\.\d+)+) (.+)$/
+
+const stripTags = (html) =>
+  html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+/**
+ * A rules document: `docs/fi/saannot/<slug>.md`, written by `scripts/build-rules.mjs` from the
+ * Kennel Club's PDF and never by hand. Its frontmatter dates the rules, not the application, and
+ * its body is read as parts (`##`), chapters (`###`) and numbered sections (`####`, `#####`), each
+ * section rendered on its own so the page can search and link them (KOE-1399).
+ */
+const readRulesDocument = async (file, screenshots) => {
+  const { language, path } = pageIdentity(file)
+  const { body, data, frontmatterLines } = parseFrontmatter(readFileSync(file, 'utf8'), file)
+  for (const required of ['title', 'edition', 'source']) {
+    if (!data[required]) throw new Error(`${file}: frontmatter is missing ${required}`)
+  }
+
+  const parts = []
+  let part
+  let chapter
+  let section
+  let buffer = []
+
+  const flush = async () => {
+    const markdown = buffer.join('\n').trim()
+    buffer = []
+    if (!markdown) return
+    const { html, shots } = await renderBody(markdown, language, file, screenshots)
+    if (shots.length) throw new Error(`${file}: the rules carry no pictures`)
+    const text = html.join('')
+    if (section) {
+      section.html = text
+      section.text = stripTags(text).toLowerCase()
+    } else if (chapter) {
+      chapter.intro = text
+    } else if (part) {
+      part.intro = text
+    } else {
+      throw new Error(`${file}: text before the first part heading`)
+    }
+  }
+
+  for (const line of body.split('\n')) {
+    const heading = RULES_HEADING.exec(line)
+    if (!heading) {
+      buffer.push(line)
+      continue
+    }
+    await flush()
+    const level = heading[1].length
+    const text = heading[2].trim()
+    if (level === 2) {
+      const [number, title] = text.split(/:\s+/, 2)
+      part = { chapters: [], number, title: title ?? text }
+      parts.push(part)
+      chapter = undefined
+      section = undefined
+    } else if (level === 3) {
+      if (!part) throw new Error(`${file}: chapter "${text}" before any part`)
+      chapter = { id: `c-${parts.length}-${part.chapters.length + 1}`, sections: [], title: text }
+      part.chapters.push(chapter)
+      section = undefined
+    } else {
+      const numbered = RULES_NUMBER.exec(text)
+      if (!numbered) throw new Error(`${file}: section heading "${text}" has no number`)
+      if (!chapter) throw new Error(`${file}: section ${numbered[1]} before any chapter`)
+      section = {
+        html: '',
+        id: `s-${numbered[1].replaceAll('.', '-')}`,
+        level: level - 3,
+        number: numbered[1],
+        text: '',
+        title: numbered[2],
+      }
+      chapter.sections.push(section)
+    }
+  }
+  await flush()
+
+  return {
+    ...(data.amended ? { amended: data.amended } : {}),
+    approved: data.approved,
+    body,
+    edition: data.edition,
+    file,
+    frontmatterLines,
+    language,
+    parts,
+    path,
+    source: data.source,
+    title: data.title,
+  }
+}
+
 /** Newest first: numeric per segment, so 1.11.10 is newer than 1.11.9. */
 const compareVersionsDesc = (a, b) => {
   const as = a.split('.').map(Number)
@@ -314,14 +419,21 @@ export const loadPages = async () => {
   const screenshots = indexScreenshots()
   const byLanguage = {}
   const notesByLanguage = {}
+  const rulesByLanguage = {}
   const pages = []
   const notes = []
+  const rules = []
   for (const file of markdownFiles()) {
     if (isReleaseNote(file)) {
       const note = await readReleaseNote(file, screenshots)
       notesByLanguage[note.language] ??= []
       notesByLanguage[note.language].push(note)
       notes.push(note)
+    } else if (isRules(file)) {
+      const document = await readRulesDocument(file, screenshots)
+      rulesByLanguage[document.language] ??= []
+      rulesByLanguage[document.language].push(document)
+      rules.push(document)
     } else {
       const page = await readPage(file, screenshots)
       byLanguage[page.language] ??= []
@@ -330,7 +442,7 @@ export const loadPages = async () => {
     }
   }
 
-  return { byLanguage, documents: [...pages, ...notes], notes, notesByLanguage, pages }
+  return { byLanguage, documents: [...pages, ...notes, ...rules], notes, notesByLanguage, pages, rules, rulesByLanguage }
 }
 
 /**
@@ -441,7 +553,7 @@ export const relativeLinkTarget = (page, target) => resolve(dirname(page.file), 
 const escapeHtml = (text) =>
   text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 
-export const render = ({ byLanguage, notesByLanguage }) => {
+export const render = ({ byLanguage, notesByLanguage, rulesByLanguage }) => {
   const languages = Object.keys(byLanguage).sort()
   // One import per picture, however many pages show it; the bundler hands back its URL.
   const imports = new Map()
@@ -506,6 +618,25 @@ export const render = ({ byLanguage, notesByLanguage }) => {
     })
     .join('\n')
 
+  // The rules are data, not html to splice: JSON, indented the way the rest of the module is.
+  const rules = Object.keys(rulesByLanguage)
+    .sort()
+    .map((language) => {
+      const documents = rulesByLanguage[language].map(
+        ({ amended, approved, edition, parts, path, source, title }) => ({
+          ...(amended ? { amended } : {}),
+          approved,
+          edition,
+          parts,
+          path,
+          source,
+          title,
+        })
+      )
+      return `  ${language}: ${JSON.stringify(documents, null, 2).replaceAll('\n', '\n  ')},`
+    })
+    .join('\n')
+
   const importLines = [...imports]
     .map(([file, name]) => `import ${name} from ${JSON.stringify(relative('src/generated/docs', file))}`)
     .join('\n')
@@ -541,6 +672,53 @@ export interface ReleaseNote {
 /** Newest first. */
 export const releaseNotes: Readonly<Record<string, readonly ReleaseNote[]>> = {
 ${notes}
+}
+
+export interface RulesSection {
+  /** Rendered from the extracted markdown at build time; it is the Kennel Club's text, not user input. */
+  readonly html: string
+  /** \`s-4-4\` for §4.4: the anchor the application links to. */
+  readonly id: string
+  /** 1 for a section (§4.4), 2 for a subsection (§4.2.1). */
+  readonly level: number
+  readonly number: string
+  /** The section's words, lowercased, for the page's search. */
+  readonly text: string
+  readonly title: string
+}
+
+interface RulesChapter {
+  readonly id: string
+  readonly intro?: string
+  readonly sections: readonly RulesSection[]
+  readonly title: string
+}
+
+export interface RulesPart {
+  readonly chapters: readonly RulesChapter[]
+  readonly intro?: string
+  /** "OSA 1" */
+  readonly number: string
+  readonly title: string
+}
+
+export interface RulesDocument {
+  /** The date of the newest amendment the text carries, when it is newer than the edition. */
+  readonly amended?: string
+  readonly approved?: string
+  /** The date the edition came into force, yyyy-mm-dd: the document's version, not the application's. */
+  readonly edition: string
+  readonly parts: readonly RulesPart[]
+  /** Path under /ohjeet. */
+  readonly path: string
+  /** The official document this was extracted from. */
+  readonly source: string
+  readonly title: string
+}
+
+/** The rules exist in Finnish only; a reader of another language gets the Finnish text. */
+export const rules: Readonly<Record<string, readonly RulesDocument[]>> = {
+${rules}
 }
 `
 }

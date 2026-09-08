@@ -79,6 +79,15 @@ frontmatter is only the `date` (and `sourceHash` in the translation); the versio
   with a `TODO` line at the top; the notes are done when the `TODO` is gone and the English
   `sourceHash` is renewed. A version bump without its notes does not pass `npm run check-docs`.
 
+## The rules
+
+`docs/fi/saannot/` is the Kennel Club's own text, extracted from its PDF by
+`npm run build-rules` and never edited by hand: a wrong word there is a bug in the extraction
+or in the PDF, not something to fix in the markdown. The frontmatter dates the rules edition,
+not the application. There is no English text and none is written; the English index links
+to the Finnish page. Guides and code link to a section by its anchor, `/ohjeet/saannot/<slug>#s-4-4`
+for §4.4, rather than quoting it.
+
 ## Commands
 
 | Command | What it does |
@@ -88,3 +97,4 @@ frontmatter is only the `date` (and `sourceHash` in the translation); the versio
 | `npm run docs-coverage -- --staged` | which pages a staged change concerns; pre-commit prints it as a hint |
 | `npm run docs-update -- --since v1.11.2` | the release brief: pages, commits, issues; `--run` starts the session |
 | `npm run release-notes -- v1.11.3` | drafts `docs/<language>/uutta/1.11.3.md` in both languages from the commits |
+| `npm run build-rules` | extracts `docs/fi/saannot/noutajien-kokeet.md` from `docs/sources/*.pdf`; rerun for a new edition |

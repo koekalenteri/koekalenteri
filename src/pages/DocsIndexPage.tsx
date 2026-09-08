@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink } from 'react-router'
 import { HEADER_HEIGHT } from '../assets/Theme'
-import { docsPagesFor } from '../lib/client/docs'
+import { docsPagesFor, rulesFor } from '../lib/client/docs'
 import { Path } from '../routeConfig'
 import Header from './components/Header'
 
@@ -17,6 +17,7 @@ const AUDIENCES: DocsAudience[] = ['participant', 'secretary', 'admin']
 export const DocsIndexPage = () => {
   const { i18n, t } = useTranslation()
   const pages = docsPagesFor(i18n.language)
+  const rules = rulesFor(i18n.language)
 
   return (
     <>
@@ -50,6 +51,22 @@ export const DocsIndexPage = () => {
               </Box>
             )
           })}
+          {rules.length > 0 && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" component="h2">
+                {t('docs.rules')}
+              </Typography>
+              <List dense>
+                {rules.map((document) => (
+                  <ListItem key={document.path} disableGutters>
+                    <Link component={RouterLink} to={Path.docsPage(document.path)} variant="body1">
+                      {document.title}
+                    </Link>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          )}
         </Box>
       </Box>
     </>

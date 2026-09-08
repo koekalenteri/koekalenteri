@@ -4,15 +4,19 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink, useParams } from 'react-router'
 import { HEADER_HEIGHT } from '../assets/Theme'
-import { docsPageFor } from '../lib/client/docs'
+import { docsPageFor, rulesDocumentFor } from '../lib/client/docs'
 import { Path } from '../routeConfig'
 import { DocsBody } from './components/DocsBody'
 import Header from './components/Header'
+import { RulesBody } from './components/RulesBody'
 
 export const DocsPage = () => {
   const { i18n, t } = useTranslation()
   const params = useParams()
-  const page = docsPageFor(i18n.language, params['*'] ?? '')
+  const path = params['*'] ?? ''
+  const page = docsPageFor(i18n.language, path)
+  const rules = page ? undefined : rulesDocumentFor(i18n.language, path)
+  const title = page?.title ?? rules?.title
 
   return (
     <>
@@ -25,18 +29,17 @@ export const DocsPage = () => {
           <Link component={RouterLink} to={Path.docs} variant="body2" sx={{ mb: 1 }}>
             {t('docs.title')}
           </Link>
-          {page ? (
-            <>
-              <Typography variant="h4" component="h1">
-                {page.title}
-              </Typography>
-              <DocsBody html={page.html} />
-            </>
+          {title ? (
+            <Typography variant="h4" component="h1">
+              {title}
+            </Typography>
           ) : (
             <Typography variant="h6" component="h1">
               {t('docs.notFound')}
             </Typography>
           )}
+          {page ? <DocsBody html={page.html} /> : null}
+          {rules ? <RulesBody document={rules} /> : null}
         </Box>
       </Box>
     </>

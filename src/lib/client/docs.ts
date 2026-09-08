@@ -1,5 +1,5 @@
-import type { DocsPage, ReleaseNote } from '../../generated/docs'
-import { docsPages, releaseNotes } from '../../generated/docs'
+import type { DocsPage, ReleaseNote, RulesDocument } from '../../generated/docs'
+import { docsPages, releaseNotes, rules } from '../../generated/docs'
 
 /** The language the pages are written in, and what a reader gets when theirs has none. */
 const FALLBACK_LANGUAGE = 'fi'
@@ -19,3 +19,9 @@ export const docsPageFor = (language: string, path: string): DocsPage | undefine
 
 /** The release notes for a reader's language, newest first. */
 export const releaseNotesFor = (language: string): readonly ReleaseNote[] => forLanguage(releaseNotes, language)
+
+/** The rules documents; they exist in Finnish only, so every language gets those. */
+export const rulesFor = (language: string): readonly RulesDocument[] => forLanguage(rules, language)
+
+export const rulesDocumentFor = (language: string, path: string): RulesDocument | undefined =>
+  rulesFor(language).find((document) => document.path === path)

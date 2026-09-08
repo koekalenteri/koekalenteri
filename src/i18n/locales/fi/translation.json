@@ -124,6 +124,16 @@
       "secretary": "Koesihteerille"
     },
     "notFound": "Ohjetta ei löytynyt",
+    "rules": "Säännöt",
+    "rulesAmended": "Sisältää {{amended, date}} voimaan tulleet muutokset.",
+    "rulesCount_one": "{{count}} pykälä",
+    "rulesCount_other": "{{count}} pykälää",
+    "rulesEdition": "Voimassa {{edition, date}} alkaen.",
+    "rulesNoMatch": "Yksikään pykälä ei vastaa hakua.",
+    "rulesNotice": "Kennelliiton teksti, poimittu virallisesta PDF:stä koneellisesti: tavutus ja kappalejaot on koottu uudelleen. Ristiriitatilanteessa virallinen PDF ratkaisee.",
+    "rulesSearch": "Hae säännöistä",
+    "rulesSource": "Virallinen PDF",
+    "rulesToc": "Sisällys",
     "title": "Ohjeet",
     "version": "Versio {{version}}",
     "whatsNew": "Uutta koekalenterissa"

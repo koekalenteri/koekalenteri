@@ -1,4 +1,4 @@
-import { docsPageFor, docsPagesFor, releaseNotesFor } from './docs'
+import { docsPageFor, docsPagesFor, releaseNotesFor, rulesDocumentFor, rulesFor } from './docs'
 
 describe('docs', () => {
   describe('docsPagesFor', () => {
@@ -37,6 +37,23 @@ describe('docs', () => {
 
     it('falls back to Finnish for a language with no notes', () => {
       expect(releaseNotesFor('sv')).toEqual(releaseNotesFor('fi'))
+    })
+  })
+
+  describe('rulesFor', () => {
+    // The Kennel Club's rules exist in Finnish only, so every language gets the Finnish text.
+    it('gives every language the Finnish rules', () => {
+      expect(rulesFor('en')).toEqual(rulesFor('fi'))
+      expect(rulesFor('fi').map((document) => document.path)).toEqual(['saannot/noutajien-kokeet'])
+    })
+
+    it('finds a section by the number the application links to', () => {
+      const document = rulesDocumentFor('fi', 'saannot/noutajien-kokeet')
+      const sections = document?.parts.flatMap((part) => part.chapters.flatMap((chapter) => chapter.sections)) ?? []
+      const prizes = sections.find((section) => section.id === 's-4-4')
+      expect(prizes?.title).toBe('PALKITSEMINEN')
+      expect(prizes?.html).toContain('nolla (0)')
+      expect(sections).toHaveLength(130)
     })
   })
 

@@ -27,6 +27,17 @@ describe('DocsIndexPage', () => {
     )
   })
 
+  it('lists the rules after the guides', async () => {
+    render(<DocsIndexPage />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByRole('heading', { name: 'docs.rules' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Noutajien rodunomaisten kokeiden säännöt ja ohjeet' })).toHaveAttribute(
+      'href',
+      '/ohjeet/saannot/noutajien-kokeet'
+    )
+  })
+
   // Nothing is written for the other audiences yet, and an empty heading would only puzzle a reader.
   it('leaves out an audience that has no pages', async () => {
     render(<DocsIndexPage />, { wrapper: Wrapper })
