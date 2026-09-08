@@ -65,7 +65,7 @@ vi.doMock('../utils/proxyEvent', () => ({
 
 vi.doMock('../lib/paytrail', () => ({
   PaytrailError: MockPaytrailError,
-  refundPayment: mockRefundPayment,
+  paytrail: { refundPayment: mockRefundPayment },
 }))
 
 vi.doMock('../lib/event', () => ({

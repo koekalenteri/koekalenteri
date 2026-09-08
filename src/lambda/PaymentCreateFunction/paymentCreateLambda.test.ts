@@ -49,8 +49,8 @@ vi.doMock('../lib/event', () => ({
 }))
 
 vi.doMock('../lib/paytrail', () => ({
-  createPayment: mockCreatePayment,
   PaytrailError: MockPaytrailError,
+  paytrail: { createPayment: mockCreatePayment },
 }))
 
 vi.doMock('../lib/payment', () => ({

@@ -5,7 +5,9 @@ export type PaytrailConfig = {
   PAYTRAIL_SECRET: string
 }
 
-export interface PaytrailHeaders {
+// A type rather than an interface: calculateHmac takes any record of checkout- values -- request
+// headers here, callback parameters there -- and an interface has no implicit index signature.
+export type PaytrailHeaders = {
   /**
    * Paytrail account ID, e.g. 375917
    * NB: This needs to be always the "Aggregate" or "Main" merchant ID

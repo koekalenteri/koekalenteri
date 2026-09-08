@@ -25,7 +25,7 @@ import {
   releaseTransactionCreation,
   updateTransactionStatus,
 } from '../lib/payment'
-import { createPayment, PaytrailError } from '../lib/paytrail'
+import { PaytrailError, paytrail } from '../lib/paytrail'
 import { authorizeRegistrationEdit, getRegistration } from '../lib/registration'
 import { validateBody } from '../lib/request'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -158,7 +158,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   let result: CreatePaymentResponse | undefined | null
   try {
-    result = await createPayment({
+    result = await paytrail.createPayment({
       amount,
       apiHost: getApiHost(event),
       customer,

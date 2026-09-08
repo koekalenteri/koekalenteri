@@ -17,7 +17,7 @@ import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { claimTransactionCreation, formatPaytrailErrorMessage, releaseTransactionCreation } from '../lib/payment'
-import { PaytrailError, refundPayment } from '../lib/paytrail'
+import { PaytrailError, paytrail } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
@@ -97,7 +97,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
 
   let result: RefundPaymentResponse | undefined
   try {
-    result = await refundPayment(
+    result = await paytrail.refundPayment(
       getApiHost(event),
       transactionId,
       reference,

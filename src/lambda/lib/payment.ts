@@ -8,7 +8,6 @@ import type {
 } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import type { PaytrailError } from './paytrail'
-import { timingSafeEqual } from 'node:crypto'
 import { getFixedT } from '../../i18n/lambda'
 import { localizedEventName } from '../../lib/event'
 import { CONFIG } from '../config'
@@ -17,9 +16,8 @@ import { audit, registrationAuditKey } from './audit'
 import { getEvent } from './event'
 import { LambdaError } from './lambda'
 import { logger } from './log'
-import { calculateHmac, getPayment, HMAC_KEY_PREFIX, parsePaytrailErrorMessage } from './paytrail'
+import { parsePaytrailErrorMessage, paytrail } from './paytrail'
 import { getRegistration } from './registration'
-import { getPaytrailConfig } from './secrets'
 import { publishParticipantRegistrationPatch, publishRegistrationPatches } from './ws/actions'
 
 const { registrationTable, transactionTable } = CONFIG
@@ -174,12 +172,7 @@ export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
     throw new Error('Missing checkout-transaction-id from params')
   }
 
-  const cfg = await getPaytrailConfig()
-  const signature = Buffer.from(params.signature ?? '')
-  const hmacParams = Object.fromEntries(Object.entries(params).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX)))
-  const hmac = Buffer.from(calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams))
-
-  if (hmac.length !== signature.length || !timingSafeEqual(hmac, signature)) {
+  if (!(await paytrail.verifyCallbackSignature(params))) {
     logger.error('verifying payment signature failed')
     throw new Error('Verifying payment signature failed')
   }
@@ -425,7 +418,7 @@ export const refreshTransactionStatusesFromPaytrail = async (
     transactions.map(async (transaction) => {
       if (!shouldRefreshTransactionStatus(transaction)) return transaction
 
-      const payment = await getPayment(transaction.transactionId)
+      const payment = await paytrail.getPayment(transaction.transactionId)
       if (!payment) return transaction
 
       const updated = await updateTransactionStatus(transaction, payment.status, payment.provider)

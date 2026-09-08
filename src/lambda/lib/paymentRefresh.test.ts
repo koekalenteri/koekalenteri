@@ -5,10 +5,8 @@ const mockGetPayment = vi.fn()
 const mockDynamoUpdate = vi.fn()
 
 vi.doMock('./paytrail', () => ({
-  calculateHmac: vi.fn(),
-  getPayment: mockGetPayment,
-  HMAC_KEY_PREFIX: 'checkout-',
   parsePaytrailErrorMessage: vi.fn(),
+  paytrail: { getPayment: mockGetPayment },
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
