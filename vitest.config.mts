@@ -45,7 +45,10 @@ export default defineConfig({
           testTimeout: 10_000,
           unstubEnvs: true,
           environment: 'node',
-          include: ['src/lambda/**/*.{spec,test}.ts'],
+          // src/i18n/lambda.ts is lambda-only code, and its test asserts what a cold start sees:
+          // an i18next nobody has initialized yet. In the frontend project the setup file has
+          // already initialized the shared instance, so the assertion would be vacuous there.
+          include: ['src/lambda/**/*.{spec,test}.ts', 'src/i18n/lambda.test.ts'],
         },
       },
       {
@@ -137,7 +140,7 @@ export default defineConfig({
           environment: 'jsdom',
           testTimeout: 10_000,
           include: ['src/**/__tests__/**/*.{js,jsx,ts,tsx}', 'src/**/*.{spec,test}.{js,jsx,ts,tsx}'],
-          exclude: ['src/lambda/**', 'src/**/*.visual.{spec,test}.{ts,tsx}'],
+          exclude: ['src/lambda/**', 'src/i18n/lambda.test.ts', 'src/**/*.visual.{spec,test}.{ts,tsx}'],
           setupFiles: ['react-app-polyfill/jsdom', './src/setupTests.tsx'],
         },
       },

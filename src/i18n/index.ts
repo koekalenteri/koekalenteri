@@ -7,7 +7,7 @@ import { enUS as genUS, fiFI as gfiFI } from '@mui/x-data-grid/locales'
 import { enUS as denUS, fiFI as dfiFI } from '@mui/x-date-pickers/locales'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import { i18nInit } from './config'
+import { i18nInitOptions } from './config'
 import { registerFormatters } from './formatters'
 import { fiAuthenticationDict } from './locales/fi/auth'
 
@@ -22,7 +22,7 @@ export const muiLocales: Record<Language, Localization> = {
 
 i18n
   .use(initReactI18next)
-  .init(i18nInit)
+  .init(i18nInitOptions())
   .catch((error_) => console.error(error_))
 
 //  additional formats

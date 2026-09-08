@@ -8,7 +8,7 @@ import type {
 } from '../../types'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { formatDate } from '../../i18n/dates'
-import { i18n } from '../../i18n/lambda'
+import { getFixedT } from '../../i18n/lambda'
 import { getChangedTopLevelKeys, getNestedChanges, objectsDiffer } from '../../lib/diff'
 import {
   GROUP_KEY_RESERVE,
@@ -421,7 +421,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
   user: string,
   context: RegistrationTemplateContext
 ) => {
-  const t = i18n.getFixedT('fi')
+  const t = getFixedT('fi')
   const lastEmailDate = formatDate(new Date(), 'd.M.yyyy HH:mm')
   const templateName = t(`emailTemplate.${template}`)
   const ok: string[] = []
@@ -602,7 +602,7 @@ export const getCancelAuditMessage = (data: JsonRegistration) => {
   if (!data.cancelReason) return 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'
 
   if (isPredefinedReason(data.cancelReason)) {
-    const t = i18n.getFixedT('fi')
+    const t = getFixedT('fi')
     const reason = t(`registration.cancelReason.${data.cancelReason}`)
 
     return `Ilmoittautuminen peruttiin, syy: ${reason}`
@@ -612,7 +612,7 @@ export const getCancelAuditMessage = (data: JsonRegistration) => {
 }
 
 export const getRegistrationChanges = (existing: JsonRegistration, data: JsonRegistration) => {
-  const t = i18n.getFixedT('fi')
+  const t = getFixedT('fi')
   const changes = getNestedChanges(existing, data)
   logger.debug('audit changes', { changes })
   const changedKeys = new Set(getChangedTopLevelKeys(existing, data))

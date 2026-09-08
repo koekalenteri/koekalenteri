@@ -1,6 +1,6 @@
 import type { JsonConfirmedEvent, JsonRefundTransaction, JsonRegistration } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-import { i18n } from '../../i18n/lambda'
+import { getFixedT } from '../../i18n/lambda'
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
@@ -80,7 +80,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   )
   if (!applied) return response(200, undefined, event)
 
-  const t = i18n.getFixedT(registration.language)
+  const t = getFixedT(registration.language)
   const amount = transaction.amount / 100
   const provider = params['checkout-provider']
   const providerName = getProviderName(provider)

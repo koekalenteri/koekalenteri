@@ -9,7 +9,7 @@ import type {
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import type { PaytrailError } from './paytrail'
 import { timingSafeEqual } from 'node:crypto'
-import { i18n } from '../../i18n/lambda'
+import { getFixedT } from '../../i18n/lambda'
 import { localizedEventName } from '../../lib/event'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -388,7 +388,7 @@ export const paymentDescription = (
   jsonEvent: Pick<JsonDogEvent | DogEvent, 'eventType' | 'startDate' | 'endDate' | 'name' | 'names' | 'location'>,
   language: Language
 ) => {
-  const t = i18n.getFixedT(language)
+  const t = getFixedT(language)
   const eventDate = t('dateFormat.datespan', {
     end: jsonEvent.endDate,
     noYear: true,

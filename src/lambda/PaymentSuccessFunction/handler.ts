@@ -1,6 +1,6 @@
 import type { JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-import { i18n } from '../../i18n/lambda'
+import { getFixedT } from '../../i18n/lambda'
 import { getCostSegmentName } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
 import { getProviderName, getRegistrationPaymentDetails, shouldSendInvitationAfterPayment } from '../../lib/payment'
@@ -195,7 +195,7 @@ const sendPaymentReceipt = async ({
   transaction,
   workflow,
 }: ReceiptOptions) => {
-  const t = i18n.getFixedT(registration.language)
+  const t = getFixedT(registration.language)
   const receiptTo = registration.payer?.email ? [registration.payer.email] : []
   const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt', editToken)
   const paymentDetails = getRegistrationPaymentDetails(confirmedEvent, registration)

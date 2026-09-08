@@ -94,9 +94,7 @@ vi.doMock('../lib/event', () => ({
 }))
 
 vi.doMock('../../i18n/lambda', () => ({
-  i18n: {
-    getFixedT: mockGetFixedT,
-  },
+  getFixedT: mockGetFixedT,
 }))
 
 vi.doMock('../lib/email', () => ({

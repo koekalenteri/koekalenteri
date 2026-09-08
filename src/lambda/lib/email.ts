@@ -8,7 +8,7 @@ import type {
   RegistrationTemplateContext,
 } from '../../types'
 import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
-import { i18n } from '../../i18n/lambda'
+import { getFixedT } from '../../i18n/lambda'
 import { getPaymentBalance } from '../../lib/cost'
 import { getRegistrationEmailTemplateData, getRegistrationOwners, isPayerTemplate } from '../../lib/registration'
 import { CONFIG } from '../config'
@@ -73,7 +73,7 @@ export function registrationEmailTemplateData(
   text: string = '',
   previousGroup?: JsonRegistrationGroup
 ) {
-  const t = i18n.getFixedT(registration.language)
+  const t = getFixedT(registration.language)
 
   return getRegistrationEmailTemplateData(registration, confirmedEvent, origin, context, text, t, {
     editToken,

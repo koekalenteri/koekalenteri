@@ -3,7 +3,7 @@ import type { UserLink } from './auth'
 import type { EmailHistoryEntry } from './emailHistory'
 import type { PartialJsonJudge } from './judge'
 import { nanoid } from 'nanoid'
-import { i18n } from '../../i18n/lambda'
+import { getFixedT } from '../../i18n/lambda'
 import { getChangedTopLevelKeys } from '../../lib/diff'
 import { validEmail } from '../../lib/email'
 import { reverseName } from '../../lib/string'
@@ -213,7 +213,7 @@ export const setUserRole = async (
   modifiedBy: string,
   origin?: string
 ): Promise<JsonUser> => {
-  const t = i18n.getFixedT('fi')
+  const t = getFixedT('fi')
   const roles = { ...user.roles }
   if (role === 'none') {
     delete roles[orgId]
