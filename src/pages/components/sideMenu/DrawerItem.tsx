@@ -1,4 +1,5 @@
 import type { MouseEventHandler, ReactNode } from 'react'
+import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
@@ -37,13 +38,19 @@ export default function DrawerItem({ text, icon, onClick, to }: Props) {
     </>
   )
 
-  return to ? (
-    <ListItemButton component={NavLink} disabled={loading} to={to} onClick={handleClick}>
-      {content}
-    </ListItemButton>
-  ) : (
-    <ListItemButton component="button" type="button" disabled={loading} onClick={handleClick}>
-      {content}
-    </ListItemButton>
+  // The button is the item, but a <ul> may only hold <li>: without this wrapper the links and the
+  // logout button sit directly in the list, which is what axe reports as a broken list.
+  return (
+    <ListItem disablePadding>
+      {to ? (
+        <ListItemButton component={NavLink} disabled={loading} to={to} onClick={handleClick}>
+          {content}
+        </ListItemButton>
+      ) : (
+        <ListItemButton component="button" type="button" disabled={loading} onClick={handleClick}>
+          {content}
+        </ListItemButton>
+      )}
+    </ListItem>
   )
 }

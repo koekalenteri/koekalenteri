@@ -27,6 +27,29 @@ const miniMixin = (theme: Theme): CSSObject => ({
   },
 })
 
+/**
+ * Collapsed, only the icons belong in the drawer. The labels used to fall outside it on their own --
+ * a 56px `ListItemIcon` pushed them past the 57px width -- but MUI v9 narrowed that icon slot to
+ * 36px and the first few pixels of every label started showing through. Hide them, and the divider's
+ * caption with them, instead of relying on a library default to clip them.
+ */
+const miniPaperMixin = (theme: Theme): CSSObject => ({
+  ...miniMixin(theme),
+  '& .MuiDivider-wrapper': {
+    display: 'none',
+  },
+  '& .MuiListItemButton-root': {
+    justifyContent: 'center',
+  },
+  '& .MuiListItemIcon-root': {
+    justifyContent: 'center',
+    minWidth: 0,
+  },
+  '& .MuiListItemText-root': {
+    display: 'none',
+  },
+})
+
 const MiniDrawer = styled(Drawer)(({ theme, variant, open }) => {
   const mini = variant === 'permanent' && !open
   return {
@@ -40,7 +63,7 @@ const MiniDrawer = styled(Drawer)(({ theme, variant, open }) => {
     }),
     ...(mini && {
       ...miniMixin(theme),
-      '& .MuiDrawer-paper': miniMixin(theme),
+      '& .MuiDrawer-paper': miniPaperMixin(theme),
     }),
     '& .MuiButtonBase-root:hover': {
       backgroundColor: theme.palette.background.hover,

@@ -3,6 +3,7 @@
   "active": "Active",
   "add": "Add",
   "admin": "Administration",
+  "adminMenu": "Administration menu",
   "all": "All",
   "app": {
     "updated": "App updated: {{from}} → {{to}}",

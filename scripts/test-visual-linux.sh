@@ -10,7 +10,9 @@
 # regenerates just that component's linux baseline. With no args this only verifies (matches CI).
 set -euo pipefail
 
-IMAGE="mcr.microsoft.com/playwright:v1.62.1-noble"
+# Keep in step with the `playwright` devDependency: the image ships the browser build that version
+# expects, and a stale tag fails with "Executable doesn't exist at /ms-playwright/...".
+IMAGE="mcr.microsoft.com/playwright:v1.63.0-noble"
 
 # Visual tests live wherever their component does, so every __screenshots__ directory under src is
 # copied back.

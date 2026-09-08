@@ -56,6 +56,9 @@ export function SideMenu({ open, onClose }: Props) {
       ModalProps={{
         keepMounted: true,
       }}
+      // Below `md` the drawer is a modal dialog, and a dialog needs a name of its own: without this
+      // a screen reader announces the whole menu as an unnamed dialog.
+      slotProps={{ paper: { 'aria-label': t('adminMenu') } }}
       onClose={onClose}
     >
       <Box sx={{ height: HEADER_HEIGHT, minHeight: HEADER_HEIGHT }} />

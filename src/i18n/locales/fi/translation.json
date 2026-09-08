@@ -3,6 +3,7 @@
   "active": "Käytössä",
   "add": "Lisää",
   "admin": "Ylläpito",
+  "adminMenu": "Ylläpidon valikko",
   "all": "Kaikki",
   "app": {
     "updated": "Sovellus päivitetty: {{from}} → {{to}}",
