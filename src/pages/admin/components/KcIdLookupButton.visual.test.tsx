@@ -3,8 +3,8 @@ import { ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { render } from 'vitest-browser-react'
-import { eventWithStations } from '../../../__mockData__/resultsEvent'
-import theme from '../../../assets/Theme'
+import { eventWithStations } from '@/__mockData__/resultsEvent'
+import theme from '@/assets/Theme'
 import { KcIdLookupButton } from './KcIdLookupButton'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

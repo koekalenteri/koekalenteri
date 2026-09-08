@@ -1,5 +1,5 @@
 import type { MouseEvent } from 'react'
-import type { DeepPartial, EventClass } from '../../../../../types'
+import type { DeepPartial, EventClass } from '@/types'
 import type { EntryEvent, SectionProps } from '../types'
 import Box from '@mui/material/Box'
 import FormHelperText from '@mui/material/FormHelperText'
@@ -10,8 +10,8 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatDate } from '../../../../../i18n/dates'
-import { getEventDays } from '../../../../../lib/event'
+import { formatDate } from '@/i18n/dates'
+import { getEventDays } from '@/lib/event'
 import { compareEventClass } from '../components/EventClasses'
 import {
   calculateTotalFromClasses,

@@ -1,4 +1,4 @@
-import type { Registration } from '../../../types'
+import type { Registration } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { registrationByIdsAtom } from './atoms'

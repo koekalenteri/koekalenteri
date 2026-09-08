@@ -1,9 +1,9 @@
-import type { ValidationResult, Validators2, WideValidationResult } from '../../../i18n/validation'
-import type { BreedCode, Dog, PublicConfirmedEvent, Registration, TestResult } from '../../../types'
+import type { ValidationResult, Validators2, WideValidationResult } from '@/i18n/validation'
+import type { BreedCode, Dog, PublicConfirmedEvent, Registration, TestResult } from '@/types'
 import { differenceInMonths } from 'date-fns'
-import { validName } from '../../../lib/name'
-import { getOwnerRole, getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '../../../lib/registration'
-import { REQUIREMENTS } from '../../../rules'
+import { validName } from '@/lib/name'
+import { getOwnerRole, getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '@/lib/registration'
+import { REQUIREMENTS } from '@/rules'
 import { validateOwner, validatePerson } from './personValidation'
 
 const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent> = {

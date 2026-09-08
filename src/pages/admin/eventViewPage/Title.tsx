@@ -1,8 +1,8 @@
-import type { ConfirmedEvent } from '../../../types'
+import type { ConfirmedEvent } from '@/types'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { eventTypeLabel } from '../../../lib/event'
-import { Path } from '../../../routeConfig'
+import { eventTypeLabel } from '@/lib/event'
+import { Path } from '@/routeConfig'
 import { BackLink } from '../components/BackLink'
 import EventStateStepper from './EventStateStepper'
 

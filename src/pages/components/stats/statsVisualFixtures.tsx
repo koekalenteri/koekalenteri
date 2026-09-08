@@ -1,5 +1,5 @@
-import type { YearlyStatsResponse } from '../../../api/stats'
-import type { CapacityStatsEntry } from '../../../types/Stats'
+import type { YearlyStatsResponse } from '@/api/stats'
+import type { CapacityStatsEntry } from '@/types/Stats'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
 export const ChartFrame = ({ children }: { readonly children: React.ReactNode }) => (

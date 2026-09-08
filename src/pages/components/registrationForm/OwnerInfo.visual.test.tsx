@@ -1,9 +1,9 @@
-import type { DeepPartial, Registration } from '../../../types'
+import type { DeepPartial, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import i18n from 'i18next'
 import { render } from 'vitest-browser-react'
-import theme from '../../../assets/Theme'
-import { TestProvider } from '../../../test-utils/AtomProvider'
+import theme from '@/assets/Theme'
+import { TestProvider } from '@/test-utils/AtomProvider'
 import { OwnerInfo } from './OwnerInfo'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

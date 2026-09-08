@@ -1,6 +1,6 @@
-import type { Organizer } from '../../../../types'
-import { getAdminOrganizers } from '../../../../api/organizer'
-import { compareByLocalizedString } from '../../../../lib/client/sort'
+import type { Organizer } from '@/types'
+import { getAdminOrganizers } from '@/api/organizer'
+import { compareByLocalizedString } from '@/lib/client/sort'
 import { atomWithCachedRemoteCollection } from '../cached/createCachedRemoteCollection'
 
 export const adminOrganizersRemoteAtom = atomWithCachedRemoteCollection<Organizer>({

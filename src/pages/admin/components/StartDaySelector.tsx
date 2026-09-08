@@ -1,11 +1,11 @@
-import type { RegistrationGroup } from '../../../types'
+import type { RegistrationGroup } from '@/types'
 import Stack from '@mui/material/Stack'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '../../../i18n/dates'
-import { getRegistrationPlacement } from '../../../lib/registration'
+import { zonedDateString } from '@/i18n/dates'
+import { getRegistrationPlacement } from '@/lib/registration'
 
 /** One day of a multi-day event, keyed the way the server scopes number uniqueness (yyyy-MM-dd). */
 export interface StartDay {

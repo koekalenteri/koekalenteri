@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
-import type { Registration } from '../../../types'
-import { APIError } from '../../../api/http'
+import type { Registration } from '@/types'
+import { APIError } from '@/api/http'
 import { showRegistrationSaveConflict } from './registrationSaveError'
 
 const registration = {

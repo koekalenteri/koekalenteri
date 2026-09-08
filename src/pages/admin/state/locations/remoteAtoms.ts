@@ -1,6 +1,6 @@
-import type { Location } from '../../../../types'
-import { getLocations } from '../../../../api/location'
-import { compareByLocalizedString } from '../../../../lib/client/sort'
+import type { Location } from '@/types'
+import { getLocations } from '@/api/location'
+import { compareByLocalizedString } from '@/lib/client/sort'
 import { atomWithCachedRemoteCollection } from '../cached/createCachedRemoteCollection'
 
 export const adminLocationsRemoteAtom = atomWithCachedRemoteCollection<Location>({

@@ -2,9 +2,9 @@ import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router'
 import { render } from 'vitest-browser-react'
-import { eventWithParticipantsInvited } from '../../../__mockData__/events'
-import theme from '../../../assets/Theme'
-import { TIME_ZONE } from '../../../i18n/dates'
+import { eventWithParticipantsInvited } from '@/__mockData__/events'
+import theme from '@/assets/Theme'
+import { TIME_ZONE } from '@/i18n/dates'
 import { EventListItem } from './EventListItem'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

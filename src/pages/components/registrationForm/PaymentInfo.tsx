@@ -1,5 +1,5 @@
-import type { DeepPartial, PublicConfirmedEvent, Registration } from '../../../types'
-import type { CostResult, DogEventCostSegment } from '../../../types/Cost'
+import type { DeepPartial, PublicConfirmedEvent, Registration } from '@/types'
+import type { CostResult, DogEventCostSegment } from '@/types/Cost'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -14,10 +14,10 @@ import {
   getEarlyBirdDates,
   getStragegyBySegment,
   hasDifferentMemberPrice,
-} from '../../../lib/cost'
-import { formatMoney } from '../../../lib/money'
-import { isMember } from '../../../lib/registration'
-import { isMinimalRegistrationForCost } from '../../../lib/typeGuards'
+} from '@/lib/cost'
+import { formatMoney } from '@/lib/money'
+import { isMember } from '@/lib/registration'
+import { isMinimalRegistrationForCost } from '@/lib/typeGuards'
 import { languageAtom } from '../../state'
 import CollapsibleSection from '../CollapsibleSection'
 

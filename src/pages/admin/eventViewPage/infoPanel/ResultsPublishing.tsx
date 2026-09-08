@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, RegistrationClass } from '../../../../types'
+import type { ConfirmedEvent, RegistrationClass } from '@/types'
 import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined'
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined'
 import Box from '@mui/material/Box'
@@ -11,16 +11,16 @@ import { useConfirm } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
+import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import {
   canPublishResults,
   getEventStateForClass,
   isResultsPublishedForClass,
   isStartListAvailableForClass,
   uniqueClasses,
-} from '../../../../lib/event'
-import { scoresAtPosts } from '../../../../lib/results'
-import { Path } from '../../../../routeConfig'
+} from '@/lib/event'
+import { scoresAtPosts } from '@/lib/results'
+import { Path } from '@/routeConfig'
 import { PublishingSection } from './PublishingSection'
 import { actionButtonSx } from './styles'
 

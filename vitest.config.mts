@@ -58,6 +58,7 @@ export default defineConfig({
             // echoes the key back, so every label would be three characters wide and a layout that
             // overflows with real text would still screenshot clean. These run the real
             // translations -- "chesapeakelahdennoutaja", not "263".
+            '@': new URL('./src', import.meta.url).pathname,
             'test-utils': new URL('./src/test-utils', import.meta.url).pathname,
           },
         },
@@ -111,6 +112,7 @@ export default defineConfig({
         resolve: {
           alias: {
             'react-i18next': new URL('./src/__mocks__/react-i18next/index.tsx', import.meta.url).pathname,
+            '@': new URL('./src', import.meta.url).pathname,
             'test-utils': new URL('./src/test-utils', import.meta.url).pathname,
           },
         },

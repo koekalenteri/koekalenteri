@@ -1,13 +1,13 @@
-import type { User, UserRole } from '../../../../types'
+import type { User, UserRole } from '@/types'
 import { useAtom, useAtomValue } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getUsers, putAdmin, putRole, putUser } from '../../../../api/user'
-import { reportError } from '../../../../lib/client/error'
-import { collectionSince, reconcileCollection } from '../../../../lib/incremental'
-import { validIdTokenAtom } from '../../../state'
+import { getUsers, putAdmin, putRole, putUser } from '@/api/user'
+import { reportError } from '@/lib/client/error'
+import { collectionSince, reconcileCollection } from '@/lib/incremental'
+import { validIdTokenAtom } from '@/pages/state'
 import { adminUsersAtom, adminUsersRefreshedAtAtom } from './atoms'
 
 /**

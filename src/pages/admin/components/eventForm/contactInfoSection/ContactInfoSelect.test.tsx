@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { renderWithUserEvents } from '../../../../../test-utils/utils'
+import { renderWithUserEvents } from '@/test-utils/utils'
 import ContactInfoSelect from './ContactInfoSelect'
 
 describe('PersonContactInfo', () => {

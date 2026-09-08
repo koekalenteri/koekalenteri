@@ -1,4 +1,4 @@
-import type { CapacityStatsEntry } from '../../../types/Stats'
+import type { CapacityStatsEntry } from '@/types/Stats'
 import { useTranslation } from 'react-i18next'
 import { CATEGORICAL_CHART_COLORS } from './chartColors'
 import StatsBarChart from './StatsBarChart'

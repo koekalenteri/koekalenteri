@@ -1,4 +1,4 @@
-import type { PublicJudge } from '../../../../../types'
+import type { PublicJudge } from '@/types'
 import type { JudgesEvent, SectionProps } from '../types'
 import Grid from '@mui/material/Grid'
 import { useTranslation } from 'react-i18next'

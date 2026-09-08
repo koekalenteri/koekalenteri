@@ -1,4 +1,4 @@
-import type { EventKcIdChoice } from '../../../../api/event'
+import type { EventKcIdChoice } from '@/api/event'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -11,7 +11,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '../../../../i18n/dates'
+import { zonedDateString } from '@/i18n/dates'
 
 type Props = {
   readonly choices: EventKcIdChoice[]

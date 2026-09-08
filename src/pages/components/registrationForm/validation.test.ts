@@ -6,10 +6,10 @@ import type {
   Registration,
   RegistrationBreeder,
   TestResult,
-} from '../../../types'
-import { eventWithStaticDates } from '../../../__mockData__/events'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import { filterRelevantResults, objectContains } from '../../../lib/qualification'
+} from '@/types'
+import { eventWithStaticDates } from '@/__mockData__/events'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { filterRelevantResults, objectContains } from '@/lib/qualification'
 import { validateDog, validateRegistration } from './validation'
 
 const testDog: Dog = {

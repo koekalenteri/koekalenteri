@@ -1,4 +1,4 @@
-import type { RegistrationClass, RegistrationTime } from '../../../../types'
+import type { RegistrationClass, RegistrationTime } from '@/types'
 import { atom } from 'jotai'
 
 export { adminEventTypesRemoteAtom as adminEventTypesAtom } from './remoteAtoms'

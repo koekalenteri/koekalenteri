@@ -1,13 +1,13 @@
-import type { PublicDogEvent } from '../../../types'
+import type { PublicDogEvent } from '@/types'
 import type { EventMetadata } from './types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAtomValue } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { getEvent, getEvents } from '../../../api/event'
+import { getEvent, getEvents } from '@/api/event'
 import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
 import { useConfirmedEvent, useFetchEvents } from './hooks'
 
-vi.mock('../../../api/event', () => ({
+vi.mock('@/api/event', () => ({
   getEvent: vi.fn(),
   getEvents: vi.fn(),
 }))

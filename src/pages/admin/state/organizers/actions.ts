@@ -1,8 +1,8 @@
-import type { Organizer } from '../../../../types'
+import type { Organizer } from '@/types'
 import { useAtom, useAtomValue } from 'jotai'
-import { getAdminOrganizers, putOrganizer } from '../../../../api/organizer'
-import { compareByLocalizedString } from '../../../../lib/client/sort'
-import { validIdTokenAtom } from '../../../state'
+import { getAdminOrganizers, putOrganizer } from '@/api/organizer'
+import { compareByLocalizedString } from '@/lib/client/sort'
+import { validIdTokenAtom } from '@/pages/state'
 import { adminOrganizersAtom } from './atoms'
 
 export const useAdminOrganizersActions = () => {

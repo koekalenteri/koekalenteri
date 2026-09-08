@@ -1,9 +1,9 @@
-import type { Language } from '../../../../types'
+import type { Language } from '@/types'
 import MenuItem from '@mui/material/MenuItem'
 import { useAtom } from 'jotai'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { languageAtom } from '../../../state'
+import { languageAtom } from '@/pages/state'
 
 interface Props {
   readonly locale: Language

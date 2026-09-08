@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, Registration } from '../../../types'
+import type { ConfirmedEvent, Registration } from '@/types'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Dialog from '@mui/material/Dialog'
@@ -12,7 +12,7 @@ import FormLabel from '@mui/material/FormLabel'
 import Typography from '@mui/material/Typography'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
+import useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
 
 interface Props {
   readonly event: ConfirmedEvent

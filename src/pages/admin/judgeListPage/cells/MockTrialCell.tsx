@@ -1,5 +1,5 @@
 import type { GridRenderCellParams } from '@mui/x-data-grid'
-import type { Judge } from '../../../../types'
+import type { Judge } from '@/types'
 import OfficialCell from '../../components/OfficialCell'
 import { createJudgeFlagCell } from './JudgeFlagCell'
 

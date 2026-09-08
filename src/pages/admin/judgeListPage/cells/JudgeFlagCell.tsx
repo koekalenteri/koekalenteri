@@ -1,11 +1,11 @@
 import type { GridRenderCellParams } from '@mui/x-data-grid'
 import type { ChangeEvent } from 'react'
-import type { Judge } from '../../../../types'
+import type { Judge } from '@/types'
 import Switch from '@mui/material/Switch'
 import { useAtomValue } from 'jotai'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isAdminAtom } from '../../../state'
+import { isAdminAtom } from '@/pages/state'
 import { useAdminJudgesActions } from '../../state'
 
 /** The judge's flags that the app keeps itself, outside the Kennel Club sync. */

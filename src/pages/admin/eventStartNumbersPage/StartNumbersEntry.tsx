@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { ReactNode } from 'react'
-import type { StartNumberEntry } from '../../../api/startNumbers'
+import type { StartNumberEntry } from '@/api/startNumbers'
 import type { PlacedRegistration } from '../components/StartDaySelector'
 import type { StartNumberRow } from './StartNumbersTable'
 import Save from '@mui/icons-material/Save'
@@ -12,13 +12,13 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useUnsavedChangesWarning } from '../../../hooks/useUnsavedChangesWarning'
+import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import {
   getRegistrationClass,
   getRegistrationPlacement,
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
-} from '../../../lib/registration'
+} from '@/lib/registration'
 import { AsyncButton } from '../../components/AsyncButton'
 import { StartDaySelector } from '../components/StartDaySelector'
 import { useStartDayClasses } from '../components/useStartDayClasses'

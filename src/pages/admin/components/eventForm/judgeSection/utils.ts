@@ -1,7 +1,7 @@
-import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../../types'
+import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '@/types'
 import type { PartialEvent } from '../types'
 import { isSameDay } from 'date-fns'
-import { canJudgeMockTrial, makeArray } from '../../../../../lib/judge'
+import { canJudgeMockTrial, makeArray } from '@/lib/judge'
 
 type PartialPublicJudge = Partial<PublicJudge>
 type PartialPublicJudgeValue = PartialPublicJudge | PartialPublicJudge[]

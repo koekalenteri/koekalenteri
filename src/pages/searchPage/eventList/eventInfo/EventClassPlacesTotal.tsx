@@ -1,8 +1,8 @@
-import type { PublicDogEvent } from '../../../../types'
+import type { PublicDogEvent } from '@/types'
 import { useTranslation } from 'react-i18next'
-import InfoTableContainerGrid from '../../../components/InfoTableContainerGrid'
-import InfoTableNumberGrid from '../../../components/InfoTableNumberGrid'
-import InfoTableTextGrid from '../../../components/InfoTableTextGrid'
+import InfoTableContainerGrid from '@/pages/components/InfoTableContainerGrid'
+import InfoTableNumberGrid from '@/pages/components/InfoTableNumberGrid'
+import InfoTableTextGrid from '@/pages/components/InfoTableTextGrid'
 
 export const EventClassPlacesTotal = ({ places }: { places: PublicDogEvent['places'] }) => {
   const { t } = useTranslation()

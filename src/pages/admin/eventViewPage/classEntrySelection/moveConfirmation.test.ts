@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
-import type { EventClassState, EventState } from '../../../../types'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
+import type { EventClassState, EventState } from '@/types'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 import { confirmMoveToParticipants, moveSendsPlaceMessage } from './moveConfirmation'
 
 const PARTICIPANT_GROUP = '2021-02-10-ap'

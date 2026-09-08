@@ -1,6 +1,6 @@
-import type { DogEvent } from '../../../../types'
+import type { DogEvent } from '@/types'
 import { createStore } from 'jotai'
-import { emptyEvent } from '../../../../__mockData__/emptyEvent'
+import { emptyEvent } from '@/__mockData__/emptyEvent'
 import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom } from './atoms'
 import {
   adminCurrentEventAtom,

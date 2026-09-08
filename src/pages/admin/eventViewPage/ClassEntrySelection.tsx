@@ -7,7 +7,7 @@ import type {
   EventState,
   Registration,
   RegistrationDate,
-} from '../../../types'
+} from '@/types'
 import type { DragItem, RegistrationWithGroups } from './classEntrySelection/types'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -20,19 +20,19 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import withScrolling from 'react-dnd-scrolling'
 import { useTranslation } from 'react-i18next'
-import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
-import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
-import { errorSnackbarOptions } from '../../../lib/client/snackbar'
-import { rowSelectionModel } from '../../../lib/datagrid'
-import { eventRegistrationDateKey, isEntryEditingClosed } from '../../../lib/event'
+import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistrationDates'
+import { useAdminEventRegistrationGroups } from '@/hooks/useAdminEventRegistrationGroups'
+import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { rowSelectionModel } from '@/lib/datagrid'
+import { eventRegistrationDateKey, isEntryEditingClosed } from '@/lib/event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getRegistrationClass,
   getRegistrationGroupKey,
   isRegistrationClass,
-} from '../../../lib/registration'
-import { isConfirmedEvent } from '../../../lib/typeGuards'
+} from '@/lib/registration'
+import { isConfirmedEvent } from '@/lib/typeGuards'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminEventActions } from '../state'

@@ -1,13 +1,13 @@
-import type { DogEvent, Patch } from '../../../types'
+import type { DogEvent, Patch } from '@/types'
 import { useAtom, useSetAtom } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { APIError } from '../../../api/http'
-import { errorSnackbarOptions } from '../../../lib/client/snackbar'
-import { getChanges, isEmptyObject, isObject } from '../../../lib/utils'
+import { APIError } from '@/api/http'
+import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { getChanges, isEmptyObject, isObject } from '@/lib/utils'
 import { adminEditableEventByIdAtom, adminNewEventAtom, adminSaveEventAtom } from '../state'
 
 type EventFormOptions = {

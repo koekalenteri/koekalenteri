@@ -5,8 +5,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import theme from '../../../../assets/Theme'
-import { locales } from '../../../../i18n'
+import theme from '@/assets/Theme'
+import { locales } from '@/i18n'
 import { EventClassPlaces } from './EventClassPlaces'
 
 function Wrapper({ children }: { readonly children: ReactNode }) {

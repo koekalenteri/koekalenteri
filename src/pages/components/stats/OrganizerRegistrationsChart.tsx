@@ -1,6 +1,6 @@
-import type { EventStatsItem } from '../../../types/Stats'
+import type { EventStatsItem } from '@/types/Stats'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '../../../i18n/dates'
+import { zonedDateString } from '@/i18n/dates'
 import { CATEGORICAL_CHART_COLORS } from './chartColors'
 import StatsBarChart from './StatsBarChart'
 

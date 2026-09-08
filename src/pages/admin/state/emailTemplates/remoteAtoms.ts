@@ -1,7 +1,7 @@
-import type { EmailTemplate, EmailTemplateId } from '../../../../types'
-import { getEmailTemplates } from '../../../../api/email'
-import { compareByLocalizedString } from '../../../../lib/client/sort'
-import { exhaustiveStringTuple } from '../../../../lib/typeGuards'
+import type { EmailTemplate, EmailTemplateId } from '@/types'
+import { getEmailTemplates } from '@/api/email'
+import { compareByLocalizedString } from '@/lib/client/sort'
+import { exhaustiveStringTuple } from '@/lib/typeGuards'
 import { atomWithCachedRemoteCollection } from '../cached/createCachedRemoteCollection'
 
 const templateIds = exhaustiveStringTuple<EmailTemplateId>()(

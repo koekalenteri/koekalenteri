@@ -1,4 +1,4 @@
-import type { Dog, ManualTestResult, RegistrationBreeder, RegistrationPerson } from '../../../types'
+import type { Dog, ManualTestResult, RegistrationBreeder, RegistrationPerson } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { atomWithLocalStorage } from '../storage/atoms'

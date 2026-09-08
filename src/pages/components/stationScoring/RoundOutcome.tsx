@@ -1,4 +1,4 @@
-import type { EliminatingFault, EventStation } from '../../../types'
+import type { EliminatingFault, EventStation } from '@/types'
 import type { ResultEdit } from './types'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -8,8 +8,8 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { outcomeReasonEnabled } from '../../../lib/features'
-import { canBeStopped, eliminatingFaults, STOPPED_RESULT_CODE, scoresAtPosts } from '../../../lib/results'
+import { outcomeReasonEnabled } from '@/lib/features'
+import { canBeStopped, eliminatingFaults, STOPPED_RESULT_CODE, scoresAtPosts } from '@/lib/results'
 
 /**
  * What the control is asking, which narrows with it while the reason list waits on KOE-1299: with only

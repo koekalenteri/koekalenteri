@@ -1,6 +1,6 @@
-import type { Headquarters } from '../../../../types'
+import type { Headquarters } from '@/types'
 import { render, screen } from '@testing-library/react'
-import { renderWithUserEvents } from '../../../../test-utils/utils'
+import { renderWithUserEvents } from '@/test-utils/utils'
 import HeadquartersSection from './HeadquartersSection'
 
 const testRenderHQ: Headquarters = {

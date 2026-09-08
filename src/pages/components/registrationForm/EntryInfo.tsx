@@ -6,16 +6,16 @@ import type {
   RegistrationDate,
   RegistrationTime,
   ReserveChoise,
-} from '../../../types'
+} from '@/types'
 import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
-import { useLocalState } from '../../../hooks/useLocalState'
-import { eventDates, registrationDates, uniqueClasses } from '../../../lib/event'
-import { getRegistrationClass, isRegistrationClass } from '../../../lib/registration'
-import { unique, uniqueDate } from '../../../lib/utils'
+import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistrationDates'
+import { useLocalState } from '@/hooks/useLocalState'
+import { eventDates, registrationDates, uniqueClasses } from '@/lib/event'
+import { getRegistrationClass, isRegistrationClass } from '@/lib/registration'
+import { unique, uniqueDate } from '@/lib/utils'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'

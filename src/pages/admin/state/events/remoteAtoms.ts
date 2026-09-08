@@ -1,11 +1,11 @@
-import type { DogEvent, User } from '../../../../types'
+import type { DogEvent, User } from '@/types'
 import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
-import { getAdminEvents } from '../../../../api/event'
-import { compareEventsByDate } from '../../../../lib/event'
-import { latestCollectionUpdate } from '../../../../lib/incremental'
-import { userAtom, validIdTokenAtom } from '../../../state'
-import { parseStorageJSON } from '../../../state/storage/atoms'
+import { getAdminEvents } from '@/api/event'
+import { compareEventsByDate } from '@/lib/event'
+import { latestCollectionUpdate } from '@/lib/incremental'
+import { userAtom, validIdTokenAtom } from '@/pages/state'
+import { parseStorageJSON } from '@/pages/state/storage/atoms'
 
 // The same order as the public calendar, so a save (adminEventAtom) and a fetch agree on it.
 const sortEvents = (events: DogEvent[]): DogEvent[] => [...events].sort(compareEventsByDate)

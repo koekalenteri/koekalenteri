@@ -9,8 +9,8 @@ import TableRow from '@mui/material/TableRow'
 import { GridFooterContainer } from '@mui/x-data-grid'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatMoney, formatMoneyWithoutCurrency } from '../../../../lib/money'
-import { NumberInput } from '../../../components/NumberInput'
+import { formatMoney, formatMoneyWithoutCurrency } from '@/lib/money'
+import { NumberInput } from '@/pages/components/NumberInput'
 
 const FooterCell = (props: BoxProps) => <Box {...props} sx={{ mx: 0 }} />
 

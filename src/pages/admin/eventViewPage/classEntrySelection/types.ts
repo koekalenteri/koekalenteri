@@ -1,5 +1,5 @@
 import type { GridRowId } from '@mui/x-data-grid'
-import type { Registration } from '../../../../types'
+import type { Registration } from '@/types'
 
 export interface DragItem {
   id: GridRowId

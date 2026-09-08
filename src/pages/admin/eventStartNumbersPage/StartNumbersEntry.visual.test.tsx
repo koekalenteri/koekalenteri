@@ -6,8 +6,8 @@ import { ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { render } from 'vitest-browser-react'
-import theme from '../../../assets/Theme'
-import { TIME_ZONE } from '../../../i18n/dates'
+import theme from '@/assets/Theme'
+import { TIME_ZONE } from '@/i18n/dates'
 import { StartNumbersEntry } from './StartNumbersEntry'
 
 /**

@@ -1,4 +1,4 @@
-import type { DogEvent, RegistrationClass } from '../../../types'
+import type { DogEvent, RegistrationClass } from '@/types'
 import { useAtom } from 'jotai'
 import { useCallback, useEffect } from 'react'
 import { adminNewRegistrationAtom, createAdminNewRegistration } from '../state'

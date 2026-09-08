@@ -1,9 +1,9 @@
-import type { EventStation } from '../../../types'
+import type { EventStation } from '@/types'
 import type { Props, StationsEditorEvent } from './StationsEditor'
 import { TZDate } from '@date-fns/tz'
 import { screen } from '@testing-library/react'
-import { TIME_ZONE } from '../../../i18n/dates'
-import { renderWithUserEvents } from '../../../test-utils/utils'
+import { TIME_ZONE } from '@/i18n/dates'
+import { renderWithUserEvents } from '@/test-utils/utils'
 import StationsEditor from './StationsEditor'
 
 const station = (id: string, number: number, overrides: Partial<EventStation> = {}): EventStation => ({

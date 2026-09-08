@@ -1,12 +1,12 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { AuditRecord, Registration } from '../../../types'
+import type { AuditRecord, Registration } from '@/types'
 import { screen, waitFor } from '@testing-library/react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../__mockData__/events'
-import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
-import { getEventAuditTrail } from '../../../api/event'
-import { eventRegistrationDateKey } from '../../../lib/event'
-import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
+import { registrationsToEventWithEntryClosed } from '@/__mockData__/registrations'
+import { getEventAuditTrail } from '@/api/event'
+import { eventRegistrationDateKey } from '@/lib/event'
+import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { idTokenAtom } from '../../state'
 import InfoPanel from './InfoPanel'
 
@@ -14,7 +14,7 @@ const activeEventWithStaticDates = {
   ...eventWithStaticDates,
   endDate: new Date('2099-12-31'),
 }
-vi.mock('../../../api/event')
+vi.mock('@/api/event')
 
 function getGroupKey(r: Registration, i: number) {
   if (r.cancelled) return 'cancelled'

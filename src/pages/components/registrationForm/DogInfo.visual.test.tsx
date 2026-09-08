@@ -1,13 +1,13 @@
-import type { DeepPartial, Registration } from '../../../types'
+import type { DeepPartial, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { SnackbarProvider } from 'notistack'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
-import theme from '../../../assets/Theme'
-import { locales } from '../../../i18n'
-import { TestProvider } from '../../../test-utils/AtomProvider'
+import theme from '@/assets/Theme'
+import { locales } from '@/i18n'
+import { TestProvider } from '@/test-utils/AtomProvider'
 import { DogInfo } from './DogInfo'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

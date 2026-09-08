@@ -1,9 +1,9 @@
 import type { RESET } from 'jotai/utils'
-import type { DogEvent, RegistrationClass } from '../../../../types'
+import type { DogEvent, RegistrationClass } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { uniqueClasses } from '../../../../lib/event'
-import { atomWithSessionStorage } from '../../../state'
+import { uniqueClasses } from '@/lib/event'
+import { atomWithSessionStorage } from '@/pages/state'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 
 const storedEventClassAtom = atomWithSessionStorage<RegistrationClass | undefined>('adminEventClass', undefined)

@@ -1,4 +1,4 @@
-import type { Person } from '../../../types'
+import type { Person } from '@/types'
 import { hasEmailError, hasPhoneError, validateOwner, validateOwnerContact, validatePerson } from './personValidation'
 
 const testPerson: Person = {

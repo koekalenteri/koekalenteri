@@ -1,7 +1,7 @@
 import type { StepIconProps } from '@mui/material/StepIcon'
 import type { TFunction } from 'i18next'
-import type { EventProgressStep } from '../../../lib/event'
-import type { ConfirmedEvent } from '../../../types'
+import type { EventProgressStep } from '@/lib/event'
+import type { ConfirmedEvent } from '@/types'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import Circle from '@mui/icons-material/Circle'
 import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
@@ -10,7 +10,7 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import { useTranslation } from 'react-i18next'
-import { EVENT_PROGRESS_PHASES, getEventProgress, isEntryOpen } from '../../../lib/event'
+import { EVENT_PROGRESS_PHASES, getEventProgress, isEntryOpen } from '@/lib/event'
 
 const CLASS_PROGRESS_PHASES = new Set<EventProgressStep>(['picked', 'invited'])
 

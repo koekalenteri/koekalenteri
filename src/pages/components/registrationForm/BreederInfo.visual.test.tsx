@@ -1,8 +1,8 @@
-import type { DeepPartial, Registration } from '../../../types'
+import type { DeepPartial, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
-import theme from '../../../assets/Theme'
-import { TestProvider } from '../../../test-utils/AtomProvider'
+import theme from '@/assets/Theme'
+import { TestProvider } from '@/test-utils/AtomProvider'
 import { BreederInfo } from './BreederInfo'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

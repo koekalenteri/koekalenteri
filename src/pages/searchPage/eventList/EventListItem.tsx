@@ -1,10 +1,10 @@
-import type { PublicDogEvent } from '../../../types'
+import type { PublicDogEvent } from '@/types'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedStartOfDay } from '../../../i18n/dates'
+import { zonedStartOfDay } from '@/i18n/dates'
 import {
   eventTypeLabel,
   getParticipantsPhase,
@@ -15,9 +15,9 @@ import {
   isEventOver,
   isValidForEntry,
   localizedEventName,
-} from '../../../lib/event'
-import { liveViewEnabled } from '../../../lib/features'
-import { Path } from '../../../routeConfig'
+} from '@/lib/event'
+import { liveViewEnabled } from '@/lib/features'
+import { Path } from '@/routeConfig'
 import { CollapsibleEvent } from '../../components/CollapsibleEvent'
 import LinkButton from '../../components/LinkButton'
 import { languageAtom } from '../../state'

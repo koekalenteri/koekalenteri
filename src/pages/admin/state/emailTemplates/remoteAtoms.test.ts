@@ -1,15 +1,15 @@
-import type { DataVersions, EmailTemplate, User } from '../../../../types'
+import type { DataVersions, EmailTemplate, User } from '@/types'
 import { vi } from 'vitest'
 
 const mockReadEncryptedDataset = vi.fn()
 const mockWriteEncryptedDataset = vi.fn(async () => undefined)
-vi.mock('../../../../lib/client/encryptedStore', () => ({
+vi.mock('@/lib/client/encryptedStore', () => ({
   readEncryptedDataset: mockReadEncryptedDataset,
   writeEncryptedDataset: mockWriteEncryptedDataset,
 }))
 
 const mockGetEmailTemplates = vi.fn()
-vi.mock('../../../../api/email', () => ({ getEmailTemplates: mockGetEmailTemplates }))
+vi.mock('@/api/email', () => ({ getEmailTemplates: mockGetEmailTemplates }))
 
 const template = (id: EmailTemplate['id']): EmailTemplate => ({
   createdAt: new Date('2026-01-01'),

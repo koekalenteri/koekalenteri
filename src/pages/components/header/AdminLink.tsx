@@ -2,7 +2,7 @@ import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { Link as SpaLink } from 'react-router'
-import { Path } from '../../../routeConfig'
+import { Path } from '@/routeConfig'
 
 interface Props {
   readonly active?: boolean

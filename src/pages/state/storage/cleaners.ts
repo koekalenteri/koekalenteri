@@ -1,8 +1,8 @@
-import { clearEncryptedStore } from '../../../lib/client/encryptedStore'
-import { getStorageKeysStartingWith } from '../../../lib/client/storage'
-import { isTestEnv } from '../../../lib/env'
-import { DEFAULT_OWNER_KEY } from '../../../lib/registration'
-import { appVersion, isEarlierVersionThan } from '../../../lib/version'
+import { clearEncryptedStore } from '@/lib/client/encryptedStore'
+import { getStorageKeysStartingWith } from '@/lib/client/storage'
+import { isTestEnv } from '@/lib/env'
+import { DEFAULT_OWNER_KEY } from '@/lib/registration'
+import { appVersion, isEarlierVersionThan } from '@/lib/version'
 
 export const cleanPre112 = () => {
   const remove: string[] = getStorageKeysStartingWith([

@@ -1,10 +1,10 @@
-import type { DeepPartial } from '../../../../types'
-import type { DogCache, DogCachedInfo } from '../../../state/dog'
+import type { DogCache, DogCachedInfo } from '@/pages/state/dog'
+import type { DeepPartial } from '@/types'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
-import { isEmpty } from '../../../../lib/utils'
-import { validateRegNo } from '../../../../lib/validation'
-import { dogCacheAtom } from '../../../state/dog'
+import { isEmpty } from '@/lib/utils'
+import { validateRegNo } from '@/lib/validation'
+import { dogCacheAtom } from '@/pages/state/dog'
 
 type Setter = (props: DeepPartial<DogCachedInfo>) => DeepPartial<DogCachedInfo> | undefined
 type HookResult = [DeepPartial<DogCachedInfo> | undefined, Setter]

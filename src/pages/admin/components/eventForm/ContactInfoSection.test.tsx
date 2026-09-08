@@ -1,4 +1,4 @@
-import type { ContactInfo, User } from '../../../../types'
+import type { ContactInfo, User } from '@/types'
 import { render, screen } from '@testing-library/react'
 import ContactInfoSection from './ContactInfoSection'
 

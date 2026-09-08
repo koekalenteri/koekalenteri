@@ -1,16 +1,16 @@
 import type { PrimitiveAtom } from 'jotai'
-import type { CapacityStatsEntry } from '../../../../types/Stats'
+import type { CapacityStatsEntry } from '@/types/Stats'
 import { atom, createStore } from 'jotai'
-import { getAdminCapacityStats } from '../../../../api/stats'
-import { validIdTokenAtom } from '../../../state'
+import { getAdminCapacityStats } from '@/api/stats'
+import { validIdTokenAtom } from '@/pages/state'
 import { adminActiveEventTypesAtom } from '../eventTypes/derivedAtoms'
 import { ALL_EVENT_TYPES_ID } from './atoms'
 import { adminCapacityStatsAtom } from './remoteAtoms'
 
-vi.mock('../../../../api/stats')
+vi.mock('@/api/stats')
 // Both are read-only derived atoms in the app; swapped for writable ones so a test can put the
 // store into the state it wants without dragging in auth and the event-type fetch.
-vi.mock('../../../state', () => ({ validIdTokenAtom: atom<string | null>(null) }))
+vi.mock('@/pages/state', () => ({ validIdTokenAtom: atom<string | null>(null) }))
 vi.mock('../eventTypes/derivedAtoms', () => ({ adminActiveEventTypesAtom: atom<unknown[]>([]) }))
 
 const mockGetAdminCapacityStats = vi.mocked(getAdminCapacityStats)

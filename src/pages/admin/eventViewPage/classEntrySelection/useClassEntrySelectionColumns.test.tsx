@@ -1,13 +1,13 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type React from 'react'
 import type { MouseEventHandler, ReactElement, ReactNode } from 'react'
-import type { Registration, RegistrationDate, RegistrationGroup } from '../../../../types'
+import type { Registration, RegistrationDate, RegistrationGroup } from '@/types'
 import CircularProgress from '@mui/material/CircularProgress'
 import { renderHook } from '@testing-library/react'
 import { isValidElement } from 'react'
-import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
-import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
-import * as registrationUtils from '../../../../lib/registration'
+import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import * as registrationUtils from '@/lib/registration'
 import { useClassEntrySelectionColumns } from './useClassEntrySelectionColumns'
 
 /**

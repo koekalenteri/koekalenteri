@@ -1,7 +1,7 @@
-import type { EventStatsItem } from '../../../types/Stats'
+import type { EventStatsItem } from '@/types/Stats'
 import type { MonthlyRate } from './MonthlyRateChart'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '../../../i18n/dates'
+import { zonedDateString } from '@/i18n/dates'
 import MonthlyRateChart, { percentageOf } from './MonthlyRateChart'
 
 interface Props {

@@ -1,4 +1,4 @@
-import type { YearlyStatsResponse } from '../../../api/stats'
+import type { YearlyStatsResponse } from '@/api/stats'
 import { render, screen } from '@testing-library/react'
 import RetentionChart from './RetentionChart'
 

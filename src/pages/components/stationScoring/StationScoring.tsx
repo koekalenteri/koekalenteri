@@ -1,4 +1,4 @@
-import type { EventResultSubmission, EventResultsResponse } from '../../../api/registration'
+import type { EventResultSubmission, EventResultsResponse } from '@/api/registration'
 import type {
   EventResult,
   EventStation,
@@ -8,7 +8,7 @@ import type {
   RegistrationGroup,
   RegistrationTime,
   StationTurnOp,
-} from '../../../types'
+} from '@/types'
 import type { StationTurnItem } from './StationTurnControls'
 import type { ResultEdit } from './types'
 import Save from '@mui/icons-material/Save'
@@ -22,11 +22,11 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { makeArray } from '../../../lib/judge'
-import { liveFormat } from '../../../lib/liveFormat'
-import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '../../../lib/registration'
-import { classRound, parseEventResultCode, scoresAtPosts, stationVersion } from '../../../lib/results'
-import { openTurn } from '../../../lib/stationTurns'
+import { makeArray } from '@/lib/judge'
+import { liveFormat } from '@/lib/liveFormat'
+import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '@/lib/registration'
+import { classRound, parseEventResultCode, scoresAtPosts, stationVersion } from '@/lib/results'
+import { openTurn } from '@/lib/stationTurns'
 import { AsyncButton } from '../AsyncButton'
 import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'

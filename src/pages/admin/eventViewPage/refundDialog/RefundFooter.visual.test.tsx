@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { DataGrid } from '@mui/x-data-grid'
 import { render } from 'vitest-browser-react'
-import theme from '../../../../assets/Theme'
+import theme from '@/assets/Theme'
 import { RefundFooter } from './RefundFooter'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

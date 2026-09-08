@@ -1,5 +1,5 @@
 import type { ParseKeys } from 'i18next'
-import type { AuditRecord } from '../../../types'
+import type { AuditRecord } from '@/types'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import Box from '@mui/material/Box'
@@ -9,7 +9,7 @@ import { alpha } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatDate } from '../../../i18n/dates'
+import { formatDate } from '@/i18n/dates'
 import CollapsibleSection from '../../components/CollapsibleSection'
 
 interface Props {

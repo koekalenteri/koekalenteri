@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import type { Organizer } from '../../../types'
+import type { Organizer } from '@/types'
 import Save from '@mui/icons-material/Save'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'

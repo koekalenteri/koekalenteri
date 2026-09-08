@@ -1,6 +1,6 @@
 import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import { atom } from 'jotai'
-import { atomWithLocalStorage } from '../../../state/storage'
+import { atomWithLocalStorage } from '@/pages/state/storage'
 
 export { adminOrganizersRemoteAtom as adminOrganizersAtom } from './remoteAtoms'
 export const adminOrganizerFilterAtom = atom('')

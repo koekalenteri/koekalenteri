@@ -1,8 +1,8 @@
-import type { EventType, EventTypeData } from '../../../../types'
+import type { EventType, EventTypeData } from '@/types'
 import { useAtom, useAtomValue } from 'jotai'
-import { getEventTypes, putEventType } from '../../../../api/eventType'
-import { compareByLocalizedString } from '../../../../lib/client/sort'
-import { validIdTokenAtom } from '../../../state/user'
+import { getEventTypes, putEventType } from '@/api/eventType'
+import { compareByLocalizedString } from '@/lib/client/sort'
+import { validIdTokenAtom } from '@/pages/state/user'
 import { adminEventTypesAtom } from './atoms'
 
 const sortEventTypes = (eventTypes: EventType[]) => [...eventTypes].sort(compareByLocalizedString('eventType'))

@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router'
 import { render } from 'vitest-browser-react'
-import theme from '../../../assets/Theme'
+import theme from '@/assets/Theme'
 import { EventStateInfo } from './EventStateInfo'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

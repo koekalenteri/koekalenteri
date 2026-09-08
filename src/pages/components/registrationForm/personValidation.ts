@@ -1,8 +1,8 @@
-import type { OwnerRole } from '../../../lib/registration'
-import type { Person } from '../../../types'
+import type { OwnerRole } from '@/lib/registration'
+import type { Person } from '@/types'
 import { matchIsValidTel } from 'mui-tel-input'
-import { knownTlds } from '../../../lib/client/tlds'
-import { validEmail } from '../../../lib/email'
+import { knownTlds } from '@/lib/client/tlds'
+import { validEmail } from '@/lib/email'
 
 /** MuiTelInput keeps the calling code in the field, so a bare "+358" means no number was given. */
 const isBlankPhone = (phone: string | undefined): boolean => !phone?.trim() || /^\+\d{1,3}$/.test(phone.trim())

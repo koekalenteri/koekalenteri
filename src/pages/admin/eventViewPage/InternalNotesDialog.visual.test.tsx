@@ -1,8 +1,8 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { SnackbarProvider } from 'notistack'
 import { render } from 'vitest-browser-react'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import theme from '../../../assets/Theme'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import theme from '@/assets/Theme'
 import InternalNotesDialog from './InternalNotesDialog'
 
 const registration = { ...registrationWithStaticDates, internalNotes: 'Ei vastaa puhelimeen, käytä sähköpostia.' }

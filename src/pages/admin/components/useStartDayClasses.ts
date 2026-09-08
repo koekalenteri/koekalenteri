@@ -1,6 +1,6 @@
 import type { PlacedRegistration, StartDay } from './StartDaySelector'
 import { useMemo, useState } from 'react'
-import { compareRegistrationClasses, getRegistrationClass } from '../../../lib/registration'
+import { compareRegistrationClasses, getRegistrationClass } from '@/lib/registration'
 import { startDayKey, startDaysOf } from './StartDaySelector'
 
 /** What the day-then-class navigation reads of a dog: where it runs and which class it runs in. */

@@ -1,6 +1,6 @@
-import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
+import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '@/types'
 import type { DragItem } from './types'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 
 export const determineChangesFromDrop = (
   item: DragItem,

@@ -1,8 +1,8 @@
-import type { Registration } from '../../../types'
+import type { Registration } from '@/types'
 import { screen, within } from '@testing-library/react'
-import { eventWithParticipantsInvited } from '../../../__mockData__/events'
-import { registrationsToEventWithParticipantsInvited } from '../../../__mockData__/registrations'
-import { renderWithUserEvents } from '../../../test-utils/utils'
+import { eventWithParticipantsInvited } from '@/__mockData__/events'
+import { registrationsToEventWithParticipantsInvited } from '@/__mockData__/registrations'
+import { renderWithUserEvents } from '@/test-utils/utils'
 import MessageRecipientsDialog from './MessageRecipientsDialog'
 
 // ALO: two participants, one cancelled and two reserves. AVO: two participants and no reserve.

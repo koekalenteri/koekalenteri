@@ -1,4 +1,4 @@
-import type { YearlyStatsResponse } from '../../../api/stats'
+import type { YearlyStatsResponse } from '@/api/stats'
 import { useTranslation } from 'react-i18next'
 import { CATEGORICAL_CHART_COLORS } from './chartColors'
 import StatsBarChart from './StatsBarChart'

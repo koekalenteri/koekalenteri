@@ -1,6 +1,6 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-import type { DeepPartial, DogEvent, EventClass, EventState } from '../../../../../types'
+import type { DeepPartial, DogEvent, EventClass, EventState } from '@/types'
 import CheckBox from '@mui/icons-material/CheckBox'
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
 import Autocomplete from '@mui/material/Autocomplete'

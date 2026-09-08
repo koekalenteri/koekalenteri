@@ -3,7 +3,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import DroppableDataGrid, { canDropInGroup } from './DroppableDataGrid'
 
-vi.mock('../../../components/StyledDataGrid', () => ({
+vi.mock('@/pages/components/StyledDataGrid', () => ({
   __esModule: true,
   default: (props: any) => (
     <div data-testid="styled-data-grid" data-props={JSON.stringify(props)}>

@@ -1,6 +1,6 @@
-import type { LivePhase } from '../../../lib/liveFormat'
-import type { StationTurnSpan } from '../../../lib/stationTurns'
-import type { EventStation, LiveMark, StationTurnOp, StationTurnPause } from '../../../types'
+import type { LivePhase } from '@/lib/liveFormat'
+import type { StationTurnSpan } from '@/lib/stationTurns'
+import type { EventStation, LiveMark, StationTurnOp, StationTurnPause } from '@/types'
 import FreeBreakfastOutlined from '@mui/icons-material/FreeBreakfastOutlined'
 import GroupsOutlined from '@mui/icons-material/GroupsOutlined'
 import PlayArrow from '@mui/icons-material/PlayArrow'
@@ -18,8 +18,8 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { errorSnackbarOptions } from '../../../lib/client/snackbar'
-import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../../lib/liveFormat'
+import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '@/lib/liveFormat'
 import {
   currentPhase,
   dogsThrough,
@@ -28,7 +28,7 @@ import {
   openTurn,
   stationThroughput,
   turnElapsedMs,
-} from '../../../lib/stationTurns'
+} from '@/lib/stationTurns'
 import { AsyncButton } from '../AsyncButton'
 
 const PAUSES: readonly StationTurnPause[] = ['coffee', 'lunch', 'weather', 'other']

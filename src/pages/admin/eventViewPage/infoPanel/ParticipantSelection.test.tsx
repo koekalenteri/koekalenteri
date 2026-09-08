@@ -1,5 +1,5 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { Registration } from '../../../../types'
+import type { Registration } from '@/types'
 import { screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import {
@@ -8,14 +8,14 @@ import {
   eventWithParticipantsInvited,
   eventWithStaticDates,
   eventWithStaticDatesAndClass,
-} from '../../../../__mockData__/events'
+} from '@/__mockData__/events'
 import {
   registrationsToEventWithEntryClosed,
   registrationsToEventWithParticipantsInvited,
   registrationWithStaticDates,
-} from '../../../../__mockData__/registrations'
-import { eventRegistrationDateKey } from '../../../../lib/event'
-import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/utils'
+} from '@/__mockData__/registrations'
+import { eventRegistrationDateKey } from '@/lib/event'
+import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import InfoPanel from '../InfoPanel'
 
 const _activeEventWithStaticDates = {
@@ -28,8 +28,8 @@ const _activeEventWithStaticDatesAndClass = {
 }
 
 // Mock the API calls
-vi.mock('../../../../api/event')
-vi.mock('../../../../api/user')
+vi.mock('@/api/event')
+vi.mock('@/api/user')
 
 // Mock the notistack enqueueSnackbar
 vi.mock('notistack', () => ({

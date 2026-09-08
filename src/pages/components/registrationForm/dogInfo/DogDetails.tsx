@@ -1,4 +1,4 @@
-import type { BreedCode, DeepPartial, DogGender, Registration } from '../../../../types'
+import type { BreedCode, DeepPartial, DogGender, Registration } from '@/types'
 import type { DogMode } from './DogSearch'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'

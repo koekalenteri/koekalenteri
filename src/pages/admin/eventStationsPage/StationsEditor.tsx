@@ -1,4 +1,4 @@
-import type { DogEvent, EventStation, Patch } from '../../../types'
+import type { DogEvent, EventStation, Patch } from '@/types'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -7,8 +7,8 @@ import Typography from '@mui/material/Typography'
 import { nanoid } from 'nanoid'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '../../../i18n/dates'
-import { getEventDays } from '../../../lib/event'
+import { zonedDateString } from '@/i18n/dates'
+import { getEventDays } from '@/lib/event'
 import { StationRow } from './StationRow'
 
 export type StationsEditorEvent = Pick<DogEvent, 'endDate' | 'eventType' | 'judges' | 'startDate' | 'stations'>

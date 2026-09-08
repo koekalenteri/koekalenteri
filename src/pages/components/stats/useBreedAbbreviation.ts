@@ -1,4 +1,4 @@
-import type { BreedCode } from '../../../types/Dog'
+import type { BreedCode } from '@/types/Dog'
 import { useTranslation } from 'react-i18next'
 
 /**

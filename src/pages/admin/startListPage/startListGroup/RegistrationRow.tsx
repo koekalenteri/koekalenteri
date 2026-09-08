@@ -1,11 +1,11 @@
-import type { Registration } from '../../../../types'
+import type { Registration } from '@/types'
 import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { breedAbbreviation } from '../../../../lib/dog'
-import { formatOwnerNames, getRegistrationClass, getRegistrationOwners } from '../../../../lib/registration'
+import { breedAbbreviation } from '@/lib/dog'
+import { formatOwnerNames, getRegistrationClass, getRegistrationOwners } from '@/lib/registration'
 
 interface RegistrationRowProps {
   reg: Registration

@@ -1,13 +1,13 @@
 import type { TFunction } from 'i18next'
-import type { EventResultSubmission, StoredEventResult } from '../../../../api/registration'
-import type { PublicDogEvent, Registration, RegistrationGroupMove, RegistrationMessage } from '../../../../types'
+import type { EventResultSubmission, StoredEventResult } from '@/api/registration'
+import type { PublicDogEvent, Registration, RegistrationGroupMove, RegistrationMessage } from '@/types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sendTemplatedEmail } from '../../../../api/email'
-import { createRefund } from '../../../../api/payment'
+import { sendTemplatedEmail } from '@/api/email'
+import { createRefund } from '@/api/payment'
 import {
   getRegistrations,
   getRegistrationTransactions,
@@ -16,14 +16,14 @@ import {
   putAdminRegistrationNotes,
   putEventResults,
   putRegistrationGroups,
-} from '../../../../api/registration'
-import { reportError } from '../../../../lib/client/error'
-import { isTestEnv } from '../../../../lib/env'
-import { latestCollectionUpdate, reconcileCollection } from '../../../../lib/incremental'
-import { createPatchOperations } from '../../../../lib/patch'
-import { GROUP_KEY_CANCELLED, withRegistrationOverrides } from '../../../../lib/registration'
-import { validIdTokenAtom } from '../../../state'
-import { showRegistrationSaveConflict } from '../../../state/registration/registrationSaveError'
+} from '@/api/registration'
+import { reportError } from '@/lib/client/error'
+import { isTestEnv } from '@/lib/env'
+import { latestCollectionUpdate, reconcileCollection } from '@/lib/incremental'
+import { createPatchOperations } from '@/lib/patch'
+import { GROUP_KEY_CANCELLED, withRegistrationOverrides } from '@/lib/registration'
+import { validIdTokenAtom } from '@/pages/state'
+import { showRegistrationSaveConflict } from '@/pages/state/registration/registrationSaveError'
 import { adminEventAtom } from '../events'
 import {
   adminBackgroundActionsRunningAtom,

@@ -1,4 +1,4 @@
-import type { CapacityStatsEntry } from '../../../types/Stats'
+import type { CapacityStatsEntry } from '@/types/Stats'
 import { render, screen } from '@testing-library/react'
 import FillRateChart from './FillRateChart'
 

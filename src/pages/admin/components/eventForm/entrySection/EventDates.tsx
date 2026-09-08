@@ -1,8 +1,8 @@
-import type { RegistrationClass } from '../../../../../types'
+import type { RegistrationClass } from '@/types'
 import type { EntryEvent, SectionProps } from '../types'
 import Stack from '@mui/material/Stack'
 import { useMemo } from 'react'
-import { getUniqueEventClasses, OFFICIAL_EVENT_TYPES } from '../../../../../lib/event'
+import { getUniqueEventClasses, OFFICIAL_EVENT_TYPES } from '@/lib/event'
 import { ClassGroups } from './eventDates/ClassGroups'
 import { EventGroups } from './eventDates/EventGroups'
 

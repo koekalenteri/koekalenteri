@@ -1,4 +1,4 @@
-import type { Language } from '../../../types'
+import type { Language } from '@/types'
 import i18n from 'i18next'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'

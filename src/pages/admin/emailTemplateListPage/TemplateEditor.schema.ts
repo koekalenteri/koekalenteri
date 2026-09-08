@@ -1,4 +1,4 @@
-import type { EmailTemplateId } from '../../../types'
+import type { EmailTemplateId } from '@/types'
 
 export const defaultSchema = {
   cancelReason: 'string',

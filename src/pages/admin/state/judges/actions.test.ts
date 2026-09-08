@@ -1,16 +1,16 @@
-import type { Judge } from '../../../../types'
+import type { Judge } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { Provider, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { getJudges, putJudge } from '../../../../api/judge'
-import { getUsers } from '../../../../api/user'
+import { getJudges, putJudge } from '@/api/judge'
+import { getUsers } from '@/api/user'
 import { useAdminJudgesActions } from './actions'
 
-vi.mock('../../../../api/judge', async () => ({
+vi.mock('@/api/judge', async () => ({
   getJudges: vi.fn(),
   putJudge: vi.fn(),
 }))
 
-vi.mock('../../../../api/user', async () => ({
+vi.mock('@/api/user', async () => ({
   getUsers: vi.fn(),
 }))
 

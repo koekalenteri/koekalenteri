@@ -3,12 +3,12 @@ import { act, renderHook } from '@testing-library/react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { eventWithStaticDates } from '../../../../__mockData__/events'
-import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
-import { APIError } from '../../../../api/http'
-import * as registrationApi from '../../../../api/registration'
-import { TEST_ID_TOKEN } from '../../../../test-utils/utils'
-import { idTokenAtom } from '../../../state'
+import { eventWithStaticDates } from '@/__mockData__/events'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { APIError } from '@/api/http'
+import * as registrationApi from '@/api/registration'
+import { idTokenAtom } from '@/pages/state'
+import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../events'
 import { useAdminRegistrationActions } from './actions'
 import {
@@ -26,7 +26,7 @@ vi.mock('notistack', () => ({
   useSnackbar: () => ({ enqueueSnackbar: mockEnqueueSnackbar }),
 }))
 
-vi.mock('../../../../api/registration')
+vi.mock('@/api/registration')
 
 function wrapper({ children }: { readonly children: React.ReactNode }) {
   return (

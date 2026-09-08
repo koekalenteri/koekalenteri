@@ -1,5 +1,5 @@
 import type { GridColDef } from '@mui/x-data-grid'
-import type { EventType, Language } from '../../../types'
+import type { EventType, Language } from '@/types'
 import { useTranslation } from 'react-i18next'
 import OfficialCell from '../components/OfficialCell'
 import ActiveCell from './cells/ActiveCell'

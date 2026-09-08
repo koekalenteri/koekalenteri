@@ -1,9 +1,9 @@
-import type { ConfirmedEvent } from '../../../../types'
+import type { ConfirmedEvent } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
-import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
-import { eventWithStations } from '../../../../__mockData__/resultsEvent'
-import theme from '../../../../assets/Theme'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { eventWithStations } from '@/__mockData__/resultsEvent'
+import theme from '@/assets/Theme'
 import StartListPublishing from './StartListPublishing'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

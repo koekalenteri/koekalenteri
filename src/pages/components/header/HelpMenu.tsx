@@ -6,7 +6,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink, useLocation } from 'react-router'
-import { Path } from '../../../routeConfig'
+import { Path } from '@/routeConfig'
 import AppBarButton from './AppBarButton'
 
 export default function HelpMenu() {

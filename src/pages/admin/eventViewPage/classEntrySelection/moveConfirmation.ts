@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
-import type { EventClassState, EventState } from '../../../../types'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isParticipantGroup } from '../../../../lib/registration'
+import type { EventClassState, EventState } from '@/types'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isParticipantGroup } from '@/lib/registration'
 
 /** `useConfirm` from material-ui-confirm, narrowed to the options this prompt passes. */
 export type ConfirmMove = (opts: {

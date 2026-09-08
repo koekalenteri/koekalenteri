@@ -1,7 +1,7 @@
 import type { AutocompleteFreeSoloValueMapping, AutocompleteProps } from '@mui/material'
 import type { AutocompleteInputChangeReason, AutocompleteRenderInputParams } from '@mui/material/Autocomplete'
 import type { ReactNode, SyntheticEvent } from 'react'
-import type { DogEvent } from '../../../../../types'
+import type { DogEvent } from '@/types'
 import type { FieldRequirements, PartialEvent } from '../types'
 import HelpOutlined from '@mui/icons-material/HelpOutlined'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
+import useDebouncedCallback from '@/hooks/useDebouncedCallback'
 import { validateEventField } from '../validation'
 
 type Property = keyof Omit<

@@ -1,4 +1,4 @@
-import type { DogCache } from '../../../state/dog'
+import type { DogCache } from '@/pages/state/dog'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { act } from 'react'

@@ -1,5 +1,5 @@
-import type { ManualTestResult } from '../../../../types'
-import { getRequirements } from '../../../../rules'
+import type { ManualTestResult } from '@/types'
+import { getRequirements } from '@/rules'
 import { availableResults, availableTypes, createMissingResult, resultBorderColor } from './utils'
 
 const ID_REGEXP = /^[0-9a-zA-Z_-]{10}$/

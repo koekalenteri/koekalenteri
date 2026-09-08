@@ -1,8 +1,8 @@
-import type { Registration } from '../../../../types'
+import type { Registration } from '@/types'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
-import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
+import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import RegistrationIcons from './RegistrationIcons'
 
 // Helper function to create a mock registration with default values

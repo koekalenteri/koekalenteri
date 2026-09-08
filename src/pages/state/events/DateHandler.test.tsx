@@ -1,14 +1,14 @@
-import type { PublicDogEvent } from '../../../types'
+import type { PublicDogEvent } from '@/types'
 import { act, render } from '@testing-library/react'
 import { addDays } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { getEvents } from '../../../api/event'
-import { zonedStartOfDay } from '../../../i18n/dates'
+import { getEvents } from '@/api/event'
+import { zonedStartOfDay } from '@/i18n/dates'
 import { eventFilterAtom, eventMetadataAtom, eventsAtom } from './atoms'
 import { DateHandler } from './DateHandler'
 import { RANGE_INCREMENTAL_THROTTLE } from './hooks'
 
-vi.mock('../../../api/event', () => ({
+vi.mock('@/api/event', () => ({
   getEvent: vi.fn(),
   getEvents: vi.fn(),
 }))

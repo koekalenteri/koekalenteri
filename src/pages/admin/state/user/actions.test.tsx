@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
-import type { CollectionResponse, User } from '../../../../types'
+import type { CollectionResponse, User } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { useAtomValue } from 'jotai'
 import { SnackbarProvider } from 'notistack'
-import { TestProvider } from '../../../../test-utils/AtomProvider'
-import { TEST_ID_TOKEN } from '../../../../test-utils/utils'
-import { idTokenAtom } from '../../../state'
+import { idTokenAtom } from '@/pages/state'
+import { TestProvider } from '@/test-utils/AtomProvider'
+import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { useAdminUserActions } from './actions'
 import { adminUsersAtom } from './atoms'
 
@@ -16,7 +16,7 @@ const mockGetUsers = vi.hoisted(() =>
   vi.fn<(token: string, signal?: AbortSignal, since?: Date) => Promise<CollectionResponse<User>>>()
 )
 
-vi.mock('../../../../api/user', () => ({
+vi.mock('@/api/user', () => ({
   getUsers: mockGetUsers,
   putAdmin: vi.fn(),
   putRole: vi.fn(),

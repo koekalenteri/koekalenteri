@@ -1,4 +1,4 @@
-import type { DeepPartial, Person } from '../../../types'
+import type { DeepPartial, Person } from '@/types'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'

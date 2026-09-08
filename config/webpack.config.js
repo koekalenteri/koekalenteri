@@ -280,6 +280,9 @@ module.exports = function (webpackEnv) {
       // Resolve the source extensions used by this project.
       extensions: paths.moduleFileExtensions.map((ext) => `.${ext}`),
       alias: {
+        // The source root, as tsconfig's paths declare it: an import that would climb three or more
+        // directories names the file from here instead (KOE-1347).
+        '@': paths.appSrc,
         // Allows for better profiling with ReactDevTools
         ...(isEnvProductionProfile && {
           'react-dom$': 'react-dom/profiling',

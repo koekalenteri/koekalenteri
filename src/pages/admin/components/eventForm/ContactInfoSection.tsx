@@ -1,8 +1,8 @@
-import type { ContactInfo, DeepPartial, PublicContactInfo, User } from '../../../../types'
+import type { ContactInfo, DeepPartial, PublicContactInfo, User } from '@/types'
 import Grid from '@mui/material/Grid'
 import { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import CollapsibleSection from '../../../components/CollapsibleSection'
+import CollapsibleSection from '@/pages/components/CollapsibleSection'
 import ContactInfoSelect from './contactInfoSection/ContactInfoSelect'
 
 interface Props {

@@ -5,15 +5,15 @@ import type {
   RegistrationDate,
   RegistrationGroup,
   RegistrationGroupMove,
-} from '../../../../types'
+} from '@/types'
 import type { ConfirmMove } from './moveConfirmation'
 import type { DragItem } from './types'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
-import { recordEvent } from '../../../../lib/client/rum'
-import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
-import { eventRegistrationDateKey } from '../../../../lib/event'
-import { GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../../lib/registration'
+import { recordEvent } from '@/lib/client/rum'
+import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { eventRegistrationDateKey } from '@/lib/event'
+import { GROUP_KEY_RESERVE, getRegistrationGroupKey } from '@/lib/registration'
 import { determineChangesFromDrop } from './dnd'
 import { confirmMoveToParticipants } from './moveConfirmation'
 

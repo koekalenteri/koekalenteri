@@ -1,4 +1,4 @@
-import type { CapacityStatsEntry } from '../../../types/Stats'
+import type { CapacityStatsEntry } from '@/types/Stats'
 import { render, screen } from '@testing-library/react'
 import CapacityUtilizationChart, { ALL_CLASSES_ID } from './CapacityUtilizationChart'
 

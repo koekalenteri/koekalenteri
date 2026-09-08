@@ -1,4 +1,4 @@
-import { eventWithStaticDates } from '../../../../__mockData__/events'
+import { eventWithStaticDates } from '@/__mockData__/events'
 import { buildEventSavePatch, buildStartListClassPublishedPatch, buildStartListPublishedPatch } from './actions'
 
 describe('buildEventSavePatch', () => {

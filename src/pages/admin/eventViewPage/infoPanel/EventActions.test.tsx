@@ -1,11 +1,11 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { Registration } from '../../../../types'
+import type { Registration } from '@/types'
 import { screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../../__mockData__/events'
-import { eventWithStations, registrationsToEventWithStations } from '../../../../__mockData__/resultsEvent'
-import { eventRegistrationDateKey } from '../../../../lib/event'
-import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/utils'
+import { eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
+import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
+import { eventRegistrationDateKey } from '@/lib/event'
+import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import InfoPanel from '../InfoPanel'
 
 const { mockOpenDialog } = vi.hoisted(() => ({ mockOpenDialog: vi.fn() }))
@@ -25,8 +25,8 @@ const _activeEventWithStaticDatesAndClass = {
 }
 
 // Mock the API calls
-vi.mock('../../../../api/event')
-vi.mock('../../../../api/user')
+vi.mock('@/api/event')
+vi.mock('@/api/user')
 
 // Mock the notistack enqueueSnackbar
 vi.mock('notistack', () => ({

@@ -1,4 +1,4 @@
-import type { DeepPartial, Registration } from '../../../types'
+import type { DeepPartial, Registration } from '@/types'
 import type { DogCachedInfo } from '../../state/dog'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'

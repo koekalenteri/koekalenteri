@@ -1,12 +1,12 @@
-import type useAdminEventRegistrationInfo from '../../../../hooks/useAdminEventRegistrationsInfo'
-import type { ConfirmedEvent, RegistrationClass } from '../../../../types'
+import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
+import type { ConfirmedEvent, RegistrationClass } from '@/types'
 import {
   canPublishStartList,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartNumbersPublishedForClass,
-} from '../../../../lib/event'
-import { getInvitationRecipients, isRegistrationClass } from '../../../../lib/registration'
+} from '@/lib/event'
+import { getInvitationRecipients, isRegistrationClass } from '@/lib/registration'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
 type EventClass = ConfirmedEvent['classes'][number]

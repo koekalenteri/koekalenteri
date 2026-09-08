@@ -1,6 +1,6 @@
-import type { ResultCode, SubmittedTask } from '../../../lib/results'
-import type { EventResultElimination, EventResultRetirement, PublicJudge } from '../../../types'
-import { canBeStopped } from '../../../lib/results'
+import type { ResultCode, SubmittedTask } from '@/lib/results'
+import type { EventResultElimination, EventResultRetirement, PublicJudge } from '@/types'
+import { canBeStopped } from '@/lib/results'
 
 /**
  * One task as the secretary has it on screen. Identical to what goes on the wire: the server assigns

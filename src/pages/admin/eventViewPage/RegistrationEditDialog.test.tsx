@@ -7,19 +7,19 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { eventWithStaticDates } from '../../../__mockData__/events'
-import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
-import { putAdminRegistrationNotes } from '../../../api/registration'
-import theme from '../../../assets/Theme'
-import { locales } from '../../../i18n'
-import { flushPromises, renderSuspended, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { eventWithStaticDates } from '@/__mockData__/events'
+import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '@/__mockData__/registrations'
+import { putAdminRegistrationNotes } from '@/api/registration'
+import theme from '@/assets/Theme'
+import { locales } from '@/i18n'
+import { flushPromises, renderSuspended, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { idTokenAtom } from '../../state'
 import RegistrationEditDialog from './RegistrationEditDialog'
 
-vi.mock('../../../api/email')
-vi.mock('../../../api/event')
-vi.mock('../../../api/registration')
-vi.mock('../../../api/user')
+vi.mock('@/api/email')
+vi.mock('@/api/event')
+vi.mock('@/api/registration')
+vi.mock('@/api/user')
 
 const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (

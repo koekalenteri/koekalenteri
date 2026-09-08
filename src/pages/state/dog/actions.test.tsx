@@ -1,15 +1,15 @@
-import type { DeepPartial, Dog } from '../../../types'
+import type { DeepPartial, Dog } from '@/types'
 import type { DogCachedInfo } from './atoms'
 import { act, renderHook } from '@testing-library/react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { getDog } from '../../../api/dog'
-import { emptyDog } from '../../../lib/data'
-import { AtomObserver } from '../../../test-utils/utils'
+import { getDog } from '@/api/dog'
+import { emptyDog } from '@/lib/data'
+import { AtomObserver } from '@/test-utils/utils'
 import { useDogActions } from './actions'
 import { dogAtom, dogCacheAtom } from './atoms'
 
 // Mock dependencies
-vi.mock('../../../api/dog', () => ({
+vi.mock('@/api/dog', () => ({
   getDog: vi.fn(),
 }))
 

@@ -1,9 +1,9 @@
-import type { EmailTemplate } from '../../../../types'
+import type { EmailTemplate } from '@/types'
 import { useAtom, useAtomValue } from 'jotai'
 import { useSnackbar } from 'notistack'
-import { putEmailTemplate } from '../../../../api/email'
-import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
-import { validIdTokenAtom } from '../../../state'
+import { putEmailTemplate } from '@/api/email'
+import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { validIdTokenAtom } from '@/pages/state'
 import { adminEmailTemplatesAtom } from './atoms'
 
 export const useAdminEmailTemplatesActions = () => {

@@ -1,4 +1,4 @@
-import type { DeepPartial, Registration, RegistrationBreeder } from '../../../types'
+import type { DeepPartial, Registration, RegistrationBreeder } from '@/types'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { useCallback } from 'react'

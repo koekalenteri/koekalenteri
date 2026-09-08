@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
-import { getAllYearlyStats, getCapacityStats } from '../../../api/stats'
-import { ALL_EVENT_TYPES_FOR_CAPACITY } from '../../../types/Stats'
+import { getAllYearlyStats, getCapacityStats } from '@/api/stats'
+import { ALL_EVENT_TYPES_FOR_CAPACITY } from '@/types/Stats'
 
 export const allYearlyStatsAtom = atom(async () => getAllYearlyStats())
 

@@ -1,8 +1,8 @@
-import type { DeepPartial, EventClass } from '../../../../types'
+import type { DeepPartial, EventClass } from '@/types'
 import type { PartialEvent } from './types'
-import { formatDate } from '../../../../i18n/dates'
-import { getEventDays } from '../../../../lib/event'
-import { splitEvenly } from '../../../../lib/utils'
+import { formatDate } from '@/i18n/dates'
+import { getEventDays } from '@/lib/event'
+import { splitEvenly } from '@/lib/utils'
 
 type ClassesEvent = Pick<PartialEvent, 'classes'>
 type DaysEvent = Pick<PartialEvent, 'endDate' | 'places' | 'startDate'>

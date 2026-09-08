@@ -1,4 +1,4 @@
-import type { EventStatsItem } from '../../../types/Stats'
+import type { EventStatsItem } from '@/types/Stats'
 import { render, screen } from '@testing-library/react'
 import OrganizerFinanceChart from './OrganizerFinanceChart'
 

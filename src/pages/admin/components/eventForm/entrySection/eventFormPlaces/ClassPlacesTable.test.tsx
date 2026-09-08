@@ -1,7 +1,7 @@
 import type { EntryEvent } from '../../types'
 import { render, screen } from '@testing-library/react'
-import { eventWithStaticDatesAndClass } from '../../../../../../__mockData__/events'
-import { flushPromises, renderWithUserEvents } from '../../../../../../test-utils/utils'
+import { eventWithStaticDatesAndClass } from '@/__mockData__/events'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import ClassPlacesTable from './ClassPlacesTable'
 
 describe('ClassPlacesTable', () => {

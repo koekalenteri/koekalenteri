@@ -1,9 +1,9 @@
-import type { Registration } from '../../../types'
+import type { Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { parseISO } from 'date-fns'
 import { render } from 'vitest-browser-react'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import theme from '../../../assets/Theme'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import theme from '@/assets/Theme'
 import MoveToPositionDialog from './MoveToPositionDialog'
 
 const noop = async () => {}

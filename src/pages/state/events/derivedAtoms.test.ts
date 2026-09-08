@@ -1,4 +1,4 @@
-import type { PublicDogEvent } from '../../../types'
+import type { PublicDogEvent } from '@/types'
 import { createStore } from 'jotai'
 import { eventFilterAtom, eventsAtom } from './atoms'
 import { filteredEventsAtom, filterOrganizersAtom } from './derivedAtoms'

@@ -1,10 +1,10 @@
-import type { Registration, RegistrationGroup } from '../../../types'
+import type { Registration, RegistrationGroup } from '@/types'
 import { render, screen } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
-import { eventWithStaticDates } from '../../../__mockData__/events'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import { eventRegistrationDateKey } from '../../../lib/event'
-import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
+import { eventWithStaticDates } from '@/__mockData__/events'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { eventRegistrationDateKey } from '@/lib/event'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import MoveToGroupDialog from './MoveToGroupDialog'
 
 type TestRegistrationGroup = RegistrationGroup & { date: Date }

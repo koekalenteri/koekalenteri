@@ -1,4 +1,4 @@
-import type { ConfirmedEventStates } from '../../../types'
+import type { ConfirmedEventStates } from '@/types'
 import { render, screen } from '@testing-library/react'
 import {
   eventWithEntryNotYetOpen,
@@ -6,7 +6,7 @@ import {
   eventWithParticipantsInvited,
   eventWithStaticDates,
   eventWithStaticDatesAnd3Classes,
-} from '../../../__mockData__/events'
+} from '@/__mockData__/events'
 import EventStateStepper from './EventStateStepper'
 
 describe('EventStateStepper', () => {

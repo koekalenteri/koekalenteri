@@ -1,15 +1,15 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-import type { RegistrationClass, RegistrationDate } from '../../../../../../types'
+import type { RegistrationClass, RegistrationDate } from '@/types'
 import type { EntryEvent, SectionProps } from '../../types'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import { useAtomValue } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { applyNewGroupsToDogEventClass } from '../../../../../../lib/event'
-import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
-import { adminEventTypeGroupsAtom } from '../../../../state'
+import { applyNewGroupsToDogEventClass } from '@/lib/event'
+import { adminEventTypeGroupsAtom } from '@/pages/admin/state'
+import AutocompleteMulti from '@/pages/components/AutocompleteMulti'
 
 interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
   readonly event: EntryEvent

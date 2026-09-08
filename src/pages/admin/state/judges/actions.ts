@@ -1,7 +1,7 @@
-import type { Judge } from '../../../../types'
+import type { Judge } from '@/types'
 import { useAtom, useAtomValue } from 'jotai'
-import { getJudges, putJudge } from '../../../../api/judge'
-import { validIdTokenAtom } from '../../../state/user'
+import { getJudges, putJudge } from '@/api/judge'
+import { validIdTokenAtom } from '@/pages/state/user'
 import { useOfficialDirectoryRefresh } from '../officialDirectory'
 import { adminJudgesAtom } from './atoms'
 

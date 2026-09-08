@@ -1,9 +1,9 @@
-import type { PublicJudge } from '../../../types'
+import type { PublicJudge } from '@/types'
 import i18next from 'i18next'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { compareByLocalizedString } from '../../../lib/client/sort'
-import { unique, uniqueFn } from '../../../lib/utils'
+import { compareByLocalizedString } from '@/lib/client/sort'
+import { unique, uniqueFn } from '@/lib/utils'
 import { eventFilterAtom, eventsAtom } from './atoms'
 import {
   withinDateFilters,

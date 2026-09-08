@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { useCallback, useEffect, useState } from 'react'
-import useDebouncedCallback from '../../../../hooks/useDebouncedCallback'
+import useDebouncedCallback from '@/hooks/useDebouncedCallback'
 
 interface Props {
   readonly className?: string

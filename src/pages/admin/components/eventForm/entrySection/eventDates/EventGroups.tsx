@@ -1,16 +1,16 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-import type { RegistrationDate } from '../../../../../../types'
+import type { RegistrationDate } from '@/types'
 import type { EntryEvent, SectionProps } from '../../types'
 import Stack from '@mui/material/Stack'
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAdminEventDatesOptions } from '../../../../../../hooks/useAdminEventDatesOptions'
-import { useAdminEventRegistrationDates } from '../../../../../../hooks/useAdminEventRegistrationDates'
-import { applyNewGroupsToDogEventDates } from '../../../../../../lib/event'
-import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
-import { adminEventTypeGroupsAtom } from '../../../../state'
+import { useAdminEventDatesOptions } from '@/hooks/useAdminEventDatesOptions'
+import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistrationDates'
+import { applyNewGroupsToDogEventDates } from '@/lib/event'
+import { adminEventTypeGroupsAtom } from '@/pages/admin/state'
+import AutocompleteMulti from '@/pages/components/AutocompleteMulti'
 
 type Props = Pick<SectionProps, 'disabled' | 'onChange'> & { readonly event: EntryEvent }
 

@@ -1,11 +1,11 @@
-import type { EventKcIdChoice } from '../../../api/event'
-import type { DogEvent, Patch } from '../../../types'
+import type { EventKcIdChoice } from '@/api/event'
+import type { DogEvent, Patch } from '@/types'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { normalizeEventKcIdChoice, searchEventKcIdChoices } from '../../../api/event'
-import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../../../i18n/dates'
+import { normalizeEventKcIdChoice, searchEventKcIdChoices } from '@/api/event'
+import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
 import { idTokenAtom } from '../../state'
 
 /** The event details the Kennelliitto search matches against. */

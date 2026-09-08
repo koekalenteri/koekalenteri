@@ -1,11 +1,11 @@
 import type { ChangeEvent } from 'react'
-import type { Headquarters } from '../../../../types'
+import type { Headquarters } from '@/types'
 import type { SectionProps } from './types'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import CollapsibleSection from '../../../components/CollapsibleSection'
+import CollapsibleSection from '@/pages/components/CollapsibleSection'
 
 interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly headquarters?: Partial<Headquarters>

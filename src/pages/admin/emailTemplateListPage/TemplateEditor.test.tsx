@@ -1,7 +1,7 @@
-import type { EmailTemplate } from '../../../types'
+import type { EmailTemplate } from '@/types'
 import type { templateSchema } from './TemplateEditor.schema'
 import { screen } from '@testing-library/react'
-import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import { TemplateEditor } from './TemplateEditor'
 
 describe('TemplateEditor', () => {

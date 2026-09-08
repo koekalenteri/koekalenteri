@@ -1,4 +1,4 @@
-import type { RegistrationDate } from '../../../../types'
+import type { RegistrationDate } from '@/types'
 import Stack from '@mui/material/Stack'
 import { useTranslation } from 'react-i18next'
 import GroupColors from './GroupColors'

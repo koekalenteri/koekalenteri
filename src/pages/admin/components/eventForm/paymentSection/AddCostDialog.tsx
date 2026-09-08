@@ -1,5 +1,5 @@
-import type { BreedCode } from '../../../../../types'
-import type { DogEventCostKey } from '../../../../../types/Cost'
+import type { BreedCode } from '@/types'
+import type { DogEventCostKey } from '@/types/Cost'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -11,7 +11,7 @@ import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PRIORIZED_BREED_CODES } from '../../../../../lib/priority'
+import { PRIORIZED_BREED_CODES } from '@/lib/priority'
 
 interface Props {
   open: boolean

@@ -1,11 +1,11 @@
-import type { DeepPartial, RegistrationOwner } from '../../../../types'
+import type { DeepPartial, RegistrationOwner } from '@/types'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormLabel from '@mui/material/FormLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import { useTranslation } from 'react-i18next'
-import { withDefaultOwnerSelection } from '../../../../lib/registration'
+import { withDefaultOwnerSelection } from '@/lib/registration'
 
 const SOMEONE_ELSE = ''
 

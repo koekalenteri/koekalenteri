@@ -1,10 +1,10 @@
-import type { ConfirmedEvent } from '../../../types'
+import type { ConfirmedEvent } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
-import { eventWithStaticDates } from '../../../__mockData__/events'
-import theme from '../../../assets/Theme'
+import { eventWithStaticDates } from '@/__mockData__/events'
+import theme from '@/assets/Theme'
 import Title from './Title'
 
 const VIEWPORT = { height: 300, width: 900 }

@@ -1,4 +1,4 @@
-import type { EventType } from '../../../../types'
+import type { EventType } from '@/types'
 import type { PartialEvent } from './types'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import JudgesSection from './JudgesSection'

@@ -1,10 +1,10 @@
-import type { PublicJudge, Registration } from '../../../types'
+import type { PublicJudge, Registration } from '@/types'
 import type { ResultEdit } from '../../components/stationScoring/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
-import { eventWithStations, registrationsToEventWithStations } from '../../../__mockData__/resultsEvent'
-import theme from '../../../assets/Theme'
-import { classRound } from '../../../lib/results'
+import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
+import theme from '@/assets/Theme'
+import { classRound } from '@/lib/results'
 import ResultsTable from './ResultsTable'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

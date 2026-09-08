@@ -1,5 +1,5 @@
-import type { OwnerRole } from '../../../../lib/registration'
-import type { DeepPartial, RegistrationOwner } from '../../../../types'
+import type { OwnerRole } from '@/lib/registration'
+import type { DeepPartial, RegistrationOwner } from '@/types'
 import type { PersonContactFields } from '../PersonFields'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import PersonAddAltOutlined from '@mui/icons-material/PersonAddAltOutlined'

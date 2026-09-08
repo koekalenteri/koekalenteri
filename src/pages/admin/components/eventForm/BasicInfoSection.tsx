@@ -1,4 +1,5 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
+import type { DateValue } from '@/pages/components/DateRange'
 import type {
   DeepPartial,
   DogEvent,
@@ -10,8 +11,7 @@ import type {
   RegistrationClass,
   RetrieveType,
   User,
-} from '../../../../types'
-import type { DateValue } from '../../../components/DateRange'
+} from '@/types'
 import type { BasicInfoEvent, PartialEvent, SectionProps } from './types'
 import Checkbox from '@mui/material/Checkbox'
 import FormControl from '@mui/material/FormControl'
@@ -24,8 +24,8 @@ import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocalState } from '../../../../hooks/useLocalState'
-import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
+import { useLocalState } from '@/hooks/useLocalState'
+import { zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
 import {
   applySingleDayNowtGroups,
   defaultEntryEndDate,
@@ -37,10 +37,10 @@ import {
   isDetaultEntryStartDate,
   isMockTrialClass,
   OFFICIAL_EVENT_TYPES,
-} from '../../../../lib/event'
-import { getRuleDate } from '../../../../rules'
-import CollapsibleSection from '../../../components/CollapsibleSection'
-import DateRange from '../../../components/DateRange'
+} from '@/lib/event'
+import CollapsibleSection from '@/pages/components/CollapsibleSection'
+import DateRange from '@/pages/components/DateRange'
+import { getRuleDate } from '@/rules'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
 

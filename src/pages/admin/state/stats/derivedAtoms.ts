@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { userAtom } from '../../../state'
+import { userAtom } from '@/pages/state'
 import { adminOrganizersAtom } from '../organizers/atoms'
 import { adminOrganizerEventStatsAtom } from './remoteAtoms'
 

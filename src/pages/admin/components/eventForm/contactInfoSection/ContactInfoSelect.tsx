@@ -1,12 +1,12 @@
 import type { ChangeEvent } from 'react'
-import type { PublicContactInfo } from '../../../../../types'
+import type { PublicContactInfo } from '@/types'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import TextField from '@mui/material/TextField'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
+import useDebouncedCallback from '@/hooks/useDebouncedCallback'
 
 interface Props {
   readonly disabled?: boolean

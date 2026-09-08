@@ -3,7 +3,7 @@ import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
-import theme from '../../../assets/Theme'
+import theme from '@/assets/Theme'
 import HelpMenu from './HelpMenu'
 
 const renderAt = (path: string) => {

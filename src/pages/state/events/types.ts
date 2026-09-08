@@ -1,4 +1,4 @@
-import type { RegistrationClass } from '../../../types'
+import type { RegistrationClass } from '@/types'
 
 export type FilterProps = {
   start: Date | null

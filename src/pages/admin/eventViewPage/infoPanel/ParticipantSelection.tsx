@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
-import type useAdminEventRegistrationInfo from '../../../../hooks/useAdminEventRegistrationsInfo'
-import type { ConfirmedEvent, EmailTemplateId, Registration } from '../../../../types'
+import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
+import type { ConfirmedEvent, EmailTemplateId, Registration } from '@/types'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Table from '@mui/material/Table'

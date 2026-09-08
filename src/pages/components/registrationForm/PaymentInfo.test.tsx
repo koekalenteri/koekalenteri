@@ -1,4 +1,4 @@
-import type { CostResult, DogEventCostSegment, PublicConfirmedEvent } from '../../../types'
+import type { CostResult, DogEventCostSegment, PublicConfirmedEvent } from '@/types'
 import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import PaymentInfo from './PaymentInfo'

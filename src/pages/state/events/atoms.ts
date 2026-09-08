@@ -1,8 +1,8 @@
-import type { PublicDogEvent } from '../../../types'
+import type { PublicDogEvent } from '@/types'
 import type { EventMetadata, FilterProps } from './types'
 import { atom } from 'jotai'
 import { atomWithLazy } from 'jotai/utils'
-import { zonedStartOfDay } from '../../../i18n/dates'
+import { zonedStartOfDay } from '@/i18n/dates'
 import { atomWithLocalStorage } from '../storage'
 import { deserializeFilter, serializeFilter } from './filters'
 

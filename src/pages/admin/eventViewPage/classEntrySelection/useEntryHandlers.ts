@@ -9,7 +9,7 @@ import type React from 'react'
 import type { SetStateAction } from 'react'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
-import { firstSelectedRow } from '../../../../lib/datagrid'
+import { firstSelectedRow } from '@/lib/datagrid'
 import { useOpenEventViewDialog } from '../../state'
 
 interface UseEntryHandlersArgs {

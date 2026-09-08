@@ -1,5 +1,5 @@
 import type { GridColDef } from '@mui/x-data-grid'
-import type { Judge } from '../../../types'
+import type { Judge } from '@/types'
 import { useTranslation } from 'react-i18next'
 import OfficialCell from '../components/OfficialCell'
 import { createOfficialDirectoryColumns } from '../officialDirectoryColumns'

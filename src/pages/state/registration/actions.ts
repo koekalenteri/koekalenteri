@@ -1,14 +1,14 @@
-import type { ConfirmedEvent, Registration, RegistrationPatchRequest } from '../../../types'
+import type { ConfirmedEvent, Registration, RegistrationPatchRequest } from '@/types'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
-import { APIError } from '../../../api/http'
-import { getRegistration, patchRegistration, postRegistration } from '../../../api/registration'
-import { createPatchOperations } from '../../../lib/patch'
+import { APIError } from '@/api/http'
+import { getRegistration, patchRegistration, postRegistration } from '@/api/registration'
+import { createPatchOperations } from '@/lib/patch'
 import {
   getRegistrationEmails,
   PUBLIC_REGISTRATION_OPERATION_FIELDS,
   withRegistrationOverrides,
-} from '../../../lib/registration'
+} from '@/lib/registration'
 import { showRegistrationSaveConflict } from './registrationSaveError'
 
 const publicRegistrationOperationData = (registration: Registration): Partial<Registration> => {

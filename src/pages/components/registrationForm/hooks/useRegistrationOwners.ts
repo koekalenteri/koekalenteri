@@ -1,7 +1,7 @@
-import type { DeepPartial, Registration, RegistrationOwner } from '../../../../types'
+import type { DeepPartial, Registration, RegistrationOwner } from '@/types'
 import { useCallback, useMemo } from 'react'
-import { emptyPerson } from '../../../../lib/data'
-import { DEFAULT_OWNER_KEY, getRegistrationOwners, ownerKeyAt, stripOwnerKey } from '../../../../lib/registration'
+import { emptyPerson } from '@/lib/data'
+import { DEFAULT_OWNER_KEY, getRegistrationOwners, ownerKeyAt, stripOwnerKey } from '@/lib/registration'
 import { useDogCacheKey } from './useDogCacheKey'
 
 /**

@@ -1,9 +1,9 @@
-import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationPerson } from '../../../../types'
+import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationPerson } from '@/types'
 import type { RegistrationWithGroups } from './types'
 import { parseISO } from 'date-fns'
-import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
-import { eventRegistrationDateKey } from '../../../../lib/event'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { eventRegistrationDateKey } from '@/lib/event'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 import {
   buildDrawnNumberOptions,
   buildMoveToGroupChange,

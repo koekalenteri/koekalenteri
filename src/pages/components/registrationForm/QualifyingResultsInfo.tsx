@@ -4,7 +4,7 @@ import type {
   QualifyingResult,
   Registration,
   TestResult,
-} from '../../../types'
+} from '@/types'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'

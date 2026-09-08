@@ -1,5 +1,5 @@
-import type { PublicDogEvent } from '../../../types'
-import { zonedEndOfDay, zonedStartOfDay } from '../../../i18n/dates'
+import type { PublicDogEvent } from '@/types'
+import { zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
 import {
   deserializeFilter,
   readDate,

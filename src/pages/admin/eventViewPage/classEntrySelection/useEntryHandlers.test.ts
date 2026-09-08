@@ -7,7 +7,7 @@ import type {
 } from '@mui/x-data-grid'
 import type React from 'react'
 import { renderHook } from '@testing-library/react'
-import { rowSelectionModel } from '../../../../lib/datagrid'
+import { rowSelectionModel } from '@/lib/datagrid'
 import { useEntryHandlers } from './useEntryHandlers'
 
 const { mockEnqueueSnackbar, mockOpenDialog } = vi.hoisted(() => ({

@@ -1,7 +1,7 @@
-import type { DogEvent } from '../../../../types'
+import type { DogEvent } from '@/types'
 import { reconcileAdminEvents } from './remoteAtoms'
 
-vi.mock('../../../../api/event', () => ({
+vi.mock('@/api/event', () => ({
   getAdminEvents: vi.fn(),
 }))
 

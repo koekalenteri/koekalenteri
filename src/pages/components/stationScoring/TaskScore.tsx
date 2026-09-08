@@ -1,5 +1,5 @@
-import type { RoundTask } from '../../../lib/results'
-import type { NowtZeroFault, PublicJudge } from '../../../types'
+import type { RoundTask } from '@/lib/results'
+import type { NowtZeroFault, PublicJudge } from '@/types'
 import type { TaskEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { taskEntryCeiling } from '../../../lib/results'
+import { taskEntryCeiling } from '@/lib/results'
 import { NumberInput } from '../NumberInput'
 
 /** §5.7.3. Codes rather than labels, so a rules rewording cannot orphan recorded history. */

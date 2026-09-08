@@ -1,4 +1,4 @@
-import type { CapacityStatsEntry } from '../../../types/Stats'
+import type { CapacityStatsEntry } from '@/types/Stats'
 import Typography from '@mui/material/Typography'
 import {
   BarPlot,

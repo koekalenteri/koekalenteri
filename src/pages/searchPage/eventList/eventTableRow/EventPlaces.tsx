@@ -1,8 +1,8 @@
-import type { PublicDogEvent } from '../../../../types'
+import type { PublicDogEvent } from '@/types'
 import Box from '@mui/material/Box'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isEntryOpen } from '../../../../lib/event'
+import { isEntryOpen } from '@/lib/event'
 
 export const EventPlaces = ({ event }: { event: PublicDogEvent }) => {
   const { t } = useTranslation()

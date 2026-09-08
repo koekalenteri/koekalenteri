@@ -1,8 +1,8 @@
 import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
 import { atomFamily } from 'jotai-family'
-import { getAdminCapacityStats, getAdminJudgeWorkload, getOrganizerEventStats } from '../../../../api/stats'
-import { validIdTokenAtom } from '../../../state'
+import { getAdminCapacityStats, getAdminJudgeWorkload, getOrganizerEventStats } from '@/api/stats'
+import { validIdTokenAtom } from '@/pages/state'
 import { adminActiveEventTypesAtom } from '../eventTypes/derivedAtoms'
 import { ALL_EVENT_TYPES_ID } from './atoms'
 

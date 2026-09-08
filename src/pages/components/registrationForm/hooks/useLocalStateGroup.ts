@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import useDebouncedCallback from '../../../../hooks/useDebouncedCallback'
-import { hasChanges } from '../../../../lib/utils'
+import useDebouncedCallback from '@/hooks/useDebouncedCallback'
+import { hasChanges } from '@/lib/utils'
 
 const isFieldUpdater = <T>(value: T | ((prev: T) => T)): value is (prev: T) => T => typeof value === 'function'
 

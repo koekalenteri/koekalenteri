@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react'
-import type { EventClassState, EventState, PublicDogEvent, RegistrationClass } from '../../../types'
+import type { EventClassState, EventState, PublicDogEvent, RegistrationClass } from '@/types'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Stack from '@mui/material/Stack'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { hasAllResultsPublished, isStartListAvailable } from '../../../lib/event'
-import { Path } from '../../../routeConfig'
+import { hasAllResultsPublished, isStartListAvailable } from '@/lib/event'
+import { Path } from '@/routeConfig'
 import LinkButton from '../../components/LinkButton'
 
 interface Props {

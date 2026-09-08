@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
-import { eventWithStaticDatesAndClass } from '../../../../../__mockData__/events'
-import theme from '../../../../../assets/Theme'
+import { eventWithStaticDatesAndClass } from '@/__mockData__/events'
+import theme from '@/assets/Theme'
 import EventFormPlaces from './EventFormPlaces'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

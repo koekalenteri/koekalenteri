@@ -1,9 +1,9 @@
-import type { ConfirmedEvent, Registration } from '../../../../types'
+import type { ConfirmedEvent, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
-import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
-import { eventWithStations } from '../../../../__mockData__/resultsEvent'
-import theme from '../../../../assets/Theme'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { eventWithStations } from '@/__mockData__/resultsEvent'
+import theme from '@/assets/Theme'
 import RegistrationIcons from './RegistrationIcons'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

@@ -1,4 +1,4 @@
-import type { User } from '../../../../types'
+import type { User } from '@/types'
 import { createStore } from 'jotai'
 import { adminUserIdAtom, adminUsersAtom } from './atoms'
 import { adminCurrentUserAtom } from './derivedAtoms'

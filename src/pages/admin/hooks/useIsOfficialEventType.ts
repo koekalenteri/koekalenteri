@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai'
 import { unwrap } from 'jotai/utils'
-import { isOfficialEventType } from '../../../lib/event'
+import { isOfficialEventType } from '@/lib/event'
 import { adminActiveEventTypesAtom } from '../state'
 
 // unwrap rather than suspend: this decides whether a section renders at all, and a form must not blank

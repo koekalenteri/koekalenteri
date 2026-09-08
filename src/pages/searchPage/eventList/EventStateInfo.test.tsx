@@ -5,8 +5,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
-import theme from '../../../assets/Theme'
-import { locales } from '../../../i18n'
+import theme from '@/assets/Theme'
+import { locales } from '@/i18n'
 import { EventStateInfo } from './EventStateInfo'
 
 function Wrapper({ children }: { readonly children: ReactNode }) {

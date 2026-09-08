@@ -1,5 +1,5 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { Registration } from '../../../../types'
+import type { Registration } from '@/types'
 import { screen, waitFor, within } from '@testing-library/react'
 import { addDays } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -8,16 +8,13 @@ import {
   eventWithParticipantsInvited,
   eventWithStaticDates,
   eventWithStaticDatesAndClass,
-} from '../../../../__mockData__/events'
-import {
-  registrationsToEventWithParticipantsInvited,
-  registrationWithStaticDates,
-} from '../../../../__mockData__/registrations'
-import { APIError } from '../../../../api/http'
-import { zonedDateString } from '../../../../i18n/dates'
-import { eventRegistrationDateKey } from '../../../../lib/event'
-import { parseDateOnlyString } from '../../../../lib/utils'
-import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/utils'
+} from '@/__mockData__/events'
+import { registrationsToEventWithParticipantsInvited, registrationWithStaticDates } from '@/__mockData__/registrations'
+import { APIError } from '@/api/http'
+import { zonedDateString } from '@/i18n/dates'
+import { eventRegistrationDateKey } from '@/lib/event'
+import { parseDateOnlyString } from '@/lib/utils'
+import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
 
@@ -31,8 +28,8 @@ const _activeEventWithStaticDatesAndClass = {
 }
 
 // Mock the API calls
-vi.mock('../../../../api/event')
-vi.mock('../../../../api/user')
+vi.mock('@/api/event')
+vi.mock('@/api/user')
 
 // Mock the notistack enqueueSnackbar
 vi.mock('notistack', () => ({

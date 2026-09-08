@@ -1,5 +1,5 @@
 import type { SelectChangeEvent } from '@mui/material/Select'
-import type { Organizer, User } from '../../../types'
+import type { Organizer, User } from '@/types'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'

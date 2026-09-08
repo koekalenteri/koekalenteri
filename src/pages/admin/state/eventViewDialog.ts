@@ -1,4 +1,4 @@
-import type { EmailTemplateId, Registration } from '../../../types'
+import type { EmailTemplateId, Registration } from '@/types'
 import { atom, useSetAtom } from 'jotai'
 
 /** The dialog the event page has open, with what it was opened for. */

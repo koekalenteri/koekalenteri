@@ -1,12 +1,12 @@
 import type { ChangeEvent } from 'react'
-import type { DogEvent, Language, Patch } from '../../../../types'
+import type { DogEvent, Language, Patch } from '@/types'
 import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 import { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocalState } from '../../../../hooks/useLocalState'
-import { EVENT_TRANSLATION_LANGUAGES } from '../../../../lib/event'
-import CollapsibleSection from '../../../components/CollapsibleSection'
+import { useLocalState } from '@/hooks/useLocalState'
+import { EVENT_TRANSLATION_LANGUAGES } from '@/lib/event'
+import CollapsibleSection from '@/pages/components/CollapsibleSection'
 
 interface Props {
   readonly disabled?: boolean

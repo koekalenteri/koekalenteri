@@ -1,4 +1,4 @@
-import type { EmailTemplate } from '../../../../types'
+import type { EmailTemplate } from '@/types'
 import { createStore } from 'jotai'
 import { adminEmailTemplatesAtom } from './atoms'
 import { adminEmailTemplateAtom } from './derivedAtoms'

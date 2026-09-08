@@ -1,4 +1,4 @@
-import type { DogEventCost } from '../../../../../types/Cost'
+import type { DogEventCost } from '@/types/Cost'
 import type { PaymentEvent } from '../types'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { useTranslation } from 'react-i18next'
-import { NumberInput } from '../../../../components/NumberInput'
+import { NumberInput } from '@/pages/components/NumberInput'
 
 interface OptionalCostRowProps {
   event: PaymentEvent

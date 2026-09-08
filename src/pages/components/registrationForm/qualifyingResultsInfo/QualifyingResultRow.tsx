@@ -1,4 +1,4 @@
-import type { EventResultRequirementsByDate, ManualTestResult, QualifyingResult, TestResult } from '../../../../types'
+import type { EventResultRequirementsByDate, ManualTestResult, QualifyingResult, TestResult } from '@/types'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'

@@ -1,4 +1,4 @@
-import type { EventResult, Registration } from '../../../types'
+import type { EventResult, Registration } from '@/types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'

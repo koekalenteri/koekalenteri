@@ -1,4 +1,4 @@
-import type { EventClass, EventType, Judge, PublicJudge } from '../../../../../types'
+import type { EventClass, EventType, Judge, PublicJudge } from '@/types'
 import type { PartialEvent } from '../types'
 import { filterClassesByJudgeId, filterJudges, hasJudge, updateJudge } from './utils'
 

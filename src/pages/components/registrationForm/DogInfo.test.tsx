@@ -5,18 +5,18 @@ import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { registrationDogAged20MonthsAndNoResults } from '../../../__mockData__/dogs'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import * as dogApi from '../../../api/dog'
-import { locales } from '../../../i18n'
-import { merge } from '../../../lib/utils'
-import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
+import { registrationDogAged20MonthsAndNoResults } from '@/__mockData__/dogs'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import * as dogApi from '@/api/dog'
+import { locales } from '@/i18n'
+import { merge } from '@/lib/utils'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import { DogInfo } from './DogInfo'
 
 const eventDate = registrationWithStaticDates.dates[0].date
 
-vi.mock('../../../api/dog')
-vi.mock('../../../api/registration')
+vi.mock('@/api/dog')
+vi.mock('@/api/registration')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (

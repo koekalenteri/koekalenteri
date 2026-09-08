@@ -1,6 +1,6 @@
-import type { EventType } from '../../../../types'
-import { getEventTypes } from '../../../../api/eventType'
-import { compareByLocalizedString } from '../../../../lib/client/sort'
+import type { EventType } from '@/types'
+import { getEventTypes } from '@/api/eventType'
+import { compareByLocalizedString } from '@/lib/client/sort'
 import { atomWithCachedRemoteCollection } from '../cached/createCachedRemoteCollection'
 
 export const adminEventTypesRemoteAtom = atomWithCachedRemoteCollection<EventType>({

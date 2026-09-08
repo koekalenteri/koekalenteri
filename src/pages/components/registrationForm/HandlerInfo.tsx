@@ -1,4 +1,4 @@
-import type { DeepPartial, Registration, RegistrationPerson } from '../../../types'
+import type { DeepPartial, Registration, RegistrationPerson } from '@/types'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'

@@ -1,8 +1,8 @@
 import type { RESET } from 'jotai/utils'
-import type { EmailTemplate } from '../../../../types'
+import type { EmailTemplate } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { atomWithSessionStorage } from '../../../state'
+import { atomWithSessionStorage } from '@/pages/state'
 import { adminEmailTemplateAtom } from './derivedAtoms'
 
 export const adminEditableTemplateByIdAtom = atomFamily((templateId: string | undefined) => {

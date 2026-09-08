@@ -1,7 +1,7 @@
-import type { Judge } from '../../../../types'
+import type { Judge } from '@/types'
 import type { PartialEvent } from './types'
-import { emptyEvent } from '../../../../__mockData__/emptyEvent'
-import * as env from '../../../../lib/env'
+import { emptyEvent } from '@/__mockData__/emptyEvent'
+import * as env from '@/lib/env'
 import { requiredFields, VALIDATORS, validateEvent, validateEventField } from './validation'
 
 describe('validation', () => {

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { Path } from '../../../routeConfig'
+import { Path } from '@/routeConfig'
 import { BackLink } from './BackLink'
 
 interface Props {

@@ -3,7 +3,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import { render } from 'vitest-browser-react'
-import theme from '../../../assets/Theme'
+import theme from '@/assets/Theme'
 import { StartDaySelector } from '../components/StartDaySelector'
 import { StartNumbersTable } from './StartNumbersTable'
 

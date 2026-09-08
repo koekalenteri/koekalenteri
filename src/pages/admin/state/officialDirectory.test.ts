@@ -1,4 +1,4 @@
-import type { Judge, Official } from '../../../types'
+import type { Judge, Official } from '@/types'
 import { filterOfficialDirectory } from './officialDirectory'
 
 const officials: Official[] = [

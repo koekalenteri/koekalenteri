@@ -1,15 +1,15 @@
-import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationGroupMove } from '../../../../types'
+import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationGroupMove } from '@/types'
 import type { RegistrationWithGroups } from './types'
 import { isSameDay } from 'date-fns'
-import { eventRegistrationDateKey } from '../../../../lib/event'
+import { eventRegistrationDateKey } from '@/lib/event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getHandlingPerson,
   getRegistrationGroupKey,
   isParticipantGroup,
-} from '../../../../lib/registration'
-import { uniqueDate } from '../../../../lib/utils'
+} from '@/lib/registration'
+import { uniqueDate } from '@/lib/utils'
 
 interface NouGroupRuleIssues {
   duplicateHandlers: Array<{ count: number; email: string; name: string }>

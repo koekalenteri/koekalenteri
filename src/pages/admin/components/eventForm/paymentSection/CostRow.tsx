@@ -1,5 +1,5 @@
-import type { BreedCode } from '../../../../../types'
-import type { DogEventCost, DogEventCostKey } from '../../../../../types/Cost'
+import type { BreedCode } from '@/types'
+import type { DogEventCost, DogEventCostKey } from '@/types/Cost'
 import type { PaymentEvent } from '../types'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
@@ -9,8 +9,8 @@ import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { useTranslation } from 'react-i18next'
-import { getCostValue, getEarlyBirdDates } from '../../../../../lib/cost'
-import { NumberInput } from '../../../../components/NumberInput'
+import { getCostValue, getEarlyBirdDates } from '@/lib/cost'
+import { NumberInput } from '@/pages/components/NumberInput'
 
 interface CostRowProps {
   costKey: DogEventCostKey

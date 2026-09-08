@@ -1,5 +1,5 @@
 import type { SvgIconProps } from '@mui/material'
-import type { Registration } from '../../../types'
+import type { Registration } from '@/types'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import PauseCircleOutline from '@mui/icons-material/PauseCircleOutlined'
 import { DIM_OPACITY } from './constants'

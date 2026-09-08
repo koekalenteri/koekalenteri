@@ -1,10 +1,10 @@
-import type { Registration } from '../../../types'
+import type { Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import { render } from 'vitest-browser-react'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import theme from '../../../assets/Theme'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import theme from '@/assets/Theme'
 import StartListGroup from './StartListGroup'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { RegistrationTime } from '../../../types'
+import type { RegistrationTime } from '@/types'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'

@@ -1,4 +1,4 @@
-import type { DeepPartial, Registration, RegistrationPerson } from '../../../types'
+import type { DeepPartial, Registration, RegistrationPerson } from '@/types'
 import type { PersonContactFields } from './PersonFields'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'

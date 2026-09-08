@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { atomWithLocalStorage } from '../../../state/storage'
+import { atomWithLocalStorage } from '@/pages/state/storage'
 
 export const adminStatsYearAtom = atom<number>(new Date().getFullYear())
 

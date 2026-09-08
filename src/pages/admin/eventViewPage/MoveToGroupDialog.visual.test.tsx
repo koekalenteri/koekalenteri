@@ -1,10 +1,10 @@
-import type { Registration, RegistrationGroup } from '../../../types'
+import type { Registration, RegistrationGroup } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { parseISO } from 'date-fns'
 import { render } from 'vitest-browser-react'
-import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import theme from '../../../assets/Theme'
+import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import theme from '@/assets/Theme'
 import MoveToGroupDialog from './MoveToGroupDialog'
 
 const noop = async () => undefined

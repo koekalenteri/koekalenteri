@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react'
-import type { Registration, RegistrationDate } from '../../../types'
+import type { Registration, RegistrationDate } from '@/types'
 import { act, render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
-import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
-import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../lib/registration'
-import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
+import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
+import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '@/__mockData__/registrations'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import ClassEntrySelection from './ClassEntrySelection'
 
 const mockSaveGroups = vi.fn().mockResolvedValue(undefined)
@@ -26,11 +26,11 @@ const mockedGroups: RegistrationDate[] = [
 let mockLastCallbacks: any
 let mockDroppableProps: any[] = []
 
-vi.mock('../../../hooks/useAdminEventRegistrationDates', () => ({
+vi.mock('@/hooks/useAdminEventRegistrationDates', () => ({
   useAdminEventRegistrationDates: () => mockedGroups,
 }))
 
-vi.mock('../../../hooks/useAdminEventRegistrationGroups', () => ({
+vi.mock('@/hooks/useAdminEventRegistrationGroups', () => ({
   useAdminEventRegistrationGroups: () => mockedGroups,
 }))
 

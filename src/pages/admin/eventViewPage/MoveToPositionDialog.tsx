@@ -1,4 +1,4 @@
-import type { Registration, RegistrationGroup } from '../../../types'
+import type { Registration, RegistrationGroup } from '@/types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -11,8 +11,8 @@ import Select from '@mui/material/Select'
 import { enqueueSnackbar } from 'notistack'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { errorSnackbarOptions } from '../../../lib/client/snackbar'
-import { isParticipantGroup } from '../../../lib/registration'
+import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { isParticipantGroup } from '@/lib/registration'
 
 /** A day a reserve dog can be placed on; the dialog labels it the way the group dialog does. */
 interface MoveToPositionDayOption {

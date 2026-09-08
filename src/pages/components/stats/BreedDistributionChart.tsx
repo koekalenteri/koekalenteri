@@ -1,5 +1,5 @@
 import type { BarItem, BarLabelContext } from '@mui/x-charts/BarChart'
-import type { YearlyStatsResponse } from '../../../api/stats'
+import type { YearlyStatsResponse } from '@/api/stats'
 import Typography from '@mui/material/Typography'
 import { BarChart } from '@mui/x-charts/BarChart'
 import { useTranslation } from 'react-i18next'

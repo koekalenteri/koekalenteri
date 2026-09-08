@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "baseUrl": "src",
+    "paths": {
+      "@/*": ["./*"]
+    },
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

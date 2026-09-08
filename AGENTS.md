@@ -25,6 +25,7 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Before adding a file under `src/lib/` or `src/lambda/lib/`, look for an existing module that owns the same domain and extend it when the responsibility remains cohesive.
 - Avoid narrowly named parallel helper files for variants of one workflow, such as `paymentCreation.ts` and `paymentCancellation.ts`, when the code belongs naturally in `payment.ts`.
 - Create a new library file only when it represents a clearly separate, reusable responsibility or a meaningful dependency boundary. Name it after the domain concept rather than a one-off operation or implementation detail.
+- `@/` is the source root (`tsconfig` paths, the webpack alias and the vitest alias all declare it). Under `src/pages`, an import that would climb three or more directories names the file from `@/` instead (`@/types`, `@/lib/event`, `@/__mockData__/events`); one or two levels stay relative. Lambda code does not use the alias: esbuild reads `src/lambda/tsconfig.json`, which does not declare it.
 
 ## Data Migrations
 

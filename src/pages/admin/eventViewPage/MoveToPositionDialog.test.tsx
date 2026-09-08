@@ -1,8 +1,8 @@
-import type { Registration } from '../../../types'
+import type { Registration } from '@/types'
 import { render, screen } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import MoveToPositionDialog from './MoveToPositionDialog'
 
 vi.mock('notistack', () => ({

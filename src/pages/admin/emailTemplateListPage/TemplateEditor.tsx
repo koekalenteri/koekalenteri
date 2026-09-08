@@ -1,4 +1,4 @@
-import type { EmailTemplate, EmailTemplateId, Language } from '../../../types'
+import type { EmailTemplate, EmailTemplateId, Language } from '@/types'
 import { autocompletion } from '@codemirror/autocomplete'
 import { linter, lintGutter } from '@codemirror/lint'
 import { EditorView } from '@codemirror/view'

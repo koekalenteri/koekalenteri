@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
-import { eventWithStations } from '../../../__mockData__/resultsEvent'
-import theme from '../../../assets/Theme'
+import { eventWithStations } from '@/__mockData__/resultsEvent'
+import theme from '@/assets/Theme'
 import { StationScoring } from './StationScoring'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

@@ -3,7 +3,7 @@ import type { DropTargetMonitor } from 'react-dnd'
 import type { DragItem } from './types'
 import { useCallback, useMemo } from 'react'
 import { useDrop } from 'react-dnd'
-import StyledDataGrid from '../../../components/StyledDataGrid'
+import StyledDataGrid from '@/pages/components/StyledDataGrid'
 import DraggableRow from './droppableDataGrid/DraggableRow'
 
 interface Props extends DataGridProps {

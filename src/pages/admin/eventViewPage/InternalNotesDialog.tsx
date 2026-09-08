@@ -1,4 +1,4 @@
-import type { Registration } from '../../../types'
+import type { Registration } from '@/types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField'
 import { enqueueSnackbar } from 'notistack'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { errorSnackbarOptions } from '../../../lib/client/snackbar'
+import { errorSnackbarOptions } from '@/lib/client/snackbar'
 
 interface Props {
   open: boolean

@@ -1,4 +1,4 @@
-import type { DeepPartial, EventClass } from '../../../../types'
+import type { DeepPartial, EventClass } from '@/types'
 import type { PartialEvent } from './types'
 import {
   calculateTotalFromClasses,

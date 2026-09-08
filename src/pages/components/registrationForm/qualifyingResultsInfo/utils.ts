@@ -4,10 +4,10 @@ import type {
   EventResultRequirementsByDate,
   ManualTestResult,
   QualifyingResult,
-} from '../../../../types'
+} from '@/types'
 import { nanoid } from 'nanoid'
-import { objectContains } from '../../../../lib/qualification'
-import { unique } from '../../../../lib/utils'
+import { objectContains } from '@/lib/qualification'
+import { unique } from '@/lib/utils'
 
 const asArray = (v: EventResultRequirements | EventResultRequirement) => (Array.isArray(v) ? v : [v])
 

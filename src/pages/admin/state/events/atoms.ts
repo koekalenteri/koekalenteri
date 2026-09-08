@@ -1,7 +1,7 @@
 import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
-import type { DogEvent } from '../../../../types'
-import { newEventEntryEndDate, newEventEntryStartDate, newEventStartDate } from '../../../../lib/event'
-import { atomWithLocalStorage } from '../../../state/storage'
+import type { DogEvent } from '@/types'
+import { newEventEntryEndDate, newEventEntryStartDate, newEventStartDate } from '@/lib/event'
+import { atomWithLocalStorage } from '@/pages/state/storage'
 
 export { adminEventsRemoteAtom as adminEventsAtom } from './remoteAtoms'
 // A new event draft is intentionally incomplete; the event form fills in the rest of DogEvent

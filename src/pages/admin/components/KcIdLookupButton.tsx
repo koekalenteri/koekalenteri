@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@mui/material/Button'
-import type { DogEvent, Patch } from '../../../types'
+import type { DogEvent, Patch } from '@/types'
 import type { KcIdLookupEvent } from '../hooks/useKcIdLookup'
 import Sync from '@mui/icons-material/Sync'
 import Button from '@mui/material/Button'

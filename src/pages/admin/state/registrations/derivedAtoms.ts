@@ -1,7 +1,7 @@
-import type { Registration } from '../../../../types'
+import type { Registration } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { applyRegistrationGroupMoves } from '../../../../lib/registrationGroups'
+import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
 
 const placementKey = (registration: Registration) =>

@@ -1,8 +1,8 @@
-import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
+import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '@/types'
 import type { DragItem } from './types'
 import { renderHook } from '@testing-library/react'
-import { recordEvent } from '../../../../lib/client/rum'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
+import { recordEvent } from '@/lib/client/rum'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 import { determineChangesFromDrop } from './dnd'
 import { useDnDHandlers } from './useDnDHandlers'
 
@@ -22,7 +22,7 @@ vi.mock('notistack', () => ({
   }),
 }))
 
-vi.mock('../../../../lib/client/rum', () => ({
+vi.mock('@/lib/client/rum', () => ({
   recordEvent: vi.fn(),
 }))
 

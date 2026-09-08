@@ -1,4 +1,4 @@
-import type { YearlyStatsResponse } from '../../../api/stats'
+import type { YearlyStatsResponse } from '@/api/stats'
 import { LineChart } from '@mui/x-charts/LineChart'
 import { useTranslation } from 'react-i18next'
 import ChartTitle from './ChartTitle'

@@ -1,4 +1,4 @@
-import type { Organizer, User } from '../../../types'
+import type { Organizer, User } from '@/types'
 import { createStore } from 'jotai'
 import { adminFilteredOrganizersAtom, adminUsersOrganizersAtom } from './derivedAtoms'
 import { adminOrganizerFilterAtom, adminOrganizersAtom, adminShowOnlyOrganizersWithUsersAtom } from './organizers/atoms'

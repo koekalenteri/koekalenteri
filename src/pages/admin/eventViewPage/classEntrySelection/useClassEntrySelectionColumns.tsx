@@ -1,6 +1,6 @@
 import type { GridActionsCellItemProps, GridColDef } from '@mui/x-data-grid'
 import type { ReactElement } from 'react'
-import type { DogEvent, Registration, RegistrationDate } from '../../../../types'
+import type { DogEvent, Registration, RegistrationDate } from '@/types'
 import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EmailOutlined from '@mui/icons-material/EmailOutlined'
@@ -15,10 +15,10 @@ import Tooltip from '@mui/material/Tooltip'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getPaymentBalance } from '../../../../lib/cost'
-import { breedAbbreviation } from '../../../../lib/dog'
-import { isEventOngoing, isEventOver, registrationDatesOutsideClass } from '../../../../lib/event'
-import { canRefundExcess } from '../../../../lib/payment'
+import { getPaymentBalance } from '@/lib/cost'
+import { breedAbbreviation } from '@/lib/dog'
+import { isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
+import { canRefundExcess } from '@/lib/payment'
 import {
   canRefund,
   GROUP_KEY_CANCELLED,
@@ -27,8 +27,8 @@ import {
   getRegistrationGroupKey,
   isParticipantGroup,
   isPredefinedReason,
-} from '../../../../lib/registration'
-import { isConfirmedEvent } from '../../../../lib/typeGuards'
+} from '@/lib/registration'
+import { isConfirmedEvent } from '@/lib/typeGuards'
 import GroupColors from './GroupColors'
 import RegistrationIcons from './RegistrationIcons'
 

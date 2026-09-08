@@ -1,23 +1,23 @@
-import type { DogEvent } from '../../../types'
+import type { DogEvent } from '@/types'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
-import { eventWithEntryNotYetOpen, eventWithStaticDates } from '../../../__mockData__/events'
-import theme from '../../../assets/Theme'
-import { locales } from '../../../i18n'
-import { flushPromises, renderSuspendedWithUserEvents } from '../../../test-utils/utils'
+import { eventWithEntryNotYetOpen, eventWithStaticDates } from '@/__mockData__/events'
+import theme from '@/assets/Theme'
+import { locales } from '@/i18n'
+import { flushPromises, renderSuspendedWithUserEvents } from '@/test-utils/utils'
 import EventForm from './EventForm'
 
-vi.mock('../../../api/user')
-vi.mock('../../../api/event')
-vi.mock('../../../api/eventType')
-vi.mock('../../../api/judge')
-vi.mock('../../../api/official')
-vi.mock('../../../api/organizer')
-vi.mock('../../../api/registration')
+vi.mock('@/api/user')
+vi.mock('@/api/event')
+vi.mock('@/api/eventType')
+vi.mock('@/api/judge')
+vi.mock('@/api/official')
+vi.mock('@/api/organizer')
+vi.mock('@/api/registration')
 
 const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel?: () => void, onChange?: () => void) =>
   renderSuspendedWithUserEvents(

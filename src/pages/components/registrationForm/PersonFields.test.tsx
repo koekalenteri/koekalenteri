@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/react'
-import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import { PersonFields } from './PersonFields'
 
 describe('PersonFields', () => {

@@ -1,8 +1,8 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
-import { eventWithParticipantsInvited } from '../../../__mockData__/events'
-import { registrationsToEventWithParticipantsInvited } from '../../../__mockData__/registrations'
-import theme from '../../../assets/Theme'
+import { eventWithParticipantsInvited } from '@/__mockData__/events'
+import { registrationsToEventWithParticipantsInvited } from '@/__mockData__/registrations'
+import theme from '@/assets/Theme'
 import MessageRecipientsDialog from './MessageRecipientsDialog'
 
 // The dialog shows no dates, so the fixture's rolling entry dates cannot move the capture.

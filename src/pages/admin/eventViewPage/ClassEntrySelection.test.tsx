@@ -1,20 +1,20 @@
 import type { ReactNode } from 'react'
-import type { Registration, RegistrationClass } from '../../../types'
+import type { Registration, RegistrationClass } from '@/types'
 import { screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
-import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
-import { GROUP_KEY_RESERVE } from '../../../lib/registration'
-import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
+import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '@/__mockData__/registrations'
+import { GROUP_KEY_RESERVE } from '@/lib/registration'
+import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { idTokenAtom } from '../../state'
 import ClassEntrySelection from './ClassEntrySelection'
 
-vi.mock('../../../api/event')
-vi.mock('../../../api/registration')
-vi.mock('../../../api/user')
+vi.mock('@/api/event')
+vi.mock('@/api/registration')
+vi.mock('@/api/user')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (

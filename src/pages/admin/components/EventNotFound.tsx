@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { Path } from '../../../routeConfig'
+import { Path } from '@/routeConfig'
 import FullPageFlex from './FullPageFlex'
 
 const EventNotFound = () => {

@@ -1,14 +1,14 @@
 import { act, renderHook } from '@testing-library/react'
 import { Provider, useAtomValue, useSetAtom } from 'jotai'
-import { getOfficials } from '../../../../api/official'
-import { getUsers } from '../../../../api/user'
+import { getOfficials } from '@/api/official'
+import { getUsers } from '@/api/user'
 import { useAdminOfficialsActions } from './actions'
 
-vi.mock('../../../../api/official', async () => ({
+vi.mock('@/api/official', async () => ({
   getOfficials: vi.fn(),
 }))
 
-vi.mock('../../../../api/user', async () => ({
+vi.mock('@/api/user', async () => ({
   getUsers: vi.fn(),
 }))
 

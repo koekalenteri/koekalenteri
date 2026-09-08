@@ -1,7 +1,7 @@
 import type { SetStateAction } from 'jotai'
 import { atom } from 'jotai'
 import { atomWithLazy, RESET } from 'jotai/utils'
-import { parseJSON } from '../../../lib/utils'
+import { parseJSON } from '@/lib/utils'
 import { runCleaners } from './cleaners'
 
 runCleaners()

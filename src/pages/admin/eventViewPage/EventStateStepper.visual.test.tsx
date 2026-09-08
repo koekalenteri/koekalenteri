@@ -1,10 +1,10 @@
-import type { ConfirmedEvent } from '../../../types'
+import type { ConfirmedEvent } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { parseISO } from 'date-fns'
 import { render } from 'vitest-browser-react'
-import { eventWithStations } from '../../../__mockData__/resultsEvent'
-import theme from '../../../assets/Theme'
-import { zonedStartOfDay } from '../../../i18n/dates'
+import { eventWithStations } from '@/__mockData__/resultsEvent'
+import theme from '@/assets/Theme'
+import { zonedStartOfDay } from '@/i18n/dates'
 import EventStateStepper from './EventStateStepper'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

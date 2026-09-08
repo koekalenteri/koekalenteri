@@ -1,6 +1,6 @@
 import PersonOutline from '@mui/icons-material/PersonOutlined'
 import { useTranslation } from 'react-i18next'
-import { useUserActions } from '../../../state'
+import { useUserActions } from '@/pages/state'
 import AppBarButton from '../AppBarButton'
 
 export default function LoginButton() {

@@ -1,5 +1,5 @@
-import type { RoundTask } from '../../../lib/results'
-import type { EventResult, ResultMark } from '../../../types'
+import type { RoundTask } from '@/lib/results'
+import type { EventResult, ResultMark } from '@/types'
 import type { ResultEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
@@ -13,7 +13,7 @@ import {
   resultMarks,
   scoresAtPosts,
   toScoredTasks,
-} from '../../../lib/results'
+} from '@/lib/results'
 import { withResultCode } from './types'
 
 interface Props {

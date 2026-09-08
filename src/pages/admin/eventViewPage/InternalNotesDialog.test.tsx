@@ -2,9 +2,9 @@ import type { ReactNode } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import theme from '../../../assets/Theme'
-import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import theme from '@/assets/Theme'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import InternalNotesDialog from './InternalNotesDialog'
 
 const Wrapper = ({ children }: { readonly children: ReactNode }) => (

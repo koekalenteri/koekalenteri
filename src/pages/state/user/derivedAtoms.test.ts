@@ -1,7 +1,7 @@
 import { createStore } from 'jotai'
-import { APIError } from '../../../api/http'
-import * as userAPI from '../../../api/user'
-import * as error from '../../../lib/client/error'
+import { APIError } from '@/api/http'
+import * as userAPI from '@/api/user'
+import * as error from '@/lib/client/error'
 import { idTokenAtom, tokenValidityRevisionAtom, userRefreshAtom } from './atoms'
 import { userAtom, validIdTokenAtom } from './derivedAtoms'
 

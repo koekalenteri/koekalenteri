@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { ContactInfo, DogEvent } from '../../../../types'
+import type { ContactInfo, DogEvent } from '@/types'
 import { styled } from '@mui/material'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'

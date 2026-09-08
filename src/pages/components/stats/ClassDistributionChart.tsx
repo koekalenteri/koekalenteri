@@ -1,6 +1,6 @@
-import type { YearlyBreakdownEntry } from '../../../types/Stats'
+import type { YearlyBreakdownEntry } from '@/types/Stats'
 import { useTranslation } from 'react-i18next'
-import { REG_CLASSES } from '../../../lib/registration'
+import { REG_CLASSES } from '@/lib/registration'
 import { SINGLE_SERIES_CHART_COLOR } from './chartColors'
 import StatsBarChart from './StatsBarChart'
 

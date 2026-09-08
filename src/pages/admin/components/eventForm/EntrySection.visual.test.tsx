@@ -4,9 +4,9 @@ import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render } from 'vitest-browser-react'
-import theme from '../../../../assets/Theme'
-import { locales } from '../../../../i18n'
-import { TIME_ZONE } from '../../../../i18n/dates'
+import theme from '@/assets/Theme'
+import { locales } from '@/i18n'
+import { TIME_ZONE } from '@/i18n/dates'
 import EntrySection from './EntrySection'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

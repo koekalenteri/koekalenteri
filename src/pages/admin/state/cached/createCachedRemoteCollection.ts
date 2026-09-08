@@ -1,8 +1,8 @@
-import type { DataVersion, DataVersions } from '../../../../types'
+import type { DataVersion, DataVersions } from '@/types'
 import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
-import { readEncryptedDataset, writeEncryptedDataset } from '../../../../lib/client/encryptedStore'
-import { userAtom, validIdTokenAtom } from '../../../state'
+import { readEncryptedDataset, writeEncryptedDataset } from '@/lib/client/encryptedStore'
+import { userAtom, validIdTokenAtom } from '@/pages/state'
 
 interface CachedCollectionOptions<T> {
   cacheKey: keyof DataVersions

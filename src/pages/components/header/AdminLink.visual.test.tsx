@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router'
 import { render } from 'vitest-browser-react'
-import theme from '../../../assets/Theme'
+import theme from '@/assets/Theme'
 import { AdminLink } from './AdminLink'
 
 /**

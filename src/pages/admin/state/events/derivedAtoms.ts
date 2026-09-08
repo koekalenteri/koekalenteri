@@ -1,12 +1,12 @@
-import type { ConfirmedEvent, DogEvent, PublicOrganizer } from '../../../../types'
+import type { ConfirmedEvent, DogEvent, PublicOrganizer } from '@/types'
 import i18next from 'i18next'
 import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
 import { atomFamily } from 'jotai-family'
-import { compareByLocalizedString } from '../../../../lib/client/sort'
-import { compareEventsByDate, isEventOver } from '../../../../lib/event'
-import { isConfirmedEvent } from '../../../../lib/typeGuards'
-import { uniqueFn } from '../../../../lib/utils'
+import { compareByLocalizedString } from '@/lib/client/sort'
+import { compareEventsByDate, isEventOver } from '@/lib/event'
+import { isConfirmedEvent } from '@/lib/typeGuards'
+import { uniqueFn } from '@/lib/utils'
 import {
   adminEventFilterTextAtom,
   adminEventIdAtom,

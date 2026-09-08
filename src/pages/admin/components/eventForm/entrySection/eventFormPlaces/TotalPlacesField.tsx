@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box'
 import { useTranslation } from 'react-i18next'
-import { NumberInput } from '../../../../../components/NumberInput'
+import { NumberInput } from '@/pages/components/NumberInput'
 
 interface TotalPlacesFieldProps {
   disabled: boolean

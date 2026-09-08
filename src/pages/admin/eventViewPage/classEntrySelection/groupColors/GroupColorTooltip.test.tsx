@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/react'
-import { renderWithUserEvents } from '../../../../../test-utils/utils'
+import { renderWithUserEvents } from '@/test-utils/utils'
 import GroupColorTooltip from './GroupColorTooltip'
 
 describe('GroupColorTooltip', () => {

@@ -1,5 +1,5 @@
 import { useSetAtom } from 'jotai'
-import { getOfficials } from '../../../../api/official'
+import { getOfficials } from '@/api/official'
 import { useOfficialDirectoryRefresh } from '../officialDirectory'
 import { adminOfficialsAtom } from './atoms'
 

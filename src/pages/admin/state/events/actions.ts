@@ -1,13 +1,13 @@
-import type { StartNumbersRequest } from '../../../../api/event'
-import type { DogEvent, Patch, RegistrationClass, StationTurnOp } from '../../../../types'
+import type { StartNumbersRequest } from '@/api/event'
+import type { DogEvent, Patch, RegistrationClass, StationTurnOp } from '@/types'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { copyEventWithRegistrations, putEvent, putInvitationAttachment, putStartNumbers } from '../../../../api/event'
-import { putStationTurn } from '../../../../api/station'
-import { getChangedTopLevelKeys } from '../../../../lib/diff'
+import { copyEventWithRegistrations, putEvent, putInvitationAttachment, putStartNumbers } from '@/api/event'
+import { putStationTurn } from '@/api/station'
+import { getChangedTopLevelKeys } from '@/lib/diff'
 import {
   compareEventsByDate,
   copyDogEvent,
@@ -16,8 +16,8 @@ import {
   isResultsPublishedForClass,
   isStartListPublishedForClass,
   sanitizeDogEvent,
-} from '../../../../lib/event'
-import { eventsAtom, userAtom, validIdTokenAtom } from '../../../state'
+} from '@/lib/event'
+import { eventsAtom, userAtom, validIdTokenAtom } from '@/pages/state'
 import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 

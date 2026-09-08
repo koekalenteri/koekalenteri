@@ -1,6 +1,6 @@
-import * as encryptedStoreLib from '../../../lib/client/encryptedStore'
-import * as envLib from '../../../lib/env'
-import * as versionLib from '../../../lib/version'
+import * as encryptedStoreLib from '@/lib/client/encryptedStore'
+import * as envLib from '@/lib/env'
+import * as versionLib from '@/lib/version'
 import { cleanPre112, migrateDogCacheOwners, runCleaners } from './cleaners'
 
 describe('storage cleaners', () => {

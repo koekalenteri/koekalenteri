@@ -1,13 +1,13 @@
 import type { PrimitiveAtom } from 'jotai'
-import type { DataVersions, User } from '../../../../types'
+import type { DataVersions, User } from '@/types'
 import { createStore } from 'jotai'
 import { vi } from 'vitest'
-import { TEST_ID_TOKEN } from '../../../../test-utils/utils'
+import { TEST_ID_TOKEN } from '@/test-utils/utils'
 
 const mockReadEncryptedDataset = vi.fn()
 const mockWriteEncryptedDataset = vi.fn()
 
-vi.mock('../../../../lib/client/encryptedStore', () => ({
+vi.mock('@/lib/client/encryptedStore', () => ({
   readEncryptedDataset: mockReadEncryptedDataset,
   writeEncryptedDataset: mockWriteEncryptedDataset,
 }))
@@ -24,7 +24,7 @@ const dataVersions: DataVersions = {
 
 const currentUser: User = { dataVersions, email: 'admin@user.vi', id: 'user-1', name: 'Test Admin' }
 
-vi.mock('../../../../api/user', () => ({ getUser: vi.fn(async () => currentUser) }))
+vi.mock('@/api/user', () => ({ getUser: vi.fn(async () => currentUser) }))
 
 let loadCachedRemoteCollection: typeof import('./createCachedRemoteCollection').loadCachedRemoteCollection
 let atomWithCachedRemoteCollection: typeof import('./createCachedRemoteCollection').atomWithCachedRemoteCollection
@@ -32,12 +32,12 @@ let idTokenAtom: PrimitiveAtom<string | undefined>
 
 beforeAll(async () => {
   vi.resetModules()
-  vi.doMock('../../../../lib/client/encryptedStore', () => ({
+  vi.doMock('@/lib/client/encryptedStore', () => ({
     readEncryptedDataset: mockReadEncryptedDataset,
     writeEncryptedDataset: mockWriteEncryptedDataset,
   }))
   // Imported after the reset, so the atoms are the same instances the module under test uses.
-  idTokenAtom = (await import('../../../state')).idTokenAtom
+  idTokenAtom = (await import('@/pages/state')).idTokenAtom
   const module = await import('./createCachedRemoteCollection')
   loadCachedRemoteCollection = module.loadCachedRemoteCollection
   atomWithCachedRemoteCollection = module.atomWithCachedRemoteCollection

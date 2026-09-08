@@ -1,7 +1,7 @@
-import type { RegistrationDate } from '../../../../types'
+import type { RegistrationDate } from '@/types'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
-import { HEADER_HEIGHT } from '../../../../assets/Theme'
+import { HEADER_HEIGHT } from '@/assets/Theme'
 import GroupColorTooltip from './groupColors/GroupColorTooltip'
 
 export const GROUP_COLORS = ['#2D9CDB', '#BB6BD9', '#F2994A', '#27AE60', '#828282', '#56CCF2']

@@ -1,12 +1,12 @@
 import type React from 'react'
-import type { ManualTestResult } from '../../../types'
+import type { ManualTestResult } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
-import { eventWithStaticDates } from '../../../__mockData__/events'
-import { registrationWithStaticDates } from '../../../__mockData__/registrations'
-import { APIError } from '../../../api/http'
-import * as registrationApi from '../../../api/registration'
+import { eventWithStaticDates } from '@/__mockData__/events'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { APIError } from '@/api/http'
+import * as registrationApi from '@/api/registration'
 import { useRegistrationActions } from './actions'
 
 const mockEnqueueSnackbar = vi.fn()
@@ -16,7 +16,7 @@ vi.mock('notistack', () => ({
   useSnackbar: () => ({ enqueueSnackbar: mockEnqueueSnackbar }),
 }))
 
-vi.mock('../../../api/registration')
+vi.mock('@/api/registration')
 
 function wrapper({ children }: { readonly children: React.ReactNode }) {
   return (

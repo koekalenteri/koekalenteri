@@ -1,11 +1,11 @@
-import type { AuditRecord } from '../../../types'
+import type { AuditRecord } from '@/types'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import theme from '../../../assets/Theme'
-import { i18nInitOptions } from '../../../i18n/config'
-import { renderWithUserEvents } from '../../../test-utils/utils'
+import theme from '@/assets/Theme'
+import { i18nInitOptions } from '@/i18n/config'
+import { renderWithUserEvents } from '@/test-utils/utils'
 import { AuditTrail } from './AuditTrail'
 
 vi.unmock('react-i18next')

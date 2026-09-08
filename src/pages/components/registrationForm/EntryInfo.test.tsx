@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { RegistrationClass } from '../../../types'
+import type { RegistrationClass } from '@/types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
@@ -10,11 +10,11 @@ import {
   eventWithStaticDates,
   eventWithStaticDatesAnd3Classes,
   eventWithStaticDatesAndClass,
-} from '../../../__mockData__/events'
-import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '../../../__mockData__/registrations'
-import { locales } from '../../../i18n'
-import { merge } from '../../../lib/utils'
-import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
+} from '@/__mockData__/events'
+import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '@/__mockData__/registrations'
+import { locales } from '@/i18n'
+import { merge } from '@/lib/utils'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import { EntryInfo } from './EntryInfo'
 
 function Wrapper(props: { readonly children?: ReactNode }) {

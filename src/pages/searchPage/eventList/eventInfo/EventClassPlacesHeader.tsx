@@ -1,7 +1,7 @@
-import type { PublicDogEvent } from '../../../../types'
+import type { PublicDogEvent } from '@/types'
 import Grid from '@mui/material/Grid'
 import { useTranslation } from 'react-i18next'
-import InfoTableHeaderText from '../../../components/InfoTableHeaderText'
+import InfoTableHeaderText from '@/pages/components/InfoTableHeaderText'
 
 export const EventClassPlacesHeader = ({ event }: { event: PublicDogEvent }) => {
   const { t } = useTranslation()

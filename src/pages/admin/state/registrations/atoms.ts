@@ -1,10 +1,10 @@
-import type { Registration, RegistrationGroupMove } from '../../../../types'
+import type { Registration, RegistrationGroupMove } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { getRegistrations } from '../../../../api/registration'
-import { createRegistrationDraft } from '../../../../lib/registration'
-import { atomWithLocalStorage } from '../../../state'
-import { validIdTokenAtom } from '../../../state/user'
+import { getRegistrations } from '@/api/registration'
+import { createRegistrationDraft } from '@/lib/registration'
+import { atomWithLocalStorage } from '@/pages/state'
+import { validIdTokenAtom } from '@/pages/state/user'
 
 export const adminBackgroundActionsRunningAtom = atom(false)
 export const adminEventRegistrationsFetchedAtAtom = atomFamily((_eventId: string) => atom<Date | undefined>(undefined))

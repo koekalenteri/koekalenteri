@@ -1,4 +1,4 @@
-import type { CapacityStatsEntry } from '../../../types/Stats'
+import type { CapacityStatsEntry } from '@/types/Stats'
 import { render } from 'vitest-browser-react'
 import { ALL_CLASSES_ID } from './CapacityUtilizationChart'
 import DemandVsCapacityChart from './DemandVsCapacityChart'

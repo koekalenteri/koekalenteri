@@ -1,8 +1,8 @@
 import { atom } from 'jotai'
-import { getCurrentUser } from '../../../lib/client/currentUser'
-import { reportError } from '../../../lib/client/error'
-import { isValidIdToken } from '../../../lib/token'
-import { userHasAdminAccess } from '../../../lib/user'
+import { getCurrentUser } from '@/lib/client/currentUser'
+import { reportError } from '@/lib/client/error'
+import { isValidIdToken } from '@/lib/token'
+import { userHasAdminAccess } from '@/lib/user'
 import { idTokenAtom, tokenValidityRevisionAtom, userRefreshAtom } from './atoms'
 
 export const validIdTokenAtom = atom((get) => {

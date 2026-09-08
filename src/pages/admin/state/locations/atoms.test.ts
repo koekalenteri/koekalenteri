@@ -1,4 +1,4 @@
-import type { Location } from '../../../../types'
+import type { Location } from '@/types'
 import { createStore } from 'jotai'
 import { vi } from 'vitest'
 import { adminLocationNamesAtom } from './atoms'

@@ -4,8 +4,8 @@ import {
   eventWithStaticDates,
   eventWithStaticDatesAnd3Classes,
   eventWithStaticDatesAndClass,
-} from '../../../../../__mockData__/events'
-import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
+} from '@/__mockData__/events'
+import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import EventFormPlaces from './EventFormPlaces'
 
 vi.mock('notistack', () => ({

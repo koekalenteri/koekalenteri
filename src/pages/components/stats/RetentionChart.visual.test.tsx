@@ -1,4 +1,4 @@
-import type { YearlyStatsResponse } from '../../../api/stats'
+import type { YearlyStatsResponse } from '@/api/stats'
 import { render } from 'vitest-browser-react'
 import RetentionChart from './RetentionChart'
 import { ChartFrame } from './statsVisualFixtures'

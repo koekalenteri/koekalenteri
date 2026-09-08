@@ -2,7 +2,7 @@ import type { ChangeEventHandler } from 'react'
 import TextField from '@mui/material/TextField'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocalState } from '../../../hooks/useLocalState'
+import { useLocalState } from '@/hooks/useLocalState'
 import CollapsibleSection from '../CollapsibleSection'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'

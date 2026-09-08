@@ -1,5 +1,5 @@
-import type { DeepPartial } from '../../../../types'
-import type { DogCachedInfo } from '../../../state/dog'
+import type { DogCachedInfo } from '@/pages/state/dog'
+import type { DeepPartial } from '@/types'
 import { useCallback } from 'react'
 import { useDogCache } from './useDogCache'
 

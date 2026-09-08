@@ -1,8 +1,8 @@
 import type { RESET } from 'jotai/utils'
-import type { Registration } from '../../../../types'
+import type { Registration } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { atomWithSessionStorage } from '../../../state'
+import { atomWithSessionStorage } from '@/pages/state'
 import { adminEventRegistrationAtom } from './derivedAtoms'
 
 export const adminEditableEventRegistrationByEventIdAndIdAtom = atomFamily(

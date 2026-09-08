@@ -1,7 +1,7 @@
 import { addDays } from 'date-fns'
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
-import { zonedStartOfDay } from '../../../i18n/dates'
+import { zonedStartOfDay } from '@/i18n/dates'
 import { eventFilterAtom, eventMetadataAtom } from './atoms'
 import { RANGE_INCREMENTAL_THROTTLE, useFetchEvents } from './hooks'
 

@@ -1,10 +1,10 @@
 import type { GridColDef } from '@mui/x-data-grid'
-import type { Transaction } from '../../../../types'
+import type { Transaction } from '@/types'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatDate } from '../../../../i18n/dates'
-import { formatMoney } from '../../../../lib/money'
-import { getProviderName } from '../../../../lib/payment'
+import { formatDate } from '@/i18n/dates'
+import { formatMoney } from '@/lib/money'
+import { getProviderName } from '@/lib/payment'
 
 /*
 "bankReference": "7062825129",

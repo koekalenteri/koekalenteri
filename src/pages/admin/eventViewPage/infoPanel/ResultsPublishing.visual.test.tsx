@@ -1,9 +1,9 @@
-import type { ConfirmedEvent } from '../../../../types'
+import type { ConfirmedEvent } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { render } from 'vitest-browser-react'
-import { eventWithStations } from '../../../../__mockData__/resultsEvent'
-import theme from '../../../../assets/Theme'
+import { eventWithStations } from '@/__mockData__/resultsEvent'
+import theme from '@/assets/Theme'
 import ResultsPublishing from './ResultsPublishing'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

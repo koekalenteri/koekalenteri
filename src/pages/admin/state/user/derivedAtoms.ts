@@ -1,8 +1,8 @@
 import i18next from 'i18next'
 import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
-import { userHasAdminAccess } from '../../../../lib/user'
-import { adminUserOrgIdsAtom, isAdminAtom, userAtom } from '../../../state'
+import { userHasAdminAccess } from '@/lib/user'
+import { adminUserOrgIdsAtom, isAdminAtom, userAtom } from '@/pages/state'
 import { findInCollection } from '../cached/createCachedRemoteCollection'
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom, adminUsersOrganizerIdAtom } from './atoms'
 

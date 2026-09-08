@@ -1,12 +1,12 @@
-import type { DogEvent } from '../../../types'
+import type { DogEvent } from '@/types'
 import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
-import { emptyEvent } from '../../../__mockData__/emptyEvent'
-import { flushPromises } from '../../../test-utils/utils'
+import { emptyEvent } from '@/__mockData__/emptyEvent'
+import { flushPromises } from '@/test-utils/utils'
 import { EventInfo } from './EventInfo'
 
-vi.mock('../../../api/judge')
+vi.mock('@/api/judge')
 
 const testEvent: DogEvent = {
   ...emptyEvent,
