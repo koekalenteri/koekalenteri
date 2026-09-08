@@ -100,6 +100,9 @@ export default function EventListPage() {
     }
   }, [confirm, i18n.language, navigate, newEvent.modifiedAt, resetNewEvent, t])
   const editAction = useCallback(() => navigate(Path.admin.editEvent(selectedEventID)), [navigate, selectedEventID])
+  const copyAction = useCallback(async () => {
+    if (await actions.copyCurrent()) navigate(Path.admin.newEvent)
+  }, [actions, navigate])
   const viewAction = useCallback(() => navigate(Path.admin.viewEvent(selectedEventID)), [navigate, selectedEventID])
 
   // The row the pointer landed on, not the selection: a double click's own click has not settled
@@ -145,7 +148,7 @@ export default function EventListPage() {
         <AutoButton
           startIcon={<ContentCopyOutlined />}
           disabled={!selectedEventID}
-          onClick={actions.copyCurrent}
+          onClick={copyAction}
           text={t('copy')}
         />
         {isDevEnv() && (

@@ -39,6 +39,7 @@ import {
   adminRegistrationIdAtom,
   useAdminEventActions,
 } from './state'
+import { useAdminEventScope } from './state/eventScope'
 import { useAdminRegistrationActions } from './state/registrations/actions'
 
 /** Tab id of the whole-trial list a shared reserve list gets; no class can carry this name. */
@@ -56,6 +57,7 @@ export default function EventViewPage() {
 
   const params = useParams()
   const eventId = params.id ?? ''
+  useAdminEventScope(eventId)
   const { viewers } = useEventSubscription(eventId)
   const [, setSelectedEventId] = useAtom(adminEventIdAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))

@@ -1,9 +1,12 @@
-import type { DogEvent, Patch, RegistrationClass } from '../../../../types'
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useSnackbar } from 'notistack'
+import type { StartNumbersRequest } from '../../../../api/event'
+import type { DogEvent, Patch, RegistrationClass, StationTurnOp } from '../../../../types'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtomCallback } from 'jotai/utils'
+import { enqueueSnackbar } from 'notistack'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
-import { copyEventWithRegistrations, putEvent, putStartNumbers } from '../../../../api/event'
+import { copyEventWithRegistrations, putEvent, putInvitationAttachment, putStartNumbers } from '../../../../api/event'
+import { putStationTurn } from '../../../../api/station'
 import { getChangedTopLevelKeys } from '../../../../lib/diff'
 import {
   compareEventsByDate,
@@ -14,10 +17,9 @@ import {
   isStartListPublishedForClass,
   sanitizeDogEvent,
 } from '../../../../lib/event'
-import { Path } from '../../../../routeConfig'
 import { eventsAtom, userAtom, validIdTokenAtom } from '../../../state'
-import { adminEventIdAtom, adminNewEventAtom } from './atoms'
-import { adminCurrentEventAtom } from './derivedAtoms'
+import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './atoms'
+import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 
 export const buildEventSavePatch = (
   event: Patch<DogEvent>,
@@ -93,22 +95,58 @@ export const adminSaveEventAtom = atom(
   }
 )
 
+/**
+ * The writes an administrator makes to an event. The hook subscribes to nothing asynchronous: the
+ * selected event, the calendar and the user are read when an action runs, so a view can hold the
+ * actions without suspending on state it does not itself show (KOE-1343).
+ */
 export const useAdminEventActions = () => {
   const token = useAtomValue(validIdTokenAtom)
-  const user = useAtomValue(userAtom)
-  const setAdminEventId = useSetAtom(adminEventIdAtom)
-  const [currentAdminEvent, setCurrentAdminEvent] = useAtom(adminCurrentEventAtom)
   const setNewEvent = useSetAtom(adminNewEventAtom)
-  const [publicEvents, setPublicEvents] = useAtom(eventsAtom)
-  const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation()
-  const navigate = useNavigate()
+
+  const currentEvent = useAtomCallback(useCallback((get) => get(adminCurrentEventAtom), []))
+
+  /** A saved event becomes the selected one, and the public calendar learns of it — or forgets it. */
+  const storeSaved = useAtomCallback(
+    useCallback(async (get, set, saved: DogEvent, remove?: boolean) => {
+      if (!remove) {
+        set(adminEventIdAtom, saved.id)
+        await set(adminCurrentEventAtom, saved)
+      }
+
+      const publicEvents = get(eventsAtom)
+      const next = publicEvents.filter((e) => e.id !== saved.id)
+      if (remove) {
+        if (next.length === publicEvents.length) return
+      } else {
+        next.push(sanitizeDogEvent(saved))
+        // A new or redated event lands in calendar order right away, not at the end of the list (KOE-1275).
+        next.sort(compareEventsByDate)
+      }
+      set(eventsAtom, next)
+    }, [])
+  )
+
+  // A field written onto an event that is not the current one — a post's turns from its scoring
+  // page — lands on that event's own atom, whichever event the secretary has selected.
+  const patchStoredEvent = useAtomCallback(
+    useCallback(async (get, set, eventId: string, patch: Partial<DogEvent>) => {
+      const stored = (await get(adminEventsAtom)).find((event) => event.id === eventId)
+      if (stored) set(adminEventAtom(eventId), { ...stored, ...patch })
+    }, [])
+  )
+
+  const currentUser = useAtomCallback(useCallback((get) => get(userAtom), []))
 
   return {
+    attachInvitation,
     copyCurrent,
     copyCurrentTest,
     deleteCurrent,
+    enterStartNumbers,
     publishStartListClass,
+    recordStationTurn,
     save,
     setResultsClassPublished,
     setStartListClassPublished,
@@ -117,66 +155,95 @@ export const useAdminEventActions = () => {
     setStartNumbersPublished,
   }
 
-  function updatePublicEvents(event: DogEvent, remove?: boolean): void {
-    if (!event.id) return
+  /**
+   * The on-site draw's numbers, entered as a batch (KOE-1218). The server answers with the event
+   * the numbers now belong to, and it is stored here rather than left for the socket to deliver,
+   * so the screen that entered them shows them without a round trip (KOE-1343).
+   */
+  async function enterStartNumbers(eventId: string, request: StartNumbersRequest): Promise<DogEvent> {
+    const { event: saved } = await putStartNumbers(eventId, request, token)
+    await storeSaved(saved)
 
-    const newEvents = publicEvents.filter((e) => e.id !== event.id)
-    if (remove) {
-      if (newEvents.length === publicEvents.length) return
-    } else {
-      newEvents.push(sanitizeDogEvent(event))
-      // A new or redated event lands in calendar order right away, not at the end of the list (KOE-1275).
-      newEvents.sort(compareEventsByDate)
-    }
-    setPublicEvents(newEvents)
+    return saved
   }
 
-  function copyCurrent() {
-    if (!currentAdminEvent) {
+  /** The invitation's PDF, for the whole event or one class; the event learns the new key at once. */
+  async function attachInvitation(event: DogEvent, file: File, className?: RegistrationClass) {
+    const { invitationAttachmentHistory, key } = await putInvitationAttachment(event.id, file, className, token)
+    const attached: DogEvent = className
+      ? {
+          ...event,
+          invitationAttachmentHistory,
+          invitationAttachments: { ...event.invitationAttachments, [className]: key },
+        }
+      : { ...event, invitationAttachment: key, invitationAttachmentHistory }
+    await storeSaved(attached)
+
+    return { invitationAttachmentHistory, key }
+  }
+
+  /**
+   * A post's turn — a dog stepping up, done or set aside — written onto the event's timeline. The
+   * answer is the freshest timeline there is and goes straight onto the event; the socket's own
+   * copy of the same change arrives later and changes nothing.
+   */
+  async function recordStationTurn(eventId: string, op: StationTurnOp & { stationId?: string }) {
+    const { turns } = await putStationTurn(eventId, op, token ?? '')
+    await patchStoredEvent(eventId, { turns })
+
+    return turns
+  }
+
+  async function deleteCurrent() {
+    const current = await currentEvent()
+    if (!current || current.deletedAt) {
       return
     }
 
-    const copy = copyDogEvent(currentAdminEvent)
+    const user = await currentUser()
+    await save({
+      ...current,
+      deletedAt: new Date(),
+      deletedBy: user?.name ?? user?.email,
+    })
+    await storeSaved(current, true)
 
-    setNewEvent(copy)
-    navigate(Path.admin.newEvent)
+    enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })
+  }
+
+  /**
+   * Prepares a copy of the selected event as the new event; the caller takes the secretary to the
+   * form. Navigation stays out of here so the actions need no router, which every view that writes
+   * through them would otherwise have to provide.
+   */
+  async function copyCurrent(): Promise<boolean> {
+    const current = await currentEvent()
+    if (!current) {
+      return false
+    }
+
+    setNewEvent(copyDogEvent(current))
+
+    return true
   }
 
   async function copyCurrentTest() {
-    if (!currentAdminEvent) {
+    const current = await currentEvent()
+    if (!current) {
       return
     }
-    const saved = await copyEventWithRegistrations(currentAdminEvent.id, token)
-    setAdminEventId(saved.id)
-    setCurrentAdminEvent(saved)
-    updatePublicEvents(saved)
+    const saved = await copyEventWithRegistrations(current.id, token)
+    await storeSaved(saved)
+
     return saved
   }
 
   async function save(event: Patch<DogEvent>, formChanges?: Patch<DogEvent>): Promise<DogEvent | undefined> {
-    const changes = buildEventSavePatch(event, currentAdminEvent, formChanges)
+    const changes = buildEventSavePatch(event, await currentEvent(), formChanges)
     const saved = await putEvent(changes, token)
-    setAdminEventId(saved.id)
-    setCurrentAdminEvent(saved)
-    updatePublicEvents(saved)
+    await storeSaved(saved)
 
     return saved
-  }
-
-  async function deleteCurrent() {
-    if (!currentAdminEvent || currentAdminEvent.deletedAt) {
-      return
-    }
-
-    await save({
-      ...currentAdminEvent,
-      deletedAt: new Date(),
-      deletedBy: user?.name ?? user?.email,
-    })
-
-    updatePublicEvents(currentAdminEvent, true)
-
-    enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })
   }
 
   async function setStartListClassPublished(
@@ -188,9 +255,7 @@ export const useAdminEventActions = () => {
     if (isStartListPublishedForClass(event, eventClass) === published) return event
 
     const saved = await putEvent(buildStartListClassPublishedPatch(event, eventClass, published), token)
-    setAdminEventId(saved.id)
-    setCurrentAdminEvent(saved)
-    updatePublicEvents(saved)
+    await storeSaved(saved)
 
     return saved
   }
@@ -200,9 +265,7 @@ export const useAdminEventActions = () => {
     if ((event.startListPublished !== false) === published) return event
 
     const saved = await putEvent(buildStartListPublishedPatch(event, published), token)
-    setAdminEventId(saved.id)
-    setCurrentAdminEvent(saved)
-    updatePublicEvents(saved)
+    await storeSaved(saved)
 
     return saved
   }
@@ -218,9 +281,7 @@ export const useAdminEventActions = () => {
     // Publishing is also the freeze, so it goes through the start-numbers endpoint rather than a
     // plain event patch: the flag flip and the snapshot must land in the same locked request.
     const { event: saved } = await putStartNumbers(event.id, { date, eventClass, published }, token)
-    setAdminEventId(saved.id)
-    setCurrentAdminEvent(saved)
-    updatePublicEvents(saved)
+    await storeSaved(saved)
 
     return saved
   }
@@ -234,9 +295,7 @@ export const useAdminEventActions = () => {
     if (!date && (event.startNumbersPublished !== false) === published) return event
 
     const { event: saved } = await putStartNumbers(event.id, { date, published }, token)
-    setAdminEventId(saved.id)
-    setCurrentAdminEvent(saved)
-    updatePublicEvents(saved)
+    await storeSaved(saved)
 
     return saved
   }
@@ -250,9 +309,7 @@ export const useAdminEventActions = () => {
     if (isResultsPublishedForClass(event, eventClass) === published) return event
 
     const saved = await putEvent(buildResultsClassPublishedPatch(event, eventClass, published), token)
-    setAdminEventId(saved.id)
-    setCurrentAdminEvent(saved)
-    updatePublicEvents(saved)
+    await storeSaved(saved)
 
     return saved
   }

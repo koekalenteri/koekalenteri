@@ -1,11 +1,12 @@
 import type { TFunction } from 'i18next'
-import type { StoredEventResult } from '../../../../api/registration'
-import type { PublicDogEvent, Registration, RegistrationGroupMove } from '../../../../types'
+import type { EventResultSubmission, StoredEventResult } from '../../../../api/registration'
+import type { PublicDogEvent, Registration, RegistrationGroupMove, RegistrationMessage } from '../../../../types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { sendTemplatedEmail } from '../../../../api/email'
 import { createRefund } from '../../../../api/payment'
 import {
   getRegistrations,
@@ -13,6 +14,7 @@ import {
   patchAdminRegistration,
   postAdminRegistration,
   putAdminRegistrationNotes,
+  putEventResults,
   putRegistrationGroups,
 } from '../../../../api/registration'
 import { reportError } from '../../../../lib/client/error'
@@ -94,6 +96,27 @@ export const useStoreEventResults = (eventId: string) =>
       [eventId]
     )
   )
+
+/**
+ * Saves scores and folds what the server stored into the event's registrations in one go, so the
+ * screen that saved them shows them stored without waiting for its own write to come back over the
+ * socket (KOE-1343). The conflicts a save raises come back as a rejected 409, and its body carries
+ * the stored side; the caller folds that in with `useStoreEventResults`.
+ */
+export const useSaveEventResults = (eventId: string) => {
+  const token = useAtomValue(validIdTokenAtom)
+  const store = useStoreEventResults(eventId)
+
+  return useCallback(
+    async (submissions: EventResultSubmission[]) => {
+      const response = await putEventResults(eventId, submissions, token ?? '')
+      await store([...response.saved, ...response.unchanged])
+
+      return response
+    },
+    [eventId, store, token]
+  )
+}
 
 export const useAdminRegistrationActions = (eventId: string) => {
   const [eventRegistrations, setEventRegistrations] = useAtom(adminProjectedEventRegistrationsAtom(eventId))
@@ -177,13 +200,17 @@ export const useAdminRegistrationActions = (eventId: string) => {
     )
   )
 
-  const updateAdminRegistration = (saved: Registration) => {
+  const updateAdminRegistrations = (updated: Registration[]) => {
     const regs = [...eventRegistrations]
-    const index = regs.findIndex((r) => r.id === saved.id)
-    const insert = index === -1
-    regs.splice(insert ? regs.length : index, insert ? 0 : 1, saved)
+    for (const reg of updated) {
+      const index = regs.findIndex((r) => r.id === reg.id)
+      const insert = index === -1
+      regs.splice(insert ? regs.length : index, insert ? 0 : 1, reg)
+    }
     setEventRegistrations([...regs])
   }
+
+  const updateAdminRegistration = (saved: Registration) => updateAdminRegistrations([saved])
 
   const registrationClassForMove = (move: RegistrationGroupMove) =>
     eventRegistrationsRef.current.find((registration) => registration.id === move.id)?.class ?? ''
@@ -380,6 +407,20 @@ export const useAdminRegistrationActions = (eventId: string) => {
     },
 
     saveGroups,
+    /**
+     * A templated message to the chosen registrations. What the server changed while sending — the
+     * registrations' delivery state, the event's own state and class states — is stored here, so the
+     * list shows the sent marks without waiting for the socket (KOE-1343).
+     */
+    async sendMessage(message: RegistrationMessage) {
+      if (!token) throw new Error('missing token')
+
+      const { classes, failed, ok, registrations, state } = await sendTemplatedEmail(message, token)
+      if (event) setEvent({ ...event, classes, state })
+      updateAdminRegistrations(registrations)
+
+      return { failed, ok }
+    },
 
     async transactions(eventId: PublicDogEvent['id'], registrationId: Registration['id']) {
       if (!token) throw new Error('missing token')
@@ -387,14 +428,6 @@ export const useAdminRegistrationActions = (eventId: string) => {
       return getRegistrationTransactions(eventId, registrationId, token)
     },
 
-    update(updated: Registration[]) {
-      const regs = [...eventRegistrations]
-      for (const reg of updated) {
-        const index = regs.findIndex((r) => r.id === reg.id)
-        const insert = index === -1
-        regs.splice(insert ? regs.length : index, insert ? 0 : 1, reg)
-      }
-      setEventRegistrations([...regs])
-    },
+    update: updateAdminRegistrations,
   }
 }

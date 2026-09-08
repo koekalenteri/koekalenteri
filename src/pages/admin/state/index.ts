@@ -1,5 +1,6 @@
 export * from './derivedAtoms'
 export * from './emailTemplates'
+export * from './eventScope'
 export * from './events'
 export * from './eventTypes'
 export * from './judges'

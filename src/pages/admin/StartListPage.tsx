@@ -21,6 +21,7 @@ import { keysOf } from '../../lib/typeGuards'
 import { hasAdminAccessAtom, useUserActions } from '../state'
 import StartListGroup from './startListPage/StartListGroup'
 import { adminEventRegistrationsAtom } from './state'
+import { useAdminEventScope } from './state/eventScope'
 
 type GroupedRegs = Record<string | number, Record<string, Record<RegistrationTime, Registration[]>>>
 
@@ -37,6 +38,7 @@ export default function StartListPage() {
   const hasAccess = useAtomValue(hasAdminAccessAtom)
   const params = useParams()
   const eventId = params.id ?? ''
+  useAdminEventScope(eventId)
   const allRegistrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled).sort(sortRegistrationsByDateClassTimeAndNumber)
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)

@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, DogEvent, EmailTemplate, EmailTemplateId, Language, Registration } from '../../../types'
+import type { ConfirmedEvent, EmailTemplate, EmailTemplateId, Language, Registration } from '../../../types'
 import ArrowForwardIosSharp from '@mui/icons-material/ArrowForwardIosSharp'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Accordion from '@mui/material/Accordion'
@@ -29,7 +29,6 @@ import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sendTemplatedEmail } from '../../../api/email'
 import { useRegistrationEmailTemplateData } from '../../../hooks/useRegistrationEmailTemplateData'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { invitationAttachmentFileName } from '../../../lib/fileName'
@@ -82,10 +81,10 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const { enqueueSnackbar } = useSnackbar()
   const [contactInfo, setContactInfo] = useState(event.contactInfo)
   const [text, setText] = useState('')
-  const token = useAtomValue(validIdTokenAtom)
+  const _token = useAtomValue(validIdTokenAtom)
   const templates = useAtomValue(adminEmailTemplatesAtom)
   const actions = useAdminRegistrationActions(event.id)
-  const setEvent = useSetAtom(adminEventAtom(event.id))
+  const _setEvent = useSetAtom(adminEventAtom(event.id))
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | undefined>(
     templates.find((t) => t.id === templateId)
   )
@@ -148,22 +147,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       })
       if (!confirmed) return
 
-      const {
-        ok = [],
-        failed = [],
-        state = event.state,
-        classes = event.classes,
-        registrations: updatedRegistrations,
-      } = await sendTemplatedEmail(
-        {
-          contactInfo,
-          eventId: event.id,
-          registrationIds: registrations.map<string>((r) => r.id),
-          template: selectedTemplate.id,
-          text,
-        },
-        token
-      )
+      const { ok, failed } = await actions.sendMessage({
+        contactInfo,
+        eventId: event.id,
+        registrationIds: registrations.map<string>((r) => r.id),
+        template: selectedTemplate.id,
+        text,
+      })
       if (ok.length) {
         enqueueSnackbar(`${t('eventManagement.sendMessageDialog.sent')}\n\n${ok.join('\n')}`, {
           style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
@@ -176,28 +166,12 @@ export default function SendMessageDialog({ event, registrations, templateId, op
           variant: 'success',
         })
       }
-      const nextEvent: DogEvent = { ...event, classes, state }
-      setEvent(nextEvent)
-      actions.update(updatedRegistrations)
       onClose?.()
     } catch (error) {
       enqueueSnackbar(t('eventManagement.sendMessageDialog.sendFailed'), errorSnackbarOptions)
       console.log(error)
     }
-  }, [
-    actions,
-    confirm,
-    contactInfo,
-    enqueueSnackbar,
-    event,
-    onClose,
-    registrations,
-    selectedTemplate,
-    setEvent,
-    t,
-    text,
-    token,
-  ])
+  }, [actions, confirm, contactInfo, enqueueSnackbar, event, onClose, registrations, selectedTemplate, t, text])
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">

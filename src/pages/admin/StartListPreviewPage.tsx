@@ -9,10 +9,12 @@ import LoadingIndicator from '../components/LoadingIndicator'
 import { EventHeader } from '../startListPage/EventHeader'
 import { ParticipantList } from '../startListPage/ParticipantList'
 import { hasAdminAccessAtom, useConfirmedEvent, useUserActions, validIdTokenAtom } from '../state'
+import { useAdminEventScope } from './state/eventScope'
 
 export default function StartListPreviewPage() {
   const { t } = useTranslation()
   const { id = '' } = useParams()
+  useAdminEventScope(id)
   const actions = useUserActions()
   const event = useConfirmedEvent(id)
   const hasAccess = useAtomValue(hasAdminAccessAtom)

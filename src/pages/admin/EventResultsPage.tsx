@@ -20,7 +20,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { APIError } from '../../api/http'
-import { putEventResults } from '../../api/registration'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
@@ -46,7 +45,8 @@ import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { emptyEdit } from './eventResultsPage/types'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
-import { useStoreEventResults } from './state/registrations/actions'
+import { useAdminEventScope } from './state/eventScope'
+import { useSaveEventResults, useStoreEventResults } from './state/registrations/actions'
 
 /** The whole round, or one post's slice of it. */
 const WHOLE_ROUND = 'all'
@@ -64,9 +64,11 @@ const isResultConflictBody = (body: unknown): body is ResultConflictBody =>
 export default function EventResultsPage() {
   const { t } = useTranslation()
   const { id: eventId = '' } = useParams()
-  const token = useAtomValue(idTokenAtom)
+  useAdminEventScope(eventId)
+  const _token = useAtomValue(idTokenAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
+  const saveResults = useSaveEventResults(eventId)
   const storeResults = useStoreEventResults(eventId)
   // What another secretary — or the post's own link — saves arrives over the socket only while this
   // page is subscribed to the event.
@@ -204,9 +206,8 @@ export default function EventResultsPage() {
     if (submissions.length === 0) return
 
     try {
-      const response = await putEventResults(eventId, submissions, token ?? '')
-      // Stored is stored: the rows re-seed from what came back, so the result stays on screen.
-      await storeResults([...response.saved, ...response.unchanged])
+      // Stored is stored: the action folds what came back into the rows, so the result stays on screen.
+      const response = await saveResults(submissions)
       report(response.saved.length)
       setEdits({})
     } catch (error) {
@@ -226,7 +227,7 @@ export default function EventResultsPage() {
       setConflicts(body.conflicts)
       setChoices({})
     }
-  }, [edits, eventId, report, storeResults, submissionFor, t, token])
+  }, [edits, report, saveResults, storeResults, submissionFor, t])
 
   const handleResolve = useCallback(async () => {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that
@@ -237,15 +238,14 @@ export default function EventResultsPage() {
     )
 
     if (submissions.length) {
-      const response = await putEventResults(eventId, submissions, token ?? '')
-      await storeResults([...response.saved, ...response.unchanged])
+      const response = await saveResults(submissions)
       report(response.saved.length)
     }
 
     setConflicts([])
     setChoices({})
     setEdits({})
-  }, [choices, conflicts, edits, eventId, report, storeResults, submissionFor, token])
+  }, [choices, conflicts, edits, report, saveResults, submissionFor])
 
   if (!event?.id) return <EventNotFound />
 

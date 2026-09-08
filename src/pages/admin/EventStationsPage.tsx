@@ -17,6 +17,7 @@ import EventNotFound from './components/EventNotFound'
 import StationsEditor from './eventStationsPage/StationsEditor'
 import useEventForm from './hooks/useEventForm'
 import { adminEventAtom } from './state'
+import { useAdminEventScope } from './state/eventScope'
 
 /**
  * Posts get their own page rather than a section of the event form: a course is usually laid out at the
@@ -25,6 +26,7 @@ import { adminEventAtom } from './state'
 export default function EventStationsPage() {
   const { t } = useTranslation()
   const { id: eventId = '' } = useParams()
+  useAdminEventScope(eventId)
   const storedEvent = useAtomValue(adminEventAtom(eventId))
   const { event, canSave, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,

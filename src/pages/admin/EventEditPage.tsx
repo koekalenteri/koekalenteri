@@ -7,9 +7,11 @@ import EventNotFound from './components/EventNotFound'
 import OtherViewers from './eventViewPage/OtherViewers'
 import useEventForm from './hooks/useEventForm'
 import { adminEventAtom } from './state'
+import { useAdminEventScope } from './state/eventScope'
 
 export default function EventEditPage() {
   const { id: eventId = '' } = useParams()
+  useAdminEventScope(eventId)
   const { viewers } = useEventSubscription(eventId)
   const storedEvent = useAtomValue(adminEventAtom(eventId))
   const { event, changes, canSave, handleChange, handleSave, handleCancel } = useEventForm({

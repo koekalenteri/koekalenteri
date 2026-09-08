@@ -10,11 +10,11 @@ import IconButton from '@mui/material/IconButton'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Tooltip from '@mui/material/Tooltip'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getEventAuditTrail, putInvitationAttachment } from '../../../api/event'
+import { getEventAuditTrail } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
 import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
@@ -24,7 +24,7 @@ import { canPublishResults, hasEntryEnded, isEventOver } from '../../../lib/even
 import { invitationAttachmentFileName } from '../../../lib/fileName'
 import { validIdTokenAtom } from '../../state'
 import { AuditTrail } from '../components/AuditTrail'
-import { adminEventAtom } from '../state'
+import { useAdminEventActions } from '../state'
 import EventActions from './infoPanel/EventActions'
 import InvitationDelivery from './infoPanel/InvitationDelivery'
 import ParticipantSelection from './infoPanel/ParticipantSelection'
@@ -69,7 +69,7 @@ const InfoPanel = ({
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
   const [auditTrailLoading, setAuditTrailLoading] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
-  const setEvent = useSetAtom(adminEventAtom(event.id))
+  const eventActions = useAdminEventActions()
   const [expanded, setExpanded] = useState(false)
   useAuditTrailSubscription(`event:${event.id}`, expanded, setAuditTrail)
   const { reserveByClass, numbersByClass, selectedByClass, stateByClass } = useAdminEventRegistrationInfo(
@@ -98,11 +98,10 @@ const InfoPanel = ({
       }
 
       try {
-        const { invitationAttachmentHistory, key: fileKey } = await putInvitationAttachment(
-          event.id,
+        const { invitationAttachmentHistory, key: fileKey } = await eventActions.attachInvitation(
+          event,
           input.files[0],
-          className,
-          token
+          className
         )
         setAttachmentHistory(invitationAttachmentHistory)
 
@@ -114,9 +113,7 @@ const InfoPanel = ({
             invitationAttachment: fileKey,
             startDate: classEvent?.date ?? event.startDate,
           })
-          const invitationAttachments = { ...classAttachmentKeys, [className]: fileKey }
-          setClassAttachmentKeys(invitationAttachments)
-          setEvent({ ...event, invitationAttachmentHistory, invitationAttachments })
+          setClassAttachmentKeys({ ...classAttachmentKeys, [className]: fileKey })
           enqueueSnackbar(
             t(
               event.invitationAttachments?.[className]
@@ -130,7 +127,6 @@ const InfoPanel = ({
           const update = Boolean(event.invitationAttachment)
           const fileName = invitationAttachmentFileName({ ...event, invitationAttachment: fileKey })
           setAttachmentKey(fileKey)
-          setEvent({ ...event, invitationAttachment: fileKey, invitationAttachmentHistory })
           enqueueSnackbar(
             t(update ? 'eventManagement.upload.updated' : 'eventManagement.upload.attached', { fileName }),
             {
@@ -148,7 +144,7 @@ const InfoPanel = ({
         input.value = ''
       }
     },
-    [classAttachmentKeys, event, eventFinished, setEvent, t, token]
+    [classAttachmentKeys, event, eventFinished, t, eventActions.attachInvitation]
   )
 
   useEffect(() => {

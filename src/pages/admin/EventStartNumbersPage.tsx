@@ -9,7 +9,6 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { putStartNumbers } from '../../api/event'
 import { getStartNumberLink } from '../../api/startNumbers'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
@@ -20,6 +19,7 @@ import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import { StartNumbersEntry } from './eventStartNumbersPage/StartNumbersEntry'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
+import { useAdminEventScope } from './state/eventScope'
 
 /**
  * The on-site draw's numbers, entered as a batch (KOE-1218). The calendar takes no part in the draw
@@ -32,6 +32,7 @@ import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActi
 export default function EventStartNumbersPage() {
   const { t } = useTranslation()
   const { id: eventId = '' } = useParams()
+  useAdminEventScope(eventId)
   const token = useAtomValue(idTokenAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
@@ -40,11 +41,10 @@ export default function EventStartNumbersPage() {
   const handleSave = useCallback(
     async (numbers: StartNumberEntry[], eventClass?: string) => {
       try {
-        await putStartNumbers(
-          eventId,
-          { ...(isRegistrationClass(eventClass) ? { eventClass } : {}), numbers },
-          token ?? ''
-        )
+        await eventActions.enterStartNumbers(eventId, {
+          ...(isRegistrationClass(eventClass) ? { eventClass } : {}),
+          numbers,
+        })
         enqueueSnackbar(t('startNumbers.saved'), { variant: 'success' })
         return true
       } catch (error) {
@@ -54,7 +54,7 @@ export default function EventStartNumbersPage() {
         return false
       }
     },
-    [eventId, t, token]
+    [eventId, t, eventActions.enterStartNumbers]
   )
 
   // The class secretary's link is the class on screen: whichever tab the secretary is looking at is

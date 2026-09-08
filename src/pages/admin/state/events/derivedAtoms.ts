@@ -1,6 +1,7 @@
 import type { ConfirmedEvent, DogEvent, PublicOrganizer } from '../../../../types'
 import i18next from 'i18next'
 import { atom } from 'jotai'
+import { unwrap } from 'jotai/utils'
 import { atomFamily } from 'jotai-family'
 import { compareByLocalizedString } from '../../../../lib/client/sort'
 import { compareEventsByDate, isEventOver } from '../../../../lib/event'
@@ -47,6 +48,13 @@ export const adminLinkedKcIdsAtom = atomFamily((eventId: string | undefined) =>
     }
     return kcIds
   })
+)
+
+// Unwrapped for a button that must not suspend the section around it: before the events resolve
+// nothing is known to be taken, which only loses the early warning — the backend still raises the
+// conflict on save — and by the time an event's form is open they have.
+export const adminKnownKcIdsAtom = atomFamily((eventId: string | undefined) =>
+  unwrap(adminLinkedKcIdsAtom(eventId), (previous) => previous ?? new Set<number>())
 )
 
 export const adminConfirmedEventAtom = atomFamily((eventId: string | undefined) =>

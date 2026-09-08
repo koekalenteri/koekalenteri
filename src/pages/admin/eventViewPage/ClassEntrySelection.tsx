@@ -13,7 +13,6 @@ import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { useAtomValue } from 'jotai'
 import { useConfirm } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
 import { Fragment, useCallback, useMemo, useState } from 'react'
@@ -21,7 +20,6 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import withScrolling from 'react-dnd-scrolling'
 import { useTranslation } from 'react-i18next'
-import { putStartNumbers } from '../../../api/event'
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
@@ -37,7 +35,7 @@ import {
 import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
-import { idTokenAtom } from '../../state'
+import { useAdminEventActions } from '../state'
 import { useAdminRegistrationActions } from '../state/registrations/actions'
 import DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
@@ -100,7 +98,7 @@ const ClassEntrySelection = ({
 }: Props) => {
   const confirm = useConfirm()
   const { t } = useTranslation()
-  const token = useAtomValue(idTokenAtom)
+  const eventActions = useAdminEventActions()
   const actions = useAdminRegistrationActions(event.id)
   const [unlockArrange, setUnlockArrange] = useState(false)
   const [moveToGroupDialogOpen, setMoveToGroupDialogOpen] = useState(false)
@@ -367,19 +365,15 @@ const ClassEntrySelection = ({
         }
         // On the whole-trial tab the numbers belong to the dog's own class (KOE-912).
         const numberClass = eventClass ?? getRegistrationClass(registration)
-        await putStartNumbers(
-          event.id,
-          {
-            ...(isRegistrationClass(numberClass) ? { eventClass: numberClass } : {}),
-            numbers: [{ id: registration.id, startNumber: position }],
-          },
-          token ?? ''
-        )
+        await eventActions.enterStartNumbers(event.id, {
+          ...(isRegistrationClass(numberClass) ? { eventClass: numberClass } : {}),
+          numbers: [{ id: registration.id, startNumber: position }],
+        })
       } finally {
         setPendingMoveId(undefined)
       }
     },
-    [actions, confirmPlaceMessage, event.id, eventClass, groups, moveToPositionDay, token]
+    [actions, confirmPlaceMessage, event.id, eventClass, groups, moveToPositionDay, eventActions.enterStartNumbers]
   )
 
   const handleMoveToPosition = useCallback(

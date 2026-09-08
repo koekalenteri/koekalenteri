@@ -1,16 +1,15 @@
 import type { EventResultSubmission } from '../../api/registration'
-import type { EventStation, StationTurn, StationTurnOp } from '../../types'
+import type { EventStation, StationTurnOp } from '../../types'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
-import { putEventResults } from '../../api/registration'
-import { getStationLink, putStationTurn } from '../../api/station'
+import { getStationLink } from '../../api/station'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
@@ -20,7 +19,8 @@ import EventNotFound from './components/EventNotFound'
 import { StationPhasesEditor } from './eventResultsPage/StationPhasesEditor'
 import { StationScoring } from './eventResultsPage/StationScoring'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
-import { useStoreEventResults } from './state/registrations/actions'
+import { useAdminEventScope } from './state/eventScope'
+import { useSaveEventResults } from './state/registrations/actions'
 
 /**
  * The event secretary's view of one post: `StationScoring` over the admin data, plus the controls for
@@ -29,11 +29,12 @@ import { useStoreEventResults } from './state/registrations/actions'
 export default function StationResultsPage() {
   const { t } = useTranslation()
   const { id: eventId = '', stationId = '' } = useParams()
+  useAdminEventScope(eventId)
   const token = useAtomValue(idTokenAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const eventActions = useAdminEventActions()
-  const storeResults = useStoreEventResults(eventId)
+  const saveResults = useSaveEventResults(eventId)
   // The other posts' scores, the token link's saves and its turns arrive over the socket only while
   // this page is subscribed to the event.
   useEventSubscription(eventId)
@@ -44,25 +45,15 @@ export default function StationResultsPage() {
 
   // What came back is the stored truth for that dog: folding it in is what marks the dog as done in
   // the queue, and what keeps the post from scoring it twice.
-  const handleSave = useCallback(
-    async (submission: EventResultSubmission) => {
-      const response = await putEventResults(eventId, [submission], token ?? '')
-      await storeResults([...response.saved, ...response.unchanged])
-      return response
-    },
-    [eventId, storeResults, token]
-  )
+  const handleSave = useCallback(async (submission: EventResultSubmission) => saveResults([submission]), [saveResults])
 
-  // The response is the freshest timeline until the WebSocket patch catches the event atom up; each
-  // save remembers which atom value it was based on, so a fresher patch takes over by itself.
-  const [savedTurns, setSavedTurns] = useState<{ base: StationTurn[] | undefined; turns: StationTurn[] }>()
-  const eventTurns = event?.turns
+  // The answer is the freshest timeline there is, and the action writes it onto the event atom;
+  // the socket's own copy of the same change arrives later and changes nothing.
   const handleTurn = useCallback(
     async (op: StationTurnOp) => {
-      const response = await putStationTurn(eventId, { ...op, stationId }, token ?? '')
-      setSavedTurns({ base: eventTurns, turns: response.turns })
+      await eventActions.recordStationTurn(eventId, { ...op, stationId })
     },
-    [eventId, eventTurns, stationId, token]
+    [eventActions, eventId, stationId]
   )
 
   const handleCopyLink = useCallback(async () => {
@@ -144,7 +135,7 @@ export default function StationResultsPage() {
         registrations={scorable}
         station={station}
         subtitle={subtitle}
-        turns={(savedTurns && savedTurns.base === event.turns ? savedTurns.turns : event.turns) ?? []}
+        turns={event.turns ?? []}
       />
     </Box>
   )
