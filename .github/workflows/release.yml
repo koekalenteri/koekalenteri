@@ -24,6 +24,7 @@ on:
 permissions:
   actions: read
   contents: write
+  id-token: write # for the OIDC token the deploy role is assumed with
 
 jobs:
   setup:
@@ -74,6 +75,8 @@ jobs:
     if: ${{ needs.setup.outputs.deploy_backend == 'true' }}
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
+    env:
+      AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -95,7 +98,16 @@ jobs:
       - uses: aws-actions/setup-sam@v3
         with:
           use-installer: true
+      # With the deploy role's ARN in the repository secrets, the job authenticates through GitHub's
+      # OIDC federation and no long-lived key exists anywhere (KOE-1349; the role is
+      # aws/github-deploy-role.yaml). Until the secret is set, the access key is used as before.
       - uses: aws-actions/configure-aws-credentials@v6
+        if: ${{ env.AWS_DEPLOY_ROLE_ARN != '' }}
+        with:
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/configure-aws-credentials@v6
+        if: ${{ env.AWS_DEPLOY_ROLE_ARN == '' }}
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -145,13 +157,24 @@ jobs:
     if: ${{ always() && !failure() && !cancelled() && needs.setup.outputs.deploy_frontend == 'true' }}
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
+    env:
+      AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
+      # With the deploy role's ARN in the repository secrets, the job authenticates through GitHub's
+      # OIDC federation and no long-lived key exists anywhere (KOE-1349; the role is
+      # aws/github-deploy-role.yaml). Until the secret is set, the access key is used as before.
       - uses: aws-actions/configure-aws-credentials@v6
+        if: ${{ env.AWS_DEPLOY_ROLE_ARN != '' }}
+        with:
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/configure-aws-credentials@v6
+        if: ${{ env.AWS_DEPLOY_ROLE_ARN == '' }}
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  The role GitHub Actions deploys Koekalenteri with, assumed through GitHub's OIDC federation so
+  that no long-lived access key is stored in the repository (KOE-1349). Deployed once by hand, not
+  by the pipeline it authorizes:
+
+    aws cloudformation deploy --stack-name koekalenteri-github-deploy \
+      --template-file aws/github-deploy-role.yaml --capabilities CAPABILITY_NAMED_IAM \
+      --parameter-overrides ManagedPolicyArns=<the policies the current deploy user has>
+
+  Then put the RoleArn output in the repository secret AWS_DEPLOY_ROLE_ARN; release.yml switches
+  to it on the next run, and the access key can be deleted.
+
+Parameters:
+  Repository:
+    Type: String
+    Default: koekalenteri/koekalenteri
+    Description: The GitHub repository whose workflows may assume the role.
+  ManagedPolicyArns:
+    Type: CommaDelimitedList
+    Description: >-
+      The policies the role deploys with. The SAM stack creates roles, tables, functions, APIs,
+      buckets, Cognito and Amplify resources, so mirror what the access key's IAM user has
+      (aws iam list-attached-user-policies --user-name <deploy user>).
+  ProviderExists:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['true', 'false']
+    Description: >-
+      An account holds one OIDC provider per issuer. Set to true if token.actions.githubusercontent.com
+      is already registered, and the role trusts the existing one.
+
+Conditions:
+  CreateProvider: !Equals [!Ref ProviderExists, 'false']
+
+Resources:
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: CreateProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      # AWS validates GitHub's certificate chain itself and ignores this for the issuer, but the
+      # property is required; this is the root CA thumbprint GitHub documents.
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+
+  DeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: koekalenteri-github-deploy
+      Description: !Sub GitHub Actions deploys ${Repository} with this role.
+      MaxSessionDuration: 3600
+      ManagedPolicyArns: !Ref ManagedPolicyArns
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !If
+                - CreateProvider
+                - !Ref GitHubOidcProvider
+                - !Sub arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              # Any job of this repository: a push to main deploys dev, a release deploys test or
+              # prod, and both run under a deployment environment, which is what the subject names.
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:${Repository}:*
+
+Outputs:
+  RoleArn:
+    Description: Put this in the repository secret AWS_DEPLOY_ROLE_ARN.
+    Value: !GetAtt DeployRole.Arn

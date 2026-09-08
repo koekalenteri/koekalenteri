@@ -344,6 +344,7 @@ jobs:
     permissions:
       actions: read
       contents: write
+      id-token: write # the called release workflow assumes the deploy role with it
     concurrency:
       group: deploy-dev-${{ github.ref }}
       cancel-in-progress: true

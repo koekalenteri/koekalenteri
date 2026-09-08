@@ -20,3 +20,11 @@ node split.js kokeet.json
 
 aws dynamodb batch-write-item --request-items file://kokeet0.json
 ...
+
+## GitHub deploy role (OIDC)
+
+`github-deploy-role.yaml` is the role the release workflow deploys with, assumed through GitHub's
+OIDC federation instead of an access key kept in the repository secrets (KOE-1349). It is deployed
+once by hand; the header of the template has the command. With the `RoleArn` output in the
+repository secret `AWS_DEPLOY_ROLE_ARN`, `release.yml` assumes the role on its next run and the
+`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` secrets can go.
