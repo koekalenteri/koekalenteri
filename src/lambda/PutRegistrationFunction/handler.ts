@@ -29,6 +29,7 @@ import { CONFIG } from '../config'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { audit, auditStrict, registrationAuditKey } from '../lib/audit'
 import { getUsername } from '../lib/auth'
+import { readOfficialResults } from '../lib/dog'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import {
   assertRegistrationEmailsNotSuppressed,
@@ -128,7 +129,14 @@ const toManualTestResult = (
   regNo: registration.dog.regNo,
 })
 
-const resolveQualification = (registration: JsonRegistration, event: JsonConfirmedEvent) => {
+/**
+ * Whether the dog qualifies for the class, decided here and not by the client. The official results
+ * come from the dog table, not from the request's copy of them: a client can write anything into
+ * its copy, and the eligibility rests on these (KOE-1346). The manual results stay what they are,
+ * the owner's own claims, and are stored and shown as such.
+ */
+const resolveQualification = async (registration: JsonRegistration, event: JsonConfirmedEvent) => {
+  registration.dog.results = await readOfficialResults(registration.dog.regNo)
   const qualification = filterRelevantResults(
     {
       entryEndDate: event.entryEndDate ? new Date(event.entryEndDate) : undefined,
@@ -573,7 +581,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const { cancel, confirm, data, invitation, update } = built
 
   applyOwnerOverrides(data)
-  resolveQualification(data, confirmedEvent)
+  await resolveQualification(data, confirmedEvent)
 
   if (existing && !hasRegistrationChanges(existing, data)) {
     return response(304, undefined, event)

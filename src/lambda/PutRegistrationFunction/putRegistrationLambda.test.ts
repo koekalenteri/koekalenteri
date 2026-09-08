@@ -1,8 +1,13 @@
 import type { JsonDogEvent, JsonRegistration, Registration } from '../../types'
 import { addDays, addMinutes } from 'date-fns'
 import { vi } from 'vitest'
-import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
-import { registrationWithStaticDates } from '../../__mockData__/registrations'
+import { registrationDogAged28MonthsWithNOUResult } from '../../__mockData__/dogs'
+import {
+  eventWithStaticDates,
+  eventWithStaticDatesAnd3Classes,
+  eventWithStaticDatesAndClass,
+} from '../../__mockData__/events'
+import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '../../__mockData__/registrations'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
@@ -28,6 +33,8 @@ const mockUpdateEventStatsForRegistration = vi.fn()
 const mockUpdateRegistrations = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockDynamoDBQuery = vi.fn().mockResolvedValue([])
+// The dog table: nothing in it unless a test puts a dog there.
+const mockDynamoDBRead = vi.fn().mockResolvedValue(undefined)
 const mockDynamoDBWrite = vi.fn()
 const mockDynamoDBUpdate = vi.fn()
 const mockFixRegistrationGroups = vi.fn(async (registrations: JsonRegistration[]) => registrations)
@@ -67,6 +74,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       query: mockDynamoDBQuery,
+      read: mockDynamoDBRead,
       update: mockDynamoDBUpdate,
       write: mockDynamoDBWrite,
     }
@@ -1500,5 +1508,47 @@ describe('putRegistrationLabmda', () => {
       expect.anything(),
       expect.objectContaining({ qualifies: true, qualifyingResults: [], selectedCost: 'normal' })
     )
+  })
+  // The official results the eligibility rests on come from the dog table, never from the request:
+  // a client can write anything into its own copy of them (KOE-1346).
+  describe('official results', () => {
+    const jsonDog = JSON.parse(JSON.stringify(registrationDogAged28MonthsWithNOUResult))
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...entry } = registrationWithStaticDatesAndClass
+
+    beforeEach(() => {
+      vi.setSystemTime(eventWithStaticDatesAndClass.entryStartDate)
+      mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDatesAndClass)))
+    })
+
+    it('does not qualify a dog on results the request carries when the dog table holds none', async () => {
+      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, state: 'ready' }))
+
+      expect(res.statusCode).toBe(200)
+      expect(mockDynamoDBRead).toHaveBeenCalledWith({ regNo: registrationDogAged28MonthsWithNOUResult.regNo })
+      expect(mockSaveRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dog: expect.objectContaining({ results: [] }),
+          qualifies: false,
+          qualifyingResults: [],
+        })
+      )
+    })
+
+    it('qualifies a dog on the results the dog table holds, whatever the request carries', async () => {
+      mockDynamoDBRead.mockResolvedValueOnce(jsonDog)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ ...entry, dog: { ...entry.dog, results: [] }, state: 'ready' })
+      )
+
+      expect(res.statusCode).toBe(200)
+      expect(mockSaveRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dog: expect.objectContaining({ results: jsonDog.results }),
+          qualifies: true,
+          qualifyingResults: [expect.objectContaining({ official: true, result: 'NOU1', type: 'NOU' })],
+        })
+      )
+    })
   })
 })

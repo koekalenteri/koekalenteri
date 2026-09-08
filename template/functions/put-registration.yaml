@@ -11,6 +11,9 @@
             TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
             TableName: !Ref EmailSuppressionTable
+        # The dog's official results are read from here, not taken from the request (KOE-1346).
+        - DynamoDBReadPolicy:
+            TableName: !Ref DogTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
         - DynamoDBCrudPolicy:
