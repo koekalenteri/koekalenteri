@@ -51,7 +51,7 @@ export const getEventDoubleClickPath = (
 
 export default function EventListPage() {
   const confirm = useConfirm()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const [showPast, setShowPast] = useAtom(adminShowPastEventsAtom)
   const [searchText, setSearchText] = useAtom(adminEventFilterTextAtom)
@@ -85,12 +85,9 @@ export default function EventListPage() {
   const createAction = useCallback(() => {
     if (newEvent.modifiedAt) {
       confirm({
-        cancellationText: 'Luo uusi tapahtuma',
-        confirmationText: 'Jatka muokkausta',
-        description: `Sinulla on tallentamaton tapahtuman luonnos (muokattu ${formatDistance(
-          newEvent.modifiedAt,
-          'fi'
-        )} sitten). Haluatko jatkaa muokkaamista vai luoda kokonaan uuden tapahtuman?`,
+        cancellationText: t('eventDraft.createNew'),
+        confirmationText: t('unsavedChanges.stay'),
+        description: t('eventDraft.description', { ago: formatDistance(newEvent.modifiedAt, i18n.language) }),
         title: t('confirmTitle'),
       }).then(async ({ confirmed }) => {
         if (!confirmed) {
@@ -101,7 +98,7 @@ export default function EventListPage() {
     } else {
       navigate(Path.admin.newEvent)
     }
-  }, [confirm, navigate, newEvent.modifiedAt, resetNewEvent, t])
+  }, [confirm, i18n.language, navigate, newEvent.modifiedAt, resetNewEvent, t])
   const editAction = useCallback(() => navigate(Path.admin.editEvent(selectedEventID)), [navigate, selectedEventID])
   const viewAction = useCallback(() => navigate(Path.admin.viewEvent(selectedEventID)), [navigate, selectedEventID])
 
@@ -219,7 +216,7 @@ export default function EventListPage() {
                   sx={{ m: 0, ml: 'auto', pl: 1 }}
                   checked={showPast}
                   control={<Switch size="small" />}
-                  label="Näytä myös menneet tapahtumat"
+                  label={t('showPastEvents')}
                   labelPlacement="start"
                   name="showPast"
                   onChange={toggleShowPast}

@@ -1,6 +1,7 @@
 {
   "actions": "Actions",
   "active": "Active",
+  "add": "Add",
   "admin": "Administration",
   "all": "All",
   "app": {
@@ -176,6 +177,7 @@
   "event": {
     "attachments": "Attachments",
     "classes": "Classes",
+    "classMoved": "Correction: {{from}} moved to {{to}}",
     "classPlaces": "Places",
     "classPlacesHeader": {
       "dates": "date(s)",
@@ -221,6 +223,7 @@
       "addForeign": "Add foreign judge",
       "addUnofficial": "Add unofficial judge",
       "classes": "Judges classes",
+      "notAvailable": "Judge {{name}} ({{id}}) is not available",
       "remove": "Remove judge"
     },
     "kcId": "Kennel Club ID",
@@ -262,6 +265,7 @@
     "phase": "Event phase",
     "places": "Places",
     "placesEditor": {
+      "corrected": "Correction: the number of places changed {{from}} -> {{to}}",
       "locked": "Places are locked to per-class because class-specific places have already been saved for this trial",
       "perClass": "Per class",
       "perDay": "Per day",
@@ -322,6 +326,10 @@
     "viewerBanner_one": "{{names}} is also viewing this event.",
     "viewerBanner_other": "{{names}} are also viewing this event."
   },
+  "eventDraft": {
+    "createNew": "Create a new event",
+    "description": "You have an unsaved event draft (edited {{ago}} ago). Do you want to continue editing or create an entirely new event?"
+  },
   "eventInfo": "Event information",
   "eventManagement": {
     "actions": "Actions",
@@ -366,6 +374,7 @@
       "templateMissing": "The message template has not been written yet. Write it on the Email templates page before sending.",
       "title": "Who is the message for?"
     },
+    "missingClass": "These registrations are in a class that is no longer part of the trial. The classes of the registrations must be corrected.",
     "open": "Open event management",
     "participantSelection": {
       "cannotMoveToReserve": "Once the places have been confirmed, a dog can no longer be moved from the participants to the reserve list.",
@@ -836,6 +845,7 @@
       "excessOnly": "Refund the overpaid part {{amount}}",
       "excessText": "The overpaid part is refunded without a handling fee. The rest of the payment stays refundable should the entry be cancelled later.",
       "excessTitle": "The entrant has paid over the fee: entry fee {{cost}}, paid {{paid}}",
+      "handlingCost": "Handling fee",
       "noCostsText": "The selected payment was made in a version of Koekalenteri prior to the refund feature. Such a payment can only be refunded in full through Koekalenteri.",
       "previouslyChargedHandlingCost": "Previously charged handling fee",
       "status": {
@@ -1008,6 +1018,8 @@
     "placeholder": "Search..."
   },
   "send": "Send",
+  "showOrganizersWithUsers": "Show only organizations with users",
+  "showPastEvents": "Also show past events",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
@@ -1165,6 +1177,7 @@
   },
   "updateData": "Update $t({{data}}) from The Finnish Kennel Club API",
   "user": {
+    "added": "User '{{name}}' added, with email '{{email}}'",
     "admin": "Koekalenteri administrator",
     "adminRoles": "The Koekalenteri administrator has admin rights to all organizations",
     "createDialog": {
@@ -1191,10 +1204,12 @@
     "judge": "Judge",
     "lastSeen": "Last login",
     "officer": "Officer",
+    "roleAdded": "User '{{name}}' ('{{email}}') was granted access to organization '{{organizer}}'",
     "roles": {
       "admin": "Organization administrator",
       "secretary": "Secretary"
-    }
+    },
+    "unknownOrganizer": "(unknown/deleted organization: {{orgId}})"
   },
   "users": "Users",
   "validation": {

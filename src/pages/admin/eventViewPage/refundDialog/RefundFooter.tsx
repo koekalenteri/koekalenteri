@@ -8,6 +8,7 @@ import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { GridFooterContainer } from '@mui/x-data-grid'
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { formatMoney, formatMoneyWithoutCurrency } from '../../../../lib/money'
 import { NumberInput } from '../../../components/NumberInput'
 
@@ -41,6 +42,7 @@ export const RefundFooter = ({
   onHandlingCostChange,
   refundTotal,
 }: RefundFooterProps) => {
+  const { t } = useTranslation()
   const parseAmount = useCallback((value: string) => {
     return Math.round(Number.parseFloat(value.replaceAll(',', '.')) * 100)
   }, [])
@@ -74,7 +76,7 @@ export const RefundFooter = ({
                         </InputAdornment>
                       ),
                       inputProps: {
-                        'aria-label': 'Käsittelykulu',
+                        'aria-label': t('registration.refundDialog.handlingCost'),
                         style: { fontSize: 14 },
                       },
                     },

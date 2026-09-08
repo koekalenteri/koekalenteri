@@ -93,11 +93,11 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
                 const o = organizers.find((o) => o.id === orgId)
                 return (
                   <TableRow key={orgId}>
-                    <TableCell>{o?.name ?? `(tuntematon/poistettu yhdistys: ${orgId})`}</TableCell>
+                    <TableCell>{o?.name ?? t('user.unknownOrganizer', { orgId })}</TableCell>
                     <TableCell>{t(`user.roles.${roles[orgId]}`)}</TableCell>
                     <TableCell>
                       <Button variant="outlined" onClick={() => actions.removeRole(user, orgId)}>
-                        Poista
+                        {t('delete')}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -134,7 +134,7 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
                     onClick={() => org && actions.addRole(user, org.id, role)}
                     variant="contained"
                   >
-                    Lisää
+                    {t('add')}
                   </Button>
                 </TableCell>
               </TableRow>

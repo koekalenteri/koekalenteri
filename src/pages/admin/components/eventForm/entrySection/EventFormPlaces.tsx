@@ -130,9 +130,9 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
 
     if (total !== event.places) {
       onChange?.({ places: total })
-      enqueueSnackbar(`Korjaus: Koepaikkojen määrä muutettu ${event.places} -> ${total}`, { variant: 'info' })
+      enqueueSnackbar(t('event.placesEditor.corrected', { from: event.places, to: total }), { variant: 'info' })
     }
-  }, [event.classes, event.places, event.placesPerDay, mode, onChange])
+  }, [event.classes, event.places, event.placesPerDay, mode, onChange, t])
 
   return (
     <Box sx={{ border: '1px dashed #ddd', borderRadius: 1, p: 1 }}>

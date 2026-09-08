@@ -114,7 +114,10 @@ function EntrySection(props: Props) {
         const date = clamp(cls.date, interval)
         newClasses.push({ ...cls, date })
         enqueueSnackbar(
-          `Korjaus: ${cls.class}/${t('dateFormat.wdshort', { date: cls.date })} siirretty ${cls.class}/${t('dateFormat.wdshort', { date })}`,
+          t('event.classMoved', {
+            from: `${cls.class}/${t('dateFormat.wdshort', { date: cls.date })}`,
+            to: `${cls.class}/${t('dateFormat.wdshort', { date })}`,
+          }),
           { variant: 'info' }
         )
       } else {

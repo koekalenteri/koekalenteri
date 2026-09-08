@@ -246,8 +246,7 @@ export default function EventViewPage() {
           <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
             {missingClasses.includes(eventClass) ? (
               <Alert severity="info" sx={{ m: 1 }}>
-                Nämä ilmoittautumiset ovat koeluokassa, jota ei enää ole kokeessa. Ilmoittautumisten luokat täytyy
-                korjata.
+                {t('eventManagement.missingClass')}
               </Alert>
             ) : null}
             <ClassEntrySelection

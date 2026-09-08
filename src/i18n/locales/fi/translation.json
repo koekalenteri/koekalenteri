@@ -1,6 +1,7 @@
 {
   "actions": "Toiminnot",
   "active": "Käytössä",
+  "add": "Lisää",
   "admin": "Ylläpito",
   "all": "Kaikki",
   "app": {
@@ -176,6 +177,7 @@
   "event": {
     "attachments": "Liitteet",
     "classes": "Luokat",
+    "classMoved": "Korjaus: {{from}} siirretty {{to}}",
     "classPlaces": "Paikat",
     "classPlacesHeader": {
       "dates": "päivä(t)",
@@ -221,6 +223,7 @@
       "addForeign": "Lisää ulkomainen tuomari",
       "addUnofficial": "Lisää epävirallinen tuomari",
       "classes": "Arvostelee luokat",
+      "notAvailable": "Tuomari {{name}} ({{id}}) ei ole käytettävissä",
       "remove": "Poista tuomari"
     },
     "kcId": "Kennelliiton koetunnus",
@@ -262,6 +265,7 @@
     "phase": "Kokeen vaihe",
     "places": "Paikkoja",
     "placesEditor": {
+      "corrected": "Korjaus: Koepaikkojen määrä muutettu {{from}} -> {{to}}",
       "locked": "Paikkamäärä on lukittu luokittain, koska luokkakohtaiset paikat on jo tallennettu tälle kokeelle",
       "perClass": "Luokittain",
       "perDay": "Päivittäin",
@@ -322,6 +326,10 @@
     "viewerBanner_one": "Myös {{names}} katsoo tätä tapahtumaa.",
     "viewerBanner_other": "Myös {{names}} katsovat tätä tapahtumaa."
   },
+  "eventDraft": {
+    "createNew": "Luo uusi tapahtuma",
+    "description": "Sinulla on tallentamaton tapahtuman luonnos (muokattu {{ago}} sitten). Haluatko jatkaa muokkaamista vai luoda kokonaan uuden tapahtuman?"
+  },
   "eventInfo": "Tapahtuman tiedot",
   "eventManagement": {
     "actions": "Toiminnot",
@@ -366,6 +374,7 @@
       "templateMissing": "Viestipohjaa ei ole vielä laadittu. Laadi se Viestipohjat-sivulla, ennen kuin lähetät viestin.",
       "title": "Kenelle viesti lähetetään?"
     },
+    "missingClass": "Nämä ilmoittautumiset ovat koeluokassa, jota ei enää ole kokeessa. Ilmoittautumisten luokat täytyy korjata.",
     "open": "Avaa tapahtuman hallinta",
     "participantSelection": {
       "cannotMoveToReserve": "Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.",
@@ -836,6 +845,7 @@
       "excessOnly": "Palauta liikaa maksettu osuus {{amount}}",
       "excessText": "Liikaa maksettu osuus palautetaan ilman käsittelykulua. Loppu maksusta jää edelleen palautettavaksi, jos ilmoittautuminen myöhemmin perutaan.",
       "excessTitle": "Ilmoittautuja on maksanut liikaa: osallistumismaksu {{cost}}, maksettu {{paid}}",
+      "handlingCost": "Käsittelykulu",
       "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta.",
       "previouslyChargedHandlingCost": "Aiemmin veloitettu käsittelykulu",
       "status": {
@@ -1008,6 +1018,8 @@
     "placeholder": "Hae..."
   },
   "send": "Lähetä",
+  "showOrganizersWithUsers": "Näytä vain yhdistykset, joilla on käyttäjiä",
+  "showPastEvents": "Näytä myös menneet tapahtumat",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
@@ -1165,6 +1177,7 @@
   },
   "updateData": "Päivitä $t({{data}}, lowercase) Kennelliiton rajapinnasta",
   "user": {
+    "added": "Käyttäjä '{{name}}' lisätty, sähköpostilla '{{email}}'",
     "admin": "Koekalenterin pääkäyttäjä",
     "adminRoles": "Koekalenterin pääkäyttäjällä on pääkäyttäjä-oikeus kaikkiin yhdistyksiin",
     "createDialog": {
@@ -1191,10 +1204,12 @@
     "judge": "Tuomari",
     "lastSeen": "Viimeinen kirjautuminen",
     "officer": "Koetoimitsija",
+    "roleAdded": "Käyttäjälle '{{name}}' ('{{email}}') lisätty oikeus yhdistykseen '{{organizer}}'",
     "roles": {
       "admin": "Yhdistyksen pääkäyttäjä",
       "secretary": "Koesihteeri"
-    }
+    },
+    "unknownOrganizer": "(tuntematon/poistettu yhdistys: {{orgId}})"
   },
   "users": "Käyttäjät",
   "validation": {

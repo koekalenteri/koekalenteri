@@ -136,7 +136,7 @@ export default function OrganizerListPage() {
                     sx={{ m: 0, pl: 1 }}
                     checked={showWithUsers}
                     control={<Switch size="small" />}
-                    label="Näytä vain yhdistykset, joilla on käyttäjiä"
+                    label={t('showOrganizersWithUsers')}
                     labelPlacement="start"
                     name="showWithUsers"
                     onChange={toggleShowWithUsers}

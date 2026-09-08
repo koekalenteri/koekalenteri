@@ -3,6 +3,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getUsers, putAdmin, putRole, putUser } from '../../../../api/user'
 import { reportError } from '../../../../lib/client/error'
 import { collectionSince, reconcileCollection } from '../../../../lib/incremental'
@@ -18,6 +19,7 @@ const LAST_SEEN_REFRESH_INTERVAL_MS = 15 * 60 * 1000
 export const useAdminUserActions = () => {
   const token = useAtomValue(validIdTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
+  const { t } = useTranslation()
   const [users, setUsers] = useAtom(adminUsersAtom)
 
   const replaceUser = (user: User) => {
@@ -68,12 +70,11 @@ export const useAdminUserActions = () => {
         const added = await putUser(user, token)
         replaceUser(added)
         if (user.name === added.name) {
-          enqueueSnackbar(`Käyttäjä '${added.name}' lisätty, sähköpostilla '${added.email}'`, { variant: 'info' })
+          enqueueSnackbar(t('user.added', { email: added.email, name: added.name }), { variant: 'info' })
         } else {
-          enqueueSnackbar(
-            `Käyttäjälle '${added.name}' ('${added.email}') lisätty oikeus yhdistykseen '${organizerName}'`,
-            { variant: 'info' }
-          )
+          enqueueSnackbar(t('user.roleAdded', { email: added.email, name: added.name, organizer: organizerName }), {
+            variant: 'info',
+          })
         }
       } catch (e) {
         reportError(e)
