@@ -6,7 +6,6 @@
     Properties:
       CodeUri: lambda/RefreshLocationsFunction
       Handler: handler.default
-      Tracing: Active
       Timeout: 300
       Policies:
         - Statement:

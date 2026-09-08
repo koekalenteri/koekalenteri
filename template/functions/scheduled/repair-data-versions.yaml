@@ -7,7 +7,6 @@
     Properties:
       CodeUri: lambda/RepairDataVersionsFunction
       Handler: handler.default
-      Tracing: Active
       Timeout: 300
       Policies:
         - DynamoDBCrudPolicy:

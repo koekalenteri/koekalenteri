@@ -6,7 +6,6 @@
     Properties:
       CodeUri: lambda/RebuildStatsFunction
       Handler: handler.default
-      Tracing: Active
       Timeout: 900
       Policies:
         - DynamoDBCrudPolicy:

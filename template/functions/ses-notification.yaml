@@ -39,7 +39,6 @@
     Properties:
       CodeUri: lambda/SesNotificationFunction
       Handler: handler.default
-      Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable

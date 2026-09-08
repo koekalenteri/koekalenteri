@@ -3,7 +3,6 @@
     Properties:
       CodeUri: lambda/GetStatsFunction
       Handler: handler.default
-      Tracing: Active
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventStatsTable

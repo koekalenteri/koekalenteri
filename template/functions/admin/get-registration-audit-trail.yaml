@@ -3,7 +3,6 @@
     Properties:
       CodeUri: lambda/GetRegistrationAuditTrailFunction
       Handler: handler.default
-      Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable

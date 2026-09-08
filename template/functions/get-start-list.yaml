@@ -3,7 +3,6 @@
     Properties:
       CodeUri: lambda/GetStartListFunction
       Handler: handler.default
-      Tracing: PassThrough
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable

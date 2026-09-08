@@ -3,7 +3,6 @@
     Properties:
       CodeUri: lambda/WsConnectFunction
       Handler: handler.default
-      Tracing: PassThrough
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref WsConnectionsTable
