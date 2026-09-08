@@ -9,7 +9,7 @@ covers:
   - src/pages/admin/eventViewPage/InfoPanel.tsx
   - src/pages/admin/eventViewPage/RefundDialog.tsx
   - src/pages/admin/eventViewPage/RegistrationEditDialog.tsx
-sourceHash: 6c3934
+sourceHash: 991443
 ---
 
 While entry is open the calendar does most of the work by itself: entries accumulate, payments
@@ -19,7 +19,7 @@ arrive through the calendar.
 
 ## Keeping an eye on the entries
 
-Pick the trial in the event list and press **Registrations** — or double-click the trial. On the
+Pick the trial in the event list and press **{t:registrations}** — or double-click the trial. On the
 event page each class has a tab of its own, and the class's entries are divided into three
 sections:
 
@@ -35,14 +35,13 @@ the rest of the page is in.
 
 !shot[ClassEntrySelection/class-entry-selection-groups-and-reserve] A class's entries in their three sections
 
-The **Event management** panel on the right shows, per class, how many have been moved to the
-participants, how many are on the reserve list and what the calendar expects next. Its *Audit
-trail* tab lists everything that has been done to the trial.
+The **{t:eventManagement.tabs.management}** panel on the right shows, per class, how many have been moved to the
+participants, how many are on the reserve list and what the calendar expects next. Its *{t:eventManagement.tabs.auditTrail}* tab lists everything that has been done to the trial.
 
 !shot[InfoPanel/info-panel] The Event management panel
 
 Keeping an eye on things needs no action of its own. If entries come in such numbers that another
-judge is engaged, the trial's details are edited with the event list's **Edit** button: the judge
+judge is engaged, the trial's details are edited with the event list's **{t:edit}** button: the judge
 is added in the Judges section and the number of places raised in the Entry section.
 
 ## Recording a cancellation
@@ -51,7 +50,7 @@ An entrant can cancel through the link in their confirmation message, and then t
 shows under *Peruneet* with its reason. Not everyone does, though; some send the cancellation by
 email — and then the secretary records it:
 
-- open the menu at the right end of the entry's row (⋮) and choose **Cancel registration**, or
+- open the menu at the right end of the entry's row (⋮) and choose **{t:registration.actions.cancel}**, or
 - drag the entry into *Peruneet*.
 
 The cancellation takes effect at once. Cancelled entries stay visible in their own section, so
@@ -60,16 +59,16 @@ nothing is lost.
 ## Refunding a payment
 
 If an entry is cancelled for an acceptable reason, the payment can be refunded right away. Open the
-menu on the entry's row (⋮) and choose **Refund payment**.
+menu on the entry's row (⋮) and choose **{t:registration.actions.refundPayment}**.
 
 !shot[RefundDialog/refund-dialog-open] Refunding a payment
 
-The dialog lists the entry's payments. Pick the one to refund, enter a *Handling fee* if the club
+The dialog lists the entry's payments. Pick the one to refund, enter a *{t:registration.refundDialog.handlingCost}* if the club
 keeps one, and add an internal comment if you like — the entrant does not see it. **Refund** makes
 the refund through Paytrail to the same payment method the payment came from. The refunded amount
 then shows on the entry's row.
 
 A refund can also be made directly in Paytrail's merchant portal, usually by the club's treasurer.
 The treasurer then needs the payment date and the payer's name: both are found by opening the entry
-(*Edit registration*) and scrolling to the end, where the entry's audit trail lists the payment
+(*{t:registration.actions.edit}*) and scrolling to the end, where the entry's audit trail lists the payment
 with its time.

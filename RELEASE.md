@@ -25,6 +25,18 @@ This is the standard process for all production and pre-release deployments. The
 
 #### Steps:
 
+0.  **Update the guides**: The user guides under `docs/` are published with the application, so
+    they are brought up to date before the tag, with the developer present:
+
+    ```bash
+    npm run docs-update -- --since v1.2.2 --run
+    ```
+
+    The command gathers what changed since the previous release and which guide pages that
+    concerns, and starts an agent session that rewrites those pages (see `docs/AGENTS.md`).
+    Review the result in the session, commit it to `main`, and let CI take it to dev so the
+    `/ohjeet` pages can be looked at in the running application before anything is tagged.
+
 1.  **Create a Git Tag**: Create and push a new tag for your release. Use semantic versioning (e.g., `v1.2.3` for a release, `v1.2.3-beta.1` for a pre-release).
 
     ```bash

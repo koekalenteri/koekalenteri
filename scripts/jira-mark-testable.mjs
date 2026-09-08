@@ -6,6 +6,7 @@
 // Usage: node scripts/jira-mark-testable.mjs [--dry-run] <base-sha> <head-sha>
 // Env:   JIRA_USER_EMAIL, JIRA_API_TOKEN, JIRA_BASE_URL (default https://koekalenteri.atlassian.net)
 import { execFileSync } from 'node:child_process'
+import { claimedKeys, DEFAULT_BASE_URL, jiraClient } from './lib/jira.mjs'
 
 const args = process.argv.slice(2)
 const dryRun = args.includes('--dry-run')
@@ -16,7 +17,7 @@ if (!base || !head) {
   process.exit(2)
 }
 
-const baseUrl = process.env.JIRA_BASE_URL ?? 'https://koekalenteri.atlassian.net'
+const baseUrl = process.env.JIRA_BASE_URL ?? DEFAULT_BASE_URL
 const repoUrl = `https://github.com/${process.env.GITHUB_REPOSITORY ?? 'koekalenteri/koekalenteri'}`
 const email = process.env.JIRA_USER_EMAIL
 const token = process.env.JIRA_API_TOKEN
@@ -33,23 +34,6 @@ const git = (...gitArgs) => execFileSync('git', gitArgs, { encoding: 'utf8' })
 // left entirely alone — a refactor naming a closed ticket must not stir it.
 const DEVELOPMENT_STATUSES = new Set(['Backlog', 'Selected for Development', 'In Progress'])
 const TARGET_STATUS = 'Ready for Testing'
-
-/**
- * Only the keys a commit claims as its own: the subject line, or a body line of nothing but keys
- * (the repo's footer convention). A key cited mid-sentence is context — "the KOE-85 gate" names a
- * neighbouring feature, not work now testable — and moving that issue would be wrong.
- */
-const claimedKeys = (message) => {
-  const [subject, ...body] = message.split('\n')
-  const keys = new Set(subject.match(/KOE-\d+/g) ?? [])
-  for (const line of body) {
-    const trimmed = line.trim()
-    if (trimmed && /^(KOE-\d+[\s,]*)+$/.test(trimmed)) {
-      for (const key of trimmed.match(/KOE-\d+/g) ?? []) keys.add(key)
-    }
-  }
-  return [...keys]
-}
 
 /** KOE-72 -> [{ sha, subject }] of the pushed commits that named the key. */
 const commitsByIssue = new Map()
@@ -72,19 +56,7 @@ if (commitsByIssue.size === 0) {
   process.exit(0)
 }
 
-const auth = `Basic ${Buffer.from(`${email}:${token}`).toString('base64')}`
-
-const request = async (path, init = {}) => {
-  const response = await fetch(`${baseUrl}${path}`, {
-    ...init,
-    headers: { Authorization: auth, 'Content-Type': 'application/json', ...init.headers },
-  })
-  // An expired token must fail the run loudly; a missing issue only skips itself below.
-  if (response.status === 401 || response.status === 403) {
-    throw new Error(`Jira refused the credentials (${response.status})`)
-  }
-  return response
-}
+const request = jiraClient({ baseUrl, email, token })
 
 const link = (href) => ({ attrs: { href }, type: 'link' })
 

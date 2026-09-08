@@ -20,7 +20,7 @@ Etusivun lista näyttää tulevat kokeet. Suodattimilla voit rajata sitä ajanko
 luokan, järjestäjän ja ylituomarin mukaan, ja valintaruuduilla näyttää vain ne kokeet joiden
 ilmoittautuminen on auki tai tulossa.
 
-Jokainen rivi kertoo kokeen ajan, paikan, järjestäjän ja luokat. **Ilmoittaudu** ilmestyy riville
+Jokainen rivi kertoo kokeen ajan, paikan, järjestäjän ja luokat. **{t:register}** ilmestyy riville
 vasta kun ilmoittautumisaika on käynnissä; sitä ennen rivillä lukee milloin ilmoittautuminen alkaa.
 
 !shot[SearchPage/search-page-full-desktop] Kalenterin suodattimet ja kaksi koetta, joiden ilmoittautuminen on auki
@@ -30,14 +30,14 @@ vasta kun ilmoittautumisaika on käynnissä; sitä ennen rivillä lukee milloin 
 Lomakkeen yläreunassa on kokeen tiedot ja alla omat osiosi. Kaikkia ei tarvitse avata siinä
 järjestyksessä kuin ne ovat.
 
-**Koiran tiedot.** Kirjoita rekisterinumero ja paina *Hae koiran tiedot*. Koekalenteri hakee
+**Koiran tiedot.** Kirjoita rekisterinumero ja paina *{t:registration.cta.fetch}*. Koekalenteri hakee
 Kennelliiton rajapinnasta nimen, rodun, syntymäajan, vanhemmat ja aiemmat koetulokset. Jos numerolla
-ei löydy tietoja, saat ilmoituksen *Rekisterinumerolla ei löytynyt tietoja* ja voit täyttää tiedot
+ei löydy tietoja, saat ilmoituksen *{t:registration.cta.helper.notfound}* ja voit täyttää tiedot
 käsin — tarkista kuitenkin ensin numero, sillä pelkkä kirjoitusvirhe riittää.
 
 !shot[DogInfo/dog-info-fetched] Koiran tiedot haettuna Kennelliitosta
 
-**Omistaja, ohjaaja ja maksaja.** Jos omistaja ohjaa koiraa itse, rastita *Omistaja ohjaa*, niin
+**Omistaja, ohjaaja ja maksaja.** Jos omistaja ohjaa koiraa itse, rastita *{t:registration.ownerHandles}*, niin
 tietoja ei tarvitse kirjoittaa kahdesti. Sama koskee maksajaa. Sähköpostiosoite on tärkein kenttä:
 sinne lähtee vahvistus ja sen mukana linkki, jolla ilmoittautumista pääsee myöhemmin muokkaamaan.
 
@@ -49,9 +49,9 @@ sopivat. Jos ilmoittaudut varasijalle, kerro myös kuinka lyhyellä varoitusajal
 
 !shot[EntryInfo/entry-info-with-classes] Koeluokka, päivät ja varasijan varoitusaika
 
-**Ehdot ja tietosuojaseloste** on hyväksyttävä ennen kuin ilmoittautumisen voi vahvistaa.
+**{t:registration.agreeToTerms}** on hyväksyttävä ennen kuin ilmoittautumisen voi vahvistaa.
 
-Jos vahvistuspainike ei aktivoidu, avaa lomakkeen alalaidasta *Miksi en voi siirtyä eteenpäin?* —
+Jos vahvistuspainike ei aktivoidu, avaa lomakkeen alalaidasta *{t:registration.accordionTitle}* —
 se luettelee, mitä tietoja vielä puuttuu.
 
 ## Vahvista ja maksa
@@ -61,9 +61,9 @@ kertoo, kumpi on kyseessä:
 
 | Painike | Mitä tapahtuu |
 | --- | --- |
-| Vahvista ja siirry maksamaan | Maksat heti Paytrailin kautta verkkopankissa tai kortilla |
-| Vahvista ja lähetä maksulinkki | Ilmoittautuminen tallennetaan ja maksulinkki tulee sähköpostiin |
-| Vahvista ilmoittautuminen | Maksat vasta kun järjestäjä on vahvistanut koepaikkasi |
+| {t:registration.cta.confirmAndPay} | Maksat heti Paytrailin kautta verkkopankissa tai kortilla |
+| {t:registration.cta.confirmAndSendLink} | Ilmoittautuminen tallennetaan ja maksulinkki tulee sähköpostiin |
+| {t:registration.cta.confirmRegistration} | Maksat vasta kun järjestäjä on vahvistanut koepaikkasi |
 
 ## Ilmoittautumisen jälkeen
 

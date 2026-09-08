@@ -11,24 +11,25 @@ covers:
   - src/pages/admin/eventViewPage/RegistrationCreateDialog.tsx
   - src/pages/admin/eventViewPage/SendMessageDialog.tsx
   - src/pages/admin/eventViewPage/MessageRecipientsDialog.tsx
+  - src/pages/admin/EventStartNumbersPage.tsx
   - src/pages/admin/eventStartNumbersPage/**
+  - src/pages/admin/StartListPage.tsx
+  - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
 ---
 
 Kun ilmoittautumisaika on päättynyt, koesihteerin työ etenee vaihe kerrallaan: osallistujien
 valinta, koepaikka- ja varasijailmoitukset, koekutsut, starttilista ja lopulta paikan päällä
-arvotut starttinumerot. Tapahtumasivun **Tapahtuman hallinta** -paneeli kulkee samassa
+arvotut starttinumerot. Tapahtumasivun **{t:eventManagement.tabs.management}** -paneeli kulkee samassa
 järjestyksessä ja kertoo joka vaiheessa, mikä on tehty ja mikä on seuraavaksi mahdollista —
 painike, jota ei vielä voi painaa, kertoo syyn vieressään.
 
 ## Ilmoittautumisen lisääminen jälkikäteen
 
 Koesihteeri voi lisätä koirakon kokeeseen ilmoittautumisajan päätyttyäkin. Paina paneelin
-*Toiminnot*-osiossa **Lisää uusi ilmoittautuminen** ja täytä koirakon tiedot samalla lomakkeella,
-jolla ilmoittautujat itse ilmoittautuvat. Kun kaikki tarvittava on täytetty, **Vahvista ja lähetä
-maksulinkki** lähettää maksulinkin maksajaksi merkityn henkilön sähköpostiin, ja ilmoittautuminen
-näkyy maksamattomana, kunnes maksaja on sen hoitanut. Jos kokeen maksuajankohta on *Maksu vasta
-koepaikan varmistuttua*, painike on **Vahvista ilmoittautuminen** ja maksulinkki lähtee vasta
+*{t:eventManagement.actions}*-osiossa **{t:createRegistration}** ja täytä koirakon tiedot samalla lomakkeella,
+jolla ilmoittautujat itse ilmoittautuvat. Kun kaikki tarvittava on täytetty, **{t:registration.cta.confirmAndSendLink}** lähettää maksulinkin maksajaksi merkityn henkilön sähköpostiin, ja ilmoittautuminen
+näkyy maksamattomana, kunnes maksaja on sen hoitanut. Jos kokeen maksuajankohta on *{t:paymentTimeOptions.confirmation}*, painike on **{t:registration.cta.confirmRegistration}** ja maksulinkki lähtee vasta
 koepaikkailmoituksen mukana.
 
 ## Osanotto-oikeuden tarkastaminen
@@ -64,13 +65,13 @@ ei ole ilmoittautunut, kalenteri huomauttaa siitä.
 
 !shot[ClassEntrySelection/class-entry-selection-groups-and-reserve] Osallistujat ryhmittäin, ilmoittautuneet alla varasijajärjestyksessä
 
-Paneelin *Osallistujien valinta* -osio näyttää luokittain, montako koirakkoa on nostettu suhteessa
+Paneelin *{t:eventManagement.participantSelection.title}* -osio näyttää luokittain, montako koirakkoa on nostettu suhteessa
 koepaikkojen määrään. Jos osallistujia on enemmän kuin kokeen tietoihin tallennettuja paikkoja,
 luku näkyy punaisena eikä koepaikkailmoitusta voi lähettää, ennen kuin ylimääräiset on raahattu
 takaisin ilmoittautuneisiin.
 
 Ryhmän sisäinen järjestys on koirakoiden starttijärjestys. Sitä voi muuttaa raahaamalla, tai rivin
-valikosta (⋮) valinnalla **Siirrä starttipaikalle**, joka kysyy päivän ja paikan numeron.
+valikosta (⋮) valinnalla **{t:registration.moveToPositionDialog.moveToPosition}**, joka kysyy päivän ja paikan numeron.
 
 Kohtaan *Ilmoittautuneet* jäävät koirakot ovat varasijalla siinä järjestyksessä, jossa ne ovat
 listalla. Järjestystä voi muuttaa raahaamalla, kunnes varasijailmoitukset on lähetetty; sen jälkeen
@@ -80,8 +81,8 @@ avata listan alla olevasta valinnasta, mutta silloin varasijailmoitukset kannatt
 ## Koepaikkailmoitus
 
 Kun luokan osallistujat on valittu, heille lähetetään tieto koepaikasta luokittain paneelin
-painikkeella **Lähetä koepaikkailmoitus**. Avautuvassa ikkunassa näkyy vastaanottajien määrä,
-viestin pohja ja sen esikatselu. Pohjaan voi kirjoittaa lisäviestin, ja *Yhteystiedot*-kohdassa
+painikkeella **{t:eventManagement.participantSelection.sendPlaceNotification}**. Avautuvassa ikkunassa näkyy vastaanottajien määrä,
+viestin pohja ja sen esikatselu. Pohjaan voi kirjoittaa lisäviestin, ja *{t:event.contactInfo}*-kohdassa
 valitaan, mitkä koesihteerin ja vastaavan koetoimitsijan tiedot viestissä kerrotaan.
 
 !shot[SendMessageDialog/send-message-dialog-open] Viestin lähettäminen: pohja, lisäviesti, yhteystiedot ja esikatselu
@@ -99,27 +100,26 @@ lähetetty — sille automaattisesti.
 ## Varasijailmoitus
 
 Tarkista ensin, että *Ilmoittautuneet*-listan järjestys on oikea, sillä varasijailmoitus kertoo
-jokaiselle hänen sijansa. Sen jälkeen paina paneelin **Lähetä varasijailmoitus**. Viesti-ikkuna
+jokaiselle hänen sijansa. Sen jälkeen paina paneelin **{t:eventManagement.participantSelection.sendReserveNotification}**. Viesti-ikkuna
 toimii samoin kuin koepaikkailmoituksessa.
 
 ## Koekutsu
 
-Koekutsut lähetetään luokittain paneelin *Koekutsun lähetys* -osiosta painikkeella **Lähetä
-koekutsu**. Kutsu on sähköpostiviesti, jota voi täydentää lisäviestillä. Jos lisäviestin tila ei
-riitä, kutsuun liitetään erillinen PDF-tiedosto saman osion painikkeella **Lisää PDF** ennen
+Koekutsut lähetetään luokittain paneelin *{t:eventManagement.invitation.delivery}* -osiosta painikkeella **{t:eventManagement.invitation.send}**. Kutsu on sähköpostiviesti, jota voi täydentää lisäviestillä. Jos lisäviestin tila ei
+riitä, kutsuun liitetään erillinen PDF-tiedosto saman osion painikkeella **{t:eventManagement.attachment.addPdf}** ennen
 lähetystä; vastaanottaja saa liitteen viestin linkistä, joka samalla kuittaa kutsun luetuksi.
 
 !shot[InvitationDelivery/invitation-delivery] Koekutsun lähetys luokittain, PDF-liite ja odottavat kutsut
 
-Jos kokeen maksuajankohdaksi on valittu *Maksu vasta koepaikan varmistuttua*, koekutsu lähtee
+Jos kokeen maksuajankohdaksi on valittu *{t:paymentTimeOptions.confirmation}*, koekutsu lähtee
 kullekin osallistujalle vasta, kun tämä on maksanut koepaikkansa. Osio näyttää, montako kutsua
 odottaa maksua, ja lähettää ne itsestään maksun tultua. Kuitattu kutsu näkyy rivillä avattuna
 kirjekuorena ja kuittaamaton suljettuna.
 
 ## Starttilista
 
-Kun koekutsut on lähetetty, luokan starttilistan voi julkaista paneelin *Starttilistan julkaisu*
--osiosta painikkeella **Julkaise starttilista**. **Katso starttilistan esikatselu** näyttää listan
+Kun koekutsut on lähetetty, luokan starttilistan voi julkaista paneelin *{t:eventManagement.startList.publishing}*
+-osiosta painikkeella **{t:eventManagement.startList.publish}**. **{t:eventManagement.startList.previewUnpublished}** näyttää listan
 sellaisena kuin osallistujat sen näkevät. Julkaistu lista päivittyy itsestään, kun osallistujia
 siirretään tai peruutuksia kirjataan.
 
@@ -127,7 +127,7 @@ siirretään tai peruutuksia kirjataan.
 
 Julkinen lista näyttää koirakot aakkosjärjestyksessä ja huomauttaa, ettei starttijärjestystä ole
 vielä vahvistettu, kunnes starttinumerot on julkaistu. Koesihteerin oma versio avautuu
-*Toiminnot*-osion painikkeella **Sihteerin starttilista**: siinä ovat myös koiran
+*{t:eventManagement.actions}*-osion painikkeella **{t:eventManagement.startList.secretary}**: siinä ovat myös koiran
 tunnistusmerkintä ja ohjaajan yhteystiedot, ja siitä koirakot voi kopioida luokittain suoraan
 tulostaulukkoon. Jos järjestystä muutetaan taulukon tekemisen jälkeen, muista päivittää myös
 taulukko.
@@ -136,20 +136,17 @@ taulukko.
 
 ## Starttinumerot
 
-Starttinumerot arvotaan koepaikalla ja kirjataan kalenteriin paneelin *Starttinumeroiden
-julkaisu* -osion painikkeella **Syötä starttinumerot**. Sivu näyttää päivän ja luokan koirakot
+Starttinumerot arvotaan koepaikalla ja kirjataan kalenteriin paneelin *{t:eventManagement.startList.numbersPublishing}* -osion painikkeella **{t:eventManagement.enterStartNumbers}**. Sivu näyttää päivän ja luokan koirakot
 riveinä, ja jokaiselle kirjoitetaan sen arpoma numero. Numero kuuluu yhdelle koiralle koko
 kokeessa: kahden päivän kokeessa esimerkiksi perjantai 1–24 ja lauantai 25–48, ja sama numero
 kahdesti estää tallennuksen.
 
 !shot[StartNumbersEntry/start-numbers-entry-secretary] Starttinumeroiden syöttö päivän ja luokan koirakoille
 
-Jos luokalla on oma luokkasihteeri, hänelle voi antaa syöttösivun linkin painikkeella **Kopioi
-luokkasihteerin linkki**; linkki toimii ilman kirjautumista ja vain sen luokan numeroihin. **Mitätöi
-luokan linkit** sulkee jaetut linkit.
+Jos luokalla on oma luokkasihteeri, hänelle voi antaa syöttösivun linkin painikkeella **{t:startNumbers.copyLink}**; linkki toimii ilman kirjautumista ja vain sen luokan numeroihin. **{t:startNumbers.revokeLink}** sulkee jaetut linkit.
 
 Kun päivän kaikki numerot on tallennettu, ne julkaistaan luokittain — ja usean päivän luokassa
-päivittäin — painikkeella **Julkaise starttinumerot**. Keskeneräistä päivää ei voi julkaista; silloin
+päivittäin — painikkeella **{t:eventManagement.startList.publishNumbers}**. Keskeneräistä päivää ei voi julkaista; silloin
 kalenteri pyytää syöttämään ensin kaikki numerot. Jos kokeessa ei arvota numeroita lainkaan,
 julkaisu vahvistaa starttilistan järjestysnumerot sellaisinaan koirakoiden starttinumeroiksi.
 
@@ -158,7 +155,7 @@ julkaisu vahvistaa starttilistan järjestysnumerot sellaisinaan koirakoiden star
 ## Peruutukset ja palautukset
 
 Peruutus kirjataan ja maksu palautetaan samoin kuin ilmoittautumisaikana: rivin valikosta (⋮)
-**Peru ilmoittautuminen** tai raahaamalla kohtaan *Peruneet*, ja **Palauta maksu**. Kun osallistuja
+**{t:registration.actions.cancel}** tai raahaamalla kohtaan *Peruneet*, ja **{t:registration.actions.refundPayment}**. Kun osallistuja
 peruu, vapautuneelle paikalle nostetaan varasijalta seuraava, ja kalenteri lähettää hänelle
 koepaikkailmoituksen ja koekutsun itsestään.
 
@@ -167,8 +164,8 @@ starttinumerot sen sijaan säilyvät, joten julkaistut numerot eivät muutu peru
 
 ## Viesti osallistujille
 
-Vapaamuotoisen viestin, esimerkiksi aikataulumuutoksen, voi lähettää paneelin *Toiminnot*-osion
-painikkeella **Lähetä viesti**. Ensin valitaan luokittain, lähteekö viesti osallistujille,
+Vapaamuotoisen viestin, esimerkiksi aikataulumuutoksen, voi lähettää paneelin *{t:eventManagement.actions}*-osion
+painikkeella **{t:eventManagement.message.action}**. Ensin valitaan luokittain, lähteekö viesti osallistujille,
 varasijalaisille vai molemmille, ja sitten viesti kirjoitetaan samassa ikkunassa kuin
 koepaikkailmoitus.
 

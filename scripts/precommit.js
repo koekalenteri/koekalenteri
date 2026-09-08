@@ -21,6 +21,7 @@ const { result } = concurrently(
     { command: `${npmCommand} run check-screenshots`, name: 'screenshots' },
     { command: `${npmCommand} run check-dom-snapshots`, name: 'dom-snapshots' },
     { command: `${npmCommand} run check-docs`, name: 'docs' },
+    { command: `${npmCommand} run docs-coverage -- --staged`, name: 'docs-coverage' },
     { command: `${npmCommand} run knip`, name: 'knip' },
     { command: `${npmCommand} run ratchet`, name: 'ratchet' },
     { command: `${npmCommand} test -- --onlyChanged`, name: 'test' },

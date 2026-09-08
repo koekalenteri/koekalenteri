@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationCreatePage.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/pages/components/registrationForm/**
-sourceHash: b02bcd
+sourceHash: 7aefc1
 ---
 
 Entering a trial needs no account and no sign-in. All you need is access to the email address you
@@ -20,7 +20,7 @@ give on the form: every link to your entry is sent there.
 The front page lists upcoming trials. The filters narrow it by date, trial type, class, organizer
 and senior judge, and the checkboxes show only the trials whose entry is open or about to open.
 
-Each row gives the date, place, organizer and classes. **Enter** appears on the row only while the
+Each row gives the date, place, organizer and classes. **{t:register}** appears on the row only while the
 entry period is running; before that, the row says when entry opens.
 
 !shot[SearchPage/search-page-full-desktop] The calendar's filters and two trials with entry open
@@ -30,14 +30,14 @@ entry period is running; before that, the row says when entry opens.
 The trial's details are at the top of the form and your own sections below. You do not have to open
 them in the order they appear.
 
-**Dog.** Type the registration number and press *Fetch dog details*. Koekalenteri reads the name,
+**Dog.** Type the registration number and press *{t:registration.cta.fetch}*. Koekalenteri reads the name,
 breed, date of birth, parents and past trial results from the Kennel Club's API. If the number
-returns nothing you get *No results for this registration number* and can fill the details in by
+returns nothing you get *{t:registration.cta.helper.notfound}* and can fill the details in by
 hand — but check the number first, a single typo is enough.
 
 !shot[DogInfo/dog-info-fetched] The dog's details, fetched from the Kennel Club
 
-**Owner, handler and payer.** If the owner handles the dog, tick *Owner handles*, and you need not
+**Owner, handler and payer.** If the owner handles the dog, tick *{t:registration.ownerHandles}*, and you need not
 type the same details twice. The same goes for the payer. The email address is the field that
 matters most: the confirmation goes there, and with it the link you use to change the entry later.
 
@@ -49,9 +49,9 @@ for a reserve place, say how short a notice you can still make it to the trial o
 
 !shot[EntryInfo/entry-info-with-classes] Class, days and the notice you can accept a reserve place on
 
-**Terms and the privacy notice** have to be accepted before the entry can be confirmed.
+**{t:registration.agreeToTerms}** have to be accepted before the entry can be confirmed.
 
-If the confirm button stays disabled, open *Why can't I continue?* at the bottom of the form — it
+If the confirm button stays disabled, open *{t:registration.accordionTitle}* at the bottom of the form — it
 lists what is still missing.
 
 ## Confirm and pay
@@ -61,9 +61,9 @@ The button says which one it is:
 
 | Button | What happens |
 | --- | --- |
-| Confirm and pay | You pay immediately through Paytrail, by online bank or card |
-| Confirm and send payment link | The entry is saved and a payment link is emailed to you |
-| Confirm entry | You pay once the organizer has confirmed your place |
+| {t:registration.cta.confirmAndPay} | You pay immediately through Paytrail, by online bank or card |
+| {t:registration.cta.confirmAndSendLink} | The entry is saved and a payment link is emailed to you |
+| {t:registration.cta.confirmRegistration} | You pay once the organizer has confirmed your place |
 
 ## After entering
 
