@@ -8,7 +8,7 @@ import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useSearchParams } from 'react-router'
 import { HEADER_HEIGHT } from '../assets/Theme'
-import { rum } from '../lib/client/rum'
+import { recordPageView } from '../lib/client/rum'
 import Header from './components/Header'
 import BreedDistributionChart from './components/stats/BreedDistributionChart'
 import BreedStartRateChart from './components/stats/BreedStartRateChart'
@@ -34,7 +34,7 @@ export function Component() {
   const hasAccess = useAtomValue(hasAdminAccessAtom)
 
   useEffect(() => {
-    rum()?.recordPageView(location.pathname)
+    recordPageView(location.pathname)
   }, [location])
 
   useEffect(() => {

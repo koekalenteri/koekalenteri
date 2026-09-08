@@ -1,7 +1,7 @@
 import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
 import type { DragItem } from './types'
 import { renderHook } from '@testing-library/react'
-import { rum } from '../../../../lib/client/rum'
+import { recordEvent } from '../../../../lib/client/rum'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
 import { determineChangesFromDrop } from './dnd'
 import { useDnDHandlers } from './useDnDHandlers'
@@ -22,9 +22,7 @@ vi.mock('notistack', () => ({
 }))
 
 vi.mock('../../../../lib/client/rum', () => ({
-  rum: vi.fn(() => ({
-    recordEvent: vi.fn(),
-  })),
+  recordEvent: vi.fn(),
 }))
 
 vi.mock('./dnd', () => ({
@@ -247,7 +245,7 @@ describe('useDnDHandlers', () => {
       result.current.handleReject(mockGroup)(invalidDragItem)
 
       expect(mockEnqueueSnackbar).not.toHaveBeenCalled()
-      expect(rum).not.toHaveBeenCalled()
+      expect(recordEvent).not.toHaveBeenCalled()
     })
 
     it('should do nothing if registration is already in the same group', () => {
@@ -259,7 +257,7 @@ describe('useDnDHandlers', () => {
       result.current.handleReject(sameGroup)(sameGroupDragItem)
 
       expect(mockEnqueueSnackbar).not.toHaveBeenCalled()
-      expect(rum).not.toHaveBeenCalled()
+      expect(recordEvent).not.toHaveBeenCalled()
     })
 
     it('should show info message when trying to arrange reserve dogs after notifications', () => {
@@ -310,17 +308,11 @@ describe('useDnDHandlers', () => {
     })
 
     it('should record event and show error message when registration is not in the target group', () => {
-      const mockRumRecordEvent = vi.fn()
-      ;(rum as import('vitest').Mock).mockReturnValue({
-        recordEvent: mockRumRecordEvent,
-      })
-
       const { result } = renderHook(() => useDnDHandlers(defaultProps))
 
       result.current.handleReject(mockGroup)(mockDragItem)
 
-      expect(rum).toHaveBeenCalled()
-      expect(mockRumRecordEvent).toHaveBeenCalledWith(
+      expect(recordEvent).toHaveBeenCalledWith(
         'dnd-group-rejected',
         expect.objectContaining({
           eventId: 'event1',

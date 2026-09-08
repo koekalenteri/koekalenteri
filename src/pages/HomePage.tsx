@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box'
 import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
-import { rum } from '../lib/client/rum'
+import { recordPageView } from '../lib/client/rum'
 import Banner from './components/Banner'
 import Header from './components/Header'
 import LoadingIndicator from './components/LoadingIndicator'
@@ -11,7 +11,7 @@ export function HomePage() {
   const location = useLocation()
 
   useEffect(() => {
-    rum()?.recordPageView(location.pathname)
+    recordPageView(location.pathname)
   }, [location])
 
   return (

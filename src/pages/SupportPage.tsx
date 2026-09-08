@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { HEADER_HEIGHT } from '../assets/Theme'
-import { rum } from '../lib/client/rum'
+import { recordPageView } from '../lib/client/rum'
 import Header from './components/Header'
 
 const issueHref = 'https://koekalenteri.atlassian.net/servicedesk/customer/portal/1/group/1/create/1'
@@ -14,7 +14,7 @@ export const SupportPage = () => {
   const location = useLocation()
 
   useEffect(() => {
-    rum()?.recordPageView(location.pathname)
+    recordPageView(location.pathname)
   }, [location])
 
   return (

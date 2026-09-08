@@ -10,7 +10,7 @@ import type { ConfirmMove } from './moveConfirmation'
 import type { DragItem } from './types'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
-import { rum } from '../../../../lib/client/rum'
+import { recordEvent } from '../../../../lib/client/rum'
 import { errorSnackbarOptions } from '../../../../lib/client/snackbar'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../../lib/registration'
@@ -118,7 +118,7 @@ export const useDnDHandlers = ({
       return
     }
 
-    rum()?.recordEvent('dnd-group-rejected', {
+    recordEvent('dnd-group-rejected', {
       dropGroups: item.groups.join(', '),
       eventId: reg.eventId,
       regGroups: reg.dates.map((rd: RegistrationDate) => eventRegistrationDateKey(rd)).join(', '),

@@ -2,7 +2,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isRouteErrorResponse, useAsyncError, useRouteError } from 'react-router'
-import { rum } from '../../lib/client/rum'
+import { recordError } from '../../lib/client/rum'
 import LinkButton from './LinkButton'
 
 export const ErrorInfo = () => {
@@ -12,7 +12,7 @@ export const ErrorInfo = () => {
   const error = routeError ?? asyncError
 
   useEffect(() => {
-    rum()?.recordError(error)
+    recordError(error)
   })
 
   if (isRouteErrorResponse(error) || error instanceof Response) {

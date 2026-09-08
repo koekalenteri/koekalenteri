@@ -1,6 +1,7 @@
 import type { AwsRum } from 'aws-rum-web'
 import * as awsRum from 'aws-rum-web'
-import { rum } from './rum'
+import { flushPromises } from 'test-utils/utils'
+import { recordError, recordEvent, recordPageView } from './rum'
 
 vi.mock('aws-rum-web')
 const rumApplicationId = vi.hoisted(() => ({ value: undefined as string | undefined }))
@@ -14,26 +15,39 @@ vi.mock('../../amplify-env', () => ({
 vi.unmock('./rum')
 
 describe('rum', () => {
-  describe('rum', () => {
-    it('should return undefined when there is no RUM_APPLICATION_ID in env', () => {
-      expect(rum()).toBeUndefined()
-    })
+  // Runs first: the client is loaded once and cached, so the unconfigured case has to be asked
+  // before anything has configured it.
+  it('does not load the client when there is no application id', async () => {
+    const whenUnavailable = vi.fn()
+    const construct = vi.spyOn(awsRum, 'AwsRum')
 
-    it('should return AwsRum instance', () => {
-      rumApplicationId.value = 'test'
+    recordError('test', whenUnavailable)
+    await flushPromises()
 
-      const mockInstance = {}
-      class MockAwsRum {
-        constructor() {
-          // biome-ignore lint/correctness/noConstructorReturn: its a test
-          return mockInstance
-        }
+    expect(whenUnavailable).toHaveBeenCalledTimes(1)
+    expect(construct).not.toHaveBeenCalled()
+  })
+
+  it('loads the client once and records through it', async () => {
+    rumApplicationId.value = 'test'
+    const instance = { recordError: vi.fn(), recordEvent: vi.fn(), recordPageView: vi.fn() }
+    class MockAwsRum {
+      constructor() {
+        // biome-ignore lint/correctness/noConstructorReturn: its a test
+        return instance
       }
-      // A class double cannot carry AwsRum's statics; the constructor converts here.
-      vi.spyOn(awsRum, 'AwsRum').mockImplementation(MockAwsRum as unknown as typeof AwsRum)
+    }
+    // A class double cannot carry AwsRum's statics; the constructor converts here.
+    const construct = vi.spyOn(awsRum, 'AwsRum').mockImplementation(MockAwsRum as unknown as typeof AwsRum)
 
-      expect(rum()).toEqual(mockInstance)
-      expect(rum()).toEqual(mockInstance)
-    })
+    recordPageView('/kokeet')
+    recordEvent('dnd-group-rejected', { eventId: 'event1' })
+    recordError('test')
+    await flushPromises()
+
+    expect(construct).toHaveBeenCalledTimes(1)
+    expect(instance.recordPageView).toHaveBeenCalledWith('/kokeet')
+    expect(instance.recordEvent).toHaveBeenCalledWith('dnd-group-rejected', { eventId: 'event1' })
+    expect(instance.recordError).toHaveBeenCalledWith('test')
   })
 })

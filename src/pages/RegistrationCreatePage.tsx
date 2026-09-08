@@ -3,7 +3,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import { rum } from '../lib/client/rum'
+import { recordPageView } from '../lib/client/rum'
 import { isEntryOpen } from '../lib/event'
 import { hasChanges } from '../lib/utils'
 import { Path } from '../routeConfig'
@@ -70,7 +70,7 @@ export function Component() {
   }, [navigate, resetRegistration])
 
   useEffect(() => {
-    rum()?.recordPageView(location.pathname)
+    recordPageView(location.pathname)
   }, [location])
 
   useEffect(() => {
