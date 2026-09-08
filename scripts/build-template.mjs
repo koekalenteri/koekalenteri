@@ -11,7 +11,6 @@ const inputPaths = [
   './template/rum.yaml',
   './template/buckets',
   './template/functions',
-  './template/layers.yaml',
   './template/policies',
   './template/tables',
   './template/outputs.yaml',

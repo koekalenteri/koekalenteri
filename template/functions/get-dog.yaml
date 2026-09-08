@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/GetDogFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: PassThrough
       Policies:
         - Statement:

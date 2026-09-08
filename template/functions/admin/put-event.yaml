@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/PutEventFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:

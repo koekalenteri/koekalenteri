@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/PutInvitationAttachmentFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - S3FullAccessPolicy:

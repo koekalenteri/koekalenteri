@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/GetUserFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:

@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/GetLocationsFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - DynamoDBReadPolicy:

@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/RunMigrationFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:

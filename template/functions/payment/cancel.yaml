@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/PaymentCancelFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - Statement:

@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/GetOfficialsFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - Statement:

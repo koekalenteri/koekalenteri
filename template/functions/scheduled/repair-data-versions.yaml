@@ -7,8 +7,6 @@
     Properties:
       CodeUri: lambda/RepairDataVersionsFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Timeout: 300
       Policies:

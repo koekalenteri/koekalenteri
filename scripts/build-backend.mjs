@@ -54,16 +54,31 @@ async function buildTemplate() {
 // Start template build
 const templateBuildPromise = buildTemplate()
 
+// Every dependency is bundled into the function that uses it. The alternative -- leaving them
+// external and shipping one shared layer -- meant every cold start paid for the union of all
+// imports (26 MB of date-fns, a remark tree one single function uses), and a missing package
+// surfaced as a production ERR_MODULE_NOT_FOUND instead of a build error.
 const lambdaCtx = await esbuild[mode]({
   entryPoints: lambdaEntryPoints,
   bundle: true,
-  packages: 'external',
+  minify: true,
+  // Minified names would otherwise leak into error messages and `constructor.name` checks.
+  keepNames: true,
+  // Written next to the bundle and read by --enable-source-maps, so a production stack trace
+  // points at the TypeScript source rather than at a column of the minified bundle.
+  sourcemap: 'linked',
   logLevel: 'info',
   format: 'esm',
   platform: 'node',
   target: 'node24',
   outdir: 'dist/lambda',
   outExtension: { '.js': '.mjs' },
+  // Several bundled CommonJS dependencies (the Smithy HTTP handler, aws-embedded-metrics) call
+  // `require` at runtime. In an ESM bundle esbuild's shim throws "Dynamic require of X is not
+  // supported" unless a real `require` is in scope, so give them one.
+  banner: {
+    js: "import { createRequire as __createRequire } from 'node:module'\nconst require = __createRequire(import.meta.url)",
+  },
 })
 
 if (watch) {

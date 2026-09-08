@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/GetEventsFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: PassThrough
       Policies:
         - DynamoDBReadPolicy:

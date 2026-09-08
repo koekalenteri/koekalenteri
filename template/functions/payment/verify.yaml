@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/PaymentVerifyFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - Statement:

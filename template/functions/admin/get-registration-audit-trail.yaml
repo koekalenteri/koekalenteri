@@ -3,8 +3,6 @@
     Properties:
       CodeUri: lambda/GetRegistrationAuditTrailFunction
       Handler: handler.default
-      Layers:
-        - !Ref DependenciesLayer
       Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:
