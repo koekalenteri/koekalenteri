@@ -519,7 +519,19 @@ module.exports = function (webpackEnv) {
               exclude: [excludeNonShellAssets],
             })),
     ].filter(Boolean),
-    // Bundle-size limits are monitored separately from webpack compilation.
-    performance: false,
+    // A budget, not decoration: xlsx reached the initial chunk through exactly one static import
+    // and nothing said a word (KOE-1332). `hints: 'error'` puts the numbers into the compilation
+    // errors, and build-frontend.js rejects on those, so CI fails instead of merely printing.
+    // The entrypoint limit is the real gate -- it is the first load of the public calendar,
+    // measured at 2 021 kB uncompressed after this change, with a little headroom. The per-asset
+    // limit only catches something egregious; the largest emitted chunk today is the admin bundle
+    // at 673 kB.
+    performance: isEnvProduction
+      ? {
+          hints: 'error',
+          maxEntrypointSize: 2_200_000,
+          maxAssetSize: 800_000,
+        }
+      : false,
   }
 }
