@@ -87,6 +87,78 @@ const processor = unified().use(remarkParse).use(remarkGfm).use(remarkHtml)
 /** Short digest of a translation's source, so a changed original shows up as a stale translation. */
 const digest = (body) => createHash('sha256').update(body.trim()).digest('hex').slice(0, 6)
 
+const SCREENSHOTS_SEGMENT = '__screenshots__'
+const SHOT_SUFFIX = '-chromium-linux.png'
+
+/**
+ * Every reference screenshot the visual tests keep, as `TestName/shot-name` -> file. A guide's
+ * picture is one of these and nothing else: it was rendered from the same component and mock data
+ * as the test, CI compares it on every push, and a change to the component fails the build until
+ * somebody looks at the new picture. The linux file is the one CI verifies, so it is the one shown.
+ */
+const indexScreenshots = (dir = 'src', found = new Map()) => {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry)
+    if (!statSync(full).isDirectory()) continue
+    if (entry === SCREENSHOTS_SEGMENT) {
+      for (const testDir of readdirSync(full)) {
+        const testName = testDir.replace(/\.visual\.test\.tsx$/, '')
+        for (const png of readdirSync(join(full, testDir))) {
+          if (png.endsWith(SHOT_SUFFIX)) {
+            found.set(`${testName}/${png.slice(0, -SHOT_SUFFIX.length)}`, join(full, testDir, png))
+          }
+        }
+      }
+    } else if (entry !== 'node_modules') {
+      indexScreenshots(full, found)
+    }
+  }
+
+  return found
+}
+
+const screenshots = indexScreenshots()
+
+/** A shot with a language variant (`name-en`) shows that; the others show the Finnish reference. */
+const resolveShot = (ref, language, file) => {
+  const found = screenshots.get(`${ref}-${language}`) ?? screenshots.get(ref)
+  if (!found) {
+    const known = [...screenshots.keys()].filter((key) => key.startsWith(`${ref.split('/')[0]}/`))
+    throw new Error(
+      `${file}: no screenshot "${ref}". A guide's picture is a visual test's reference, ` +
+        `\`!shot[TestName/shot-name]\`; ${known.length ? `that test has: ${known.join(', ')}` : 'no such test'}`
+    )
+  }
+
+  return found
+}
+
+/** `!shot[TestName/shot-name] Caption` on a line of its own. */
+const SHOT_LINE = /^!shot\[([^\]\s]+)\](?:[ \t]+(.+))?$/
+
+/**
+ * The body as a list of markdown segments and shots between them. The shot is not markdown syntax
+ * and never reaches remark: its `<img>` is spliced in by the generated module, whose imports give
+ * the bundler's URL for the file.
+ */
+const splitShots = (body, language, file) => {
+  const parts = []
+  let markdown = []
+  for (const line of body.split('\n')) {
+    const match = SHOT_LINE.exec(line)
+    if (!match) {
+      markdown.push(line)
+      continue
+    }
+    parts.push({ markdown: markdown.join('\n') })
+    markdown = []
+    parts.push({ caption: match[2]?.trim() ?? '', shot: resolveShot(match[1], language, file) })
+  }
+  parts.push({ markdown: markdown.join('\n') })
+
+  return parts
+}
+
 const readPage = async (file) => {
   const [, language, ...rest] = relative('.', file).split('/')
   const path = rest.join('/').replace(/\.md$/, '')
@@ -99,11 +171,17 @@ const readPage = async (file) => {
     throw new Error(`${file}: audience "${data.audience}" is not one of ${AUDIENCES.join(', ')}`)
   }
 
+  const html = []
+  for (const part of splitShots(body, language, file)) {
+    if (part.shot) html.push(part)
+    else if (part.markdown.trim()) html.push(String(await processor.process(part.markdown)))
+  }
+
   return {
     ...(data.appliesFrom ? { appliesFrom: data.appliesFrom } : {}),
     audience: data.audience,
     covers: data.covers ?? [],
-    html: String(await processor.process(body)),
+    html,
     order: Number(data.order),
     path,
     sourceDigest: digest(body),
@@ -147,8 +225,33 @@ const checkTranslations = (byLanguage) => {
   }
 }
 
+const escapeHtml = (text) =>
+  text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+
 const render = (byLanguage) => {
   const languages = Object.keys(byLanguage).sort()
+  // One import per picture, however many pages show it; the bundler hands back its URL.
+  const imports = new Map()
+  const importFor = (file) => {
+    if (!imports.has(file)) imports.set(file, `shot${imports.size}`)
+
+    return imports.get(file)
+  }
+
+  const htmlExpression = (parts) =>
+    parts
+      .map((part) => {
+        if (typeof part === 'string') return JSON.stringify(part)
+
+        const caption = escapeHtml(part.caption)
+        const figcaption = part.caption ? `<figcaption>${caption}</figcaption>` : ''
+        const before = JSON.stringify('<figure class="guide-shot"><img src="')
+        const after = JSON.stringify(`" alt="${caption}" loading="lazy">${figcaption}</figure>`)
+
+        return `${before} + ${importFor(part.shot)} + ${after}`
+      })
+      .join(' +\n        ')
+
   const pages = languages
     .map((language) => {
       const entries = [...byLanguage[language]]
@@ -158,7 +261,7 @@ const render = (byLanguage) => {
             '    {',
             ...(appliesFrom ? [`      appliesFrom: ${JSON.stringify(appliesFrom)},`] : []),
             `      audience: ${JSON.stringify(audience)},`,
-            `      html: ${JSON.stringify(html)},`,
+            `      html:\n        ${htmlExpression(html)},`,
             `      order: ${order},`,
             `      path: ${JSON.stringify(path)},`,
             `      title: ${JSON.stringify(title)},`,
@@ -171,8 +274,12 @@ const render = (byLanguage) => {
     })
     .join('\n')
 
-  return `// Generated by scripts/build-docs.mjs from docs/. Do not edit; run \`npm run build-docs\`.
+  const importLines = [...imports]
+    .map(([file, name]) => `import ${name} from ${JSON.stringify(relative('src/generated/docs', file))}`)
+    .join('\n')
 
+  return `// Generated by scripts/build-docs.mjs from docs/. Do not edit; run \`npm run build-docs\`.
+${importLines ? `\n${importLines}\n` : ''}
 export type DocsAudience = ${AUDIENCES.map((audience) => JSON.stringify(audience)).join(' | ')}
 
 export interface DocsPage {

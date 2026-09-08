@@ -23,6 +23,8 @@ ilmoittautuminen on auki tai tulossa.
 Jokainen rivi kertoo kokeen ajan, paikan, järjestäjän ja luokat. **Ilmoittaudu** ilmestyy riville
 vasta kun ilmoittautumisaika on käynnissä; sitä ennen rivillä lukee milloin ilmoittautuminen alkaa.
 
+!shot[SearchPage/search-page-full-desktop] Kalenterin suodattimet ja kaksi koetta, joiden ilmoittautuminen on auki
+
 ## Täytä ilmoittautumislomake
 
 Lomakkeen yläreunassa on kokeen tiedot ja alla omat osiosi. Kaikkia ei tarvitse avata siinä
@@ -33,6 +35,8 @@ Kennelliiton rajapinnasta nimen, rodun, syntymäajan, vanhemmat ja aiemmat koetu
 ei löydy tietoja, saat ilmoituksen *Rekisterinumerolla ei löytynyt tietoja* ja voit täyttää tiedot
 käsin — tarkista kuitenkin ensin numero, sillä pelkkä kirjoitusvirhe riittää.
 
+!shot[DogInfo/dog-info-fetched] Koiran tiedot haettuna Kennelliitosta
+
 **Omistaja, ohjaaja ja maksaja.** Jos omistaja ohjaa koiraa itse, rastita *Omistaja ohjaa*, niin
 tietoja ei tarvitse kirjoittaa kahdesti. Sama koskee maksajaa. Sähköpostiosoite on tärkein kenttä:
 sinne lähtee vahvistus ja sen mukana linkki, jolla ilmoittautumista pääsee myöhemmin muokkaamaan.
@@ -42,6 +46,8 @@ vaikuttaa ilmoittautumismaksuun.
 
 **Koeluokka ja päivät.** Valitse luokka ja monipäiväisessä kokeessa ne päivät, jotka sinulle
 sopivat. Jos ilmoittaudut varasijalle, kerro myös kuinka lyhyellä varoitusajalla ehdit paikalle.
+
+!shot[EntryInfo/entry-info-with-classes] Koeluokka, päivät ja varasijan varoitusaika
 
 **Ehdot ja tietosuojaseloste** on hyväksyttävä ennen kuin ilmoittautumisen voi vahvistaa.
 

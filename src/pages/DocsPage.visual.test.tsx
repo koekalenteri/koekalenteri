@@ -9,7 +9,9 @@ import '../index.css'
 import { DataMemoryRouter } from '../test-utils/utils'
 import { DocsPage } from './DocsPage'
 
-const VIEWPORT = { height: 1400, width: 900 }
+// Taller than the page: the browser paints nothing past the viewport, so a capture of a long guide
+// would end in blank space where its last sections should be (KOE-1396).
+const VIEWPORT = { height: 2800, width: 900 }
 
 vi.mock('./components/Header', () => ({ default: () => null }))
 

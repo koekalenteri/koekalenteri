@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationCreatePage.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/pages/components/registrationForm/**
-sourceHash: bbe276
+sourceHash: b02bcd
 ---
 
 Entering a trial needs no account and no sign-in. All you need is access to the email address you
@@ -23,6 +23,8 @@ and senior judge, and the checkboxes show only the trials whose entry is open or
 Each row gives the date, place, organizer and classes. **Enter** appears on the row only while the
 entry period is running; before that, the row says when entry opens.
 
+!shot[SearchPage/search-page-full-desktop] The calendar's filters and two trials with entry open
+
 ## Fill in the entry form
 
 The trial's details are at the top of the form and your own sections below. You do not have to open
@@ -33,6 +35,8 @@ breed, date of birth, parents and past trial results from the Kennel Club's API.
 returns nothing you get *No results for this registration number* and can fill the details in by
 hand — but check the number first, a single typo is enough.
 
+!shot[DogInfo/dog-info-fetched] The dog's details, fetched from the Kennel Club
+
 **Owner, handler and payer.** If the owner handles the dog, tick *Owner handles*, and you need not
 type the same details twice. The same goes for the payer. The email address is the field that
 matters most: the confirmation goes there, and with it the link you use to change the entry later.
@@ -42,6 +46,8 @@ affects the entry fee.
 
 **Class and days.** Choose the class, and in a multi-day trial the days that suit you. If you enter
 for a reserve place, say how short a notice you can still make it to the trial on.
+
+!shot[EntryInfo/entry-info-with-classes] Class, days and the notice you can accept a reserve place on
 
 **Terms and the privacy notice** have to be accepted before the entry can be confirmed.
 
