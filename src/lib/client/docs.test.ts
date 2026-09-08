@@ -7,11 +7,13 @@ describe('docs', () => {
         'Entering a trial',
         'Before entry opens',
         'While entry is open',
+        'After entry closes',
       ])
       expect(docsPagesFor('fi').map((page) => page.title)).toEqual([
         'Kokeeseen ilmoittautuminen',
         'Ennen ilmoittautumisajan alkua',
         'Ilmoittautumisaikana',
+        'Ilmoittautumisajan jälkeen',
       ])
     })
 
