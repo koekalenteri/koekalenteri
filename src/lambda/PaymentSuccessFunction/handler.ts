@@ -25,7 +25,11 @@ import {
   getRegistrationEditToken,
   sendTemplatedEmailToEventRegistrations,
 } from '../lib/registration'
-import { publishParticipantRegistrationPatch, publishRegistrationPatchesStrict } from '../lib/ws/actions'
+import {
+  publishEventCounts,
+  publishParticipantRegistrationPatch,
+  publishRegistrationPatchesStrict,
+} from '../lib/ws/actions'
 import { buildParticipantPaymentPatch } from '../lib/ws/payloads'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -252,6 +256,7 @@ const publishSuccessfulPayment = async (registration: JsonRegistration, registra
       reconciled.find((item) => item.id === registrationId) ??
       (await getRegistration(registration.eventId, registrationId))
     const confirmedEvent = await updateRegistrations(registration.eventId)
+    await publishEventCounts(confirmedEvent)
     const groupPatches = createRegistrationPatches(reconciled, beforeReconciliation)
     await publishRegistrationPatchesStrict(
       registration.eventId,
@@ -314,6 +319,7 @@ const handleSuccessfulPayment = async (
     if (workflow.postPaymentProcessedAt) return true
 
     const confirmedEvent = await updateRegistrations(registration.eventId)
+    await publishEventCounts(confirmedEvent)
 
     // send receipt
     if (!workflow.receiptSentAt) {

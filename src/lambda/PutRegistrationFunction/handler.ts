@@ -61,7 +61,7 @@ import {
 import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
 import { validateBody } from '../lib/request'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
-import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
+import { publishEventCounts, publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 import { publishPublicStartList } from '../lib/ws/publicStartList'
 
 const { emailFrom } = CONFIG
@@ -237,6 +237,7 @@ const completeNewRegistration = async (
 
     if (!saved.newRegistrationPublishedAt && saved.state === 'ready') {
       const updatedEvent = await updateRegistrations(saved.eventId)
+      await publishEventCounts(updatedEvent)
       await publishRegistrationPatchesStrict(
         saved.eventId,
         [createRegistrationPatch(saved), ...groupPatches.filter((patch) => patch.id !== saved.id)],
@@ -327,6 +328,7 @@ const handleDuplicateRegistration = async (
   if (!isIdempotentRetry) {
     if (groupPatches.length) {
       const updatedEvent = await updateRegistrations(duplicate.eventId)
+      await publishEventCounts(updatedEvent)
       await publishRegistrationPatches(duplicate.eventId, groupPatches, updatedEvent.organizer.id)
       await publishPublicStartList(updatedEvent)
     }
@@ -495,6 +497,7 @@ const finalizeRegistrationUpdate = async ({
   await updateEventStatsForRegistration(savedData, existing, confirmedEvent)
   if (update || cancel || savedData.state === 'ready') {
     const updatedEvent = await updateRegistrations(savedData.eventId)
+    await publishEventCounts(updatedEvent)
     await publishRegistrationPatches(
       savedData.eventId,
       [createRegistrationPatch(savedData, existing), ...groupPatches.filter((patch) => patch.id !== savedData.id)],

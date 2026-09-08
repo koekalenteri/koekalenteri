@@ -4,6 +4,7 @@ import { formatMoney } from '../../lib/money'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { cancelTransaction } from '../lib/payment'
+import { publishCancelledRegistration } from '../lib/ws/actions'
 
 /**
  * refundCancel is called by payment provider, to update cancelled refund status
@@ -18,13 +19,15 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
     return response(200, undefined, event)
   }
 
-  await cancelTransaction<JsonRefundTransaction>({
+  const cancelled = await cancelTransaction<JsonRefundTransaction>({
     auditMessage: (transaction) =>
       `Palautus epäonnistui (${transaction.provider}), ${formatMoney(transaction.amount / 100)}`,
     auditUser: (transaction) => transaction.user,
     params,
     statusField: 'refundStatus',
   })
+
+  if (cancelled) await publishCancelledRegistration(cancelled)
 
   return response(200, undefined, event)
 })

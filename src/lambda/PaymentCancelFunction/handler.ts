@@ -4,13 +4,14 @@ import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { lambda, response } from '../lib/lambda'
 import { cancelTransaction } from '../lib/payment'
+import { publishCancelledRegistration } from '../lib/ws/actions'
 
 /**
  * paymentCancel is called by payment provider, to update cancelled payment status
  */
 const paymentCancelLambda = lambda('paymentCancel', async (event) => {
   const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
-  await cancelTransaction<JsonTransaction>({
+  const cancelled = await cancelTransaction<JsonTransaction>({
     auditMessage: (transaction, provider) =>
       `Maksu epäonnistui (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}`,
     auditUser: (transaction) => transaction.user ?? 'anonymous',
@@ -18,6 +19,8 @@ const paymentCancelLambda = lambda('paymentCancel', async (event) => {
     statusField: 'paymentStatus',
     updateProvider: true,
   })
+
+  if (cancelled) await publishCancelledRegistration(cancelled)
 
   return response(200, undefined, event)
 })

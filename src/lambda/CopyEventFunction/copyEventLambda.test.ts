@@ -8,7 +8,11 @@ const setEventBody = (event: { body: string | null }, body: unknown) => {
 const mockAuthorize = vi.fn()
 const mockAuthorizeEvent = vi.fn()
 const mockGetEvent = vi.fn()
-const mockSaveEvent = vi.fn()
+const mockSaveEvent = vi.fn(async (event: { id?: string; organizer?: { id?: string } }) => ({
+  audience: 'public' as const,
+  organizerId: event.organizer?.id ?? '',
+  patch: { ...event, eventId: event.id ?? '' },
+}))
 const mockNanoid = vi.fn()
 const mockWrite = vi.fn()
 const mockResponse = vi.fn()
@@ -20,6 +24,10 @@ vi.doMock('../lib/eventAuth', () => ({
 vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
   saveEvent: mockSaveEvent,
+}))
+const mockPublishEventChange = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
+  publishEventChange: mockPublishEventChange,
 }))
 vi.doMock('nanoid', () => ({
   nanoid: mockNanoid,

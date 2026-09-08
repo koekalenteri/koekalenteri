@@ -3,6 +3,7 @@ import { fetchJudgesForEventTypes, updateJudges } from '../lib/judge'
 import KLAPI from '../lib/KLAPI'
 import { createOfficialDirectoryLambda } from '../lib/officialDirectory'
 import { getKLAPIConfig } from '../lib/secrets'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { eventTypeTable, judgeTable } = CONFIG
@@ -15,6 +16,7 @@ export default createOfficialDirectoryLambda({
   eventTypeTable,
   fetch: fetchJudgesForEventTypes,
   klapi: () => new KLAPI(getKLAPIConfig),
+  onRefreshed: publishAdminDataInvalidation,
   role: 'judge',
   service: 'getJudges',
   update: updateJudges,

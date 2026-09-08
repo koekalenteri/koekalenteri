@@ -13,20 +13,6 @@ const MAX_MESSAGE_BYTES = 120_000
 
 const PUBLIC_START_LIST_SCOPE = 'public:start-list'
 
-/**
- * Event fields the published start list is derived from. Every other event change reaches an open
- * reader as the broadcast public event patch and needs no rebuilt list.
- */
-const START_LIST_EVENT_FIELDS = [
-  'classes',
-  'resultsPublished',
-  'startListPublished',
-  'startNumbersPublished',
-  'state',
-] as const
-
-export const affectsPublicStartList = (patch: object) => START_LIST_EVENT_FIELDS.some((field) => field in patch)
-
 export const buildPublicStartListPayload = (eventId: string, participants: JsonPublicRegistration[]) => {
   const payload = { eventId, participants, scope: PUBLIC_START_LIST_SCOPE }
   if (Buffer.byteLength(JSON.stringify(payload)) <= MAX_MESSAGE_BYTES) return payload

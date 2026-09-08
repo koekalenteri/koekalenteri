@@ -18,8 +18,6 @@ import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, hasPriority } from '../../lib/r
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { isDefined } from '../../lib/typeGuards'
 import { CONFIG } from '../config'
-import { publishAdminEventPatch, publishEventPatch } from '../lib/ws/actions'
-import { affectsPublicStartList, publishPublicStartList } from '../lib/ws/publicStartList'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
@@ -30,6 +28,34 @@ type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigE
 
 const { eventTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
+
+/**
+ * Event fields the published start list is derived from. Every other event change reaches an open
+ * reader as the broadcast public event patch and needs no rebuilt list.
+ */
+const START_LIST_EVENT_FIELDS = [
+  'classes',
+  'resultsPublished',
+  'startListPublished',
+  'startNumbersPublished',
+  'state',
+] as const
+
+export const affectsPublicStartList = (patch: object) => START_LIST_EVENT_FIELDS.some((field) => field in patch)
+
+/**
+ * What changed about an event, for whoever sends it on. The domain decides what happened and who
+ * may see it; broadcasting is the handler's job, through `publishEventChange` -- which is what
+ * keeps the WebSocket sender, and the AWS SDK behind it, out of the lambdas that only save.
+ */
+export interface EventChange {
+  /** A draft event is the organizer's business alone until it is published. */
+  audience: 'admin' | 'public'
+  organizerId: string
+  patch: Patch<JsonDogEvent> & { eventId: string }
+  /** The event whose published start list changed with it, if any. */
+  startList?: JsonDogEvent
+}
 
 const EVENT_CLASS_STATES: EventClassState[] = ['picked', 'invited', 'started', 'ended'] as const
 const EVENT_STATES: EventState[] = ['confirmed', ...EVENT_CLASS_STATES] as const
@@ -76,31 +102,30 @@ export const findQualificationStartDate = async (
   }
 }
 
-export const saveEvent = async (data: JsonDogEvent) => {
+export const saveEvent = async (data: JsonDogEvent): Promise<EventChange> => {
   await dynamoDB.write(data, eventTable)
 
   const patch = { ...data, eventId: data.id }
   if (data.state === 'draft') {
-    await publishAdminEventPatch(patch, data.organizer.id)
-  } else {
-    await publishEventPatch(patch, data.organizer.id)
-    // The publication flags live on the event, so publishing or hiding the list changes what its
-    // readers may see without any registration changing (KOE-1358).
-    await publishPublicStartList(data)
+    return { audience: 'admin', organizerId: data.organizer.id, patch }
   }
+
+  // The publication flags live on the event, so publishing or hiding the list changes what its
+  // readers may see without any registration changing (KOE-1358).
+  return { audience: 'public', organizerId: data.organizer.id, patch, startList: data }
 }
 
 export const patchEvent = async (
   eventId: string,
   existing: JsonDogEvent,
   next: JsonDogEvent
-): Promise<JsonDogEvent> => {
+): Promise<{ event: JsonDogEvent; change?: EventChange }> => {
   const { changes, remove, set } = createPatch(next, existing)
   const becomesPublic = existing.state === 'draft' && next.state !== 'draft'
   const staysDraft = existing.state === 'draft' && next.state === 'draft'
 
   if (!set && !remove) {
-    return existing
+    return { event: existing }
   }
 
   await dynamoDB.update(
@@ -112,14 +137,16 @@ export const patchEvent = async (
     eventTable
   )
 
-  if (staysDraft) {
-    await publishAdminEventPatch({ eventId, ...changes }, next.organizer.id)
-  } else {
-    await publishEventPatch({ eventId, ...(becomesPublic ? next : changes) }, next.organizer.id)
-    if (becomesPublic || affectsPublicStartList(changes)) await publishPublicStartList(next)
-  }
+  const change: EventChange = staysDraft
+    ? { audience: 'admin', organizerId: next.organizer.id, patch: { eventId, ...changes } }
+    : {
+        audience: 'public',
+        organizerId: next.organizer.id,
+        patch: { eventId, ...(becomesPublic ? next : changes) },
+        ...(becomesPublic || affectsPublicStartList(changes) ? { startList: next } : {}),
+      }
 
-  return getEvent<JsonDogEvent>(eventId)
+  return { change, event: await getEvent<JsonDogEvent>(eventId) }
 }
 
 /**
@@ -253,10 +280,7 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
   confirmedEvent.members = members
   confirmedEvent.updatedAt = updatedAt
 
-  // The classes carry the per-class counters, and the patch's updatedAt marks the client's cached
-  // row current — a public patch without them would freeze stale per-class counts in place (KOE-1277).
-  await publishEventPatch({ classes, entries, eventId, members, updatedAt }, confirmedEvent.organizer.id)
-
+  // The counts reach open clients through publishEventCounts, which the caller sends.
   return confirmedEvent
 }
 

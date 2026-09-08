@@ -1,4 +1,5 @@
 import type { JsonConfirmedEvent, JsonDogEvent, JsonUser, Patch, RegistrationClass } from '../../types'
+import type { EventChange } from '../lib/event'
 import { nanoid } from 'nanoid'
 import {
   getEventSeason,
@@ -24,6 +25,7 @@ import { isPatchRequest, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { validateBody } from '../lib/request'
 import { moveOrganizerEventStats } from '../lib/stats'
+import { publishEventChange, publishEventCounts } from '../lib/ws/actions'
 
 const isUserForbidden = (
   user: JsonUser,
@@ -87,10 +89,13 @@ const restoreServerOwnedLocks = (data: JsonConfirmedEvent, existing: JsonConfirm
   if (existing?.turns) data.turns = existing.turns
 }
 
-const persistEvent = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
+const persistEvent = async (
+  existing: JsonConfirmedEvent | undefined,
+  data: JsonConfirmedEvent
+): Promise<{ event: JsonDogEvent; change?: EventChange }> => {
   if (existing) return patchEvent(existing.id, existing, data)
-  await saveEvent(data)
-  return data
+
+  return { change: await saveEvent(data), event: data }
 }
 
 const initializeNewEvent = (item: Patch<JsonConfirmedEvent>, timestamp: string, username: string) => {
@@ -118,13 +123,25 @@ const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
   }
 }
 
+/**
+ * Saves the event and sends on what changed. The domain says what happened; broadcasting is this
+ * layer's job (KOE-1340), and a recount has counts of its own to send.
+ */
 const persistEventWithRegistrations = async (
   existing: JsonConfirmedEvent | undefined,
   data: JsonConfirmedEvent
 ): Promise<JsonDogEvent> => {
-  const result = await persistEvent(existing, data)
-  if (existing && existing.entries !== data.entries) return updateRegistrations(data.id)
-  return result
+  const { change, event } = await persistEvent(existing, data)
+  if (change) await publishEventChange(change)
+
+  if (existing && existing.entries !== data.entries) {
+    const recounted = await updateRegistrations(data.id)
+    await publishEventCounts(recounted)
+
+    return recounted
+  }
+
+  return event
 }
 
 interface PutEventPreconditionError {

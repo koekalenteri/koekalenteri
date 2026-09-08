@@ -1,4 +1,13 @@
-import type { AdminDataCollection, JsonDogEvent, JsonPublicDogEvent, JsonRegistration, Patch } from '../../../types'
+import type {
+  AdminDataCollection,
+  JsonConfirmedEvent,
+  JsonDogEvent,
+  JsonPublicDogEvent,
+  JsonRegistration,
+  Patch,
+} from '../../../types'
+import type { EventChange } from '../event'
+import type { CancelledRegistration } from '../payment'
 import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
 import { bumpDataVersion } from '../dataVersions'
@@ -17,6 +26,7 @@ import {
   buildRegistrationPatchPayload,
   toEventViewers,
 } from './payloads'
+import { publishPublicStartList } from './publicStartList'
 
 type PublicEventPatch = Patch<JsonPublicDogEvent> & { eventId: string }
 type AdminEventPatch = Patch<JsonDogEvent> & { eventId: string }
@@ -115,3 +125,39 @@ export const publishEventViewers = (
     audience: () => eventAudience(eventId, organizerId, options),
     buildPayload: (audience) => buildEventViewersPayload(eventId, toEventViewers(audience)),
   })
+
+/**
+ * Sends on what the domain says changed about an event. The domain decides who may see it and
+ * whether the published start list moved with it; this only carries it.
+ */
+export const publishEventChange = async ({ audience, organizerId, patch, startList }: EventChange) => {
+  if (audience === 'admin') {
+    await publishAdminEventPatch(patch, organizerId)
+  } else {
+    await publishEventPatch(patch, organizerId)
+  }
+
+  if (startList) await publishPublicStartList(startList)
+}
+
+/**
+ * The per-class counters after registrations were recounted. The classes carry them, and the
+ * patch's updatedAt marks the client's cached row current -- a public patch without them would
+ * freeze stale per-class counts in place (KOE-1277).
+ */
+export const publishEventCounts = ({ classes, entries, id, members, organizer, updatedAt }: JsonConfirmedEvent) =>
+  publishEventPatch({ classes, entries, eventId: id, members, updatedAt }, organizer.id)
+
+/**
+ * A registration whose payment or refund was cancelled reaches two audiences: the organizer's
+ * admins watching the event, and the entrant looking at their own registration.
+ */
+export const publishCancelledRegistration = async ({
+  eventId,
+  organizerId,
+  patch,
+  registrationId,
+}: CancelledRegistration) => {
+  await publishRegistrationPatches(eventId, [patch], organizerId)
+  await publishParticipantRegistrationPatch(eventId, registrationId, patch)
+}

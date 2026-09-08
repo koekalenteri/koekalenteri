@@ -16,8 +16,6 @@ const mockGetRegistration =
       refundStatus?: 'PENDING' | 'CANCEL'
     }>
   >()
-const mockPublishRegistrationPatches = vi.fn<() => Promise<unknown>>()
-const mockPublishParticipantRegistrationPatch = vi.fn<() => Promise<unknown>>()
 const mockRead = vi.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | undefined>>()
 const mockUpdate = vi.fn<() => Promise<unknown>>()
 const mockDocumentTransaction = vi.fn<CustomDynamoClient['documentTransaction']>()
@@ -28,10 +26,6 @@ vi.doMock('./audit', () => ({
 }))
 vi.doMock('./event', () => ({ getEvent: mockGetEvent }))
 vi.doMock('./registration', () => ({ getRegistration: mockGetRegistration }))
-vi.doMock('./ws/actions', () => ({
-  publishParticipantRegistrationPatch: mockPublishParticipantRegistrationPatch,
-  publishRegistrationPatches: mockPublishRegistrationPatches,
-}))
 vi.doMock('./secrets', () => ({
   getPaytrailConfig: vi.fn(() => Promise.resolve({ PAYTRAIL_SECRET: 'test-secret' })),
 }))
@@ -85,8 +79,6 @@ describe('payment', () => {
     })
     mockUpdate.mockResolvedValue(undefined)
     mockGetEvent.mockResolvedValue({ organizer: { id: 'organizer-1' } })
-    mockPublishRegistrationPatches.mockResolvedValue(undefined)
-    mockPublishParticipantRegistrationPatch.mockResolvedValue(undefined)
     mockAudit.mockResolvedValue(undefined)
   })
 
@@ -221,7 +213,7 @@ describe('payment', () => {
 
   describe('cancelTransaction', () => {
     it('marks the transaction failed, patches a pending registration, and audits', async () => {
-      await cancelTransaction<JsonPaymentTransaction>({
+      const cancelled = await cancelTransaction<JsonPaymentTransaction>({
         auditMessage: (transaction, provider) => `${provider}: ${transaction.amount}`,
         auditUser: (transaction) => transaction.user ?? 'anonymous',
         params,
@@ -241,16 +233,12 @@ describe('payment', () => {
         { set: { paymentStatus: 'CANCEL', updatedAt: expect.any(String) } },
         expect.any(String)
       )
-      expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
-        'event-1',
-        [{ eventId: 'event-1', id: 'registration-1', paymentStatus: 'CANCEL', updatedAt: expect.any(String) }],
-        'organizer-1'
-      )
-      expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith('event-1', 'registration-1', {
+      // What the caller broadcasts; sending it is the handler's job (KOE-1340).
+      expect(cancelled).toEqual({
         eventId: 'event-1',
-        id: 'registration-1',
-        paymentStatus: 'CANCEL',
-        updatedAt: expect.any(String),
+        organizerId: 'organizer-1',
+        patch: { eventId: 'event-1', id: 'registration-1', paymentStatus: 'CANCEL', updatedAt: expect.any(String) },
+        registrationId: 'registration-1',
       })
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:registration-1',

@@ -3,6 +3,7 @@ import KLAPI from '../lib/KLAPI'
 import { fetchOfficialsForEventTypes, updateOfficials } from '../lib/official'
 import { createOfficialDirectoryLambda } from '../lib/officialDirectory'
 import { getKLAPIConfig } from '../lib/secrets'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { eventTypeTable, officialTable } = CONFIG
@@ -15,6 +16,7 @@ export default createOfficialDirectoryLambda({
   eventTypeTable,
   fetch: fetchOfficialsForEventTypes,
   klapi: () => new KLAPI(getKLAPIConfig),
+  onRefreshed: publishAdminDataInvalidation,
   role: 'officer',
   service: 'getOfficials',
   update: updateOfficials,

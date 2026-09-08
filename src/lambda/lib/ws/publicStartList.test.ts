@@ -24,9 +24,7 @@ vi.doMock('./connectionRepository', () => ({ removeConnection: mockRemoveConnect
 vi.doMock('./connectionSelectors', () => ({ publicStartListAudience: mockPublicStartListAudience }))
 vi.doMock('../registration', () => ({ getRegistrationsByEventId: mockGetRegistrationsByEventId }))
 
-const { affectsPublicStartList, buildPublicStartListPayload, publishPublicStartList } = await import(
-  './publicStartList'
-)
+const { buildPublicStartListPayload, publishPublicStartList } = await import('./publicStartList')
 
 const publishedEvent = asJsonConfirmedEvent({
   classes: [{ class: 'ALO', state: 'invited' }],
@@ -129,17 +127,5 @@ describe('ws/publicStartList', () => {
       scope: 'public:start-list',
       stale: true,
     })
-  })
-
-  it.each([
-    [{ startListPublished: true }, true],
-    [{ startNumbersPublished: { ALO: true } }, true],
-    [{ resultsPublished: true }, true],
-    [{ classes: [] }, true],
-    [{ state: 'confirmed' }, true],
-    [{ name: 'Uusi nimi' }, false],
-    [{ description: 'Ajo-ohje' }, false],
-  ])('tells whether %o changes the published start list', (patch, expected) => {
-    expect(affectsPublicStartList(patch)).toBe(expected)
   })
 })

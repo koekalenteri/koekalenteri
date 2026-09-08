@@ -27,7 +27,7 @@ import {
   sendTemplatedEmailToEventRegistrations,
   updateReserveNotified,
 } from '../lib/registration'
-import { publishRegistrationPatches } from '../lib/ws/actions'
+import { publishEventCounts, publishRegistrationPatches } from '../lib/ws/actions'
 import { publishPublicStartList } from '../lib/ws/publicStartList'
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
@@ -164,6 +164,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
     // update event counts
     confirmedEvent = await updateRegistrations(eventId, updatedItems)
+    await publishEventCounts(confirmedEvent)
     cls = updatedItems.find((item) => item.id === moves[0].id)?.class
 
     oldCancelled = oldItems.filter((reg) => getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED)

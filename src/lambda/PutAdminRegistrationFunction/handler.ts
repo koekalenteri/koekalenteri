@@ -37,10 +37,21 @@ import {
 } from '../lib/registration'
 import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
-import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
+import { publishEventCounts, publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 import { publishPublicStartList } from '../lib/ws/publicStartList'
 
 const { emailFrom } = CONFIG
+
+/**
+ * Recounts the event's entries and sends the new counters on. The recount is domain work and the
+ * broadcast is this layer's (KOE-1340), so they travel together wherever registrations move.
+ */
+const recountRegistrations = async (eventId: string) => {
+  const recounted = await updateRegistrations(eventId)
+  await publishEventCounts(recounted)
+
+  return recounted
+}
 
 const PROTECTED_PATCH_FIELDS = new Set([
   'createdAt',
@@ -115,7 +126,7 @@ const completeNewAdminRegistration = async (
   try {
     if (saved.newRegistrationProcessedAt) return saved
 
-    const event = confirmedEvent ?? (await updateRegistrations(saved.eventId))
+    const event = confirmedEvent ?? (await recountRegistrations(saved.eventId))
     if (!saved.newRegistrationStatsAt) {
       await applyNewRegistrationStatsOnce(saved, event, claim.token)
     }
@@ -181,7 +192,7 @@ const handleDuplicateAdminRegistration = async (
     return { completed, editToken: await getRegistrationEditToken(completed) }
   }
   if (groupPatches.length) {
-    const updatedEvent = await updateRegistrations(alreadyRegistered.eventId)
+    const updatedEvent = await recountRegistrations(alreadyRegistered.eventId)
     await publishRegistrationPatches(alreadyRegistered.eventId, groupPatches, updatedEvent.organizer.id)
     await publishPublicStartList(updatedEvent)
   }
@@ -367,7 +378,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   }
 
   const persisted = await persistRegistrationWithGroups(data, existing, user, (savedData) =>
-    updateRegistrations(savedData.eventId)
+    recountRegistrations(savedData.eventId)
   )
   if (persisted.kind === 'conflict') return response(409, registrationConflictBody(persisted.conflict), event)
   const { groupPatches, reconciliationContext: confirmedEvent, savedData: updatedData } = persisted

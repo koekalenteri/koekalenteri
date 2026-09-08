@@ -31,6 +31,13 @@ vi.doMock('../lib/event', () => ({
   updateRegistrations: vi.fn(),
 }))
 
+const mockPublishEventChange = vi.fn()
+const mockPublishEventCounts = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
+  publishEventChange: mockPublishEventChange,
+  publishEventCounts: mockPublishEventCounts,
+}))
+
 const mockStatsRead = vi.fn()
 const mockStatsTransaction = vi.fn()
 vi.doMock('../utils/CustomDynamoClient', () => ({
@@ -116,7 +123,7 @@ describe('putEventLambda', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    patchEventMock.mockImplementation(async (_id, _existing, next) => next)
+    patchEventMock.mockImplementation(async (_id, _existing, next) => ({ event: next }))
     mockGetEventAuditMessages.mockImplementation((_existing: unknown, item: Partial<JsonDogEvent>) => {
       if (!_existing) return [{ message: 'Tapahtuma luotu' }]
       if (item.startListPublished) return [{ message: 'ALO starttilista julkaistu' }]
@@ -240,7 +247,7 @@ describe('putEventLambda', () => {
   it('should update an event', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
-    patchEventMock.mockResolvedValueOnce({ ...mockEvent, eventType: 'TEST', kcId: undefined })
+    patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, eventType: 'TEST', kcId: undefined } })
 
     const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
 
@@ -452,7 +459,7 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
     findEventWithKcIdMock.mockResolvedValueOnce(undefined)
-    patchEventMock.mockResolvedValueOnce({ ...mockEvent, kcId: 12345 })
+    patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, kcId: 12345 } })
 
     const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', kcId: 12345 }))
 
@@ -463,7 +470,7 @@ describe('putEventLambda', () => {
   it('should not check for kcId conflicts when kcId is unchanged', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, kcId: 12345 })
-    patchEventMock.mockResolvedValueOnce({ ...mockEvent, eventType: 'TEST', kcId: 12345 })
+    patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, eventType: 'TEST', kcId: 12345 } })
 
     const res = await putEventLambda(
       constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing', kcId: 12345 })
@@ -594,6 +601,8 @@ describe('putEventLambda', () => {
     const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ entries: 11, id: 'existing' }))
 
     expect(updateRegistrationsMock).toHaveBeenCalledWith('existing')
+    // The recount's counters reach open clients only if the handler sends them (KOE-1340).
+    expect(mockPublishEventCounts).toHaveBeenCalledWith(expect.objectContaining({ entries: 11, id: 'existing' }))
     expect(patchEventMock).toHaveBeenCalledWith(
       'existing',
       { ...mockEvent, entries: 10 },

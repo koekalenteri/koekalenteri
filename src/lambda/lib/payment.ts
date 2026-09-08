@@ -3,8 +3,10 @@ import type {
   JsonDogEvent,
   JsonPaymentTransaction,
   JsonRefundTransaction,
+  JsonRegistration,
   JsonTransaction,
   Language,
+  Patch,
 } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import type { PaytrailError } from './paytrail'
@@ -18,7 +20,6 @@ import { LambdaError } from './lambda'
 import { logger } from './log'
 import { parsePaytrailErrorMessage, paytrail } from './paytrail'
 import { getRegistration } from './registration'
-import { publishParticipantRegistrationPatch, publishRegistrationPatches } from './ws/actions'
 
 const { registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
@@ -104,6 +105,17 @@ interface CancelTransactionOptions<T extends JsonTransaction> {
   updateProvider?: boolean
 }
 
+/**
+ * A registration whose payment or refund was cancelled, for whoever sends it on. The domain writes
+ * the row and says what changed; broadcasting is the handler's job (KOE-1340).
+ */
+export interface CancelledRegistration {
+  eventId: string
+  organizerId: string
+  patch: Patch<JsonRegistration> & { eventId: string; id: string }
+  registrationId: string
+}
+
 export const cancelTransaction = async <T extends JsonTransaction>({
   auditMessage,
   auditUser,
@@ -126,6 +138,7 @@ export const cancelTransaction = async <T extends JsonTransaction>({
     return
   }
 
+  let cancelled: CancelledRegistration | undefined
   if (registration[statusField] === 'PENDING') {
     const updatedAt = new Date().toISOString()
     await dynamoDB.update(
@@ -134,17 +147,12 @@ export const cancelTransaction = async <T extends JsonTransaction>({
       registrationTable
     )
     const confirmedEvent = await getEvent(eventId)
-    await publishRegistrationPatches(
+    cancelled = {
       eventId,
-      [{ eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt }],
-      confirmedEvent.organizer.id
-    )
-    await publishParticipantRegistrationPatch(eventId, registrationId, {
-      eventId,
-      id: registrationId,
-      [statusField]: 'CANCEL',
-      updatedAt,
-    })
+      organizerId: confirmedEvent.organizer.id,
+      patch: { eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt },
+      registrationId,
+    }
   }
 
   await audit({
@@ -152,6 +160,8 @@ export const cancelTransaction = async <T extends JsonTransaction>({
     message: auditMessage(transaction, provider),
     user: auditUser(transaction),
   })
+
+  return cancelled
 }
 
 export const parseParams = (params: Partial<PaytrailCallbackParams>) => {

@@ -27,25 +27,6 @@ vi.doMock('./audit', () => ({
   registrationAuditKey: vi.fn(() => 'audit-key'),
 }))
 
-const mockBroadcast = vi.fn()
-const mockBroadcastAdminEvent = vi.fn()
-const mockBroadcastEventRegistrations = vi.fn()
-const mockBroadcastPublicEvent = vi.fn()
-const mockPublishEventPatch = vi.fn()
-vi.doMock('../lib/ws/actions', () => ({
-  __esModule: true,
-  publishAdminEventPatch: mockBroadcastAdminEvent,
-  publishEventPatch: mockPublishEventPatch,
-  publishPublicEvent: mockBroadcastPublicEvent,
-  publishRegistrationPatches: mockBroadcastEventRegistrations,
-}))
-
-const mockPublishPublicStartList = vi.fn()
-vi.doMock('../lib/ws/publicStartList', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('./ws/publicStartList')>()),
-  publishPublicStartList: mockPublishPublicStartList,
-}))
-
 const {
   findQualificationStartDate,
   fixRegistrationGroups,
@@ -376,10 +357,6 @@ describe('lib/event', () => {
       mockUpdate.mockReset()
       mockQuery.mockReset()
       mockRead.mockReset()
-      mockBroadcast.mockReset()
-      mockBroadcastAdminEvent.mockReset()
-      mockBroadcastEventRegistrations.mockReset()
-      mockBroadcastPublicEvent.mockReset()
     })
 
     it('updates event entries and members', async () => {
@@ -412,13 +389,8 @@ describe('lib/event', () => {
         },
         expect.anything()
       )
-      // The public audience gets the classes too: the patch marks the cached row current, so the
-      // per-class counters must ride along (KOE-1277).
-      expect(mockPublishEventPatch).toHaveBeenCalledWith(
-        { classes: result.classes, entries: 2, eventId: 'e3', members: 0, updatedAt: result.updatedAt },
-        'org-1'
-      )
-      expect(mockBroadcastEventRegistrations).not.toHaveBeenCalled()
+      // The counts the caller broadcasts come off what this returns (KOE-1277, KOE-1340).
+      expect(result).toMatchObject({ entries: 2, id: 'e3', members: 0 })
     })
 
     it('avoids noop updates when no changes are detected', async () => {
@@ -447,7 +419,6 @@ describe('lib/event', () => {
 
       // Verify that no update was performed
       expect(mockUpdate).not.toHaveBeenCalled()
-      expect(mockBroadcast).not.toHaveBeenCalled()
     })
 
     it('uses provided updatedRegistrations parameter when available', async () => {
@@ -511,11 +482,7 @@ describe('lib/event', () => {
 
       expect(result.modifiedAt).toBeUndefined()
       expect(result.updatedAt).toEqual(expect.any(String))
-      expect(mockPublishEventPatch).toHaveBeenCalledWith(
-        { classes: result.classes, entries: 3, eventId: 'e5', members: 1, updatedAt: result.updatedAt },
-        'org-1'
-      )
-      expect(mockBroadcastEventRegistrations).not.toHaveBeenCalled()
+      expect(result).toMatchObject({ entries: 3, id: 'e5', members: 1 })
     })
 
     it('handles empty updatedRegistrations array', async () => {
@@ -919,9 +886,6 @@ describe('lib/event', () => {
   describe('patchEvent', () => {
     beforeEach(() => {
       mockUpdate.mockReset()
-      mockBroadcastAdminEvent.mockReset()
-      mockPublishEventPatch.mockReset()
-      mockPublishPublicStartList.mockReset()
       mockRead.mockReset()
     })
 
@@ -930,13 +894,12 @@ describe('lib/event', () => {
 
       const result = await patchEvent(existing.id, existing, { ...existing })
 
-      expect(result).toEqual(existing)
+      expect(result).toEqual({ event: existing })
       expect(mockUpdate).not.toHaveBeenCalled()
-      expect(mockPublishEventPatch).not.toHaveBeenCalled()
       expect(mockRead).not.toHaveBeenCalled()
     })
 
-    it('publishes the start list when the change is one its readers can see', async () => {
+    it('reports the start list when the change is one its readers can see', async () => {
       const existing = {
         classes: [{ class: 'ALO', state: 'invited' }],
         id: 'e-published',
@@ -947,12 +910,12 @@ describe('lib/event', () => {
       const next = { ...existing, startListPublished: { ALO: true } } as JsonDogEvent
       mockRead.mockResolvedValueOnce(next)
 
-      await patchEvent(existing.id, existing, next)
+      const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(mockPublishPublicStartList).toHaveBeenCalledWith(next)
+      expect(change?.startList).toBe(next)
     })
 
-    it('leaves the start list alone for a change no reader of it can see', async () => {
+    it('leaves the start list out of a change no reader of it can see', async () => {
       const existing = {
         id: 'e-renamed',
         name: 'Old name',
@@ -962,12 +925,12 @@ describe('lib/event', () => {
       const next = { ...existing, name: 'New name' } as JsonDogEvent
       mockRead.mockResolvedValueOnce(next)
 
-      await patchEvent(existing.id, existing, next)
+      const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+      expect(change?.startList).toBeUndefined()
     })
 
-    it('updates set/remove fields and publishes admin patch', async () => {
+    it('updates set/remove fields and reports the patch', async () => {
       const existing = {
         id: 'e2',
         name: 'Old name',
@@ -992,18 +955,15 @@ describe('lib/event', () => {
         },
         expect.anything()
       )
-      expect(mockPublishEventPatch).toHaveBeenCalledWith(
-        {
-          eventId: existing.id,
-          name: 'New name',
-          qualificationStartDate: undefined,
-        },
-        'org-1'
-      )
-      expect(result).toEqual(persisted)
+      expect(result.change).toEqual({
+        audience: 'public',
+        organizerId: 'org-1',
+        patch: { eventId: existing.id, name: 'New name', qualificationStartDate: undefined },
+      })
+      expect(result.event).toEqual(persisted)
     })
 
-    it('updates nested field changes partially and publishes nested admin patch', async () => {
+    it('updates nested field changes partially and reports the nested patch', async () => {
       const existing = {
         contactInfo: {
           secretary: { email: 'old@example.com', name: 'Secretary' },
@@ -1021,7 +981,7 @@ describe('lib/event', () => {
 
       mockRead.mockResolvedValueOnce(next)
 
-      await patchEvent(existing.id, existing, next)
+      const { change } = await patchEvent(existing.id, existing, next)
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: existing.id },
@@ -1033,15 +993,11 @@ describe('lib/event', () => {
         expect.anything()
       )
 
-      expect(mockPublishEventPatch).toHaveBeenCalledWith(
-        {
-          contactInfo: {
-            secretary: { email: 'new@example.com' },
-          },
-          eventId: existing.id,
-        },
-        'org-1'
-      )
+      expect(change).toEqual({
+        audience: 'public',
+        organizerId: 'org-1',
+        patch: { contactInfo: { secretary: { email: 'new@example.com' } }, eventId: existing.id },
+      })
     })
 
     it('replaces changed arrays instead of persisting sparse array diffs', async () => {
@@ -1064,7 +1020,7 @@ describe('lib/event', () => {
 
       mockRead.mockResolvedValueOnce(next)
 
-      await patchEvent(existing.id, existing, next)
+      const { change } = await patchEvent(existing.id, existing, next)
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: existing.id },
@@ -1075,16 +1031,15 @@ describe('lib/event', () => {
         },
         expect.anything()
       )
-      expect(mockPublishEventPatch).toHaveBeenCalledWith(
-        {
-          classes: next.classes,
-          eventId: existing.id,
-        },
-        'org-1'
-      )
+      expect(change).toEqual({
+        audience: 'public',
+        organizerId: 'org-1',
+        patch: { classes: next.classes, eventId: existing.id },
+        startList: next,
+      })
     })
 
-    it('publishes full replacement arrays when array length changes', async () => {
+    it('reports full replacement arrays when array length changes', async () => {
       const existing = {
         classes: [{ class: 'ALO', entries: 1, members: 0 }],
         id: 'e5',
@@ -1103,19 +1058,17 @@ describe('lib/event', () => {
 
       mockRead.mockResolvedValueOnce(next)
 
-      await patchEvent(existing.id, existing, next)
+      const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(mockPublishEventPatch).toHaveBeenCalledWith(
-        {
-          classes: next.classes,
-          eventId: existing.id,
-          judges: next.judges,
-        },
-        'org-1'
-      )
+      expect(change).toEqual({
+        audience: 'public',
+        organizerId: 'org-1',
+        patch: { classes: next.classes, eventId: existing.id, judges: next.judges },
+        startList: next,
+      })
     })
 
-    it('publishes full nested replacement arrays', async () => {
+    it('reports full nested replacement arrays', async () => {
       const existing = {
         classes: [
           { class: 'ALO', judge: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }] },
@@ -1141,18 +1094,17 @@ describe('lib/event', () => {
 
       mockRead.mockResolvedValueOnce(next)
 
-      await patchEvent(existing.id, existing, next)
+      const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(mockPublishEventPatch).toHaveBeenCalledWith(
-        {
-          classes: next.classes,
-          eventId: existing.id,
-        },
-        'org-1'
-      )
+      expect(change).toEqual({
+        audience: 'public',
+        organizerId: 'org-1',
+        patch: { classes: next.classes, eventId: existing.id },
+        startList: next,
+      })
     })
 
-    it('publishes full event patch when draft becomes public', async () => {
+    it('reports the whole event when a draft becomes public', async () => {
       const existing = {
         classes: [{ class: 'ALO', date: '2026-06-01', entries: 0, members: 0 }],
         cost: 10,
@@ -1177,7 +1129,7 @@ describe('lib/event', () => {
 
       mockRead.mockResolvedValueOnce(next)
 
-      await patchEvent(existing.id, existing, next)
+      const { change } = await patchEvent(existing.id, existing, next)
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: existing.id },
@@ -1186,16 +1138,15 @@ describe('lib/event', () => {
         },
         expect.anything()
       )
-      expect(mockPublishEventPatch).toHaveBeenCalledWith(
-        {
-          eventId: existing.id,
-          ...next,
-        },
-        'org-1'
-      )
+      expect(change).toEqual({
+        audience: 'public',
+        organizerId: 'org-1',
+        patch: { eventId: existing.id, ...next },
+        startList: next,
+      })
     })
 
-    it('publishes only admin event patch when draft stays draft', async () => {
+    it('reports an admin-only change when a draft stays a draft', async () => {
       const existing = {
         id: 'e8',
         name: 'Draft event',
@@ -1209,19 +1160,16 @@ describe('lib/event', () => {
 
       mockRead.mockResolvedValueOnce(next)
 
-      await patchEvent(existing.id, existing, next)
+      const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
-        {
-          eventId: existing.id,
-          name: 'Updated draft event',
-        },
-        'org-1'
-      )
-      expect(mockPublishEventPatch).not.toHaveBeenCalled()
+      expect(change).toEqual({
+        audience: 'admin',
+        organizerId: 'org-1',
+        patch: { eventId: existing.id, name: 'Updated draft event' },
+      })
     })
 
-    it('publishes event patch when public event becomes draft', async () => {
+    it('reports a public change when a public event becomes a draft', async () => {
       const existing = {
         id: 'e9',
         name: 'Public event',
@@ -1235,16 +1183,15 @@ describe('lib/event', () => {
 
       mockRead.mockResolvedValueOnce(next)
 
-      await patchEvent(existing.id, existing, next)
+      const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(mockPublishEventPatch).toHaveBeenCalledWith(
-        {
-          eventId: existing.id,
-          state: 'draft',
-        },
-        'org-1'
-      )
-      expect(mockBroadcastAdminEvent).not.toHaveBeenCalled()
+      // Visibility is a start-list field, so its readers need the rebuilt list as well.
+      expect(change).toEqual({
+        audience: 'public',
+        organizerId: 'org-1',
+        patch: { eventId: existing.id, state: 'draft' },
+        startList: next,
+      })
     })
   })
 
@@ -1253,11 +1200,30 @@ describe('lib/event', () => {
     beforeEach(() => {
       mockWrite.mockReset()
     })
-    it('calls write with event data', async () => {
+    it("writes the event and reports a draft as the organizer's business alone", async () => {
       const event = { id: 'e6', name: 'Event', organizer: { id: 'org-1' }, state: 'draft' } as JsonDogEvent
-      await saveEvent(event)
+
+      const change = await saveEvent(event)
+
       expect(mockWrite).toHaveBeenCalledWith(event, expect.anything())
-      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith({ ...event, eventId: event.id }, 'org-1')
+      expect(change).toEqual({
+        audience: 'admin',
+        organizerId: 'org-1',
+        patch: { ...event, eventId: event.id },
+      })
+    })
+
+    it('reports a published event to everyone, start list and all', async () => {
+      const event = { id: 'e7', name: 'Event', organizer: { id: 'org-1' }, state: 'confirmed' } as JsonDogEvent
+
+      const change = await saveEvent(event)
+
+      expect(change).toEqual({
+        audience: 'public',
+        organizerId: 'org-1',
+        patch: { ...event, eventId: event.id },
+        startList: event,
+      })
     })
   })
 

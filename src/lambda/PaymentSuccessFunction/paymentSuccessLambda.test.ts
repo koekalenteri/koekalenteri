@@ -104,7 +104,9 @@ vi.doMock('../lib/email', () => ({
   sendTemplatedMail: mockSendTemplatedMail,
 }))
 
+const mockPublishEventCounts = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
+  publishEventCounts: mockPublishEventCounts,
   publishParticipantRegistrationPatch: mockPublishParticipantRegistrationPatch,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))

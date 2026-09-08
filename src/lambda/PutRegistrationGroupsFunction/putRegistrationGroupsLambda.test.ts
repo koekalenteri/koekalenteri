@@ -76,9 +76,11 @@ const _mockBroadcast = vi.fn()
 const mockPublishEventPatch = vi.fn()
 const mockBroadcastEventRegistrations = vi.fn()
 const mockBroadcastPublicEvent = vi.fn()
+const mockPublishEventCounts = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
   __esModule: true,
   publishAdminEventPatch: vi.fn(),
+  publishEventCounts: mockPublishEventCounts,
   publishEventPatch: mockPublishEventPatch,
   publishPublicEvent: mockBroadcastPublicEvent,
   publishRegistrationPatches: mockBroadcastEventRegistrations,
@@ -739,15 +741,9 @@ describe('putRegistrationGroupsLambda', () => {
     expect(resultItem?.group).toEqual(reg.group)
     expect(result.entries).toBe(5)
     expect(result.classes).toEqual([expect.objectContaining({ entries: 4 }), expect.objectContaining({ entries: 1 })])
-    expect(mockPublishEventPatch).toHaveBeenCalledWith(
-      {
-        classes: result.classes,
-        entries: 5,
-        eventId: event.id,
-        members: 0,
-        updatedAt: expect.any(String),
-      },
-      event.organizer.id
+    // The recount hands the counters back and the handler broadcasts them (KOE-1340).
+    expect(mockPublishEventCounts).toHaveBeenCalledWith(
+      expect.objectContaining({ classes: result.classes, entries: 5, id: event.id, members: 0 })
     )
     expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith(
       event.id,

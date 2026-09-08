@@ -1,4 +1,4 @@
-import type { EventType } from '../../types'
+import type { AdminDataCollection, EventType } from '../../types'
 import type { KLAPIResult, KLKoeHenkilö } from '../types/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
@@ -9,7 +9,6 @@ import { collectionChangesSince, parseDateParam } from './incremental'
 import { lambda, response } from './lambda'
 import { logger } from './log'
 import { updateUsersFromOfficialsOrJudges } from './user'
-import { publishAdminDataInvalidation } from './ws/actions'
 
 interface OfficialDirectoryEntry {
   district: string
@@ -137,6 +136,12 @@ interface OfficialDirectoryLambdaOptions<TIncoming extends OfficialDirectoryEntr
   eventTypeTable: string
   fetch: (klapi: KLAPI, eventTypes: string[]) => Promise<TIncoming[] | undefined>
   klapi: () => KLAPI
+  /**
+   * Tells open admin clients their copy of this collection is stale. Handed in rather than reached
+   * for, so this module -- and every lambda built from it -- stays clear of the WebSocket sender
+   * (KOE-1340).
+   */
+  onRefreshed: (collections: AdminDataCollection[]) => Promise<unknown>
   role: 'judge' | 'officer'
   service: string
   update: (dynamoDB: CustomDynamoClient, entries: TIncoming[]) => Promise<void>
@@ -166,7 +171,7 @@ export const createOfficialDirectoryLambda = <
         await options.update(options.dynamoDB, entries)
         await updateUsersFromOfficialsOrJudges(options.dynamoDB, entries, options.role)
       }
-      await publishAdminDataInvalidation([options.collection, 'users'])
+      await options.onRefreshed([options.collection, 'users'])
     }
 
     const items = (await options.dynamoDB.readAll<TStored>()) ?? []

@@ -8,6 +8,7 @@ import { authorizeEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId, removeRegistrationCreationMetadata, saveRegistration } from '../lib/registration'
+import { publishEventChange } from '../lib/ws/actions'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
   const { id, startDate }: { id: string; startDate: string } = parseJSONWithFallback(event.body)
@@ -50,7 +51,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     if (c.date) c.date = addDays(parseISO(c.date), days).toISOString()
   })
 
-  await saveEvent(item)
+  await publishEventChange(await saveEvent(item))
 
   const registrations = await getRegistrationsByEventId(id)
 
