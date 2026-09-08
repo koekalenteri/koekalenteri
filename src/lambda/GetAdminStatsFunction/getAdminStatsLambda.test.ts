@@ -2,6 +2,7 @@ import type { APIGatewayProxyResult } from 'aws-lambda'
 import type { JsonUser } from '../../types'
 import type { authorizeWithMemberOf } from '../lib/auth'
 import { vi } from 'vitest'
+import { httpError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // Mocks
@@ -177,13 +178,13 @@ describe('getAdminStatsLambda', () => {
     expect(result.statusCode).toBe(200)
   })
 
-  it('returns early if authorizeWithMemberOf returns a response (unauthorized)', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValue({ res: { body: 'Unauthorized', statusCode: 401 } })
+  it('answers the auth refusal without reading anything', async () => {
+    mockAuthorizeWithMemberOf.mockRejectedValue(httpError(401, 'Unauthorized'))
     const event = constructAPIGwEvent({}, {})
     const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
 
     expect(result.statusCode).toBe(401)
-    expect(result.body).toBe('Unauthorized')
+    expect(JSON.parse(result.body)).toBe('Unauthorized')
     expect(mockQuery).not.toHaveBeenCalled()
   })
 

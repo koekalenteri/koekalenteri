@@ -18,7 +18,7 @@ import {
 import { repairReadyRegistrationGroups, updateRegistrations } from '../lib/event'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
-import { isPatchRequest, lambda, response } from '../lib/lambda'
+import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import {
   applyOwnerOverrides,
   claimNewRegistrationPostProcessing,
@@ -216,9 +216,7 @@ const prepareAdminRegistrationCreation = async (
   )
   if (alreadyRegistered) {
     const handled = await handleDuplicateAdminRegistration(alreadyRegistered, registration, user, origin)
-    if (handled.conflict) {
-      return { earlyResponse: response(409, registrationConflictBody(handled.conflict), event) }
-    }
+    if (handled.conflict) throw httpError(409, registrationConflictBody(handled.conflict))
     return {
       earlyResponse: response(200, participantRegistrationResponse(handled.completed, handled.editToken), event),
     }
@@ -319,16 +317,14 @@ const finalizeAdminRegistrationUpdate = async ({
 }
 
 const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const timestamp = new Date().toISOString()
   const origin = getOrigin(event)
   const patchRequest = isPatchRequest(event)
 
   const request = parseAdminRegistrationRequest(event.body, patchRequest)
-  if ('invalid' in request) return response(400, { message: `Bad request: ${request.invalid}` }, event)
+  if ('invalid' in request) throw httpError(400, { message: `Bad request: ${request.invalid}` })
   let { registration } = request
   const { operationRequest } = request
   const clientModifiedAt = operationRequest?.modifiedAt ?? registration.modifiedAt
@@ -339,7 +335,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   }
 
   if (patchRequest && (!registration.eventId || !registration.id)) {
-    return response(400, { message: 'Bad request: PATCH requires eventId and id' }, event)
+    throw httpError(400, { message: 'Bad request: PATCH requires eventId and id' })
   }
 
   await getAuthorizedEvent(user, memberOf, registration.eventId ?? '')
@@ -350,9 +346,9 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   if (update) removeRegistrationCreationMetadata(registration)
   const prepared = await prepareAdminRegistrationUpdate(registration, operationRequest, clientModifiedAt ?? undefined)
   if (prepared.conflict) {
-    return response(409, { error: 'staleData', message: 'Registration has been modified since it was loaded' }, event)
+    throw httpError(409, { error: 'staleData', message: 'Registration has been modified since it was loaded' })
   }
-  if ('invalid' in prepared) return response(400, { message: `Bad request: ${prepared.invalid}` }, event)
+  if ('invalid' in prepared) throw httpError(400, { message: `Bad request: ${prepared.invalid}` })
   const existing = prepared.existing
   registration = prepared.registration
 
@@ -380,7 +376,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   const persisted = await persistRegistrationWithGroups(data, existing, user, (savedData) =>
     recountRegistrations(savedData.eventId)
   )
-  if (persisted.kind === 'conflict') return response(409, registrationConflictBody(persisted.conflict), event)
+  if (persisted.kind === 'conflict') throw httpError(409, registrationConflictBody(persisted.conflict))
   const { groupPatches, reconciliationContext: confirmedEvent, savedData: updatedData } = persisted
   if (!existing) {
     const completed = await completeNewAdminRegistration(updatedData, user, origin, confirmedEvent, groupPatches)

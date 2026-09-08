@@ -40,11 +40,11 @@ describe('wsConnectHandler', () => {
     })
   })
 
-  it('throws an error if wsConnect fails', async () => {
+  it('answers 500 if wsConnect fails', async () => {
     const error = new Error('Connection error')
     mockWsConnect.mockRejectedValueOnce(error)
 
-    await expect(wsConnectHandler(event)).rejects.toThrow('Connection error')
+    await expect(wsConnectHandler(event)).resolves.toEqual({ body: 'Internal server error', statusCode: 500 })
 
     expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
   })

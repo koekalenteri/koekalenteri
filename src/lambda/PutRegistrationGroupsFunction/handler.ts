@@ -15,7 +15,7 @@ import { emailTo } from '../lib/email'
 import { lockRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
-import { getParam, LambdaError, lambda, response } from '../lib/lambda'
+import { getParam, httpError, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import {
   createRegistrationPatches,
@@ -116,16 +116,14 @@ const parseMoves = (json: string | null): RegistrationGroupMove[] => {
 }
 
 const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const origin = getOrigin(event)
   const eventId = getParam(event, 'eventId')
   const moves = parseMoves(event.body)
 
   if (moves.length === 0) {
-    return response(422, 'no groups', event)
+    throw httpError(422, 'no groups')
   }
 
   const authorizedEvent = await getAuthorizedEvent(user, memberOf, eventId)

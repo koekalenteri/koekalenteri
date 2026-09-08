@@ -24,9 +24,7 @@ export const authorizeEvent = async <T extends JsonDogEvent = JsonDogEvent>(
   event: APIGatewayProxyEvent,
   getEventId: string | (() => string)
 ) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return { res }
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const eventId = typeof getEventId === 'function' ? getEventId() : getEventId
   const item = await getAuthorizedEvent<T>(user, memberOf, eventId)

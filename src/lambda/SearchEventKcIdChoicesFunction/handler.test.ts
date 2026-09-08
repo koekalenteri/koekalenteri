@@ -41,7 +41,8 @@ vi.doMock('../lib/KLAPI', () => ({
   default: MockKLAPI,
 }))
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   LambdaError: MockLambdaError,
   lambda: vi.fn((_name, fn) => fn),
   response: mockResponse,

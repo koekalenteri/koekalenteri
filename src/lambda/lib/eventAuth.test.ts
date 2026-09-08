@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { httpError } from './lambda'
 
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetEvent = vi.fn()
@@ -21,12 +22,12 @@ describe('authorizeEvent', () => {
     vi.clearAllMocks()
   })
 
-  it('returns authentication failures without loading the event', async () => {
+  it('passes the authentication failure on without loading the event', async () => {
     const res = { body: 'Unauthorized', statusCode: 401 }
     const getEventId = vi.fn(() => 'event1')
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res })
+    mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(res.statusCode, res.body))
 
-    await expect(authorizeEvent(request, getEventId)).resolves.toEqual({ res })
+    await expect(authorizeEvent(request, getEventId)).rejects.toMatchObject({ status: 401 })
     expect(getEventId).not.toHaveBeenCalled()
     expect(mockGetEvent).not.toHaveBeenCalled()
   })

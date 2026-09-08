@@ -7,7 +7,7 @@ import { authorizeWithMemberOf } from '../lib/auth'
 import { lockRegistrationGroups } from '../lib/event'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
-import { getParam, LambdaError, lambda, response } from '../lib/lambda'
+import { getParam, httpError, LambdaError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import {
   assignStartNumbers,
@@ -41,9 +41,7 @@ const auditDay = (date: string) => date.split('-').reverse().map(Number).join('.
  * same validations.
  */
 const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const eventId = getParam(event, 'eventId')
   const body = parseJSONWithFallback<StartNumbersRequest>(event.body, {})
@@ -51,10 +49,10 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
   const numbers = parseStartNumberEntries(body.numbers)
 
   if (typeof body.published !== 'boolean' && numbers.length === 0) {
-    return response(422, 'nothing to do', event)
+    throw httpError(422, 'nothing to do')
   }
   if (body.date !== undefined && (typeof body.date !== 'string' || !DAY_KEY.test(body.date))) {
-    return response(422, 'invalid date', event)
+    throw httpError(422, 'invalid date')
   }
   const date = body.date
 

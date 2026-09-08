@@ -13,8 +13,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 const dynamoDB = new CustomDynamoClient(CONFIG.organizerTable)
 
 const refreshOrganizersLambda = lambda('refreshOrganizers', async (event) => {
-  const { res } = await authorizeAdmin(event)
-  if (res) return res
+  await authorizeAdmin(event)
 
   const klapi = new KLAPI(getKLAPIConfig)
   const { status, json } = await klapi.lueYhdistykset({ Rajaus: KLYhdistysRajaus.Koejärjestätä })

@@ -6,23 +6,22 @@ import { getEventSeason } from '../../lib/event'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId, removeRegistrationCreationMetadata, saveRegistration } from '../lib/registration'
 import { publishEventChange } from '../lib/ws/actions'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
   const { id, startDate }: { id: string; startDate: string } = parseJSONWithFallback(event.body)
   if (!getEventSeason(startDate)) {
-    return response(400, { message: 'Bad request: startDate must be a valid date' }, event)
+    throw httpError(400, { message: 'Bad request: startDate must be a valid date' })
   }
 
-  const { item, res, user } = await authorizeEvent(event, id)
-  if (res) return res
+  const { item, user } = await authorizeEvent(event, id)
 
   const timestamp = new Date().toISOString()
 
   if (!getEventSeason(item.startDate) || !getEventSeason(item.endDate)) {
-    return response(400, { message: 'Bad request: source event dates must be valid' }, event)
+    throw httpError(400, { message: 'Bad request: source event dates must be valid' })
   }
 
   item.id = nanoid(10)

@@ -1,5 +1,6 @@
 import type { JsonConfirmedEvent } from '../../types'
 import { vi } from 'vitest'
+import { httpError } from '../lib/lambda'
 import { getStationEntryToken } from '../lib/stationEntry'
 import { asJsonConfirmedEvent, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
@@ -9,7 +10,8 @@ const mockGetParam = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetAuthorizedEvent = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(
@@ -81,10 +83,9 @@ describe('getStationLinkLambda', () => {
   })
 
   it('returns the auth refusal untouched', async () => {
-    const res = { statusCode: 401 }
-    mockAuthorizeWithMemberOf.mockResolvedValue({ res })
+    mockAuthorizeWithMemberOf.mockRejectedValue(httpError(401, 'Unauthorized'))
 
-    expect(await getStationLinkLambda(apiEvent)).toBe(res)
+    await expect(getStationLinkLambda(apiEvent)).rejects.toMatchObject({ status: 401 })
     expect(mockGetAuthorizedEvent).not.toHaveBeenCalled()
   })
 })

@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { httpError } from '../lib/lambda'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockGetParam = vi.fn()
@@ -8,7 +9,8 @@ const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetEvent = vi.fn()
 const mockQuery = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(
@@ -408,10 +410,9 @@ describe('getStartListLambda', () => {
 
   it('rejects an unauthenticated preview request', async () => {
     const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
-    const unauthorizedResponse = { statusCode: 401 }
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: unauthorizedResponse })
+    mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
 
-    await expect(getStartListLambda(previewEvent)).resolves.toBe(unauthorizedResponse)
+    await expect(getStartListLambda(previewEvent)).rejects.toMatchObject({ status: 401 })
 
     expect(mockGetEvent).not.toHaveBeenCalled()
     expect(mockQuery).not.toHaveBeenCalled()

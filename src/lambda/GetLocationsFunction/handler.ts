@@ -1,7 +1,7 @@
 import { userHasAdminAccess } from '../../lib/user'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import { getLocationSnapshot } from '../lib/location'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -13,7 +13,7 @@ export const dynamoDB = new CustomDynamoClient(CONFIG.locationTable)
 const getLocationsLambda = lambda('getLocations', async (event) => {
   const user = await authorize(event)
   if (!user || !userHasAdminAccess(user)) {
-    return response(401, 'Unauthorized', event)
+    throw httpError(401, 'Unauthorized')
   }
 
   const snapshot = await getLocationSnapshot(dynamoDB)

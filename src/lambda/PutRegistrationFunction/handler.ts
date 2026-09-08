@@ -38,7 +38,7 @@ import {
 } from '../lib/emailSuppression'
 import { getEvent, repairReadyRegistrationGroups, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { isPatchRequest, lambda, response } from '../lib/lambda'
+import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import {
   applyOwnerOverrides,
@@ -169,11 +169,10 @@ const prepareNewRegistration = async (
   registration: Patch<JsonRegistration>,
   confirmedEvent: JsonConfirmedEvent,
   timestamp: string,
-  username: string,
-  event: Parameters<typeof response>[2]
+  username: string
 ) => {
   if (!isEntryOpen(confirmedEvent)) {
-    return response(410, { message: 'Gone: Entry is not open' }, event)
+    throw httpError(410, { message: 'Gone: Entry is not open' })
   }
 
   const alreadyRegistered = await findExistingRegistrationToEventForDog(
@@ -358,17 +357,14 @@ const preparePublicRegistrationCreation = async (
 ) => {
   if (existing) return { registration }
 
-  const duplicate = await prepareNewRegistration(registration, confirmedEvent, timestamp, username, event)
+  const duplicate = await prepareNewRegistration(registration, confirmedEvent, timestamp, username)
   if (!duplicate) {
     registration.editTokenVersion = DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION
     return { registration }
   }
-  if (!('eventId' in duplicate)) return { earlyResponse: duplicate }
 
   const handled = await handleDuplicateRegistration(duplicate, registration, confirmedEvent, linkOrigin, username)
-  if (handled.conflict) {
-    return { earlyResponse: response(409, registrationConflictBody(handled.conflict), event) }
-  }
+  if (handled.conflict) throw httpError(409, registrationConflictBody(handled.conflict))
   return {
     earlyResponse: response(200, participantRegistrationResponse(handled.completed, handled.editToken), event),
   }
@@ -532,23 +528,22 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const patchRequest = isPatchRequest(event)
 
   const body: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(event.body)
-  const validated = validateBody(event, registrationBodySchema, body)
-  if ('badRequest' in validated) return validated.badRequest
+  validateBody(registrationBodySchema, body)
 
   const request = parsePublicRegistrationRequest(body, patchRequest)
-  if ('invalid' in request) return response(400, { message: `Bad request: ${request.invalid}` }, event)
+  if ('invalid' in request) throw httpError(400, { message: `Bad request: ${request.invalid}` })
   let { registration } = request
   const { operationRequest } = request
   if (!operationRequest) normalizeRegistrationEmails(registration)
 
   if (patchRequest && (!registration.eventId || !registration.id)) {
-    return response(400, { message: 'Bad request: PATCH requires eventId and id' }, event)
+    throw httpError(400, { message: 'Bad request: PATCH requires eventId and id' })
   }
 
   const { confirmedEvent, existing } = await getData(registration)
 
   if (!isAvailableEvent(confirmedEvent)) {
-    return response(404, { message: 'Not found' }, event)
+    throw httpError(404, { message: 'Not found' })
   }
 
   const creation = await preparePublicRegistrationCreation(
@@ -564,7 +559,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration = creation.registration
 
   const authorized = await authorizeAndApplyPublicPatch(event, existing, registration, operationRequest)
-  if ('invalid' in authorized) return response(400, { message: `Bad request: ${authorized.invalid}` }, event)
+  if ('invalid' in authorized) throw httpError(400, { message: `Bad request: ${authorized.invalid}` })
   registration = authorized.registration
   const { editToken } = authorized
 
@@ -574,7 +569,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.updatedAt = timestamp
 
   const built = buildPublicRegistrationData(registration, existing, confirmedEvent)
-  if ('invalid' in built) return response(400, { message: `Bad request: ${built.invalid}` }, event)
+  if ('invalid' in built) throw httpError(400, { message: `Bad request: ${built.invalid}` })
   const { cancel, confirm, data, invitation, update } = built
 
   applyOwnerOverrides(data)
@@ -592,7 +587,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   const persisted = await persistRegistrationWithGroups(data, existing, { name: username }, async () => undefined)
   if (persisted.kind === 'conflict') {
-    return response(409, registrationConflictBody(persisted.conflict), event)
+    throw httpError(409, registrationConflictBody(persisted.conflict))
   }
   const { groupPatches, savedData } = persisted
   if (!existing) {

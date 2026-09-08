@@ -1,6 +1,6 @@
 import type { JsonPaymentTransaction } from '../../types'
 import { vi } from 'vitest'
-import { constructAPIGwEvent } from '../test-utils/helpers'
+import { answerRejections, constructAPIGwEvent } from '../test-utils/helpers'
 
 interface CancelOptions {
   auditMessage: (transaction: JsonPaymentTransaction, provider: string | undefined) => string
@@ -10,11 +10,12 @@ interface CancelOptions {
   updateProvider: boolean
 }
 
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockCancelTransaction = vi.fn<(options: CancelOptions) => Promise<void>>()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   lambda: mockLambda,
   response: mockResponse,
 }))

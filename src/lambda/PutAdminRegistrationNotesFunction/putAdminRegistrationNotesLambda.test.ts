@@ -1,11 +1,12 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { httpError } from '../lib/lambda'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
 }
 
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockAudit = vi.fn()
@@ -14,7 +15,8 @@ const mockGetEvent = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   LambdaError: class LambdaError extends Error {
     constructor(
       public statusCode: number,
@@ -82,9 +84,7 @@ describe('putAdminRegistrationNotesLambda', () => {
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
-      res: { body: 'Unauthorized', statusCode: 401 },
-    })
+    mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
 
     await putAdminRegistrationNotesLambda(event)
 

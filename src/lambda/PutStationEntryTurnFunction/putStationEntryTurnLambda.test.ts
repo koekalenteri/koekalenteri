@@ -13,7 +13,8 @@ const mockWriteStationTurn = vi.fn()
 const mockParseStationTurnOp = vi.fn()
 const mockPublishEventPatch = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(

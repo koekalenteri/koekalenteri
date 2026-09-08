@@ -1,5 +1,6 @@
 import type { JsonUser } from '../../types'
 import { vi } from 'vitest'
+import { httpError } from '../lib/lambda'
 
 const mockPublishAdminDataInvalidation = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
@@ -38,14 +39,14 @@ describe('putJudgeLambda', () => {
   vi.spyOn(console, 'debug').mockImplementation(() => undefined)
 
   it('should return 401 if authorization fails', async () => {
-    mockAuthorizeAdmin.mockResolvedValueOnce({ res: { statusCode: 401 } })
+    mockAuthorizeAdmin.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
     const res = await putJudgeLambda(constructAPIGwEvent('test'))
 
     expect(res.statusCode).toEqual(401)
   })
 
   it('returns 403 if the authenticated user is not an admin', async () => {
-    mockAuthorizeAdmin.mockResolvedValueOnce({ res: { statusCode: 403 }, user: { ...mockUser, admin: false } })
+    mockAuthorizeAdmin.mockRejectedValueOnce(httpError(403, 'Forbidden'))
 
     const res = await putJudgeLambda(constructAPIGwEvent('test'))
 
@@ -54,7 +55,7 @@ describe('putJudgeLambda', () => {
   })
 
   it('should write the authorized user to database', async () => {
-    mockAuthorizeAdmin.mockResolvedValueOnce({ user: { ...mockUser, admin: true } })
+    mockAuthorizeAdmin.mockResolvedValueOnce({ ...mockUser, admin: true })
     await putJudgeLambda(
       constructAPIGwEvent({ createdAt: '1986-10-05T22:39:02.250Z', id: 'judge', name: 'Test Judge' })
     )

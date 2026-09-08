@@ -1,8 +1,9 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { httpError } from '../lib/lambda'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockAuthorizeWithMemberOf = vi.fn()
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockReadAll = vi.fn()
 
@@ -10,7 +11,8 @@ vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   lambda: mockLambda,
   response: mockResponse,
 }))
@@ -37,7 +39,7 @@ describe('getEmailTemplatesLambda', () => {
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
+    mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
 
     await getEmailTemplatesLambda(event)
 
@@ -46,7 +48,7 @@ describe('getEmailTemplatesLambda', () => {
   })
 
   it('returns 403 if the user is neither an admin nor an organizer member', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Forbidden', statusCode: 403 } })
+    mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(403, 'Forbidden'))
 
     await getEmailTemplatesLambda(event)
 

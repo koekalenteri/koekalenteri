@@ -1,23 +1,23 @@
 import type { JsonUser } from '../../types'
 import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 
 const putUserNameLambda = lambda('putUserName', async (event) => {
   const user = await authorize(event)
   if (!user) {
-    return response(401, 'Unauthorized', event)
+    throw httpError(401, 'Unauthorized')
   }
 
   const body: Partial<Pick<JsonUser, 'name'>> = parseJSONWithFallback(event.body)
   const name = String(body?.name ?? '').trim()
 
   if (!name) {
-    return response(400, 'Bad request', event)
+    throw httpError(400, 'Bad request')
   }
   if (name.length > 200) {
-    return response(400, 'Bad request', event)
+    throw httpError(400, 'Bad request')
   }
 
   const updated = await getAndUpdateUserByEmail(user.email, { name }, true)

@@ -1,5 +1,3 @@
-import { expect } from 'vitest'
-
 type LogLine = Record<string, unknown>
 
 /** Just enough of a Vitest spy on a console method for the lines to be read back. */
@@ -19,10 +17,3 @@ interface ConsoleSpy {
  */
 export const loggedLines = (spy: ConsoleSpy): LogLine[] =>
   spy.mock.calls.map(([line]) => (typeof line === 'string' ? JSON.parse(line) : { unparsed: line }))
-
-/**
- * The line the `lambda()` wrapper writes when a handler throws: the thrown error, unpacked by the
- * logger, under a fixed message.
- */
-export const unhandledError = (message: string) =>
-  expect.objectContaining({ error: expect.objectContaining({ message }), message: 'unhandled error' })

@@ -1,8 +1,8 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn().mockImplementation((statusCode: number, body: any) => ({
   body: JSON.stringify(body),
   headers: { 'Content-Type': 'application/json' },
@@ -19,7 +19,8 @@ const mockUpdate = vi.fn()
 const mockGetEvent = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   LambdaError: class LambdaError extends Error {},
   lambda: mockLambda,
   response: mockResponse,

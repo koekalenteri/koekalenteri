@@ -52,9 +52,7 @@ const getData = async (transactionId: string, user: JsonUser, memberOf: string[]
  * refundCreate is called by client to refund a payment
  */
 const refundCreateLambda = lambda('refundCreate', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const {
     transactionId,

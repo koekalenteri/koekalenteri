@@ -1,8 +1,8 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockVerifyParams = vi.fn()
 const mockParseParams = vi.fn()
@@ -25,7 +25,8 @@ const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
   }
 })
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   LambdaError: class LambdaError extends Error {
     status: number
     constructor(status: number, message: string) {

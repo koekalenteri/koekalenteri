@@ -1,9 +1,9 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
 const mockAuthorize = vi.fn()
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockDedupeUsersByEmail = vi.fn((users: any[]) => users)
 const mockFilterRelevantUsers = vi.fn()
@@ -13,7 +13,8 @@ const mockUserIsMemberOf = vi.fn()
 vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
 }))
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   lambda: mockLambda,
   response: mockResponse,
 }))

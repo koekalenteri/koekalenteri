@@ -5,7 +5,7 @@ import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { deleteFile, parsePostFile, uploadFile } from '../lib/file'
-import { getParam, lambda, response } from '../lib/lambda'
+import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { getRegistrationsByEventId } from '../lib/registration'
 import { publishAdminEventPatch } from '../lib/ws/actions'
@@ -48,31 +48,31 @@ const deleteStaleAttachment = async (key: string) => {
 const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (event) => {
   const user = await authorize(event)
   if (!user) {
-    return response(401, 'Unauthorized', event)
+    throw httpError(401, 'Unauthorized')
   }
 
   const eventId = getParam(event, 'eventId')
   const className = getParam(event, 'className')
   const existing = await getEvent<JsonConfirmedEvent>(eventId)
   if (!user.admin && !user.roles?.[existing.organizer.id]) {
-    return response(403, 'Forbidden', event)
+    throw httpError(403, 'Forbidden')
   }
 
   const file = await parsePostFile(event)
   if (file.error) {
     logger.error('invitation attachment could not be parsed', { error: file.error, eventId })
-    return response(400, file.error, event)
+    throw httpError(400, file.error)
   }
 
   if (!file.data) {
     logger.error('invitation attachment has no data', { eventId })
-    return response(400, 'no data', event)
+    throw httpError(400, 'no data')
   }
 
   // The attachment is stored and served as application/pdf, so require a PDF.
   if (!file.data.subarray(0, 5).equals(Buffer.from('%PDF-'))) {
     logger.error('uploaded invitation attachment is not a PDF', { eventId })
-    return response(400, 'file is not a PDF', event)
+    throw httpError(400, 'file is not a PDF')
   }
 
   const existingClassAttachments = existing.invitationAttachments ?? {}

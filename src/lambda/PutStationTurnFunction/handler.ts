@@ -14,8 +14,7 @@ import { publishEventPatch } from '../lib/ws/actions'
  * state to every admin and public viewer.
  */
 const putStationTurnLambda = lambda('putStationTurn', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const eventId = getParam(event, 'eventId')
   const body = parseJSONWithFallback<{ stationId?: unknown }>(event.body, {})

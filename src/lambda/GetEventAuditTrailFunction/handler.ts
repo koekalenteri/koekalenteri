@@ -3,9 +3,7 @@ import { authorizeEvent } from '../lib/eventAuth'
 import { getParam, lambda, response } from '../lib/lambda'
 
 const getEventAuditTrailLambda = lambda('getEventAuditTrail', async (event) => {
-  const { eventId: id, res } = await authorizeEvent(event, () => getParam(event, 'id'))
-
-  if (res) return res
+  const { eventId: id } = await authorizeEvent(event, () => getParam(event, 'id'))
 
   const trail = await auditTrail(eventAuditKey({ id }))
 

@@ -3,7 +3,7 @@ import type { JsonUser } from '../../types'
 import { nanoid } from 'nanoid'
 import { getChangedTopLevelKeys } from '../../lib/diff'
 import { CONFIG } from '../config'
-import { response } from '../lib/lambda'
+import { httpError } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { normalizeEmail } from './email'
 import { appendEmailHistory } from './emailHistory'
@@ -238,28 +238,30 @@ export async function getUsername(event: Partial<APIGatewayProxyEvent>) {
   return user?.name ?? 'anonymous'
 }
 
-export const authorizeAdmin = async (event: APIGatewayProxyEvent) => {
+/**
+ * The caller as a superadmin, or the rejection the wrapper answers with: 401 for no user, 403 for
+ * one without admin rights. Thrown rather than returned, so a handler reads
+ * `const user = await authorizeAdmin(event)` and carries on (KOE-1342).
+ */
+export const authorizeAdmin = async (event: APIGatewayProxyEvent): Promise<JsonUser> => {
   const user = await authorize(event)
-  if (!user) {
-    return { res: response(401, 'Unauthorized', event) }
-  }
-  if (!user.admin) {
-    return { res: response(403, 'Forbidden', event), user }
-  }
+  if (!user) throw httpError(401, 'Unauthorized')
+  if (!user.admin) throw httpError(403, 'Forbidden')
 
-  return { user }
+  return user
 }
 
-export const authorizeWithMemberOf = async (event: APIGatewayProxyEvent) => {
+/** The caller with the clubs they administer; a user who administers none and is not admin is refused. */
+export const authorizeWithMemberOf = async (
+  event: APIGatewayProxyEvent
+): Promise<{ memberOf: string[]; user: JsonUser }> => {
   const user = await authorize(event)
-  if (!user) {
-    return { res: response(401, 'Unauthorized', event) }
-  }
+  if (!user) throw httpError(401, 'Unauthorized')
 
   const memberOf = userIsMemberOf(user)
-  if (!memberOf.length && !user?.admin) {
+  if (!memberOf.length && !user.admin) {
     logger.error('user is not admin or member of any organization', { userId: user.id })
-    return { res: response(403, 'Forbidden', event), user }
+    throw httpError(403, 'Forbidden')
   }
 
   logger.info('user is member of organizations', { memberOf, userId: user.id })

@@ -41,7 +41,8 @@ vi.doMock('../lib/ws/subscriptionService', () => ({
   unsubscribeFromRegistration: mockUnsubscribeFromRegistration,
 }))
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   LambdaError,
   response: mockResponse,
 }))

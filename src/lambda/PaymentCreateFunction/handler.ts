@@ -99,9 +99,7 @@ const inspectExistingTransactions = async (reference: string) => {
  * paymentCreate is called by client to start the payment process
  */
 const paymentCreateLambda = lambda('paymentCreate', async (event) => {
-  const parsed = validateBody(event, paymentCreateSchema, parseJSONWithFallback(event.body))
-  if ('badRequest' in parsed) return parsed.badRequest
-  const { eventId, registrationId } = parsed.data
+  const { eventId, registrationId } = validateBody(paymentCreateSchema, parseJSONWithFallback(event.body))
 
   const registration = await getRegistration(eventId, registrationId)
   const editToken = await authorizeRegistrationEdit(event, registration)

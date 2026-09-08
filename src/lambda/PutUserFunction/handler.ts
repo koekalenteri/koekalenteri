@@ -2,7 +2,7 @@ import type { JsonUser } from '../../types'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { setUserRole } from '../lib/user'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
@@ -15,18 +15,18 @@ const canSetRoleFor = (user: JsonUser, orgId: string) => user.admin || user.role
 const putUserLambda = lambda('putUser', async (event) => {
   const user = await authorize(event)
   if (!user) {
-    return response(401, 'Unauthorized', event)
+    throw httpError(401, 'Unauthorized')
   }
   const adminFor = userIsAdminFor(user)
   if (!adminFor.length && !user?.admin) {
-    return response(403, 'Forbidden', event)
+    throw httpError(403, 'Forbidden')
   }
   const item: JsonUser = parseJSONWithFallback(event.body)
 
   for (const orgId of Object.keys(item.roles ?? [])) {
     if (!canSetRoleFor(user, orgId)) {
       logger.warn('user does not have right to set role', { orgId, targetUserId: item.id, userId: user.id })
-      return response(403, 'Forbidden', event)
+      throw httpError(403, 'Forbidden')
     }
   }
 

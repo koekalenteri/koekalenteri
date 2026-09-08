@@ -1,13 +1,14 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockGetParam = vi.fn()
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockGetEvent = vi.fn()
 const mockSanitizeDogEvent = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   lambda: mockLambda,
   response: mockResponse,

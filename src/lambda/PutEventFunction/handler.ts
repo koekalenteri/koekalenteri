@@ -21,7 +21,7 @@ import {
   updateRegistrations,
 } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { isPatchRequest, lambda, response } from '../lib/lambda'
+import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { validateBody } from '../lib/request'
 import { moveOrganizerEventStats } from '../lib/stats'
@@ -144,39 +144,31 @@ const persistEventWithRegistrations = async (
   return event
 }
 
-interface PutEventPreconditionError {
-  status: number
-  body: unknown
-}
-
-/** Checks that can run before looking up the previously stored event. */
-const checkPutEventRequestShape = (
-  patchRequest: boolean,
-  item: Patch<JsonConfirmedEvent>
-): PutEventPreconditionError | undefined => {
+/** Checks that can run before looking up the previously stored event; a failed one is thrown. */
+const checkPutEventRequestShape = (patchRequest: boolean, item: Patch<JsonConfirmedEvent>) => {
   if (patchRequest && !item.id) {
-    return { body: { message: 'Bad request: PATCH requires id' }, status: 400 }
+    throw httpError(400, { message: 'Bad request: PATCH requires id' })
   }
 }
 
-/** Checks that depend on the previously stored event, once it has been looked up. */
+/** Checks that depend on the previously stored event, once it has been looked up; a failed one is thrown. */
 const checkPutEventAgainstExisting = (
   user: JsonUser,
   item: Patch<JsonConfirmedEvent>,
   existing: JsonConfirmedEvent | undefined,
   clientModifiedAt: string | null | undefined
-): PutEventPreconditionError | undefined => {
+) => {
   if (isUserForbidden(user, existing, item)) {
-    return { body: 'Forbidden', status: 403 }
+    throw httpError(403, 'Forbidden')
   }
 
   if (existing?.modifiedAt && clientModifiedAt && existing.modifiedAt !== clientModifiedAt) {
-    return { body: { error: 'staleData', message: 'Event has been modified since it was loaded' }, status: 409 }
+    throw httpError(409, { error: 'staleData', message: 'Event has been modified since it was loaded' })
   }
 
   if (item.deletedAt && !isEventDeletable(existing)) {
     logger.info('event is not deletable', { eventId: item.id })
-    return { body: 'Forbidden', status: 403 }
+    throw httpError(403, 'Forbidden')
   }
 }
 
@@ -195,29 +187,22 @@ const auditEventChanges = async (
 const putEventLambda = lambda('putEvent', async (event) => {
   const user = await authorize(event)
   if (!user) {
-    return response(401, 'Unauthorized', event)
+    throw httpError(401, 'Unauthorized')
   }
 
   const timestamp = new Date().toISOString()
   const patchRequest = isPatchRequest(event)
 
   const item: Patch<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
-  const validated = validateBody(event, eventBodySchema, item)
-  if ('badRequest' in validated) return validated.badRequest
+  validateBody(eventBodySchema, item)
 
   const clientModifiedAt = item.modifiedAt
 
-  const requestShapeError = checkPutEventRequestShape(patchRequest, item)
-  if (requestShapeError) {
-    return response(requestShapeError.status, requestShapeError.body, event)
-  }
+  checkPutEventRequestShape(patchRequest, item)
 
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
 
-  const existingError = checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
-  if (existingError) {
-    return response(existingError.status, existingError.body, event)
-  }
+  checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
 
   if (item.kcId != null && item.kcId !== existing?.kcId) {
     const conflict = await findEventWithKcId(item.kcId, existing?.id)
@@ -244,7 +229,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   data.organizerId = data.organizer?.id
   const invalidDateField = invalidEventDateField(data)
   if (invalidDateField) {
-    return response(400, { message: `Bad request: ${invalidDateField} must be a valid date` }, event)
+    throw httpError(400, { message: `Bad request: ${invalidDateField} must be a valid date` })
   }
 
   // The registration-group lock is server-owned. Never accept it from an

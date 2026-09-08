@@ -1,6 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import { vi } from 'vitest'
-import { constructAPIGwEvent } from '../test-utils/helpers'
+import { httpError } from '../lib/lambda'
+import { answerRejections, constructAPIGwEvent } from '../test-utils/helpers'
 
 const mockAuditTrail = vi.fn()
 const mockEventAuditKey = vi.fn()
@@ -22,10 +23,11 @@ vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: vi.fn((event: APIGatewayProxyEvent, param: string) => event.pathParameters?.[param]),
   LambdaError: mockLambdaError,
-  lambda: vi.fn((_name, handler) => handler),
+  lambda: vi.fn((_name, handler) => answerRejections(handler, mockResponse)),
   response: mockResponse,
 }))
 
@@ -44,11 +46,11 @@ describe('getEventAuditTrailLambda', () => {
 
   it('returns 401 if authorization fails', async () => {
     const res = { body: 'Unauthorized', statusCode: 401 }
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res })
+    mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(res.statusCode, res.body))
 
     await getEventAuditTrailLambda(constructAPIGwEvent('test'))
 
-    expect(mockResponse).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', expect.anything())
     expect(mockGetEvent).not.toHaveBeenCalled()
     expect(mockAuditTrail).not.toHaveBeenCalled()
   })

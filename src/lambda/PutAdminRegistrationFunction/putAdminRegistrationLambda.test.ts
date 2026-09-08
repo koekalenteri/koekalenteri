@@ -1,8 +1,7 @@
 import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
-import { LambdaError } from '../lib/lambda'
+import { httpError, LambdaError } from '../lib/lambda'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
-import { loggedLines, unhandledError } from '../test-utils/logs'
 
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetEvent = vi.fn()
@@ -139,7 +138,7 @@ vi.doMock('../lib/ws/actions', () => ({
 const { default: putAdminRegistrationLambda } = await import('./handler')
 
 describe('putAdminRegistrationLambda', () => {
-  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+  const _errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
   const event = constructPartialAPIGwEvent({
     body: JSON.stringify({
       class: 'ALO',
@@ -232,9 +231,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
-      res: { body: 'Unauthorized', statusCode: 401 },
-    })
+    mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
     const malformedPatchEvent = { ...event, body: '{}', httpMethod: 'PATCH' }
 
     const result = await putAdminRegistrationLambda(malformedPatchEvent)
@@ -255,7 +252,6 @@ describe('putAdminRegistrationLambda', () => {
     const result = await putAdminRegistrationLambda(event)
 
     expect(result.statusCode).toBe(403)
-    expect(loggedLines(errorSpy)).toContainEqual(unhandledError('403 Forbidden'))
     expect(mockGetEvent).toHaveBeenCalledWith('event123')
     expect(mockGetRegistration).not.toHaveBeenCalled()
     expect(mockSaveRegistration).not.toHaveBeenCalled()
@@ -429,7 +425,8 @@ describe('putAdminRegistrationLambda', () => {
       reason: 'smtp; 550 user unknown',
     })
     expect(mockSaveRegistration).not.toHaveBeenCalled()
-    expect(errorSpy).toHaveBeenCalled()
+    // A rejected request is the request's fault and logs at info, not as an error of ours (KOE-1342).
+    expect(errorSpy).not.toHaveBeenCalled()
   })
 
   it('rejects an updated registration with suppressed email address', async () => {
@@ -484,7 +481,8 @@ describe('putAdminRegistrationLambda', () => {
       reason: 'smtp; 550 user unknown',
     })
     expect(mockSaveRegistration).not.toHaveBeenCalled()
-    expect(errorSpy).toHaveBeenCalled()
+    // A rejected request is the request's fault and logs at info, not as an error of ours (KOE-1342).
+    expect(errorSpy).not.toHaveBeenCalled()
   })
 
   it('updates an existing registration', async () => {

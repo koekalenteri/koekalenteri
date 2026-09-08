@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockParseParams = vi.fn()
 const mockVerifyParams = vi.fn()
@@ -38,7 +38,8 @@ const phaseUpdate = (field: string) => [
   expect.objectContaining({ expression: '#postPaymentLease.#token = :token' }),
 ]
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   LambdaError: class LambdaError extends Error {
     status: number
     constructor(status: number, message: string) {

@@ -11,7 +11,8 @@ import { vi } from 'vitest'
 
 const mockResponse = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   lambda: vi.fn((_name, fn) => fn),
   response: mockResponse,
 }))

@@ -6,7 +6,7 @@ import { getChangedTopLevelKeys } from '../../lib/diff'
 import { capitalize } from '../../lib/string'
 import { authorize } from './auth'
 import { collectionChangesSince, parseDateParam } from './incremental'
-import { lambda, response } from './lambda'
+import { httpError, lambda, response } from './lambda'
 import { logger } from './log'
 import { updateUsersFromOfficialsOrJudges } from './user'
 
@@ -155,10 +155,10 @@ export const createOfficialDirectoryLambda = <
 ) =>
   lambda(options.service, async (event) => {
     const user = await authorize(event)
-    if (!user) return response(401, 'Unauthorized', event)
+    if (!user) throw httpError(401, 'Unauthorized')
 
     if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
-      if (!user.admin) return response(401, 'Unauthorized', event)
+      if (!user.admin) throw httpError(401, 'Unauthorized')
 
       const allEventTypes = await options.dynamoDB.readAll<EventType>({ table: options.eventTypeTable })
       const eventTypes = allEventTypes?.filter((eventType) => eventType.official && eventType.active) ?? []

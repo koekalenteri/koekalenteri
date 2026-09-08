@@ -1,8 +1,8 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
 const mockGetParam = vi.fn()
@@ -14,7 +14,8 @@ const mockUploadFile = vi.fn()
 const mockUpdate = vi.fn()
 const mockPublishAdminEventPatch = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   lambda: mockLambda,
   response: mockResponse,

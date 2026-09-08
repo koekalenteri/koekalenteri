@@ -9,7 +9,8 @@ const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
 const mockGetRegistrationsByEventId = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(

@@ -1,8 +1,10 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
+import { httpError } from '../lib/lambda'
+import { answerRejections } from '../test-utils/helpers'
 
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
@@ -14,7 +16,8 @@ const mockUpdateRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishPublicStartList = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(
@@ -258,7 +261,7 @@ describe('putEventResultsLambda', () => {
   })
 
   it('stops before writing when the caller has no access to the event', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValue({ res: { statusCode: 401 } })
+    mockAuthorizeWithMemberOf.mockRejectedValue(httpError(401, 'Unauthorized'))
 
     await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(20, 20, 20, 20) }, id: 'reg-1' }]))
 

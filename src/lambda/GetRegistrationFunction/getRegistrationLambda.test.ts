@@ -72,7 +72,8 @@ describe('getRegistration', () => {
     const res = await getRegistrationLambda(constructAPIGwEvent('test', { pathParameters: { eventId, id } }))
 
     expect(res.statusCode).toEqual(404)
-    expect(errorSpy).toHaveBeenCalledTimes(1)
+    // A rejected request is the request's fault and logs at info, not as an error of ours (KOE-1342).
+    expect(errorSpy).not.toHaveBeenCalled()
   })
 
   it('should add invitationAttachment', async () => {

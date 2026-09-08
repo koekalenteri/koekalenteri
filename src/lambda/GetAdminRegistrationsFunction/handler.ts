@@ -15,9 +15,7 @@ const withEditTokens = (items: Awaited<ReturnType<typeof getRegistrationsByEvent
   )
 
 const getAdminRegistrationsLambda = lambda('getAdminRegistrations', async (event) => {
-  const { eventId, res } = await authorizeEvent(event, () => getParam(event, 'eventId'))
-
-  if (res) return res
+  const { eventId } = await authorizeEvent(event, () => getParam(event, 'eventId'))
 
   const since = parseDateParam(event.queryStringParameters?.since)
   const allItems = await getRegistrationsByEventId(eventId)

@@ -9,13 +9,10 @@ import { buildPublicStartList } from '../lib/startList'
 const getStartListLambda = lambda('getStartList', async (event) => {
   const preview = event.resource === '/admin/startlist/{eventId}'
   const auth = preview ? await authorizeWithMemberOf(event) : undefined
-  if (auth?.res) {
-    return auth.res
-  }
 
   const eventId = getParam(event, 'eventId')
   const confirmedEvent = await getEvent(eventId)
-  if (auth?.user && !auth.user.admin && !auth.memberOf?.includes(confirmedEvent.organizer.id)) {
+  if (auth && !auth.user.admin && !auth.memberOf.includes(confirmedEvent.organizer.id)) {
     throw new LambdaError(403, 'Forbidden')
   }
 

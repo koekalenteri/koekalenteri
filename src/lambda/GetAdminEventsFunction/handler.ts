@@ -92,9 +92,7 @@ const queryEvents = async (user: JsonUser, memberOf: string[], since?: string): 
 }
 
 const getAdminEventsLambda = lambda('getAdminEvents', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const items = await queryEvents(user, memberOf, event.queryStringParameters?.since)
   // The organizer queries already select by club; the season queries need the club filter here.

@@ -550,15 +550,13 @@ describe('auth', () => {
   })
 
   describe('authorizeWithMemberOf', () => {
-    it('should return Unauthorized when user cannot be resolved', async () => {
+    it('refuses with 401 when user cannot be resolved', async () => {
       const event = asEvent({ headers: {}, requestContext: { authorizer: { claims: null } } })
 
-      const result = await authorizeWithMemberOf(event)
-
-      expect(result).toEqual({ res: expect.objectContaining({ statusCode: 401 }) })
+      await expect(authorizeWithMemberOf(event)).rejects.toMatchObject({ body: 'Unauthorized', status: 401 })
     })
 
-    it('should return Forbidden when not member and not admin', async () => {
+    it('refuses with 403 when not member and not admin', async () => {
       const event = asEvent({
         headers: {},
         requestContext: {
@@ -581,10 +579,7 @@ describe('auth', () => {
       mockRead.mockResolvedValueOnce(existingUser)
       ;(userIsMemberOf as import('vitest').MockedFunction<typeof userIsMemberOf>).mockReturnValue([])
 
-      const result = await authorizeWithMemberOf(event)
-
-      expect(result.res?.statusCode).toBe(403)
-      expect(result.user).toEqual(existingUser)
+      await expect(authorizeWithMemberOf(event)).rejects.toMatchObject({ body: 'Forbidden', status: 403 })
       expect(loggedLines(errorSpy)).toContainEqual(
         expect.objectContaining({ message: 'user is not admin or member of any organization', userId: 'test-id' })
       )
@@ -637,20 +632,17 @@ describe('auth', () => {
       name: 'test-user',
     }
 
-    it('returns Unauthorized when the user cannot be resolved', async () => {
-      const result = await authorizeAdmin(asEvent({ headers: {}, requestContext: { authorizer: { claims: null } } }))
-
-      expect(result).toEqual({ res: expect.objectContaining({ statusCode: 401 }) })
+    it('refuses with 401 when the user cannot be resolved', async () => {
+      await expect(
+        authorizeAdmin(asEvent({ headers: {}, requestContext: { authorizer: { claims: null } } }))
+      ).rejects.toMatchObject({ body: 'Unauthorized', status: 401 })
     })
 
-    it('returns Forbidden for an authenticated non-admin', async () => {
+    it('refuses with 403 for an authenticated non-admin', async () => {
       mockRead.mockResolvedValueOnce(link)
       mockRead.mockResolvedValueOnce(user)
 
-      const result = await authorizeAdmin(event)
-
-      expect(result.res).toEqual(expect.objectContaining({ statusCode: 403 }))
-      expect(result.user).toEqual(user)
+      await expect(authorizeAdmin(event)).rejects.toMatchObject({ body: 'Forbidden', status: 403 })
     })
 
     it('returns the authenticated admin user', async () => {
@@ -658,7 +650,7 @@ describe('auth', () => {
       mockRead.mockResolvedValueOnce(link)
       mockRead.mockResolvedValueOnce(admin)
 
-      await expect(authorizeAdmin(event)).resolves.toEqual({ user: admin })
+      await expect(authorizeAdmin(event)).resolves.toEqual(admin)
     })
   })
 })

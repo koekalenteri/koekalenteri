@@ -1,9 +1,9 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
-import { asJsonConfirmedEvent, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { answerRejections, asJsonConfirmedEvent, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockAudit = vi.fn()
@@ -20,7 +20,8 @@ const mockPublishRegistrationPatches = vi.fn()
 const mockPublishEventPatch = vi.fn()
 const mockPublishPublicStartList = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(

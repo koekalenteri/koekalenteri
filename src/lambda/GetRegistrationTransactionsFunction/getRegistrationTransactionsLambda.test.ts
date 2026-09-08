@@ -1,10 +1,11 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { httpError } from '../lib/lambda'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockGetTransactionsByReference = vi.fn()
 const mockRefreshTransactionStatusesFromPaytrail = vi.fn()
@@ -13,7 +14,8 @@ vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(
@@ -58,7 +60,7 @@ describe('getRegistrationTransactionsLambda', () => {
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
+    mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
 
     await getRegistrationTransactionsLambda(event)
 

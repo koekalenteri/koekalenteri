@@ -1,4 +1,4 @@
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { gzipSync } from 'node:zlib'
 import { ServiceException } from '@smithy/smithy-client'
 import { metricScope } from 'aws-embedded-metrics'
@@ -13,26 +13,62 @@ export const isDevStage = () => CONFIG.stageName === 'dev'
 export const isTestStage = () => CONFIG.stageName === 'test'
 export const isProdStage = () => CONFIG.stageName === 'prod'
 
+/**
+ * A request's outcome that is not a success, thrown from wherever it is decided and turned into
+ * the response by the `lambda` wrapper. `error` is the text the client gets as `{ error }` (or,
+ * when it parses as JSON, as that object); `body`, when given, is the response body as is, so a
+ * handler that used to `return response(4xx, body)` answers exactly the same after `throw`.
+ */
 export class LambdaError extends Error {
   status: number
   error: string | undefined
+  body?: unknown
 
-  constructor(status: number, error: string | undefined) {
+  constructor(status: number, error: string | undefined, body?: unknown) {
     const message = `${status} ${error}`
     super(message)
     this.status = status
     this.error = error
+    this.body = body
   }
 }
 
-const lambdaErrorBody = (error: string | undefined) => {
-  if (!error) return { error }
+const bodyText = (body: unknown): string => {
+  if (typeof body === 'string') return body
+  if (body && typeof body === 'object') {
+    const named = body as { error?: unknown; message?: unknown }
+    if (typeof named.message === 'string') return named.message
+    if (typeof named.error === 'string') return named.error
+  }
+
+  return JSON.stringify(body)
+}
+
+/**
+ * A rejection whose body reaches the client as written: `httpError(401, 'Unauthorized')` answers
+ * `"Unauthorized"`, and an object answers as that object (KOE-1342). Throw it where the request
+ * turns out to be bad and let the wrapper answer; there is no need to carry the event around.
+ */
+export const httpError = (status: number, body: unknown) => new LambdaError(status, bodyText(body), body)
+
+const lambdaErrorBody = (err: LambdaError) => {
+  if (err.body !== undefined) return err.body
+  if (!err.error) return { error: err.error }
 
   try {
-    return JSON.parse(error)
+    return JSON.parse(err.error)
   } catch {
-    return { error }
+    return { error: err.error }
   }
+}
+
+/**
+ * A 4xx is the request's fault and the handler's answer, not a failure of ours: it gets a line at
+ * info level, and only a 5xx thrown by us goes to the error log.
+ */
+const logRejection = (err: LambdaError) => {
+  if (err.status < 500) logger.info('request rejected', { error: err.error, status: err.status })
+  else logger.error('unhandled error', { error: err })
 }
 
 export const getParam = (
@@ -134,13 +170,14 @@ export const lambda = (service: string, handler: LambdaHandler) =>
             }
             return result
           } catch (err) {
-            logger.error('unhandled error', { error: err })
-
             metricsError(metrics, event.requestContext, service)
 
             if (err instanceof LambdaError) {
-              return response(err.status, lambdaErrorBody(err.error), event)
+              logRejection(err)
+              return response(err.status, lambdaErrorBody(err), event)
             }
+
+            logger.error('unhandled error', { error: err })
 
             if (err instanceof ServiceException) {
               return response(err.$metadata?.httpStatusCode ?? 501, err.message, event)
@@ -149,4 +186,45 @@ export const lambda = (service: string, handler: LambdaHandler) =>
             return response(501, err, event)
           }
         })
+  )
+
+type WsHandler = (event: APIGatewayEvent) => Promise<APIGatewayProxyResult>
+
+/**
+ * The `lambda` wrapper's counterpart for the WebSocket route handlers: the same log context — with
+ * the connection id, which collects one socket's whole life — the same metrics, and the same
+ * `LambdaError` answered as a response. Before this the socket handlers wrapped themselves and
+ * produced no metrics at all (KOE-1342).
+ */
+export const wsLambda = (service: string, handler: WsHandler) =>
+  metricScope(
+    (metrics) =>
+      async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> =>
+        withLogContext(
+          { connectionId: event.requestContext.connectionId, requestId: event.requestContext.requestId, service },
+          async () => {
+            try {
+              const result = await handler(event)
+
+              if (result.statusCode === 200) {
+                metricsSuccess(metrics, event.requestContext, service)
+              } else {
+                metricsError(metrics, event.requestContext, service)
+              }
+              return result
+            } catch (err) {
+              metricsError(metrics, event.requestContext, service)
+
+              // A socket route's answer is read by API Gateway, not a browser: plain body, no CORS.
+              if (err instanceof LambdaError) {
+                logRejection(err)
+                const body = err.body ?? err.error ?? 'Error'
+                return { body: typeof body === 'string' ? body : JSON.stringify(body), statusCode: err.status }
+              }
+
+              logger.error('unhandled error', { error: err })
+              return { body: 'Internal server error', statusCode: 500 }
+            }
+          }
+        )
   )

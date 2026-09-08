@@ -8,8 +8,7 @@ import { createDbRecord } from '../utils/proxyEvent'
 export const dynamoDB = new CustomDynamoClient(CONFIG.judgeTable)
 
 const putJudgeLambda = lambda('putJudge', async (event) => {
-  const { res, user } = await authorizeAdmin(event)
-  if (res) return res
+  const user = await authorizeAdmin(event)
   const timestamp = new Date().toISOString()
 
   const item = createDbRecord(event, timestamp, user.name)

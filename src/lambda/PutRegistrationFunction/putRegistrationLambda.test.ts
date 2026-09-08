@@ -258,7 +258,8 @@ describe('putRegistrationLabmda', () => {
     )
 
     expect(res.statusCode).toBe(404)
-    expect(errorSpy).toHaveBeenCalledTimes(1)
+    // A rejected request is the request's fault and logs at info, not as an error of ours (KOE-1342).
+    expect(errorSpy).not.toHaveBeenCalled()
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
@@ -445,7 +446,8 @@ describe('putRegistrationLabmda', () => {
       error: 'emailSuppressed',
       reason: 'smtp; 550 user unknown',
     })
-    expect(errorSpy).toHaveBeenCalled()
+    // A rejected request is the request's fault and logs at info, not as an error of ours (KOE-1342).
+    expect(errorSpy).not.toHaveBeenCalled()
   })
 
   it('should reject updated registration with suppressed email address', async () => {
@@ -486,7 +488,8 @@ describe('putRegistrationLabmda', () => {
       error: 'emailSuppressed',
       reason: 'smtp; 550 user unknown',
     })
-    expect(errorSpy).toHaveBeenCalled()
+    // A rejected request is the request's fault and logs at info, not as an error of ours (KOE-1342).
+    expect(errorSpy).not.toHaveBeenCalled()
   })
 
   it('should clear email delivery status from response after sending update email', async () => {

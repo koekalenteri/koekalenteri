@@ -1,6 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonConfirmedEvent, JsonStationTurn } from '../../types'
 import { vi } from 'vitest'
+import { httpError } from '../lib/lambda'
 import { asJsonConfirmedEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
@@ -13,7 +14,8 @@ const mockParseStationTurnOp = vi.fn()
 const mockWriteStationTurn = vi.fn()
 const mockPublishEventPatch = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(
@@ -108,10 +110,9 @@ describe('putStationTurnLambda', () => {
   })
 
   it('returns the auth refusal untouched', async () => {
-    const res = { statusCode: 401 }
-    mockAuthorizeWithMemberOf.mockResolvedValue({ res })
+    mockAuthorizeWithMemberOf.mockRejectedValue(httpError(401, 'Unauthorized'))
 
-    expect(await putStationTurnLambda(apiEvent({ type: 'end' }))).toBe(res)
+    await expect(putStationTurnLambda(apiEvent({ type: 'end' }))).rejects.toMatchObject({ status: 401 })
     expect(mockWriteStationTurn).not.toHaveBeenCalled()
   })
 })

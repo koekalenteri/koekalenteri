@@ -10,9 +10,7 @@ import { getStartNumberLinkToken, startNumberLinkClasses } from '../lib/startNum
  * entry and asking again.
  */
 const getStartNumberLinkLambda = lambda('getStartNumberLink', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const eventId = getParam(event, 'eventId')
   const eventClass = getParam(event, 'eventClass')

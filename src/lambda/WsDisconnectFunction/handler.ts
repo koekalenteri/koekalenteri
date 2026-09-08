@@ -1,27 +1,19 @@
-import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { withLogContext } from '../lib/log'
+import { httpError, wsLambda } from '../lib/lambda'
 import { publishEventViewers } from '../lib/ws/actions'
 import { disconnectWebSocket } from '../lib/ws/connectionLifecycle'
 
-const wsDisconnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+const wsDisconnectHandler = wsLambda('wsDisconnect', async (event) => {
   const connectionId = event.requestContext.connectionId
 
-  if (!connectionId) {
-    return { body: 'Bad request', statusCode: 400 }
-  }
+  if (!connectionId) throw httpError(400, 'Bad request')
 
-  return withLogContext(
-    { connectionId, requestId: event.requestContext.requestId, service: 'wsDisconnect' },
-    async () => {
-      await disconnectWebSocket(connectionId, {
-        notifyEventViewers: async (eventId, organizerId) => {
-          await publishEventViewers(eventId, organizerId)
-        },
-      })
+  await disconnectWebSocket(connectionId, {
+    notifyEventViewers: async (eventId, organizerId) => {
+      await publishEventViewers(eventId, organizerId)
+    },
+  })
 
-      return { body: 'Disconnected', statusCode: 200 }
-    }
-  )
-}
+  return { body: 'Disconnected', statusCode: 200 }
+})
 
 export default wsDisconnectHandler

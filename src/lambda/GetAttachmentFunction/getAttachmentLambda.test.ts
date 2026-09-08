@@ -11,7 +11,8 @@ vi.doMock('../lib/file', () => ({
   downloadFile: mockDownloadFile,
 }))
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   allowOrigin: mockAllowOrigin,
   getParam: mockGetParam,
   LambdaError: mockLambdaError,

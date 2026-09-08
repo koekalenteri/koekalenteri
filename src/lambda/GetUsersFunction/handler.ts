@@ -1,18 +1,18 @@
 import { authorize } from '../lib/auth'
 import { changedItemsSince, collectionCursor, parseDateParam } from '../lib/incremental'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { dedupeUsersByEmail, filterRelevantUsers, getAllUsers, userIsMemberOf } from '../lib/user'
 
 const getUsersLambda = lambda('getUsers', async (event) => {
   const user = await authorize(event)
   if (!user) {
-    return response(401, 'Unauthorized', event)
+    throw httpError(401, 'Unauthorized')
   }
   const memberOf = userIsMemberOf(user)
   if (!memberOf.length && !user?.admin) {
     logger.error('user is not admin or member of any organization', { userId: user.id })
-    return response(403, 'Forbidden', event)
+    throw httpError(403, 'Forbidden')
   }
   const users = await getAllUsers()
 

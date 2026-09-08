@@ -2,7 +2,7 @@ import type { JsonConfirmedEvent, JsonRegistration, Patch } from '../../types'
 import { audit, eventAuditKey } from '../lib/audit'
 import { getEvent, lockRegistrationGroups } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { getParam, lambda, response } from '../lib/lambda'
+import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import { assertEntriesInClassSpace, authorizeStartNumberLink } from '../lib/startNumberLink'
 import { assignStartNumbers, parseStartNumberEntries } from '../lib/startNumbers'
@@ -25,7 +25,7 @@ const putClassStartNumbersLambda = lambda('putClassStartNumbers', async (event) 
 
   const body = parseJSONWithFallback<{ numbers?: unknown }>(event.body, {})
   const numbers = parseStartNumberEntries(body.numbers)
-  if (numbers.length === 0) return response(422, 'nothing to do', event)
+  if (numbers.length === 0) throw httpError(422, 'nothing to do')
 
   const user = `Luokkasihteeri (${eventClass})`
   const releaseGroupsLock = await lockRegistrationGroups(eventId, 8)

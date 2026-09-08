@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { httpError } from '../lib/lambda'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
@@ -16,7 +17,7 @@ const mockSaveEvent = vi.fn(async (event: { id?: string; organizer?: { id?: stri
 const mockNanoid = vi.fn()
 const mockWrite = vi.fn()
 const mockResponse = vi.fn()
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 
 vi.doMock('../lib/eventAuth', () => ({
   authorizeEvent: mockAuthorizeEvent,
@@ -32,7 +33,8 @@ vi.doMock('../lib/ws/actions', () => ({
 vi.doMock('nanoid', () => ({
   nanoid: mockNanoid,
 }))
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   LambdaError: class LambdaError extends Error {
     constructor(
       public statusCode: number,
@@ -71,15 +73,19 @@ describe('copyEventHandler', () => {
 
   it('returns 401 if not authorized', async () => {
     setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
-    mockAuthorizeEvent.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
-    await expect(copyEventHandler(event)).resolves.toEqual({ body: 'Unauthorized', statusCode: 401 })
+    mockAuthorizeEvent.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
+    await copyEventHandler(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
   })
 
   it('does not copy an event when organizer authorization fails', async () => {
     setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
-    mockAuthorizeEvent.mockResolvedValueOnce({ res: { body: 'Forbidden', statusCode: 403 } })
+    mockAuthorizeEvent.mockRejectedValueOnce(httpError(403, 'Forbidden'))
 
-    await expect(copyEventHandler(event)).resolves.toEqual({ body: 'Forbidden', statusCode: 403 })
+    await copyEventHandler(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
 
     expect(mockSaveEvent).not.toHaveBeenCalled()
     expect(mockWrite).not.toHaveBeenCalled()

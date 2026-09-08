@@ -6,8 +6,8 @@ import {
   jsonRegistrationsToEventWithALOInvited,
   jsonRegistrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
+import { httpError } from '../lib/lambda'
 import { constructAPIGwEvent as constructRawAPIGwEvent } from '../test-utils/helpers'
-import { loggedLines, unhandledError } from '../test-utils/logs'
 
 // Keep existing move fixtures concise while exercising the semantic API
 // contract used by the only client.
@@ -113,7 +113,7 @@ describe('putRegistrationGroupsLambda', () => {
   })
 
   it('should return 401 if authorization fails', async () => {
-    authorizeWithMemberOfMock.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
+    authorizeWithMemberOfMock.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
     const res = await putRegistrationGroupsLambda(constructAPIGwEvent('test'))
 
     expect(res.statusCode).toEqual(401)
@@ -185,7 +185,6 @@ describe('putRegistrationGroupsLambda', () => {
     )
 
     expect(res.statusCode).toBe(403)
-    expect(loggedLines(mockConsoleError)).toContainEqual(unhandledError('403 Forbidden'))
     expect(mockDynamoDB.query).not.toHaveBeenCalled()
     expect(mockDynamoDB.update).not.toHaveBeenCalled()
   })

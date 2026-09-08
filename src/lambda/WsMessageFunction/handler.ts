@@ -1,6 +1,6 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { LambdaError, response } from '../lib/lambda'
-import { logger, withLogContext } from '../lib/log'
+import { httpError, LambdaError, response, wsLambda } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { publishEventViewers } from '../lib/ws/actions'
 import { authenticateWebSocketToken } from '../lib/ws/authentication'
 import { authenticateWebSocket, getWebSocketConnection } from '../lib/ws/connectionLifecycle'
@@ -128,7 +128,7 @@ const handleUnsubscribeMessage = async (
   }
 
   if (!connection.eventId) {
-    return response(400, 'Bad request', event)
+    throw httpError(400, 'Bad request')
   }
 
   await unsubscribeFromEvent(connection, publishEventViewers)
@@ -143,7 +143,7 @@ const handleMessage = async (
   const connection = await getWebSocketConnection(connectionId)
 
   if (!connection) {
-    return response(400, 'Bad request', event)
+    throw httpError(400, 'Bad request')
   }
 
   try {
@@ -169,15 +169,15 @@ const handleMessage = async (
     return response(500, { error: 'Internal server error', ok: false, status: 500 }, event)
   }
 
-  return response(400, 'Bad request', event)
+  throw httpError(400, 'Bad request')
 }
 
-const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+const wsMessageHandler = wsLambda('wsMessage', async (event) => {
   const connectionId = event.requestContext.connectionId
   const message = parseBody(event.body)
 
   if (!connectionId || !message) {
-    return response(400, 'Bad request', event)
+    throw httpError(400, 'Bad request')
   }
 
   // A keepalive only has to be traffic: API Gateway closes a WebSocket after 10 minutes of
@@ -187,11 +187,7 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
     return response(200, { pong: true }, event)
   }
 
-  // The socket lambdas get no `lambda()` wrapper, so the log context is set here. Both ids are
-  // worth having: the request id collects one invocation, the connection id one socket's whole life.
-  return withLogContext({ connectionId, requestId: event.requestContext.requestId, service: 'wsMessage' }, () =>
-    handleMessage(event, connectionId, message)
-  )
-}
+  return handleMessage(event, connectionId, message)
+})
 
 export default wsMessageHandler

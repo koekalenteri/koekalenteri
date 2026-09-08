@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
 import type { DeepPartial, JsonConfirmedEvent, JsonRegistration } from '../../types'
+import { LambdaError } from '../lib/lambda'
 
 interface Options {
   method?: 'OPTIONS' | 'HEAD' | 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE'
@@ -83,3 +84,22 @@ export const constructPartialAPIGwEvent = (
  */
 export const asJsonConfirmedEvent = (event: DeepPartial<JsonConfirmedEvent>) => event as JsonConfirmedEvent
 export const asJsonRegistration = (reg: DeepPartial<JsonRegistration>) => reg as JsonRegistration
+
+/**
+ * What the real `lambda` wrapper does with a thrown `LambdaError`, for the tests that replace the
+ * wrapper with a passthrough: the rejection becomes the response the test asserts on, so a handler
+ * that answers a bad request by throwing (KOE-1342) is tested through the same `response` mock as
+ * one that answers by returning.
+ */
+export const answerRejections =
+  <E, R>(handler: (event: E) => Promise<R>, respond: (status: number, body: unknown, event: E) => R) =>
+  async (event: E): Promise<R> => {
+    try {
+      return await handler(event)
+    } catch (err) {
+      if (err instanceof LambdaError) {
+        return respond(err.status, err.body !== undefined ? err.body : { error: err.error }, event)
+      }
+      throw err
+    }
+  }

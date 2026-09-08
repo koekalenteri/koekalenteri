@@ -4,7 +4,7 @@ import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { collectionChangesSince, parseDateParam } from '../lib/incremental'
 import KLAPI from '../lib/KLAPI'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { getKLAPIConfig } from '../lib/secrets'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
@@ -84,12 +84,12 @@ const refreshEventTypes = async (user: JsonUser) => {
 const getEventTypesLambda = lambda('getEventTypes', async (event) => {
   const user = await authorize(event)
   if (!user) {
-    return response(401, 'Unauthorized', event)
+    throw httpError(401, 'Unauthorized')
   }
 
   if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
     if (!user?.admin) {
-      return response(401, 'Unauthorized', event)
+      throw httpError(401, 'Unauthorized')
     }
     await refreshEventTypes(user)
     await publishAdminDataInvalidation(['eventTypes'])

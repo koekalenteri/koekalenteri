@@ -83,8 +83,7 @@ const migrations: EventMigration[] = [
 ]
 
 const runMigrationLambda = lambda('runMigration', async (event) => {
-  const { res } = await authorizeAdmin(event)
-  if (res) return res
+  await authorizeAdmin(event)
 
   const events = (await dynamoDB.readAll<JsonDogEvent>()) ?? []
 

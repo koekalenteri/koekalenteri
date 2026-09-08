@@ -18,7 +18,8 @@ const mockRemoveRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishPublicStartList = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: class LambdaError extends Error {
     constructor(
@@ -138,9 +139,11 @@ describe('putClassStartNumbersLambda', () => {
   })
 
   it('has nothing to do without numbers', async () => {
-    await putClassStartNumbersLambda(await apiEvent({ numbers: [] }))
+    await expect(putClassStartNumbersLambda(await apiEvent({ numbers: [] }))).rejects.toMatchObject({
+      body: 'nothing to do',
+      status: 422,
+    })
 
-    expect(mockResponse).toHaveBeenCalledWith(422, 'nothing to do', expect.anything())
     expect(mockLockRegistrationGroups).not.toHaveBeenCalled()
   })
 })

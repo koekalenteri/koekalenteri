@@ -10,8 +10,7 @@ const { eventTypeTable, judgeTable, officialTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTypeTable)
 
 const putEventTypeLambda = lambda('putEventType', async (event) => {
-  const { res, user } = await authorizeAdmin(event)
-  if (res) return res
+  const user = await authorizeAdmin(event)
 
   const timestamp = new Date().toISOString()
 

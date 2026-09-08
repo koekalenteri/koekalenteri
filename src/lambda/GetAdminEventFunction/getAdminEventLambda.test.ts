@@ -1,10 +1,11 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { httpError } from '../lib/lambda'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockLambdaError = vi.fn()
 
@@ -16,7 +17,8 @@ vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   getParam: mockGetParam,
   LambdaError: mockLambdaError,
   lambda: mockLambda,
@@ -41,16 +43,16 @@ describe('getAdminEventLambda', () => {
     })
   })
 
-  it('returns response from authorizeWithMemberOf if it exists', async () => {
+  it('answers the auth refusal without reading anything', async () => {
     const res = { body: 'Unauthorized', statusCode: 401 }
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res })
+    mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(res.statusCode, res.body))
 
     await getAdminEventLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).not.toHaveBeenCalled()
     expect(mockGetEvent).not.toHaveBeenCalled()
-    expect(mockResponse).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
   })
 
   it('returns event for admin user', async () => {

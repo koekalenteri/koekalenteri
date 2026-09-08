@@ -1,6 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import { getCapacityStats, getJudgeWorkload, getOrganizerStats } from '../lib/stats'
 
 /**
@@ -16,11 +16,7 @@ import { getCapacityStats, getJudgeWorkload, getOrganizerStats } from '../lib/st
 const getAdminStatsLambda = lambda(
   'getAdminStats',
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const auth = await authorizeWithMemberOf(event)
-    if ('res' in auth && auth.res) {
-      return auth.res
-    }
-    const { user, memberOf } = auth as { user: { admin?: boolean }; memberOf: string[] }
+    const { user, memberOf } = await authorizeWithMemberOf(event)
 
     const { eventType, organizerId, from, to, judges } = event.queryStringParameters ?? {}
 
@@ -31,7 +27,7 @@ const getAdminStatsLambda = lambda(
     let organizerIds: string[] | undefined
     if (organizerId) {
       if (!user.admin && !memberOf.includes(organizerId)) {
-        return response(403, 'Forbidden', event)
+        throw httpError(403, 'Forbidden')
       }
       organizerIds = [organizerId]
     } else {
@@ -42,7 +38,7 @@ const getAdminStatsLambda = lambda(
       // Strict digits only: Number() would accept '0x7E9' or '2025.5', which then query a key
       // like JUDGE#2025.5 that cannot exist, and a bare truthiness check would silently route
       // '?judges=0' to the organizer-stats response shape instead of failing it.
-      if (!/^\d{4}$/.test(judges)) return response(400, 'Invalid year', event)
+      if (!/^\d{4}$/.test(judges)) throw httpError(400, 'Invalid year')
       const judgeWorkload = await getJudgeWorkload(Number(judges), organizerIds)
       return response(200, { judgeWorkload }, event)
     }

@@ -135,8 +135,7 @@ const findEvents = async (klapi: KLAPI, item: KcIdLookupCriteria, organizerKcId:
   })
 
 const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const criteria = parseJSONWithFallback<Partial<KcIdLookupCriteria>>(event.body)
   if (!isLookupCriteria(criteria)) {

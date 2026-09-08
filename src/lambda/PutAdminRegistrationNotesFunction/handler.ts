@@ -8,9 +8,7 @@ import { updateRegistrationField } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const { eventId, id, internalNotes }: Pick<JsonRegistration, 'eventId' | 'id' | 'internalNotes'> =
     parseJSONWithFallback(event.body)

@@ -52,11 +52,11 @@ describe('wsDisconnectHandler', () => {
     expect(mockPublishEventViewers).toHaveBeenCalledWith('e1', 'org1')
   })
 
-  it('throws an error if wsDisconnect fails', async () => {
+  it('answers 500 if wsDisconnect fails', async () => {
     const error = new Error('Disconnection error')
     mockWsDisconnect.mockRejectedValueOnce(error)
 
-    await expect(wsDisconnectHandler(event)).rejects.toThrow('Disconnection error')
+    await expect(wsDisconnectHandler(event)).resolves.toEqual({ body: 'Internal server error', statusCode: 500 })
 
     expect(mockWsDisconnect).toHaveBeenCalledWith(
       'test-connection-id',

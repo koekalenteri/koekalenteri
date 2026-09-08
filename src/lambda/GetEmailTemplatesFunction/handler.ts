@@ -7,8 +7,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 const dynamoDB = new CustomDynamoClient(CONFIG.emailTemplateTable)
 
 const getEmailTemplatesLambda = lambda('getEmailTemplates', async (event) => {
-  const { res } = await authorizeWithMemberOf(event)
-  if (res) return res
+  await authorizeWithMemberOf(event)
 
   const items = await dynamoDB.readAll()
   const since = parseDateParam(event.queryStringParameters?.since)

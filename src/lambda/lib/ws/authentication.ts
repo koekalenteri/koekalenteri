@@ -1,7 +1,6 @@
 import type { APIGatewayEvent } from 'aws-lambda'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { authorizeWithMemberOf } from '../../lib/auth'
-import { LambdaError } from '../../lib/lambda'
 
 type JwtPayload = {
   [k: string]: unknown
@@ -42,9 +41,6 @@ const withClaims = (event: APIGatewayEvent, claims: JwtPayload): APIGatewayEvent
 export const authenticateWebSocketToken = async (event: APIGatewayEvent, token: string) => {
   const claims: JwtPayload = await getVerifier().verify(token)
   const auth = await authorizeWithMemberOf(withClaims(event, claims))
-
-  if (auth.res || !auth.user)
-    throw new LambdaError(auth.res?.statusCode ?? 401, String(auth.res?.body ?? 'Unauthorized'))
 
   return {
     admin: auth.user.admin,

@@ -2,21 +2,19 @@ import type { JsonConfirmedEvent } from '../../types'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseSubmissions, processResultSubmissions } from '../lib/eventResults'
-import { getParam, lambda, response } from '../lib/lambda'
+import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import { publishPublicStartList } from '../lib/ws/publicStartList'
 
 const putEventResultsLambda = lambda('putEventResults', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const eventId = getParam(event, 'eventId')
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
   const submissions = parseSubmissions(event.body, confirmedEvent)
 
-  if (submissions.length === 0) return response(422, 'no results', event)
+  if (submissions.length === 0) throw httpError(422, 'no results')
 
   const registrations = await getRegistrationsByEventId(eventId)
 
@@ -38,7 +36,7 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
   // The dogs that did not conflict are already written, so a resubmission only has to carry the ones
   // still in dispute — losing a screenful of work to one contested dog would be its own bug.
   if (conflicts.length) {
-    return response(409, { conflicts, error: 'resultConflict', saved, unchanged }, event)
+    throw httpError(409, { conflicts, error: 'resultConflict', saved, unchanged })
   }
 
   // `saved` empty with nothing in dispute means every result was already stored — the answer a retry

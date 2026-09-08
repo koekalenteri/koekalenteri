@@ -1,19 +1,21 @@
 import { vi } from 'vitest'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { httpError } from '../lib/lambda'
+import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockPublishAdminDataInvalidation = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
   publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
 }))
 
-const mockLambda = vi.fn((_name, fn) => fn)
+const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
 const mockCreateDbRecord = vi.fn()
 const mockWrite = vi.fn()
 const mockReadAll = vi.fn()
 
-vi.doMock('../lib/lambda', () => ({
+vi.doMock('../lib/lambda', async () => ({
+  ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
   lambda: mockLambda,
   response: mockResponse,
 }))
@@ -22,9 +24,9 @@ vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
   authorizeAdmin: async (event: any) => {
     const user = await mockAuthorize(event)
-    if (!user) return { res: mockResponse(401, 'Unauthorized', event) ?? { statusCode: 401 } }
-    if (!user.admin) return { res: mockResponse(403, 'Forbidden', event) ?? { statusCode: 403 }, user }
-    return { user }
+    if (!user) throw httpError(401, 'Unauthorized')
+    if (!user.admin) throw httpError(403, 'Forbidden')
+    return user
   },
 }))
 

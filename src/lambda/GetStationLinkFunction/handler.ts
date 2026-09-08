@@ -10,9 +10,7 @@ import { getStationEntryToken } from '../lib/stationEntry'
  * is nothing but bumping the station's `tokenVersion` and asking again.
  */
 const getStationLinkLambda = lambda('getStationLink', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
-
-  if (res) return res
+  const { user, memberOf } = await authorizeWithMemberOf(event)
 
   const eventId = getParam(event, 'eventId')
   const stationId = getParam(event, 'stationId')

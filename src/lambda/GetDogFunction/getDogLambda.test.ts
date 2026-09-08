@@ -3,7 +3,7 @@ import type { KLKoira } from '../types/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
-import { loggedLines, unhandledError } from '../test-utils/logs'
+import { loggedLines } from '../test-utils/logs'
 
 const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
   delete: vi.fn(),
@@ -107,8 +107,8 @@ describe('getDogHandler', () => {
     expect(loggedLines(errorSpy)).toContainEqual(
       expect.objectContaining({ error: 'not found', message: 'lueKoiranPerustiedot failed', status: 404 })
     )
-    expect(loggedLines(errorSpy)).toContainEqual(unhandledError('404 Upstream error: not found'))
-    expect(errorSpy).toHaveBeenCalledTimes(2)
+    // The upstream failure is logged; the 404 it becomes is the request's answer, not an error of ours.
+    expect(errorSpy).toHaveBeenCalledTimes(1)
   })
 
   it('should handle multiple tildes in regNo', async () => {
@@ -136,8 +136,7 @@ describe('getDogHandler', () => {
     expect(loggedLines(errorSpy)).toContainEqual(
       expect.objectContaining({ error: 'diseased', message: 'lueKoiranPerustiedot failed', status: 404 })
     )
-    expect(loggedLines(errorSpy)).toContainEqual(unhandledError('404 Upstream error: diseased'))
-    expect(errorSpy).toHaveBeenCalledTimes(2)
+    expect(errorSpy).toHaveBeenCalledTimes(1)
   })
 
   it('should refresh data', async () => {
