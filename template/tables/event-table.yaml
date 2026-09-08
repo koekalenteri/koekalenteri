@@ -18,7 +18,19 @@
             AttributeType: S
           - AttributeName: entryEndDate
             AttributeType: S
+          - AttributeName: organizerId
+            AttributeType: S
       GlobalSecondaryIndexes:
+        # A club's administrator reads the club's events and nothing else; before this index every
+        # administrator's list was a scan of the whole table filtered in memory (KOE-1341).
+        - IndexName: gsiOrganizerStartDate
+          KeySchema:
+            - AttributeName: organizerId
+              KeyType: HASH
+            - AttributeName: startDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
         - IndexName: gsiSeasonUpdatedAt
           KeySchema:
             - AttributeName: season

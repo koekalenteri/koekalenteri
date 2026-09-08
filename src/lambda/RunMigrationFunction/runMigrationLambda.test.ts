@@ -34,8 +34,9 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: runMigrationLambda } = await import('./handler')
 
 describe('runMigrationLambda', () => {
-  const migrationResults = (updatedAt: number, season: number, startNumbers = 0) => [
+  const migrationResults = (updatedAt: number, season: number, startNumbers = 0, organizerId = 0) => [
     { count: updatedAt, name: 'populateUpdatedAt' },
+    { count: organizerId, name: 'backfillOrganizerId' },
     { count: season, name: 'fixSeasonFromStartDate' },
     { count: startNumbers, name: 'backfillStartNumbersPublished' },
   ]
@@ -305,6 +306,39 @@ describe('runMigrationLambda', () => {
   })
 
   // Skip the test for handling invalid startDate as it requires more complex mocking
+
+  // gsiOrganizerStartDate is keyed on a top-level copy of organizer.id; a row without the copy is
+  // invisible to a club administrator's list until the migration writes it (KOE-1341).
+  describe('backfillOrganizerId', () => {
+    it('copies organizer.id to the row where it is missing or stale', async () => {
+      mockReadAll.mockResolvedValue([
+        { id: 'event1', organizer: { id: 'org1' }, season: '2025', startDate: '2025-01-01', updatedAt: 'x' },
+        {
+          id: 'event2',
+          organizer: { id: 'org2' },
+          organizerId: 'org1',
+          season: '2025',
+          startDate: '2025-01-01',
+          updatedAt: 'x',
+        },
+        {
+          id: 'event3',
+          organizer: { id: 'org3' },
+          organizerId: 'org3',
+          season: '2025',
+          startDate: '2025-01-01',
+          updatedAt: 'x',
+        },
+      ])
+
+      await runMigrationLambda(event)
+
+      expect(mockWrite).toHaveBeenCalledTimes(2)
+      expect(mockWrite).toHaveBeenCalledWith(expect.objectContaining({ id: 'event1', organizerId: 'org1' }))
+      expect(mockWrite).toHaveBeenCalledWith(expect.objectContaining({ id: 'event2', organizerId: 'org2' }))
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 2), event)
+    })
+  })
 
   describe('backfillStartNumbersPublished', () => {
     it('writes an explicit false when the start list is unpublished', async () => {

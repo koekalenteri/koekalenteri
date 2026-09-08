@@ -52,6 +52,13 @@ export interface InvitationAttachmentVersion extends Omit<JsonInvitationAttachme
 }
 
 export interface JsonDogEvent extends JsonDbRecord {
+  /**
+   * `organizer.id` lifted to a top-level attribute, because a DynamoDB index key cannot reach into
+   * a map: `gsiOrganizerStartDate` is keyed on it, so a club's administrator reads the club's
+   * events without a scan (KOE-1341). Written with the event and backfilled by a migration; the
+   * stored row's own bookkeeping, never sent to a reader.
+   */
+  organizerId?: string
   /** Short-lived server-side lock used while registration groups are reconciled. */
   registrationGroupsLock?: { expiresAt: number; token: string }
   /** Short-lived server-side lock used for dog-unique payment transitions. */
@@ -439,6 +446,7 @@ type NonPublicDogEventProperties =
   | 'modifiedBy'
   | 'registrationGroupsLock'
   | 'registrationPaymentsLock'
+  | 'organizerId'
   | 'turns'
 
 export type JsonPublicDogEvent = Omit<JsonDogEvent, NonPublicDogEventProperties> & {

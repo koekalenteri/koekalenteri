@@ -240,6 +240,8 @@ const putEventLambda = lambda('putEvent', async (event) => {
   }
 
   const data = existing && patchRequest ? patchMerge(existing, item) : ({ ...existing, ...item } as JsonConfirmedEvent)
+  // The index key for the club's own list; a copy, because an index cannot key on a map's field (KOE-1341).
+  data.organizerId = data.organizer?.id
   const invalidDateField = invalidEventDateField(data)
   if (invalidDateField) {
     return response(400, { message: `Bad request: ${invalidDateField} must be a valid date` }, event)

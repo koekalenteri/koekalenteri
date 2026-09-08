@@ -926,6 +926,7 @@ export function sanitizeDogEvent(
     invitationAttachmentHistory: _invitationAttachmentHistory,
     invitationAttachments: _invitationAttachments,
     modifiedBy: _modifiedBy,
+    organizerId: _organizerId,
     registrationGroupsLock: _registrationGroupsLock,
     registrationPaymentsLock: _registrationPaymentsLock,
     secretary: _secretary,

@@ -19,6 +19,18 @@ const migrations: EventMigration[] = [
     run: (event) => event.updatedAt === undefined,
   },
   {
+    // `gsiOrganizerStartDate` is keyed on a top-level copy of organizer.id; rows written before
+    // the copy existed are not in the index until they carry it (KOE-1341).
+    name: 'backfillOrganizerId',
+    run: (event) => {
+      const organizerId = event.organizer?.id
+      if (!organizerId || event.organizerId === organizerId) return false
+
+      event.organizerId = organizerId
+      return true
+    },
+  },
+  {
     name: 'fixSeasonFromStartDate',
     run: (event) => {
       const season = getEventSeason(event.startDate)

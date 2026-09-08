@@ -45,11 +45,13 @@ function getUpperBoundYear(end: Date | undefined, lowerBoundYear: number): numbe
   return lowerBoundYear === currentYear ? lowerBoundYear + 1 : lowerBoundYear
 }
 
+/**
+ * The seasons the range spans, read through gsiSeasonStartDate. A request with no range gets the
+ * current season and the next, which is what the calendar's front page shows; nothing reads the
+ * whole table any more (KOE-1341). Drafts are left out by the query rather than in memory: the
+ * public list never needs them, so they are not carried over the wire from the database either.
+ */
 async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEvent[] | undefined> {
-  if (!start && !end) {
-    return dynamoDB.readAll<JsonDogEvent>()
-  }
-
   const fallbackLowerBoundYear = zonedYear(end ?? new Date())
   const lowerBound = start ?? zonedStartOfYear(fallbackLowerBoundYear)
   const lowerBoundYear = zonedYear(lowerBound)
@@ -60,10 +62,13 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
 
   for (const season of seasons) {
     const seasonEvents = await dynamoDB.query<JsonDogEvent>({
+      filterExpression: '#state <> :draft',
       index: 'gsiSeasonStartDate',
       key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
       table: CONFIG.eventTable,
       values: {
+        ':draft': 'draft',
         ':endDate': upperBound.toISOString(),
         ':season': season,
       },
@@ -80,7 +85,7 @@ const getEventsLambda = lambda('getEvents', async (event) => {
   const end = parseDateParam(event.queryStringParameters?.end)
   const since = parseDateParam(event.queryStringParameters?.since)
   const items = await queryEventsForRange(start, end)
-  let publicItems = items?.filter((item) => item.state !== 'draft').map((item) => sanitizeDogEvent(item)) ?? []
+  let publicItems = items?.map((item) => sanitizeDogEvent(item)) ?? []
 
   if (since) {
     const rangedItems = publicItems.filter((item) => inRequestedRange(item, start, end))

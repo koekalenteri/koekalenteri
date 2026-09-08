@@ -110,6 +110,7 @@ const mockEvent: JsonDogEvent = {
     id: 'org-id',
     name: 'org name',
   },
+  organizerId: 'org-id',
   places: 0,
   season: '2025',
   secretary: {},

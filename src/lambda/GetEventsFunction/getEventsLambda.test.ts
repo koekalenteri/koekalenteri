@@ -3,7 +3,6 @@ import { vi } from 'vitest'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
-const mockReadAll = vi.fn()
 const mockQuery = vi.fn()
 const mockSanitizeDogEvent = vi.fn()
 
@@ -16,7 +15,6 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       query: mockQuery,
-      readAll: mockReadAll,
     }
   }),
 }))
@@ -47,17 +45,16 @@ describe('getEventsLambda', () => {
     vi.clearAllMocks()
   })
 
-  it('returns sanitized non-draft events', async () => {
+  it('returns sanitized events', async () => {
     const allEvents = [
       { createdBy: 'user1', id: 'event1', name: 'Event 1', state: 'confirmed' },
-      { createdBy: 'user2', id: 'event2', name: 'Event 2', state: 'draft' },
       { createdBy: 'user3', id: 'event3', name: 'Event 3', state: 'tentative' },
     ]
 
     const sanitizedEvent1 = { id: 'event1', name: 'Event 1', state: 'confirmed' }
     const sanitizedEvent3 = { id: 'event3', name: 'Event 3', state: 'tentative' }
 
-    mockReadAll.mockResolvedValueOnce(allEvents)
+    mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((event: any) => {
       // Remove createdBy field to simulate sanitization
       const { createdBy: _createdBy, ...rest } = event
@@ -66,56 +63,72 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(event)
 
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockQuery).toHaveBeenCalled()
     expect(mockSanitizeDogEvent).toHaveBeenCalledTimes(2)
     expect(mockSanitizeDogEvent).toHaveBeenCalledWith(allEvents[0])
-    expect(mockSanitizeDogEvent).toHaveBeenCalledWith(allEvents[2])
+    expect(mockSanitizeDogEvent).toHaveBeenCalledWith(allEvents[1])
     expect(mockResponse).toHaveBeenCalledWith(200, [sanitizedEvent1, sanitizedEvent3], event)
   })
 
   it('returns empty array if no events found', async () => {
-    mockReadAll.mockResolvedValueOnce([])
+    mockQuery.mockResolvedValueOnce([])
 
     await getEventsLambda(event)
 
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockQuery).toHaveBeenCalled()
     expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, [], event)
   })
 
-  it('returns empty array if readAll returns undefined', async () => {
-    mockReadAll.mockResolvedValueOnce(undefined)
+  it('returns empty array if the query returns undefined', async () => {
+    mockQuery.mockResolvedValueOnce(undefined)
 
     await getEventsLambda(event)
 
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockQuery).toHaveBeenCalled()
     expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, [], event)
   })
 
-  it('filters out all draft events', async () => {
-    const allEvents = [
-      { createdBy: 'user1', id: 'event1', name: 'Event 1', state: 'draft' },
-      { createdBy: 'user2', id: 'event2', name: 'Event 2', state: 'draft' },
-    ]
-
-    mockReadAll.mockResolvedValueOnce(allEvents)
+  // Drafts are the database's to leave out, not the handler's: the public list never needs them,
+  // so they are not read over the wire either (KOE-1341).
+  it('leaves drafts out in the query, and reads the current and next season without a range', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
+    mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
 
     await getEventsLambda(event)
 
-    expect(mockReadAll).toHaveBeenCalled()
-    expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
+    expect(mockQuery).toHaveBeenCalledTimes(2)
+    expect(mockQuery).toHaveBeenNthCalledWith(1, {
+      filterExpression: '#state <> :draft',
+      index: 'gsiSeasonStartDate',
+      key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
+      table: expect.anything(),
+      values: {
+        ':draft': 'draft',
+        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':season': '2026',
+      },
+    })
+    expect(mockQuery).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ values: expect.objectContaining({ ':season': '2027' }) })
+    )
     expect(mockResponse).toHaveBeenCalledWith(200, [], event)
+
+    vi.useRealTimers()
   })
 
-  it('passes through errors from readAll', async () => {
+  it('passes through errors from the query', async () => {
     const error = new Error('Database error')
 
-    mockReadAll.mockRejectedValueOnce(error)
+    mockQuery.mockRejectedValueOnce(error)
 
     await expect(getEventsLambda(event)).rejects.toThrow(error)
 
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockQuery).toHaveBeenCalled()
     expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
     expect(mockResponse).not.toHaveBeenCalled()
   })
@@ -143,19 +156,25 @@ describe('getEventsLambda', () => {
     await getEventsLambda(rangeEvent)
 
     expect(mockQuery).toHaveBeenNthCalledWith(1, {
+      filterExpression: '#state <> :draft',
       index: 'gsiSeasonStartDate',
       key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
       table: expect.anything(),
       values: {
+        ':draft': 'draft',
         ':endDate': '2027-12-31T23:59:59.999+02:00',
         ':season': '2026',
       },
     })
     expect(mockQuery).toHaveBeenNthCalledWith(2, {
+      filterExpression: '#state <> :draft',
       index: 'gsiSeasonStartDate',
       key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
       table: expect.anything(),
       values: {
+        ':draft': 'draft',
         ':endDate': '2027-12-31T23:59:59.999+02:00',
         ':season': '2027',
       },
@@ -236,11 +255,8 @@ describe('getEventsLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1]], rangeEvent)
   })
 
-  it('still excludes draft events before applying date filtering', async () => {
-    const allEvents = [
-      { id: 'event1', startDate: '2026-01-03T00:00:00.000Z', state: 'draft' },
-      { id: 'event2', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
-    ]
+  it('reads a single-day range from its one season', async () => {
+    const allEvents = [{ id: 'event2', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' }]
 
     mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
@@ -255,8 +271,9 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(rangeEvent)
 
+    expect(mockQuery).toHaveBeenCalledTimes(1)
     expect(mockSanitizeDogEvent).toHaveBeenCalledTimes(1)
-    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1]], rangeEvent)
+    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[0]], rangeEvent)
   })
 
   it('filters events by since (excludes those modified before since)', async () => {
@@ -275,7 +292,7 @@ describe('getEventsLambda', () => {
       },
     ]
 
-    mockReadAll.mockResolvedValueOnce(allEvents)
+    mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
     const rangeEvent = asEvent({
@@ -384,19 +401,25 @@ describe('getEventsLambda', () => {
     await getEventsLambda(rangeEvent)
 
     expect(mockQuery).toHaveBeenNthCalledWith(1, {
+      filterExpression: '#state <> :draft',
       index: 'gsiSeasonStartDate',
       key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
       table: expect.anything(),
       values: {
+        ':draft': 'draft',
         ':endDate': '2027-01-02T00:00:00.000Z',
         ':season': '2026',
       },
     })
     expect(mockQuery).toHaveBeenNthCalledWith(2, {
+      filterExpression: '#state <> :draft',
       index: 'gsiSeasonStartDate',
       key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
       table: expect.anything(),
       values: {
+        ':draft': 'draft',
         ':endDate': '2027-01-02T00:00:00.000Z',
         ':season': '2027',
       },
@@ -418,19 +441,25 @@ describe('getEventsLambda', () => {
     await getEventsLambda(rangeEvent)
 
     expect(mockQuery).toHaveBeenNthCalledWith(1, {
+      filterExpression: '#state <> :draft',
       index: 'gsiSeasonStartDate',
       key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
       table: expect.anything(),
       values: {
+        ':draft': 'draft',
         ':endDate': '2027-12-31T23:59:59.999+02:00',
         ':season': '2026',
       },
     })
     expect(mockQuery).toHaveBeenNthCalledWith(2, {
+      filterExpression: '#state <> :draft',
       index: 'gsiSeasonStartDate',
       key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
       table: expect.anything(),
       values: {
+        ':draft': 'draft',
         ':endDate': '2027-12-31T23:59:59.999+02:00',
         ':season': '2027',
       },
@@ -454,19 +483,25 @@ describe('getEventsLambda', () => {
     await getEventsLambda(rangeEvent)
 
     expect(mockQuery).toHaveBeenNthCalledWith(1, {
+      filterExpression: '#state <> :draft',
       index: 'gsiSeasonStartDate',
       key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
       table: expect.anything(),
       values: {
+        ':draft': 'draft',
         ':endDate': '2028-12-31T23:59:59.999+02:00',
         ':season': '2027',
       },
     })
     expect(mockQuery).toHaveBeenNthCalledWith(2, {
+      filterExpression: '#state <> :draft',
       index: 'gsiSeasonStartDate',
       key: 'season = :season AND startDate <= :endDate',
+      names: { '#state': 'state' },
       table: expect.anything(),
       values: {
+        ':draft': 'draft',
         ':endDate': '2028-12-31T23:59:59.999+02:00',
         ':season': '2028',
       },
