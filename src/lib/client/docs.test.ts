@@ -1,0 +1,29 @@
+import { docsPageFor, docsPagesFor } from './docs'
+
+describe('docs', () => {
+  describe('docsPagesFor', () => {
+    it('gives the pages in the reader’s language', () => {
+      expect(docsPagesFor('en').map((page) => page.title)).toEqual(['Entering a trial'])
+      expect(docsPagesFor('fi').map((page) => page.title)).toEqual(['Kokeeseen ilmoittautuminen'])
+    })
+
+    // i18next hands out tags like en-GB, and the docs are keyed by the plain language.
+    it('narrows a language tag to its language', () => {
+      expect(docsPagesFor('en-GB')).toEqual(docsPagesFor('en'))
+    })
+
+    it('falls back to Finnish for a language with no pages', () => {
+      expect(docsPagesFor('sv')).toEqual(docsPagesFor('fi'))
+    })
+  })
+
+  describe('docsPageFor', () => {
+    it('finds a page by its path', () => {
+      expect(docsPageFor('fi', 'ilmoittautujalle/ilmoittautuminen')?.audience).toBe('participant')
+    })
+
+    it('returns nothing for a path that has no page', () => {
+      expect(docsPageFor('fi', 'ilmoittautujalle/ei-tallaista')).toBeUndefined()
+    })
+  })
+})

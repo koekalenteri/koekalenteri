@@ -5,7 +5,8 @@ import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router'
+import { Link as RouterLink, useLocation } from 'react-router'
+import { Path } from '../../../routeConfig'
 import AppBarButton from './AppBarButton'
 
 export default function HelpMenu() {
@@ -35,6 +36,14 @@ export default function HelpMenu() {
         onClose={handleClose}
         onClick={handleClose}
       >
+        <MenuItem
+          component={RouterLink}
+          to={Path.docs}
+          onClick={handleClose}
+          disabled={location.pathname.startsWith(Path.docs)}
+        >
+          {t('docs.title')}
+        </MenuItem>
         <MenuItem
           href="/support"
           target="_blank"

@@ -231,6 +231,14 @@ exports[`routes > should match a snapshot 1`] = `
   },
   {
     "lazy": [Function],
+    "path": "/ohjeet",
+  },
+  {
+    "lazy": [Function],
+    "path": "/ohjeet/*",
+  },
+  {
+    "lazy": [Function],
     "path": "support",
   },
   {

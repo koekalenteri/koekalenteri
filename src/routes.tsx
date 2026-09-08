@@ -302,6 +302,20 @@ const routes: RouteObject[] = [
     path: Path.stats,
   },
   {
+    lazy: () =>
+      reloadOnChunkLoadError(async () => ({
+        Component: (await import(/* webpackChunkName: "docs" */ './pages/DocsIndexPage')).DocsIndexPage,
+      })),
+    path: Path.docs,
+  },
+  {
+    lazy: () =>
+      reloadOnChunkLoadError(async () => ({
+        Component: (await import(/* webpackChunkName: "docs" */ './pages/DocsPage')).DocsPage,
+      })),
+    path: Path.docsPage(),
+  },
+  {
     lazy: () => reloadOnChunkLoadError(async () => ({ Component: (await import('./pages/SupportPage')).SupportPage })),
     path: 'support',
   },

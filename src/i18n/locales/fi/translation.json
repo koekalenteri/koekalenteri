@@ -116,6 +116,15 @@
   "deleteEventText": "Haluatko varmasti poistaa tapahtuman?",
   "deleteUserText": "Haluatko varmasti poistaa käyttäjän?",
   "district": "Kennelpiiri",
+  "docs": {
+    "audience": {
+      "admin": "Ylläpitäjälle",
+      "participant": "Ilmoittautujalle",
+      "secretary": "Koesihteerille"
+    },
+    "notFound": "Ohjetta ei löytynyt",
+    "title": "Ohjeet"
+  },
   "dog": {
     "breed": "Rotu",
     "dam": {

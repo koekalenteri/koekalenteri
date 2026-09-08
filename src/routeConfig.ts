@@ -43,6 +43,8 @@ export const Path = {
   },
   classStartNumbers: (eventId: string, eventClass: string, token: string) =>
     `/start-numbers/${eventId}/${encodeURIComponent(eventClass)}/access/${encodeURIComponent(token)}`,
+  docs: '/ohjeet',
+  docsPage: (path: string = '*') => `/ohjeet/${path}`,
   home: '/',
   invitation: (registration: ParticipantRegistration) => participantPath('r', registration, '/invitation'),
   invitationAttachment: (item: InvitationAttachmentItem) =>

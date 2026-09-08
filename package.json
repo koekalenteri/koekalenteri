@@ -63,6 +63,8 @@
     "prebuild-backend": "scripts/prebuild-backend.sh",
     "build-backend": "node scripts/build-backend.mjs",
     "build-backend-watch": "npm run build-backend -- --watch",
+    "build-docs": "node scripts/build-docs.mjs",
+    "check-docs": "node scripts/build-docs.mjs --check",
     "build-frontend": "node scripts/build-frontend.js",
     "build": "npm run build-backend && npm run build-frontend",
     "describe-stacks": "aws cloudformation describe-stacks --stack-name koekalenteri-dev --query Stacks[0] > stack.json",

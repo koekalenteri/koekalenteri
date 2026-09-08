@@ -73,6 +73,7 @@ jobs:
               - '.github/**'
               - 'scripts/**'
               - 'public/**'
+              - 'docs/**'
               - 'src/!(lambda)/**'
               - 'template/amplify.yaml'
               - 'package-lock.json'

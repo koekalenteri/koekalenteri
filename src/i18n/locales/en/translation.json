@@ -116,6 +116,15 @@
   "deleteEventText": "Are you sure you want to delete the event?",
   "deleteUserText": "Are you sure you want to delete the user?",
   "district": "District",
+  "docs": {
+    "audience": {
+      "admin": "For administrators",
+      "participant": "For entrants",
+      "secretary": "For trial secretaries"
+    },
+    "notFound": "Guide not found",
+    "title": "Guides"
+  },
   "dog": {
     "breed": "Breed",
     "dam": {
