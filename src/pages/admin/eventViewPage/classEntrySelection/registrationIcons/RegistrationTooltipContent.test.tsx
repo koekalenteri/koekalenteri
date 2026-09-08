@@ -48,7 +48,7 @@ describe('RegistrationTooltipContent', () => {
 
     const priorityTooltip = screen
       .getAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text')?.includes('Ilmoittautuja on etusijalla'))
+      .find((el) => el.getAttribute('data-text')?.startsWith('registration.tooltip.priority '))
     expect(priorityTooltip).toBeInTheDocument()
   })
 
@@ -65,7 +65,7 @@ describe('RegistrationTooltipContent', () => {
 
     const priorityTooltip = screen
       .getAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text')?.includes('(vain ohjaaja on jäsen)'))
+      .find((el) => el.getAttribute('data-text') === 'registration.tooltip.priority context, description')
     expect(priorityTooltip).toBeInTheDocument()
   })
 
@@ -105,7 +105,7 @@ describe('RegistrationTooltipContent', () => {
 
     const paymentTooltip = screen
       .getAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text')?.includes('Ilmoittautuja on maksanut'))
+      .find((el) => el.getAttribute('data-text') === 'registration.tooltip.paid amount')
     expect(paymentTooltip).toBeInTheDocument()
   })
 
@@ -174,7 +174,7 @@ describe('RegistrationTooltipContent', () => {
 
     const manualResultsTooltip = screen
       .getAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text') === 'Ilmoittautuja on lisännyt koetuloksia')
+      .find((el) => el.getAttribute('data-text') === 'registration.tooltip.manualResults')
     expect(manualResultsTooltip).toBeInTheDocument()
   })
 
@@ -191,7 +191,7 @@ describe('RegistrationTooltipContent', () => {
 
     const rankingPointsTooltip = screen
       .getAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text') === 'Karsintapisteet: 10')
+      .find((el) => el.getAttribute('data-text') === 'registration.tooltip.rankingPoints points')
     expect(rankingPointsTooltip).toBeInTheDocument()
   })
 

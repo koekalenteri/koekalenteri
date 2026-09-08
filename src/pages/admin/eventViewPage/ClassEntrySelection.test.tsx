@@ -40,7 +40,7 @@ describe('ClassEntrySelection', () => {
     await flushPromises()
 
     // No registrations were given: every group's grid falls back to its drop-target overlay.
-    expect(screen.getAllByText('Raahaa osallistujat tähän!').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('eventManagement.participantSelection.dragHere').length).toBeGreaterThan(0)
   })
 
   it('renders with cancelled registration(s)', async () => {

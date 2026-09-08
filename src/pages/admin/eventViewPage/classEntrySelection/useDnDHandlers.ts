@@ -103,7 +103,7 @@ export const useDnDHandlers = ({
     if (sameGroup) {
       if (group.key === GROUP_KEY_RESERVE) {
         enqueueSnackbar({
-          message: `Varasijalla olevia koiria ei voi enää järjestellä, kun varasijailmoituksia on lähetetty`,
+          message: t('eventManagement.participantSelection.reserveLocked'),
           variant: 'info',
         })
       }
@@ -112,7 +112,7 @@ export const useDnDHandlers = ({
 
     if ((state === 'picked' || state === 'invited') && group.key === GROUP_KEY_RESERVE) {
       enqueueSnackbar({
-        message: `Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.`,
+        message: t('eventManagement.participantSelection.cannotMoveToReserve'),
         variant: 'warning',
       })
       return
@@ -126,7 +126,10 @@ export const useDnDHandlers = ({
       sourceGroup: reg.group?.key,
       targetGroup: group.key,
     })
-    enqueueSnackbar({ message: `Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, ...errorSnackbarOptions })
+    enqueueSnackbar({
+      message: t('eventManagement.participantSelection.notRegisteredToGroup', { dogName: reg.dog.name }),
+      ...errorSnackbarOptions,
+    })
   }
 
   return { handleDrop, handleReject }

@@ -21,7 +21,7 @@ describe('UnlockArrange', () => {
   it('should render a switch with the correct label', () => {
     renderWithUserEvents(<UnlockArrange checked={false} onChange={vi.fn()} />)
 
-    expect(screen.getByText('Järjestä varasijoja, vaikka varasijailmoitukset on jo lähetetty')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.participantSelection.unlockArrange.label')).toBeInTheDocument()
     expect(screen.getByRole('switch')).toBeInTheDocument()
   })
 
@@ -70,8 +70,8 @@ describe('UnlockArrange', () => {
 
     // The tooltip should be visible after hovering
     await waitFor(() => {
-      expect(screen.getByText(/Jos varasijojen järjestykseen jäi virhe/i)).toBeInTheDocument()
-      expect(screen.getByText(/Käytä varoen/i)).toBeInTheDocument()
+      expect(screen.getByText('eventManagement.participantSelection.unlockArrange.info1')).toBeInTheDocument()
+      expect(screen.getByText('eventManagement.participantSelection.unlockArrange.info2')).toBeInTheDocument()
     })
   })
 })

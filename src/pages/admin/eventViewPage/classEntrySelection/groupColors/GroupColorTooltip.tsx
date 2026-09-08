@@ -14,13 +14,14 @@ const GroupColorTooltip = ({ selected, children }: Props) => {
   const title = useMemo(
     () =>
       selected.length &&
-      'Sopivat ryhmät: ' +
-        selected
+      t('eventManagement.participantSelection.suitableGroups', {
+        groups: selected
           .map((s) => {
             const timeText = s.time ? t(`registration.time.${s.time}`) : ''
             return t('dateFormat.weekday', { date: s.date }) + (timeText ? ` ${timeText}` : '')
           })
           .join(', '),
+      }),
     [selected, t]
   )
 

@@ -90,9 +90,11 @@ const RegistrationTooltipContent = ({
   const key = priority ? priorityDescriptionKey(event, reg) : null
   const descr = key && t(`priorityDescription.${key}`)
   const ownerIsMember = getRegistrationOwners(reg).some((owner) => owner?.membership)
-  const halfInfo = ownerIsMember ? '(vain omistaja on jäsen)' : '(vain ohjaaja on jäsen)'
-  const info50 = priority === 0.5 ? halfInfo : ''
-  const priorityText = `Ilmoittautuja on etusijalla: ${descr} ${info50}`.trim()
+  const halfContext = ownerIsMember ? 'ownerOnly' : 'handlerOnly'
+  const priorityText = t('registration.tooltip.priority', {
+    context: priority === 0.5 ? halfContext : undefined,
+    description: descr ?? '',
+  })
   const additionalCosts = event.cost && typeof event.cost !== 'number' ? (event.cost.optionalAdditionalCosts ?? []) : []
   const invitationReadStatus = getInvitationReadStatus(reg)
   const invitationReadText = (() => {
@@ -166,7 +168,7 @@ const RegistrationTooltipContent = ({
         key="payment-paid"
         condition={!!reg.paidAt && !reg.refundAt && reg.refundStatus !== 'PENDING'}
         icon={<EuroOutlined fontSize="small" />}
-        text={`Ilmoittautuja on maksanut: ${formatMoney(reg.paidAmount ?? 0)}`}
+        text={t('registration.tooltip.paid', { amount: formatMoney(reg.paidAmount ?? 0) })}
       />
       <TooltipIcon
         key="payment-due"
@@ -184,19 +186,22 @@ const RegistrationTooltipContent = ({
         key="optional-costs"
         condition={(reg.optionalCosts ?? []).length > 0}
         icon={<AddTaskOutlinedIcon fontSize="small" />}
-        text={`Ilmoittautuja on valinnut lisäpalvelut: ${optionalCosts}`}
+        text={t('registration.tooltip.optionalCosts', { costs: optionalCosts })}
       />
       <TooltipIcon
         key="confirmed"
         condition={!!reg.confirmed}
         icon={<CheckOutlined fontSize="small" />}
-        text="Ilmoittautuja on vahvistanut ottavansa koepaikan vastaan"
+        text={t('registration.tooltip.confirmed')}
       />
       <TooltipIcon
         key="email-delivery-status"
         condition={!!reg.emailDeliveryStatus}
         icon={<MailOutline fontSize="small" />}
-        text={`Sähköpostin toimitus epäonnistui: ${reg.emailDeliveryStatus?.email}${formatEmailDeliveryReason(reg.emailDeliveryStatus?.reason)}`}
+        text={t('registration.tooltip.emailDeliveryFailed', {
+          email: reg.emailDeliveryStatus?.email,
+          reason: formatEmailDeliveryReason(reg.emailDeliveryStatus?.reason),
+        })}
       />
       <TooltipIcon
         key="invitation-read"
@@ -223,25 +228,25 @@ const RegistrationTooltipContent = ({
         key="manual-results"
         condition={manualResultCount > 0}
         icon={<ErrorOutlineOutlined fontSize="small" />}
-        text="Ilmoittautuja on lisännyt koetuloksia"
+        text={t('registration.tooltip.manualResults')}
       />
       <TooltipIcon
         key="notes"
         condition={!!reg.notes.trim()}
         icon={<CommentOutlined fontSize="small" />}
-        text="Ilmoittautuja on lisännyt lisätietoja"
+        text={t('registration.tooltip.notes')}
       />
       <TooltipIcon
         key="internal-notes"
         condition={!!reg.internalNotes?.trim()}
         icon={<SpeakerNotesOutlined fontSize="small" />}
-        text={`Sisäinen kommentti: ${reg.internalNotes}`}
+        text={t('registration.tooltip.internalNotes', { notes: reg.internalNotes })}
       />
       <TooltipIcon
         key="ranking-points"
         condition={rankingPoints > 0}
         icon={<RankingPoints points={rankingPoints} />}
-        text={`Karsintapisteet: ${rankingPoints}`}
+        text={t('registration.tooltip.rankingPoints', { points: rankingPoints })}
       />
     </>
   )

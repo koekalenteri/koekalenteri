@@ -1,6 +1,9 @@
 import Box from '@mui/material/Box'
+import { useTranslation } from 'react-i18next'
 
 const NoRowsOverlay = () => {
+  const { t } = useTranslation()
+
   return (
     <Box
       className="no-rows"
@@ -12,7 +15,7 @@ const NoRowsOverlay = () => {
         width: '100%',
       }}
     >
-      Raahaa osallistujat tähän!
+      {t('eventManagement.participantSelection.dragHere')}
     </Box>
   )
 }

@@ -11,7 +11,8 @@ const { mockEnqueueSnackbar } = vi.hoisted(() => ({ mockEnqueueSnackbar: vi.fn()
 // Mock dependencies
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    // Spells the key and its option names out, the same way the global mock does
+    t: (key: string, opts?: Record<string, unknown>) => (opts ? `${key} ${Object.keys(opts).join(', ')}` : key),
   }),
 }))
 
@@ -110,8 +111,8 @@ describe('useDnDHandlers', () => {
 
       expect(mockConfirmWithStructure).toHaveBeenCalledWith(
         expect.objectContaining({
-          description: expect.stringContaining('TestDog'),
-          title: expect.stringContaining('TestDog'),
+          description: expect.stringContaining('moveToParticipants.description'),
+          title: expect.stringContaining('moveToParticipants.title'),
         })
       )
     })
@@ -158,7 +159,7 @@ describe('useDnDHandlers', () => {
       await result.current.handleDrop(mockGroup)(dragItem)
 
       expect(mockConfirmWithStructure).toHaveBeenCalledWith(
-        expect.objectContaining({ description: expect.stringContaining('koekutsu') })
+        expect.objectContaining({ description: expect.stringContaining('context') })
       )
     })
 
@@ -284,7 +285,7 @@ describe('useDnDHandlers', () => {
       result.current.handleReject(reserveGroup)(sameGroupDragItem)
 
       expect(mockEnqueueSnackbar).toHaveBeenCalledWith({
-        message: expect.stringContaining('Varasijalla olevia koiria ei voi enää järjestellä'),
+        message: 'eventManagement.participantSelection.reserveLocked',
         variant: 'info',
       })
     })
@@ -302,7 +303,7 @@ describe('useDnDHandlers', () => {
       result.current.handleReject(reserveGroup)(mockDragItem)
 
       expect(mockEnqueueSnackbar).toHaveBeenCalledWith({
-        message: expect.stringContaining('ei koirakkoa voi enää siirtää osallistujista varasijalle'),
+        message: 'eventManagement.participantSelection.cannotMoveToReserve',
         variant: 'warning',
       })
     })
@@ -323,7 +324,7 @@ describe('useDnDHandlers', () => {
       )
 
       expect(mockEnqueueSnackbar).toHaveBeenCalledWith({
-        message: expect.stringContaining('TestDog ei ole ilmoittautunut tähän ryhmään'),
+        message: 'eventManagement.participantSelection.notRegisteredToGroup dogName',
         persist: true,
         variant: 'error',
       })

@@ -368,14 +368,31 @@
     },
     "open": "Open event management",
     "participantSelection": {
+      "cannotMoveToReserve": "Once the places have been confirmed, a dog can no longer be moved from the participants to the reserve list.",
       "canSendAfterEntry": "Participant notifications can be sent after the entry period has ended",
+      "dragHere": "Drag the participants here!",
+      "moveToParticipants": {
+        "confirm": "Add to participants",
+        "description": "Once the dog has been added, it is sent a confirmation of its place. Are you sure you want to add the dog {{dogName}} to the participants?",
+        "description_invited": "Once the dog has been added, it is sent a confirmation of its place and the invitation. Are you sure you want to add the dog {{dogName}} to the participants?",
+        "title": "You are adding the dog {{dogName}} to the participants"
+      },
+      "notRegisteredToGroup": "The dog {{dogName}} is not registered for this group",
       "placeNotificationsSent": "Participant notifications sent",
       "reserve": "Reserve list",
       "reserveCanSendAfterEntry": "Reserve notifications can be sent after the entry period has ended",
+      "reserveLocked": "The reserve list can no longer be rearranged once reserve notifications have been sent",
       "reserveNotificationsSent": "Reserve notifications sent",
       "sendPlaceNotification": "Send participant notification",
       "sendReserveNotification": "Send reserve notification",
-      "title": "Participant selection"
+      "suitableGroups": "Suitable groups: {{groups}}",
+      "title": "Participant selection",
+      "unlockArrange": {
+        "info1": "If the reserve list order has an error, you can rearrange the reserve list even though the reserve notifications have already been sent.",
+        "info2": "Use with care, because the registrants on the reserve list have already been told their reserve position.",
+        "info3": "If you wish, you can send them a new reserve notification with the updated reserve position.",
+        "label": "Rearrange the reserve list even though the reserve notifications have already been sent"
+      }
     },
     "results": {
       "confirm": "Publish the results for class {{eventClass}} in Koekalenteri?",
@@ -855,6 +872,9 @@
     },
     "toBePaid": "To be paid",
     "tooltip": {
+      "confirmed": "The registrant has confirmed taking the place",
+      "emailDeliveryFailed": "Email delivery failed: {{email}}{{reason}}",
+      "internalNotes": "Internal comment: {{notes}}",
       "invitation": {
         "awaitingPayment": "The invitation goes out once the place has been paid for",
         "read": "The invitation has been acknowledged",
@@ -862,8 +882,16 @@
         "read-previous": "An earlier invitation has been acknowledged; the latest is still awaiting acknowledgement",
         "unread": "The invitation has not been acknowledged"
       },
+      "manualResults": "The registrant has added trial results",
+      "notes": "The registrant has added additional information",
+      "optionalCosts": "The registrant has chosen optional services: {{costs}}",
+      "paid": "The registrant has paid: {{amount}}",
       "paymentDue": "{{due}} of the fee is missing: paid {{paid}}, entry fee {{cost}}",
       "paymentExcess": "Paid {{excess}} over the fee: paid {{paid}}, entry fee {{cost}}",
+      "priority": "The registrant has priority: {{description}}",
+      "priority_handlerOnly": "The registrant has priority: {{description}} (only the handler is a member)",
+      "priority_ownerOnly": "The registrant has priority: {{description}} (only the owner is a member)",
+      "rankingPoints": "Qualifying points: {{points}}",
       "refunded": "The entry fee has been refunded. Refunded {{refundAmount}}, paid {{paidAmount}}",
       "refunded_handlingCost": "The entry fee has been refunded. Refunded {{refundAmount}}, handling fee {{handlingCost}}, paid {{paidAmount}}",
       "refundPending": "The refund is being processed. Refunding {{refundAmount}}, paid {{paidAmount}}",

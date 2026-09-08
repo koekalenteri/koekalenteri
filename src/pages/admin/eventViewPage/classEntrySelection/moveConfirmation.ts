@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type { EventClassState, EventState } from '../../../../types'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isParticipantGroup } from '../../../../lib/registration'
 
@@ -15,8 +16,7 @@ interface ConfirmMoveToParticipantsArgs {
   dogName: string | undefined
   fromGroupKey: string | undefined
   state: EventClassState | EventState | undefined
-  /** Only the cancel label is translated; the prompt itself is written out in Finnish below. */
-  t: (key: 'cancel') => string
+  t: TFunction<'translation'>
   toGroupKey: string | undefined
 }
 
@@ -53,12 +53,14 @@ export const confirmMoveToParticipants = async ({
 }: ConfirmMoveToParticipantsArgs): Promise<boolean> => {
   if (!moveSendsPlaceMessage(state, fromGroupKey, toGroupKey)) return true
 
-  const extra = state === 'invited' ? ' sekä koekutsu' : ''
   const { confirmed } = await confirm({
     cancellationText: t('cancel'),
-    confirmationText: 'Lisää osallistujiin',
-    description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${dogName} osallistujiin?`,
-    title: `Olet lisäämässä koiraa ${dogName} osallistujiin`,
+    confirmationText: t('eventManagement.participantSelection.moveToParticipants.confirm'),
+    description: t(
+      'eventManagement.participantSelection.moveToParticipants.description',
+      state === 'invited' ? { context: 'invited', dogName } : { dogName }
+    ),
+    title: t('eventManagement.participantSelection.moveToParticipants.title', { dogName }),
   })
 
   return confirmed

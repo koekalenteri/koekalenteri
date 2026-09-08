@@ -1,9 +1,13 @@
+import type { TFunction } from 'i18next'
 import type { EventClassState, EventState } from '../../../../types'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
 import { confirmMoveToParticipants, moveSendsPlaceMessage } from './moveConfirmation'
 
 const PARTICIPANT_GROUP = '2021-02-10-ap'
-const t = (key: 'cancel') => key
+// A branded TFunction cannot be satisfied by a plain function, so this follows the repo idiom
+// of asserting a stub that spells out the key and its option values.
+const t = ((key: string, opts?: Record<string, unknown>) =>
+  [key, ...Object.values(opts ?? {}).filter(Boolean)].join(' ')) as TFunction<'translation'>
 
 describe('moveSendsPlaceMessage', () => {
   it.each<[EventClassState | EventState | undefined, string | undefined, string | undefined]>([
@@ -67,7 +71,7 @@ describe('confirmMoveToParticipants', () => {
       })
     )
     expect(confirm).toHaveBeenCalledWith(
-      expect.objectContaining({ description: expect.not.stringContaining('koekutsu') })
+      expect.objectContaining({ description: expect.not.stringContaining('invited') })
     )
   })
 
@@ -81,7 +85,7 @@ describe('confirmMoveToParticipants', () => {
       toGroupKey: PARTICIPANT_GROUP,
     })
 
-    expect(confirm).toHaveBeenCalledWith(expect.objectContaining({ description: expect.stringContaining('koekutsu') }))
+    expect(confirm).toHaveBeenCalledWith(expect.objectContaining({ description: expect.stringContaining('invited') }))
   })
 
   it('refuses the move when the secretary cancels', async () => {

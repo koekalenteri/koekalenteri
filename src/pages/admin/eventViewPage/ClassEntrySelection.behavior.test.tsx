@@ -467,7 +467,9 @@ describe('ClassEntrySelection behavior coverage', () => {
       async (action) => {
         await openReserveMove(action)
 
-        expect(screen.getByRole('button', { name: 'Lisää osallistujiin' })).toBeInTheDocument()
+        expect(
+          screen.getByRole('button', { name: 'eventManagement.participantSelection.moveToParticipants.confirm' })
+        ).toBeInTheDocument()
         expect(mockSaveGroups).not.toHaveBeenCalled()
       }
     )
@@ -484,7 +486,9 @@ describe('ClassEntrySelection behavior coverage', () => {
     it('saves the move once the secretary accepts', async () => {
       const user = await openReserveMove('moveToParticipants')
 
-      await user.click(screen.getByRole('button', { name: 'Lisää osallistujiin' }))
+      await user.click(
+        screen.getByRole('button', { name: 'eventManagement.participantSelection.moveToParticipants.confirm' })
+      )
       await flushPromises()
 
       expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
@@ -512,7 +516,9 @@ describe('ClassEntrySelection behavior coverage', () => {
       await rendered.user.click(screen.getByRole('button', { name: 'move-group' }))
       await flushPromises()
 
-      expect(screen.queryByRole('button', { name: 'Lisää osallistujiin' })).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: 'eventManagement.participantSelection.moveToParticipants.confirm' })
+      ).not.toBeInTheDocument()
       expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
         expect.objectContaining({ group: expect.objectContaining({ key: '2021-02-10-ip' }), id: 'participant-1' }),
       ])

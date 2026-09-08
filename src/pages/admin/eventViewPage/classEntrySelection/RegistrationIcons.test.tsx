@@ -157,7 +157,7 @@ describe('RegistrationIcons component', () => {
       vi.runOnlyPendingTimers()
     })
 
-    expect(await screen.findByText(/Sähköpostin toimitus epäonnistui: handler@example.com/)).toBeInTheDocument()
+    expect(await screen.findByText('registration.tooltip.emailDeliveryFailed email, reason')).toBeInTheDocument()
   })
 
   it.each([

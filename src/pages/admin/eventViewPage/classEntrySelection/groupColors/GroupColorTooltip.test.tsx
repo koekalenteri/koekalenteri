@@ -37,7 +37,7 @@ describe('GroupColorTooltip', () => {
     await user.hover(screen.getByTestId('child-element'))
 
     // Check that the tooltip is shown with the correct text
-    expect(screen.getByLabelText('Sopivat ryhmät: dateFormat.weekday date registration.time.ap')).toBeInTheDocument()
+    expect(screen.getByLabelText('eventManagement.participantSelection.suitableGroups groups')).toBeInTheDocument()
   })
 
   it('creates tooltip with correct title for multiple dates/times', async () => {
@@ -56,11 +56,7 @@ describe('GroupColorTooltip', () => {
     await user.hover(screen.getByTestId('child-element'))
 
     // Check that the tooltip is shown with the correct text
-    expect(
-      screen.getByLabelText(
-        'Sopivat ryhmät: dateFormat.weekday date registration.time.ap, dateFormat.weekday date registration.time.ip'
-      )
-    ).toBeInTheDocument()
+    expect(screen.getByLabelText('eventManagement.participantSelection.suitableGroups groups')).toBeInTheDocument()
   })
 
   it('handles empty selected array', () => {

@@ -4,6 +4,7 @@ import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Switch from '@mui/material/Switch'
 import Tooltip from '@mui/material/Tooltip'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   checked?: boolean
@@ -12,6 +13,8 @@ interface Props {
 }
 
 const UnlockArrange = ({ checked, disabled, onChange }: Props) => {
+  const { t } = useTranslation()
+
   if (disabled) return null
 
   return (
@@ -19,19 +22,16 @@ const UnlockArrange = ({ checked, disabled, onChange }: Props) => {
       <FormControlLabel
         control={<Switch checked={checked} size="small" />}
         disableTypography
-        label="Järjestä varasijoja, vaikka varasijailmoitukset on jo lähetetty"
+        label={t('eventManagement.participantSelection.unlockArrange.label')}
         onChange={(_e, checked) => onChange?.(checked)}
         sx={{ fontSize: '0.82rem', lineHeight: 1 }}
       />
       <Tooltip
         title={
           <div>
-            <p>
-              Jos varasijojen järjestykseen jäi virhe, voit uudelleenjärjestellä varasijoja, vaikka varasijailmoitukset
-              on jo lähetetty.
-            </p>
-            <p>Käytä varoen, koska varasijoille olijoille on jo kerrottu heidän varasijansa. </p>
-            <p>Jos haluat, voit lähettää heille uuden varasijailmoituksen, jossa on päivitetty varasijanumero.</p>
+            <p>{t('eventManagement.participantSelection.unlockArrange.info1')}</p>
+            <p>{t('eventManagement.participantSelection.unlockArrange.info2')}</p>
+            <p>{t('eventManagement.participantSelection.unlockArrange.info3')}</p>
           </div>
         }
       >

@@ -368,14 +368,31 @@
     },
     "open": "Avaa tapahtuman hallinta",
     "participantSelection": {
+      "cannotMoveToReserve": "Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.",
       "canSendAfterEntry": "Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä",
+      "dragHere": "Raahaa osallistujat tähän!",
+      "moveToParticipants": {
+        "confirm": "Lisää osallistujiin",
+        "description": "Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta. Oletko varma että haluat lisätä koiran {{dogName}} osallistujiin?",
+        "description_invited": "Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta sekä koekutsu. Oletko varma että haluat lisätä koiran {{dogName}} osallistujiin?",
+        "title": "Olet lisäämässä koiraa {{dogName}} osallistujiin"
+      },
+      "notRegisteredToGroup": "Koira {{dogName}} ei ole ilmoittautunut tähän ryhmään",
       "placeNotificationsSent": "Koepaikkailmoitukset lähetetty",
       "reserve": "Varasijalla",
       "reserveCanSendAfterEntry": "Varasijailmoitukset voi lähettää ilmoittautumisajan päätyttyä",
+      "reserveLocked": "Varasijalla olevia koiria ei voi enää järjestellä, kun varasijailmoituksia on lähetetty",
       "reserveNotificationsSent": "Varasijailmoitukset lähetetty",
       "sendPlaceNotification": "Lähetä koepaikkailmoitus",
       "sendReserveNotification": "Lähetä varasijailmoitus",
-      "title": "Osallistujien valinta"
+      "suitableGroups": "Sopivat ryhmät: {{groups}}",
+      "title": "Osallistujien valinta",
+      "unlockArrange": {
+        "info1": "Jos varasijojen järjestykseen jäi virhe, voit uudelleenjärjestellä varasijoja, vaikka varasijailmoitukset on jo lähetetty.",
+        "info2": "Käytä varoen, koska varasijoille olijoille on jo kerrottu heidän varasijansa.",
+        "info3": "Jos haluat, voit lähettää heille uuden varasijailmoituksen, jossa on päivitetty varasijanumero.",
+        "label": "Järjestä varasijoja, vaikka varasijailmoitukset on jo lähetetty"
+      }
     },
     "results": {
       "confirm": "Haluatko varmasti julkaista luokan {{eventClass}} tulokset Koekalenterissa?",
@@ -855,6 +872,9 @@
     },
     "toBePaid": "Maksettava",
     "tooltip": {
+      "confirmed": "Ilmoittautuja on vahvistanut ottavansa koepaikan vastaan",
+      "emailDeliveryFailed": "Sähköpostin toimitus epäonnistui: {{email}}{{reason}}",
+      "internalNotes": "Sisäinen kommentti: {{notes}}",
       "invitation": {
         "awaitingPayment": "Koekutsu lähtee, kun koepaikka on maksettu",
         "read": "Koekutsu on kuitattu",
@@ -862,8 +882,16 @@
         "read-previous": "Aiempi koekutsu on kuitattu, viimeisin odottaa kuittausta",
         "unread": "Koekutsua ei ole kuitattu"
       },
+      "manualResults": "Ilmoittautuja on lisännyt koetuloksia",
+      "notes": "Ilmoittautuja on lisännyt lisätietoja",
+      "optionalCosts": "Ilmoittautuja on valinnut lisäpalvelut: {{costs}}",
+      "paid": "Ilmoittautuja on maksanut: {{amount}}",
       "paymentDue": "Maksusta puuttuu {{due}}: maksettu {{paid}}, osallistumismaksu {{cost}}",
       "paymentExcess": "Maksettu liikaa {{excess}}: maksettu {{paid}}, osallistumismaksu {{cost}}",
+      "priority": "Ilmoittautuja on etusijalla: {{description}}",
+      "priority_handlerOnly": "Ilmoittautuja on etusijalla: {{description}} (vain ohjaaja on jäsen)",
+      "priority_ownerOnly": "Ilmoittautuja on etusijalla: {{description}} (vain omistaja on jäsen)",
+      "rankingPoints": "Karsintapisteet: {{points}}",
       "refunded": "Ilmoittautumismaksua on palautettu. Palautettu {{refundAmount}}, maksoi {{paidAmount}}",
       "refunded_handlingCost": "Ilmoittautumismaksua on palautettu. Palautettu {{refundAmount}}, käsittelykulu {{handlingCost}}, maksoi {{paidAmount}}",
       "refundPending": "Palautuksen käsittely on kesken. Palautetaan {{refundAmount}}, maksoi {{paidAmount}}",
