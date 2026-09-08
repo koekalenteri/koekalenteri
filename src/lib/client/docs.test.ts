@@ -3,8 +3,11 @@ import { docsPageFor, docsPagesFor } from './docs'
 describe('docs', () => {
   describe('docsPagesFor', () => {
     it('gives the pages in the reader’s language', () => {
-      expect(docsPagesFor('en').map((page) => page.title)).toEqual(['Entering a trial'])
-      expect(docsPagesFor('fi').map((page) => page.title)).toEqual(['Kokeeseen ilmoittautuminen'])
+      expect(docsPagesFor('en').map((page) => page.title)).toEqual(['Entering a trial', 'Before entry opens'])
+      expect(docsPagesFor('fi').map((page) => page.title)).toEqual([
+        'Kokeeseen ilmoittautuminen',
+        'Ennen ilmoittautumisajan alkua',
+      ])
     })
 
     // i18next hands out tags like en-GB, and the docs are keyed by the plain language.
