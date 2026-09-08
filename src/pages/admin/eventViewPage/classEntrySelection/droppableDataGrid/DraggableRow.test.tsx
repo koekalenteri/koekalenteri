@@ -65,6 +65,7 @@ describe('DraggableRow', () => {
     pinnedColumns: { left: [], right: [] },
     position: 'center',
     renderedColumns: [],
+    retainedColumnIndexes: [],
     row: { dropGroups: ['group1'] },
     rowHeight: 40,
     rowId: 'test-id',
