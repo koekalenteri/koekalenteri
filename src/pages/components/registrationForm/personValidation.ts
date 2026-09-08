@@ -1,6 +1,7 @@
 import type { OwnerRole } from '../../../lib/registration'
 import type { Person } from '../../../types'
 import { matchIsValidTel } from 'mui-tel-input'
+import { knownTlds } from '../../../lib/client/tlds'
 import { validEmail } from '../../../lib/email'
 
 /** MuiTelInput keeps the calling code in the field, so a bare "+358" means no number was given. */
@@ -10,7 +11,7 @@ export function validatePerson(person: Person | undefined, location = true) {
   if (!person?.email || !person.name || !person.phone || (location && !person.location)) {
     return 'required'
   }
-  if (!validEmail(person.email)) return 'email'
+  if (!validEmail(person.email, knownTlds())) return 'email'
   if (!matchIsValidTel(person.phone)) {
     console.error('invalid phone: ', person.phone)
     return 'phone'
@@ -25,7 +26,7 @@ export function validatePerson(person: Person | undefined, location = true) {
  * which of several owners got their number wrong, and an optional field is wrong just as often.
  */
 export const hasEmailError = (email: string | undefined, required: boolean): boolean =>
-  email?.trim() ? !validEmail(email) : required
+  email?.trim() ? !validEmail(email, knownTlds()) : required
 
 export const hasPhoneError = (phone: string | undefined, required: boolean): boolean =>
   isBlankPhone(phone) ? required : !matchIsValidTel(phone?.trim() ?? '')
@@ -38,7 +39,7 @@ export const hasPhoneError = (phone: string | undefined, required: boolean): boo
  */
 export function validateOwnerContact(person: Person | undefined) {
   if (!person?.name) return 'required'
-  if (person.email && !validEmail(person.email)) return 'emailOptional'
+  if (person.email && !validEmail(person.email, knownTlds())) return 'emailOptional'
   if (!isBlankPhone(person.phone) && !matchIsValidTel(person.phone ?? '')) return 'phoneOptional'
 
   return false

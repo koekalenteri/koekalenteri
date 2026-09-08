@@ -3,7 +3,7 @@
  *
  * # Version 2025033100, Last Updated Mon Mar 31 07:07:02 2025 UTC
  */
-export const VALID_TLDS = [
+const VALID_TLDS = [
   'AAA',
   'AARP',
   'ABB',
@@ -1448,3 +1448,6 @@ export const VALID_TLDS = [
   'ZUERICH',
   'ZW',
 ]
+
+/** The same list as a set, for the address check to look a domain's ending up in. */
+export const KNOWN_TLDS: ReadonlySet<string> = new Set(VALID_TLDS)

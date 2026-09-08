@@ -5,6 +5,7 @@ import type { PartialJsonJudge } from './judge'
 import { nanoid } from 'nanoid'
 import { getFixedT } from '../../i18n/lambda'
 import { getChangedTopLevelKeys } from '../../lib/diff'
+import { KNOWN_TLDS } from '../../lib/domains/topLevelDomains'
 import { validEmail } from '../../lib/email'
 import { reverseName } from '../../lib/string'
 import { scoreUser } from '../../lib/user'
@@ -440,7 +441,7 @@ const buildUserUpdates = (
 }
 
 const normalizeItemsWithEmail = (items: Official[] | PartialJsonJudge[]): Official[] => {
-  return items.filter((i) => validEmail(i.email)).map((i) => ({ ...i, email: i.email.toLocaleLowerCase() }))
+  return items.filter((i) => validEmail(i.email, KNOWN_TLDS)).map((i) => ({ ...i, email: i.email.toLocaleLowerCase() }))
 }
 
 const mergeDuplicateUsersByKcId = (allUsers: JsonUser[], linkedUserIds: Set<string>, dateString: string) => {
@@ -478,7 +479,7 @@ const applyMergeWrites = (allUsers: JsonUser[], mergeWrites: JsonUser[]) => {
   for (const u of allUsers) effectiveUsersById.set(u.id, u)
   for (const u of mergeWrites) effectiveUsersById.set(u.id, u)
   const effectiveUsers = [...effectiveUsersById.values()]
-  const effectiveUsersWithEmail = effectiveUsers.filter((u) => !u.deletedAt && validEmail(u.email))
+  const effectiveUsersWithEmail = effectiveUsers.filter((u) => !u.deletedAt && validEmail(u.email, KNOWN_TLDS))
   return { effectiveUsers, effectiveUsersWithEmail }
 }
 

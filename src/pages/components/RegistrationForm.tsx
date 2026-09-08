@@ -22,6 +22,7 @@ import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+import { loadKnownTlds } from '../../lib/client/tlds'
 import { calculateCost } from '../../lib/cost'
 import { getDiffOperations } from '../../lib/diff'
 import { isDevEnv } from '../../lib/env'
@@ -187,6 +188,12 @@ export default function RegistrationForm({
     }
     return [texts, states]
   }, [errors, registration, t])
+
+  // The address check needs the list of top-level domains; it is fetched here, once, so it has
+  // arrived by the time anyone has typed an address (KOE-1347).
+  useEffect(() => {
+    void loadKnownTlds()
+  }, [])
 
   useEffect(() => {
     setOpen({
