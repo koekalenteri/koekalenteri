@@ -9,18 +9,19 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
-import { Fragment } from 'react'
+import { Fragment, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useOpenEventViewDialog } from '../../state'
 import { sectionSx } from './styles'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
+type OpenMessageDialog = (recipients: Registration[], templateId?: EmailTemplateId) => void
 
 interface Props {
   readonly entryEnded: boolean
   readonly event: ConfirmedEvent
   readonly eventFinished: boolean
   readonly numbersByClass: RegistrationInfo['numbersByClass']
-  readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
   readonly reserveByClass: RegistrationInfo['reserveByClass']
   readonly selectedByClass: RegistrationInfo['selectedByClass']
   readonly stateByClass: RegistrationInfo['stateByClass']
@@ -38,7 +39,7 @@ const placeNotificationContent = (
   sent: boolean,
   canSend: boolean,
   selected: Registration[],
-  onOpenMessageDialog: Props['onOpenMessageDialog'],
+  onOpenMessageDialog: OpenMessageDialog,
   t: TFunction
 ) => {
   if (sent) {
@@ -75,7 +76,7 @@ const placeNotificationContent = (
     <Button
       size="small"
       disabled={!canSend}
-      onClick={() => onOpenMessageDialog?.(selected, 'picked')}
+      onClick={() => onOpenMessageDialog(selected, 'picked')}
       color="primary"
       variant={canSend ? 'contained' : 'outlined'}
     >
@@ -89,7 +90,7 @@ const reserveNotificationContent = (
   sent: boolean,
   canSend: boolean,
   reserves: Registration[],
-  onOpenMessageDialog: Props['onOpenMessageDialog'],
+  onOpenMessageDialog: OpenMessageDialog,
   t: TFunction
 ) => {
   if (sent) {
@@ -126,7 +127,7 @@ const reserveNotificationContent = (
     <Button
       size="small"
       disabled={!canSend}
-      onClick={() => onOpenMessageDialog?.(reserves, 'reserve')}
+      onClick={() => onOpenMessageDialog(reserves, 'reserve')}
       color="primary"
       variant={canSend ? 'contained' : 'outlined'}
     >
@@ -140,12 +141,16 @@ const ParticipantSelection = ({
   event,
   eventFinished,
   numbersByClass,
-  onOpenMessageDialog,
   reserveByClass,
   selectedByClass,
   stateByClass,
 }: Props) => {
   const { t } = useTranslation()
+  const openDialog = useOpenEventViewDialog()
+  const onOpenMessageDialog = useCallback<OpenMessageDialog>(
+    (recipients, templateId) => openDialog({ kind: 'message', recipients, templateId }),
+    [openDialog]
+  )
 
   return (
     <Box sx={sectionSx}>

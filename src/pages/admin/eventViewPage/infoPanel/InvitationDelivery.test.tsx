@@ -22,6 +22,13 @@ import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/util
 import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
 
+const { mockOpenDialog } = vi.hoisted(() => ({ mockOpenDialog: vi.fn() }))
+
+vi.mock('../../state', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../state')>()),
+  useOpenEventViewDialog: () => mockOpenDialog,
+}))
+
 const activeEventWithStaticDates = {
   ...eventWithStaticDates,
   endDate: new Date('2099-12-31'),
@@ -197,7 +204,6 @@ describe('InfoPanel>', () => {
   })
 
   it('allows resending class invitations when class attachment is added after common attachment was sent', async () => {
-    const onOpenMessageDialog = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel
         event={{
@@ -213,7 +219,6 @@ describe('InfoPanel>', () => {
           invitationAttachmentSent: 'common-key',
           messagesSent: { invitation: true },
         }))}
-        onOpenMessageDialog={onOpenMessageDialog}
       />,
       {
         wrapper: Provider,
@@ -230,17 +235,17 @@ describe('InfoPanel>', () => {
     expect(screen.getAllByText('eventManagement.invitation.sent')).toHaveLength(1)
 
     await user.click(resendButton)
-    expect(onOpenMessageDialog).toHaveBeenCalledWith(
-      [
+    expect(mockOpenDialog).toHaveBeenCalledWith({
+      kind: 'message',
+      recipients: [
         expect.objectContaining({ class: 'ALO', id: expect.stringMatching(/1$/) }),
         expect.objectContaining({ class: 'ALO', id: expect.stringMatching(/2$/) }),
       ],
-      'invitation'
-    )
+      templateId: 'invitation',
+    })
   })
 
   it('allows resending invitations when attachment has changed', async () => {
-    const onOpenMessageDialog = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel
         event={{ ...eventWithParticipantsInvited, invitationAttachments: { ALO: 'new-alo-key' } }}
@@ -250,7 +255,6 @@ describe('InfoPanel>', () => {
             registration.class === 'ALO' && registration.id.endsWith('1') ? 'old-alo-key' : 'new-alo-key',
           messagesSent: { invitation: true },
         }))}
-        onOpenMessageDialog={onOpenMessageDialog}
       />,
       {
         wrapper: Provider,
@@ -265,14 +269,14 @@ describe('InfoPanel>', () => {
     if (!resendButton) throw new Error('enabled resend button not found')
     expect(resendButton).toBeEnabled()
     await user.click(resendButton)
-    expect(onOpenMessageDialog).toHaveBeenCalledWith(
-      [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
-      'invitation'
-    )
+    expect(mockOpenDialog).toHaveBeenCalledWith({
+      kind: 'message',
+      recipients: [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
+      templateId: 'invitation',
+    })
   })
 
   it('does not couple start list publishing to sending invitations', async () => {
-    const onOpenMessageDialog = vi.fn()
     const onSetStartListPublished = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel
@@ -287,7 +291,6 @@ describe('InfoPanel>', () => {
             registration.class === 'ALO' && registration.id.endsWith('1') ? 'old-alo-key' : 'new-alo-key',
           messagesSent: { invitation: true },
         }))}
-        onOpenMessageDialog={onOpenMessageDialog}
         onSetStartListPublished={onSetStartListPublished}
       />,
       {
@@ -305,15 +308,15 @@ describe('InfoPanel>', () => {
     if (!resendButton) throw new Error('enabled resend button not found')
     await user.click(resendButton)
 
-    expect(onOpenMessageDialog).toHaveBeenCalledWith(
-      [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
-      'invitation'
-    )
+    expect(mockOpenDialog).toHaveBeenCalledWith({
+      kind: 'message',
+      recipients: [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
+      templateId: 'invitation',
+    })
     expect(onSetStartListPublished).not.toHaveBeenCalled()
   })
 
   it('does not offer publishing while sending when the event-level start list is already published', async () => {
-    const onOpenMessageDialog = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel
         event={{
@@ -327,7 +330,6 @@ describe('InfoPanel>', () => {
             registration.class === 'ALO' && registration.id.endsWith('1') ? 'old-alo-key' : 'new-alo-key',
           messagesSent: { invitation: true },
         }))}
-        onOpenMessageDialog={onOpenMessageDialog}
       />,
       {
         wrapper: Provider,
@@ -344,10 +346,11 @@ describe('InfoPanel>', () => {
     if (!resendButton) throw new Error('enabled resend button not found')
     await user.click(resendButton)
 
-    expect(onOpenMessageDialog).toHaveBeenCalledWith(
-      [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
-      'invitation'
-    )
+    expect(mockOpenDialog).toHaveBeenCalledWith({
+      kind: 'message',
+      recipients: [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
+      templateId: 'invitation',
+    })
   })
 
   it('shows a clear error message when koekutsu upload returns 413', async () => {

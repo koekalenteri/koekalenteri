@@ -10,7 +10,14 @@ import { renderHook } from '@testing-library/react'
 import { rowSelectionModel } from '../../../../lib/datagrid'
 import { useEntryHandlers } from './useEntryHandlers'
 
-const { mockEnqueueSnackbar } = vi.hoisted(() => ({ mockEnqueueSnackbar: vi.fn() }))
+const { mockEnqueueSnackbar, mockOpenDialog } = vi.hoisted(() => ({
+  mockEnqueueSnackbar: vi.fn(),
+  mockOpenDialog: vi.fn(),
+}))
+
+vi.mock('../../state', () => ({
+  useOpenEventViewDialog: () => mockOpenDialog,
+}))
 
 // Mock dependencies
 vi.mock('react-i18next', () => ({
@@ -41,17 +48,11 @@ const asRowParams = (id: string) => ({ row: { id } }) as GridRowParams<{ id: str
 
 describe('useEntryHandlers', () => {
   // Common test data
-  const mockSetOpen = vi.fn()
-  const mockSetCancelOpen = vi.fn()
-  const mockSetRefundOpen = vi.fn()
   const mockSetSelectedRegistrationId = vi.fn()
   const mockRegistrations = [{ id: 'reg1' }, { id: 'reg2' }]
 
   const defaultProps = {
     registrations: mockRegistrations,
-    setCancelOpen: mockSetCancelOpen,
-    setOpen: mockSetOpen,
-    setRefundOpen: mockSetRefundOpen,
     setSelectedRegistrationId: mockSetSelectedRegistrationId,
   }
 
@@ -66,7 +67,7 @@ describe('useEntryHandlers', () => {
       result.current.handleOpen('reg1')
 
       expect(mockSetSelectedRegistrationId).toHaveBeenCalledWith('reg1')
-      expect(mockSetOpen).toHaveBeenCalledWith(true)
+      expect(mockOpenDialog).toHaveBeenCalledWith({ kind: 'edit' })
     })
 
     it('should handle case when setters are not provided', () => {
@@ -88,7 +89,7 @@ describe('useEntryHandlers', () => {
       result.current.handleCancel('reg1')
 
       expect(mockSetSelectedRegistrationId).toHaveBeenCalledWith('reg1')
-      expect(mockSetCancelOpen).toHaveBeenCalledWith(true)
+      expect(mockOpenDialog).toHaveBeenCalledWith({ kind: 'cancel' })
     })
 
     it('should handle case when setters are not provided', () => {
@@ -110,7 +111,7 @@ describe('useEntryHandlers', () => {
       result.current.handleRefund('reg1')
 
       expect(mockSetSelectedRegistrationId).toHaveBeenCalledWith('reg1')
-      expect(mockSetRefundOpen).toHaveBeenCalledWith(true)
+      expect(mockOpenDialog).toHaveBeenCalledWith({ kind: 'refund' })
     })
 
     it('should handle case when setters are not provided', () => {
@@ -215,7 +216,7 @@ describe('useEntryHandlers', () => {
       result.current.handleDoubleClick(asRowParams('reg2'))
 
       expect(mockSetSelectedRegistrationId).toHaveBeenCalledWith('reg2')
-      expect(mockSetOpen).toHaveBeenCalledWith(true)
+      expect(mockOpenDialog).toHaveBeenCalledWith({ kind: 'edit' })
     })
 
     it('should handle case when setOpen is not provided', () => {

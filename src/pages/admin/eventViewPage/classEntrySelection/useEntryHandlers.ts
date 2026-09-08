@@ -6,41 +6,34 @@ import type {
   MuiEvent,
 } from '@mui/x-data-grid'
 import type React from 'react'
-import type { Dispatch, SetStateAction } from 'react'
+import type { SetStateAction } from 'react'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { firstSelectedRow } from '../../../../lib/datagrid'
+import { useOpenEventViewDialog } from '../../state'
 
 interface UseEntryHandlersArgs {
-  setOpen?: Dispatch<SetStateAction<boolean>>
-  setCancelOpen?: Dispatch<SetStateAction<boolean>>
-  setRefundOpen?: Dispatch<SetStateAction<boolean>>
   setSelectedRegistrationId?: (update: SetStateAction<string | undefined>) => void
   registrations: Array<{ id: string }>
 }
 
-export const useEntryHandlers = ({
-  setOpen,
-  setCancelOpen,
-  setRefundOpen,
-  setSelectedRegistrationId,
-  registrations,
-}: UseEntryHandlersArgs) => {
+export const useEntryHandlers = ({ setSelectedRegistrationId, registrations }: UseEntryHandlersArgs) => {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
+  const openDialog = useOpenEventViewDialog()
   const handleOpen = (id: string) => {
     setSelectedRegistrationId?.(id)
-    setOpen?.(true)
+    openDialog({ kind: 'edit' })
   }
 
   const handleCancel = (id: string) => {
     setSelectedRegistrationId?.(id)
-    setCancelOpen?.(true)
+    openDialog({ kind: 'cancel' })
   }
 
   const handleRefund = (id: string) => {
     setSelectedRegistrationId?.(id)
-    setRefundOpen?.(true)
+    openDialog({ kind: 'refund' })
   }
 
   const handleSelectionModeChange = (selection: GridRowSelectionModel, _details: GridCallbackDetails) => {
@@ -71,7 +64,7 @@ export const useEntryHandlers = ({
   // settled the selection yet, so the first double click opened an empty dialog.
   const handleDoubleClick = (params: GridRowParams<{ id: string }>) => {
     setSelectedRegistrationId?.(params.row.id)
-    setOpen?.(true)
+    openDialog({ kind: 'edit' })
   }
 
   return {

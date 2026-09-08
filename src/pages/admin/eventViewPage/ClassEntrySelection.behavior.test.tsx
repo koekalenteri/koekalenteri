@@ -13,6 +13,7 @@ import ClassEntrySelection from './ClassEntrySelection'
 
 const mockSaveGroups = vi.fn().mockResolvedValue(undefined)
 const mockHandleOpen = vi.fn()
+const mockHandleCancel = vi.fn()
 const activeEvent = {
   ...eventWithStaticDatesAnd3Classes,
   endDate: new Date('2099-12-31'),
@@ -41,7 +42,7 @@ vi.mock('../state/registrations/actions', () => ({
 
 vi.mock('./classEntrySelection/useEntryHandlers', () => ({
   useEntryHandlers: () => ({
-    handleCancel: vi.fn(),
+    handleCancel: mockHandleCancel,
     handleCellClick: vi.fn(),
     handleDoubleClick: vi.fn(),
     handleOpen: mockHandleOpen,
@@ -123,6 +124,7 @@ describe('ClassEntrySelection behavior coverage', () => {
   beforeEach(() => {
     mockSaveGroups.mockClear()
     mockHandleOpen.mockClear()
+    mockHandleCancel.mockClear()
     mockLastCallbacks = undefined
     mockDroppableProps = []
   })
@@ -154,9 +156,6 @@ describe('ClassEntrySelection behavior coverage', () => {
         event={activeEvent}
         eventClass="ALO"
         registrations={registrations}
-        setOpen={vi.fn()}
-        setCancelOpen={vi.fn()}
-        setRefundOpen={vi.fn()}
         setSelectedRegistrationId={vi.fn()}
       />,
       { wrapper: Wrapper }
@@ -176,8 +175,6 @@ describe('ClassEntrySelection behavior coverage', () => {
   })
 
   it('prevents changing registrations after the event has ended, but still opens them', async () => {
-    const setOpen = vi.fn()
-    const setCancelOpen = vi.fn()
     const registration = {
       ...registrationWithStaticDates,
       group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' as const },
@@ -189,8 +186,6 @@ describe('ClassEntrySelection behavior coverage', () => {
         event={{ ...eventWithStaticDatesAnd3Classes, state: 'invited' }}
         eventClass="ALO"
         registrations={[registration]}
-        setCancelOpen={setCancelOpen}
-        setOpen={setOpen}
         state="invited"
       />,
       { wrapper: Wrapper }
@@ -209,7 +204,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     })
 
     expect(mockSaveGroups).not.toHaveBeenCalled()
-    expect(setCancelOpen).not.toHaveBeenCalled()
+    expect(mockHandleCancel).not.toHaveBeenCalled()
     // Opening is reading, not acting: the entry stays reachable, and the dialog locks its own
     // fields instead (KOE-1388). Every list keeps its double click for the same reason.
     expect(mockHandleOpen).toHaveBeenCalledWith(registration.id)

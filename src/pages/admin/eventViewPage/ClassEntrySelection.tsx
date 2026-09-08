@@ -68,9 +68,6 @@ interface Props {
   /** The class this list covers, or undefined for the whole trial - the WT tab (KOE-912). */
   readonly eventClass?: string
   readonly registrations?: Registration[]
-  readonly setOpen?: Dispatch<SetStateAction<boolean>>
-  readonly setCancelOpen?: Dispatch<SetStateAction<boolean>>
-  readonly setRefundOpen?: Dispatch<SetStateAction<boolean>>
   readonly selectedRegistrationId?: string
   readonly setSelectedRegistrationId?: (update: SetStateAction<string | undefined>) => void
   readonly state?: EventClassState | EventState
@@ -89,9 +86,6 @@ const ClassEntrySelection = ({
   event,
   eventClass,
   registrations = [],
-  setOpen,
-  setCancelOpen,
-  setRefundOpen,
   selectedRegistrationId,
   setSelectedRegistrationId,
   state,
@@ -117,9 +111,6 @@ const ClassEntrySelection = ({
   const { handleOpen, handleCancel, handleRefund, handleSelectionModeChange, handleCellClick, handleDoubleClick } =
     useEntryHandlers({
       registrations,
-      setCancelOpen,
-      setOpen,
-      setRefundOpen,
       setSelectedRegistrationId,
     })
 

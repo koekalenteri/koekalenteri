@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import type { AuditRecord, ConfirmedEvent, EmailTemplateId, Registration, RegistrationClass } from '../../../types'
+import type { AuditRecord, ConfirmedEvent, Registration, RegistrationClass } from '../../../types'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import MenuOpen from '@mui/icons-material/MenuOpen'
 import Box from '@mui/material/Box'
@@ -34,8 +34,6 @@ import StartNumbersPublishing from './infoPanel/StartNumbersPublishing'
 
 interface Props {
   readonly event: ConfirmedEvent
-  readonly onCreateRegistration?: () => void
-  readonly onOpenDetails?: () => void
   readonly onSetResultsPublished?: (eventClass: RegistrationClass, published: boolean) => Promise<unknown>
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly onSetStartNumbersPublished?: (
@@ -44,22 +42,16 @@ interface Props {
     date?: string
   ) => Promise<unknown>
   readonly registrations: Registration[]
-  readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
-  readonly onSendMessage?: () => void
 }
 
 const APP_HEADER_HEIGHT = 36
 
 const InfoPanel = ({
   event,
-  onCreateRegistration,
   onSetResultsPublished,
-  onOpenDetails,
   onSetStartListPublished,
   onSetStartNumbersPublished,
   registrations,
-  onOpenMessageDialog,
-  onSendMessage,
 }: Props) => {
   const { t } = useTranslation()
   const token = useAtomValue(validIdTokenAtom)
@@ -270,7 +262,6 @@ const InfoPanel = ({
             event={event}
             eventFinished={eventFinished}
             numbersByClass={numbersByClass}
-            onOpenMessageDialog={onOpenMessageDialog}
             reserveByClass={reserveByClass}
             selectedByClass={selectedByClass}
             stateByClass={stateByClass}
@@ -283,7 +274,6 @@ const InfoPanel = ({
             event={event}
             eventFinished={eventFinished}
             numbersByClass={numbersByClass}
-            onOpenMessageDialog={onOpenMessageDialog}
             onUpload={handleInvitationUpload}
             selectedByClass={selectedByClass}
             stateByClass={stateByClass}
@@ -305,14 +295,7 @@ const InfoPanel = ({
             stateByClass={stateByClass}
           />
           <ResultsPublishing event={event} eventStarted={eventStarted} onSetResultsPublished={onSetResultsPublished} />
-          <EventActions
-            eventFinished={eventFinished}
-            eventId={event.id}
-            hasRegistrations={registrations.length > 0}
-            onCreateRegistration={onCreateRegistration}
-            onOpenDetails={onOpenDetails}
-            onSendMessage={onSendMessage}
-          />
+          <EventActions eventFinished={eventFinished} eventId={event.id} hasRegistrations={registrations.length > 0} />
         </Box>
         <Box sx={{ display: activeTab === 1 ? 'flex' : 'none', flex: 1, minHeight: 0, p: 1.5 }}>
           {auditTrailLoading ? (

@@ -24,6 +24,13 @@ copies, ...) hold one instance per event ever opened. Every page that opens an e
 drops the event's instances from every family, and the next visit builds them again from storage and
 the server. Add a new event-keyed family to `eventScope.ts`, or it leaks.
 
+## Event view dialogs
+
+`adminEventViewDialogAtom` (`eventViewDialog.ts`) holds which of the event page's dialogs is open,
+and what it was opened for. The page renders the dialogs; the buttons that open them are in the entry
+lists and the info panel, and call `useOpenEventViewDialog()` instead of receiving a setter through
+every component in between (KOE-1347).
+
 ## Events
 
 ```mermaid

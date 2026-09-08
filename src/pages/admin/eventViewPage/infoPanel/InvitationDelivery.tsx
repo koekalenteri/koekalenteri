@@ -1,12 +1,6 @@
 import type { ChangeEvent } from 'react'
 import type useAdminEventRegistrationInfo from '../../../../hooks/useAdminEventRegistrationsInfo'
-import type {
-  ConfirmedEvent,
-  EmailTemplateId,
-  InvitationAttachmentVersion,
-  Registration,
-  RegistrationClass,
-} from '../../../../types'
+import type { ConfirmedEvent, InvitationAttachmentVersion, RegistrationClass } from '../../../../types'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -23,6 +17,7 @@ import { invitationAttachmentFileName } from '../../../../lib/fileName'
 import { isInvitationAwaitingPayment } from '../../../../lib/payment'
 import { getInvitationRecipients, isRegistrationClass } from '../../../../lib/registration'
 import { Path } from '../../../../routeConfig'
+import { useOpenEventViewDialog } from '../../state'
 import { sectionSx } from './styles'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
@@ -129,7 +124,6 @@ interface Props {
   readonly event: ConfirmedEvent
   readonly eventFinished: boolean
   readonly numbersByClass: RegistrationInfo['numbersByClass']
-  readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
   readonly onUpload: (eventClass?: RegistrationClass) => (event: ChangeEvent<HTMLInputElement>) => void
   readonly selectedByClass: RegistrationInfo['selectedByClass']
   readonly stateByClass: RegistrationInfo['stateByClass']
@@ -143,11 +137,11 @@ const InvitationDelivery = ({
   event,
   eventFinished,
   numbersByClass,
-  onOpenMessageDialog,
   onUpload,
   selectedByClass,
   stateByClass,
 }: Props) => {
+  const openDialog = useOpenEventViewDialog()
   const { t } = useTranslation()
   const eventClasses = new Set(event.classes.map((eventClass) => eventClass.class))
   const eventWithCurrentAttachments = {
@@ -308,7 +302,7 @@ const InvitationDelivery = ({
                       <Button
                         size="small"
                         disabled={numbers.participants === 0 || numbers.invalid || !canSend}
-                        onClick={() => onOpenMessageDialog?.(recipients, 'invitation')}
+                        onClick={() => openDialog({ kind: 'message', recipients, templateId: 'invitation' })}
                         color="primary"
                         variant={canSend && numbers.participants > 0 && !numbers.invalid ? 'contained' : 'outlined'}
                       >

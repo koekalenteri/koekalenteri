@@ -1,4 +1,5 @@
-import type { EmailTemplateId, Registration } from '../../types'
+import type { Registration } from '../../types'
+import type { EventViewDialog } from './state/eventViewDialog'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -35,6 +36,7 @@ import {
   adminConfirmedEventAtom,
   adminEventClassAtom,
   adminEventIdAtom,
+  adminEventViewDialogAtom,
   adminProjectedEventRegistrationsAtom,
   adminRegistrationIdAtom,
   useAdminEventActions,
@@ -47,13 +49,17 @@ const ALL_CLASSES_TAB = '*'
 
 export default function EventViewPage() {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
-  const [detailsOpen, setDetailsOpen] = useState(false)
-  const [createOpen, setCreateOpen] = useState(false)
-  const [msgDlgOpen, setMsgDlgOpen] = useState(false)
-  const [recipientsOpen, setRecipientsOpen] = useState(false)
-  const [refundOpen, setRefundOpen] = useState(false)
-  const [cancelOpen, setCancelOpen] = useState(false)
+  // The open dialog is one value the whole page shares: the actions that open one sit in the entry
+  // lists and the info panel, and set it from there (KOE-1347).
+  const [dialog, setDialog] = useAtom(adminEventViewDialogAtom)
+  const closeDialog = useCallback(() => setDialog(undefined), [setDialog])
+  // The message dialog keeps its recipients through its closing fade.
+  const [message, setMessage] = useState<Extract<EventViewDialog, { kind: 'message' }>>()
+  useEffect(() => {
+    if (dialog?.kind === 'message') setMessage(dialog)
+  }, [dialog])
+  // Leaving the page closes whatever was open; the next event must not start with a dialog up.
+  useEffect(() => closeDialog, [closeDialog])
 
   const params = useParams()
   const eventId = params.id ?? ''
@@ -73,8 +79,6 @@ export default function EventViewPage() {
     () => selectedRegistrationId && allRegistrations.find((r) => r.id === selectedRegistrationId),
     [allRegistrations, selectedRegistrationId]
   )
-  const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
-  const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
   const { eventClasses, stateByClass, missingClasses } = useAdminEventRegistrationInfo(event, allRegistrations)
   // The entry stays readable after its class has been judged, but not editable; the class the entry
   // sits in decides, the same way the list's own actions are gated (KOE-1388).
@@ -117,33 +121,19 @@ export default function EventViewPage() {
     [setSelectedEventClass, tabs]
   )
 
-  const handleClose = useCallback(() => setOpen(false), [])
-  const handleCancelClose = useCallback(() => setCancelOpen(false), [])
-  const handleCreateClose = useCallback(() => setCreateOpen(false), [])
-  const handleDetailsClose = useCallback(() => setDetailsOpen(false), [])
-  const handleRefundClose = useCallback(() => setRefundOpen(false), [])
-  const closeMsgDlg = useCallback(() => setMsgDlgOpen(false), [])
-  const closeRecipients = useCallback(() => setRecipientsOpen(false), [])
-
-  const handleOpenMsgDialog = (recipients: Registration[], templateId?: EmailTemplateId) => {
-    setRecipientRegistrations(recipients)
-    setMessageTemplateId(templateId)
-    setMsgDlgOpen(true)
-  }
-
   // The secretary picks the recipient groups first, and writes the message to them after (KOE-1073).
-  const handleRecipientsContinue = (recipients: Registration[]) => {
-    setRecipientsOpen(false)
-    handleOpenMsgDialog(recipients, 'message')
-  }
+  const handleRecipientsContinue = useCallback(
+    (recipients: Registration[]) => setDialog({ kind: 'message', recipients, templateId: 'message' }),
+    [setDialog]
+  )
 
   const handleCancel = useCallback(
     async (reason: string) => {
       if (!selectedRegistration) return
-      setCancelOpen(false)
+      closeDialog()
       await actions.cancel(selectedRegistration.eventId, selectedRegistration.id, reason)
     },
-    [actions, selectedRegistration]
+    [actions, closeDialog, selectedRegistration]
   )
 
   useEffect(() => {
@@ -195,8 +185,6 @@ export default function EventViewPage() {
       <Title event={event} />
       <InfoPanel
         event={event}
-        onCreateRegistration={() => setCreateOpen(true)}
-        onOpenDetails={() => setDetailsOpen(true)}
         onSetResultsPublished={(eventClass, published) =>
           eventActions.setResultsClassPublished(event, eventClass, published)
         }
@@ -211,8 +199,6 @@ export default function EventViewPage() {
             : eventActions.setStartListPublished(event, published)
         }
         registrations={allRegistrations}
-        onOpenMessageDialog={handleOpenMsgDialog}
-        onSendMessage={() => setRecipientsOpen(true)}
       />
 
       <Stack
@@ -262,9 +248,6 @@ export default function EventViewPage() {
                   ? allRegistrations
                   : allRegistrations.filter((registration) => getRegistrationClass(registration) === eventClass)
               }
-              setOpen={setOpen}
-              setCancelOpen={setCancelOpen}
-              setRefundOpen={setRefundOpen}
               selectedRegistrationId={selectedRegistrationId}
               setSelectedRegistrationId={setSelectedRegistrationId}
               state={allClassesTab ? event.state : stateByClass[eventClass]}
@@ -284,9 +267,9 @@ export default function EventViewPage() {
         <RegistrationEditDialog
           disabled={entryEditingClosed}
           event={event}
-          onClose={handleClose}
-          open={open}
-          registrationId={open ? (selectedRegistrationId ?? '') : ''}
+          onClose={closeDialog}
+          open={dialog?.kind === 'edit'}
+          registrationId={dialog?.kind === 'edit' ? (selectedRegistrationId ?? '') : ''}
         />
         <RegistrationCreateDialog
           event={event}
@@ -295,38 +278,38 @@ export default function EventViewPage() {
               ? selectedEventClass
               : undefined
           }
-          onClose={handleCreateClose}
-          open={createOpen}
+          onClose={closeDialog}
+          open={dialog?.kind === 'create'}
         />
         <SendMessageDialog
           event={event}
-          onClose={closeMsgDlg}
-          open={msgDlgOpen}
-          registrations={recipientRegistrations}
-          templateId={messageTemplateId}
+          onClose={closeDialog}
+          open={dialog?.kind === 'message'}
+          registrations={message?.recipients ?? []}
+          templateId={message?.templateId}
         />
         <MessageRecipientsDialog
           event={event}
-          onCancel={closeRecipients}
+          onCancel={closeDialog}
           onContinue={handleRecipientsContinue}
-          open={recipientsOpen}
+          open={dialog?.kind === 'recipients'}
           registrations={allRegistrations}
         />
-        <EventDetailsDialog eventId={eventId} open={detailsOpen} onClose={handleDetailsClose} />
+        <EventDetailsDialog eventId={eventId} open={dialog?.kind === 'details'} onClose={closeDialog} />
         {selectedRegistration && (
           <RefundDailog
             event={event}
             registration={selectedRegistration}
-            open={refundOpen}
-            onClose={handleRefundClose}
+            open={dialog?.kind === 'refund'}
+            onClose={closeDialog}
           />
         )}
         {selectedRegistration && (
           <CancelDialog
             admin
             event={event}
-            open={cancelOpen}
-            onClose={handleCancelClose}
+            open={dialog?.kind === 'cancel'}
+            onClose={closeDialog}
             onCancel={handleCancel}
             registration={selectedRegistration}
           />

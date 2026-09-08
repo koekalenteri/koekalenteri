@@ -8,30 +8,22 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { Path } from '../../../../routeConfig'
+import { useOpenEventViewDialog } from '../../state'
 import { actionButtonSx, sectionSx } from './styles'
 
 interface Props {
   readonly eventFinished: boolean
   readonly eventId: string
   readonly hasRegistrations?: boolean
-  readonly onCreateRegistration?: () => void
-  readonly onOpenDetails?: () => void
-  readonly onSendMessage?: () => void
 }
 
 /**
  * What the panel offers apart from the trial's own steps. Scoring is a step, not a general action, so
  * defining the posts and entering the results live in the results section (KOE-1354).
  */
-const EventActions = ({
-  eventFinished,
-  eventId,
-  hasRegistrations,
-  onCreateRegistration,
-  onOpenDetails,
-  onSendMessage,
-}: Props) => {
+const EventActions = ({ eventFinished, eventId, hasRegistrations }: Props) => {
   const { t } = useTranslation()
+  const openDialog = useOpenEventViewDialog()
 
   return (
     <Box sx={sectionSx}>
@@ -49,7 +41,7 @@ const EventActions = ({
       <Stack spacing={1} sx={{ p: 1 }}>
         <Button
           fullWidth
-          onClick={onOpenDetails}
+          onClick={() => openDialog({ kind: 'details' })}
           startIcon={<FormatListBulleted />}
           sx={actionButtonSx}
           variant="outlined"
@@ -59,7 +51,7 @@ const EventActions = ({
         <Button
           disabled={eventFinished}
           fullWidth
-          onClick={onCreateRegistration}
+          onClick={() => openDialog({ kind: 'create' })}
           startIcon={<AddCircleOutline />}
           sx={actionButtonSx}
           variant="outlined"
@@ -69,7 +61,7 @@ const EventActions = ({
         <Button
           disabled={!hasRegistrations}
           fullWidth
-          onClick={onSendMessage}
+          onClick={() => openDialog({ kind: 'recipients' })}
           startIcon={<MailOutline />}
           sx={actionButtonSx}
           variant="outlined"

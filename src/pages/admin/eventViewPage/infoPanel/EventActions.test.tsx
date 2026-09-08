@@ -8,6 +8,13 @@ import { eventRegistrationDateKey } from '../../../../lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../../test-utils/utils'
 import InfoPanel from '../InfoPanel'
 
+const { mockOpenDialog } = vi.hoisted(() => ({ mockOpenDialog: vi.fn() }))
+
+vi.mock('../../state', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../state')>()),
+  useOpenEventViewDialog: () => mockOpenDialog,
+}))
+
 const activeEventWithStaticDates = {
   ...eventWithStaticDates,
   endDate: new Date('2099-12-31'),
@@ -52,33 +59,25 @@ describe('InfoPanel>', () => {
   afterAll(() => localStorage.removeItem('idToken'))
 
   it('runs the moved create registration action', async () => {
-    const onCreateRegistration = vi.fn()
-    const { user } = renderWithUserEvents(
-      <InfoPanel event={activeEventWithStaticDates} onCreateRegistration={onCreateRegistration} registrations={[]} />,
-      {
-        wrapper: Provider,
-      }
-    )
+    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
+      wrapper: Provider,
+    })
     await openInfoPanel(user)
 
     await user.click(screen.getByRole('button', { name: /createRegistration/i }))
 
-    expect(onCreateRegistration).toHaveBeenCalledTimes(1)
+    expect(mockOpenDialog).toHaveBeenCalledWith({ kind: 'create' })
   })
 
   it('runs the moved event details action', async () => {
-    const onOpenDetails = vi.fn()
-    const { user } = renderWithUserEvents(
-      <InfoPanel event={eventWithStaticDates} onOpenDetails={onOpenDetails} registrations={[]} />,
-      {
-        wrapper: Provider,
-      }
-    )
+    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+      wrapper: Provider,
+    })
     await openInfoPanel(user)
 
     await user.click(screen.getByRole('button', { name: 'eventManagement.showEventDetails' }))
 
-    expect(onOpenDetails).toHaveBeenCalledTimes(1)
+    expect(mockOpenDialog).toHaveBeenCalledWith({ kind: 'details' })
   })
 
   it('keeps scoring with the results, not among the general actions (KOE-1354)', async () => {
@@ -106,13 +105,8 @@ describe('InfoPanel>', () => {
   })
 
   it('sends a message to a chosen group of recipients (KOE-1073)', async () => {
-    const onSendMessage = vi.fn()
     const { user } = renderWithUserEvents(
-      <InfoPanel
-        event={eventWithStations}
-        onSendMessage={onSendMessage}
-        registrations={registrationsToEventWithStations}
-      />,
+      <InfoPanel event={eventWithStations} registrations={registrationsToEventWithStations} />,
       { wrapper: Provider }
     )
     await openInfoPanel(user)
@@ -120,7 +114,7 @@ describe('InfoPanel>', () => {
     const actionsSection = sectionOf('eventManagement.actions')
     await user.click(within(actionsSection).getByRole('button', { name: 'eventManagement.message.action' }))
 
-    expect(onSendMessage).toHaveBeenCalledTimes(1)
+    expect(mockOpenDialog).toHaveBeenCalledWith({ kind: 'recipients' })
   })
 
   it('has nobody to message before anyone has entered', async () => {
