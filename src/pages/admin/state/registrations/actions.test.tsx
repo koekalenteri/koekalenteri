@@ -263,7 +263,7 @@ describe('useAdminRegistrationActions', () => {
     })
 
     expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
-      'Koekutsu lähetetään, kun koepaikka on maksettu\n\nhandler@example.com',
+      'registration.notifications.groupMove.invitationAwaitingPayment\n\nhandler@example.com',
       expect.objectContaining({ variant: 'info' })
     )
   })

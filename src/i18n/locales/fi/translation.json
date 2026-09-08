@@ -766,6 +766,21 @@
       "alreadyRegistered_cancel": "Koira {{reg.dog.regNo}} {{reg.dog.name}} on jo ilmoitettu tähän tapahtumaan, ja ilmoittautuminen on peruttu. Ota yhteyttä koesihteeriin {{contact}}, jos haluat ilmoittaa koiran uudelleen tapahtumaan.",
       "confirmFailed": "Koepaikan vahvistus epäonnistui. Yritä uudelleen, ja jos vika toistuu, ota yhteyttä koesihteeriin.",
       "emailSuppressed": "Sähköpostiosoitetta {{email}} ei voi käyttää ilmoittautumiseen, koska aiempi viesti ei ole mennyt perille. Tarkista osoite tai käytä toista sähköpostiosoitetta.",
+      "groupMove": {
+        "failed": {
+          "cancelled": "Peruutusilmoituksen lähetys epäonnistui 💩",
+          "invitation": "Koekutsun lähetys epäonnistui 💩",
+          "picked": "Koepaikkailmoituksen lähetys epäonnistui 💩",
+          "reserve": "Varasijailmoituksen lähetys epäonnistui 💩"
+        },
+        "invitationAwaitingPayment": "Koekutsu lähetetään, kun koepaikka on maksettu",
+        "sent": {
+          "cancelled": "Peruutusilmoitus lähetetty onnistuneesti",
+          "invitation": "Koekutsu lähetetty onnistuneesti",
+          "picked": "Koepaikkailmoitus lähetetty onnistuneesti",
+          "reserve": "Varasijailmoitus lähetetty onnistuneesti"
+        }
+      },
       "groupsBusy": "Tapahtuman tietoja päivitetään parhaillaan. Yritä hetken kuluttua uudelleen.",
       "paymentFailed": "Maksu epäonnistui, ole hyvä ja yritä uudelleen",
       "paymentInProgress": "Tämän koiran maksu on kesken. Yritä uudelleen muutaman minuutin kuluttua.",

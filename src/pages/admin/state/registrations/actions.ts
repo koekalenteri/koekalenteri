@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type { StoredEventResult } from '../../../../api/registration'
 import type { PublicDogEvent, Registration, RegistrationGroupMove } from '../../../../types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -45,22 +46,26 @@ const registrationDebug = (message: string, details: unknown) => {
 type GroupMoveResult = Awaited<ReturnType<typeof putRegistrationGroups>>
 type EnqueueSnackbar = ReturnType<typeof useSnackbar>['enqueueSnackbar']
 
-const notifyGroupMoveResult = (result: GroupMoveResult, enqueueSnackbar: EnqueueSnackbar) => {
+const notifyGroupMoveResult = (
+  result: GroupMoveResult,
+  enqueueSnackbar: EnqueueSnackbar,
+  t: TFunction<'translation'>
+) => {
   const notifications = [
-    ['Koepaikkailmoitus lähetetty onnistuneesti', result.pickedOk, 'success'],
-    ['Koekutsu lähetetty onnistuneesti', result.invitedOk, 'success'],
-    ['Varasijailmoitus lähetetty onnistuneesti', result.reserveOk, 'success'],
-    ['Peruutusilmoitus lähetetty onnistuneesti', result.cancelledOk, 'success'],
-    ['Koekutsu lähetetään, kun koepaikka on maksettu', result.invitationAwaitingPayment ?? [], 'info'],
-    ['Koepaikkailmoituksen lähetys epäonnistui 💩', result.pickedFailed, 'success'],
-    ['Koekutsun lähetys epäonnistui 💩', result.invitedFailed, 'success'],
-    ['Varasijailmoituksen lähetys epäonnistui 💩', result.reserveFailed, 'success'],
-    ['Peruutusilmoituksen lähetys epäonnistui 💩', result.cancelledFailed, 'success'],
+    ['registration.notifications.groupMove.sent.picked', result.pickedOk, 'success'],
+    ['registration.notifications.groupMove.sent.invitation', result.invitedOk, 'success'],
+    ['registration.notifications.groupMove.sent.reserve', result.reserveOk, 'success'],
+    ['registration.notifications.groupMove.sent.cancelled', result.cancelledOk, 'success'],
+    ['registration.notifications.groupMove.invitationAwaitingPayment', result.invitationAwaitingPayment ?? [], 'info'],
+    ['registration.notifications.groupMove.failed.picked', result.pickedFailed, 'success'],
+    ['registration.notifications.groupMove.failed.invitation', result.invitedFailed, 'success'],
+    ['registration.notifications.groupMove.failed.reserve', result.reserveFailed, 'success'],
+    ['registration.notifications.groupMove.failed.cancelled', result.cancelledFailed, 'success'],
   ] as const
 
-  for (const [message, recipients, variant] of notifications) {
+  for (const [key, recipients, variant] of notifications) {
     if (!recipients.length) continue
-    enqueueSnackbar(`${message}\n\n${recipients.join('\n')}`, {
+    enqueueSnackbar(`${t(key)}\n\n${recipients.join('\n')}`, {
       style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
       variant,
     })
@@ -217,7 +222,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
         const result = await putRegistrationGroups(targetEventId, groups, token)
         const { items, classes, entries } = result
-        notifyGroupMoveResult(result, enqueueSnackbar)
+        notifyGroupMoveResult(result, enqueueSnackbar, t)
         // Defensive against backend returning sparse arrays / null items.
         // MUI X v7 will crash if `rows` contains nullish entries.
         const confirmed = (items as Array<Registration | null | undefined>).filter(Boolean) as Registration[]
