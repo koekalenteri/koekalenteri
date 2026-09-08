@@ -167,3 +167,43 @@ export const docsPages: Readonly<Record<string, readonly DocsPage[]>> = {
     },
   ],
 }
+
+export interface ReleaseNote {
+  /** The release date, yyyy-mm-dd. */
+  readonly date: string
+  /** Rendered from the markdown at build time; it is repository content, not user input. */
+  readonly html: string
+  readonly version: string
+}
+
+/** Newest first. */
+export const releaseNotes: Readonly<Record<string, readonly ReleaseNote[]>> = {
+  en: [
+    {
+      date: "2026-09-04",
+      html:
+        "<h2>New</h2>\n<ul>\n<li>Publishing the start numbers has a section of its own in the <em>Event management</em>\npanel, with <strong>Enter start numbers</strong> beside it.</li>\n<li>When the start list cannot be published yet, the panel says why next to the button: pick the\nparticipants first, or send the invitations first.</li>\n<li>Entering the start numbers starts with the day and only then the class, and the day stays picked\nfrom one class to the next.</li>\n<li>In results entry the dogs are in their drawn start number order, and a multi-day class is entered\none day at a time.</li>\n</ul>\n<h2>Fixed</h2>\n<ul>\n<li>A published day shows on an open public start list without reloading the page.</li>\n<li>In the statistics a trial counts towards the capacity and club figures only once it has been held,\nand the cancellation rate counts the entries left on the reserve list among the registrations.</li>\n</ul>\n",
+      version: "1.11.2",
+    },
+    {
+      date: "2026-09-03",
+      html:
+        "<h2>New</h2>\n<ul>\n<li>A multi-day class's start numbers are entered and published one day at a time: Friday's draw can\nbe public while Saturday's is still to come.</li>\n</ul>\n<h2>Fixed</h2>\n<ul>\n<li>A start number is the dog's own in the whole trial, in every class and on every day; two dogs\ncannot hold the same number.</li>\n<li>The secretary's event list stays in date order after a trial is saved.</li>\n<li>In the statistics the starters and the reserve list count only from trials already held.</li>\n</ul>\n<h2>Faster</h2>\n<ul>\n<li>The statistics' nightly run does far less work: it counts the dogs, handlers and trials without a\nrow for each, and clears out old figures in batches.</li>\n</ul>\n",
+      version: "1.11.1",
+    },
+  ],
+  fi: [
+    {
+      date: "2026-09-04",
+      html:
+        "<h2>Uutta</h2>\n<ul>\n<li>Starttinumeroiden julkaisulla on oma osionsa <em>Tapahtuman hallinta</em> -paneelissa,\nja <strong>Syötä starttinumerot</strong> löytyy sen vierestä.</li>\n<li>Kun starttilistaa ei vielä voi julkaista, paneeli kertoo syyn painikkeen vieressä: valitse ensin\nosallistujat tai lähetä ensin koekutsut.</li>\n<li>Starttinumeroiden syötössä valitaan ensin päivä ja vasta sitten luokka, ja päivä pysyy valittuna\nluokasta toiseen.</li>\n<li>Tulosten syötössä koirat ovat arvotussa starttinumerojärjestyksessä, ja usean päivän luokka\nsyötetään päivä kerrallaan.</li>\n</ul>\n<h2>Korjattu</h2>\n<ul>\n<li>Julkaistu päivä näkyy avoinna olevalla julkisella starttilistalla ilman sivun päivitystä.</li>\n<li>Tilastoissa koe lasketaan kapasiteetti- ja yhdistyskohtaisiin lukuihin vasta, kun se on pidetty,\nja peruutusprosentti laskee myös varasijalle jääneet ilmoittautumisiin.</li>\n</ul>\n",
+      version: "1.11.2",
+    },
+    {
+      date: "2026-09-03",
+      html:
+        "<h2>Uutta</h2>\n<ul>\n<li>Usean päivän luokan starttinumerot syötetään ja julkaistaan päivä kerrallaan: perjantain arvonta\nvoi olla julkinen, kun lauantain on vielä tekemättä.</li>\n</ul>\n<h2>Korjattu</h2>\n<ul>\n<li>Starttinumero on koiran oma koko kokeessa, jokaisessa luokassa ja jokaisena päivänä; sama numero\nei voi olla kahdella koiralla.</li>\n<li>Koesihteerin tapahtumalistaus pysyy päiväjärjestyksessä myös kokeen tallentamisen jälkeen.</li>\n<li>Tilastoissa lähtijät ja varasijat lasketaan vain jo pidetyistä kokeista.</li>\n</ul>\n<h2>Nopeampaa</h2>\n<ul>\n<li>Tilastojen yöajo tekee huomattavasti vähemmän työtä: se laskee koirat, ohjaajat ja kokeet ilman\nriviä jokaisesta, ja siivoaa vanhat luvut erissä.</li>\n</ul>\n",
+      version: "1.11.1",
+    },
+  ],
+}

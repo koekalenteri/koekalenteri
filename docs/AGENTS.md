@@ -63,6 +63,22 @@ Every binding fails the build rather than a reader, and `npm run check-docs` run
   a table where three things line up, and a picture where the reader would otherwise have to
   imagine the screen.
 
+## Release notes
+
+`docs/<language>/uutta/<version>.md` says what changed for the reader in that release, and is shown
+at `/uutta` and offered from the notice a reader gets after the application updated. Its
+frontmatter is only the `date` (and `sourceHash` in the translation); the version is the file name.
+
+- **The reader's words, not the commit's.** "Starttinumerot voi julkaista päivä kerrallaan", not
+  "feat(admin): publish a multi-day class's start numbers one day at a time". Say what the
+  reader can now do or no longer has to put up with; leave out refactors, dependency bumps and
+  anything with no visible effect.
+- **Group under `## Uutta`, `## Korjattu` and `## Nopeampaa`** (`New`, `Fixed`, `Faster`), in that
+  order, and leave out a group that has nothing. Name controls with `{t:key}` like any page.
+- **Draft, then write.** `npm run release-notes -- v<version>` writes both files from the commits
+  with a `TODO` line at the top; the notes are done when the `TODO` is gone and the English
+  `sourceHash` is renewed. A version bump without its notes does not pass `npm run check-docs`.
+
 ## Commands
 
 | Command | What it does |
@@ -71,3 +87,4 @@ Every binding fails the build rather than a reader, and `npm run check-docs` run
 | `npm run check-docs` | the bindings, the generated module, links, `TODO`s and coverage; pre-commit and CI run it |
 | `npm run docs-coverage -- --staged` | which pages a staged change concerns; pre-commit prints it as a hint |
 | `npm run docs-update -- --since v1.11.2` | the release brief: pages, commits, issues; `--run` starts the session |
+| `npm run release-notes -- v1.11.3` | drafts `docs/<language>/uutta/1.11.3.md` in both languages from the commits |

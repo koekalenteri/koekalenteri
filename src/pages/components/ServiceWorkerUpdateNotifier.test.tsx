@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react'
+import type { ReactNode } from 'react'
+import { render, screen } from '@testing-library/react'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import {
@@ -97,7 +98,27 @@ describe('ServiceWorkerUpdateNotifier', () => {
 
     render(<ServiceWorkerUpdateNotifier />)
 
-    expect(enqueueSnackbar).toHaveBeenCalledWith('app.updated:1.10.2→1.10.3', { variant: 'success' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith('app.updated:1.10.2→1.10.3', {
+      action: expect.any(Function),
+      variant: 'success',
+    })
+  })
+
+  // The notice is the one moment a reader is told the application changed, so it has to lead
+  // straight to what changed (KOE-1398).
+  it('links the notice to the new version’s release notes', () => {
+    const enqueueSnackbar = vi.fn()
+    mockConsumeUpdated.mockReturnValue({ from: '1.10.2', to: '1.10.3' })
+    mockUseSnackbar.mockReturnValue({ closeSnackbar: vi.fn(), enqueueSnackbar })
+    mockUseTranslation.mockReturnValue({ t: (key: string) => key } as ReturnType<typeof useTranslation>)
+    mockSubscribe.mockReturnValue(vi.fn())
+
+    render(<ServiceWorkerUpdateNotifier />)
+
+    const { action } = enqueueSnackbar.mock.calls[0][1] as { action: (key: string) => ReactNode }
+    render(<>{action('snack-1')}</>)
+
+    expect(screen.getByRole('link', { name: 'app.whatsNew' })).toHaveAttribute('href', '/uutta#1.10.3')
   })
 
   it('reports the build time when the version number did not change', () => {

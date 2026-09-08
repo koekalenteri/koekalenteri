@@ -6,7 +6,8 @@
   "all": "All",
   "app": {
     "updated": "App updated: {{from}} → {{to}}",
-    "updatedBuild": "App updated: {{to}} ({{date}} {{time}})"
+    "updatedBuild": "App updated: {{to}} ({{date}} {{time}})",
+    "whatsNew": "See what's new"
   },
   "audit": {
     "after": "after",
@@ -123,7 +124,9 @@
       "secretary": "For trial secretaries"
     },
     "notFound": "Guide not found",
-    "title": "Guides"
+    "title": "Guides",
+    "version": "Version {{version}}",
+    "whatsNew": "What's new in Koekalenteri"
   },
   "dog": {
     "breed": "Breed",

@@ -37,6 +37,18 @@ This is the standard process for all production and pre-release deployments. The
     Review the result in the session, commit it to `main`, and let CI take it to dev so the
     `/ohjeet` pages can be looked at in the running application before anything is tagged.
 
+0.  **Write the release notes**: Every version ships with `docs/fi/uutta/<version>.md` and its
+    English translation, shown at `/uutta` and offered from the update notice. Draft them from the
+    commits and write them over in the reader's words:
+
+    ```bash
+    npm run release-notes -- v1.2.3
+    ```
+
+    `npm run check-docs` refuses a `package.json` version that has no notes, so the version bump
+    commit cannot be made without them. The same Finnish text becomes the GitHub Release's
+    description when the release is published (below); nothing needs to be typed into the form.
+
 1.  **Create a Git Tag**: Create and push a new tag for your release. Use semantic versioning (e.g., `v1.2.3` for a release, `v1.2.3-beta.1` for a pre-release).
 
     ```bash
@@ -50,12 +62,13 @@ This is the standard process for all production and pre-release deployments. The
     - Choose the tag you just created.
     - **For a Pre-release (to test environment)**: Check the "This is a pre-release" box.
     - **For a Production Release**: Leave the "This is a pre-release" box unchecked.
-    - Fill in the release title and description.
+    - Fill in the release title; the description is replaced with the version's release notes on publish.
     - Click "Publish release".
 
 #### Automation:
 
 - Publishing the release triggers the `Release` workflow.
+- The workflow sets the release's description from `docs/fi/uutta/<version>.md`.
 - The workflow determines the environment (`prod` or `test`) based on whether it's a pre-release.
 - For production releases, the tag is force-pushed to the `release/prod` branch.
 - For pre-releases, the tag is force-pushed to the `release/test` branch.

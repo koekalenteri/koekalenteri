@@ -147,7 +147,9 @@ lines.push(
   '',
   '- `npm run build-docs`, then `npm run check-docs`; both must pass',
   '- every changed Finnish page has its English translation updated and its `sourceHash` renewed',
-  '- anything you could not settle is a `TODO` line in the page, listed for the developer'
+  '- anything you could not settle is a `TODO` line in the page, listed for the developer',
+  '- for a release: `npm run release-notes -- v<next>` drafts docs/<language>/uutta/<next>.md; write it in',
+  "  the reader's words in both languages — the version bump cannot be committed without it"
 )
 
 const brief = lines.join('\n')

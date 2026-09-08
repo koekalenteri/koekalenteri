@@ -6,7 +6,8 @@
   "all": "Kaikki",
   "app": {
     "updated": "Sovellus päivitetty: {{from}} → {{to}}",
-    "updatedBuild": "Sovellus päivitetty: {{to}} ({{date}} klo {{time}})"
+    "updatedBuild": "Sovellus päivitetty: {{to}} ({{date}} klo {{time}})",
+    "whatsNew": "Katso mitä uutta"
   },
   "audit": {
     "after": "jälkeen",
@@ -123,7 +124,9 @@
       "secretary": "Koesihteerille"
     },
     "notFound": "Ohjetta ei löytynyt",
-    "title": "Ohjeet"
+    "title": "Ohjeet",
+    "version": "Versio {{version}}",
+    "whatsNew": "Uutta koekalenterissa"
   },
   "dog": {
     "breed": "Rotu",

@@ -45,6 +45,14 @@ export default function HelpMenu() {
           {t('docs.title')}
         </MenuItem>
         <MenuItem
+          component={RouterLink}
+          to={Path.whatsNew}
+          onClick={handleClose}
+          disabled={location.pathname === Path.whatsNew}
+        >
+          {t('docs.whatsNew')}
+        </MenuItem>
+        <MenuItem
           href="/support"
           target="_blank"
           component="a"

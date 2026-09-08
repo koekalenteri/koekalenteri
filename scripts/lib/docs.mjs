@@ -98,7 +98,7 @@ const pageIdentity = (file) => {
 }
 
 /** Short digest of a translation's source, so a changed original shows up as a stale translation. */
-const digest = (body) => createHash('sha256').update(body.trim()).digest('hex').slice(0, 6)
+export const digest = (body) => createHash('sha256').update(body.trim()).digest('hex').slice(0, 6)
 
 // ---- translation keys -------------------------------------------------------------------------
 
@@ -231,17 +231,8 @@ const splitShots = (body, language, file, screenshots) => {
 
 const processor = unified().use(remarkParse).use(remarkGfm).use(remarkHtml)
 
-const readPage = async (file, screenshots) => {
-  const { language, path } = pageIdentity(file)
-  const { body, data, frontmatterLines } = parseFrontmatter(readFileSync(file, 'utf8'), file)
-
-  for (const required of ['title', 'audience', 'order']) {
-    if (!data[required]) throw new Error(`${file}: frontmatter is missing ${required}`)
-  }
-  if (!AUDIENCES.includes(data.audience)) {
-    throw new Error(`${file}: audience "${data.audience}" is not one of ${AUDIENCES.join(', ')}`)
-  }
-
+/** The body as the generated module's html parts, with every `{t:key}` and `!shot` bound. */
+const renderBody = async (body, language, file, screenshots) => {
   const html = []
   const shots = []
   for (const part of splitShots(body, language, file, screenshots)) {
@@ -253,42 +244,99 @@ const readPage = async (file, screenshots) => {
     }
   }
 
+  return { html, shots }
+}
+
+/** What every document shares: where it is, what it says, and what its translation was made from. */
+const readDocument = async (file, screenshots) => {
+  const { language, path } = pageIdentity(file)
+  const { body, data, frontmatterLines } = parseFrontmatter(readFileSync(file, 'utf8'), file)
+  const { html, shots } = await renderBody(body, language, file, screenshots)
+
+  return { body, data, file, frontmatterLines, html, language, path, shots, sourceDigest: digest(body), sourceHash: data.sourceHash }
+}
+
+const readPage = async (file, screenshots) => {
+  const { data, ...document } = await readDocument(file, screenshots)
+
+  for (const required of ['title', 'audience', 'order']) {
+    if (!data[required]) throw new Error(`${file}: frontmatter is missing ${required}`)
+  }
+  if (!AUDIENCES.includes(data.audience)) {
+    throw new Error(`${file}: audience "${data.audience}" is not one of ${AUDIENCES.join(', ')}`)
+  }
+
   return {
+    ...document,
     ...(data.appliesFrom ? { appliesFrom: data.appliesFrom } : {}),
     audience: data.audience,
-    body,
     covers: data.covers ?? [],
-    file,
-    frontmatterLines,
-    html,
-    language,
     order: Number(data.order),
-    path,
-    shots,
-    sourceDigest: digest(body),
-    sourceHash: data.sourceHash,
     title: data.title,
   }
 }
 
-/** Every page of every language, read and bound; throws on the first page that does not bind. */
-export const loadPages = async () => {
-  const screenshots = indexScreenshots()
-  const byLanguage = {}
-  const pages = []
-  for (const file of markdownFiles()) {
-    const page = await readPage(file, screenshots)
-    byLanguage[page.language] ??= []
-    byLanguage[page.language].push(page)
-    pages.push(page)
-  }
+/** The release notes live under this path in each language, one file per version. */
+export const NOTES_PATH = 'uutta'
+const isReleaseNote = (file) => pageIdentity(file).path.startsWith(`${NOTES_PATH}/`)
+const VERSION = /^\d+\.\d+\.\d+$/
+const DATE = /^\d{4}-\d{2}-\d{2}$/
 
-  return { byLanguage, pages }
+/**
+ * A release's notes: `docs/<language>/uutta/<version>.md`, whose frontmatter carries only the
+ * release date. The version is the file name, so a note cannot claim a version it is not filed
+ * under, and the file exists before the version does -- that is the gate (KOE-1398).
+ */
+const readReleaseNote = async (file, screenshots) => {
+  const { data, ...document } = await readDocument(file, screenshots)
+  const version = document.path.slice(NOTES_PATH.length + 1)
+
+  if (!VERSION.test(version)) throw new Error(`${file}: a release note is named by its version, like 1.11.3.md`)
+  if (!DATE.test(data.date ?? '')) throw new Error(`${file}: frontmatter needs the release date as yyyy-mm-dd`)
+
+  return { ...document, date: data.date, version }
+}
+
+/** Newest first: numeric per segment, so 1.11.10 is newer than 1.11.9. */
+const compareVersionsDesc = (a, b) => {
+  const as = a.split('.').map(Number)
+  const bs = b.split('.').map(Number)
+  for (let i = 0; i < 3; i++) if (as[i] !== bs[i]) return bs[i] - as[i]
+
+  return 0
 }
 
 /**
- * Every page exists in every language, and a translation names the digest of the original it was
- * made from. Both are checked here rather than left to a reader to notice.
+ * Every page and release note of every language, read and bound; throws on the first document
+ * that does not bind.
+ */
+export const loadPages = async () => {
+  const screenshots = indexScreenshots()
+  const byLanguage = {}
+  const notesByLanguage = {}
+  const pages = []
+  const notes = []
+  for (const file of markdownFiles()) {
+    if (isReleaseNote(file)) {
+      const note = await readReleaseNote(file, screenshots)
+      notesByLanguage[note.language] ??= []
+      notesByLanguage[note.language].push(note)
+      notes.push(note)
+    } else {
+      const page = await readPage(file, screenshots)
+      byLanguage[page.language] ??= []
+      byLanguage[page.language].push(page)
+      pages.push(page)
+    }
+  }
+
+  return { byLanguage, documents: [...pages, ...notes], notes, notesByLanguage, pages }
+}
+
+/**
+ * Every document exists in every language, and a translation names the digest of the original it
+ * was made from. Both are checked here rather than left to a reader to notice. Pages and release
+ * notes are checked as two maps, since they are looked up apart.
  */
 export const translationProblems = (byLanguage) => {
   const source = byLanguage[SOURCE_LANGUAGE] ?? []
@@ -319,8 +367,8 @@ export const translationProblems = (byLanguage) => {
   return problems
 }
 
-export const checkTranslations = (byLanguage) => {
-  const problems = translationProblems(byLanguage)
+export const checkTranslations = ({ byLanguage, notesByLanguage }) => {
+  const problems = [...translationProblems(byLanguage), ...translationProblems(notesByLanguage)]
   if (problems.length) throw new Error(`Translations are out of step:\n  ${problems.join('\n  ')}`)
 }
 
@@ -393,7 +441,7 @@ export const relativeLinkTarget = (page, target) => resolve(dirname(page.file), 
 const escapeHtml = (text) =>
   text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 
-export const render = (byLanguage) => {
+export const render = ({ byLanguage, notesByLanguage }) => {
   const languages = Object.keys(byLanguage).sort()
   // One import per picture, however many pages show it; the bundler hands back its URL.
   const imports = new Map()
@@ -439,6 +487,25 @@ export const render = (byLanguage) => {
     })
     .join('\n')
 
+  const notes = languages
+    .map((language) => {
+      const entries = [...(notesByLanguage[language] ?? [])]
+        .sort((a, b) => compareVersionsDesc(a.version, b.version))
+        .map(({ date, html, version }) =>
+          [
+            '    {',
+            `      date: ${JSON.stringify(date)},`,
+            `      html:\n        ${htmlExpression(html)},`,
+            `      version: ${JSON.stringify(version)},`,
+            '    },',
+          ].join('\n')
+        )
+        .join('\n')
+
+      return `  ${language}: [\n${entries}\n  ],`
+    })
+    .join('\n')
+
   const importLines = [...imports]
     .map(([file, name]) => `import ${name} from ${JSON.stringify(relative('src/generated/docs', file))}`)
     .join('\n')
@@ -461,6 +528,19 @@ export interface DocsPage {
 
 export const docsPages: Readonly<Record<string, readonly DocsPage[]>> = {
 ${pages}
+}
+
+export interface ReleaseNote {
+  /** The release date, yyyy-mm-dd. */
+  readonly date: string
+  /** Rendered from the markdown at build time; it is repository content, not user input. */
+  readonly html: string
+  readonly version: string
+}
+
+/** Newest first. */
+export const releaseNotes: Readonly<Record<string, readonly ReleaseNote[]>> = {
+${notes}
 }
 `
 }

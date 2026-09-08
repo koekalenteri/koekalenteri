@@ -67,6 +67,7 @@
     "check-docs": "node scripts/docs-check.mjs",
     "docs-coverage": "node scripts/docs-coverage.mjs",
     "docs-update": "node scripts/docs-update.mjs",
+    "release-notes": "node scripts/release-notes.mjs",
     "build-frontend": "node scripts/build-frontend.js",
     "build": "npm run build-backend && npm run build-frontend",
     "describe-stacks": "aws cloudformation describe-stacks --stack-name koekalenteri-dev --query Stacks[0] > stack.json",

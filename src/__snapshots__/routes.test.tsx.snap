@@ -239,6 +239,10 @@ exports[`routes > should match a snapshot 1`] = `
   },
   {
     "lazy": [Function],
+    "path": "/uutta",
+  },
+  {
+    "lazy": [Function],
     "path": "support",
   },
   {

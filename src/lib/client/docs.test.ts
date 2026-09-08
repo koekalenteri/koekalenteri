@@ -1,4 +1,4 @@
-import { docsPageFor, docsPagesFor } from './docs'
+import { docsPageFor, docsPagesFor, releaseNotesFor } from './docs'
 
 describe('docs', () => {
   describe('docsPagesFor', () => {
@@ -24,6 +24,19 @@ describe('docs', () => {
 
     it('falls back to Finnish for a language with no pages', () => {
       expect(docsPagesFor('sv')).toEqual(docsPagesFor('fi'))
+    })
+  })
+
+  describe('releaseNotesFor', () => {
+    it('gives the releases newest first, in the reader’s language', () => {
+      const versions = releaseNotesFor('en').map((note) => note.version)
+      expect(versions.slice(0, 2)).toEqual(['1.11.2', '1.11.1'])
+      expect(releaseNotesFor('en')[0].html).toContain('<h2>New</h2>')
+      expect(releaseNotesFor('fi')[0].html).toContain('<h2>Uutta</h2>')
+    })
+
+    it('falls back to Finnish for a language with no notes', () => {
+      expect(releaseNotesFor('sv')).toEqual(releaseNotesFor('fi'))
     })
   })
 

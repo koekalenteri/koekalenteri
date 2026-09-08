@@ -5,9 +5,10 @@
  *
  * Errors fail the run (pre-commit and the CI `docs` job): a page that does not bind -- an unknown
  * `{t:key}`, a `!shot` with no reference picture, a translation out of step with its original --
- * a generated module that is not what the sources say, a link to a page that does not exist, and
- * a picture written as a markdown image instead of a `!shot`. Warnings only print: `TODO` marks a
- * guide's author left for a person to settle, and the application's pages that no guide covers.
+ * a generated module that is not what the sources say, a link to a page that does not exist, a
+ * picture written as a markdown image instead of a `!shot`, and a package.json version with no
+ * release notes. Warnings only print: `TODO` marks a guide's author left for a person to settle,
+ * and the application's pages that no guide covers.
  *
  * `--online` also fetches every external link; off by default, because the network is not part
  * of a commit.
@@ -18,6 +19,7 @@ import { join, relative } from 'node:path'
 import {
   linksIn,
   loadPages,
+  NOTES_PATH,
   OUT_FILE,
   pageCovers,
   relativeLinkTarget,
@@ -38,22 +40,32 @@ try {
   console.error(`❌ ${error.message}`)
   process.exit(1)
 }
-const { byLanguage, pages } = loaded
+const { byLanguage, documents, notesByLanguage, pages } = loaded
 
-errors.push(...translationProblems(byLanguage))
+errors.push(...translationProblems(byLanguage), ...translationProblems(notesByLanguage))
 
 // ---- the generated module ---------------------------------------------------------------------
 
-if (!existsSync(OUT_FILE) || readFileSync(OUT_FILE, 'utf8') !== render(byLanguage)) {
+if (!existsSync(OUT_FILE) || readFileSync(OUT_FILE, 'utf8') !== render(loaded)) {
   errors.push(`${OUT_FILE} is out of date. Run \`npm run build-docs\` and commit the result.`)
+}
+
+// ---- every version ships its notes ------------------------------------------------------------
+
+const { version } = JSON.parse(readFileSync('package.json', 'utf8'))
+if (!(notesByLanguage[SOURCE_LANGUAGE] ?? []).some((note) => note.version === version)) {
+  errors.push(
+    `package.json is at ${version} and docs/${SOURCE_LANGUAGE}/${NOTES_PATH}/${version}.md does not exist: ` +
+      `a version ships with its release notes. Draft them with \`npm run release-notes -- v${version}\`.`
+  )
 }
 
 // ---- links ------------------------------------------------------------------------------------
 
 const external = []
-for (const page of pages) {
-  for (const { image, line, target } of linksIn(page)) {
-    const at = `${page.file}:${line}`
+for (const document of documents) {
+  for (const { image, line, target } of linksIn(document)) {
+    const at = `${document.file}:${line}`
     if (image) {
       errors.push(`${at}: a guide's picture is a visual test's reference, \`!shot[Test/name]\`, not a markdown image`)
       continue
@@ -65,13 +77,13 @@ for (const page of pages) {
     }
     const guide = /^\/ohjeet\/([^#?]+)/.exec(target)
     if (guide) {
-      if (!byLanguage[page.language]?.some((candidate) => candidate.path === guide[1])) {
-        errors.push(`${at}: links to /ohjeet/${guide[1]}, and no ${page.language} page has that path`)
+      if (!byLanguage[document.language]?.some((candidate) => candidate.path === guide[1])) {
+        errors.push(`${at}: links to /ohjeet/${guide[1]}, and no ${document.language} page has that path`)
       }
       continue
     }
     if (target.endsWith('.md') || target.includes('.md#')) {
-      const file = relativeLinkTarget(page, target)
+      const file = relativeLinkTarget(document, target)
       if (!existsSync(file)) errors.push(`${at}: links to ${relative('.', file)}, which does not exist`)
       else warnings.push(`${at}: links to a markdown file; a reader follows /ohjeet/<path> links, not files`)
     }
@@ -91,10 +103,10 @@ if (online) {
 
 // ---- marks left for a person ------------------------------------------------------------------
 
-for (const page of pages) {
-  page.body.split('\n').forEach((text, index) => {
+for (const document of documents) {
+  document.body.split('\n').forEach((text, index) => {
     if (/\bTODO\b/.test(text)) {
-      warnings.push(`${page.file}:${page.frontmatterLines + index + 1}: TODO left for a person to settle`)
+      warnings.push(`${document.file}:${document.frontmatterLines + index + 1}: TODO left for a person to settle`)
     }
   })
 }
@@ -110,6 +122,7 @@ const PAGES_WITHOUT_A_GUIDE = new Set([
   'src/pages/LoadingPage.tsx',
   'src/pages/LoginPage.tsx',
   'src/pages/TermsPage.tsx',
+  'src/pages/WhatsNewPage.tsx',
 ])
 
 const pageComponents = (dir = 'src/pages', found = []) => {
@@ -136,4 +149,4 @@ for (const error of errors) console.error(`❌ ${error}`)
 if (errors.length) {
   process.exit(1)
 }
-console.log(`✅ ${pages.length} guide pages bind, link and match ${OUT_FILE}`)
+console.log(`✅ ${pages.length} guide pages and ${loaded.notes.length} release notes bind, link and match ${OUT_FILE}`)

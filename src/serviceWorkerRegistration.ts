@@ -121,7 +121,7 @@ export const activateServiceWorkerUpdate = (registration: ServiceWorkerRegistrat
   worker.postMessage({ type: 'SKIP_WAITING' })
 }
 
-export const consumeServiceWorkerUpdated = () => {
+export const consumeServiceWorkerUpdated = (): VersionChange | undefined => {
   try {
     const storedVersionChange = window.sessionStorage.getItem(updatedSessionKey)
     window.sessionStorage.removeItem(updatedSessionKey)
@@ -136,7 +136,7 @@ export const consumeServiceWorkerUpdated = () => {
       'to' in versionChange &&
       typeof versionChange.to === 'string'
     ) {
-      return versionChange
+      return { from: versionChange.from, to: versionChange.to }
     }
     return undefined
   } catch (error) {

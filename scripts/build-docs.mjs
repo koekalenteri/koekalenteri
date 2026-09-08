@@ -17,11 +17,13 @@ import { mkdir } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import { checkTranslations, loadPages, OUT_FILE, render } from './lib/docs.mjs'
 
-const { byLanguage } = await loadPages()
-checkTranslations(byLanguage)
+const loaded = await loadPages()
+checkTranslations(loaded)
 
 await mkdir(dirname(OUT_FILE), { recursive: true })
-writeFileSync(OUT_FILE, render(byLanguage))
+writeFileSync(OUT_FILE, render(loaded))
 
-const count = Object.values(byLanguage).reduce((sum, pages) => sum + pages.length, 0)
-console.log(`✅ ${count} pages in ${Object.keys(byLanguage).length} languages into ${OUT_FILE}`)
+const { byLanguage, notes, pages } = loaded
+console.log(
+  `✅ ${pages.length} pages and ${notes.length} release notes in ${Object.keys(byLanguage).length} languages into ${OUT_FILE}`
+)
