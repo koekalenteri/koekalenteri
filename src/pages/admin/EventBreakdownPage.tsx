@@ -12,6 +12,7 @@ import { useAtomValue } from 'jotai'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router'
+import { reportError } from '../../lib/client/error'
 import { downloadXlsx } from '../../lib/client/xlsx'
 import { buildEventBreakdownTable, eventBreakdownSpreadsheetRows } from '../../lib/eventBreakdown'
 import { eventBreakdownFileName } from '../../lib/fileName'
@@ -70,13 +71,13 @@ export default function EventBreakdownPage() {
         <YearSelector years={years} value={year} onChange={setYear} />
         <Button
           disabled={rows.length === 0}
-          onClick={() =>
+          onClick={() => {
             downloadXlsx({
               fileName: eventBreakdownFileName(year),
               rows: eventBreakdownSpreadsheetRows(rows, grandTotal, t),
               sheetName: t('stats.admin.eventBreakdownTitle'),
-            })
-          }
+            }).catch(reportError)
+          }}
           size="small"
           startIcon={<DownloadOutlined />}
           variant="outlined"

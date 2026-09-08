@@ -16,7 +16,7 @@ import { ParticipantList } from './ParticipantList'
 const t = i18n.getFixedT('en') as TFunction
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
-vi.mock('../../lib/client/xlsx', () => ({ downloadXlsx: vi.fn() }))
+vi.mock('../../lib/client/xlsx', () => ({ downloadXlsx: vi.fn().mockResolvedValue(undefined) }))
 
 const mockEnqueueSnackbar = vi.mocked(enqueueSnackbar)
 const mockDownloadXlsx = vi.mocked(downloadXlsx)

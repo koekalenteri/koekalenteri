@@ -21,13 +21,13 @@ describe('downloadXlsx', () => {
     vi.resetAllMocks()
   })
 
-  it('creates a workbook with formatted date cells and column widths', () => {
+  it('creates a workbook with formatted date cells and column widths', async () => {
     const workbook = {} as ReturnType<typeof utils.book_new>
     const worksheet = { A1: { t: 's', v: 'Date' }, A2: { t: 'd', v: new Date('2023-02-01') } } as WorkSheet
     mockAoaToSheet.mockReturnValue(worksheet)
     mockBookNew.mockReturnValue(workbook)
 
-    downloadXlsx({
+    await downloadXlsx({
       columnWidths: [12, 24],
       fileName: 'starttilista.xlsx',
       rows: [['Date'], [new Date('2023-02-01')]],

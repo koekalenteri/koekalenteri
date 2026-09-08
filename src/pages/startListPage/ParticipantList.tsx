@@ -12,6 +12,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../i18n/dates'
+import { reportError } from '../../lib/client/error'
 import { downloadXlsx } from '../../lib/client/xlsx'
 import { breedAbbreviation, formatDogName } from '../../lib/dog'
 import {
@@ -95,14 +96,14 @@ export const ParticipantList = ({
             {copied ? t('startListCopied') : t('copyStartList')}
           </Button>
           <Button
-            onClick={() =>
+            onClick={() => {
               downloadXlsx({
                 columnWidths: [12, 14, 10, 8, 28, 18, 14, 24, 24, 24, 24, 24],
                 fileName: startListFileName(event),
                 rows: spreadsheetRows,
                 sheetName: t('startListExport.sheetName'),
-              })
-            }
+              }).catch(reportError)
+            }}
             size="small"
             startIcon={<DownloadOutlined />}
             sx={{ ml: 1 }}
