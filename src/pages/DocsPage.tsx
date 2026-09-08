@@ -7,6 +7,7 @@ import { HEADER_HEIGHT } from '../assets/Theme'
 import { docsPageFor, rulesDocumentFor } from '../lib/client/docs'
 import { Path } from '../routeConfig'
 import { DocsBody } from './components/DocsBody'
+import { DocsFooter } from './components/DocsFooter'
 import Header from './components/Header'
 import { RulesBody } from './components/RulesBody'
 
@@ -40,6 +41,7 @@ export const DocsPage = () => {
           )}
           {page ? <DocsBody html={page.html} /> : null}
           {rules ? <RulesBody document={rules} /> : null}
+          {title ? <DocsFooter path={path} title={title} /> : null}
         </Box>
       </Box>
     </>

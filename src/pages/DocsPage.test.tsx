@@ -34,6 +34,21 @@ describe('DocsPage', () => {
     expect(screen.getByRole('link', { name: 'docs.title' })).toHaveAttribute('href', '/ohjeet')
   })
 
+  // The report names the page, the version and the language, so the reader need not (KOE-1402).
+  it('offers a feedback form filled in with where the reader was', async () => {
+    renderAt('/ohjeet/ilmoittautujalle/ilmoittautuminen')
+    await flushPromises()
+
+    const href = screen.getByRole('link', { name: 'docs.feedback' }).getAttribute('href') ?? ''
+    const url = new URL(href)
+    expect(url.origin + url.pathname).toBe(
+      'https://koekalenteri.atlassian.net/servicedesk/customer/portal/1/group/1/create/1'
+    )
+    // The test translator echoes the key and the names of the values it was given.
+    expect(url.searchParams.get('summary')).toBe('docs.feedbackSummary title')
+    expect(url.searchParams.get('description')).toBe('docs.feedbackBody language, path, version')
+  })
+
   it('renders the rules with their sections searchable', async () => {
     const user = userEvent.setup()
     renderAt('/ohjeet/saannot/noutajien-kokeet')

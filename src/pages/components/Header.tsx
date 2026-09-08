@@ -14,6 +14,7 @@ import { isDevEnv } from '../../lib/env'
 import { Path } from '../../routeConfig'
 import { hasAdminAccessAtom } from '../state'
 import AppBarButton from './header/AppBarButton'
+import ContextHelp from './header/ContextHelp'
 import HelpMenu from './header/HelpMenu'
 import LanguageMenu from './header/LanguageMenu'
 import UserMenu from './header/UserMenu'
@@ -92,6 +93,7 @@ const Header = ({ toggleMenu }: Props) => {
         <Suspense>
           <LanguageMenu />
           <UserMenu />
+          <ContextHelp />
           <HelpMenu />
         </Suspense>
       </Toolbar>

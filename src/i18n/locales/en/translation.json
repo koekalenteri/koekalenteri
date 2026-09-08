@@ -123,7 +123,12 @@
       "participant": "For entrants",
       "secretary": "For trial secretaries"
     },
+    "contextHelp": "Guide for this view",
+    "feedback": "This guide did not help",
+    "feedbackBody": "Page: {{path}}\nVersion: {{version}}\nLanguage: {{language}}\n\nWhat was wrong or missing in the guide?\n",
+    "feedbackSummary": "Guide: {{title}}",
     "notFound": "Guide not found",
+    "publishedWith": "Published with Koekalenteri version {{version}}.",
     "rules": "Rules",
     "rulesAmended": "Includes the amendments in force from {{amended, date}}.",
     "rulesCount_one": "{{count}} section",

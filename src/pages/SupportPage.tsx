@@ -5,10 +5,8 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { HEADER_HEIGHT } from '../assets/Theme'
 import { recordPageView } from '../lib/client/rum'
+import { SUPPORT_REQUEST_URL as issueHref, SUPPORT_EMAIL as supportEmail } from '../lib/client/support'
 import Header from './components/Header'
-
-const issueHref = 'https://koekalenteri.atlassian.net/servicedesk/customer/portal/1/group/1/create/1'
-const supportEmail = 'support@koekalenteri.atlassian.net'
 
 export const SupportPage = () => {
   const location = useLocation()

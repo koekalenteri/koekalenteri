@@ -1,3 +1,4 @@
+export * from './docs'
 export * from './events'
 export * from './registration'
 export * from './stats'

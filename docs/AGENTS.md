@@ -43,6 +43,14 @@ Every binding fails the build rather than a reader, and `npm run check-docs` run
   A changed Finnish page fails the build until the English one is retranslated and the hash
   renewed; `npm run build-docs` prints the digest the page is now.
 
+## Reaching the page from the application
+
+The header's help icon opens the guide for the view on the screen, from the route map in
+`src/lib/client/docsContext.ts` (the event page picks its own page by whether entry has ended).
+A new page for a view means a new line in that map, or the icon keeps pointing at the old page
+or at nothing. Every page ends with the version it shipped with and a "this guide did not help"
+link into the Service Desk form, filled in with the page, the version and the language.
+
 ## How to work
 
 - **Only the pages the brief names.** A page whose `covers` the change does not hit is not part of

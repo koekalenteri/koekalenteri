@@ -13,10 +13,11 @@ import { useParams } from 'react-router'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
-import { hasSharedReserveList, isEntryEditingClosed } from '../../lib/event'
+import { hasEntryEnded, hasSharedReserveList, isEntryEditingClosed } from '../../lib/event'
 import { getRegistrationClass, isRegistrationClass } from '../../lib/registration'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
+import { useHelpPath } from '../state/docs'
 import EventNotFound from './components/EventNotFound'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
@@ -58,6 +59,8 @@ export default function EventViewPage() {
   const { viewers } = useEventSubscription(eventId)
   const [, setSelectedEventId] = useAtom(adminEventIdAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
+  // The secretary's guide is one page while entry is open and another once it has ended (KOE-1402).
+  useHelpPath(event && hasEntryEnded(event) ? 'koesihteerille/ilmoajan-jalkeen' : 'koesihteerille/ilmoaikana')
   const actions = useAdminRegistrationActions(eventId)
   const eventActions = useAdminEventActions()
 

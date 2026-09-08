@@ -123,7 +123,12 @@
       "participant": "Ilmoittautujalle",
       "secretary": "Koesihteerille"
     },
+    "contextHelp": "Ohje tähän näkymään",
+    "feedback": "Ohje ei auttanut",
+    "feedbackBody": "Sivu: {{path}}\nVersio: {{version}}\nKieli: {{language}}\n\nMikä ohjeessa oli väärin tai puuttui?\n",
+    "feedbackSummary": "Ohje: {{title}}",
     "notFound": "Ohjetta ei löytynyt",
+    "publishedWith": "Ohje on julkaistu koekalenterin version {{version}} mukana.",
     "rules": "Säännöt",
     "rulesAmended": "Sisältää {{amended, date}} voimaan tulleet muutokset.",
     "rulesCount_one": "{{count}} pykälä",
