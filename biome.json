@@ -95,7 +95,7 @@
                 "paths": {
                   "date-fns": {
                     "allowImportNames": ["Locale"],
-                    "message": "Import date-fns by module path instead: date-fns/addDays. The lambdas are bundled with packages: 'external', so a bare specifier is resolved from the dependencies layer at runtime and pulls in the whole 245-export index on every cold start -- 508 ms against 8 ms for one module. See KOE-6."
+                    "message": "Import date-fns by module path instead: date-fns/addDays. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
                   }
                 }
               }
@@ -121,7 +121,7 @@
                 "paths": {
                   "date-fns": {
                     "allowImportNames": ["Locale"],
-                    "message": "Import date-fns by module path instead: date-fns/addDays. The lambdas are bundled with packages: 'external', so a bare specifier is resolved from the dependencies layer at runtime and pulls in the whole 245-export index on every cold start -- 508 ms against 8 ms for one module. See KOE-6."
+                    "message": "Import date-fns by module path instead: date-fns/addDays. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
                   }
                 }
               }
