@@ -38,11 +38,16 @@ describe('DocsIndexPage', () => {
     )
   })
 
-  // Nothing is written for the other audiences yet, and an empty heading would only puzzle a reader.
-  it('leaves out an audience that has no pages', async () => {
+  it('groups the pages by audience, reader first', async () => {
     render(<DocsIndexPage />, { wrapper: Wrapper })
     await flushPromises()
 
-    expect(screen.queryByRole('heading', { name: 'docs.audience.admin' })).not.toBeInTheDocument()
+    const headings = screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)
+    expect(headings).toEqual([
+      'docs.audience.participant',
+      'docs.audience.secretary',
+      'docs.audience.admin',
+      'docs.rules',
+    ])
   })
 })
