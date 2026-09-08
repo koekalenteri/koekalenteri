@@ -389,6 +389,22 @@
       "startListRequired": "Publish the start list first",
       "title": "Publishing results"
     },
+    "sendMessageDialog": {
+      "additionalText": "You can add an additional message here if you wish:",
+      "classes_one": "Class: {{classes}}",
+      "classes_other": "Classes: {{classes}}",
+      "confirmQuestion": "Are you sure you want to send the message?",
+      "confirmText": "You are about to send the message {{template}} to {{count}} registrations.",
+      "message": "Message",
+      "noAttachment": "No attached file",
+      "preview": "Preview",
+      "recipients": "Recipients: {{count}}",
+      "sendFailed": "Sending the message failed 💩",
+      "sent": "Message sent successfully",
+      "subject": "Subject",
+      "templateType": "Message type",
+      "title": "Send message"
+    },
     "showEventDetails": "Show event details",
     "startList": {
       "hide": "Hide start list",
@@ -778,11 +794,24 @@
         "type": "Type"
       },
       "costsText": "If a handling fee is charged for the refund, enter the amount in the designated field.",
+      "error": {
+        "balance": "The refund amount exceeds the unrefunded part of the payment. Unrefunded: {{remaining}}",
+        "default": "The refund failed. Check that the Paytrail account has enough balance for the refund, or try again later.",
+        "notFound": "The payment transaction was not found. It is probably too old to be refunded.",
+        "provider": "The refund failed at Paytrail: {{message}}",
+        "unknownAmount": "(unknown)"
+      },
       "excessOnly": "Refund the overpaid part {{amount}}",
       "excessText": "The overpaid part is refunded without a handling fee. The rest of the payment stays refundable should the entry be cancelled later.",
       "excessTitle": "The entrant has paid over the fee: entry fee {{cost}}, paid {{paid}}",
       "noCostsText": "The selected payment was made in a version of Koekalenteri prior to the refund feature. Such a payment can only be refunded in full through Koekalenteri.",
       "previouslyChargedHandlingCost": "Previously charged handling fee",
+      "status": {
+        "ok": "Payment refunded",
+        "okEmail": "The refund is in progress. The registrant has been sent an email to complete the refund. The audit trail shows when the refund has been processed.",
+        "pending": "The refund has been started. The audit trail shows when the refund has been processed.",
+        "pendingEmail": "The refund has been started. The registrant has been sent an email to complete the refund. The audit trail shows when the refund has been processed."
+      },
       "text": "Select the payment to be refunded.",
       "title": "Refund, {{regNo}} / {{payer}}",
       "wholePayment": "Refund the selected payment, a handling fee may be deducted"
@@ -798,6 +827,7 @@
     "reserveHelp": "Select how short a notice you can still attend the trial if you get a place from the reserve list.",
     "saved_one": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "saved_other": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
+    "saveFailed": "Saving the registration failed",
     "secretaryNotes": "Secretary's notes",
     "someoneElse": "Someone else",
     "state": {
@@ -934,6 +964,7 @@
   "search": {
     "placeholder": "Search..."
   },
+  "send": "Send",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"

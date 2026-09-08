@@ -150,7 +150,7 @@ describe('RefundDialog', () => {
     // Click the refund button
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith('Maksu palautettu', { variant: 'success' })
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.status.ok', { variant: 'success' })
     })
     expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 3000, 0)
     expect(onCloseMock).toHaveBeenCalled()
@@ -170,7 +170,7 @@ describe('RefundDialog', () => {
 
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith('Maksu palautettu', { variant: 'success' })
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.status.ok', { variant: 'success' })
     })
     expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 2500, 500)
   })
@@ -193,7 +193,7 @@ describe('RefundDialog', () => {
 
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith('Maksu palautettu', { variant: 'success' })
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.status.ok', { variant: 'success' })
     })
     expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 3000, 0)
   })
@@ -284,10 +284,9 @@ describe('RefundDialog', () => {
     // Click the refund button
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith(
-        'Maksun palautus on kesken. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
-        { variant: 'success' }
-      )
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.status.okEmail', {
+        variant: 'success',
+      })
     })
   })
 
@@ -305,10 +304,9 @@ describe('RefundDialog', () => {
     // Click the refund button
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith(
-        'Maksun palautus on aloitettu. Näet audit trailista, kun palautus on käsitelty loppuun.',
-        { variant: 'success' }
-      )
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.status.pending', {
+        variant: 'success',
+      })
     })
   })
 
@@ -323,10 +321,10 @@ describe('RefundDialog', () => {
     // Click the refund button
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith(
-        'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
-        { persist: true, variant: 'error' }
-      )
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.error.default', {
+        persist: true,
+        variant: 'error',
+      })
     })
   })
 
@@ -345,10 +343,10 @@ describe('RefundDialog', () => {
     // Click the refund button
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith(
-        'Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.',
-        { persist: true, variant: 'error' }
-      )
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.error.notFound', {
+        persist: true,
+        variant: 'error',
+      })
     })
   })
 
@@ -379,11 +377,14 @@ describe('RefundDialog', () => {
       // Check that the snackbar was called
       expect(enqueueSnackbarMock).toHaveBeenCalled()
 
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith(expect.stringContaining('Palautettava määrä ylittää'), {
-        persist: true,
-        variant: 'error',
-      })
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith(expect.stringContaining('Palauttamatta:'), {
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith(
+        expect.stringContaining('registration.refundDialog.error.balance'),
+        {
+          persist: true,
+          variant: 'error',
+        }
+      )
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith(expect.stringContaining('remaining'), {
         persist: true,
         variant: 'error',
       })
@@ -405,10 +406,10 @@ describe('RefundDialog', () => {
     // Click the refund button
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith(
-        'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
-        { persist: true, variant: 'error' }
-      )
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.error.default', {
+        persist: true,
+        variant: 'error',
+      })
     })
   })
 
@@ -454,7 +455,7 @@ describe('RefundDialog', () => {
 
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith(`Maksun palautus epäonnistui Paytrailissa: ${paytrailMessage}`, {
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.error.provider message', {
         persist: true,
         variant: 'error',
       })

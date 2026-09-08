@@ -1,4 +1,5 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
+import type { ParseKeys } from 'i18next'
 import type { ChangeEventHandler } from 'react'
 import type { MinimalEventForCost, RefundPaymentResponse, Registration, Transaction } from '../../../types'
 import Button from '@mui/material/Button'
@@ -31,29 +32,18 @@ import { useAdminRegistrationActions } from '../state/registrations/actions'
 import { RefundFooter } from './refundDialog/RefundFooter'
 import { useRefundColumns } from './refundDialog/useRefundColumns'
 
-const successMessages: Record<string, string> = {
-  default:
-    'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
-  ok_default: 'Maksu palautettu',
-  // Format: [status]_[provider]
-  'ok_email refund':
-    'Maksun palautus on kesken. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
-  pending_default: 'Maksun palautus on aloitettu. Näet audit trailista, kun palautus on käsitelty loppuun.',
-  'pending_email refund':
-    'Maksun palautus on aloitettu. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
+// Translation keys of the snackbar shown after a refund call, by [status]_[provider]
+const successMessageKeys: Record<string, ParseKeys<'translation'>> = {
+  default: 'registration.refundDialog.error.default',
+  ok_default: 'registration.refundDialog.status.ok',
+  'ok_email refund': 'registration.refundDialog.status.okEmail',
+  pending_default: 'registration.refundDialog.status.pending',
+  'pending_email refund': 'registration.refundDialog.status.pendingEmail',
 }
 
 const refundTextKey = (excessOnly: boolean, canHaveHandlingCosts: boolean) => {
   if (excessOnly) return 'registration.refundDialog.excessText'
   return canHaveHandlingCosts ? 'registration.refundDialog.costsText' : 'registration.refundDialog.noCostsText'
-}
-
-const errorMessages = {
-  '404': 'Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.',
-  default:
-    'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
-  refund_balance: (remainingAmount: string) =>
-    `Palautettava määrä ylittää palauttamattoman maksun osuuden. Palauttamatta: ${remainingAmount}`,
 }
 
 interface Props {
@@ -199,70 +189,76 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
       const messageKey = `${status}_${provider}`
 
       // Use a safer approach with explicit fallback chain
-      let message: string
+      let message: ParseKeys<'translation'>
 
       // Check if the specific key exists in our messages
-      if (messageKey in successMessages) {
-        message = successMessages[messageKey]
-      } else if (`${status}_default` in successMessages) {
+      if (messageKey in successMessageKeys) {
+        message = successMessageKeys[messageKey]
+      } else if (`${status}_default` in successMessageKeys) {
         // Try the default provider for this status
-        message = successMessages[`${status}_default`]
+        message = successMessageKeys[`${status}_default`]
       } else {
         // Fall back to the default message
-        message = successMessages.default
+        message = successMessageKeys.default
       }
 
       // Only show success variant for ok or pending status
       const variant = status === 'ok' || status === 'pending' ? 'success' : 'error'
-      enqueueSnackbar(message, { variant })
+      enqueueSnackbar(t(message), { variant })
 
       // Close dialog for successful refunds
       if (status === 'ok' || status === 'pending') {
         handleClose()
       }
     },
-    [enqueueSnackbar, handleClose]
+    [enqueueSnackbar, handleClose, t]
   )
 
   // Helper function to extract remaining balance from error details
-  const extractRemainingBalance = useCallback((errorBody?: string): string | null => {
-    if (!errorBody) return null
+  const extractRemainingBalance = useCallback(
+    (errorBody?: string): string | null => {
+      if (!errorBody) return null
 
-    try {
-      const details = JSON.parse(errorBody)
-
-      if (details?.message === 'Refund amount exceeds the remaining refund balance') {
-        const remaining = details?.meta?.invalidRefunds?.[0]?.remainingRefundBalance
-        // The remaining balance is in cents, so divide by 100 to get euros
-        return remaining ? formatMoney(remaining / 100) : '(ei tiedossa)'
-      }
-
-      return null
-    } catch {
-      return null
-    }
-  }, [])
-
-  const extractRefundErrorMessage = useCallback((error: APIError): string | null => {
-    if (!isObject(error.body)) return null
-
-    if (typeof error.body.message === 'string' && error.body.message) {
-      return error.body.message
-    }
-
-    if (typeof error.body.error === 'string' && error.body.error) {
       try {
-        const details = JSON.parse(error.body.error)
-        if (typeof details?.message === 'string' && details.message) {
-          return `Maksun palautus epäonnistui Paytrailissa: ${details.message}`
+        const details = JSON.parse(errorBody)
+
+        if (details?.message === 'Refund amount exceeds the remaining refund balance') {
+          const remaining = details?.meta?.invalidRefunds?.[0]?.remainingRefundBalance
+          // The remaining balance is in cents, so divide by 100 to get euros
+          return remaining ? formatMoney(remaining / 100) : t('registration.refundDialog.error.unknownAmount')
         }
+
+        return null
       } catch {
         return null
       }
-    }
+    },
+    [t]
+  )
 
-    return null
-  }, [])
+  const extractRefundErrorMessage = useCallback(
+    (error: APIError): string | null => {
+      if (!isObject(error.body)) return null
+
+      if (typeof error.body.message === 'string' && error.body.message) {
+        return error.body.message
+      }
+
+      if (typeof error.body.error === 'string' && error.body.error) {
+        try {
+          const details = JSON.parse(error.body.error)
+          if (typeof details?.message === 'string' && details.message) {
+            return t('registration.refundDialog.error.provider', { message: details.message })
+          }
+        } catch {
+          return null
+        }
+      }
+
+      return null
+    },
+    [t]
+  )
 
   const handleRefundError = useCallback(
     (error: unknown) => {
@@ -273,7 +269,7 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
       switch (error.status) {
         case 404: {
           // Transaction not found error
-          enqueueSnackbar(errorMessages['404'], errorSnackbarOptions)
+          enqueueSnackbar(t('registration.refundDialog.error.notFound'), errorSnackbarOptions)
           return
         }
 
@@ -281,7 +277,10 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
           // Check for refund balance error
           const remainingAmount = isObject(error.body) ? extractRemainingBalance(error.body?.error) : null
           if (remainingAmount) {
-            enqueueSnackbar(errorMessages.refund_balance(remainingAmount), errorSnackbarOptions)
+            enqueueSnackbar(
+              t('registration.refundDialog.error.balance', { remaining: remainingAmount }),
+              errorSnackbarOptions
+            )
             return
           }
           break
@@ -295,9 +294,9 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
       }
 
       // Default error message for all other cases
-      enqueueSnackbar(errorMessages.default, errorSnackbarOptions)
+      enqueueSnackbar(t('registration.refundDialog.error.default'), errorSnackbarOptions)
     },
-    [enqueueSnackbar, extractRefundErrorMessage, extractRemainingBalance]
+    [enqueueSnackbar, extractRefundErrorMessage, extractRemainingBalance, t]
   )
 
   const handleRefund = useCallback(async () => {
@@ -314,7 +313,7 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
       )
       if (!response || response.status === 'fail') {
         // For failed refunds, show the default error message
-        enqueueSnackbar(errorMessages.default, errorSnackbarOptions)
+        enqueueSnackbar(t('registration.refundDialog.error.default'), errorSnackbarOptions)
       } else {
         showSuccessMessage(response)
       }
@@ -331,6 +330,7 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
     showSuccessMessage,
     handleRefundError,
     enqueueSnackbar,
+    t,
   ])
 
   return (

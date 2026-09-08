@@ -389,6 +389,22 @@
       "startListRequired": "Julkaise ensin starttilista",
       "title": "Tulosten julkaisu"
     },
+    "sendMessageDialog": {
+      "additionalText": "Voit lisätä tähän halutessasi lisäviestin:",
+      "classes_one": "Luokka: {{classes}}",
+      "classes_other": "Luokat: {{classes}}",
+      "confirmQuestion": "Oletko varma, että haluat lähettää viestin?",
+      "confirmText": "Olet lähettämässä viestiä {{template}} {{count}} ilmoittautumiseen.",
+      "message": "Viesti",
+      "noAttachment": "Ei liitettyä tiedostoa",
+      "preview": "Esikatselu",
+      "recipients": "Vastaanottajat: {{count}}",
+      "sendFailed": "Viestin lähetys epäonnistui 💩",
+      "sent": "Viesti lähetetty onnistuneesti",
+      "subject": "Aihe",
+      "templateType": "Viestin tyyppi",
+      "title": "Viestin lähettäminen"
+    },
     "showEventDetails": "Näytä tapahtuman tiedot",
     "startList": {
       "hide": "Piilota starttilista",
@@ -778,11 +794,24 @@
         "type": "Tyyppi"
       },
       "costsText": "Jos palautuksesta peritään käsittelykulu, täytä kulun määrä sille varattuun kohtaan.",
+      "error": {
+        "balance": "Palautettava määrä ylittää palauttamattoman maksun osuuden. Palauttamatta: {{remaining}}",
+        "default": "Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.",
+        "notFound": "Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.",
+        "provider": "Maksun palautus epäonnistui Paytrailissa: {{message}}",
+        "unknownAmount": "(ei tiedossa)"
+      },
       "excessOnly": "Palauta liikaa maksettu osuus {{amount}}",
       "excessText": "Liikaa maksettu osuus palautetaan ilman käsittelykulua. Loppu maksusta jää edelleen palautettavaksi, jos ilmoittautuminen myöhemmin perutaan.",
       "excessTitle": "Ilmoittautuja on maksanut liikaa: osallistumismaksu {{cost}}, maksettu {{paid}}",
       "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta.",
       "previouslyChargedHandlingCost": "Aiemmin veloitettu käsittelykulu",
+      "status": {
+        "ok": "Maksu palautettu",
+        "okEmail": "Maksun palautus on kesken. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.",
+        "pending": "Maksun palautus on aloitettu. Näet audit trailista, kun palautus on käsitelty loppuun.",
+        "pendingEmail": "Maksun palautus on aloitettu. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun."
+      },
       "text": "Valitse palautettava maksu.",
       "title": "Maksun palautus, {{regNo}} / {{payer}}",
       "wholePayment": "Palauta valittu maksu, käsittelykulun voi vähentää"
@@ -798,6 +827,7 @@
     "reserveHelp": "Valitse kuinka lyhyellä varoitusajalla pystyt vielä saapumaan koepaikalle, mikäli saat koepaikan varasijalta.",
     "saved_one": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "saved_other": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
+    "saveFailed": "Ilmoittautumisen tallennus epäonnistui",
     "secretaryNotes": "Koesihteerin merkinnät",
     "someoneElse": "Joku muu",
     "state": {
@@ -934,6 +964,7 @@
   "search": {
     "placeholder": "Hae..."
   },
+  "send": "Lähetä",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"

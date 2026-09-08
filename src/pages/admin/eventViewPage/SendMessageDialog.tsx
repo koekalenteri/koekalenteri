@@ -133,16 +133,18 @@ export default function SendMessageDialog({ event, registrations, templateId, op
     try {
       const { confirmed } = await confirm({
         cancellationText: t('cancel'),
-        confirmationText: 'Lähetä',
+        confirmationText: t('send'),
         content: (
           <div>
-            Olet lähettämässä viestiä {t(`emailTemplate.${selectedTemplate.id}`)} {registrations.length}{' '}
-            ilmoittautumiseen.
+            {t('eventManagement.sendMessageDialog.confirmText', {
+              count: registrations.length,
+              template: t(`emailTemplate.${selectedTemplate.id}`),
+            })}
             <br />
-            Oletko varma, että haluat lähettää viestin?
+            {t('eventManagement.sendMessageDialog.confirmQuestion')}
           </div>
         ),
-        title: 'Viestin lähettäminen',
+        title: t('eventManagement.sendMessageDialog.title'),
       })
       if (!confirmed) return
 
@@ -163,13 +165,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         token
       )
       if (ok.length) {
-        enqueueSnackbar(`Viesti lähetetty onnistuneesti\n\n${ok.join('\n')}`, {
+        enqueueSnackbar(`${t('eventManagement.sendMessageDialog.sent')}\n\n${ok.join('\n')}`, {
           style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
           variant: 'success',
         })
       }
       if (failed.length) {
-        enqueueSnackbar(`Viestin lähetys epäonnistui 💩\n\n${failed.join('\n')}`, {
+        enqueueSnackbar(`${t('eventManagement.sendMessageDialog.sendFailed')}\n\n${failed.join('\n')}`, {
           style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
           variant: 'success',
         })
@@ -179,7 +181,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       actions.update(updatedRegistrations)
       onClose?.()
     } catch (error) {
-      enqueueSnackbar('Viestin lähetys epäonnistui 💩', errorSnackbarOptions)
+      enqueueSnackbar(t('eventManagement.sendMessageDialog.sendFailed'), errorSnackbarOptions)
       console.log(error)
     }
   }, [
@@ -200,10 +202,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <DialogTitle>
-        Viestin lähettäminen
+        {t('eventManagement.sendMessageDialog.title')}
         {recipientClasses.length > 0 && (
           <Typography component="div" variant="subtitle1">
-            {`${recipientClasses.length === 1 ? 'Luokka' : 'Luokat'}: ${recipientClasses.join(', ')}`}
+            {t('eventManagement.sendMessageDialog.classes', {
+              classes: recipientClasses.join(', '),
+              count: recipientClasses.length,
+            })}
           </Typography>
         )}
       </DialogTitle>
@@ -240,7 +245,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                   px: 1,
                 }}
               >
-                Vastaanottajat: {registrations.length}
+                {t('eventManagement.sendMessageDialog.recipients', { count: registrations.length })}
               </AccordionSummary>
               <AccordionDetails sx={{ maxHeight: 300, overflowY: 'auto', p: 0 }}>
                 <List dense sx={{ p: 0 }}>
@@ -253,7 +258,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
               </AccordionDetails>
             </Accordion>
 
-            <Typography variant="h6">Viesti</Typography>
+            <Typography variant="h6">{t('eventManagement.sendMessageDialog.message')}</Typography>
 
             <Paper sx={{ bgcolor: 'background.form', p: 1, width: '100%' }}>
               <AutocompleteSingle
@@ -262,7 +267,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                 isOptionEqualToValue={(o, v) => o?.id === v?.id}
                 options={templates}
                 onChange={handleTemplateChange}
-                label={'Viestin tyyppi'}
+                label={t('eventManagement.sendMessageDialog.templateType')}
                 value={selectedTemplate}
               />
               {templateMissing && (
@@ -271,11 +276,11 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                 </Alert>
               )}
               <FormControl component="fieldset" fullWidth>
-                <FormLabel component="legend">Voit lisätä tähän halutessasi lisäviestin:</FormLabel>
+                <FormLabel component="legend">{t('eventManagement.sendMessageDialog.additionalText')}</FormLabel>
                 <TextField fullWidth multiline rows={4} value={text} onChange={(e) => setText(e.target.value)} />
               </FormControl>
               <FormControl component="fieldset" sx={{ my: 1 }}>
-                <FormLabel component="legend">Yhteystiedot:</FormLabel>
+                <FormLabel component="legend">{t('event.contactInfo')}:</FormLabel>
                 <FormGroup sx={{ mx: 2, my: 1 }}>
                   {CONTACT_INFO_GROUPS.map((group) => (
                     <ContactInfoGroup
@@ -310,7 +315,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                         fontStyle: 'italic',
                       }}
                     >
-                      Ei liitettyä tiedostoa
+                      {t('eventManagement.sendMessageDialog.noAttachment')}
                     </Typography>
                   )}
                 </Paper>
@@ -318,9 +323,9 @@ export default function SendMessageDialog({ event, registrations, templateId, op
             )}
           </Box>
           <Box sx={{ width: '60%' }}>
-            <Typography variant="h6">Esikatselu</Typography>
+            <Typography variant="h6">{t('eventManagement.sendMessageDialog.preview')}</Typography>
             <Paper sx={{ p: 1, width: '100%' }}>
-              Aihe:&nbsp;{preview.subject}
+              {t('eventManagement.sendMessageDialog.subject')}:&nbsp;{preview.subject}
               {/** biome-ignore lint/security/noDangerouslySetInnerHtml: yolo */}
               <div className="preview" dangerouslySetInnerHTML={{ __html: preview.html }} />
             </Paper>
@@ -329,7 +334,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       </DialogContent>
       <DialogActions>
         <AsyncButton disabled={!selectedTemplate || templateMissing} variant="contained" onClick={handleSend}>
-          Lähetä
+          {t('send')}
         </AsyncButton>
         <Button variant="outlined" onClick={onClose}>
           {t('cancel')}

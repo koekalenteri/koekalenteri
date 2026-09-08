@@ -103,7 +103,7 @@ describe('SendMessageDialog', () => {
       wrapper: createWrapper(),
     })
     await flushPromises()
-    expect(screen.getByText('Vastaanottajat: 0')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.sendMessageDialog.recipients count')).toBeInTheDocument()
   })
 
   it('renders with all parameters', async () => {
@@ -119,7 +119,7 @@ describe('SendMessageDialog', () => {
       { wrapper: createWrapper() }
     )
     await flushPromises()
-    expect(screen.getByText('Vastaanottajat: 2')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.sendMessageDialog.recipients count')).toBeInTheDocument()
   })
 
   it('shows the recipient class explicitly', async () => {
@@ -133,7 +133,7 @@ describe('SendMessageDialog', () => {
     )
     await flushPromises()
 
-    expect(screen.getByText('Luokka: ALO')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.sendMessageDialog.classes classes, count')).toBeInTheDocument()
   })
 
   it('renders a selected template preview when templates are loaded', async () => {
@@ -148,8 +148,8 @@ describe('SendMessageDialog', () => {
     )
     await flushPromises()
 
-    expect(screen.getByRole('button', { name: 'Lähetä' })).toBeEnabled()
-    expect(baseElement).toHaveTextContent(/Aihe:\s*Ilmoittautuminen NOU/)
+    expect(screen.getByRole('button', { name: 'send' })).toBeEnabled()
+    expect(baseElement).toHaveTextContent(/eventManagement\.sendMessageDialog\.subject:\s*Ilmoittautuminen NOU/)
     expect(screen.getByRole('heading', { name: registrationWithStaticDates.dog.name })).toBeInTheDocument()
   })
 
@@ -206,6 +206,6 @@ describe('SendMessageDialog', () => {
     )
     await flushPromises()
 
-    expect(screen.getByText('Ei liitettyä tiedostoa')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.sendMessageDialog.noAttachment')).toBeInTheDocument()
   })
 })

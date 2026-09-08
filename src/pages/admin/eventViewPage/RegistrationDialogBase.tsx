@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useSnackbar } from 'notistack'
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
 import { getHandlingPerson } from '../../../lib/registration'
 import { hasChanges } from '../../../lib/utils'
@@ -47,6 +48,7 @@ export default function RegistrationDialogBase({
 }: Props) {
   const actions = useAdminRegistrationActions(event.id)
   const { enqueueSnackbar } = useSnackbar()
+  const { t } = useTranslation()
 
   const handleChange = useCallback(
     (newState: Registration) => {
@@ -67,10 +69,10 @@ export default function RegistrationDialogBase({
       resetRegistration()
       onClose?.()
     } catch (error) {
-      enqueueSnackbar('Ilmoittautumisen tallennus epäonnistui', errorSnackbarOptions)
+      enqueueSnackbar(t('registration.saveFailed'), errorSnackbarOptions)
       console.error(error)
     }
-  }, [actions, enqueueSnackbar, event, onClose, patchBase, registration, resetRegistration])
+  }, [actions, enqueueSnackbar, event, onClose, patchBase, registration, resetRegistration, t])
 
   // Internal notes bypass the form's save: an ordinary registration save mails the registrant about
   // the change, and a secretary's note must not reach them. The edited copy is kept in step so that
