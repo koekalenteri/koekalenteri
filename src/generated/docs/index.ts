@@ -6,6 +6,9 @@ import shot2 from "../../pages/components/registrationForm/__screenshots__/Entry
 import shot3 from "../../pages/admin/__screenshots__/EventListPage.visual.test.tsx/event-list-desktop-chromium-linux.png"
 import shot4 from "../../pages/admin/components/__screenshots__/EventForm.visual.test.tsx/event-form-desktop-chromium-linux.png"
 import shot5 from "../../pages/admin/eventViewPage/__screenshots__/EventStateStepper.visual.test.tsx/event-state-stepper-chromium-linux.png"
+import shot6 from "../../pages/admin/eventViewPage/__screenshots__/ClassEntrySelection.visual.test.tsx/class-entry-selection-groups-and-reserve-chromium-linux.png"
+import shot7 from "../../pages/admin/eventViewPage/__screenshots__/InfoPanel.visual.test.tsx/info-panel-chromium-linux.png"
+import shot8 from "../../pages/admin/eventViewPage/__screenshots__/RefundDialog.visual.test.tsx/refund-dialog-open-chromium-linux.png"
 
 export type DocsAudience = "participant" | "secretary" | "admin"
 
@@ -51,6 +54,20 @@ export const docsPages: Readonly<Record<string, readonly DocsPage[]>> = {
       path: "koesihteerille/ennen-ilmoaikaa",
       title: "Before entry opens",
     },
+    {
+      audience: "secretary",
+      html:
+        "<p>While entry is open the calendar does most of the work by itself: entries accumulate, payments\nare recorded, and entrants change and cancel their own entries through their own links. What is\nleft for the secretary is keeping an eye on things, and the cancellations and refunds that do not\narrive through the calendar.</p>\n<h2>Keeping an eye on the entries</h2>\n<p>Pick the trial in the event list and press <strong>Registrations</strong> — or double-click the trial. On the\nevent page each class has a tab of its own, and the class's entries are divided into three\nsections:</p>\n<table>\n<thead>\n<tr>\n<th>Section</th>\n<th>Who is in it</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Osallistujat (participants)</td>\n<td>those who have a place, grouped by trial day and group</td>\n</tr>\n<tr>\n<td>Ilmoittautuneet (entered)</td>\n<td>everyone else who entered; while entry is open, practically everyone</td>\n</tr>\n<tr>\n<td>Peruneet (cancelled)</td>\n<td>those who cancelled, with their reason</td>\n</tr>\n</tbody>\n</table>\n<p>Every new entry lands in <em>Ilmoittautuneet</em> and stays there until the secretary moves it to the\nparticipants once entry has closed. These three headings are shown in Finnish whichever language\nthe rest of the page is in.</p>\n" +
+        "<figure class=\"guide-shot\"><img src=\"" + shot6 + "\" alt=\"A class's entries in their three sections\" loading=\"lazy\"><figcaption>A class's entries in their three sections</figcaption></figure>" +
+        "<p>The <strong>Event management</strong> panel on the right shows, per class, how many have been moved to the\nparticipants, how many are on the reserve list and what the calendar expects next. Its <em>Audit\ntrail</em> tab lists everything that has been done to the trial.</p>\n" +
+        "<figure class=\"guide-shot\"><img src=\"" + shot7 + "\" alt=\"The Event management panel\" loading=\"lazy\"><figcaption>The Event management panel</figcaption></figure>" +
+        "<p>Keeping an eye on things needs no action of its own. If entries come in such numbers that another\njudge is engaged, the trial's details are edited with the event list's <strong>Edit</strong> button: the judge\nis added in the Judges section and the number of places raised in the Entry section.</p>\n<h2>Recording a cancellation</h2>\n<p>An entrant can cancel through the link in their confirmation message, and then the cancellation\nshows under <em>Peruneet</em> with its reason. Not everyone does, though; some send the cancellation by\nemail — and then the secretary records it:</p>\n<ul>\n<li>open the menu at the right end of the entry's row (⋮) and choose <strong>Cancel registration</strong>, or</li>\n<li>drag the entry into <em>Peruneet</em>.</li>\n</ul>\n<p>The cancellation takes effect at once. Cancelled entries stay visible in their own section, so\nnothing is lost.</p>\n<h2>Refunding a payment</h2>\n<p>If an entry is cancelled for an acceptable reason, the payment can be refunded right away. Open the\nmenu on the entry's row (⋮) and choose <strong>Refund payment</strong>.</p>\n" +
+        "<figure class=\"guide-shot\"><img src=\"" + shot8 + "\" alt=\"Refunding a payment\" loading=\"lazy\"><figcaption>Refunding a payment</figcaption></figure>" +
+        "<p>The dialog lists the entry's payments. Pick the one to refund, enter a <em>Handling fee</em> if the club\nkeeps one, and add an internal comment if you like — the entrant does not see it. <strong>Refund</strong> makes\nthe refund through Paytrail to the same payment method the payment came from. The refunded amount\nthen shows on the entry's row.</p>\n<p>A refund can also be made directly in Paytrail's merchant portal, usually by the club's treasurer.\nThe treasurer then needs the payment date and the payer's name: both are found by opening the entry\n(<em>Edit registration</em>) and scrolling to the end, where the entry's audit trail lists the payment\nwith its time.</p>\n",
+      order: 20,
+      path: "koesihteerille/ilmoaikana",
+      title: "While entry is open",
+    },
   ],
   fi: [
     {
@@ -80,6 +97,20 @@ export const docsPages: Readonly<Record<string, readonly DocsPage[]>> = {
       order: 10,
       path: "koesihteerille/ennen-ilmoaikaa",
       title: "Ennen ilmoittautumisajan alkua",
+    },
+    {
+      audience: "secretary",
+      html:
+        "<p>Ilmoittautumisaikana kalenteri tekee suurimman osan työstä itse: ilmoittautumiset kertyvät, maksut\nkirjautuvat ja ilmoittautujat muokkaavat ja peruvat omia ilmoittautumisiaan omilla linkeillään.\nKoesihteerille jää seuranta ja ne peruutukset ja palautukset, jotka eivät tule kalenterin kautta.</p>\n<h2>Ilmoittautumisten seuranta</h2>\n<p>Valitse koe tapahtumalistauksesta ja paina <strong>Ilmoittautumiset</strong> — tai tuplaklikkaa koetta.\nTapahtumasivulla jokaisella luokalla on oma välilehtensä, ja luokan ilmoittautumiset on jaettu\nkolmeen osaan:</p>\n<table>\n<thead>\n<tr>\n<th>Osa</th>\n<th>Ketä siinä on</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Osallistujat</td>\n<td>koepaikan saaneet, ryhmiteltyinä koepäivän ja -ryhmän mukaan</td>\n</tr>\n<tr>\n<td>Ilmoittautuneet</td>\n<td>kaikki muut ilmoittautuneet; ilmoittautumisaikana siis käytännössä kaikki</td>\n</tr>\n<tr>\n<td>Peruneet</td>\n<td>ilmoittautumisen peruneet, perumisen syineen</td>\n</tr>\n</tbody>\n</table>\n<p>Jokainen uusi ilmoittautuminen tulee kohtaan <em>Ilmoittautuneet</em> ja pysyy siellä, kunnes koesihteeri\nsiirtää sen osallistujiin ilmoittautumisajan päätyttyä.</p>\n" +
+        "<figure class=\"guide-shot\"><img src=\"" + shot6 + "\" alt=\"Luokan ilmoittautumiset kolmessa osassa\" loading=\"lazy\"><figcaption>Luokan ilmoittautumiset kolmessa osassa</figcaption></figure>" +
+        "<p>Oikean laidan <strong>Tapahtuman hallinta</strong> -paneeli näyttää luokittain, montako on nostettu\nosallistujiin, montako on varasijalla ja mitä koekalenteri odottaa seuraavaksi. Sen\n<em>Muutoshistoria</em>-välilehti listaa kaiken, mitä kokeelle on tehty.</p>\n" +
+        "<figure class=\"guide-shot\"><img src=\"" + shot7 + "\" alt=\"Tapahtuman hallinta -paneeli\" loading=\"lazy\"><figcaption>Tapahtuman hallinta -paneeli</figcaption></figure>" +
+        "<p>Seuranta ei sinänsä vaadi toimenpiteitä. Jos ilmoittautumisia tulee niin paljon, että kokeeseen\nhankitaan lisätuomari, kokeen tietoja muokataan tapahtumalistauksen <strong>Muokkaa</strong>-painikkeella:\ntuomari lisätään Tuomarit-osioon ja koepaikkojen määrä nostetaan Ilmoittautuminen-osiossa.</p>\n<h2>Peruutuksen kirjaaminen</h2>\n<p>Ilmoittautuja voi perua itse vahvistusviestinsä linkistä, ja silloin peruutus näkyy kohdassa\n<em>Peruneet</em> perumisen syyn kanssa. Kaikki eivät kuitenkaan tee niin, vaan lähettävät peruutuksen\nsähköpostilla — silloin koesihteeri kirjaa sen:</p>\n<ul>\n<li>avaa ilmoittautumisen rivin oikean laidan valikko (⋮) ja valitse <strong>Peru ilmoittautuminen</strong>, tai</li>\n<li>raahaa ilmoittautuminen kohtaan <em>Peruneet</em>.</li>\n</ul>\n<p>Peruutus tulee voimaan heti. Perutut säilyvät näkyvissä omassa osiossaan, joten tieto ei katoa.</p>\n<h2>Maksun palautus</h2>\n<p>Jos ilmoittautuminen perutaan hyväksyttävästä syystä, maksun voi palauttaa heti. Avaa\nilmoittautumisen rivin valikko (⋮) ja valitse <strong>Palauta maksu</strong>.</p>\n" +
+        "<figure class=\"guide-shot\"><img src=\"" + shot8 + "\" alt=\"Maksun palautus\" loading=\"lazy\"><figcaption>Maksun palautus</figcaption></figure>" +
+        "<p>Ikkuna listaa ilmoittautumisen maksut. Valitse palautettava maksu, kirjaa tarvittaessa\n<em>Käsittelykulu</em>, joka jää yhdistykselle, ja lisää halutessasi sisäinen kommentti — se ei näy\nilmoittautujalle. <strong>Palauta maksu</strong> tekee palautuksen Paytrailin kautta samalle maksutavalle, jolla\nmaksu tuli. Palautettu summa näkyy sen jälkeen ilmoittautumisen rivillä.</p>\n<p>Palautuksen voi tehdä myös suoraan Paytrailin kauppiasportaalissa, yleensä yhdistyksen\nrahastonhoitaja. Silloin rahastonhoitaja tarvitsee maksupäivän ja maksajan nimen: molemmat löytyvät\navaamalla ilmoittautuminen (<em>Muokkaa ilmoittautumista</em>) ja vierittämällä sen loppuun, jossa\nilmoittautumisen muutoshistoria luettelee myös maksun ajankohtineen.</p>\n",
+      order: 20,
+      path: "koesihteerille/ilmoaikana",
+      title: "Ilmoittautumisaikana",
     },
   ],
 }

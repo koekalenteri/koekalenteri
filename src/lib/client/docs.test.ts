@@ -3,10 +3,15 @@ import { docsPageFor, docsPagesFor } from './docs'
 describe('docs', () => {
   describe('docsPagesFor', () => {
     it('gives the pages in the reader’s language', () => {
-      expect(docsPagesFor('en').map((page) => page.title)).toEqual(['Entering a trial', 'Before entry opens'])
+      expect(docsPagesFor('en').map((page) => page.title)).toEqual([
+        'Entering a trial',
+        'Before entry opens',
+        'While entry is open',
+      ])
       expect(docsPagesFor('fi').map((page) => page.title)).toEqual([
         'Kokeeseen ilmoittautuminen',
         'Ennen ilmoittautumisajan alkua',
+        'Ilmoittautumisaikana',
       ])
     })
 
