@@ -8,6 +8,8 @@ import type {
   RegistrationClass,
 } from '../types'
 import type { SortableRegistration } from './registration'
+import { eventWithStaticDates } from '../__mockData__/events'
+import { registrationWithStaticDates } from '../__mockData__/registrations'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
   canRefund,
@@ -21,6 +23,7 @@ import {
   getOwnerRole,
   getParticipantMessageInfo,
   getRegistrationClass,
+  getRegistrationEmails,
   getRegistrationEmailTemplateData,
   getRegistrationGroupKey,
   getRegistrationGroupTime,
@@ -29,7 +32,9 @@ import {
   getSentInvitationAttachment,
   hasInvalidRegistrationArrayFields,
   hasPriority,
+  hasRefundableBalance,
   isMember,
+  isPayerTemplate,
   isPredefinedReason,
   isPublicRegistrationOperationField,
   isRegistrationClass,
@@ -562,6 +567,44 @@ describe('lib/registration', () => {
     })
   })
 
+  describe('hasRefundableBalance', () => {
+    it('is what canRefund reads without the group: money still with the organizer', () => {
+      expect(hasRefundableBalance({ paidAmount: 10 })).toBe(true)
+      expect(hasRefundableBalance({ paidAmount: 10, refundAmount: 4, refundHandlingCost: 5 })).toBe(true)
+      expect(hasRefundableBalance({ paidAmount: 10, refundAmount: 5, refundHandlingCost: 5 })).toBe(false)
+      expect(hasRefundableBalance({})).toBe(false)
+    })
+  })
+
+  describe('getRegistrationEmails', () => {
+    const registration = {
+      handler: { email: 'handler@example.com' },
+      owner: { email: 'owner@example.com' },
+      ownerHandles: false,
+      payer: { email: 'payer@example.com' },
+    }
+
+    it('goes to the handler and the owners', () => {
+      expect(getRegistrationEmails(registration)).toEqual(['handler@example.com', 'owner@example.com'])
+      expect(getRegistrationEmails(registration, 'message')).toEqual(['handler@example.com', 'owner@example.com'])
+    })
+
+    it('reaches the payer too with a payment request (KOE-722)', () => {
+      expect(isPayerTemplate('payment-request')).toBe(true)
+      expect(getRegistrationEmails(registration, 'payment-request')).toEqual([
+        'handler@example.com',
+        'owner@example.com',
+        'payer@example.com',
+      ])
+    })
+
+    it('does not name a payer who is already an owner twice', () => {
+      expect(
+        getRegistrationEmails({ ...registration, payer: { email: 'owner@example.com' } }, 'payment-request')
+      ).toEqual(['handler@example.com', 'owner@example.com'])
+    })
+  })
+
   describe('isRegistrationClass', () => {
     it('should return true for valid registration classes', () => {
       expect(isRegistrationClass('ALO')).toBe(true)
@@ -775,6 +818,10 @@ describe('lib/registration', () => {
       // Check specific values that don't depend on the t function
       expect(result.link).toBe('https://example.com/r/event1/reg1')
       expect(result.paymentLink).toBe('https://example.com/p/event1/reg1')
+      // The money fields wait for a balance the caller has worked out; without one they read empty.
+      expect(result.paymentCost).toBe('')
+      expect(result.paymentDue).toBe('')
+      expect(result.paymentPaid).toBe('')
       expect(result.invitationLink).toBe('https://example.com/r/event1/reg1/invitation')
       expect(result.event).toEqual({ ...confirmedEvent, invitationAttachment: 'event-attachment' })
       expect(result.reg).toBe(registration)
@@ -1142,6 +1189,25 @@ describe('lib/registration', () => {
       [undefined, undefined],
     ])('should return %p for %p', (expected, current) => {
       expect(getNextClass(current)).toEqual(expected)
+    })
+  })
+
+  describe('payment request template data (KOE-722)', () => {
+    it('spells the fee, the paid part and the missing part out as money', () => {
+      const t = ((key: string) => key) as unknown as Parameters<typeof getRegistrationEmailTemplateData>[5]
+      const result = getRegistrationEmailTemplateData(
+        registrationWithStaticDates,
+        eventWithStaticDates,
+        'https://example.com',
+        '',
+        '',
+        t,
+        { paymentBalance: { cost: 40, due: 5, excess: 0, paid: 35 } }
+      )
+
+      expect(result.paymentCost).toBe('40,00\u00A0€')
+      expect(result.paymentPaid).toBe('35,00\u00A0€')
+      expect(result.paymentDue).toBe('5,00\u00A0€')
     })
   })
 })

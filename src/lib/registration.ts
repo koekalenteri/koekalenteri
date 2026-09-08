@@ -11,6 +11,7 @@ import type {
   MinimalEventForCost,
   MinimalRegistrationForCost,
   MinimalRegistrationForMembership,
+  PaymentBalance,
   PublicDogEvent,
   Registration,
   RegistrationClass,
@@ -22,6 +23,7 @@ import type {
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { hasSharedReserveList, isEntryClosed, localizedEventDescription, localizedEventName } from './event'
+import { formatMoney } from './money'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
 import { isObject, unique } from './utils'
@@ -310,16 +312,27 @@ export const getPayingPerson = <O extends { key?: string }, L, P>(registration: 
  * The backend `emailTo` addresses the same set, so anything reporting recipients to the user must
  * use this rather than a single owner.
  */
-export const getRegistrationEmails = (registration: {
-  owners?: { email?: string; key?: string }[]
-  owner?: { email?: string }
-  ownerHandles?: boolean | string
-  handler?: { email?: string }
-}): string[] =>
+/**
+ * The templates the payer reads too. A request for a missing part of the fee goes to whoever paid
+ * the first part (KOE-722): the payer is not always the handler or an owner.
+ */
+export const isPayerTemplate = (template?: EmailTemplateId): boolean => template === 'payment-request'
+
+export const getRegistrationEmails = (
+  registration: {
+    owners?: { email?: string; key?: string }[]
+    owner?: { email?: string }
+    ownerHandles?: boolean | string
+    handler?: { email?: string }
+    payer?: { email?: string }
+  },
+  template?: EmailTemplateId
+): string[] =>
   unique(
     [
       getHandlingPerson(registration)?.email,
       ...getRegistrationOwners(registration).map((owner) => owner?.email),
+      isPayerTemplate(template) ? registration.payer?.email : undefined,
     ].filter((email): email is string => Boolean(email))
   )
 
@@ -468,11 +481,14 @@ export const isScorableRegistration = <T extends JsonRegistration | Registration
   reg: Pick<T, 'cancelled' | 'group'>
 ): boolean => isParticipantGroup(getRegistrationGroupKey(reg))
 
+/** Whether any of what was paid is still with the organizer, handling fees counted as kept. */
+export const hasRefundableBalance = <T extends JsonRegistration | Registration>(
+  reg: Pick<T, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
+): boolean => (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) + (reg.refundHandlingCost ?? 0)
+
 export const canRefund = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
-): boolean =>
-  (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) + (reg.refundHandlingCost ?? 0) &&
-  REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
+): boolean => hasRefundableBalance(reg) && REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
 
 export const getSelectedAdditionalCosts = (
   event: MinimalEventForCost,
@@ -583,6 +599,8 @@ export const getParticipantMessageInfo = <T extends InvitationAttachmentRegistra
 interface RegistrationEmailTemplateOptions {
   previousGroup?: JsonRegistrationGroup
   editToken?: string
+  /** Where the fee stands, for a payment request (KOE-722); the caller computes it (`getPaymentBalance`). */
+  paymentBalance?: PaymentBalance
 }
 
 export const getRegistrationEmailTemplateData = (
@@ -594,7 +612,7 @@ export const getRegistrationEmailTemplateData = (
   t: TFunction,
   options: RegistrationEmailTemplateOptions = {}
 ) => {
-  const { editToken, previousGroup } = options
+  const { editToken, paymentBalance, previousGroup } = options
   const eventDate = t('dateFormat.datespan', { end: confirmedEvent.endDate, start: confirmedEvent.startDate })
   const reserveText = t(`registration.reserveChoises.${registration.reserve || 'ANY'}`)
   const dogBreed = registration.dog.breedCode ? t(`${registration.dog.breedCode}`, { ns: 'breed' }) : ''
@@ -649,7 +667,10 @@ export const getRegistrationEmailTemplateData = (
     invitationLink,
     link,
     origin,
+    paymentCost: paymentBalance ? formatMoney(paymentBalance.cost) : '',
+    paymentDue: paymentBalance ? formatMoney(paymentBalance.due) : '',
     paymentLink,
+    paymentPaid: paymentBalance ? formatMoney(paymentBalance.paid) : '',
     qualifyingResults,
     reg: registration,
     regDates,

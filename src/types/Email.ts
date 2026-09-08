@@ -16,6 +16,7 @@ export type EmailTemplateId =
   | 'reserve'
   | 'invitation'
   | 'message'
+  | 'payment-request'
   | 'access'
   | 'refund'
   | 'cancel-early'

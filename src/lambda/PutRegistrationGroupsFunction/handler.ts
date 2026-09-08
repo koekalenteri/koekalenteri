@@ -295,7 +295,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     await updateReserveNotified(movedReserve)
 
     Object.assign(emails, {
-      invitationAwaitingPayment: awaitingPayment.flatMap(emailTo),
+      invitationAwaitingPayment: awaitingPayment.flatMap((registration) => emailTo(registration)),
       invitedFailed,
       invitedOk,
       pickedFailed,

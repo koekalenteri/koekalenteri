@@ -11,8 +11,11 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
+import { getPaymentBalance } from '../../lib/cost'
+import { formatMoney } from '../../lib/money'
 import { getPaymentStatus } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
+import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
 
 const priorityIconColor = (event: PublicDogEvent, registration: Registration) =>
@@ -52,9 +55,12 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
   const needsConfirmation = !registration.cancelled && !registration.confirmed && !!registration.messagesSent?.picked
   const needsPayment =
     Boolean(registration.shouldPay) && registration.paymentStatus !== 'DUPLICATE' && !paymentVerificationInProgress
+  // A paid place reads as paid until its fee rises above what was paid (KOE-722): then the line
+  // names the missing part, the same amount the payment button collects.
+  const paymentDue = isConfirmedEvent(event) ? getPaymentBalance(event, registration).due : 0
   const paymentStatusText = paymentVerificationInProgress
     ? t('registration.notifications.paymentVerifying')
-    : t(getPaymentStatus(registration, event))
+    : t(getPaymentStatus(registration, event, paymentDue), { amount: formatMoney(paymentDue) })
 
   return (
     <Paper sx={{ bgcolor: 'background.selected', m: 1, p: 1 }}>

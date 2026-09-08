@@ -14,6 +14,7 @@ describe('RefundFooter', () => {
             canHaveHandlingCosts: true,
             handlingCost: 500,
             onHandlingCostChange: vi.fn(),
+            refundTotal: 500,
             selectedTotal: 1000,
             total: 1000,
           },

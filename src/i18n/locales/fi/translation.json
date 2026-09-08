@@ -147,6 +147,7 @@
     "cancel-reserve": "Peruutusilmoitus sihteerille: varasija",
     "invitation": "Koekutsu",
     "message": "Viesti osallistujille",
+    "payment-request": "Maksupyyntö",
     "picked": "Koepaikkailmoitus",
     "receipt": "Kuitti",
     "refund": "Maksun palautus",
@@ -552,6 +553,7 @@
   "paymentStatus": {
     "duplicate": "Maksu veloitettiin sen jälkeen, kun koiran toinen ilmoittautuminen oli jo maksettu. Ota yhteyttä koesihteeriin maksun palauttamiseksi.",
     "missing": "Koemaksu puuttuu vielä",
+    "partial": "Maksusta puuttuu {{amount}}",
     "pending": "Odottaa maksun käsittelyä",
     "success": "Olen maksanut",
     "waitingForConfirmation": "Maksetaan paikan vahvistuttua"
@@ -593,6 +595,7 @@
       "moveToReserve": "Siirrä varasijalle",
       "pay": "Maksa ilmoittautuminen",
       "refundPayment": "Palauta maksu",
+      "requestPayment": "Lähetä maksupyyntö",
       "sendMessage": "Lähetä viesti"
     },
     "agreeToTerms": "Ehdot ja tietosuojaseloste",
@@ -763,10 +766,14 @@
         "type": "Tyyppi"
       },
       "costsText": "Jos palautuksesta peritään käsittelykulu, täytä kulun määrä sille varattuun kohtaan.",
+      "excessOnly": "Palauta liikaa maksettu osuus {{amount}}",
+      "excessText": "Liikaa maksettu osuus palautetaan ilman käsittelykulua. Loppu maksusta jää edelleen palautettavaksi, jos ilmoittautuminen myöhemmin perutaan.",
+      "excessTitle": "Ilmoittautuja on maksanut liikaa: osallistumismaksu {{cost}}, maksettu {{paid}}",
       "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta.",
       "previouslyChargedHandlingCost": "Aiemmin veloitettu käsittelykulu",
       "text": "Valitse palautettava maksu.",
-      "title": "Maksun palautus, {{regNo}} / {{payer}}"
+      "title": "Maksun palautus, {{regNo}} / {{payer}}",
+      "wholePayment": "Palauta valittu maksu, käsittelykulun voi vähentää"
     },
     "registeredDogs": "Ilmoitetut koirat",
     "reserve": "Pystyn ottamaan koepaikan vastaan varasijalta",
@@ -813,6 +820,8 @@
         "read-previous": "Aiempi koekutsu on kuitattu, viimeisin odottaa kuittausta",
         "unread": "Koekutsua ei ole kuitattu"
       },
+      "paymentDue": "Maksusta puuttuu {{due}}: maksettu {{paid}}, osallistumismaksu {{cost}}",
+      "paymentExcess": "Maksettu liikaa {{excess}}: maksettu {{paid}}, osallistumismaksu {{cost}}",
       "refunded": "Ilmoittautumismaksua on palautettu. Palautettu {{refundAmount}}, maksoi {{paidAmount}}",
       "refunded_handlingCost": "Ilmoittautumismaksua on palautettu. Palautettu {{refundAmount}}, käsittelykulu {{handlingCost}}, maksoi {{paidAmount}}",
       "refundPending": "Palautuksen käsittely on kesken. Palautetaan {{refundAmount}}, maksoi {{paidAmount}}",

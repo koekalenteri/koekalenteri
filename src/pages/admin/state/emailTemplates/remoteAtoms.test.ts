@@ -94,6 +94,7 @@ describe('adminEmailTemplatesRemoteAtom', () => {
       'cancel-reserve',
       'invitation',
       'message',
+      'payment-request',
       'picked',
       'receipt',
       'refund',

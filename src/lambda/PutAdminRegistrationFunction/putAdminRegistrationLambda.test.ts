@@ -25,6 +25,7 @@ const mockLockRegistrationPayments = vi.fn().mockResolvedValue(async () => undef
 const mockRepairReadyRegistrationGroups = vi.fn().mockResolvedValue([])
 const mockUpdateRegistrations = vi.fn(async () => ({
   classes: [{ class: 'ALO', entries: 10 }],
+  cost: 40,
   endDate: '2024-01-02',
   id: 'event123',
   name: 'Test Event',
@@ -171,7 +172,7 @@ describe('putAdminRegistrationLambda', () => {
       memberOf: ['org-1'],
       user: { admin: false, id: 'user123', name: 'Test User' },
     })
-    mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
+    mockGetEvent.mockResolvedValue({ cost: 40, organizer: { id: 'org-1' } })
     mockAssertRegistrationEmailsNotSuppressed.mockResolvedValue(undefined)
 
     mockGetRegistration.mockResolvedValue({
@@ -219,6 +220,7 @@ describe('putAdminRegistrationLambda', () => {
     mockFixRegistrationGroups.mockImplementation(async (regs: JsonRegistration[]) => regs)
     mockUpdateRegistrations.mockResolvedValue({
       classes: [{ class: 'ALO', entries: 10 }],
+      cost: 40,
       endDate: '2024-01-02',
       id: 'event123',
       name: 'Test Event',
@@ -246,7 +248,7 @@ describe('putAdminRegistrationLambda', () => {
       memberOf: ['org-1'],
       user: { admin: false, id: 'user123', name: 'Test User' },
     })
-    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-2' } })
+    mockGetEvent.mockResolvedValueOnce({ cost: 40, organizer: { id: 'org-2' } })
 
     const result = await putAdminRegistrationLambda(event)
 
@@ -263,7 +265,7 @@ describe('putAdminRegistrationLambda', () => {
       memberOf: [],
       user: { admin: true, id: 'admin1', name: 'Admin User' },
     })
-    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-2' } })
+    mockGetEvent.mockResolvedValueOnce({ cost: 40, organizer: { id: 'org-2' } })
 
     const result = await putAdminRegistrationLambda(event)
 

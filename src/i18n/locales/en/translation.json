@@ -147,6 +147,7 @@
     "cancel-reserve": "Cancel notice (reserve)",
     "invitation": "Invitation",
     "message": "Message to participants",
+    "payment-request": "Payment request",
     "picked": "Picked notification",
     "receipt": "Receipt",
     "refund": "Refund",
@@ -552,6 +553,7 @@
   "paymentStatus": {
     "duplicate": "This payment was captured after another registration for the dog had already been paid. Please contact the trial secretary to arrange a refund.",
     "missing": "Test payment is still missing",
+    "partial": "{{amount}} of the fee is still missing",
     "pending": "Waiting for payment processing",
     "success": "I have paid",
     "waitingForConfirmation": "Payable after confirmation"
@@ -593,6 +595,7 @@
       "moveToReserve": "Move to reserve",
       "pay": "Pay registration",
       "refundPayment": "Refund payment",
+      "requestPayment": "Send payment request",
       "sendMessage": "Send message"
     },
     "agreeToTerms": "Terms and privacy policy",
@@ -763,10 +766,14 @@
         "type": "Type"
       },
       "costsText": "If a handling fee is charged for the refund, enter the amount in the designated field.",
+      "excessOnly": "Refund the overpaid part {{amount}}",
+      "excessText": "The overpaid part is refunded without a handling fee. The rest of the payment stays refundable should the entry be cancelled later.",
+      "excessTitle": "The entrant has paid over the fee: entry fee {{cost}}, paid {{paid}}",
       "noCostsText": "The selected payment was made in a version of Koekalenteri prior to the refund feature. Such a payment can only be refunded in full through Koekalenteri.",
       "previouslyChargedHandlingCost": "Previously charged handling fee",
       "text": "Select the payment to be refunded.",
-      "title": "Refund, {{regNo}} / {{payer}}"
+      "title": "Refund, {{regNo}} / {{payer}}",
+      "wholePayment": "Refund the selected payment, a handling fee may be deducted"
     },
     "registeredDogs": "Registered dogs",
     "reserve": "I can accept a place from the reserve list",
@@ -813,6 +820,8 @@
         "read-previous": "An earlier invitation has been acknowledged; the latest is still awaiting acknowledgement",
         "unread": "The invitation has not been acknowledged"
       },
+      "paymentDue": "{{due}} of the fee is missing: paid {{paid}}, entry fee {{cost}}",
+      "paymentExcess": "Paid {{excess}} over the fee: paid {{paid}}, entry fee {{cost}}",
       "refunded": "The entry fee has been refunded. Refunded {{refundAmount}}, paid {{paidAmount}}",
       "refunded_handlingCost": "The entry fee has been refunded. Refunded {{refundAmount}}, handling fee {{handlingCost}}, paid {{paidAmount}}",
       "refundPending": "The refund is being processed. Refunding {{refundAmount}}, paid {{paidAmount}}",

@@ -1,3 +1,5 @@
+import type { JsonConfirmedEvent } from '../../types'
+import { getPaymentBalance } from '../../lib/cost'
 import { isEventOver } from '../../lib/event'
 import { getSentInvitationAttachment, isParticipantGroup } from '../../lib/registration'
 import { getEvent } from '../lib/event'
@@ -15,7 +17,7 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const storedRegistration = await getRegistration(eventId, id)
   const editToken = await authorizeRegistrationRead(event, storedRegistration)
   const registration = { ...storedRegistration }
-  const dogEvent = await getEvent(eventId)
+  const dogEvent = await getEvent<JsonConfirmedEvent>(eventId)
   if (isEventOver({ endDate: new Date(dogEvent.endDate) })) {
     throw new LambdaError(404, 'not found')
   }
@@ -36,7 +38,10 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
   }
 
   if (!registration.cancelled) {
-    const shouldPay = registration.paymentStatus !== 'SUCCESS' && registration.paymentStatus !== 'PENDING'
+    // A paid place can still owe: the fee rose after it was paid (KOE-722), and the payment link
+    // charges the difference.
+    const { due } = getPaymentBalance(dogEvent, registration)
+    const shouldPay = registration.paymentStatus !== 'PENDING' && (registration.paymentStatus !== 'SUCCESS' || due > 0)
 
     if (dogEvent.paymentTime === 'confirmation') {
       registration.shouldPay = isParticipantGroup(registration?.group?.key) && shouldPay

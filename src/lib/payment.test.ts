@@ -1,10 +1,12 @@
 import type { MinimalEventForCost, MinimalRegistrationForCost, PaymentStatus, Registration } from '../types'
 import { addDays } from 'date-fns'
 import {
+  canRefundExcess,
   getPaymentStatus,
   getProviderName,
   getRegistrationPaymentDetails,
   isInvitationAwaitingPayment,
+  isPaymentUnsettled,
   isRegistrationPaid,
   PROVIDER_NAMES,
   shouldSendInvitationAfterPayment,
@@ -29,6 +31,12 @@ describe('payment', () => {
       [undefined, 'paymentStatus.missing'],
     ])('When status is %p should return %p', (paymentStatus, expected) => {
       expect(getPaymentStatus({ paymentStatus })).toEqual(expected)
+    })
+
+    it('names the missing part when a paid fee still owes (KOE-722)', () => {
+      expect(getPaymentStatus({ paymentStatus: 'SUCCESS' }, undefined, 5)).toEqual('paymentStatus.partial')
+      expect(getPaymentStatus({ paymentStatus: 'SUCCESS' }, undefined, 0)).toEqual('paymentStatus.success')
+      expect(getPaymentStatus({ paymentStatus: undefined }, undefined, 5)).toEqual('paymentStatus.missing')
     })
 
     describe('with event parameter', () => {
@@ -332,6 +340,53 @@ describe('payment', () => {
           end: undefined,
           start: undefined,
         },
+      })
+    })
+  })
+
+  describe('overpaid fee', () => {
+    const event: MinimalEventForCost = { cost: 40, costMember: 35, entryStartDate: new Date('2026-01-01') }
+    const member: MinimalRegistrationForCost = {
+      createdAt: new Date('2026-01-02'),
+      dog: { breedCode: '110' },
+      owner: { membership: true },
+      ownerHandles: true,
+    }
+
+    describe('canRefundExcess', () => {
+      it('lets a participant who paid the full price as a member have the difference back (KOE-1382)', () => {
+        expect(canRefundExcess(event, { ...member, paidAmount: 40 })).toBe(true)
+      })
+
+      it('has nothing to return once the difference has been refunded', () => {
+        expect(canRefundExcess(event, { ...member, paidAmount: 40, refundAmount: 5 })).toBe(false)
+      })
+
+      it('has nothing to return when the member price was paid', () => {
+        expect(canRefundExcess(event, { ...member, paidAmount: 35 })).toBe(false)
+      })
+
+      it('leaves a cancelled entry to the ordinary refund', () => {
+        expect(canRefundExcess(event, { ...member, cancelled: true, paidAmount: 40 })).toBe(false)
+      })
+    })
+
+    describe('isPaymentUnsettled', () => {
+      const paidAt = new Date('2026-01-03')
+
+      it('is unsettled when a part is missing or paid over', () => {
+        expect(isPaymentUnsettled(event, { ...member, paidAmount: 40, paidAt })).toBe(true)
+        expect(isPaymentUnsettled(event, { ...member, owner: { membership: false }, paidAmount: 35, paidAt })).toBe(
+          true
+        )
+      })
+
+      it('is settled when the fee has been paid as it reads', () => {
+        expect(isPaymentUnsettled(event, { ...member, paidAmount: 35, paidAt })).toBe(false)
+      })
+
+      it('is not unsettled, only unpaid, when nothing has been paid', () => {
+        expect(isPaymentUnsettled(event, member)).toBe(false)
       })
     })
   })

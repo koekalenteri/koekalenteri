@@ -9,7 +9,8 @@ import type {
 } from '../../types'
 import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
 import { i18n } from '../../i18n/lambda'
-import { getRegistrationEmailTemplateData, getRegistrationOwners } from '../../lib/registration'
+import { getPaymentBalance } from '../../lib/cost'
+import { getRegistrationEmailTemplateData, getRegistrationOwners, isPayerTemplate } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { logger } from './log'
 
@@ -52,12 +53,14 @@ export function registrationEmailTags(registration: JsonRegistration, template: 
   ]
 }
 
-export function emailTo(registration: JsonRegistration) {
+export function emailTo(registration: JsonRegistration, template?: EmailTemplateId) {
   const to: string[] = []
   if (registration.handler?.email) to.push(registration.handler.email)
   for (const owner of getRegistrationOwners(registration)) {
     if (owner?.email && !to.includes(owner.email)) to.push(owner.email)
   }
+  const payer = isPayerTemplate(template) ? registration.payer?.email : undefined
+  if (payer && !to.includes(payer)) to.push(payer)
   return to
 }
 
@@ -74,6 +77,7 @@ export function registrationEmailTemplateData(
 
   return getRegistrationEmailTemplateData(registration, confirmedEvent, origin, context, text, t, {
     editToken,
+    paymentBalance: getPaymentBalance(confirmedEvent, registration),
     previousGroup,
   })
 }

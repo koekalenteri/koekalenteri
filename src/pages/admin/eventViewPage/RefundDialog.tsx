@@ -1,12 +1,17 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
 import type { ChangeEventHandler } from 'react'
-import type { RefundPaymentResponse, Registration, Transaction } from '../../../types'
+import type { MinimalEventForCost, RefundPaymentResponse, Registration, Transaction } from '../../../types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormLabel from '@mui/material/FormLabel'
+import Radio from '@mui/material/Radio'
+import RadioGroup from '@mui/material/RadioGroup'
 import TextField from '@mui/material/TextField'
 import { useSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -14,8 +19,10 @@ import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../api/http'
 import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
+import { getPaymentBalance } from '../../../lib/cost'
 import { rowSelectionModel } from '../../../lib/datagrid'
 import { formatMoney } from '../../../lib/money'
+import { canRefundExcess } from '../../../lib/payment'
 import { GROUP_KEY_RESERVE } from '../../../lib/registration'
 import { isObject } from '../../../lib/utils'
 import { NullComponent } from '../../components/NullComponent'
@@ -36,6 +43,11 @@ const successMessages: Record<string, string> = {
     'Maksun palautus on aloitettu. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
 }
 
+const refundTextKey = (excessOnly: boolean, canHaveHandlingCosts: boolean) => {
+  if (excessOnly) return 'registration.refundDialog.excessText'
+  return canHaveHandlingCosts ? 'registration.refundDialog.costsText' : 'registration.refundDialog.noCostsText'
+}
+
 const errorMessages = {
   '404': 'Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.',
   default:
@@ -45,10 +57,18 @@ const errorMessages = {
 }
 
 interface Props {
+  /** The trial's fee is what the payment is measured against: it tells whether a part was paid over. */
+  readonly event: MinimalEventForCost
   readonly registration: Registration
   readonly open?: boolean
   readonly onClose?: () => void
 }
+
+/**
+ * What the refund returns: the part paid over the fee alone (KOE-1382), or the selected payment
+ * less whatever handling fee the secretary keeps.
+ */
+type RefundMode = 'excess' | 'payment'
 
 const transactionAmount = (t: Transaction) => (t.type === 'refund' ? -1 * (t.amount + (t.handlingCost ?? 0)) : t.amount)
 const DEFAULT_HANDLING_COST = 500
@@ -56,8 +76,9 @@ const defaultHandlingCost = (registration: Registration) =>
   (registration.group?.key ?? GROUP_KEY_RESERVE) !== GROUP_KEY_RESERVE && registration.refundHandlingCost === undefined
     ? DEFAULT_HANDLING_COST
     : 0
+const defaultRefundMode = (excessAvailable: boolean): RefundMode => (excessAvailable ? 'excess' : 'payment')
 
-export const RefundDailog = ({ open, registration, onClose }: Props) => {
+export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const [loading, setLoading] = useState<boolean>(false)
@@ -66,6 +87,11 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   const [selection, setSelection] = useState<GridRowSelectionModel>()
   const [handlingCost, setHandlingCost] = useState<number>(defaultHandlingCost(registration))
   const [internalNotes, setInternalNotes] = useState(registration.internalNotes ?? '')
+  const balance = useMemo(() => getPaymentBalance(event, registration), [event, registration])
+  const excessAvailable = canRefundExcess(event, registration)
+  const [refundMode, setRefundMode] = useState<RefundMode>(defaultRefundMode(excessAvailable))
+  const excessOnly = excessAvailable && refundMode === 'excess'
+  const excessCents = Math.round(balance.excess * 100)
   const actions = useAdminRegistrationActions(registration.eventId)
   const columns = useRefundColumns()
 
@@ -86,6 +112,10 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   )
 
   const canHaveHandlingCosts = selectedTransactions.some((t) => !!t.items)
+  // What goes back: the excess of what was paid over the fee, capped by the payment it comes out of,
+  // or the selected payment less the handling fee.
+  const refundBase = Math.min(total, refundAmount)
+  const refundTotal = excessOnly ? Math.min(excessCents, refundBase) : refundBase - handlingCost
   const registrationVersion = registration
     ? `${registration.id}:${registration.updatedAt?.getTime() ?? ''}:${registration.paymentStatus ?? ''}:${registration.refundStatus ?? ''}`
     : ''
@@ -129,7 +159,8 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset local edits when switching registrations
   useEffect(() => {
     setHandlingCost(defaultHandlingCost(registration))
-  }, [registration.id, registration.refundHandlingCost, registration.group?.key])
+    setRefundMode(defaultRefundMode(excessAvailable))
+  }, [registration.id, registration.refundHandlingCost, registration.group?.key, excessAvailable])
 
   const dispatchNotesChange = useDebouncedCallback(async (notes: string) => {
     await actions.putInternalNotes(registration.eventId, registration.id, notes)
@@ -145,6 +176,10 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   )
 
   const handleCostChange = useCallback((value?: number) => setHandlingCost(value ?? 0), [])
+  const handleModeChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    (e) => setRefundMode(e.target.value === 'excess' ? 'excess' : 'payment'),
+    []
+  )
 
   const handleClose = useCallback(() => {
     setLoading(false)
@@ -269,10 +304,14 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     if (!selectedTransactions.length) return
 
     const transaction = selectedTransactions[0]
-    const amount = Math.min(total, transaction.amount) - handlingCost
 
     try {
-      const response = await actions.refund(registration, transaction.transactionId, amount, handlingCost)
+      const response = await actions.refund(
+        registration,
+        transaction.transactionId,
+        refundTotal,
+        excessOnly ? 0 : handlingCost
+      )
       if (!response || response.status === 'fail') {
         // For failed refunds, show the default error message
         enqueueSnackbar(errorMessages.default, errorSnackbarOptions)
@@ -284,7 +323,8 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     }
   }, [
     selectedTransactions,
-    total,
+    refundTotal,
+    excessOnly,
     handlingCost,
     actions,
     registration,
@@ -300,6 +340,33 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
       </DialogTitle>
       <DialogContent>
         <DialogContentText sx={{ mb: 1 }}>{t('registration.refundDialog.text')}</DialogContentText>
+        {excessAvailable && (
+          <FormControl sx={{ mb: 1 }}>
+            <FormLabel id="refund-mode-label">
+              {t('registration.refundDialog.excessTitle', {
+                cost: formatMoney(balance.cost),
+                paid: formatMoney(balance.paid),
+              })}
+            </FormLabel>
+            <RadioGroup
+              aria-labelledby="refund-mode-label"
+              name="refundMode"
+              onChange={handleModeChange}
+              value={refundMode}
+            >
+              <FormControlLabel
+                control={<Radio size="small" />}
+                label={t('registration.refundDialog.excessOnly', { amount: formatMoney(balance.excess) })}
+                value="excess"
+              />
+              <FormControlLabel
+                control={<Radio size="small" />}
+                label={t('registration.refundDialog.wholePayment')}
+                value="payment"
+              />
+            </RadioGroup>
+          </FormControl>
+        )}
         <StyledDataGrid
           loading={loading}
           checkboxSelection
@@ -324,9 +391,10 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
           }}
           slotProps={{
             footer: {
-              canHaveHandlingCosts,
-              handlingCost: handlingCost ?? 0,
+              canHaveHandlingCosts: canHaveHandlingCosts && !excessOnly,
+              handlingCost: excessOnly ? 0 : handlingCost,
               onHandlingCostChange: handleCostChange,
+              refundTotal,
               selectedTotal: refundAmount,
               total,
             },
@@ -344,7 +412,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
             my: 1,
           }}
         >
-          {t(canHaveHandlingCosts ? 'registration.refundDialog.costsText' : 'registration.refundDialog.noCostsText')}
+          {t(refundTextKey(excessOnly, canHaveHandlingCosts))}
         </DialogContentText>
         <TextField
           label={t('registration.internalNotes')}
@@ -357,11 +425,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
         />
       </DialogContent>
       <DialogActions>
-        <Button
-          variant="contained"
-          onClick={handleRefund}
-          disabled={total === 0 || total <= handlingCost || handlingCost < 0 || refundAmount <= handlingCost}
-        >
+        <Button variant="contained" onClick={handleRefund} disabled={refundTotal <= 0 || handlingCost < 0}>
           {t('refund')}
         </Button>
         <Button variant="outlined" onClick={handleClose}>

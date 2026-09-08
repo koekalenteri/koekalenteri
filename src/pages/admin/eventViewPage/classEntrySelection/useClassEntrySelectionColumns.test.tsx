@@ -587,13 +587,15 @@ describe('Action column in detail', () => {
 
     // Test with various registration states
     const testCases = [
-      // Participant registration (not reserve/cancelled) with payment
+      // Participant registration (not reserve/cancelled) with payment - paid well over the 123 fee,
+      // so the overpaid part is refundable (KOE-1382)
       {
         cancelled: false,
         expectedActions: [
           'moveToGroup',
           'moveToPosition',
           'moveToReserve',
+          'refund',
           'edit',
           'cancel',
           'editInternalNotes',
@@ -626,10 +628,18 @@ describe('Action column in detail', () => {
         paidAt: new Date(),
         refundAmount: 5000,
       },
-      // Unpaid reserve registration
+      // Unpaid reserve registration - the fee can be asked for (KOE-722)
       {
         cancelled: false,
-        expectedActions: ['moveToParticipants', 'moveToPosition', 'edit', 'cancel', 'editInternalNotes', 'sendMessage'],
+        expectedActions: [
+          'moveToParticipants',
+          'moveToPosition',
+          'edit',
+          'cancel',
+          'editInternalNotes',
+          'sendMessage',
+          'requestPayment',
+        ],
         group: { key: registrationUtils.GROUP_KEY_RESERVE },
         id: 'test-id-4',
         paidAmount: 0,
@@ -954,6 +964,54 @@ describe('Cancel reason formatter', () => {
     // Test with custom reason
     const customReason = 'Custom reason'
     expect(formatter(customReason)).toBe(customReason)
+  })
+})
+
+describe('fee against what was paid', () => {
+  // The trial's fee is 123 for everyone (emptyEvent); the row's own group tells whether it is a place.
+  const paidRow = (paidAmount: number, overrides: Parameters<typeof asRegistration>[0] = {}) =>
+    asRegistration({ id: 'paid-row', paidAmount, paidAt: new Date(), refundAmount: 0, ...overrides })
+
+  it('offers a payment request while part of the fee is still owed (KOE-722)', () => {
+    const requestPaymentMock = vi.fn()
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        requestPayment: requestPaymentMock,
+      })
+    )
+    const actionsColumn = result.current.entryColumns.find((col) => col.field === 'actions')
+
+    const owing = getRowActions(actionsColumn, paidRow(100)).find((action) => action.key === 'requestPayment')
+    expect(owing).toBeDefined()
+    clickAction(owing)
+    expect(requestPaymentMock).toHaveBeenCalledWith('paid-row')
+
+    expect(getRowActions(actionsColumn, paidRow(123)).some((action) => action.key === 'requestPayment')).toBe(false)
+  })
+
+  it('does not ask a cancelled entry for anything', () => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes)
+    )
+    const actionsColumn = result.current.cancelledColumns.find((col) => col.field === 'actions')
+
+    const actions = getRowActions(
+      actionsColumn,
+      paidRow(100, { cancelled: true, group: { key: 'cancelled', number: 1 } })
+    )
+    expect(actions.some((action) => action.key === 'requestPayment')).toBe(false)
+  })
+
+  it('offers refunding the overpaid part of a participant, even after the trial (KOE-1382)', () => {
+    const endedEvent = { ...eventWithStaticDatesAnd3Classes, endDate: new Date('2020-01-01'), state: 'ended' as const }
+    const { result } = renderHook(() => useClassEntrySelectionColumns(mockAvailableDates, endedEvent))
+    const actionsColumn = result.current.participantColumns.find((col) => col.field === 'actions')
+    const participant = { group: { key: 'testing', number: 1 } }
+
+    expect(getRowActions(actionsColumn, paidRow(130, participant)).some((action) => action.key === 'refund')).toBe(true)
+    expect(getRowActions(actionsColumn, paidRow(123, participant)).some((action) => action.key === 'refund')).toBe(
+      false
+    )
   })
 })
 

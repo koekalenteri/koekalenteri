@@ -8,6 +8,7 @@ import { Provider } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider, useSnackbar } from 'notistack'
 import { Suspense } from 'react'
+import { eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import { APIError } from '../../../api/http'
 import theme from '../../../assets/Theme'
@@ -104,7 +105,7 @@ describe('RefundDialog', () => {
   afterAll(() => vi.useRealTimers())
 
   it('renders hidden when open is false', async () => {
-    render(<RefundDialog registration={registrationWithStaticDates} open={false} />, {
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={false} />, {
       wrapper: Wrapper,
     })
     await flushPromises()
@@ -112,7 +113,7 @@ describe('RefundDialog', () => {
   })
 
   it('renders with open dialog', async () => {
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, {
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
       wrapper: Wrapper,
     })
     await flushPromises()
@@ -120,7 +121,9 @@ describe('RefundDialog', () => {
   })
 
   it('displays transaction data correctly', async () => {
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     // Check that payment transaction is displayed
@@ -136,9 +139,12 @@ describe('RefundDialog', () => {
       group: { key: 'reserve', number: 1 },
     }
     const onCloseMock = vi.fn()
-    render(<RefundDialog registration={registration} open={true} onClose={onCloseMock} />, {
-      wrapper: Wrapper,
-    })
+    render(
+      <RefundDialog event={eventWithStaticDates} registration={registration} open={true} onClose={onCloseMock} />,
+      {
+        wrapper: Wrapper,
+      }
+    )
     await flushPromises()
 
     // Click the refund button
@@ -157,7 +163,7 @@ describe('RefundDialog', () => {
       ...registrationWithStaticDates,
       group: { key: '2024-01-01-ALO-ap', number: 1 },
     }
-    render(<RefundDialog registration={registration} open={true} />, {
+    render(<RefundDialog event={eventWithStaticDates} registration={registration} open={true} />, {
       wrapper: Wrapper,
     })
     await flushPromises()
@@ -177,7 +183,7 @@ describe('RefundDialog', () => {
       group: { key: 'cancelled', number: 1 },
       refundHandlingCost: 7,
     }
-    render(<RefundDialog registration={registration} open={true} />, {
+    render(<RefundDialog event={eventWithStaticDates} registration={registration} open={true} />, {
       wrapper: Wrapper,
     })
     await flushPromises()
@@ -199,7 +205,7 @@ describe('RefundDialog', () => {
       refundHandlingCost: 0,
     }
 
-    render(<RefundDialog registration={registration} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registration} open={true} />, { wrapper: Wrapper })
     await flushPromises()
 
     fireEvent.click(screen.getByText('refund'))
@@ -221,7 +227,7 @@ describe('RefundDialog', () => {
       refundHandlingCost: 5,
     }
 
-    render(<RefundDialog registration={registration} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registration} open={true} />, { wrapper: Wrapper })
     await flushPromises()
 
     expect(screen.getByRole('button', { name: 'refund' })).toBeDisabled()
@@ -252,7 +258,7 @@ describe('RefundDialog', () => {
       refundHandlingCost: 5,
     }
 
-    render(<RefundDialog registration={registration} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registration} open={true} />, { wrapper: Wrapper })
     await flushPromises()
 
     const secondPaymentRow = screen.getByRole('row', { name: /Maksu 20,00/ })
@@ -270,7 +276,9 @@ describe('RefundDialog', () => {
       status: 'ok',
     })
 
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     // Click the refund button
@@ -289,7 +297,9 @@ describe('RefundDialog', () => {
       status: 'pending',
     })
 
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     // Click the refund button
@@ -305,7 +315,9 @@ describe('RefundDialog', () => {
   it('handles failed refund', async () => {
     mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'fail' })
 
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     // Click the refund button
@@ -325,7 +337,9 @@ describe('RefundDialog', () => {
         new APIError(new Response(null, { status: 404, statusText: 'Not Found' }), { error: 'Transaction not found' })
       )
 
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     // Click the refund button
@@ -354,7 +368,9 @@ describe('RefundDialog', () => {
         new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), { error: errorBody })
       )
 
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     // Click the refund button
@@ -381,7 +397,9 @@ describe('RefundDialog', () => {
       })
     )
 
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     // Click the refund button
@@ -405,7 +423,9 @@ describe('RefundDialog', () => {
       })
     )
 
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     fireEvent.click(screen.getByText('refund'))
@@ -427,7 +447,9 @@ describe('RefundDialog', () => {
       })
     )
 
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     fireEvent.click(screen.getByText('refund'))
@@ -440,7 +462,9 @@ describe('RefundDialog', () => {
   })
 
   it('handles internal notes changes', async () => {
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     // Find the internal notes field and change its value
@@ -452,5 +476,56 @@ describe('RefundDialog', () => {
 
     // Verify the notes were updated (this is implicit since we're mocking the API call)
     expect(notesField).toHaveValue('New internal notes')
+  })
+
+  describe('overpaid fee (KOE-1382)', () => {
+    // The trial costs 100; the participant paid 123 (registrationWithStaticDates), so 23 is theirs.
+    const cheaperEvent = { ...eventWithStaticDates, cost: 100, costMember: 100 }
+    const participant = {
+      ...registrationWithStaticDates,
+      group: { key: '2024-01-01-ALO-ap', number: 1 },
+    }
+
+    it('refunds the overpaid part alone by default, without a handling cost', async () => {
+      mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
+      render(<RefundDialog event={cheaperEvent} registration={participant} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(screen.getByRole('radio', { name: /registration.refundDialog.excessOnly/ })).toBeChecked()
+      expect(screen.getByText('registration.refundDialog.excessText')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByText('refund'))
+      await waitFor(() => {
+        expect(mockRefundImplementation).toHaveBeenCalledWith(participant, 'payment-123', 2300, 0)
+      })
+    })
+
+    it('still lets the secretary refund the whole payment less the handling cost', async () => {
+      mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
+      render(<RefundDialog event={cheaperEvent} registration={participant} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      fireEvent.click(screen.getByRole('radio', { name: 'registration.refundDialog.wholePayment' }))
+      expect(screen.getByText('registration.refundDialog.costsText')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByText('refund'))
+      await waitFor(() => {
+        expect(mockRefundImplementation).toHaveBeenCalledWith(participant, 'payment-123', 2500, 500)
+      })
+    })
+
+    it('leaves a cancelled entry to the ordinary refund', async () => {
+      render(
+        <RefundDialog
+          event={cheaperEvent}
+          registration={{ ...participant, cancelled: true, group: { key: 'cancelled', number: 1 } }}
+          open={true}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument()
+    })
   })
 })

@@ -233,4 +233,29 @@ describe('getRegistration', () => {
       expect(reg.shouldPay).toBe(expected)
     }
   )
+
+  // A place paid at the member price by someone who was not a member owes the difference once the
+  // secretary takes the tick off (KOE-722); the payment link then collects it.
+  it.each<[boolean, number]>([
+    [true, 123],
+    [false, 130],
+  ])(
+    'should set shouldPay: %p for a paid registration when the fee is 130 and %p was paid',
+    async (expected, paidAmount) => {
+      mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, cost: 130, costMember: 130 })
+      mockGetRegistration.mockReturnValueOnce({
+        ...registrationsToEventWithParticipantsInvited[0],
+        paidAmount,
+        paymentStatus: 'SUCCESS',
+      })
+
+      const res = await getRegistrationLambda(
+        constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+      )
+
+      expect(res.statusCode).toEqual(200)
+      const reg: JsonRegistration = JSON.parse(res.body)
+      expect(reg.shouldPay).toBe(expected)
+    }
+  )
 })

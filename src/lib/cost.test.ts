@@ -10,6 +10,7 @@ import {
   getCostSegmentName,
   getCostValue,
   getEarlyBirdEndDate,
+  getPaymentBalance,
   hasDifferentMemberPrice,
   selectCost,
   setCostValue,
@@ -987,5 +988,77 @@ describe('hasDifferentMemberPrice', () => {
       { earlyBird: { cost: 0, days: 5 }, normal: 40 }
     )
     expect(hasDifferentMemberPrice(event, 'earlyBird')).toBe(false)
+  })
+
+  describe('getPaymentBalance', () => {
+    const event = makeEvent(40, 35)
+    const entry = (
+      membership: boolean,
+      paid: Partial<{ cancelled: boolean; paidAmount: number; refundAmount: number }>
+    ) => ({
+      createdAt: new Date(),
+      dog: {},
+      owner: { membership },
+      ownerHandles: true,
+      ...paid,
+    })
+
+    it('owes the difference when a member price was paid by someone who is not a member (KOE-722)', () => {
+      expect(getPaymentBalance(event, entry(false, { paidAmount: 35 }))).toEqual({
+        cost: 40,
+        due: 5,
+        excess: 0,
+        paid: 35,
+      })
+    })
+
+    it('holds the difference when the full price was paid by a member (KOE-1382)', () => {
+      expect(getPaymentBalance(event, entry(true, { paidAmount: 40 }))).toEqual({
+        cost: 35,
+        due: 0,
+        excess: 5,
+        paid: 40,
+      })
+    })
+
+    it('owes the whole fee when nothing has been paid', () => {
+      expect(getPaymentBalance(event, entry(false, {}))).toEqual({ cost: 40, due: 40, excess: 0, paid: 0 })
+    })
+
+    it('counts a refund as unpaid again', () => {
+      expect(getPaymentBalance(event, entry(false, { paidAmount: 40, refundAmount: 40 }))).toEqual({
+        cost: 40,
+        due: 40,
+        excess: 0,
+        paid: 0,
+      })
+    })
+
+    it('neither owes nor holds anything for a cancelled entry', () => {
+      expect(getPaymentBalance(event, entry(true, { cancelled: true, paidAmount: 40 }))).toEqual({
+        cost: 35,
+        due: 0,
+        excess: 0,
+        paid: 40,
+      })
+    })
+
+    it('takes a payment recorded without its amount as having covered the fee', () => {
+      expect(getPaymentBalance(event, { ...entry(false, {}), paymentStatus: 'SUCCESS' })).toEqual({
+        cost: 40,
+        due: 0,
+        excess: 0,
+        paid: 40,
+      })
+    })
+
+    it('settles in cents, so a fee paid to the cent owes nothing', () => {
+      expect(getPaymentBalance(makeEvent(40.1, 40.1), entry(false, { paidAmount: 40.1 }))).toEqual({
+        cost: 40.1,
+        due: 0,
+        excess: 0,
+        paid: 40.1,
+      })
+    })
   })
 })

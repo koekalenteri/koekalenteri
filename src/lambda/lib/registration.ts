@@ -428,7 +428,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
   const failed: string[] = []
   for (const registration of registrations) {
     const editToken = await getRegistrationEditToken(registration)
-    const to = emailTo(registration)
+    const to = emailTo(registration, template)
     const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, editToken, text)
     const auditSubject = context ? data.subject : templateName
     try {

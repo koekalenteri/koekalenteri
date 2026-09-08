@@ -57,3 +57,34 @@ it('says what the koekutsu of a lifted reserve is waiting for', async () => {
   await expect.element(screen.getByText('Koekutsu lähtee, kun koepaikka on maksettu')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('invitation-awaiting-payment')
 })
+
+// Paid the member price (35) and then found not to be a member: the place now costs 40, and the
+// tooltip says what is missing before the secretary sends for it (KOE-722).
+const paidAsMember: Registration = {
+  ...registrationWithStaticDates,
+  eventId: event.id,
+  eventType: event.eventType,
+  id: 'paid-as-member',
+  internalNotes: '',
+  notes: '',
+  paidAmount: 35,
+}
+
+it('names the part of the fee still missing after a member price was paid', async () => {
+  const screen = await render(
+    <Frame>
+      <RegistrationTooltipContent
+        event={{ ...event, cost: 40, costMember: 35 }}
+        reg={paidAsMember}
+        priority={false}
+        manualResultCount={0}
+        rankingPoints={0}
+      />
+    </Frame>
+  )
+
+  await expect
+    .element(screen.getByText('Maksusta puuttuu 5,00 €: maksettu 35,00 €, osallistumismaksu 40,00 €'))
+    .toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-due')
+})

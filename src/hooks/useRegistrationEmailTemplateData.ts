@@ -1,5 +1,6 @@
 import type { ConfirmedEvent, Registration, RegistrationTemplateContext } from '../types'
 import { useTranslation } from 'react-i18next'
+import { getPaymentBalance } from '../lib/cost'
 import { getRegistrationEmailTemplateData } from '../lib/registration'
 
 export const useRegistrationEmailTemplateData = (
@@ -14,5 +15,7 @@ export const useRegistrationEmailTemplateData = (
     return {}
   }
 
-  return getRegistrationEmailTemplateData(registration, event, '', context, text, t)
+  return getRegistrationEmailTemplateData(registration, event, '', context, text, t, {
+    paymentBalance: getPaymentBalance(event, registration),
+  })
 }

@@ -246,7 +246,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                 <List dense sx={{ p: 0 }}>
                   {registrations.map((r) => (
                     <ListItem key={r.id} sx={{ borderTop: '1px dashed', borderTopColor: 'divider', py: 0 }}>
-                      <ListItemText primary={r.dog.name} secondary={listEmails(r)} />
+                      <ListItemText primary={r.dog.name} secondary={listEmails(r, selectedTemplate?.id)} />
                     </ListItem>
                   ))}
                 </List>
@@ -339,7 +339,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   )
 }
 
-function listEmails(r: Registration): string {
+function listEmails(r: Registration, template?: EmailTemplateId): string {
   // Mirrors the backend recipient logic (emailTo).
-  return getRegistrationEmails(r).join(', ')
+  return getRegistrationEmails(r, template).join(', ')
 }

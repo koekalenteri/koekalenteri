@@ -7,7 +7,7 @@ import type {
 } from '../../types'
 import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
-import { calculateCost } from '../../lib/cost'
+import { getPaymentBalance } from '../../lib/cost'
 import { isParticipantGroup } from '../../lib/registration'
 import { paymentCreateSchema } from '../../lib/schema/payment'
 import { splitName } from '../../lib/string'
@@ -120,14 +120,9 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     return response<string>(409, 'Payment already in progress', event)
   }
 
-  const amount = Math.round(
-    100 *
-      (calculateCost(
-        { ...jsonEvent, entryStartDate: new Date(jsonEvent.entryStartDate) },
-        { ...registration, createdAt: new Date(registration.createdAt) }
-      ).amount -
-        (registration.paidAmount ?? 0))
-  )
+  // What is still owed of the fee as the entry reads now: the whole of it, or the part a corrected
+  // membership added after a member-price payment (KOE-722). A refund counts as unpaid again.
+  const amount = Math.round(100 * getPaymentBalance(jsonEvent, registration).due)
   if (amount <= 0) {
     return response<string>(204, 'Already paid', event)
   }

@@ -38,6 +38,23 @@ export interface MinimalRegistrationForCost
   dog: Pick<Registration['dog'], 'breedCode'>
 }
 
+/** What the balance reads beside the fee: the money in, the money returned, and whether it counts. */
+export interface PaymentBalanceRegistration
+  extends MinimalRegistrationForCost,
+    Pick<Registration, 'cancelled' | 'paymentStatus' | 'refundAmount'> {}
+
+/** Where an entry's money stands against its fee, in euros. See `getPaymentBalance`. */
+export interface PaymentBalance {
+  /** The fee the entry's data adds up to now. */
+  cost: number
+  /** Paid and not returned. */
+  paid: number
+  /** Still owed: nothing paid yet, or the fee rose after it was paid. */
+  due: number
+  /** Paid over the fee: the fee came down after it was paid. */
+  excess: number
+}
+
 export interface CostStrategy {
   key: DogEventCostSegment
   isApplicable: (

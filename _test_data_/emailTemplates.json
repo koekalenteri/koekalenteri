@@ -14,6 +14,21 @@
           }
         }
       }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": {
+            "S": "payment-request"
+          },
+          "en": {
+            "S": "[subject]: # (Payment request: {{reg.eventType}} {{eventDate}} {{event.location}})\n\n# Payment request\n\nYour registration to {{reg.eventType}} {{eventDate}} {{event.location}} {{#if event.name}}({{event.name}}) {{/if}}has only been paid in part.\n\ntable header | is removed\n:-- | ----\nDog       :| {{reg.dog.regNo}} {{reg.dog.name}}\nEntry fee :| {{paymentCost}}\nPaid      :| {{paymentPaid}}\nUnpaid    :| {{paymentDue}}\n{{#if text}}\n\n{{text}}\n{{/if}}\n\nYou can pay the missing part here: [Pay the missing part]({{paymentLink}})\n\nBest regards,\n{{#if event.contactInfo.secretary.name ~}}\n{{event.secretary.name}}\nSecretary\n{{/if ~}}\n{{#if event.contactInfo.secretary.email ~}}\n{{event.secretary.email}}\n{{/if ~}}\n{{#if event.contactInfo.secretary.phone ~}}\ntel. {{event.secretary.phone}}\n{{/if ~}}\n"
+          },
+          "fi": {
+            "S": "[subject]: # (Maksupyyntö: {{reg.eventType}} {{eventDate}} {{event.location}})\n\n# Maksupyyntö\n\nIlmoittautumisesi kokeeseen {{reg.eventType}} {{eventDate}} {{event.location}} {{#if event.name}}({{event.name}}) {{/if}}on maksettu vain osittain.\n\ntable header | is removed\n:-- | ----\nKoira             :| {{reg.dog.regNo}} {{reg.dog.name}}\nOsallistumismaksu :| {{paymentCost}}\nMaksettu          :| {{paymentPaid}}\nMaksamatta        :| {{paymentDue}}\n{{#if text}}\n\n{{text}}\n{{/if}}\n\nVoit maksaa puuttuvan osan täällä: [Maksa puuttuva osa]({{paymentLink}})\n\nYstävällisin terveisin,\n{{#if event.contactInfo.secretary.name ~}}\n{{event.secretary.name}}\nKoesihteeri\n{{/if ~}}\n{{#if event.contactInfo.secretary.email ~}}\n{{event.secretary.email}}\n{{/if ~}}\n{{#if event.contactInfo.secretary.phone ~}}\np. {{event.secretary.phone}}\n{{/if ~}}\n"
+          }
+        }
+      }
     }
   ]
 }

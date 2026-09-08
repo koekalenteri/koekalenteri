@@ -17,6 +17,8 @@ interface RefundFooterProps {
   canHaveHandlingCosts: boolean
   handlingCost: number
   onHandlingCostChange: (value?: number) => void
+  /** What the dialog has worked out to go back, in cents. */
+  refundTotal: number
   total: number
   selectedTotal: number
 }
@@ -37,6 +39,7 @@ export const RefundFooter = ({
   selectedTotal,
   handlingCost,
   onHandlingCostChange,
+  refundTotal,
 }: RefundFooterProps) => {
   const parseAmount = useCallback((value: string) => {
     return Math.round(Number.parseFloat(value.replaceAll(',', '.')) * 100)
@@ -44,7 +47,6 @@ export const RefundFooter = ({
   const formatAmount = useCallback((amount: number | undefined) => formatMoneyWithoutCurrency((amount ?? 0) / 100), [])
 
   const refundBase = Math.min(total, selectedTotal)
-  const refundTotal = refundBase - handlingCost
 
   return (
     <GridFooterContainer>

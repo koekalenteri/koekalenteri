@@ -7,6 +7,7 @@ import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import {
+  registrationWithStaticDates,
   registrationWithStaticDatesCancelled,
   unpaidRegistrationWithStaticDates,
 } from '../../__mockData__/registrations'
@@ -46,4 +47,27 @@ it('offers paying on the row and hides editing behind the menu', async () => {
 
   await expect.element(screen.getByText('Ilmoitetut koirat')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-list-row-actions')
+})
+
+// A place paid at the member price by someone who was not a member (KOE-722): the payment went
+// through, and the row still has a part to pay, so paying comes back beside the menu.
+it('offers paying the part still missing of a paid fee', async () => {
+  await page.viewport(VIEWPORT.width, VIEWPORT.height)
+
+  const screen = await render(
+    <div data-testid="visual-root" style={{ background: '#fff', boxSizing: 'border-box', padding: 8, width: '100%' }}>
+      <ThemeProvider theme={finnishTheme}>
+        <MemoryRouter>
+          <RegistrationList
+            event={{ ...event, cost: 130, costMember: 123 }}
+            rows={[registrationWithStaticDates]}
+            onUnregister={noop}
+          />
+        </MemoryRouter>
+      </ThemeProvider>
+    </div>
+  )
+
+  await expect.element(screen.getByRole('menuitem', { name: 'Maksa ilmoittautuminen' })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-list-part-missing')
 })

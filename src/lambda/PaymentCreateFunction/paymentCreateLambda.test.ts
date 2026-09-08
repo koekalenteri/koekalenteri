@@ -387,6 +387,36 @@ describe('paymentCreateLambda', () => {
     expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
+  it('charges the part still owed after a member price was paid by a non-member (KOE-722)', async () => {
+    mockRead.mockReset()
+    mockRead
+      .mockResolvedValueOnce(
+        createMockRegistration({
+          handler: { email: 'handler@exmaple.com', membership: false, name: 'Test Handler' },
+          paidAmount: 40,
+          paymentStatus: 'SUCCESS',
+        })
+      )
+      .mockResolvedValueOnce(createMockOrganizer())
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(mockCreatePayment).toHaveBeenCalledWith(expect.objectContaining({ amount: 1000 }))
+  })
+
+  it('charges a refunded fee again', async () => {
+    mockRead.mockReset()
+    mockRead
+      .mockResolvedValueOnce(createMockRegistration({ paidAmount: 40, refundAmount: 40 }))
+      .mockResolvedValueOnce(createMockOrganizer())
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(mockCreatePayment).toHaveBeenCalledWith(expect.objectContaining({ amount: 4000 }))
+  })
+
   it('returns 204 if registration is already paid', async () => {
     mockRead.mockReset()
     mockRead

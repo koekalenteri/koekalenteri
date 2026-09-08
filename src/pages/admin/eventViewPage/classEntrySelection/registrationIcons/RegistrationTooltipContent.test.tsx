@@ -343,4 +343,69 @@ describe('RegistrationTooltipContent', () => {
         .find((element) => element.getAttribute('data-text') === 'registration.tooltip.invitation.read-latest')
     ).toBeInTheDocument()
   })
+
+  describe('fee against what was paid', () => {
+    // The test t() spells the key and its option names out, so a line is known by its key alone.
+    const tooltipKeys = () =>
+      screen.getAllByTestId('tooltip-icon').map((element) => element.getAttribute('data-text')?.split(' ')[0])
+    // The secretary's trial carries the fee; the member price is lower than the full price.
+    const pricedEvent = {
+      ...mockEvent,
+      cost: 40,
+      costMember: 35,
+      entryStartDate: new Date('2026-01-01'),
+      state: 'confirmed',
+    } as DogEvent
+    const paid = (paidAmount: number, membership: boolean) =>
+      ({
+        ...mockRegistration,
+        handler: { membership, name: 'Test Handler' },
+        owner: { membership, name: 'Test Owner' },
+        ownerHandles: false,
+        paidAmount,
+        paidAt: new Date('2026-01-02'),
+      }) as unknown as Registration
+
+    it('names the missing part when a member price was paid by a non-member (KOE-722)', () => {
+      render(
+        <RegistrationTooltipContent
+          event={pricedEvent}
+          reg={paid(35, false)}
+          priority={false}
+          manualResultCount={0}
+          rankingPoints={0}
+        />
+      )
+      expect(tooltipKeys()).toContain('registration.tooltip.paymentDue')
+      expect(tooltipKeys()).not.toContain('registration.tooltip.paymentExcess')
+    })
+
+    it('names the overpaid part when the full price was paid by a member (KOE-1382)', () => {
+      render(
+        <RegistrationTooltipContent
+          event={pricedEvent}
+          reg={paid(40, true)}
+          priority={false}
+          manualResultCount={0}
+          rankingPoints={0}
+        />
+      )
+      expect(tooltipKeys()).toContain('registration.tooltip.paymentExcess')
+      expect(tooltipKeys()).not.toContain('registration.tooltip.paymentDue')
+    })
+
+    it('says nothing of the balance when the fee was paid as it reads', () => {
+      render(
+        <RegistrationTooltipContent
+          event={pricedEvent}
+          reg={paid(35, true)}
+          priority={false}
+          manualResultCount={0}
+          rankingPoints={0}
+        />
+      )
+      expect(tooltipKeys()).not.toContain('registration.tooltip.paymentDue')
+      expect(tooltipKeys()).not.toContain('registration.tooltip.paymentExcess')
+    })
+  })
 })

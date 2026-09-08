@@ -310,7 +310,12 @@ export default function EventViewPage() {
         />
         <EventDetailsDialog eventId={eventId} open={detailsOpen} onClose={handleDetailsClose} />
         {selectedRegistration && (
-          <RefundDailog registration={selectedRegistration} open={refundOpen} onClose={handleRefundClose} />
+          <RefundDailog
+            event={event}
+            registration={selectedRegistration}
+            open={refundOpen}
+            onClose={handleRefundClose}
+          />
         )}
         {selectedRegistration && (
           <CancelDialog

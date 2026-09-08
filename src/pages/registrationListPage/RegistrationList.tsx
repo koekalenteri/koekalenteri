@@ -10,8 +10,11 @@ import { Box } from '@mui/system'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
+import { getPaymentBalance } from '../../lib/cost'
+import { formatMoney } from '../../lib/money'
 import { getPaymentStatus } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
+import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
 import { IconsTooltip, TooltipIcon } from '../components/IconsTooltip'
 import { PaymentIcon } from '../components/icons/PaymentIcon'
@@ -19,6 +22,13 @@ import { PriorityIcon } from '../components/icons/PriorityIcon'
 import StyledDataGrid from '../components/StyledDataGrid'
 
 type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
+
+/**
+ * What is still owed of the fee. A paid place can owe again when its fee rose after the payment,
+ * a membership tick taken off by the secretary (KOE-722), and then paying is offered once more.
+ */
+const paymentDue = (event: PublicDogEvent, registration: StrippedRegistration): number =>
+  isConfirmedEvent(event) ? getPaymentBalance(event, registration).due : 0
 
 /**
  * A column of icons still needs a name a screen reader can read out; the design has no room to show
@@ -64,7 +74,9 @@ const RegistrationListItemTooltipIcons = ({
       />
       <TooltipIcon
         key="payment"
-        text={t(getPaymentStatus(registration, event))}
+        text={t(getPaymentStatus(registration, event, paymentDue(event, registration)), {
+          amount: formatMoney(paymentDue(event, registration)),
+        })}
         icon={<PaymentIcon paymentStatus={registration.paymentStatus} fontSize="small" />}
       />
     </>
@@ -189,7 +201,7 @@ export default function RegistrationList({
         if (
           !params.row.cancelled &&
           !paymentVerificationInProgress &&
-          params.row.paymentStatus !== 'SUCCESS' &&
+          (params.row.paymentStatus !== 'SUCCESS' || paymentDue(event, params.row) > 0) &&
           params.row.paymentStatus !== 'PENDING' &&
           (event.paymentTime === 'registration' || params.row.confirmed)
         ) {

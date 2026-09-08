@@ -11,7 +11,7 @@ import ScheduleSendOutlined from '@mui/icons-material/ScheduleSendOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import Stack from '@mui/material/Stack'
 import { useMemo } from 'react'
-import { isInvitationAwaitingPayment } from '../../../../lib/payment'
+import { isInvitationAwaitingPayment, isPaymentUnsettled } from '../../../../lib/payment'
 import { getInvitationReadStatus, hasPriority, isMember } from '../../../../lib/registration'
 import { isConfirmedEvent } from '../../../../lib/typeGuards'
 import { IconsTooltip } from '../../../components/IconsTooltip'
@@ -61,7 +61,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
         {/* Keep the icons column width in useClassEntrySelectionColumns in sync when adding icons here. */}
         <StatusIcon condition={!!priority} icon={<PriorityIcon dim priority={priority} fontSize="small" />} />
         <StatusIcon condition={isMember(reg)} icon={<PersonOutline fontSize="small" />} />
-        <PaymentIcon reg={reg} />
+        <PaymentIcon reg={reg} unsettled={isConfirmedEvent(event) && isPaymentUnsettled(event, reg)} />
         <StatusIcon condition={(reg.optionalCosts?.length ?? 0) > 0} icon={<AddTaskOutlinedIcon fontSize="small" />} />
         <StatusIcon condition={reg.confirmed} icon={<CheckOutlined fontSize="small" />} />
         <StatusIcon condition={!!reg.emailDeliveryStatus} icon={<MailOutline color="error" fontSize="small" />} />

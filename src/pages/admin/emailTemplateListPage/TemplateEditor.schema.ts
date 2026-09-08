@@ -46,7 +46,10 @@ export const defaultSchema = {
   invitationLink: 'string',
   link: 'string',
   origin: 'string',
+  paymentCost: 'string',
+  paymentDue: 'string',
   paymentLink: 'string',
+  paymentPaid: 'string',
   qualifyingResults: [
     {
       cacit: 'boolean',

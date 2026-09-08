@@ -23,6 +23,7 @@ it('lines up the total, the handling cost, and the refund amount with their curr
             canHaveHandlingCosts: true,
             handlingCost: 500,
             onHandlingCostChange: () => {},
+            refundTotal: 500,
             selectedTotal: 1000,
             total: 1000,
           },

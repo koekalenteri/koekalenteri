@@ -10,6 +10,8 @@ import type {
   MinimalEventForCost,
   MinimalRegistrationForCost,
   MinimalRegistrationForMembership,
+  PaymentBalance,
+  PaymentBalanceRegistration,
   PublicConfirmedEvent,
 } from '../types'
 import { addDays } from 'date-fns/addDays'
@@ -300,4 +302,33 @@ export const calculateCost = (event: MinimalEventForCost, registration: MinimalR
   const amount = strategy.getValue(cost, registration.dog.breedCode) + additionalCost(registration, cost)
 
   return { amount, cost, segment }
+}
+
+const toCents = (amount: number) => Math.round(amount * 100)
+
+/**
+ * Where the entry's money stands against its fee. The fee is recomputed from the entry as it reads
+ * now, so a membership tick removed after a member-price payment shows as `due` (KOE-722) and one
+ * added after a full-price payment as `excess` (KOE-1382). A handling fee kept from a refund stays
+ * on the paid side. A cancelled entry owes nothing and holds no excess: what it paid is the
+ * ordinary refund's business. A payment recorded before the amounts were kept (a status without a
+ * `paidAmount`) is taken to have covered the fee.
+ */
+export const getPaymentBalance = (
+  event: MinimalEventForCost,
+  registration: PaymentBalanceRegistration
+): PaymentBalance => {
+  const costCents = toCents(calculateCost(event, registration).amount)
+  const legacyPayment = registration.paidAmount === undefined && registration.paymentStatus === 'SUCCESS'
+  const paidCents = legacyPayment
+    ? costCents
+    : toCents(registration.paidAmount ?? 0) - toCents(registration.refundAmount ?? 0)
+  const settled = Boolean(registration.cancelled)
+
+  return {
+    cost: costCents / 100,
+    due: settled ? 0 : Math.max(0, costCents - paidCents) / 100,
+    excess: settled ? 0 : Math.max(0, paidCents - costCents) / 100,
+    paid: paidCents / 100,
+  }
 }

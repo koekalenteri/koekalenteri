@@ -1,5 +1,13 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { CustomCost, DogEvent, EventClassState, EventState, Registration, RegistrationDate } from '../../../types'
+import type {
+  CustomCost,
+  DogEvent,
+  EmailTemplateId,
+  EventClassState,
+  EventState,
+  Registration,
+  RegistrationDate,
+} from '../../../types'
 import type { DragItem, RegistrationWithGroups } from './classEntrySelection/types'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -98,6 +106,9 @@ const ClassEntrySelection = ({
   const [moveToGroupDialogOpen, setMoveToGroupDialogOpen] = useState(false)
   const [moveToPositionDialogOpen, setMoveToPositionDialogOpen] = useState(false)
   const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
+  // Set by the action that opens the message dialog: a payment request comes with its template, a
+  // plain message lets the secretary pick one.
+  const [sendMessageTemplateId, setSendMessageTemplateId] = useState<EmailTemplateId>()
   const [internalNotesDialogOpen, setInternalNotesDialogOpen] = useState(false)
   const [pendingMoveId, setPendingMoveId] = useState<string>()
   const [selectedForAction, setSelectedForAction] = useState<Registration | undefined>()
@@ -249,8 +260,14 @@ const ClassEntrySelection = ({
       openEditDialog: handleOpen,
       pendingMoveId,
       refundRegistration: handleRefund,
+      requestPayment: (id: string) => {
+        if (actionsDisabled) return
+        setSendMessageTemplateId('payment-request')
+        openActionDialog(id, setSendMessageDialogOpen)
+      },
       sendMessage: (id: string) => {
         if (actionsDisabled) return
+        setSendMessageTemplateId(undefined)
         openActionDialog(id, setSendMessageDialogOpen)
       },
     }),
@@ -610,6 +627,7 @@ const ClassEntrySelection = ({
               open={sendMessageDialogOpen}
               onClose={() => setSendMessageDialogOpen(false)}
               registrations={[selectedForAction]}
+              templateId={sendMessageTemplateId}
             />
           )}
 

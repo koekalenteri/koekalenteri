@@ -12,6 +12,7 @@ import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import ScheduleSendOutlined from '@mui/icons-material/ScheduleSendOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import { useTranslation } from 'react-i18next'
+import { getPaymentBalance } from '../../../../../lib/cost'
 import { formatMoney } from '../../../../../lib/money'
 import { isInvitationAwaitingPayment } from '../../../../../lib/payment'
 import { getInvitationReadStatus, getRegistrationOwners, priorityDescriptionKey } from '../../../../../lib/registration'
@@ -25,6 +26,14 @@ const formatEmailDeliveryReason = (reason?: string) => (reason ? ` (${reason})` 
 /** Only a confirmed trial has places to invite to, and only it carries the fee to compare against. */
 const awaitsInvitationPayment = (event: DogEvent, reg: Registration): boolean =>
   isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg)
+
+/**
+ * The fee against what has been paid, once something has: a never-paid place is the dim euro sign,
+ * not a shortfall. A missing part is what the secretary asks for (KOE-722); an excess is what they
+ * give back (KOE-1382).
+ */
+const paidBalance = (event: DogEvent, reg: Registration) =>
+  reg.paidAt && isConfirmedEvent(event) ? getPaymentBalance(event, reg) : undefined
 
 export const hasRegistrationTooltipContent = ({
   event,
@@ -113,6 +122,13 @@ const RegistrationTooltipContent = ({
     paidAmount: formatMoney(reg.paidAmount ?? 0),
     refundAmount: formatMoney(reg.refundAmount ?? 0),
   }
+  const balance = paidBalance(event, reg)
+  const balanceTextValues = balance && {
+    cost: formatMoney(balance.cost),
+    due: formatMoney(balance.due),
+    excess: formatMoney(balance.excess),
+    paid: formatMoney(balance.paid),
+  }
 
   return (
     <>
@@ -151,6 +167,18 @@ const RegistrationTooltipContent = ({
         condition={!!reg.paidAt && !reg.refundAt && reg.refundStatus !== 'PENDING'}
         icon={<EuroOutlined fontSize="small" />}
         text={`Ilmoittautuja on maksanut: ${formatMoney(reg.paidAmount ?? 0)}`}
+      />
+      <TooltipIcon
+        key="payment-due"
+        condition={Boolean(balance && balance.due > 0)}
+        icon={<EuroOutlined color="warning" fontSize="small" />}
+        text={t('registration.tooltip.paymentDue', balanceTextValues)}
+      />
+      <TooltipIcon
+        key="payment-excess"
+        condition={Boolean(balance && balance.excess > 0)}
+        icon={<EuroOutlined color="warning" fontSize="small" />}
+        text={t('registration.tooltip.paymentExcess', balanceTextValues)}
       />
       <TooltipIcon
         key="optional-costs"

@@ -3,14 +3,23 @@ import type {
   JsonRegistration,
   MinimalEventForCost,
   MinimalRegistrationForCost,
+  PaymentBalanceRegistration,
   Registration,
 } from '../types'
 import type { InvitationAttachmentEvent, InvitationAttachmentRegistration } from './registration'
-import { additionalCost, calculateCost, getApplicableStrategy, getEarlyBirdDates, selectCost } from './cost'
+import {
+  additionalCost,
+  calculateCost,
+  getApplicableStrategy,
+  getEarlyBirdDates,
+  getPaymentBalance,
+  selectCost,
+} from './cost'
 import { getEventStateForClass } from './event'
 import {
   getRegistrationClass,
   getRegistrationGroupKey,
+  hasRefundableBalance,
   isMember,
   isParticipantGroup,
   shouldSendInvitationToRegistration,
@@ -50,11 +59,17 @@ const hasName = (provider?: string): provider is keyof typeof PROVIDER_NAMES => 
 export const getProviderName = (provider?: string) =>
   hasName(provider) ? PROVIDER_NAMES[provider] : capitalize(provider ?? '')
 
+/**
+ * The key of what the entrant reads about the fee. `due` is what is still owed of a fee that has
+ * been paid once: a member price paid by someone who was not a member (KOE-722) reads as a part
+ * missing, not as paid.
+ */
 export const getPaymentStatus = (
   registration: Pick<Registration, 'paymentStatus' | 'confirmed'>,
-  event?: { paymentTime?: 'registration' | 'confirmation' }
+  event?: { paymentTime?: 'registration' | 'confirmation' },
+  due = 0
 ) => {
-  if (registration.paymentStatus === 'SUCCESS') return 'paymentStatus.success'
+  if (registration.paymentStatus === 'SUCCESS') return due > 0 ? 'paymentStatus.partial' : 'paymentStatus.success'
   if (registration.paymentStatus === 'DUPLICATE') return 'paymentStatus.duplicate'
   if (registration.paymentStatus === 'PENDING') return 'paymentStatus.pending'
   // If payment is after confirmation and registration is not yet confirmed, show different message
@@ -75,6 +90,29 @@ export const isRegistrationPaid = (
   registration.paymentStatus === 'SUCCESS' ||
   (registration.paidAmount ?? 0) > 0 ||
   calculateCost(event, registration).amount <= 0
+
+/**
+ * Whether a paid fee no longer matches what the entry adds up to: a part missing or paid over. What
+ * the secretary's payment mark turns amber for; a never-paid place is not unsettled, just unpaid.
+ */
+export const isPaymentUnsettled = (
+  event: MinimalEventForCost,
+  registration: PaymentBalanceRegistration & Pick<Registration, 'paidAt'>
+): boolean => {
+  if (!registration.paidAt) return false
+  const { due, excess } = getPaymentBalance(event, registration)
+  return due > 0 || excess > 0
+}
+
+/**
+ * Whether the fee has been paid over, and the overpaid part can still be returned. Unlike the
+ * ordinary refund this does not ask for a reserve or cancelled place: the participant who paid the
+ * full price and was a member all along gets the difference back, after the trial too (KOE-1382).
+ */
+export const canRefundExcess = (
+  event: MinimalEventForCost,
+  registration: PaymentBalanceRegistration & Pick<Registration, 'refundHandlingCost'>
+): boolean => hasRefundableBalance(registration) && getPaymentBalance(event, registration).excess > 0
 
 type InvitationPaymentEvent = InvitationAttachmentEvent &
   MinimalEventForCost &
