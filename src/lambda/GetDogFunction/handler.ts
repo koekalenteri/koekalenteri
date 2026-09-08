@@ -1,4 +1,5 @@
 import type { BreedCode, JsonDog, JsonEventType, JsonTestResult } from '../../types'
+import type { KLKoira } from '../types/KLAPI'
 import { differenceInMinutes } from 'date-fns/differenceInMinutes'
 import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
@@ -20,7 +21,7 @@ export const filterDogResults = (
   return { ...dog, results: dog.results.filter(({ type }) => activeEventTypes.has(type)) }
 }
 
-const GENDER: Record<string, 'F' | 'M'> = {
+const GENDER: Record<KLKoira['sukupuoli'], 'F' | 'M'> = {
   female: 'F',
   hane: 'M',
   male: 'M',
@@ -73,7 +74,7 @@ const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<Jso
   return results
 }
 
-const createDogFromJson = (json: any, existing?: JsonDog): JsonDog => ({
+const createDogFromJson = (json: KLKoira, existing?: JsonDog): JsonDog => ({
   ...existing, // keep refined info on refresh
   breedCode: json.rotukoodi as BreedCode,
   dob: json.syntymäaika,

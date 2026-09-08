@@ -12,6 +12,7 @@ import type {
   KLKoemuotoParametrit,
   KLKoetapahtuma,
   KLKoetapahtumaParametrit,
+  KLKoetapahtumaWire,
   KLKoetulos,
   KLKoetulosParametrit,
   KLKoira,
@@ -42,6 +43,33 @@ function toURLParams(params: Record<string, string | number | undefined> = {}): 
   }
   return result
 }
+/**
+ * KL sends six of a trial event's fields under two names each, two of them misspelled on its side,
+ * and which one arrives depends on the event. Callers should not have to know that, so the pairs
+ * are collapsed here and {@link KLKoetapahtuma} carries only one name for each.
+ */
+const normalizeKoetapahtuma = ({
+  ilmoitauttumisLinkki,
+  ilmoittautumisenAlku,
+  ilmoittautumisenLoppu,
+  lisatiedot,
+  osanottomaksu,
+  tininumero,
+  ...event
+}: KLKoetapahtumaWire): KLKoetapahtuma => ({
+  ...event,
+  ilmoittautuminenAlkaa: event.ilmoittautuminenAlkaa ?? ilmoittautumisenAlku,
+  ilmoittautuminenPäättyy: event.ilmoittautuminenPäättyy ?? ilmoittautumisenLoppu,
+  ilmoittautumisLinkki: event.ilmoittautumisLinkki ?? ilmoitauttumisLinkki,
+  lisätiedot: event.lisätiedot ?? lisatiedot,
+  osallistumismaksu: event.osallistumismaksu ?? osanottomaksu,
+  rajoitukset: (event.rajoitukset ?? []).map(({ lisätieto, lisätiedot, rajoituksenTyyppi, tyyppi }) => ({
+    lisätieto: lisätieto ?? lisätiedot,
+    tyyppi: tyyppi ?? rajoituksenTyyppi,
+  })),
+  tilinumero: event.tilinumero ?? tininumero,
+})
+
 export default class KLAPI {
   private _config?: KLAPIConfig
   private readonly _loadConfig: () => Promise<KLAPIConfig>
@@ -150,7 +178,9 @@ export default class KLAPI {
   }
 
   async lueKoetapahtumat(parametrit: KLKoetapahtumaParametrit): KLAPIResult<Array<KLKoetapahtuma>> {
-    return this.get('Koe/Lue/Koetapahtumat', parametrit)
+    const result = await this.get<Array<KLKoetapahtumaWire>>('Koe/Lue/Koetapahtumat', parametrit)
+
+    return { ...result, json: result.json?.map(normalizeKoetapahtuma) }
   }
 
   async lueKennelpiirit(): KLAPIResult<Array<KLKennelpiiri>> {

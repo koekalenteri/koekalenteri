@@ -131,6 +131,13 @@ export type KLKoetapahtumaParametrit = {
   Kieli: KLKieli
 }
 
+/**
+ * A trial event as the client hands it out: one name per thing.
+ *
+ * KL returns several of these fields under two names, and two of those are typos on its side
+ * (`tininumero`, `ilmoitauttumisLinkki`). Collapsing them is the client's job -- see
+ * `KLKoetapahtumaWire` for the shapes it actually receives.
+ */
 export type KLKoetapahtuma = {
   id: number
   yhdistys: string
@@ -152,24 +159,29 @@ export type KLKoetapahtuma = {
   ilmoittautumiset_Nimi?: string
   ilmoittautumiset_Puhelin?: string
   ilmoittautumiset_Sähköposti?: string
-  rajoitukset: Array<{ tyyppi?: string; lisätieto?: string; rajoituksenTyyppi?: string; lisätiedot?: string }>
+  rajoitukset: Array<{ tyyppi?: string; lisätieto?: string }>
   osallistumismaksu?: number | string
-  osanottomaksu?: string
   tilinumero?: string
-  tininumero?: string
   viitenumero: string
-  lisatiedot?: string
   lisätiedot?: string
   muutLisätiedot?: string
   ilmoittautuminenAlkaa?: string //Date
   ilmoittautuminenPäättyy?: string //Date
-  ilmoittautumisenAlku?: string //Date
-  ilmoittautumisenLoppu?: string //Date
   www: string
   ilmoittautumisLinkki?: string
-  ilmoitauttumisLinkki?: string
   tila?: string
   id_Tila?: number
+}
+
+/** What KL sends: the fields of {@link KLKoetapahtuma} plus the alternative names for six of them. */
+export type KLKoetapahtumaWire = Omit<KLKoetapahtuma, 'rajoitukset'> & {
+  rajoitukset: Array<{ tyyppi?: string; lisätieto?: string; rajoituksenTyyppi?: string; lisätiedot?: string }>
+  osanottomaksu?: string
+  tininumero?: string
+  lisatiedot?: string
+  ilmoittautumisenAlku?: string //Date
+  ilmoittautumisenLoppu?: string //Date
+  ilmoitauttumisLinkki?: string
 }
 
 export type KLKennelpiiri = {

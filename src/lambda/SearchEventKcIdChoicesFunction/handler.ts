@@ -75,15 +75,10 @@ const parseCost = (value?: number | string) => {
 
 const toDescription = (klEvent: KLKoetapahtuma) =>
   [
-    clean(klEvent.lisätiedot ?? klEvent.lisatiedot),
+    clean(klEvent.lisätiedot),
     clean(klEvent.muutLisätiedot),
     ...(klEvent.rajoitukset ?? []).map((restriction) =>
-      [
-        clean(restriction.tyyppi ?? restriction.rajoituksenTyyppi),
-        clean(restriction.lisätieto ?? restriction.lisätiedot),
-      ]
-        .filter(Boolean)
-        .join(': ')
+      [clean(restriction.tyyppi), clean(restriction.lisätieto)].filter(Boolean).join(': ')
     ),
   ]
     .filter(Boolean)
@@ -101,10 +96,10 @@ const toContactInfo = (klEvent: KLKoetapahtuma) => {
 
 const toChoice = (klEvent: KLKoetapahtuma) => {
   const contactInfo = toContactInfo(klEvent)
-  const cost = parseCost(klEvent.osallistumismaksu ?? klEvent.osanottomaksu)
+  const cost = parseCost(klEvent.osallistumismaksu)
   const description = toDescription(klEvent)
-  const entryEndDate = klEvent.ilmoittautuminenPäättyy ?? klEvent.ilmoittautumisenLoppu
-  const entryStartDate = klEvent.ilmoittautuminenAlkaa ?? klEvent.ilmoittautumisenAlku
+  const entryEndDate = klEvent.ilmoittautuminenPäättyy
+  const entryStartDate = klEvent.ilmoittautuminenAlkaa
 
   return {
     ...(contactInfo ? { contactInfo } : undefined),
