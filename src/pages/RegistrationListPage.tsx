@@ -28,7 +28,7 @@ import RegistrationList from './registrationListPage/RegistrationList'
 import { languageAtom, registrationAtom, spaAtom, useConfirmedEvent } from './state'
 import { useRegistrationActions } from './state/registration/actions'
 
-interface Props {
+export interface RegistrationListPageProps {
   readonly cancel?: boolean
   readonly confirm?: boolean
   readonly invitation?: boolean
@@ -36,7 +36,7 @@ interface Props {
 
 const PAYMENT_RELOAD_INTERVAL_MS = 30_000
 
-export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
+export function RegistrationListPage({ cancel, confirm, invitation }: RegistrationListPageProps) {
   const params = useParams()
   const location = useLocation()
   const navigate = useNavigate()

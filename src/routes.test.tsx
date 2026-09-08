@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import { Path } from './routeConfig'
 import routes from './routes'
 
 const findRoute = (path: string, list: RouteObject[] = routes): RouteObject | undefined => {
@@ -30,5 +31,19 @@ describe('routes', () => {
     expect(response).toBeInstanceOf(Response)
     if (!(response instanceof Response)) return
     expect(response.headers.get('Location')).toBe('/live-entry/event-1/post-1/access/a%2Fb')
+  })
+
+  // The start list page is loaded on navigation, and its loader travels with it. A loader left
+  // behind on the route object would be the one react-router keeps, and the lazy one silently
+  // ignored -- the page would render with no data.
+  it('loads the start list page and its loader together', async () => {
+    const route = findRoute(Path.startList(':id'))
+
+    expect(route?.loader).toBeUndefined()
+
+    const loaded = typeof route?.lazy === 'function' ? await route.lazy() : undefined
+
+    expect(loaded?.Component).toBeTypeOf('function')
+    expect(loaded?.loader).toBeTypeOf('function')
   })
 })

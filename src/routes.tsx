@@ -1,17 +1,27 @@
 import type { RouteObject } from 'react-router'
+import type { RegistrationListPageProps } from './pages/RegistrationListPage'
 import { Navigate, redirect } from 'react-router'
 import { reloadOnChunkLoadError } from './lib/client/lazy'
 import LoadingIndicator from './pages/components/LoadingIndicator'
 import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'
 import { paymentResultLoader } from './pages/PaymentResultPage'
-import RegistrationEditPage from './pages/RegistrationEditPage'
-import { RegistrationListPage } from './pages/RegistrationListPage'
 import { SearchPage } from './pages/SearchPage'
-import { StartListPage, startListLoader } from './pages/StartListPage'
-import { SupportPage } from './pages/SupportPage'
-import { TermsPage } from './pages/TermsPage'
 import { Path } from './routeConfig'
+
+/**
+ * The registration views are the same page in four shapes, so the chunk is shared and only the
+ * props differ. Loading it on navigation keeps the data grid and the whole form tree -- with
+ * mui-tel-input -- out of the first load of the public calendar.
+ */
+const registrationListPage = (props: RegistrationListPageProps = {}): RouteObject['lazy'] =>
+  function loadRegistrationListPage() {
+    return reloadOnChunkLoadError(async () => {
+      const { RegistrationListPage } = await import('./pages/RegistrationListPage')
+
+      return { Component: () => <RegistrationListPage {...props} /> }
+    })
+  }
 
 const routes: RouteObject[] = [
   {
@@ -59,43 +69,49 @@ const routes: RouteObject[] = [
         path: 'p/cancel',
       },
       {
-        element: <RegistrationListPage cancel />,
+        lazy: registrationListPage({ cancel: true }),
         path: 'r/:id/:registrationId/cancel',
       },
       {
-        element: <RegistrationListPage cancel />,
+        lazy: registrationListPage({ cancel: true }),
         path: 'r/:id/:registrationId/access/:editToken/cancel',
       },
       {
-        element: <RegistrationListPage confirm />,
+        lazy: registrationListPage({ confirm: true }),
         path: 'r/:id/:registrationId/confirm',
       },
       {
-        element: <RegistrationListPage confirm />,
+        lazy: registrationListPage({ confirm: true }),
         path: 'r/:id/:registrationId/access/:editToken/confirm',
       },
       {
-        element: <RegistrationEditPage />,
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import('./pages/RegistrationEditPage')).default,
+          })),
         path: 'r/:id/:registrationId/edit',
       },
       {
-        element: <RegistrationEditPage />,
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import('./pages/RegistrationEditPage')).default,
+          })),
         path: 'r/:id/:registrationId/access/:editToken/edit',
       },
       {
-        element: <RegistrationListPage />,
+        lazy: registrationListPage(),
         path: 'r/:id/:registrationId/saved',
       },
       {
-        element: <RegistrationListPage />,
+        lazy: registrationListPage(),
         path: 'r/:id/:registrationId/access/:editToken/saved',
       },
       {
-        element: <RegistrationListPage />,
+        lazy: registrationListPage(),
         path: 'r/:id/:registrationId',
       },
       {
-        element: <RegistrationListPage />,
+        lazy: registrationListPage(),
         path: 'r/:id/:registrationId/access/:editToken',
       },
     ],
@@ -269,10 +285,14 @@ const routes: RouteObject[] = [
     path: Path.admin.startListPreview(':id'),
   },
   {
-    element: <StartListPage />,
     errorElement: <ErrorPage />,
     hydrateFallbackElement: <LoadingIndicator />,
-    loader: startListLoader,
+    lazy: () =>
+      reloadOnChunkLoadError(async () => {
+        const { StartListPage, startListLoader } = await import('./pages/StartListPage')
+
+        return { Component: StartListPage, loader: startListLoader }
+      }),
     path: Path.startList(':id'),
   },
   {
@@ -282,11 +302,11 @@ const routes: RouteObject[] = [
     path: Path.stats,
   },
   {
-    element: <SupportPage />,
+    lazy: () => reloadOnChunkLoadError(async () => ({ Component: (await import('./pages/SupportPage')).SupportPage })),
     path: 'support',
   },
   {
-    element: <TermsPage />,
+    lazy: () => reloadOnChunkLoadError(async () => ({ Component: (await import('./pages/TermsPage')).TermsPage })),
     path: 'terms',
   },
   // Move users with old bookmarks to front page

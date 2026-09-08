@@ -55,51 +55,43 @@ exports[`routes > should match a snapshot 1`] = `
         "path": "p/cancel",
       },
       {
-        "element": <RegistrationListPage
-          cancel={true}
-        />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId/cancel",
       },
       {
-        "element": <RegistrationListPage
-          cancel={true}
-        />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId/access/:editToken/cancel",
       },
       {
-        "element": <RegistrationListPage
-          confirm={true}
-        />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId/confirm",
       },
       {
-        "element": <RegistrationListPage
-          confirm={true}
-        />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId/access/:editToken/confirm",
       },
       {
-        "element": <RegistrationEditPage />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId/edit",
       },
       {
-        "element": <RegistrationEditPage />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId/access/:editToken/edit",
       },
       {
-        "element": <RegistrationListPage />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId/saved",
       },
       {
-        "element": <RegistrationListPage />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId/access/:editToken/saved",
       },
       {
-        "element": <RegistrationListPage />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId",
       },
       {
-        "element": <RegistrationListPage />,
+        "lazy": [Function],
         "path": "r/:id/:registrationId/access/:editToken",
       },
     ],
@@ -226,10 +218,9 @@ exports[`routes > should match a snapshot 1`] = `
     "path": "/admin/event/startlist-preview/:id",
   },
   {
-    "element": <StartListPage />,
     "errorElement": <ErrorPage />,
     "hydrateFallbackElement": <ForwardRef />,
-    "loader": [Function],
+    "lazy": [Function],
     "path": "/startlist/:id",
   },
   {
@@ -239,11 +230,11 @@ exports[`routes > should match a snapshot 1`] = `
     "path": "/tilastot",
   },
   {
-    "element": <SupportPage />,
+    "lazy": [Function],
     "path": "support",
   },
   {
-    "element": <TermsPage />,
+    "lazy": [Function],
     "path": "terms",
   },
   {
