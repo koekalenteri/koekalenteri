@@ -163,29 +163,28 @@ module.exports = function (webpackEnv) {
       },
       splitChunks: {
         chunks: 'all',
+        // The vendor groups below deliberately carry no `name`. A fixed name merges every chunk
+        // that touches the library into one chunk, so a single eager import made the whole group
+        // initial -- that is how @mui/x-charts, used only by the lazy StatsPage, ended up in the
+        // first load. Unnamed, webpack splits each group per set of chunks that actually use it.
         cacheGroups: {
           aws: {
-            name: 'aws',
             priority: 1,
             test: /[\\/]node_modules[\\/]aws/,
           },
           awsAuth: {
-            name: 'aws-auth',
             priority: 1,
             test: /[\\/]node_modules[\\/]@aws-amplify[\\/]auth/,
           },
           awsCore: {
-            name: 'aws-core',
             priority: 1,
             test: /[\\/]node_modules[\\/]@aws-amplify[\\/]core/,
           },
           awsCrypto: {
-            name: 'aws-crypto',
             priority: 1,
             test: /[\\/]node_modules[\\/]@aws-crypto/,
           },
           awsUi: {
-            name: 'aws-ui',
             priority: 1,
             test: /[\\/]node_modules[\\/]@aws-amplify[\\/]ui/,
           },
@@ -210,7 +209,6 @@ module.exports = function (webpackEnv) {
             test: /[\\/]node_modules[\\/]i18next/,
           },
           mui: {
-            name: 'mui',
             priority: 1,
             test: /[\\/]node_modules[\\/]@mui/,
           },
@@ -241,23 +239,19 @@ module.exports = function (webpackEnv) {
           },
 
           muiData: {
-            name: 'mui-x-data',
             priority: 2,
             test: /[\\/]node_modules[\\/]@mui[\\/]x-data/,
           },
           muiMaterial: {
-            name: 'mui-material',
             priority: 2,
             test: /[\\/]node_modules[\\/]@mui[\\/]material/,
           },
           muiTel: {
-            name: 'mui-tel-input',
             priority: 2,
             test: /[\\/]node_modules[\\/]mui-tel-input/,
           },
 
           muiLocale: {
-            name: 'mui-locale',
             priority: 3,
             test: /[\\/]node_modules[\\/]@mui[\\/]material[\\/]locale/,
           },
