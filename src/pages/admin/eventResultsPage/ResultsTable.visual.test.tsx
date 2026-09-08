@@ -1,5 +1,5 @@
 import type { PublicJudge, Registration } from '../../../types'
-import type { ResultEdit } from './types'
+import type { ResultEdit } from '../../components/stationScoring/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import { eventWithStations, registrationsToEventWithStations } from '../../../__mockData__/resultsEvent'

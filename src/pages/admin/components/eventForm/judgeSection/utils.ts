@@ -1,7 +1,7 @@
 import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../../types'
 import type { PartialEvent } from '../types'
 import { isSameDay } from 'date-fns'
-import { canJudgeMockTrial } from '../../../../../lib/judge'
+import { canJudgeMockTrial, makeArray } from '../../../../../lib/judge'
 
 type PartialPublicJudge = Partial<PublicJudge>
 type PartialPublicJudgeValue = PartialPublicJudge | PartialPublicJudge[]
@@ -29,10 +29,6 @@ export const hasJudge = (c: DeepPartial<EventClass>, id?: number): boolean =>
 
 export const filterClassesByJudgeId = (classes?: DeepPartial<EventClass>[], id?: number) =>
   classes?.filter((c) => hasJudge(c, id))
-
-const toArray = (j?: PartialPublicJudge): PartialPublicJudge[] => (j ? [j] : [])
-
-export const makeArray = (j?: PartialPublicJudgeValue) => (Array.isArray(j) ? [...j] : toArray(j))
 
 const selectJudge = (j?: PartialPublicJudgeValue, judge?: PublicJudge, oldJudgeId?: number): PartialPublicJudge[] => {
   const a = makeArray(j)

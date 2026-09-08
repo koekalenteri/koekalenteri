@@ -8,8 +8,8 @@ import { useParams } from 'react-router'
 import { getStationEntry, putStationEntry, putStationEntryTurn } from '../api/station'
 import { useLinkedEntry } from '../hooks/useLinkedEntry'
 import { linkedEventSubtitle } from '../lib/event'
-import { StationScoring } from './admin/eventResultsPage/StationScoring'
 import LoadingIndicator from './components/LoadingIndicator'
+import { StationScoring } from './components/stationScoring/StationScoring'
 import { languageAtom } from './state'
 
 /**

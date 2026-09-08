@@ -25,3 +25,7 @@ export const judgeName = (judge: PublicJudge | undefined, t: TFunction) => {
 
   return judge.name
 }
+
+/** A class's judge as a list: the field holds one judge or several, and a copy either way. */
+export const makeArray = <T extends Partial<PublicJudge>>(judge?: T | T[]): T[] =>
+  Array.isArray(judge) ? [...judge] : judge ? [judge] : []

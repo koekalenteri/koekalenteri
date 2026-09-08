@@ -5,10 +5,10 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { memo, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { makeArray } from '../../../../lib/judge'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import { OfficialJudge } from './judgeSection/OfficialJudge'
 import { UnofficialJudge } from './judgeSection/UnofficialJudge'
-import { makeArray } from './judgeSection/utils'
 import { validateEventField } from './validation'
 
 interface Props extends Readonly<Omit<SectionProps, 'event'>> {

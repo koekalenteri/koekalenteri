@@ -1,6 +1,6 @@
 import type { EventClass, EventType, Judge, PublicJudge } from '../../../../../types'
 import type { PartialEvent } from '../types'
-import { filterClassesByJudgeId, filterJudges, hasJudge, makeArray, updateJudge } from './utils'
+import { filterClassesByJudgeId, filterJudges, hasJudge, updateJudge } from './utils'
 
 describe('judgeSection utils', () => {
   // Test data
@@ -58,23 +58,6 @@ describe('judgeSection utils', () => {
         { id: 2, name: 'Judge 2', official: true },
       ]
       expect(filterJudges(directory, eventJudges, 2, nowt, true)).toEqual([nowtJudge])
-    })
-  })
-
-  describe('makeArray', () => {
-    it('should convert a single judge to an array', () => {
-      expect(makeArray(judge1)).toEqual([judge1])
-    })
-
-    it('should return a copy of an array', () => {
-      const arr = [judge1, judge2]
-      const result = makeArray(arr)
-      expect(result).toEqual(arr)
-      expect(result).not.toBe(arr) // Should be a new array
-    })
-
-    it('should return an empty array for undefined', () => {
-      expect(makeArray(undefined)).toEqual([])
     })
   })
 

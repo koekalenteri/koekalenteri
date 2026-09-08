@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { taskEntryCeiling } from '../../../lib/results'
-import { NumberInput } from '../../components/NumberInput'
+import { NumberInput } from '../NumberInput'
 
 /** §5.7.3. Codes rather than labels, so a rules rewording cannot orphan recorded history. */
 const ZERO_FAULTS: NowtZeroFault[] = [

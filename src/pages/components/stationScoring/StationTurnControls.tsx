@@ -29,7 +29,7 @@ import {
   stationThroughput,
   turnElapsedMs,
 } from '../../../lib/stationTurns'
-import { AsyncButton } from '../../components/AsyncButton'
+import { AsyncButton } from '../AsyncButton'
 
 const PAUSES: readonly StationTurnPause[] = ['coffee', 'lunch', 'weather', 'other']
 

@@ -1,5 +1,6 @@
+import type { PublicJudge } from '../types'
 import { t } from 'i18next'
-import { canJudgeMockTrial, judgeName, judgesMockTrialIndependently } from './judge'
+import { canJudgeMockTrial, judgeName, judgesMockTrialIndependently, makeArray } from './judge'
 
 describe('lib/judge', () => {
   describe('judgeName', () => {
@@ -45,5 +46,25 @@ describe('lib/judge', () => {
     it('does not follow the flag onto a judge of another format', () => {
       expect(judgesMockTrialIndependently({ eventTypes: ['NOME-B'], mockTrial: true })).toEqual(false)
     })
+  })
+})
+
+describe('makeArray', () => {
+  const judge1: PublicJudge = { id: 1, name: 'Judge One', official: true }
+  const judge2: PublicJudge = { id: 2, name: 'Judge Two', official: true }
+
+  it('converts a single judge to an array', () => {
+    expect(makeArray(judge1)).toEqual([judge1])
+  })
+
+  it('returns a copy of an array', () => {
+    const arr = [judge1, judge2]
+    const result = makeArray(arr)
+    expect(result).toEqual(arr)
+    expect(result).not.toBe(arr)
+  })
+
+  it('returns an empty array for undefined', () => {
+    expect(makeArray(undefined)).toEqual([])
   })
 })
