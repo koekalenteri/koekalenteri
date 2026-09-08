@@ -1,6 +1,7 @@
 import { watch } from 'fs'
 import fs from 'fs/promises'
 import path from 'path'
+import { generateLogGroups } from './lambdaLogGroups.mjs'
 
 const inputPaths = [
   './template/main.yaml',
@@ -16,6 +17,7 @@ const inputPaths = [
   './template/outputs.yaml',
 ]
 
+const outputsFile = './template/outputs.yaml'
 const outputFile = './dist/template.yaml'
 
 const isYAML = (filename) => /\.(ya?ml)$/i.test(filename)
@@ -60,6 +62,16 @@ async function concatYAML() {
     const content = await fs.readFile(file, 'utf8')
     output += `# --- ${path.relative('.', file)} ---\n` + content + '\n\n'
   }
+
+  // Inserted here rather than appended: outputs.yaml opens an Outputs section, and a resource
+  // written after that would land in it.
+  const logGroups = generateLogGroups(output)
+  const marker = `# --- ${path.relative('.', outputsFile)} ---\n`
+  const generated = `# --- generated: log groups for the functions above ---\n${logGroups}\n`
+  if (!output.includes(marker)) {
+    throw new Error(`Cannot place the generated log groups: ${outputsFile} is not in the template`)
+  }
+  output = output.replace(marker, generated + marker)
 
   await fs.writeFile(outputFile, output)
   console.log(`✅ Concatenated ${files.length} files into ${outputFile}`)

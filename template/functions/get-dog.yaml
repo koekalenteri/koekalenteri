@@ -24,9 +24,3 @@
             Path: /dog/{regNo}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
-
-  GetDogFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetDogFunction]]
-      RetentionInDays: 30

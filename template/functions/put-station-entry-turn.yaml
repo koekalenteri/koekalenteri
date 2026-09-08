@@ -21,9 +21,3 @@
             Path: /station-entry/{eventId}/{stationId}/turn
             Method: POST
             RestApiId: !Ref KoekalenteriApi
-
-  PutStationEntryTurnFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutStationEntryTurnFunction]]
-      RetentionInDays: 30

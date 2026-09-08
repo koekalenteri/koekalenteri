@@ -15,9 +15,3 @@
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable
-
-  RebuildAllStatsFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RebuildAllStatsFunction]]
-      RetentionInDays: 30

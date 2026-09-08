@@ -26,9 +26,3 @@
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
-
-  CopyEventFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref CopyEventFunction]]
-      RetentionInDays: 30

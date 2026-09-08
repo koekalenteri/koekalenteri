@@ -39,12 +39,6 @@
             FlexibleTimeWindow:
               Mode: 'OFF'
 
-  RepairDataVersionsFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RepairDataVersionsFunction]]
-      RetentionInDays: 30
-
   RepairDataVersionsFunctionErrorAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:

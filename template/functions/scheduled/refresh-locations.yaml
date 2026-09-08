@@ -36,12 +36,6 @@
             FlexibleTimeWindow:
               Mode: 'OFF'
 
-  RefreshLocationsFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RefreshLocationsFunction]]
-      RetentionInDays: 30
-
   RefreshLocationsFunctionErrorAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:

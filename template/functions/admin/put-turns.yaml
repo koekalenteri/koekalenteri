@@ -24,9 +24,3 @@
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
-
-  PutStationTurnFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutStationTurnFunction]]
-      RetentionInDays: 30

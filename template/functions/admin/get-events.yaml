@@ -23,9 +23,3 @@
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
-
-  GetAdminEventsFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAdminEventsFunction]]
-      RetentionInDays: 30

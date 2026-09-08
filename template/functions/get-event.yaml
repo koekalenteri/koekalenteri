@@ -15,9 +15,3 @@
             Path: /event/{id}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
-
-  GetEventFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEventFunction]]
-      RetentionInDays: 30

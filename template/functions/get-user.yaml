@@ -24,12 +24,6 @@
             Auth:
               Authorizer: CognitoAuthorizer
 
-  GetUserFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetUserFunction]]
-      RetentionInDays: 30
-
   # GET /user once ran at ~11.5 req/s for five hours before anyone noticed, which was 64% of all
   # Lambda invocations for the period. Normal traffic is one call per token-refresh cycle per
   # user. This alarms on the API Gateway request count rather than Lambda invocations because

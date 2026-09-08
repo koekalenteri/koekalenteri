@@ -55,12 +55,6 @@
             Auth:
               Authorizer: CognitoAuthorizer
 
-  PutAdminRegistrationFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutAdminRegistrationFunction]]
-      RetentionInDays: 30
-
   PutAdminRegistrationPaymentsLockConflictMetricFilter:
     Type: AWS::Logs::MetricFilter
     Properties:

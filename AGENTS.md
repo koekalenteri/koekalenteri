@@ -131,6 +131,17 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `scripts/jira-mark-testable.mjs` builds its comment the same way: the sha links to the GitHub
   commit and the subject's keys to their issues. `--dry-run` prints the ADF it would post.
 
+## Adding a Lambda
+
+- A new lambda is a directory `src/lambda/<Name>Function/` with a `handler.ts`, and one entry in
+  `template/functions/`. Nothing else: `scripts/build-template.mjs` writes the
+  `<Name>FunctionLogGroup` (30 days) for every function that does not declare one, and knip finds
+  the handler through the `src/lambda/*Function/handler.ts` glob rather than a hand-kept list.
+- A function that needs a different retention writes its own log group block, and the build leaves
+  it alone -- the payment and refund functions keep their logs for 180 days that way.
+- `src/lambda/template.test.ts` builds the template and compares its `CodeUri` values with the
+  directories on disk, so a lambda in one and not the other fails a test instead of a deploy.
+
 ## Lambda Logging
 
 - Lambdas do not call `console.*`; `suspicious/noConsole` is an error under `src/lambda/**`, with

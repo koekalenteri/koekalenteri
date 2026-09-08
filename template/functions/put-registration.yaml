@@ -47,12 +47,6 @@
             Method: PATCH
             RestApiId: !Ref KoekalenteriApi
 
-  PutRegistrationFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationFunction]]
-      RetentionInDays: 30
-
   PutRegistrationPaymentsLockConflictMetricFilter:
     Type: AWS::Logs::MetricFilter
     Properties:

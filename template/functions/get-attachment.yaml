@@ -24,9 +24,3 @@
             Path: /file/{key}/{name}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
-
-  GetAttachmentFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAttachmentFunction]]
-      RetentionInDays: 30

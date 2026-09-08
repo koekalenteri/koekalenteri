@@ -53,9 +53,3 @@
           Type: SNS
           Properties:
             Topic: !Ref SesNotificationsTopic
-
-  SesNotificationFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SesNotificationFunction]]
-      RetentionInDays: 30

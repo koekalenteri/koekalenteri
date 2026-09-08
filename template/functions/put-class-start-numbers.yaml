@@ -24,9 +24,3 @@
             Path: /start-numbers/{eventId}/{eventClass}
             Method: POST
             RestApiId: !Ref KoekalenteriApi
-
-  PutClassStartNumbersFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutClassStartNumbersFunction]]
-      RetentionInDays: 30

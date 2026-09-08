@@ -33,9 +33,3 @@
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
-
-  SearchEventKcIdChoicesFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SearchEventKcIdChoicesFunction]]
-      RetentionInDays: 30

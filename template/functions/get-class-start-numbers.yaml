@@ -20,9 +20,3 @@
             Path: /start-numbers/{eventId}/{eventClass}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
-
-  GetClassStartNumbersFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetClassStartNumbersFunction]]
-      RetentionInDays: 30

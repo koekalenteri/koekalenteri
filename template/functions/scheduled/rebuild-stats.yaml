@@ -34,12 +34,6 @@
             FlexibleTimeWindow:
               Mode: 'OFF'
 
-  RebuildStatsFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RebuildStatsFunction]]
-      RetentionInDays: 30
-
   # A batch rebuild that stops running freezes the stats silently, which the incremental path
   # never did. Alarm on both outcomes: an erroring run, and no successful run in over 48h.
   RebuildStatsFunctionErrorAlarm:

@@ -16,9 +16,3 @@
             Path: /stats
             Method: GET
             RestApiId: !Ref KoekalenteriApi
-
-  GetStatsFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetStatsFunction]]
-      RetentionInDays: 30

@@ -19,9 +19,3 @@
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
-
-  GetUsersFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetUsersFunction]]
-      RetentionInDays: 30
