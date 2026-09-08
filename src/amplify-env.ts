@@ -1,6 +1,6 @@
 import type { ResourcesConfig } from 'aws-amplify'
 import type { AwsRumConfig } from 'aws-rum-web'
-import { isDevEnv } from './lib/env'
+import { apiStage, isDevEnv } from './lib/env'
 
 export const AWSConfig: ResourcesConfig = {
   Auth: {
@@ -41,7 +41,9 @@ export const RUM_CONFIG: AwsRumConfig = {
   endpoint: process.env.REACT_APP_RUM_ENDPOINT,
   guestRoleArn: process.env.REACT_APP_RUM_ROLE_ARN,
   identityPoolId: process.env.REACT_APP_RUM_IDENTITY_POOL_ID,
-  sessionSampleRate: 0.25,
+  // A session is sampled once and the verdict sticks in a cookie for half an hour, so on dev and test,
+  // where one tester is the whole traffic, a quarter would leave most test sessions unrecorded.
+  sessionSampleRate: apiStage() === 'prod' ? 0.25 : 1,
   telemetries: [/*'performance', */ ['errors', { ignore: shouldIgnoreRumError }], 'http'],
 }
 

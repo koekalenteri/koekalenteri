@@ -1,5 +1,25 @@
 import { shouldIgnoreRumError } from './amplify-env'
 
+describe('RUM_CONFIG', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+
+  it.each([
+    ['dev', 1],
+    ['test', 1],
+    ['prod', 0.25],
+  ])('samples every session on %s stage or a quarter on prod', async (stage, rate) => {
+    vi.stubEnv('REACT_APP_API_BASE_URL', `https://api.example.com/${stage}`)
+    vi.resetModules()
+
+    const { RUM_CONFIG } = await import('./amplify-env')
+
+    expect(RUM_CONFIG.sessionSampleRate).toBe(rate)
+  })
+})
+
 describe('shouldIgnoreRumError', () => {
   it('ignores Safari masked overlay observer errors', () => {
     const error = new Error("Can't find variable: observer")

@@ -1,4 +1,4 @@
-import { isDevEnv, isProdEnv, isTestEnv, stackName } from './env'
+import { apiStage, isDevEnv, isProdEnv, isTestEnv, stackName } from './env'
 
 const testRunnerDefined = () => true
 const testRunnerUndefined = () => false
@@ -6,6 +6,20 @@ const testRunnerUndefined = () => false
 describe('env', () => {
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  describe('apiStage', () => {
+    it.each([
+      ['https://api.example.com/dev', 'dev'],
+      ['https://api.example.com/test', 'test'],
+      ['https://api.example.com/prod', 'prod'],
+      ['http://127.0.0.1:8080', 'prod'],
+      ['', 'prod'],
+    ])('reads %s as %s', (url, stage) => {
+      vi.stubEnv('REACT_APP_API_BASE_URL', url)
+
+      expect(apiStage()).toBe(stage)
+    })
   })
 
   describe('isDevEnv', () => {
