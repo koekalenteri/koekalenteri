@@ -18,7 +18,7 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const editToken = await authorizeRegistrationRead(event, storedRegistration)
   const registration = { ...storedRegistration }
   const dogEvent = await getEvent<JsonConfirmedEvent>(eventId)
-  if (isEventOver({ endDate: new Date(dogEvent.endDate) })) {
+  if (isEventOver(dogEvent)) {
     throw new LambdaError(404, 'not found')
   }
 

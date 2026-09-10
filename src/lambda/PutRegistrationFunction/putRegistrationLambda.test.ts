@@ -151,7 +151,7 @@ describe('putRegistrationLabmda', () => {
   })
   beforeEach(() => {
     vi.setSystemTime(eventWithStaticDates.entryStartDate)
-    mockUpdateRegistrations.mockResolvedValue({ organizer: { id: 'org-1' } })
+    mockUpdateRegistrations.mockResolvedValue({ ...eventWithStaticDates, organizer: { id: 'org-1' } })
   })
   afterEach(() => {
     vi.clearAllMocks()
@@ -1126,6 +1126,10 @@ describe('putRegistrationLabmda', () => {
     }
     const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithoutSecretaryEmail)))
+    // The notice goes by the event as recounted after the save.
+    mockUpdateRegistrations.mockResolvedValueOnce(
+      JSON.parse(JSON.stringify({ ...eventWithoutSecretaryEmail, organizer: { id: 'org-1' } }))
+    )
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true }))
 

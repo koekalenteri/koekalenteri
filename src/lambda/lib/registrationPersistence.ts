@@ -13,9 +13,9 @@ interface PersistedRegistration {
   savedData: JsonRegistration
 }
 
-type RegistrationPersistenceResult<T> =
+type RegistrationPersistenceResult =
   | { conflict: JsonRegistration; kind: 'conflict' }
-  | (PersistedRegistration & { kind: 'saved'; reconciliationContext: T })
+  | (PersistedRegistration & { kind: 'saved' })
 
 const reconcileRegistrationGroups = async (
   registration: JsonRegistration,
@@ -53,12 +53,11 @@ const saveRegistrationData = async (
   return data
 }
 
-export const persistRegistrationWithGroups = async <T>(
+export const persistRegistrationWithGroups = async (
   data: JsonRegistration,
   existing: JsonRegistration | undefined,
-  user: Pick<JsonUser, 'name'>,
-  beforeReconciliation: (savedData: JsonRegistration) => Promise<T>
-): Promise<RegistrationPersistenceResult<T>> => {
+  user: Pick<JsonUser, 'name'>
+): Promise<RegistrationPersistenceResult> => {
   const releasePaymentLock =
     !existing && data.state === 'ready' ? await lockRegistrationPayments(data.eventId) : undefined
   let releaseGroupsLock: (() => Promise<void>) | undefined
@@ -81,12 +80,7 @@ export const persistRegistrationWithGroups = async <T>(
 
     releaseGroupsLock = data.state === 'ready' ? await lockRegistrationGroups(data.eventId, 8) : undefined
     savedData = await saveRegistrationData(data, existing, savedData)
-    const reconciliationContext = await beforeReconciliation(savedData)
-    return {
-      ...(await reconcileRegistrationGroups(savedData, user)),
-      kind: 'saved',
-      reconciliationContext,
-    }
+    return { ...(await reconcileRegistrationGroups(savedData, user)), kind: 'saved' }
   } finally {
     if (releaseGroupsLock) await releaseGroupsLock()
     if (releasePaymentLock) await releasePaymentLock()

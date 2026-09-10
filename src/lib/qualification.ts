@@ -3,6 +3,8 @@ import type {
   EventResultRequirement,
   EventResultRequirements,
   EventResultRequirementsByDate,
+  JsonConfirmedEvent,
+  JsonRegistration,
   ManualTestResult,
   QualifyingResult,
   QualifyingResults,
@@ -172,4 +174,40 @@ export function filterRelevantResults(
     check.relevant.push(...bestResults(eventType, regClass, officialResults, manualValid))
   }
   return check
+}
+
+const toDate = (date: string | undefined) => (date ? new Date(date) : undefined)
+
+/**
+ * The qualification as a lambda stores it: the same decision as the form's, read off the wire
+ * shapes. The official results are the dog's, the manual ones the owner's own claims, and the
+ * relevant ones come back out as JSON.
+ */
+export const qualifyJsonRegistration = (
+  registration: Pick<JsonRegistration, 'class' | 'dog' | 'results'>,
+  event: Pick<JsonConfirmedEvent, 'eventType' | 'startDate'> &
+    Partial<Pick<JsonConfirmedEvent, 'entryEndDate' | 'entryOrigEndDate' | 'qualificationStartDate'>>
+): Pick<JsonRegistration, 'qualifies' | 'qualifyingResults'> => {
+  const { qualifies, relevant } = filterRelevantResults(
+    {
+      entryEndDate: toDate(event.entryEndDate),
+      entryOrigEndDate: toDate(event.entryOrigEndDate),
+      eventType: event.eventType,
+      qualificationStartDate: toDate(event.qualificationStartDate),
+      startDate: new Date(event.startDate),
+    },
+    registration.class,
+    registration.dog.results?.map((result) => ({ ...result, date: new Date(result.date) })),
+    registration.results?.map((result) => ({
+      ...result,
+      date: new Date(result.date),
+      official: false,
+      regNo: registration.dog.regNo,
+    }))
+  )
+
+  return {
+    qualifies,
+    qualifyingResults: relevant.map(({ date, ...result }) => ({ ...result, date: date.toISOString() })),
+  }
 }

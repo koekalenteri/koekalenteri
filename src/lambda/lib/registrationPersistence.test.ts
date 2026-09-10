@@ -1,6 +1,5 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
-import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 
 const releaseGroups = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
@@ -33,7 +32,6 @@ const { persistRegistrationWithGroups } = await import('./registrationPersistenc
 
 describe('persistRegistrationWithGroups', () => {
   const user = { name: 'Test User' }
-  const confirmedEvent: JsonConfirmedEvent = JSON.parse(JSON.stringify(eventWithStaticDates))
   const registration: JsonRegistration = {
     ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
     creationIdempotencyKey: 'create-key',
@@ -55,7 +53,7 @@ describe('persistRegistrationWithGroups', () => {
   })
 
   it('saves and reconciles a new ready registration while holding both locks', async () => {
-    const result = await persistRegistrationWithGroups(registration, undefined, user, async () => undefined)
+    const result = await persistRegistrationWithGroups(registration, undefined, user)
 
     expect(result).toEqual(
       expect.objectContaining({
@@ -73,7 +71,7 @@ describe('persistRegistrationWithGroups', () => {
     const concurrent = { ...registration, creationIdempotencyKey: 'other-key', id: 'other-id' }
     mockFindExistingRegistrationToEventForDog.mockResolvedValue(concurrent)
 
-    await expect(persistRegistrationWithGroups(registration, undefined, user, async () => undefined)).resolves.toEqual({
+    await expect(persistRegistrationWithGroups(registration, undefined, user)).resolves.toEqual({
       conflict: concurrent,
       kind: 'conflict',
     })
@@ -86,7 +84,7 @@ describe('persistRegistrationWithGroups', () => {
     const concurrent = { ...registration, id: 'concurrent-id' }
     mockFindExistingRegistrationToEventForDog.mockResolvedValue(concurrent)
 
-    const result = await persistRegistrationWithGroups(registration, undefined, user, async () => undefined)
+    const result = await persistRegistrationWithGroups(registration, undefined, user)
 
     expect(result).toEqual(
       expect.objectContaining({ kind: 'saved', savedData: expect.objectContaining({ id: concurrent.id }) })
@@ -94,26 +92,24 @@ describe('persistRegistrationWithGroups', () => {
     expect(mockSaveRegistration).not.toHaveBeenCalled()
   })
 
-  it('patches an existing registration and returns its inferred reconciliation context', async () => {
+  it('patches an existing registration without reserving the dog', async () => {
     const existing = { ...registration, notes: 'old' }
     const patched = { ...registration, notes: 'new' }
-    const beforeReconciliation = vi.fn(async () => confirmedEvent)
     mockPatchRegistration.mockResolvedValue(patched)
 
-    const result = await persistRegistrationWithGroups(patched, existing, user, beforeReconciliation)
+    const result = await persistRegistrationWithGroups(patched, existing, user)
 
     expect(mockPatchRegistration).toHaveBeenCalledWith(patched.eventId, patched.id, existing, patched)
-    expect(beforeReconciliation).toHaveBeenCalledWith(patched)
-    expect(result).toEqual(expect.objectContaining({ kind: 'saved', reconciliationContext: confirmedEvent }))
+    expect(result).toEqual(
+      expect.objectContaining({ kind: 'saved', savedData: expect.objectContaining({ notes: 'new' }) })
+    )
     expect(mockLockRegistrationPayments).not.toHaveBeenCalled()
   })
 
   it('releases acquired locks when persistence fails', async () => {
     mockSaveRegistration.mockRejectedValue(new Error('write failed'))
 
-    await expect(persistRegistrationWithGroups(registration, undefined, user, async () => undefined)).rejects.toThrow(
-      'write failed'
-    )
+    await expect(persistRegistrationWithGroups(registration, undefined, user)).rejects.toThrow('write failed')
     expect(releaseGroups).toHaveBeenCalledTimes(1)
     expect(releasePayments).toHaveBeenCalledTimes(1)
   })
@@ -121,10 +117,9 @@ describe('persistRegistrationWithGroups', () => {
   it('saves a non-ready registration without acquiring locks or reconciling groups', async () => {
     const creating = { ...registration, state: 'creating' as const }
 
-    await expect(persistRegistrationWithGroups(creating, undefined, user, async () => undefined)).resolves.toEqual({
+    await expect(persistRegistrationWithGroups(creating, undefined, user)).resolves.toEqual({
       groupPatches: [],
       kind: 'saved',
-      reconciliationContext: undefined,
       savedData: creating,
     })
     expect(mockLockRegistrationGroups).not.toHaveBeenCalled()

@@ -1,71 +1,49 @@
-import type { APIGatewayProxyEvent } from 'aws-lambda'
-import type {
-  EmailTemplateId,
-  JsonConfirmedEvent,
-  JsonRegistration,
-  JsonRegistrationPatchRequest,
-  JsonTestResult,
-  ManualTestResult,
-  Patch,
-  RegistrationTemplateContext,
-  TestResult,
-} from '../../types'
-import { nanoid } from 'nanoid'
-import { formatDate } from '../../i18n/dates'
-import { isEntryOpen, isEventOver, registrationDatesOutsideClass } from '../../lib/event'
-import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
-import { filterRelevantResults } from '../../lib/qualification'
+import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
+import { isEntryOpen, isEventOver } from '../../lib/event'
+import { InvalidPatchError } from '../../lib/patch'
+import { qualifyJsonRegistration } from '../../lib/qualification'
 import {
-  GROUP_KEY_RESERVE,
-  getRegistrationOwners,
-  getSentInvitationAttachment,
-  hasInvalidRegistrationArrayFields,
-  isParticipantGroup,
+  isCompleteRegistration,
   isPublicRegistrationOperationField,
+  resolveInvitationRead,
 } from '../../lib/registration'
 import { registrationBodySchema } from '../../lib/schema/registration'
-import { isObject, patchMerge, unique } from '../../lib/utils'
-import { CONFIG } from '../config'
+import { patchMerge } from '../../lib/utils'
 import { getFrontendOrigin } from '../lib/api-gw'
-import { audit, auditStrict, registrationAuditKey } from '../lib/audit'
 import { getUsername } from '../lib/auth'
 import { readOfficialResults } from '../lib/dog'
-import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import {
   assertRegistrationEmailsNotSuppressed,
-  cloneRegistrationPeople,
   normalizeRegistrationEmails,
   shouldClearRegistrationEmailDeliveryStatus,
 } from '../lib/emailSuppression'
-import { getEvent, repairReadyRegistrationGroups, updateRegistrations } from '../lib/event'
+import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
-import { logger } from '../lib/log'
 import {
   applyOwnerOverrides,
   authorizeRegistrationEdit,
-  claimNewRegistrationPostProcessing,
-  clearRegistrationEmailDeliveryStatus,
-  createRegistrationPatch,
-  DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
   findExistingRegistrationToEventForDog,
-  getCancelAuditMessage,
   getRegistration,
-  getRegistrationChanges,
   getRegistrationEditToken,
   hasRegistrationChanges,
-  markNewRegistrationPhase,
   participantRegistrationResponse,
   publicRegistrationPatch,
   registrationConflictBody,
 } from '../lib/registration'
 import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
+import {
+  applyRegistrationPatchRequest,
+  completeNewRegistration,
+  finalizeRegistrationUpdate,
+  initializeNewRegistration,
+  parseRegistrationRequest,
+  resolveDuplicateRegistration,
+} from '../lib/registrationWorkflow'
 import { validateBody } from '../lib/request'
-import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
-import { publishEventCounts, publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
-import { publishPublicStartList } from '../lib/ws/publicStartList'
 
-const { emailFrom } = CONFIG
+/** What the participant's own audit trail says of a registration they made. */
+const CREATED_AUDIT_MESSAGE = 'Ilmoittautui'
 
 const getData = async (registration: Patch<JsonRegistration>) => {
   const eventId = typeof registration.eventId === 'string' ? registration.eventId : ''
@@ -76,461 +54,54 @@ const getData = async (registration: Patch<JsonRegistration>) => {
   return { confirmedEvent, existing }
 }
 
-const isAvailableEvent = (event: JsonConfirmedEvent | undefined): event is JsonConfirmedEvent =>
-  Boolean(event && !isEventOver({ endDate: new Date(event.endDate) }))
-
-const getEmailContext = (update: boolean, cancel: boolean, confirm: boolean, invitation: boolean) => {
-  if (cancel) return 'cancel'
-  if (confirm) return 'confirm'
-  if (invitation) return 'invitation'
-  if (update) return 'update'
-  return ''
-}
-
-const getAuditMessage = (
-  cancel: boolean,
-  confirm: boolean,
-  data: JsonRegistration,
-  existing?: JsonRegistration
-): string => {
-  if (cancel) return getCancelAuditMessage(data)
-  if (confirm) return 'Ilmoittautumisen vahvistus'
-  if (!existing) return 'Ilmoittautui'
-
-  return getRegistrationChanges(existing, data)
-}
-
-/**
- * Audit message for a registration whose chosen dates don't fall on its class's (or the event's)
- * days. The registration is still accepted — the secretary can fix the dates — but the mismatch
- * is recorded in the registration's audit trail.
- */
-const getDateMismatchAuditMessage = (
-  registration: JsonRegistration,
-  confirmedEvent: JsonConfirmedEvent
-): string | undefined => {
-  const mismatches = registrationDatesOutsideClass(confirmedEvent, registration.class, registration.dates)
-  if (!mismatches.length) return undefined
-
-  const days = unique(mismatches.map((rd) => formatDate(rd.date, 'd.M.yyyy'))).join(', ')
-  const target = registration.class ? `luokan ${registration.class}` : 'tapahtuman'
-  return `Valitut päivät (${days}) eivät ole ${target} päiviä`
-}
-
-const toTestResult = (result: JsonTestResult): TestResult => ({ ...result, date: new Date(result.date) })
-
-const toManualTestResult = (
-  result: JsonTestResult & { id: string },
-  registration: JsonRegistration
-): ManualTestResult => ({
-  ...result,
-  date: new Date(result.date),
-  official: false,
-  regNo: registration.dog.regNo,
-})
-
-/**
- * Whether the dog qualifies for the class, decided here and not by the client. The official results
- * come from the dog table, not from the request's copy of them: a client can write anything into
- * its copy, and the eligibility rests on these (KOE-1346). The manual results stay what they are,
- * the owner's own claims, and are stored and shown as such.
- */
-const resolveQualification = async (registration: JsonRegistration, event: JsonConfirmedEvent) => {
-  registration.dog.results = await readOfficialResults(registration.dog.regNo)
-  const qualification = filterRelevantResults(
-    {
-      entryEndDate: event.entryEndDate ? new Date(event.entryEndDate) : undefined,
-      entryOrigEndDate: event.entryOrigEndDate ? new Date(event.entryOrigEndDate) : undefined,
-      eventType: event.eventType,
-      qualificationStartDate: event.qualificationStartDate ? new Date(event.qualificationStartDate) : undefined,
-      startDate: new Date(event.startDate),
-    },
-    registration.class,
-    registration.dog.results?.map(toTestResult),
-    registration.results?.map((result) => toManualTestResult(result, registration))
-  )
-  registration.qualifies = qualification.qualifies
-  registration.qualifyingResults = qualification.relevant.map(({ date, ...result }) => ({
-    ...result,
-    date: date.toISOString(),
-  }))
-}
-
-const isCompleteRegistration = (registration: Patch<JsonRegistration>): registration is JsonRegistration =>
-  typeof registration.agreeToTerms === 'boolean' &&
-  isObject(registration.breeder) &&
-  typeof registration.createdAt === 'string' &&
-  typeof registration.createdBy === 'string' &&
-  Array.isArray(registration.dates) &&
-  isObject(registration.dog) &&
-  typeof registration.eventId === 'string' &&
-  typeof registration.eventType === 'string' &&
-  typeof registration.id === 'string' &&
-  (registration.language === 'fi' || registration.language === 'en') &&
-  typeof registration.modifiedAt === 'string' &&
-  typeof registration.modifiedBy === 'string' &&
-  typeof registration.notes === 'string' &&
-  Array.isArray(registration.qualifyingResults) &&
-  typeof registration.reserve === 'string'
-
-const prepareNewRegistration = async (
-  registration: Patch<JsonRegistration>,
-  confirmedEvent: JsonConfirmedEvent,
-  timestamp: string,
-  username: string
-) => {
-  if (!isEntryOpen(confirmedEvent)) {
-    throw httpError(410, { message: 'Gone: Entry is not open' })
-  }
-
-  const alreadyRegistered = await findExistingRegistrationToEventForDog(
-    registration.eventId ?? '',
-    registration.dog?.regNo ?? '',
-    registration.creationIdempotencyKey ?? undefined
-  )
-
-  if (alreadyRegistered) return alreadyRegistered
-
-  registration.id = nanoid(10)
-  registration.createdAt = timestamp
-  registration.createdBy = username
-  registration.state = confirmedEvent.paymentTime === 'confirmation' ? 'ready' : 'creating'
-}
-
-const completeNewRegistration = async (
-  registration: JsonRegistration,
-  confirmedEvent: JsonConfirmedEvent,
-  origin: string,
-  username: string,
-  editToken: string,
-  groupPatches: Patch<JsonRegistration>[]
-) => {
-  const claim = await claimNewRegistrationPostProcessing(registration.eventId, registration.id)
-  // A concurrent request with the same creation key may arrive while the
-  // original request is completing these phases. Its owner will finish the
-  // workflow; returning the durable registration makes the retry idempotent.
-  if (!claim) return registration
-
-  const saved = claim.registration
+/** The stored registration with the participant's operations applied, only to the fields a participant may edit. */
+const applyPublicPatchRequest = (
+  existing: JsonRegistration,
+  operationRequest: JsonRegistrationPatchRequest
+): Patch<JsonRegistration> => {
   try {
-    if (saved.newRegistrationProcessedAt) return saved
-
-    if (!saved.newRegistrationStatsAt) {
-      await applyNewRegistrationStatsOnce(saved, confirmedEvent, claim.token)
-    }
-
-    if (!saved.newRegistrationAuditAt) {
-      await auditStrict(
-        { auditKey: registrationAuditKey(saved), message: 'Ilmoittautui', user: username },
-        saved.createdAt
-      )
-      const mismatchMessage = getDateMismatchAuditMessage(saved, confirmedEvent)
-      if (mismatchMessage) {
-        await audit({ auditKey: registrationAuditKey(saved), message: mismatchMessage, user: username })
-      }
-      await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationAuditAt')
-    }
-
-    const context = getEmailContext(false, false, false, false)
-    if (
-      (context || confirmedEvent.paymentTime === 'confirmation') &&
-      saved.handler?.email &&
-      getRegistrationOwners(saved).some((owner) => owner?.email) &&
-      !saved.newRegistrationEmailSentAt
-    ) {
-      await sendMessages(origin, context, saved, confirmedEvent, undefined, editToken)
-      await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationEmailSentAt')
-    }
-
-    if (!saved.newRegistrationPublishedAt && saved.state === 'ready') {
-      const updatedEvent = await updateRegistrations(saved.eventId)
-      await publishEventCounts(updatedEvent)
-      await publishRegistrationPatchesStrict(
-        saved.eventId,
-        [createRegistrationPatch(saved), ...groupPatches.filter((patch) => patch.id !== saved.id)],
-        updatedEvent.organizer.id
-      )
-      await publishPublicStartList(updatedEvent)
-      await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationPublishedAt')
-    }
-
-    await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationProcessedAt')
-    return saved
-  } finally {
-    await claim.release()
-  }
-}
-
-const sendMessages = async (
-  origin: string,
-  context: RegistrationTemplateContext,
-  registration: JsonRegistration,
-  confirmedEvent: JsonConfirmedEvent,
-  existing: JsonRegistration | undefined,
-  editToken: string
-) => {
-  // send update message when registration is updated, confirmed or cancelled
-  const to = emailTo(registration)
-  const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context, editToken)
-
-  await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
-  delete registration.emailDeliveryStatus
-  await sendTemplatedMail(
-    'registration',
-    registration.language,
-    emailFrom,
-    to,
-    templateData,
-    registrationEmailTags(registration, 'registration')
-  )
-
-  await audit({
-    auditKey: registrationAuditKey(registration),
-    message: `Email: ${templateData.subject}, to: ${to.join(', ')}`,
-    user: 'anonymous',
-  })
-
-  // also notify secretary about cancellation (allowed to fail)
-  try {
-    const secretaryEmail = confirmedEvent.contactInfo?.secretary?.email ?? confirmedEvent.secretary.email
-    if (context === 'cancel' && secretaryEmail) {
-      let template: EmailTemplateId | undefined
-
-      const groupKey = existing?.group?.key ?? GROUP_KEY_RESERVE
-      if (groupKey === GROUP_KEY_RESERVE) {
-        template = existing?.reserveNotified ? 'cancel-reserve' : 'cancel-early'
-      } else if (isParticipantGroup(groupKey)) {
-        template = 'cancel-picked'
-      }
-
-      if (template) {
-        const cancelTemplateData = registrationEmailTemplateData(
-          registration,
-          confirmedEvent,
-          origin,
-          context,
-          editToken,
-          '',
-          existing?.group
-        )
-        await sendTemplatedMail(template, 'fi', emailFrom, [secretaryEmail], cancelTemplateData)
-      }
-    }
-  } catch (e) {
-    logger.error('error notifying cancellation to secretary', { error: e, eventId: registration.eventId })
-  }
-}
-
-const handleDuplicateRegistration = async (
-  duplicate: JsonRegistration,
-  registration: Patch<JsonRegistration>,
-  confirmedEvent: JsonConfirmedEvent,
-  linkOrigin: string,
-  username: string
-) => {
-  const groupPatches = await repairReadyRegistrationGroups(duplicate.eventId, { name: username })
-  const isIdempotentRetry =
-    typeof registration.creationIdempotencyKey === 'string' &&
-    registration.creationIdempotencyKey === duplicate.creationIdempotencyKey
-  if (!isIdempotentRetry) {
-    if (groupPatches.length) {
-      const updatedEvent = await updateRegistrations(duplicate.eventId)
-      await publishEventCounts(updatedEvent)
-      await publishRegistrationPatches(duplicate.eventId, groupPatches, updatedEvent.organizer.id)
-      await publishPublicStartList(updatedEvent)
-    }
-    return { conflict: duplicate }
-  }
-
-  const editToken = await getRegistrationEditToken(duplicate)
-  const completed = await completeNewRegistration(
-    duplicate,
-    confirmedEvent,
-    linkOrigin,
-    username,
-    editToken,
-    groupPatches
-  )
-  return { completed, editToken }
-}
-
-const preparePublicRegistrationCreation = async (
-  registration: Patch<JsonRegistration>,
-  existing: JsonRegistration | undefined,
-  confirmedEvent: JsonConfirmedEvent,
-  timestamp: string,
-  username: string,
-  event: APIGatewayProxyEvent,
-  linkOrigin: string
-) => {
-  if (existing) return { registration }
-
-  const duplicate = await prepareNewRegistration(registration, confirmedEvent, timestamp, username)
-  if (!duplicate) {
-    registration.editTokenVersion = DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION
-    return { registration }
-  }
-
-  const handled = await handleDuplicateRegistration(duplicate, registration, confirmedEvent, linkOrigin, username)
-  if (handled.conflict) throw httpError(409, registrationConflictBody(handled.conflict))
-  return {
-    earlyResponse: response(200, participantRegistrationResponse(handled.completed, handled.editToken), event),
-  }
-}
-
-const authorizeAndApplyPublicPatch = async (
-  event: APIGatewayProxyEvent,
-  existing: JsonRegistration | undefined,
-  registration: Patch<JsonRegistration>,
-  operationRequest: JsonRegistrationPatchRequest | undefined
-) => {
-  if (typeof registration.eventId !== 'string' || typeof registration.id !== 'string') {
-    return { invalid: 'registration identity is missing' as const }
-  }
-  const editToken = existing
-    ? await authorizeRegistrationEdit(event, existing)
-    : await getRegistrationEditToken({
-        editTokenVersion: registration.editTokenVersion ?? undefined,
-        eventId: registration.eventId,
-        id: registration.id,
-      })
-  if (!existing || !operationRequest) return { editToken, registration }
-
-  try {
-    return { editToken, registration: applyPublicPatchRequest(existing, operationRequest) }
+    const patched = applyRegistrationPatchRequest(existing, operationRequest, isPublicRegistrationOperationField)
+    return publicRegistrationPatch(patched, true)
   } catch (error) {
-    if (error instanceof InvalidPatchError) return { invalid: error.message }
+    if (error instanceof InvalidPatchError) throw httpError(400, { message: `Bad request: ${error.message}` })
     throw error
   }
 }
 
+/**
+ * The registration to store and what the participant's request did to it: an edit of the details,
+ * a cancellation, a confirmation, or the reading of an invitation. The one-way flags only count on
+ * the way up; `publicRegistrationPatch` has already dropped any attempt to clear them.
+ */
 const buildPublicRegistrationData = (
   registration: Patch<JsonRegistration>,
   existing: JsonRegistration | undefined,
   confirmedEvent: JsonConfirmedEvent
 ) => {
-  const update = Boolean(existing)
   const cancel = !existing?.cancelled && Boolean(registration.cancelled)
   const confirm = !existing?.confirmed && Boolean(registration.confirmed) && !existing?.cancelled
-  const invitationAttachment = existing ? getSentInvitationAttachment(confirmedEvent, existing) : undefined
-  const previousAttachment =
-    existing?.invitationAttachmentRead ??
-    (existing?.invitationRead ? (existing.invitationAttachmentSent ?? invitationAttachment) : undefined)
-  const invitation =
-    Boolean(registration.invitationRead) &&
-    !existing?.cancelled &&
-    (!existing?.invitationRead || Boolean(invitationAttachment && previousAttachment !== invitationAttachment))
+  const invitation = existing
+    ? resolveInvitationRead(confirmedEvent, existing, registration.invitationRead ?? undefined)
+    : { read: false }
 
   let data: JsonRegistration
   if (existing) data = patchMerge(existing, registration)
   else {
+    // Decided below from the dog's official results, once the body is known to be whole.
     registration.qualifies = false
     registration.qualifyingResults = []
-    if (!isCompleteRegistration(registration)) return { invalid: 'registration data is incomplete' as const }
+    if (!isCompleteRegistration(registration)) {
+      throw httpError(400, { message: 'Bad request: registration data is incomplete' })
+    }
     data = registration
   }
-  if (invitation && invitationAttachment) data.invitationAttachmentRead = invitationAttachment
-  return { cancel, confirm, data, invitation, update }
-}
+  if (invitation.attachment) data.invitationAttachmentRead = invitation.attachment
 
-const applyPublicPatchRequest = (
-  existing: JsonRegistration,
-  operationRequest: JsonRegistrationPatchRequest
-): Patch<JsonRegistration> => {
-  if (operationRequest.operations.some(({ path }) => !isPublicRegistrationOperationField(path[0]))) {
-    throw new InvalidPatchError('patch changes a protected registration field')
-  }
-  const patchedRegistration = applyPatchOperations(existing, operationRequest.operations)
-  if (hasInvalidRegistrationArrayFields(patchedRegistration, true)) {
-    throw new InvalidPatchError('registration array fields must be arrays')
-  }
-  const registration = publicRegistrationPatch(patchedRegistration, true)
-  return normalizeRegistrationEmails(cloneRegistrationPeople(registration))
-}
-
-/**
- * Takes the body already checked against `registrationBodySchema`, which is where a field of the
- * wrong type is now rejected. What is left here is the part a schema cannot see: whether this body is
- * a list of patch operations or a whole registration, and whether it carries the metadata a patch
- * needs.
- */
-const parsePublicRegistrationRequest = (
-  parsed: Patch<JsonRegistration> | JsonRegistrationPatchRequest,
-  patchRequest: boolean
-) => {
-  const operationRequest = patchRequest && isPatchOperationRequest(parsed) ? parsed : undefined
-  if (patchRequest && isObject(parsed) && Object.hasOwn(parsed, 'operations') && !operationRequest) {
-    return { invalid: 'invalid patch operations' as const }
-  }
-  if (operationRequest && (typeof operationRequest.eventId !== 'string' || typeof operationRequest.id !== 'string')) {
-    return { invalid: 'invalid patch metadata' as const }
-  }
-  const registration = operationRequest
-    ? ({ eventId: operationRequest.eventId, id: operationRequest.id } satisfies Patch<JsonRegistration>)
-    : publicRegistrationPatch(parsed, Boolean(parsed.id))
-  return { operationRequest, registration }
-}
-
-interface FinalizeRegistrationOptions {
-  cancel: boolean
-  confirm: boolean
-  confirmedEvent: JsonConfirmedEvent
-  editToken: string
-  existing: JsonRegistration
-  groupPatches: Patch<JsonRegistration>[]
-  invitation: boolean
-  linkOrigin: string
-  savedData: JsonRegistration
-  update: boolean
-  username: string
-}
-
-const finalizeRegistrationUpdate = async ({
-  cancel,
-  confirm,
-  confirmedEvent,
-  editToken,
-  existing,
-  groupPatches,
-  invitation,
-  linkOrigin,
-  savedData,
-  update,
-  username,
-}: FinalizeRegistrationOptions) => {
-  await updateEventStatsForRegistration(savedData, existing, confirmedEvent)
-  if (update || cancel || savedData.state === 'ready') {
-    const updatedEvent = await updateRegistrations(savedData.eventId)
-    await publishEventCounts(updatedEvent)
-    await publishRegistrationPatches(
-      savedData.eventId,
-      [createRegistrationPatch(savedData, existing), ...groupPatches.filter((patch) => patch.id !== savedData.id)],
-      updatedEvent.organizer.id
-    )
-    await publishPublicStartList(updatedEvent)
-  }
-  const message = getAuditMessage(cancel, confirm, savedData, existing)
-  if (message) await audit({ auditKey: registrationAuditKey(savedData), message, user: username })
-
-  const datesChanged =
-    existing.class !== savedData.class || JSON.stringify(existing.dates) !== JSON.stringify(savedData.dates)
-  if (datesChanged && !savedData.cancelled) {
-    const mismatchMessage = getDateMismatchAuditMessage(savedData, confirmedEvent)
-    if (mismatchMessage) {
-      await audit({ auditKey: registrationAuditKey(savedData), message: mismatchMessage, user: username })
-    }
-  }
-
-  const context = getEmailContext(update, cancel, confirm, invitation)
-  const shouldSend =
-    (context || confirmedEvent.paymentTime === 'confirmation') &&
-    savedData.handler?.email &&
-    getRegistrationOwners(savedData).some((owner) => owner?.email)
-  if (shouldSend) await sendMessages(linkOrigin, context, savedData, confirmedEvent, existing, editToken)
+  return { data, flags: { cancel, confirm, invitation: invitation.read } }
 }
 
 const putRegistrationLambda = lambda('putRegistration', async (event) => {
-  const username = await getUsername(event)
+  const user = { name: await getUsername(event) }
   const timestamp = new Date().toISOString()
   const linkOrigin = getFrontendOrigin(event)
   const patchRequest = isPatchRequest(event)
@@ -538,50 +109,67 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const body: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(event.body)
   validateBody(registrationBodySchema, body)
 
-  const request = parsePublicRegistrationRequest(body, patchRequest)
+  const request = parseRegistrationRequest(body, patchRequest)
   if ('invalid' in request) throw httpError(400, { message: `Bad request: ${request.invalid}` })
-  let { registration } = request
   const { operationRequest } = request
-  if (!operationRequest) normalizeRegistrationEmails(registration)
+  let registration = operationRequest
+    ? request.registration
+    : normalizeRegistrationEmails(publicRegistrationPatch(request.registration, Boolean(request.registration.id)))
 
   if (patchRequest && (!registration.eventId || !registration.id)) {
     throw httpError(400, { message: 'Bad request: PATCH requires eventId and id' })
   }
 
   const { confirmedEvent, existing } = await getData(registration)
-
-  if (!isAvailableEvent(confirmedEvent)) {
+  if (!confirmedEvent || isEventOver(confirmedEvent)) {
     throw httpError(404, { message: 'Not found' })
   }
 
-  const creation = await preparePublicRegistrationCreation(
-    registration,
-    existing,
-    confirmedEvent,
-    timestamp,
-    username,
-    event,
-    linkOrigin
-  )
-  if (creation.earlyResponse) return creation.earlyResponse
-  registration = creation.registration
-
-  const authorized = await authorizeAndApplyPublicPatch(event, existing, registration, operationRequest)
-  if ('invalid' in authorized) throw httpError(400, { message: `Bad request: ${authorized.invalid}` })
-  registration = authorized.registration
-  const { editToken } = authorized
+  if (existing) {
+    await authorizeRegistrationEdit(event, existing)
+    if (operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
+  } else {
+    if (!isEntryOpen(confirmedEvent)) {
+      throw httpError(410, { message: 'Gone: Entry is not open' })
+    }
+    const duplicate = await findExistingRegistrationToEventForDog(
+      registration.eventId ?? '',
+      registration.dog?.regNo ?? '',
+      registration.creationIdempotencyKey ?? undefined
+    )
+    if (duplicate) {
+      const resolved = await resolveDuplicateRegistration({
+        auditMessage: CREATED_AUDIT_MESSAGE,
+        confirmedEvent,
+        duplicate,
+        origin: linkOrigin,
+        registration,
+        user,
+      })
+      if ('conflict' in resolved) throw httpError(409, registrationConflictBody(resolved.conflict))
+      return response(200, participantRegistrationResponse(resolved.completed, resolved.editToken), event)
+    }
+    initializeNewRegistration(
+      registration,
+      timestamp,
+      user,
+      confirmedEvent.paymentTime === 'confirmation' ? 'ready' : 'creating'
+    )
+  }
 
   // modification info is always updated
   registration.modifiedAt = timestamp
-  registration.modifiedBy = username
+  registration.modifiedBy = user.name
   registration.updatedAt = timestamp
 
-  const built = buildPublicRegistrationData(registration, existing, confirmedEvent)
-  if ('invalid' in built) throw httpError(400, { message: `Bad request: ${built.invalid}` })
-  const { cancel, confirm, data, invitation, update } = built
+  const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent)
 
   applyOwnerOverrides(data)
-  await resolveQualification(data, confirmedEvent)
+  // The official results come from the dog table, not from the request's copy of them: a client
+  // can write anything into its copy, and the eligibility rests on these (KOE-1346). The manual
+  // results stay what they are, the owner's own claims, and are stored and shown as such.
+  data.dog.results = await readOfficialResults(data.dog.regNo)
+  Object.assign(data, qualifyJsonRegistration(data, confirmedEvent))
 
   if (existing && !hasRegistrationChanges(existing, data)) {
     return response(304, undefined, event)
@@ -593,38 +181,26 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     delete data.emailDeliveryStatus
   }
 
-  const persisted = await persistRegistrationWithGroups(data, existing, { name: username }, async () => undefined)
+  const persisted = await persistRegistrationWithGroups(data, existing, user)
   if (persisted.kind === 'conflict') {
     throw httpError(409, registrationConflictBody(persisted.conflict))
   }
   const { groupPatches, savedData } = persisted
   if (!existing) {
-    const responseEditToken = savedData.id === registration.id ? editToken : await getRegistrationEditToken(savedData)
-    const completed = await completeNewRegistration(
-      savedData,
+    const completed = await completeNewRegistration({
+      auditMessage: CREATED_AUDIT_MESSAGE,
       confirmedEvent,
-      linkOrigin,
-      username,
-      responseEditToken,
-      groupPatches
-    )
-    return response(200, participantRegistrationResponse(completed, responseEditToken), event)
+      groupPatches,
+      origin: linkOrigin,
+      registration: savedData,
+      user,
+    })
+    return response(200, participantRegistrationResponse(completed, await getRegistrationEditToken(completed)), event)
   }
-  await finalizeRegistrationUpdate({
-    cancel,
-    confirm,
-    confirmedEvent,
-    editToken,
-    existing,
-    groupPatches,
-    invitation,
-    linkOrigin,
-    savedData,
-    update,
-    username,
-  })
 
-  return response(200, participantRegistrationResponse(savedData, editToken), event)
+  await finalizeRegistrationUpdate({ existing, flags, groupPatches, origin: linkOrigin, registration: savedData, user })
+
+  return response(200, participantRegistrationResponse(savedData, await getRegistrationEditToken(savedData)), event)
 })
 
 export default putRegistrationLambda

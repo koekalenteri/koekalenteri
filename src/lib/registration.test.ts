@@ -33,6 +33,7 @@ import {
   hasInvalidRegistrationArrayFields,
   hasPriority,
   hasRefundableBalance,
+  isCompleteRegistration,
   isMember,
   isPayerTemplate,
   isPredefinedReason,
@@ -40,6 +41,7 @@ import {
   isRegistrationClass,
   isScorableRegistration,
   priorityDescriptionKey,
+  resolveInvitationRead,
   resolveOwnerPerson,
   resolveOwnerSelection,
   shouldSendInvitationToRegistration,
@@ -1209,5 +1211,72 @@ describe('lib/registration', () => {
       expect(result.paymentPaid).toBe('35,00\u00A0€')
       expect(result.paymentDue).toBe('5,00\u00A0€')
     })
+  })
+})
+
+describe('resolveInvitationRead', () => {
+  const event = { invitationAttachment: 'attachment-2' }
+  const sent = { eventType: 'NOME-B', invitationAttachmentSent: 'attachment-2', messagesSent: { invitation: true } }
+
+  it('counts the first reading of the sent invitation', () => {
+    expect(resolveInvitationRead(event, { ...sent, invitationRead: false }, true)).toEqual({
+      attachment: 'attachment-2',
+      read: true,
+    })
+  })
+
+  it('counts a reading of an attachment newer than the one read before', () => {
+    expect(
+      resolveInvitationRead(event, { ...sent, invitationAttachmentRead: 'attachment-1', invitationRead: true }, true)
+    ).toEqual({
+      attachment: 'attachment-2',
+      read: true,
+    })
+  })
+
+  it('takes a legacy reading without a receipt as a reading of what was then sent', () => {
+    expect(resolveInvitationRead(event, { ...sent, invitationRead: true }, true)).toEqual({ read: false })
+  })
+
+  it('does not count a reading the request does not make, or one of a cancelled registration', () => {
+    expect(resolveInvitationRead(event, { ...sent, invitationRead: false }, undefined)).toEqual({ read: false })
+    expect(resolveInvitationRead(event, { ...sent, cancelled: true, invitationRead: false }, true)).toEqual({
+      read: false,
+    })
+  })
+
+  it("counts a reading when nothing was sent, as a reading of the event's current attachment", () => {
+    expect(resolveInvitationRead(event, { eventType: 'NOME-B', invitationRead: false }, true)).toEqual({
+      attachment: 'attachment-2',
+      read: true,
+    })
+  })
+})
+
+describe('isCompleteRegistration', () => {
+  const stamped = {
+    ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+    createdAt: '2024-01-01T00:00:00.000Z',
+    createdBy: 'anonymous',
+    modifiedAt: '2024-01-01T00:00:00.000Z',
+    modifiedBy: 'anonymous',
+  }
+
+  it('accepts a body the server has stamped', () => {
+    expect(isCompleteRegistration(stamped)).toBe(true)
+  })
+
+  it.each([
+    'agreeToTerms',
+    'breeder',
+    'dates',
+    'dog',
+    'eventType',
+    'language',
+    'notes',
+    'qualifyingResults',
+    'reserve',
+  ])('rejects a body without %s', (field) => {
+    expect(isCompleteRegistration({ ...stamped, [field]: undefined })).toBe(false)
   })
 })

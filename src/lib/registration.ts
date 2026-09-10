@@ -11,6 +11,7 @@ import type {
   MinimalEventForCost,
   MinimalRegistrationForCost,
   MinimalRegistrationForMembership,
+  Patch,
   PaymentBalance,
   PublicDogEvent,
   Registration,
@@ -78,6 +79,28 @@ export const createRegistrationDraft = (mode: 'admin' | 'participant'): Registra
   reserve: 'DAY',
   ...(mode === 'participant' ? ({ qualifies: false, state: 'creating' } satisfies Partial<Registration>) : {}),
 })
+
+/**
+ * Whether a body the server has stamped with its own fields carries everything a stored
+ * registration has. The wire schema leaves every field optional, because the same body shape serves
+ * an edit and a patch; this is where a new registration is held to the full shape.
+ */
+export const isCompleteRegistration = (registration: Patch<JsonRegistration>): registration is JsonRegistration =>
+  typeof registration.agreeToTerms === 'boolean' &&
+  isObject(registration.breeder) &&
+  typeof registration.createdAt === 'string' &&
+  typeof registration.createdBy === 'string' &&
+  Array.isArray(registration.dates) &&
+  isObject(registration.dog) &&
+  typeof registration.eventId === 'string' &&
+  typeof registration.eventType === 'string' &&
+  typeof registration.id === 'string' &&
+  (registration.language === 'fi' || registration.language === 'en') &&
+  typeof registration.modifiedAt === 'string' &&
+  typeof registration.modifiedBy === 'string' &&
+  typeof registration.notes === 'string' &&
+  Array.isArray(registration.qualifyingResults) &&
+  typeof registration.reserve === 'string'
 
 type PublicRegistrationField = keyof JsonRegistration
 
@@ -548,6 +571,28 @@ export const getSentInvitationAttachment = (
   registration.messagesSent?.invitation && registration.invitationAttachmentSent
     ? registration.invitationAttachmentSent
     : getCurrentInvitationAttachment(event, registration)
+
+/**
+ * What a participant's `invitationRead: true` acknowledges: the first reading, or a reading of an
+ * attachment newer than the one read before. A cancelled registration acknowledges nothing. When it
+ * counts, `attachment` names what was read, so the receipt can be stored against it.
+ */
+export const resolveInvitationRead = (
+  event: InvitationAttachmentEvent,
+  existing: InvitationAttachmentRegistration & Pick<JsonRegistration | Registration, 'cancelled'>,
+  invitationRead: boolean | undefined
+): { attachment?: string; read: boolean } => {
+  const attachment = getSentInvitationAttachment(event, existing)
+  const previous =
+    existing.invitationAttachmentRead ??
+    (existing.invitationRead ? (existing.invitationAttachmentSent ?? attachment) : undefined)
+  const read =
+    Boolean(invitationRead) &&
+    !existing.cancelled &&
+    (!existing.invitationRead || Boolean(attachment && previous !== attachment))
+
+  return { attachment: read ? attachment : undefined, read }
+}
 
 export const shouldSendInvitationToRegistration = (
   event: InvitationAttachmentEvent,
