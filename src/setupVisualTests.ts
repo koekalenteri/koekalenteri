@@ -1,13 +1,10 @@
-import type { Locator } from '@vitest/browser/context'
 import type { Result, RunOptions } from 'axe-core'
-// The context values come from @vitest/browser/context rather than the newer `vitest/browser`
-// re-export: that one only surfaces the providers actually installed, so TypeScript finds neither
-// `commands` nor `Locator` behind it.
-import { commands } from '@vitest/browser/context'
+import type { Locator } from 'vitest/browser'
 import axe from 'axe-core'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { chai, expect } from 'vitest'
+import { commands } from 'vitest/browser'
 import { registerFormatters } from './i18n/formatters'
 import { en, enBreed, enBreedAbbr, enCountry, fi, fiBreed, fiBreedAbbr, fiCountry } from './i18n/locales'
 
