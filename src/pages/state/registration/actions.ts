@@ -1,4 +1,5 @@
 import type { ConfirmedEvent, Registration, RegistrationPatchRequest } from '@/types'
+import { useAtomValue } from 'jotai'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { APIError } from '@/api/http'
@@ -9,6 +10,7 @@ import {
   PUBLIC_REGISTRATION_OPERATION_FIELDS,
   withRegistrationOverrides,
 } from '@/lib/registration'
+import { validIdTokenAtom } from '../user/derivedAtoms'
 import { showRegistrationSaveConflict } from './registrationSaveError'
 
 const publicRegistrationOperationData = (registration: Registration): Partial<Registration> => {
@@ -28,12 +30,15 @@ const registrationPatch = (saved: Registration, edited: Registration): Registrat
 export function useRegistrationActions() {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
+  // Logged in, the participant's own name goes on the audit rows (KOE-1418).
+  const idToken = useAtomValue(validIdTokenAtom)
 
   return {
     cancel: async (reg: Registration, reason: string) => {
       const saved = await patchRegistration(
         registrationPatch(reg, { ...reg, cancelled: true, cancelReason: reason }),
-        reg.editToken
+        reg.editToken,
+        idToken
       )
       enqueueSnackbar(t('registration.cancelDialog.done'), { variant: 'info' })
       return saved
@@ -43,7 +48,7 @@ export function useRegistrationActions() {
       const mod = { ...reg, confirmed: true }
       let saved: Registration
       try {
-        saved = await patchRegistration(registrationPatch(reg, mod), reg.editToken)
+        saved = await patchRegistration(registrationPatch(reg, mod), reg.editToken, idToken)
       } catch (error) {
         if (error instanceof APIError && error.status === 304) {
           saved = mod
@@ -60,7 +65,7 @@ export function useRegistrationActions() {
     invitationRead: async (reg: Registration) => {
       if (reg.invitationRead) return reg
       const mod = { ...reg, invitationRead: true }
-      const saved = await patchRegistration(registrationPatch(reg, mod), reg.editToken)
+      const saved = await patchRegistration(registrationPatch(reg, mod), reg.editToken, idToken)
       return saved
     },
 
@@ -73,11 +78,12 @@ export function useRegistrationActions() {
         if (savedRegistration) {
           saved = await patchRegistration(
             registrationPatch(savedRegistration, regWithOverrides),
-            savedRegistration.editToken
+            savedRegistration.editToken,
+            idToken
           )
         } else {
           const { editToken: _editToken, ...request } = regWithOverrides
-          saved = await postRegistration(request)
+          saved = await postRegistration(request, idToken)
         }
       } catch (error) {
         if (error instanceof APIError && error.status === 304) {

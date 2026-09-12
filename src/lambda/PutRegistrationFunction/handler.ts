@@ -1,3 +1,4 @@
+import type { AuditActor } from '../../lib/audit'
 import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
 import { isEntryOpen, isEventOver } from '../../lib/event'
 import { InvalidPatchError } from '../../lib/patch'
@@ -11,6 +12,7 @@ import {
 import { registrationBodySchema } from '../../lib/schema/registration'
 import { patchMerge } from '../../lib/utils'
 import { getFrontendOrigin } from '../lib/api-gw'
+import { authorize } from '../lib/auth'
 import { readOfficialResults } from '../lib/dog'
 import {
   assertRegistrationEmailsNotSuppressed,
@@ -129,9 +131,11 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     if (operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
   }
 
-  // This route has no login to name the participant; the audit rows and the created/modified
-  // stamps carry the name of the person the registration says is paying, and say so (KOE-1417).
-  const user = registrationActor(existing ? patchMerge(existing, registration) : registration)
+  // On the logged-in route the authorizer names the participant (KOE-1418); on the public one the
+  // audit rows and the created/modified stamps carry the name of the person the registration says
+  // is paying, and say so (KOE-1417).
+  const user: AuditActor =
+    (await authorize(event)) ?? registrationActor(existing ? patchMerge(existing, registration) : registration)
 
   if (!existing) {
     if (!isEntryOpen(confirmedEvent)) {

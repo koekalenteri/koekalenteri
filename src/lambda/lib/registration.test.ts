@@ -1009,6 +1009,20 @@ describe('registration access', () => {
     ).rejects.toThrow('404 not found')
   })
 
+  it('reads the edit token from its own header when Authorization carries a login', async () => {
+    const token = deriveRegistrationEditToken(registration, secret)
+
+    await expect(
+      authorizeRegistrationEdit(
+        { headers: { Authorization: 'Bearer cognito-id-token', 'x-registration-token': token } },
+        registration
+      )
+    ).resolves.toBe(token)
+    await expect(
+      authorizeRegistrationEdit({ headers: { 'X-Registration-Token': `${token}x` } }, registration)
+    ).rejects.toThrow('404 not found')
+  })
+
   it('allows a tokenless read only for a legacy registration', async () => {
     const legacyRegistration = { eventId: registration.eventId, id: registration.id }
     const expected = deriveRegistrationEditToken(legacyRegistration, secret)

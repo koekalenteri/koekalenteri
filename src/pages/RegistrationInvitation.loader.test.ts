@@ -51,6 +51,7 @@ describe('RegistrationInvitation deferredLoader', () => {
         operations: [{ path: ['invitationRead'], type: 'CHANGE', value: true }],
       },
       undefined,
+      undefined,
       undefined
     )
   })
@@ -98,6 +99,7 @@ describe('RegistrationInvitation deferredLoader', () => {
         id: 'reg123',
         operations: [],
       },
+      undefined,
       undefined,
       undefined
     )

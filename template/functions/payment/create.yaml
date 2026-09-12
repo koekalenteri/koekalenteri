@@ -24,6 +24,11 @@
             TableName: !Ref EventTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
+        # The logged-in route resolves the calling user (KOE-1418).
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         PutEvent:
@@ -32,6 +37,15 @@
             Path: /payment/create
             Method: POST
             RestApiId: !Ref KoekalenteriApi
+        # The same handler for a logged-in participant, named by the authorizer (KOE-1418).
+        PutUserEvent:
+          Type: Api
+          Properties:
+            Path: /user/payment/create
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   PaymentCreateFunctionLogGroup:
     Type: AWS::Logs::LogGroup

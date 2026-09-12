@@ -177,6 +177,55 @@ test('patchRegistration updates with PATCH', async () => {
   expect(result.id).not.toBeUndefined()
 })
 
+test('postRegistration and patchRegistration use the logged-in route with the id token', async () => {
+  fetchMock.mockResponse(JSON.stringify(mockRegistration))
+
+  await postRegistration(mockRegistrationCreateRequest(), 'id-token')
+  await patchRegistration(
+    { eventId: mockRegistration.eventId, id: mockRegistration.id, operations: [] },
+    'edit-token',
+    'id-token'
+  )
+
+  expect(fetchMock).toHaveBeenNthCalledWith(
+    1,
+    `${API_BASE_URL}/user/registration/`,
+    expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer id-token' }), method: 'POST' })
+  )
+  expect(fetchMock).toHaveBeenNthCalledWith(
+    2,
+    `${API_BASE_URL}/user/registration/`,
+    expect.objectContaining({
+      headers: expect.objectContaining({ Authorization: 'Bearer id-token', 'X-Registration-Token': 'edit-token' }),
+      method: 'PATCH',
+    })
+  )
+})
+
+test('patchRegistration falls back to the public route when the id token is refused', async () => {
+  fetchMock.mockResponseOnce('', { status: 401 })
+  fetchMock.mockResponseOnce(JSON.stringify(mockRegistration))
+
+  const result = await patchRegistration(
+    { eventId: mockRegistration.eventId, id: mockRegistration.id, operations: [] },
+    'edit-token',
+    'id-token'
+  )
+
+  expect(fetchMock).toHaveBeenCalledTimes(2)
+  expect(fetchMock).toHaveBeenNthCalledWith(
+    2,
+    `${API_BASE_URL}/registration/`,
+    expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer edit-token' }) })
+  )
+  expect(fetchMock).toHaveBeenNthCalledWith(
+    2,
+    `${API_BASE_URL}/registration/`,
+    expect.objectContaining({ headers: expect.not.objectContaining({ 'X-Registration-Token': expect.anything() }) })
+  )
+  expect(result.id).toBe(mockRegistration.id)
+})
+
 test('postAdminRegistration creates with POST', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'

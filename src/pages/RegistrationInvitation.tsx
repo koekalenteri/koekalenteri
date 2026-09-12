@@ -17,7 +17,7 @@ import { getInvitationReadStatus } from '../lib/registration'
 import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
 import { LoadingPage } from './LoadingPage'
-import { languageAtom } from './state'
+import { languageAtom, readStoredIdToken } from './state'
 
 interface DeferredData {
   url?: string
@@ -57,6 +57,7 @@ export const deferredLoader = async (
         operations: createPatchOperations(registration, updatedRegistration),
       },
       registration.editToken ?? editToken,
+      readStoredIdToken(),
       signal
     )
     registration.invitationRead = true

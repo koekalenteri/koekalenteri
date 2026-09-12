@@ -2,10 +2,24 @@ import type { Language } from '@/types'
 import i18n from 'i18next'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { atomWithLocalStorage, atomWithSessionStorage } from '../storage'
+import { isValidIdToken } from '@/lib/token'
+import { atomWithLocalStorage, atomWithSessionStorage, parseStorageJSON } from '../storage'
 import { stringToLang } from './language'
 
 export const idTokenAtom = atomWithLocalStorage<string | undefined>('idToken', undefined)
+
+/**
+ * The stored id token for code that runs outside the atom store, such as a route loader: the same
+ * value `validIdTokenAtom` reads, and `undefined` once it has expired or is not there.
+ */
+export const readStoredIdToken = (): string | undefined => {
+  try {
+    const stored = parseStorageJSON(localStorage.getItem('idToken'))
+    return typeof stored === 'string' && isValidIdToken(stored) ? stored : undefined
+  } catch {
+    return undefined
+  }
+}
 export const tokenValidityRevisionAtom = atom(0)
 
 const storedLanguageAtom = atomWithLocalStorage<Language>('language', 'fi', {

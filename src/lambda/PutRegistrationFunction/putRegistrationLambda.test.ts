@@ -96,6 +96,11 @@ const mockfindExistingRegistrationToEventForDog = vi.fn<
   (eventId: string, regNo: string) => Promise<JsonRegistration | undefined>
 >(async () => undefined)
 
+const mockAuthorize = vi.fn<() => Promise<{ name: string } | null>>().mockResolvedValue(null)
+vi.doMock('../lib/auth', () => ({
+  authorize: mockAuthorize,
+}))
+
 const libRegistration = await import('../lib/registration')
 const mockAuthorizeRegistrationEdit = vi.fn(() => 'test-edit-token')
 
@@ -997,6 +1002,32 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({ user: 'Second Owner', userSource: 'registration' }),
+      'audit-table-not-found-in-env'
+    )
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('names the rows after the login on the logged-in route, without the registration mark', async () => {
+    mockAuthorize.mockResolvedValueOnce({ name: 'Kirjautunut Käyttäjä' })
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({ ...registrationWithStaticDates, notes: 'updated notes' }, { path: '/user/registration' })
+    )
+
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      expect.objectContaining({ modifiedBy: 'Kirjautunut Käyttäjä' })
+    )
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Muutti: Lisätiedot', user: 'Kirjautunut Käyttäjä' }),
+      'audit-table-not-found-in-env'
+    )
+    expect(mockDynamoDBWrite).not.toHaveBeenCalledWith(
+      expect.objectContaining({ userSource: expect.anything() }),
       'audit-table-not-found-in-env'
     )
     expect(res.statusCode).toEqual(200)

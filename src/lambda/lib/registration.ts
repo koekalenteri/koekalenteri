@@ -152,9 +152,23 @@ export const deriveRegistrationEditToken = (registration: RegistrationEditTokenF
 export const getRegistrationEditToken = async (registration: RegistrationEditTokenFields): Promise<string> =>
   deriveRegistrationEditToken(registration, await getRegistrationEditTokenSecret())
 
+/** The header's value however its name was cased on the way in. */
+const getHeader = (headers: APIGatewayProxyEvent['headers'], name: string): string => {
+  const wanted = name.toLowerCase()
+  const entry = Object.entries(headers ?? {}).find(([key]) => key.toLowerCase() === wanted)
+  return entry?.[1] ?? ''
+}
+
+/**
+ * The registration's edit token as the request carries it: in `X-Registration-Token` on the
+ * logged-in routes, where `Authorization` holds the id token for the authorizer (KOE-1418), and as
+ * the bearer token otherwise.
+ */
 const getBearerToken = (event: Pick<APIGatewayProxyEvent, 'headers'>): string => {
-  const authorization = event.headers.Authorization ?? event.headers.authorization ?? ''
-  const match = /^Bearer\s+(\S+)$/i.exec(authorization)
+  const own = getHeader(event.headers, 'X-Registration-Token').trim()
+  if (own) return own
+
+  const match = /^Bearer\s+(\S+)$/i.exec(getHeader(event.headers, 'Authorization'))
   return match?.[1] ?? ''
 }
 
