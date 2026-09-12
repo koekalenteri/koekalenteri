@@ -20,9 +20,9 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
   }
 
   const cancelled = await cancelTransaction<JsonRefundTransaction>({
+    auditActor: (transaction) => ({ name: transaction.user }),
     auditMessage: (transaction) =>
       `Palautus epäonnistui (${transaction.provider}), ${formatMoney(transaction.amount / 100)}`,
-    auditUser: (transaction) => transaction.user,
     params,
     statusField: 'refundStatus',
   })

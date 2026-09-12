@@ -97,7 +97,11 @@ const useAuditFormatter = () => {
     return ''
   }
 
-  return { changeLabel, changeLine, detail, message, t }
+  /** The actor, marked when the name came from the registration's people rather than a login. */
+  const user = (row: AuditRecord) =>
+    row.userSource === 'registration' ? `${row.user} ${t('audit.userSource.registration')}` : row.user
+
+  return { changeLabel, changeLine, detail, message, t, user }
 }
 
 type AuditFormatter = ReturnType<typeof useAuditFormatter>
@@ -197,7 +201,7 @@ const AuditTrailRow = ({ formatter, onToggle, open, row }: AuditTrailRowProps) =
           color: 'text.secondary',
         }}
       >
-        {`${formatDate(row.timestamp, 'dd.MM.yyyy HH:mm:ss')} ${row.user}`}
+        {`${formatDate(row.timestamp, 'dd.MM.yyyy HH:mm:ss')} ${formatter.user(row)}`}
       </Typography>
       <Box sx={{ alignItems: 'flex-start', display: 'flex', mt: 0.25 }}>
         {hasDetails ? (

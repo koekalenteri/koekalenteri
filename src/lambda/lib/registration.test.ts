@@ -730,7 +730,7 @@ describe('registration', () => {
         ],
         'https://example.com',
         'Test message',
-        'admin-user',
+        { name: 'admin-user' },
         ''
       )
 
@@ -800,7 +800,7 @@ describe('registration', () => {
         [registration],
         'https://example.com',
         'Test message',
-        'admin-user',
+        { name: 'admin-user' },
         ''
       )
 
@@ -830,7 +830,7 @@ describe('registration', () => {
         [registration],
         'https://example.com',
         'Test message',
-        'admin-user',
+        { name: 'admin-user' },
         ''
       )
 
@@ -861,7 +861,7 @@ describe('registration', () => {
         [registration],
         'https://example.com',
         'Test message',
-        'admin-user',
+        { name: 'admin-user' },
         ''
       )
 
@@ -889,7 +889,7 @@ describe('registration', () => {
         jsonRegistrationsToEventWithALOInvited.slice(0, 2).map((r) => ({ ...r })),
         'https://example.com',
         'Test message',
-        'admin-user',
+        { name: 'admin-user' },
         ''
       )
 
@@ -929,7 +929,7 @@ describe('registration', () => {
         [registrationWithExistingMessages],
         'https://example.com',
         'Test message',
-        'admin-user',
+        { name: 'admin-user' },
         ''
       )
 
@@ -961,7 +961,7 @@ describe('registration', () => {
         [jsonRegistrationsToEventWithALOInvited[0]],
         'https://example.com',
         'Test message',
-        'admin-user',
+        { name: 'admin-user' },
         ''
       )
 

@@ -1,3 +1,4 @@
+import type { AuditUserSource } from './Database'
 import type { CreatePaymentResponse } from './paytrail'
 
 /**
@@ -52,6 +53,8 @@ export interface JsonTransaction {
   /** Short-lived owner token for serializing post-payment side effects. */
   postPaymentLease?: { expiresAt: number; token: string }
   user?: string
+  /** Set when `user` was taken from the registration's people rather than a login; carried to the audit rows. */
+  userSource?: AuditUserSource
 }
 
 export interface Transaction extends Omit<JsonTransaction, 'createdAt' | 'statusAt'> {

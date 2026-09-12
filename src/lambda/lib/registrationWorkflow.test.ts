@@ -382,6 +382,29 @@ describe('registrationWorkflow', () => {
       )
     })
 
+    it('says on the row when the actor was named from the registration', async () => {
+      const saved = { ...registration, notes: 'changed' }
+
+      await finalizeRegistrationUpdate({
+        existing: registration,
+        groupPatches: [],
+        origin,
+        registration: saved,
+        user: { name: 'Payer Name', source: 'registration' },
+      })
+
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Muutti: Lisätiedot', user: 'Payer Name', userSource: 'registration' })
+      )
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+          user: 'Payer Name',
+          userSource: 'registration',
+        })
+      )
+    })
+
     it('tells the secretary of a cancellation too, by where the dog stood', async () => {
       const saved = { ...registration, cancelled: true, cancelReason: 'dog-heat' }
 

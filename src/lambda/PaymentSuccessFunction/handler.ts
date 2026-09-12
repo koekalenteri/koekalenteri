@@ -1,9 +1,15 @@
 import type { JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { getFixedT } from '../../i18n/lambda'
+import { auditUser } from '../../lib/audit'
 import { getCostSegmentName } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
-import { getProviderName, getRegistrationPaymentDetails, shouldSendInvitationAfterPayment } from '../../lib/payment'
+import {
+  getProviderName,
+  getRegistrationPaymentDetails,
+  shouldSendInvitationAfterPayment,
+  transactionActor,
+} from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
@@ -116,12 +122,12 @@ const recordDuplicatePayment = async (
   await audit({
     auditKey: registrationAuditKey(registration),
     message: `Päällekkäinen maksu (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}, toinen ilmoittautuminen: ${duplicateOfRegistrationId}`,
-    user: transaction.user ?? 'anonymous',
+    ...auditUser(transactionActor(transaction)),
   })
   await audit({
     auditKey: registrationAuditKey(duplicateOf),
     message: `Toisen ilmoittautumisen päällekkäinen maksu (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}, maksun ilmoittautuminen: ${registration.id}`,
-    user: transaction.user ?? 'anonymous',
+    ...auditUser(transactionActor(transaction)),
   })
 }
 
@@ -239,7 +245,7 @@ const sendPaymentReceipt = async ({
   await audit({
     auditKey: registrationAuditKey(registration),
     message: `Email: ${templateData.subject}, to: ${receiptTo.join(', ')}`,
-    user: transaction.user ?? 'anonymous',
+    ...auditUser(transactionActor(transaction)),
   })
 }
 
@@ -340,7 +346,7 @@ const handleSuccessfulPayment = async (
       await audit({
         auditKey: registrationAuditKey(registration),
         message: `Maksu (${getProviderName(provider)}), ${formatMoney(paidAmount)}`,
-        user: transaction.user ?? 'anonymous',
+        ...auditUser(transactionActor(transaction)),
       })
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'paymentAuditAt')
     }
@@ -362,7 +368,7 @@ const handleSuccessfulPayment = async (
       await audit({
         auditKey: registrationAuditKey(registration),
         message: `Email: ${data.subject}, to: ${to.join(', ')}`,
-        user: transaction.user ?? 'anonymous',
+        ...auditUser(transactionActor(transaction)),
       })
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'confirmationSentAt')
     }
@@ -376,7 +382,7 @@ const handleSuccessfulPayment = async (
         [registration],
         frontendURL,
         '',
-        transaction.user ?? 'anonymous',
+        transactionActor(transaction),
         ''
       )
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'invitationSentAt')

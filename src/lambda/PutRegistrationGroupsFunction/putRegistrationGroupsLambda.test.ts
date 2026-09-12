@@ -473,10 +473,46 @@ describe('putRegistrationGroupsLambda', () => {
       )
     )
 
-    expect(mockSend).toHaveBeenNthCalledWith(1, 'picked', event, [], undefined, '', 'Test User', '')
-    expect(mockSend).toHaveBeenNthCalledWith(2, 'invitation', event, [], undefined, '', 'Test User', '')
-    expect(mockSend).toHaveBeenNthCalledWith(3, 'reserve', event, [], undefined, '', 'Test User', '')
-    expect(mockSend).toHaveBeenNthCalledWith(4, 'registration', event, [], undefined, '', 'Test User', 'cancel')
+    expect(mockSend).toHaveBeenNthCalledWith(
+      1,
+      'picked',
+      event,
+      [],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
+    expect(mockSend).toHaveBeenNthCalledWith(
+      2,
+      'invitation',
+      event,
+      [],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
+    expect(mockSend).toHaveBeenNthCalledWith(
+      3,
+      'reserve',
+      event,
+      [],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
+    expect(mockSend).toHaveBeenNthCalledWith(
+      4,
+      'registration',
+      event,
+      [],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      'cancel'
+    )
     expect(mockSend).toHaveBeenCalledTimes(4)
     expect(res.statusCode).toBe(200)
   })
@@ -512,12 +548,48 @@ describe('putRegistrationGroupsLambda', () => {
       )
     )
 
-    expect(mockSend).toHaveBeenNthCalledWith(1, 'picked', event, [], undefined, '', 'Test User', '')
-    expect(mockSend).toHaveBeenNthCalledWith(2, 'invitation', event, [], undefined, '', 'Test User', '')
+    expect(mockSend).toHaveBeenNthCalledWith(
+      1,
+      'picked',
+      event,
+      [],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
+    expect(mockSend).toHaveBeenNthCalledWith(
+      2,
+      'invitation',
+      event,
+      [],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
 
-    expect(mockSend).toHaveBeenNthCalledWith(3, 'reserve', event, [updated[6]], undefined, '', 'Test User', '')
+    expect(mockSend).toHaveBeenNthCalledWith(
+      3,
+      'reserve',
+      event,
+      [updated[6]],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
 
-    expect(mockSend).toHaveBeenNthCalledWith(4, 'registration', event, [], undefined, '', 'Test User', 'cancel')
+    expect(mockSend).toHaveBeenNthCalledWith(
+      4,
+      'registration',
+      event,
+      [],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      'cancel'
+    )
     expect(mockSend).toHaveBeenCalledTimes(4)
     expect(res.statusCode).toBe(200)
   })
@@ -567,7 +639,7 @@ describe('putRegistrationGroupsLambda', () => {
       ],
       undefined,
       '',
-      'Test User',
+      expect.objectContaining({ name: 'Test User' }),
       ''
     )
   })
@@ -610,8 +682,26 @@ describe('putRegistrationGroupsLambda', () => {
   it('should send "invitation" message, when moved to a class that is invited (and event is only picked)', async () => {
     const { event, res, updated } = await liftFirstAloReserve({ paidAmount: 123, paymentStatus: 'SUCCESS' })
 
-    expect(mockSend).toHaveBeenNthCalledWith(1, 'picked', event, [updated[5]], undefined, '', 'Test User', '')
-    expect(mockSend).toHaveBeenNthCalledWith(2, 'invitation', event, [updated[5]], undefined, '', 'Test User', '')
+    expect(mockSend).toHaveBeenNthCalledWith(
+      1,
+      'picked',
+      event,
+      [updated[5]],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
+    expect(mockSend).toHaveBeenNthCalledWith(
+      2,
+      'invitation',
+      event,
+      [updated[5]],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
 
     expect(mockSend).toHaveBeenNthCalledWith(
       3,
@@ -620,11 +710,20 @@ describe('putRegistrationGroupsLambda', () => {
       [{ ...updated[6], group: { ...updated[6].group, number: 1 } }],
       undefined,
       '',
-      'Test User',
+      expect.objectContaining({ name: 'Test User' }),
       ''
     )
 
-    expect(mockSend).toHaveBeenNthCalledWith(4, 'registration', event, [], undefined, '', 'Test User', 'cancel')
+    expect(mockSend).toHaveBeenNthCalledWith(
+      4,
+      'registration',
+      event,
+      [],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      'cancel'
+    )
     expect(mockSend).toHaveBeenCalledTimes(4)
     expect(res.statusCode).toBe(200)
   })
@@ -633,8 +732,26 @@ describe('putRegistrationGroupsLambda', () => {
     const { event, res, updated } = await liftFirstAloReserve({})
 
     // the koepaikkailmoitus still goes out: it is what asks for the payment
-    expect(mockSend).toHaveBeenNthCalledWith(1, 'picked', event, [updated[5]], undefined, '', 'Test User', '')
-    expect(mockSend).toHaveBeenNthCalledWith(2, 'invitation', event, [], undefined, '', 'Test User', '')
+    expect(mockSend).toHaveBeenNthCalledWith(
+      1,
+      'picked',
+      event,
+      [updated[5]],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
+    expect(mockSend).toHaveBeenNthCalledWith(
+      2,
+      'invitation',
+      event,
+      [],
+      undefined,
+      '',
+      expect.objectContaining({ name: 'Test User' }),
+      ''
+    )
 
     expect(res.statusCode).toBe(200)
     expect(JSON.parse(res.body).invitationAwaitingPayment).toEqual([updated[5].handler?.email, updated[5].owner?.email])

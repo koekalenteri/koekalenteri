@@ -1,11 +1,13 @@
 import type {
   CustomCost,
   JsonRegistration,
+  JsonTransaction,
   MinimalEventForCost,
   MinimalRegistrationForCost,
   PaymentBalanceRegistration,
   Registration,
 } from '../types'
+import type { AuditActor } from './audit'
 import type { InvitationAttachmentEvent, InvitationAttachmentRegistration } from './registration'
 import {
   additionalCost,
@@ -184,3 +186,9 @@ export const getRegistrationPaymentDetails = (event: MinimalEventForCost, regist
     },
   }
 }
+
+/** Whom a transaction's audit rows are attributed to: the user who started it, as it was recorded then. */
+export const transactionActor = (transaction: Pick<JsonTransaction, 'user' | 'userSource'>): AuditActor => ({
+  name: transaction.user ?? 'anonymous',
+  ...(transaction.userSource ? { source: transaction.userSource } : {}),
+})

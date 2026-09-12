@@ -21,6 +21,7 @@ import type {
   RegistrationTemplateContext,
   RegistrationTime,
 } from '../types'
+import type { AuditActor } from './audit'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { hasSharedReserveList, isEntryClosed, localizedEventDescription, localizedEventName } from './event'
@@ -738,3 +739,44 @@ export const getNextClass = (c: RegistrationClass | undefined | null): Registrat
     return 'VOI'
   }
 }
+
+type RegistrationActorSource = Pick<
+  Patch<JsonRegistration>,
+  'handler' | 'owner' | 'ownerHandles' | 'ownerPays' | 'owners' | 'payer'
+>
+
+const trimmedName = (person: unknown): string | undefined => {
+  const name = isObject(person) && typeof person.name === 'string' ? person.name.trim() : ''
+  return name || undefined
+}
+
+/**
+ * Whom a participant's own save is attributed to. The public registration routes have no login to
+ * name, so the name comes from the registration's people: the paying person (the owner the
+ * `ownerPays` selection names, else the separate payer), else the handling person, else the first
+ * owner. `anonymous` only for a body that names no one at all.
+ */
+export const getRegistrationActorName = (registration: RegistrationActorSource): string => {
+  // A patch may carry `null` for any of these; the selection helpers want them absent instead.
+  const people = {
+    handler: registration.handler ?? undefined,
+    owner: registration.owner ?? undefined,
+    ownerHandles: registration.ownerHandles ?? undefined,
+    ownerPays: registration.ownerPays ?? undefined,
+    owners: (registration.owners ?? []).filter(isObject),
+    payer: registration.payer ?? undefined,
+  }
+
+  return (
+    trimmedName(getPayingPerson(people)) ??
+    trimmedName(getHandlingPerson(people)) ??
+    trimmedName(getRegistrationOwners(people)[0]) ??
+    'anonymous'
+  )
+}
+
+/** The participant's own save as an audit actor: named from the registration, and marked as such. */
+export const registrationActor = (registration: RegistrationActorSource): AuditActor => ({
+  name: getRegistrationActorName(registration),
+  source: 'registration',
+})

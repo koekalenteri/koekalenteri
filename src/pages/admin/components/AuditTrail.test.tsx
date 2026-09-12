@@ -48,6 +48,15 @@ describe('AuditTrail', () => {
     expect(screen.getByText(/04\.08\.2026 13:30:00 Testikäyttäjä/)).toBeInTheDocument()
   })
 
+  it('marks a name taken from the registration rather than a login', () => {
+    render(
+      <AuditTrail auditTrail={[auditRecord({ user: 'Maksaja Malli', userSource: 'registration' })]} fullHeight />,
+      { wrapper: Wrapper }
+    )
+
+    expect(screen.getByText(/04\.08\.2026 13:30:00 Maksaja Malli audit\.userSource\.registration/)).toBeInTheDocument()
+  })
+
   it('shows failed recipients when audit details are expanded', async () => {
     const { user } = renderWithUserEvents(
       <AuditTrail

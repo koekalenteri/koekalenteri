@@ -707,7 +707,7 @@ describe('paymentSuccessLambda', () => {
         [expect.objectContaining({ id: 'reg456', paymentStatus: 'SUCCESS' })],
         'https://koekalenteri.snj.fi',
         '',
-        'user123',
+        { name: 'user123' },
         ''
       )
       expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('invitationSentAt'))

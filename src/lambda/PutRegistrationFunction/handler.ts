@@ -5,12 +5,12 @@ import { qualifyJsonRegistration } from '../../lib/qualification'
 import {
   isCompleteRegistration,
   isPublicRegistrationOperationField,
+  registrationActor,
   resolveInvitationRead,
 } from '../../lib/registration'
 import { registrationBodySchema } from '../../lib/schema/registration'
 import { patchMerge } from '../../lib/utils'
 import { getFrontendOrigin } from '../lib/api-gw'
-import { getUsername } from '../lib/auth'
 import { readOfficialResults } from '../lib/dog'
 import {
   assertRegistrationEmailsNotSuppressed,
@@ -101,7 +101,6 @@ const buildPublicRegistrationData = (
 }
 
 const putRegistrationLambda = lambda('putRegistration', async (event) => {
-  const user = { name: await getUsername(event) }
   const timestamp = new Date().toISOString()
   const linkOrigin = getFrontendOrigin(event)
   const patchRequest = isPatchRequest(event)
@@ -128,7 +127,13 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   if (existing) {
     await authorizeRegistrationEdit(event, existing)
     if (operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
-  } else {
+  }
+
+  // This route has no login to name the participant; the audit rows and the created/modified
+  // stamps carry the name of the person the registration says is paying, and say so (KOE-1417).
+  const user = registrationActor(existing ? patchMerge(existing, registration) : registration)
+
+  if (!existing) {
     if (!isEntryOpen(confirmedEvent)) {
       throw httpError(410, { message: 'Gone: Entry is not open' })
     }

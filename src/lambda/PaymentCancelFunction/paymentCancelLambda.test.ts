@@ -4,7 +4,7 @@ import { answerRejections, constructAPIGwEvent } from '../test-utils/helpers'
 
 interface CancelOptions {
   auditMessage: (transaction: JsonPaymentTransaction, provider: string | undefined) => string
-  auditUser: (transaction: JsonPaymentTransaction) => string
+  auditActor: (transaction: JsonPaymentTransaction) => { name: string; source?: string }
   params: Record<string, string>
   statusField: string
   updateProvider: boolean
@@ -46,8 +46,8 @@ describe('paymentCancelLambda', () => {
     await paymentCancelLambda(event)
 
     expect(mockCancelTransaction).toHaveBeenCalledWith({
+      auditActor: expect.any(Function),
       auditMessage: expect.any(Function),
-      auditUser: expect.any(Function),
       params: event.queryStringParameters,
       statusField: 'paymentStatus',
       updateProvider: true,
@@ -70,6 +70,6 @@ describe('paymentCancelLambda', () => {
 
     const options = mockCancelTransaction.mock.lastCall?.[0]
     expect(options?.auditMessage(transaction, 'paytrail')).toBe('Maksu epäonnistui (Paytrail), 50,00 €')
-    expect(options?.auditUser(transaction)).toBe('anonymous')
+    expect(options?.auditActor(transaction)).toEqual({ name: 'anonymous' })
   })
 })

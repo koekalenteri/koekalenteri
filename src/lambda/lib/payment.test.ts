@@ -214,8 +214,8 @@ describe('payment', () => {
   describe('cancelTransaction', () => {
     it('marks the transaction failed, patches a pending registration, and audits', async () => {
       const cancelled = await cancelTransaction<JsonPaymentTransaction>({
+        auditActor: (transaction) => ({ name: transaction.user ?? 'anonymous' }),
         auditMessage: (transaction, provider) => `${provider}: ${transaction.amount}`,
-        auditUser: (transaction) => transaction.user ?? 'anonymous',
         params,
         statusField: 'paymentStatus',
         updateProvider: true,
@@ -257,8 +257,8 @@ describe('payment', () => {
       })
 
       await cancelTransaction<JsonPaymentTransaction>({
+        auditActor: () => ({ name: 'unused' }),
         auditMessage: () => 'unused',
-        auditUser: () => 'unused',
         params,
         statusField: 'paymentStatus',
         updateProvider: true,
@@ -276,8 +276,8 @@ describe('payment', () => {
 
       await expect(
         cancelTransaction<JsonPaymentTransaction>({
+          auditActor: () => ({ name: 'unused' }),
           auditMessage: () => 'unused',
-          auditUser: () => 'unused',
           params,
           statusField: 'paymentStatus',
         })

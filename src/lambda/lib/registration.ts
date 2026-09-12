@@ -1,4 +1,5 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
+import type { AuditActor } from '../../lib/audit'
 import type {
   EmailTemplateId,
   JsonConfirmedEvent,
@@ -9,6 +10,7 @@ import type {
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { formatDate } from '../../i18n/dates'
 import { getFixedT } from '../../i18n/lambda'
+import { auditUser } from '../../lib/audit'
 import { getChangedTopLevelKeys, getNestedChanges, objectsDiffer } from '../../lib/diff'
 import {
   GROUP_KEY_RESERVE,
@@ -418,7 +420,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
   registrations: JsonRegistration[],
   origin: string | undefined,
   text: string,
-  user: string,
+  user: AuditActor,
   context: RegistrationTemplateContext
 ) => {
   const t = getFixedT('fi')
@@ -445,7 +447,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       await audit({
         auditKey: registrationAuditKey(registration),
         message: `Email: ${auditSubject}, to: ${to.join(', ')}`,
-        user,
+        ...auditUser(user),
       })
       await setLastEmail(registration, getLastEmailInfo(template, templateName, registration, lastEmailDate))
 
@@ -466,7 +468,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       await audit({
         auditKey: registrationAuditKey(registration),
         message: `FAILED ${auditSubject}: ${to.join(', ')}`,
-        user,
+        ...auditUser(user),
       })
       logger.error('failed to send registration email', { error: e, template: auditSubject })
     }

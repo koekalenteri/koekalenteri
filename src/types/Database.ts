@@ -18,6 +18,14 @@ export interface DbRecord extends Omit<JsonDbRecord, 'createdAt' | 'modifiedAt' 
   updatedAt?: Date
 }
 
+/**
+ * Where an audit row's `user` came from when it is not an authenticated user: `registration` means
+ * the name was taken from the registration's own people (the payer, the handler or an owner), as
+ * the public registration routes have no login to name. Absent for an authenticated user or the
+ * system.
+ */
+export type AuditUserSource = 'registration'
+
 export interface JsonAuditRecord {
   auditKey: string
   changes?: JsonAuditChange[]
@@ -26,6 +34,7 @@ export interface JsonAuditRecord {
   messageParams?: Record<string, AuditMessageParam>
   timestamp: string
   user: string
+  userSource?: AuditUserSource
   message: string
 }
 

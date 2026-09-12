@@ -1,14 +1,15 @@
+import type { AuditActor } from '../../lib/audit'
 import type {
   EmailTemplateId,
   JsonConfirmedEvent,
   JsonRegistration,
   JsonRegistrationPatchRequest,
-  JsonUser,
   Patch,
   RegistrationTemplateContext,
 } from '../../types'
 import { nanoid } from 'nanoid'
 import { formatDate } from '../../i18n/dates'
+import { auditUser } from '../../lib/audit'
 import { registrationDatesOutsideClass } from '../../lib/event'
 import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
 import {
@@ -46,7 +47,7 @@ import { publishPublicStartList } from './ws/publicStartList'
 
 const { emailFrom } = CONFIG
 
-type Actor = Pick<JsonUser, 'name'>
+type Actor = AuditActor
 
 /** What a participant's edit did, when it did more than change the details. */
 interface RegistrationUpdateFlags {
@@ -157,7 +158,7 @@ const auditDateMismatch = async (registration: JsonRegistration, confirmedEvent:
   await audit({
     auditKey: registrationAuditKey(registration),
     message: `Valitut päivät (${days}) eivät ole ${target} päiviä`,
-    user: user.name,
+    ...auditUser(user),
   })
 }
 
@@ -250,7 +251,7 @@ const sendRegistrationEmail = async ({
   await audit({
     auditKey: registrationAuditKey(registration),
     message: `Email: ${templateData.subject}, to: ${to.join(', ')}`,
-    user: user.name,
+    ...auditUser(user),
   })
 
   if (context === 'cancel') {
@@ -315,7 +316,7 @@ export const completeNewRegistration = async ({
     }
     if (!saved.newRegistrationAuditAt) {
       await auditStrict(
-        { auditKey: registrationAuditKey(saved), message: auditMessage, user: user.name },
+        { auditKey: registrationAuditKey(saved), message: auditMessage, ...auditUser(user) },
         saved.createdAt
       )
       await auditDateMismatch(saved, event, user)
@@ -399,7 +400,7 @@ export const finalizeRegistrationUpdate = async ({
   await publishRegistrationChange(confirmedEvent, registration, existing, groupPatches, false)
 
   const message = updateAuditMessage(flags, registration, existing)
-  if (message) await audit({ auditKey: registrationAuditKey(registration), message, user: user.name })
+  if (message) await audit({ auditKey: registrationAuditKey(registration), message, ...auditUser(user) })
 
   const datesChanged =
     existing.class !== registration.class || JSON.stringify(existing.dates) !== JSON.stringify(registration.dates)

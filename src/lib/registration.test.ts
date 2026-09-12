@@ -22,6 +22,7 @@ import {
   getNextClass,
   getOwnerRole,
   getParticipantMessageInfo,
+  getRegistrationActorName,
   getRegistrationClass,
   getRegistrationEmails,
   getRegistrationEmailTemplateData,
@@ -41,6 +42,7 @@ import {
   isRegistrationClass,
   isScorableRegistration,
   priorityDescriptionKey,
+  registrationActor,
   resolveInvitationRead,
   resolveOwnerPerson,
   resolveOwnerSelection,
@@ -1278,5 +1280,39 @@ describe('isCompleteRegistration', () => {
     'reserve',
   ])('rejects a body without %s', (field) => {
     expect(isCompleteRegistration({ ...stamped, [field]: undefined })).toBe(false)
+  })
+})
+
+describe('getRegistrationActorName', () => {
+  const owners = [
+    { email: 'first@example.com', key: 'owner-1', membership: false, name: 'First Owner' },
+    { email: 'second@example.com', key: 'owner-2', membership: false, name: 'Second Owner' },
+  ]
+  const payer = { email: 'payer@example.com', name: 'Separate Payer', phone: '' }
+  const handler = { email: 'handler@example.com', name: 'The Handler', phone: '' }
+
+  it.each([
+    ['the owner the ownerPays selection names', { ownerPays: 'owner-2', owners, payer }, 'Second Owner'],
+    ['the legacy owner when ownerPays is true', { owner: owners[0], ownerPays: true, payer }, 'First Owner'],
+    ['the separate payer when an owner does not pay', { ownerPays: false, owners, payer }, 'Separate Payer'],
+    ['the handling person when no one is named as paying', { handler, ownerHandles: false, owners }, 'The Handler'],
+    ['the owner the ownerHandles selection names', { ownerHandles: 'owner-2', owners }, 'Second Owner'],
+    ['the first owner when nothing else names a person', { owners }, 'First Owner'],
+    ['anonymous for a body that names no one', {}, 'anonymous'],
+    ['anonymous for null people', { handler: null, owners: null, payer: null }, 'anonymous'],
+    [
+      'the next person past a blank name',
+      { handler, ownerPays: false, owners, payer: { ...payer, name: '  ' } },
+      'The Handler',
+    ],
+  ])('names %s', (_case, registration, expected) => {
+    expect(getRegistrationActorName(registration)).toBe(expected)
+  })
+
+  it('marks the actor as named from the registration', () => {
+    expect(registrationActor({ ownerPays: false, owners, payer })).toEqual({
+      name: 'Separate Payer',
+      source: 'registration',
+    })
   })
 })
