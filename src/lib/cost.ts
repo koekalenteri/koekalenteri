@@ -7,6 +7,7 @@ import type {
   DogEventCostKey,
   DogEventCostSegment,
   JsonPublicConfirmedEvent,
+  Language,
   MinimalEventForCost,
   MinimalRegistrationForCost,
   MinimalRegistrationForMembership,
@@ -262,6 +263,26 @@ export const getCostSegmentName = (segment: DogEventCostSegment | 'legacy'): Cos
     normal: 'costNames.normal',
   }
   return names[segment]
+}
+
+/**
+ * The interpolation values a cost segment's name needs: the custom fee's own name, the breed code,
+ * or the early-bird window. Shared by the cost table and the audit trail so both name a fee alike.
+ */
+export const getCostSegmentNameOptions = (
+  segment: DogEventCostSegment,
+  cost: DogEventCost,
+  event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
+  breedCode: BreedCode | undefined,
+  language: Language
+): Record<string, unknown> => {
+  if (segment === 'custom' && cost.custom?.description) {
+    return { name: cost.custom.description[language] || cost.custom.description.fi }
+  }
+  if (segment === 'breed' && breedCode) return { code: breedCode }
+  if (segment === 'earlyBird') return getEarlyBirdDates(event, cost)
+
+  return {}
 }
 
 export const setCostValue = (

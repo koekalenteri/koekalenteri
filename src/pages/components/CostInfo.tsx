@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
-import { getCostSegmentName, getCostValue, getEarlyBirdDates, mergeMemberCost } from '../../lib/cost'
+import { getCostSegmentName, getCostSegmentNameOptions, getCostValue, mergeMemberCost } from '../../lib/cost'
 import { keysOf } from '../../lib/typeGuards'
 import { languageAtom } from '../state'
 import CostInfoTableCaption from './costInfo/CostStrategiesHeader'
@@ -61,20 +61,10 @@ export default function CostInfo({ event }: Props) {
         : undefined
     const text = costText(value, memberValue)
 
-    if (segment === 'custom' && cost.custom?.description) {
-      return {
-        name: t(getCostSegmentName(segment), { name: cost.custom.description[language] || cost.custom.description.fi }),
-        text,
-      }
+    return {
+      name: t(getCostSegmentName(segment), getCostSegmentNameOptions(segment, cost, event, breedCode, language)),
+      text,
     }
-    if (segment === 'breed' && breedCode) {
-      return { name: t(getCostSegmentName(segment), { code: breedCode }), text }
-    }
-    if (segment === 'earlyBird') {
-      return { name: t(getCostSegmentName(segment), getEarlyBirdDates(event, cost)), text }
-    }
-
-    return { name: t(getCostSegmentName(segment)), text }
   }
 
   const costSegments = segments

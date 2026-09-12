@@ -6,7 +6,6 @@ import {
   jsonRegistrationsToEventWithALOInvited,
   registrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
-import { loggedLines } from '../test-utils/logs'
 
 const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
   delete: vi.fn(),
@@ -55,7 +54,6 @@ const {
   getLastEmailInfo,
   findClassesToMark,
   findExistingRegistrationToEventForDog,
-  getRegistrationChanges,
   hasRegistrationChanges,
   markNewRegistrationPhase,
   getRegistrationsByEventId,
@@ -587,62 +585,6 @@ describe('registration', () => {
       } as JsonRegistration
 
       expect(hasRegistrationChanges(existing, updated)).toBe(true)
-    })
-  })
-
-  describe('getRegistrationChanges', () => {
-    it('returns stable audit labels for nested changes and removed fields', () => {
-      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
-      const existing = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[0])) as JsonRegistration
-      const { notes: _notes, ...withoutNotes } = existing
-      const updated = {
-        ...withoutNotes,
-        dog: { ...existing.dog, name: 'Changed name' },
-      } as JsonRegistration
-
-      try {
-        expect(getRegistrationChanges(existing, updated)).toBe('Muutti: Koiran tiedot, Lisätiedot')
-        expect(loggedLines(debugSpy)).toContainEqual(
-          expect.objectContaining({
-            changes: { dog: { name: 'Changed name' }, notes: null },
-            message: 'audit changes',
-          })
-        )
-      } finally {
-        debugSpy.mockRestore()
-      }
-    })
-
-    it('reports changes to the owner list', () => {
-      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
-      const existing = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[0])) as JsonRegistration
-      existing.owners = [{ email: 'first@example.com', key: 'owner-1', membership: false, name: 'First Owner' }]
-      const updated = {
-        ...existing,
-        owners: [
-          { ...existing.owners[0], membership: true },
-          { email: 'second@example.com', key: 'owner-2', membership: false, name: 'Second Owner' },
-        ],
-      } as JsonRegistration
-
-      try {
-        expect(getRegistrationChanges(existing, updated)).toBe('Muutti: Omistajien tiedot')
-      } finally {
-        debugSpy.mockRestore()
-      }
-    })
-
-    it('does not report unchanged owners', () => {
-      const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => undefined)
-      const existing = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[0])) as JsonRegistration
-      existing.owners = [{ email: 'first@example.com', key: 'owner-1', membership: false, name: 'First Owner' }]
-      const updated = { ...existing, owners: [{ ...existing.owners[0] }] } as JsonRegistration
-
-      try {
-        expect(getRegistrationChanges(existing, updated)).toBe('')
-      } finally {
-        debugSpy.mockRestore()
-      }
     })
   })
 

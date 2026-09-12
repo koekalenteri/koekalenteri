@@ -41,12 +41,14 @@
       "startNumbersPublished": "Starttinumerot julkaistu",
       "startNumbersPublishedDay": "Starttinumerot julkaistu {{day}}"
     },
+    "no": "ei",
     "removed": "(poistettu)",
     "showDetails": "Näytä audit-lisätiedot",
     "title": "Muutoshistoria ({{count}})",
     "userSource": {
       "registration": "(ilmoittautumisen tiedoista)"
-    }
+    },
+    "yes": "kyllä"
   },
   "backToEventsList": "Takaisin tapahtumalistaan",
   "cancel": "Peruuta",
@@ -779,6 +781,7 @@
       "saving": "Tallennetaan…"
     },
     "isMember": "{{name}} on järjestävän yhdistyksen jäsen",
+    "language": "Kieli",
     "member": "Jäsen",
     "membership": "Jäsenyystiedot",
     "modified_one": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
@@ -898,6 +901,7 @@
       "WEEK": "Viikon varoitusajalla"
     },
     "reserveHelp": "Valitse kuinka lyhyellä varoitusajalla pystyt vielä saapumaan koepaikalle, mikäli saat koepaikan varasijalta.",
+    "results": "Ilmoitetut koetulokset",
     "saved_one": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "saved_other": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
     "saveFailed": "Ilmoittautumisen tallennus epäonnistui",
