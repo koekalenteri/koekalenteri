@@ -277,4 +277,46 @@ export const withToken = (init: HttpRequestInit, token?: string): HttpRequestIni
   headers: token ? setAuthorizationHeader(init.headers, token) : init.headers,
 })
 
+const setHeader = (headers: HeadersInit | undefined, name: string, value: string): HeadersInit => {
+  if (headers instanceof Headers) {
+    const next = new Headers(headers)
+    next.set(name, value)
+    return next
+  }
+  if (Array.isArray(headers)) {
+    return [...headers.filter(([key]) => key.toLowerCase() !== name.toLowerCase()), [name, value]]
+  }
+  return { ...headers, [name]: value }
+}
+
+/**
+ * The participant's credentials for a registration call. Logged in, the id token is the bearer
+ * token for the authorizer and the registration's edit token travels in its own header; otherwise
+ * the edit token is the bearer token as before (KOE-1418).
+ */
+export const withRegistrationAuth = (init: HttpRequestInit, editToken?: string, idToken?: string): HttpRequestInit => {
+  if (!idToken) return withToken(init, editToken)
+
+  const headers = setAuthorizationHeader(init.headers, idToken)
+  return { ...init, headers: editToken ? setHeader(headers, 'X-Registration-Token', editToken) : headers }
+}
+
+/**
+ * Calls the logged-in variant of a route when there is an id token, and the public one otherwise.
+ * A 401 from the logged-in route (an expired token) falls back to the public route, so a token that
+ * ran out never stands between the participant and their registration.
+ */
+export const withUserRouteFallback = async <T>(
+  idToken: string | undefined,
+  request: (idToken?: string) => Promise<T>
+): Promise<T> => {
+  if (!idToken) return request()
+  try {
+    return await request(idToken)
+  } catch (error) {
+    if (error instanceof APIError && error.status === 401) return request()
+    throw error
+  }
+}
+
 export default HTTP

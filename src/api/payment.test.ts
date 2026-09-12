@@ -41,6 +41,33 @@ describe('payment', () => {
       )
     })
 
+    it('should use the logged-in route with the id token and the edit token in its own header', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(mockResponse))
+
+      await createPayment('event-id', 'registration-id', 'edit-token', 'id-token')
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/user/payment/create'),
+        expect.objectContaining({
+          headers: expect.objectContaining({ Authorization: 'Bearer id-token', 'X-Registration-Token': 'edit-token' }),
+        })
+      )
+    })
+
+    it('should fall back to the public route when the id token is refused', async () => {
+      fetchMock.mockResponseOnce('', { status: 401 })
+      fetchMock.mockResponseOnce(JSON.stringify(mockResponse))
+
+      const res = await createPayment('event-id', 'registration-id', 'edit-token', 'id-token')
+
+      expect(fetchMock).toHaveBeenCalledTimes(2)
+      expect(fetchMock).toHaveBeenLastCalledWith(
+        expect.stringContaining('/payment/create'),
+        expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer edit-token' }) })
+      )
+      expect(res).toEqual({ response: mockResponse, status: 200 })
+    })
+
     it('should preserve payment error message from backend', async () => {
       fetchMock.mockResponse(
         JSON.stringify({

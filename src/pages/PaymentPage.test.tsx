@@ -53,7 +53,23 @@ describe('PaymentPage', () => {
     })
 
     await expect(result.response).resolves.toEqual({ status: 200 })
-    expect(mockCreatePayment).toHaveBeenCalledWith('event-1', 'registration-1', 'edit-token', request.signal)
+    expect(mockCreatePayment).toHaveBeenCalledWith('event-1', 'registration-1', 'edit-token', undefined, request.signal)
+  })
+
+  it('passes the stored id token too, so a logged-in payment carries the login', async () => {
+    const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
+    const idToken = `header.${encodeBase64Url(JSON.stringify({ exp: Date.now() / 1000 + 3600 }))}.signature`
+    localStorage.setItem('idToken', JSON.stringify(idToken))
+    mockCreatePayment.mockResolvedValueOnce({ status: 200 })
+    const request = new Request('https://example.test/p/event-1/registration-1/access/edit-token')
+
+    try {
+      await loader({ params: { editToken: 'edit-token', id: 'event-1', registrationId: 'registration-1' }, request })
+    } finally {
+      localStorage.removeItem('idToken')
+    }
+
+    expect(mockCreatePayment).toHaveBeenCalledWith('event-1', 'registration-1', 'edit-token', idToken, request.signal)
   })
 
   it('renders loading indicator while loader is pending', async () => {

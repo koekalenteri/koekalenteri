@@ -1,6 +1,6 @@
 import i18n from 'i18next'
 import { createStore } from 'jotai'
-import { idTokenAtom, languageAtom } from './atoms'
+import { idTokenAtom, languageAtom, readStoredIdToken } from './atoms'
 import { validIdTokenAtom } from './derivedAtoms'
 
 const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
@@ -55,5 +55,29 @@ describe('languageAtom', () => {
       const snapshot = createStore()
       expect(snapshot.get(languageAtom)).toEqual(expected)
     })
+  })
+})
+
+describe('readStoredIdToken', () => {
+  beforeEach(() => {
+    localStorage.removeItem('idToken')
+  })
+
+  it('reads a valid stored token for code outside the store', () => {
+    const token = makeToken({ exp: Date.now() / 1000 + 3600 })
+    localStorage.setItem('idToken', JSON.stringify(token))
+
+    expect(readStoredIdToken()).toBe(token)
+  })
+
+  it.each([
+    ['nothing stored', undefined],
+    ['an expired token', JSON.stringify(makeToken({ exp: Date.now() / 1000 - 60 }))],
+    ['a value that is not a token', JSON.stringify({ token: true })],
+    ['unparseable storage', '{not json'],
+  ])('reads no token for %s', (_case, stored) => {
+    if (stored !== undefined) localStorage.setItem('idToken', stored)
+
+    expect(readStoredIdToken()).toBeUndefined()
   })
 })

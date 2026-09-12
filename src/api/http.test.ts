@@ -2,7 +2,7 @@ import { enqueueSnackbar } from 'notistack'
 import { appVersion } from '../lib/version'
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
-import http, { APIError, withToken } from './http'
+import http, { APIError, withRegistrationAuth, withToken, withUserRouteFallback } from './http'
 
 fetchMock.enableMocks()
 vi.mock('notistack', () => ({
@@ -458,6 +458,44 @@ describe('http', () => {
 
       expect(withAuth.headers).toEqual({ Authorization: 'Bearer token-123', 'X-Test': '1' })
       expect(withoutAuth.headers).toEqual({ 'X-Test': '1' })
+    })
+
+    it('puts the id token in Authorization and the edit token in its own header when logged in', () => {
+      expect(withRegistrationAuth({ headers: { 'X-Test': '1' } }, 'edit-token', 'id-token').headers).toEqual({
+        Authorization: 'Bearer id-token',
+        'X-Registration-Token': 'edit-token',
+        'X-Test': '1',
+      })
+      expect(withRegistrationAuth({}, undefined, 'id-token').headers).toEqual({ Authorization: 'Bearer id-token' })
+      expect(
+        withRegistrationAuth({ headers: new Headers({ 'X-Test': '1' }) }, 'edit-token', 'id-token').headers
+      ).toEqual(new Headers({ Authorization: 'Bearer id-token', 'X-Registration-Token': 'edit-token', 'X-Test': '1' }))
+      expect(
+        withRegistrationAuth({ headers: [['X-Registration-Token', 'stale']] }, 'edit-token', 'id-token').headers
+      ).toEqual([
+        ['Authorization', 'Bearer id-token'],
+        ['X-Registration-Token', 'edit-token'],
+      ])
+    })
+
+    it('keeps the edit token as the bearer token when not logged in', () => {
+      expect(withRegistrationAuth({}, 'edit-token').headers).toEqual({ Authorization: 'Bearer edit-token' })
+      expect(withRegistrationAuth({}).headers).toBeUndefined()
+    })
+
+    it('falls back to the public route only on a 401 from the logged-in one', async () => {
+      const unauthorized = new APIError(new Response(null, { status: 401, statusText: 'Unauthorized' }), '')
+      const forbidden = new APIError(new Response(null, { status: 403, statusText: 'Forbidden' }), '')
+      const request = vi.fn(async (idToken?: string) => (idToken ? Promise.reject(unauthorized) : 'public'))
+
+      await expect(withUserRouteFallback('id-token', request)).resolves.toBe('public')
+      expect(request).toHaveBeenNthCalledWith(1, 'id-token')
+      expect(request).toHaveBeenNthCalledWith(2)
+
+      await expect(withUserRouteFallback(undefined, request)).resolves.toBe('public')
+      expect(request).toHaveBeenCalledTimes(3)
+
+      await expect(withUserRouteFallback('id-token', () => Promise.reject(forbidden))).rejects.toBe(forbidden)
     })
 
     it('should keep non-JSON error body on APIError when backend returns plain text', async () => {

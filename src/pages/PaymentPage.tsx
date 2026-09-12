@@ -18,13 +18,26 @@ import { PaymentDetails } from './components/PaymentDetails'
 import { RegistrationDetails } from './components/RegistrationDetails'
 import { LoadingPage } from './LoadingPage'
 import { ProviderButton } from './paymentPage/ProviderButton'
-import { createNewRegistration, languageAtom, newRegistrationAtom, registrationAtom, useConfirmedEvent } from './state'
+import {
+  createNewRegistration,
+  languageAtom,
+  newRegistrationAtom,
+  readStoredIdToken,
+  registrationAtom,
+  useConfirmedEvent,
+} from './state'
 
 export const loader = async ({ params, request }: { params: Params<string>; request: Request }) => {
   const createPaymentWrap = async () => {
     if (params.id && params.registrationId) {
       try {
-        return await createPayment(params.id, params.registrationId, params.editToken, request.signal)
+        return await createPayment(
+          params.id,
+          params.registrationId,
+          params.editToken,
+          readStoredIdToken(),
+          request.signal
+        )
       } catch (err) {
         // eat 403 & 404
         if (err instanceof APIError && (err.status === 403 || err.status === 404)) {

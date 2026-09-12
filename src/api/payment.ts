@@ -1,6 +1,6 @@
 import type { CreatePaymentResponse, RefundPaymentResponse, VerifyPaymentResponse } from '../types'
 import { isObject } from '../lib/utils'
-import http, { APIError, withToken } from './http'
+import http, { APIError, withRegistrationAuth, withToken, withUserRouteFallback } from './http'
 
 interface CreatePaymentResult {
   errorMessage?: string
@@ -30,14 +30,19 @@ const getPaymentErrorMessage = (error: APIError) => {
 export const createPayment = async (
   eventId: string,
   registrationId: string,
-  token?: string,
+  editToken?: string,
+  idToken?: string,
   signal?: AbortSignal
 ): Promise<CreatePaymentResult> => {
   try {
-    const { data: response, status } = await http.post<
-      { eventId: string; registrationId: string },
-      CreatePaymentResponse | undefined
-    >(`/payment/create`, { eventId, registrationId }, withToken({ signal }, token), false)
+    const { data: response, status } = await withUserRouteFallback(idToken, (token) =>
+      http.post<{ eventId: string; registrationId: string }, CreatePaymentResponse | undefined>(
+        token ? '/user/payment/create' : '/payment/create',
+        { eventId, registrationId },
+        withRegistrationAuth({ signal }, editToken, token),
+        false
+      )
+    )
 
     return {
       response,

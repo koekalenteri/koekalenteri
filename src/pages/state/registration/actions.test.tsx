@@ -1,12 +1,13 @@
 import type React from 'react'
 import type { ManualTestResult } from '@/types'
 import { act, renderHook } from '@testing-library/react'
-import { Provider } from 'jotai'
+import { createStore, Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { APIError } from '@/api/http'
 import * as registrationApi from '@/api/registration'
+import { idTokenAtom } from '../user/atoms'
 import { useRegistrationActions } from './actions'
 
 const mockEnqueueSnackbar = vi.fn()
@@ -52,7 +53,8 @@ describe('useRegistrationActions', () => {
           { path: ['cancelled'], type: 'CREATE', value: true },
         ],
       },
-      'participant-token'
+      'participant-token',
+      undefined
     )
     expect(saved).toBe(savedRegistration)
     expect(mockEnqueueSnackbar).toHaveBeenCalledWith('registration.cancelDialog.done', { variant: 'info' })
@@ -75,7 +77,8 @@ describe('useRegistrationActions', () => {
         id: registration.id,
         operations: [{ path: ['confirmed'], type: 'CREATE', value: true }],
       },
-      'participant-token'
+      'participant-token',
+      undefined
     )
   })
 
@@ -97,7 +100,8 @@ describe('useRegistrationActions', () => {
         id: savedRegistration.id,
         operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
       },
-      'participant-token'
+      'participant-token',
+      undefined
     )
     expect(registrationApi.patchRegistration).not.toHaveBeenCalledWith(
       expect.objectContaining({ dog: expect.anything() })
@@ -146,6 +150,7 @@ describe('useRegistrationActions', () => {
         id: savedRegistration.id,
         operations: [{ path: ['results', 0], type: 'CREATE', value: manualResult }],
       },
+      undefined,
       undefined
     )
   })
@@ -169,6 +174,7 @@ describe('useRegistrationActions', () => {
         id: registrationWithStaticDates.id,
         operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
       },
+      undefined,
       undefined
     )
     expect(saved).toEqual(editedRegistration)
@@ -197,6 +203,38 @@ describe('useRegistrationActions', () => {
         persist: true,
         variant: 'error',
       }
+    )
+  })
+})
+
+describe('useRegistrationActions when logged in', () => {
+  const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
+  const idToken = `header.${encodeBase64Url(JSON.stringify({ exp: Date.now() / 1000 + 3600 }))}.signature`
+
+  it('sends the id token along with the edit token, so the rows carry the login', async () => {
+    const store = createStore()
+    store.set(idTokenAtom, idToken)
+    const loggedIn = ({ children }: { readonly children: React.ReactNode }) => (
+      <Provider store={store}>
+        <SnackbarProvider>{children}</SnackbarProvider>
+      </Provider>
+    )
+    const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token' }
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(savedRegistration)
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper: loggedIn })
+
+    await act(async () => {
+      await result.current.save(
+        { ...savedRegistration, notes: 'changed notes' },
+        eventWithStaticDates,
+        savedRegistration
+      )
+    })
+
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({ id: savedRegistration.id }),
+      'participant-token',
+      idToken
     )
   })
 })

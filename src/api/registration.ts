@@ -12,7 +12,7 @@ import type {
   RegistrationPatchRequest,
   Transaction,
 } from '../types'
-import http, { withToken } from './http'
+import http, { withRegistrationAuth, withToken, withUserRouteFallback } from './http'
 
 export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]>
 export async function getRegistrations(
@@ -52,25 +52,44 @@ export const getRegistrationAuditTrail = async (
 ): Promise<AuditRecord[] | undefined> =>
   http.get<AuditRecord[]>(`/admin/registration/audit/${eventId}/${id}`, withToken({ signal }, token))
 
+/** The participant's registration route: the logged-in one names them in the audit trail (KOE-1418). */
+const registrationPath = (idToken?: string) => (idToken ? '/user/registration/' : '/registration/')
+
 export async function postRegistration(
   registration: RegistrationCreateRequest,
+  idToken?: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return (await http.post<RegistrationCreateRequest, Registration>('/registration/', registration, { signal })).data
+  return withUserRouteFallback(
+    idToken,
+    async (token) =>
+      (
+        await http.post<RegistrationCreateRequest, Registration>(
+          registrationPath(token),
+          registration,
+          withRegistrationAuth({ signal }, undefined, token)
+        )
+      ).data
+  )
 }
 
 export async function patchRegistration(
   registration: RegistrationPatchRequest,
   editToken?: string,
+  idToken?: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return (
-    await http.patch<RegistrationPatchRequest, Registration>(
-      '/registration/',
-      registration,
-      withToken({ signal }, editToken)
-    )
-  ).data
+  return withUserRouteFallback(
+    idToken,
+    async (token) =>
+      (
+        await http.patch<RegistrationPatchRequest, Registration>(
+          registrationPath(token),
+          registration,
+          withRegistrationAuth({ signal }, editToken, token)
+        )
+      ).data
+  )
 }
 
 export async function postAdminRegistration(

@@ -78,7 +78,7 @@
       Cors:
         AllowOrigin: "'*'"
         AllowMethods: "'OPTIONS,HEAD,GET,PUT,POST,PATCH,DELETE'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Client-Version'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Client-Version,X-Registration-Token'"
         # Without this the browser preflights every five seconds; one storm episode added
         # 2351 preflight round trips on its own.
         MaxAge: "'3600'"

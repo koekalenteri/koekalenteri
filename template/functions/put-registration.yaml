@@ -20,6 +20,11 @@
             TableName: !Ref AuditTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventStatsTable
+        # The logged-in route resolves the calling user (KOE-1418).
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESSendEmailPolicy
@@ -48,6 +53,24 @@
             Path: /registration
             Method: PATCH
             RestApiId: !Ref KoekalenteriApi
+        # The same handler for a logged-in participant: the authorizer names them, and the edit
+        # token travels in X-Registration-Token since Authorization carries the id token (KOE-1418).
+        PutUserRegistration:
+          Type: Api
+          Properties:
+            Path: /user/registration
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+        PatchUserRegistration:
+          Type: Api
+          Properties:
+            Path: /user/registration
+            Method: PATCH
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   PutRegistrationPaymentsLockConflictMetricFilter:
     Type: AWS::Logs::MetricFilter

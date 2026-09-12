@@ -114,6 +114,7 @@ export const getRegistrationAuditTrail = async (
 
 export async function postRegistration(
   registration: RegistrationCreateRequest,
+  _idToken?: string,
   _signal?: AbortSignal
 ): Promise<Registration> {
   const id = registration.id || 'test-registration'
@@ -123,6 +124,7 @@ export async function postRegistration(
 export async function patchRegistration(
   request: RegistrationPatchRequest,
   _editToken?: string,
+  _idToken?: string,
   _signal?: AbortSignal
 ): Promise<Registration> {
   const registration = mockRegistrations[request.eventId]?.find((item) => item.id === request.id)

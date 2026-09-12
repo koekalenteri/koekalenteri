@@ -337,6 +337,7 @@ describe('RegistrationListPage', () => {
         id: 'nou-registration',
         operations: [{ path: ['invitationRead'], type: 'CREATE', value: true }],
       },
+      undefined,
       undefined
     )
   })
