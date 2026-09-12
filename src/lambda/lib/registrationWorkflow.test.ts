@@ -365,7 +365,20 @@ describe('registrationWorkflow', () => {
         [expect.objectContaining({ id: saved.id, notes: 'changed' })],
         'org-1'
       )
-      expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ message: 'Muutti: Lisätiedot' }))
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          changes: [
+            {
+              field: 'notes',
+              labelKey: 'registration.notes',
+              next: { text: 'changed' },
+              previous: { text: 'additional notes' },
+            },
+          ],
+          message: 'Muutti: Lisätiedot',
+          messageKey: 'audit.changed',
+        })
+      )
       expect(mockClearRegistrationEmailDeliveryStatus).toHaveBeenCalledWith(saved.eventId, saved.id)
       expect(mockSendTemplatedMail).toHaveBeenCalledWith(
         'registration',
@@ -436,8 +449,28 @@ describe('registrationWorkflow', () => {
       await finalize(saved, registration)
 
       expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          changes: [
+            expect.objectContaining({
+              field: 'dates',
+              next: { text: 'ti 1.1.2030 (ap)' },
+              previous: { text: 'ke 10.2.2021 (ap)' },
+            }),
+          ],
+          message: 'Muutti: Ryhmät',
+        })
+      )
+      expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({ message: 'Valitut päivät (1.1.2030) eivät ole tapahtuman päiviä' })
       )
+    })
+
+    it('writes no change row when only the mirror of an unset selection moved', async () => {
+      const saved = { ...registration, ownerHandles: false }
+
+      await finalize(saved, { ...registration, ownerHandles: undefined })
+
+      expect(mockAudit).not.toHaveBeenCalledWith(expect.objectContaining({ messageKey: 'audit.changed' }))
     })
 
     it('writes to no one when the registration names no one', async () => {

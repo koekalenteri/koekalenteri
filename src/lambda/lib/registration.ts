@@ -11,7 +11,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { formatDate } from '../../i18n/dates'
 import { getFixedT } from '../../i18n/lambda'
 import { auditUser } from '../../lib/audit'
-import { getChangedTopLevelKeys, getNestedChanges, objectsDiffer } from '../../lib/diff'
+import { objectsDiffer } from '../../lib/diff'
 import {
   GROUP_KEY_RESERVE,
   getRegistrationClass,
@@ -21,7 +21,6 @@ import {
   PUBLIC_REGISTRATION_FIELDS,
   PUBLIC_REGISTRATION_UPDATE_FIELDS,
   resolveOwnerPerson,
-  resolveOwnerSelection,
 } from '../../lib/registration'
 import { isObject } from '../../lib/utils'
 import { CONFIG } from '../config'
@@ -611,29 +610,6 @@ export const getCancelAuditMessage = (data: JsonRegistration) => {
   }
 
   return `Ilmoittautuminen peruttiin, syy: ${data.cancelReason}`
-}
-
-export const getRegistrationChanges = (existing: JsonRegistration, data: JsonRegistration) => {
-  const t = getFixedT('fi')
-  const changes = getNestedChanges(existing, data)
-  logger.debug('audit changes', { changes })
-  const changedKeys = new Set(getChangedTopLevelKeys(existing, data))
-  const keys = ['class', 'dog', 'breeder', 'owners', 'handler', 'qualifyingResults', 'notes'] as const
-  const modified: string[] = []
-  // The client mirrors the ownerHandles-selected owner into `handler`, so editing that owner's data
-  // also changes `handler`; report it once, under `owners`, rather than as two separate edits.
-  const handlerIsMirroredOwner = Boolean(resolveOwnerSelection(data.owners, data.owner, data.ownerHandles))
-
-  for (const key of keys) {
-    if (key === 'handler' && handlerIsMirroredOwner && (changedKeys.has('owners') || changedKeys.has('owner'))) continue
-    // The client mirrors `owners[0]` into `owner`, so an owner edit changes both keys but is one
-    // logical change; report it once, under the list label.
-    if (changedKeys.has(key) || (key === 'owners' && changedKeys.has('owner'))) {
-      modified.push(t(`registration.${key}`))
-    }
-  }
-
-  return modified.length ? `Muutti: ${modified.join(', ')}` : ''
 }
 
 const omitTechnicalRegistrationFields = (registration: JsonRegistration): Partial<JsonRegistration> => {

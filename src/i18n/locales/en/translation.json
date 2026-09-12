@@ -41,12 +41,14 @@
       "startNumbersPublished": "Start numbers published",
       "startNumbersPublishedDay": "Start numbers published {{day}}"
     },
+    "no": "no",
     "removed": "(removed)",
     "showDetails": "Show audit details",
     "title": "Audit trail ({{count}})",
     "userSource": {
       "registration": "(from the registration)"
-    }
+    },
+    "yes": "yes"
   },
   "backToEventsList": "Back to events list",
   "cancel": "Cancel",
@@ -779,6 +781,7 @@
       "saving": "Saving…"
     },
     "isMember": "{{name}} is a member of the organizing society",
+    "language": "Language",
     "member": "Member",
     "membership": "Membership information",
     "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
@@ -898,6 +901,7 @@
       "WEEK": "Yes, by week's notice"
     },
     "reserveHelp": "Select how short a notice you can still attend the trial if you get a place from the reserve list.",
+    "results": "Reported test results",
     "saved_one": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "saved_other": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "saveFailed": "Saving the registration failed",

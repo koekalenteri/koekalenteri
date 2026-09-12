@@ -1,6 +1,7 @@
 import type { AuditActor } from '../../lib/audit'
 import type {
   EmailTemplateId,
+  JsonAuditRecord,
   JsonConfirmedEvent,
   JsonRegistration,
   JsonRegistrationPatchRequest,
@@ -31,10 +32,10 @@ import {
   createRegistrationPatch,
   DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
   getCancelAuditMessage,
-  getRegistrationChanges,
   getRegistrationEditToken,
   markNewRegistrationPhase,
 } from './registration'
+import { getRegistrationChanges } from './registrationAudit'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from './stats'
 import { publishEventCounts, publishRegistrationPatches, publishRegistrationPatchesStrict } from './ws/actions'
 import { publishPublicStartList } from './ws/publicStartList'
@@ -169,14 +170,16 @@ const emailContext = ({ cancel, confirm, invitation }: RegistrationUpdateFlags):
   return 'update'
 }
 
-const updateAuditMessage = (
+/** The audit row of an update: the cancellation or confirmation it was, else what it changed. */
+const updateAuditEntry = (
   { cancel, confirm }: RegistrationUpdateFlags,
   registration: JsonRegistration,
-  existing: JsonRegistration
-): string => {
-  if (cancel) return getCancelAuditMessage(registration)
-  if (confirm) return 'Ilmoittautumisen vahvistus'
-  return getRegistrationChanges(existing, registration)
+  existing: JsonRegistration,
+  confirmedEvent: JsonConfirmedEvent
+): Pick<JsonAuditRecord, 'changes' | 'message' | 'messageKey'> | undefined => {
+  if (cancel) return { message: getCancelAuditMessage(registration) }
+  if (confirm) return { message: 'Ilmoittautumisen vahvistus' }
+  return getRegistrationChanges(existing, registration, confirmedEvent)
 }
 
 /** The secretary hears of a cancellation too, by where the dog stood; a failure here stays out of the participant's way. */
@@ -399,8 +402,8 @@ export const finalizeRegistrationUpdate = async ({
   await updateEventStatsForRegistration(registration, existing, confirmedEvent)
   await publishRegistrationChange(confirmedEvent, registration, existing, groupPatches, false)
 
-  const message = updateAuditMessage(flags, registration, existing)
-  if (message) await audit({ auditKey: registrationAuditKey(registration), message, ...auditUser(user) })
+  const entry = updateAuditEntry(flags, registration, existing, confirmedEvent)
+  if (entry) await audit({ auditKey: registrationAuditKey(registration), ...entry, ...auditUser(user) })
 
   const datesChanged =
     existing.class !== registration.class || JSON.stringify(existing.dates) !== JSON.stringify(registration.dates)

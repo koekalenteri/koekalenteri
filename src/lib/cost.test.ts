@@ -8,6 +8,7 @@ import {
   DOG_EVENT_COST_KEYS,
   getApplicableStrategy,
   getCostSegmentName,
+  getCostSegmentNameOptions,
   getCostValue,
   getEarlyBirdEndDate,
   getPaymentBalance,
@@ -556,6 +557,43 @@ describe('getCostSegmentName', () => {
     expect(getCostSegmentName('breed')).toBe('costNames.breed')
     expect(getCostSegmentName('custom')).toBe('costNames.custom')
     expect(getCostSegmentName('legacy')).toBe('costNames.normal')
+  })
+})
+
+describe('getCostSegmentNameOptions', () => {
+  const cost: DogEventCost = {
+    custom: { cost: 20, description: { en: 'Junior fee', fi: 'Juniorimaksu' } },
+    earlyBird: { cost: 30, days: 3 },
+    normal: 40,
+  }
+  const event = { entryStartDate: new Date('2021-02-01T00:00:00.000Z') }
+
+  it('names a custom fee in the given language, falling back to Finnish', () => {
+    expect(getCostSegmentNameOptions('custom', cost, event, undefined, 'en')).toEqual({ name: 'Junior fee' })
+    expect(
+      getCostSegmentNameOptions(
+        'custom',
+        { ...cost, custom: { cost: 20, description: { en: '', fi: 'Juniorimaksu' } } },
+        event,
+        undefined,
+        'en'
+      )
+    ).toEqual({ name: 'Juniorimaksu' })
+  })
+
+  it('carries the breed code for a breed fee', () => {
+    expect(getCostSegmentNameOptions('breed', cost, event, '110', 'fi')).toEqual({ code: '110' })
+  })
+
+  it('carries the early-bird window', () => {
+    expect(getCostSegmentNameOptions('earlyBird', cost, event, undefined, 'fi')).toEqual({
+      end: new Date('2021-02-03T00:00:00.000Z'),
+      start: new Date('2021-02-01T00:00:00.000Z'),
+    })
+  })
+
+  it.each<DogEventCostSegment>(['normal', 'breed'])('needs nothing for %s without a code', (segment) => {
+    expect(getCostSegmentNameOptions(segment, cost, event, undefined, 'fi')).toEqual({})
   })
 })
 

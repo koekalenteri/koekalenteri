@@ -903,7 +903,16 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: expect.any(String),
+        changes: [
+          {
+            field: 'notes',
+            labelKey: 'registration.notes',
+            next: { text: 'updated notes' },
+            previous: { text: 'additional notes' },
+          },
+        ],
         message: 'Muutti: Lisätiedot',
+        messageKey: 'audit.changed',
         user: 'Owner Name',
         userSource: 'registration',
       }),
