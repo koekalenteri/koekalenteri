@@ -10,6 +10,7 @@ import {
   isRegistrationPaid,
   PROVIDER_NAMES,
   shouldSendInvitationAfterPayment,
+  transactionActor,
 } from './payment'
 
 describe('payment', () => {
@@ -20,6 +21,23 @@ describe('payment', () => {
 
     it('should fallback to capitalizing name', () => {
       expect(getProviderName('test')).toEqual('Test')
+    })
+  })
+
+  describe('transactionActor', () => {
+    it('names the user the transaction recorded', () => {
+      expect(transactionActor({ user: 'Test User' })).toEqual({ name: 'Test User' })
+    })
+
+    it('keeps the mark of a name taken from the registration', () => {
+      expect(transactionActor({ user: 'Payer Name', userSource: 'registration' })).toEqual({
+        name: 'Payer Name',
+        source: 'registration',
+      })
+    })
+
+    it('falls back to anonymous for a transaction without a user', () => {
+      expect(transactionActor({})).toEqual({ name: 'anonymous' })
     })
   })
 

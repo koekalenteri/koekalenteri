@@ -43,7 +43,10 @@
     },
     "removed": "(poistettu)",
     "showDetails": "Näytä audit-lisätiedot",
-    "title": "Muutoshistoria ({{count}})"
+    "title": "Muutoshistoria ({{count}})",
+    "userSource": {
+      "registration": "(ilmoittautumisen tiedoista)"
+    }
   },
   "backToEventsList": "Takaisin tapahtumalistaan",
   "cancel": "Peruuta",

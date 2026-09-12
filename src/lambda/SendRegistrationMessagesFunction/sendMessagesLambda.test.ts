@@ -209,7 +209,7 @@ describe('sendMessagesLambda', () => {
       mockRegistrations,
       'https://example.com',
       'Test message',
-      'Test User',
+      expect.objectContaining({ name: 'Test User' }),
       ''
     )
 
@@ -301,7 +301,7 @@ describe('sendMessagesLambda', () => {
       expect.any(Array),
       expect.any(String),
       expect.any(String),
-      expect.any(String),
+      expect.objectContaining({ name: 'Test User' }),
       expect.any(String)
     )
 
@@ -350,7 +350,7 @@ describe('sendMessagesLambda', () => {
       expect.any(Array),
       expect.any(String),
       expect.any(String),
-      expect.any(String),
+      expect.objectContaining({ name: 'Test User' }),
       expect.any(String)
     )
 
@@ -379,7 +379,7 @@ describe('sendMessagesLambda', () => {
       expect.any(Array),
       expect.any(String),
       expect.any(String),
-      expect.any(String),
+      expect.objectContaining({ name: 'Test User' }),
       expect.any(String)
     )
 
@@ -496,7 +496,7 @@ describe('sendMessagesLambda', () => {
       singleRegistration, // Only one registration
       expect.any(String),
       expect.any(String),
-      expect.any(String),
+      expect.objectContaining({ name: 'Test User' }),
       expect.any(String)
     )
 
@@ -534,7 +534,7 @@ describe('sendMessagesLambda', () => {
       singleRegistration, // Only one registration
       expect.any(String),
       expect.any(String),
-      expect.any(String),
+      expect.objectContaining({ name: 'Test User' }),
       expect.any(String)
     )
 
@@ -632,7 +632,7 @@ describe('sendMessagesLambda', () => {
       multiClassRegistrations,
       expect.any(String),
       expect.any(String),
-      expect.any(String),
+      expect.objectContaining({ name: 'Test User' }),
       expect.any(String)
     )
 

@@ -504,7 +504,23 @@ describe('paymentCreateLambda', () => {
 
     expect(mockDocumentTransaction).toHaveBeenCalledWith(
       expect.arrayContaining([
-        { Put: expect.objectContaining({ Item: expect.objectContaining({ user: 'Test Payer' }) }) },
+        {
+          Put: expect.objectContaining({
+            Item: expect.objectContaining({ user: 'Test Payer', userSource: 'registration' }),
+          }),
+        },
+      ])
+    )
+  })
+
+  it('does not mark a logged-in user as named from the registration', async () => {
+    mockAuthorize.mockResolvedValue({ id: 'user123', name: 'Test User' })
+
+    await paymentCreateLambda(event)
+
+    expect(mockDocumentTransaction).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        { Put: expect.objectContaining({ Item: expect.not.objectContaining({ userSource: expect.anything() }) }) },
       ])
     )
   })

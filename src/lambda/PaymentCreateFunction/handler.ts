@@ -8,8 +8,9 @@ import type {
 } from '../../types'
 import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
+import { auditUser } from '../../lib/audit'
 import { getPaymentBalance } from '../../lib/cost'
-import { isParticipantGroup } from '../../lib/registration'
+import { isParticipantGroup, registrationActor } from '../../lib/registration'
 import { paymentCreateSchema } from '../../lib/schema/payment'
 import { splitName } from '../../lib/string'
 import { CONFIG } from '../config'
@@ -199,7 +200,9 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     return response<undefined>(500, undefined, event)
   }
 
-  const user = await authorize(event)
+  // The public route has no login to name; the registration's people name the payment then, and
+  // the audit rows say so.
+  const actor = (await authorize(event)) ?? registrationActor(registration)
   const transaction: JsonPaymentTransaction = {
     amount,
     bankReference: result.reference,
@@ -211,7 +214,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     status: 'new',
     transactionId: result.transactionId,
     type: 'payment',
-    user: user?.name ?? registration.payer?.name,
+    ...auditUser(actor),
   }
   const updatedAt = new Date().toISOString()
   await dynamoDB.documentTransaction([

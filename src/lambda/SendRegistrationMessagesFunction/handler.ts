@@ -140,7 +140,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     registrations,
     origin,
     text,
-    user.name,
+    user,
     ''
   )
 

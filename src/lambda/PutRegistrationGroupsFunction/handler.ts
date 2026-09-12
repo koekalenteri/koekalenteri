@@ -204,7 +204,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       newParticipants,
       origin,
       '',
-      user.name,
+      user,
       ''
     )
     await auditSentMessages(
@@ -232,7 +232,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
           invitedParticipants,
           origin,
           '',
-          user.name,
+          user,
           ''
         )
       : { failed: [], ok: [] }
@@ -278,7 +278,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       movedReserve,
       origin,
       '',
-      user.name,
+      user,
       ''
     )
     await auditSentMessages(
@@ -322,7 +322,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     cancelled,
     origin,
     '',
-    user.name,
+    user,
     'cancel'
   )
   await auditSentMessages(

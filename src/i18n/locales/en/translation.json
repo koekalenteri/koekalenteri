@@ -43,7 +43,10 @@
     },
     "removed": "(removed)",
     "showDetails": "Show audit details",
-    "title": "Audit trail ({{count}})"
+    "title": "Audit trail ({{count}})",
+    "userSource": {
+      "registration": "(from the registration)"
+    }
   },
   "backToEventsList": "Back to events list",
   "cancel": "Cancel",

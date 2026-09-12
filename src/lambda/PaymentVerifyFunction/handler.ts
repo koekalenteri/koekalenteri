@@ -1,7 +1,8 @@
 import type { JsonConfirmedEvent, JsonTransaction, VerifyPaymentResponse } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
+import { auditUser } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
-import { getProviderName } from '../../lib/payment'
+import { getProviderName, transactionActor } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getEvent } from '../lib/event'
@@ -60,7 +61,7 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
         await audit({
           auditKey: registrationAuditKey(registration),
           message: `Maksu epäonnistui (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}`,
-          user: transaction.user ?? 'anonymous',
+          ...auditUser(transactionActor(transaction)),
         })
       }
     }

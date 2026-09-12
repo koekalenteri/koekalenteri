@@ -1,4 +1,5 @@
-import type { JsonRegistration, JsonUser, Patch } from '../../types'
+import type { AuditActor } from '../../lib/audit'
+import type { JsonRegistration, Patch } from '../../types'
 import { fixRegistrationGroups, lockRegistrationGroups, lockRegistrationPayments } from './event'
 import {
   createRegistrationPatches,
@@ -19,7 +20,7 @@ type RegistrationPersistenceResult =
 
 const reconcileRegistrationGroups = async (
   registration: JsonRegistration,
-  user: Pick<JsonUser, 'name'>
+  user: AuditActor
 ): Promise<PersistedRegistration> => {
   if (registration.state !== 'ready') return { groupPatches: [], savedData: registration }
 
@@ -56,7 +57,7 @@ const saveRegistrationData = async (
 export const persistRegistrationWithGroups = async (
   data: JsonRegistration,
   existing: JsonRegistration | undefined,
-  user: Pick<JsonUser, 'name'>
+  user: AuditActor
 ): Promise<RegistrationPersistenceResult> => {
   const releasePaymentLock =
     !existing && data.state === 'ready' ? await lockRegistrationPayments(data.eventId) : undefined

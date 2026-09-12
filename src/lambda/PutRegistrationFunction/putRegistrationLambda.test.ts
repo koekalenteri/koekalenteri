@@ -180,11 +180,11 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         ...JSON.parse(JSON.stringify(registration)),
         createdAt: expect.stringMatching(ISO8601DateTimeRE),
-        createdBy: 'anonymous',
+        createdBy: 'Owner Name',
         handler: expect.objectContaining({ email: 'handler@example.com' }),
         id: expect.stringMatching(/^[A-Za-z0-9_-]{10}$/),
         modifiedAt: expect.stringMatching(ISO8601DateTimeRE),
-        modifiedBy: 'anonymous',
+        modifiedBy: 'Owner Name',
         owner: expect.objectContaining({ email: 'owner@example.com' }),
         payer: expect.objectContaining({ email: 'payer@example.com' }),
         updatedAt: expect.stringMatching(ISO8601DateTimeRE),
@@ -200,7 +200,12 @@ describe('putRegistrationLabmda', () => {
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
-      expect.objectContaining({ auditKey: expect.any(String), message: 'Ilmoittautui', user: 'anonymous' }),
+      expect.objectContaining({
+        auditKey: expect.any(String),
+        message: 'Ilmoittautui',
+        user: 'Owner Name',
+        userSource: 'registration',
+      }),
       'audit-table-not-found-in-env'
     )
     expect(mockDynamoDBWrite).toHaveBeenCalledTimes(1)
@@ -575,7 +580,7 @@ describe('putRegistrationLabmda', () => {
         cancelled: true,
         ...(cancelReason ? { cancelReason } : {}),
         modifiedAt: new Date().toISOString(),
-        modifiedBy: 'anonymous',
+        modifiedBy: 'Owner Name',
         updatedAt: new Date().toISOString(),
       }
     )
@@ -587,7 +592,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: auditMessage,
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -595,7 +601,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -662,7 +669,7 @@ describe('putRegistrationLabmda', () => {
         ...existingJson,
         cancelled: true,
         modifiedAt: new Date().toISOString(),
-        modifiedBy: 'anonymous',
+        modifiedBy: 'Owner Name',
         updatedAt: new Date().toISOString(),
       }
     )
@@ -674,7 +681,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -682,7 +690,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -737,7 +746,7 @@ describe('putRegistrationLabmda', () => {
         ...existingJson,
         cancelled: true,
         modifiedAt: new Date().toISOString(),
-        modifiedBy: 'anonymous',
+        modifiedBy: 'Owner Name',
         updatedAt: new Date().toISOString(),
       }
     )
@@ -749,7 +758,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -757,7 +767,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -812,7 +823,7 @@ describe('putRegistrationLabmda', () => {
         ...existingJson,
         cancelled: true,
         modifiedAt: new Date().toISOString(),
-        modifiedBy: 'anonymous',
+        modifiedBy: 'Owner Name',
         updatedAt: new Date().toISOString(),
       }
     )
@@ -824,7 +835,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -832,7 +844,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -878,7 +891,7 @@ describe('putRegistrationLabmda', () => {
       {
         ...existingJson,
         modifiedAt: new Date().toISOString(),
-        modifiedBy: 'anonymous',
+        modifiedBy: 'Owner Name',
         notes: 'updated notes',
         updatedAt: new Date().toISOString(),
       }
@@ -891,7 +904,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: expect.any(String),
         message: 'Muutti: Lisätiedot',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -899,7 +913,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -929,6 +944,61 @@ describe('putRegistrationLabmda', () => {
       'org-1'
     )
 
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('names the rows after the payer the update itself names', async () => {
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const updatedRegistration = {
+      ...registrationWithStaticDates,
+      payer: { ...registrationWithStaticDates.payer, name: 'New Payer' },
+    }
+    const res = await putRegistrationLabmda(constructAPIGwEvent(updatedRegistration))
+
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      expect.objectContaining({ modifiedBy: 'New Payer', payer: expect.objectContaining({ name: 'New Payer' }) })
+    )
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+        user: 'New Payer',
+        userSource: 'registration',
+      }),
+      'audit-table-not-found-in-env'
+    )
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('names the rows after the owner the ownerPays selection names', async () => {
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const updatedRegistration = {
+      ...registrationWithStaticDates,
+      notes: 'updated notes',
+      ownerPays: 'owner-2',
+      owners: [
+        { ...registrationWithStaticDates.owner, key: 'owner-1' },
+        { email: 'second@example.com', key: 'owner-2', membership: false, name: 'Second Owner', phone: '' },
+      ],
+    }
+    const res = await putRegistrationLabmda(constructAPIGwEvent(updatedRegistration))
+
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      expect.objectContaining({ modifiedBy: 'Second Owner' })
+    )
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+      expect.objectContaining({ user: 'Second Owner', userSource: 'registration' }),
+      'audit-table-not-found-in-env'
+    )
     expect(res.statusCode).toEqual(200)
   })
 
@@ -1053,7 +1123,7 @@ describe('putRegistrationLabmda', () => {
         ...existingJson,
         confirmed: true,
         modifiedAt: new Date().toISOString(),
-        modifiedBy: 'anonymous',
+        modifiedBy: 'Owner Name',
         updatedAt: new Date().toISOString(),
       }
     )
@@ -1065,7 +1135,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: expect.any(String),
         message: 'Ilmoittautumisen vahvistus',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -1073,7 +1144,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Vahvistit vastaanottavasi koepaikan, to: handler@example.com, owner@example.com',
-        user: 'anonymous',
+        user: 'Owner Name',
+        userSource: 'registration',
       }),
       'audit-table-not-found-in-env'
     )
@@ -1164,7 +1236,7 @@ describe('putRegistrationLabmda', () => {
         ...existingJson,
         confirmed: true, // data is merged
         modifiedAt: new Date().toISOString(),
-        modifiedBy: 'anonymous',
+        modifiedBy: 'Owner Name',
         updatedAt: new Date().toISOString(),
       }
     )

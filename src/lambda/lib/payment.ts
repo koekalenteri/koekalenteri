@@ -1,3 +1,4 @@
+import type { AuditActor } from '../../lib/audit'
 import type {
   DogEvent,
   JsonDogEvent,
@@ -11,6 +12,7 @@ import type {
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import type { PaytrailError } from './paytrail'
 import { getFixedT } from '../../i18n/lambda'
+import { auditUser } from '../../lib/audit'
 import { localizedEventName } from '../../lib/event'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -99,7 +101,7 @@ export const formatPaytrailErrorMessage = (operation: string, error: PaytrailErr
 
 interface CancelTransactionOptions<T extends JsonTransaction> {
   auditMessage: (transaction: T, provider: string | undefined) => string
-  auditUser: (transaction: T) => string
+  auditActor: (transaction: T) => AuditActor
   params: Partial<PaytrailCallbackParams>
   statusField: RegistrationStatusField
   updateProvider?: boolean
@@ -118,7 +120,7 @@ export interface CancelledRegistration {
 
 export const cancelTransaction = async <T extends JsonTransaction>({
   auditMessage,
-  auditUser,
+  auditActor,
   params,
   statusField,
   updateProvider = false,
@@ -158,7 +160,7 @@ export const cancelTransaction = async <T extends JsonTransaction>({
   await audit({
     auditKey: registrationAuditKey(registration),
     message: auditMessage(transaction, provider),
-    user: auditUser(transaction),
+    ...auditUser(auditActor(transaction)),
   })
 
   return cancelled

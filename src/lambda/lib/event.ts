@@ -1,3 +1,4 @@
+import type { AuditActor } from '../../lib/audit'
 import type {
   ConfirmedEventStates,
   EventClassState,
@@ -7,13 +8,13 @@ import type {
   JsonLinkedEvent,
   JsonRegistration,
   JsonRegistrationGroupInfo,
-  JsonUser,
   Patch,
   Registration,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
 import { addDays } from 'date-fns/addDays'
 import { formatDate, zonedStartOfDay } from '../../i18n/dates'
+import { auditUser } from '../../lib/audit'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, hasPriority } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { isDefined } from '../../lib/typeGuards'
@@ -370,7 +371,7 @@ export const formatGroupAuditInfo = (group: JsonRegistrationGroupInfo['group']):
 export const saveGroup = async (
   { eventId, id, group }: JsonRegistrationGroupInfo,
   previous: JsonRegistrationGroupInfo['group'],
-  user: Pick<JsonUser, 'name'>,
+  user: AuditActor,
   reason: string = '',
   cancelReason?: string
 ) => {
@@ -408,13 +409,13 @@ export const saveGroup = async (
   await audit({
     auditKey: registrationAuditKey(registrationKey),
     message: `Ryhmä: ${oldGroupInfo}${formatGroupAuditInfo(group)} ${reason}`.trim(),
-    user: user.name,
+    ...auditUser(user),
   })
 }
 
 export const fixRegistrationGroups = async <T extends JsonRegistration>(
   items: T[],
-  user: Pick<JsonUser, 'name'>,
+  user: AuditActor,
   save: boolean = true
 ): Promise<T[]> => {
   const previousGroups = new Map(items.map((item) => [item, item.group ? { ...item.group } : undefined]))
@@ -435,7 +436,7 @@ export const fixRegistrationGroups = async <T extends JsonRegistration>(
 /** Repairs and persists the ready-registration ordering under the event lock. */
 export const repairReadyRegistrationGroups = async (
   eventId: string,
-  user: Pick<JsonUser, 'name'>
+  user: AuditActor
 ): Promise<Patch<JsonRegistration>[]> => {
   const releaseGroupsLock = await lockRegistrationGroups(eventId, 8)
   try {
