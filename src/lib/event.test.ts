@@ -11,6 +11,7 @@ import type {
 } from '../types'
 import { TZDate } from '@date-fns/tz'
 import { addDays, differenceInDays } from 'date-fns'
+import i18n from 'i18next'
 import { eventWithEntryClosing, eventWithParticipantsInvited } from '../__mockData__/events'
 import { formatDate, TIME_ZONE } from '../i18n/dates'
 import {
@@ -28,6 +29,7 @@ import {
   getEventDays,
   getEventProgress,
   getEventProgressPhase,
+  getEventSavedMessage,
   getEventSeason,
   getEventStateForClass,
   getEventTitle,
@@ -69,6 +71,35 @@ import {
 } from './event'
 
 describe('lib/event', () => {
+  describe('getEventSavedMessage', () => {
+    // The real i18next, not the key-echoing stub the other tests use: the bug was in what i18next
+    // does with a key it cannot find, and a stub would have proven nothing about it.
+    const t = i18n.t.bind(i18n)
+
+    it.each([
+      { expected: 'Tapahtuma on tallennettu luonnoksena', state: 'draft' as const },
+      { expected: 'Tapahtuma on julkaistu alustavana', state: 'tentative' as const },
+      { expected: 'Tapahtuma on julkaistu', state: 'confirmed' as const },
+      { expected: 'Tapahtuma on peruttu', state: 'cancelled' as const },
+    ])('names what saving a $state event did', ({ expected, state }) => {
+      expect(getEventSavedMessage(state, t)).toBe(expected)
+    })
+
+    // KOE-1421: these states carry no save message of their own, and asking i18next for one as a
+    // context handed back the state's own name — an edit to an invited event that sent nothing
+    // announced "Koekutsut lähetetty".
+    it.each<EventState>(['picked', 'invited', 'started', 'ended', 'completed'])(
+      'reports a plain save for a %s event',
+      (state) => {
+        expect(getEventSavedMessage(state, t)).toBe('Muutokset tallennettu')
+      }
+    )
+
+    it('treats an event with no state as a draft', () => {
+      expect(getEventSavedMessage(undefined, t)).toBe('Tapahtuma on tallennettu luonnoksena')
+    })
+  })
+
   describe('getEventTitle', () => {
     const t = ((key: string) => key) as TFunction<'translation'>
     const now = new Date()

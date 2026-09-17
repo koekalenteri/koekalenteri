@@ -590,6 +590,18 @@ export function getEventTitle(event: DogEvent, t: TFunction<'translation'>, now 
   return t(`event.states.${event.state || 'draft'}`)
 }
 
+/**
+ * What the secretary is told after saving an event. Where saving did something worth naming, the
+ * state says it itself — the event was published, taken back to a draft, cancelled. A state with
+ * no message of its own reports only that the changes were saved.
+ *
+ * The `_save` key is named outright rather than asked for as i18next's `context`, which falls back
+ * to the state's own name when the contextual key is missing: saving an edit to an invited event
+ * announced "Koekutsut lähetetty", reading as though invitations had just gone out (KOE-1421).
+ */
+export const getEventSavedMessage = (state: EventState | undefined, t: TFunction<'translation'>): string =>
+  t(`event.states.${state ?? 'draft'}_save`, { defaultValue: t('event.saved') })
+
 export const getEventStateForClass = (
   event: Pick<JsonDogEvent, 'state'> & {
     classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
