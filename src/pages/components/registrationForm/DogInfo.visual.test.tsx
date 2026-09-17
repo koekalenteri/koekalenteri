@@ -8,7 +8,12 @@ import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import { TestProvider } from '@/test-utils/AtomProvider'
+import { freezeClockAt } from '@/test-utils/freezeClock'
 import { DogInfo } from './DogInfo'
+
+// The fixtures below carry absolute dates, and what the view says about them depends on where
+// today falls; the day the baselines were taken is the day this file keeps (KOE-1423).
+freezeClockAt('2026-09-07')
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
 const Frame = ({ children, width = 900 }: { readonly children: React.ReactNode; readonly width?: number }) => (
