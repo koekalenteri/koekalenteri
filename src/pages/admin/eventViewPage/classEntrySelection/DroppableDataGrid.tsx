@@ -115,13 +115,8 @@ const DroppableDataGrid = (props: Props) => {
               width: '15px',
             },
             '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', color: 'error.main', opacity: 0.5 },
-            // Each bin grows to the height of its rows and the page scrolls, so the grid must not
-            // scroll vertically on its own — that is what this rule was added for (KOE-735). It
-            // took the horizontal axis with it, which clipped away every column past the viewport
-            // edge with no gesture that reached them (KOE-1420). Only the vertical axis is held.
             '& .MuiDataGrid-virtualScroller': {
-              overflowX: 'auto',
-              overflowY: 'hidden',
+              overflow: 'hidden',
             },
             '& .MuiDataGrid-virtualScrollerContent': {
               marginBottom: '3px',
