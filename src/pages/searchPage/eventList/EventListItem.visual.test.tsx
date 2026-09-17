@@ -18,8 +18,26 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 
 const day = (iso: string) => new TZDate(iso, TIME_ZONE)
 
-// The shared mock places the event a week from the real clock, so its row would show a different
-// date every day and drift past the comparator's tolerance; the screenshot needs the dates pinned.
+/**
+ * The row has to hold still in two ways at once, and pinning the event's dates only gave one of
+ * them. It stopped the date changing pixels every day (KOE-1296), but what the row *says* is read
+ * off where the event sits relative to today: the pinned 9.9.2026 was a week ahead when the
+ * baselines were taken, and the morning the real clock passed it the row stopped saying the
+ * invitations were out and started saying the trial was over. The test names its own today, so
+ * neither the wording nor the pixels depend on the day it runs.
+ */
+const TODAY = day('2026-09-02T12:00:00')
+
+beforeAll(() => {
+  // Date alone. The screenshot matcher polls on real timers and MUI's transitions need them too, so
+  // freezing those would hang the capture rather than steady it.
+  vi.useFakeTimers({ now: TODAY.getTime(), toFake: ['Date'] })
+})
+
+afterAll(() => {
+  vi.useRealTimers()
+})
+
 const invitedEvent = {
   ...eventWithParticipantsInvited,
   classes: eventWithParticipantsInvited.classes.map((c) => ({ ...c, date: day('2026-09-09') })),
@@ -59,5 +77,9 @@ it('names a NOWT that is a Mock trial as one (KOE-308)', async () => {
   )
 
   await expect.element(screen.getByText('NOWT (Mock trial)')).toBeVisible()
+  // The same wording this file's other test guards. Without it the drift went unnoticed here: a
+  // caption swapped for another of about the same size stays inside the comparator's 1% tolerance,
+  // so this screenshot went on passing while the row said the trial was over.
+  await expect.element(screen.getByText('Koekutsut lähetetty')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-item-mock-trial')
 })
