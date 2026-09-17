@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { APIError } from '@/api/http'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { getEventSavedMessage } from '@/lib/event'
 import { getChanges, isEmptyObject, isObject } from '@/lib/utils'
 import { adminEditableEventByIdAtom, adminNewEventAtom, adminSaveEventAtom } from '../state'
 
@@ -76,12 +77,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
       if (onDoneRedirect) {
         navigate(onDoneRedirect)
       }
-      enqueueSnackbar(
-        savedMessage ?? t(`event.states.${saved?.state ?? 'draft'}`, { context: 'save', defaultValue: '' }),
-        {
-          variant: 'info',
-        }
-      )
+      enqueueSnackbar(savedMessage ?? getEventSavedMessage(saved?.state, t), { variant: 'info' })
     } catch (error) {
       if (error instanceof APIError && error.status === 409 && isObject(error.body)) {
         if (error.body.error === 'staleData') {
