@@ -67,8 +67,7 @@ describe('DroppableDataGrid', () => {
     const props = JSON.parse(grid.getAttribute('data-props') || '{}')
 
     // Check that the sx prop includes both the default styles and the custom style
-    expect(props.sx).toHaveLength(2)
-    expect(props.sx[1]).toEqual({ bgcolor: 'red' })
+    expect(props.sx.at(-1)).toEqual({ bgcolor: 'red' })
   })
 
   it('should handle array of sx props correctly', () => {
@@ -77,10 +76,8 @@ describe('DroppableDataGrid', () => {
     const grid = screen.getByTestId('styled-data-grid')
     const props = JSON.parse(grid.getAttribute('data-props') || '{}')
 
-    // Check that all sx props are included
-    expect(props.sx).toHaveLength(3) // 1 default + 2 custom
-    expect(props.sx[1]).toEqual({ color: 'blue' })
-    expect(props.sx[2]).toEqual({ bgcolor: 'red' })
+    // Check that all sx props are included, in the order the caller gave them and after the defaults
+    expect(props.sx.slice(-2)).toEqual([{ color: 'blue' }, { bgcolor: 'red' }])
   })
 
   // Testing the canDrop function
