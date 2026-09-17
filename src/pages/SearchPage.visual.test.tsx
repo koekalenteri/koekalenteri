@@ -16,8 +16,13 @@ import { TIME_ZONE } from '../i18n/dates'
 // it the link falls back to the browser's default blue (KOE-1324, caught against a real device).
 import '../index.css'
 import { TestProvider } from '../test-utils/AtomProvider'
+import { freezeClockAt } from '../test-utils/freezeClock'
 import { SearchPage } from './SearchPage'
 import { eventFilterAtom } from './state'
+
+// The fixtures below carry absolute dates, and what the view says about them depends on where
+// today falls; the day the baselines were taken is the day this file keeps (KOE-1423).
+freezeClockAt('2026-09-07')
 
 // DateHandler (mounted by SearchPage) always fetches on mount; give it fixed data instead of
 // hitting the network, and let each test pick what that fetch returns.

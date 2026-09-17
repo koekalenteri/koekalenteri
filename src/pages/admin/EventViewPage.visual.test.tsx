@@ -11,10 +11,15 @@ import theme from '../../assets/Theme'
 import { TIME_ZONE } from '../../i18n/dates'
 import { Path } from '../../routeConfig'
 import { TestProvider } from '../../test-utils/AtomProvider'
+import { freezeClockAt } from '../../test-utils/freezeClock'
 import { DataMemoryRouter, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventViewPage from './EventViewPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
+
+// The fixtures below carry absolute dates, and what the view says about them depends on where
+// today falls; the day the baselines were taken is the day this file keeps (KOE-1423).
+freezeClockAt('2026-09-07')
 
 // The page renders inside a real WebSocketProvider in production; give it a no-op subscription
 // instead, the same way EventViewPage.test.tsx does.

@@ -11,8 +11,13 @@ import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import { TIME_ZONE } from '@/i18n/dates'
 import { TestProvider } from '@/test-utils/AtomProvider'
+import { freezeClockAt } from '@/test-utils/freezeClock'
 import { adminEventTypesAtom, adminJudgesAtom, adminOrganizersAtom, adminUsersAtom } from '../state'
 import EventForm from './EventForm'
+
+// The fixtures below carry absolute dates, and what the view says about them depends on where
+// today falls; the day the baselines were taken is the day this file keeps (KOE-1423).
+freezeClockAt('2026-09-04')
 
 // The heights are whatever the whole form takes: the capture stops at the viewport's edge.
 const PHONE = { height: 1400, width: 390 }
