@@ -5,7 +5,6 @@ import { useCallback, useMemo } from 'react'
 import { useDrop } from 'react-dnd'
 import StyledDataGrid from '@/pages/components/StyledDataGrid'
 import DraggableRow from './droppableDataGrid/DraggableRow'
-import { pinnedActionsColumnSx } from './pinnedActions'
 
 interface Props extends DataGridProps {
   readonly canDrop?: (item?: DragItem) => boolean
@@ -96,7 +95,6 @@ const DroppableDataGrid = (props: Props) => {
           row: DraggableRow,
         }}
         sx={[
-          pinnedActionsColumnSx,
           {
             '.accept & .hovered.after': {
               borderBottom: '3px solid #F2C94C',

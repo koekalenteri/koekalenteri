@@ -35,10 +35,31 @@ const StyledDataGrid = styled(DataGridWithDefaults)(({ theme }: { theme: Theme }
     '& .MuiDataGrid-cell:focus': {
       outline: 'none',
     },
+    // A row's actions menu is its last column, so a grid wider than the screen puts the menu where
+    // no gesture reaches it: on a phone the entry grid's cancelled rows ran to 958px inside a 391px
+    // box, and a secretary could not refund a cancelled entry at all (KOE-1420). Every grid in the
+    // app keeps its menu at the right edge instead, so that none of them can lose it again.
+    //
+    // Where a grid fits its width the sticky cell sits exactly where it always did. The columns
+    // that slide underneath it are why it paints a background, repeating the row colours above.
+    '& .MuiDataGrid-cell[data-field="actions"]': {
+      backgroundColor: theme.palette.background.paper,
+      position: 'sticky',
+      right: 0,
+      zIndex: 2,
+    },
+    '& .MuiDataGrid-columnHeader[data-field="actions"]': {
+      position: 'sticky',
+      right: 0,
+      zIndex: 2,
+    },
     '& .MuiDataGrid-row:hover': {
       backgroundColor: undefined,
     },
     '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
+      backgroundColor: theme.palette.background.hover,
+    },
+    '& .MuiDataGrid-row:hover > .MuiDataGrid-cell[data-field="actions"]': {
       backgroundColor: theme.palette.background.hover,
     },
     '& .MuiDataGrid-row:nth-of-type(2n+1)': {
@@ -47,7 +68,14 @@ const StyledDataGrid = styled(DataGridWithDefaults)(({ theme }: { theme: Theme }
     '& .MuiDataGrid-row.Mui-selected': {
       backgroundColor: theme.palette.background.selected,
     },
+    '& .MuiDataGrid-row.Mui-selected > .MuiDataGrid-cell[data-field="actions"]': {
+      backgroundColor: theme.palette.background.selected,
+    },
     '& .MuiDataGrid-row.Mui-selected:hover': {
+      backgroundColor: theme.palette.background.hover,
+    },
+    // Spelled out rather than left to source order, which the key sorting decides, not this file.
+    '& .MuiDataGrid-row.Mui-selected:hover > .MuiDataGrid-cell[data-field="actions"]': {
       backgroundColor: theme.palette.background.hover,
     },
     [`& .MuiDataGrid-row.${RECENTLY_UPDATED_ROW_CLASS_NAME} > .MuiDataGrid-cell`]: {

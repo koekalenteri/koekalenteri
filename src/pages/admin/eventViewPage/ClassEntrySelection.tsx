@@ -54,7 +54,6 @@ import {
 } from './classEntrySelection/helpers'
 import { confirmMoveToParticipants } from './classEntrySelection/moveConfirmation'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
-import { pinnedActionsColumnSx } from './classEntrySelection/pinnedActions'
 import UnlockArrange from './classEntrySelection/UnlockArrange'
 import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySelectionColumns'
 import { useDnDHandlers } from './classEntrySelection/useDnDHandlers'
@@ -418,7 +417,6 @@ const ClassEntrySelection = ({
           slots={{
             noRowsOverlay: NullComponent,
           }}
-          sx={pinnedActionsColumnSx}
         />
       </Box>
       <ScrollDiv
