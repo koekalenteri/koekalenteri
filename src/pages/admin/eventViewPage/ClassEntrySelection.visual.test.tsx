@@ -128,3 +128,52 @@ it('keeps the actions menu in reach at phone width, cancelled entries included',
 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('class-entry-selection-phone-width')
 })
+
+/**
+ * The pinned kebab only rescued the menu. Everything between the last column that fits and it —
+ * the cancel reason above all, which is why the entry is in that bin at all — needs the grid's own
+ * horizontal scrolling back: it was suppressed along with the vertical scrolling the bins do want
+ * gone (KOE-735). Both axes are held separately now, so the columns are reachable again.
+ */
+it('lets a phone reach the columns past the right edge, the kebab staying put', async () => {
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+      <Frame width={393}>
+        <ClassEntrySelection
+          event={eventWithStaticDatesAnd3Classes}
+          eventClass="ALO"
+          registrations={[...registrations, cancelledRegistration]}
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Perunut Koira')).toBeVisible()
+
+  const row = screen.getByText('Perunut Koira').element().closest('.MuiDataGrid-row') as HTMLElement
+  const grid = row.closest('.MuiDataGrid-root') as HTMLElement
+  const scroller = grid.querySelector('.MuiDataGrid-virtualScroller') as HTMLElement
+
+  // The cancel reason is off the right edge to begin with, and the scroller must be willing to go
+  // there: `overflow-x: hidden` left content that no gesture could bring into view.
+  const widthInGrid = (field: string) => {
+    const box = grid.getBoundingClientRect()
+    const rect = (row.querySelector(`[data-field="${field}"]`) as HTMLElement).getBoundingClientRect()
+    return Math.max(0, Math.min(rect.right, box.right) - Math.max(rect.left, box.left))
+  }
+  expect(widthInGrid('cancelReason')).toBe(0)
+  expect(scroller.scrollWidth).toBeGreaterThan(scroller.clientWidth)
+  expect(getComputedStyle(scroller).overflowX).not.toBe('hidden')
+
+  scroller.scrollLeft = scroller.scrollWidth
+  await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 50)))
+
+  expect(widthInGrid('cancelReason')).toBeGreaterThan(0)
+  expect(widthInGrid('icons')).toBeGreaterThan(0)
+  // Pinned, so it neither scrolled away nor moved an inch.
+  expect(widthInGrid('actions')).toBe(44)
+
+  // The bins still grow to their rows rather than scrolling vertically, which is what the rule
+  // this change narrows was there for.
+  expect(getComputedStyle(scroller).overflowY).toBe('hidden')
+})
