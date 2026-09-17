@@ -101,6 +101,9 @@
   "src/pages/admin/eventViewPage/ClassEntrySelection.visual.test.tsx": {
     "class-entry-selection-groups-and-reserve": {
       "empty-table-header": 15
+    },
+    "class-entry-selection-phone-width": {
+      "empty-table-header": 15
     }
   },
   "src/pages/admin/eventViewPage/InfoPanel.visual.test.tsx": {
