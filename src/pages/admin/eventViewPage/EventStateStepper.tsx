@@ -11,6 +11,9 @@ import Stepper from '@mui/material/Stepper'
 import { useTranslation } from 'react-i18next'
 import { EVENT_PROGRESS_PHASES, getEventProgress, isEntryOpen } from '@/lib/event'
 
+/** Two short words side by side, or one long one on two lines: what a phase label needs. */
+const STEP_MIN_WIDTH = 84
+
 const CLASS_PROGRESS_PHASES = new Set<EventProgressStep>(['picked', 'invited'])
 
 const PhaseStepIcon = ({ active, className, completed }: StepIconProps) => {
@@ -131,6 +134,9 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
       role="list"
       tabIndex={0}
       sx={{
+        // The minimum belongs to the steps, not to the strip: a strip that cannot go below the
+        // steps' width never has anything to scroll, and pokes out of the page instead.
+        '& .MuiStep-root': { minWidth: STEP_MIN_WIDTH },
         '& .MuiStepConnector-line': {
           borderColor: 'grey.300',
           borderRadius: 1,
@@ -151,7 +157,6 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
           mt: '4px !important',
         },
         flexShrink: 0,
-        minWidth: 760,
         overflowX: 'auto',
         py: 1,
         width: '100%',

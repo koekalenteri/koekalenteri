@@ -43,3 +43,22 @@ it('shows start number publishing as its own step after the start list', async (
   await expect.element(screen.getByText(/Julkaise starttinumerot/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-state-stepper')
 })
+
+/**
+ * The strip is meant to scroll where it does not fit (KOE-1427). A minimum width on the strip itself
+ * defeats that: the strip stays as wide as its steps, so it holds nothing to scroll, and pokes out of
+ * the page instead. The width must stay with the page and the overflow inside the strip.
+ */
+it('scrolls inside a frame it does not fit, instead of poking out of it', async () => {
+  const screen = await render(
+    <div data-testid="visual-root" style={{ background: '#fff', padding: 16, width: 390 }}>
+      <ThemeProvider theme={theme}>
+        <EventStateStepper event={event} />
+      </ThemeProvider>
+    </div>
+  )
+
+  const strip = screen.getByRole('list', { name: 'Kokeen vaihe' }).element()
+  expect(strip.getBoundingClientRect().width).toBeLessThanOrEqual(390)
+  expect(strip.scrollWidth).toBeGreaterThan(strip.clientWidth)
+})
