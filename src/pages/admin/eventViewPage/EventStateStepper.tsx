@@ -5,7 +5,6 @@ import type { ConfirmedEvent } from '@/types'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import Circle from '@mui/icons-material/Circle'
 import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
-import Box from '@mui/material/Box'
 import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
@@ -120,91 +119,99 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
   const entryOpen = isEntryOpen(event)
 
   return (
-    <Box sx={{ flexShrink: 0, overflowX: 'auto', py: 1, width: '100%' }}>
-      <Stepper
-        activeStep={-1}
-        alternativeLabel
-        aria-label={t('event.phase')}
-        role="list"
-        sx={{
-          '& .MuiStepConnector-line': {
-            borderColor: 'grey.300',
-            borderRadius: 1,
-            borderTopWidth: 2,
-          },
-          '& .MuiStepConnector-root': { top: 10 },
-          '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line': { borderColor: 'warning.main' },
-          '& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': { borderColor: 'success.main' },
-          '& .MuiStepIcon-root': {
-            '&.Mui-active': { color: 'warning.main', transform: 'scale(1.15)' },
-            '&.Mui-completed': { color: 'success.main' },
-            color: 'grey.400',
-            fontSize: 20,
-            transition: 'color 0.2s ease, transform 0.2s ease',
-          },
-          '& .MuiStepLabel-label': {
-            fontSize: '0.75rem',
-            mt: '4px !important',
-          },
-          minWidth: 760,
-        }}
-      >
-        {EVENT_PROGRESS_PHASES.map((phase, index) => {
-          const showClassProgress =
-            eventClasses.length > 1 &&
-            temporalPhaseIndex <= EVENT_PROGRESS_PHASES.indexOf('invited') &&
-            CLASS_PROGRESS_PHASES.has(phase)
-          const completedClasses = CLASS_PROGRESS_PHASES.has(phase)
-            ? classPhases.filter(({ phaseIndex }) => phaseIndex >= index)
-            : []
-          const entryCompleted =
-            phase === 'confirmed_entryOpen' && (reachedPhaseIndex > index || (entryStarted && !entryOpen))
-          let completed = index <= reachedPhaseIndex
-          if (phase === 'confirmed_entryOpen') completed = entryCompleted
-          else if (phase === 'startListPublished') completed = startListCompleted
-          else if (phase === 'startNumbersPublished') completed = startNumbersCompleted
-          // The publishing state is the truth for this step, like the start list steps above: once
-          // every class's results are out, the step is done even while 'ended' still waits (KOE-1292).
-          else if (phase === 'resultsPublished') completed = resultsCompleted
-          else if (showClassProgress) completed = completedClasses.length === eventClasses.length
-          const active =
-            (phase === 'confirmed_entryOpen' && entryOpen && !entryCompleted) ||
-            (phase === 'startListPublished' && startListActionable && !startListCompleted) ||
-            (phase === 'startNumbersPublished' && startNumbersActionable && !startNumbersCompleted) ||
-            (phase === 'resultsPublished' && resultsActionable && !resultsCompleted) ||
-            (showClassProgress && completedClasses.length > 0 && completedClasses.length < eventClasses.length)
-          const label = getPhaseLabel(
-            phase,
-            entryCompleted,
-            entryOpen,
-            startListCompleted,
-            startNumbersCompleted,
-            resultsCompleted,
-            t
-          )
-          const progressText = getPhaseProgressText({
-            completedClasses,
-            eventClasses,
-            phase,
-            publishedStartListClasses,
-            publishedStartNumbersClasses,
-            showClassProgress,
-            startListActionable,
-            startListClasses,
-            startNumbersActionable,
-            t,
-          })
+    // Nine phases do not fit a phone, and stacking them would spend rows on the page that has least
+    // of them to spare, so the strip scrolls. A scrolling strip of plain text and icons holds nothing
+    // to tab to, though, which left a keyboard or screen reader user unable to reach its right-hand
+    // end at all (KOE-1427). The list itself scrolls and takes the focus — one element that is the
+    // phases, is named, and can be moved with the arrow keys, rather than a wrapper around them.
+    <Stepper
+      activeStep={-1}
+      alternativeLabel
+      aria-label={t('event.phase')}
+      role="list"
+      tabIndex={0}
+      sx={{
+        '& .MuiStepConnector-line': {
+          borderColor: 'grey.300',
+          borderRadius: 1,
+          borderTopWidth: 2,
+        },
+        '& .MuiStepConnector-root': { top: 10 },
+        '& .MuiStepConnector-root.Mui-active .MuiStepConnector-line': { borderColor: 'warning.main' },
+        '& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line': { borderColor: 'success.main' },
+        '& .MuiStepIcon-root': {
+          '&.Mui-active': { color: 'warning.main', transform: 'scale(1.15)' },
+          '&.Mui-completed': { color: 'success.main' },
+          color: 'grey.400',
+          fontSize: 20,
+          transition: 'color 0.2s ease, transform 0.2s ease',
+        },
+        '& .MuiStepLabel-label': {
+          fontSize: '0.75rem',
+          mt: '4px !important',
+        },
+        flexShrink: 0,
+        minWidth: 760,
+        overflowX: 'auto',
+        py: 1,
+        width: '100%',
+      }}
+    >
+      {EVENT_PROGRESS_PHASES.map((phase, index) => {
+        const showClassProgress =
+          eventClasses.length > 1 &&
+          temporalPhaseIndex <= EVENT_PROGRESS_PHASES.indexOf('invited') &&
+          CLASS_PROGRESS_PHASES.has(phase)
+        const completedClasses = CLASS_PROGRESS_PHASES.has(phase)
+          ? classPhases.filter(({ phaseIndex }) => phaseIndex >= index)
+          : []
+        const entryCompleted =
+          phase === 'confirmed_entryOpen' && (reachedPhaseIndex > index || (entryStarted && !entryOpen))
+        let completed = index <= reachedPhaseIndex
+        if (phase === 'confirmed_entryOpen') completed = entryCompleted
+        else if (phase === 'startListPublished') completed = startListCompleted
+        else if (phase === 'startNumbersPublished') completed = startNumbersCompleted
+        // The publishing state is the truth for this step, like the start list steps above: once
+        // every class's results are out, the step is done even while 'ended' still waits (KOE-1292).
+        else if (phase === 'resultsPublished') completed = resultsCompleted
+        else if (showClassProgress) completed = completedClasses.length === eventClasses.length
+        const active =
+          (phase === 'confirmed_entryOpen' && entryOpen && !entryCompleted) ||
+          (phase === 'startListPublished' && startListActionable && !startListCompleted) ||
+          (phase === 'startNumbersPublished' && startNumbersActionable && !startNumbersCompleted) ||
+          (phase === 'resultsPublished' && resultsActionable && !resultsCompleted) ||
+          (showClassProgress && completedClasses.length > 0 && completedClasses.length < eventClasses.length)
+        const label = getPhaseLabel(
+          phase,
+          entryCompleted,
+          entryOpen,
+          startListCompleted,
+          startNumbersCompleted,
+          resultsCompleted,
+          t
+        )
+        const progressText = getPhaseProgressText({
+          completedClasses,
+          eventClasses,
+          phase,
+          publishedStartListClasses,
+          publishedStartNumbersClasses,
+          showClassProgress,
+          startListActionable,
+          startListClasses,
+          startNumbersActionable,
+          t,
+        })
 
-          return (
-            <Step active={active} completed={completed} key={phase} role="listitem">
-              <StepLabel slots={{ stepIcon: PhaseStepIcon }}>
-                {label}
-                {progressText}
-              </StepLabel>
-            </Step>
-          )
-        })}
-      </Stepper>
-    </Box>
+        return (
+          <Step active={active} completed={completed} key={phase} role="listitem">
+            <StepLabel slots={{ stepIcon: PhaseStepIcon }}>
+              {label}
+              {progressText}
+            </StepLabel>
+          </Step>
+        )
+      })}
+    </Stepper>
   )
 }
