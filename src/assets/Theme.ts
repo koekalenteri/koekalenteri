@@ -1,4 +1,4 @@
-import { red } from '@mui/material/colors'
+import { green, lightBlue, red } from '@mui/material/colors'
 import { createTheme, responsiveFontSizes } from '@mui/material/styles'
 
 import '@mui/x-data-grid/themeAugmentation'
@@ -73,6 +73,11 @@ const theme = createTheme({
     },
   },
   palette: {
+    action: {
+      // An unselected toggle button's label takes this, and 0.54 on the #f2f2f2 form ground is
+      // 4.48 — under the line by two hundredths (KOE-1375).
+      active: 'rgba(0, 0, 0, 0.6)', // 5.53 on the form ground
+    },
     background: {
       caption: 'transparent',
       default: '#fcfdfd',
@@ -89,8 +94,18 @@ const theme = createTheme({
     DataGrid: {
       headerBg: '#d8d8d8',
     },
+    /**
+     * The semantic colours are read as text — an error under a field, an info line beside a publish
+     * button — and MUI's own mid-tone shades do not reach 4.5:1 at the sizes that text is set in
+     * (KOE-1375). Each is the darkest shade the palette offers that clears the ratio on white and on
+     * the #f2f2f2 form ground both, measured, so a `color: 'error.main'` anywhere is readable by
+     * construction rather than by review. The numbers in the comments are white / form.
+     */
     error: {
-      main: red.A400,
+      main: red[800], // 5.62 / 5.02; was red.A400 at 3.85 / 3.44
+    },
+    info: {
+      main: lightBlue[900], // 7.40 / 6.61; was lightBlue[700] at 3.86 / 3.49
     },
     primary: {
       contrastText: '#fff',
@@ -103,6 +118,14 @@ const theme = createTheme({
       dark: '#aca189',
       light: '#f7ebcf',
       main: '#fcfcfc', // '#98A59E',
+    },
+    success: {
+      main: green[900], // 7.87 / 7.03, and 5.84 on the ground a selected toggle button gives itself
+    },
+    warning: {
+      // No orange in the Material palette is dark enough to be read as text: orange[900] stops at
+      // 3.79 on white. This is that hue taken down until it clears the ratio.
+      main: '#9a4b00', // 6.21 / 5.55
     },
   },
   typography: {

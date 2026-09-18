@@ -7,6 +7,7 @@ import { chai, expect } from 'vitest'
 import { commands } from 'vitest/browser'
 import { registerFormatters } from './i18n/formatters'
 import { en, enBreed, enBreedAbbr, enCountry, fi, fiBreed, fiBreedAbbr, fiCountry } from './i18n/locales'
+import { readableTextOnly } from './test-utils/a11yExemptions'
 
 // Real translations, not the key-echoing mock the other projects use. Label length is part of
 // what these screenshots are for: Finnish breed names run past 30 characters, and a legend that
@@ -52,8 +53,16 @@ beforeAll(() => commands.resetMouse())
 // scripts/a11y-baseline.json by scripts/a11yRatchet.mjs: a new violation fails, a fixed one lowers the
 // allowance.
 
-/** A component fragment has no landmarks to speak of; the page-level `region` rule is the page's. */
-const AXE_OPTIONS: RunOptions = { resultTypes: ['violations'], rules: { region: { enabled: false } } }
+/**
+ * A component fragment has no landmarks to speak of; the page-level `region` rule is the page's.
+ * `elementRef` hands back the node itself, which is what tells a disabled control's text apart from
+ * text a reader is meant to read.
+ */
+const AXE_OPTIONS: RunOptions = {
+  elementRef: true,
+  resultTypes: ['violations'],
+  rules: { region: { enabled: false } },
+}
 
 const describeViolation = ({ help, helpUrl, id, nodes }: Result, allowed: number) =>
   [
@@ -63,7 +72,8 @@ const describeViolation = ({ help, helpUrl, id, nodes }: Result, allowed: number
   ].join('\n')
 
 async function auditAccessibility(element: Element, screenshot: string) {
-  const { violations } = await axe.run(element, AXE_OPTIONS)
+  const { violations: reported } = await axe.run(element, AXE_OPTIONS)
+  const violations = readableTextOnly(reported)
   const found = Object.fromEntries(violations.map((violation) => [violation.id, violation.nodes.length]))
   const grown = await commands.a11yRatchet(screenshot, found)
   if (!grown.length) return
