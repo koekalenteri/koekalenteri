@@ -307,6 +307,48 @@ describe('startNumbers', () => {
       })
     })
 
+    /**
+     * Cancelling is the common way off the participant list, not the only one. A dog moved back to
+     * the reserve list will not start under its drawn number either, and nothing else releases it:
+     * the groups endpoint never touches `startGroup`. Left as it was, the number was unusable by
+     * anyone and invisible to everyone — the sheet does not show a dog that is off the list
+     * (KOE-1428).
+     */
+    it('lets a holder moved back to the reserve list yield its number just the same', async () => {
+      const demoted = registration('res-2', {
+        group: { key: 'reserve', number: 1 },
+        startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 5, time: 'ap' },
+      })
+      const riser = registration('run-1')
+
+      const patches = await assignStartNumbers('event-1', [riser, demoted], [{ id: 'run-1', startNumber: 5 }], USER)
+
+      expect(patches).toEqual([
+        { id: 'res-2', startGroup: null },
+        { id: 'run-1', startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 5, time: 'ap' } },
+      ])
+      expect(mockRemoveRegistrationField).toHaveBeenCalledWith('event-1', 'res-2', 'startGroup')
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:res-2',
+        message: 'Starttinumero vapautettu: 5',
+        user: USER,
+      })
+    })
+
+    /** A dog that is still running keeps its number: yielding is about leaving the list, not about
+     * being asked nicely. */
+    it('still refuses a number a running dog holds', async () => {
+      const holder = registration('run-2', {
+        class: 'AVO',
+        startGroup: { date: '2026-09-12', key: 'AVO-AP', number: 5, time: 'ap' },
+      })
+
+      await expect(
+        assignStartNumbers('event-1', [registration('run-1'), holder], [{ id: 'run-1', startNumber: 5 }], USER)
+      ).rejects.toMatchObject({ body: { error: 'startNumberTaken', eventClass: 'AVO', number: 5 }, status: 422 })
+      expect(mockRemoveRegistrationField).not.toHaveBeenCalled()
+    })
+
     it("records the entered number in the dog's own trail (KOE-1355)", async () => {
       const undrawn = registration('run-1')
       const corrected = registration('run-2', {

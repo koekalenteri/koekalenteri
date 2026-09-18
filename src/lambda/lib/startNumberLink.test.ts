@@ -182,15 +182,14 @@ describe('startNumberLink', () => {
     })
 
     /**
-     * The one way a dog off the participant list still holds a start number: it was drawn one, and
-     * was moved back to the reserve list afterwards. Nothing releases the number on that move — only
-     * cancelling does — so the write still refuses it, and this list has to say the same. Whether
-     * the move ought to release it is a question about the write, not about this list.
+     * A number left behind by a dog moved back to the reserve list is free: the write yields it to
+     * whoever asks, the same as a cancelled holder's (KOE-1428). Claiming it here would be the list
+     * inventing a refusal the save does not make.
      */
-    it('lists a drawn number left behind by a dog moved back to the reserve list', () => {
+    it('leaves out a number left behind by a dog moved back to the reserve list', () => {
       const demoted = { ...drawn('avo-1', 'AVO', 3, 1), group: { key: 'reserve', number: 1 } }
 
-      expect(reservedStartNumbers([demoted], 'ALO')).toEqual([{ eventClass: 'AVO', number: 1 }])
+      expect(reservedStartNumbers([demoted], 'ALO')).toEqual([])
     })
   })
 
