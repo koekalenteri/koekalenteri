@@ -100,9 +100,24 @@ export default defineConfig({
             expect: {
               toMatchScreenshot: {
                 comparatorName: 'pixelmatch',
-                // Antialiasing differs slightly between runs and machines; a small allowance
-                // keeps that from failing a build while still catching real layout changes.
-                comparatorOptions: { allowedMismatchedPixelRatio: 0.01, threshold: 0.2 },
+                // `threshold` is how different one pixel must be to count at all, and it is the
+                // one that matters. At 0.2 it took a difference of 1409 in pixelmatch's YIQ metric;
+                // recolouring the error red from #ff1744 to #c62828 is 488, so a palette change
+                // across the whole app registered as zero differing pixels and no allowance below
+                // could have caught it (KOE-1375). At pixelmatch's own default of 0.1 the cutoff is
+                // 352 and the same change reads as 790 pixels on one screenshot.
+                //
+                // The count is then what absorbs the real noise: glyph edges rasterise a pixel or
+                // two differently from run to run, on the same machine and the same browser.
+                // Measured at threshold 0.1 by running the whole suite with no allowance, eight
+                // times on darwin and six on linux: 5 to 166 pixels, landing on a different
+                // screenshot each run. 400 is a little over twice the worst of that.
+                //
+                // Absolute rather than a ratio, because the noise is absolute — a few pixels of
+                // text edge, not a share of the image. A ratio is loose where the image is large
+                // and tight where it is small, which is backwards; the 1 % it replaces was 10 800
+                // pixels on the default 1200x900 viewport (KOE-1429).
+                comparatorOptions: { allowedMismatchedPixels: 400, threshold: 0.1 },
               },
             },
           },
