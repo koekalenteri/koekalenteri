@@ -52,6 +52,32 @@ it('receives the venue draw as values, flagging duplicates as they are typed', a
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-entry')
 })
 
+/**
+ * A number the class's own working order holds, but another class's dog already drew (KOE-1267). The
+ * sheet is one class and cannot show that dog, so the field has to say where the number went — and
+ * where the holder has no class of its own, that it is gone at all.
+ */
+it('says which class holds a number that is already gone', async () => {
+  const screen = await render(
+    <Frame>
+      <StartNumbersTable
+        drafts={{ 'run-2': '7', 'run-3': '9' }}
+        onChange={() => {}}
+        reserved={
+          new Map([
+            ['7', 'AVO'],
+            ['9', undefined],
+          ])
+        }
+        rows={rows}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Varattu luokassa AVO')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-entry-reserved')
+})
+
 // The same entry on a phone (KOE-1282): the number, and the dog's details folded under its name.
 it('folds the dog into one column on a phone', async () => {
   const screen = await render(

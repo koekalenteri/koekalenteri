@@ -43,6 +43,7 @@ const entry = (): ClassStartNumbers => ({
       id: 'alo-2',
     },
   ],
+  reserved: [],
 })
 
 const renderPage = () => {
@@ -100,6 +101,30 @@ describe('ClassStartNumbersPage', () => {
     const row = screen.getByText('Ensimmainen').closest('tr')
     if (!row) throw new Error('row not found')
     expect(within(row).getByRole('textbox')).toHaveValue('2')
+  })
+
+  /**
+   * The working order is recomputed while a drawn number stays frozen, so a number this class holds
+   * can already be another class's dog's. The link is served that class and nothing else, and until
+   * KOE-1267 the collision first showed as a refused save over a sheet where nothing looked wrong.
+   */
+  it('marks a number another class has already drawn, and says which class', async () => {
+    vi.mocked(getClassStartNumbers).mockResolvedValue({ ...entry(), reserved: [{ eventClass: 'AVO', number: 2 }] })
+    const { user } = renderPage()
+    await flushPromises()
+
+    const row = screen.getByText('Ensimmainen').closest('tr')
+    if (!row) throw new Error('row not found')
+
+    await user.type(within(row).getByRole('textbox'), '2')
+    await flushPromises()
+
+    expect(within(row).getByText('startNumbers.reservedInClass eventClass')).toBeInTheDocument()
+    // Nothing is wrong with a number the class still holds.
+    await user.clear(within(row).getByRole('textbox'))
+    await user.type(within(row).getByRole('textbox'), '1')
+    await flushPromises()
+    expect(within(row).queryByText(/startNumbers.reserved/)).not.toBeInTheDocument()
   })
 
   it('reads the same for a wrong, revoked or expired link', async () => {

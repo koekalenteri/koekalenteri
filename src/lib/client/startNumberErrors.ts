@@ -18,6 +18,18 @@ interface RefusedNumber {
 const FALLBACK: RefusedNumber = { key: 'startNumbers.saveFailed', values: {} }
 
 /**
+ * The code a refusal carries, where it carries one. A 4xx that the handler threw with a body says
+ * what it refused in a field of its own; anything else — a network failure, a bare string, a 500 —
+ * says nothing, and reads the same as an unknown refusal here.
+ */
+export const refusalCode = (error: unknown): string | undefined => {
+  if (!(error instanceof APIError) || !isObject(error.body)) return undefined
+
+  const body: Record<string, unknown> = error.body
+  return typeof body.error === 'string' ? body.error : undefined
+}
+
+/**
  * What to say when a draw will not save.
  *
  * The server knows exactly which number it refused and why, and until KOE-1267 none of that reached
@@ -34,7 +46,7 @@ export const refusedStartNumber = (error: unknown): RefusedNumber => {
   const number = typeof body.number === 'number' ? body.number : undefined
   const values = { ...(eventClass ? { eventClass } : {}), ...(number === undefined ? {} : { number }) }
 
-  switch (body.error) {
+  switch (refusalCode(error)) {
     case 'startNumberAssignedTwice':
       return { key: 'startNumbers.assignedTwice', values }
     case 'startNumberOutsideClass':

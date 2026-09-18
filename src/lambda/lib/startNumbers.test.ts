@@ -109,13 +109,19 @@ describe('startNumbers', () => {
       // The gap would freeze to its working-order number, which can collide with a drawn one on the
       // same day's public list. Refusing names the fix: enter the missing number and publish again.
       // The code is structured so the client can show that fix instead of a generic failure (KOE-1218).
-      await expect(freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO', USER)).rejects.toThrow(
-        /startNumbersIncomplete.*Start numbers are missing for 1 dogs \(ALO\)/
-      )
+      await expect(freezeStartNumbers('event-1', [drawn, registration('run-2')], 'ALO', USER)).rejects.toMatchObject({
+        body: {
+          count: 1,
+          error: 'startNumbersIncomplete',
+          eventClass: 'ALO',
+          message: 'Start numbers are missing for 1 dogs (ALO)',
+        },
+        status: 422,
+      })
       // Nor can an undrawn class freeze beside a drawn one: the number is one dog's in the whole trial.
       await expect(
         freezeStartNumbers('event-1', [drawn, registration('run-3', { class: 'AVO' })], 'AVO', USER)
-      ).rejects.toThrow(/startNumbersIncomplete.*Start numbers are missing for 1 dogs \(AVO\)/)
+      ).rejects.toMatchObject({ body: { count: 1, error: 'startNumbersIncomplete', eventClass: 'AVO' }, status: 422 })
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })
 
@@ -129,9 +135,9 @@ describe('startNumbers', () => {
 
       // A number belongs to one dog across every day of the class (KOE-1303), so Saturday's working
       // order could collide with Friday's draw. The days publish one at a time instead (KOE-1304).
-      await expect(freezeStartNumbers('event-1', [drawn, otherDay], 'ALO', USER)).rejects.toThrow(
-        /startNumbersIncomplete/
-      )
+      await expect(freezeStartNumbers('event-1', [drawn, otherDay], 'ALO', USER)).rejects.toMatchObject({
+        body: { error: 'startNumbersIncomplete' },
+      })
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })
 

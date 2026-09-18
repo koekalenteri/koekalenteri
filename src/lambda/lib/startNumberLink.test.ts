@@ -8,6 +8,7 @@ import {
   classStartNumbersResponse,
   deriveStartNumberLinkToken,
   getStartNumberLinkToken,
+  reservedStartNumbers,
   startNumberLinkClasses,
 } from './startNumberLink'
 
@@ -137,6 +138,62 @@ describe('startNumberLink', () => {
     })
   })
 
+  describe('reservedStartNumbers', () => {
+    const drawn = (id: string, eventClass: RegistrationClass, number: number, startNumber: number) =>
+      dog(id, eventClass, number, {
+        startGroup: { date: '2026-09-12', key: `${eventClass}-AP`, number: startNumber, time: 'ap' },
+      })
+
+    /**
+     * The case the class secretary hit: the working order handed ALO a number that an AVO dog had
+     * already drawn, and her link shows no AVO dog to explain it (KOE-1267).
+     */
+    it('names each number another class has drawn, and the class holding it', () => {
+      const reserved = reservedStartNumbers([dog('alo-1', 'ALO', 1), drawn('avo-1', 'AVO', 3, 1)], 'ALO')
+
+      expect(reserved).toEqual([{ eventClass: 'AVO', number: 1 }])
+    })
+
+    it("leaves out the class's own dogs, which are on the sheet already", () => {
+      expect(reservedStartNumbers([drawn('alo-1', 'ALO', 1, 2), drawn('alo-2', 'ALO', 2, 1)], 'ALO')).toEqual([])
+    })
+
+    it('leaves out a number nobody has drawn yet', () => {
+      expect(reservedStartNumbers(registrations, 'ALO')).toEqual([])
+    })
+
+    // What keeps this list exactly as strict as the write it predicts: a cancelled holder yields its
+    // number when the save comes, so the number is free and saying otherwise would be a lie.
+    it('leaves out a cancelled holder, whose number the save would yield anyway', () => {
+      const cancelled = drawn('avo-1', 'AVO', 3, 1)
+
+      expect(reservedStartNumbers([{ ...cancelled, cancelled: true }], 'ALO')).toEqual([])
+    })
+
+    /**
+     * A reserve is `{ key: 'reserve', number: n }` with no day: that `n` is a place in the reserve
+     * queue, a numbering of its own, and nothing to do with start numbers. Only a drawn number is
+     * one, and a dog waiting on the list has none.
+     */
+    it('leaves out a reserve, whose number is a place in the queue and not a start number', () => {
+      const waiting = dog('avo-1', 'AVO', 3, { group: { key: 'reserve', number: 1 } })
+
+      expect(reservedStartNumbers([waiting], 'ALO')).toEqual([])
+    })
+
+    /**
+     * The one way a dog off the participant list still holds a start number: it was drawn one, and
+     * was moved back to the reserve list afterwards. Nothing releases the number on that move — only
+     * cancelling does — so the write still refuses it, and this list has to say the same. Whether
+     * the move ought to release it is a question about the write, not about this list.
+     */
+    it('lists a drawn number left behind by a dog moved back to the reserve list', () => {
+      const demoted = { ...drawn('avo-1', 'AVO', 3, 1), group: { key: 'reserve', number: 1 } }
+
+      expect(reservedStartNumbers([demoted], 'ALO')).toEqual([{ eventClass: 'AVO', number: 1 }])
+    })
+  })
+
   describe('classStartNumbersResponse', () => {
     it('serves one class: its dogs, its numbers, and the trial they run in', () => {
       const response = classStartNumbersResponse(confirmedEvent, 'ALO', registrations)
@@ -144,6 +201,21 @@ describe('startNumberLink', () => {
       expect(response.eventClass).toBe('ALO')
       expect(response.registrations.map((item) => item.id)).toEqual(['alo-1', 'alo-2'])
       expect(response.event).toMatchObject({ eventType: 'NOWT', location: 'Ranua', name: 'Syyskoe' })
+    })
+
+    it('tells the link which numbers are gone, without telling it whose they are', () => {
+      const taken = [
+        ...registrations,
+        dog('avo-3', 'AVO', 5, {
+          dog: { name: 'Salainen', regNo: 'REG-9' },
+          startGroup: { date: '2026-09-12', key: 'AVO-AP', number: 2, time: 'ap' },
+        }),
+      ]
+
+      const response = classStartNumbersResponse(confirmedEvent, 'ALO', taken)
+
+      expect(response.reserved).toEqual([{ eventClass: 'AVO', number: 2 }])
+      expect(JSON.stringify(response.reserved)).not.toContain('Salainen')
     })
 
     it('carries the draw sheet as the secretary knows it, and nothing behind it', () => {

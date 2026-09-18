@@ -77,13 +77,12 @@ export const freezeStartNumbers = async (
   const gaps = scoped.filter((registration) => !registration.startGroup).length
   if (entered && gaps > 0) {
     // Structured so the client can tell "finish the draw first" apart from other 422s (KOE-1218).
-    throw new LambdaError(
-      422,
-      JSON.stringify({
-        error: 'startNumbersIncomplete',
-        message: `Start numbers are missing for ${gaps} dogs${eventClass ? ` (${eventClass})` : ''}`,
-      })
-    )
+    throw httpError(422, {
+      count: gaps,
+      error: 'startNumbersIncomplete',
+      ...(eventClass ? { eventClass } : {}),
+      message: `Start numbers are missing for ${gaps} dogs${eventClass ? ` (${eventClass})` : ''}`,
+    })
   }
 
   const patches: Patch<JsonRegistration>[] = []
