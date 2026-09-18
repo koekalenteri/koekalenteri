@@ -16,6 +16,19 @@ describe('EventStateStepper', () => {
     expect(container.firstChild).toHaveStyle({ flexShrink: '0' })
   })
 
+  /**
+   * The strip scrolls sideways when it does not fit, and everything in it is plain text and icons —
+   * nothing to tab to. Unless the strip itself takes focus, its right-hand end cannot be reached
+   * without a mouse or a touch screen (KOE-1427).
+   */
+  it('takes focus itself, so its scrolling end can be reached without a pointer', () => {
+    render(<EventStateStepper event={eventWithEntryOpen} />)
+
+    const strip = screen.getByRole('list', { name: 'event.phase' })
+    expect(strip).toHaveAttribute('tabindex', '0')
+    expect(strip).toHaveStyle({ overflowX: 'auto' })
+  })
+
   it.each<Exclude<ConfirmedEventStates, 'confirmed' | 'completed'>>(['picked', 'invited', 'started', 'ended'])(
     'marks %s as completed when the event has reached it',
     (state) => {

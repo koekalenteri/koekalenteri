@@ -69,4 +69,6 @@ it('folds the way back into the arrow on a phone, still on the heading row', asy
   expect(headingBox.top).toBeLessThan(backBox.bottom)
   // Still centred on that line, though here the heading wraps beneath it.
   expect(Math.abs(iconOffsetFromHeadingLine(back.element(), heading))).toBeLessThan(ARROW_TOLERANCE)
+
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-view-title-phone')
 })
