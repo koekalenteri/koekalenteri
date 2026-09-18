@@ -1097,11 +1097,13 @@
   },
   "startListNotPublished": "starttilistaa ei ole vielä julkaistu",
   "startNumbers": {
+    "assignedTwice": "Numero {{number}} on annettu kahdelle koiralle. Tarkista syöttämäsi numerot.",
     "column": {
       "day": "Starttipäivä",
       "number": "Starttinumero"
     },
     "copyLink": "Kopioi luokkasihteerin linkki",
+    "copyLinkInfo": "Luokkasihteeri pääsee tällä linkillä syöttämään luokkansa koirien starttinumerot ilman Koekalenterin koesihteerioikeuksia.",
     "day": "Päivä",
     "duplicate": "Sama numero kahdesti",
     "info": "Kirjaa paikan päällä arvotut starttinumerot.",
@@ -1114,6 +1116,8 @@
     "save": "Tallenna numerot",
     "saved": "Starttinumerot tallennettu",
     "saveFailed": "Starttinumeroiden tallennus epäonnistui. Tarkista numerot ja yritä uudelleen.",
+    "taken": "Numero {{number}} on jo toisella koiralla. Anna tälle koiralle toinen numero.",
+    "takenInClass": "Numero {{number}} on jo käytössä luokassa {{eventClass}}. Anna tälle koiralle toinen numero.",
     "title": "Starttinumeroiden syöttö"
   },
   "startNumbersNotPublished": "starttijärjestystä ei ole vielä vahvistettu",

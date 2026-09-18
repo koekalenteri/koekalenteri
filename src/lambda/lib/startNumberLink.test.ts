@@ -1,4 +1,5 @@
 import type { JsonRegistration, RegistrationClass } from '../../types'
+import type { LambdaError } from '../lib/lambda'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import {
   assertEntriesInClassSpace,
@@ -110,10 +111,23 @@ describe('startNumberLink', () => {
       ).not.toThrow()
     })
 
-    it('refuses a number that belongs to another class', () => {
-      expect(() => assertEntriesInClassSpace(registrations, 'ALO', [{ id: 'alo-1', startNumber: 3 }])).toThrow(
-        'startNumberOutsideClass'
-      )
+    // The code and the number travel in the body, which is what the entry form reads to say which
+    // number it was; the message is for the log (KOE-1267).
+    it('refuses a number that belongs to another class, and names it', () => {
+      const refused = (() => {
+        try {
+          assertEntriesInClassSpace(registrations, 'ALO', [{ id: 'alo-1', startNumber: 3 }])
+        } catch (error) {
+          return error as LambdaError
+        }
+      })()
+
+      expect(refused?.status).toBe(422)
+      expect(refused?.body).toEqual({
+        error: 'startNumberOutsideClass',
+        message: "Start number 3 is not one of ALO's working order numbers",
+        number: 3,
+      })
     })
 
     it("refuses another class's dog", () => {

@@ -117,7 +117,7 @@ describe('putClassStartNumbersLambda', () => {
   it('refuses a number of another class, which is the whole point of the link', async () => {
     await expect(
       putClassStartNumbersLambda(await apiEvent({ numbers: [{ id: 'alo-1', startNumber: 3 }] }))
-    ).rejects.toThrow('startNumberOutsideClass')
+    ).rejects.toMatchObject({ body: { error: 'startNumberOutsideClass', number: 3 }, status: 422 })
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })

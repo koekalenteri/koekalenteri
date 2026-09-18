@@ -8,13 +8,12 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { APIError } from '../api/http'
 import { getClassStartNumbers, putClassStartNumbers } from '../api/startNumbers'
 import { useLinkedEntry } from '../hooks/useLinkedEntry'
 import { reportError } from '../lib/client/error'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
+import { refusedStartNumber } from '../lib/client/startNumberErrors'
 import { linkedEventSubtitle } from '../lib/event'
-import { isObject } from '../lib/utils'
 import { StartNumbersEntry } from './admin/eventStartNumbersPage/StartNumbersEntry'
 import LoadingIndicator from './components/LoadingIndicator'
 import { languageAtom } from './state'
@@ -55,12 +54,12 @@ export function Component() {
         enqueueSnackbar(t('startNumbers.saved'), { variant: 'success' })
         return true
       } catch (error) {
-        // A number from outside the class's block is the refusal this link exists to make; say so in
-        // those words rather than as a failed save.
-        const outsideClass =
-          error instanceof APIError && isObject(error.body) && error.body.error === 'startNumberOutsideClass'
+        // This sheet is one class of one day, and the number that blocks the save can belong to a dog
+        // on none of it. Say which number, and where it is, rather than "check the numbers" over a
+        // sheet where nothing looks wrong (KOE-1267).
+        const refused = refusedStartNumber(error)
         reportError(error)
-        enqueueSnackbar(t(outsideClass ? 'startNumbers.outsideClass' : 'startNumbers.saveFailed'), errorSnackbarOptions)
+        enqueueSnackbar(t(refused.key, refused.values), errorSnackbarOptions)
         return false
       }
     },

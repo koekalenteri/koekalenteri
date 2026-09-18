@@ -1,4 +1,5 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { LambdaError } from '../lib/lambda'
 import { vi } from 'vitest'
 import { asJsonConfirmedEvent } from '../test-utils/helpers'
 
@@ -230,6 +231,48 @@ describe('startNumbers', () => {
       await expect(
         assignStartNumbers('event-1', [friday, otherClass], [{ id: 'run-3', startNumber: 7 }], USER)
       ).rejects.toThrow('Start number 7 is already taken')
+    })
+
+    /**
+     * The sheet that hits this is often a class secretary's link: one class of one day, on which the
+     * dog holding the number does not appear at all. Naming the number and its class is what lets
+     * the refusal be acted on rather than puzzled over (KOE-1267).
+     */
+    it('names the refused number and the class holding it', async () => {
+      const holder = registration('run-1', {
+        class: 'AVO',
+        startGroup: { date: '2026-09-12', key: 'AVO-AP', number: 3, time: 'ap' },
+      })
+      const asking = registration('run-2', { class: 'ALO' })
+
+      const taken = await assignStartNumbers('event-1', [holder, asking], [{ id: 'run-2', startNumber: 3 }], USER)
+        .then(() => undefined)
+        .catch((error: LambdaError) => error)
+
+      expect((taken as LambdaError).body).toEqual({
+        error: 'startNumberTaken',
+        eventClass: 'AVO',
+        message: 'Start number 3 is already taken',
+        number: 3,
+      })
+
+      const twice = await assignStartNumbers(
+        'event-1',
+        [registration('run-3'), registration('run-4')],
+        [
+          { id: 'run-3', startNumber: 5 },
+          { id: 'run-4', startNumber: 5 },
+        ],
+        USER
+      )
+        .then(() => undefined)
+        .catch((error: LambdaError) => error)
+
+      expect((twice as LambdaError).body).toEqual({
+        error: 'startNumberAssignedTwice',
+        message: 'Start number 5 assigned twice',
+        number: 5,
+      })
     })
 
     it('lets a cancelled holder yield its number, which fills the vacated place properly', async () => {

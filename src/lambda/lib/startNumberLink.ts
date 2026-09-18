@@ -8,7 +8,7 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { linkedEventProjection } from './event'
-import { LambdaError } from './lambda'
+import { httpError, LambdaError } from './lambda'
 import { DEFAULT_LINK_TOKEN_VERSION, deriveLinkToken, getBearerToken, linkTokensMatch } from './linkToken'
 import { getRegistrationEditTokenSecret } from './secrets'
 
@@ -104,13 +104,11 @@ export const assertEntriesInClassSpace = (
       throw new LambdaError(403, `Registration '${entry.id}' does not run in ${eventClass}`)
     }
     if (!space.has(entry.startNumber)) {
-      throw new LambdaError(
-        422,
-        JSON.stringify({
-          error: 'startNumberOutsideClass',
-          message: `Start number ${entry.startNumber} is not one of ${eventClass}'s working order numbers`,
-        })
-      )
+      throw httpError(422, {
+        error: 'startNumberOutsideClass',
+        message: `Start number ${entry.startNumber} is not one of ${eventClass}'s working order numbers`,
+        number: entry.startNumber,
+      })
     }
   }
 }
