@@ -162,9 +162,12 @@ export const assignStartNumbers = async (
         throw refusedNumber('startNumberAssignedTwice', entry.startNumber, `assigned twice`)
       }
 
-      // A cancelled holder yields its slot: this is how the secretary fills a vacated place, and
-      // yielding it removes the POISSA row from the public list "kunnolla", as the ticket asks.
-      if (other.cancelled) {
+      // A holder that is no longer running yields its slot: this is how the secretary fills a
+      // vacated place, and yielding it removes the POISSA row from the public list "kunnolla", as
+      // KOE-1218 asks. Cancelling is the common way out of the participant list, but not the only
+      // one — a dog moved back to the reserve list is off it just as surely, and holding a number it
+      // will not start under leaves that number unusable by anyone (KOE-1428).
+      if (!isScorableRegistration(other)) {
         // Yielding is a REMOVE: DynamoDB refuses `SET startGroup = :undefined`, and `null` in the
         // patch is what tells the clients' patchMerge to delete the field rather than skip it.
         await removeRegistrationField(eventId, other.id, 'startGroup')

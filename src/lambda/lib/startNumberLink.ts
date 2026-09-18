@@ -128,19 +128,17 @@ export const assertEntriesInClassSpace = (
  * invisible until the save is refused — which is what the secretary reported (KOE-1267).
  *
  * The condition is the write's own refusal read backwards, so the list cannot claim a number the
- * save would have taken: a cancelled holder yields its number and is left out, and a dog still
- * holding one blocks it whether or not it is on a sheet of its own. A dog waiting on the reserve
- * list holds no start number at all — its `group.number` is a place in that queue, a numbering of
- * its own — and the only way it appears here is a drawn number left behind by a move back onto the
- * list. The class is named because "taken", with no place to look, was the message that did not
- * help.
+ * save would have taken: a holder that is no longer running yields its number when the save comes,
+ * cancelled or moved back to the reserve list (KOE-1428), and is left out here for the same reason.
+ * What is left is a dog that will start under the number, in another class than this sheet. The
+ * class is named because "taken", with no place to look, was the message that did not help.
  */
 export const reservedStartNumbers = (registrations: JsonRegistration[], eventClass: string): ReservedStartNumber[] => {
   const reserved: ReservedStartNumber[] = []
 
   for (const registration of registrations) {
     const number = registration.startGroup?.number
-    if (number === undefined || registration.cancelled || runsInClass(registration, eventClass)) continue
+    if (number === undefined || !isScorableRegistration(registration) || runsInClass(registration, eventClass)) continue
 
     const holder = getRegistrationClass(registration)
     reserved.push({ ...(holder ? { eventClass: holder } : {}), number })
