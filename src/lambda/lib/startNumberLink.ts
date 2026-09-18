@@ -1,5 +1,11 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
-import type { JsonClassStartNumberDog, JsonClassStartNumbers, JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type {
+  JsonClassStartNumberDog,
+  JsonClassStartNumbers,
+  JsonConfirmedEvent,
+  JsonRegistration,
+  ReservedStartNumber,
+} from '../../types'
 import type { StartNumberEntry } from './startNumbers'
 import { uniqueClasses } from '../../lib/event'
 import {
@@ -8,7 +14,7 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { linkedEventProjection } from './event'
-import { LambdaError } from './lambda'
+import { httpError, LambdaError } from './lambda'
 import { DEFAULT_LINK_TOKEN_VERSION, deriveLinkToken, getBearerToken, linkTokensMatch } from './linkToken'
 import { getRegistrationEditTokenSecret } from './secrets'
 
@@ -104,15 +110,43 @@ export const assertEntriesInClassSpace = (
       throw new LambdaError(403, `Registration '${entry.id}' does not run in ${eventClass}`)
     }
     if (!space.has(entry.startNumber)) {
-      throw new LambdaError(
-        422,
-        JSON.stringify({
-          error: 'startNumberOutsideClass',
-          message: `Start number ${entry.startNumber} is not one of ${eventClass}'s working order numbers`,
-        })
-      )
+      throw httpError(422, {
+        error: 'startNumberOutsideClass',
+        message: `Start number ${entry.startNumber} is not one of ${eventClass}'s working order numbers`,
+        number: entry.startNumber,
+      })
     }
   }
+}
+
+/**
+ * The numbers a class secretary cannot hand out, though their own working order holds them.
+ *
+ * The working order is recomputed as the entry list moves, while a drawn number is frozen where it
+ * was: a class's space can therefore contain a number that is already another class's dog's. The
+ * sheet shows one class and nothing of the trial around it, so without this list the collision is
+ * invisible until the save is refused — which is what the secretary reported (KOE-1267).
+ *
+ * The condition is the write's own refusal read backwards, so the list cannot claim a number the
+ * save would have taken: a cancelled holder yields its number and is left out, and a dog still
+ * holding one blocks it whether or not it is on a sheet of its own. A dog waiting on the reserve
+ * list holds no start number at all — its `group.number` is a place in that queue, a numbering of
+ * its own — and the only way it appears here is a drawn number left behind by a move back onto the
+ * list. The class is named because "taken", with no place to look, was the message that did not
+ * help.
+ */
+export const reservedStartNumbers = (registrations: JsonRegistration[], eventClass: string): ReservedStartNumber[] => {
+  const reserved: ReservedStartNumber[] = []
+
+  for (const registration of registrations) {
+    const number = registration.startGroup?.number
+    if (number === undefined || registration.cancelled || runsInClass(registration, eventClass)) continue
+
+    const holder = getRegistrationClass(registration)
+    reserved.push({ ...(holder ? { eventClass: holder } : {}), number })
+  }
+
+  return reserved.sort((a, b) => a.number - b.number)
 }
 
 /** One dog as the draw needs it: the sheet the event secretary works from, for this class alone. */
@@ -137,4 +171,5 @@ export const classStartNumbersResponse = (
     .filter((registration) => runsInClass(registration, eventClass))
     .sort(sortRegistrationsByDateClassTimeAndNumber)
     .map(classStartNumberDog),
+  reserved: reservedStartNumbers(registrations, eventClass),
 })

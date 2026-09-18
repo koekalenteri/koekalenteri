@@ -96,6 +96,9 @@
     },
     "start-numbers-entry-phone": {
       "color-contrast": 2
+    },
+    "start-numbers-entry-reserved": {
+      "color-contrast": 2
     }
   },
   "src/pages/admin/eventViewPage/ClassEntrySelection.visual.test.tsx": {

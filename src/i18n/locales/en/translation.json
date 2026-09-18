@@ -1097,11 +1097,13 @@
   },
   "startListNotPublished": "start list is not published yet",
   "startNumbers": {
+    "assignedTwice": "Number {{number}} was given to two dogs. Check the numbers you entered.",
     "column": {
       "day": "Start day",
       "number": "Start number"
     },
     "copyLink": "Copy the class secretary's link",
+    "copyLinkInfo": "A class secretary can enter their class’s start numbers through this link, without secretary rights in Koekalenteri.",
     "day": "Day",
     "duplicate": "Duplicate number",
     "info": "Enter the start numbers drawn at the venue.",
@@ -1109,11 +1111,15 @@
     "linkInfo": "Enter the start numbers drawn at the venue for class {{eventClass}}. The numbers are the class's own working order numbers.",
     "linkInvalid": "The link is not valid. Ask the event secretary for a new one.",
     "linkRevoked": "The links to class {{eventClass}} were revoked. Share a new link with the class secretary.",
-    "outsideClass": "The number is not one of the class's working order numbers. Use the numbers that belong to the class.",
+    "outsideClass": "Number {{number}} is not one of the class's working order numbers. Use the numbers that belong to the class.",
+    "reserved": "Number already taken",
+    "reservedInClass": "Taken in {{eventClass}}",
     "revokeLink": "Revoke the class links",
     "save": "Save numbers",
     "saved": "Start numbers saved",
     "saveFailed": "Saving the start numbers failed. Check the numbers and try again.",
+    "taken": "Number {{number}} is already another dog’s. Give this dog a different number.",
+    "takenInClass": "Number {{number}} is already in use in {{eventClass}}. Give this dog a different number.",
     "title": "Start number entry"
   },
   "startNumbersNotPublished": "start order is not confirmed yet",

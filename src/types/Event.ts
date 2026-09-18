@@ -360,6 +360,17 @@ export type ClassStartNumberDog = Omit<JsonClassStartNumberDog, 'group' | 'start
 }
 
 /**
+ * A number that is already someone else's, named without naming the dog (KOE-1267). The holder's
+ * class is the part that makes it act-on-able: the draw sheet shows one class, and the number that
+ * blocks it is usually in another.
+ */
+export interface ReservedStartNumber {
+  number: number
+  /** The class the holder runs in, where the trial runs classes at all. */
+  eventClass?: string
+}
+
+/**
  * What the tokenized start number link serves: one class of one trial, and the dogs that run in it.
  * The class is the whole scope — the link neither sees nor writes another class's dogs.
  */
@@ -368,11 +379,17 @@ export interface JsonClassStartNumbers {
   /** The class the link opens, or the event type where the trial runs no classes. */
   eventClass: string
   registrations: JsonClassStartNumberDog[]
+  /**
+   * The numbers already gone elsewhere in the trial, the one thing the link is told about dogs it
+   * cannot see. Without it a taken number looks free until the save is refused (KOE-1267).
+   */
+  reserved: ReservedStartNumber[]
 }
 export type ClassStartNumbers = {
   event: LinkedEvent
   eventClass: string
   registrations: ClassStartNumberDog[]
+  reserved: ReservedStartNumber[]
 }
 
 /**

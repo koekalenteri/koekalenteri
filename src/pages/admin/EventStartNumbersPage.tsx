@@ -1,8 +1,5 @@
 import type { StartNumberEntry } from '../../api/startNumbers'
-import ContentCopy from '@mui/icons-material/ContentCopy'
-import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
-import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
@@ -12,11 +9,13 @@ import { useParams } from 'react-router'
 import { getStartNumberLink } from '../../api/startNumbers'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
+import { refusedStartNumber } from '../../lib/client/startNumberErrors'
 import { isRegistrationClass } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import { idTokenAtom } from '../state'
 import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
+import { ClassLinkActions } from './eventStartNumbersPage/ClassLinkActions'
 import { StartNumbersEntry } from './eventStartNumbersPage/StartNumbersEntry'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -48,9 +47,11 @@ export default function EventStartNumbersPage() {
         enqueueSnackbar(t('startNumbers.saved'), { variant: 'success' })
         return true
       } catch (error) {
-        // The server names the refused number (a duplicate, a taken slot); keep the entries on screen.
+        // The server names the refused number (a duplicate, a taken slot); pass that on, and keep the
+        // entries on screen so the one to change is still there (KOE-1267).
+        const refused = refusedStartNumber(error)
         reportError(error)
-        enqueueSnackbar(t('startNumbers.saveFailed'), errorSnackbarOptions)
+        enqueueSnackbar(t(refused.key, refused.values), errorSnackbarOptions)
         return false
       }
     },
@@ -108,26 +109,7 @@ export default function EventStartNumbersPage() {
         onSave={handleSave}
         registrations={registrations}
         renderClassActions={(eventClass) => (
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{
-              flexWrap: 'wrap',
-              justifyContent: 'flex-end',
-              px: 2,
-            }}
-          >
-            <Button
-              onClick={() => handleCopyLink(eventClass)}
-              size="small"
-              startIcon={<ContentCopy fontSize="small" />}
-            >
-              {t('startNumbers.copyLink')}
-            </Button>
-            <Button onClick={() => handleRevokeLink(eventClass)} size="small">
-              {t('startNumbers.revokeLink')}
-            </Button>
-          </Stack>
+          <ClassLinkActions onCopy={() => handleCopyLink(eventClass)} onRevoke={() => handleRevokeLink(eventClass)} />
         )}
       />
     </Paper>

@@ -37,6 +37,12 @@ interface Props {
    * absent the table counts its own rows.
    */
   readonly duplicates?: ReadonlySet<string>
+  /**
+   * Numbers already gone outside this sheet, each mapped to the class holding it (KOE-1267). A class
+   * secretary's link is served one class, so a number another class has drawn looks free here; the
+   * event secretary sees the whole trial and needs none of this.
+   */
+  readonly reserved?: ReadonlyMap<string, string | undefined>
 }
 
 const draftOf = (row: StartNumberRow, drafts: Record<string, string>) =>
@@ -55,6 +61,24 @@ export const duplicateNumbers = (
   return new Set([...counts].filter(([, count]) => count > 1).map(([value]) => value))
 }
 
+/**
+ * What is wrong with the number in this field, in the words a field has room for. A number typed
+ * twice here is the secretary's own to fix and says so first; one taken elsewhere names where it
+ * went, which is the whole point of knowing (KOE-1267).
+ */
+const conflictText = (
+  value: string,
+  duplicate: boolean,
+  reserved: ReadonlyMap<string, string | undefined> | undefined,
+  t: TFunction
+): string | undefined => {
+  if (duplicate) return t('startNumbers.duplicate')
+  if (!value || !reserved?.has(value)) return undefined
+
+  const holder = reserved.get(value)
+  return holder ? t('startNumbers.reservedInClass', { eventClass: holder }) : t('startNumbers.reserved')
+}
+
 /** "pe 4.9. aamupäivä", the same words the start list's group headers use. */
 const placementLabel = (row: StartNumberRow, t: TFunction) => {
   const { date, time } = row.placement ?? {}
@@ -68,7 +92,7 @@ const placementLabel = (row: StartNumberRow, t: TFunction) => {
  * entry: one row per dog, one field, one save. A duplicate is flagged as it is typed — and refused
  * again on the server, where the two-phones case is actually caught.
  */
-export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, duplicates }: Props) {
+export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, duplicates, reserved }: Props) {
   const { t } = useTranslation()
 
   const taken = duplicates ?? duplicateNumbers(rows, drafts)
@@ -89,14 +113,15 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, d
           {rows.map((row) => {
             const value = draftOf(row, drafts)
             const duplicate = Boolean(value) && taken.has(value)
+            const conflict = conflictText(value, duplicate, reserved, t)
 
             return (
               <TableRow hover key={row.id}>
                 <TableCell>
                   <TextField
                     disabled={disabled}
-                    error={duplicate}
-                    helperText={duplicate ? t('startNumbers.duplicate') : undefined}
+                    error={Boolean(conflict)}
+                    helperText={conflict}
                     slotProps={{
                       // The column header names the field on screen; the input carries the same name
                       // for anyone reading a row on its own.
@@ -109,7 +134,13 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, d
                     onChange={(event) => onChange(row.id, event.target.value.replace(/\D/g, ''))}
                     placeholder={row.groupNumber != null ? String(row.groupNumber) : undefined}
                     size="small"
-                    sx={{ width: 96 }}
+                    sx={{
+                      // The input is a number wide; what is wrong with it is a sentence, and the
+                      // column has the room the input does not — three wrapped lines per flagged row
+                      // is most of a screen on a phone (KOE-1267).
+                      '& .MuiFormHelperText-root': { whiteSpace: 'nowrap' },
+                      width: 96,
+                    }}
                     value={value}
                   />
                 </TableCell>

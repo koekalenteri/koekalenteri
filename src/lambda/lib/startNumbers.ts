@@ -5,7 +5,7 @@ import { getRegistrationClass, isScorableRegistration } from '../../lib/registra
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
-import { LambdaError } from './lambda'
+import { httpError, LambdaError } from './lambda'
 import { removeRegistrationField, updateRegistrationField } from './registration'
 
 const { eventTable } = CONFIG
@@ -77,13 +77,12 @@ export const freezeStartNumbers = async (
   const gaps = scoped.filter((registration) => !registration.startGroup).length
   if (entered && gaps > 0) {
     // Structured so the client can tell "finish the draw first" apart from other 422s (KOE-1218).
-    throw new LambdaError(
-      422,
-      JSON.stringify({
-        error: 'startNumbersIncomplete',
-        message: `Start numbers are missing for ${gaps} dogs${eventClass ? ` (${eventClass})` : ''}`,
-      })
-    )
+    throw httpError(422, {
+      count: gaps,
+      error: 'startNumbersIncomplete',
+      ...(eventClass ? { eventClass } : {}),
+      message: `Start numbers are missing for ${gaps} dogs${eventClass ? ` (${eventClass})` : ''}`,
+    })
   }
 
   const patches: Patch<JsonRegistration>[] = []
@@ -111,6 +110,21 @@ export const freezeStartNumbers = async (
  * up, and unique in the whole trial — every class, every day (KOE-1303). The duplicate the server
  * refuses is the one two phones would otherwise both claim.
  */
+/**
+ * A refused number, in a shape the entry form can say something useful about. The screen that hits
+ * this is often a class secretary's link, which shows one class of one day: the dog holding the
+ * number can be in another class entirely, and then "check the numbers and try again" points at a
+ * sheet where nothing is wrong (KOE-1267). The number, and the class that holds it, are what turns
+ * that into something the reader can act on.
+ */
+const refusedNumber = (error: string, number: number, reason: string, eventClass?: string) =>
+  httpError(422, {
+    error,
+    ...(eventClass ? { eventClass } : {}),
+    message: `Start number ${number} ${reason}`,
+    number,
+  })
+
 export const assignStartNumbers = async (
   eventId: string,
   registrations: JsonRegistration[],
@@ -145,7 +159,7 @@ export const assignStartNumbers = async (
 
       // Two dogs asked for the same number in one draw: a form bug or two phones colliding.
       if (requested.has(other.id)) {
-        throw new LambdaError(422, `Start number ${entry.startNumber} assigned twice`)
+        throw refusedNumber('startNumberAssignedTwice', entry.startNumber, `assigned twice`)
       }
 
       // A cancelled holder yields its slot: this is how the secretary fills a vacated place, and
@@ -159,7 +173,12 @@ export const assignStartNumbers = async (
         continue
       }
 
-      throw new LambdaError(422, `Start number ${entry.startNumber} is already taken`)
+      throw refusedNumber(
+        'startNumberTaken',
+        entry.startNumber,
+        `is already taken`,
+        getRegistrationClass(other) ?? undefined
+      )
     }
 
     const startGroup = { ...placement, number: entry.startNumber }

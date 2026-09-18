@@ -10,11 +10,10 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
-import { APIError } from '@/api/http'
 import { zonedParseDate } from '@/i18n/dates'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { refusalCode } from '@/lib/client/startNumberErrors'
 import { getPublishedStartNumbersDays, getStartNumbersClassDays, isStartNumbersPublishedForDay } from '@/lib/event'
-import { isObject } from '@/lib/utils'
 import { Path } from '@/routeConfig'
 import { PublishingSection } from './PublishingSection'
 import { getPublishingRows, isStartNumbersPublished } from './publishingRow'
@@ -98,8 +97,7 @@ const StartNumbersPublishing = ({
       enqueueSnackbar(startNumbersMessage(t, eventClass, published, dayText), { variant: 'success' })
     } catch (error) {
       // A half-entered draw is the secretary's own next step, not a save failure — name it (KOE-1218).
-      const incomplete =
-        error instanceof APIError && isObject(error.body) && error.body.error === 'startNumbersIncomplete'
+      const incomplete = refusalCode(error) === 'startNumbersIncomplete'
       enqueueSnackbar(
         t(incomplete ? 'eventManagement.startList.numbersIncomplete' : 'eventManagement.startList.saveFailed'),
         errorSnackbarOptions

@@ -7,6 +7,9 @@ import theme from '@/assets/Theme'
 import { ARROW_TOLERANCE, iconOffsetFromHeadingLine } from '@/test-utils/headingAlignment'
 import { EntryPageHeader } from './EntryPageHeader'
 
+const DESKTOP = { height: 200, width: 900 }
+const PHONE = { height: 220, width: 390 }
+
 const Frame = ({ children }: { readonly children: React.ReactNode }) => (
   <div data-testid="visual-root" style={{ background: '#fff', boxSizing: 'border-box', width: '100%' }}>
     <ThemeProvider theme={theme}>
@@ -24,7 +27,7 @@ const header = (
 // The head of a batch entry screen: the way back on the title's row, and what the screen says about
 // the trial beneath them (KOE-541).
 it('heads a batch entry screen with the way back beside the title', async () => {
-  await page.viewport(900, 200)
+  await page.viewport(DESKTOP.width, DESKTOP.height)
 
   const screen = await render(<Frame>{header}</Frame>)
 
@@ -39,7 +42,7 @@ it('heads a batch entry screen with the way back beside the title', async () => 
 
 /** On a phone the words fold into the arrow, so the way back never costs a row of its own. */
 it('folds the way back into the arrow on a phone', async () => {
-  await page.viewport(390, 200)
+  await page.viewport(PHONE.width, PHONE.height)
 
   const screen = await render(<Frame>{header}</Frame>)
 
@@ -58,7 +61,7 @@ it('folds the way back into the arrow on a phone', async () => {
  * is a line below the arrow's. The arrow belongs to the first line and stays there (KOE-541).
  */
 it('keeps the arrow on the first line when the heading wraps', async () => {
-  await page.viewport(420, 220)
+  await page.viewport(PHONE.width, PHONE.height)
 
   const screen = await render(
     <Frame>

@@ -1,6 +1,7 @@
 import type { Theme } from '@mui/material'
 import type { ReactNode } from 'react'
 import type { StartNumberEntry } from '@/api/startNumbers'
+import type { ReservedStartNumber } from '@/types'
 import type { PlacedRegistration } from '../components/StartDaySelector'
 import type { StartNumberRow } from './StartNumbersTable'
 import Save from '@mui/icons-material/Save'
@@ -46,6 +47,11 @@ interface Props {
   readonly header?: ReactNode
   /** What the open class offers beyond its sheet — the event secretary's link controls (KOE-1267). */
   readonly renderClassActions?: (eventClass: string) => ReactNode
+  /**
+   * Numbers already drawn outside these registrations (KOE-1267). A class link is served its own
+   * class and could not otherwise see them; the event secretary gets the whole trial and passes none.
+   */
+  readonly reserved?: ReservedStartNumber[]
 }
 
 /**
@@ -55,7 +61,7 @@ interface Props {
  * link — so the sheet a class secretary works cannot drift from the one the event secretary has. The
  * difference between them is what data reaches this component and where the save goes.
  */
-export function StartNumbersEntry({ registrations, onSave, header, renderClassActions }: Props) {
+export function StartNumbersEntry({ registrations, onSave, header, renderClassActions, reserved }: Props) {
   const { t } = useTranslation()
   // Four columns need more than a phone has; there the dog's details fold into one (KOE-1282).
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
@@ -96,6 +102,12 @@ export function StartNumbersEntry({ registrations, onSave, header, renderClassAc
     [drafts, scorable]
   )
 
+  // Keyed by the field's own text, which is what the table has to compare against as it is typed.
+  const reservedByNumber = useMemo(
+    () => new Map((reserved ?? []).map((item) => [String(item.number), item.eventClass])),
+    [reserved]
+  )
+
   const handleChange = useCallback((id: string, value: string) => {
     setDrafts((prev) => ({ ...prev, [id]: value }))
   }, [])
@@ -130,6 +142,7 @@ export function StartNumbersEntry({ registrations, onSave, header, renderClassAc
           drafts={drafts}
           duplicates={duplicates}
           onChange={handleChange}
+          reserved={reservedByNumber}
           rows={rows}
         />
       </Box>
