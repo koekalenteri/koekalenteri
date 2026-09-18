@@ -42,63 +42,9 @@
       "empty-table-header": 15
     }
   },
-  "src/pages/admin/JudgeListPage.visual.test.tsx": {
-    "judge-list-mock-trial": {
-      "color-contrast": 4
-    }
-  },
   "src/pages/admin/StartListPage.visual.test.tsx": {
     "start-list-desktop": {
       "scrollable-region-focusable": 1
-    }
-  },
-  "src/pages/admin/components/EventForm.visual.test.tsx": {
-    "event-form-desktop": {
-      "color-contrast": 6
-    },
-    "event-form-phone-basic": {
-      "color-contrast": 2
-    },
-    "event-form-phone-entry": {
-      "color-contrast": 6
-    },
-    "event-form-phone-judges": {
-      "color-contrast": 2
-    },
-    "event-form-phone-payment": {
-      "color-contrast": 2
-    }
-  },
-  "src/pages/admin/components/eventForm/JudgesSection.visual.test.tsx": {
-    "judges-section-mock-trial-short": {
-      "color-contrast": 1
-    },
-    "judges-section-unavailable-judge": {
-      "color-contrast": 3
-    }
-  },
-  "src/pages/admin/components/eventForm/components/EventProperty.visual.test.tsx": {
-    "event-property-states": {
-      "color-contrast": 3
-    }
-  },
-  "src/pages/admin/eventResultsPage/ResultsTable.visual.test.tsx": {
-    "results-entry-nowt": {
-      "color-contrast": 3
-    },
-    "results-entry-nowt-phone": {
-      "color-contrast": 3
-    }
-  },
-  "src/pages/admin/eventStartNumbersPage/StartNumbersTable.visual.test.tsx": {
-    "start-numbers-entry": {
-      "color-contrast": 2
-    },
-    "start-numbers-entry-phone": {
-      "color-contrast": 2
-    },
-    "start-numbers-entry-reserved": {
-      "color-contrast": 2
     }
   },
   "src/pages/admin/eventViewPage/ClassEntrySelection.visual.test.tsx": {
@@ -109,19 +55,9 @@
       "empty-table-header": 15
     }
   },
-  "src/pages/admin/eventViewPage/InfoPanel.visual.test.tsx": {
-    "info-panel": {
-      "color-contrast": 1
-    }
-  },
   "src/pages/admin/eventViewPage/MessageRecipientsDialog.visual.test.tsx": {
     "message-recipients": {
       "heading-order": 1
-    }
-  },
-  "src/pages/admin/eventViewPage/RegistrationEditDialog.visual.test.tsx": {
-    "registration-edit-dialog-read-only": {
-      "color-contrast": 4
     }
   },
   "src/pages/admin/eventViewPage/SendMessageDialog.visual.test.tsx": {
@@ -135,42 +71,8 @@
       "aria-prohibited-attr": 1
     }
   },
-  "src/pages/admin/eventViewPage/infoPanel/InvitationDelivery.visual.test.tsx": {
-    "invitation-delivery": {
-      "color-contrast": 2
-    }
-  },
-  "src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.visual.test.tsx": {
-    "results-publishing": {
-      "color-contrast": 1
-    }
-  },
-  "src/pages/admin/eventViewPage/infoPanel/StartListPublishing.visual.test.tsx": {
-    "start-list-publishing": {
-      "color-contrast": 1
-    }
-  },
-  "src/pages/admin/eventViewPage/infoPanel/StartNumbersPublishing.visual.test.tsx": {
-    "start-numbers-publishing": {
-      "color-contrast": 1
-    },
-    "start-numbers-publishing-two-days": {
-      "color-contrast": 1
-    }
-  },
-  "src/pages/components/AutocompleteSingle.visual.test.tsx": {
-    "autocomplete-single-states": {
-      "color-contrast": 2
-    }
-  },
-  "src/pages/components/registrationForm/OwnerInfo.visual.test.tsx": {
-    "owner-info-invalid-co-owner-phone": {
-      "color-contrast": 2
-    }
-  },
   "src/pages/searchPage/eventList/EventStateInfo.visual.test.tsx": {
     "event-state-info-live": {
-      "color-contrast": 1,
       "nested-interactive": 1
     }
   }

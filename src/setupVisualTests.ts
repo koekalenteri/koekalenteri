@@ -1,4 +1,4 @@
-import type { Result, RunOptions } from 'axe-core'
+import type { NodeResult, Result, RunOptions } from 'axe-core'
 import type { Locator } from 'vitest/browser'
 import axe from 'axe-core'
 import i18n from 'i18next'
@@ -52,8 +52,33 @@ beforeAll(() => commands.resetMouse())
 // scripts/a11y-baseline.json by scripts/a11yRatchet.mjs: a new violation fails, a fixed one lowers the
 // allowance.
 
-/** A component fragment has no landmarks to speak of; the page-level `region` rule is the page's. */
-const AXE_OPTIONS: RunOptions = { resultTypes: ['violations'], rules: { region: { enabled: false } } }
+/**
+ * A component fragment has no landmarks to speak of; the page-level `region` rule is the page's.
+ * `elementRef` hands back the node itself, which is what tells a disabled control's text apart from
+ * text a reader is meant to read.
+ */
+const AXE_OPTIONS: RunOptions = {
+  elementRef: true,
+  resultTypes: ['violations'],
+  rules: { region: { enabled: false } },
+}
+
+/**
+ * WCAG 1.4.3 does not ask a contrast ratio of text that is part of an inactive user interface
+ * component, and being visibly muted is how a disabled control says it is disabled. axe reports it
+ * anyway: the `disabled` attribute sits on the input, while the text it greys out is a label and a
+ * helper text beside it, neither of which is disabled in its own right. MUI marks the whole group
+ * with `Mui-disabled`, so that is the exemption, applied where the rule already grants it.
+ *
+ * Nothing else is filtered — a rule that fires on a disabled control for any other reason is a real
+ * finding, and so is muted text that no disabled control owns (KOE-1375).
+ */
+const isInactive = (node: NodeResult) => Boolean(node.element?.closest('.Mui-disabled'))
+
+const readableTextOnly = (violation: Result): Result =>
+  violation.id === 'color-contrast'
+    ? { ...violation, nodes: violation.nodes.filter((node) => !isInactive(node)) }
+    : violation
 
 const describeViolation = ({ help, helpUrl, id, nodes }: Result, allowed: number) =>
   [
@@ -63,7 +88,8 @@ const describeViolation = ({ help, helpUrl, id, nodes }: Result, allowed: number
   ].join('\n')
 
 async function auditAccessibility(element: Element, screenshot: string) {
-  const { violations } = await axe.run(element, AXE_OPTIONS)
+  const { violations: reported } = await axe.run(element, AXE_OPTIONS)
+  const violations = reported.map(readableTextOnly).filter((violation) => violation.nodes.length > 0)
   const found = Object.fromEntries(violations.map((violation) => [violation.id, violation.nodes.length]))
   const grown = await commands.a11yRatchet(screenshot, found)
   if (!grown.length) return
