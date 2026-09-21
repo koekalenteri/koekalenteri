@@ -23,7 +23,7 @@ describe('StatsPage', () => {
     await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
-          <MemoryRouter initialEntries={['/tilastot']}>
+          <MemoryRouter initialEntries={['/stats']}>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
             </Suspense>
@@ -40,7 +40,7 @@ describe('StatsPage', () => {
     await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
-          <MemoryRouter initialEntries={['/tilastot?year=2024']}>
+          <MemoryRouter initialEntries={['/stats?year=2024']}>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
             </Suspense>
@@ -59,7 +59,7 @@ describe('StatsPage', () => {
     renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
-          <MemoryRouter initialEntries={['/tilastot']}>
+          <MemoryRouter initialEntries={['/stats']}>
             <Suspense fallback={<div>loading...</div>}>
               <StatsPage />
             </Suspense>

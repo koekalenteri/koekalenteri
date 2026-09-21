@@ -227,7 +227,7 @@ exports[`routes > should match a snapshot 1`] = `
     "errorElement": <ErrorPage />,
     "hydrateFallbackElement": <ForwardRef />,
     "lazy": [Function],
-    "path": "/tilastot",
+    "path": "/stats",
   },
   {
     "lazy": [Function],
@@ -260,6 +260,10 @@ exports[`routes > should match a snapshot 1`] = `
   {
     "element": <MovedWhatsNew />,
     "path": "uutta",
+  },
+  {
+    "element": <MovedStats />,
+    "path": "tilastot",
   },
   {
     "element": <Navigate

@@ -37,6 +37,12 @@ const MovedWhatsNew = () => {
   return <Navigate replace to={{ hash, pathname: Path.whatsNew, search }} />
 }
 
+/** The statistics were `/tilastot` in 1.11; the year picked lives in the search, which travels along. */
+const MovedStats = () => {
+  const { hash, search } = useLocation()
+  return <Navigate replace to={{ hash, pathname: Path.stats, search }} />
+}
+
 const routes: RouteObject[] = [
   {
     children: [
@@ -347,6 +353,7 @@ const routes: RouteObject[] = [
   { element: <MovedGuide />, path: 'ohjeet' },
   { element: <MovedGuide />, path: 'ohjeet/*' },
   { element: <MovedWhatsNew />, path: 'uutta' },
+  { element: <MovedStats />, path: 'tilastot' },
   // Move users with old bookmarks to front page
   {
     element: <Navigate to="/" replace />,

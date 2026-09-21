@@ -55,11 +55,12 @@ describe('routes', () => {
     ['ohjeet', '/ohjeet', '/docs'],
     ['ohjeet/*', '/ohjeet/secretary/trial-day#tulosten-syotto', '/docs/secretary/trial-day#tulosten-syotto'],
     ['uutta', '/uutta#1.11.2', '/whats-new#1.11.2'],
+    ['tilastot', '/tilastot?year=2024', '/stats?year=2024'],
   ])('redirects the old %s path', (pattern, from, to) => {
     const route = findRoute(pattern)
     const Location = () => {
       const location = useLocation()
-      return <div data-testid="location">{`${location.pathname}${location.hash}`}</div>
+      return <div data-testid="location">{`${location.pathname}${location.search}${location.hash}`}</div>
     }
     render(
       <MemoryRouter initialEntries={[from]}>

@@ -16,7 +16,7 @@ const CONTEXT: readonly (readonly [RegExp, string])[] = [
   [/^\/admin\/users$/, 'admin/users'],
   [/^\/admin\/(stats|event-breakdown)$/, 'admin/statistics'],
   [/^\/admin\/(types|templates)$/, 'admin/application'],
-  [/^\/tilastot$/, 'admin/statistics'],
+  [/^\/stats$/, 'admin/statistics'],
   [/^\/start-numbers\//, 'secretary/after-entry-closes'],
   [/^\/startlist\//, 'participant/start-list'],
   [/^\/r\//, 'participant/your-entry'],

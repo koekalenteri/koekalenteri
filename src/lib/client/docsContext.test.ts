@@ -24,7 +24,7 @@ describe('docsPathForRoute', () => {
     ['/admin/users', 'admin/users'],
     ['/admin/stats', 'admin/statistics'],
     ['/admin/event-breakdown', 'admin/statistics'],
-    ['/tilastot', 'admin/statistics'],
+    ['/stats', 'admin/statistics'],
     ['/admin/types', 'admin/application'],
     ['/admin/templates', 'admin/application'],
     ['/start-numbers/abc123/ALO/access/token', 'secretary/after-entry-closes'],

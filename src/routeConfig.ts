@@ -65,7 +65,7 @@ export const Path = {
   registration: (registration: ParticipantRegistration) => participantPath('r', registration),
   registrationOk: (registration: ParticipantRegistration) => participantPath('r', registration, '/saved'),
   startList: (id: string = ':id') => `/startlist/${id}`,
-  stats: '/tilastot',
+  stats: '/stats',
   /** What changed in each release; `#<version>` opens at that release. */
   whatsNew: '/whats-new',
 }
