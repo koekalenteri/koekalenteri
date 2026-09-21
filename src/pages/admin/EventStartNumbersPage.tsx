@@ -15,7 +15,7 @@ import { Path } from '../../routeConfig'
 import { idTokenAtom } from '../state'
 import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
-import { ClassLinkActions } from './eventStartNumbersPage/ClassLinkActions'
+import { ClassLinksTab } from './eventStartNumbersPage/ClassLinksTab'
 import { StartNumbersEntry } from './eventStartNumbersPage/StartNumbersEntry'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -25,8 +25,9 @@ import { useAdminEventScope } from './state/eventScope'
  * itself: people draw at the venue, this screen receives the result — the same interaction shape as
  * results entry, which is what the ticket asks for.
  *
- * A big trial draws every class at once, each with its own secretary, so the class on screen can also
- * be handed out as a link of its own (KOE-1267) — the same sheet, without an account.
+ * A big trial draws every class at once, each with its own secretary, so a class can also be handed
+ * out as a link of its own (KOE-1267) — the same sheet, without an account. The links are shared out
+ * from a tab of their own, every class together (KOE-1433).
  */
 export default function EventStartNumbersPage() {
   const { t } = useTranslation()
@@ -58,8 +59,6 @@ export default function EventStartNumbersPage() {
     [eventId, t, eventActions.enterStartNumbers]
   )
 
-  // The class secretary's link is the class on screen: whichever tab the secretary is looking at is
-  // the sheet they hand on.
   const handleCopyLink = useCallback(
     async (eventClass: string) => {
       const { token: linkToken } = await getStartNumberLink(eventId, eventClass, token ?? '')
@@ -108,8 +107,8 @@ export default function EventStartNumbersPage() {
         }
         onSave={handleSave}
         registrations={registrations}
-        renderClassActions={(eventClass) => (
-          <ClassLinkActions onCopy={() => handleCopyLink(eventClass)} onRevoke={() => handleRevokeLink(eventClass)} />
+        renderLinks={(classes) => (
+          <ClassLinksTab classes={classes} onCopy={handleCopyLink} onRevoke={handleRevokeLink} />
         )}
       />
     </Paper>

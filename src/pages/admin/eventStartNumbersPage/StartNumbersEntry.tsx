@@ -4,6 +4,7 @@ import type { StartNumberEntry } from '@/api/startNumbers'
 import type { ReservedStartNumber } from '@/types'
 import type { PlacedRegistration } from '../components/StartDaySelector'
 import type { StartNumberRow } from './StartNumbersTable'
+import LinkIcon from '@mui/icons-material/Link'
 import Save from '@mui/icons-material/Save'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
@@ -15,8 +16,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import {
+  compareRegistrationClasses,
   getRegistrationClass,
   getRegistrationPlacement,
+  isRegistrationClass,
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '@/lib/registration'
@@ -45,14 +48,21 @@ interface Props {
   readonly onSave: (numbers: StartNumberEntry[], eventClass?: string) => Promise<boolean>
   /** The screen's own head: the way back and the title for the secretary, the trial for a link. */
   readonly header?: ReactNode
-  /** What the open class offers beyond its sheet — the event secretary's link controls (KOE-1267). */
-  readonly renderClassActions?: (eventClass: string) => ReactNode
+  /**
+   * The event secretary's hand-out sheet, on a tab of its own after the classes (KOE-1433): the
+   * trial's every class with its link controls (KOE-1267). A class link has nothing to hand on and
+   * passes none; nor is there a tab for a trial without classes.
+   */
+  readonly renderLinks?: (classes: string[]) => ReactNode
   /**
    * Numbers already drawn outside these registrations (KOE-1267). A class link is served its own
    * class and could not otherwise see them; the event secretary gets the whole trial and passes none.
    */
   readonly reserved?: ReservedStartNumber[]
 }
+
+/** The links tab's value on the tab row: not a class, so no class can collide with it. */
+const LINKS_TAB = '__links'
 
 /**
  * The on-site draw's numbers, entered as a batch (KOE-1218): day, then class, then one field per dog.
@@ -61,7 +71,7 @@ interface Props {
  * link — so the sheet a class secretary works cannot drift from the one the event secretary has. The
  * difference between them is what data reaches this component and where the save goes.
  */
-export function StartNumbersEntry({ registrations, onSave, header, renderClassActions, reserved }: Props) {
+export function StartNumbersEntry({ registrations, onSave, header, renderLinks, reserved }: Props) {
   const { t } = useTranslation()
   // Four columns need more than a phone has; there the dog's details fold into one (KOE-1282).
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
@@ -74,6 +84,16 @@ export function StartNumbersEntry({ registrations, onSave, header, renderClassAc
   // The draw runs day by day and the secretary works a whole morning before moving on (KOE-1350).
   const { classes, day, dayRegistrations, days, eventClass, setSelectedClass, setSelectedDay } =
     useStartDayClasses(scorable)
+
+  // The links are handed out for the trial's classes, not the day's: a class drawn on two days has
+  // one secretary and one link.
+  const linkClasses = useMemo(
+    () => [...new Set(scorable.map(getRegistrationClass))].filter(isRegistrationClass).sort(compareRegistrationClasses),
+    [scorable]
+  )
+  const hasLinksTab = !!renderLinks && linkClasses.length > 0
+  const [linksOpen, setLinksOpen] = useState(false)
+  const showLinks = hasLinksTab && linksOpen
 
   const rows = useMemo<StartNumberRow[]>(
     () =>
@@ -128,48 +148,76 @@ export function StartNumbersEntry({ registrations, onSave, header, renderClassAc
 
       <StartDaySelector days={days} onChange={setSelectedDay} value={day} />
 
-      <Tabs onChange={(_event, value) => setSelectedClass(value)} sx={{ px: 2 }} value={eventClass ?? false}>
+      <Tabs
+        allowScrollButtonsMobile
+        onChange={(_event, value) => {
+          if (value === LINKS_TAB) {
+            setLinksOpen(true)
+          } else {
+            setLinksOpen(false)
+            setSelectedClass(value)
+          }
+        }}
+        scrollButtons="auto"
+        sx={{ px: 2 }}
+        value={linksOpen ? LINKS_TAB : (eventClass ?? false)}
+        variant="scrollable"
+      >
         {classes.map((item) => (
           <Tab key={item} label={item} value={item} />
         ))}
+        {hasLinksTab && (
+          <Tab
+            icon={<LinkIcon />}
+            iconPosition="start"
+            label={t('startNumbers.linksTab')}
+            sx={{ minHeight: 48, ml: 'auto' }}
+            value={LINKS_TAB}
+          />
+        )}
       </Tabs>
 
-      {eventClass && renderClassActions?.(eventClass)}
-
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: { md: 2, xs: 1 } }}>
-        <StartNumbersTable
-          compact={compact}
-          drafts={drafts}
-          duplicates={duplicates}
-          onChange={handleChange}
-          reserved={reservedByNumber}
-          rows={rows}
-        />
+        {showLinks ? (
+          renderLinks?.(linkClasses)
+        ) : (
+          <StartNumbersTable
+            compact={compact}
+            drafts={drafts}
+            duplicates={duplicates}
+            onChange={handleChange}
+            reserved={reservedByNumber}
+            rows={rows}
+          />
+        )}
       </Box>
 
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{
-          borderColor: '#bdbdbd',
-          borderTop: '1px solid',
-          justifyContent: 'flex-end',
-          p: 1,
-        }}
-      >
-        <Button disabled={Object.keys(drafts).length === 0} onClick={() => setDrafts({})}>
-          {t('cancel')}
-        </Button>
-        <AsyncButton
-          color="primary"
-          disabled={Object.values(drafts).every((value) => value === '')}
-          onClick={handleSave}
-          startIcon={<Save />}
-          variant="contained"
+      {/* The hand-out sheet has nothing to save; the entries typed so far wait behind the class tabs. */}
+      {!showLinks && (
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            borderColor: '#bdbdbd',
+            borderTop: '1px solid',
+            justifyContent: 'flex-end',
+            p: 1,
+          }}
         >
-          {t('startNumbers.save')}
-        </AsyncButton>
-      </Stack>
+          <Button disabled={Object.keys(drafts).length === 0} onClick={() => setDrafts({})}>
+            {t('cancel')}
+          </Button>
+          <AsyncButton
+            color="primary"
+            disabled={Object.values(drafts).every((value) => value === '')}
+            onClick={handleSave}
+            startIcon={<Save />}
+            variant="contained"
+          >
+            {t('startNumbers.save')}
+          </AsyncButton>
+        </Stack>
+      )}
     </>
   )
 }
