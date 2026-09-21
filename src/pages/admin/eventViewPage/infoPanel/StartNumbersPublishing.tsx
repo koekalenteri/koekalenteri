@@ -85,7 +85,9 @@ const publishScopes = (days: ClassDay[], dayTimes: (day: ClassDay) => StartNumbe
 const scopeLabel = (t: TFunction, { date, time }: { date: Date; time?: StartNumbersTime }, withDay: boolean) => {
   const day = t('dateFormat.wdshort', { date })
   if (!time) return day
-  return withDay ? `${day} ${t(`registration.time.${time}`)}` : t(`registration.timeLong.${time}`)
+  if (!withDay) return t(`registration.timeLong.${time}`)
+  const half = t(`registration.time.${time}`)
+  return `${day} ${half}`
 }
 
 interface Props {

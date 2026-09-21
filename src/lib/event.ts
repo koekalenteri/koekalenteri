@@ -728,8 +728,11 @@ export type StartNumbersTime = Extract<RegistrationTime, 'ap' | 'ip'>
 
 const START_NUMBERS_TIMES: readonly StartNumbersTime[] = ['ap', 'ip']
 
+/** The same list, wide enough to be asked about any value without asserting what it is. */
+const START_NUMBERS_TIME_VALUES: readonly unknown[] = START_NUMBERS_TIMES
+
 export const isStartNumbersTime = (value: unknown): value is StartNumbersTime =>
-  START_NUMBERS_TIMES.some((time) => time === value)
+  START_NUMBERS_TIME_VALUES.includes(value)
 
 /**
  * The stored form of one slot of a class's numbers: the day key alone for a whole day, or the day
