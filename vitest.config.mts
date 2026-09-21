@@ -49,6 +49,7 @@ export default defineConfig({
           // an i18next nobody has initialized yet. In the frontend project the setup file has
           // already initialized the shared instance, so the assertion would be vacuous there.
           include: ['src/lambda/**/*.{spec,test}.ts', 'src/i18n/lambda.test.ts'],
+          setupFiles: ['./src/lambda/setupTests.ts'],
         },
       },
       {

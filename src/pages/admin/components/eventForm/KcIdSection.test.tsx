@@ -21,8 +21,8 @@ vi.mock('notistack', () => ({
 }))
 
 /** Events other than the one being edited, whose koetunnukset are therefore already spoken for. */
-const renderComponent = (props: Props, otherEvents: DogEvent[] = []) =>
-  renderWithUserEvents(
+const renderComponent = async (props: Props, otherEvents: DogEvent[] = []) => {
+  const rendered = renderWithUserEvents(
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
       <Provider
         initializeState={({ set }) => {
@@ -35,6 +35,11 @@ const renderComponent = (props: Props, otherEvents: DogEvent[] = []) =>
     </LocalizationProvider>,
     undefined
   )
+  // The linked koetunnukset and the event type's officialness resolve after the first paint; a test
+  // that read the screen before they had would leave their updates to land outside act, as warnings.
+  await flushPromises()
+  return rendered
+}
 
 const eventLinkedTo = (kcId: number): DogEvent => ({ ...eventWithStaticDates, id: `linked-${kcId}`, kcId })
 
@@ -43,7 +48,7 @@ describe('KcIdSection', () => {
     vi.clearAllMocks()
   })
 
-  it('should render', () => {
+  it('should render', async () => {
     const testEvent: PartialEvent = {
       classes: [],
       endDate: new TZDate('2022-06-02', TIME_ZONE),
@@ -53,12 +58,12 @@ describe('KcIdSection', () => {
       organizer: { id: 'org-id', name: 'Organizer' },
       startDate: new TZDate('2022-06-01', TIME_ZONE),
     }
-    renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+    await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
 
     expect(screen.getByText('event.kcIdLookup')).toBeInTheDocument()
   })
 
-  it('should tell the user to pick an organizer before a lookup is possible', () => {
+  it('should tell the user to pick an organizer before a lookup is possible', async () => {
     const testEvent: PartialEvent = {
       classes: [],
       endDate: new TZDate('2022-06-02', TIME_ZONE),
@@ -68,13 +73,13 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2022-06-01', TIME_ZONE),
     }
 
-    renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+    await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
 
     expect(screen.getByText('event.kcIdRequiresOrganizer')).toBeInTheDocument()
     expect(screen.queryByText('event.kcIdLookup')).not.toBeInTheDocument()
   })
 
-  it('should not show the organizer hint once an organizer is selected', () => {
+  it('should not show the organizer hint once an organizer is selected', async () => {
     const testEvent: PartialEvent = {
       classes: [],
       endDate: new TZDate('2022-06-02', TIME_ZONE),
@@ -85,7 +90,7 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2022-06-01', TIME_ZONE),
     }
 
-    renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+    await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
 
     expect(screen.queryByText('event.kcIdRequiresOrganizer')).not.toBeInTheDocument()
     expect(screen.getByText('event.kcIdLookup')).toBeInTheDocument()
@@ -117,7 +122,7 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+    const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
     await user.click(screen.getByText('event.kcIdLookup'))
     await flushPromises()
@@ -184,7 +189,7 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+    const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
     await user.click(screen.getByText('event.kcIdLookup'))
     expect(await screen.findByText('event.kcIdChoiceTitle')).toBeInTheDocument()
@@ -232,7 +237,9 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [eventLinkedTo(222)])
+    const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [
+      eventLinkedTo(222),
+    ])
     await flushPromises()
 
     await user.click(screen.getByText('event.kcIdLookup'))
@@ -278,7 +285,9 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [eventLinkedTo(222)])
+    const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [
+      eventLinkedTo(222),
+    ])
     await flushPromises()
 
     await user.click(screen.getByText('event.kcIdLookup'))
@@ -297,7 +306,7 @@ describe('KcIdSection', () => {
     })
   })
 
-  it('should show the fetched Kennel Club ID as static, non-editable text', () => {
+  it('should show the fetched Kennel Club ID as static, non-editable text', async () => {
     const testEvent: PartialEvent = {
       classes: [],
       endDate: new TZDate('2026-06-01', TIME_ZONE),
@@ -309,7 +318,7 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+    await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
 
     expect(screen.getByText('222')).toBeInTheDocument()
     expect(screen.queryByRole('textbox', { name: 'event.kcId' })).not.toBeInTheDocument()
@@ -329,7 +338,7 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    const { rerender, user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+    const { rerender, user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
     await user.click(screen.getByText('event.kcIdRemove'))
 
@@ -359,7 +368,7 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    const { user } = renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+    const { user } = await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
 
     await user.click(screen.getByText('event.kcIdLookup'))
     await flushPromises()
@@ -382,7 +391,7 @@ describe('KcIdSection', () => {
     }
 
     try {
-      const { user } = renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+      const { user } = await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
 
       await user.click(screen.getByText('event.kcIdLookup'))
       await flushPromises()
@@ -416,27 +425,27 @@ describe('KcIdSection', () => {
       startDate: new TZDate('2026-06-01', TIME_ZONE),
     }
 
-    it('should show no warnings when the event matches the linked Kennel Club event', () => {
-      renderComponent({ event: baseEvent, onChange: vi.fn(), open: true })
+    it('should show no warnings when the event matches the linked Kennel Club event', async () => {
+      await renderComponent({ event: baseEvent, onChange: vi.fn(), open: true })
 
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     })
 
-    it('should show no warnings when a koetunnus is set without a stored snapshot', () => {
-      renderComponent({ event: { ...baseEvent, kcEvent: undefined }, onChange: vi.fn(), open: true })
+    it('should show no warnings when a koetunnus is set without a stored snapshot', async () => {
+      await renderComponent({ event: { ...baseEvent, kcEvent: undefined }, onChange: vi.fn(), open: true })
 
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     })
 
-    it('should warn when the event type differs from the linked Kennel Club event', () => {
-      renderComponent({ event: { ...baseEvent, eventType: 'NOWT' }, onChange: vi.fn(), open: true })
+    it('should warn when the event type differs from the linked Kennel Club event', async () => {
+      await renderComponent({ event: { ...baseEvent, eventType: 'NOWT' }, onChange: vi.fn(), open: true })
 
       expect(screen.getByRole('alert')).toBeInTheDocument()
       expect(screen.getByText('event.kcIdWarningType eventType, kcEventType')).toBeInTheDocument()
     })
 
-    it('should warn when the classes differ from the linked Kennel Club event', () => {
-      renderComponent({
+    it('should warn when the classes differ from the linked Kennel Club event', async () => {
+      await renderComponent({
         event: {
           ...baseEvent,
           classes: [
@@ -451,8 +460,8 @@ describe('KcIdSection', () => {
       expect(screen.getByText('event.kcIdWarningClasses classes, kcClasses')).toBeInTheDocument()
     })
 
-    it('should warn when the dates differ from the linked Kennel Club event', () => {
-      renderComponent({
+    it('should warn when the dates differ from the linked Kennel Club event', async () => {
+      await renderComponent({
         event: { ...baseEvent, endDate: new TZDate('2026-06-02', TIME_ZONE) },
         onChange: vi.fn(),
         open: true,
@@ -461,14 +470,14 @@ describe('KcIdSection', () => {
       expect(screen.getByText('event.kcIdWarningDates dates, kcDates')).toBeInTheDocument()
     })
 
-    it('should warn when the location differs from the linked Kennel Club event', () => {
-      renderComponent({ event: { ...baseEvent, location: 'Vantaa' }, onChange: vi.fn(), open: true })
+    it('should warn when the location differs from the linked Kennel Club event', async () => {
+      await renderComponent({ event: { ...baseEvent, location: 'Vantaa' }, onChange: vi.fn(), open: true })
 
       expect(screen.getByText('event.kcIdWarningLocation kcLocation, location')).toBeInTheDocument()
     })
 
-    it('should warn when the Kennel Club head judge is not among the event judges', () => {
-      renderComponent({
+    it('should warn when the Kennel Club head judge is not among the event judges', async () => {
+      await renderComponent({
         event: { ...baseEvent, judges: [{ id: 1, name: 'Joku Muu' }] },
         onChange: vi.fn(),
         open: true,
@@ -477,8 +486,8 @@ describe('KcIdSection', () => {
       expect(screen.getByText('event.kcIdWarningJudge kcJudge')).toBeInTheDocument()
     })
 
-    it('should not warn about judges when the Kennel Club event has no head judge on record', () => {
-      renderComponent({
+    it('should not warn about judges when the Kennel Club event has no head judge on record', async () => {
+      await renderComponent({
         event: { ...baseEvent, judges: [{ id: 1, name: 'Joku Muu' }], kcEvent: { ...kcEvent, judge: undefined } },
         onChange: vi.fn(),
         open: true,

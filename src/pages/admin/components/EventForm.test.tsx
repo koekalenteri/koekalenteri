@@ -8,7 +8,7 @@ import { Suspense } from 'react'
 import { eventWithEntryNotYetOpen, eventWithStaticDates } from '@/__mockData__/events'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { flushPromises, renderSuspendedWithUserEvents } from '@/test-utils/utils'
+import { flushPromises, renderSuspendedWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import EventForm from './EventForm'
 
 vi.mock('@/api/user')
@@ -36,7 +36,7 @@ const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel
 
 describe('EventForm', () => {
   beforeAll(() => vi.useFakeTimers())
-  afterEach(() => vi.runOnlyPendingTimers())
+  afterEach(runPendingTimers)
   afterAll(() => vi.useRealTimers())
 
   it('should render', async () => {

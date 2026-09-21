@@ -5,7 +5,7 @@ import {
   eventWithStaticDatesAnd3Classes,
   eventWithStaticDatesAndClass,
 } from '@/__mockData__/events'
-import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
+import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import EventFormPlaces from './EventFormPlaces'
 
 vi.mock('notistack', () => ({
@@ -20,7 +20,7 @@ const isPressed = (mode: Mode) => modeButton(mode).getAttribute('aria-pressed') 
 
 describe('EventFormPlaces', () => {
   beforeAll(() => vi.useFakeTimers())
-  afterEach(() => vi.runOnlyPendingTimers())
+  afterEach(runPendingTimers)
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal information', () => {

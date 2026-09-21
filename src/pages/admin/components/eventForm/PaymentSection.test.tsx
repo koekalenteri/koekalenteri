@@ -9,7 +9,7 @@ import { MemoryRouter } from 'react-router'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
+import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import PaymentSection from './PaymentSection'
 
 // Helper function to render the PaymentSection component with all required providers
@@ -36,7 +36,7 @@ const renderPaymentSection = (testEvent: any, onChange: any, extraProps: Record<
 describe('PaymentSection', () => {
   beforeEach(() => vi.useFakeTimers())
   afterEach(() => {
-    vi.runOnlyPendingTimers()
+    runPendingTimers()
     vi.useRealTimers()
   })
 

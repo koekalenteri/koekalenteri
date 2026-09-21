@@ -11,6 +11,7 @@ import theme from '../../assets/Theme'
 import { TIME_ZONE } from '../../i18n/dates'
 import { Path } from '../../routeConfig'
 import { TestProvider } from '../../test-utils/AtomProvider'
+import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { freezeClockAt } from '../../test-utils/freezeClock'
 import { DataMemoryRouter, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
@@ -65,6 +66,9 @@ const registrations: Registration[] = [
 ]
 
 it("shows the event's status row, info panel and class tabs above the entry grid", async () => {
+  // The event atom is a promise until the list has loaded and a plain value after, by design (see
+  // adminEventAtom): the render that suspended on it completes without it, and React 19 says so.
+  expectConsoleOutput(/called use\(\) to suspend in a previous render/)
   const screen = await render(
     // A fixed height with overflow hidden crops the capture to the page's own structure -- the
     // entry grid underneath already has its own coverage from KOE-1322.

@@ -1,5 +1,6 @@
 import type { Registration } from '../types'
 import { API_BASE_URL } from '../routeConfig'
+import { expectConsoleOutput } from '../test-utils/consoleGuard'
 import fetchMock from '../test-utils/fetchMock'
 import {
   getRegistration,
@@ -203,6 +204,8 @@ test('postRegistration and patchRegistration use the logged-in route with the id
 })
 
 test('patchRegistration falls back to the public route when the id token is refused', async () => {
+  // The refused call is reported before the fallback is tried; that is the report, not a fault.
+  expectConsoleOutput(/reportError .*401/)
   fetchMock.mockResponseOnce('', { status: 401 })
   fetchMock.mockResponseOnce(JSON.stringify(mockRegistration))
 

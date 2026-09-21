@@ -15,6 +15,12 @@ const mockBuildEventPatchPayload = vi.fn((eventId: string, patch: object) => ({ 
 const mockBuildEventViewersPayload = vi.fn((eventId: string, viewers: unknown[]) => ({ eventId, viewers }))
 const mockBuildRegistrationPatchPayload = vi.fn((eventId: string, patch: unknown[]) => ({ eventId, patch }))
 const mockToEventViewers = vi.fn((audience: unknown[]) => audience)
+const mockBumpDataVersion = vi.fn().mockResolvedValue(undefined)
+
+// The version bump writes to DynamoDB; unmocked, it reached for real credentials and logged the refusal.
+vi.doMock('../dataVersions', () => ({
+  bumpDataVersion: mockBumpDataVersion,
+}))
 
 vi.doMock('./broadcast', () => ({
   broadcast: mockBroadcast,
@@ -202,6 +208,10 @@ describe('ws/actions', () => {
 
   it('publishAdminDataInvalidation sends collection names to the admin audience', async () => {
     await publishAdminDataInvalidation(['users', 'organizers'])
+
+    // Every collection but users gets its version bumped; users is versioned per organization.
+    expect(mockBumpDataVersion).toHaveBeenCalledTimes(1)
+    expect(mockBumpDataVersion).toHaveBeenCalledWith('organizers')
 
     const call = broadcastConfigurations[0] as
       | { audience: () => Promise<unknown[]>; buildPayload: () => unknown }

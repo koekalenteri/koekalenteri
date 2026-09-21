@@ -8,6 +8,7 @@ import theme from '../assets/Theme'
 // isolated render never loads it otherwise and the link falls back to the browser's default blue
 // (same gap as KOE-1324's SearchPage.visual.test.tsx).
 import '../index.css'
+import { expectConsoleOutput } from '../test-utils/consoleGuard'
 import { DataMemoryRouter } from '../test-utils/utils'
 import { ErrorPage } from './ErrorPage'
 
@@ -45,6 +46,8 @@ it('shows a 404 for an unknown route', async () => {
 })
 
 it('shows a generic message for an unhandled error', async () => {
+  // The thrown error is the fixture: React and the router each report it before the page shows.
+  expectConsoleOutput(/TEST ERROR/, /The above error occurred in the <ErrorThrowingComponent>/)
   const routes: RouteObject[] = [
     {
       element: <ErrorThrowingComponent />,

@@ -10,6 +10,27 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Frontend typecheck is `npm run lint-frontend`.
 - Use `git diff --check` before finishing edits to catch whitespace issues.
 
+### A green run is a quiet run
+
+- Anything a test writes to `console.error` or `console.warn` fails that test, in every project
+  (`src/test-utils/consoleGuard.ts`, set up from each project's setup file). An act() warning, a MUI
+  prop mistake or a rejected fetch is a defect in the test or the component; fix it there. The
+  lambdas' `info` and `debug` lines are silenced in the backend project, so a passing run prints
+  nothing (KOE-1439).
+- A test that expects output says so: `expectConsoleOutput(/pattern/)` before the code that writes
+  it. Every declared pattern must then match a line and every line must match a pattern, so a
+  declaration is an assertion, not a mute. The other way is the lambda tests' own:
+  `vi.spyOn(console, 'error').mockImplementation(() => {})` and reading the lines back with
+  `loggedLines(spy)`; a spy installed at file level is left alone.
+- "not wrapped in act(...)" after the test ends comes from timers a file runs in `afterEach`
+  (`vi.runOnlyPendingTimers()` fires a ripple's exit and a snackbar's auto-hide): use
+  `runPendingTimers()` / `runAllTimers()` from `src/test-utils/utils`, which run them inside act.
+  The same warning before the test ends means a render settles asynchronously (an atom resolving):
+  `await flushPromises()` after the render.
+- The one warning declared rather than fixed: "This library called use() to suspend in a previous
+  render but did not call use() when it finished" — a React 19 note that `adminEventAtom` flips
+  from a promise to a plain value once the list has loaded, which it does by design.
+
 ## Mocking Gotchas
 
 - Mock only boundaries whose behavior the test must control or observe, such as network calls, AWS services, persistence, authorization, secrets, clocks, randomness, or side-effect publishers.

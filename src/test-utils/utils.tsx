@@ -56,6 +56,24 @@ const awaitingAct = async <T,>(renderTree: () => T): Promise<T> => {
   return result
 }
 
+/**
+ * Runs the timers a test leaves pending — a ripple's exit, a snackbar's auto-hide — inside act, so
+ * the state updates they cause are React's business and not a warning after the test. For the
+ * `afterEach` of a file that fakes its timers.
+ */
+export const runPendingTimers = () => {
+  act(() => {
+    vi.runOnlyPendingTimers()
+  })
+}
+
+/** `runPendingTimers` for a file that runs every timer out, chained ones included. */
+export const runAllTimers = () => {
+  act(() => {
+    vi.runAllTimers()
+  })
+}
+
 /** `render` for a tree behind `Suspense`. */
 export const renderSuspended = (ui: React.ReactElement, options?: Omit<RenderOptions, 'queries'>) =>
   awaitingAct(() => render(ui, options))

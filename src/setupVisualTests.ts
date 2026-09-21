@@ -8,6 +8,10 @@ import { commands } from 'vitest/browser'
 import { registerFormatters } from './i18n/formatters'
 import { en, enBreed, enBreedAbbr, enCountry, fi, fiBreed, fiBreedAbbr, fiCountry } from './i18n/locales'
 import { readableTextOnly } from './test-utils/a11yExemptions'
+import { guardConsole } from './test-utils/consoleGuard'
+
+// What a test writes to console.error or console.warn fails it, unless the test declared it (KOE-1439).
+guardConsole()
 
 // Real translations, not the key-echoing mock the other projects use. Label length is part of
 // what these screenshots are for: Finnish breed names run past 30 characters, and a legend that

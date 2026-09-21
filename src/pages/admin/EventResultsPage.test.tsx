@@ -18,6 +18,7 @@ import { putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
+import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
@@ -528,6 +529,8 @@ describe('EventResultsPage', () => {
     vi.mocked(putEventResults).mockRejectedValueOnce(
       new APIError(new Response(null, { status: 422, statusText: 'Unprocessable' }), 'did not run')
     )
+    // The refusal is reported as an error before the page tells the user; that is the report.
+    expectConsoleOutput(/reportError .*422/)
     const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 

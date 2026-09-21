@@ -13,7 +13,7 @@ import { registrationWithStaticDates } from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderWithUserEvents, runPendingTimers } from '../test-utils/utils'
 import { ErrorPage } from './ErrorPage'
 import { Component as RegistrationCreatePage } from './RegistrationCreatePage'
 import { newRegistrationAtom } from './state'
@@ -29,7 +29,7 @@ vi.mock('../api/registration')
 describe('RegistrationCreatePage', () => {
   beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
-    vi.runOnlyPendingTimers()
+    runPendingTimers()
     localStorage.clear()
     sessionStorage.clear()
   })

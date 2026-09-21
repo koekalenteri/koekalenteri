@@ -83,7 +83,9 @@ export function PersonFields({
             label={t('contact.city')}
             name="city"
             onChange={(e) => updateField('location', e.target.value)}
-            value={formValues.location}
+            // A field asked for after mount (a co-owner adding contact details) has no value in the
+            // group yet; an empty string keeps the input controlled from its first render.
+            value={formValues.location ?? ''}
             slotProps={{
               input: { autoComplete: 'address-level2' },
             }}
@@ -100,7 +102,7 @@ export function PersonFields({
             label={t('contact.email')}
             name="email"
             onChange={(e) => updateField('email', e.target.value.trim())}
-            value={formValues.email}
+            value={formValues.email ?? ''}
             slotProps={{
               input: { autoComplete: 'email' },
             }}

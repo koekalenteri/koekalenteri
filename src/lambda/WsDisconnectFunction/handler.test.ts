@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockWsDisconnect = vi.fn()
 const mockPublishEventViewers = vi.fn()
@@ -52,11 +53,19 @@ describe('wsDisconnectHandler', () => {
     expect(mockPublishEventViewers).toHaveBeenCalledWith('e1', 'org1')
   })
 
-  it('answers 500 if wsDisconnect fails', async () => {
+  it('answers 500 if wsDisconnect fails, and logs the error', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const error = new Error('Disconnection error')
     mockWsDisconnect.mockRejectedValueOnce(error)
 
     await expect(wsDisconnectHandler(event)).resolves.toEqual({ body: 'Internal server error', statusCode: 500 })
+
+    expect(loggedLines(errorSpy)).toContainEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'Disconnection error' }),
+        message: 'unhandled error',
+      })
+    )
 
     expect(mockWsDisconnect).toHaveBeenCalledWith(
       'test-connection-id',

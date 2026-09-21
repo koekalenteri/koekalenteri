@@ -11,6 +11,8 @@ import { idTokenAtom } from '../state'
 import AdminHomePage from './AdminHomePage'
 
 vi.mock('../../api/user')
+// The real Authenticator.Provider asks Amplify for the session; unconfigured, Amplify warns on every render.
+vi.mock('@aws-amplify/ui-react', () => import('../../__mocks__/aws-amplify/ui-react'))
 vi.mock('../../hooks/useAdminSubscription', () => ({
   useAdminSubscription: vi.fn(),
 }))
