@@ -259,9 +259,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
           command.resolve(undefined)
         })
         setEventRegistrations(confirmed)
-        if (event) {
-          setEvent({ ...event, classes, entries })
-        }
+        setEvent({ ...event, classes, entries })
         setBackgroundActionsRunning(false)
       } catch (e) {
         failed = true
@@ -421,7 +419,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
       if (!token) throw new Error('missing token')
 
       const { classes, failed, ok, registrations, startListPublished, state } = await sendTemplatedEmail(message, token)
-      if (event) setEvent({ ...event, classes, startListPublished, state })
+      setEvent({ ...event, classes, startListPublished, state })
       updateAdminRegistrations(registrations)
 
       return { failed, ok }
