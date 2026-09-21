@@ -7,6 +7,8 @@ covers:
   - src/pages/admin/components/EventForm.tsx
   - src/pages/admin/components/eventForm/**
   - src/pages/admin/eventViewPage/EventStateStepper.tsx
+  - src/pages/admin/EventCreatePage.tsx
+  - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
 ---
 

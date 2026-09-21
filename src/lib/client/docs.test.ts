@@ -3,19 +3,34 @@ import { docsPageFor, docsPagesFor, releaseNotesFor, rulesDocumentFor, rulesFor 
 describe('docs', () => {
   describe('docsPagesFor', () => {
     it('gives the pages in the reader’s language', () => {
+      // In reading order, then by path: the index groups them by audience on top of this.
       expect(docsPagesFor('en').map((page) => page.title)).toEqual([
         'Entering a trial',
         'Before entry opens',
+        'Your entry',
         'While entry is open',
+        'Start list and results',
         'After entry closes',
         'Payments',
+        'The trial day and the results',
+        'Users and access',
+        'Judges and officials',
+        'Statistics',
+        'For the application administrator',
       ])
       expect(docsPagesFor('fi').map((page) => page.title)).toEqual([
         'Kokeeseen ilmoittautuminen',
         'Ennen ilmoittautumisajan alkua',
+        'Oma ilmoittautumisesi',
         'Ilmoittautumisaikana',
+        'Starttilista ja tulokset',
         'Ilmoittautumisajan jälkeen',
         'Maksuliikenne',
+        'Koepäivä ja tulokset',
+        'Käyttäjät ja käyttöoikeudet',
+        'Tuomarit ja koetoimitsijat',
+        'Tilastot',
+        'Koekalenterin pääkäyttäjälle',
       ])
     })
 
@@ -61,11 +76,11 @@ describe('docs', () => {
 
   describe('docsPageFor', () => {
     it('finds a page by its path', () => {
-      expect(docsPageFor('fi', 'ilmoittautujalle/ilmoittautuminen')?.audience).toBe('participant')
+      expect(docsPageFor('fi', 'participant/entering')?.audience).toBe('participant')
     })
 
     it('returns nothing for a path that has no page', () => {
-      expect(docsPageFor('fi', 'ilmoittautujalle/ei-tallaista')).toBeUndefined()
+      expect(docsPageFor('fi', 'participant/no-such-page')).toBeUndefined()
     })
   })
 })

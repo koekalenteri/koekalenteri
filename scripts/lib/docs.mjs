@@ -90,7 +90,7 @@ const parseFrontmatter = (source, file) => {
   return { body: source.slice(match[0].length), data, frontmatterLines: match[0].split('\n').length - 1 }
 }
 
-/** `docs/fi/koesihteerille/ilmoaikana.md` -> language `fi`, path `koesihteerille/ilmoaikana`. */
+/** `docs/fi/secretary/while-entry-is-open.md` -> language `fi`, path `secretary/while-entry-is-open`. */
 const pageIdentity = (file) => {
   const [, language, ...rest] = relative('.', file).split('/')
 

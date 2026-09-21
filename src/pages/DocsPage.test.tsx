@@ -25,7 +25,7 @@ const renderAt = (path: string) => {
 
 describe('DocsPage', () => {
   it('renders the page named by the path', async () => {
-    renderAt('/ohjeet/ilmoittautujalle/ilmoittautuminen')
+    renderAt('/ohjeet/participant/entering')
     await flushPromises()
 
     expect(screen.getByRole('heading', { level: 1, name: 'Kokeeseen ilmoittautuminen' })).toBeInTheDocument()
@@ -36,7 +36,7 @@ describe('DocsPage', () => {
 
   // The report names the page, the version and the language, so the reader need not (KOE-1402).
   it('offers a feedback form filled in with where the reader was', async () => {
-    renderAt('/ohjeet/ilmoittautujalle/ilmoittautuminen')
+    renderAt('/ohjeet/participant/entering')
     await flushPromises()
 
     const href = screen.getByRole('link', { name: 'docs.feedback' }).getAttribute('href') ?? ''
