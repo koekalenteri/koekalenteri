@@ -1,7 +1,7 @@
 import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass } from '../../types'
 import type { StartNumberEntry } from '../lib/startNumbers'
-import { isStartListPublishedForClass } from '../../lib/event'
-import { isRegistrationClass } from '../../lib/registration'
+import { getStartNumbersDayTimes, isStartListPublishedForClass, isStartNumbersTime } from '../../lib/event'
+import { getRegistrationClass, isRegistrationClass, isScorableRegistration } from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { lockRegistrationGroups } from '../lib/event'
@@ -25,6 +25,8 @@ interface StartNumbersRequest {
   published?: boolean
   /** Narrows a publish or hide to one day (yyyy-MM-dd) of a multi-day class (KOE-1304). */
   date?: string
+  /** Narrows it further to the morning or the afternoon of that day (KOE-1430); needs `date`. */
+  time?: string
   /** The venue draw's results, written as values rather than as a reordering. */
   numbers?: StartNumberEntry[]
 }
@@ -55,6 +57,10 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
     throw httpError(422, 'invalid date')
   }
   const date = body.date
+  if (body.time !== undefined && (!isStartNumbersTime(body.time) || !date)) {
+    return response(422, 'invalid time', event)
+  }
+  const time = isStartNumbersTime(body.time) ? body.time : undefined
 
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
 
@@ -74,13 +80,30 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
 
     if (typeof body.published === 'boolean') {
       if (body.published) {
-        patches.push(...(await freezeStartNumbers(eventId, registrations, eventClass, user.name, date)))
+        patches.push(...(await freezeStartNumbers(eventId, registrations, eventClass, user.name, date, time)))
       }
-      const state = await setStartNumbersPublishedState(confirmedEvent, eventClass, body.published, date)
+      // The halves the day runs in decide when its published halves add up to the day (KOE-1430).
+      const dayTimes = date
+        ? getStartNumbersDayTimes(
+            registrations.filter(
+              (registration) =>
+                isScorableRegistration(registration) &&
+                (!eventClass || getRegistrationClass(registration) === eventClass)
+            ),
+            date
+          )
+        : []
+      const state = await setStartNumbersPublishedState(confirmedEvent, {
+        date,
+        dayTimes,
+        eventClass,
+        published: body.published,
+        time,
+      })
       confirmedEvent.startNumbersPublished = state.startNumbersPublished
       confirmedEvent.updatedAt = state.updatedAt
       publicationChanged = true
-      const scope = [eventClass, date && auditDay(date)].filter(Boolean).join(', ')
+      const scope = [eventClass, date && auditDay(date), time].filter(Boolean).join(', ')
       const scopeSuffix = scope ? ` (${scope})` : ''
       await audit({
         auditKey: eventAuditKey(confirmedEvent),

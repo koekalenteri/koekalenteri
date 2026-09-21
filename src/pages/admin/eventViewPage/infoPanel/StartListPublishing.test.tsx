@@ -345,7 +345,7 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    await user.click(screen.getAllByRole('button', { name: 'eventManagement.startList.publishNumbers' })[0])
+    await user.click(screen.getAllByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' })[0])
 
     await waitFor(() => {
       expect(enqueueSnackbar).toHaveBeenCalledWith(
@@ -388,16 +388,30 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    // One button per day: Friday hides, Saturday publishes. The class is not done yet.
-    expect(screen.getByRole('button', { name: 'eventManagement.startList.hideNumbersDay day' })).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' })).toBeEnabled()
+    // One button per day: Friday hides, Saturday publishes. The class is not done yet. Friday's dogs
+    // run in a morning and an afternoon, so Friday is its two halves, each with a button of its own
+    // (KOE-1430); Saturday has no dogs yet and so no halves.
+    const hideFriday = screen.getAllByRole('button', { name: 'eventManagement.startList.hideNumbersDay day' })
+    expect(hideFriday).toHaveLength(2)
+    for (const button of hideFriday) expect(button).toBeEnabled()
+    // Saturday's publish comes first; the two after it are AVO's halves, in place of that class's own button.
+    const publishButtons = screen.getAllByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' })
+    expect(publishButtons).toHaveLength(3)
+    expect(publishButtons[0]).toBeEnabled()
     expect(screen.getByText('eventManagement.startList.numbersPublishedDays days')).toBeInTheDocument()
     expect(screen.queryByText('eventManagement.startList.numbersPublished')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' }))
+    await user.click(publishButtons[0])
 
     await waitFor(() => {
-      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', true, zonedDateString(saturday))
+      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', true, zonedDateString(saturday), undefined)
+    })
+
+    // The halves come morning first: hiding the morning names it.
+    await user.click(hideFriday[0])
+
+    await waitFor(() => {
+      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', false, zonedDateString(aloDay.date), 'ap')
     })
   })
 
@@ -474,11 +488,11 @@ describe('InfoPanel>', () => {
 
     // Everything about the numbers moved out from under it, the draw entry included.
     expect(
-      within(numbersSection).getAllByRole('button', { name: 'eventManagement.startList.publishNumbers' })
+      within(numbersSection).getAllByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' })
     ).not.toHaveLength(0)
     expect(within(numbersSection).getByRole('link', { name: 'eventManagement.enterStartNumbers' })).toBeInTheDocument()
     expect(
-      within(listSection).queryAllByRole('button', { name: 'eventManagement.startList.publishNumbers' })
+      within(listSection).queryAllByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' })
     ).toHaveLength(0)
     expect(
       within(listSection).queryByRole('link', { name: 'eventManagement.enterStartNumbers' })

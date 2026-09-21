@@ -152,6 +152,13 @@ julkaisu vahvistaa starttilistan järjestysnumerot sellaisinaan koirakoiden star
 
 !shot[StartNumbersPublishing/start-numbers-publishing-two-days] Kahden päivän luokan numerot julkaistaan päivä kerrallaan
 
+Jos päivällä on aamupäivän ja iltapäivän ryhmät, luokan tai päivän painikkeen sijasta on painike
+kummallekin vuorolle: aamupäivän numerot voi julkaista heti sen arvonnan jälkeen, vaikka iltapäivän
+arvonta olisi vielä tekemättä. Julkisella starttilistalla iltapäivän koirakot ovat silloin vielä
+ilman numeroa. Kun molemmat vuorot on julkaistu, päivä on julkaistu kokonaan.
+
+!shot[StartNumbersPublishing/start-numbers-publishing-half-day] Aamupäivän numerot julkaistaan ennen iltapäivän arvontaa
+
 ## Peruutukset ja palautukset
 
 Peruutus kirjataan ja maksu palautetaan samoin kuin ilmoittautumisaikana: rivin valikosta (⋮)

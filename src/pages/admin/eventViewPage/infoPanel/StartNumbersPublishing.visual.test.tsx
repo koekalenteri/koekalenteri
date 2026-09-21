@@ -1,7 +1,8 @@
-import type { ConfirmedEvent } from '@/types'
+import type { ConfirmedEvent, Registration } from '@/types'
 import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
 import StartNumbersPublishing from './StartNumbersPublishing'
@@ -74,4 +75,48 @@ it('publishes a two-day class one day at a time', async () => {
 
   await expect.element(screen.getByText('Piilota pe 4.9.')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-two-days')
+})
+
+// A one-day class whose morning and afternoon are drawn apart (KOE-1430): the morning is out, the
+// afternoon's draw is still to come. The halves have a button each in place of the class's own, and
+// the caption names the half that is out.
+const halfDayEvent: ConfirmedEvent = {
+  ...eventWithStations,
+  classes: [
+    { class: 'ALO', date: saturday, state: 'invited' },
+    { class: 'AVO', date: saturday, state: 'invited' },
+  ],
+  endDate: saturday,
+  startDate: saturday,
+  startListPublished: { ALO: true, AVO: true },
+  startNumbersPublished: { ALO: ['2026-09-05/ap'], AVO: false },
+  state: 'invited',
+}
+const placed = (id: string, key: string, time: 'ap' | 'ip', number: number): Registration => ({
+  ...registrationWithStaticDates,
+  class: 'ALO',
+  group: { date: saturday, key, number, time },
+  id,
+})
+
+it('publishes a day drawn in halves one half at a time', async () => {
+  const screen = await render(
+    <Frame>
+      <StartNumbersPublishing
+        event={halfDayEvent}
+        eventWithCurrentAttachments={halfDayEvent}
+        numbersByClass={{ ALO: [], AVO: [] } as never}
+        onSetStartNumbersPublished={async () => {}}
+        selectedByClass={{ ALO: [placed('r1', 'ALO-AP', 'ap', 1), placed('r2', 'ALO-IP', 'ip', 2)] }}
+        stateByClass={{}}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Piilota aamupäivä')).toBeVisible()
+  await expect.element(screen.getByText('Julkaise iltapäivä')).toBeVisible()
+  // ALO's own button is gone; AVO, whose dogs are not placed here, keeps its one.
+  await expect.element(screen.getByText('Julkaise starttinumerot')).toBeVisible()
+  await expect.element(screen.getByText('Julkaistu: la 5.9. (ap)')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-half-day')
 })

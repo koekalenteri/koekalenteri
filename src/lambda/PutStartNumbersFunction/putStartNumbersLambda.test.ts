@@ -170,6 +170,44 @@ describe('putStartNumbersLambda', () => {
     )
   })
 
+  it("publishes the morning's numbers while the afternoon's draw is still to come (KOE-1430)", async () => {
+    mockGetAuthorizedEvent.mockResolvedValue(
+      asJsonConfirmedEvent({ ...confirmedEvent(), classes: [{ class: 'ALO', date: '2026-09-12' }] })
+    )
+    mockGetRegistrationsByEventId.mockResolvedValue([
+      registration('run-1'),
+      registration('run-2', { group: { date: '2026-09-12', key: 'ALO-IP', number: 2, time: 'ip' } }),
+    ])
+
+    await putStartNumbersLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true, time: 'ap' }))
+
+    // The morning freezes; the afternoon's working order must not go out with it.
+    expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'run-1',
+      'startGroup',
+      expect.objectContaining({ number: 1 })
+    )
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { id: 'event-1' },
+      { set: { startNumbersPublished: { ALO: ['2026-09-12/ap'] }, updatedAt: expect.any(String) } },
+      expect.anything()
+    )
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Starttinumerot julkaistu (ALO, 12.9.2026, ap)' })
+    )
+  })
+
+  it('refuses a half without its day, and a half that is not one', async () => {
+    await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true, time: 'ap' }))
+    expect(mockResponse).toHaveBeenCalledWith(422, 'invalid time', expect.anything())
+
+    await putStartNumbersLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true, time: 'kp' }))
+    expect(mockResponse).toHaveBeenLastCalledWith(422, 'invalid time', expect.anything())
+    expect(mockUpdate).not.toHaveBeenCalled()
+  })
+
   it('refuses a malformed day', async () => {
     await putStartNumbersLambda(apiEvent({ date: '12.9.2026', eventClass: 'ALO', published: true }))
 
