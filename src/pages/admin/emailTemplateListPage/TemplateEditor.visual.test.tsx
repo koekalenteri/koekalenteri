@@ -31,6 +31,8 @@ const renderEditor = async () => {
 }
 
 // The marks in the text and the gutter, in the severity's colour, dark enough to see (KOE-1434).
+// Both Linux baselines are Liberation Mono; `commands.platformFonts('cm-line')` says what a machine
+// actually drew with, should they ever drift apart again.
 it('marks an unknown field and a syntax error in the text and the gutter', async () => {
   const screen = await renderEditor()
 

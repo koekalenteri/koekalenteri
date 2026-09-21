@@ -1,6 +1,6 @@
 import type { MockedFunction } from 'vitest'
 import { ThemeProvider } from '@mui/material'
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -23,7 +23,10 @@ describe('EmailTemplateListPage', () => {
     vi.useFakeTimers()
   })
   afterEach(() => {
-    vi.runOnlyPendingTimers()
+    // Inside act: the pending timers are the save button's ripple, whose exit is a state update.
+    act(() => {
+      vi.runOnlyPendingTimers()
+    })
     // The edit in progress lives in session storage, and would otherwise carry over to the next test.
     sessionStorage.clear()
   })

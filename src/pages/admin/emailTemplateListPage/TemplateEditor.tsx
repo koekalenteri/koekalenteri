@@ -49,13 +49,17 @@ const theme = EditorView.theme({
     backgroundColor: 'rgba(255, 179, 0, 0.28)',
     textDecorationColor: '#b26a00',
   },
+  // The font goes on the scroller, not on the editor: CodeMirror's own theme gives the scroller
+  // `font-family: monospace`, which beats anything inherited, so a stack on `&` never reached the
+  // text. Generic `monospace` is a different font on every machine — DejaVu on the CI runner,
+  // WenQuanYi in the Playwright image (asked of Chromium itself, KOE-1434) — so the screenshots of
+  // the two never matched. Menlo is for a Mac; Liberation Mono is what Playwright installs on
+  // every Linux it runs on, so both Linux machines draw the same glyphs.
+  '.cm-scroller': {
+    fontFamily: "Menlo, 'Liberation Mono', ui-monospace, SFMono-Regular, monospace",
+  },
   '&': {
     border: '1px solid #ccc',
-    // Liberation Mono is named because the generic `monospace` is a different font on the two
-    // Linux machines that compare this editor's screenshots: the Playwright image has no DejaVu
-    // and falls to Liberation Mono, the CI runner has DejaVu and prefers it. Both have Liberation
-    // Mono, which Playwright installs with its dependencies. A Mac never gets past Menlo.
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, 'Liberation Mono', monospace",
     fontSize: '10px',
     height: '100%',
     width: '100%',
