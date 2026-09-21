@@ -47,6 +47,11 @@
       "scrollable-region-focusable": 1
     }
   },
+  "src/pages/admin/emailTemplateListPage/TemplateEditor.visual.test.tsx": {
+    "template-editor-lint-panel": {
+      "nested-interactive": 1
+    }
+  },
   "src/pages/admin/eventViewPage/ClassEntrySelection.visual.test.tsx": {
     "class-entry-selection-groups-and-reserve": {
       "empty-table-header": 15

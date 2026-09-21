@@ -58,6 +58,12 @@ describe('TemplateEditor', () => {
     expect(editor).toHaveTextContent(initial)
   })
 
+  it('names the textbox after the language it edits', () => {
+    const { editor } = setup({ lang: 'en' })
+
+    expect(editor).toHaveAccessibleName('templateEditor.editor.en')
+  })
+
   it('respects hidden prop by not displaying the Paper', () => {
     const { editor } = setup({ hidden: true })
 

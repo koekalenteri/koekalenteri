@@ -1202,6 +1202,10 @@
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",
   "templateEditor": {
+    "editor": {
+      "en": "Viestipohja englanniksi",
+      "fi": "Viestipohja suomeksi"
+    },
     "errorAtColumn": "Virhe {{template}} rivillä {{line}}, sarakkeessa {{column}}: {{message}}",
     "errorOnLine": "Virhe {{template}} rivillä {{line}}: {{message}}",
     "rejected": "Virhe {{template}}, sähköpostipalvelun mukaan: {{message}}",
