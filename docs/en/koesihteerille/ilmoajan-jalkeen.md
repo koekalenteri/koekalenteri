@@ -16,7 +16,7 @@ covers:
   - src/pages/admin/StartListPage.tsx
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
-sourceHash: f7d3e7
+sourceHash: 87353e
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -158,9 +158,9 @@ confirms the start list's running numbers as the dogs' start numbers as they are
 
 !shot[StartNumbersPublishing/start-numbers-publishing-two-days] A two-day class publishes its numbers one day at a time
 
-If the morning and the afternoon of a day are drawn separately, each has a button of its own beside
-the class's or the day's: the morning's numbers can be published right after its draw, even while
-the afternoon's draw is still to come. On the public start list the afternoon's dogs are then still
+If a day has morning and afternoon groups, there is a button for each of the two in place of the
+class's or the day's: the morning's numbers can be published right after its draw, even while the
+afternoon's draw is still to come. On the public start list the afternoon's dogs are then still
 without a number. Once both halves are published, the day is published as a whole.
 
 !shot[StartNumbersPublishing/start-numbers-publishing-half-day] The morning's numbers go out before the afternoon's draw

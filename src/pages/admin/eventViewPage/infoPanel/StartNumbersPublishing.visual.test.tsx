@@ -78,8 +78,8 @@ it('publishes a two-day class one day at a time', async () => {
 })
 
 // A one-day class whose morning and afternoon are drawn apart (KOE-1430): the morning is out, the
-// afternoon's draw is still to come. The halves' buttons stand beside the class's own, and the
-// caption names the half that is out.
+// afternoon's draw is still to come. The halves have a button each in place of the class's own, and
+// the caption names the half that is out.
 const halfDayEvent: ConfirmedEvent = {
   ...eventWithStations,
   classes: [
@@ -115,6 +115,8 @@ it('publishes a day drawn in halves one half at a time', async () => {
 
   await expect.element(screen.getByText('Piilota aamupäivä')).toBeVisible()
   await expect.element(screen.getByText('Julkaise iltapäivä')).toBeVisible()
+  // ALO's own button is gone; AVO, whose dogs are not placed here, keeps its one.
+  await expect.element(screen.getByText('Julkaise starttinumerot')).toBeVisible()
   await expect.element(screen.getByText('Julkaistu: la 5.9. (ap)')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-half-day')
 })

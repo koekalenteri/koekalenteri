@@ -66,9 +66,9 @@ const classDays = (event: ConfirmedEvent, className: string): ClassDay[] =>
 
 /**
  * What one button publishes: the whole class (no day), one day of a multi-day class (KOE-1304), or
- * one half of a day the trial draws in two (KOE-1430). The half's button stands beside the day's —
- * or beside the class's, where the class runs one day — so a trial that draws the day at once still
- * publishes it with one press.
+ * one half of a day the trial runs in a morning and an afternoon (KOE-1430). A day with halves has
+ * a button per half and none for the day: the halves are what the secretary publishes, one at a time
+ * or both in a row, and a third button for the same dogs would only ask which one was meant.
  */
 interface PublishScope {
   day?: ClassDay
@@ -76,7 +76,11 @@ interface PublishScope {
 }
 
 const publishScopes = (days: ClassDay[], dayTimes: (day: ClassDay) => StartNumbersTime[]): PublishScope[] =>
-  days.flatMap((day) => [{ day: days.length > 1 ? day : undefined }, ...dayTimes(day).map((time) => ({ day, time }))])
+  days.flatMap((day) => {
+    const halves = dayTimes(day)
+    if (halves.length) return halves.map((time) => ({ day, time }))
+    return [{ day: days.length > 1 ? day : undefined }]
+  })
 
 /**
  * How a scope is named on its button and in its confirmation: the day as its weekday, a half by its
@@ -251,8 +255,8 @@ const StartNumbersPublishing = ({
                 }}
               >
                 {scopes.map((scope) => {
-                  // One button per day of a multi-day class, the whole class otherwise — and one per
-                  // half of a day that is drawn in two.
+                  // One button per day of a multi-day class, the whole class otherwise — or one per
+                  // half of a day that runs in two.
                   const { day, time } = scope
                   let scopePublished = numbersPublished
                   if (day && time) {
