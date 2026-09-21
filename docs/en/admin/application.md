@@ -7,7 +7,7 @@ covers:
   - src/pages/admin/eventTypeListPage/**
   - src/pages/admin/EmailTemplateListPage.tsx
   - src/pages/admin/emailTemplateListPage/**
-sourceHash: 03bbbd
+sourceHash: 21e667
 ---
 
 The application administrator — SNJ's calendar contact — sees a section of their own at the foot
@@ -50,5 +50,7 @@ on the left names the messages, and the chosen template opens for editing on two
 
 The templates are in Handlebars form: the message's data is written in double braces, and the
 editor suggests the fields each message has as you type. A field the message does not have is
-underlined as an error before saving. **{t:save}** puts the template into use from the next
-message on; **{t:cancel}** restores the saved version.
+underlined as an error before saving, and so is a block or a brace left open. **{t:save}** puts
+the template into use from the next message on; a template that is not accepted leaves a notice
+above the buttons naming the language, the line and the reason, and the editor switches to that
+language's tab. **{t:cancel}** restores the saved version.

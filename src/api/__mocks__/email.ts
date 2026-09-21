@@ -13,9 +13,11 @@ export async function getEmailTemplates(_token?: string, _signal?: AbortSignal) 
   })
 }
 
-export async function putEmailTemplate(_template: EmailTemplate, _token?: string, _signal?: AbortSignal) {
-  throw new Error('not implemented')
-}
+export const putEmailTemplate = vi.fn(
+  async (_template: EmailTemplate, _token?: string, _signal?: AbortSignal): Promise<EmailTemplate> => {
+    throw new Error('not implemented')
+  }
+)
 
 export const sendTemplatedEmail = vi.fn(
   async (_message: RegistrationMessage, _token?: string, _signal?: AbortSignal) => ({

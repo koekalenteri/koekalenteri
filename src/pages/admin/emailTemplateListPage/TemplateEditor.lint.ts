@@ -1,5 +1,6 @@
 import type { Diagnostic, LintSource } from '@codemirror/lint'
 import { EditorSelection } from '@uiw/react-codemirror'
+import { findTemplateSyntaxError } from '@/lib/emailTemplate'
 import { elemOf, isObj, resolveForCompletion, resolveScopeBaseForPath } from './TemplateEditor.utils'
 
 const HELPERS = new Set(['if', 'unless', 'each', 'else'])
@@ -41,11 +42,43 @@ function getSuggestKeys(base: any, parts: string[], start: number, upToExclusive
   return isObj(p) ? Object.keys(p) : []
 }
 
+/** The offset of a 1-based line's first character; the document's end for a line past the last. */
+const lineStart = (doc: string, line: number): number => {
+  let pos = 0
+  for (let i = 1; i < line; i++) {
+    const newline = doc.indexOf('\n', pos)
+    if (newline < 0) return doc.length
+    pos = newline + 1
+  }
+  return pos
+}
+
+/**
+ * Where Handlebars stops on the document, as an error: the exact span when it names one, and
+ * otherwise the whole line, since the parser knows the line but not the column (KOE-1434). Saving
+ * would fail on this, so it is shown as you type, ahead of the field warnings.
+ */
+const syntaxDiagnostic = (doc: string): Diagnostic | undefined => {
+  const error = findTemplateSyntaxError(doc)
+  if (!error) return undefined
+
+  const start = lineStart(doc, error.line)
+  const lineEnd = doc.indexOf('\n', start)
+  const end = lineEnd < 0 ? doc.length : lineEnd
+  const from = error.column === undefined ? start : Math.min(start + error.column, end)
+  const to = error.endColumn === undefined ? end : Math.min(start + error.endColumn, end)
+
+  return { from, message: error.message, severity: 'error', to: Math.max(from, to) }
+}
+
 export const getLintSource =
   (schema: object): LintSource =>
   (view) => {
     const diagnostics: Diagnostic[] = []
     const doc = view.state.doc.toString()
+
+    const syntax = syntaxDiagnostic(doc)
+    if (syntax) diagnostics.push(syntax)
 
     for (const m of doc.matchAll(mustacheRe)) {
       const inner = m[1]
