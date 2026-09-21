@@ -79,13 +79,26 @@ const conflictText = (
   return holder ? t('startNumbers.reservedInClass', { eventClass: holder }) : t('startNumbers.reserved')
 }
 
-/** "pe 4.9. aamupäivä", the same words the start list's group headers use. */
-const placementLabel = (row: StartNumberRow, t: TFunction) => {
+/**
+ * "pe 4.9. aamupäivä", the same words the start list's group headers use — or the day alone where
+ * the sheet is already headed by its halves.
+ */
+const placementLabel = (row: StartNumberRow, t: TFunction, withTime: boolean) => {
   const { date, time } = row.placement ?? {}
   if (!date) return ''
-  const timeText = time && time !== 'kp' ? t(`registration.timeLong.${time}`) : ''
+  const timeText = withTime && time && time !== 'kp' ? t(`registration.timeLong.${time}`) : ''
   return [t('dateFormat.wdshort', { date }), timeText].filter(Boolean).join(' ')
 }
+
+const isHalfDay = (time: RegistrationTime | undefined): time is 'ap' | 'ip' => time === 'ap' || time === 'ip'
+
+/**
+ * Whether the sheet holds both a morning and an afternoon. The halves are drawn — and published
+ * (KOE-1430) — one at a time, so the secretary entering the morning's numbers has to see where the
+ * morning ends: the rows come sorted by time, and a heading marks the turn.
+ */
+const hasBothHalves = (rows: readonly StartNumberRow[]) =>
+  new Set(rows.map((row) => row.placement?.time).filter(isHalfDay)).size > 1
 
 /**
  * The venue draw's results, written as values (KOE-1218). The same batch-entry shape as results
@@ -96,6 +109,8 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, d
   const { t } = useTranslation()
 
   const taken = duplicates ?? duplicateNumbers(rows, drafts)
+  const byHalf = hasBothHalves(rows)
+  const columns = compact ? 2 : 5
 
   return (
     <TableContainer component={Paper} variant="outlined">
@@ -110,12 +125,21 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, d
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => {
+          {rows.map((row, index) => {
             const value = draftOf(row, drafts)
             const duplicate = Boolean(value) && taken.has(value)
             const conflict = conflictText(value, duplicate, reserved, t)
+            const half = row.placement?.time
+            const heading = byHalf && isHalfDay(half) && rows[index - 1]?.placement?.time !== half
 
-            return (
+            return [
+              heading ? (
+                <TableRow key={`${half}-heading`}>
+                  <TableCell colSpan={columns} sx={{ fontWeight: 'bold' }}>
+                    {t(`registration.timeLong.${half}`)}
+                  </TableCell>
+                </TableRow>
+              ) : null,
               <TableRow hover key={row.id}>
                 <TableCell>
                   <TextField
@@ -154,7 +178,7 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, d
                         color: 'text.secondary',
                       }}
                     >
-                      {[row.dog.regNo, row.handler?.name, placementLabel(row, t)].filter(Boolean).join(' · ')}
+                      {[row.dog.regNo, row.handler?.name, placementLabel(row, t, !byHalf)].filter(Boolean).join(' · ')}
                     </Typography>
                   </TableCell>
                 ) : (
@@ -162,11 +186,11 @@ export function StartNumbersTable({ rows, drafts, disabled, onChange, compact, d
                     <TableCell>{row.dog.name}</TableCell>
                     <TableCell>{row.dog.regNo}</TableCell>
                     <TableCell>{row.handler?.name}</TableCell>
-                    <TableCell>{placementLabel(row, t)}</TableCell>
+                    <TableCell>{placementLabel(row, t, !byHalf)}</TableCell>
                   </>
                 )}
-              </TableRow>
-            )
+              </TableRow>,
+            ]
           })}
         </TableBody>
       </Table>

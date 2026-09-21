@@ -17,7 +17,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 87353e
+sourceHash: 0cb11f
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -143,7 +143,8 @@ the spreadsheet too.
 
 Start numbers are drawn at the venue and recorded in the calendar with the **{t:eventManagement.enterStartNumbers}**
 button in the panel's *{t:eventManagement.startList.numbersPublishing}* section. The page lists the day's and class's dogs
-as rows, and the number each drew is typed in. A number belongs to one dog in the whole trial: in a
+as rows, and the number each drew is typed in. If the day has morning and afternoon groups, the
+rows are divided by headings for the two. A number belongs to one dog in the whole trial: in a
 two-day trial, for example, Friday 1–24 and Saturday 25–48, and the same number twice blocks the
 save.
 
