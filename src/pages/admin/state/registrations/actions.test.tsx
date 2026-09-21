@@ -5,11 +5,12 @@ import { SnackbarProvider } from 'notistack'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { sendTemplatedEmail } from '@/api/email'
 import { APIError } from '@/api/http'
 import * as registrationApi from '@/api/registration'
 import { idTokenAtom } from '@/pages/state'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
-import { adminEventsAtom } from '../events'
+import { adminEventAtom, adminEventsAtom } from '../events'
 import { useAdminRegistrationActions } from './actions'
 import {
   adminEventRegistrationsAtom,
@@ -26,6 +27,7 @@ vi.mock('notistack', () => ({
   useSnackbar: () => ({ enqueueSnackbar: mockEnqueueSnackbar }),
 }))
 
+vi.mock('@/api/email')
 vi.mock('@/api/registration')
 
 function wrapper({ children }: { readonly children: React.ReactNode }) {
@@ -291,5 +293,51 @@ describe('useAdminRegistrationActions', () => {
     expect(refresh).toHaveBeenCalledWith(eventWithStaticDates.id, TEST_ID_TOKEN)
     expect(result.current.registrations).toEqual([queuedRegistration])
     consoleError.mockRestore()
+  })
+
+  it('stores the start list flag the invitations settled, not the copy from before them', async () => {
+    // An event from before the flag reads an absent flag as a published list. Sending the invitations
+    // settles it to false on the server; the copy stored here has to say so too, or the panel keeps
+    // reading the list as public until the next save answers with the truth (KOE-1432).
+    const unsettled = { ...eventWithStaticDates, startListPublished: undefined, state: 'picked' as const }
+    const settledWrapper = ({ children }: { readonly children: React.ReactNode }) => (
+      <Provider
+        initializeState={({ set }) => {
+          set(idTokenAtom, TEST_ID_TOKEN)
+          set(adminEventsAtom, [unsettled])
+          set(adminEventRegistrationsAtom(unsettled.id), [registrationWithStaticDates])
+        }}
+      >
+        <SnackbarProvider>{children}</SnackbarProvider>
+      </Provider>
+    )
+    vi.mocked(sendTemplatedEmail).mockResolvedValueOnce({
+      classes: unsettled.classes,
+      failed: [],
+      ok: [registrationWithStaticDates.id],
+      registrations: [registrationWithStaticDates],
+      startListPublished: false,
+      state: 'invited',
+    })
+
+    const { result } = renderHook(
+      () => ({
+        actions: useAdminRegistrationActions(unsettled.id),
+        event: useAtomValue(adminEventAtom(unsettled.id)),
+      }),
+      { wrapper: settledWrapper }
+    )
+
+    await act(async () => {
+      await result.current.actions.sendMessage({
+        contactInfo: undefined,
+        eventId: unsettled.id,
+        registrationIds: [registrationWithStaticDates.id],
+        template: 'invitation',
+        text: '',
+      })
+    })
+
+    expect(result.current.event).toMatchObject({ startListPublished: false, state: 'invited' })
   })
 })

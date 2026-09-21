@@ -23,6 +23,7 @@ export const sendTemplatedEmail = vi.fn(
     failed: [],
     ok: [],
     registrations: [],
+    startListPublished: undefined,
     state: 'confirmed' as const,
   })
 )
