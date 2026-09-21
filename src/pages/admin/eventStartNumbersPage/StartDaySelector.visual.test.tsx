@@ -69,7 +69,8 @@ it('enters a two-day class one day at a time', async () => {
     </Frame>
   )
 
-  await expect.element(screen.getByText('la 5.9.', { exact: true })).toBeVisible()
+  // The day's button, and now every row of the sheet headed by its halves, reads the bare day (KOE-1430).
+  await expect.element(screen.getByText('la 5.9.', { exact: true }).first()).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-entry-two-days')
 })
 

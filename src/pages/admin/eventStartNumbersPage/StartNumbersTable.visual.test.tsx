@@ -15,7 +15,8 @@ const Frame = ({ children, width = 760 }: { readonly children: React.ReactNode; 
 const placement = { date: new TZDate(2026, 8, 4, 'Europe/Helsinki'), time: 'ap' as const }
 
 // One frozen number, one fresh entry, and a duplicate pair flagged as it is typed (KOE-1218). Each
-// row names its start day (KOE-1303).
+// row names its start day (KOE-1303), and the sheet is headed by its halves: two dogs in the
+// morning, one in the afternoon (KOE-1430).
 const rows = [
   {
     dog: { name: 'Ensimmainen', regNo: 'REG-run-1' },
@@ -49,6 +50,10 @@ it('receives the venue draw as values, flagging duplicates as they are typed', a
   )
 
   await expect.element(screen.getByText('Ensimmainen')).toBeVisible()
+  // The halves head their rows, so the row itself names only the day.
+  await expect.element(screen.getByText('aamupäivä')).toBeVisible()
+  await expect.element(screen.getByText('iltapäivä')).toBeVisible()
+  await expect.element(screen.getByText('pe 4.9.', { exact: true }).first()).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-entry')
 })
 
