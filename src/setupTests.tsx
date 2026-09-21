@@ -20,6 +20,24 @@ if (typeof globalThis.structuredClone !== 'function') {
   globalThis.structuredClone = (value: unknown) => JSON.parse(JSON.stringify(value))
 }
 
+// jsdom 30.1.0 keeps the Document as the focused area once the focused element is removed, and then
+// reports it as the `relatedTarget` of the next focus event. Browsers report null there: the focus
+// update steps only name a related blur target when the element losing focus is an Element
+// (https://html.spec.whatwg.org/multipage/interaction.html#focus-update-steps). MUI's FocusTrap
+// stores the related target to give focus back to on close, so a dialog opened after a focused
+// element left the tree crashed on unmount with "nodeToRestore.current.focus is not a function".
+const relatedTarget = Object.getOwnPropertyDescriptor(FocusEvent.prototype, 'relatedTarget')
+if (relatedTarget?.get) {
+  const getRelatedTarget = relatedTarget.get
+  Object.defineProperty(FocusEvent.prototype, 'relatedTarget', {
+    ...relatedTarget,
+    get() {
+      const target: unknown = getRelatedTarget.call(this)
+      return target instanceof Document ? null : target
+    },
+  })
+}
+
 import '@testing-library/jest-dom/vitest'
 // initialize i18n
 import './i18n'
