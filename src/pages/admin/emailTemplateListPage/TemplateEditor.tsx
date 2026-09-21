@@ -51,7 +51,11 @@ const theme = EditorView.theme({
   },
   '&': {
     border: '1px solid #ccc',
-    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+    // Liberation Mono is named because the generic `monospace` is a different font on the two
+    // Linux machines that compare this editor's screenshots: the Playwright image has no DejaVu
+    // and falls to Liberation Mono, the CI runner has DejaVu and prefers it. Both have Liberation
+    // Mono, which Playwright installs with its dependencies. A Mac never gets past Menlo.
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, 'Liberation Mono', monospace",
     fontSize: '10px',
     height: '100%',
     width: '100%',
