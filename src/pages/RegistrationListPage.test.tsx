@@ -126,7 +126,7 @@ describe('RegistrationListPage', () => {
     expect(screen.queryByRole('menuitem', { name: 'registration.actions.edit' })).not.toBeInTheDocument()
     expect(screen.queryByRole('menuitem', { name: 'registration.actions.cancel' })).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('menuitem', { name: 'more' }))
+    await user.click(screen.getByRole('button', { name: 'more' }))
 
     expect(await screen.findByRole('menuitem', { name: 'registration.actions.edit' })).toBeVisible()
     expect(screen.getByRole('menuitem', { name: 'registration.actions.cancel' })).toBeVisible()

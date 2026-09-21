@@ -26,18 +26,18 @@ const renderList = (event: PublicDogEvent) =>
     </ThemeProvider>
   )
 
-// registrationWithStaticDates has paid 123 and its payment succeeded. The row's actions are a
-// menu, so the payment action is a menu item.
+// registrationWithStaticDates has paid 123 and its payment succeeded. Paying stays on the row as a
+// button beside the menu (KOE-973); only editing and cancelling are behind it.
 describe('RegistrationList', () => {
   it('offers paying again when the fee rose above what was paid (KOE-722)', () => {
     renderList(eventCosting(130))
 
-    expect(screen.getByRole('menuitem', { name: 'registration.actions.pay' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'registration.actions.pay' })).toBeInTheDocument()
   })
 
   it('does not offer paying a fee that has been paid as it reads', () => {
     renderList(eventCosting(123))
 
-    expect(screen.queryByRole('menuitem', { name: 'registration.actions.pay' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'registration.actions.pay' })).not.toBeInTheDocument()
   })
 })
