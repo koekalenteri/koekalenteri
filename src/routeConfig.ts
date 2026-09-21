@@ -43,8 +43,8 @@ export const Path = {
   },
   classStartNumbers: (eventId: string, eventClass: string, token: string) =>
     `/start-numbers/${eventId}/${encodeURIComponent(eventClass)}/access/${encodeURIComponent(token)}`,
-  docs: '/ohjeet',
-  docsPage: (path: string = '*') => `/ohjeet/${path}`,
+  docs: '/docs',
+  docsPage: (path: string = '*') => `/docs/${path}`,
   home: '/',
   invitation: (registration: ParticipantRegistration) => participantPath('r', registration, '/invitation'),
   invitationAttachment: (item: InvitationAttachmentItem) =>
@@ -67,5 +67,5 @@ export const Path = {
   startList: (id: string = ':id') => `/startlist/${id}`,
   stats: '/tilastot',
   /** What changed in each release; `#<version>` opens at that release. */
-  whatsNew: '/uutta',
+  whatsNew: '/whats-new',
 }

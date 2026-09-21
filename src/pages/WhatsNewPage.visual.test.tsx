@@ -15,13 +15,13 @@ const VIEWPORT = { height: 900, width: 900 }
 vi.mock('./components/Header', () => ({ default: () => null }))
 
 it('shows the newest release first', async () => {
-  const routes: RouteObject[] = [{ element: <WhatsNewPage />, path: '/uutta' }]
+  const routes: RouteObject[] = [{ element: <WhatsNewPage />, path: '/whats-new' }]
   await page.viewport(VIEWPORT.width, VIEWPORT.height)
 
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
       <ThemeProvider theme={theme}>
-        <DataMemoryRouter initialEntries={['/uutta']} routes={routes} />
+        <DataMemoryRouter initialEntries={['/whats-new']} routes={routes} />
       </ThemeProvider>
     </div>
   )

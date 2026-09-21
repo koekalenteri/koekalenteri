@@ -58,7 +58,7 @@ const document: RulesDocument = {
       title: 'NOUTAJIEN RODUNOMAISTEN KOKEIDEN SÄÄNNÖT',
     },
   ],
-  path: 'saannot/noutajien-kokeet',
+  path: 'rules/retriever-trials',
   source: 'https://www.kennelliitto.fi/lomakkeet/noutajien-rodunomaisten-kokeiden-saannot',
   title: 'Noutajien rodunomaisten kokeiden säännöt ja ohjeet',
 }

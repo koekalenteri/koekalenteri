@@ -75,17 +75,17 @@ for (const document of documents) {
       external.push({ at, target })
       continue
     }
-    const guide = /^\/ohjeet\/([^#?]+)/.exec(target)
+    const guide = /^\/docs\/([^#?]+)/.exec(target)
     if (guide) {
       if (!byLanguage[document.language]?.some((candidate) => candidate.path === guide[1])) {
-        errors.push(`${at}: links to /ohjeet/${guide[1]}, and no ${document.language} page has that path`)
+        errors.push(`${at}: links to /docs/${guide[1]}, and no ${document.language} page has that path`)
       }
       continue
     }
     if (target.endsWith('.md') || target.includes('.md#')) {
       const file = relativeLinkTarget(document, target)
       if (!existsSync(file)) errors.push(`${at}: links to ${relative('.', file)}, which does not exist`)
-      else warnings.push(`${at}: links to a markdown file; a reader follows /ohjeet/<path> links, not files`)
+      else warnings.push(`${at}: links to a markdown file; a reader follows /docs/<path> links, not files`)
     }
   }
 }

@@ -1,7 +1,7 @@
 # Writing the guides
 
 The markdown under `docs/` is the application's user guide, published from the same commit as the
-code at `/ohjeet`. This file is for the agent that updates it — at release time through
+code at `/docs`. This file is for the agent that updates it — at release time through
 `npm run docs-update`, or when a developer asks for a page — the way the root `AGENTS.md` is for
 code work.
 
@@ -45,7 +45,8 @@ Every binding fails the build rather than a reader, and `npm run check-docs` run
 
 ## Reaching the page from the application
 
-The header's help icon opens the guide for the view on the screen, from the route map in
+The header's *Tuki* menu opens with *Ohje tähän näkymään*, the guide for the view on the
+screen, from the route map in
 `src/lib/client/docsContext.ts` (the event page picks its own page by whether entry has ended).
 A new page for a view means a new line in that map, or the icon keeps pointing at the old page
 or at nothing. Every page ends with the version it shipped with and a "this guide did not help"
@@ -73,8 +74,8 @@ link into the Service Desk form, filled in with the page, the version and the la
 
 ## Release notes
 
-`docs/<language>/uutta/<version>.md` says what changed for the reader in that release, and is shown
-at `/uutta` and offered from the notice a reader gets after the application updated. Its
+`docs/<language>/whats-new/<version>.md` says what changed for the reader in that release, and is shown
+at `/whats-new` and offered from the notice a reader gets after the application updated. Its
 frontmatter is only the `date` (and `sourceHash` in the translation); the version is the file name.
 
 - **The reader's words, not the commit's.** "Starttinumerot voi julkaista päivä kerrallaan", not
@@ -89,11 +90,11 @@ frontmatter is only the `date` (and `sourceHash` in the translation); the versio
 
 ## The rules
 
-`docs/fi/saannot/` is the Kennel Club's own text, extracted from its PDF by
+`docs/fi/rules/` is the Kennel Club's own text, extracted from its PDF by
 `npm run build-rules` and never edited by hand: a wrong word there is a bug in the extraction
 or in the PDF, not something to fix in the markdown. The frontmatter dates the rules edition,
 not the application. There is no English text and none is written; the English index links
-to the Finnish page. Guides and code link to a section by its anchor, `/ohjeet/saannot/<slug>#s-4-4`
+to the Finnish page. Guides and code link to a section by its anchor, `/docs/rules/<slug>#s-4-4`
 for §4.4, rather than quoting it.
 
 ## Commands
@@ -104,5 +105,5 @@ for §4.4, rather than quoting it.
 | `npm run check-docs` | the bindings, the generated module, links, `TODO`s and coverage; pre-commit and CI run it |
 | `npm run docs-coverage -- --staged` | which pages a staged change concerns; pre-commit prints it as a hint |
 | `npm run docs-update -- --since v1.11.2` | the release brief: pages, commits, issues; `--run` starts the session |
-| `npm run release-notes -- v1.11.3` | drafts `docs/<language>/uutta/1.11.3.md` in both languages from the commits |
-| `npm run build-rules` | extracts `docs/fi/saannot/noutajien-kokeet.md` from `docs/sources/*.pdf`; rerun for a new edition |
+| `npm run release-notes -- v1.11.3` | drafts `docs/<language>/whats-new/1.11.3.md` in both languages from the commits |
+| `npm run build-rules` | extracts `docs/fi/rules/retriever-trials.md` from `docs/sources/*.pdf`; rerun for a new edition |

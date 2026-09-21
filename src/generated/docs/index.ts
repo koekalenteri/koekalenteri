@@ -40,7 +40,7 @@ export interface DocsPage {
   /** Rendered from the markdown at build time; it is repository content, not user input. */
   readonly html: string
   readonly order: number
-  /** Path under /ohjeet, and the identity a page shares across languages. */
+  /** Path under /docs, and the identity a page shares across languages. */
   readonly path: string
   readonly title: string
 }
@@ -443,7 +443,7 @@ export interface RulesDocument {
   /** The date the edition came into force, yyyy-mm-dd: the document's version, not the application's. */
   readonly edition: string
   readonly parts: readonly RulesPart[]
-  /** Path under /ohjeet. */
+  /** Path under /docs. */
   readonly path: string
   /** The official document this was extracted from. */
   readonly source: string
@@ -1624,7 +1624,7 @@ export const rules: Readonly<Record<string, readonly RulesDocument[]>> = {
           "intro": "<p>Hyväksytty noutajien yhteistyötoimikunnassa 2022</p>\n<p>Voimassa 1.4.2023 alkaen.</p>\n"
         }
       ],
-      "path": "saannot/noutajien-kokeet",
+      "path": "rules/retriever-trials",
       "source": "https://www.kennelliitto.fi/lomakkeet/noutajien-rodunomaisten-kokeiden-saannot",
       "title": "Noutajien rodunomaisten kokeiden säännöt ja ohjeet"
     }

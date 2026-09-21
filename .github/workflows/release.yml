@@ -52,7 +52,7 @@ jobs:
           echo "deploy_backend=${DEPLOY_BACKEND:-true}" >> $GITHUB_OUTPUT
           echo "deploy_frontend=${DEPLOY_FRONTEND:-true}" >> $GITHUB_OUTPUT
       # The release notes the version shipped with are the release's description too: one text,
-      # written once in docs/fi/uutta/<version>.md, not a second one typed into the form (KOE-1398).
+      # written once in docs/fi/whats-new/<version>.md, not a second one typed into the form (KOE-1398).
       - uses: actions/checkout@v7
         if: ${{ github.event_name == 'release' }}
       - name: Describe the release from its notes
@@ -61,7 +61,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name }}
         run: |
-          NOTES="docs/fi/uutta/${TAG#v}.md"
+          NOTES="docs/fi/whats-new/${TAG#v}.md"
           if [[ -f "$NOTES" ]]; then
             # The frontmatter is the file's own bookkeeping; the description starts after it.
             awk 'body { print } /^---$/ { if (++fences == 2) body = 1 }' "$NOTES" > release-notes.md

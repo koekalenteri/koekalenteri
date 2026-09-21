@@ -10,7 +10,7 @@ vi.mock('./components/Header', () => ({ default: () => <>header</> }))
 
 const Wrapper = ({ children }: { readonly children: ReactNode }) => (
   <ThemeProvider theme={theme}>
-    <MemoryRouter initialEntries={['/ohjeet']}>{children}</MemoryRouter>
+    <MemoryRouter initialEntries={['/docs']}>{children}</MemoryRouter>
   </ThemeProvider>
 )
 
@@ -23,7 +23,7 @@ describe('DocsIndexPage', () => {
     expect(screen.getByRole('heading', { name: 'docs.audience.participant' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Kokeeseen ilmoittautuminen' })).toHaveAttribute(
       'href',
-      '/ohjeet/participant/entering'
+      '/docs/participant/entering'
     )
   })
 
@@ -34,7 +34,7 @@ describe('DocsIndexPage', () => {
     expect(screen.getByRole('heading', { name: 'docs.rules' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Noutajien rodunomaisten kokeiden säännöt ja ohjeet' })).toHaveAttribute(
       'href',
-      '/ohjeet/saannot/noutajien-kokeet'
+      '/docs/rules/retriever-trials'
     )
   })
 

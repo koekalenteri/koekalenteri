@@ -61,11 +61,11 @@ describe('docs', () => {
     // The Kennel Club's rules exist in Finnish only, so every language gets the Finnish text.
     it('gives every language the Finnish rules', () => {
       expect(rulesFor('en')).toEqual(rulesFor('fi'))
-      expect(rulesFor('fi').map((document) => document.path)).toEqual(['saannot/noutajien-kokeet'])
+      expect(rulesFor('fi').map((document) => document.path)).toEqual(['rules/retriever-trials'])
     })
 
     it('finds a section by the number the application links to', () => {
-      const document = rulesDocumentFor('fi', 'saannot/noutajien-kokeet')
+      const document = rulesDocumentFor('fi', 'rules/retriever-trials')
       const sections = document?.parts.flatMap((part) => part.chapters.flatMap((chapter) => chapter.sections)) ?? []
       const prizes = sections.find((section) => section.id === 's-4-4')
       expect(prizes?.title).toBe('PALKITSEMINEN')
