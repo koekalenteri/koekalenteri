@@ -29,6 +29,11 @@ export type StartListPublishedState = boolean | Partial<Record<RegistrationClass
  * yyyy-MM-dd in the event's time zone (KOE-1304). A multi-day class draws its numbers one morning at
  * a time, so one day's numbers can be public while the next day's draw is still to come.
  *
+ * A day can also be out by halves (KOE-1430): some trials draw the morning and the afternoon
+ * separately, and the afternoon's draw comes only once the morning is under way. Half a day is
+ * listed as the day key and the time it ran, `yyyy-MM-dd/ap` or `yyyy-MM-dd/ip`; a bare day key
+ * covers every time of that day, and a day whose every half is out is stored as the bare key.
+ *
  * Stored as strings; the browser's JSON date reviver turns a bare yyyy-MM-dd into a `Date`, so on
  * the client the list holds dates. Compare through a day key, never by string equality.
  */

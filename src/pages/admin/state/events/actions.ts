@@ -1,4 +1,5 @@
 import type { StartNumbersRequest } from '@/api/event'
+import type { StartNumbersTime } from '@/lib/event'
 import type { DogEvent, Patch, RegistrationClass, StationTurnOp } from '@/types'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
@@ -274,13 +275,14 @@ export const useAdminEventActions = () => {
     event: DogEvent,
     eventClass: RegistrationClass,
     published: boolean,
-    date?: string
+    date?: string,
+    time?: StartNumbersTime
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
 
     // Publishing is also the freeze, so it goes through the start-numbers endpoint rather than a
     // plain event patch: the flag flip and the snapshot must land in the same locked request.
-    const { event: saved } = await putStartNumbers(event.id, { date, eventClass, published }, token)
+    const { event: saved } = await putStartNumbers(event.id, { date, eventClass, published, time }, token)
     await storeSaved(saved)
 
     return saved
@@ -289,12 +291,13 @@ export const useAdminEventActions = () => {
   async function setStartNumbersPublished(
     event: DogEvent,
     published: boolean,
-    date?: string
+    date?: string,
+    time?: StartNumbersTime
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
     if (!date && (event.startNumbersPublished !== false) === published) return event
 
-    const { event: saved } = await putStartNumbers(event.id, { date, published }, token)
+    const { event: saved } = await putStartNumbers(event.id, { date, published, time }, token)
     await storeSaved(saved)
 
     return saved

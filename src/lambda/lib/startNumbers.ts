@@ -1,6 +1,12 @@
+import type { StartNumbersTime } from '../../lib/event'
 import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass, StartNumbersDayScope } from '../../types'
 import { formatDate } from '../../i18n/dates'
-import { getStartNumbersClassDays, getStartNumbersDayScope, getStartNumbersPublishedClassMap } from '../../lib/event'
+import {
+  getStartNumbersClassDays,
+  getStartNumbersDayScope,
+  getStartNumbersPublishedClassMap,
+  startNumbersSlotKey,
+} from '../../lib/event'
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -30,9 +36,15 @@ export const parseStartNumberEntries = (numbers: unknown): StartNumberEntry[] =>
 /** The day a placement falls on, in the event's time zone — the key the published-days list holds. */
 const placementDay = (date: string | Date) => formatDate(date, 'yyyy-MM-dd')
 
-const inScope = (registration: JsonRegistration, eventClass?: RegistrationClass, date?: string) =>
+const inScope = (
+  registration: JsonRegistration,
+  eventClass?: RegistrationClass,
+  date?: string,
+  time?: StartNumbersTime
+) =>
   (!eventClass || getRegistrationClass(registration) === eventClass) &&
-  (!date || (!!registration.group?.date && placementDay(registration.group.date) === date))
+  (!date || (!!registration.group?.date && placementDay(registration.group.date) === date)) &&
+  (!time || registration.group?.time === time)
 
 /**
  * The dog's own trail says what its number is (KOE-1355). The event trail records the publish as one
@@ -51,20 +63,24 @@ const auditStartNumber = (registration: JsonRegistration, message: string, user:
  * row still has to land under the right day.
  *
  * A `date` (yyyy-MM-dd) narrows the freeze to that day of the class (KOE-1304): a multi-day class
- * draws each morning, and publishing Friday must leave Saturday's working order alone.
+ * draws each morning, and publishing Friday must leave Saturday's working order alone. A `time`
+ * narrows it further to the morning or the afternoon of that day (KOE-1430), for a trial that draws
+ * the afternoon only once the morning is under way: the morning's dogs are complete and go out, and
+ * the afternoon's undrawn numbers are not gaps in it.
  */
 export const freezeStartNumbers = async (
   eventId: string,
   registrations: JsonRegistration[],
   eventClass: RegistrationClass | undefined,
   user: string,
-  date?: string
+  date?: string,
+  time?: StartNumbersTime
 ): Promise<Patch<JsonRegistration>[]> => {
   const scoped = registrations.filter(
     (registration) =>
       isScorableRegistration(registration) &&
       Boolean(registration.group?.date) &&
-      inScope(registration, eventClass, date)
+      inScope(registration, eventClass, date, time)
   )
 
   // A partly entered draw must not be published: the gaps would freeze to working-order numbers, and
@@ -198,31 +214,78 @@ export const assignStartNumbers = async (
   return patches
 }
 
+/** The stored entries of a scope as slot keys; a stored day may have come back as a date. */
+const scopeSlotKeys = (scope: Array<string | Date>) =>
+  scope.map((entry) => (typeof entry === 'string' && entry.includes('/') ? entry : placementDay(entry)))
+
+const isHalfOf = (date: string) => (key: string) => key.startsWith(`${date}/`)
+
 /**
- * One day's publish or hide, folded into the class's scope (KOE-1304): a day list grows and shrinks,
- * collapses to `true` when it covers every day the class runs, and empties to `false`.
+ * One slot's publish or hide, folded into the class's scope (KOE-1304, KOE-1430): the list grows and
+ * shrinks, a day whose every half is out collapses to the bare day, the scope collapses to `true`
+ * when it covers every day the class runs, and empties to `false`.
+ *
+ * `dayTimes` are the halves the day runs in, so hiding one half of a published day leaves the other
+ * half out, and publishing the last half makes the day whole.
  */
-const withDay = (
+const withSlot = (
   scope: StartNumbersDayScope,
   days: string[],
+  dayTimes: StartNumbersTime[],
   date: string,
+  time: StartNumbersTime | undefined,
   published: boolean
 ): StartNumbersDayScope => {
   let current: string[] = []
-  if (Array.isArray(scope)) current = scope.map(placementDay)
+  if (Array.isArray(scope)) current = scopeSlotKeys(scope)
   else if (scope) current = days
-  const next = published
-    ? [...new Set([...current, date])].sort((a, b) => a.localeCompare(b))
-    : current.filter((day) => day !== date)
+  const half = isHalfOf(date)
+  const slot = startNumbersSlotKey(date, time)
+
+  let next: string[]
+  if (!time) {
+    // The whole day: its halves have nothing to add or keep.
+    next = published
+      ? [...current.filter((key) => !half(key)), date]
+      : current.filter((key) => key !== date && !half(key))
+  } else if (published) {
+    next = current.includes(date) ? current : [...current, slot]
+  } else if (current.includes(date)) {
+    // Hiding one half of a whole day: the other halves stay out on their own.
+    next = [
+      ...current.filter((key) => key !== date),
+      ...dayTimes.filter((other) => other !== time).map((other) => startNumbersSlotKey(date, other)),
+    ]
+  } else {
+    next = current.filter((key) => key !== slot)
+  }
+
+  const halves = dayTimes.map((other) => startNumbersSlotKey(date, other))
+  if (halves.length > 0 && !next.includes(date) && halves.every((key) => next.includes(key))) {
+    next = [...next.filter((key) => !half(key)), date]
+  }
+  next = [...new Set(next)].sort((a, b) => a.localeCompare(b))
 
   if (next.length === 0) return false
   if (days.every((day) => next.includes(day))) return true
   return next
 }
 
+interface StartNumbersPublishScope {
+  /** The class whose numbers change state; absent for a classless event. */
+  eventClass?: RegistrationClass
+  published: boolean
+  /** One day (yyyy-MM-dd) of the class; absent for the whole class (KOE-1304). */
+  date?: string
+  /** One half of that day (KOE-1430); needs `date`. */
+  time?: StartNumbersTime
+  /** The halves that day runs in, so a day out by halves can become whole — and be split again. */
+  dayTimes?: StartNumbersTime[]
+}
+
 /**
  * Flip the published flag for the class (or the whole classless event) on the event record. With a
- * `date` (yyyy-MM-dd) only that day's numbers change state.
+ * `date` (yyyy-MM-dd) only that day's numbers change state; with a `time` too, only that half's.
  *
  * `updatedAt` moves with the flag so an incremental fetch carries it: a browser that already holds
  * the event reads nothing older, and without this it kept showing the numbers as unconfirmed after
@@ -230,16 +293,16 @@ const withDay = (
  */
 export const setStartNumbersPublishedState = async (
   confirmedEvent: JsonConfirmedEvent,
-  eventClass: RegistrationClass | undefined,
-  published: boolean,
-  date?: string,
+  { dayTimes = [], date, eventClass, published, time }: StartNumbersPublishScope,
   now: Date = new Date()
 ): Promise<Pick<JsonConfirmedEvent, 'startNumbersPublished' | 'updatedAt'>> => {
   const scope: StartNumbersDayScope = date
-    ? withDay(
+    ? withSlot(
         getStartNumbersDayScope(confirmedEvent, eventClass),
         getStartNumbersClassDays(confirmedEvent, eventClass),
+        dayTimes,
         date,
+        time,
         published
       )
     : published

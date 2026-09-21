@@ -388,16 +388,30 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    // One button per day: Friday hides, Saturday publishes. The class is not done yet.
-    expect(screen.getByRole('button', { name: 'eventManagement.startList.hideNumbersDay day' })).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' })).toBeEnabled()
+    // One button per day: Friday hides, Saturday publishes. The class is not done yet. Friday's dogs
+    // run in a morning and an afternoon, so each half has a button of its own beside the day's
+    // (KOE-1430); Saturday has no dogs yet and so no halves.
+    const hideFriday = screen.getAllByRole('button', { name: 'eventManagement.startList.hideNumbersDay day' })
+    expect(hideFriday).toHaveLength(3)
+    for (const button of hideFriday) expect(button).toBeEnabled()
+    // Saturday's publish comes first; the two after it are AVO's halves, beside that class's own button.
+    const publishButtons = screen.getAllByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' })
+    expect(publishButtons).toHaveLength(3)
+    expect(publishButtons[0]).toBeEnabled()
     expect(screen.getByText('eventManagement.startList.numbersPublishedDays days')).toBeInTheDocument()
     expect(screen.queryByText('eventManagement.startList.numbersPublished')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'eventManagement.startList.publishNumbersDay day' }))
+    await user.click(publishButtons[0])
 
     await waitFor(() => {
-      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', true, zonedDateString(saturday))
+      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', true, zonedDateString(saturday), undefined)
+    })
+
+    // The day's halves stand after the day, the morning first: hiding the morning names it.
+    await user.click(hideFriday[1])
+
+    await waitFor(() => {
+      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', false, zonedDateString(aloDay.date), 'ap')
     })
   })
 

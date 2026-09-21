@@ -167,6 +167,26 @@ describe('startNumbers', () => {
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })
 
+    it('freezes one half of a day, with the other half still to be drawn (KOE-1430)', async () => {
+      const morning = registration('run-1', {
+        startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' },
+      })
+      // The afternoon draws once the morning is under way: its dogs have no numbers yet.
+      const afternoon = registration('run-2', {
+        group: { date: '2026-09-12', key: 'ALO-IP', number: 2, time: 'ip' },
+      })
+
+      const patches = await freezeStartNumbers('event-1', [morning, afternoon], 'ALO', USER, '2026-09-12', 'ap')
+
+      // The morning is complete and already frozen; the afternoon's working order stays untouched.
+      expect(patches).toEqual([])
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      // The whole day still cannot go out while the afternoon is undrawn.
+      await expect(
+        freezeStartNumbers('event-1', [morning, afternoon], 'ALO', USER, '2026-09-12')
+      ).rejects.toMatchObject({ body: { error: 'startNumbersIncomplete' } })
+    })
+
     it('freezes every class when no class is named', async () => {
       const patches = await freezeStartNumbers(
         'event-1',
@@ -396,24 +416,103 @@ describe('startNumbers', () => {
 
       // Friday out: the class holds a day list, the other class is untouched.
       expect(
-        (await setStartNumbersPublishedState(twoDays({ ALO: false, AVO: false }), 'ALO', true, '2026-09-12'))
-          .startNumbersPublished
+        (
+          await setStartNumbersPublishedState(twoDays({ ALO: false, AVO: false }), {
+            date: '2026-09-12',
+            eventClass: 'ALO',
+            published: true,
+          })
+        ).startNumbersPublished
       ).toEqual({ ALO: ['2026-09-12'], AVO: false })
       // Saturday out too: the list covers every day the class runs, so it collapses to plain true.
       expect(
-        (await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-12'], AVO: false }), 'ALO', true, '2026-09-13'))
-          .startNumbersPublished
+        (
+          await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-12'], AVO: false }), {
+            date: '2026-09-13',
+            eventClass: 'ALO',
+            published: true,
+          })
+        ).startNumbersPublished
       ).toEqual({ ALO: true, AVO: false })
       // Hiding one day of a fully published class expands it back into the days that stay out.
       expect(
-        (await setStartNumbersPublishedState(twoDays({ ALO: true, AVO: false }), 'ALO', false, '2026-09-12'))
-          .startNumbersPublished
+        (
+          await setStartNumbersPublishedState(twoDays({ ALO: true, AVO: false }), {
+            date: '2026-09-12',
+            eventClass: 'ALO',
+            published: false,
+          })
+        ).startNumbersPublished
       ).toEqual({ ALO: ['2026-09-13'], AVO: false })
       // And hiding the last day is plain false.
       expect(
-        (await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-13'], AVO: false }), 'ALO', false, '2026-09-13'))
-          .startNumbersPublished
+        (
+          await setStartNumbersPublishedState(twoDays({ ALO: ['2026-09-13'], AVO: false }), {
+            date: '2026-09-13',
+            eventClass: 'ALO',
+            published: false,
+          })
+        ).startNumbersPublished
       ).toEqual({ ALO: false, AVO: false })
+    })
+
+    it('publishes a day by halves and folds them into the day (KOE-1430)', async () => {
+      const oneDay = (startNumbersPublished: JsonConfirmedEvent['startNumbersPublished']) =>
+        asJsonConfirmedEvent({
+          classes: [
+            { class: 'ALO', date: '2026-09-12' },
+            { class: 'AVO', date: '2026-09-12' },
+          ],
+          endDate: '2026-09-12',
+          id: 'event-1',
+          startDate: '2026-09-12',
+          startNumbersPublished,
+        })
+      const halves = { date: '2026-09-12', dayTimes: ['ap', 'ip'] as const, eventClass: 'ALO' as const }
+      const publish = (state: JsonConfirmedEvent['startNumbersPublished'], time: 'ap' | 'ip', published = true) =>
+        setStartNumbersPublishedState(oneDay(state), { ...halves, dayTimes: [...halves.dayTimes], published, time })
+
+      // The morning out: half a day, listed as the day and its half.
+      expect((await publish({ ALO: false, AVO: false }, 'ap')).startNumbersPublished).toEqual({
+        ALO: ['2026-09-12/ap'],
+        AVO: false,
+      })
+      // The afternoon out too: the halves make the day, and the day is every day the class runs.
+      expect((await publish({ ALO: ['2026-09-12/ap'], AVO: false }, 'ip')).startNumbersPublished).toEqual({
+        ALO: true,
+        AVO: false,
+      })
+      // Hiding one half of a published day leaves the other half out on its own.
+      expect((await publish({ ALO: true, AVO: false }, 'ap', false)).startNumbersPublished).toEqual({
+        ALO: ['2026-09-12/ip'],
+        AVO: false,
+      })
+      // And hiding the last half is plain false.
+      expect((await publish({ ALO: ['2026-09-12/ip'], AVO: false }, 'ip', false)).startNumbersPublished).toEqual({
+        ALO: false,
+        AVO: false,
+      })
+      // Publishing the whole day supersedes its halves.
+      expect(
+        (
+          await setStartNumbersPublishedState(oneDay({ ALO: ['2026-09-12/ap'], AVO: false }), {
+            ...halves,
+            dayTimes: ['ap', 'ip'],
+            published: true,
+          })
+        ).startNumbersPublished
+      ).toEqual({ ALO: true, AVO: false })
+      // A day the dogs do not run in halves has none to fold: the half stays listed as it was asked.
+      expect(
+        (
+          await setStartNumbersPublishedState(oneDay({ ALO: false, AVO: false }), {
+            ...halves,
+            dayTimes: [],
+            published: true,
+            time: 'ap',
+          })
+        ).startNumbersPublished
+      ).toEqual({ ALO: ['2026-09-12/ap'], AVO: false })
     })
 
     it('publishes one day of a classless event against its own dates', async () => {
@@ -427,7 +526,8 @@ describe('startNumbers', () => {
 
       const now = new Date('2026-09-11T09:00:00.000Z')
       expect(
-        (await setStartNumbersPublishedState(confirmedEvent, undefined, true, '2026-09-12', now)).startNumbersPublished
+        (await setStartNumbersPublishedState(confirmedEvent, { date: '2026-09-12', published: true }, now))
+          .startNumbersPublished
       ).toEqual(['2026-09-12'])
       // `updatedAt` moves so the change reaches a browser that already holds the event (KOE-1352).
       expect(mockUpdate).toHaveBeenCalledWith(
@@ -445,7 +545,7 @@ describe('startNumbers', () => {
       })
 
       const now = new Date('2026-09-11T09:00:00.000Z')
-      const state = await setStartNumbersPublishedState(confirmedEvent, 'ALO', true, undefined, now)
+      const state = await setStartNumbersPublishedState(confirmedEvent, { eventClass: 'ALO', published: true }, now)
 
       expect(state).toEqual({
         startNumbersPublished: { ALO: true, AVO: false },

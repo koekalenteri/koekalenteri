@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next'
 import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
+import type { PublishedStartNumbersSlot, StartNumbersTime } from '@/lib/event'
 import type { ConfirmedEvent, RegistrationClass } from '@/types'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import Box from '@mui/material/Box'
@@ -13,7 +14,13 @@ import { useTranslation } from 'react-i18next'
 import { zonedParseDate } from '@/i18n/dates'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { refusalCode } from '@/lib/client/startNumberErrors'
-import { getPublishedStartNumbersDays, getStartNumbersClassDays, isStartNumbersPublishedForDay } from '@/lib/event'
+import {
+  getPublishedStartNumbersSlots,
+  getStartNumbersClassDays,
+  getStartNumbersDayTimes,
+  isStartNumbersPublishedForDay,
+  isStartNumbersPublishedForSlot,
+} from '@/lib/event'
 import { Path } from '@/routeConfig'
 import { PublishingSection } from './PublishingSection'
 import { getPublishingRows, isStartNumbersPublished } from './publishingRow'
@@ -28,7 +35,7 @@ const getStartNumbersAuditMessageKey = (eventClass: RegistrationClass | undefine
   return published ? 'audit.messages.startNumbersPublished' : 'audit.messages.startNumbersHidden'
 }
 
-/** The confirmation for a numbers publish or hide; a day's own names the day (KOE-1304). */
+/** The confirmation for a numbers publish or hide; a day's own names the day (KOE-1304), or the half of it. */
 const startNumbersMessage = (
   t: TFunction,
   eventClass: RegistrationClass | undefined,
@@ -45,12 +52,41 @@ const startNumbersMessage = (
   return t(published ? 'audit.messages.startNumbersPublishedDay' : 'audit.messages.startNumbersHiddenDay', { day })
 }
 
+interface ClassDay {
+  date: Date
+  key: string
+}
+
 /** The days a class runs, one per class entry — or the event's own days where it has no classes. */
-const classDays = (event: ConfirmedEvent, className: string) =>
+const classDays = (event: ConfirmedEvent, className: string): ClassDay[] =>
   getStartNumbersClassDays(event, event.classes.length ? className : undefined).map((key) => ({
     date: zonedParseDate(key),
     key,
   }))
+
+/**
+ * What one button publishes: the whole class (no day), one day of a multi-day class (KOE-1304), or
+ * one half of a day the trial draws in two (KOE-1430). The half's button stands beside the day's —
+ * or beside the class's, where the class runs one day — so a trial that draws the day at once still
+ * publishes it with one press.
+ */
+interface PublishScope {
+  day?: ClassDay
+  time?: StartNumbersTime
+}
+
+const publishScopes = (days: ClassDay[], dayTimes: (day: ClassDay) => StartNumbersTime[]): PublishScope[] =>
+  days.flatMap((day) => [{ day: days.length > 1 ? day : undefined }, ...dayTimes(day).map((time) => ({ day, time }))])
+
+/**
+ * How a scope is named on its button and in its confirmation: the day as its weekday, a half by its
+ * time — with the day where the class runs several, on its own where it runs one.
+ */
+const scopeLabel = (t: TFunction, { date, time }: { date: Date; time?: StartNumbersTime }, withDay: boolean) => {
+  const day = t('dateFormat.wdshort', { date })
+  if (!time) return day
+  return withDay ? `${day} ${t(`registration.time.${time}`)}` : t(`registration.timeLong.${time}`)
+}
 
 interface Props {
   readonly event: ConfirmedEvent
@@ -59,14 +95,16 @@ interface Props {
   readonly onSetStartNumbersPublished?: (
     eventClass: RegistrationClass | undefined,
     published: boolean,
-    date?: string
+    date?: string,
+    time?: StartNumbersTime
   ) => Promise<unknown>
   readonly selectedByClass: RegistrationInfo['selectedByClass']
   readonly stateByClass: RegistrationInfo['stateByClass']
 }
 
 /**
- * Publishing the start numbers, per class and — for a multi-day class — per day (KOE-1304).
+ * Publishing the start numbers, per class, per day of a multi-day class (KOE-1304), and per half of a
+ * day whose morning and afternoon are drawn apart (KOE-1430).
  *
  * Its own section rather than a corner of the start list's: the panel's steps are one section each,
  * and the numbers are a step of their own that the secretary reaches on the morning of the trial,
@@ -87,14 +125,15 @@ const StartNumbersPublishing = ({
   const handleSetStartNumbersPublished = async (
     eventClass: RegistrationClass | undefined,
     published: boolean,
-    day?: { date: Date; key: string }
+    { day, time }: PublishScope,
+    withDay: boolean
   ) => {
     if (!onSetStartNumbersPublished) return
 
     try {
-      await onSetStartNumbersPublished(eventClass, published, day?.key)
-      const dayText = day ? t('dateFormat.wdshort', { date: day.date }) : undefined
-      enqueueSnackbar(startNumbersMessage(t, eventClass, published, dayText), { variant: 'success' })
+      await onSetStartNumbersPublished(eventClass, published, day?.key, time)
+      const scopeText = day ? scopeLabel(t, { date: day.date, time }, withDay) : undefined
+      enqueueSnackbar(startNumbersMessage(t, eventClass, published, scopeText), { variant: 'success' })
     } catch (error) {
       // A half-entered draw is the secretary's own next step, not a save failure — name it (KOE-1218).
       const incomplete = refusalCode(error) === 'startNumbersIncomplete'
@@ -130,9 +169,14 @@ const StartNumbersPublishing = ({
         const canManageStartNumbers =
           Boolean(onSetStartNumbersPublished) && row.manageable && row.invitationsSent && startListPublished
         const days = classDays(event, className)
-        const publishedDays = startListPublished ? getPublishedStartNumbersDays(event, startListEventClass) : []
-        const partlyPublished = !numbersPublished && publishedDays.length > 0
-        const numbersButtons = days.length > 1 ? days : [undefined]
+        const multiDay = days.length > 1
+        const published: PublishedStartNumbersSlot[] = startListPublished
+          ? getPublishedStartNumbersSlots(event, startListEventClass)
+          : []
+        const partlyPublished = !numbersPublished && published.length > 0
+        // The halves come from the dogs placed on the day: a day nobody runs in two has no halves.
+        const participants = selectedByClass[className] ?? []
+        const scopes = publishScopes(days, (day) => getStartNumbersDayTimes(participants, day.key))
 
         return (
           <TableRow key={className}>
@@ -173,9 +217,8 @@ const StartNumbersPublishing = ({
                     }}
                   >
                     {t('eventManagement.startList.numbersPublishedDays', {
-                      days: days
-                        .filter((day) => publishedDays.includes(day.key))
-                        .map((day) => t('dateFormat.wdshort', { date: day.date }))
+                      days: published
+                        .map((slot) => scopeLabel(t, { date: zonedParseDate(slot.date), time: slot.time }, true))
                         .join(', '),
                     })}
                   </Typography>
@@ -205,30 +248,39 @@ const StartNumbersPublishing = ({
                   justifyContent: 'flex-end',
                 }}
               >
-                {numbersButtons.map((day) => {
-                  // One button per day of a multi-day class; the whole class otherwise.
-                  const dayPublished = day
-                    ? startListPublished && isStartNumbersPublishedForDay(event, startListEventClass, day.date)
-                    : numbersPublished
-                  const dayLabelKey = dayPublished
+                {scopes.map((scope) => {
+                  // One button per day of a multi-day class, the whole class otherwise — and one per
+                  // half of a day that is drawn in two.
+                  const { day, time } = scope
+                  let scopePublished = numbersPublished
+                  if (day && time) {
+                    scopePublished =
+                      startListPublished && isStartNumbersPublishedForSlot(event, startListEventClass, day.date, time)
+                  } else if (day) {
+                    scopePublished =
+                      startListPublished && isStartNumbersPublishedForDay(event, startListEventClass, day.date)
+                  }
+                  const dayLabelKey = scopePublished
                     ? 'eventManagement.startList.hideNumbersDay'
                     : 'eventManagement.startList.publishNumbersDay'
-                  const classLabelKey = dayPublished
+                  const classLabelKey = scopePublished
                     ? 'eventManagement.startList.hideNumbers'
                     : 'eventManagement.startList.publishNumbers'
                   const label = day
-                    ? t(dayLabelKey, { day: t('dateFormat.wdshort', { date: day.date }) })
+                    ? t(dayLabelKey, { day: scopeLabel(t, { date: day.date, time }, multiDay) })
                     : t(classLabelKey)
 
                   return (
                     <Button
-                      key={day?.key ?? 'all'}
+                      key={day ? `${day.key}/${time ?? 'day'}` : 'all'}
                       size="small"
                       disabled={!canManageStartNumbers}
                       onClick={() => {
-                        if (publishable) handleSetStartNumbersPublished(startListEventClass, !dayPublished, day)
+                        if (publishable) {
+                          handleSetStartNumbersPublished(startListEventClass, !scopePublished, scope, multiDay)
+                        }
                       }}
-                      color={dayPublished ? 'secondary' : 'primary'}
+                      color={scopePublished ? 'secondary' : 'primary'}
                       // A day never splits from its verb; when the row is short the whole button wraps.
                       sx={{ whiteSpace: 'nowrap' }}
                       variant={canManageStartNumbers ? 'contained' : 'outlined'}

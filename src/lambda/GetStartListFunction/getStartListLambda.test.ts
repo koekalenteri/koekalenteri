@@ -232,6 +232,51 @@ describe('getStartListLambda', () => {
     expect(payload.find((reg: { dog: { name: string } }) => reg.dog.name === 'Aapo').group.number).toBeUndefined()
   })
 
+  it("serves the morning's numbers while the afternoon's draw is still to come (KOE-1430)", async () => {
+    const confirmedEvent = {
+      classes: [{ class: 'ALO', date: '2025-01-01', state: 'invited' }],
+      endDate: '2025-01-01',
+      id: 'event123',
+      organizer: { id: 'org123' },
+      startDate: '2025-01-01',
+      startListPublished: { ALO: true },
+      startNumbersPublished: { ALO: ['2025-01-01/ap'] },
+      state: 'invited',
+    }
+    const base = {
+      cancelled: false,
+      class: 'ALO',
+      eventId: 'event123',
+      handler: { name: 'Handler' },
+      owner: { name: 'Owner' },
+    }
+
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      {
+        ...base,
+        dog: { name: 'Vieno', regNo: 'REG1' },
+        group: { date: '2025-01-01', key: 'ALO-AP', number: 1, time: 'ap' },
+        startGroup: { date: '2025-01-01', key: 'ALO-AP', number: 7, time: 'ap' },
+      },
+      {
+        ...base,
+        dog: { name: 'Aapo', regNo: 'REG2' },
+        group: { date: '2025-01-01', key: 'ALO-IP', number: 2, time: 'ip' },
+      },
+    ])
+
+    await getStartListLambda(event)
+
+    const [status, payload] = mockResponse.mock.calls[0]
+    expect(status).toBe(200)
+    expect(payload).toHaveLength(2)
+    // The morning's drawn number is public; the afternoon's dog is listed without a promise of order.
+    expect(payload.find((reg: { dog: { name: string } }) => reg.dog.name === 'Vieno').group.number).toBe(7)
+    expect(payload.find((reg: { dog: { name: string } }) => reg.dog.name === 'Aapo').group.number).toBeUndefined()
+  })
+
   it('keeps a dog added after the draw off the published list until its number is entered (KOE-1272)', async () => {
     const confirmedEvent = {
       classes: [{ class: 'ALO', state: 'invited' }],

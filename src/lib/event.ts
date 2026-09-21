@@ -637,7 +637,7 @@ type AvailabilityEvent = {
   classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
   startDate: Date | string
 }
-type AvailabilityRegistration = { class?: string | null; group: { date?: Date | string } }
+type AvailabilityRegistration = { class?: string | null; group: { date?: Date | string; time?: RegistrationTime } }
 
 /**
  * The class entry a registration belongs to, matched on the day it runs.
@@ -723,11 +723,33 @@ export const getStartNumbersDayScope = (
     ? (startNumbersPublished[eventClass as RegistrationClass] ?? false)
     : (startNumbersPublished ?? true)
 
+/** The half of a day that draws on its own (KOE-1430): the morning or the afternoon, never a whole day. */
+export type StartNumbersTime = Extract<RegistrationTime, 'ap' | 'ip'>
+
+const START_NUMBERS_TIMES: readonly StartNumbersTime[] = ['ap', 'ip']
+
+export const isStartNumbersTime = (value: unknown): value is StartNumbersTime =>
+  START_NUMBERS_TIMES.some((time) => time === value)
+
 /**
- * A day list as day keys. The list is stored as yyyy-MM-dd strings, but the browser's JSON reviver
- * turns those into dates on the way in, so the entries are keyed again before any comparison.
+ * The stored form of one slot of a class's numbers: the day key alone for a whole day, or the day
+ * key and the time for one half of it (KOE-1430). A day with no halves (`kp`) only ever has the key.
  */
-const scopeDayKeys = (scope: Array<string | Date>) => scope.map(startListAvailabilityDateKey)
+export const startNumbersSlotKey = (date: Date | string, time?: RegistrationTime) => {
+  const day = startListAvailabilityDateKey(date)
+  return isStartNumbersTime(time) ? `${day}/${time}` : day
+}
+
+/**
+ * A scope list as slot keys. Days are stored as yyyy-MM-dd strings, but the browser's JSON reviver
+ * turns those into dates on the way in, so the entries are keyed again before any comparison. A
+ * half-day entry is not a date and comes through as it was stored.
+ */
+const scopeSlotKeys = (scope: Array<string | Date>) =>
+  scope.map((entry) => (typeof entry === 'string' && entry.includes('/') ? entry : startListAvailabilityDateKey(entry)))
+
+/** Only the whole days of a scope list: a half-day entry does not make its day published. */
+const scopeDayKeys = (scope: Array<string | Date>) => scopeSlotKeys(scope).filter((key) => !key.includes('/'))
 
 /** Whether the numbers of one day of the class (or of a classless event) are out (KOE-1304). */
 export const isStartNumbersPublishedForDay = (
@@ -738,6 +760,27 @@ export const isStartNumbersPublishedForDay = (
   const scope = getStartNumbersDayScope(event, eventClass)
   if (Array.isArray(scope)) return !!date && scopeDayKeys(scope).includes(startListAvailabilityDateKey(date))
   return scope
+}
+
+/**
+ * Whether the numbers of one slot are out (KOE-1430): the whole day counts, and so does the half the
+ * slot runs in. A slot without a half — a day with no morning and afternoon — only has the day.
+ */
+export const isStartNumbersPublishedForSlot = (
+  event: Pick<JsonDogEvent, 'startNumbersPublished'>,
+  eventClass: string | undefined,
+  date: Date | string | undefined,
+  time?: RegistrationTime
+) => {
+  const scope = getStartNumbersDayScope(event, eventClass)
+  if (!Array.isArray(scope)) return scope
+  if (!date) return false
+
+  const keys = scopeSlotKeys(scope)
+  return (
+    keys.includes(startListAvailabilityDateKey(date)) ||
+    (isStartNumbersTime(time) && keys.includes(startNumbersSlotKey(date, time)))
+  )
 }
 
 /** Whether the class's numbers are out for every day it runs: a day list only counts once it is complete. */
@@ -759,6 +802,55 @@ export const getPublishedStartNumbersDays = (event: StartNumbersDaysEvent, event
     return days.filter((day) => published.includes(day))
   }
   return scope ? days : []
+}
+
+export interface PublishedStartNumbersSlot {
+  /** The day, as yyyy-MM-dd in the event's time zone. */
+  date: string
+  /** The half of the day that is out on its own; absent when the whole day is (KOE-1430). */
+  time?: StartNumbersTime
+}
+
+/**
+ * What is out of the class, slot by slot and in day order: a whole day as its day, a day out by
+ * halves as each half (KOE-1430). This is what the panel's caption lists for a partly published class.
+ */
+export const getPublishedStartNumbersSlots = (
+  event: StartNumbersDaysEvent,
+  eventClass?: string
+): PublishedStartNumbersSlot[] => {
+  const scope = getStartNumbersDayScope(event, eventClass)
+  const days = getStartNumbersClassDays(event, eventClass)
+  if (!Array.isArray(scope)) return scope ? days.map((date) => ({ date })) : []
+
+  const keys = scopeSlotKeys(scope)
+  return days.flatMap((date) => {
+    if (keys.includes(date)) return [{ date }]
+    return START_NUMBERS_TIMES.filter((time) => keys.includes(startNumbersSlotKey(date, time))).map((time) => ({
+      date,
+      time,
+    }))
+  })
+}
+
+/**
+ * The halves a day of the class runs in, from the dogs placed on it: the morning and the afternoon
+ * a trial draws separately (KOE-1430). A day whose dogs have no half, or only one, is not split —
+ * there is nothing to publish apart from the day itself. The caller passes the dogs of one class.
+ */
+export const getStartNumbersDayTimes = (
+  registrations: ReadonlyArray<{ group?: { date?: Date | string; time?: RegistrationTime } }>,
+  date: Date | string
+): StartNumbersTime[] => {
+  const day = startListAvailabilityDateKey(date)
+  const times = new Set<StartNumbersTime>()
+  for (const { group } of registrations) {
+    if (group?.date && isStartNumbersTime(group.time) && startListAvailabilityDateKey(group.date) === day) {
+      times.add(group.time)
+    }
+  }
+  const split = START_NUMBERS_TIMES.filter((time) => times.has(time))
+  return split.length > 1 ? split : []
 }
 
 type StartNumbersEvent = Pick<JsonDogEvent, 'state' | 'startListPublished' | 'startNumbersPublished'>
@@ -791,12 +883,13 @@ export const isStartNumbersAvailableForRegistration = (
   if (!isStartListAvailableForRegistration(event, registration)) return false
 
   const classes = event.classes ?? []
+  const { time } = registration.group
   const date = registration.group.date ?? event.startDate
-  if (!registration.class || classes.length === 0) return isStartNumbersPublishedForDay(event, undefined, date)
+  if (!registration.class || classes.length === 0) return isStartNumbersPublishedForSlot(event, undefined, date, time)
 
   const eventClass = findRegistrationClass(event, registration)
 
-  return eventClass ? isStartNumbersPublishedForDay(event, eventClass.class, eventClass.date ?? date) : false
+  return eventClass ? isStartNumbersPublishedForSlot(event, eventClass.class, eventClass.date ?? date, time) : false
 }
 
 export const getStartNumbersPublishedClassMap = ({

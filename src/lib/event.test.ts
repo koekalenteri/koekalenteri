@@ -35,8 +35,10 @@ import {
   getEventTitle,
   getParticipantsPhase,
   getPublishedStartNumbersDays,
+  getPublishedStartNumbersSlots,
   getResultsPublishedClassMap,
   getStartListPublishedClassMap,
+  getStartNumbersDayTimes,
   getUniqueEventClasses,
   hasExplicitPlacesForClass,
   hasMockTrialChoice,
@@ -60,6 +62,8 @@ import {
   isStartNumbersAvailableForClass,
   isStartNumbersAvailableForRegistration,
   isStartNumbersPublishedForClass,
+  isStartNumbersPublishedForDay,
+  isStartNumbersPublishedForSlot,
   localizedEventDescription,
   localizedEventName,
   newEventEntryEndDate,
@@ -68,6 +72,7 @@ import {
   placesForClass,
   registrationDatesOutsideClass,
   sanitizeDogEvent,
+  startNumbersSlotKey,
 } from './event'
 
 describe('lib/event', () => {
@@ -463,6 +468,58 @@ describe('lib/event', () => {
       expect(
         isStartNumbersPublishedForClass({ ...classless, startNumbersPublished: ['2026-09-04', '2026-09-05'] })
       ).toBe(true)
+    })
+
+    it('publishes a day by halves, the morning before the afternoon (KOE-1430)', () => {
+      const event = {
+        classes: [
+          { class: 'ALO' as const, date: '2026-09-26' },
+          { class: 'AVO' as const, date: '2026-09-26' },
+        ],
+        endDate: '2026-09-26',
+        startDate: '2026-09-26',
+        startListPublished: { ALO: true, AVO: true },
+        startNumbersPublished: { ALO: ['2026-09-26/ap'], AVO: false },
+        state: 'invited' as const,
+      }
+      const morning = { class: 'ALO', group: { date: '2026-09-26', time: 'ap' as const } }
+      const afternoon = { class: 'ALO', group: { date: '2026-09-26', time: 'ip' as const } }
+
+      // The morning's numbers are out and the afternoon's are not; a dog with no half only has the day.
+      expect(isStartNumbersAvailableForRegistration(event, morning)).toBe(true)
+      expect(isStartNumbersAvailableForRegistration(event, afternoon)).toBe(false)
+      expect(isStartNumbersAvailableForRegistration(event, { class: 'ALO', group: { date: '2026-09-26' } })).toBe(false)
+      expect(isStartNumbersPublishedForSlot(event, 'ALO', '2026-09-26', 'ap')).toBe(true)
+      expect(isStartNumbersPublishedForSlot(event, 'ALO', '2026-09-26', 'ip')).toBe(false)
+      expect(isStartNumbersPublishedForSlot(event, 'ALO', '2026-09-26', 'kp')).toBe(false)
+
+      // Half a day does not make the day, the class, or the class entry published.
+      expect(isStartNumbersPublishedForDay(event, 'ALO', '2026-09-26')).toBe(false)
+      expect(isStartNumbersPublishedForClass(event, 'ALO')).toBe(false)
+      expect(isStartNumbersAvailableForClass(event, event.classes[0])).toBe(false)
+      expect(getPublishedStartNumbersDays(event, 'ALO')).toEqual([])
+      // But the caption knows which half is out.
+      expect(getPublishedStartNumbersSlots(event, 'ALO')).toEqual([{ date: '2026-09-26', time: 'ap' }])
+      expect(getPublishedStartNumbersSlots({ ...event, startNumbersPublished: { ALO: true } }, 'ALO')).toEqual([
+        { date: '2026-09-26' },
+      ])
+
+      // A whole day covers both halves, whichever form it came in.
+      const wholeDay = { ...event, startNumbersPublished: { ALO: ['2026-09-26'] } }
+      expect(isStartNumbersAvailableForRegistration(wholeDay, afternoon)).toBe(true)
+      const revived = { ...event, startNumbersPublished: { ALO: [new Date(2026, 8, 26, 12)] } }
+      expect(isStartNumbersAvailableForRegistration(revived, afternoon)).toBe(true)
+      expect(isStartNumbersPublishedForSlot(revived, 'ALO', new Date(2026, 8, 26, 9), 'ap')).toBe(true)
+
+      // The halves a day runs in come from the dogs placed on it, and only a split day has any.
+      expect(getStartNumbersDayTimes([morning, afternoon], '2026-09-26')).toEqual(['ap', 'ip'])
+      expect(getStartNumbersDayTimes([morning, morning], '2026-09-26')).toEqual([])
+      expect(getStartNumbersDayTimes([morning, afternoon], '2026-09-27')).toEqual([])
+      expect(getStartNumbersDayTimes([{ group: { date: '2026-09-26', time: 'kp' } }, afternoon], '2026-09-26')).toEqual(
+        []
+      )
+      expect(startNumbersSlotKey('2026-09-26', 'ip')).toBe('2026-09-26/ip')
+      expect(startNumbersSlotKey('2026-09-26', 'kp')).toBe('2026-09-26')
     })
 
     it('answers per registration through the class that runs its day', () => {

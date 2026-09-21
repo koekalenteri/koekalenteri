@@ -1,3 +1,4 @@
+import type { StartNumbersTime } from '../lib/event'
 import type {
   AuditRecord,
   DogEvent,
@@ -114,6 +115,8 @@ export interface StartNumbersRequest {
   published?: boolean
   /** One day (yyyy-MM-dd) of a multi-day class, for a publish or hide that leaves the other days alone (KOE-1304). */
   date?: string
+  /** One half of that day — the morning or the afternoon a trial draws separately (KOE-1430). */
+  time?: StartNumbersTime
   numbers?: { id: string; startNumber: number }[]
 }
 
