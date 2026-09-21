@@ -68,7 +68,7 @@ export default function EventViewPage() {
   const [, setSelectedEventId] = useAtom(adminEventIdAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   // The secretary's guide is one page while entry is open and another once it has ended (KOE-1402).
-  useHelpPath(event && hasEntryEnded(event) ? 'koesihteerille/ilmoajan-jalkeen' : 'koesihteerille/ilmoaikana')
+  useHelpPath(event && hasEntryEnded(event) ? 'secretary/after-entry-closes' : 'secretary/while-entry-is-open')
   const actions = useAdminRegistrationActions(eventId)
   const eventActions = useAdminEventActions()
 

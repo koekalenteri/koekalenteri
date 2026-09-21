@@ -115,12 +115,14 @@ for (const document of documents) {
 
 /** The application's pages a guide would not describe: infrastructure, not a task of anyone's. */
 const PAGES_WITHOUT_A_GUIDE = new Set([
+  'src/pages/admin/AdminHomePage.tsx',
   'src/pages/DocsIndexPage.tsx',
   'src/pages/DocsPage.tsx',
   'src/pages/ErrorPage.tsx',
   'src/pages/HomePage.tsx',
   'src/pages/LoadingPage.tsx',
   'src/pages/LoginPage.tsx',
+  'src/pages/SupportPage.tsx',
   'src/pages/TermsPage.tsx',
   'src/pages/WhatsNewPage.tsx',
 ])

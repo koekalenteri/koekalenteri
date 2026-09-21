@@ -7,13 +7,13 @@ code work.
 
 ## Who reads it
 
-- **Participants** (`ilmoittautujalle/`): a dog owner entering a trial, on a phone, once or twice a
+- **Participants** (`participant/`): a dog owner entering a trial, on a phone, once or twice a
   year. They do not know the application's vocabulary; they know their dog, the trial and the
   fee.
-- **Trial secretaries** (`koesihteerille/`): a club volunteer running one or two trials a year,
+- **Trial secretaries** (`secretary/`): a club volunteer running one or two trials a year,
   often with a year between them. They know the trial's steps well and the application only as
   far as it takes them through those steps.
-- **Administrators** (`yhdistykselle/`): the club's treasurer or chair, reading about payments,
+- **Administrators** (`admin/`): the club's treasurer or chair, reading about payments,
   agreements and user access.
 
 Write for the reader's task, in the order the task happens, and say what the application does by

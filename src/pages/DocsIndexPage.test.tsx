@@ -23,7 +23,7 @@ describe('DocsIndexPage', () => {
     expect(screen.getByRole('heading', { name: 'docs.audience.participant' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Kokeeseen ilmoittautuminen' })).toHaveAttribute(
       'href',
-      '/ohjeet/ilmoittautujalle/ilmoittautuminen'
+      '/ohjeet/participant/entering'
     )
   })
 

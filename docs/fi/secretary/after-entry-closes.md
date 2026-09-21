@@ -16,6 +16,7 @@ covers:
   - src/pages/admin/StartListPage.tsx
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
+  - src/pages/ClassStartNumbersPage.tsx
 ---
 
 Kun ilmoittautumisaika on päättynyt, koesihteerin työ etenee vaihe kerrallaan: osallistujien

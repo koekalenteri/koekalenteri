@@ -9,7 +9,9 @@ import '../index.css'
 import { DataMemoryRouter } from '../test-utils/utils'
 import { DocsIndexPage } from './DocsIndexPage'
 
-const VIEWPORT = { height: 700, width: 900 }
+// Tall enough for every audience's list and the rules heading: the browser paints nothing past the
+// viewport, so a shorter one would cut the index off mid-heading.
+const VIEWPORT = { height: 900, width: 900 }
 
 vi.mock('./components/Header', () => ({ default: () => null }))
 

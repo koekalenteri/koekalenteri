@@ -37,11 +37,11 @@ describe('ContextHelp', () => {
 
     await user.click(screen.getByRole('button', { name: 'docs.contextHelp' }))
 
-    expect(screen.getByTestId('location')).toHaveTextContent('/ohjeet/koesihteerille/ennen-ilmoaikaa')
+    expect(screen.getByTestId('location')).toHaveTextContent('/ohjeet/secretary/before-entry-opens')
   })
 
   it('shows nothing where no guide describes the view', () => {
-    renderAt('/admin/users')
+    renderAt('/support')
 
     expect(screen.queryByRole('button', { name: 'docs.contextHelp' })).not.toBeInTheDocument()
   })
@@ -50,15 +50,15 @@ describe('ContextHelp', () => {
   it('prefers the page the view claims for itself', async () => {
     const user = userEvent.setup()
     const Claim = () => {
-      useHelpPath('koesihteerille/ilmoajan-jalkeen')
+      useHelpPath('secretary/after-entry-closes')
       const claimed = useAtomValue(helpPathAtom)
       return <div data-testid="claimed">{claimed}</div>
     }
     renderAt('/admin/event/view/abc', <Claim />)
 
-    expect(screen.getByTestId('claimed')).toHaveTextContent('koesihteerille/ilmoajan-jalkeen')
+    expect(screen.getByTestId('claimed')).toHaveTextContent('secretary/after-entry-closes')
     await user.click(screen.getByRole('button', { name: 'docs.contextHelp' }))
 
-    expect(screen.getByTestId('location')).toHaveTextContent('/ohjeet/koesihteerille/ilmoajan-jalkeen')
+    expect(screen.getByTestId('location')).toHaveTextContent('/ohjeet/secretary/after-entry-closes')
   })
 })

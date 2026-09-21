@@ -24,7 +24,7 @@ it('renders a guide', async () => {
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
       <ThemeProvider theme={theme}>
-        <DataMemoryRouter initialEntries={['/ohjeet/ilmoittautujalle/ilmoittautuminen']} routes={routes} />
+        <DataMemoryRouter initialEntries={['/ohjeet/participant/entering']} routes={routes} />
       </ThemeProvider>
     </div>
   )

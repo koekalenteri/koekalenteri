@@ -7,13 +7,21 @@
  * open and another after — sets its own page through `helpPathAtom` instead.
  */
 const CONTEXT: readonly (readonly [RegExp, string])[] = [
-  [/^\/admin\/event\/(view)\//, 'koesihteerille/ilmoaikana'],
-  [/^\/admin\/event\/(startnumbers|startlist|startlist-preview)\//, 'koesihteerille/ilmoajan-jalkeen'],
-  [/^\/admin\/event(\/(edit|create)|$)/, 'koesihteerille/ennen-ilmoaikaa'],
-  [/^\/admin\/organizations/, 'yhdistykselle/maksuliikenne'],
-  [/^\/start-numbers\//, 'koesihteerille/ilmoajan-jalkeen'],
-  [/^\/(event|r|p)\//, 'ilmoittautujalle/ilmoittautuminen'],
-  [/^\/$/, 'ilmoittautujalle/ilmoittautuminen'],
+  [/^\/admin\/event\/(view)\//, 'secretary/while-entry-is-open'],
+  [/^\/admin\/event\/(startnumbers|startlist|startlist-preview)\//, 'secretary/after-entry-closes'],
+  [/^\/admin\/event\/(results|stations)\//, 'secretary/trial-day'],
+  [/^\/admin\/event(\/(edit|create)|$)/, 'secretary/before-entry-opens'],
+  [/^\/admin\/(judge|officials)$/, 'secretary/directories'],
+  [/^\/admin\/organizations/, 'admin/payments'],
+  [/^\/admin\/users$/, 'admin/users'],
+  [/^\/admin\/(stats|event-breakdown)$/, 'admin/statistics'],
+  [/^\/admin\/(types|templates)$/, 'admin/application'],
+  [/^\/tilastot$/, 'admin/statistics'],
+  [/^\/start-numbers\//, 'secretary/after-entry-closes'],
+  [/^\/startlist\//, 'participant/start-list'],
+  [/^\/r\//, 'participant/your-entry'],
+  [/^\/(event|p)\//, 'participant/entering'],
+  [/^\/$/, 'participant/entering'],
 ]
 
 /** The guide page for a route, or nothing when no guide describes it. */
