@@ -14,7 +14,7 @@ const renderAt = (path: string) => {
     <ThemeProvider theme={theme}>
       <MemoryRouter initialEntries={[path]}>
         <Routes>
-          <Route path="/ohjeet/*" element={children} />
+          <Route path="/docs/*" element={children} />
         </Routes>
       </MemoryRouter>
     </ThemeProvider>
@@ -25,18 +25,18 @@ const renderAt = (path: string) => {
 
 describe('DocsPage', () => {
   it('renders the page named by the path', async () => {
-    renderAt('/ohjeet/participant/entering')
+    renderAt('/docs/participant/entering')
     await flushPromises()
 
     expect(screen.getByRole('heading', { level: 1, name: 'Kokeeseen ilmoittautuminen' })).toBeInTheDocument()
     // A heading from the markdown itself: the page is rendered, not just its title.
     expect(screen.getByRole('heading', { level: 2, name: 'Etsi koe kalenterista' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'docs.title' })).toHaveAttribute('href', '/ohjeet')
+    expect(screen.getByRole('link', { name: 'docs.title' })).toHaveAttribute('href', '/docs')
   })
 
   // The report names the page, the version and the language, so the reader need not (KOE-1402).
   it('offers a feedback form filled in with where the reader was', async () => {
-    renderAt('/ohjeet/participant/entering')
+    renderAt('/docs/participant/entering')
     await flushPromises()
 
     const href = screen.getByRole('link', { name: 'docs.feedback' }).getAttribute('href') ?? ''
@@ -51,13 +51,13 @@ describe('DocsPage', () => {
 
   it('renders the rules with their sections searchable', async () => {
     const user = userEvent.setup()
-    renderAt('/ohjeet/saannot/noutajien-kokeet')
+    renderAt('/docs/rules/retriever-trials')
     await flushPromises()
 
     expect(
       screen.getByRole('heading', { level: 1, name: 'Noutajien rodunomaisten kokeiden säännöt ja ohjeet' })
     ).toBeInTheDocument()
-    // §1.1 is reachable as /ohjeet/saannot/noutajien-kokeet#s-1-1, the anchor the code links to.
+    // §1.1 is reachable as /docs/rules/retriever-trials#s-1-1, the anchor the code links to.
     expect(document.getElementById('s-1-1')).toContainElement(
       screen.getByRole('heading', { level: 4, name: /MUUTOKSET SÄÄNTÖIHIN/ })
     )
@@ -69,7 +69,7 @@ describe('DocsPage', () => {
   })
 
   it('says so when the path names no page', async () => {
-    renderAt('/ohjeet/ei-tallaista')
+    renderAt('/docs/no-such-page')
     await flushPromises()
 
     expect(screen.getByRole('heading', { name: 'docs.notFound' })).toBeInTheDocument()

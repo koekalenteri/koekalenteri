@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router'
 import type { RegistrationListPageProps } from './pages/RegistrationListPage'
-import { Navigate, redirect } from 'react-router'
+import { Navigate, redirect, useLocation } from 'react-router'
 import { reloadOnChunkLoadError } from './lib/client/lazy'
 import LoadingIndicator from './pages/components/LoadingIndicator'
 import { ErrorPage } from './pages/ErrorPage'
@@ -22,6 +22,26 @@ const registrationListPage = (props: RegistrationListPageProps = {}): RouteObjec
       return { Component: () => <RegistrationListPage {...props} /> }
     })
   }
+
+/**
+ * The guide and the release notes were `/ohjeet` and `/uutta` in 1.11: a link in a mail or a
+ * bookmark from then lands on the same page, hash and all, under the English path.
+ */
+const MovedGuide = () => {
+  const { hash, pathname, search } = useLocation()
+  return <Navigate replace to={{ hash, pathname: pathname.replace(/^\/ohjeet/, Path.docs), search }} />
+}
+
+const MovedWhatsNew = () => {
+  const { hash, search } = useLocation()
+  return <Navigate replace to={{ hash, pathname: Path.whatsNew, search }} />
+}
+
+/** The statistics were `/tilastot` in 1.11; the year picked lives in the search, which travels along. */
+const MovedStats = () => {
+  const { hash, search } = useLocation()
+  return <Navigate replace to={{ hash, pathname: Path.stats, search }} />
+}
 
 const routes: RouteObject[] = [
   {
@@ -330,6 +350,10 @@ const routes: RouteObject[] = [
     lazy: () => reloadOnChunkLoadError(async () => ({ Component: (await import('./pages/TermsPage')).TermsPage })),
     path: 'terms',
   },
+  { element: <MovedGuide />, path: 'ohjeet' },
+  { element: <MovedGuide />, path: 'ohjeet/*' },
+  { element: <MovedWhatsNew />, path: 'uutta' },
+  { element: <MovedStats />, path: 'tilastot' },
   // Move users with old bookmarks to front page
   {
     element: <Navigate to="/" replace />,

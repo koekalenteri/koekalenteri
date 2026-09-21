@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Drafts a release's notes, `docs/<language>/uutta/<version>.md`, from the commits since the
+ * Drafts a release's notes, `docs/<language>/whats-new/<version>.md`, from the commits since the
  * previous release.
  *
  * The draft is scaffolding, not the notes: commit subjects grouped by what they were (features,

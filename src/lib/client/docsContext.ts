@@ -1,6 +1,6 @@
 /**
- * Which guide page a view belongs to, from its route. The header's help icon opens that page, so
- * a reader gets the guide for what is on the screen rather than the index (KOE-1402).
+ * Which guide page a view belongs to, from its route. The help menu's first item opens that page,
+ * so a reader gets the guide for what is on the screen rather than the index (KOE-1402).
  *
  * The route says most of it: an admin view gets the secretary's guides, a public one the entrant's.
  * A view whose guide depends on its data — the event page, whose guide is one page while entry is
@@ -16,7 +16,7 @@ const CONTEXT: readonly (readonly [RegExp, string])[] = [
   [/^\/admin\/users$/, 'admin/users'],
   [/^\/admin\/(stats|event-breakdown)$/, 'admin/statistics'],
   [/^\/admin\/(types|templates)$/, 'admin/application'],
-  [/^\/tilastot$/, 'admin/statistics'],
+  [/^\/stats$/, 'admin/statistics'],
   [/^\/start-numbers\//, 'secretary/after-entry-closes'],
   [/^\/startlist\//, 'participant/start-list'],
   [/^\/r\//, 'participant/your-entry'],

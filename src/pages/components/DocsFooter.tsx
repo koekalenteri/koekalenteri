@@ -6,7 +6,7 @@ import { supportRequestUrl } from '../../lib/client/support'
 import { appVersion } from '../../lib/version'
 
 interface Props {
-  /** Path under /ohjeet, as the report names it. */
+  /** Path under /docs, as the report names it. */
   readonly path: string
   readonly title: string
 }
@@ -20,7 +20,7 @@ export const DocsFooter = ({ path, title }: Props) => {
   const { i18n, t } = useTranslation()
   const href = supportRequestUrl(
     t('docs.feedbackSummary', { title }),
-    t('docs.feedbackBody', { language: i18n.language, path: `/ohjeet/${path}`, version: appVersion })
+    t('docs.feedbackBody', { language: i18n.language, path: `/docs/${path}`, version: appVersion })
   )
 
   return (

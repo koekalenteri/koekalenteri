@@ -1,4 +1,6 @@
 import type { RouteObject } from 'react-router'
+import { render, screen } from '@testing-library/react'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { Path } from './routeConfig'
 import routes from './routes'
 
@@ -45,5 +47,30 @@ describe('routes', () => {
 
     expect(loaded?.Component).toBeTypeOf('function')
     expect(loaded?.loader).toBeTypeOf('function')
+  })
+
+  // The guide and the release notes moved from Finnish to English paths in 1.12; a link handed out
+  // before that still lands on its page, section anchor included.
+  it.each([
+    ['ohjeet', '/ohjeet', '/docs'],
+    ['ohjeet/*', '/ohjeet/secretary/trial-day#tulosten-syotto', '/docs/secretary/trial-day#tulosten-syotto'],
+    ['uutta', '/uutta#1.11.2', '/whats-new#1.11.2'],
+    ['tilastot', '/tilastot?year=2024', '/stats?year=2024'],
+  ])('redirects the old %s path', (pattern, from, to) => {
+    const route = findRoute(pattern)
+    const Location = () => {
+      const location = useLocation()
+      return <div data-testid="location">{`${location.pathname}${location.search}${location.hash}`}</div>
+    }
+    render(
+      <MemoryRouter initialEntries={[from]}>
+        <Routes>
+          <Route path={pattern} element={route?.element} />
+          <Route path="*" element={<Location />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    expect(screen.getByTestId('location')).toHaveTextContent(to)
   })
 })

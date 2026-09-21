@@ -18,13 +18,13 @@ vi.mock('./components/Header', () => ({ default: () => null }))
 // The whole point of the page is that markdown -- headings, lists, a table -- comes out looking
 // like the rest of the application. Only a picture says whether it does.
 it('renders a guide', async () => {
-  const routes: RouteObject[] = [{ element: <DocsPage />, path: '/ohjeet/*' }]
+  const routes: RouteObject[] = [{ element: <DocsPage />, path: '/docs/*' }]
   await page.viewport(VIEWPORT.width, VIEWPORT.height)
 
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
       <ThemeProvider theme={theme}>
-        <DataMemoryRouter initialEntries={['/ohjeet/participant/entering']} routes={routes} />
+        <DataMemoryRouter initialEntries={['/docs/participant/entering']} routes={routes} />
       </ThemeProvider>
     </div>
   )

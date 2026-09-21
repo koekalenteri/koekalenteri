@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Extracts the Kennel Club's retriever trial rules from their PDF into docs/fi/saannot/, as one
+ * Extracts the Kennel Club's retriever trial rules from their PDF into docs/fi/rules/, as one
  * markdown document the guides build like any other page -- except that this one is nobody's to
  * write: a new edition is a new PDF and a rerun, not a rewrite (KOE-1399).
  *
@@ -21,7 +21,7 @@ const args = process.argv.slice(2)
 const option = (name, fallback) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback)
 
 const SOURCE = option('--source', 'docs/sources/noutajien-kokeet-2023-04-15.pdf')
-const OUT = option('--out', 'docs/fi/saannot/noutajien-kokeet.md')
+const OUT = option('--out', 'docs/fi/rules/retriever-trials.md')
 const SOURCE_URL = 'https://www.kennelliitto.fi/lomakkeet/noutajien-rodunomaisten-kokeiden-saannot'
 
 const FRONTMATTER = {
@@ -249,6 +249,8 @@ const toMarkdown = (blocks) => {
         out.push(`- ${text}`)
         break
       default: {
+        // The last page leaves ruled lines for notes, which come through as rows of dots.
+        if (/^[.\s]+$/.test(text)) break
         const leader = LEADER.exec(text)
         if (leader) {
           // The points tables of the championship rules: "Tulos Pisteet" above rows of dot leaders.

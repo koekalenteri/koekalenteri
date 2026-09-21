@@ -24,7 +24,7 @@ describe('docsPathForRoute', () => {
     ['/admin/users', 'admin/users'],
     ['/admin/stats', 'admin/statistics'],
     ['/admin/event-breakdown', 'admin/statistics'],
-    ['/tilastot', 'admin/statistics'],
+    ['/stats', 'admin/statistics'],
     ['/admin/types', 'admin/application'],
     ['/admin/templates', 'admin/application'],
     ['/start-numbers/abc123/ALO/access/token', 'secretary/after-entry-closes'],
@@ -33,7 +33,7 @@ describe('docsPathForRoute', () => {
   })
 
   // A view with no guide gets no icon rather than the index: the icon promises the right page.
-  it.each(['/live-entry/abc123/st1/access/token', '/ohjeet', '/uutta', '/support', '/login'])(
+  it.each(['/live-entry/abc123/st1/access/token', '/docs', '/whats-new', '/support', '/login'])(
     '%s has no guide',
     (route) => {
       expect(docsPathForRoute(route)).toBeUndefined()
