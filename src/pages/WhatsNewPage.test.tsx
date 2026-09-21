@@ -20,7 +20,7 @@ const renderAt = (path: string) => {
 
 describe('WhatsNewPage', () => {
   it('lists the releases newest first, each under its version', async () => {
-    renderAt('/uutta')
+    renderAt('/whats-new')
     await flushPromises()
 
     expect(screen.getByRole('heading', { level: 1, name: 'docs.whatsNew' })).toBeInTheDocument()
@@ -33,7 +33,7 @@ describe('WhatsNewPage', () => {
   })
 
   it('gives every release an anchor named by its version', async () => {
-    renderAt('/uutta')
+    renderAt('/whats-new')
     await flushPromises()
 
     expect(document.getElementById('1.11.2')).not.toBeNull()
@@ -43,7 +43,7 @@ describe('WhatsNewPage', () => {
   it('scrolls to the release the hash names', async () => {
     const scrollIntoView = vi.fn()
     Element.prototype.scrollIntoView = scrollIntoView
-    renderAt('/uutta#1.11.1')
+    renderAt('/whats-new#1.11.1')
     await flushPromises()
 
     expect(scrollIntoView).toHaveBeenCalledTimes(1)

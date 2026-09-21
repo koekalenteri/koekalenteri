@@ -277,13 +277,13 @@ const readPage = async (file, screenshots) => {
 }
 
 /** The release notes live under this path in each language, one file per version. */
-export const NOTES_PATH = 'uutta'
+export const NOTES_PATH = 'whats-new'
 const isReleaseNote = (file) => pageIdentity(file).path.startsWith(`${NOTES_PATH}/`)
 const VERSION = /^\d+\.\d+\.\d+$/
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 
 /**
- * A release's notes: `docs/<language>/uutta/<version>.md`, whose frontmatter carries only the
+ * A release's notes: `docs/<language>/whats-new/<version>.md`, whose frontmatter carries only the
  * release date. The version is the file name, so a note cannot claim a version it is not filed
  * under, and the file exists before the version does -- that is the gate (KOE-1398).
  */
@@ -298,7 +298,7 @@ const readReleaseNote = async (file, screenshots) => {
 }
 
 /** The Kennel Club's rules live under this path: extracted, not written, and Finnish only. */
-const RULES_PATH = 'saannot'
+const RULES_PATH = 'rules'
 const isRules = (file) => pageIdentity(file).path.startsWith(`${RULES_PATH}/`)
 
 const RULES_HEADING = /^(#{2,5}) (.+)$/
@@ -313,7 +313,7 @@ const stripTags = (html) =>
     .trim()
 
 /**
- * A rules document: `docs/fi/saannot/<slug>.md`, written by `scripts/build-rules.mjs` from the
+ * A rules document: `docs/fi/rules/<slug>.md`, written by `scripts/build-rules.mjs` from the
  * Kennel Club's PDF and never by hand. Its frontmatter dates the rules, not the application, and
  * its body is read as parts (`##`), chapters (`###`) and numbered sections (`####`, `#####`), each
  * section rendered on its own so the page can search and link them (KOE-1399).
@@ -652,7 +652,7 @@ export interface DocsPage {
   /** Rendered from the markdown at build time; it is repository content, not user input. */
   readonly html: string
   readonly order: number
-  /** Path under /ohjeet, and the identity a page shares across languages. */
+  /** Path under /docs, and the identity a page shares across languages. */
   readonly path: string
   readonly title: string
 }
@@ -709,7 +709,7 @@ export interface RulesDocument {
   /** The date the edition came into force, yyyy-mm-dd: the document's version, not the application's. */
   readonly edition: string
   readonly parts: readonly RulesPart[]
-  /** Path under /ohjeet. */
+  /** Path under /docs. */
   readonly path: string
   /** The official document this was extracted from. */
   readonly source: string

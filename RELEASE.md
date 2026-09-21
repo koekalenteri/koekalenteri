@@ -35,10 +35,10 @@ This is the standard process for all production and pre-release deployments. The
     The command gathers what changed since the previous release and which guide pages that
     concerns, and starts an agent session that rewrites those pages (see `docs/AGENTS.md`).
     Review the result in the session, commit it to `main`, and let CI take it to dev so the
-    `/ohjeet` pages can be looked at in the running application before anything is tagged.
+    `/docs` pages can be looked at in the running application before anything is tagged.
 
-0.  **Write the release notes**: Every version ships with `docs/fi/uutta/<version>.md` and its
-    English translation, shown at `/uutta` and offered from the update notice. Draft them from the
+0.  **Write the release notes**: Every version ships with `docs/fi/whats-new/<version>.md` and its
+    English translation, shown at `/whats-new` and offered from the update notice. Draft them from the
     commits and write them over in the reader's words:
 
     ```bash
@@ -68,7 +68,7 @@ This is the standard process for all production and pre-release deployments. The
 #### Automation:
 
 - Publishing the release triggers the `Release` workflow.
-- The workflow sets the release's description from `docs/fi/uutta/<version>.md`.
+- The workflow sets the release's description from `docs/fi/whats-new/<version>.md`.
 - The workflow determines the environment (`prod` or `test`) based on whether it's a pre-release.
 - For production releases, the tag is force-pushed to the `release/prod` branch.
 - For pre-releases, the tag is force-pushed to the `release/test` branch.

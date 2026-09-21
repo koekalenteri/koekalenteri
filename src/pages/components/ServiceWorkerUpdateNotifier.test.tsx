@@ -118,7 +118,7 @@ describe('ServiceWorkerUpdateNotifier', () => {
     const { action } = enqueueSnackbar.mock.calls[0][1] as { action: (key: string) => ReactNode }
     render(<>{action('snack-1')}</>)
 
-    expect(screen.getByRole('link', { name: 'app.whatsNew' })).toHaveAttribute('href', '/uutta#1.10.3')
+    expect(screen.getByRole('link', { name: 'app.whatsNew' })).toHaveAttribute('href', '/whats-new#1.10.3')
   })
 
   it('reports the build time when the version number did not change', () => {
