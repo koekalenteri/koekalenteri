@@ -1,5 +1,6 @@
 import type {
   CollectionResponse,
+  DogEvent,
   EmailTemplate,
   EventClass,
   EventState,
@@ -37,7 +38,18 @@ export async function sendTemplatedEmail(message: RegistrationMessage, token?: s
   return (
     await http.post<
       RegistrationMessage,
-      { ok: string[]; failed: string[]; state: EventState; classes: EventClass[]; registrations: Registration[] }
+      {
+        ok: string[]
+        failed: string[]
+        state: EventState
+        classes: EventClass[]
+        registrations: Registration[]
+        /**
+         * The start list flag as the server left it: sending the invitations settles an absent flag to
+         * false, so the list does not go public on the legacy default (KOE-1432).
+         */
+        startListPublished: DogEvent['startListPublished']
+      }
     >('/admin/email-send', message, withToken({ signal, timeoutMs: EMAIL_SEND_TIMEOUT_MS }, token))
   ).data
 }

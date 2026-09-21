@@ -411,12 +411,17 @@ export const useAdminRegistrationActions = (eventId: string) => {
      * A templated message to the chosen registrations. What the server changed while sending — the
      * registrations' delivery state, the event's own state and class states — is stored here, so the
      * list shows the sent marks without waiting for the socket (KOE-1343).
+     *
+     * The start list flag comes back with them. Sending the invitations settles an absent flag to
+     * false on the server, and the copy stored here replaces the one the socket patched, so leaving
+     * the flag out kept the panel reading the list as public until the next save answered with the
+     * truth — and that answer looked like the save had hidden the list (KOE-1432).
      */
     async sendMessage(message: RegistrationMessage) {
       if (!token) throw new Error('missing token')
 
-      const { classes, failed, ok, registrations, state } = await sendTemplatedEmail(message, token)
-      if (event) setEvent({ ...event, classes, state })
+      const { classes, failed, ok, registrations, startListPublished, state } = await sendTemplatedEmail(message, token)
+      if (event) setEvent({ ...event, classes, startListPublished, state })
       updateAdminRegistrations(registrations)
 
       return { failed, ok }
