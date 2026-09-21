@@ -62,6 +62,13 @@ const rowFor = (dogName: string): HTMLElement => {
   return row
 }
 
+/** A class's row on the links tab (KOE-1433) — the class is also a tab's name, so found by its cell. */
+const linkRowFor = (eventClass: string): HTMLElement => {
+  const row = screen.getByRole('cell', { name: eventClass }).closest('tr')
+  if (!row) throw new Error(`no link row for ${eventClass}`)
+  return row
+}
+
 describe('EventStartNumbersPage', () => {
   beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
@@ -186,7 +193,7 @@ describe('EventStartNumbersPage', () => {
 
     // Friday to begin with, and its own two classes to choose from.
     expect(screen.getByText('AloPerjantai')).toBeInTheDocument()
-    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'AVO'])
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'AVO', 'startNumbers.linksTab'])
 
     // Changing class leaves the day where it was.
     await user.click(screen.getByRole('tab', { name: 'AVO' }))
@@ -219,13 +226,27 @@ describe('EventStartNumbersPage', () => {
     ])
     await flushPromises()
 
-    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO'])
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'startNumbers.linksTab'])
 
     // AVO runs on Saturday only, so it is the Saturday sheet that offers it — and ALO is gone from it.
     await user.click(screen.getAllByRole('button', { pressed: false })[0])
     await flushPromises()
 
-    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['AVO'])
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['AVO', 'startNumbers.linksTab'])
+    expect(screen.getByText('AvoLauantai')).toBeInTheDocument()
+
+    // The links are the trial's, not the day's: both classes are on the links tab whichever day is open.
+    await user.click(screen.getByRole('tab', { name: 'startNumbers.linksTab' }))
+    await flushPromises()
+
+    expect(screen.queryByText('AvoLauantai')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'startNumbers.save' })).not.toBeInTheDocument()
+    expect(within(linkRowFor('ALO')).getByRole('button', { name: 'startNumbers.copyLink' })).toBeInTheDocument()
+    expect(within(linkRowFor('AVO')).getByRole('button', { name: 'startNumbers.copyLink' })).toBeInTheDocument()
+
+    // And a class tab brings the sheet back.
+    await user.click(screen.getByRole('tab', { name: 'AVO' }))
+    await flushPromises()
     expect(screen.getByText('AvoLauantai')).toBeInTheDocument()
   })
 
@@ -241,7 +262,7 @@ describe('EventStartNumbersPage', () => {
     // The form catches the same pair of eyes typing twice; the server catches two phones.
     expect(screen.getAllByText('startNumbers.duplicate')).toHaveLength(2)
   })
-  it("hands the open class's sheet on as a link of its own (KOE-1267)", async () => {
+  it("hands a class's sheet on as a link of its own (KOE-1267)", async () => {
     const { i18n } = useTranslation()
     const { user } = await renderPage(i18n.language as Language)
     await flushPromises()
@@ -251,7 +272,9 @@ describe('EventStartNumbersPage', () => {
     const writeText = vi.fn()
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
 
-    await user.click(screen.getByRole('button', { name: 'startNumbers.copyLink' }))
+    await user.click(screen.getByRole('tab', { name: 'startNumbers.linksTab' }))
+    await flushPromises()
+    await user.click(within(linkRowFor('ALO')).getByRole('button', { name: 'startNumbers.copyLink' }))
     await flushPromises()
 
     expect(getStartNumberLink).toHaveBeenCalledWith('test-results', 'ALO', TEST_ID_TOKEN)
@@ -259,13 +282,15 @@ describe('EventStartNumbersPage', () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/start-numbers/test-results/ALO/access/token-ALO'))
   })
 
-  it('revokes the open class links without touching the other classes', async () => {
+  it("revokes one class's links without touching the other classes", async () => {
     const { i18n } = useTranslation()
     vi.mocked(putEvent).mockResolvedValueOnce({ ...eventWithStations, startNumberLinkVersions: { ALO: 2 } })
     const { user } = await renderPage(i18n.language as Language)
     await flushPromises()
 
-    await user.click(screen.getByRole('button', { name: 'startNumbers.revokeLink' }))
+    await user.click(screen.getByRole('tab', { name: 'startNumbers.linksTab' }))
+    await flushPromises()
+    await user.click(within(linkRowFor('ALO')).getByRole('button', { name: 'startNumbers.revokeLink' }))
     await flushPromises()
 
     expect(putEvent).toHaveBeenCalledWith(

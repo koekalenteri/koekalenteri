@@ -145,7 +145,13 @@ kahdesti estää tallennuksen.
 
 !shot[StartNumbersEntry/start-numbers-entry-secretary] Starttinumeroiden syöttö päivän ja luokan koirakoille
 
-Jos luokalla on oma luokkasihteeri, hänelle voi antaa syöttösivun linkin painikkeella **{t:startNumbers.copyLink}**; linkki toimii ilman kirjautumista ja vain sen luokan numeroihin. **{t:startNumbers.revokeLink}** sulkee jaetut linkit.
+Jos luokilla on omat luokkasihteerit, heille jaetaan syöttösivun linkit välilehdeltä
+**{t:startNumbers.linksTab}**, joka on luokkien välilehtien perässä. Välilehdellä on rivi jokaiselle
+kokeen luokalle: **{t:startNumbers.copyLink}** kopioi luokan linkin leikepöydälle, ja linkki toimii
+ilman kirjautumista ja vain sen luokan numeroihin. **{t:startNumbers.revokeLink}** sulkee luokan
+jaetut linkit; seuraava kopiointi antaa uuden.
+
+!shot[StartNumbersEntry/start-numbers-entry-links] Luokkasihteerien linkit jaetaan omalta välilehdeltään
 
 Kun päivän kaikki numerot on tallennettu, ne julkaistaan luokittain — ja usean päivän luokassa
 päivittäin — painikkeella **{t:eventManagement.startList.publishNumbers}**. Keskeneräistä päivää ei voi julkaista; silloin

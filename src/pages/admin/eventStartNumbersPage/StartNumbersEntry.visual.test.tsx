@@ -1,13 +1,12 @@
 import type { StartNumberDog } from './StartNumbersEntry'
 import { TZDate } from '@date-fns/tz'
-import Button from '@mui/material/Button'
-import Stack from '@mui/material/Stack'
 import { ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
 import { TIME_ZONE } from '@/i18n/dates'
+import { ClassLinksTab } from './ClassLinksTab'
 import { StartNumbersEntry } from './StartNumbersEntry'
 
 /**
@@ -49,34 +48,37 @@ const registrations = [
 
 const noop = async () => true
 
-it("offers the open class's sheet as a link of its own", async () => {
-  const screen = await renderSheet(
-    <StartNumbersEntry
-      header={
-        <Typography sx={{ pb: 1 }} variant="h6">
-          Starttinumeroiden syöttö
-        </Typography>
-      }
-      onSave={noop}
-      registrations={registrations}
-      renderClassActions={(eventClass) => (
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{
-            justifyContent: 'flex-end',
-            px: 2,
-          }}
-        >
-          <Button size="small">Kopioi luokkasihteerin linkki</Button>
-          <Button size="small">Mitätöi luokan linkit ({eventClass})</Button>
-        </Stack>
-      )}
-    />
-  )
+const secretarySheet = (
+  <StartNumbersEntry
+    header={
+      <Typography sx={{ pb: 1 }} variant="h6">
+        Starttinumeroiden syöttö
+      </Typography>
+    }
+    onSave={noop}
+    registrations={registrations}
+    renderLinks={(classes) => <ClassLinksTab classes={classes} onCopy={() => undefined} onRevoke={() => undefined} />}
+  />
+)
+
+// The event secretary's sheet: the classes as tabs, and the hand-out sheet as one more tab at the
+// row's far end, out of the way of the numbers (KOE-1433).
+it('keeps the class links on a tab of their own, after the classes', async () => {
+  const screen = await renderSheet(secretarySheet)
 
   await expect.element(screen.getByText('Ensimmainen')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-entry-secretary')
+})
+
+// The links tab is every class of the trial together, in place of the numbers: nothing to save there.
+it('hands out every class from the links tab', async () => {
+  const screen = await renderSheet(secretarySheet)
+
+  await screen.getByRole('tab', { name: 'Luokkasihteerien linkit' }).click()
+
+  await expect.element(screen.getByRole('button', { name: 'Kopioi linkki' }).first()).toBeVisible()
+  await expect.element(screen.getByRole('button', { name: 'Tallenna numerot' })).not.toBeInTheDocument()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-entry-links')
 })
 
 // The class secretary's link opens the same sheet with one class on it and nothing to hand on.

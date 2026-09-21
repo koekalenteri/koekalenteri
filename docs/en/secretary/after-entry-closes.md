@@ -17,7 +17,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 0cb11f
+sourceHash: c893e6
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -150,8 +150,13 @@ save.
 
 !shot[StartNumbersEntry/start-numbers-entry-secretary] Entering the start numbers for a day's and class's dogs
 
-If a class has a class secretary of its own, they can be given the entry page's link with **{t:startNumbers.copyLink}**; the link works without signing in and only for that class's numbers.
-**{t:startNumbers.revokeLink}** closes the shared links.
+If the classes have class secretaries of their own, they are given the entry page's links from the
+**{t:startNumbers.linksTab}** tab after the class tabs. The tab has a row for every class of the
+trial: **{t:startNumbers.copyLink}** copies the class's link to the clipboard, and the link works
+without signing in and only for that class's numbers. **{t:startNumbers.revokeLink}** closes the
+class's shared links; the next copy gives a new one.
+
+!shot[StartNumbersEntry/start-numbers-entry-links] The class secretaries' links are handed out from a tab of their own
 
 Once all of a day's numbers have been saved, they are published class by class — and in a multi-day
 class day by day — with **{t:eventManagement.startList.publishNumbers}**. A half-entered day cannot be published; the
