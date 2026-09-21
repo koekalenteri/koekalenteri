@@ -249,6 +249,8 @@ const toMarkdown = (blocks) => {
         out.push(`- ${text}`)
         break
       default: {
+        // The last page leaves ruled lines for notes, which come through as rows of dots.
+        if (/^[.\s]+$/.test(text)) break
         const leader = LEADER.exec(text)
         if (leader) {
           // The points tables of the championship rules: "Tulos Pisteet" above rows of dot leaders.
