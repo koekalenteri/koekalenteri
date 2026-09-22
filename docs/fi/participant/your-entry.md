@@ -47,7 +47,8 @@ Painike näkyy vain silloin, kun jotain on maksamatta. Jos koe maksetaan vasta k
 vahvistuttua, maksurivillä lukee siihen asti *{t:paymentStatus.waitingForConfirmation}* ja
 painike ilmestyy vasta, kun olet vahvistanut paikan. Maksettavaa voi tulla myös jälkikäteen,
 jos koesihteeri korjaa ilmoittautumisen tietoja niin, että hinta nousee — esimerkiksi poistaa
-jäsenyysmerkinnän. Silloin rivi kertoo puuttuvan summan ja painike palaa näkyviin.
+jäsenyysmerkinnän. Silloin rivi kertoo puuttuvan summan ja painike palaa näkyviin. Kun olet
+maksanut puuttuvan osan, saat kuitin ja viestin *{t:registration.email.subject_update}*.
 
 ## Koepaikan vahvistaminen
 
