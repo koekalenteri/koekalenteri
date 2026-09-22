@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationCreatePage.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/pages/components/registrationForm/**
-sourceHash: 7a8d08
+sourceHash: fad364
 ---
 
 Entering a trial needs no account and no sign-in. All you need is access to the email address you
@@ -43,8 +43,8 @@ matters most: the confirmation goes there, and with it the link you use to chang
 
 **Membership.** Say whether the handler or the owner is a member of the organizing club. Membership
 affects the entry fee. If the trial is restricted to the organizing club's members or to named
-breeds, the restriction is in the trial's details under *{t:event.restrictions}*, and the entry can
-be sent only when at least one restriction is met: the form says in the membership or the dog
+breeds, the restriction is in the trial's details under *{t:event.restrictions}*, and you can enter
+the trial only when at least one restriction is met: the form says in the membership or the dog
 section which one is not.
 
 **Class and days.** Choose the class, and in a multi-day trial the days that suit you. If you enter
