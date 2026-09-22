@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationInvitation.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
-sourceHash: 80e7a8
+sourceHash: d00ad5
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -48,7 +48,8 @@ The button shows only while something is unpaid. If the trial is paid only once 
 confirmed, the payment line reads *{t:paymentStatus.waitingForConfirmation}* until then, and the
 button appears once you have accepted the place. Something may also become payable later, if the
 secretary corrects your entry so that its price rises — by removing a membership tick, say. The
-line then names the missing amount and the button comes back.
+line then names the missing amount and the button comes back. Once you have paid the missing
+part, you get a receipt and the message *{t:registration.email.subject_update}*.
 
 ## Accepting your place
 

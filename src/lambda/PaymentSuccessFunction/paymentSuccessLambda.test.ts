@@ -629,6 +629,60 @@ describe('paymentSuccessLambda', () => {
     )
   })
 
+  describe('the confirmation email of a payment on top of an earlier one (KOE-1101)', () => {
+    const confirmationContexts = () =>
+      mockRegistrationEmailTemplateData.mock.calls.map(([, , , context]) => context).filter((c) => c !== 'receipt')
+
+    it('confirms a first payment as a registration', async () => {
+      await paymentSuccessLambda(event)
+
+      expect(confirmationContexts()).toEqual([''])
+    })
+
+    it('confirms an additional payment as a change to the registration', async () => {
+      mockGetRegistration.mockResolvedValue({
+        eventId: 'event123',
+        id: 'reg456',
+        language: 'fi',
+        paidAmount: 20,
+        payer: { email: 'test@example.com' },
+        paymentStatus: 'SUCCESS',
+        state: 'ready',
+      })
+
+      await paymentSuccessLambda(event)
+
+      expect(confirmationContexts()).toEqual(['update'])
+    })
+
+    it('still confirms a first payment as a registration when its callback is retried', async () => {
+      mockRead.mockResolvedValue({
+        amount: 5000,
+        receiptPreviouslyPaid: 0,
+        receiptTotalPaid: 50,
+        reference: 'event123:reg456',
+        registrationAppliedAt: '2025-01-01T00:00:00.000Z',
+        status: 'ok',
+        transactionId: 'tx123',
+        user: 'user123',
+      })
+      mockGetRegistration.mockResolvedValue({
+        eventId: 'event123',
+        id: 'reg456',
+        language: 'fi',
+        paidAmount: 50,
+        payer: { email: 'test@example.com' },
+        paymentStatus: 'SUCCESS',
+        state: 'ready',
+      })
+      mockApplySuccessfulPayment.mockResolvedValueOnce({ applied: false, appliedAt: '2025-01-01T00:00:00.000Z' })
+
+      await paymentSuccessLambda(event)
+
+      expect(confirmationContexts()).toEqual([''])
+    })
+  })
+
   it('publishes confirmed registration patch when picked registration payment succeeds', async () => {
     mockGetRegistration.mockResolvedValue({
       eventId: 'event123',

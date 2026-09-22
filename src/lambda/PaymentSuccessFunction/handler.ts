@@ -184,6 +184,13 @@ const applyPaymentToRegistration = async (
   }
 }
 
+/**
+ * What had been paid before this payment, as recorded when it was applied. A callback retried after
+ * the payment was applied reads a registration that already counts it, so the stored figure wins.
+ */
+const paidBeforePayment = (workflow: JsonTransaction, appliedPayment: boolean, previouslyPaid: number) =>
+  workflow.receiptPreviouslyPaid ?? (appliedPayment ? previouslyPaid : 0)
+
 interface ReceiptOptions {
   appliedPayment: boolean
   confirmedEvent: Awaited<ReturnType<typeof updateRegistrations>>
@@ -221,7 +228,7 @@ const sendPaymentReceipt = async ({
         `${cost.description[registration.language] || cost.description.fi}${memberPrice} ${formatMoney(cost.cost)}`
     )
     .join(', ')
-  const workflowPreviouslyPaid = workflow.receiptPreviouslyPaid ?? (appliedPayment ? previouslyPaid : 0)
+  const workflowPreviouslyPaid = paidBeforePayment(workflow, appliedPayment, previouslyPaid)
   const totalPaid = workflow.receiptTotalPaid ?? (appliedPayment ? previouslyPaid + paidAmount : previouslyPaid)
   await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
   await sendTemplatedMail(
@@ -352,9 +359,11 @@ const handleSuccessfulPayment = async (
     }
 
     if (confirmedEvent.paymentTime !== 'confirmation' && !workflow.confirmationSentAt) {
-      // send confirmation message
+      // send confirmation message. A payment on top of an earlier one pays for a change to the
+      // registration, so it confirms the change rather than the registration again (KOE-1101).
       const to = emailTo(registration)
-      const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '', editToken)
+      const context = paidBeforePayment(workflow, appliedPayment, previouslyPaid) > 0 ? 'update' : ''
+      const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, context, editToken)
       await clearRegistrationEmailDeliveryStatus(eventId, registrationId)
       await sendTemplatedMail(
         'registration',
