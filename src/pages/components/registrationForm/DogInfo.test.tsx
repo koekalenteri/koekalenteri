@@ -10,7 +10,7 @@ import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import * as dogApi from '@/api/dog'
 import { locales } from '@/i18n'
 import { merge } from '@/lib/utils'
-import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
+import { flushPromises, renderWithUserEvents, runAllTimers } from '@/test-utils/utils'
 import { DogInfo } from './DogInfo'
 
 const eventDate = registrationWithStaticDates.dates[0].date
@@ -34,7 +34,7 @@ describe('DogInfo', () => {
   beforeEach(() => vi.useFakeTimers())
   afterEach(() => {
     localStorage.clear()
-    vi.runAllTimers()
+    runAllTimers()
     vi.useRealTimers()
   })
 

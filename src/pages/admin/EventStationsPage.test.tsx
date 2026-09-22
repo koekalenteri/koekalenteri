@@ -12,6 +12,7 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
+import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventStationsPage from './EventStationsPage'
@@ -25,7 +26,11 @@ vi.mock('../../api/organizer')
 vi.mock('../../api/registration')
 
 const renderPage = (language: Language) => {
-  const routes: RouteObject[] = [{ element: <EventStationsPage />, path: Path.admin.stations() }]
+  // A save sends the page to the event's view; without a route there the router logs a 404.
+  const routes: RouteObject[] = [
+    { element: <EventStationsPage />, path: Path.admin.stations() },
+    { element: <div>event view</div>, path: Path.admin.viewEvent() },
+  ]
 
   return renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
@@ -53,6 +58,9 @@ describe('EventStationsPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('finds the event and offers its posts for editing', async () => {
+    // The event atom is a promise until the list has loaded and a plain value after, by design (see
+    // adminEventAtom): the render that suspended on it completes without it, and React 19 says so.
+    expectConsoleOutput(/called use\(\) to suspend in a previous render/)
     const { i18n } = useTranslation()
     await renderPage(i18n.language as Language)
     await flushPromises()

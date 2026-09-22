@@ -10,7 +10,7 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { createMatchMedia, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
+import { createMatchMedia, flushPromises, renderWithUserEvents, runPendingTimers } from '../../test-utils/utils'
 import RegistrationForm from './RegistrationForm'
 
 vi.mock('../../api/event')
@@ -40,7 +40,7 @@ describe('RegistrationForm', () => {
     window.matchMedia = createMatchMedia(window.innerWidth)
     vi.useFakeTimers()
   })
-  afterEach(() => vi.runOnlyPendingTimers())
+  afterEach(runPendingTimers)
   afterAll(() => vi.useRealTimers())
 
   // Each section's toggle button carries the section title as its accessible name (see

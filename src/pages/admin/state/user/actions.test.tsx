@@ -5,6 +5,7 @@ import { useAtomValue } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { idTokenAtom } from '@/pages/state'
 import { TestProvider } from '@/test-utils/AtomProvider'
+import { expectConsoleOutput } from '@/test-utils/consoleGuard'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { useAdminUserActions } from './actions'
 import { adminUsersAtom } from './atoms'
@@ -73,6 +74,8 @@ describe('useAdminUserActions', () => {
   })
 
   it('asks again after a refresh that failed', async () => {
+    // The failed refresh is reported, then asked again; the report is the point of the test.
+    expectConsoleOutput(/reportError .*offline/)
     mockGetUsers
       .mockRejectedValueOnce(new Error('offline'))
       .mockResolvedValueOnce({ cursor: Date.parse('2026-01-05T00:00:00.000Z'), deletedIds: [], items: [] })

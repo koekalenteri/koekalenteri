@@ -11,13 +11,13 @@ import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '@/__mockD
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import * as env from '@/lib/env'
-import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
+import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import EntrySection from './EntrySection'
 
 describe('EntrySection', () => {
   beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
-    vi.runOnlyPendingTimers()
+    runPendingTimers()
     vi.restoreAllMocks()
   })
   afterAll(() => vi.useRealTimers())

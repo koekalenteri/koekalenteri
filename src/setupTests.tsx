@@ -23,6 +23,10 @@ if (typeof globalThis.structuredClone !== 'function') {
 import '@testing-library/jest-dom/vitest'
 // initialize i18n
 import './i18n'
+import { guardConsole } from './test-utils/consoleGuard'
+
+// What a test writes to console.error or console.warn fails it, unless the test declared it (KOE-1439).
+guardConsole()
 
 Object.assign(globalThis, { TextDecoder, TextEncoder })
 

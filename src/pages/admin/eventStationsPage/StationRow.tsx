@@ -61,6 +61,8 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
         <AutocompleteSingle
           disableClearable
           disabled={disabled}
+          // Autocomplete wants a string for the option it shows; handed the number itself it says so on every render.
+          getOptionLabel={String}
           label={t('event.stationTasks')}
           onChange={handleTasksChange}
           options={TASK_COUNTS}
@@ -72,6 +74,7 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
           <AutocompleteSingle
             disableClearable
             disabled={disabled}
+            getOptionLabel={String}
             label={t('event.stationDogsAtOnce')}
             onChange={handleDogsChange}
             options={DOG_COUNTS}

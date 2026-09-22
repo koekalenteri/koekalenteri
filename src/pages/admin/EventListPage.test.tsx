@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material'
-import { fireEvent, screen } from '@testing-library/react'
+import { act, fireEvent, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -131,7 +131,11 @@ describe('EventListPage', () => {
     await flushPromises()
 
     const rows = screen.getAllByRole('row')
-    fireEvent.doubleClick(rows[1])
+    // The double click navigates and something on the way suspends. fireEvent wraps the dispatch in
+    // a synchronous act, which cannot wait for that and says so; an awaited act around it can.
+    await act(async () => {
+      fireEvent.doubleClick(rows[1])
+    })
     await flushPromises()
 
     expect(screen.getByTestId('where')).toHaveTextContent(/^\/admin\/event\//)

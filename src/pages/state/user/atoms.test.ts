@@ -1,5 +1,6 @@
 import i18n from 'i18next'
 import { createStore } from 'jotai'
+import { expectConsoleOutput } from '@/test-utils/consoleGuard'
 import { idTokenAtom, languageAtom, readStoredIdToken } from './atoms'
 import { validIdTokenAtom } from './derivedAtoms'
 
@@ -74,9 +75,10 @@ describe('readStoredIdToken', () => {
     ['nothing stored', undefined],
     ['an expired token', JSON.stringify(makeToken({ exp: Date.now() / 1000 - 60 }))],
     ['a value that is not a token', JSON.stringify({ token: true })],
-    ['unparseable storage', '{not json'],
-  ])('reads no token for %s', (_case, stored) => {
+    ['unparseable storage', '{not json', /JSON parse error/],
+  ])('reads no token for %s', (_case, stored, warning?: RegExp) => {
     if (stored !== undefined) localStorage.setItem('idToken', stored)
+    if (warning) expectConsoleOutput(warning)
 
     expect(readStoredIdToken()).toBeUndefined()
   })

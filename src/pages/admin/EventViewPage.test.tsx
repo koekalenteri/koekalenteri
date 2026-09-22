@@ -16,7 +16,13 @@ import theme from '../../assets/Theme'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, renderSuspended, renderSuspendedWithUserEvents } from '../../test-utils/utils'
+import {
+  DataMemoryRouter,
+  flushPromises,
+  renderSuspended,
+  renderSuspendedWithUserEvents,
+  runPendingTimers,
+} from '../../test-utils/utils'
 import EventViewPage from './EventViewPage'
 import { adminEventClassAtom, adminEventIdAtom } from './state'
 
@@ -45,7 +51,7 @@ describe('EventViewPage', () => {
   const mockUseEventSubscription = vi.mocked(useEventSubscription)
 
   beforeAll(() => vi.useFakeTimers())
-  afterEach(() => vi.runOnlyPendingTimers())
+  afterEach(runPendingTimers)
   afterAll(() => vi.useRealTimers())
 
   beforeEach(() => {

@@ -8,7 +8,7 @@ import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
+import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import { AddCostDialog } from './AddCostDialog'
 
 const renderAddCostDialog = (props: any) => {
@@ -34,7 +34,7 @@ const renderAddCostDialog = (props: any) => {
 describe('AddCostDialog', () => {
   beforeEach(() => vi.useFakeTimers())
   afterEach(() => {
-    vi.runOnlyPendingTimers()
+    runPendingTimers()
     vi.useRealTimers()
   })
 
