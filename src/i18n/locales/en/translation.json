@@ -1055,6 +1055,7 @@
       "unauthorizedRun": "Unauthorised run-in"
     }
   },
+  "role": "Role",
   "roles": "Roles",
   "save": "Save",
   "search": {
