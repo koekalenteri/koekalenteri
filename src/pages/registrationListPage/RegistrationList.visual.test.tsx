@@ -68,6 +68,6 @@ it('offers paying the part still missing of a paid fee', async () => {
     </div>
   )
 
-  await expect.element(screen.getByRole('menuitem', { name: 'Maksa ilmoittautuminen' })).toBeVisible()
+  await expect.element(screen.getByRole('button', { name: 'Maksa ilmoittautuminen' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-list-part-missing')
 })
