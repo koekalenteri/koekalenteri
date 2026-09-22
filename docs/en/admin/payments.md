@@ -13,7 +13,7 @@ covers:
   - src/lambda/lib/payment.ts
   - src/lambda/PaymentCreateFunction/**
   - src/lambda/RefundCreateFunction/**
-sourceHash: 9b8f22
+sourceHash: 6a03da
 ---
 
 Koekalenteri is a web shop: the entrant pays the entry fee in the calendar, and the money goes
@@ -55,6 +55,13 @@ from, and the club can keep a handling fee of the amount put in the
 *{t:registration.refundDialog.handlingCost}* field. With some payment methods Paytrail asks the
 entrant for an account number by email, and the refund shows as pending until the entrant has
 answered.
+
+A payment can be refunded for an entry that keeps its place too, when more was paid than the entry
+now costs: the secretary has removed an extra service, say, or corrected the fee to the member
+price. The dialog then offers to refund the overpaid part first, without a handling fee. For any
+other amount, choose *{t:registration.refundDialog.wholePayment}* and enter the part to keep in the
+*{t:registration.refundDialog.handlingCost}* field; the *{t:registration.refundDialog.refundTotal}*
+line shows what goes back.
 
 !shot[RefundDialog/refund-dialog-open] Refunding a payment from the calendar
 

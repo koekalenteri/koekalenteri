@@ -12,26 +12,38 @@ import { locales } from '@/i18n'
 import { describeInLanguage } from '@/test-utils/language'
 import { RefundDailog as RefundDialog } from './RefundDialog'
 
+const payment: Transaction = {
+  amount: 5000,
+  createdAt: new Date('2026-01-01T12:00:00Z'),
+  provider: 'nordea',
+  reference: 'ref-123',
+  stamp: 'stamp-123',
+  status: 'ok',
+  transactionId: 'payment-123',
+  type: 'payment',
+}
+
+/** A payment itemised for the provider, which is what lets a refund keep a part of it back. */
+const itemisedPayment: Transaction = {
+  ...payment,
+  items: [{ amount: 5000, description: 'registration-fee', eventId: 'event-123', stamp: 'item-stamp-123' }],
+}
+
+const mockTransactions = vi.hoisted(() => ({ current: [] as Transaction[] }))
+
 // RefundDialog reaches for the real registration-actions hook to fetch transactions; give it a
 // fixed dataset instead of hitting the network, the same way RefundDialog.test.tsx does.
 vi.mock('../state/registrations/actions', () => ({
   useAdminRegistrationActions: () => ({
     putInternalNotes: async () => ({}),
     refund: async () => ({ status: 'ok' }),
-    transactions: async (): Promise<Transaction[]> => [
-      {
-        amount: 5000,
-        createdAt: new Date('2026-01-01T12:00:00Z'),
-        provider: 'nordea',
-        reference: 'ref-123',
-        stamp: 'stamp-123',
-        status: 'ok',
-        transactionId: 'payment-123',
-        type: 'payment',
-      },
-    ],
+    transactions: async (): Promise<Transaction[]> => mockTransactions.current,
   }),
 }))
+
+beforeEach(() => {
+  mockTransactions.current = [payment]
+})
 
 /** The dialog over a paid entry, the whole payment there to refund. */
 const renderOpen = (language: Language = 'fi') =>
@@ -87,4 +99,29 @@ it('offers the overpaid part first', async () => {
 
   await expect.element(screen.getByText('Palauta liikaa maksettu osuus 23,00 €')).toBeVisible()
   await expect(screen.getByRole('dialog')).toMatchScreenshot('refund-dialog-excess')
+})
+
+// The same participant keeps the place but the secretary returns only a part of the payment
+// (KOE-1102): the part kept back goes in the handling fee, and the text under the table says so.
+it('explains a partial refund as the part kept back in the handling fee', async () => {
+  mockTransactions.current = [itemisedPayment]
+  const screen = await render(
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+        <SnackbarProvider>
+          <ConfirmProvider>
+            <RefundDialog
+              event={{ ...eventWithStaticDates, cost: 100, costMember: 100 }}
+              open
+              registration={{ ...registrationWithStaticDates, group: { key: '2021-02-10-ap', number: 1 } }}
+            />
+          </ConfirmProvider>
+        </SnackbarProvider>
+      </LocalizationProvider>
+    </ThemeProvider>
+  )
+
+  await screen.getByRole('radio', { name: 'Palauta valittu maksu, käsittelykulun voi vähentää' }).click()
+  await expect.element(screen.getByText(/^Jos palautat vain osan maksusta/)).toBeVisible()
+  await expect(screen.getByRole('dialog')).toMatchScreenshot('refund-dialog-partial')
 })
