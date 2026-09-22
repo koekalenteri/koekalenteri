@@ -5,6 +5,7 @@ import TableBody from '@mui/material/TableBody'
 import { render } from 'vitest-browser-react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
+import { describeInLanguage } from '@/test-utils/language'
 import StartListGroup from './StartListGroup'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -26,26 +27,42 @@ const entry = (id: string, name: string, number: number, overrides: Partial<Regi
   ...overrides,
 })
 
-it('shows a class group of the secretary start list', async () => {
+/** A morning group of two dogs; the day heading is the page's, in its language, and comes in as text. */
+const renderGroup = (heading: string) => {
   const regs = [entry('run-1', 'Ensimmäinen', 1), entry('run-2', 'Toinen', 2)]
   const group: Record<string, Record<string, Registration[]>> = { ALO: { ap: regs } }
 
-  const screen = await render(
+  return render(
     <Frame>
       <StartListGroup
         colSpan={8}
         eventClass="ALO"
         group={group}
-        heading="ke 10.2."
+        heading={heading}
         nameLen={12}
         reserve={false}
         time="ap"
       />
     </Frame>
   )
+}
+
+it('shows a class group of the secretary start list', async () => {
+  const screen = await renderGroup('ke 10.2.')
 
   await expect.element(screen.getByText('REG-run-1')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('startlist-secretary-group')
+})
+
+// The guide's English page shows the group in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('shows a class group of the secretary start list', async () => {
+    const screen = await renderGroup('Wed 10.2.')
+
+    await expect.element(screen.getByText('REG-run-1')).toBeVisible()
+    await expect.element(screen.getByText(/morning/)).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('startlist-secretary-group-en')
+  })
 })
 
 it('shows entered numbers and flags a dog whose number is still undrawn', async () => {

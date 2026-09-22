@@ -1,4 +1,5 @@
 import { render } from 'vitest-browser-react'
+import { describeInLanguage } from '@/test-utils/language'
 import CapacityUtilizationChart, { ALL_CLASSES_ID } from './CapacityUtilizationChart'
 import { ChartFrame, capacityEntry } from './statsVisualFixtures'
 
@@ -25,10 +26,10 @@ it('sums a class across event types instead of repeating the month on the axis',
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('capacity-one-class-across-event-types')
 })
 
-it('sums every class into one series per month', async () => {
-  const screen = await render(
+/** Every class of the club's NOME-B trials; "all classes" is a filter that narrows nothing, so the page leaves it out of the title. */
+const renderAllClasses = () =>
+  render(
     <ChartFrame>
-      {/* "All classes" is a filter that narrows nothing, so the page leaves it out of the title. */}
       <CapacityUtilizationChart
         classKey={ALL_CLASSES_ID}
         filters={['Auran Nuuskut ry', 'NOME-B']}
@@ -42,5 +43,18 @@ it('sums every class into one series per month', async () => {
     </ChartFrame>
   )
 
+it('sums every class into one series per month', async () => {
+  const screen = await renderAllClasses()
+
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('capacity-all-classes')
+})
+
+// The guide's English page shows the chart in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('sums every class into one series per month', async () => {
+    const screen = await renderAllClasses()
+
+    await expect.element(screen.getByText('Starters vs. available places – Auran Nuuskut ry – NOME-B')).toBeVisible()
+    await expect(screen.getByTestId('chart-root')).toMatchScreenshot('capacity-all-classes-en')
+  })
 })

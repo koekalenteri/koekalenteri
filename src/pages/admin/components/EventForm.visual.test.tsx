@@ -1,4 +1,4 @@
-import type { ConfirmedEvent } from '@/types'
+import type { ConfirmedEvent, Language } from '@/types'
 import { TZDate } from '@date-fns/tz'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -12,6 +12,7 @@ import { locales } from '@/i18n'
 import { TIME_ZONE } from '@/i18n/dates'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { freezeClockAt } from '@/test-utils/freezeClock'
+import { describeInLanguage } from '@/test-utils/language'
 import { adminEventTypesAtom, adminJudgesAtom, adminOrganizersAtom, adminUsersAtom } from '../state'
 import EventForm from './EventForm'
 
@@ -90,13 +91,13 @@ const judges = [
 ]
 
 /** The form at a screen's width, with the lists the pickers offer seeded so no field is emptier than it is in use. */
-const renderAt = async ({ height, width }: { height: number; width: number }) => {
+const renderAt = async ({ height, width }: { height: number; width: number }, language: Language = 'fi') => {
   await page.viewport(width, height)
 
   return render(
     <div data-testid="visual-root" style={{ background: '#fff', display: 'flex', width }}>
       <ThemeProvider theme={stillTheme}>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <TestProvider
             initializeState={({ set }) => {
               set(adminEventTypesAtom, eventTypes)
@@ -120,6 +121,16 @@ it('opens every section on a desktop', async () => {
 
   await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-form-desktop')
+})
+
+// The guide's English page shows the form in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('opens every section on a desktop', async () => {
+    const screen = await renderAt(DESKTOP, 'en')
+
+    await expect.element(screen.getByLabelText('Name (In Finnish)')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-form-desktop-en')
+  })
 })
 
 describe('event form on a phone (KOE-271)', () => {

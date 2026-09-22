@@ -11,12 +11,18 @@
     "payment-page-methods-desktop": {
       "nested-interactive": 1
     },
+    "payment-page-methods-desktop-en": {
+      "nested-interactive": 1
+    },
     "payment-page-methods-phone": {
       "nested-interactive": 1
     }
   },
   "src/pages/RegistrationInvitation.visual.test.tsx": {
     "registration-invitation-open": {
+      "nested-interactive": 2
+    },
+    "registration-invitation-open-en": {
       "nested-interactive": 2
     }
   },
@@ -31,6 +37,9 @@
       "nested-interactive": 1
     },
     "search-page-full-desktop": {
+      "nested-interactive": 3
+    },
+    "search-page-full-desktop-en": {
       "nested-interactive": 3
     },
     "search-page-full-phone": {
@@ -56,6 +65,9 @@
     "class-entry-selection-groups-and-reserve": {
       "empty-table-header": 15
     },
+    "class-entry-selection-groups-and-reserve-en": {
+      "empty-table-header": 15
+    },
     "class-entry-selection-phone-width": {
       "empty-table-header": 15
     }
@@ -63,10 +75,17 @@
   "src/pages/admin/eventViewPage/MessageRecipientsDialog.visual.test.tsx": {
     "message-recipients": {
       "heading-order": 1
+    },
+    "message-recipients-en": {
+      "heading-order": 1
     }
   },
   "src/pages/admin/eventViewPage/SendMessageDialog.visual.test.tsx": {
     "send-message-dialog-open": {
+      "heading-order": 1,
+      "label": 1
+    },
+    "send-message-dialog-open-en": {
       "heading-order": 1,
       "label": 1
     }

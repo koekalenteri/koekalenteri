@@ -32,10 +32,12 @@ Every binding fails the build rather than a reader, and `npm run check-docs` run
   in Finnish (`Osallistujat`, `Ilmoittautuneet`, `Peruneet`) are the one known exception; name
   them as shown and gloss them in the English page.
 - **Pictures are visual test references.** `!shot[TestName/shot-name] Caption` on a line of its
-  own shows `src/**/__screenshots__/TestName.visual.test.tsx/shot-name-chromium-linux.png`; a
-  `shot-name-en` variant is preferred for the English page when it exists. A picture that is not
-  a visual test's reference is not a guide picture: if a page needs a view nobody tests, the
-  visual test comes first, in its own change, and the guide follows.
+  own shows `src/**/__screenshots__/TestName.visual.test.tsx/shot-name-chromium-linux.png`. The
+  English page shows `shot-name-en`, which the same test takes in English (a `describeInLanguage('en', …)`
+  block from `src/test-utils/language.ts`); an English page whose picture has no English variant
+  fails `npm run check-docs`, since it would show the Finnish one (KOE-1437). A picture that is
+  not a visual test's reference is not a guide picture: if a page needs a view nobody tests, the
+  visual test comes first, in its own change, with both languages' captures, and the guide follows.
 - **`covers` names the code the page describes**, as paths and globs. When a covered file changes,
   `npm run docs-coverage` and the release brief name the page. Keep `covers` honest: broad enough
   that a user-visible change hits it, narrow enough that a refactor of something else does not.

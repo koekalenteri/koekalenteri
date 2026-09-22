@@ -4,6 +4,7 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import { render } from 'vitest-browser-react'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
+import { describeInLanguage } from '@/test-utils/language'
 import ResultsPublishing from './ResultsPublishing'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -24,13 +25,26 @@ const event: ConfirmedEvent = {
 }
 
 // The scoring entry belongs to this section (KOE-1354); the trial has run, so it is live in the shot.
-it('offers publishing per class with the scoring entry beneath, saving and publishing kept apart', async () => {
-  const screen = await render(
+const renderStarted = () =>
+  render(
     <Frame>
       <ResultsPublishing event={event} eventStarted />
     </Frame>
   )
 
+it('offers publishing per class with the scoring entry beneath, saving and publishing kept apart', async () => {
+  const screen = await renderStarted()
+
   await expect.element(screen.getByText('Tulosten julkaisu')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-publishing')
+})
+
+// The guide's English page shows the section in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('offers publishing per class with the scoring entry beneath', async () => {
+    const screen = await renderStarted()
+
+    await expect.element(screen.getByText('Publishing results')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-publishing-en')
+  })
 })

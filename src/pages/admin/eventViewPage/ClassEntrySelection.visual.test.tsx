@@ -10,6 +10,7 @@ import theme from '@/assets/Theme'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 import { TestProvider } from '@/test-utils/AtomProvider'
+import { describeInLanguage } from '@/test-utils/language'
 import { idTokenAtom } from '../../state'
 import ClassEntrySelection from './ClassEntrySelection'
 
@@ -81,8 +82,9 @@ const cancelledRegistration: Registration = {
   id: 'cancelled-1',
 }
 
-it('lays out two time-of-day groups and a reserve list side by side', async () => {
-  const screen = await render(
+/** The class at a desktop's width: the two time-of-day groups and the reserve list side by side. */
+const renderGroups = () =>
+  render(
     <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
       <Frame>
         <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="ALO" registrations={registrations} />
@@ -90,9 +92,23 @@ it('lays out two time-of-day groups and a reserve list side by side', async () =
     </TestProvider>
   )
 
+it('lays out two time-of-day groups and a reserve list side by side', async () => {
+  const screen = await renderGroups()
+
   await expect.element(screen.getByText('Aamun Aluke')).toBeVisible()
   await expect.element(screen.getByText('Varasijan Koira')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('class-entry-selection-groups-and-reserve')
+})
+
+// The guide's English page shows the groups in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('lays out two time-of-day groups and a reserve list side by side', async () => {
+    const screen = await renderGroups()
+
+    await expect.element(screen.getByText('Varasijan Koira')).toBeVisible()
+    await expect.element(screen.getByRole('columnheader', { name: 'Breed' }).first()).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('class-entry-selection-groups-and-reserve-en')
+  })
 })
 
 /**

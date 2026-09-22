@@ -1,4 +1,4 @@
-import type { Transaction } from '@/types'
+import type { Language, Transaction } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -9,6 +9,7 @@ import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import { describeInLanguage } from '@/test-utils/language'
 import { RefundDailog as RefundDialog } from './RefundDialog'
 
 // RefundDialog reaches for the real registration-actions hook to fetch transactions; give it a
@@ -32,10 +33,11 @@ vi.mock('../state/registrations/actions', () => ({
   }),
 }))
 
-it('lines up the transaction amount and the handling cost with the currency', async () => {
-  const screen = await render(
+/** The dialog over a paid entry, the whole payment there to refund. */
+const renderOpen = (language: Language = 'fi') =>
+  render(
     <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <SnackbarProvider>
           <ConfirmProvider>
             <RefundDialog event={eventWithStaticDates} open registration={registrationWithStaticDates} />
@@ -45,9 +47,23 @@ it('lines up the transaction amount and the handling cost with the currency', as
     </ThemeProvider>
   )
 
+it('lines up the transaction amount and the handling cost with the currency', async () => {
+  const screen = await renderOpen()
+
   // The dialog renders through a portal, so the capture is the dialog itself, not a frame around it.
   await expect.element(screen.getByText('50,00 €').first()).toBeVisible()
   await expect(screen.getByRole('dialog')).toMatchScreenshot('refund-dialog-open')
+})
+
+// The guide's English page shows the dialog in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('lines up the transaction amount and the handling cost with the currency', async () => {
+    const screen = await renderOpen('en')
+
+    await expect.element(screen.getByText(/^Refund, /)).toBeVisible()
+    await expect.element(screen.getByText('50,00 €').first()).toBeVisible()
+    await expect(screen.getByRole('dialog')).toMatchScreenshot('refund-dialog-open-en')
+  })
 })
 
 // The participant paid 123 for a place that costs 100 (KOE-1382): the dialog opens on giving the

@@ -5,6 +5,7 @@ import { render } from 'vitest-browser-react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
+import { describeInLanguage } from '@/test-utils/language'
 import InvitationDelivery from './InvitationDelivery'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -45,8 +46,8 @@ const liftedFromReserve = {
 
 const numbers = { cancelled: 0, invalid: false, participants: 2, places: 8, reserve: 1, value: 25 }
 
-it('names the koekutsu that waits for its payment, beside a class that is done', async () => {
-  const screen = await render(
+const renderDelivery = () =>
+  render(
     <Frame>
       <InvitationDelivery
         attachmentHistory={{}}
@@ -65,6 +66,19 @@ it('names the koekutsu that waits for its payment, beside a class that is done',
     </Frame>
   )
 
+it('names the koekutsu that waits for its payment, beside a class that is done', async () => {
+  const screen = await renderDelivery()
+
   await expect.element(screen.getByText('1 koekutsu odottaa koepaikan maksua')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('invitation-delivery')
+})
+
+// The guide's English page shows the section in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('names the invitation that waits for its payment, beside a class that is done', async () => {
+    const screen = await renderDelivery()
+
+    await expect.element(screen.getByText('1 invitation is waiting for the place to be paid')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('invitation-delivery-en')
+  })
 })

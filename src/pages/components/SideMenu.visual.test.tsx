@@ -6,6 +6,7 @@ import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
 import { TestProvider } from '../../test-utils/AtomProvider'
+import { describeInLanguage } from '../../test-utils/language'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import { SideMenu } from './SideMenu'
@@ -89,4 +90,15 @@ it('opens over the page at full width on a phone', async () => {
   await expect.element(page.getByText('Tapahtumat', { exact: true })).toBeVisible()
   await expect.element(page.getByText('Viestipohjat')).toBeVisible()
   await expect(drawer).toMatchScreenshot('side-menu-phone-open')
+})
+
+// The guide's English page shows the menu in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('shows the labels once the drawer is open', async () => {
+    const drawer = await renderAt(EXPANDED)
+
+    await expect.element(page.getByText('Events', { exact: true })).toBeVisible()
+    await expect.element(page.getByText('Email templates')).toBeVisible()
+    await expect(drawer).toMatchScreenshot('side-menu-expanded-en')
+  })
 })

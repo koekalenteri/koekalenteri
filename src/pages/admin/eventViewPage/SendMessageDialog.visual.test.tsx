@@ -1,4 +1,4 @@
-import type { EmailTemplate } from '@/types'
+import type { EmailTemplate, Language } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -11,6 +11,7 @@ import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import { TestProvider } from '@/test-utils/AtomProvider'
+import { describeInLanguage } from '@/test-utils/language'
 import { adminEmailTemplatesAtom, adminEventsAtom } from '../state'
 import SendMessageDialog from './SendMessageDialog'
 
@@ -38,10 +39,11 @@ const registrationTemplate: EmailTemplate = {
   },
 }
 
-it('shows the recipient and a rendered template preview', async () => {
-  const screen = await render(
+/** The dialog over one recipient, with the registration template to preview. */
+const renderDialog = (language: Language = 'fi') =>
+  render(
     <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <TestProvider
           initializeState={({ set }) => {
             set(adminEmailTemplatesAtom, [registrationTemplate])
@@ -65,7 +67,20 @@ it('shows the recipient and a rendered template preview', async () => {
     </ThemeProvider>
   )
 
+it('shows the recipient and a rendered template preview', async () => {
+  const screen = await renderDialog()
+
   // The dialog renders through a portal, so the capture is the dialog itself, not a frame around it.
   await expect.element(screen.getByText('Vastaanottajat: 1')).toBeVisible()
   await expect(screen.getByRole('dialog')).toMatchScreenshot('send-message-dialog-open')
+})
+
+// The guide's English page shows the dialog in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('shows the recipient and a rendered template preview', async () => {
+    const screen = await renderDialog('en')
+
+    await expect.element(screen.getByText('Recipients: 1')).toBeVisible()
+    await expect(screen.getByRole('dialog')).toMatchScreenshot('send-message-dialog-open-en')
+  })
 })

@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
+import { describeInLanguage } from '@/test-utils/language'
 import StartListPublishing from './StartListPublishing'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -25,8 +26,8 @@ const event: ConfirmedEvent = {
   state: 'invited',
 }
 
-it('publishes the list per class, and keeps the preview', async () => {
-  const screen = await render(
+const renderPublishing = () =>
+  render(
     <Frame>
       <StartListPublishing
         event={event}
@@ -39,6 +40,19 @@ it('publishes the list per class, and keeps the preview', async () => {
     </Frame>
   )
 
+it('publishes the list per class, and keeps the preview', async () => {
+  const screen = await renderPublishing()
+
   await expect.element(screen.getByText('Starttilista julkaistu')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-publishing')
+})
+
+// The guide's English page shows the section in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('publishes the list per class, and keeps the preview', async () => {
+    const screen = await renderPublishing()
+
+    await expect.element(screen.getByText('Start list published')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-publishing-en')
+  })
 })
