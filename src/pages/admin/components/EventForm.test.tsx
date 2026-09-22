@@ -45,6 +45,15 @@ describe('EventForm', () => {
     expect(screen.getByLabelText('event.name (locale.fi)')).toHaveValue(eventWithStaticDates.name)
   })
 
+  // KOE-1440: the basic-info slice must carry the translations, or the saved English name reads as
+  // empty while the form still holds it, and typing it again is no change to save.
+  it('shows the saved English name', async () => {
+    await renderComponent({ ...eventWithStaticDates, names: { en: 'Autumn trial' } })
+    await flushPromises()
+    expect(screen.getByLabelText('event.name (locale.fi)')).toHaveValue(eventWithStaticDates.name)
+    expect(screen.getByLabelText('event.name (locale.en)')).toHaveValue('Autumn trial')
+  })
+
   it('should fire onSave and onCancel', async () => {
     const saveHandler = vi.fn()
     const cancelHandler = vi.fn()

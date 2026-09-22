@@ -41,6 +41,7 @@ exports[`useEventListColumns > should match snapshot 1`] = `
     "headerName": "event.name",
     "minWidth": 100,
     "sortComparator": [Function],
+    "valueGetter": [Function],
   },
   {
     "field": "location",

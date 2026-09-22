@@ -2,7 +2,8 @@ import type { GridColDef } from '@mui/x-data-grid'
 import type { DogEvent, EventClass } from '@/types'
 import { useTranslation } from 'react-i18next'
 import { localeSortComparator } from '@/lib/datagrid'
-import { eventTypeLabel, getEventTitle } from '@/lib/event'
+import { eventTypeLabel, getEventTitle, localizedEventName } from '@/lib/event'
+import { stringToLang } from '@/pages/state/user/language'
 
 type StartEndDate = { start: Date; end: Date }
 
@@ -11,7 +12,8 @@ type EventWithDate = DogEvent & {
 }
 
 export default function useEventListColumns(): GridColDef<EventWithDate>[] {
-  const { t } = useTranslation()
+  const { i18n, t } = useTranslation()
+  const language = stringToLang(i18n.language)
 
   return [
     {
@@ -57,6 +59,8 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       headerName: t('event.name'),
       minWidth: 100,
       sortComparator: localeSortComparator,
+      // The secretary reads the name in the app's language, like every other page (KOE-1440).
+      valueGetter: (_value, row) => localizedEventName(row, language),
     },
     {
       field: 'location',

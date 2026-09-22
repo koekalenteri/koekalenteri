@@ -60,7 +60,11 @@ const trial = (
 })
 
 const events = [
-  trial('syyskoe', 'Syyskoe', 'NOME-B', '2026-10-10', '2026-10-11', 'Hämeenlinna', ['ALO', 'AVO', 'VOI']),
+  {
+    // The list reads the name in the viewer's language (KOE-1440).
+    ...trial('syyskoe', 'Syyskoe', 'NOME-B', '2026-10-10', '2026-10-11', 'Hämeenlinna', ['ALO', 'AVO', 'VOI']),
+    names: { en: 'Autumn trial' },
+  },
   trial('taipumus', 'Taipumuskoe', 'NOU', '2026-10-17', '2026-10-17', 'Lahti', []),
   trial('vesikoe', 'Vesipelastuskoe', 'VEPE', '2026-10-24', '2026-10-25', 'Tampere', ['ALO', 'AVO']),
   trial('wt', 'Working test', 'NOWT', '2026-11-07', '2026-11-07', 'Espoo', ['ALO', 'AVO', 'VOI']),
@@ -124,7 +128,7 @@ describeInLanguage('en', () => {
   it('lists the events on a desktop', async () => {
     const screen = await renderAt(DESKTOP, 'en')
 
-    await expect.element(screen.getByText('Syyskoe')).toBeVisible()
+    await expect.element(screen.getByText('Autumn trial')).toBeVisible()
     await expect.element(screen.getByText('Also show past events')).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-desktop-en')
   })
