@@ -874,7 +874,7 @@
         "statusAt": "Aikaleima",
         "type": "Tyyppi"
       },
-      "costsText": "Jos palautuksesta peritään käsittelykulu, täytä kulun määrä sille varattuun kohtaan.",
+      "costsText": "Jos palautat vain osan maksusta, syötä pidätettävä osuus kenttään ”Käsittelykulu”. ”Palautetaan”-kentässä näkyy palautettava summa.",
       "error": {
         "balance": "Palautettava määrä ylittää palauttamattoman maksun osuuden. Palauttamatta: {{remaining}}",
         "default": "Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.",

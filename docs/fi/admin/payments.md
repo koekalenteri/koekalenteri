@@ -55,6 +55,13 @@ tuli, ja yhdistys voi pidättää siitä *{t:registration.refundDialog.handlingC
 suuruisen käsittelykulun. Joillakin maksutavoilla Paytrail pyytää ilmoittautujalta tilinumeron
 sähköpostilla, ja palautus näkyy keskeneräisenä, kunnes ilmoittautuja on vastannut.
 
+Maksun voi palauttaa myös ilmoittautumiselle, jolla on koepaikka, jos siitä on maksettu liikaa:
+koesihteeri on esimerkiksi poistanut lisäpalvelun tai korjannut osallistumismaksun jäsenhintaan.
+Ikkuna tarjoaa silloin ensin liikaa maksetun osuuden palautusta ilman käsittelykulua. Jos
+palautettava summa on jokin muu, valitse *{t:registration.refundDialog.wholePayment}* ja syötä
+pidätettävä osuus *{t:registration.refundDialog.handlingCost}*-kenttään;
+*{t:registration.refundDialog.refundTotal}*-rivi näyttää palautettavan summan.
+
 !shot[RefundDialog/refund-dialog-open] Maksun palautus koekalenterista
 
 Palautus onnistuu vain, jos yhdistyksen Paytrail-tilillä on saldoa. Heti tilityksen jälkeen sitä

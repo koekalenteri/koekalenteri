@@ -874,7 +874,7 @@
         "statusAt": "Timestamp",
         "type": "Type"
       },
-      "costsText": "If a handling fee is charged for the refund, enter the amount in the designated field.",
+      "costsText": "To refund only part of the payment, enter the part to keep in the “Handling fee” field. “To be refunded” shows the amount that goes back.",
       "error": {
         "balance": "The refund amount exceeds the unrefunded part of the payment. Unrefunded: {{remaining}}",
         "default": "The refund failed. Check that the Paytrail account has enough balance for the refund, or try again later.",
