@@ -26,7 +26,7 @@ import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { hasSharedReserveList, isEntryClosed, localizedEventDescription, localizedEventName } from './event'
 import { formatMoney } from './money'
-import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
+import { PRIORITY_INVITED, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from './priority'
 import { isDefined } from './typeGuards'
 import { isObject, unique } from './utils'
 
@@ -391,6 +391,22 @@ const hasNomeBSMPriority: PriorityCheckFn<false | 'b-sm.2' | 'b-sm.3'> = (event,
     }
   }
   return false
+}
+
+/**
+ * Whether the registration is inside the event's entry restrictions (KOE-525). One is enough: a
+ * member's dog of another breed enters a trial restricted to members and the named breeds alike.
+ * An event that restricts nothing admits everyone, and only the values the secretary can choose
+ * (`RESTRICTION`) count as a restriction.
+ */
+export const meetsRestrictions = (
+  event: Partial<Pick<PublicDogEvent | JsonPublicDogEvent, 'restrictions'>>,
+  registration: RegistrationPriorityFields
+): boolean => {
+  const restrictions = priorityValuesToPriority(event.restrictions, RESTRICTION).map((r) => r.value)
+  if (restrictions.length === 0) return true
+  if (restrictions.includes(PRIORITY_MEMBER) && isMember(registration)) return true
+  return Boolean(registration.dog?.breedCode && restrictions.includes(registration.dog.breedCode))
 }
 
 export const hasPriority: PriorityCheckFn<true | false | 0.5> = (event, registration) => {

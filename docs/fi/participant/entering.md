@@ -42,7 +42,10 @@ tietoja ei tarvitse kirjoittaa kahdesti. Sama koskee maksajaa. Sähköpostiosoit
 sinne lähtee vahvistus ja sen mukana linkki, jolla ilmoittautumista pääsee myöhemmin muokkaamaan.
 
 **Jäsenyystiedot.** Merkitse, onko ohjaaja tai omistaja järjestävän yhdistyksen jäsen. Jäsenyys
-vaikuttaa ilmoittautumismaksuun.
+vaikuttaa ilmoittautumismaksuun. Jos koe on rajoitettu järjestävän yhdistyksen jäsenille tai
+nimetyille roduille, rajoitus lukee kokeen tiedoissa kohdassa *{t:event.restrictions}*, ja
+tapahtumaan voi ilmoittautua vain, kun vähintään yksi rajoitus täyttyy: lomake kertoo
+jäsenyystiedoissa tai koiran tiedoissa, mikä jää täyttymättä.
 
 **Koeluokka ja päivät.** Valitse luokka ja monipäiväisessä kokeessa ne päivät, jotka sinulle
 sopivat. Jos ilmoittaudut varasijalle, kerro myös kuinka lyhyellä varoitusajalla ehdit paikalle.

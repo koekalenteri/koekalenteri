@@ -1305,6 +1305,9 @@
       "phoneOptional": "Puhelinnumero on virheellinen — korjaa se tai tyhjennä kenttä",
       "required": "$t(registration.{{field}}) ovat puutteelliset",
       "reserve": "Valitse osallistutko varasijalta",
+      "restrictedToBreeds": "Kokeeseen voivat ilmoittautua vain koirat, joiden rotu on jokin näistä: {{breeds}}.",
+      "restrictedToMembers": "Kokeeseen voivat ilmoittautua vain järjestävän yhdistyksen jäsenet. Merkitse jäsenyys, jos omistaja tai ohjaaja on jäsen.",
+      "restrictedToMembersOrBreeds": "Kokeeseen voivat ilmoittautua vain järjestävän yhdistyksen jäsenet sekä koirat, joiden rotu on jokin näistä: {{breeds}}. Merkitse jäsenyys, jos omistaja tai ohjaaja on jäsen.",
       "terms": "Ilmoittautumisen ehtojen ja tietosuojaselosteen hyväksyminen on pakollista."
     }
   },

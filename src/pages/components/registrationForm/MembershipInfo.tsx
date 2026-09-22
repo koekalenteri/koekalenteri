@@ -12,6 +12,9 @@ import { useRegistrationOwners } from './hooks/useRegistrationOwners'
 interface Props {
   readonly reg: DeepPartial<Registration>
   readonly disabled?: boolean
+  /** Shown in red under the title: the entry restriction the memberships do not meet (KOE-525). */
+  readonly error?: boolean
+  readonly helperText?: string
   readonly onChange?: (props: DeepPartial<Registration>) => void
   readonly orgId: string
 }
@@ -21,7 +24,7 @@ interface Props {
  * handler. When an owner handles, that owner's checkbox already covers the handling person, so no
  * mirroring (and no disabled mirror checkbox) is needed.
  */
-const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
+const MembershipInfo = ({ reg, disabled, error, helperText, onChange, orgId }: Props) => {
   const { t } = useTranslation()
   const [handlerCache, setHandlerCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
   const { owners, updateOwners } = useRegistrationOwners(reg, orgId, onChange)
@@ -55,8 +58,8 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
     <CollapsibleSection
       title={t('registration.membership')}
       open={open}
-      error={!open}
-      helperText={open ? undefined : t('validation.registration.choose', { field: 'dog' })}
+      error={!open || error}
+      helperText={open ? helperText : t('validation.registration.choose', { field: 'dog' })}
     >
       <FormGroup>
         {owners.map((owner, index) => (

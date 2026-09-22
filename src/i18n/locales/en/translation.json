@@ -1305,6 +1305,9 @@
       "phoneOptional": "The phone number is invalid — correct it or clear the field",
       "required": "$t(registration.{{field}}) is incomplete",
       "reserve": "Select participation from reserve position",
+      "restrictedToBreeds": "Only dogs of these breeds may enter this trial: {{breeds}}.",
+      "restrictedToMembers": "Only members of the organizing club may enter this trial. Tick the membership if the owner or the handler is a member.",
+      "restrictedToMembersOrBreeds": "Only members of the organizing club and dogs of these breeds may enter this trial: {{breeds}}. Tick the membership if the owner or the handler is a member.",
       "terms": "It is mandatory to accept registration terms and the data protection statement."
     }
   },

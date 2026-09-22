@@ -41,6 +41,7 @@ import {
   isPublicRegistrationOperationField,
   isRegistrationClass,
   isScorableRegistration,
+  meetsRestrictions,
   priorityDescriptionKey,
   registrationActor,
   resolveInvitationRead,
@@ -268,6 +269,71 @@ describe('lib/registration', () => {
         [NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_OLD],
       ])('should return true when prirized', (...qualifyingResults) => {
         expect(hasPriority({ eventType: 'NOME-B SM' }, { qualifyingResults })).toEqual(true)
+      })
+    })
+  })
+
+  describe('meetsRestrictions', () => {
+    const member = { owner: { membership: true } }
+    const nonMember = { handler: { membership: false }, owner: { membership: false } }
+
+    it('admits everyone when the event restricts nothing', () => {
+      expect(meetsRestrictions({}, nonMember)).toEqual(true)
+      expect(meetsRestrictions({ restrictions: [] }, nonMember)).toEqual(true)
+    })
+
+    it('ignores values the secretary cannot choose as a restriction', () => {
+      expect(meetsRestrictions({ restrictions: [PRIORITY_INVITED, 'anything'] }, nonMember)).toEqual(true)
+    })
+
+    describe('members only', () => {
+      const event = { restrictions: [PRIORITY_MEMBER] }
+
+      it.each`
+        owner    | handler  | ownerHandles | result
+        ${false} | ${false} | ${false}     | ${false}
+        ${true}  | ${false} | ${false}     | ${true}
+        ${false} | ${true}  | ${false}     | ${true}
+        ${false} | ${true}  | ${true}      | ${false}
+        ${true}  | ${true}  | ${true}      | ${true}
+      `(
+        'is $result when owner membership is $owner, handler membership $handler and ownerHandles $ownerHandles',
+        ({ owner, handler, ownerHandles, result }) => {
+          expect(
+            meetsRestrictions(event, {
+              dog: { breedCode: '122' },
+              handler: { membership: handler },
+              owner: { membership: owner },
+              ownerHandles,
+            })
+          ).toEqual(result)
+        }
+      )
+    })
+
+    describe('named breeds only', () => {
+      it.each(PRIORIZED_BREED_CODES)('admits breed %p and nothing else', (breedCode) => {
+        expect(meetsRestrictions({ restrictions: [breedCode] }, { ...member, dog: { breedCode } })).toEqual(true)
+        expect(meetsRestrictions({ restrictions: [breedCode] }, { ...nonMember, dog: { breedCode } })).toEqual(true)
+        expect(meetsRestrictions({ restrictions: [breedCode] }, { ...member, dog: { breedCode: '1' } })).toEqual(false)
+        expect(meetsRestrictions({ restrictions: [breedCode] }, { ...member, dog: {} })).toEqual(false)
+        expect(meetsRestrictions({ restrictions: [breedCode] }, member)).toEqual(false)
+      })
+    })
+
+    describe('members or named breeds', () => {
+      const event = { restrictions: [PRIORITY_MEMBER, '122'] }
+
+      it('admits a member with a dog of another breed', () => {
+        expect(meetsRestrictions(event, { ...member, dog: { breedCode: '111' } })).toEqual(true)
+      })
+
+      it('admits a non-member with a dog of a named breed', () => {
+        expect(meetsRestrictions(event, { ...nonMember, dog: { breedCode: '122' } })).toEqual(true)
+      })
+
+      it('keeps out a non-member with a dog of another breed', () => {
+        expect(meetsRestrictions(event, { ...nonMember, dog: { breedCode: '111' } })).toEqual(false)
       })
     })
   })
