@@ -67,7 +67,7 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
             </Box>
           )}
           value={judge.foreing ? judge.country : 'FI'}
-          label={'Maa'}
+          label={t('event.judgesEditor.country')}
           disabled={!judge.foreing}
           onChange={(country) => handleChange({ country: country ?? undefined })}
         />

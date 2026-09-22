@@ -256,6 +256,7 @@
       "addForeign": "Lisää ulkomainen tuomari",
       "addUnofficial": "Lisää epävirallinen tuomari",
       "classes": "Arvostelee luokat",
+      "country": "Maa",
       "notAvailable": "Tuomari {{name}} ({{id}}) ei ole käytettävissä",
       "remove": "Poista tuomari"
     },

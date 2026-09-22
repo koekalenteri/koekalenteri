@@ -200,7 +200,7 @@ function EntrySection(props: Props) {
             options={sortedPriorities}
             onChange={handlePriorityChange}
             value={eventPriority}
-            label={'Etusijat'}
+            label={t('event.priority')}
           />
         </Grid>
         <Grid
@@ -217,7 +217,7 @@ function EntrySection(props: Props) {
             options={sortedRestrictions}
             onChange={handleRestrictionsChange}
             value={eventRestrictions}
-            label={'Rajoitukset'}
+            label={t('event.restrictions')}
           />
         </Grid>
       </Grid>

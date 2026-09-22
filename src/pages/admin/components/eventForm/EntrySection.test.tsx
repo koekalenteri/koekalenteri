@@ -205,7 +205,7 @@ describe('EntrySection', () => {
     )
     await flushPromises()
 
-    const restrictions = screen.getByTestId('Rajoitukset')
+    const restrictions = screen.getByTestId('event.restrictions')
     expect(within(restrictions).getByText('priority.members')).toBeInTheDocument()
 
     await user.click(within(restrictions).getByRole('combobox'))
