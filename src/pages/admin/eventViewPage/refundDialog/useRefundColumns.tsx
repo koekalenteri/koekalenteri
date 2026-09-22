@@ -41,7 +41,10 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
       {
         field: 'type',
         headerName: t('registration.refundDialog.columns.type'),
-        valueFormatter: (value) => (value === 'payment' ? 'Maksu' : 'Palautus'),
+        valueFormatter: (value) =>
+          value === 'payment'
+            ? t('registration.refundDialog.transactionType.payment')
+            : t('registration.refundDialog.transactionType.refund'),
         width: 80,
       },
       {

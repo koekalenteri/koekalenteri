@@ -57,11 +57,11 @@ export const RefundFooter = ({
         <Table size="small">
           <TableBody>
             <TableRow>
-              <TableCell align="right">Tapahtumat yhteensä:</TableCell>
+              <TableCell align="right">{t('registration.refundDialog.total')}:</TableCell>
               <ValueCell align="right">{formatMoney(total / 100)}</ValueCell>
             </TableRow>
             <TableRow>
-              <TableCell align="right">Käsittelykulu:</TableCell>
+              <TableCell align="right">{t('registration.refundDialog.handlingCost')}:</TableCell>
               <ValueCell align="right">
                 <NumberInput
                   disabled={!canHaveHandlingCosts}
@@ -90,7 +90,7 @@ export const RefundFooter = ({
               </ValueCell>
             </TableRow>
             <TableRow>
-              <TableCell align="right">Palautetaan:</TableCell>
+              <TableCell align="right">{t('registration.refundDialog.refundTotal')}:</TableCell>
               <ValueCell
                 align="right"
                 sx={{

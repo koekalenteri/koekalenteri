@@ -451,6 +451,7 @@
     },
     "sendMessageDialog": {
       "additionalText": "Voit lisätä tähän halutessasi lisäviestin:",
+      "attachment": "Liitetiedosto",
       "classes_one": "Luokka: {{classes}}",
       "classes_other": "Luokat: {{classes}}",
       "confirmQuestion": "Oletko varma, että haluat lähettää viestin?",
@@ -883,6 +884,7 @@
       "handlingCost": "Käsittelykulu",
       "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta.",
       "previouslyChargedHandlingCost": "Aiemmin veloitettu käsittelykulu",
+      "refundTotal": "Palautetaan",
       "status": {
         "ok": "Maksu palautettu",
         "okEmail": "Maksun palautus on kesken. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.",
@@ -891,6 +893,11 @@
       },
       "text": "Valitse palautettava maksu.",
       "title": "Maksun palautus, {{regNo}} / {{payer}}",
+      "total": "Tapahtumat yhteensä",
+      "transactionType": {
+        "payment": "Maksu",
+        "refund": "Palautus"
+      },
       "wholePayment": "Palauta valittu maksu, käsittelykulun voi vähentää"
     },
     "registeredDogs": "Ilmoitetut koirat",

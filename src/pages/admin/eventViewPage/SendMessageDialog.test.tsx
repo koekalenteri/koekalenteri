@@ -165,7 +165,7 @@ describe('SendMessageDialog', () => {
     )
     await flushPromises()
 
-    expect(screen.getByRole('heading', { name: 'Liitetiedosto' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'eventManagement.sendMessageDialog.attachment' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'koekutsu-20210210-NOU.pdf' })).toHaveAttribute(
       'href',
       expect.stringContaining('/file/common-attachment/koekutsu-20210210-NOU.pdf')
