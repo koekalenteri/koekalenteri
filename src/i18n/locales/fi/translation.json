@@ -411,9 +411,11 @@
     "missingClass": "Nämä ilmoittautumiset ovat koeluokassa, jota ei enää ole kokeessa. Ilmoittautumisten luokat täytyy korjata.",
     "open": "Avaa tapahtuman hallinta",
     "participantSelection": {
+      "cancelled": "Peruneet",
       "cannotMoveToReserve": "Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.",
       "canSendAfterEntry": "Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä",
       "dragHere": "Raahaa osallistujat tähän!",
+      "lastMessage": "Viesti",
       "moveToParticipants": {
         "confirm": "Lisää osallistujiin",
         "description": "Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta. Oletko varma että haluat lisätä koiran {{dogName}} osallistujiin?",
@@ -421,7 +423,9 @@
         "title": "Olet lisäämässä koiraa {{dogName}} osallistujiin"
       },
       "notRegisteredToGroup": "Koira {{dogName}} ei ole ilmoittautunut tähän ryhmään",
+      "participants": "Osallistujat {{class}}",
       "placeNotificationsSent": "Koepaikkailmoitukset lähetetty",
+      "registered": "Ilmoittautuneet",
       "reserve": "Varasijalla",
       "reserveCanSendAfterEntry": "Varasijailmoitukset voi lähettää ilmoittautumisajan päätyttyä",
       "reserveLocked": "Varasijalla olevia koiria ei voi enää järjestellä, kun varasijailmoituksia on lähetetty",

@@ -404,7 +404,10 @@ const ClassEntrySelection = ({
   return (
     <DndProvider backend={HTML5Backend}>
       <Typography variant="h6">
-        Osallistujat {eventClass ?? t('eventManagement.allClasses')} {stateText ? ` - ${stateText}` : ''}
+        {t('eventManagement.participantSelection.participants', {
+          class: eventClass ?? t('eventManagement.allClasses'),
+        })}
+        {stateText ? ` - ${stateText}` : ''}
       </Typography>
       {/* column headers only */}
       <Box sx={{ flexShrink: 0, height: 40, overflow: 'hidden', width: '100%' }}>
@@ -533,7 +536,7 @@ const ClassEntrySelection = ({
             justifyContent: 'space-between',
           }}
         >
-          <Typography variant="h6">Ilmoittautuneet</Typography>
+          <Typography variant="h6">{t('eventManagement.participantSelection.registered')}</Typography>
           <UnlockArrange
             checked={unlockArrange}
             disabled={movementDisabled || reserveNotNotified}
@@ -563,7 +566,7 @@ const ClassEntrySelection = ({
           onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
           onReject={handleReject({ key: 'reserve', number: 0 })}
         />
-        <Typography variant="h6">Peruneet</Typography>
+        <Typography variant="h6">{t('eventManagement.participantSelection.cancelled')}</Typography>
         <DroppableDataGrid
           canDrop={(item: DragItem | undefined) => !movementDisabled && item?.groupKey !== GROUP_KEY_CANCELLED}
           columns={cancelledColumns}

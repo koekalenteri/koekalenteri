@@ -82,10 +82,11 @@ describe('ClassEntrySelection', () => {
     )
     await flushPromises()
 
-    // Translations are not loaded in this suite, so the keys stand in for the Finnish labels.
-    expect(screen.getByRole('heading', { level: 6, name: /Osallistujat/ }).textContent).toContain(
-      'eventManagement.allClasses'
-    )
+    // Translations are not loaded in this suite, so the keys stand in for the Finnish labels; the
+    // heading's class falls back to "all classes", which the mock reports as the interpolation name.
+    expect(
+      screen.getByRole('heading', { level: 6, name: 'eventManagement.participantSelection.participants class' })
+    ).toBeInTheDocument()
     expect(screen.getByText('ALO-1')).toBeInTheDocument()
     expect(screen.getByText('VOI-1')).toBeInTheDocument()
     expect(screen.getAllByRole('columnheader', { name: 'startListExport.class' }).length).toBeGreaterThan(0)

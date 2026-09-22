@@ -360,7 +360,7 @@ export function useClassEntrySelectionColumns(
       {
         field: 'lastEmail',
         flex: 1,
-        headerName: 'Viesti',
+        headerName: t('eventManagement.participantSelection.lastMessage'),
         valueGetter: (_value, row) => row.lastEmail ?? '',
         width: 130,
       },
@@ -421,7 +421,7 @@ export function useClassEntrySelectionColumns(
     const cancelledColumns = [...participantColumns]
     cancelledColumns.splice(-2, 0, {
       field: 'cancelReason',
-      headerName: 'Perumisen syy',
+      headerName: t('registration.cancelDialog.reason'),
       minWidth: 144,
       sortable: false,
       valueFormatter: (v: string) => (isPredefinedReason(v) ? t(`registration.cancelReason.${v}`) : v),

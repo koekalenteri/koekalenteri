@@ -411,9 +411,11 @@
     "missingClass": "These registrations are in a class that is no longer part of the trial. The classes of the registrations must be corrected.",
     "open": "Open event management",
     "participantSelection": {
+      "cancelled": "Cancelled",
       "cannotMoveToReserve": "Once the places have been confirmed, a dog can no longer be moved from the participants to the reserve list.",
       "canSendAfterEntry": "Participant notifications can be sent after the entry period has ended",
       "dragHere": "Drag the participants here!",
+      "lastMessage": "Message",
       "moveToParticipants": {
         "confirm": "Add to participants",
         "description": "Once the dog has been added, it is sent a confirmation of its place. Are you sure you want to add the dog {{dogName}} to the participants?",
@@ -421,7 +423,9 @@
         "title": "You are adding the dog {{dogName}} to the participants"
       },
       "notRegisteredToGroup": "The dog {{dogName}} is not registered for this group",
+      "participants": "Participants {{class}}",
       "placeNotificationsSent": "Participant notifications sent",
+      "registered": "Registered",
       "reserve": "Reserve list",
       "reserveCanSendAfterEntry": "Reserve notifications can be sent after the entry period has ended",
       "reserveLocked": "The reserve list can no longer be rearranged once reserve notifications have been sent",
