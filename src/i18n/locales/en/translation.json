@@ -451,6 +451,7 @@
     },
     "sendMessageDialog": {
       "additionalText": "You can add an additional message here if you wish:",
+      "attachment": "Attachment",
       "classes_one": "Class: {{classes}}",
       "classes_other": "Classes: {{classes}}",
       "confirmQuestion": "Are you sure you want to send the message?",
@@ -883,6 +884,7 @@
       "handlingCost": "Handling fee",
       "noCostsText": "The selected payment was made in a version of Koekalenteri prior to the refund feature. Such a payment can only be refunded in full through Koekalenteri.",
       "previouslyChargedHandlingCost": "Previously charged handling fee",
+      "refundTotal": "To be refunded",
       "status": {
         "ok": "Payment refunded",
         "okEmail": "The refund is in progress. The registrant has been sent an email to complete the refund. The audit trail shows when the refund has been processed.",
@@ -891,6 +893,11 @@
       },
       "text": "Select the payment to be refunded.",
       "title": "Refund, {{regNo}} / {{payer}}",
+      "total": "Transactions total",
+      "transactionType": {
+        "payment": "Payment",
+        "refund": "Refund"
+      },
       "wholePayment": "Refund the selected payment, a handling fee may be deducted"
     },
     "registeredDogs": "Registered dogs",

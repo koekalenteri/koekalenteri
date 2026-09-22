@@ -260,7 +260,9 @@ describe('RefundDialog', () => {
     render(<RefundDialog event={eventWithStaticDates} registration={registration} open={true} />, { wrapper: Wrapper })
     await flushPromises()
 
-    const secondPaymentRow = screen.getByRole('row', { name: /Maksu 20,00/ })
+    const secondPaymentRow = screen.getByRole('row', {
+      name: /registration.refundDialog.transactionType.payment 20,00/,
+    })
     fireEvent.click(within(secondPaymentRow).getByRole('checkbox'))
     fireEvent.click(screen.getByRole('button', { name: 'refund' }))
 

@@ -269,7 +269,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
             </Paper>
             {selectedTemplate?.id === 'invitation' && (
               <>
-                <Typography variant="h6">Liitetiedosto</Typography>
+                <Typography variant="h6">{t('eventManagement.sendMessageDialog.attachment')}</Typography>
                 <Paper sx={{ bgcolor: 'background.form', p: 1, width: '100%' }}>
                   {invitationAttachments.length ? (
                     <Stack spacing={0.5}>
