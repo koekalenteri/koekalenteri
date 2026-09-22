@@ -39,6 +39,35 @@ describe('OrganizerListPage', () => {
     expect(screen.getByText('Test User')).toBeInTheDocument()
   })
 
+  it('shows the last login only for a user who has logged in', async () => {
+    // i18next keeps a missing interpolation variable's placeholder in the output, so formatting an
+    // undefined lastSeen rendered the literal "{{ date, long }}" in the grid.
+    // The setup's 40px rect fits one 50px row; both users have to be on screen here.
+    const tallRect = { ...document.body.getBoundingClientRect(), bottom: 400, height: 400 }
+    const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(tallRect)
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <UsersPage />
+              </SnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    const lastSeenCell = (name: string) =>
+      screen.getByText(name).closest('[role="row"]')?.querySelector('[data-field="lastSeen"]')?.textContent
+    // The react-i18next mock answers dateFormat.long with its format string.
+    expect(lastSeenCell('Returning User')).toBe('dd.MM.yyyy')
+    expect(lastSeenCell('Test User')).toBe('')
+    rect.mockRestore()
+  })
+
   it('refuses to open the roles dialog for your own row', async () => {
     // The button is disabled for your own roles; the double click used to walk straight past that.
     await renderSuspended(

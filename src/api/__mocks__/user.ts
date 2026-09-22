@@ -9,4 +9,11 @@ const MOCK_ADMIN: User = {
 
 export const getUser = async (_token: string, _signal?: AbortSignal) => MOCK_ADMIN
 
-export const getUsers = async (_token: string, _signal?: AbortSignal) => [MOCK_ADMIN]
+const MOCK_RETURNING_USER: User = {
+  email: 'returning@user.vi',
+  id: 'qwer5678',
+  lastSeen: new Date('2026-09-20T10:00:00Z'),
+  name: 'Returning User',
+}
+
+export const getUsers = async (_token: string, _signal?: AbortSignal) => [MOCK_ADMIN, MOCK_RETURNING_USER]

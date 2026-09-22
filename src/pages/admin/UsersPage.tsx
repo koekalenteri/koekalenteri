@@ -215,7 +215,7 @@ export default function UsersPage() {
       flex: 1,
       headerName: t('user.lastSeen'),
       minWidth: 150,
-      valueFormatter: (value: User['lastSeen']) => t('dateFormat.long', { date: value }),
+      valueFormatter: (value: User['lastSeen']) => (value ? t('dateFormat.long', { date: value }) : ''),
     },
   ]
 
