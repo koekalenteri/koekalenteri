@@ -1557,6 +1557,64 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).not.toHaveBeenCalled()
   })
 
+  // KOE-525: the entry restrictions (KOE-524) gate the API as they gate the form. The mock dog is a
+  // curly coated retriever (110) and nobody on the mock registration is a member.
+  it('should return 400 when a new registration meets none of the entry restrictions', async () => {
+    mockGetEvent.mockResolvedValueOnce(
+      JSON.parse(JSON.stringify({ ...eventWithStaticDates, restrictions: ['member', '122'] }))
+    )
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
+
+    expect(res.statusCode).toEqual(400)
+    expect(res.body).toContain('restricted to members or named breeds')
+
+    // No writes or side effects should occur
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockSES.send).not.toHaveBeenCalled()
+    expect(mockDynamoDBWrite).not.toHaveBeenCalled()
+  })
+
+  it.each`
+    admitted           | registration
+    ${'a member'}      | ${{ ...registrationWithStaticDates, owner: { ...registrationWithStaticDates.owner, membership: true } }}
+    ${'a named breed'} | ${{ ...registrationWithStaticDates, dog: { ...registrationWithStaticDates.dog, breedCode: '122' } }}
+  `('should save a new registration that meets one entry restriction, $admitted', async ({ registration }) => {
+    mockGetEvent.mockResolvedValueOnce(
+      JSON.parse(JSON.stringify({ ...eventWithStaticDates, restrictions: ['member', '122'] }))
+    )
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registration, id: undefined }))
+
+    expect(res.statusCode).toEqual(200)
+    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+  })
+
+  it('should return 400 when an update no longer meets the entry restrictions', async () => {
+    mockGetEvent.mockResolvedValueOnce(
+      JSON.parse(JSON.stringify({ ...eventWithStaticDates, restrictions: ['member'] }))
+    )
+    mockGetRegistration.mockResolvedValueOnce(
+      JSON.parse(
+        JSON.stringify({
+          ...registrationWithStaticDates,
+          owner: { ...registrationWithStaticDates.owner, membership: true },
+        })
+      )
+    )
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registrationWithStaticDates,
+        owner: { ...registrationWithStaticDates.owner, membership: false },
+      })
+    )
+
+    expect(res.statusCode).toEqual(400)
+    expect(res.body).toContain('restricted to members or named breeds')
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
+  })
+
   it('should ignore client-supplied payment fields (paidAmount, paidAt, paymentStatus)', async () => {
     vi.setSystemTime(eventWithStaticDates.entryStartDate)
 

@@ -49,3 +49,27 @@ it('shows no handler row when an owner handles', async () => {
   await expect.element(screen.getByText('Minsu Rauramo on järjestävän yhdistyksen jäsen')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('membership-info-owner-handles')
 })
+
+it('says in red which entry restriction the memberships do not meet', async () => {
+  // KOE-525: a members-only trial keeps a non-member out, and this section is where the tick
+  // that would let them in lives, so the reason is told here rather than at the submit button.
+  const screen = await render(
+    <TestProvider>
+      <Frame>
+        <MembershipInfo
+          reg={{
+            ...registration,
+            handler: { ...registration.handler, membership: false },
+            owners: registration.owners?.map((owner) => ({ ...owner, membership: false })),
+          }}
+          orgId="org"
+          error
+          helperText="Kokeeseen voivat ilmoittautua vain järjestävän yhdistyksen jäsenet. Merkitse jäsenyys, jos omistaja tai ohjaaja on jäsen."
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText(/Kokeeseen voivat ilmoittautua vain/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('membership-info-restricted')
+})

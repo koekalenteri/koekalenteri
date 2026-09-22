@@ -6,6 +6,7 @@ import { qualifyJsonRegistration } from '../../lib/qualification'
 import {
   isCompleteRegistration,
   isPublicRegistrationOperationField,
+  meetsRestrictions,
   registrationActor,
   resolveInvitationRead,
 } from '../../lib/registration'
@@ -174,6 +175,12 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent)
 
   applyOwnerOverrides(data)
+  // The entry restrictions (KOE-525) are a gate, not a note to the secretary: the form does not
+  // let an entry through without a membership or a named breed, and neither does the API. A
+  // cancellation or a confirmation is not an entry and passes.
+  if (!operationRequest && !meetsRestrictions(confirmedEvent, data)) {
+    throw httpError(400, { message: 'Bad request: the entry is restricted to members or named breeds' })
+  }
   // The official results come from the dog table, not from the request's copy of them: a client
   // can write anything into its copy, and the eligibility rests on these (KOE-1346). The manual
   // results stay what they are, the owner's own claims, and are stored and shown as such.

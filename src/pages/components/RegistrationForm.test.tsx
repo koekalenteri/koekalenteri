@@ -190,4 +190,84 @@ describe('RegistrationForm', () => {
     await user.click(cb1)
     expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ optionalCosts: [1] }))
   })
+
+  // KOE-525: the entry restrictions (KOE-524) gate the form. The mock dog is a curly coated
+  // retriever (110) and nobody on the mock registration is a member.
+  describe('entry restrictions', () => {
+    it('keeps a non-member out of a members-only trial and says so in the membership section', async () => {
+      render(
+        <RegistrationForm
+          event={{ ...eventWithStaticDates, restrictions: ['member'] }}
+          registration={registrationWithStaticDates}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      // The mock t appends the option names to the key, so the notice reads "<key> breeds".
+      expect(screen.getByText(/validation\.registration\.restrictedToMembers/)).toBeVisible()
+      expect(screen.getByTestId('missing-info')).toHaveTextContent('registration.membership')
+    })
+
+    it('names the breeds when the trial is restricted to breeds alone, in the dog section', async () => {
+      render(
+        <RegistrationForm
+          event={{ ...eventWithStaticDates, restrictions: ['122', '111'] }}
+          registration={registrationWithStaticDates}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(screen.getByText(/validation\.registration\.restrictedToBreeds/)).toBeVisible()
+      expect(screen.getByTestId('missing-info')).toHaveTextContent('registration.dog')
+      expect(screen.queryByText(/validation\.registration\.restrictedToMembers/)).not.toBeInTheDocument()
+    })
+
+    it('lets a member through a trial restricted to members or named breeds', async () => {
+      render(
+        <RegistrationForm
+          event={{ ...eventWithStaticDates, restrictions: ['member', '122'] }}
+          registration={{
+            ...registrationWithStaticDates,
+            owner: { email: 'owner@example.com', membership: true, name: 'Owner Name' },
+          }}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(screen.queryByText(/validation\.registration\.restrictedTo/)).not.toBeInTheDocument()
+      expect(screen.queryByTestId('missing-info')).not.toBeInTheDocument()
+    })
+
+    it('shows the secretary the notice but lets them save anyway', async () => {
+      render(
+        <RegistrationForm
+          admin
+          event={{ ...eventWithStaticDates, restrictions: ['member'] }}
+          registration={registrationWithStaticDates}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(screen.getByText(/validation\.registration\.restrictedToMembers/)).toBeVisible()
+      expect(screen.queryByTestId('missing-info')).not.toBeInTheDocument()
+    })
+
+    it('lets a dog of a named breed through without a membership', async () => {
+      render(
+        <RegistrationForm
+          event={{ ...eventWithStaticDates, restrictions: ['member', '110'] }}
+          registration={registrationWithStaticDates}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(screen.queryByText(/validation\.registration\.restrictedTo/)).not.toBeInTheDocument()
+      expect(screen.queryByTestId('missing-info')).not.toBeInTheDocument()
+    })
+  })
 })

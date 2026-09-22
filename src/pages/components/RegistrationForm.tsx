@@ -27,11 +27,13 @@ import { calculateCost } from '../../lib/cost'
 import { getDiffOperations } from '../../lib/diff'
 import { isDevEnv } from '../../lib/env'
 import { formatMoney } from '../../lib/money'
+import { getPrioritySort, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from '../../lib/priority'
 import { filterRelevantResults } from '../../lib/qualification'
 import {
   formatOwnerNames,
   getHandlingPerson,
   getPayingPerson,
+  meetsRestrictions,
   resolveOwnerSelection,
   withDefaultOwnerSelection,
 } from '../../lib/registration'
@@ -85,13 +87,17 @@ export default function RegistrationForm({
   savedRegistration,
 }: Props) {
   const { t } = useTranslation()
+  const { t: tBreed } = useTranslation(['translation', 'breed'])
   const language = useAtomValue(languageAtom)
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [errors, setErrors] = useState(() => validateRegistration(registration, event, savedRegistration))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
   const [rankingPeriod, setRankingPeriod] = useState<{ min?: Date; max?: Date }>({})
 
-  const valid = errors.length === 0 && registration.qualifies
+  const restriction = useMemo(() => getRestrictionNotice(event, registration, tBreed), [event, registration, tBreed])
+  // The restriction gates the registrant; the secretary sees the same notice but decides for
+  // themselves, so a registration made before the restriction stays theirs to edit.
+  const valid = errors.length === 0 && registration.qualifies && (admin || !restriction)
   const costResult = calculateCost(event, registration)
   const paymentAmount = costResult.amount
   const ctaText = useMemo(() => {
@@ -178,6 +184,11 @@ export default function RegistrationForm({
   const [helperTexts, errorStates] = useMemo(() => {
     const states: { [Property in keyof Registration]?: boolean } = {}
     const texts = getSectionHelperTexts(registration, t)
+    // A breed-only restriction is the dog's to meet; an incomplete dog is reported ahead of it.
+    if (restriction?.section === 'dog') {
+      texts.dog = restriction.text
+      states.dog = true
+    }
     for (const error of errors) {
       texts[error.opts.field] = t(`validation.registration.${error.key}`, error.opts)
       states[error.opts.field] = true
@@ -187,7 +198,7 @@ export default function RegistrationForm({
       states.breeder = states.owner = states.qualifyingResults = true
     }
     return [texts, states]
-  }, [errors, registration, t])
+  }, [errors, registration, restriction, t])
 
   // The address check needs the list of top-level domains; it is fetched here, once, so it has
   // arrived by the time anyone has typed an address (KOE-1347).
@@ -384,6 +395,8 @@ export default function RegistrationForm({
         />
         <MembershipInfo
           disabled={disabled || disabledForUserAfterPaid}
+          error={restriction?.section === 'membership'}
+          helperText={restriction?.section === 'membership' ? restriction.text : undefined}
           reg={registration}
           orgId={event.organizer.id}
           onChange={handleChange}
@@ -494,12 +507,40 @@ export default function RegistrationForm({
                 </li>
               ))}
               {registration.qualifies ? null : <li>{t('registration.qualifyingResults')}</li>}
+              {restriction && !errors.some((e) => e.opts.field === restriction.section) ? (
+                <li>{t(restriction.section === 'dog' ? 'registration.dog' : 'registration.membership')}</li>
+              ) : null}
             </ul>
           </AccordionDetails>
         </Accordion>
       )}
     </Paper>
   )
+}
+
+/**
+ * The entry restriction (KOE-524) the registration does not meet (KOE-525), and the section that
+ * says so: the membership section when membership would admit the dog, otherwise the dog's own.
+ */
+function getRestrictionNotice(
+  event: PublicConfirmedEvent,
+  registration: Registration,
+  t: TFunction<['translation', 'breed']>
+): { section: 'dog' | 'membership'; text: string } | undefined {
+  if (meetsRestrictions(event, registration)) return undefined
+
+  const options = priorityValuesToPriority(event.restrictions, RESTRICTION).sort(getPrioritySort(t))
+  const breeds = options
+    .filter((option) => option.value !== PRIORITY_MEMBER)
+    .map((option) => t(option.name))
+    .join(', ')
+  if (!options.some((option) => option.value === PRIORITY_MEMBER)) {
+    return { section: 'dog', text: t('validation.registration.restrictedToBreeds', { breeds }) }
+  }
+  const key = breeds
+    ? 'validation.registration.restrictedToMembersOrBreeds'
+    : 'validation.registration.restrictedToMembers'
+  return { section: 'membership', text: t(key, { breeds }) }
 }
 
 function getSectionHelperTexts(
