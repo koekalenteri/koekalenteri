@@ -1202,6 +1202,20 @@
   },
   "support": "Support",
   "supportContact": "Send feedback",
+  "templateEditor": {
+    "editor": {
+      "en": "Message template in English",
+      "fi": "Message template in Finnish"
+    },
+    "errorAtColumn": "Error in {{template}} on line {{line}}, column {{column}}: {{message}}",
+    "errorOnLine": "Error in {{template}} on line {{line}}: {{message}}",
+    "rejected": "Error in {{template}}, according to the email service: {{message}}",
+    "saveFailed": "Saving failed: {{message}}",
+    "template": {
+      "en": "the English template",
+      "fi": "the Finnish template"
+    }
+  },
   "templateId": "Message name",
   "testResult": {
     "date": "Date",

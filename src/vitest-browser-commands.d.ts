@@ -6,6 +6,10 @@ declare module 'vitest/internal/browser' {
       screenshot: string,
       found: Record<string, number>
     ): Promise<{ allowed: number; found: number; rule: string }[]>
+    /** The font files Chromium drew the nodes of a class with; see scripts/platformFonts.mjs. */
+    platformFonts(
+      className: string
+    ): Promise<Array<Array<{ familyName: string; isCustomFont: boolean; glyphCount: number }>>>
     /** Moves the mouse out of the viewport so nothing renders hovered; see scripts/resetMouse.mjs. */
     resetMouse(): Promise<void>
   }

@@ -1202,6 +1202,20 @@
   },
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",
+  "templateEditor": {
+    "editor": {
+      "en": "Viestipohja englanniksi",
+      "fi": "Viestipohja suomeksi"
+    },
+    "errorAtColumn": "Virhe {{template}} rivillä {{line}}, sarakkeessa {{column}}: {{message}}",
+    "errorOnLine": "Virhe {{template}} rivillä {{line}}: {{message}}",
+    "rejected": "Virhe {{template}}, sähköpostipalvelun mukaan: {{message}}",
+    "saveFailed": "Tallennus epäonnistui: {{message}}",
+    "template": {
+      "en": "englanninkielisessä pohjassa",
+      "fi": "suomenkielisessä pohjassa"
+    }
+  },
   "templateId": "Viestin nimi",
   "testResult": {
     "date": "Aika",

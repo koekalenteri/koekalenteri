@@ -75,6 +75,14 @@ vi.doMock('@aws-sdk/client-ses', () => {
     }
   }
 
+  // SES's answer to a template it cannot compile
+  class InvalidTemplateException extends SESServiceException {
+    constructor(options: { message: string; $metadata?: { httpStatusCode: number } }) {
+      super(options)
+      this.name = 'InvalidTemplateException'
+    }
+  }
+
   // Mock CONFIG
   vi.doMock('../config', () => ({
     CONFIG: {
@@ -87,6 +95,7 @@ vi.doMock('@aws-sdk/client-ses', () => {
     CreateTemplateCommand: vi.fn(function MockCreateTemplateCommand(params: any) {
       return { ...params, command: 'CreateTemplateCommand' }
     }),
+    InvalidTemplateException,
     SESClient: vi.fn(function MockSESClient() {
       return { send: mockSend }
     }),
@@ -371,6 +380,96 @@ describe('putEmailTemplateLambda', () => {
     // The error might be logged differently or not at all depending on the implementation
     // Just check that console.error was called
     expect(console.error).toHaveBeenCalled()
+  })
+
+  describe('a template that cannot be used (KOE-1434)', () => {
+    it('answers 400 with the language and line when a source does not parse, before SES is touched', async () => {
+      setEventBody(event, {
+        en: '# English Template\n\n{{#if reg.notes}}\nfoo',
+        fi: '# Finnish Template',
+        id: 'test-template',
+        name: 'Test Template',
+      })
+
+      await putEmailTemplateLambda(event)
+
+      expect(mockResponse).toHaveBeenCalledWith(
+        400,
+        { language: 'en', line: 4, message: 'The template ends before a {{ }} or a block is closed' },
+        event
+      )
+      expect(mockMarkdownToTemplate).not.toHaveBeenCalled()
+      expect(mockSend).not.toHaveBeenCalled()
+      expect(mockWrite).not.toHaveBeenCalled()
+      expect(errorSpy).not.toHaveBeenCalled()
+    })
+
+    it("answers 400 with SES's own reason when it rejects a template that parses", async () => {
+      const { InvalidTemplateException } = await import('@aws-sdk/client-ses')
+      mockSend.mockRejectedValueOnce(
+        new InvalidTemplateException({
+          $metadata: { httpStatusCode: 400 },
+          message: 'Handlebars compilation failed for input Template Content',
+        })
+      )
+
+      await putEmailTemplateLambda(event)
+
+      expect(mockResponse).toHaveBeenCalledWith(
+        400,
+        { language: 'fi', message: 'Handlebars compilation failed for input Template Content' },
+        event
+      )
+      expect(mockSend).toHaveBeenCalledTimes(1)
+      expect(mockWrite).not.toHaveBeenCalled()
+      expect(errorSpy).not.toHaveBeenCalled()
+    })
+
+    it("explains SES's rejection from the compiled part when compiling it here says more", async () => {
+      const { InvalidTemplateException } = await import('@aws-sdk/client-ses')
+      mockMarkdownToTemplate.mockImplementation((templateName: string) =>
+        Promise.resolve({
+          HtmlPart: '<p>{{#if}}x{{/if}}</p>',
+          SubjectPart: 'Test Subject',
+          TemplateName: templateName,
+          TextPart: 'Test text content',
+        })
+      )
+      mockSend.mockRejectedValueOnce(
+        new InvalidTemplateException({
+          $metadata: { httpStatusCode: 400 },
+          message: 'Handlebars compilation failed for input Template Content',
+        })
+      )
+
+      await putEmailTemplateLambda(event)
+
+      expect(mockResponse).toHaveBeenCalledWith(
+        400,
+        { language: 'fi', message: '#if requires exactly one argument' },
+        event
+      )
+      expect(mockWrite).not.toHaveBeenCalled()
+    })
+
+    it('answers 400 for the English template too, after the Finnish one went through', async () => {
+      const { InvalidTemplateException } = await import('@aws-sdk/client-ses')
+      mockSend
+        .mockResolvedValueOnce({})
+        .mockRejectedValueOnce(
+          new InvalidTemplateException({ $metadata: { httpStatusCode: 400 }, message: 'Handlebars compilation failed' })
+        )
+
+      await putEmailTemplateLambda(event)
+
+      expect(mockResponse).toHaveBeenCalledWith(
+        400,
+        { language: 'en', message: 'Handlebars compilation failed' },
+        event
+      )
+      expect(mockSend).toHaveBeenCalledTimes(2)
+      expect(mockWrite).not.toHaveBeenCalled()
+    })
   })
 
   it('throws an error if DynamoDB write fails', async () => {

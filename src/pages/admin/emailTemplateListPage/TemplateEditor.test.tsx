@@ -1,37 +1,13 @@
 import type { EmailTemplate } from '@/types'
 import type { templateSchema } from './TemplateEditor.schema'
 import { screen } from '@testing-library/react'
+import { shimCodeMirrorLayout } from '@/test-utils/codemirror'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import { TemplateEditor } from './TemplateEditor'
 
 describe('TemplateEditor', () => {
   beforeAll(() => {
-    function getBoundingClientRect(): DOMRect {
-      const rec = {
-        bottom: 0,
-        height: 0,
-        left: 0,
-        right: 0,
-        top: 0,
-        width: 0,
-        x: 0,
-        y: 0,
-      }
-      return { ...rec, toJSON: () => rec }
-    }
-
-    class FakeDOMRectList extends Array<DOMRect> implements DOMRectList {
-      item(index: number): DOMRect | null {
-        return this[index]
-      }
-    }
-
-    document.elementFromPoint = (): null => null
-    HTMLElement.prototype.getBoundingClientRect = getBoundingClientRect
-    HTMLElement.prototype.getClientRects = (): DOMRectList => new FakeDOMRectList()
-    Range.prototype.getBoundingClientRect = getBoundingClientRect
-    Range.prototype.getClientRects = (): DOMRectList => new FakeDOMRectList()
-
+    shimCodeMirrorLayout()
     vi.useFakeTimers()
   })
   afterAll(() => {
@@ -80,6 +56,12 @@ describe('TemplateEditor', () => {
 
     expect(editor).toBeInTheDocument()
     expect(editor).toHaveTextContent(initial)
+  })
+
+  it('names the textbox after the language it edits', () => {
+    const { editor } = setup({ lang: 'en' })
+
+    expect(editor).toHaveAccessibleName('templateEditor.editor.en')
   })
 
   it('respects hidden prop by not displaying the Paper', () => {

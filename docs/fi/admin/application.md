@@ -50,5 +50,8 @@ jolla hän ilmoittautui.
 
 Pohjat ovat Handlebars-muotoa: viestin tiedot kirjoitetaan kaksoisaaltosulkeisiin, ja editori
 ehdottaa kunkin viestin käytettävissä olevia kenttiä sitä mukaa kuin kirjoitat. Kenttä, jota
-viestillä ei ole, alleviivataan virheeksi ennen tallennusta. **{t:save}** ottaa pohjan käyttöön
-heti seuraavasta viestistä alkaen; **{t:cancel}** palauttaa tallennetun version.
+viestillä ei ole, alleviivataan virheeksi ennen tallennusta, samoin sulkematta jäänyt lohko tai
+aaltosulje. Löydökset saa myös luettelona editorin alle näppäimillä Ctrl-Shift-M (Macissa
+Cmd-Shift-M). **{t:save}** ottaa pohjan käyttöön heti seuraavasta viestistä alkaen; jos pohja ei
+kelpaa, painikkeiden yläpuolelle tulee ilmoitus, joka kertoo kielen, rivin ja syyn, ja editori
+vaihtaa sen kielen välilehdelle. **{t:cancel}** palauttaa tallennetun version.

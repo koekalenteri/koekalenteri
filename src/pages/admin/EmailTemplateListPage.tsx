@@ -1,6 +1,6 @@
 import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { SyntheticEvent } from 'react'
-import type { EmailTemplate, EmailTemplateId } from '../../types'
+import type { EmailTemplate, EmailTemplateError, EmailTemplateId } from '../../types'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
@@ -14,10 +14,13 @@ import { useResetAtom } from 'jotai/utils'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { firstSelectedRow } from '../../lib/datagrid'
+import { findEmailTemplateError } from '../../lib/emailTemplate'
 import { hasChanges } from '../../lib/utils'
+import { LANGUAGES } from '../../types'
 import StyledDataGrid from '../components/StyledDataGrid'
 import FullPageFlex from './components/FullPageFlex'
 import { TemplateEditor } from './emailTemplateListPage/TemplateEditor'
+import { TemplateErrorAlert } from './emailTemplateListPage/TemplateErrorAlert'
 import {
   adminEditableTemplateByIdAtom,
   adminEmailTemplateAtom,
@@ -33,6 +36,7 @@ export default function EmailTemplateListPage() {
   const [template, setTemplate] = useAtom(adminEditableTemplateByIdAtom(selectedTemplateId))
   const resetTemplate = useResetAtom(adminEditableTemplateByIdAtom(selectedTemplateId))
   const [changes, setChanges] = useState<boolean>(hasChanges(storedTemplate, template))
+  const [saveError, setSaveError] = useState<EmailTemplateError>()
   const actions = useAdminEmailTemplatesActions()
 
   const { t } = useTranslation()
@@ -54,35 +58,54 @@ export default function EmailTemplateListPage() {
     const selected = firstSelectedRow(selection)
     const value = typeof selected === 'string' ? selected : undefined
     setSelectedTemplateId(value as EmailTemplateId)
+    setSaveError(undefined)
   }
   const handleTabChange = (_event: SyntheticEvent, value: number) => setSelectedTab(value)
   const handleChange = useCallback(
     (newState: EmailTemplate) => {
       setTemplate(newState)
+      setSaveError(undefined)
     },
     [setTemplate]
   )
+
+  /** The failure under the editor, opened on the language it names so the line is in view. */
+  const showError = useCallback((error: EmailTemplateError) => {
+    setSaveError(error)
+    if (error.language) setSelectedTab(LANGUAGES.indexOf(error.language))
+  }, [])
 
   const handleSave = useCallback(() => {
     if (!template) {
       return
     }
+    // The check the server makes, made here first: an error the editor can name itself needs no
+    // round trip, and the server's answer is shown the same way when it finds one of its own.
+    const syntaxError = findEmailTemplateError(template)
+    if (syntaxError) {
+      showError(syntaxError)
+      return
+    }
     actions.save(template).then(
-      (ok) => {
-        if (ok) {
+      (result) => {
+        if (result.ok) {
           resetTemplate()
           setChanges(false)
+          setSaveError(undefined)
+        } else {
+          showError(result.error)
         }
       },
       (err) => {
         console.error(err)
       }
     )
-  }, [actions, resetTemplate, template])
+  }, [actions, resetTemplate, showError, template])
 
   const handleCancel = useCallback(() => {
     resetTemplate()
     setChanges(false)
+    setSaveError(undefined)
   }, [resetTemplate])
 
   return (
@@ -139,6 +162,7 @@ export default function EmailTemplateListPage() {
                 hidden={selectedTab !== 1}
                 onChange={handleChange}
               />
+              {saveError ? <TemplateErrorAlert error={saveError} /> : null}
               <Box
                 sx={{
                   flex: 0,

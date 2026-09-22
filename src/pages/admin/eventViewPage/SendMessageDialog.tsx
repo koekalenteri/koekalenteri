@@ -22,7 +22,6 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-// @ts-expect-error handlebars 4.8 should fix this issue
 import Handlebars from 'handlebars/dist/cjs/handlebars.js'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useConfirm } from 'material-ui-confirm'
