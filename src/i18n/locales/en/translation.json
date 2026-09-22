@@ -256,6 +256,7 @@
       "addForeign": "Add foreign judge",
       "addUnofficial": "Add unofficial judge",
       "classes": "Judges classes",
+      "country": "Country",
       "notAvailable": "Judge {{name}} ({{id}}) is not available",
       "remove": "Remove judge"
     },
