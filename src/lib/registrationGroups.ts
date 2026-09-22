@@ -1,9 +1,14 @@
 import type { JsonRegistration, Registration, RegistrationGroupMove } from '../types'
-import { GROUP_KEY_CANCELLED, getRegistrationGroupKey, getRegistrationNumberingGroupKey } from './registration'
+import {
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
+  getRegistrationGroupKey,
+  getRegistrationNumberingGroupKey,
+} from './registration'
 
 type GroupedRegistration = Pick<
   JsonRegistration | Registration,
-  'cancelled' | 'cancelReason' | 'class' | 'eventType' | 'group' | 'id'
+  'cancelled' | 'cancelReason' | 'class' | 'eventType' | 'group' | 'id' | 'startGroup'
 >
 
 type RegistrationGroupMoveResult<T extends GroupedRegistration> = {
@@ -91,6 +96,12 @@ const applyRegistrationGroupMove = <T extends GroupedRegistration>(
   item.cancelled = move.group.key === GROUP_KEY_CANCELLED
   if (item.cancelled) item.cancelReason = move.cancelReason
   else delete item.cancelReason
+  // A dog moved back to the reserve list gives its drawn number up here and now (KOE-1428). A
+  // cancelled dog keeps its number for the POISSA row on the public list, but a reserve dog has no
+  // row there, and its `group.number` is a place in the queue, a numbering of its own: a drawn
+  // number left on it showed on the reserve list as if the dog still held it, and sorted the queue
+  // by it. Decided here so the admin UI's projection and the Lambda's write drop it alike.
+  if (move.group.key === GROUP_KEY_RESERVE) delete item.startGroup
   return true
 }
 

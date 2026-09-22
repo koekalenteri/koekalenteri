@@ -217,7 +217,9 @@ export interface JsonRegistration extends JsonDbRecord {
    * public truth, and nothing automatic writes it — only publishing the class's numbers (which
    * rewrites it from the group as it stands) or the secretary's explicit number entry. The whole
    * placement is snapshotted rather than the bare number because a cancellation drops the group's
-   * date and time, and the POISSA row still has to land under the right day.
+   * date and time, and the POISSA row still has to land under the right day. A move back to the
+   * reserve list removes it (KOE-1428): a reserve dog holds no start number, and its `group.number`
+   * is a place in the queue.
    */
   startGroup?: JsonRegistrationGroup
   handler?: RegistrationPerson

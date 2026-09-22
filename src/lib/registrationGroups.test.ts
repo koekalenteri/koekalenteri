@@ -150,6 +150,41 @@ describe('applyRegistrationGroupMoves', () => {
     })
   })
 
+  /**
+   * A drawn number belongs to the dog that starts under it. Left on a dog moved back to the reserve
+   * list, it showed on the reserve list as the dog's number and sorted the queue by it (KOE-1428).
+   */
+  it('drops the drawn start number when a dog is moved to the reserve list (KOE-1428)', () => {
+    const startGroup = { date: '2026-09-12', key: 'ALO-AP', number: 2, time: 'ap' as const }
+    const source: JsonRegistration[] = [
+      { ...registration('a', 1), group: { ...startGroup, number: 1 } },
+      { ...registration('b', 2), group: { ...startGroup }, startGroup },
+    ]
+    const result = applyRegistrationGroupMoves(source, [{ group: { key: 'reserve' }, id: 'b' }])
+
+    expect(result.invalid).toEqual([])
+    expect(result.items.find((item) => item.id === 'b')).toMatchObject({ group: { key: 'reserve', number: 1 } })
+    expect(result.items.find((item) => item.id === 'b')).not.toHaveProperty('startGroup')
+    // The source snapshot is the caller's: the patch is computed against it.
+    expect(source[1].startGroup).toEqual(startGroup)
+  })
+
+  it('keeps the drawn start number on a cancellation and on a move within the list', () => {
+    const startGroup = { date: '2026-09-12', key: 'ALO-AP', number: 2, time: 'ap' as const }
+    const source: JsonRegistration[] = [
+      { ...registration('a', 1), group: { ...startGroup, number: 1 } },
+      { ...registration('b', 2), group: { ...startGroup }, startGroup },
+    ]
+
+    const cancelled = applyRegistrationGroupMoves(source, [{ group: { key: GROUP_KEY_CANCELLED }, id: 'b' }])
+    expect(cancelled.items.find((item) => item.id === 'b')?.startGroup).toEqual(startGroup)
+
+    const moved = applyRegistrationGroupMoves(source, [
+      { beforeId: 'a', group: { date: '2026-09-12', key: 'ALO-AP', time: 'ap' as const }, id: 'b' },
+    ])
+    expect(moved.items.find((item) => item.id === 'b')?.startGroup).toEqual(startGroup)
+  })
+
   it('applies a batch of moves before normalizing all affected groups', () => {
     const source = [registration('a', 1), registration('b', 2), registration('c', 3)]
 

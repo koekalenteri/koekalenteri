@@ -448,6 +448,48 @@ describe('putRegistrationGroupsLambda', () => {
     )
   })
 
+  /**
+   * The number is released on the move, not when someone asks for it: a reserve dog showing its old
+   * drawn number read as still holding it (KOE-1428). The row loses the field, the dog's trail says
+   * so, and both the response and the broadcast carry the removal.
+   */
+  it('releases the drawn start number when a participant is moved to reserve (KOE-1428)', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    const startGroup = { ...jsonRegistrationsToEventWithParticipantsInvited[0].group, number: 2 }
+    const stored = jsonRegistrationsToEventWithParticipantsInvited.map((r, index) =>
+      index === 0 ? { ...r, startGroup } : { ...r }
+    )
+    const registration = stored[0]
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+    mockDynamoDB.query.mockResolvedValueOnce(stored)
+    mockDynamoDB.read.mockResolvedValue(event)
+
+    const res = await putRegistrationGroupsLambda(
+      constructAPIGwEvent([{ group: { key: 'reserve' }, id: registration.id }], {
+        pathParameters: { eventId: event.id },
+      })
+    )
+
+    expect(res.statusCode).toBe(200)
+    expect(mockDynamoDB.update).toHaveBeenCalledWith(
+      { eventId: event.id, id: registration.id },
+      { remove: ['startGroup'], set: { updatedAt: expect.any(String) } }
+    )
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: `${event.id}:${registration.id}`,
+      message: 'Starttinumero vapautettu: 2',
+      user: mockUser.name,
+    })
+    const item = JSON.parse(res.body).items.find((r: JsonRegistration) => r.id === registration.id)
+    expect(item.group).toMatchObject({ key: 'reserve' })
+    expect(item).not.toHaveProperty('startGroup')
+    expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith(
+      event.id,
+      expect.arrayContaining([expect.objectContaining({ id: registration.id, startGroup: null })]),
+      event.organizer.id
+    )
+  })
+
   it('should not send "reserve" message, when reserve is not notified', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })

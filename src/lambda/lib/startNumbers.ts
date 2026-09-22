@@ -122,6 +122,27 @@ export const freezeStartNumbers = async (
 }
 
 /**
+ * Take the dog's drawn number away, and say so in its own trail. Releasing is a REMOVE: DynamoDB
+ * refuses `SET startGroup = :undefined`, and `null` in the patch is what tells the clients'
+ * patchMerge to delete the field rather than skip it.
+ *
+ * Two roads lead here. A dog moved back to the reserve list releases its number on the move
+ * (KOE-1428): it will not start under it, and a number held by a dog off the list was unusable by
+ * anyone and, on the reserve list, looked like the dog's still. A cancelled dog keeps its number
+ * for the POISSA row and releases it only when the secretary hands the number to another dog.
+ */
+export const releaseStartNumber = async (
+  eventId: string,
+  registration: JsonRegistration,
+  number: number,
+  user: string
+): Promise<Patch<JsonRegistration>> => {
+  await removeRegistrationField(eventId, registration.id, 'startGroup')
+  await auditStartNumber(registration, `Starttinumero vapautettu: ${number}`, user)
+  return { id: registration.id, startGroup: null }
+}
+
+/**
  * Write the numbers the venue drew. Validated here rather than only on the form: an integer from 1
  * up, and unique in the whole trial — every class, every day (KOE-1303). The duplicate the server
  * refuses is the one two phones would otherwise both claim.
@@ -180,15 +201,10 @@ export const assignStartNumbers = async (
 
       // A holder that is no longer running yields its slot: this is how the secretary fills a
       // vacated place, and yielding it removes the POISSA row from the public list "kunnolla", as
-      // KOE-1218 asks. Cancelling is the common way out of the participant list, but not the only
-      // one — a dog moved back to the reserve list is off it just as surely, and holding a number it
-      // will not start under leaves that number unusable by anyone (KOE-1428).
+      // KOE-1218 asks. A dog moved back to the reserve list releases its number on the move itself
+      // (KOE-1428); one demoted before that was so still holds one, and yields it here the same.
       if (!isScorableRegistration(other)) {
-        // Yielding is a REMOVE: DynamoDB refuses `SET startGroup = :undefined`, and `null` in the
-        // patch is what tells the clients' patchMerge to delete the field rather than skip it.
-        await removeRegistrationField(eventId, other.id, 'startGroup')
-        patches.push({ id: other.id, startGroup: null })
-        await auditStartNumber(other, `Starttinumero vapautettu: ${entry.startNumber}`, user)
+        patches.push(await releaseStartNumber(eventId, other, entry.startNumber, user))
         continue
       }
 

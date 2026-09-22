@@ -27,6 +27,7 @@ import {
   sendTemplatedEmailToEventRegistrations,
   updateReserveNotified,
 } from '../lib/registration'
+import { releaseStartNumber } from '../lib/startNumbers'
 import { publishEventCounts, publishRegistrationPatches } from '../lib/ws/actions'
 import { publishPublicStartList } from '../lib/ws/publicStartList'
 
@@ -77,6 +78,11 @@ const updateItems = async (oldItems: JsonRegistration[], moves: RegistrationGrou
       reg.cancelled = reg.group?.key === GROUP_KEY_CANCELLED
 
       await saveGroup(reg, oldGroup, user, reason, reg.cancelReason)
+
+      // The move decided the number is gone (KOE-1428); the row and the dog's trail follow.
+      if (old?.startGroup && !reg.startGroup) {
+        await releaseStartNumber(reg.eventId, reg, old.startGroup.number, user.name)
+      }
     }
   }
 
