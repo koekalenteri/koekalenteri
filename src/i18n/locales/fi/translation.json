@@ -1048,6 +1048,7 @@
       "unauthorizedRun": "Luvaton lähtö noutoon"
     }
   },
+  "role": "Rooli",
   "roles": "Roolit",
   "save": "Tallenna",
   "search": {

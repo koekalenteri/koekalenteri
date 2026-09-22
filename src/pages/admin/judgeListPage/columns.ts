@@ -10,7 +10,7 @@ import MockTrialCell from './cells/MockTrialCell'
 export default function useJudgeListColumns(): GridColDef<Judge>[] {
   const { t } = useTranslation()
   const directoryColumns = createOfficialDirectoryColumns<Judge>(t, {
-    district: { headerName: 'Kennelpiiri' },
+    district: { headerName: t('district') },
     email: { flex: 2, minWidth: undefined },
     eventTypes: { flex: 2 },
     location: { flex: 1, width: undefined },

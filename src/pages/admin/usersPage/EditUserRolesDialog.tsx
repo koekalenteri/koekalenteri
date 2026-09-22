@@ -83,8 +83,8 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ width: '60%' }}>Yhdistys</TableCell>
-                <TableCell>Rooli</TableCell>
+                <TableCell sx={{ width: '60%' }}>{t('organization')}</TableCell>
+                <TableCell>{t('role')}</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>

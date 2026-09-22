@@ -65,7 +65,7 @@ export default function EventListPage() {
   const getRowClassName = useRecentUpdateRowClassName('admin:event')
   // order matters here, need to use dependencies before this one
   const events = useAtomValue(adminUserFilteredEventsAtom)
-  const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
+  const options = useMemo(() => [{ id: '', name: t('all') }, ...orgs], [orgs, t])
   const newEvent = useAtomValue(adminNewEventAtom)
   const resetNewEvent = useResetAtom(adminNewEventAtom)
 
@@ -203,7 +203,7 @@ export default function EventListPage() {
                   size="small"
                   sx={{ flex: '1 1 200px' }}
                   options={options}
-                  label={'Yhdistys'}
+                  label={t('organization')}
                   getOptionLabel={(o) => o.name}
                   renderOption={(props, option) => {
                     return (
