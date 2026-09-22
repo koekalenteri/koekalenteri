@@ -5,6 +5,7 @@ import { render } from 'vitest-browser-react'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
 import { zonedStartOfDay } from '@/i18n/dates'
+import { describeInLanguage } from '@/test-utils/language'
 import EventStateStepper from './EventStateStepper'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -42,6 +43,20 @@ it('shows start number publishing as its own step after the start list', async (
 
   await expect.element(screen.getByText(/Julkaise starttinumerot/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-state-stepper')
+})
+
+// The guide's English page shows the steps in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('shows start number publishing as its own step after the start list', async () => {
+    const screen = await render(
+      <Frame>
+        <EventStateStepper event={event} />
+      </Frame>
+    )
+
+    await expect.element(screen.getByText(/Publish start numbers/)).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-state-stepper-en')
+  })
 })
 
 /**

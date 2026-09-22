@@ -4,6 +4,7 @@ import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
+import { describeInLanguage } from '../../test-utils/language'
 import { RegistrationDetails } from './RegistrationDetails'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -126,8 +127,9 @@ it('greys a working-order number in the preview and flags it beside a drawn one'
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-preview-number-pending')
 })
 
-it('publishes the result on its own line under the start list row', async () => {
-  const screen = await render(
+/** The row with its published result. */
+const renderResultRow = () =>
+  render(
     <Frame>
       <Table>
         <TableBody>
@@ -137,8 +139,22 @@ it('publishes the result on its own line under the start list row', async () => 
     </Frame>
   )
 
+it('publishes the result on its own line under the start list row', async () => {
+  const screen = await renderResultRow()
+
   await expect.element(screen.getByText('AVO1')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-result')
+})
+
+// The guide's English page shows the row in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('publishes the result on its own line under the start list row', async () => {
+    const screen = await renderResultRow()
+
+    await expect.element(screen.getByText('AVO1')).toBeVisible()
+    await expect.element(screen.getByText(/owner & handler/)).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-result-en')
+  })
 })
 
 it("carries a judge's stop beside the result, on the same line", async () => {

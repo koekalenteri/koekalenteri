@@ -1,4 +1,4 @@
-import type { CreatePaymentResponse, PublicConfirmedEvent } from '../types'
+import type { CreatePaymentResponse, Language, PublicConfirmedEvent } from '../types'
 import { Provider } from 'jotai'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
@@ -7,6 +7,7 @@ import { eventWithStaticDates } from '../__mockData__/events'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 // The "Takaisin" link's black/bold/underlined look is a global class, not a theme override.
 import '../index.css'
+import { describeInLanguage } from '../test-utils/language'
 import { PaymentPageWithData } from './PaymentPage'
 
 const PHONE = { height: 900, width: 390 }
@@ -57,7 +58,11 @@ const registration = {
   totalAmount: 50,
 }
 
-const renderAt = async ({ height, width }: { height: number; width: number }) => {
+/**
+ * The page at a screen's width. The payer sees the page in the language they entered in -- the page
+ * switches to the registration's language itself -- so that is where the language goes.
+ */
+const renderAt = async ({ height, width }: { height: number; width: number }, language: Language = 'fi') => {
   await page.viewport(width, height)
 
   return render(
@@ -67,7 +72,7 @@ const renderAt = async ({ height, width }: { height: number; width: number }) =>
           <PaymentPageWithData
             registrationId={registration.id}
             event={event as PublicConfirmedEvent}
-            registration={registration}
+            registration={{ ...registration, language }}
             response={response}
           />
         </MemoryRouter>
@@ -88,4 +93,15 @@ it('wraps the payment method groups on a phone', async () => {
 
   await expect.element(screen.getByRole('img', { name: 'Mastercard' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-methods-phone')
+})
+
+// The guide's English page shows the page in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('lays out the payment method groups on a desktop', async () => {
+    const screen = await renderAt(DESKTOP, 'en')
+
+    await expect.element(screen.getByText('Choose payment method')).toBeVisible()
+    await expect.element(screen.getByRole('img', { name: 'Mastercard' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-methods-desktop-en')
+  })
 })

@@ -183,9 +183,14 @@ const indexScreenshots = (dir = 'src', found = new Map()) => {
   return found
 }
 
-/** A shot with a language variant (`name-en`) shows that; the others show the Finnish reference. */
+/**
+ * A shot with a language variant (`name-en`) shows that; the others show the source language's
+ * reference, and say so, since a translation showing the original's picture is a page that reads
+ * one language and shows another (KOE-1437).
+ */
 const resolveShot = (ref, language, file, screenshots) => {
-  const found = screenshots.get(`${ref}-${language}`) ?? screenshots.get(ref)
+  const variant = screenshots.get(`${ref}-${language}`)
+  const found = variant ?? screenshots.get(ref)
   if (!found) {
     const known = [...screenshots.keys()].filter((key) => key.startsWith(`${ref.split('/')[0]}/`))
     throw new Error(
@@ -194,7 +199,7 @@ const resolveShot = (ref, language, file, screenshots) => {
     )
   }
 
-  return found
+  return { file: found, translated: language === SOURCE_LANGUAGE || Boolean(variant) }
 }
 
 /** `!shot[TestName/shot-name] Caption` on a line of its own. */
@@ -216,10 +221,12 @@ const splitShots = (body, language, file, screenshots) => {
     }
     parts.push({ markdown: markdown.join('\n') })
     markdown = []
+    const { file: shot, translated } = resolveShot(match[1], language, file, screenshots)
     parts.push({
       caption: resolveTranslations(match[2]?.trim() ?? '', language, file, { markdown: false }),
       ref: match[1],
-      shot: resolveShot(match[1], language, file, screenshots),
+      shot,
+      translated,
     })
   }
   parts.push({ markdown: markdown.join('\n') })
@@ -235,25 +242,40 @@ const processor = unified().use(remarkParse).use(remarkGfm).use(remarkHtml)
 const renderBody = async (body, language, file, screenshots) => {
   const html = []
   const shots = []
+  const untranslatedShots = []
   for (const part of splitShots(body, language, file, screenshots)) {
     if (part.shot) {
       html.push(part)
       shots.push(part.ref)
+      if (!part.translated) untranslatedShots.push(part.ref)
     } else if (part.markdown.trim()) {
       html.push(String(await processor.process(resolveTranslations(part.markdown, language, file))))
     }
   }
 
-  return { html, shots }
+  return { html, shots, untranslatedShots }
 }
 
 /** What every document shares: where it is, what it says, and what its translation was made from. */
 const readDocument = async (file, screenshots) => {
   const { language, path } = pageIdentity(file)
   const { body, data, frontmatterLines } = parseFrontmatter(readFileSync(file, 'utf8'), file)
-  const { html, shots } = await renderBody(body, language, file, screenshots)
+  const { html, shots, untranslatedShots } = await renderBody(body, language, file, screenshots)
 
-  return { body, data, file, frontmatterLines, html, language, path, shots, sourceDigest: digest(body), sourceHash: data.sourceHash }
+  return {
+    body,
+    data,
+    file,
+    frontmatterLines,
+    html,
+    language,
+    path,
+    shots,
+    sourceDigest: digest(body),
+    sourceHash: data.sourceHash,
+    /** The pictures this translation shows in the source language, for want of a `-<language>` variant. */
+    untranslatedShots,
+  }
 }
 
 const readPage = async (file, screenshots) => {

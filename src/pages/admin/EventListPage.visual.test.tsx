@@ -1,8 +1,6 @@
-import type { ConfirmedEvent } from '../../types'
+import type { ConfirmedEvent, Language } from '../../types'
 import { TZDate } from '@date-fns/tz'
-import { fiFI } from '@mui/material/locale'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { fiFI as gridFiFI } from '@mui/x-data-grid/locales'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
@@ -10,8 +8,10 @@ import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import theme from '../../assets/Theme'
+import { muiLocales } from '../../i18n'
 import { TIME_ZONE } from '../../i18n/dates'
 import { TestProvider } from '../../test-utils/AtomProvider'
+import { describeInLanguage } from '../../test-utils/language'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventListPage from './EventListPage'
@@ -27,8 +27,8 @@ vi.mock(import('../../api/user'), async (importOriginal) => ({
 const PHONE = { height: 844, width: 390 }
 const DESKTOP = { height: 800, width: 1200 }
 
-// The grid's own texts in Finnish, as App.tsx sets them; the app's locale bundle drags i18n init along.
-const finnishTheme = createTheme(theme, fiFI, gridFiFI)
+// The grid's own texts in the reader's language, as App.tsx sets them; the app's locale bundle drags i18n init along.
+const localizedTheme = (language: Language) => createTheme(theme, muiLocales[language])
 
 const day = (iso: string) => new TZDate(iso, TIME_ZONE)
 
@@ -67,7 +67,7 @@ const events = [
 ]
 
 /** The page as the admin layout shows it: a padded column the height of the screen. */
-const renderAt = async ({ height, width }: { height: number; width: number }) => {
+const renderAt = async ({ height, width }: { height: number; width: number }, language: Language = 'fi') => {
   await page.viewport(width, height)
 
   return render(
@@ -83,7 +83,7 @@ const renderAt = async ({ height, width }: { height: number; width: number }) =>
         width,
       }}
     >
-      <ThemeProvider theme={finnishTheme}>
+      <ThemeProvider theme={localizedTheme(language)}>
         <TestProvider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
@@ -117,4 +117,15 @@ it('lists the events on a phone', async () => {
 
   await expect.element(screen.getByText('Syyskoe')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-phone')
+})
+
+// The guide's English page shows the list in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('lists the events on a desktop', async () => {
+    const screen = await renderAt(DESKTOP, 'en')
+
+    await expect.element(screen.getByText('Syyskoe')).toBeVisible()
+    await expect.element(screen.getByText('Also show past events')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-desktop-en')
+  })
 })

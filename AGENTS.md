@@ -79,6 +79,10 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Name the relevant KOE issue keys in the commit message: on push, the `jira-screenshots` workflow
   attaches the changed linux baselines to those Jira issues, so the ticket always shows the current
   look of the components it covers.
+- A capture the guide shows (`!shot[Test/name]` under `docs/`) has an English twin, `name-en`, taken
+  by the same test inside a `describeInLanguage('en', …)` block (`src/test-utils/language.ts`); the
+  English guide shows that one, and `npm run check-docs` fails without it (KOE-1437). Pass the
+  language on to the frame's MUI and date-fns locales where the test sets them, as App.tsx does.
 
 ### A DOM dump is not an acceptable test
 

@@ -1,14 +1,14 @@
-import type { Judge } from '../../types'
-import { fiFI } from '@mui/material/locale'
+import type { Judge, Language } from '../../types'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { fiFI as gridFiFI } from '@mui/x-data-grid/locales'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
+import { muiLocales } from '../../i18n'
 import { TestProvider } from '../../test-utils/AtomProvider'
+import { describeInLanguage } from '../../test-utils/language'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import JudgeListPage from './JudgeListPage'
@@ -22,8 +22,8 @@ vi.mock(import('../../api/user'), async (importOriginal) => ({
 
 const DESKTOP = { height: 500, width: 1400 }
 
-// The grid's own texts in Finnish, as App.tsx sets them.
-const finnishTheme = createTheme(theme, fiFI, gridFiFI)
+// The grid's own texts in the reader's language, as App.tsx sets them.
+const localizedTheme = (language: Language) => createTheme(theme, muiLocales[language])
 
 const judge = (id: number, name: string, location: string, eventTypes: string[], mockTrial?: boolean): Judge => ({
   active: true,
@@ -46,10 +46,11 @@ const judges = [
   judge(4, 'Bertta B-tuomari', 'Lahti', ['NOME-B']),
 ]
 
-it('shows who judges a Mock trial on their own, and lets an admin name a NOWT judge (KOE-1357)', async () => {
+/** The page as the admin layout shows it: a padded column the height of the screen. */
+const renderList = async (language: Language = 'fi') => {
   await page.viewport(DESKTOP.width, DESKTOP.height)
 
-  const screen = await render(
+  return render(
     <div
       data-testid="visual-root"
       style={{
@@ -62,7 +63,7 @@ it('shows who judges a Mock trial on their own, and lets an admin name a NOWT ju
         width: DESKTOP.width,
       }}
     >
-      <ThemeProvider theme={finnishTheme}>
+      <ThemeProvider theme={localizedTheme(language)}>
         <TestProvider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
@@ -80,8 +81,23 @@ it('shows who judges a Mock trial on their own, and lets an admin name a NOWT ju
       </ThemeProvider>
     </div>
   )
+}
+
+it('shows who judges a Mock trial on their own, and lets an admin name a NOWT judge (KOE-1357)', async () => {
+  const screen = await renderList()
 
   await expect.element(screen.getByText('Mock trial')).toBeVisible()
   await expect.element(screen.getByText('Maija Mock-tuomari')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('judge-list-mock-trial')
+})
+
+// The guide's English page shows the list in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('shows who judges a Mock trial on their own', async () => {
+    const screen = await renderList('en')
+
+    await expect.element(screen.getByText('Maija Mock-tuomari')).toBeVisible()
+    await expect.element(screen.getByRole('columnheader', { name: 'Judging languages' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('judge-list-mock-trial-en')
+  })
 })

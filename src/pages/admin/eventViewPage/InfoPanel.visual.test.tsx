@@ -9,6 +9,7 @@ import { eventWithStations, registrationsToEventWithStations } from '@/__mockDat
 import theme from '@/assets/Theme'
 import { zonedStartOfDay } from '@/i18n/dates'
 import { TestProvider } from '@/test-utils/AtomProvider'
+import { describeInLanguage } from '@/test-utils/language'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { idTokenAtom } from '../../state'
 import InfoPanel from './InfoPanel'
@@ -41,8 +42,8 @@ const registrations: Registration[] = registrationsToEventWithStations.map((regi
 )
 
 // The drawer is as tall as the window, so the window has to be taller than the panel's content for
-// the capture to hold all of it.
-const openPanel = async () => {
+// the capture to hold all of it. The button that opens it is named in the reader's language.
+const openPanel = async (openButton = 'Avaa tapahtuman hallinta') => {
   await page.viewport(900, 1500)
 
   const screen = await render(
@@ -57,7 +58,7 @@ const openPanel = async () => {
     </ThemeProvider>
   )
 
-  await screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' }).click()
+  await screen.getByRole('button', { name: openButton }).click()
 
   return screen
 }
@@ -68,4 +69,14 @@ it('stacks the trial steps in the drawer, with no koetunnus above them', async (
   await expect.element(screen.getByText('Osallistujien valinta')).toBeVisible()
   await expect.element(screen.getByText('Koetunnus')).not.toBeInTheDocument()
   await expect(screen.getByTestId('info-panel')).toMatchScreenshot('info-panel')
+})
+
+// The guide's English page shows the panel in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('stacks the trial steps in the drawer', async () => {
+    const screen = await openPanel('Open event management')
+
+    await expect.element(screen.getByText('Participant selection')).toBeVisible()
+    await expect(screen.getByTestId('info-panel')).toMatchScreenshot('info-panel-en')
+  })
 })

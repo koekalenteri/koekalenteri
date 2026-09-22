@@ -1,4 +1,4 @@
-import type { ConfirmedEvent } from '../types'
+import type { ConfirmedEvent, Language } from '../types'
 import { TZDate } from '@date-fns/tz'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -17,6 +17,7 @@ import { TIME_ZONE } from '../i18n/dates'
 import '../index.css'
 import { TestProvider } from '../test-utils/AtomProvider'
 import { freezeClockAt } from '../test-utils/freezeClock'
+import { describeInLanguage } from '../test-utils/language'
 import { SearchPage } from './SearchPage'
 import { eventFilterAtom } from './state'
 
@@ -85,7 +86,11 @@ const fixedFilter = {
   withUpcomingEntry: false,
 }
 
-const renderAt = async ({ height, width }: { height: number; width: number }, initialEvents: ConfirmedEvent[]) => {
+const renderAt = async (
+  { height, width }: { height: number; width: number },
+  initialEvents: ConfirmedEvent[],
+  language: Language = 'fi'
+) => {
   // eventsAtom/eventMetadataAtom persist to the real browser's localStorage, which otherwise
   // leaks a previous test's fetch result (and its throttling metadata) into the next one.
   localStorage.clear()
@@ -95,7 +100,7 @@ const renderAt = async ({ height, width }: { height: number; width: number }, in
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width }}>
       <ThemeProvider theme={stillTheme}>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <TestProvider initializeState={({ set }) => set(eventFilterAtom, fixedFilter)}>
             <SnackbarProvider>
               <MemoryRouter>
@@ -148,4 +153,16 @@ it('shows the empty result on a phone', async () => {
 
   await expect.element(screen.getByText(/ei löytynyt tapahtumia/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('search-page-empty-phone')
+})
+
+// The guide's English page shows the list in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('shows the full event list on a desktop', async () => {
+    const screen = await renderAt(DESKTOP, events, 'en')
+
+    await expect.element(screen.getByText('Syyskoe')).toBeVisible()
+    await expect.element(screen.getByText('Talvikoe')).toBeVisible()
+    await expect.element(screen.getByText('Register', { exact: true }).first()).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('search-page-full-desktop-en')
+  })
 })

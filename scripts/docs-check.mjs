@@ -44,6 +44,21 @@ const { byLanguage, documents, notesByLanguage, pages } = loaded
 
 errors.push(...translationProblems(byLanguage), ...translationProblems(notesByLanguage))
 
+// ---- a translation shows its own language's pictures ------------------------------------------
+
+// The English guide showed the Finnish captures (KOE-1437): a page that reads in one language and
+// shows another. A translation's picture is the `-<language>` variant, taken by the same visual test
+// in that language; without one, the page would fall back to the original's picture, so it fails here.
+for (const document of [...pages, ...loaded.notes]) {
+  for (const ref of document.untranslatedShots) {
+    errors.push(
+      `${document.file}: shows the "${SOURCE_LANGUAGE}" picture "${ref}"; a "${document.language}" page shows ` +
+        `"${ref}-${document.language}", taken by the same visual test in "${document.language}" ` +
+        `(\`describeInLanguage\` from src/test-utils/language.ts).`
+    )
+  }
+}
+
 // ---- the generated module ---------------------------------------------------------------------
 
 if (!existsSync(OUT_FILE) || readFileSync(OUT_FILE, 'utf8') !== render(loaded)) {

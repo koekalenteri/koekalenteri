@@ -1,5 +1,6 @@
 import type { YearlyStatsResponse } from '@/api/stats'
 import { render } from 'vitest-browser-react'
+import { describeInLanguage } from '@/test-utils/language'
 import RetentionChart from './RetentionChart'
 import { ChartFrame } from './statsVisualFixtures'
 
@@ -11,10 +12,10 @@ const year = (year: number, retention?: { new: number; returning: number }): Yea
   ...(retention && { retention: { ...retention, year } }),
 })
 
-it('stacks returning and new pairs, skipping the year that has nothing to compare against', async () => {
-  // 2021 carries no retention record; drawing it would show every pair as new and overstate
-  // newcomers exactly once, at the left edge.
-  const screen = await render(
+// 2021 carries no retention record; drawing it would show every pair as new and overstate
+// newcomers exactly once, at the left edge.
+const renderStacked = () =>
+  render(
     <ChartFrame>
       <RetentionChart
         stats={[
@@ -28,8 +29,21 @@ it('stacks returning and new pairs, skipping the year that has nothing to compar
     </ChartFrame>
   )
 
+it('stacks returning and new pairs, skipping the year that has nothing to compare against', async () => {
+  const screen = await renderStacked()
+
   await expect.element(screen.getByText('Uudet ja palaavat koirakot')).toBeVisible()
   await expect(screen.getByTestId('chart-root')).toMatchScreenshot('retention')
+})
+
+// The guide's English page shows the chart in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('stacks returning and new pairs', async () => {
+    const screen = await renderStacked()
+
+    await expect.element(screen.getByText('New and returning dog+handler pairs')).toBeVisible()
+    await expect(screen.getByTestId('chart-root')).toMatchScreenshot('retention-en')
+  })
 })
 
 it('shows a placeholder when no year has retention data yet', async () => {

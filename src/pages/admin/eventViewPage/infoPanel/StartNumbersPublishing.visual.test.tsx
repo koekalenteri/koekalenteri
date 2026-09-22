@@ -5,6 +5,7 @@ import { render } from 'vitest-browser-react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
+import { describeInLanguage } from '@/test-utils/language'
 import StartNumbersPublishing from './StartNumbersPublishing'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -59,8 +60,8 @@ const twoDayEvent: ConfirmedEvent = {
   state: 'invited',
 }
 
-it('publishes a two-day class one day at a time', async () => {
-  const screen = await render(
+const renderTwoDay = () =>
+  render(
     <Frame>
       <StartNumbersPublishing
         event={twoDayEvent}
@@ -72,6 +73,9 @@ it('publishes a two-day class one day at a time', async () => {
       />
     </Frame>
   )
+
+it('publishes a two-day class one day at a time', async () => {
+  const screen = await renderTwoDay()
 
   await expect.element(screen.getByText('Piilota pe 4.9.')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-two-days')
@@ -99,8 +103,8 @@ const placed = (id: string, key: string, time: 'ap' | 'ip', number: number): Reg
   id,
 })
 
-it('publishes a day drawn in halves one half at a time', async () => {
-  const screen = await render(
+const renderHalfDay = () =>
+  render(
     <Frame>
       <StartNumbersPublishing
         event={halfDayEvent}
@@ -113,10 +117,32 @@ it('publishes a day drawn in halves one half at a time', async () => {
     </Frame>
   )
 
+it('publishes a day drawn in halves one half at a time', async () => {
+  const screen = await renderHalfDay()
+
   await expect.element(screen.getByText('Piilota aamupäivä')).toBeVisible()
   await expect.element(screen.getByText('Julkaise iltapäivä')).toBeVisible()
   // ALO's own button is gone; AVO, whose dogs are not placed here, keeps its one.
   await expect.element(screen.getByText('Julkaise starttinumerot')).toBeVisible()
   await expect.element(screen.getByText('Julkaistu: la 5.9. (ap)')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-half-day')
+})
+
+// The guide's English page shows both sections in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('publishes a two-day class one day at a time', async () => {
+    const screen = await renderTwoDay()
+
+    await expect.element(screen.getByText('Hide Fri 4.9.')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-two-days-en')
+  })
+
+  it('publishes a day drawn in halves one half at a time', async () => {
+    const screen = await renderHalfDay()
+
+    await expect.element(screen.getByText('Hide morning')).toBeVisible()
+    await expect.element(screen.getByText('Publish afternoon')).toBeVisible()
+    await expect.element(screen.getByText('Publish start numbers')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-half-day-en')
+  })
 })

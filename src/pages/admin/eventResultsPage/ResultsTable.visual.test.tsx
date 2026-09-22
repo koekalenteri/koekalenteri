@@ -5,6 +5,7 @@ import { render } from 'vitest-browser-react'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
 import { classRound } from '@/lib/results'
+import { describeInLanguage } from '@/test-utils/language'
 import ResultsTable from './ResultsTable'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -56,53 +57,51 @@ const nouEdits: Record<string, ResultEdit> = {
   'run-2': { judge: nouJudges[0], resultCode: '0', retirement: { cause: 'judgeStopped' }, tasks: [] },
 }
 
-it('shows a working test round as the secretary scores it', async () => {
-  const edits = nowtEdits
+/** The working test round's sheet, as a table or as the phone's cards. */
+const nowtTable = (compact = false) => (
+  <ResultsTable
+    compact={compact}
+    defaultJudges={{}}
+    edits={nowtEdits}
+    eventClass="ALO"
+    eventType="NOWT"
+    fullRound={round}
+    judgesFor={() => [judge]}
+    onChange={noop}
+    onJudgeChange={noop}
+    registrations={runners}
+    round={round}
+    stations={eventWithStations.stations ?? []}
+  />
+)
 
-  const screen = await render(
-    <Frame>
-      <ResultsTable
-        defaultJudges={{}}
-        edits={edits}
-        eventClass="ALO"
-        eventType="NOWT"
-        fullRound={round}
-        judgesFor={() => [judge]}
-        onChange={noop}
-        onJudgeChange={noop}
-        registrations={runners}
-        round={round}
-        stations={eventWithStations.stations ?? []}
-      />
-    </Frame>
-  )
+/** The pass/fail round's sheet, as a table or as the phone's cards. */
+const nouTable = (compact = false) => (
+  <ResultsTable
+    compact={compact}
+    defaultJudges={{}}
+    edits={nouEdits}
+    eventType="NOU"
+    fullRound={[]}
+    judges={nouJudges}
+    judgesFor={() => []}
+    onChange={noop}
+    onJudgeChange={noop}
+    registrations={nouRegistrations}
+    round={[]}
+    stations={[]}
+  />
+)
+
+it('shows a working test round as the secretary scores it', async () => {
+  const screen = await render(<Frame>{nowtTable()}</Frame>)
 
   await expect.element(screen.getByText('ALO1')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt')
 })
 
 it('shows a pass/fail round with the result and the judge as the entry', async () => {
-  const edits = nouEdits
-  const judges = nouJudges
-  const registrations = nouRegistrations
-
-  const screen = await render(
-    <Frame>
-      <ResultsTable
-        defaultJudges={{}}
-        edits={edits}
-        eventType="NOU"
-        fullRound={[]}
-        judges={judges}
-        judgesFor={() => []}
-        onChange={noop}
-        onJudgeChange={noop}
-        registrations={registrations}
-        round={[]}
-        stations={[]}
-      />
-    </Frame>
-  )
+  const screen = await render(<Frame>{nouTable()}</Frame>)
 
   await expect.element(screen.getByText('NOU1')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nou')
@@ -110,49 +109,34 @@ it('shows a pass/fail round with the result and the judge as the entry', async (
 
 // The same two rounds on a phone (KOE-1280): one card per dog, the controls under the name.
 it('stacks a test round one dog under another on a phone', async () => {
-  const screen = await render(
-    <Frame width={PHONE}>
-      <ResultsTable
-        compact
-        defaultJudges={{}}
-        edits={nowtEdits}
-        eventClass="ALO"
-        eventType="NOWT"
-        fullRound={round}
-        judgesFor={() => [judge]}
-        onChange={noop}
-        onJudgeChange={noop}
-        registrations={runners}
-        round={round}
-        stations={eventWithStations.stations ?? []}
-      />
-    </Frame>
-  )
+  const screen = await render(<Frame width={PHONE}>{nowtTable(true)}</Frame>)
 
   await expect.element(screen.getByText('ALO1')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-phone')
 })
 
 it('stacks a pass/fail round one dog under another on a phone', async () => {
-  const screen = await render(
-    <Frame width={PHONE}>
-      <ResultsTable
-        compact
-        defaultJudges={{}}
-        edits={nouEdits}
-        eventType="NOU"
-        fullRound={[]}
-        judges={nouJudges}
-        judgesFor={() => []}
-        onChange={noop}
-        onJudgeChange={noop}
-        registrations={nouRegistrations}
-        round={[]}
-        stations={[]}
-      />
-    </Frame>
-  )
+  const screen = await render(<Frame width={PHONE}>{nouTable(true)}</Frame>)
 
   await expect.element(screen.getByText('NOU1')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nou-phone')
+})
+
+// The guide's English page shows both sheets in English (KOE-1437).
+describeInLanguage('en', () => {
+  it('shows a working test round as the secretary scores it', async () => {
+    const screen = await render(<Frame>{nowtTable()}</Frame>)
+
+    await expect.element(screen.getByText('ALO1')).toBeVisible()
+    await expect.element(screen.getByRole('columnheader', { name: 'Dog' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-en')
+  })
+
+  it('shows a pass/fail round with the result and the judge as the entry', async () => {
+    const screen = await render(<Frame>{nouTable()}</Frame>)
+
+    await expect.element(screen.getByText('NOU1')).toBeVisible()
+    await expect.element(screen.getByRole('columnheader', { name: 'Dog' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nou-en')
+  })
 })
