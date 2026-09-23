@@ -101,6 +101,34 @@ it('offers the overpaid part first', async () => {
   await expect(screen.getByRole('dialog')).toMatchScreenshot('refund-dialog-excess')
 })
 
+// The 23 over came as a second payment (KOE-1382): with two payments the dialog picks the one the
+// excess comes out of, so the refund reads its amount and the button is live without a click.
+it('picks the payment the overpaid part comes out of', async () => {
+  mockTransactions.current = [
+    { ...payment, amount: 10000 },
+    { ...payment, amount: 2300, createdAt: new Date('2026-01-02T12:00:00Z'), transactionId: 'payment-456' },
+  ]
+  const screen = await render(
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+        <SnackbarProvider>
+          <ConfirmProvider>
+            <RefundDialog
+              event={{ ...eventWithStaticDates, cost: 100, costMember: 100 }}
+              open
+              registration={{ ...registrationWithStaticDates, group: { key: '2021-02-10-ap', number: 1 } }}
+            />
+          </ConfirmProvider>
+        </SnackbarProvider>
+      </LocalizationProvider>
+    </ThemeProvider>
+  )
+
+  await expect.element(screen.getByText('Palauta liikaa maksettu osuus 23,00 €')).toBeVisible()
+  await expect.element(screen.getByRole('button', { name: 'Palauta' })).toBeEnabled()
+  await expect(screen.getByRole('dialog')).toMatchScreenshot('refund-dialog-excess-two-payments')
+})
+
 // The same participant keeps the place but the secretary returns only a part of the payment
 // (KOE-1102): the part kept back goes in the handling fee, and the text under the table says so.
 it('explains a partial refund as the part kept back in the handling fee', async () => {

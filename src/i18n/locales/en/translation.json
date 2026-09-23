@@ -870,6 +870,7 @@
         "bankReference": "Paytrail reference",
         "provider": "Payment method",
         "reference": "Koekalenteri reference",
+        "select": "Selection",
         "status": "Status",
         "statusAt": "Timestamp",
         "type": "Type"

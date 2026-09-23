@@ -1,10 +1,12 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { Transaction } from '@/types'
+import { GRID_CHECKBOX_SELECTION_COL_DEF } from '@mui/x-data-grid'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '@/i18n/dates'
 import { formatMoney } from '@/lib/money'
 import { getProviderName } from '@/lib/payment'
+import { SCREEN_READER_ONLY } from '@/pages/components/screenReaderOnly'
 
 /*
 "bankReference": "7062825129",
@@ -24,6 +26,12 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
 
   return useMemo<GridColDef<Transaction>[]>(
     () => [
+      // One payment is refunded at a time, so the header's select-all box has nothing to do; with
+      // two payments it sat half-checked, which axe flags as a checkbox contradicting its state.
+      {
+        ...GRID_CHECKBOX_SELECTION_COL_DEF,
+        renderHeader: () => <span style={SCREEN_READER_ONLY}>{t('registration.refundDialog.columns.select')}</span>,
+      },
       {
         field: 'createdAt',
         headerName: t('registration.refundDialog.columns.statusAt'),
