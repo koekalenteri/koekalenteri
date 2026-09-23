@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
-import type { MinimalEventForCost, MinimalRegistrationForCost } from '../../types'
+import type { MinimalEventForCost, MinimalRegistrationForCost, Registration } from '../../types'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
-import { getCostSegmentName, hasDifferentMemberPrice } from '../../lib/cost'
+import { getCostSegmentName, getNetPaidAmount, hasDifferentMemberPrice } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
 import { getRegistrationPaymentDetails } from '../../lib/payment'
 import { languageAtom } from '../state'
@@ -15,7 +15,7 @@ import InfoTableTextGrid from './InfoTableTextGrid'
 
 interface Props {
   readonly event: MinimalEventForCost
-  readonly registration: MinimalRegistrationForCost
+  readonly registration: MinimalRegistrationForCost & Partial<Pick<Registration, 'refundAmount'>>
   readonly includePayable?: boolean
   readonly includeTotal?: boolean
 }
@@ -48,6 +48,7 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
   const details = getRegistrationPaymentDetails(event, registration)
   const costSegmentName = getCostSegmentName(details.strategy)
   const paidAmount = registration.paidAmount ?? 0
+  const refundAmount = registration.refundAmount ?? 0
 
   // Only show "for members" when the member price actually differs from base price. It says that
   // about the participation fee alone: an optional service has no member price of its own to compare.
@@ -83,8 +84,11 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
         ) : null}
         {includeTotal ? <PaymentRow name={t('costTotal')} amount={details.total} /> : null}
         {paidAmount > 0 ? <PaymentRow name={t('registration.paid')} amount={paidAmount} /> : null}
+        {/* A refund, the overpaid part or the whole fee, is money back: without its row the entrant
+            reads the full payment as still standing (KOE-1460). */}
+        {refundAmount > 0 ? <PaymentRow name={t('registration.refunded')} amount={-refundAmount} /> : null}
         {includePayable ? (
-          <PaymentRow bold name={t('registration.toBePaid')} amount={details.total - paidAmount} />
+          <PaymentRow bold name={t('registration.toBePaid')} amount={details.total - getNetPaidAmount(registration)} />
         ) : null}
       </InfoTableContainerGrid>
     </Box>

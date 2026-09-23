@@ -71,3 +71,22 @@ it('shows what is still payable after a partial payment', async () => {
   await expect.element(screen.getByText('Maksettava')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-details-payable-phone')
 })
+
+it('shows a refund beside the payment it came out of', async () => {
+  // KOE-1460: the overpaid part was returned, and without its row the full payment read as standing.
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
+      <Frame width={PHONE}>
+        <PaymentDetails
+          event={event}
+          registration={{ ...registration, paidAmount: 70, refundAmount: 15 }}
+          includeTotal
+          includePayable
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Palautettu')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-details-refunded-phone')
+})

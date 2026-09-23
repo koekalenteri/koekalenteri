@@ -73,6 +73,21 @@ describe('PaymentDetails', () => {
     expect(screen.getByText('15,00 €')).toBeInTheDocument()
   })
 
+  it('takes a refund off what was paid (KOE-1460)', () => {
+    // 45 € paid for a 35 € fee, the 10 € paid over has been returned: nothing is owed or owing.
+    setup({
+      includePayable: true,
+      includeTotal: true,
+      registration: { ...registration, optionalCosts: [], paidAmount: 45, refundAmount: 10 },
+    })
+
+    expect(screen.getByText('registration.paid')).toBeInTheDocument()
+    expect(screen.getByText('45,00 €')).toBeInTheDocument()
+    expect(screen.getByText('registration.refunded')).toBeInTheDocument()
+    expect(screen.getByText('−10,00 €')).toBeInTheDocument()
+    expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent('0,00 €')
+  })
+
   it('says nothing about payments that have not been made', () => {
     setup()
 

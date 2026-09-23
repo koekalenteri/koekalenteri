@@ -904,6 +904,7 @@
       },
       "wholePayment": "Refund the selected payment, a handling fee may be deducted"
     },
+    "refunded": "Refunded",
     "registeredDogs": "Registered dogs",
     "reserve": "I can accept a place from the reserve list",
     "reserveChoises": {
