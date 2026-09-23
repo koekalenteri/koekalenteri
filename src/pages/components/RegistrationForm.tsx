@@ -23,7 +23,7 @@ import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { loadKnownTlds } from '../../lib/client/tlds'
-import { calculateCost } from '../../lib/cost'
+import { calculateCost, getNetPaidAmount } from '../../lib/cost'
 import { getDiffOperations } from '../../lib/diff'
 import { isDevEnv } from '../../lib/env'
 import { formatMoney } from '../../lib/money'
@@ -467,7 +467,7 @@ export default function RegistrationForm({
               ? 'registration.paymentToBePaidAfterConfirmation'
               : 'registration.paymentToBePaid',
             {
-              amount: formatMoney(paymentAmount - (registration.paidAmount ?? 0)),
+              amount: formatMoney(paymentAmount - getNetPaidAmount(registration)),
             }
           )}
         </Typography>

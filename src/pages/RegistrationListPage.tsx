@@ -10,7 +10,7 @@ import { useLocation, useNavigate, useParams } from 'react-router'
 import { useRegistrationSubscription } from '../hooks/useRegistrationSubscription'
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
-import { calculateCost } from '../lib/cost'
+import { calculateCost, getNetPaidAmount } from '../lib/cost'
 import { getEventStateForClass } from '../lib/event'
 import { getRegistrationClass, getRegistrationEmails } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
@@ -67,7 +67,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     [allDisabled, event]
   )
   const costResult = event && registration && calculateCost(event, registration)
-  const payable = registration?.cancelled ? 0 : (costResult?.amount ?? 0) - (registration?.paidAmount ?? 0)
+  const payable =
+    registration?.cancelled || !registration ? 0 : (costResult?.amount ?? 0) - getNetPaidAmount(registration)
 
   const handleCancel = useCallback(
     (reason: string) => {
@@ -206,7 +207,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     // it and its backdrop would swallow the confirm button (KOE-1265). It opens once confirmed.
     if (confirm && !registration.confirmed) return
 
-    if ((registration.paidAmount ?? 0) < (costResult?.amount ?? 0) && registration.messagesSent?.picked) {
+    if (getNetPaidAmount(registration) < (costResult?.amount ?? 0) && registration.messagesSent?.picked) {
       setPaymentOpen((current) => current ?? true)
     }
   }, [confirm, event, registration, costResult])

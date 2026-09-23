@@ -904,6 +904,7 @@
       },
       "wholePayment": "Palauta valittu maksu, käsittelykulun voi vähentää"
     },
+    "refunded": "Palautettu",
     "registeredDogs": "Ilmoitetut koirat",
     "reserve": "Pystyn ottamaan koepaikan vastaan varasijalta",
     "reserveChoises": {
