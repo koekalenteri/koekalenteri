@@ -126,7 +126,7 @@
     "@babel/preset-typescript": "^7.29.7",
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "^2.5.14",
-    "@commitlint/cli": "^21.2.2",
+    "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.0.2",
     "@emnapi/core": "1.11.3",
     "@emnapi/runtime": "1.11.3",
