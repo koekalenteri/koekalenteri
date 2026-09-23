@@ -13,7 +13,7 @@ covers:
   - src/lambda/lib/payment.ts
   - src/lambda/PaymentCreateFunction/**
   - src/lambda/RefundCreateFunction/**
-sourceHash: 6a03da
+sourceHash: e2d55f
 ---
 
 Koekalenteri is a web shop: the entrant pays the entry fee in the calendar, and the money goes
@@ -58,7 +58,8 @@ answered.
 
 A payment can be refunded for an entry that keeps its place too, when more was paid than the entry
 now costs: the secretary has removed an extra service, say, or corrected the fee to the member
-price. The dialog then offers to refund the overpaid part first, without a handling fee. For any
+price. The dialog then offers to refund the overpaid part first, without a handling fee. With
+several payments, it selects the latest one the part can be returned from. For any
 other amount, choose *{t:registration.refundDialog.wholePayment}* and enter the part to keep in the
 *{t:registration.refundDialog.handlingCost}* field; the *{t:registration.refundDialog.refundTotal}*
 line shows what goes back.

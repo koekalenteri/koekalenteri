@@ -58,6 +58,7 @@ sähköpostilla, ja palautus näkyy keskeneräisenä, kunnes ilmoittautuja on va
 Maksun voi palauttaa myös ilmoittautumiselle, jolla on koepaikka, jos siitä on maksettu liikaa:
 koesihteeri on esimerkiksi poistanut lisäpalvelun tai korjannut osallistumismaksun jäsenhintaan.
 Ikkuna tarjoaa silloin ensin liikaa maksetun osuuden palautusta ilman käsittelykulua. Jos
+maksuja on useampi, ikkuna valitsee valmiiksi viimeisimmän maksun, josta osuus voidaan palauttaa. Jos
 palautettava summa on jokin muu, valitse *{t:registration.refundDialog.wholePayment}* ja syötä
 pidätettävä osuus *{t:registration.refundDialog.handlingCost}*-kenttään;
 *{t:registration.refundDialog.refundTotal}*-rivi näyttää palautettavan summan.
