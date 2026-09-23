@@ -68,6 +68,15 @@ const defaultHandlingCost = (registration: Registration) =>
     : 0
 const defaultRefundMode = (excessAvailable: boolean): RefundMode => (excessAvailable ? 'excess' : 'payment')
 
+/**
+ * The payment the overpaid part is returned from, when there are several (KOE-1382): the latest one
+ * that covers it, as the overpayment is most often the last payment made, else the largest.
+ */
+const paymentForExcess = (payments: Transaction[], excessCents: number): Transaction | undefined => {
+  const latestFirst = [...payments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  return latestFirst.find((t) => t.amount >= excessCents) ?? [...payments].sort((a, b) => b.amount - a.amount)[0]
+}
+
 export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
@@ -139,8 +148,13 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
       if (!payment.items && handlingCost) {
         setHandlingCost(0)
       }
+    } else if (excessOnly && payments.length > 1) {
+      // With nothing selected the excess refund reads "-" and its button stays disabled, and
+      // nothing on the dialog says a row has to be picked first. A row the secretary picked stays.
+      const payment = paymentForExcess(payments, excessCents)
+      if (payment) setSelection((current) => (current?.ids.size ? current : rowSelectionModel([payment.transactionId])))
     }
-  }, [handlingCost, okTransactions])
+  }, [excessCents, excessOnly, handlingCost, okTransactions])
 
   useEffect(() => {
     setInternalNotes(registration.internalNotes ?? '')

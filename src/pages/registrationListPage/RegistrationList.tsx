@@ -20,6 +20,7 @@ import { IconsTooltip, TooltipIcon } from '../components/IconsTooltip'
 import { PaymentIcon } from '../components/icons/PaymentIcon'
 import { PriorityIcon } from '../components/icons/PriorityIcon'
 import StyledDataGrid from '../components/StyledDataGrid'
+import { SCREEN_READER_ONLY } from '../components/screenReaderOnly'
 
 type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
 
@@ -29,22 +30,6 @@ type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
  */
 const paymentDue = (event: PublicDogEvent, registration: StrippedRegistration): number =>
   isConfirmedEvent(event) ? getPaymentBalance(event, registration).due : 0
-
-/**
- * A column of icons still needs a name a screen reader can read out; the design has no room to show
- * one, so the header carries it out of sight.
- */
-const headerLabelSx = {
-  border: 0,
-  clip: 'rect(0 0 0 0)',
-  height: '1px',
-  margin: -1,
-  overflow: 'hidden',
-  padding: 0,
-  position: 'absolute',
-  whiteSpace: 'nowrap',
-  width: '1px',
-} as const
 
 interface Props {
   readonly disabled?: boolean
@@ -153,7 +138,7 @@ export default function RegistrationList({
       headerName: '',
       renderCell: (params) => <RegistrationListItemIcons event={event} registration={params.row} />,
       renderHeader: () => (
-        <Box component="span" sx={headerLabelSx}>
+        <Box component="span" sx={SCREEN_READER_ONLY}>
           {t('registration.stateAndPayment')}
         </Box>
       ),
@@ -219,7 +204,7 @@ export default function RegistrationList({
         return always
       },
       renderHeader: () => (
-        <Box component="span" sx={headerLabelSx}>
+        <Box component="span" sx={SCREEN_READER_ONLY}>
           {t('actions')}
         </Box>
       ),

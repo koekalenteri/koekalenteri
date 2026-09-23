@@ -870,6 +870,7 @@
         "bankReference": "Paytrailin viite",
         "provider": "Maksutapa",
         "reference": "Koekalenterin viite",
+        "select": "Valinta",
         "status": "Tila",
         "statusAt": "Aikaleima",
         "type": "Tyyppi"

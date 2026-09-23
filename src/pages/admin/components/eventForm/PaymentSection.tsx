@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import type { ValidationError } from '@/i18n/validation'
 import type { BreedCode } from '@/types'
 import type { DogEventCost, DogEventCostKey } from '@/types/Cost'
@@ -23,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { DOG_EVENT_COST_KEYS, setCostValue } from '@/lib/cost'
 import { keysOf } from '@/lib/typeGuards'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
+import { SCREEN_READER_ONLY } from '../../../components/screenReaderOnly'
 import { AddCostDialog } from './paymentSection/AddCostDialog'
 import { CostRow } from './paymentSection/CostRow'
 import { EditCostDescriptionDialog } from './paymentSection/EditCostDescriptionDialog'
@@ -119,18 +119,6 @@ function CostTableSection({
 
 interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: PaymentEvent
-}
-
-/** Text for a screen reader that takes up no room on screen; the standard clip rectangle. */
-const SCREEN_READER_ONLY: CSSProperties = {
-  border: 0,
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  padding: 0,
-  position: 'absolute',
-  whiteSpace: 'nowrap',
-  width: 1,
 }
 
 function PaymentSection({

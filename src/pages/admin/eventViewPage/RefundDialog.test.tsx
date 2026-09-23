@@ -516,6 +516,50 @@ describe('RefundDialog', () => {
       })
     })
 
+    it('picks the payment the overpaid part comes out of when there are several', async () => {
+      // 100 € first, then a 23 € top-up that turned out not to be owed: the top-up covers the excess.
+      mockTransactions = [
+        { ...defaultMockTransactions[0], amount: 10000 },
+        {
+          ...defaultMockTransactions[0],
+          amount: 2300,
+          createdAt: new Date('2024-01-02T12:00:00Z'),
+          transactionId: 'payment-456',
+        },
+      ]
+      mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
+      render(<RefundDialog event={cheaperEvent} registration={participant} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(screen.getByRole('radio', { name: /registration.refundDialog.excessOnly/ })).toBeChecked()
+      expect(screen.getByText('registration.refundDialog.excessText')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByText('refund'))
+      await waitFor(() => {
+        expect(mockRefundImplementation).toHaveBeenCalledWith(participant, 'payment-456', 2300, 0)
+      })
+    })
+
+    it('returns the excess from the larger payment when the latest does not cover it', async () => {
+      mockTransactions = [
+        { ...defaultMockTransactions[0], amount: 11000 },
+        {
+          ...defaultMockTransactions[0],
+          amount: 1300,
+          createdAt: new Date('2024-01-02T12:00:00Z'),
+          transactionId: 'payment-456',
+        },
+      ]
+      mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
+      render(<RefundDialog event={cheaperEvent} registration={participant} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      fireEvent.click(screen.getByText('refund'))
+      await waitFor(() => {
+        expect(mockRefundImplementation).toHaveBeenCalledWith(participant, 'payment-123', 2300, 0)
+      })
+    })
+
     it('leaves a cancelled entry to the ordinary refund', async () => {
       render(
         <RefundDialog
