@@ -695,7 +695,9 @@ export const getRegistrationEmailTemplateData = (
 
   // Group information. Use previous group when provided.
   const group = previousGroup ?? registration.group
-  const groupDate = group?.date ? t('dateFormat.wdshort', { date: group.date }) : ''
+  // A dog not placed on a day yet (a reserve, or before the selection) has no group date: the
+  // dates it entered for stand in, so a template's date line is never blank (KOE-1458).
+  const groupDate = group?.date ? t('dateFormat.wdshort', { date: group.date }) : regDates
   const groupTime = group?.time ? t(`registration.timeLong.${group.time}`) : ''
   const groupNumber = group?.number ?? '?'
 
