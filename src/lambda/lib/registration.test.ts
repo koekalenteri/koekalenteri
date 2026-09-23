@@ -303,7 +303,7 @@ describe('registration', () => {
     it('names a registration email by what it tells, not by its template (KOE-1455)', () => {
       expect(getLastEmailName('registration', 'cancel')).toBe('Ilmoittautumisesi on peruttu')
       expect(getLastEmailName('registration', 'update')).toBe('Ilmoittautumisesi tietoja on muokattu')
-      expect(getLastEmailName('registration', '')).toBe('Vahvistusviesti')
+      expect(getLastEmailName('registration', '')).toBe('Ilmoittautumisen vahvistus')
     })
 
     it('names any other email by its template', () => {

@@ -1,5 +1,4 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
-import type { ParseKeys } from 'i18next'
 import type { AuditActor } from '../../lib/audit'
 import type {
   EmailTemplateId,
@@ -429,22 +428,14 @@ export const getLastEmailInfo = (
 }
 
 /**
- * What a registration email says, by its context: one template sends the confirmation, the change
- * and the cancellation alike, so the template's own name would call a cancellation a confirmation.
+ * The name of a message sent. One template sends the confirmation, the change and the cancellation
+ * alike, so a registration email goes by its subject for the context, as the email itself does; the
+ * template's own name would call a cancellation a confirmation (KOE-1455).
  */
-const registrationEmailNames: Partial<Record<RegistrationTemplateContext, ParseKeys>> = {
-  cancel: 'registration.email.subject_cancel',
-  confirm: 'registration.email.subject_confirm',
-  invitation: 'registration.email.subject_invitation',
-  receipt: 'registration.email.subject_receipt',
-  update: 'registration.email.subject_update',
-}
-
 // exported for testing
 export const getLastEmailName = (template: EmailTemplateId, context: RegistrationTemplateContext): string => {
   const t = getFixedT('fi')
-  const contextName = template === 'registration' ? registrationEmailNames[context] : undefined
-  return contextName ? t(contextName) : t(`emailTemplate.${template}`)
+  return template === 'registration' ? t('registration.email.subject', { context }) : t(`emailTemplate.${template}`)
 }
 
 /**
