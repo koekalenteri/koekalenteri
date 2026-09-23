@@ -224,7 +224,7 @@ describe('refundSuccessLambda', () => {
       ['payer@example.com'],
       expect.objectContaining({
         amount: '10,00\u00A0€',
-        handlingCost: '10,00\u00A0€',
+        handlingCost: '5,00\u00A0€',
         paidAmount: '20,00\u00A0€',
         providerName: 'Paytrail',
         refundAmount: 10,
@@ -250,6 +250,24 @@ describe('refundSuccessLambda', () => {
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
+  it('tells a partial refund without a handling fee as one without a fee (KOE-1459)', async () => {
+    mockDynamoRead.mockResolvedValueOnce({ ...mockTransaction, amount: 400, handlingCost: 0 })
+    const partialEvent = constructPartialAPIGwEvent({
+      queryStringParameters: { ...event.queryStringParameters, 'checkout-amount': '400' },
+    })
+
+    await refundSuccessLambda(partialEvent)
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'refund',
+      'fi',
+      expect.any(String),
+      ['payer@example.com'],
+      expect.objectContaining({ amount: '4,00\u00A0€', handlingCost: '0,00\u00A0€', paidAmount: '20,00\u00A0€' }),
+      expect.any(Array)
+    )
   })
 
   it('handles failed email sending gracefully', async () => {

@@ -121,7 +121,9 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
         ...changes,
         amount: formatMoney(amount),
         createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-        handlingCost: formatMoney(Math.max(0, (registration.paidAmount ?? 0) - amount)),
+        // The fee this refund kept, as the secretary set it: what was paid less what went back is
+        // not it, since a partial refund leaves the rest of the payment standing (KOE-1459).
+        handlingCost: formatMoney(handlingCost),
         paidAmount: formatMoney(registration.paidAmount ?? 0),
         providerName,
         refundAt: t('dateFormat.long', { date: registration.refundAt }),
