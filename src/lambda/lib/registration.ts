@@ -1,4 +1,5 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
+import type { ParseKeys } from 'i18next'
 import type { AuditActor } from '../../lib/audit'
 import type {
   EmailTemplateId,
@@ -427,6 +428,40 @@ export const getLastEmailInfo = (
   return `${templateName} ${date}`
 }
 
+/**
+ * What a registration email says, by its context: one template sends the confirmation, the change
+ * and the cancellation alike, so the template's own name would call a cancellation a confirmation.
+ */
+const registrationEmailNames: Partial<Record<RegistrationTemplateContext, ParseKeys>> = {
+  cancel: 'registration.email.subject_cancel',
+  confirm: 'registration.email.subject_confirm',
+  invitation: 'registration.email.subject_invitation',
+  receipt: 'registration.email.subject_receipt',
+  update: 'registration.email.subject_update',
+}
+
+// exported for testing
+export const getLastEmailName = (template: EmailTemplateId, context: RegistrationTemplateContext): string => {
+  const t = getFixedT('fi')
+  const contextName = template === 'registration' ? registrationEmailNames[context] : undefined
+  return contextName ? t(contextName) : t(`emailTemplate.${template}`)
+}
+
+/**
+ * Records the message just sent as the registration's last one, the participant list's message
+ * column (KOE-1455), and returns it for the caller to broadcast. The registration is left as it is.
+ */
+export const recordLastEmail = async (
+  registration: JsonRegistration,
+  template: EmailTemplateId,
+  context: RegistrationTemplateContext
+): Promise<string> => {
+  const date = formatDate(new Date(), 'd.M.yyyy HH:mm')
+  const lastEmail = getLastEmailInfo(template, getLastEmailName(template, context), registration, date)
+  await updateRegistrationField(registration.eventId, registration.id, 'lastEmail', lastEmail)
+  return lastEmail
+}
+
 export const sendTemplatedEmailToEventRegistrations = async (
   template: EmailTemplateId,
   confirmedEvent: JsonConfirmedEvent,
@@ -462,7 +497,10 @@ export const sendTemplatedEmailToEventRegistrations = async (
         message: `Email: ${auditSubject}, to: ${to.join(', ')}`,
         ...auditUser(user),
       })
-      await setLastEmail(registration, getLastEmailInfo(template, templateName, registration, lastEmailDate))
+      await setLastEmail(
+        registration,
+        getLastEmailInfo(template, getLastEmailName(template, context), registration, lastEmailDate)
+      )
 
       // Update the messagesSent property to track that this template has been sent
       const messagesSent = registration.messagesSent || {}

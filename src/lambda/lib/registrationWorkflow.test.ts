@@ -51,6 +51,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const mockClaimNewRegistrationPostProcessing = vi.fn()
 const mockMarkNewRegistrationPhase = vi.fn()
 const mockClearRegistrationEmailDeliveryStatus = vi.fn()
+const mockRecordLastEmail = vi.fn(async () => 'last-email')
 const libRegistration = await import('./registration')
 vi.doMock('./registration', () => ({
   ...libRegistration,
@@ -58,6 +59,7 @@ vi.doMock('./registration', () => ({
   clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
   getRegistrationEditToken: async () => 'edit-token',
   markNewRegistrationPhase: mockMarkNewRegistrationPhase,
+  recordLastEmail: mockRecordLastEmail,
 }))
 
 const {
@@ -440,6 +442,19 @@ describe('registrationWorkflow', () => {
         expect.any(String),
         ['secretary@example.com'],
         expect.anything()
+      )
+    })
+
+    it("names the cancellation in the participant list's message column (KOE-1455)", async () => {
+      const saved = { ...registration, cancelled: true, cancelReason: 'dog-heat' }
+
+      await finalize(saved, registration, { cancel: true, confirm: false, invitation: false })
+
+      expect(mockRecordLastEmail).toHaveBeenCalledWith(saved, 'registration', 'cancel')
+      expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+        saved.eventId,
+        [{ eventId: saved.eventId, id: saved.id, lastEmail: 'last-email' }],
+        expect.any(String)
       )
     })
 
