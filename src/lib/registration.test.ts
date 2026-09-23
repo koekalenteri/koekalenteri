@@ -900,6 +900,43 @@ describe('lib/registration', () => {
       expect(result.groupNumber).toBe(5)
     })
 
+    it('should give the entered dates as the group date of a dog not placed on a day (KOE-1458)', () => {
+      const echo = ((key: string, options?: { date?: string }) =>
+        options?.date ? `${key}:${options.date}` : key) as unknown as TFunction
+      const registration = asJsonRegistration({
+        dates: [{ date: '2024-08-01', time: 'ap' }, { date: '2024-08-02' }],
+        dog: {},
+        eventId: 'event1',
+        group: { key: 'reserve', number: 1 },
+        id: 'reg1',
+        qualifyingResults: [],
+      })
+      const confirmedEvent = asJsonEvent({ endDate: '2024-08-02', startDate: '2024-08-01' })
+
+      const placed = getRegistrationEmailTemplateData(
+        { ...registration, group: { date: '2024-08-02', key: 'group1', number: 1 } },
+        confirmedEvent,
+        undefined,
+        '',
+        undefined,
+        echo
+      )
+      const unplaced = getRegistrationEmailTemplateData(registration, confirmedEvent, undefined, '', undefined, echo)
+      const ungrouped = getRegistrationEmailTemplateData(
+        { ...registration, group: undefined },
+        confirmedEvent,
+        undefined,
+        '',
+        undefined,
+        echo
+      )
+
+      expect(placed.groupDate).toBe('dateFormat.wdshort:2024-08-02')
+      expect(unplaced.groupDate).toBe(unplaced.regDates)
+      expect(unplaced.groupDate).toBe('dateFormat.short:2024-08-01 registration.time.ap, dateFormat.short:2024-08-02')
+      expect(ungrouped.groupDate).toBe(unplaced.regDates)
+    })
+
     it('should use class-specific invitation attachment in template event data', () => {
       const registration = asJsonRegistration({
         class: 'ALO',
