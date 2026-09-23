@@ -34,6 +34,7 @@ import {
   getCancelAuditMessage,
   getRegistrationEditToken,
   markNewRegistrationPhase,
+  recordLastEmail,
 } from './registration'
 import { getRegistrationChanges } from './registrationAudit'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from './stats'
@@ -256,6 +257,14 @@ const sendRegistrationEmail = async ({
     message: `Email: ${templateData.subject}, to: ${to.join(', ')}`,
     ...auditUser(user),
   })
+  // The change itself was broadcast before the email went, so the message column learns of the
+  // email separately; without it an entrant's own cancellation left the old message there (KOE-1455).
+  const lastEmail = await recordLastEmail(registration, 'registration', context)
+  await publishRegistrationPatches(
+    registration.eventId,
+    [{ eventId: registration.eventId, id: registration.id, lastEmail }],
+    confirmedEvent.organizer.id
+  )
 
   if (context === 'cancel') {
     await notifySecretaryOfCancellation(registration, confirmedEvent, origin, editToken, previous)

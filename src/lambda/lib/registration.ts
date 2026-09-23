@@ -427,6 +427,32 @@ export const getLastEmailInfo = (
   return `${templateName} ${date}`
 }
 
+/**
+ * The name of a message sent. One template sends the confirmation, the change and the cancellation
+ * alike, so a registration email goes by its subject for the context, as the email itself does; the
+ * template's own name would call a cancellation a confirmation (KOE-1455).
+ */
+// exported for testing
+export const getLastEmailName = (template: EmailTemplateId, context: RegistrationTemplateContext): string => {
+  const t = getFixedT('fi')
+  return template === 'registration' ? t('registration.email.subject', { context }) : t(`emailTemplate.${template}`)
+}
+
+/**
+ * Records the message just sent as the registration's last one, the participant list's message
+ * column (KOE-1455), and returns it for the caller to broadcast. The registration is left as it is.
+ */
+export const recordLastEmail = async (
+  registration: JsonRegistration,
+  template: EmailTemplateId,
+  context: RegistrationTemplateContext
+): Promise<string> => {
+  const date = formatDate(new Date(), 'd.M.yyyy HH:mm')
+  const lastEmail = getLastEmailInfo(template, getLastEmailName(template, context), registration, date)
+  await updateRegistrationField(registration.eventId, registration.id, 'lastEmail', lastEmail)
+  return lastEmail
+}
+
 export const sendTemplatedEmailToEventRegistrations = async (
   template: EmailTemplateId,
   confirmedEvent: JsonConfirmedEvent,
@@ -462,7 +488,10 @@ export const sendTemplatedEmailToEventRegistrations = async (
         message: `Email: ${auditSubject}, to: ${to.join(', ')}`,
         ...auditUser(user),
       })
-      await setLastEmail(registration, getLastEmailInfo(template, templateName, registration, lastEmailDate))
+      await setLastEmail(
+        registration,
+        getLastEmailInfo(template, getLastEmailName(template, context), registration, lastEmailDate)
+      )
 
       // Update the messagesSent property to track that this template has been sent
       const messagesSent = registration.messagesSent || {}

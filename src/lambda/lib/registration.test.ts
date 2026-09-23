@@ -52,6 +52,7 @@ const {
   claimNewRegistrationPostProcessing,
   deriveRegistrationEditToken,
   getLastEmailInfo,
+  getLastEmailName,
   findClassesToMark,
   findExistingRegistrationToEventForDog,
   hasRegistrationChanges,
@@ -295,6 +296,19 @@ describe('registration', () => {
 
     it('should print "?" in place of missing number for reserve', () => {
       expect(getLastEmailInfo('reserve', 'name', {} as JsonRegistration, date)).toEqual(`name (#?) ${date}`)
+    })
+  })
+
+  describe('getLastEmailName', () => {
+    it('names a registration email by what it tells, not by its template (KOE-1455)', () => {
+      expect(getLastEmailName('registration', 'cancel')).toBe('Ilmoittautumisesi on peruttu')
+      expect(getLastEmailName('registration', 'update')).toBe('Ilmoittautumisesi tietoja on muokattu')
+      expect(getLastEmailName('registration', '')).toBe('Ilmoittautumisen vahvistus')
+    })
+
+    it('names any other email by its template', () => {
+      expect(getLastEmailName('reserve', '')).toBe('Varasijailmoitus')
+      expect(getLastEmailName('invitation', 'invitation')).toBe('Koekutsu')
     })
   })
 
@@ -726,6 +740,28 @@ describe('registration', () => {
         }
       )
 
+      vi.useRealTimers()
+    })
+
+    it('names a cancellation by the secretary as a cancellation in the message column (KOE-1455)', async () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2023-01-01 12:00Z'))
+      const registration = { ...jsonRegistrationsToEventWithALOInvited[0], cancelled: true }
+
+      await sendTemplatedEmailToEventRegistrations(
+        'registration',
+        JSON.parse(JSON.stringify(eventWithALOClassInvited)),
+        [registration],
+        'https://example.com',
+        '',
+        { name: 'admin-user' },
+        'cancel'
+      )
+
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'testALOInvited', id: 'testALOInvited1' },
+        { set: { lastEmail: 'Ilmoittautumisesi on peruttu 1.1.2023 14:00', updatedAt: expect.any(String) } }
+      )
       vi.useRealTimers()
     })
 
