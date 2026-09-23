@@ -50,6 +50,10 @@ jos koesihteeri korjaa ilmoittautumisen tietoja niin, että hinta nousee — esi
 jäsenyysmerkinnän. Silloin rivi kertoo puuttuvan summan ja painike palaa näkyviin. Kun olet
 maksanut puuttuvan osan, saat kuitin ja viestin *{t:registration.email.subject_update}*.
 
+Jos koesihteeri palauttaa maksusta osan, esimerkiksi liikaa maksetun osuuden, maksutiedoissa on
+maksetun summan alla rivi *{t:registration.refunded}*, ja maksettava summa on laskettu
+palautuksen jälkeen.
+
 ## Koepaikan vahvistaminen
 
 Kun koesihteeri on valinnut osallistujat, saat koepaikkailmoituksen. Sen linkki avaa sivun ja

@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationInvitation.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
-sourceHash: d00ad5
+sourceHash: 862400
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -50,6 +50,10 @@ button appears once you have accepted the place. Something may also become payab
 secretary corrects your entry so that its price rises — by removing a membership tick, say. The
 line then names the missing amount and the button comes back. Once you have paid the missing
 part, you get a receipt and the message *{t:registration.email.subject_update}*.
+
+If the secretary refunds part of the payment, the overpaid part say, the payment details show a
+*{t:registration.refunded}* line under the amount paid, and what is left to pay is counted after
+the refund.
 
 ## Accepting your place
 
