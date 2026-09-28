@@ -22,6 +22,9 @@
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
+        # sendTemplatedMail looks up staff outside prod (KOE-1469)
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}

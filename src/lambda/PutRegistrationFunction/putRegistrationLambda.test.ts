@@ -151,8 +151,11 @@ describe('putRegistrationLabmda', () => {
   vi.spyOn(console, 'debug').mockImplementation(() => undefined)
   vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
+  // These tests are about the mail itself; outside prod it would go to staff only (KOE-1469)
+  const stageName = CONFIG.stageName
   beforeAll(() => {
     vi.useFakeTimers()
+    CONFIG.stageName = 'prod'
   })
   beforeEach(() => {
     vi.setSystemTime(eventWithStaticDates.entryStartDate)
@@ -165,6 +168,7 @@ describe('putRegistrationLabmda', () => {
   })
   afterAll(() => {
     vi.useRealTimers()
+    CONFIG.stageName = stageName
   })
 
   it('should do happy path for new registration', async () => {
@@ -342,6 +346,10 @@ describe('putRegistrationLabmda', () => {
   it('uses the local frontend for registration email links in the dev stage', async () => {
     const originalStageName = CONFIG.stageName
     CONFIG.stageName = 'dev'
+    // Outside prod only staff get mail: make every recipient an admin of this environment
+    mockDynamoDBQuery.mockImplementation(async ({ index }: { index?: string }) =>
+      index === 'gsiEmail' ? [{ admin: true }] : []
+    )
     mockGetEvent.mockResolvedValueOnce(
       JSON.parse(JSON.stringify({ ...eventWithStaticDates, paymentTime: 'confirmation' }))
     )
@@ -371,6 +379,7 @@ describe('putRegistrationLabmda', () => {
       )
     } finally {
       CONFIG.stageName = originalStageName
+      mockDynamoDBQuery.mockReset().mockResolvedValue([])
     }
   })
 

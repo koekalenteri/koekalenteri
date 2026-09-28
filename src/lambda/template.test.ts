@@ -40,4 +40,17 @@ describe('template', () => {
     // A subset: the API Gateway access log group is in here too, and it belongs to no function.
     expect(functions.filter((name) => !logGroups.includes(name))).toEqual([])
   })
+
+  // Outside prod, sendTemplatedMail asks the user table who is staff; a sender without the read
+  // policy would fail on the first mail it sends in test or dev (KOE-1469).
+  it('lets every function that sends mail read the user table', () => {
+    const functions = template.split(/^ {2}(?=\w+:\n {4}Type: )/m)
+    const senders = functions.filter((block) => block.includes('ses:sendTemplatedEmail'))
+    const withoutUserTable = senders
+      .filter((block) => !/DynamoDB(Read|Crud)Policy:\n {12}TableName: !Ref UserTable$/m.test(block))
+      .map((block) => block.slice(0, block.indexOf(':')))
+
+    expect(senders.length).toBeGreaterThan(0)
+    expect(withoutUserTable).toEqual([])
+  })
 })

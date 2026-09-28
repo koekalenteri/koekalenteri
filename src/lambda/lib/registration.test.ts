@@ -6,6 +6,7 @@ import {
   jsonRegistrationsToEventWithALOInvited,
   registrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
+import { CONFIG } from '../config'
 
 const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
   delete: vi.fn(),
@@ -658,6 +659,15 @@ describe('registration', () => {
   })
 
   describe('sendTemplatedEmailToEventRegistrations', () => {
+    // These tests are about the mail itself; outside prod it would go to staff only (KOE-1469)
+    const stageName = CONFIG.stageName
+    beforeAll(() => {
+      CONFIG.stageName = 'prod'
+    })
+    afterAll(() => {
+      CONFIG.stageName = stageName
+    })
+
     beforeEach(() => {
       vi.clearAllMocks()
 
