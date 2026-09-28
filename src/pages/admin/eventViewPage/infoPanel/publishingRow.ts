@@ -2,6 +2,7 @@ import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistratio
 import type { ConfirmedEvent, RegistrationClass } from '@/types'
 import {
   canPublishStartList,
+  isEntryEditingClosed,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartNumbersPublishedForClass,
@@ -42,8 +43,12 @@ interface PublishingRow {
   readonly className: string
   /** The class entry the row stands for; a classless event has none. */
   readonly eventClass: EventClass | undefined
-  /** Every invited participant has had the invitation, which is what the start list waits on. */
-  readonly invitationsSent: boolean
+  /**
+   * The start list no longer waits on the invitations: every participant has had one, or the trial is
+   * past sending them (its day has gone, or the class is judged). A past trial whose invitations never
+   * went out would otherwise have no way to publish its start list, and so its results (KOE-1465).
+   */
+  readonly invitationsSettled: boolean
   /** The row names something the buttons can act on and the class has reached the publishing gate. */
   readonly manageable: boolean
   readonly participantsPicked: boolean
@@ -59,8 +64,8 @@ const getPublishingRow = (
   className: string
 ): PublishingRow => {
   const selected = selectedByClass[className] ?? []
-  const invitationsSent =
-    selected.length > 0 && getInvitationRecipients(eventWithCurrentAttachments, selected).length === 0
+  const participantsPicked = selected.length > 0
+  const invitationsSent = getInvitationRecipients(eventWithCurrentAttachments, selected).length === 0
   const classState = stateByClass[className] ?? event.state
   const eventClass = event.classes.find((item) => item.class === className)
   const classlessEventRow = event.classes.length === 0 && className === event.eventType
@@ -70,9 +75,9 @@ const getPublishingRow = (
   return {
     className,
     eventClass,
-    invitationsSent,
+    invitationsSettled: participantsPicked && (invitationsSent || isEntryEditingClosed(event, classState)),
     manageable: publishable && canPublishStartList(classState, event),
-    participantsPicked: selected.length > 0,
+    participantsPicked,
     publishable,
     startListEventClass,
     startListPublished: isStartListPublished(event, eventClass),
