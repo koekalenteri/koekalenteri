@@ -87,6 +87,8 @@ export const idbClear = async (storeName: StoreName): Promise<undefined> =>
 export const idbDeleteDatabase = (): Promise<void> => {
   dbPromise = undefined
 
+  if (typeof indexedDB === 'undefined') return Promise.reject(new Error('indexedDB is not available'))
+
   return withTimeout(
     new Promise<void>((resolve, reject) => {
       const request = indexedDB.deleteDatabase(DB_NAME)

@@ -205,7 +205,8 @@
     "eventNotFound": "Event not found.",
     "registrationNotFound": "Registration not found.",
     "somethingWentWrong": "Something went wrong.",
-    "startListNotAvailable": "The start list is not available for this event."
+    "startListNotAvailable": "The start list is not available for this event.",
+    "tryAgain": "Try again"
   },
   "event": {
     "attachments": "Attachments",

@@ -109,6 +109,27 @@ describe('loadCachedRemoteCollection', () => {
     expect(mockWriteEncryptedDataset).not.toHaveBeenCalled()
   })
 
+  // KOE-1463: a cache that cannot be read -- IndexedDB unavailable, or so stalled that the read
+  // timed out -- is a miss like any other, so the form behind it still gets its list.
+  it('fetches when the cache cannot be read', async () => {
+    mockReadEncryptedDataset.mockRejectedValueOnce(new Error('indexedDB open timed out after 3000 ms'))
+    const fetch = vi.fn().mockResolvedValueOnce(['fresh'])
+    const { promise } = makeEffect(fetch)
+
+    await expect(promise).resolves.toEqual(['fresh'])
+
+    expect(fetch).toHaveBeenCalledWith('token')
+  })
+
+  it('serves the fetched list even when the cache cannot be written', async () => {
+    mockReadEncryptedDataset.mockResolvedValueOnce(undefined)
+    mockWriteEncryptedDataset.mockRejectedValueOnce(new Error('indexedDB is not available'))
+    const fetch = vi.fn().mockResolvedValueOnce(['fresh'])
+    const { promise } = makeEffect(fetch)
+
+    await expect(promise).resolves.toEqual(['fresh'])
+  })
+
   it('rejects when fetch fails and there is no cache', async () => {
     mockReadEncryptedDataset.mockResolvedValueOnce(undefined)
     const fetch = vi.fn().mockRejectedValueOnce(new Error('network'))
