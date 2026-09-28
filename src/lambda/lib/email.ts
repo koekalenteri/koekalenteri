@@ -45,10 +45,16 @@ export async function sendTemplatedMail(
   return ses.send(new SendTemplatedEmailCommand(params))
 }
 
+/**
+ * Every stack attaches its bounce topic to the same account-wide configuration set, so each stack's
+ * SesNotificationFunction receives every stack's bounces. The `stack` tag lets it keep only its own
+ * (KOE-1468).
+ */
 export function registrationEmailTags(registration: JsonRegistration, template: EmailTemplateId): MessageTag[] {
   return [
     { Name: 'eventId', Value: registration.eventId },
     { Name: 'registrationId', Value: registration.id },
+    { Name: 'stack', Value: CONFIG.stackName },
     { Name: 'template', Value: template },
   ]
 }

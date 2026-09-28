@@ -36,6 +36,23 @@ const { default: sesNotificationLambda } = await import('./handler')
 /** The handler reads only Records[].Sns.Message; minimal events convert at this boundary. */
 const asSNSEvent = (event: { Records: { Sns: { Message: string } }[] }) => event as SNSEvent
 
+const registrationExists = { expression: 'attribute_exists(#id)', names: { '#id': 'id' } }
+
+const bounceFor = (tags: Record<string, string[]>) =>
+  asSNSEvent({
+    Records: [
+      {
+        Sns: {
+          Message: JSON.stringify({
+            bounce: { bouncedRecipients: [{ emailAddress: 'handler@example.com' }] },
+            mail: { tags },
+            notificationType: 'Bounce',
+          }),
+        },
+      },
+    ],
+  })
+
 describe('sesNotificationLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -86,7 +103,10 @@ describe('sesNotificationLambda', () => {
             template: 'invitation',
           },
         },
-      }
+      },
+      undefined,
+      undefined,
+      registrationExists
     )
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',
@@ -155,7 +175,10 @@ describe('sesNotificationLambda', () => {
             template: 'registration',
           },
         },
-      }
+      },
+      undefined,
+      undefined,
+      registrationExists
     )
     expect(mockDynamoWrite).toHaveBeenCalledWith({
       email: 'owner@example.com',
@@ -189,5 +212,54 @@ describe('sesNotificationLambda', () => {
     expect(mockDynamoUpdate).not.toHaveBeenCalled()
     expect(mockDynamoWrite).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
+  })
+
+  // Every stack's bounce topic hangs off the same configuration set (KOE-1468)
+  it("ignores another stack's notification", async () => {
+    await sesNotificationLambda(
+      bounceFor({ eventId: ['event123'], registrationId: ['reg456'], stack: ['koekalenteri-test'] })
+    )
+
+    expect(mockDynamoUpdate).not.toHaveBeenCalled()
+    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
+  })
+
+  it("stores this stack's notification", async () => {
+    await sesNotificationLambda(bounceFor({ eventId: ['event123'], registrationId: ['reg456'], stack: ['local'] }))
+
+    expect(mockDynamoUpdate).toHaveBeenCalledTimes(1)
+    expect(mockDynamoWrite).toHaveBeenCalledTimes(1)
+    expect(mockAudit).toHaveBeenCalledTimes(1)
+  })
+
+  it('creates nothing for a registration this stack does not have', async () => {
+    mockDynamoUpdate.mockRejectedValueOnce(
+      Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
+    )
+
+    await sesNotificationLambda(bounceFor({ eventId: ['event123'], registrationId: ['reg456'] }))
+
+    expect(mockDynamoUpdate).toHaveBeenCalledWith(
+      { eventId: 'event123', id: 'reg456' },
+      expect.anything(),
+      undefined,
+      undefined,
+      registrationExists
+    )
+    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
+  })
+
+  it('rethrows any other update failure', async () => {
+    mockDynamoUpdate.mockRejectedValueOnce(new Error('throttled'))
+
+    await expect(
+      sesNotificationLambda(bounceFor({ eventId: ['event123'], registrationId: ['reg456'] }))
+    ).rejects.toThrow('throttled')
+    expect(mockDynamoWrite).not.toHaveBeenCalled()
   })
 })
