@@ -14,7 +14,7 @@ import {
   copyDogEvent,
   getResultsPublishedClassMap,
   getStartListPublishedClassMap,
-  isResultsPublishedForClass,
+  isResultsPublished,
   isStartListPublishedForClass,
   sanitizeDogEvent,
 } from '@/lib/event'
@@ -312,8 +312,7 @@ export const useAdminEventActions = () => {
     published: boolean
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
-    const current = eventClass ? isResultsPublishedForClass(event, eventClass) : event.resultsPublished === true
-    if (current === published) return event
+    if (isResultsPublished(event, eventClass) === published) return event
 
     const saved = await putEvent(buildResultsPublishedPatch(event, eventClass, published), token)
     await storeSaved(saved)

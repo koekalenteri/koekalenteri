@@ -12,7 +12,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { canPublishResults, getEventStateForClass, isResultsPublishedForClass, uniqueClasses } from '@/lib/event'
+import { canPublishResults, getEventStateForClass, isResultsPublished, uniqueClasses } from '@/lib/event'
 import { scoresAtPosts } from '@/lib/results'
 import { Path } from '@/routeConfig'
 import { PublishingSection } from './PublishingSection'
@@ -124,7 +124,7 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
       }
     >
       {rows.map(({ eventClass, name }) => {
-        const published = eventClass ? isResultsPublishedForClass(event, eventClass) : event.resultsPublished === true
+        const published = isResultsPublished(event, eventClass)
         const classState = getEventStateForClass(event, eventClass)
         // Results travel on the start list's rows, so publishing them while it is hidden would
         // change nothing a spectator can see. Say so rather than leaving a dead button.
