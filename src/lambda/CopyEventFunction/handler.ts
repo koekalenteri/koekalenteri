@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid'
 import { getEventSeason } from '../../lib/event'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
+import { removeEventRuntimeState } from '../lib/eventCopy'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId, removeRegistrationCreationMetadata, saveRegistration } from '../lib/registration'
@@ -24,6 +25,8 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     throw httpError(400, { message: 'Bad request: source event dates must be valid' })
   }
 
+  // The source's live timeline and locks belong to its own run of the trial.
+  removeEventRuntimeState(item)
   item.id = nanoid(10)
   item.name = `Kopio - ${item.name ?? ''}`
   item.state = 'draft'

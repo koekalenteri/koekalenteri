@@ -134,8 +134,11 @@ describe('copyEventHandler', () => {
       modifiedAt: '2025-06-01T00:00:00.000Z',
       modifiedBy: 'Someone',
       name: 'Original Event',
+      registrationGroupsLock: { expiresAt: 1, token: 'lock' },
+      registrationPaymentsLock: { expiresAt: 1, token: 'lock' },
       startDate: '2025-06-10T00:00:00.000Z',
       state: 'published',
+      turns: [{ id: 'turn-1' }],
     }
     mockAuthorize.mockResolvedValueOnce(user)
     setEventBody(event, input)
