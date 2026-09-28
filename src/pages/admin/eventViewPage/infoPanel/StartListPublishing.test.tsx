@@ -137,6 +137,37 @@ describe('InfoPanel>', () => {
     expect(screen.queryByText('eventManagement.startList.participantsRequired')).not.toBeInTheDocument()
   })
 
+  it('lets a past trial publish its start list though its invitations never went out (KOE-1465)', async () => {
+    // The trial is over, so the invitations can no longer be sent; waiting on them would leave the
+    // start list, and the results riding on it, unpublishable for good.
+    const pastEvent = {
+      ...eventWithParticipantsInvited,
+      endDate: addDays(new Date(), -30),
+      startDate: addDays(new Date(), -31),
+      startListPublished: { ALO: false, AVO: false },
+    }
+    const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider initializeState={({ set }) => set(adminEventsAtom, [pastEvent])}>{children}</Provider>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={pastEvent}
+        onSetStartListPublished={onSetStartListPublished}
+        registrations={registrationsToEventWithParticipantsInvited}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.queryByText('eventManagement.startList.invitationsRequired')).not.toBeInTheDocument()
+    const [publish] = screen.getAllByRole('button', { name: 'eventManagement.startList.publish' })
+    expect(publish).toBeEnabled()
+    await user.click(publish)
+
+    await waitFor(() => expect(onSetStartListPublished).toHaveBeenCalledWith('ALO', true))
+  })
+
   it('says why publishing is dead: nobody is picked yet (KOE-1313)', async () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>

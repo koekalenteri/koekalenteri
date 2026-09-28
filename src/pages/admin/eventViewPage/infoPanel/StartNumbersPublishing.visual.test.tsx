@@ -5,8 +5,13 @@ import { render } from 'vitest-browser-react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
+import { freezeClockAt } from '@/test-utils/freezeClock'
 import { describeInLanguage } from '@/test-utils/language'
 import StartNumbersPublishing from './StartNumbersPublishing'
+
+// The pictures show a trial still to come: its invitations can be sent, so a class whose dogs have not
+// had theirs waits on them. Past the trial's day it would not (KOE-1465), so the clock stands before it.
+freezeClockAt('2021-02-08')
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
 const Frame = ({ children }: { readonly children: React.ReactNode }) => (

@@ -173,7 +173,7 @@ const StartNumbersPublishing = ({
         const numbersPublished = isStartNumbersPublished(event, row.eventClass)
         // Numbers can only be public on a published list, so the buttons wait for the list.
         const canManageStartNumbers =
-          Boolean(onSetStartNumbersPublished) && row.manageable && row.invitationsSent && startListPublished
+          Boolean(onSetStartNumbersPublished) && row.manageable && row.invitationsSettled && startListPublished
         const days = classDays(event, className)
         const multiDay = days.length > 1
         const published: PublishedStartNumbersSlot[] = startListPublished

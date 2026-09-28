@@ -90,10 +90,10 @@ const StartListPublishing = ({
         // A finished event deliberately does not disable this. Publishing the list is what carries
         // the results to the public, and results are entered after the dogs have run — unlike
         // picking participants or sending invitations, which a finished event should not reopen.
-        const canManageStartList = Boolean(onSetStartListPublished) && row.manageable && row.invitationsSent
+        const canManageStartList = Boolean(onSetStartListPublished) && row.manageable && row.invitationsSettled
         // A dead button with no reason beside it is the thing this whole step reads as broken
-        // (KOE-1313). Publishing waits on the invitations, and those wait on the participants
-        // being picked, so name whichever of the two is still outstanding.
+        // (KOE-1313). Publishing waits on the invitations while they can still be sent (KOE-1465), and
+        // those wait on the participants being picked, so name whichever of the two is still outstanding.
         const blockedReasonKey = row.participantsPicked
           ? 'eventManagement.startList.invitationsRequired'
           : 'eventManagement.startList.participantsRequired'
