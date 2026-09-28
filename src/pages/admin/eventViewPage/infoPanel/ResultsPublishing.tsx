@@ -12,11 +12,11 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { canPublishResults, getEventStateForClass, isResultsPublished, uniqueClasses } from '@/lib/event'
+import { isResultsPublished, uniqueClasses } from '@/lib/event'
+import { getResultsBlocker, isStartListPublished } from '@/lib/publishing'
 import { scoresAtPosts } from '@/lib/results'
 import { Path } from '@/routeConfig'
 import { PublishingSection } from './PublishingSection'
-import { isStartListPublished } from './publishingRow'
 import { actionButtonSx } from './styles'
 
 interface Props {
@@ -125,13 +125,14 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
     >
       {rows.map(({ eventClass, name }) => {
         const published = isResultsPublished(event, eventClass)
-        const classState = getEventStateForClass(event, eventClass)
         // Results travel on the start list's rows, so publishing them while it is hidden would
         // change nothing a spectator can see. Say so rather than leaving a dead button.
-        const classEntry = event.classes.find((item) => item.class === eventClass)
-        const startListPublished = isStartListPublished(event, classEntry)
-        // Nothing to publish before the dogs have run.
-        const ready = startListPublished && canPublishResults(classState, event)
+        const startListPublished = isStartListPublished(
+          event,
+          event.classes.find((item) => item.class === eventClass)
+        )
+        // The same rules the server holds a publish to (KOE-1466).
+        const ready = !getResultsBlocker(event, eventClass)
 
         return (
           <TableRow key={name}>

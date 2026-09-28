@@ -39,7 +39,6 @@ it('is its own step, with the draw entry under it', async () => {
         numbersByClass={{ ALO: [], AVO: [] } as never}
         onSetStartNumbersPublished={async () => {}}
         selectedByClass={{}}
-        stateByClass={{}}
       />
     </Frame>
   )
@@ -74,7 +73,6 @@ const renderTwoDay = () =>
         numbersByClass={{ VOI: [] } as never}
         onSetStartNumbersPublished={async () => {}}
         selectedByClass={{}}
-        stateByClass={{}}
       />
     </Frame>
   )
@@ -117,7 +115,6 @@ const renderHalfDay = () =>
         numbersByClass={{ ALO: [], AVO: [] } as never}
         onSetStartNumbersPublished={async () => {}}
         selectedByClass={{ ALO: [placed('r1', 'ALO-AP', 'ap', 1), placed('r2', 'ALO-IP', 'ip', 2)] }}
-        stateByClass={{}}
       />
     </Frame>
   )

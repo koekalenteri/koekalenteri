@@ -513,6 +513,25 @@ export const isParticipantGroup = (group?: string): boolean =>
   Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
 
 /**
+ * The picked participants by class, a classless event's under its event type: what the publishing
+ * gates count on the panel and on the server alike (KOE-1466).
+ */
+export const groupParticipantsByClass = <
+  T extends Pick<JsonRegistration | Registration, 'cancelled' | 'class' | 'eventType' | 'group'>,
+>(
+  registrations: readonly T[]
+): Record<string, T[]> => {
+  const byClass: Record<string, T[]> = {}
+  for (const registration of registrations) {
+    if (registration.cancelled || !isParticipantGroup(registration.group?.key)) continue
+    const eventClass = getRegistrationClass(registration)
+    byClass[eventClass] ??= []
+    byClass[eventClass].push(registration)
+  }
+  return byClass
+}
+
+/**
  * Whether a result can be recorded for this entry at all. Only the dogs that actually ran are scored: a
  * reserve never called up and a cancelled entry have no round to record, and offering them a row invites
  * a result being entered against the wrong dog.

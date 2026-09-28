@@ -77,6 +77,8 @@ const registration = (id: string, overrides: Partial<JsonRegistration> = {}): Js
     eventType: 'NOME-B',
     group: { date: '2026-09-12', key: 'ALO-AP', number: Number(id.slice(-1)), time: 'ap' },
     id,
+    // Invited: the numbers wait on the invitations as the start list does (KOE-1466).
+    messagesSent: { invitation: true },
     ...overrides,
   }) as JsonRegistration
 
@@ -221,10 +223,31 @@ describe('putStartNumbersLambda', () => {
       startListPublished: { ALO: false },
     })
 
-    await expect(putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))).rejects.toThrow(
-      'Start list is not published'
+    await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      422,
+      expect.objectContaining({ publish: 'startNumbers', reason: 'startList' }),
+      expect.anything()
     )
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockReleaseLock).toHaveBeenCalled()
+  })
+
+  it('refuses to publish numbers while an invitation is still to go (KOE-1466)', async () => {
+    mockGetRegistrationsByEventId.mockResolvedValue([
+      registration('run-1'),
+      registration('run-2', { messagesSent: {} }),
+    ])
+
+    await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      422,
+      expect.objectContaining({ publish: 'startNumbers', reason: 'invitations' }),
+      expect.anything()
+    )
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
   it('hiding only flips the flag: the frozen numbers stay put', async () => {

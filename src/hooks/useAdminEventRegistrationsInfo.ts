@@ -2,10 +2,10 @@ import type { ConfirmedEvent, EventState, Registration } from '../types'
 import { useMemo } from 'react'
 import { eventDates, getEventStateForClass, placesForClass, uniqueClasses } from '../lib/event'
 import {
-  GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getRegistrationClass,
   getRegistrationGroupKey,
+  groupParticipantsByClass,
 } from '../lib/registration'
 import { unique } from '../lib/utils'
 
@@ -72,20 +72,7 @@ export default function useAdminEventRegistrationInfo(
     return result
   }, [registrations, event, eventClasses])
 
-  const selectedByClass = useMemo(() => {
-    const byClass: Record<string, Registration[]> = {}
-    const allSelected = registrations.filter(
-      (r) => !r.cancelled && r.group && r.group.key !== GROUP_KEY_RESERVE && r.group.key !== GROUP_KEY_CANCELLED
-    )
-    for (const reg of allSelected) {
-      const c = getRegistrationClass(reg)
-      if (!(c in byClass)) {
-        byClass[c] = []
-      }
-      byClass[c].push(reg)
-    }
-    return byClass
-  }, [registrations])
+  const selectedByClass = useMemo(() => groupParticipantsByClass(registrations), [registrations])
 
   const stateByClass = useMemo(() => {
     if (!event) {

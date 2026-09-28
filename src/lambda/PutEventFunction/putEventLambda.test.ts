@@ -31,6 +31,19 @@ vi.doMock('../lib/event', () => ({
   updateRegistrations: vi.fn(),
 }))
 
+const mockGetRegistrationsByEventId = vi.fn()
+vi.doMock('../lib/registration', () => ({
+  getRegistrationsByEventId: mockGetRegistrationsByEventId,
+}))
+
+/** A dog picked into a group of the class, and invited: nothing left for the start list to wait on. */
+const invitedParticipant = (eventClass?: string) => ({
+  class: eventClass,
+  eventType: '',
+  group: { date: '2025-06-01', key: 'group-1', number: 1 },
+  messagesSent: { invitation: true },
+})
+
 const mockPublishEventChange = vi.fn()
 const mockPublishEventCounts = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
@@ -125,6 +138,11 @@ describe('putEventLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     patchEventMock.mockImplementation(async (_id, _existing, next) => ({ event: next }))
+    mockGetRegistrationsByEventId.mockResolvedValue([
+      invitedParticipant(),
+      invitedParticipant('ALO'),
+      invitedParticipant('AVO'),
+    ])
     mockGetEventAuditMessages.mockImplementation((_existing: unknown, item: Partial<JsonDogEvent>) => {
       if (!_existing) return [{ message: 'Tapahtuma luotu' }]
       if (item.startListPublished) return [{ message: 'ALO starttilista julkaistu' }]
@@ -486,6 +504,7 @@ describe('putEventLambda', () => {
       ...mockEvent,
       classes: [{ class: 'ALO' }, { class: 'AVO' }],
       startListPublished: { ALO: false, AVO: false },
+      state: 'invited',
     } as JsonDogEvent
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce(existing)
@@ -504,6 +523,103 @@ describe('putEventLambda', () => {
       user: 'Test User',
     })
     expect(auditMock).not.toHaveBeenCalledWith(expect.objectContaining({ message: 'Muutti: startListPublished' }))
+  })
+
+  describe('publishing rules (KOE-1466)', () => {
+    const classless = { ...mockEvent, startListPublished: false, state: 'invited' } as JsonDogEvent
+    const publish = (body: Partial<JsonDogEvent>) =>
+      putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', ...body }, { method: 'PATCH' }))
+
+    it('refuses a start list whose participants have not had the invitation', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(classless)
+      mockGetRegistrationsByEventId.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
+
+      const res = await publish({ startListPublished: true })
+
+      expect(res.statusCode).toEqual(422)
+      expect(JSON.parse(res.body)).toMatchObject({ publish: 'startList', reason: 'invitations' })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses a start list with nobody picked', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(classless)
+      mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+
+      const res = await publish({ startListPublished: true })
+
+      expect(JSON.parse(res.body)).toMatchObject({ reason: 'participants' })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it("lets a past trial's start list out though its invitations never went (KOE-1465)", async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...classless, endDate: '2025-03-01', startDate: '2025-03-01' })
+      mockGetRegistrationsByEventId.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
+
+      const res = await publish({ startListPublished: true })
+
+      expect(res.statusCode).toEqual(200)
+    })
+
+    it('always lets a start list be hidden', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true })
+      mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+
+      const res = await publish({ startListPublished: false })
+
+      expect(res.statusCode).toEqual(200)
+      expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    })
+
+    it('refuses results on an unpublished start list', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...classless, state: 'ended' })
+
+      const res = await publish({ resultsPublished: true })
+
+      expect(JSON.parse(res.body)).toMatchObject({ publish: 'results', reason: 'startList' })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses results before the trial has run', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true })
+
+      const res = await publish({ resultsPublished: true })
+
+      expect(JSON.parse(res.body)).toMatchObject({ publish: 'results', reason: 'state' })
+    })
+
+    it('publishes the results of a trial that has run on its published start list', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true, state: 'ended' })
+
+      const res = await publish({ resultsPublished: true })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ resultsPublished: true })
+      )
+    })
+
+    it('does not let an event save publish the start numbers', async () => {
+      // Numbers go out only through PutStartNumbersFunction, which freezes them as it publishes.
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...classless, startNumbersPublished: false })
+
+      await publish({ startNumbersPublished: true })
+
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ startNumbersPublished: false })
+      )
+    })
   })
 
   it('should return 400 for patch event without id', async () => {

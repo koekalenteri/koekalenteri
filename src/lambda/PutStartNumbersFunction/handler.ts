@@ -1,13 +1,19 @@
 import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass } from '../../types'
 import type { StartNumberEntry } from '../lib/startNumbers'
-import { getStartNumbersDayTimes, isStartListPublishedForClass, isStartNumbersTime } from '../../lib/event'
-import { getRegistrationClass, isRegistrationClass, isScorableRegistration } from '../../lib/registration'
+import { getStartNumbersDayTimes, isStartNumbersTime } from '../../lib/event'
+import { getStartNumbersBlocker } from '../../lib/publishing'
+import {
+  getRegistrationClass,
+  groupParticipantsByClass,
+  isRegistrationClass,
+  isScorableRegistration,
+} from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { lockRegistrationGroups } from '../lib/event'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
-import { getParam, httpError, LambdaError, lambda, response } from '../lib/lambda'
+import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import {
   assignStartNumbers,
@@ -64,19 +70,19 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
 
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
 
-  // Numbers ride the start list: they cannot be published for a class whose list is not public.
-  if (body.published === true) {
-    const listPublished = eventClass
-      ? isStartListPublishedForClass(confirmedEvent, eventClass)
-      : confirmedEvent.startListPublished !== false
-    if (!listPublished) throw new LambdaError(422, 'Start list is not published')
-  }
-
   const releaseGroupsLock = await lockRegistrationGroups(eventId, 8)
   const patches: Patch<JsonRegistration>[] = []
   let publicationChanged = false
   try {
     const registrations = await getRegistrationsByEventId(eventId)
+
+    // Numbers ride the start list, and wait on everything it does: the same rules the panel greys its
+    // buttons by (KOE-1466). Hiding is always allowed.
+    if (body.published === true) {
+      const participants = groupParticipantsByClass(registrations)[eventClass ?? confirmedEvent.eventType] ?? []
+      const reason = getStartNumbersBlocker(confirmedEvent, eventClass, participants)
+      if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'startNumbers', reason })
+    }
 
     if (typeof body.published === 'boolean') {
       if (body.published) {

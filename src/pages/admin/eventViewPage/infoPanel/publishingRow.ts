@@ -1,23 +1,13 @@
 import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
+import type { PublishBlocker } from '@/lib/publishing'
 import type { ConfirmedEvent, RegistrationClass } from '@/types'
-import {
-  canPublishStartList,
-  isEntryEditingClosed,
-  isStartListAvailable,
-  isStartListAvailableForClass,
-  isStartNumbersPublishedForClass,
-} from '@/lib/event'
-import { getInvitationRecipients, isRegistrationClass } from '@/lib/registration'
+import { isStartListAvailable, isStartListAvailableForClass, isStartNumbersPublishedForClass } from '@/lib/event'
+import { getStartListBlocker, getStartNumbersBlocker, isStartListPublished } from '@/lib/publishing'
+import { isRegistrationClass } from '@/lib/registration'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
 type EventClass = ConfirmedEvent['classes'][number]
 type ClassPredicate = (event: ConfirmedEvent, eventClass?: EventClass) => boolean
-
-/** Whether the start list of the class — or of a classless event — is out. */
-export const isStartListPublished: ClassPredicate = (event, eventClass) =>
-  eventClass
-    ? isStartListAvailableForClass(event, eventClass)
-    : event.classes.length === 0 && isStartListAvailable(event)
 
 /**
  * Whether the numbers are out for every day of the class: a multi-day class publishes one draw at a
@@ -36,22 +26,16 @@ interface PublishingRowsProps {
   readonly event: ConfirmedEvent
   readonly eventWithCurrentAttachments: ConfirmedEvent
   readonly selectedByClass: RegistrationInfo['selectedByClass']
-  readonly stateByClass: RegistrationInfo['stateByClass']
 }
 
 interface PublishingRow {
   readonly className: string
   /** The class entry the row stands for; a classless event has none. */
   readonly eventClass: EventClass | undefined
-  /**
-   * The start list no longer waits on the invitations: every participant has had one, or the trial is
-   * past sending them (its day has gone, or the class is judged). A past trial whose invitations never
-   * went out would otherwise have no way to publish its start list, and so its results (KOE-1465).
-   */
-  readonly invitationsSettled: boolean
-  /** The row names something the buttons can act on and the class has reached the publishing gate. */
-  readonly manageable: boolean
-  readonly participantsPicked: boolean
+  /** What still stands before the start list; absent when it can be published (the rules in lib/publishing). */
+  readonly startListBlocker: PublishBlocker | undefined
+  /** What still stands before the start numbers; absent when they can be published. */
+  readonly startNumbersBlocker: PublishBlocker | undefined
   /** The row names a class or the classless event itself, rather than a name nothing can be published for. */
   readonly publishable: boolean
   /** The class the publish request is for; undefined for the classless event. */
@@ -60,13 +44,10 @@ interface PublishingRow {
 }
 
 const getPublishingRow = (
-  { event, eventWithCurrentAttachments, selectedByClass, stateByClass }: PublishingRowsProps,
+  { event, eventWithCurrentAttachments, selectedByClass }: PublishingRowsProps,
   className: string
 ): PublishingRow => {
   const selected = selectedByClass[className] ?? []
-  const participantsPicked = selected.length > 0
-  const invitationsSent = getInvitationRecipients(eventWithCurrentAttachments, selected).length === 0
-  const classState = stateByClass[className] ?? event.state
   const eventClass = event.classes.find((item) => item.class === className)
   const classlessEventRow = event.classes.length === 0 && className === event.eventType
   const startListEventClass = isRegistrationClass(className) ? className : undefined
@@ -75,12 +56,11 @@ const getPublishingRow = (
   return {
     className,
     eventClass,
-    invitationsSettled: participantsPicked && (invitationsSent || isEntryEditingClosed(event, classState)),
-    manageable: publishable && canPublishStartList(classState, event),
-    participantsPicked,
     publishable,
+    startListBlocker: getStartListBlocker(eventWithCurrentAttachments, startListEventClass, selected),
     startListEventClass,
     startListPublished: isStartListPublished(event, eventClass),
+    startNumbersBlocker: getStartNumbersBlocker(eventWithCurrentAttachments, startListEventClass, selected),
   }
 }
 
