@@ -1,10 +1,18 @@
+import { act, renderHook } from '@testing-library/react'
+import { Provider } from 'jotai'
 import { eventWithStaticDates } from '@/__mockData__/events'
+import { putEvent } from '@/api/event'
+import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import {
   buildEventSavePatch,
   buildResultsPublishedPatch,
   buildStartListClassPublishedPatch,
   buildStartListPublishedPatch,
+  useAdminEventActions,
 } from './actions'
+
+vi.mock('@/api/event')
+vi.mock('@/api/user')
 
 describe('buildEventSavePatch', () => {
   it('serializes removed top-level fields as null patch markers', () => {
@@ -92,5 +100,33 @@ describe('buildResultsPublishedPatch', () => {
       id: eventWithStaticDates.id,
       resultsPublished: { ALO: true, AVO: true },
     })
+  })
+})
+
+describe('useAdminEventActions.setResultsPublished', () => {
+  const classless = { ...eventWithStaticDates, id: 'classless-results' }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
+  })
+  afterEach(() => localStorage.removeItem('idToken'))
+
+  it('saves the one flag of a classless event (KOE-1464)', async () => {
+    vi.mocked(putEvent).mockResolvedValueOnce({ ...classless, resultsPublished: true })
+    const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
+
+    const saved = await act(() => result.current.setResultsPublished(classless, undefined, true))
+
+    expect(putEvent).toHaveBeenCalledWith({ id: classless.id, resultsPublished: true }, TEST_ID_TOKEN)
+    expect(saved).toMatchObject({ resultsPublished: true })
+  })
+
+  it('saves nothing when the flag already reads that way', async () => {
+    const published = { ...classless, resultsPublished: true }
+    const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
+
+    await expect(result.current.setResultsPublished(published, undefined, true)).resolves.toBe(published)
+    expect(putEvent).not.toHaveBeenCalled()
   })
 })
