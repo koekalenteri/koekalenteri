@@ -1701,6 +1701,23 @@ describe('isResultsAvailableForRegistration', () => {
       false
     )
   })
+
+  it('shows the results of a classless event once its one flag is on (KOE-1464)', () => {
+    // A tolling aptitude trial (NOU) has no classes; its dogs carry no class either.
+    const classless = {
+      classes: [],
+      startDate: new Date('2026-09-26'),
+      startListPublished: true,
+      state: 'ended' as const,
+    }
+    const noClassDog = { group: { date: new Date('2026-09-26') } }
+
+    expect(isResultsAvailableForRegistration({ ...classless, resultsPublished: true }, noClassDog)).toBe(true)
+    expect(isResultsAvailableForRegistration(classless, noClassDog)).toBe(false)
+    expect(
+      isResultsAvailableForRegistration({ ...classless, resultsPublished: true, startListPublished: false }, noClassDog)
+    ).toBe(false)
+  })
 })
 
 describe('isEventLive', () => {

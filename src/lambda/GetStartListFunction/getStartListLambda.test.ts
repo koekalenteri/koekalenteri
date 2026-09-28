@@ -802,6 +802,40 @@ describe('getStartListLambda', () => {
     expect(published[1].result).toBeUndefined()
   })
 
+  it('publishes the results of a classless event once its one flag is on (KOE-1464)', async () => {
+    const eventId = 'event123'
+    const confirmedEvent = {
+      classes: [],
+      eventType: 'NOU',
+      id: eventId,
+      resultsPublished: true,
+      startDate: '2025-01-01',
+      startListPublished: true,
+      state: 'ended',
+    }
+
+    mockGetParam.mockReturnValueOnce(eventId)
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      {
+        cancelled: false,
+        dog: { name: 'Dog 1', regNo: 'REG1' },
+        eventId,
+        eventResult: { result: 'NOU1', updatedAt: 'x', updatedBy: 'y' },
+        group: { date: '2025-01-01', key: 'NOU', number: 1 },
+        handler: { name: 'Handler' },
+        owner: { name: 'Owner' },
+      },
+    ])
+
+    await getStartListLambda(event)
+
+    const [, published] = mockResponse.mock.calls[0]
+
+    expect(published).toHaveLength(1)
+    expect(published[0]).toMatchObject({ result: 'NOU1' })
+  })
+
   it("publishes a judge's stop as a mark beside the result, and only where the result goes", async () => {
     const eventId = 'event123'
     const confirmedEvent = {

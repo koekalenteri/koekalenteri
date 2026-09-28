@@ -443,12 +443,15 @@
     },
     "results": {
       "confirm": "Haluatko varmasti julkaista luokan {{eventClass}} tulokset Koekalenterissa?",
+      "confirmEvent": "Haluatko varmasti julkaista tulokset Koekalenterissa?",
       "confirmTitle": "Julkaise tulokset",
       "hidden": "Luokan {{eventClass}} tulokset piilotettu",
+      "hiddenEvent": "Tulokset piilotettu",
       "hide": "Piilota tulokset",
       "publish": "Julkaise tulokset",
       "published": "Julkaistu",
       "publishedSnack": "Luokan {{eventClass}} tulokset julkaistu",
+      "publishedSnackEvent": "Tulokset julkaistu",
       "saveFailed": "Tulosten julkaisutilan tallennus epäonnistui. Yritä uudelleen.",
       "startListRequired": "Julkaise ensin starttilista",
       "title": "Tulosten julkaisu"

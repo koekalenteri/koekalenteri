@@ -2,6 +2,7 @@ import type { ConfirmedEvent } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { render } from 'vitest-browser-react'
+import { eventWithStaticDates } from '@/__mockData__/events'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
 import { describeInLanguage } from '@/test-utils/language'
@@ -37,6 +38,19 @@ it('offers publishing per class with the scoring entry beneath, saving and publi
 
   await expect.element(screen.getByText('Tulosten julkaisu')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-publishing')
+})
+
+// A classless trial (NOU) publishes as one row named after its type; before KOE-1464 it had none.
+it('offers publishing a classless event as one row', async () => {
+  const classless: ConfirmedEvent = { ...eventWithStaticDates, startListPublished: true, state: 'ended' }
+  const screen = await render(
+    <Frame>
+      <ResultsPublishing event={classless} eventStarted />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('NOU')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-publishing-classless')
 })
 
 // The guide's English page shows the section in English (KOE-1437).

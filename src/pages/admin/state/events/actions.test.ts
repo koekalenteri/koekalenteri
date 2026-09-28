@@ -1,5 +1,10 @@
 import { eventWithStaticDates } from '@/__mockData__/events'
-import { buildEventSavePatch, buildStartListClassPublishedPatch, buildStartListPublishedPatch } from './actions'
+import {
+  buildEventSavePatch,
+  buildResultsPublishedPatch,
+  buildStartListClassPublishedPatch,
+  buildStartListPublishedPatch,
+} from './actions'
 
 describe('buildEventSavePatch', () => {
   it('serializes removed top-level fields as null patch markers', () => {
@@ -61,6 +66,31 @@ describe('buildStartListPublishedPatch', () => {
     expect(buildStartListPublishedPatch(eventWithStaticDates, false)).toEqual({
       id: eventWithStaticDates.id,
       startListPublished: false,
+    })
+  })
+})
+
+describe('buildResultsPublishedPatch', () => {
+  it('uses an event-level boolean for events without classes (KOE-1464)', () => {
+    expect(buildResultsPublishedPatch(eventWithStaticDates, undefined, true)).toEqual({
+      id: eventWithStaticDates.id,
+      resultsPublished: true,
+    })
+  })
+
+  it('keeps the other classes when publishing one', () => {
+    const event = {
+      ...eventWithStaticDates,
+      classes: [
+        { class: 'ALO' as const, date: eventWithStaticDates.startDate },
+        { class: 'AVO' as const, date: eventWithStaticDates.startDate },
+      ],
+      resultsPublished: { AVO: true },
+    }
+
+    expect(buildResultsPublishedPatch(event, 'ALO', true)).toEqual({
+      id: eventWithStaticDates.id,
+      resultsPublished: { ALO: true, AVO: true },
     })
   })
 })

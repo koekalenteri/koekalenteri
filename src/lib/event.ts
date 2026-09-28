@@ -923,9 +923,14 @@ export const getStartNumbersPublishedClassMap = ({
  * unpublished result must not ride out on the back of a published list.
  */
 export const isResultsAvailableForRegistration = (
-  event: Pick<JsonDogEvent, 'state' | 'resultsPublished'> & AvailabilityEvent,
+  event: Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'> & AvailabilityEvent,
   registration: AvailabilityRegistration
 ) => {
+  // A classless event (NOU, NOME-A) publishes its results as the one flag for the whole event (KOE-1464).
+  if (!event.classes?.length) {
+    return isStartListAvailable(event) && canPublishResults(event.state, event) && event.resultsPublished === true
+  }
+
   const eventClass = findRegistrationClass(event, registration)
 
   return eventClass ? isResultsAvailableForClass(event, eventClass) : false
