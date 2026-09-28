@@ -358,9 +358,9 @@ const isResultsPublishedClassMap = (
  * Without a class it answers for a classless event (NOU, NOME-A), whose one flag covers the whole
  * event (KOE-1464).
  */
-export const isResultsPublished = (event: Pick<JsonDogEvent, 'resultsPublished'>, eventClass?: string) =>
+export const isResultsPublished = (event: Pick<JsonDogEvent, 'resultsPublished'>, eventClass?: RegistrationClass) =>
   isResultsPublishedClassMap(event.resultsPublished)
-    ? eventClass !== undefined && event.resultsPublished[eventClass as RegistrationClass] === true
+    ? eventClass !== undefined && event.resultsPublished[eventClass] === true
     : event.resultsPublished === true
 
 /** Every class's results are out — the public list is no longer just participants (KOE-1285). */
@@ -524,11 +524,10 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
 
   // The results step, mirroring the start list's. Unlike it there is no legacy default: a result is
   // published only where something says so, so an event that never gets here simply stops at 'ended'.
-  const publishedResultsClasses = startListClasses.filter((eventClass) => isResultsPublished(event, eventClass))
   const resultsActionable = startListClasses.some((eventClass) =>
     canPublishResults(event.classes.find((item) => item.class === eventClass)?.state ?? event.state, event, now)
   )
-  const resultsCompleted = resultsActionable && publishedResultsClasses.length === startListClasses.length
+  const resultsCompleted = resultsActionable && hasAllResultsPublished(event)
 
   const phaseIndex = Math.max(
     statePhaseIndex,
@@ -548,7 +547,6 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     entryStarted,
     eventClasses,
     phase: getProgressPhaseAtIndex(event, phaseIndex, now),
-    publishedResultsClasses,
     publishedStartListClasses,
     publishedStartNumbersClasses,
     reachedPhaseIndex,
