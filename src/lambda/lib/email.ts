@@ -4,6 +4,7 @@ import type {
   JsonConfirmedEvent,
   JsonRegistration,
   JsonRegistrationGroup,
+  JsonUser,
   Language,
   RegistrationTemplateContext,
 } from '../../types'
@@ -12,11 +13,71 @@ import { getFixedT } from '../../i18n/lambda'
 import { getPaymentBalance } from '../../lib/cost'
 import { getRegistrationEmailTemplateData, getRegistrationOwners, isPayerTemplate } from '../../lib/registration'
 import { CONFIG } from '../config'
+import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { audit, registrationAuditKey } from './audit'
 import { logger } from './log'
 
 const ses = new SESClient()
+const userDB = new CustomDynamoClient(CONFIG.userTable)
 
 export const normalizeEmail = (email: string) => email.trim().toLowerCase()
+
+/** `name+anything@domain` → `name@domain` */
+export const withoutPlusTag = (email: string) => normalizeEmail(email).replace(/\+[^@]*@/, '@')
+
+const staffAddresses = new Map<string, boolean>()
+
+const isStaffUser = (user: JsonUser) =>
+  !user.deletedAt && (user.admin === true || Object.values(user.roles ?? {}).some(Boolean))
+
+const isStaffAddress = async (address: string): Promise<boolean> => {
+  const cached = staffAddresses.get(address)
+  if (cached !== undefined) return cached
+
+  const users = await userDB.query<JsonUser>({
+    index: 'gsiEmail',
+    key: 'email = :email',
+    values: { ':email': address },
+  })
+  const staff = users?.some(isStaffUser) ?? false
+  staffAddresses.set(address, staff)
+  return staff
+}
+
+/**
+ * Outside prod, mail goes only to the environment's own staff: users with admin rights or a role,
+ * at their own address or a plus-address of it. Data copied from prod keeps nobody else reachable,
+ * even through a field the copy failed to rewrite (KOE-1469).
+ */
+const deliverableRecipients = async (to: string[]): Promise<string[]> => {
+  if (CONFIG.stageName === 'prod') return to
+
+  const deliverable: string[] = []
+  for (const recipient of to) {
+    const address = normalizeEmail(recipient)
+    const base = withoutPlusTag(address)
+    if ((await isStaffAddress(address)) || (base !== address && (await isStaffAddress(base)))) {
+      deliverable.push(recipient)
+    }
+  }
+  return deliverable
+}
+
+export const __resetStaffAddressCache = () => staffAddresses.clear()
+
+const tagValue = (tags: MessageTag[] | undefined, name: string) => tags?.find((tag) => tag.Name === name)?.Value
+
+const auditBlockedRecipients = async (tags: MessageTag[] | undefined, blocked: number) => {
+  const eventId = tagValue(tags, 'eventId')
+  const registrationId = tagValue(tags, 'registrationId')
+  if (!eventId || !registrationId) return
+
+  await audit({
+    auditKey: registrationAuditKey({ eventId, id: registrationId }),
+    message: `Viesti estetty testiympäristössä (${blocked} vastaanottajaa)`,
+    user: 'system',
+  })
+}
 
 export async function sendTemplatedMail(
   template: EmailTemplateId,
@@ -26,14 +87,21 @@ export async function sendTemplatedMail(
   data: Record<string, unknown>,
   tags?: MessageTag[]
 ) {
-  if (to.length === 0) {
+  const recipients = await deliverableRecipients(to)
+  const blocked = to.length - recipients.length
+  if (blocked > 0) {
+    logger.info('email recipients blocked outside prod', { blockedCount: blocked, template })
+    await auditBlockedRecipients(tags, blocked)
+  }
+
+  if (recipients.length === 0) {
     logger.info('sendTemplatedEmail: no recipients', { template })
     return
   }
   const params: SendTemplatedEmailCommandInput = {
     ConfigurationSetName: 'Koekalenteri',
     Destination: {
-      ToAddresses: to,
+      ToAddresses: recipients,
     },
     Source: from,
     Template: `${template}-${CONFIG.stackName}-${language}`,
@@ -41,7 +109,7 @@ export async function sendTemplatedMail(
   }
   if (tags) params.Tags = tags
 
-  logger.info('sending email', { recipientCount: to.length, template })
+  logger.info('sending email', { recipientCount: recipients.length, template })
   return ses.send(new SendTemplatedEmailCommand(params))
 }
 
