@@ -5,9 +5,14 @@ import {
   getEventSeason,
   isEntryOpen,
   isEventDeletable,
+  isResultsPublished,
+  isStartListPublishedForClass,
   isStartNumbersAvailable,
   isStartNumbersAvailableForClass,
+  uniqueClasses,
 } from '../../lib/event'
+import { getResultsBlocker, getStartListBlocker } from '../../lib/publishing'
+import { groupParticipantsByClass } from '../../lib/registration'
 import { eventBodySchema } from '../../lib/schema/event'
 import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
@@ -23,6 +28,7 @@ import {
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
+import { getRegistrationsByEventId } from '../lib/registration'
 import { validateBody } from '../lib/request'
 import { moveOrganizerEventStats } from '../lib/stats'
 import { publishEventChange, publishEventCounts } from '../lib/ws/actions'
@@ -64,7 +70,7 @@ const freezeAbsentStartNumbersState = (
   item: Patch<JsonConfirmedEvent>
 ) => {
   if (!existing || existing.startNumbersPublished !== undefined) return
-  if (!Object.hasOwn(item, 'startListPublished') || Object.hasOwn(item, 'startNumbersPublished')) return
+  if (!Object.hasOwn(item, 'startListPublished')) return
 
   if (existing.classes?.length) {
     const frozen: Partial<Record<RegistrationClass, boolean>> = {}
@@ -78,6 +84,51 @@ const freezeAbsentStartNumbersState = (
   }
 }
 
+/**
+ * The classes — or the classless event, as `undefined` — whose flag the request turns on. Only a
+ * publish is held to the rules: hiding is always allowed, and a flag left as it was is not re-judged.
+ */
+const newlyPublished = (
+  data: JsonConfirmedEvent,
+  published: (event: JsonConfirmedEvent, eventClass: RegistrationClass | undefined) => boolean,
+  existing: JsonConfirmedEvent
+): Array<RegistrationClass | undefined> => {
+  const classes: Array<RegistrationClass | undefined> = data.classes?.length ? uniqueClasses(data) : [undefined]
+  return classes.filter((eventClass) => published(data, eventClass) && !published(existing, eventClass))
+}
+
+const startListFlag = (event: JsonConfirmedEvent, eventClass: RegistrationClass | undefined) =>
+  isStartListPublishedForClass(event, eventClass ?? event.eventType)
+
+/**
+ * The panel greys its buttons by the publishing rules, but a button is no guard: the same rules hold
+ * here, from the same code (KOE-1466). The start list waits on its participants and their invitations,
+ * the results on the start list and on the trial having run.
+ */
+const checkPublishing = async (
+  existing: JsonConfirmedEvent | undefined,
+  item: Patch<JsonConfirmedEvent>,
+  data: JsonConfirmedEvent
+) => {
+  if (!existing) return
+
+  const startLists = Object.hasOwn(item, 'startListPublished') ? newlyPublished(data, startListFlag, existing) : []
+  const results = Object.hasOwn(item, 'resultsPublished') ? newlyPublished(data, isResultsPublished, existing) : []
+
+  if (startLists.length) {
+    const participants = groupParticipantsByClass(await getRegistrationsByEventId(data.id))
+    for (const eventClass of startLists) {
+      const reason = getStartListBlocker(data, eventClass, participants[eventClass ?? data.eventType] ?? [])
+      if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'startList', reason })
+    }
+  }
+
+  for (const eventClass of results) {
+    const reason = getResultsBlocker(data, eventClass)
+    if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'results', reason })
+  }
+}
+
 const restoreServerOwnedLocks = (data: JsonConfirmedEvent, existing: JsonConfirmedEvent | undefined) => {
   delete data.registrationGroupsLock
   if (existing?.registrationGroupsLock) data.registrationGroupsLock = existing.registrationGroupsLock
@@ -87,6 +138,12 @@ const restoreServerOwnedLocks = (data: JsonConfirmedEvent, existing: JsonConfirm
   // event save must not clobber the spans a post recorded meanwhile.
   delete data.turns
   if (existing?.turns) data.turns = existing.turns
+  // The numbers are published only through PutStartNumbersFunction, which freezes them and holds the
+  // publish to its rules; an event save must not flip them on the side (KOE-1466).
+  if (existing) {
+    delete data.startNumbersPublished
+    if (existing.startNumbersPublished !== undefined) data.startNumbersPublished = existing.startNumbersPublished
+  }
 }
 
 const persistEvent = async (
@@ -236,6 +293,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // admin payload, including when the stored event currently has no lock.
   restoreServerOwnedLocks(data, existing)
   freezeAbsentStartNumbersState(data, existing, item)
+  await checkPublishing(existing, item, data)
   await updateEventDerivedFields(data)
 
   // modification info is always updated

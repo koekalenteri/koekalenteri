@@ -105,7 +105,6 @@ interface Props {
     time?: StartNumbersTime
   ) => Promise<unknown>
   readonly selectedByClass: RegistrationInfo['selectedByClass']
-  readonly stateByClass: RegistrationInfo['stateByClass']
 }
 
 /**
@@ -124,7 +123,6 @@ const StartNumbersPublishing = ({
   numbersByClass,
   onSetStartNumbersPublished,
   selectedByClass,
-  stateByClass,
 }: Props) => {
   const { t } = useTranslation()
 
@@ -150,7 +148,7 @@ const StartNumbersPublishing = ({
     }
   }
 
-  const rows = getPublishingRows({ event, eventWithCurrentAttachments, selectedByClass, stateByClass }, numbersByClass)
+  const rows = getPublishingRows({ event, eventWithCurrentAttachments, selectedByClass }, numbersByClass)
 
   return (
     <PublishingSection
@@ -172,8 +170,7 @@ const StartNumbersPublishing = ({
         const { className, publishable, startListEventClass, startListPublished } = row
         const numbersPublished = isStartNumbersPublished(event, row.eventClass)
         // Numbers can only be public on a published list, so the buttons wait for the list.
-        const canManageStartNumbers =
-          Boolean(onSetStartNumbersPublished) && row.manageable && row.invitationsSettled && startListPublished
+        const canManageStartNumbers = Boolean(onSetStartNumbersPublished) && publishable && !row.startNumbersBlocker
         const days = classDays(event, className)
         const multiDay = days.length > 1
         const published: PublishedStartNumbersSlot[] = startListPublished

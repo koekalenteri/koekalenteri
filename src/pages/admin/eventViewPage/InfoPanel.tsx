@@ -294,7 +294,6 @@ const InfoPanel = ({
             numbersByClass={numbersByClass}
             onSetStartNumbersPublished={onSetStartNumbersPublished}
             selectedByClass={selectedByClass}
-            stateByClass={stateByClass}
           />
           <ResultsPublishing event={event} eventStarted={eventStarted} onSetResultsPublished={onSetResultsPublished} />
           <EventActions eventFinished={eventFinished} eventId={event.id} hasRegistrations={registrations.length > 0} />
