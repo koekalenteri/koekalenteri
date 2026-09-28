@@ -97,23 +97,54 @@ const writeEmailSuppression = async (eventId: string, registrationId: string, st
   await emailSuppressionDynamoDB.write(emailSuppression)
 }
 
+const isConditionalCheckFailed = (error: unknown) =>
+  typeof error === 'object' && error !== null && 'name' in error && error.name === 'ConditionalCheckFailedException'
+
+/**
+ * Stores the status on the registration only if the registration exists: an unconditional update is
+ * an upsert, and would leave a row holding nothing but `emailDeliveryStatus` in this stack's table.
+ */
+const storeDeliveryStatus = async (eventId: string, registrationId: string, status: JsonEmailDeliveryStatus) => {
+  try {
+    await dynamoDB.update(
+      { eventId, id: registrationId },
+      {
+        set: {
+          emailDeliveryStatus: status,
+        },
+      },
+      undefined,
+      undefined,
+      { expression: 'attribute_exists(#id)', names: { '#id': 'id' } }
+    )
+    return true
+  } catch (error) {
+    if (!isConditionalCheckFailed(error)) throw error
+    return false
+  }
+}
+
 const handleNotification = async (notification: SesNotification) => {
   const eventId = getTag(notification, 'eventId')
   const registrationId = getTag(notification, 'registrationId')
+  const stack = getTag(notification, 'stack')
   const status = buildDeliveryStatus(notification)
 
   if (!eventId || !registrationId || !status) {
     return
   }
 
-  await dynamoDB.update(
-    { eventId, id: registrationId },
-    {
-      set: {
-        emailDeliveryStatus: status,
-      },
-    }
-  )
+  // Mail sent before the `stack` tag existed carries none; the conditional update still keeps it
+  // from creating a row here.
+  if (stack && stack !== CONFIG.stackName) {
+    logger.debug('SES notification belongs to another stack', { stack })
+    return
+  }
+
+  if (!(await storeDeliveryStatus(eventId, registrationId, status))) {
+    logger.info('SES notification for a registration not in this stack', { eventId, registrationId })
+    return
+  }
   await writeEmailSuppression(eventId, registrationId, status)
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
   await publishRegistrationPatches(

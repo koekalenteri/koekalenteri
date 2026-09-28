@@ -13,7 +13,7 @@ vi.doMock('@aws-sdk/client-ses', () => ({
   }),
 }))
 
-const { emailTo, sendTemplatedMail } = await import('./email')
+const { emailTo, registrationEmailTags, sendTemplatedMail } = await import('./email')
 
 describe('email', () => {
   beforeEach(() => {
@@ -30,6 +30,17 @@ describe('email', () => {
       expect.objectContaining({ message: 'sending email', recipientCount: 2, template: 'registration' })
     )
     expect(mockSend).toHaveBeenCalledTimes(1)
+  })
+
+  it('tags registration mail with the sending stack (KOE-1468)', () => {
+    const [registration] = jsonRegistrationsToEventWithParticipantsInvited
+
+    expect(registrationEmailTags(registration, 'invitation')).toEqual([
+      { Name: 'eventId', Value: registration.eventId },
+      { Name: 'registrationId', Value: registration.id },
+      { Name: 'stack', Value: 'local' },
+      { Name: 'template', Value: 'invitation' },
+    ])
   })
 
   describe('emailTo', () => {
