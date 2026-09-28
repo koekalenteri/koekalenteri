@@ -97,7 +97,8 @@ kalenteri pyytää vahvistuksen. Julkaisu edellyttää, että luokan starttilist
 rivillä lukee *{t:eventManagement.results.startListRequired}* — ja että koe on alkanut. Julkaistu
 tulos näkyy julkisella starttilistalla koirakon rivin viimeisenä rivinä, ja myöhemmin tallennetut
 korjaukset näkyvät siellä sellaisinaan. **{t:eventManagement.results.hide}** piilottaa
-luokan tulokset uudelleen.
+luokan tulokset uudelleen. Kokeessa, jossa ei ole luokkia (esimerkiksi NOU), on yksi koetyypin
+mukaan nimetty rivi, joka julkaisee koko kokeen tulokset.
 
 Julkaisu koskee vain Koekalenteria: se ei lähetä tuloksia Kennelliittoon.
 
