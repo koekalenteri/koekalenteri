@@ -14,7 +14,7 @@ import {
   copyDogEvent,
   getResultsPublishedClassMap,
   getStartListPublishedClassMap,
-  isResultsPublishedForClass,
+  isResultsPublished,
   isStartListPublishedForClass,
   sanitizeDogEvent,
 } from '@/lib/event'
@@ -55,16 +55,19 @@ export const buildStartListClassPublishedPatch = (
   },
 })
 
-const buildResultsClassPublishedPatch = (
+/** A class's flag in the per-class map, or the one flag of a classless event (KOE-1464). */
+export const buildResultsPublishedPatch = (
   event: DogEvent,
-  eventClass: RegistrationClass,
+  eventClass: RegistrationClass | undefined,
   published: boolean
 ): Patch<DogEvent> & { id: string } => ({
   id: event.id,
-  resultsPublished: {
-    ...getResultsPublishedClassMap(event),
-    [eventClass]: published,
-  },
+  resultsPublished: eventClass
+    ? {
+        ...getResultsPublishedClassMap(event),
+        [eventClass]: published,
+      }
+    : published,
 })
 
 export const buildStartListPublishedPatch = (
@@ -149,7 +152,7 @@ export const useAdminEventActions = () => {
     publishStartListClass,
     recordStationTurn,
     save,
-    setResultsClassPublished,
+    setResultsPublished,
     setStartListClassPublished,
     setStartListPublished,
     setStartNumbersClassPublished,
@@ -303,15 +306,15 @@ export const useAdminEventActions = () => {
     return saved
   }
 
-  async function setResultsClassPublished(
+  async function setResultsPublished(
     event: DogEvent,
-    eventClass: RegistrationClass,
+    eventClass: RegistrationClass | undefined,
     published: boolean
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
-    if (isResultsPublishedForClass(event, eventClass) === published) return event
+    if (isResultsPublished(event, eventClass) === published) return event
 
-    const saved = await putEvent(buildResultsClassPublishedPatch(event, eventClass, published), token)
+    const saved = await putEvent(buildResultsPublishedPatch(event, eventClass, published), token)
     await storeSaved(saved)
 
     return saved

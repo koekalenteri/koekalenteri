@@ -13,7 +13,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 636cbc
+sourceHash: e6d200
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -101,7 +101,9 @@ button, and the calendar asks for confirmation. Publishing needs the class's sta
 published — otherwise the row reads *{t:eventManagement.results.startListRequired}* — and the
 trial to have started. A published result shows on the public start list as the last line of the
 dog's row, and corrections saved later show there as they are.
-**{t:eventManagement.results.hide}** hides the class's results again.
+**{t:eventManagement.results.hide}** hides the class's results again. A trial without classes,
+such as NOU, has a single row named after the trial type, and it publishes the results of the
+whole trial.
 
 Publishing concerns the calendar only: it does not send the results to the Kennel Club.
 

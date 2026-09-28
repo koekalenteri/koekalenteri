@@ -35,7 +35,7 @@ import StartNumbersPublishing from './infoPanel/StartNumbersPublishing'
 
 interface Props {
   readonly event: ConfirmedEvent
-  readonly onSetResultsPublished?: (eventClass: RegistrationClass, published: boolean) => Promise<unknown>
+  readonly onSetResultsPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly onSetStartNumbersPublished?: (
     eventClass: RegistrationClass | undefined,

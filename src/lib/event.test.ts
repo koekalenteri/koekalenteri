@@ -54,7 +54,7 @@ import {
   isOfficialEventType,
   isResultsAvailableForClass,
   isResultsAvailableForRegistration,
-  isResultsPublishedForClass,
+  isResultsPublished,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartListAvailableForRegistration,
@@ -1482,23 +1482,31 @@ describe('registrationDatesOutsideClass', () => {
 })
 
 describe('publishing results', () => {
-  describe('isResultsPublishedForClass', () => {
+  describe('isResultsPublished', () => {
     it('treats an absent flag as not published', () => {
       // The start list reads the other way, because its records predate the flag. A result nobody
       // released must never appear, so the same shape carries the opposite default.
-      expect(isResultsPublishedForClass({}, 'ALO')).toBe(false)
+      expect(isResultsPublished({}, 'ALO')).toBe(false)
       expect(isStartListPublishedForClass({}, 'ALO')).toBe(true)
     })
 
     it('publishes every class when the flag is a plain true', () => {
-      expect(isResultsPublishedForClass({ resultsPublished: true }, 'ALO')).toBe(true)
+      expect(isResultsPublished({ resultsPublished: true }, 'ALO')).toBe(true)
     })
 
     it('publishes only the classes the map names', () => {
       const event = { resultsPublished: { ALO: true } }
 
-      expect(isResultsPublishedForClass(event, 'ALO')).toBe(true)
-      expect(isResultsPublishedForClass(event, 'AVO')).toBe(false)
+      expect(isResultsPublished(event, 'ALO')).toBe(true)
+      expect(isResultsPublished(event, 'AVO')).toBe(false)
+    })
+
+    it('reads the one flag of a classless event (KOE-1464)', () => {
+      expect(isResultsPublished({ resultsPublished: true })).toBe(true)
+      expect(isResultsPublished({ resultsPublished: false })).toBe(false)
+      expect(isResultsPublished({})).toBe(false)
+      // A class map names classes, so it has nothing to say about an event without one.
+      expect(isResultsPublished({ resultsPublished: { ALO: true } })).toBe(false)
     })
   })
 
@@ -1700,6 +1708,23 @@ describe('isResultsAvailableForRegistration', () => {
     expect(isResultsAvailableForRegistration(twoDays, { class: 'ALO', group: { date: new Date('2026-09-13') } })).toBe(
       false
     )
+  })
+
+  it('shows the results of a classless event once its one flag is on (KOE-1464)', () => {
+    // A tolling aptitude trial (NOU) has no classes; its dogs carry no class either.
+    const classless = {
+      classes: [],
+      startDate: new Date('2026-09-26'),
+      startListPublished: true,
+      state: 'ended' as const,
+    }
+    const noClassDog = { group: { date: new Date('2026-09-26') } }
+
+    expect(isResultsAvailableForRegistration({ ...classless, resultsPublished: true }, noClassDog)).toBe(true)
+    expect(isResultsAvailableForRegistration(classless, noClassDog)).toBe(false)
+    expect(
+      isResultsAvailableForRegistration({ ...classless, resultsPublished: true, startListPublished: false }, noClassDog)
+    ).toBe(false)
   })
 })
 

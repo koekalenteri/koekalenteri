@@ -354,10 +354,13 @@ const isResultsPublishedClassMap = (
 /**
  * Publishing is explicit. Where the start list treats an absent flag as published — its records predate
  * the flag — an absent results flag means not published: a result nobody released must not leak.
+ *
+ * Without a class it answers for a classless event (NOU, NOME-A), whose one flag covers the whole
+ * event (KOE-1464).
  */
-export const isResultsPublishedForClass = (event: Pick<JsonDogEvent, 'resultsPublished'>, eventClass: string) =>
+export const isResultsPublished = (event: Pick<JsonDogEvent, 'resultsPublished'>, eventClass?: RegistrationClass) =>
   isResultsPublishedClassMap(event.resultsPublished)
-    ? event.resultsPublished[eventClass as RegistrationClass] === true
+    ? eventClass !== undefined && event.resultsPublished[eventClass] === true
     : event.resultsPublished === true
 
 /** Every class's results are out — the public list is no longer just participants (KOE-1285). */
@@ -365,8 +368,8 @@ export const hasAllResultsPublished = (
   event: Pick<JsonDogEvent, 'resultsPublished'> & { classes?: Array<Pick<EventClass, 'class'>> | null }
 ): boolean => {
   const classes = uniqueClasses(event)
-  if (classes.length === 0) return event.resultsPublished === true
-  return classes.every((eventClass) => isResultsPublishedForClass(event, eventClass))
+  if (classes.length === 0) return isResultsPublished(event)
+  return classes.every((eventClass) => isResultsPublished(event, eventClass))
 }
 
 /** Whether any class's results are public — what a search for "events with results" filters on. */
@@ -400,7 +403,7 @@ export const isResultsAvailableForClass = (
 ) =>
   isStartListAvailableForClass(event, eventClass) &&
   canPublishResults(eventClass.state ?? event.state, event) &&
-  isResultsPublishedForClass(event, eventClass.class)
+  isResultsPublished(event, eventClass.class)
 
 export const getResultsPublishedClassMap = ({
   classes,
@@ -521,11 +524,10 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
 
   // The results step, mirroring the start list's. Unlike it there is no legacy default: a result is
   // published only where something says so, so an event that never gets here simply stops at 'ended'.
-  const publishedResultsClasses = startListClasses.filter((eventClass) => isResultsPublishedForClass(event, eventClass))
   const resultsActionable = startListClasses.some((eventClass) =>
     canPublishResults(event.classes.find((item) => item.class === eventClass)?.state ?? event.state, event, now)
   )
-  const resultsCompleted = resultsActionable && publishedResultsClasses.length === startListClasses.length
+  const resultsCompleted = resultsActionable && hasAllResultsPublished(event)
 
   const phaseIndex = Math.max(
     statePhaseIndex,
@@ -545,7 +547,6 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     entryStarted,
     eventClasses,
     phase: getProgressPhaseAtIndex(event, phaseIndex, now),
-    publishedResultsClasses,
     publishedStartListClasses,
     publishedStartNumbersClasses,
     reachedPhaseIndex,
@@ -923,9 +924,14 @@ export const getStartNumbersPublishedClassMap = ({
  * unpublished result must not ride out on the back of a published list.
  */
 export const isResultsAvailableForRegistration = (
-  event: Pick<JsonDogEvent, 'state' | 'resultsPublished'> & AvailabilityEvent,
+  event: Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'> & AvailabilityEvent,
   registration: AvailabilityRegistration
 ) => {
+  // A classless event (NOU, NOME-A) publishes its results as the one flag for the whole event (KOE-1464).
+  if (!event.classes?.length) {
+    return isStartListAvailable(event) && canPublishResults(event.state, event) && isResultsPublished(event)
+  }
+
   const eventClass = findRegistrationClass(event, registration)
 
   return eventClass ? isResultsAvailableForClass(event, eventClass) : false

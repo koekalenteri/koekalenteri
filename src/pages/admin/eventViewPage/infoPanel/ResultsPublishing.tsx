@@ -12,16 +12,11 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import {
-  canPublishResults,
-  getEventStateForClass,
-  isResultsPublishedForClass,
-  isStartListAvailableForClass,
-  uniqueClasses,
-} from '@/lib/event'
+import { canPublishResults, getEventStateForClass, isResultsPublished, uniqueClasses } from '@/lib/event'
 import { scoresAtPosts } from '@/lib/results'
 import { Path } from '@/routeConfig'
 import { PublishingSection } from './PublishingSection'
+import { isStartListPublished } from './publishingRow'
 import { actionButtonSx } from './styles'
 
 interface Props {
@@ -32,7 +27,26 @@ interface Props {
    * Passed in rather than taken from the action hook here: that hook reads an async atom, and reading
    * it during this render suspends the whole panel on a click.
    */
-  readonly onSetResultsPublished?: (eventClass: RegistrationClass, published: boolean) => Promise<unknown>
+  readonly onSetResultsPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
+}
+
+interface ResultsRow {
+  /** The class, or the event type for a classless event. */
+  readonly name: string
+  /** The class the publish request is for; undefined for the classless event. */
+  readonly eventClass: RegistrationClass | undefined
+}
+
+/**
+ * One row per class, or a single row for the whole event where it has no classes (NOU, NOME-A): a
+ * classless event publishes its results as one flag, and without the row it had no button at all
+ * (KOE-1464).
+ */
+const getResultsRows = (event: ConfirmedEvent): ResultsRow[] => {
+  const classes = uniqueClasses(event)
+  return classes.length
+    ? classes.map((eventClass) => ({ eventClass, name: eventClass }))
+    : [{ eventClass: undefined, name: event.eventType }]
 }
 
 /**
@@ -49,15 +63,17 @@ interface Props {
 const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props) => {
   const { t } = useTranslation()
   const confirm = useConfirm()
-  const classes = uniqueClasses(event)
+  const rows = getResultsRows(event)
 
   const toggle = useCallback(
-    async (eventClass: RegistrationClass, published: boolean) => {
+    async (eventClass: RegistrationClass | undefined, published: boolean) => {
       if (published) {
         // Publishing is the step that cannot be quietly undone in the reader's mind, so it is asked for.
         const { confirmed } = await confirm({
           confirmationText: t('eventManagement.results.publish'),
-          description: t('eventManagement.results.confirm', { eventClass }),
+          description: eventClass
+            ? t('eventManagement.results.confirm', { eventClass })
+            : t('eventManagement.results.confirmEvent'),
           title: t('eventManagement.results.confirmTitle'),
         })
         if (!confirmed) return
@@ -65,10 +81,11 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
 
       try {
         await onSetResultsPublished?.(eventClass, published)
-        enqueueSnackbar(
-          t(published ? 'eventManagement.results.publishedSnack' : 'eventManagement.results.hidden', { eventClass }),
-          { variant: 'success' }
-        )
+        const classMessage = published ? 'eventManagement.results.publishedSnack' : 'eventManagement.results.hidden'
+        const eventMessage = published
+          ? 'eventManagement.results.publishedSnackEvent'
+          : 'eventManagement.results.hiddenEvent'
+        enqueueSnackbar(eventClass ? t(classMessage, { eventClass }) : t(eventMessage), { variant: 'success' })
       } catch {
         enqueueSnackbar(t('eventManagement.results.saveFailed'), errorSnackbarOptions)
       }
@@ -106,18 +123,18 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
         </Stack>
       }
     >
-      {classes.map((eventClass) => {
-        const published = isResultsPublishedForClass(event, eventClass)
+      {rows.map(({ eventClass, name }) => {
+        const published = isResultsPublished(event, eventClass)
         const classState = getEventStateForClass(event, eventClass)
         // Results travel on the start list's rows, so publishing them while it is hidden would
         // change nothing a spectator can see. Say so rather than leaving a dead button.
-        const classEntry = event.classes.find((item) => item.class === eventClass) ?? { class: eventClass }
-        const startListPublished = isStartListAvailableForClass(event, classEntry)
+        const classEntry = event.classes.find((item) => item.class === eventClass)
+        const startListPublished = isStartListPublished(event, classEntry)
         // Nothing to publish before the dogs have run.
         const ready = startListPublished && canPublishResults(classState, event)
 
         return (
-          <TableRow key={eventClass}>
+          <TableRow key={name}>
             <TableCell align="left">
               <Box
                 sx={{
@@ -131,7 +148,7 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
                     fontWeight: 'bold',
                   }}
                 >
-                  {eventClass}
+                  {name}
                 </Typography>
                 {published && (
                   <Typography
