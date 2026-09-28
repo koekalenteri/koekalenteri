@@ -4,11 +4,9 @@ import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { jsonRegistrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
 import {
   assertCopyIsScrubbed,
-  COPY_PHONE_PREFIX,
   COPY_REPLACED_TEXT,
   createEventCopy,
   findCopyLeaks,
-  phoneDigits,
   REGISTRATION_PERSON_FIELDS,
   removeEventRuntimeState,
 } from './eventCopy'
@@ -70,7 +68,7 @@ const sourceRegistrations = (): JsonRegistration[] => {
         name: 'Matti Meikäläinen',
         phone: '+358 40 765 4321',
       },
-      payer: { email: 'maija@example.fi', name: 'Maija Maksaja', phone: '050 999 8888' },
+      payer: { email: 'maija@example.fi', name: 'Maija Maksaja', phone: '+46 70 123 45 67' },
     },
     {
       ...second,
@@ -118,15 +116,21 @@ describe('createEventCopy', () => {
     expect(second.owner?.email).toBe('jukka@example.com')
   })
 
-  it('gives people stand-in names and numbers from the reserved 048 range', () => {
+  it('gives people stand-in names', () => {
     expect(first.handler?.name).toMatch(/^\p{L}+ \p{L}+ [0-9a-f]{4,}$/u)
     expect(first.handler?.name).not.toBe('Matti Meikäläinen')
     expect(first.owner?.name).toBe(first.handler?.name)
-    expect(first.owner?.phone).toBe(first.handler?.phone)
-    expect(first.handler?.phone).toMatch(COPY_PHONE)
-    expect(first.payer?.phone).toMatch(COPY_PHONE)
     expect(first.breeder.name).toBe(second.breeder.name)
     expect(first.breeder.name).not.toBe('Kennel Fantasia')
+  })
+
+  // What the original number was makes no difference: Finnish or not, however written
+  it('numbers every phone in order from 048', () => {
+    expect([first.owner?.phone, first.handler?.phone, first.payer?.phone]).toEqual([
+      '+358 48 0000001',
+      '+358 48 0000002',
+      '+358 48 0000003',
+    ])
   })
 
   it('keeps what does not identify a person', () => {
@@ -208,7 +212,7 @@ describe('createEventCopy', () => {
     }
   })
 
-  it('gives every number its own stand-in, even where hashes collide', () => {
+  it('gives every address and number its own stand-in, even where hashes collide', () => {
     const numbers = Array.from({ length: 5000 }, (_, i) => `040 ${String(1_000_000 + i)}`)
     const registrations = numbers.map((phone, i) => ({
       ...sourceRegistrations()[1],
@@ -242,13 +246,6 @@ describe('findCopyLeaks', () => {
     expect(findCopyLeaks(copy, copier, originals)).toEqual(['name: an original name'])
   })
 
-  it('finds an original number however it is written', () => {
-    const { copy, originals } = clean()
-    copy.event.location = '+358407654321'
-
-    expect(findCopyLeaks(copy, copier, originals)).toEqual(['phone: an original number'])
-  })
-
   it('checks the shape without the originals: addresses and phone fields', () => {
     const { copy } = clean()
     copy.registrations[0].handler = {
@@ -280,15 +277,6 @@ describe('findCopyLeaks', () => {
       'Event copy rejected: email: an address that is not the copier’s, email: an original address'
     )
     expect(() => assertCopyIsScrubbed(copy, copier, originals)).not.toThrow(/matti/)
-  })
-})
-
-describe('phoneDigits', () => {
-  it('reads a Finnish number the same however it is written', () => {
-    expect(phoneDigits('040 765 4321')).toBe('407654321')
-    expect(phoneDigits('+358 40 765 4321')).toBe('407654321')
-    expect(phoneDigits('00358407654321')).toBe('407654321')
-    expect(phoneDigits(`${COPY_PHONE_PREFIX}1234567`)).toBe('481234567')
   })
 })
 

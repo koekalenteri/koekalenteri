@@ -8,10 +8,10 @@ import { removeRegistrationCreationMetadata } from './registration'
  * dev, or between test and dev. Every person in it is replaced before the copy leaves the source,
  * and the copy is checked for anything that got through before it is sent anywhere.
  *
- * Replacements are deterministic within one copy — the same original always gets the same stand-in,
- * so logic that compares people (handler = owner, deduplicated recipients) behaves as it did in the
- * source — and keyed with a random secret per copy that is never stored, so a stand-in cannot be
- * traced back by guessing.
+ * Addresses and names are replaced deterministically within one copy — the same original always gets
+ * the same stand-in, so logic that compares people (handler = owner, deduplicated recipients) behaves
+ * as it did in the source — and keyed with a random secret per copy that is never stored, so a
+ * stand-in cannot be traced back by guessing. Numbers compare nothing, and are handed out in order.
  */
 
 /** Who makes the copy: every mail the copy can send goes to this person. */
@@ -30,15 +30,16 @@ export interface EventCopy {
 interface CopyOriginals {
   emails: Set<string>
   names: Set<string>
-  phones: Set<string>
 }
 
 /**
- * Mobile prefix 048 is in Traficom's own number reserve, allocated to no operator (Traficom
- * regulation M 32 V/2025, annex 1). Finland has no range set aside for fiction, and 040 is fully
- * allocated. Check annex 1 again whenever the regulation is renewed.
+ * Every number in a copy is a number from this range, handed out in order: what the original was
+ * (Finnish or not, however written) makes no difference. Mobile prefix 048 is in Traficom's own
+ * number reserve, allocated to no operator (Traficom regulation M 32 V/2025, annex 1). Finland has
+ * no range set aside for fiction, and 040 is fully allocated. Check annex 1 again whenever the
+ * regulation is renewed.
  */
-export const COPY_PHONE_PREFIX = '+358 48 '
+const COPY_PHONE_PREFIX = '+358 48 '
 
 /** Stands in for free text, which can name anyone and cannot be rewritten reliably. */
 export const COPY_REPLACED_TEXT = '[Kopioinnissa korvattu teksti]'
@@ -69,13 +70,7 @@ export const REGISTRATION_PERSON_FIELDS = {
 
 const normalize = (value: string) => value.trim().replace(/\s+/g, ' ').toLowerCase()
 
-/** The digits that identify a Finnish number whichever way it was written: +358 40…, 040…, 358 40… */
-export const phoneDigits = (phone: string) =>
-  phone
-    .replace(/\D/g, '')
-    .replace(/^00358/, '')
-    .replace(/^358/, '')
-    .replace(/^0/, '')
+const digitsOf = (text: string) => text.replace(/\D/g, '')
 
 /**
  * Maps originals to stand-ins, one map per kind. A stand-in is taken from the keyed hash of the
@@ -113,10 +108,7 @@ const createStandIns = (copier: Copier, key: Buffer) => {
     const last = LAST_NAMES[digest[1] % LAST_NAMES.length]
     return `${first} ${last} ${digest.toString('hex').slice(4, 8 + 2 * attempt)}`
   })
-  const phoneStandIn = kind((digest, attempt) => {
-    const number = (digest.readUInt32BE(8) + attempt) % 10_000_000
-    return `${COPY_PHONE_PREFIX}${String(number).padStart(7, '0')}`
-  })
+  let phones = 0
 
   return {
     email: (original: string) => {
@@ -125,24 +117,15 @@ const createStandIns = (copier: Copier, key: Buffer) => {
       return emailStandIn(email, hash('email', email))
     },
     name: (original: string) => nameStandIn(normalize(original), hash('name', normalize(original))),
-    phone: (original: string) => phoneStandIn(phoneDigits(original), hash('phone', phoneDigits(original))),
+    phone: () => `${COPY_PHONE_PREFIX}${String(++phones).padStart(7, '0')}`,
   }
 }
 
 type StandIns = ReturnType<typeof createStandIns>
 
-/** Shorter than any real number; a stray digit or two must not make every string a leak. */
-const MIN_PHONE_DIGITS = 6
-
-const addPhone = (originals: CopyOriginals, phone: string | undefined) => {
-  const digits = phone ? phoneDigits(phone) : ''
-  if (digits.length >= MIN_PHONE_DIGITS) originals.phones.add(digits)
-}
-
-const collectOriginals = (value: unknown, originals: CopyOriginals, key?: string) => {
+const collectOriginals = (value: unknown, originals: CopyOriginals) => {
   if (typeof value === 'string') {
     for (const match of value.match(EMAIL_RE) ?? []) originals.emails.add(normalizeEmail(match))
-    if (key === 'phone') addPhone(originals, value)
     return
   }
   if (Array.isArray(value)) {
@@ -150,7 +133,7 @@ const collectOriginals = (value: unknown, originals: CopyOriginals, key?: string
     return
   }
   if (value && typeof value === 'object') {
-    for (const [childKey, child] of Object.entries(value)) collectOriginals(child, originals, childKey)
+    for (const child of Object.values(value)) collectOriginals(child, originals)
   }
 }
 
@@ -172,7 +155,7 @@ const copyPerson = <P extends Partial<RegistrationOwner>>(
   return {
     ...person,
     ...(person.name ? { name: standIns.name(person.name) } : {}),
-    ...(person.phone ? { phone: standIns.phone(person.phone) } : {}),
+    ...(person.phone ? { phone: standIns.phone() } : {}),
   }
 }
 
@@ -180,7 +163,7 @@ const replaceText = (text: string | undefined) => (text?.trim() ? COPY_REPLACED_
 
 /** Keeps which of name, email and phone the source showed, so the copy's public page shows the same. */
 const copierContact = (copier: Copier, standIns: StandIns, original: PublicContactInfo): PublicContactInfo => {
-  const phone = copier.phone ?? (original.phone ? standIns.phone(original.phone) : undefined)
+  const phone = copier.phone ?? (original.phone ? standIns.phone() : undefined)
   return {
     ...(original.name === undefined ? {} : { name: copier.name }),
     ...(original.email === undefined ? {} : { email: copier.email }),
@@ -205,7 +188,6 @@ const copyEvent = (source: JsonDogEvent, copier: Copier, standIns: StandIns, ori
   for (const role of ['official', 'secretary'] as const) {
     const person = source[role]
     if (person?.name) originals.names.add(normalize(person.name))
-    addPhone(originals, person?.phone)
     event[role] = { email: copier.email, name: copier.name, ...(copier.phone ? { phone: copier.phone } : {}) }
   }
   if (source.contactInfo) {
@@ -273,7 +255,7 @@ export const createEventCopy = (
   key: Buffer = randomBytes(32)
 ): { copy: EventCopy; originals: CopyOriginals } => {
   const standIns = createStandIns(copier, key)
-  const originals: CopyOriginals = { emails: new Set(), names: new Set(), phones: new Set() }
+  const originals: CopyOriginals = { emails: new Set(), names: new Set() }
   collectOriginals(source, originals)
 
   const event = copyEvent(source.event, copier, standIns, originals)
@@ -287,11 +269,9 @@ export const createEventCopy = (
   collectJudgeNames(source, judgeNames)
   for (const name of judgeNames) originals.names.delete(name)
 
-  // The copier is not someone the copy protects: their own address, name and number are meant to
-  // be in it.
+  // The copier is not someone the copy protects: their own address and name are meant to be in it.
   originals.emails.delete(withoutPlusTag(copier.email))
   originals.names.delete(normalize(copier.name))
-  if (copier.phone) originals.phones.delete(phoneDigits(copier.phone))
 
   return { copy, originals }
 }
@@ -330,14 +310,14 @@ const eachString = (value: unknown, visit: (text: string, key?: string) => void,
 /**
  * What in the copy could still reach a real person. Without `originals` (on the receiving side) only
  * the shape is checked: every address is the copier's, every phone field is the copier's or a
- * reserved-range number. With them (in the source) also that no original address, name or number
- * survives anywhere.
+ * number from 048. With them (in the source) also that no original address or name survives
+ * anywhere.
  */
 export const findCopyLeaks = (copy: EventCopy, copier: Copier, originals?: CopyOriginals): string[] => {
   const copierEmail = withoutPlusTag(copier.email)
   const [copierLocal, copierDomain] = copierEmail.split('@')
-  const copierPhone = copier.phone ? phoneDigits(copier.phone) : undefined
-  const reservedPrefix = phoneDigits(COPY_PHONE_PREFIX)
+  const copierPhone = copier.phone ? digitsOf(copier.phone) : undefined
+  const reservedPrefix = digitsOf(COPY_PHONE_PREFIX)
   const leaks = new Set<string>()
 
   eachString(copy, (text, key) => {
@@ -350,11 +330,10 @@ export const findCopyLeaks = (copy: EventCopy, copier: Copier, originals?: CopyO
       if (originals?.emails.has(email)) leaks.add('email: an original address')
     }
     if (key === 'phone' && text.trim()) {
-      const digits = phoneDigits(text)
+      const digits = digitsOf(text)
       if (digits !== copierPhone && !digits.startsWith(reservedPrefix)) leaks.add('phone: a number outside 048')
     }
     if (originals?.names.has(normalize(text))) leaks.add('name: an original name')
-    if (originals?.phones.has(phoneDigits(text))) leaks.add('phone: an original number')
   })
 
   return [...leaks]
