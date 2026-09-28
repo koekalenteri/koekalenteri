@@ -40,3 +40,5 @@ Writing to a collection atom — a WebSocket invalidation, a manual refresh, an 
 `lastSeen` is the one field the version cannot see: refreshing it deliberately leaves `modifiedAt` — and with it the collection version — alone, or every login would invalidate every admin's cached user list. The users list therefore stays cached, and the page that shows `lastSeen` refreshes it incrementally with `?since=`; that is why `lastSeen` counts as a change for the incremental cursor on both sides.
 
 If IndexedDB or Web Crypto is unavailable (for example in tests), cache read/write failures are ignored and the atom falls back to remote fetching.
+
+A cache is only worth waiting for while waiting beats the call it saves, so every IndexedDB operation is given three seconds (`src/lib/client/idb.ts`). A browser that answers an open or a read with neither `success` nor `error` — a version change another tab is holding up, a profile whose storage has gone bad — is a cache miss like any other. Without that bound the wait had no end, and the event form, which loads six of these collections before it renders anything, showed its spinner and nothing else (KOE-1463).

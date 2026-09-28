@@ -31,6 +31,7 @@ import {
   parseJSON,
   patchMerge,
   splitEvenly,
+  withTimeout,
 } from './utils'
 
 describe('utils', () => {
@@ -803,6 +804,34 @@ describe('utils', () => {
 
     it('returns zeros when total is zero', () => {
       expect(splitEvenly(0, 3)).toEqual([0, 0, 0])
+    })
+  })
+
+  describe('withTimeout', () => {
+    beforeEach(() => vi.useFakeTimers())
+    afterEach(() => vi.useRealTimers())
+
+    it('resolves with the value when the promise settles in time', async () => {
+      await expect(withTimeout(Promise.resolve('value'), 1000, 'the load')).resolves.toBe('value')
+    })
+
+    it('rejects with the original error when the promise fails in time', async () => {
+      await expect(withTimeout(Promise.reject(new Error('failed')), 1000, 'the load')).rejects.toThrow('failed')
+    })
+
+    it('rejects when the promise never settles', async () => {
+      const rejects = expect(withTimeout(new Promise(() => {}), 1000, 'the load')).rejects.toThrow(
+        'the load timed out after 1000 ms'
+      )
+
+      await vi.advanceTimersByTimeAsync(1000)
+      await rejects
+    })
+
+    it('does not leave the timer running once the promise settles', async () => {
+      await withTimeout(Promise.resolve('value'), 1000, 'the load')
+
+      expect(vi.getTimerCount()).toBe(0)
     })
   })
 })

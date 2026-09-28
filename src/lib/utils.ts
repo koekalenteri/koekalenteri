@@ -200,3 +200,24 @@ export const splitEvenly = (total: number, count: number): number[] => {
   const remainder = total % count
   return Array.from({ length: count }, (_, index) => share + (index === 0 ? remainder : 0))
 }
+
+/**
+ * `promise`, but rejecting once `ms` has passed without it settling. Only for waits that something
+ * is blocked on: a promise that never settles has no error to report and no failure path to take,
+ * so whatever is waiting for it waits forever, showing a spinner and nothing else (KOE-1463).
+ * `what` names the operation in that error.
+ */
+export const withTimeout = <T>(promise: Promise<T>, ms: number, what: string): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`${what} timed out after ${ms} ms`)), ms)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        clearTimeout(timer)
+        reject(error)
+      }
+    )
+  })
