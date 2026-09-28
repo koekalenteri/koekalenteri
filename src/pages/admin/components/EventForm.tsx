@@ -13,7 +13,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { objectsDiffer } from '@/lib/diff'
 import { isEventOver } from '@/lib/event'
-import { merge } from '@/lib/utils'
+import { merge, withTimeout } from '@/lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import {
@@ -45,15 +45,29 @@ interface Props {
 }
 
 const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed', 'cancelled']
+
+/**
+ * The form renders nothing until every list it offers has loaded, so this load must end one way or
+ * the other. The requests underneath it all have their own timeouts, but a dependency that answers
+ * neither -- a stalled browser cache, say -- left the page showing its spinner for as long as the
+ * secretary was willing to look at it, with nothing in the console and nothing to retry (KOE-1463).
+ * The cap is well past the slowest load that can still succeed: every request times out at 10 s and
+ * a read is retried once.
+ */
+const OPTIONS_TIMEOUT_MS = 30_000
 const eventFormOptionsAtom = atom(async (get) =>
-  Promise.all([
-    get(adminActiveEventTypesAtom),
-    get(adminActiveJudgesAtom),
-    Promise.resolve(get(adminEventTypeClassesAtom)),
-    get(adminUsersAtom),
-    get(adminUserOrganizersAtom),
-    get(adminLocationNamesAtom),
-  ])
+  withTimeout(
+    Promise.all([
+      get(adminActiveEventTypesAtom),
+      get(adminActiveJudgesAtom),
+      Promise.resolve(get(adminEventTypeClassesAtom)),
+      get(adminUsersAtom),
+      get(adminUserOrganizersAtom),
+      get(adminLocationNamesAtom),
+    ]),
+    OPTIONS_TIMEOUT_MS,
+    'loading the event form options'
+  )
 )
 
 export default function EventForm({ event, changes, canSave, disabled, onSave, onCancel, onChange }: Props) {

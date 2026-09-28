@@ -2,19 +2,30 @@ import type { DogEvent } from '@/types'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { screen } from '@testing-library/react'
-import { Provider } from 'jotai'
+import { act, screen } from '@testing-library/react'
+import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
 import { eventWithEntryNotYetOpen, eventWithStaticDates } from '@/__mockData__/events'
+import { getLocations } from '@/api/location'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { flushPromises, renderSuspendedWithUserEvents, runPendingTimers } from '@/test-utils/utils'
+import { idTokenAtom } from '@/pages/state'
+import { expectConsoleOutput } from '@/test-utils/consoleGuard'
+import {
+  DataMemoryRouter,
+  flushPromises,
+  renderSuspended,
+  renderSuspendedWithUserEvents,
+  runPendingTimers,
+  TEST_ID_TOKEN,
+} from '@/test-utils/utils'
 import EventForm from './EventForm'
 
 vi.mock('@/api/user')
 vi.mock('@/api/event')
 vi.mock('@/api/eventType')
 vi.mock('@/api/judge')
+vi.mock('@/api/location')
 vi.mock('@/api/official')
 vi.mock('@/api/organizer')
 vi.mock('@/api/registration')
@@ -109,5 +120,39 @@ describe('EventForm', () => {
 
     const saveButton = screen.getAllByRole('button').find((button) => button.querySelector('[data-testid="SaveIcon"]'))
     expect(saveButton).toBeDisabled()
+  })
+
+  // KOE-1463: the form renders nothing until every list it offers has loaded, so a list that never
+  // answers used to leave the secretary looking at the spinner for as long as she cared to wait.
+  it('gives up on a load that never finishes instead of spinning forever', async () => {
+    expectConsoleOutput(/loading the event form options timed out/)
+    vi.mocked(getLocations).mockReturnValueOnce(new Promise(() => {}))
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider store={store}>
+            <DataMemoryRouter
+              routes={[
+                {
+                  element: <EventForm event={eventWithStaticDates} canSave />,
+                  errorElement: <p>error page</p>,
+                  path: '/',
+                },
+              ]}
+            />
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    expect(screen.queryByText('error page')).not.toBeInTheDocument()
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000)
+    })
+
+    expect(screen.getByText('error page')).toBeInTheDocument()
   })
 })

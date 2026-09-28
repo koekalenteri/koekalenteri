@@ -3,7 +3,7 @@ import type { RouteObject } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import theme from '../assets/Theme'
-import { DataMemoryRouter } from '../test-utils/utils'
+import { DataMemoryRouter, renderWithUserEvents } from '../test-utils/utils'
 import { ErrorPage } from './ErrorPage'
 
 describe('ErrorPage', () => {
@@ -18,6 +18,7 @@ describe('ErrorPage', () => {
 
   afterEach(() => {
     window.removeEventListener('error', preventDefault)
+    vi.restoreAllMocks()
   })
 
   it('should render 404', () => {
@@ -52,6 +53,29 @@ describe('ErrorPage', () => {
     )
     expect(screen.getByRole('heading', { name: 'error.somethingWentWrong' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'goHome' })).toHaveAttribute('href', '/')
+  })
+
+  // KOE-1463: everything that ends up here is a failure the page cannot recover from on its own,
+  // and most of them pass on a second attempt -- so there has to be something to press.
+  it('reloads the page on try again', async () => {
+    const reload = vi.fn()
+    vi.spyOn(globalThis, 'location', 'get').mockReturnValue({ ...globalThis.location, reload })
+    const routes: RouteObject[] = [
+      {
+        element: <ErrorThrowingComponent />,
+        errorElement: <ErrorPage />,
+        path: '/',
+      },
+    ]
+    const { user } = renderWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <DataMemoryRouter initialEntries={['/']} routes={routes} />
+      </ThemeProvider>
+    )
+
+    await user.click(screen.getByRole('button', { name: 'error.tryAgain' }))
+
+    expect(reload).toHaveBeenCalledTimes(1)
   })
 })
 

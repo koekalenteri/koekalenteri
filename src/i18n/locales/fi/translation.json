@@ -205,7 +205,8 @@
     "eventNotFound": "Tapahtumaa ei löydy.",
     "registrationNotFound": "Ilmoittautumista ei löydy.",
     "somethingWentWrong": "Jotakin meni pieleen.",
-    "startListNotAvailable": "Starttilistaa ei ole saatavilla tälle tapahtumalle."
+    "startListNotAvailable": "Starttilistaa ei ole saatavilla tälle tapahtumalle.",
+    "tryAgain": "Yritä uudelleen"
   },
   "event": {
     "attachments": "Liitteet",
