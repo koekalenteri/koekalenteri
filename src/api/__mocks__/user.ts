@@ -7,7 +7,7 @@ const MOCK_ADMIN: User = {
   name: 'Test User',
 }
 
-export const getUser = async (_token: string, _signal?: AbortSignal) => MOCK_ADMIN
+export const getUser = vi.fn(async (_token: string, _signal?: AbortSignal): Promise<User> => MOCK_ADMIN)
 
 const MOCK_RETURNING_USER: User = {
   email: 'returning@user.vi',

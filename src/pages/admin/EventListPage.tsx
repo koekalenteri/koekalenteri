@@ -1,31 +1,36 @@
+import type { Theme } from '@mui/material'
 import type { GridRowParams, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { DogEvent } from '../../types'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutlined'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
+import DriveFileMoveOutlined from '@mui/icons-material/DriveFileMoveOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import { useAtom, useAtomValue } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { useConfirm } from 'material-ui-confirm'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatDistance } from '../../i18n/dates'
 import { firstSelectedRow, rowSelectionModel } from '../../lib/datagrid'
-import { isDevEnv } from '../../lib/env'
+import { apiStage, copyTargets, isDevEnv } from '../../lib/env'
 import { hasEntryStarted, isEventDeletable } from '../../lib/event'
 import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
+import { isAdminAtom } from '../state'
 import { useRecentUpdateRowClassName } from '../state/recentUpdates'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
+import CopyToEnvironmentDialog from './eventListPage/CopyToEnvironmentDialog'
 import useEventListColumns from './eventListPage/columns'
 import {
   adminCurrentEventAtom,
@@ -68,6 +73,14 @@ export default function EventListPage() {
   const options = useMemo(() => [{ id: '', name: t('all') }, ...orgs], [orgs, t])
   const newEvent = useAtomValue(adminNewEventAtom)
   const resetNewEvent = useResetAtom(adminNewEventAtom)
+  const isAdmin = useAtomValue(isAdminAtom)
+  // A phone's toolbar has room for five captions; copying between environments is desk work
+  const phone = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
+  // prod copies to test and dev, test and dev to each other, nothing to prod (KOE-1471)
+  const copyToTargets = useMemo(() => (isAdmin && !phone ? copyTargets(apiStage()) : []), [isAdmin, phone])
+  const [copyToOpen, setCopyToOpen] = useState(false)
+  const openCopyTo = useCallback(() => setCopyToOpen(true), [])
+  const closeCopyTo = useCallback(() => setCopyToOpen(false), [])
 
   const deleteAction = useCallback(() => {
     confirm({
@@ -159,6 +172,14 @@ export default function EventListPage() {
             text={t('copyTest')}
           />
         )}
+        {copyToTargets.length > 0 && (
+          <AutoButton
+            startIcon={<DriveFileMoveOutlined />}
+            disabled={!selectedEventID}
+            onClick={openCopyTo}
+            text={t('copyToEnvironment')}
+          />
+        )}
         <AutoButton
           startIcon={<DeleteOutline />}
           disabled={!selectedEventID || !isEventDeletable(selectedEvent)}
@@ -172,6 +193,15 @@ export default function EventListPage() {
           text={t('registrations')}
         />
       </Stack>
+      {copyToOpen && selectedEvent && (
+        <CopyToEnvironmentDialog
+          eventName={selectedEvent.name}
+          onClose={closeCopyTo}
+          onCopy={actions.copyCurrentToEnvironment}
+          open
+          targets={copyToTargets}
+        />
+      )}
       <StyledDataGrid
         autoPageSize
         columns={columns}

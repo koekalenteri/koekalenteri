@@ -1,4 +1,12 @@
-import type { JsonDogEvent, JsonJudge, JsonRegistration, PublicContactInfo, RegistrationOwner } from '../../types'
+import type {
+  EventCopyJudgeNotice,
+  EventCopyResult,
+  JsonDogEvent,
+  JsonJudge,
+  JsonRegistration,
+  PublicContactInfo,
+  RegistrationOwner,
+} from '../../types'
 import { createHmac, randomBytes } from 'node:crypto'
 import { judgesMockTrialIndependently } from '../../lib/judge'
 import { normalizeEmail, withoutPlusTag } from './email'
@@ -351,21 +359,6 @@ export const assertCopyIsScrubbed = (copy: EventCopy, copier: Copier, originals?
   if (leaks.length) throw new Error(`Event copy rejected: ${leaks.join(', ')}`)
 }
 
-type Stage = 'prod' | 'test' | 'dev'
-
-/**
- * Where an environment may copy to. Never into prod: prod has no import function to receive a copy
- * (KOE-1471), and this list is the export's own refusal on top of that.
- */
-const COPY_TARGETS: Record<Stage, Stage[]> = {
-  dev: ['test'],
-  prod: ['test', 'dev'],
-  test: ['dev'],
-}
-
-export const copyTargets = (stage: string): Stage[] =>
-  stage === 'prod' || stage === 'test' || stage === 'dev' ? COPY_TARGETS[stage] : []
-
 /**
  * The target's stack, named like this one (`koekalenteri-prod` → `koekalenteri-test`), or undefined
  * where this stack's name does not end in its stage (a local run).
@@ -384,17 +377,7 @@ export interface CopyImportRequest {
   source: { stage: string; eventId: string }
 }
 
-type JudgeNoticeReason = 'missing' | 'inactive' | 'eventType' | 'mockTrial'
-
-export interface JudgeNotice {
-  name: string
-  reason: JudgeNoticeReason
-}
-
-export interface CopyImportResult {
-  eventId: string
-  judges: JudgeNotice[]
-}
+export type CopyImportResult = Omit<EventCopyResult, 'target'>
 
 /**
  * The event's Kennel Club judges the target cannot use as they are: the event form checks judges
@@ -402,7 +385,7 @@ export interface CopyImportResult {
  * their own there. Reported by name for an admin to settle; the import fetches and activates no one.
  */
 export const judgeNotices = (event: Pick<JsonDogEvent, 'eventType' | 'judges' | 'mockTrial'>, judges: JsonJudge[]) => {
-  const notices: JudgeNotice[] = []
+  const notices: EventCopyJudgeNotice[] = []
   for (const eventJudge of event.judges) {
     if (!eventJudge.id || eventJudge.id < 0) continue
     const judge = judges.find((j) => j.id === eventJudge.id && !j.deletedAt)

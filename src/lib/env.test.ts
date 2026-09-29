@@ -1,4 +1,4 @@
-import { apiStage, isDevEnv, isProdEnv, isTestEnv, stackName } from './env'
+import { apiStage, copyTargets, isDevEnv, isProdEnv, isTestEnv, stackName } from './env'
 
 const testRunnerDefined = () => true
 const testRunnerUndefined = () => false
@@ -127,5 +127,16 @@ describe('env', () => {
 
       expect(stackName(testRunnerUndefined)).toBe('koekalenteri-prod')
     })
+  })
+})
+
+describe('copyTargets', () => {
+  it('copies from prod to test and dev, and between test and dev, never into prod (KOE-1471)', () => {
+    expect(copyTargets('prod')).toEqual(['test', 'dev'])
+    expect(copyTargets('test')).toEqual(['dev'])
+    expect(copyTargets('dev')).toEqual(['test'])
+    expect(copyTargets('')).toEqual([])
+    expect(copyTargets('local')).toEqual([])
+    for (const stage of ['prod', 'test', 'dev']) expect(copyTargets(stage)).not.toContain('prod')
   })
 })

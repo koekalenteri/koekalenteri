@@ -65,6 +65,7 @@
   "copy": "Kopioi",
   "copyStartList": "Kopioi lista",
   "copyTest": "Kopioi ilmoineen",
+  "copyToEnvironment": "Kopioi ympäristöön",
   "cost": "Osallistumismaksu",
   "costAdd": "Lisää osallistumismaksu",
   "costAddOptional": "Lisää lisäpalvelu",
@@ -360,6 +361,32 @@
     "statusText": "",
     "viewerBanner_one": "Myös {{names}} katsoo tätä tapahtumaa.",
     "viewerBanner_other": "Myös {{names}} katsovat tätä tapahtumaa."
+  },
+  "eventCopy": {
+    "copy": "Kopioi",
+    "done": {
+      "dev": "Koe kopioitiin kehitysympäristöön. Löydät sen sieltä nimellä, jonka alussa on [Kopio].",
+      "test": "Koe kopioitiin testiympäristöön. Löydät sen sieltä nimellä, jonka alussa on [Kopio]."
+    },
+    "failed": "Kopiointi epäonnistui: {{message}}",
+    "judgeReason": {
+      "eventType": "ei ole kohdeympäristössä tämän koemuodon tuomari",
+      "inactive": "ei ole kohdeympäristössä aktiivinen",
+      "missing": "puuttuu kohdeympäristön tuomarilistalta",
+      "mockTrial": "ei voi kohdeympäristössä arvostella harjoituskoetta itsenäisesti"
+    },
+    "judges": "Tarkista nämä tuomarit kohdeympäristön tuomarisivulta:",
+    "notes": {
+      "admin": "Sinulla pitää olla kohdeympäristössä ylläpitäjän oikeudet.",
+      "payments": "Maksuja ei kopioida. Kuitteja ja palautuksia testataan kohteessa uusilla testimaksuilla.",
+      "people": "Kaikkien henkilöiden nimet, sähköpostiosoitteet ja puhelinnumerot korvataan. Kopioidun kokeen viestit tulevat sinulle."
+    },
+    "target": {
+      "dev": "Kehitysympäristö",
+      "test": "Testiympäristö"
+    },
+    "targetLabel": "Kohde",
+    "title": "Kopioi koe toiseen ympäristöön"
   },
   "eventDraft": {
     "createNew": "Luo uusi tapahtuma",

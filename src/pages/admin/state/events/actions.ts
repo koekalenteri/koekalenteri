@@ -6,7 +6,13 @@ import { useAtomCallback } from 'jotai/utils'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { copyEventWithRegistrations, putEvent, putInvitationAttachment, putStartNumbers } from '@/api/event'
+import {
+  copyEventWithRegistrations,
+  exportEventToStage,
+  putEvent,
+  putInvitationAttachment,
+  putStartNumbers,
+} from '@/api/event'
 import { putStationTurn } from '@/api/station'
 import { getChangedTopLevelKeys } from '@/lib/diff'
 import {
@@ -147,6 +153,7 @@ export const useAdminEventActions = () => {
     attachInvitation,
     copyCurrent,
     copyCurrentTest,
+    copyCurrentToEnvironment,
     deleteCurrent,
     enterStartNumbers,
     publishStartListClass,
@@ -229,6 +236,17 @@ export const useAdminEventActions = () => {
     setNewEvent(copyDogEvent(current))
 
     return true
+  }
+
+  /**
+   * Copies the selected event with its registrations into another environment (KOE-1471). The copy
+   * lands there, not here, so nothing in this environment's state changes.
+   */
+  async function copyCurrentToEnvironment(target: string) {
+    const current = await currentEvent()
+    if (!current) return undefined
+
+    return exportEventToStage(current.id, target, token)
   }
 
   async function copyCurrentTest() {

@@ -6,7 +6,6 @@ import {
   assertCopyIsScrubbed,
   attachmentKeys,
   COPY_REPLACED_TEXT,
-  copyTargets,
   createEventCopy,
   findCopyLeaks,
   importFunctionName,
@@ -305,15 +304,6 @@ describe('address matching', () => {
 })
 
 describe('copy targets (KOE-1471)', () => {
-  it('copies from prod to test and dev, and between test and dev, never into prod', () => {
-    expect(copyTargets('prod')).toEqual(['test', 'dev'])
-    expect(copyTargets('test')).toEqual(['dev'])
-    expect(copyTargets('dev')).toEqual(['test'])
-    expect(copyTargets('')).toEqual([])
-    expect(copyTargets('local')).toEqual([])
-    for (const stage of ['prod', 'test', 'dev']) expect(copyTargets(stage)).not.toContain('prod')
-  })
-
   it("names the target's stack and import function after this stack", () => {
     expect(targetStackName('koekalenteri-prod', 'prod', 'test')).toBe('koekalenteri-test')
     expect(targetStackName('koekalenteri-test', 'test', 'dev')).toBe('koekalenteri-dev')

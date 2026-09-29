@@ -3,6 +3,7 @@ import type {
   AuditRecord,
   DogEvent,
   EventClass,
+  EventCopyResult,
   InvitationAttachmentVersion,
   Patch,
   PublicDogEvent,
@@ -172,6 +173,17 @@ export async function putInvitationAttachment(
     FormData,
     { invitationAttachmentHistory: Record<string, InvitationAttachmentVersion>; key: string; uploadedAt: Date }
   >(path, data, withToken({ signal }, token))
+}
+
+/** Copies the event with its registrations into another environment, every person in it replaced (KOE-1471). */
+export async function exportEventToStage(eventId: string, target: string, token?: string, signal?: AbortSignal) {
+  return (
+    await http.post<{ eventId: string; target: string }, EventCopyResult>(
+      `${ADMIN_PATH}export`,
+      { eventId, target },
+      withToken({ signal }, token)
+    )
+  ).data
 }
 
 export async function copyEventWithRegistrations(eventId: string, token?: string, signal?: AbortSignal) {

@@ -11,6 +11,7 @@ import {
   eventWithEntryOpenButNoEntries,
   eventWithParticipantsInvited,
 } from '../../__mockData__/events'
+import { getUser } from '../../api/user'
 import theme from '../../assets/Theme'
 import { AtomObserver, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
@@ -59,6 +60,48 @@ describe('EventListPage', () => {
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenCalledWith(undefined)
     expect(onChange).toHaveBeenCalledWith('testEntryClosed')
+  })
+
+  const renderPage = () =>
+    renderSuspendedWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <ConfirmProvider>
+                  <EventListPage />
+                </ConfirmProvider>
+              </SnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+  it('offers an admin the copy to another environment (KOE-1471)', async () => {
+    await renderPage()
+    await flushPromises()
+
+    expect(screen.getByRole('button', { name: 'copyToEnvironment' })).toBeInTheDocument()
+  })
+
+  it('offers the copy to another environment to admins only', async () => {
+    const admin = await getUser(TEST_ID_TOKEN)
+    vi.mocked(getUser).mockResolvedValue({ ...admin, admin: false, roles: { org: 'admin' } })
+    try {
+      await renderPage()
+      await flushPromises()
+
+      expect(screen.getByRole('button', { name: 'copy' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'copyToEnvironment' })).not.toBeInTheDocument()
+    } finally {
+      vi.mocked(getUser)
+        .mockReset()
+        .mockImplementation(async () => admin)
+    }
   })
 
   it('keeps the page mounted when a row is selected', async () => {
