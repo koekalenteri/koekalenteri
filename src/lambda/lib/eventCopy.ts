@@ -17,10 +17,12 @@ import { removeRegistrationCreationMetadata } from './registration'
  * dev, or between test and dev. Every person in it is replaced before the copy leaves the source,
  * and the copy is checked for anything that got through before it is sent anywhere.
  *
- * Addresses and names are replaced deterministically within one copy — the same original always gets
- * the same stand-in, so logic that compares people (handler = owner, deduplicated recipients) behaves
- * as it did in the source — and keyed with a random secret per copy that is never stored, so a
- * stand-in cannot be traced back by guessing. Numbers compare nothing, and are handed out in order.
+ * Addresses and names are replaced deterministically within one copy — the same person always gets
+ * the same stand-in, so logic that compares people (handler = owner, deduplicated recipients, the
+ * same handler with two dogs) behaves as it did in the source — and keyed with a random secret per
+ * copy that is never stored, so a stand-in cannot be traced back by guessing. A person is their name
+ * and address together, as the group rules count them: test data often has one tester's name on
+ * every entry, each with its own plus-address. Numbers compare nothing, and are handed out in order.
  */
 
 /** Who makes the copy: every mail the copy can send goes to this person. */
@@ -92,6 +94,7 @@ const digitsOf = (text: string) => text.replace(/\D/g, '')
  */
 const createStandIns = (copier: Copier, key: Buffer) => {
   const copierEmail = withoutPlusTag(copier.email)
+  const copierOwnEmail = normalizeEmail(copier.email)
   const [copierLocal, copierDomain] = copierEmail.split('@')
 
   const hash = (kind: string, value: string) => createHmac('sha256', key).update(`${kind}:${value}`).digest()
@@ -127,10 +130,15 @@ const createStandIns = (copier: Copier, key: Buffer) => {
   return {
     email: (original: string) => {
       const email = normalizeEmail(original)
-      if (withoutPlusTag(email) === copierEmail) return copierEmail
+      // Only the copier's own address: their other plus-addresses stand for other people in test data
+      if (email === copierEmail || email === copierOwnEmail) return copierEmail
       return emailStandIn(email, hash('email', email))
     },
-    name: (original: string) => nameStandIn(normalize(original), hash('name', normalize(original))),
+    /** A name with an address is one person; the same name with another address is someone else. */
+    name: (original: string, email?: string) => {
+      const person = `${normalize(original)}|${email ? normalizeEmail(email) : ''}`
+      return nameStandIn(person, hash('name', person))
+    },
     phone: () => `${COPY_PHONE_PREFIX}${String(++phones).padStart(7, '0')}`,
   }
 }
@@ -168,7 +176,7 @@ const copyPerson = <P extends Partial<RegistrationOwner>>(
   // email: replaceEmails takes every address in the copy, this field included
   return {
     ...person,
-    ...(person.name ? { name: standIns.name(person.name) } : {}),
+    ...(person.name ? { name: standIns.name(person.name, person.email) } : {}),
     ...(person.phone ? { phone: standIns.phone() } : {}),
   }
 }
