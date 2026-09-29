@@ -50,8 +50,9 @@ const exportEventToStageLambda = lambda('exportEventToStage', async (event) => {
   const { stackName, stageName } = CONFIG
   const { eventId, target } = parseJSONWithFallback<{ eventId?: string; target?: string }>(event.body)
 
+  const targets: readonly string[] = copyTargets(stageName)
   const targetStack = target && targetStackName(stackName, stageName, target)
-  if (!eventId || !target || !copyTargets(stageName).some((stage) => stage === target) || !targetStack) {
+  if (!eventId || !target || !targets.includes(target) || !targetStack) {
     throw httpError(400, { message: `Cannot copy from ${stageName || 'here'} to ${target ?? 'nowhere'}` })
   }
 
