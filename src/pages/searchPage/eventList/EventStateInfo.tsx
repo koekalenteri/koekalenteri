@@ -14,7 +14,7 @@ interface Props {
   readonly classes?: Array<{ class: RegistrationClass; state?: EventClassState }>
   readonly state: EventState
   readonly startListPublished?: boolean | Partial<Record<RegistrationClass, boolean>>
-  readonly resultsPublished?: PublicDogEvent['resultsPublished']
+  readonly resultsPublished?: NonNullable<PublicDogEvent['resultsPublished']>
   /** Whether a post is being run right now (KOE-1259), so the list can say the start list is live. */
   readonly live?: boolean
   readonly text?: string | ReactNode | null

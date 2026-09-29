@@ -41,7 +41,7 @@ const REGISTRATION_FAMILIES = [adminEditableEventRegistrationByEventIdAndIdAtom,
 export const releaseAdminEventAtoms = (eventId: string) => {
   for (const family of EVENT_FAMILIES) family.remove(eventId)
   for (const family of REGISTRATION_FAMILIES) {
-    for (const params of [...family.getParams()]) {
+    for (const params of family.getParams()) {
       if (params.eventId === eventId) family.remove(params)
     }
   }

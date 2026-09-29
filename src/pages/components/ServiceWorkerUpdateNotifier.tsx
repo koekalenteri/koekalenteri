@@ -36,6 +36,10 @@ const WhatsNewAction = ({ snackbarKey, version }: WhatsNewActionProps) => {
   )
 }
 
+const whatsNewAction = (version: string) => (snackbarKey: SnackbarKey) => (
+  <WhatsNewAction snackbarKey={snackbarKey} version={version} />
+)
+
 function ServiceWorkerUpdateNotifier() {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
@@ -59,7 +63,7 @@ function ServiceWorkerUpdateNotifier() {
         )
       } else {
         enqueueSnackbar(t('app.updated', versionChange), {
-          action: (key) => <WhatsNewAction snackbarKey={key} version={versionChange.to} />,
+          action: whatsNewAction(versionChange.to),
           variant: 'success',
         })
       }

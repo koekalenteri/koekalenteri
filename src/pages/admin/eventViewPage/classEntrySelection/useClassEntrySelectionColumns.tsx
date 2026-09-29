@@ -219,10 +219,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
       label={t('registration.actions.editInternalNotes')}
       onClick={() => callbacks?.editInternalNotes?.(row.id)}
       showInMenu
-    />
-  )
-
-  actions.push(
+    />,
     <GridActionsCellItem
       key="sendMessage"
       disabled={actionsDisabled}

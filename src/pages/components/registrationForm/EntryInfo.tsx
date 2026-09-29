@@ -61,7 +61,11 @@ export function EntryInfo({
   // Extract label formatters
   const getRegDateLabel = useCallback((o: Date) => t('dateFormat.wdshort', { date: o }), [t])
   const getTimeSuffix = useCallback(
-    (time?: RegistrationTime) => (time ? ` ${t(`registration.timeLong.${time}`)}` : ''),
+    (time?: RegistrationTime) => {
+      if (!time) return ''
+      const label = t(`registration.timeLong.${time}`)
+      return ` ${label}`
+    },
     [t]
   )
   const getRegDateTimeLabel = useCallback(

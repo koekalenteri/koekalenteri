@@ -34,6 +34,9 @@ export const parseStartNumberEntries = (numbers: unknown): StartNumberEntry[] =>
   Array.isArray(numbers) ? numbers.filter(isStartNumberEntry) : []
 
 /** The day a placement falls on, in the event's time zone — the key the published-days list holds. */
+/** ` (ALO)` after a message about one class, nothing after one about the whole event. */
+export const classSuffix = (eventClass?: RegistrationClass) => (eventClass ? ` (${eventClass})` : '')
+
 const placementDay = (date: string | Date) => formatDate(date, 'yyyy-MM-dd')
 
 const inScope = (
@@ -97,7 +100,7 @@ export const freezeStartNumbers = async (
       count: gaps,
       error: 'startNumbersIncomplete',
       ...(eventClass ? { eventClass } : {}),
-      message: `Start numbers are missing for ${gaps} dogs${eventClass ? ` (${eventClass})` : ''}`,
+      message: `Start numbers are missing for ${gaps} dogs${classSuffix(eventClass)}`,
     })
   }
 

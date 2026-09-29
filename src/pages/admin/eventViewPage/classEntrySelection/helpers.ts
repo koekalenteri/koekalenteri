@@ -198,7 +198,7 @@ interface MoveToPositionDay {
   date: Date
   drawn: boolean
   key: string
-  time?: RegistrationGroup['time']
+  time?: NonNullable<RegistrationGroup['time']>
 }
 
 /**

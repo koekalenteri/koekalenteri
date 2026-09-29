@@ -16,7 +16,7 @@ import Stack from '@mui/material/Stack'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '@/lib/liveFormat'
@@ -29,6 +29,7 @@ import {
   stationThroughput,
   turnElapsedMs,
 } from '@/lib/stationTurns'
+import { useTickWhile } from '../../../hooks/useTickWhile'
 import { AsyncButton } from '../AsyncButton'
 
 const PAUSES: readonly StationTurnPause[] = ['coffee', 'lunch', 'weather', 'other']
@@ -80,8 +81,6 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
   const [groupMenuAnchor, setGroupMenuAnchor] = useState<HTMLElement>()
   const [markMenu, setMarkMenu] = useState<{ anchor: HTMLElement; index: number }>()
   const [groupIds, setGroupIds] = useState<string[]>([])
-  // A live clock: re-render every half minute while a span is open, so "8 min" stays honest.
-  const [, setTick] = useState(0)
 
   const stationId = station.id
   const format = liveFormat(eventType)
@@ -109,12 +108,8 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
   const through = dogsThrough(turns, stationId)
   const throughput = useMemo(() => stationThroughput(turns, stationId), [stationId, turns])
 
-  const hasOpen = Boolean(open)
-  useEffect(() => {
-    if (!hasOpen) return
-    const timer = setInterval(() => setTick((tick) => tick + 1), 30000)
-    return () => clearInterval(timer)
-  }, [hasOpen])
+  // A live clock: re-render every half minute while a span is open, so "8 min" stays honest.
+  useTickWhile(Boolean(open), 30000)
 
   const busyRef = useRef(false)
   const runOp = async (op: StationTurnOp) => {
@@ -312,15 +307,18 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
             pb: 1,
           }}
         >
-          {markableDogs.map((dog, index) => (
-            <Chip
-              key={`${dog.number ?? ''}-${dog.name}`}
-              label={dog.mark ? `${turnDogLabel(dog)} · ${t(`liveStatus.mark.${dog.mark}`)}` : turnDogLabel(dog)}
-              onClick={(event) => setMarkMenu({ anchor: event.currentTarget, index })}
-              size="small"
-              variant={dog.mark ? 'filled' : 'outlined'}
-            />
-          ))}
+          {markableDogs.map((dog, index) => {
+            const mark = dog.mark ? t(`liveStatus.mark.${dog.mark}`) : undefined
+            return (
+              <Chip
+                key={`${dog.number ?? ''}-${dog.name}`}
+                label={mark ? `${turnDogLabel(dog)} · ${mark}` : turnDogLabel(dog)}
+                onClick={(event) => setMarkMenu({ anchor: event.currentTarget, index })}
+                size="small"
+                variant={dog.mark ? 'filled' : 'outlined'}
+              />
+            )
+          })}
           <Menu anchorEl={markMenu?.anchor} onClose={() => setMarkMenu(undefined)} open={Boolean(markMenu)}>
             {format.marks.map((mark) => (
               <MenuItem

@@ -60,7 +60,9 @@ const EMPTY_TRANSLATIONS: Partial<Record<Language, string>> = {}
 
 const RETRIEVE_TYPES: RetrieveType[] = ['game', 'dummies']
 
-const isRetrieveType = (value: string): value is RetrieveType => RETRIEVE_TYPES.some((type) => type === value)
+const RETRIEVE_TYPE_SET = new Set<string>(RETRIEVE_TYPES)
+
+const isRetrieveType = (value: string): value is RetrieveType => RETRIEVE_TYPE_SET.has(value)
 
 const getTypeClasses = (
   eventType?: string,
@@ -320,17 +322,20 @@ function BasicInfoSection({
               onChange={handleNameChange}
             />
           </Grid>
-          {EVENT_TRANSLATION_LANGUAGES.map((language) => (
-            <Grid key={language} sx={{ width: 600 }}>
-              <TextField
-                disabled={disabled}
-                label={`${t('event.name')} (${t(`locale.${language}`)})`}
-                fullWidth
-                value={names[language] ?? ''}
-                onChange={(e) => handleTranslatedNameChange(language, e.target.value)}
-              />
-            </Grid>
-          ))}
+          {EVENT_TRANSLATION_LANGUAGES.map((language) => {
+            const languageName = t(`locale.${language}`)
+            return (
+              <Grid key={language} sx={{ width: 600 }}>
+                <TextField
+                  disabled={disabled}
+                  label={`${t('event.name')} (${languageName})`}
+                  fullWidth
+                  value={names[language] ?? ''}
+                  onChange={(e) => handleTranslatedNameChange(language, e.target.value)}
+                />
+              </Grid>
+            )
+          })}
         </Grid>
         <Grid container spacing={1}>
           <Grid sx={{ width: 600 }}>

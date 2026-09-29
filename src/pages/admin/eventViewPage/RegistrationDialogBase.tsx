@@ -93,9 +93,8 @@ export default function RegistrationDialogBase({
 
   const prefix = registration?.cancelled ? 'PERUTTU: ' : ''
   const handlerName = registration ? (getHandlingPerson(registration)?.name ?? '') : ''
-  const title = registration?.dog?.name
-    ? `${prefix}${registration.dog.name}${handlerName ? ` / ${handlerName}` : ''}`
-    : ''
+  const handlerSuffix = handlerName ? ` / ${handlerName}` : ''
+  const title = registration?.dog?.name ? `${prefix}${registration.dog.name}${handlerSuffix}` : ''
 
   if (!registration) {
     return null

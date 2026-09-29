@@ -11,6 +11,7 @@ import type {
   MinimalEventForCost,
   MinimalRegistrationForCost,
   MinimalRegistrationForMembership,
+  OwnerSelection,
   Patch,
   PaymentBalance,
   PublicDogEvent,
@@ -45,8 +46,10 @@ export const ownerKeyAt = (owner: unknown, index: number): string =>
   (owner as { key?: string } | undefined)?.key ?? `owner-${index + 1}`
 
 /** Owners of a registration: the `owners` list when present, falling back to the legacy single `owner`. */
-export const getRegistrationOwners = <O, L>(registration?: { owners?: O[]; owner?: L }): (O | L)[] =>
-  registration?.owners?.length ? registration.owners : registration?.owner ? [registration.owner] : []
+export const getRegistrationOwners = <O, L>(registration?: { owners?: O[]; owner?: L }): (O | L)[] => {
+  if (registration?.owners?.length) return registration.owners
+  return registration?.owner ? [registration.owner] : []
+}
 
 /** Display-formats a registration's owner names as a single comma-separated string. */
 export const formatOwnerNames = (registration?: { owners?: { name?: string }[]; owner?: { name?: string } }): string =>
@@ -226,8 +229,7 @@ export const isMember = (registration?: MinimalRegistrationForMembership): boole
   Boolean(anyOwnerHasMembership(registration) || (!registration?.ownerHandles && registration?.handler?.membership))
 
 /** An unset `ownerHandles`/`ownerPays` selection defaults to the (first) owner. */
-export const withDefaultOwnerSelection = (selection: boolean | string | undefined): boolean | string =>
-  selection ?? true
+export const withDefaultOwnerSelection = (selection: OwnerSelection | undefined): OwnerSelection => selection ?? true
 
 /**
  * Resolves which person a `ownerHandles`/`ownerPays` selection refers to: a specific owner by
@@ -236,7 +238,7 @@ export const withDefaultOwnerSelection = (selection: boolean | string | undefine
 export function resolveOwnerSelection<O extends { key?: string }, L>(
   owners: O[] | undefined,
   legacyOwner: L,
-  selection: boolean | string | undefined
+  selection: OwnerSelection | undefined
 ): O | L | undefined {
   if (!selection) return undefined
   // A key only means something against an owner list; a key that matches nobody resolves to no one
@@ -253,7 +255,7 @@ export function resolveOwnerSelection<O extends { key?: string }, L>(
  * points outside the owner list ("someone else", or a stale key that matches nobody). Keyless
  * (legacy/API-written) owners are keyed by position, exactly as the form keys them.
  */
-const selectedOwnerKey = (owners: readonly unknown[], selection: boolean | string | undefined): string | undefined => {
+const selectedOwnerKey = (owners: readonly unknown[], selection: OwnerSelection | undefined): string | undefined => {
   const keys = owners.map((owner, index) => ownerKeyAt(owner, index))
   if (typeof selection === 'string') return keys.includes(selection) ? selection : undefined
   return withDefaultOwnerSelection(selection) ? keys[0] : undefined
@@ -271,8 +273,8 @@ export const getOwnerRole = (
   registration: {
     owners?: { key?: string }[]
     owner?: unknown
-    ownerHandles?: boolean | string
-    ownerPays?: boolean | string
+    ownerHandles?: OwnerSelection
+    ownerPays?: OwnerSelection
   },
   ownerKey: string | undefined
 ): OwnerRole => {
@@ -299,7 +301,7 @@ export const stripOwnerKey = <O extends { key?: string }>(owner: O): Omit<O, 'ke
 export const resolveOwnerPerson = (
   owners: RegistrationOwner[] | undefined,
   legacyOwner: RegistrationPerson | undefined,
-  selection: boolean | string | undefined
+  selection: OwnerSelection | undefined
 ): RegistrationPerson | undefined => {
   const resolved = resolveOwnerSelection(owners, legacyOwner, selection)
   if (!resolved) return undefined
@@ -309,7 +311,7 @@ export const resolveOwnerPerson = (
 const getOverridePerson = <O extends { key?: string }, L, F>(
   owners: O[] | undefined,
   legacyOwner: L,
-  selection: boolean | string | undefined,
+  selection: OwnerSelection | undefined,
   fallback: F
 ): O | L | F | undefined => resolveOwnerSelection(owners, legacyOwner, selection) ?? fallback
 
@@ -317,7 +319,7 @@ const getOverridePerson = <O extends { key?: string }, L, F>(
 export const getHandlingPerson = <O extends { key?: string }, L, H>(registration: {
   owners?: O[]
   owner?: L
-  ownerHandles?: boolean | string
+  ownerHandles?: OwnerSelection
   handler?: H
 }): O | L | H | undefined =>
   getOverridePerson(registration.owners, registration.owner, registration.ownerHandles, registration.handler)
@@ -326,7 +328,7 @@ export const getHandlingPerson = <O extends { key?: string }, L, H>(registration
 export const getPayingPerson = <O extends { key?: string }, L, P>(registration: {
   owners?: O[]
   owner?: L
-  ownerPays?: boolean | string
+  ownerPays?: OwnerSelection
   payer?: P
 }): O | L | P | undefined =>
   getOverridePerson(registration.owners, registration.owner, registration.ownerPays, registration.payer)
@@ -346,7 +348,7 @@ export const getRegistrationEmails = (
   registration: {
     owners?: { email?: string; key?: string }[]
     owner?: { email?: string }
-    ownerHandles?: boolean | string
+    ownerHandles?: OwnerSelection
     handler?: { email?: string }
     payer?: { email?: string }
   },

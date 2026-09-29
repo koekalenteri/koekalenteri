@@ -13,7 +13,7 @@ export interface PartialEvent
   official?: Partial<DogEvent['official']>
   secretary?: Partial<DogEvent['secretary']>
   dates?: NonNullable<DogEvent['dates']>
-  kcId?: DogEvent['kcId'] | null
+  kcId?: NonNullable<DogEvent['kcId']> | null
 
   cost?: DogEvent['cost']
   costMember?: NonNullable<DogEvent['costMember']>

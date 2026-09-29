@@ -10,6 +10,7 @@ import type {
   PublicJudge,
 } from '../../types'
 import { objectsDiffer } from '../../lib/diff'
+import { makeArray } from '../../lib/judge'
 import { isScorableRegistration } from '../../lib/registration'
 import {
   availableResultCodes,
@@ -154,9 +155,7 @@ const pickJudge = (value: unknown): PublicJudge | undefined => {
 const knownJudges = (confirmedEvent: JsonConfirmedEvent): PublicJudge[] => [
   ...(confirmedEvent.judges ?? []),
   ...(confirmedEvent.stations ?? []).flatMap((station) => station.judges ?? []),
-  ...(confirmedEvent.classes ?? []).flatMap((item) =>
-    Array.isArray(item.judge) ? item.judge : item.judge ? [item.judge] : []
-  ),
+  ...(confirmedEvent.classes ?? []).flatMap((item) => makeArray(item.judge)),
 ]
 
 /**

@@ -85,7 +85,8 @@ export default function StationResultsPage() {
 
   if (!event?.id || !station) return <EventNotFound />
 
-  const subtitle = `${event.name || event.eventType}${event.kcId ? ` · ${t('event.kcId')} ${event.kcId}` : ''}`
+  const kcId = event.kcId ? ` · ${t('event.kcId')} ${event.kcId}` : ''
+  const subtitle = `${event.name || event.eventType}${kcId}`
   // A format whose phases are the post's own gets them written here, at the post, on the day.
   const format = liveFormat(event.eventType)
   const ownPhases = format.tasks === 'phases' && !format.phases

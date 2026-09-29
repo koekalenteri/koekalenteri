@@ -24,7 +24,7 @@ export type PublicEventsResponse = PublicDogEvent[] | PublicEventsDeltaResponse
 
 export type EventKcIdChoice = {
   classes: string[]
-  contactInfo?: DogEvent['contactInfo']
+  contactInfo?: NonNullable<DogEvent['contactInfo']>
   cost?: DogEvent['cost']
   description?: DogEvent['description']
   id: number
