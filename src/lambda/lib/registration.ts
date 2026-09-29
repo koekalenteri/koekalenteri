@@ -274,6 +274,10 @@ export const getRegistration = async (eventId: string, registrationId: string): 
 
 export const saveRegistration = async (data: JsonRegistration) => dynamoDB.write(data, registrationTable)
 
+/** Puts the registrations in batches, retrying what DynamoDB leaves unprocessed. */
+export const saveRegistrations = async (registrations: JsonRegistration[]) =>
+  dynamoDB.batchWrite(registrations, registrationTable)
+
 export const patchRegistration = async (
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id'],

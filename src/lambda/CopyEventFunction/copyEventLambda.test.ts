@@ -16,6 +16,7 @@ const mockSaveEvent = vi.fn(async (event: { id?: string; organizer?: { id?: stri
 }))
 const mockNanoid = vi.fn()
 const mockWrite = vi.fn()
+const mockBatchWrite = vi.fn()
 const mockResponse = vi.fn()
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 
@@ -51,6 +52,7 @@ const mockQuery = vi.fn()
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
+      batchWrite: mockBatchWrite,
       query: mockQuery,
       write: mockWrite,
     }
@@ -89,6 +91,7 @@ describe('copyEventHandler', () => {
 
     expect(mockSaveEvent).not.toHaveBeenCalled()
     expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockBatchWrite).not.toHaveBeenCalled()
   })
 
   it('rejects an invalid copy start date before reading the source event', async () => {
@@ -240,12 +243,14 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockWrite).toHaveBeenLastCalledWith(
-      {
-        dates: [{ date: '2025-07-01T00:00:00.000Z' }],
-        eventId: 'newid123',
-        id: 'registration123',
-      },
+    expect(mockBatchWrite).toHaveBeenCalledWith(
+      [
+        {
+          dates: [{ date: '2025-07-01T00:00:00.000Z' }],
+          eventId: 'newid123',
+          id: 'registration123',
+        },
+      ],
       'registration-table-not-found-in-env'
     )
   })

@@ -8,7 +8,7 @@ import { authorizeEvent } from '../lib/eventAuth'
 import { removeEventRuntimeState } from '../lib/eventCopy'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId, removeRegistrationCreationMetadata, saveRegistration } from '../lib/registration'
+import { getRegistrationsByEventId, removeRegistrationCreationMetadata, saveRegistrations } from '../lib/registration'
 import { publishEventChange } from '../lib/ws/actions'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
@@ -57,7 +57,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   const registrations = await getRegistrationsByEventId(id)
 
-  for (const reg of registrations ?? []) {
+  const copies = (registrations ?? []).map((reg) => {
     reg.eventId = item.id
     // These values belong to the source creation attempt and must not be
     // inherited by a registration in the copied event.
@@ -75,8 +75,9 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
         reg.group.key = `${reg.group.date.slice(0, 10)}-${reg.group.time}`
       }
     }
-    await saveRegistration(reg)
-  }
+    return reg
+  })
+  await saveRegistrations(copies)
 
   return response(200, item, event)
 })
