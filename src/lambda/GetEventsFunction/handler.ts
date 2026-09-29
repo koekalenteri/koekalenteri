@@ -58,26 +58,27 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
   const upperBoundYear = getUpperBoundYear(end, lowerBoundYear)
   const upperBound = end ?? zonedEndOfYear(upperBoundYear)
   const seasons = seasonsBetween(lowerBoundYear, upperBoundYear)
-  const result: JsonDogEvent[] = []
 
-  for (const season of seasons) {
-    const seasonEvents = await dynamoDB.query<JsonDogEvent>({
-      filterExpression: '#state <> :draft',
-      index: 'gsiSeasonStartDate',
-      key: 'season = :season AND startDate <= :endDate',
-      names: { '#state': 'state' },
-      table: CONFIG.eventTable,
-      values: {
-        ':draft': 'draft',
-        ':endDate': upperBound.toISOString(),
-        ':season': season,
-      },
-    })
+  // The seasons are independent queries: asked together, the calendar waits for the slowest one
+  // instead of their sum. Promise.all keeps the season order.
+  const perSeason = await Promise.all(
+    seasons.map((season) =>
+      dynamoDB.query<JsonDogEvent>({
+        filterExpression: '#state <> :draft',
+        index: 'gsiSeasonStartDate',
+        key: 'season = :season AND startDate <= :endDate',
+        names: { '#state': 'state' },
+        table: CONFIG.eventTable,
+        values: {
+          ':draft': 'draft',
+          ':endDate': upperBound.toISOString(),
+          ':season': season,
+        },
+      })
+    )
+  )
 
-    if (seasonEvents) result.push(...seasonEvents)
-  }
-
-  return result
+  return perSeason.flatMap((seasonEvents) => seasonEvents ?? [])
 }
 
 const getEventsLambda = lambda('getEvents', async (event) => {
