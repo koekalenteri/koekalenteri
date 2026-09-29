@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.scope.outputs.backend }}
+      e2e: ${{ steps.scope.outputs.e2e }}
       frontend: ${{ steps.scope.outputs.frontend }}
     steps:
       - uses: actions/checkout@v7
@@ -81,6 +82,9 @@ jobs:
               - 'package-lock.json'
               - 'package.json'
               - 'tsconfig.json'
+            e2e:
+              - 'e2e/**'
+              - 'playwright.config.ts'
 
       - name: Check previous main CI result
         id: previous-ci
@@ -115,9 +119,11 @@ jobs:
             echo "Previous main CI run was not successful; building both backend and frontend."
             echo "backend=true" >> $GITHUB_OUTPUT
             echo "frontend=true" >> $GITHUB_OUTPUT
+            echo "e2e=true" >> $GITHUB_OUTPUT
           else
             echo "backend=${{ steps.filter.outputs.backend }}" >> $GITHUB_OUTPUT
             echo "frontend=${{ steps.filter.outputs.frontend }}" >> $GITHUB_OUTPUT
+            echo "e2e=${{ steps.filter.outputs.e2e }}" >> $GITHUB_OUTPUT
           fi
 
       - uses: actions/setup-node@v7
@@ -322,6 +328,63 @@ jobs:
           path: .vitest-attachments/**
           # A dot-directory is hidden, and upload-artifact skips hidden files unless told not to.
           include-hidden-files: true
+          retention-days: 7
+
+  e2e:
+    # Browser tests of the main paths (KOE-396): the production frontend build against the built
+    # lambda bundles, called in-process by e2e/server, with DynamoDB-local as the only container and
+    # SES, SSM and Paytrail faked on localhost. Playwright starts and stops the servers itself.
+    runs-on: ubuntu-latest
+    needs: setup
+    if: ${{ needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true' }}
+    timeout-minutes: 15
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - 8000:8000
+    env:
+      DYNAMODB_ENDPOINT: http://127.0.0.1:8000
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Restore node_modules
+        id: cache-restore
+        uses: actions/cache/restore@v6
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install packages
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Lint
+        run: npm run lint-e2e
+      - name: Build backend
+        run: npm run build-backend
+      - name: Build frontend
+        run: npm run build-e2e-frontend
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test
+        run: npm run test-e2e
+      - name: Upload report and traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-report
+          path: |
+            playwright-report
+            test-results/e2e
           retention-days: 7
 
   frontend-coverage:

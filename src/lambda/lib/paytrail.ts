@@ -21,7 +21,11 @@ import { keysOf } from '../../lib/typeGuards'
 import { logger } from './log'
 import { getPaytrailConfig } from './secrets'
 
-const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
+/**
+ * The browser tests point this at a local fake (KOE-396); everywhere else it is Paytrail. Read per
+ * request rather than at import, so the address a test sets is the one used.
+ */
+const paytrailApiEndpoint = () => process.env.PAYTRAIL_API_ENDPOINT ?? 'https://services.paytrail.com'
 
 const HMAC_KEY_PREFIX = 'checkout-'
 
@@ -180,7 +184,7 @@ export class PaytrailClient {
     let status = 500
     let error: string | undefined
     try {
-      const res = await fetch(`${PAYTRAIL_API_ENDPOINT}/${path}`, {
+      const res = await fetch(`${paytrailApiEndpoint()}/${path}`, {
         body: JSON.stringify(body),
         headers,
         method,

@@ -57,6 +57,7 @@ describe('paytrail', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.unstubAllEnvs()
     client = new PaytrailClient(loadConfig, { nonce: () => 'nonce-1', now: () => '2026-09-08T10:00:00+03:00' })
   })
 
@@ -162,6 +163,15 @@ describe('paytrail', () => {
       expect(mockFetch).toHaveBeenCalledWith('https://services.paytrail.com/payments/tx-1', expect.any(Object))
       expect(requestHeaders()['checkout-transaction-id']).toBe('tx-1')
       expect(requestInit().method).toBe('GET')
+    })
+
+    it('sends the request to PAYTRAIL_API_ENDPOINT when it is set', async () => {
+      vi.stubEnv('PAYTRAIL_API_ENDPOINT', 'http://127.0.0.1:9000/paytrail')
+      respondOnce({ json: async () => ({ status: 'ok' }), ok: true, status: 200 })
+
+      await client.getPayment('tx-1')
+
+      expect(mockFetch).toHaveBeenCalledWith('http://127.0.0.1:9000/paytrail/payments/tx-1', expect.any(Object))
     })
   })
 

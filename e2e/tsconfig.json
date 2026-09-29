@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": ".",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2022",
+    "types": ["node"]
+  },
+  "exclude": [],
+  "extends": "../tsconfig.json",
+  "include": ["**/*.ts", "**/*.mjs", "../playwright.config.ts", "../src/i18n/i18next.d.ts"]
+}
