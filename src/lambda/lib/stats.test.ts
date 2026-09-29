@@ -47,6 +47,7 @@ const {
   getYearlyBreakdown,
   getBreedStartBreakdown,
   calculateStatDeltas,
+  sumNewRegistrationStatDeltas,
   bucketForCount,
   updateOrganizerEventStats,
   hashStatValue,
@@ -1125,6 +1126,34 @@ describe('lib/stats', () => {
   })
 
   // Tests for previously untested functions
+  describe('sumNewRegistrationStatDeltas', () => {
+    const base = { eventId: 'e1', eventType: 'NOME-B' }
+
+    it('adds up registrations that are all new to the event (KOE-1471)', () => {
+      expect(
+        sumNewRegistrationStatDeltas([
+          { ...base, id: 'r1', paidAmount: 50 },
+          { ...base, cancelled: true, id: 'r2', paidAmount: 40, refundAmount: 40 },
+          { ...base, group: { key: 'reserve', number: 1 }, id: 'r3' },
+        ])
+      ).toEqual({
+        cancelledDelta: 1,
+        memberDelta: 0,
+        paidAmountDelta: 90,
+        paidDelta: 2,
+        refundedAmountDelta: 40,
+        refundedDelta: 1,
+        // A cancelled registration is no longer on the reserve list
+        reserveDelta: 2,
+        totalDelta: 3,
+      })
+    })
+
+    it('is all zeros without registrations', () => {
+      expect(Object.values(sumNewRegistrationStatDeltas([]))).toEqual([0, 0, 0, 0, 0, 0, 0, 0])
+    })
+  })
+
   describe('calculateStatDeltas', () => {
     it('calculates correct deltas for new registration', () => {
       const registration: RegistrationStatsInput = {

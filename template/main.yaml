@@ -89,6 +89,8 @@ Conditions:
   # Prod's frontend differs from the other stages twice over: its Cognito custom domain carries no
   # stage suffix, and it is the only stage with a RUM monitor.
   IsProdStage: !Equals [!Ref StageNameParam, prod]
+  # Only test and dev can receive an event copied from another environment (KOE-1471).
+  IsNotProdStage: !Not [!Condition IsProdStage]
 
 Resources:
   # This secret signs every participant registration link. Never attach an

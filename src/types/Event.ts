@@ -70,6 +70,11 @@ export interface JsonDogEvent extends JsonDbRecord {
   registrationPaymentsLock?: { expiresAt: number; token: string }
   paymentTime?: PaymentTime
   classes: Array<JsonEventClass>
+  /**
+   * Where a copy in test or dev came from (KOE-1471): the environment, the event there, when and by
+   * whom. Its people are stand-ins; absent on every event that is not such a copy.
+   */
+  copiedFrom?: { at: string; by: string; eventId: string; stage: string }
   contactInfo?: Partial<ContactInfo>
   cost: number | DogEventCost
   costMember?: number | DogEventCost

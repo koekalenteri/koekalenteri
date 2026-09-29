@@ -1,14 +1,19 @@
-import type { JsonDogEvent, JsonRegistration } from '../../types'
+import type { JsonDogEvent, JsonJudge, JsonRegistration } from '../../types'
 import type { EventCopy } from './eventCopy'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { jsonRegistrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
 import {
   assertCopyIsScrubbed,
+  attachmentKeys,
   COPY_REPLACED_TEXT,
+  copyTargets,
   createEventCopy,
   findCopyLeaks,
+  importFunctionName,
+  judgeNotices,
   REGISTRATION_PERSON_FIELDS,
   removeEventRuntimeState,
+  targetStackName,
 } from './eventCopy'
 
 const copier = { email: 'Jukka+Oma@Example.com', name: 'Jukka Kopioija', phone: '+358 50 1112222' }
@@ -296,6 +301,105 @@ describe('address matching', () => {
 
     expect(copyWith(long)).toBe(long)
     expect(performance.now() - started).toBeLessThan(1000)
+  })
+})
+
+describe('copy targets (KOE-1471)', () => {
+  it('copies from prod to test and dev, and between test and dev, never into prod', () => {
+    expect(copyTargets('prod')).toEqual(['test', 'dev'])
+    expect(copyTargets('test')).toEqual(['dev'])
+    expect(copyTargets('dev')).toEqual(['test'])
+    expect(copyTargets('')).toEqual([])
+    expect(copyTargets('local')).toEqual([])
+    for (const stage of ['prod', 'test', 'dev']) expect(copyTargets(stage)).not.toContain('prod')
+  })
+
+  it("names the target's stack and import function after this stack", () => {
+    expect(targetStackName('koekalenteri-prod', 'prod', 'test')).toBe('koekalenteri-test')
+    expect(targetStackName('koekalenteri-test', 'test', 'dev')).toBe('koekalenteri-dev')
+    expect(targetStackName('local', '', 'test')).toBeUndefined()
+    expect(targetStackName('local', 'dev', 'test')).toBeUndefined()
+    expect(importFunctionName('koekalenteri-dev')).toBe('koekalenteri-dev-ImportCopiedEvent')
+  })
+})
+
+describe('judgeNotices', () => {
+  const judge = (id: number, extra: Partial<JsonJudge> = {}): JsonJudge => ({
+    createdAt: '2026-01-01',
+    createdBy: 'system',
+    district: 'Uusimaa',
+    email: `judge${id}@example.fi`,
+    eventTypes: ['NOME-B'],
+    id,
+    languages: [],
+    modifiedAt: '2026-01-01',
+    modifiedBy: 'system',
+    name: `Judge ${id}`,
+    ...extra,
+  })
+
+  it("names the event's judges the target cannot use as they are", () => {
+    const event = {
+      eventType: 'NOME-B',
+      judges: [
+        { id: 1, name: 'Present' },
+        { id: 2, name: 'Missing' },
+        { id: 3, name: 'Inactive' },
+        { id: 4, name: 'Other type' },
+        { id: 5, name: 'Deleted' },
+        { foreing: true, id: -1, name: 'Foreign' },
+        { id: 0, name: 'Unset' },
+      ],
+    }
+    const judges = [
+      judge(1),
+      judge(3, { active: false }),
+      judge(4, { eventTypes: ['NOWT'] }),
+      judge(5, { deletedAt: '2026-01-02' }),
+    ]
+
+    expect(judgeNotices(event, judges)).toEqual([
+      { name: 'Missing', reason: 'missing' },
+      { name: 'Inactive', reason: 'inactive' },
+      { name: 'Other type', reason: 'eventType' },
+      { name: 'Deleted', reason: 'missing' },
+    ])
+  })
+
+  it('names a Mock trial judge who may not judge one on their own in the target', () => {
+    const event = {
+      eventType: 'NOWT',
+      judges: [
+        { id: 1, name: 'A-trial judge' },
+        { id: 2, name: 'Named NOWT judge' },
+        { id: 3, name: 'NOWT judge' },
+      ],
+      mockTrial: true,
+    }
+    const judges = [
+      judge(1, { eventTypes: ['NOWT', 'NOME-A'] }),
+      judge(2, { eventTypes: ['NOWT'], mockTrial: true }),
+      judge(3, { eventTypes: ['NOWT'] }),
+    ]
+
+    expect(judgeNotices(event, judges)).toEqual([{ name: 'NOWT judge', reason: 'mockTrial' }])
+  })
+})
+
+describe('attachmentKeys', () => {
+  it('lists every attachment the event and its registrations point at, once', () => {
+    const event = {
+      ...sourceEvent(),
+      invitationAttachment: 'k1',
+      invitationAttachmentHistory: { k1: { uploadedAt: '2026-01-01' }, k2: { uploadedAt: '2026-01-02' } },
+      invitationAttachments: { ALO: 'k2', AVO: 'k3' },
+    }
+    const [registration] = sourceRegistrations()
+
+    expect(
+      attachmentKeys({ event, registrations: [{ ...registration, invitationAttachment: 'k4' }, registration] })
+    ).toEqual(['k1', 'k2', 'k3', 'k4'])
+    expect(attachmentKeys({ event: sourceEvent(), registrations: [] })).toEqual([])
   })
 })
 

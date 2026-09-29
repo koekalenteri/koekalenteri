@@ -1,0 +1,36 @@
+  # Receives an event copy from another environment (KOE-1471). Invoked only by that environment's
+  # ExportEventToStageFunction, under a fixed name, and created in test and dev only: prod has
+  # nothing that could store a copy.
+  ImportCopiedEventFunction:
+    Type: AWS::Serverless::Function
+    Condition: IsNotProdStage
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-ImportCopiedEvent'
+      CodeUri: lambda/ImportCopiedEventFunction
+      Handler: handler.default
+      Timeout: 120
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventStatsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref JudgeTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
+
+  # Declared here rather than generated: the generated one would outlive the function in prod.
+  ImportCopiedEventFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: IsNotProdStage
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref ImportCopiedEventFunction]]
+      RetentionInDays: 30

@@ -76,7 +76,7 @@ export function eventStatsMonth(date: string): string | undefined {
  */
 function buildDateRangeFilters(from?: string, to?: string) {
   const filterExpressions: string[] = []
-  const expressionValues: Record<string, any> = {}
+  const expressionValues: Record<string, string> = {}
 
   if (from) {
     filterExpressions.push('SK >= :from')
@@ -101,7 +101,7 @@ async function queryOrganizerStats(
 ): Promise<Required<JsonEventStatsItem>[]> {
   const keyCondition = '#pk = :pk'
   const expressionNames: Record<string, string> = { '#pk': 'PK' }
-  const expressionValues: Record<string, any> = { ':pk': `ORG#${organizerId}` }
+  const expressionValues: Record<string, string> = { ':pk': `ORG#${organizerId}` }
 
   // Add date range filters
   const { filterExpressions, expressionValues: dateValues } = buildDateRangeFilters(from, to)
@@ -128,7 +128,7 @@ async function queryAllOrganizerStats(from?: string, to?: string): Promise<Requi
   // Start with the base filter for all organizer records
   const filterExpressions: string[] = ['begins_with(#pk, :orgPrefix)']
   const expressionNames: Record<string, string> = { '#pk': 'PK' }
-  const expressionValues: Record<string, any> = { ':orgPrefix': 'ORG#' }
+  const expressionValues: Record<string, string> = { ':orgPrefix': 'ORG#' }
 
   // Add date range filters
   const { filterExpressions: dateFilters, expressionValues: dateValues } = buildDateRangeFilters(from, to)
@@ -514,6 +514,24 @@ export function calculateStatDeltas(
   }
 }
 
+type StatDeltas = ReturnType<typeof calculateStatDeltas>
+
+/** The deltas of registrations that are all new to the event, added up: an event copied in whole (KOE-1471). */
+export function sumNewRegistrationStatDeltas(registrations: RegistrationStatsInput[]): StatDeltas {
+  const deltas = registrations.map((registration) => calculateStatDeltas(registration, undefined))
+  const sum = (pick: (delta: StatDeltas) => number) => deltas.reduce((total, delta) => total + pick(delta), 0)
+  return {
+    cancelledDelta: sum((delta) => delta.cancelledDelta),
+    memberDelta: sum((delta) => delta.memberDelta),
+    paidAmountDelta: sum((delta) => delta.paidAmountDelta),
+    paidDelta: sum((delta) => delta.paidDelta),
+    refundedAmountDelta: sum((delta) => delta.refundedAmountDelta),
+    refundedDelta: sum((delta) => delta.refundedDelta),
+    reserveDelta: sum((delta) => delta.reserveDelta),
+    totalDelta: sum((delta) => delta.totalDelta),
+  }
+}
+
 /** Identifies an event's organizer stats record. Both key parts are editable event fields. */
 type OrganizerStatsEvent = Pick<JsonConfirmedEvent, 'id' | 'startDate'> & { organizer: { id: string } }
 
@@ -526,7 +544,7 @@ export const organizerStatsKey = (event: OrganizerStatsEvent) => ({
  * Update the organizer event stats in DynamoDB
  */
 export async function updateOrganizerEventStats(
-  event: JsonConfirmedEvent,
+  event: OrganizerStatsEvent,
   deltas: ReturnType<typeof calculateStatDeltas>
 ): Promise<void> {
   const key = organizerStatsKey(event)
