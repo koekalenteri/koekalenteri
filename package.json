@@ -93,6 +93,7 @@
     "start": "rimraf .aws-sam && concurrently -c auto npm:start-*",
     "test-backend": "node scripts/test-backend.js",
     "test-e2e": "playwright test",
+    "test-e2e-local": "node e2e/run-local.mjs",
     "test-visual": "node scripts/test-visual.js",
     "test-visual-linux": "bash scripts/test-visual-linux.sh",
     "test-frontend": "node scripts/test-frontend.js",

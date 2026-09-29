@@ -23,15 +23,20 @@ messages SES was asked to send are at `GET http://127.0.0.1:9000/_sent`.
 ## Running locally
 
 ```sh
-docker run --rm -d -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -inMemory -sharedDb
-npm run build-backend
-npm run build-e2e-frontend
-npm run test-e2e
+npm run test-e2e-local                                   # build, then run every test
+npm run test-e2e-local -- e2e/tests/groups.spec.ts --headed
+npm run test-e2e-local -- --no-build --ui                # skip the builds, Playwright's UI
 ```
 
-Rebuild after changing code: the tests run the builds, not the sources. To use a DynamoDB on
-another port, set `DYNAMODB_ENDPOINT`. A server already listening on 3000, 8080 or 9000 is
-reused outside CI, so stop `npm start` first.
+`run-local.mjs` refuses to start while something listens on 3000, 8080 or 9000: outside CI
+Playwright would reuse that server, and `npm start` there would put the tests against the dev
+stack. It starts an in-memory DynamoDB-local of its own (`koekalenteri-e2e-dynamodb`, port 8001)
+and leaves it running for the next run; `docker stop koekalenteri-e2e-dynamodb` empties it. The
+tests run the builds, not the sources, so `--no-build` is only for a run where nothing changed.
+Arguments other than `--no-build` go to `playwright test`.
+
+CI runs the same steps one by one: `build-backend`, `build-e2e-frontend` and `test-e2e` with
+`DYNAMODB_ENDPOINT` pointing at a service container.
 
 Each test writes its own rows under unique ids (`fixtures/db.ts`) and never empties a table.
 Dates are relative to today (`fixtures/dates.ts`), because the lambdas run on the real clock.
