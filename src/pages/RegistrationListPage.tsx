@@ -77,7 +77,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
       }
       actions.cancel(registration, reason).then(
         (saved) => {
-          setRegistration(saved)
+          void setRegistration(saved)
           setCancelOpen(false)
         },
         (error_) => {
@@ -100,7 +100,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     try {
       const saved = await actions.confirm(registration, event)
       if (!saved) return
-      setRegistration(saved)
+      await setRegistration(saved)
       setConfirmOpen(false)
     } catch (error_) {
       console.error(error_)
@@ -128,7 +128,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
       actions.invitationRead(registration).then(
         (saved) => {
           if (saved !== registration) {
-            setRegistration(saved)
+            void setRegistration(saved)
           }
           if (
             registration.invitationAttachment &&
@@ -136,7 +136,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
           ) {
             redirectTo(Path.invitationAttachment(registration))
           } else {
-            navigate(Path.registration(registration))
+            void navigate(Path.registration(registration))
           }
         },
         (error_) => {
@@ -169,7 +169,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
       }
 
       const search = paymentFlow === 'verifying' && registration.paymentStatus !== 'SUCCESS' ? '?payment=verifying' : ''
-      navigate(`${Path.registration(registration)}${search}`, { replace: true })
+      void navigate(`${Path.registration(registration)}${search}`, { replace: true })
     }
   }, [location.pathname, navigate, paymentFlow, registration, t])
 
@@ -193,7 +193,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     const reload = async () => {
       const reg = await actions.reload(registration)
       setReloadCount((old) => old + 1)
-      setRegistration(reg)
+      await setRegistration(reg)
     }
 
     const timeout = setTimeout(reload, PAYMENT_RELOAD_INTERVAL_MS)

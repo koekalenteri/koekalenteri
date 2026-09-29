@@ -15,7 +15,7 @@
     "enabled": true
   },
   "files": {
-    "includes": ["src/**/*", "!src/generated/**", "e2e/**/*", "playwright.config.ts"]
+    "includes": ["src/**/*", "!src/generated", "e2e/**/*", "playwright.config.ts"]
   },
   "formatter": {
     "enabled": true,
@@ -36,6 +36,9 @@
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "error"
+      },
+      "nursery": {
+        "noFloatingPromises": "error"
       },
       "performance": {
         "noAccumulatingSpread": "error"
@@ -86,18 +89,18 @@
             "noRestrictedImports": {
               "level": "error",
               "options": {
-                "patterns": [
-                  {
-                    "group": ["**/lambda/**"],
-                    "message": "Shared code must not import from src/lambda. Move the shared code to src/lib or src/types instead; see src/lib/README.md."
-                  }
-                ],
                 "paths": {
                   "date-fns": {
                     "allowImportNames": ["Locale"],
                     "message": "Import date-fns by module path instead: date-fns/addDays. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
                   }
-                }
+                },
+                "patterns": [
+                  {
+                    "group": ["**/lambda/**"],
+                    "message": "Shared code must not import from src/lambda. Move the shared code to src/lib or src/types instead; see src/lib/README.md."
+                  }
+                ]
               }
             }
           }
@@ -112,18 +115,25 @@
             "noRestrictedImports": {
               "level": "error",
               "options": {
-                "patterns": [
-                  {
-                    "group": ["**/pages/**", "**/hooks/**", "../api/**", "../../api/**", "../../../api/**", "**/lib/client/**"],
-                    "message": "Lambda code must not import frontend code (src/pages, src/hooks, src/api, src/lib/client)."
-                  }
-                ],
                 "paths": {
                   "date-fns": {
                     "allowImportNames": ["Locale"],
                     "message": "Import date-fns by module path instead: date-fns/addDays. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
                   }
-                }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "**/pages/**",
+                      "**/hooks/**",
+                      "../api/**",
+                      "../../api/**",
+                      "../../../api/**",
+                      "**/lib/client/**"
+                    ],
+                    "message": "Lambda code must not import frontend code (src/pages, src/hooks, src/api, src/lib/client)."
+                  }
+                ]
               }
             }
           },

@@ -4,6 +4,7 @@ import { useAtomValue } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useCallback, useEffect, useRef } from 'react'
 import { getEvent, getEvents } from '@/api/event'
+import { reportError } from '@/lib/client/error'
 import { compareEventsByDate } from '@/lib/event'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
@@ -276,9 +277,11 @@ function useEvent(eventId: string | undefined) {
     if (!eventId || singleFresh || pendingId.current === eventId) return
 
     pendingId.current = eventId
-    fetchEvents(undefined, undefined, eventId).finally(() => {
-      if (pendingId.current === eventId) pendingId.current = undefined
-    })
+    void fetchEvents(undefined, undefined, eventId)
+      .catch(reportError)
+      .finally(() => {
+        if (pendingId.current === eventId) pendingId.current = undefined
+      })
   }, [eventId, singleFresh, fetchEvents])
 
   if (eventId && event === undefined && singleFresh) {

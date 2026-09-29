@@ -173,7 +173,7 @@ test('searchEventKcIdChoices', async () => {
     startDate: emptyEvent.startDate,
   }
   const response = await searchEventKcIdChoices(request)
-  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls).toHaveLength(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/kcId/choices`)
   expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string)).toEqual({
     ...request,

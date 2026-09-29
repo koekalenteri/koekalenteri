@@ -20,7 +20,7 @@ export const useUnsavedChangesWarning = (when: boolean) => {
   useEffect(() => {
     if (blocker.state !== 'blocked' || prompting.current) return
     prompting.current = true
-    confirm({
+    void confirm({
       cancellationText: t('unsavedChanges.stay'),
       confirmationText: t('unsavedChanges.leave'),
       description: t('unsavedChanges.description'),

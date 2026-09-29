@@ -46,16 +46,21 @@ const openDatabase = (): Promise<IDBDatabase> => {
 
   const opened = withTimeout(opening, TIMEOUT_MS, 'indexedDB open')
   dbPromise = opened
-  opened.catch(() => {
-    // A failed open is not remembered: the next read opens again instead of inheriting the failure
-    // for the rest of the session. A connection that still arrives after the timeout is closed, so
-    // it cannot hold up a later version change.
-    if (dbPromise === opened) dbPromise = undefined
-    opening.then(
-      (db) => db.close(),
+  // A failed open is not remembered: the next read opens again instead of inheriting the failure
+  // for the rest of the session. A connection that still arrives after the timeout is closed, so it
+  // cannot hold up a later version change.
+  void opened
+    .then(
+      () => undefined,
+      () => {
+        if (dbPromise === opened) dbPromise = undefined
+        return opening
+      }
+    )
+    .then(
+      (late) => late?.close(),
       () => undefined
     )
-  })
 
   return opened
 }

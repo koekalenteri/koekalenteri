@@ -19,7 +19,7 @@ export const useUserActions = () => {
   const login = useCallback(() => {
     const newLoginPath = location.pathname === Path.login ? Path.home : location.pathname
     setLoginPath(newLoginPath)
-    navigate(Path.login, { replace: true })
+    void navigate(Path.login, { replace: true })
   }, [location.pathname, navigate, setLoginPath])
 
   const signIn = useAtomCallback(
@@ -36,7 +36,7 @@ export const useUserActions = () => {
         } finally {
           const targetPath = loginPath && loginPath !== Path.login && loginPath !== Path.logout ? loginPath : Path.home
           set(loginPathAtom, undefined)
-          navigate(targetPath, { replace: true })
+          void navigate(targetPath, { replace: true })
         }
       },
       [navigate]
@@ -48,7 +48,7 @@ export const useUserActions = () => {
       async (_get, set, notice: boolean = true) => {
         set(idTokenAtom, undefined)
         sessionStorage.clear()
-        navigate(Path.home, { replace: true })
+        void navigate(Path.home, { replace: true })
         try {
           await awsSignOut()
           // reset(adminEventsAtom)

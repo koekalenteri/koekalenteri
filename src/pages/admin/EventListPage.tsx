@@ -18,6 +18,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatDistance } from '../../i18n/dates'
+import { reportError } from '../../lib/client/error'
 import { firstSelectedRow, rowSelectionModel } from '../../lib/datagrid'
 import { apiStage, copyTargets, isDevEnv } from '../../lib/env'
 import { hasEntryStarted, isEventDeletable } from '../../lib/event'
@@ -83,38 +84,40 @@ export default function EventListPage() {
   const closeCopyTo = useCallback(() => setCopyToOpen(false), [])
 
   const deleteAction = useCallback(() => {
-    confirm({
+    void confirm({
       cancellationText: t('cancel'),
       confirmationText: t('delete'),
       description: t('deleteEventText'),
       title: t('confirmTitle'),
-    }).then(async ({ confirmed }) => {
-      if (confirmed) {
-        await actions.deleteCurrent()
-      }
     })
+      .then(async ({ confirmed }) => {
+        if (confirmed) {
+          await actions.deleteCurrent()
+        }
+      })
+      .catch(reportError)
   }, [actions, confirm, t])
 
   const createAction = useCallback(() => {
     if (newEvent.modifiedAt) {
-      confirm({
+      void confirm({
         cancellationText: t('eventDraft.createNew'),
         confirmationText: t('unsavedChanges.stay'),
         description: t('eventDraft.description', { ago: formatDistance(newEvent.modifiedAt, i18n.language) }),
         title: t('confirmTitle'),
-      }).then(async ({ confirmed }) => {
+      }).then(({ confirmed }) => {
         if (!confirmed) {
           resetNewEvent()
         }
-        navigate(Path.admin.newEvent)
+        void navigate(Path.admin.newEvent)
       })
     } else {
-      navigate(Path.admin.newEvent)
+      void navigate(Path.admin.newEvent)
     }
   }, [confirm, i18n.language, navigate, newEvent.modifiedAt, resetNewEvent, t])
   const editAction = useCallback(() => navigate(Path.admin.editEvent(selectedEventID)), [navigate, selectedEventID])
   const copyAction = useCallback(async () => {
-    if (await actions.copyCurrent()) navigate(Path.admin.newEvent)
+    if (await actions.copyCurrent()) void navigate(Path.admin.newEvent)
   }, [actions, navigate])
   const viewAction = useCallback(() => navigate(Path.admin.viewEvent(selectedEventID)), [navigate, selectedEventID])
 

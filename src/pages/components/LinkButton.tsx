@@ -22,7 +22,7 @@ export default function LinkButton({ to, text, sx, back, loading = false, onClic
     onClick?.(e)
     if (back) {
       e.preventDefault()
-      navigate(-1)
+      void navigate(-1)
     }
   }
 

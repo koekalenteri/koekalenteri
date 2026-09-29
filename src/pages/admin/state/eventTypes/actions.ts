@@ -19,7 +19,7 @@ export const useAdminEventTypeActions = () => {
   async function refresh() {
     if (!token) throw new Error('missing token')
     const eventTypes = await getEventTypes(token, true)
-    setEventTypes(sortEventTypes(eventTypes))
+    await setEventTypes(sortEventTypes(eventTypes))
   }
 
   async function save(eventType: EventTypeData) {
@@ -28,6 +28,6 @@ export const useAdminEventTypeActions = () => {
     const saved = await putEventType(eventType, token)
     const newEventTypes = eventTypes.map<EventType>((j) => ({ ...j }))
     newEventTypes.splice(insert ? newEventTypes.length : index, insert ? 0 : 1, saved)
-    setEventTypes(sortEventTypes(newEventTypes))
+    await setEventTypes(sortEventTypes(newEventTypes))
   }
 }

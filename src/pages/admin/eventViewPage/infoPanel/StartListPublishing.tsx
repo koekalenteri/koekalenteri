@@ -152,7 +152,7 @@ const StartListPublishing = ({
                   size="small"
                   disabled={!canManageStartList}
                   onClick={() => {
-                    if (publishable) handleSetStartListPublished(startListEventClass, !startListPublished)
+                    if (publishable) void handleSetStartListPublished(startListEventClass, !startListPublished)
                   }}
                   color={startListPublished ? 'secondary' : 'primary'}
                   variant={canManageStartList ? 'contained' : 'outlined'}

@@ -26,7 +26,7 @@ export const useAdminUserActions = () => {
     const oldIndex = users.findIndex((u) => u.id === user.id)
     const newUsers = [...users]
     newUsers.splice(oldIndex === -1 ? users.length : oldIndex, oldIndex === -1 ? 0 : 1, user)
-    setUsers(newUsers)
+    void setUsers(newUsers)
   }
 
   // Reads the list through the store rather than through `users`, so the callback stays stable and

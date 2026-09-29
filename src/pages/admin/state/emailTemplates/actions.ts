@@ -47,7 +47,7 @@ export const useAdminEmailTemplatesActions = () => {
         const saved = await putEmailTemplate(template, token)
         const index = templates.findIndex((i) => i.id === saved.id)
         templates.splice(index, 1, saved)
-        setEmailTemplates(templates)
+        await setEmailTemplates(templates)
         return { ok: true }
       } catch (e) {
         return { error: saveError(e), ok: false }

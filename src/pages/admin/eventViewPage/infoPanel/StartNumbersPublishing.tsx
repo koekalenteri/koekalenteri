@@ -280,7 +280,7 @@ const StartNumbersPublishing = ({
                       disabled={!canManageStartNumbers}
                       onClick={() => {
                         if (publishable) {
-                          handleSetStartNumbersPublished(startListEventClass, !scopePublished, scope, multiDay)
+                          void handleSetStartNumbersPublished(startListEventClass, !scopePublished, scope, multiDay)
                         }
                       }}
                       color={scopePublished ? 'secondary' : 'primary'}

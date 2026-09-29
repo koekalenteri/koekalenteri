@@ -49,9 +49,9 @@ describe('lib/publishing', () => {
 
     it('answers for a classless event without a class', () => {
       const classless = event({ classes: [], eventType: 'NOU', startListPublished: false })
-      expect(getStartListBlocker(classless, undefined, [{ ...invited, class: undefined, eventType: 'NOU' }])).toBe(
-        undefined
-      )
+      expect(
+        getStartListBlocker(classless, undefined, [{ ...invited, class: undefined, eventType: 'NOU' }])
+      ).toBeUndefined()
     })
   })
 

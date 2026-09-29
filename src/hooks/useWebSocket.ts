@@ -312,7 +312,12 @@ export const useWebSocket = () => {
   const setAdminEvents = useAtomCallback(
     useCallback(
       async (get, set, eventId: string, patch: Patch<DogEvent>) => {
-        const events = await get(adminEventsAtom)
+        let events: DogEvent[]
+        try {
+          events = await get(adminEventsAtom)
+        } catch {
+          return
+        }
         const next = applyPatchOrInsert(events, eventId, patch)
         if (next !== events) markRecentlyUpdated('admin:event', eventId)
         set(adminEventsAtom, next)
@@ -543,7 +548,7 @@ export const useWebSocket = () => {
         // parseJSON revives ISO strings into Dates, so the wire patch already has DogEvent shape;
         // the conversion is the one trust boundary between the socket payload and typed state.
         const eventPatch = patch as Patch<DogEvent>
-        setAdminEvents(eventId, eventPatch)
+        void setAdminEvents(eventId, eventPatch)
         const publicPatch = sanitizeDogEvent(eventPatch)
         if (Object.keys(publicPatch).length > 0) {
           setPublicEvents(eventId, publicPatch, { insert: isInsertablePublicEventPatch(publicPatch) })
@@ -564,7 +569,7 @@ export const useWebSocket = () => {
   const handleAdminMessage = useCallback(
     (data: any, token: string | undefined): boolean => {
       if (data.scope === 'admin:event-registrations' && data.eventId && Array.isArray(data.patch)) {
-        patchRegistrations(data.eventId, data.patch)
+        void patchRegistrations(data.eventId, data.patch)
         return true
       }
       if (data.scope === 'admin:audit-record' && data.record?.auditKey && data.record.timestamp instanceof Date) {

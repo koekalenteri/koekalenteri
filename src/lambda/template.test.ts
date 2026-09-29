@@ -36,7 +36,7 @@ describe('template', () => {
     const functions = matchAll(/^ {2}(\w+):\n {4}Type: AWS::Serverless::Function\s*$/gm).sort()
     const logGroups = matchAll(/^ {2}(\w+)LogGroup:\n {4}Type: AWS::Logs::LogGroup\s*$/gm).sort()
 
-    expect(functions.length).toBe(handlerDirectories.length)
+    expect(functions).toHaveLength(handlerDirectories.length)
     // A subset: the API Gateway access log group is in here too, and it belongs to no function.
     expect(functions.filter((name) => !logGroups.includes(name))).toEqual([])
   })

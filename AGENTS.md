@@ -252,6 +252,11 @@ time instead of fixing it in a second commit.
   `Promise.all` over non-promises all trip this. Read synchronous atoms directly and await only
   what is genuinely asynchronous.
 - Reject with an `Error`, never with a bare string or object.
+- **No floating promises (S9383).** Biome's `noFloatingPromises` enforces this, but it misses
+  async Jotai setters, which Sonar still flags. Inside an async function, `await` the call. In a
+  sync handler, write `void promise.catch(reportError)` when it can reject, or plain `void` when it
+  cannot or already handles its own errors: `navigate(...)`, cached-collection setters, the
+  publishing handlers.
 - Avoid `as const` on an array whose element types the caller needs to see as non-promise; the
   bare array literal already infers the tuple.
 
