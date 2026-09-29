@@ -165,11 +165,11 @@ export async function getOrganizerStats(
   if (organizerIds?.length === 0) return []
 
   if (organizerIds) {
-    // Query for specific organizers
-    for (const organizerId of organizerIds) {
-      const items = await queryOrganizerStats(organizerId, from, to)
-      allStats = [...allStats, ...items]
-    }
+    // Query for specific organizers, all at once; the result is sorted below anyway
+    const perOrganizer = await Promise.all(
+      organizerIds.map((organizerId) => queryOrganizerStats(organizerId, from, to))
+    )
+    allStats = perOrganizer.flat()
   } else {
     // Query for all organizers
     allStats = await queryAllOrganizerStats(from, to)
