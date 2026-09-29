@@ -10,6 +10,8 @@ interface CachedCollectionOptions<T> {
   sort?: (items: T[]) => T[]
 }
 
+const sorted = <T>(items: T[], sort?: (items: T[]) => T[]): T[] => (sort ? sort([...items]) : items)
+
 export async function loadCachedRemoteCollection<T>(
   { cacheKey, fetch, sort }: CachedCollectionOptions<T>,
   token: string,
@@ -17,15 +19,14 @@ export async function loadCachedRemoteCollection<T>(
 ) {
   const version = user.dataVersions?.[cacheKey]
   const cached = await readEncryptedDataset<T[]>(user.id, cacheKey).catch(() => undefined)
-  const sortedCached = cached ? (sort ? sort([...cached.data]) : cached.data) : undefined
+  const sortedCached = cached ? sorted(cached.data, sort) : undefined
   if (sortedCached && isFresh(cached?.revision, version)) return sortedCached
   try {
-    const fresh = await fetch(token)
-    const sorted = sort ? sort([...fresh]) : fresh
+    const fresh = sorted(await fetch(token), sort)
     // The revision is the one reported before the fetch: if the collection changed in between, the
     // blob is recorded as older than its data and refetches once more later. Never the other way.
-    await writeEncryptedDataset(user.id, cacheKey, sorted, { revision: version?.revision }).catch(() => undefined)
-    return sorted
+    await writeEncryptedDataset(user.id, cacheKey, fresh, { revision: version?.revision }).catch(() => undefined)
+    return fresh
   } catch (error) {
     if (sortedCached) return sortedCached
     throw error

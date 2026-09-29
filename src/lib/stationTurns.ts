@@ -118,7 +118,7 @@ export const stationThroughput = (
 
   return {
     count: kept.length,
-    maxMs: kept[kept.length - 1],
+    maxMs: kept.at(-1) ?? 0,
     meanMs: kept.reduce((sum, ms) => sum + ms, 0) / kept.length,
     minMs: kept[0],
   }

@@ -64,19 +64,22 @@ function AdditionalInfoSection({
           value={description}
           onChange={handleChange}
         ></TextField>
-        {EVENT_TRANSLATION_LANGUAGES.map((language) => (
-          <TextField
-            key={language}
-            disabled={disabled}
-            label={`${t('event.description')} (${t(`locale.${language}`)})`}
-            rows={5}
-            fullWidth
-            multiline
-            sx={{ mt: 1 }}
-            value={descriptions[language] ?? ''}
-            onChange={(e) => handleTranslationChange(language, e.target.value)}
-          />
-        ))}
+        {EVENT_TRANSLATION_LANGUAGES.map((language) => {
+          const languageName = t(`locale.${language}`)
+          return (
+            <TextField
+              key={language}
+              disabled={disabled}
+              label={`${t('event.description')} (${languageName})`}
+              rows={5}
+              fullWidth
+              multiline
+              sx={{ mt: 1 }}
+              value={descriptions[language] ?? ''}
+              onChange={(e) => handleTranslationChange(language, e.target.value)}
+            />
+          )
+        })}
       </Box>
     </CollapsibleSection>
   )

@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEvent } from '../../api/event'
+import { useTickWhile } from '../../hooks/useTickWhile'
 import { isEventLive } from '../../lib/event'
 import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
 import {
@@ -65,7 +66,9 @@ const LiveStationCard = ({ event, stationId, turns, starters, single }: StationC
 
   const dogLabel = (dog: PublicStationTurn['dogs'][number]) => {
     const name = dog.number ? `${dog.number} ${dog.name}`.trim() : dog.name
-    return dog.mark ? `${name} (${t(`liveStatus.mark.${dog.mark}`)})` : name
+    if (!dog.mark) return name
+    const mark = t(`liveStatus.mark.${dog.mark}`)
+    return `${name} (${mark})`
   }
 
   const statusLine = () => {
@@ -158,7 +161,6 @@ export const LiveStatus = ({
     base: PublicConfirmedEvent['liveTurns']
     turns: PublicConfirmedEvent['liveTurns']
   }>()
-  const [, setTick] = useState(0)
 
   const eventTurns = event.liveTurns
 
@@ -173,12 +175,7 @@ export const LiveStatus = ({
 
   const turns = (polled && polled.base === eventTurns ? polled.turns : eventTurns) ?? []
   // The clock keeps ticking while anything is live, so the section also goes away on time.
-  const hasOpen = isLiveNow(turns)
-  useEffect(() => {
-    if (!hasOpen) return
-    const timer = setInterval(() => setTick((tick) => tick + 1), CLOCK_TICK_MS)
-    return () => clearInterval(timer)
-  }, [hasOpen])
+  useTickWhile(isLiveNow(turns), CLOCK_TICK_MS)
 
   // Nothing to show once the trial is over: with every class's results published, the page is the
   // results, and the last dog's finishing time has had its day. The same rule lights the calendar.

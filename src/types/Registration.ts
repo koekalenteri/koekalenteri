@@ -192,6 +192,9 @@ export interface JsonEmailDeliveryStatus {
   template?: EmailTemplateId
 }
 
+/** Which owner a `ownerHandles`/`ownerPays` flag names: `true` the (first) owner, a string an owner's `key`. */
+export type OwnerSelection = boolean | string
+
 export interface JsonRegistration extends JsonDbRecord {
   agreeToTerms: boolean
   breeder: RegistrationBreeder
@@ -238,9 +241,9 @@ export interface JsonRegistration extends JsonDbRecord {
   owner?: RegistrationPerson
   owners?: RegistrationOwner[]
   /** `true` = legacy single-owner record; a string is the `key` of the handling owner in `owners`. */
-  ownerHandles?: boolean | string
+  ownerHandles?: OwnerSelection
   /** `true` = legacy single-owner record; a string is the `key` of the paying owner in `owners`. */
-  ownerPays?: boolean | string
+  ownerPays?: OwnerSelection
   optionalCosts?: number[]
   paidAmount?: number
   paidAt?: string
@@ -438,5 +441,5 @@ export interface MinimalRegistrationForMembership {
   handler?: Pick<RegistrationPerson, 'membership'>
   owner?: Pick<RegistrationPerson, 'membership'>
   owners?: Pick<RegistrationPerson, 'membership'>[]
-  ownerHandles?: boolean | string
+  ownerHandles?: OwnerSelection
 }

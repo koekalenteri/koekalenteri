@@ -17,6 +17,7 @@ import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import {
   assignStartNumbers,
+  classSuffix,
   freezeStartNumbers,
   parseStartNumberEntries,
   setStartNumbersPublishedState,
@@ -122,7 +123,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
       patches.push(...(await assignStartNumbers(eventId, registrations, numbers, user.name)))
       await audit({
         auditKey: eventAuditKey(confirmedEvent),
-        message: `Starttinumerot syötetty ${numbers.length} koiralle${eventClass ? ` (${eventClass})` : ''}`,
+        message: `Starttinumerot syötetty ${numbers.length} koiralle${classSuffix(eventClass)}`,
         user: user.name,
       })
     }

@@ -1,6 +1,6 @@
 import type { CollectionResponse } from '../types'
 
-type Timestamp = Date | string | undefined
+type Timestamp = Date | string
 /**
  * `lastSeen` counts: a user row whose lastSeen was refreshed is a changed row, even though that
  * refresh deliberately leaves modifiedAt - and with it the collection version - alone. The cursor
@@ -8,7 +8,7 @@ type Timestamp = Date | string | undefined
  */
 type TimestampedItem = { lastSeen?: Timestamp; modifiedAt?: Timestamp; updatedAt?: Timestamp }
 
-const timestampValue = (value: Timestamp): number => {
+const timestampValue = (value?: Timestamp): number => {
   if (value instanceof Date) return value.getTime()
   if (typeof value === 'string') return Date.parse(value)
   return Number.NaN

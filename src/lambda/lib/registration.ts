@@ -322,7 +322,7 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
 export const removeRegistrationField = async (
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id'],
-  field: keyof JsonRegistration & string
+  field: Extract<keyof JsonRegistration, string>
 ) =>
   dynamoDB.update(
     { eventId, id },

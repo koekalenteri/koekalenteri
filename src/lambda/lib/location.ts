@@ -44,7 +44,10 @@ const collectLocations = (entries: Map<string, Location>, items: KLPaikkakunta[]
   }
 }
 
-const sortLocations = (locations: Location[]) => locations.sort((a, b) => a.name.localeCompare(b.name, 'fi'))
+const sortLocations = (locations: Location[]) => {
+  locations.sort((a, b) => a.name.localeCompare(b.name, 'fi'))
+  return locations
+}
 
 export const fetchLocations = async (klapi: LocationApi): Promise<Location[] | undefined> => {
   const entries = new Map<string, Location>()

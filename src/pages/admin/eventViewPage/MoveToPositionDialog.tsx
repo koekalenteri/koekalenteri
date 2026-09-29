@@ -18,7 +18,7 @@ import { isParticipantGroup } from '@/lib/registration'
 interface MoveToPositionDayOption {
   date: Date
   key: string
-  time?: RegistrationGroup['time']
+  time?: NonNullable<RegistrationGroup['time']>
 }
 
 interface Props {
@@ -106,12 +106,15 @@ export default function MoveToPositionDialog({
               label={t('registration.moveToPositionDialog.selectDay')}
               onChange={(e) => onSelectDay?.(String(e.target.value))}
             >
-              {days.map((day) => (
-                <MenuItem key={day.key} value={day.key}>
-                  {t('dateFormat.wdshort', { date: day.date })}
-                  {day.time ? ` ${t(`registration.timeLong.${day.time}`)}` : ''}
-                </MenuItem>
-              ))}
+              {days.map((day) => {
+                const time = day.time ? t(`registration.timeLong.${day.time}`) : ''
+                return (
+                  <MenuItem key={day.key} value={day.key}>
+                    {t('dateFormat.wdshort', { date: day.date })}
+                    {time && ` ${time}`}
+                  </MenuItem>
+                )
+              })}
             </Select>
           </FormControl>
         )}
