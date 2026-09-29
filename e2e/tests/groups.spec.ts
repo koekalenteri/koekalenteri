@@ -2,12 +2,16 @@ import { expect, test } from '@playwright/test'
 import { registerThroughApi } from '../fixtures/api'
 import { signInAs } from '../fixtures/auth'
 import { readRegistration, seedDog, seedEvent, seedOrganizer, seedStaffUser } from '../fixtures/db'
+import { issue } from '../fixtures/issue'
 import { EventViewPage } from '../pages/EventViewPage'
 
 const MORNING = 'ti 13.10. aamupäivä'
 const AFTERNOON = 'ti 13.10. iltapäivä'
 
-test('a secretary places registered dogs into groups by dialog and by dragging', async ({ context, page }) => {
+test('a secretary places registered dogs into groups by dialog and by dragging', {
+  annotation: issue('KOE-1479'),
+  tag: '@secretary',
+}, async ({ context, page }) => {
   const organizer = await seedOrganizer()
   const secretary = await seedStaffUser({ roles: { [organizer.id]: 'secretary' } })
   // Paid on confirmation: a registration is ready as soon as it is sent, no payment step needed.

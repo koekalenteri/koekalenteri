@@ -2,6 +2,7 @@ import type { BrowserContext, Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 import { signInAs } from '../fixtures/auth'
 import { readEventsOf, seedOrganizer, seedStaffUser } from '../fixtures/db'
+import { issue } from '../fixtures/issue'
 import { EventFormPage } from '../pages/EventFormPage'
 import { SearchPage } from '../pages/SearchPage'
 
@@ -16,12 +17,10 @@ const seedOrganization = async () => {
   return { name: `E2E-julkaisu ${organizer.id}`, official, organizer, secretary }
 }
 
-test.describe('a secretary', () => {
-  test('creates a draft, publishes it, and it is on the front page for everyone', async ({
-    browser,
-    context,
-    page,
-  }) => {
+test.describe('a secretary', { annotation: issue('KOE-1478'), tag: '@secretary' }, () => {
+  test('creates a draft, publishes it, and it is on the front page for everyone', {
+    annotation: issue('KOE-1483', 'the form waits 400 ms after the name'),
+  }, async ({ browser, context, page }) => {
     const { official, organizer, secretary, name } = await seedOrganization()
     await signInAs(context, secretary)
     const form = new EventFormPage(page)
@@ -81,10 +80,13 @@ test.describe('a secretary', () => {
     expect(await readEventsOf(organizer.id)).toEqual([])
   })
 
-  test('is told when saving is refused', async ({ context, page }) => {
-    test.fail(true, 'KOE-1482: a refused save other than 409 shows nothing')
-    await saveAfterLosingTheRole(context, page)
+  test.fail(
+    'is told when saving is refused',
+    { annotation: issue('KOE-1482', 'a refused save other than 409 shows nothing') },
+    async ({ context, page }) => {
+      await saveAfterLosingTheRole(context, page)
 
-    await expect(page.getByRole('alert')).toBeVisible()
-  })
+      await expect(page.getByRole('alert')).toBeVisible()
+    }
+  )
 })
