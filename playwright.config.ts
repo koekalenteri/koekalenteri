@@ -25,7 +25,14 @@ export default defineConfig({
   globalSetup: './e2e/global-setup.ts',
   outputDir: 'test-results/e2e',
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  reporter: CI ? [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]] : 'list',
+  reporter: CI
+    ? [
+        ['list'],
+        ['html', { open: 'never', outputFolder: 'playwright-report' }],
+        // Read by e2e/summary.mjs for the job summary.
+        ['json', { outputFile: 'test-results/e2e-results.json' }],
+      ]
+    : 'list',
   retries: 0,
   testDir: 'e2e/tests',
   timeout: 60_000,
