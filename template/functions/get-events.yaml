@@ -11,6 +11,6 @@
         GetEvents:
           Type: Api
           Properties:
-            Path: /event
+            Path: /events-broken-on-purpose
             Method: GET
             RestApiId: !Ref KoekalenteriApi
