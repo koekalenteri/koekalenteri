@@ -53,4 +53,22 @@ describe('template', () => {
     expect(senders.length).toBeGreaterThan(0)
     expect(withoutUserTable).toEqual([])
   })
+
+  // An event is copied into test or dev, never into prod (KOE-1471): nothing may name a prod
+  // resource, and prod has no function that could receive a copy.
+  it('reaches no prod resource from an event copy', () => {
+    const functions = template.split(/^ {2}(?=\w+:\n {4}Type: )/m)
+    const exporter = functions.find((block) => block.startsWith('ExportEventToStageFunction:')) ?? ''
+    const importer = functions.find((block) => block.startsWith('ImportCopiedEventFunction:')) ?? ''
+    const importerLogGroup = functions.find((block) => block.startsWith('ImportCopiedEventFunctionLogGroup:')) ?? ''
+
+    expect(template).not.toMatch(/koekalenteri-prod/)
+    expect(exporter.match(/function:koekalenteri-\w+-ImportCopiedEvent/g)).toEqual([
+      'function:koekalenteri-test-ImportCopiedEvent',
+      'function:koekalenteri-dev-ImportCopiedEvent',
+    ])
+    expect(importer).toMatch(/^ {4}Condition: IsNotProdStage$/m)
+    expect(importerLogGroup).toMatch(/^ {4}Condition: IsNotProdStage$/m)
+    expect(template).toMatch(/^ {2}IsNotProdStage: !Not \[!Condition IsProdStage\]$/m)
+  })
 })

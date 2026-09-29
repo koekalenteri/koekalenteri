@@ -1,5 +1,6 @@
-import type { JsonDogEvent, JsonRegistration, PublicContactInfo, RegistrationOwner } from '../../types'
+import type { JsonDogEvent, JsonJudge, JsonRegistration, PublicContactInfo, RegistrationOwner } from '../../types'
 import { createHmac, randomBytes } from 'node:crypto'
+import { judgesMockTrialIndependently } from '../../lib/judge'
 import { normalizeEmail, withoutPlusTag } from './email'
 import { removeRegistrationCreationMetadata } from './registration'
 
@@ -15,7 +16,7 @@ import { removeRegistrationCreationMetadata } from './registration'
  */
 
 /** Who makes the copy: every mail the copy can send goes to this person. */
-interface Copier {
+export interface Copier {
   name: string
   email: string
   phone?: string
@@ -348,4 +349,81 @@ export const findCopyLeaks = (copy: EventCopy, copier: Copier, originals?: CopyO
 export const assertCopyIsScrubbed = (copy: EventCopy, copier: Copier, originals?: CopyOriginals) => {
   const leaks = findCopyLeaks(copy, copier, originals)
   if (leaks.length) throw new Error(`Event copy rejected: ${leaks.join(', ')}`)
+}
+
+type Stage = 'prod' | 'test' | 'dev'
+
+/**
+ * Where an environment may copy to. Never into prod: prod has no import function to receive a copy
+ * (KOE-1471), and this list is the export's own refusal on top of that.
+ */
+const COPY_TARGETS: Record<Stage, Stage[]> = {
+  dev: ['test'],
+  prod: ['test', 'dev'],
+  test: ['dev'],
+}
+
+export const copyTargets = (stage: string): Stage[] =>
+  stage === 'prod' || stage === 'test' || stage === 'dev' ? COPY_TARGETS[stage] : []
+
+/**
+ * The target's stack, named like this one (`koekalenteri-prod` → `koekalenteri-test`), or undefined
+ * where this stack's name does not end in its stage (a local run).
+ */
+export const targetStackName = (stackName: string, stage: string, target: string) =>
+  stage && stackName.endsWith(`-${stage}`) ? `${stackName.slice(0, -stage.length)}${target}` : undefined
+
+export const importFunctionName = (stack: string) => `${stack}-ImportCopiedEvent`
+
+/** What the export hands the target's import function. The originals never leave the source. */
+export interface CopyImportRequest {
+  copy: EventCopy
+  copier: Copier
+  /** Matched by Kennel Club number: organizer ids are generated in each environment. */
+  organizerKcId: number
+  source: { stage: string; eventId: string }
+}
+
+type JudgeNoticeReason = 'missing' | 'inactive' | 'eventType' | 'mockTrial'
+
+export interface JudgeNotice {
+  name: string
+  reason: JudgeNoticeReason
+}
+
+export interface CopyImportResult {
+  eventId: string
+  judges: JudgeNotice[]
+}
+
+/**
+ * The event's Kennel Club judges the target cannot use as they are: the event form checks judges
+ * against the target's own list, and a Mock trial will not save without judges who may judge it on
+ * their own there. Reported by name for an admin to settle; the import fetches and activates no one.
+ */
+export const judgeNotices = (event: Pick<JsonDogEvent, 'eventType' | 'judges' | 'mockTrial'>, judges: JsonJudge[]) => {
+  const notices: JudgeNotice[] = []
+  for (const eventJudge of event.judges) {
+    if (!eventJudge.id || eventJudge.id < 0) continue
+    const judge = judges.find((j) => j.id === eventJudge.id && !j.deletedAt)
+    const name = eventJudge.name
+    if (!judge) notices.push({ name, reason: 'missing' })
+    else if (judge.active === false) notices.push({ name, reason: 'inactive' })
+    else if (!judge.eventTypes.includes(event.eventType)) notices.push({ name, reason: 'eventType' })
+    else if (event.mockTrial && !judgesMockTrialIndependently(judge)) notices.push({ name, reason: 'mockTrial' })
+  }
+  return notices
+}
+
+/** Every invitation attachment the event and its registrations point at, each once. */
+export const attachmentKeys = (copy: EventCopy) => {
+  const keys = new Set<string>()
+  const { invitationAttachment, invitationAttachments, invitationAttachmentHistory } = copy.event
+  if (invitationAttachment) keys.add(invitationAttachment)
+  for (const key of Object.values(invitationAttachments ?? {})) if (key) keys.add(key)
+  for (const key of Object.keys(invitationAttachmentHistory ?? {})) keys.add(key)
+  for (const registration of copy.registrations) {
+    if (registration.invitationAttachment) keys.add(registration.invitationAttachment)
+  }
+  return [...keys]
 }

@@ -7,7 +7,13 @@ import type {
 } from '@aws-sdk/client-s3'
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { FileInfo } from 'busboy'
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import {
+  CopyObjectCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3'
 import Busboy from 'busboy'
 import { CONFIG } from '../config'
 import { logger } from './log'
@@ -102,6 +108,12 @@ export const downloadFile = async (key: string): Promise<GetObjectOutput> => {
     logger.error('S3 download failed', { bucket: fileBucket, error, key })
     throw error
   }
+}
+
+/** Copies a file to the same key in another bucket: an event copy's attachments (KOE-1471). */
+export const copyFileToBucket = async (key: string, bucket: string): Promise<void> => {
+  logger.info('copying file to another bucket', { bucket, key })
+  await s3.send(new CopyObjectCommand({ Bucket: bucket, CopySource: `${fileBucket}/${key}`, Key: key }))
 }
 
 export const deleteFile = async (key: string): Promise<void> => {

@@ -1,0 +1,52 @@
+  # Copies an event with its registrations into test or dev (KOE-1471). The people in the copy are
+  # replaced here, in the source, before anything leaves. Rights reach the import functions and
+  # attachment buckets of test and dev only; nothing here names a prod resource, and the template
+  # test holds that.
+  ExportEventToStageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/ExportEventToStageFunction
+      Handler: handler.default
+      Timeout: 120
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - S3ReadPolicy:
+            BucketName: !Ref EventAttachmentBucket
+        - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
+        - Statement:
+            - Sid: InvokeCopyImport
+              Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource:
+                - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-test-ImportCopiedEvent'
+                - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-dev-ImportCopiedEvent'
+            - Sid: PutCopiedAttachments
+              Effect: Allow
+              Action: s3:PutObject
+              Resource:
+                - arn:aws:s3:::koekalenteri-test-event-attachments/*
+                - arn:aws:s3:::koekalenteri-dev-event-attachments/*
+      Environment:
+        Variables:
+          BUCKET: !Ref EventAttachmentBucket
+      Events:
+        ExportEvent:
+          Type: Api
+          Properties:
+            Path: /admin/event/export
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
