@@ -17,10 +17,17 @@ import { idTokenAtom } from '../state'
 import EventListPage from './EventListPage'
 import { adminEventsAtom, adminShowPastEventsAtom } from './state'
 
-// The list is filtered by who is looking; an admin sees every event.
+// The list is filtered by who is looking. The guide shows it to a secretary (before-entry-opens), so
+// the screenshots are a club secretary's: an admin would also see admin-only actions (KOE-1471).
 vi.mock(import('../../api/user'), async (importOriginal) => ({
   ...(await importOriginal()),
-  getUser: async () => ({ admin: true, email: 'admin@example.com', id: 'admin', name: 'Anna Admin' }),
+  getUser: async () => ({
+    email: 'siiri@example.com',
+    id: 'secretary',
+    name: 'Siiri Sihteeri',
+    // The organizer of every trial below, from emptyEvent; vi.mock is hoisted above the imports
+    roles: { '1': 'secretary' },
+  }),
 }))
 
 // A screen each, not the page's height: the grid sizes its page to the room it gets.
