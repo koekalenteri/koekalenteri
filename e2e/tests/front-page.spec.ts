@@ -8,5 +8,5 @@ test('the front page lists an event the API returns from the database', async ({
   await page.goto('/')
 
   expect((await events).status()).toBe(200)
-  await expect(page.getByText(event.location, { exact: true })).toBeVisible()
+  await expect(page.getByText(`${event.location} (demo: fails on purpose)`, { exact: true })).toBeVisible()
 })
