@@ -5,7 +5,7 @@
 import type { JsonConfirmedEvent, JsonDog, JsonRegistration, JsonUser, Organizer } from '../../src/types'
 import { randomInt, randomUUID } from 'node:crypto'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { DYNAMODB_ENDPOINT } from '../env.mjs'
 import { endOfDay, helsinkiYear, startOfDay } from './dates'
 
@@ -25,6 +25,7 @@ const TABLES = {
   organizer: 'organizer-table',
   registration: 'event-registration-table',
   user: 'user-table',
+  userLink: 'user-link-table',
 } as const
 
 const putItem = (table: string, item: object) => client.send(new PutCommand({ Item: item, TableName: table }))
@@ -142,8 +143,31 @@ export const seedStaffUser = async (overrides: Partial<JsonUser> = {}): Promise<
   return user
 }
 
+/** Maps a Cognito subject to a user, as the first login would. */
+export const linkCognitoUser = (cognitoUser: string, userId: string) =>
+  putItem(TABLES.userLink, { cognitoUser, userId })
+
 /** A registration as the lambdas left it. */
 export const readRegistration = async (eventId: string, id: string) =>
   (await client.send(new GetCommand({ Key: { eventId, id }, TableName: TABLES.registration }))).Item as
     | JsonRegistration
     | undefined
+
+/**
+ * The events of an organizer, whole. The index the admin list reads projects only some fields, so
+ * it gives the ids and each event is read from the table.
+ */
+export const readEventsOf = async (organizerId: string) => {
+  const { Items = [] } = await client.send(
+    new QueryCommand({
+      ExpressionAttributeValues: { ':organizerId': organizerId },
+      IndexName: 'gsiOrganizerStartDate',
+      KeyConditionExpression: 'organizerId = :organizerId',
+      TableName: TABLES.event,
+    })
+  )
+  const events = await Promise.all(
+    Items.map(async ({ id }) => (await client.send(new GetCommand({ Key: { id }, TableName: TABLES.event }))).Item)
+  )
+  return events as JsonConfirmedEvent[]
+}
