@@ -46,7 +46,12 @@ export const COPY_REPLACED_TEXT = '[Kopioinnissa korvattu teksti]'
 
 const COPY_EMAIL_TAG = 'kk-'
 
-const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi
+/**
+ * Anything shaped like an address, in linear time: a match starts only where a run of local-part
+ * characters starts (the lookbehind), and the domain is dot-separated labels whose class holds no
+ * dot, so there is one way to match it (Sonar S5852).
+ */
+const EMAIL_RE = /(?<![A-Z0-9._%+-])[A-Z0-9._%+-]+@[A-Z0-9-]+(?:\.[A-Z0-9-]+)+/gi
 
 const FIRST_NAMES = ['Aino', 'Eino', 'Helmi', 'Ilmari', 'Kerttu', 'Lauri', 'Martta', 'Onni', 'Saima', 'Toivo']
 const LAST_NAMES = ['Testinen', 'Kokeilu', 'Malli', 'Harjoitus', 'Esimerkki', 'Kopio', 'Näyte', 'Luonnos']

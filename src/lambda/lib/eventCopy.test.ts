@@ -280,6 +280,25 @@ describe('findCopyLeaks', () => {
   })
 })
 
+describe('address matching', () => {
+  const copyWith = (location: string) =>
+    createEventCopy({ event: { ...sourceEvent(), location }, registrations: [] }, copier, key).copy.event.location
+
+  it('finds an address in running text, whatever its punctuation', () => {
+    expect(copyWith('Kysy (matti.m@sub.example.fi).')).toMatch(/^Kysy \(jukka\+kk-[0-9a-f]{6,}@example\.com\)\.$/)
+    expect(copyWith('a-b_c%d@x-y.fi,e@f.fi')).toMatch(/^jukka\+kk-\w+@example\.com,jukka\+kk-\w+@example\.com$/)
+  })
+
+  // A long run with no address in it used to be scanned again from every position (Sonar S5852)
+  it('reads a long text without an address in linear time', () => {
+    const long = `${'a.'.repeat(100_000)}@`
+    const started = performance.now()
+
+    expect(copyWith(long)).toBe(long)
+    expect(performance.now() - started).toBeLessThan(1000)
+  })
+})
+
 describe('removeEventRuntimeState', () => {
   it("removes the source's live timeline and locks", () => {
     expect(
