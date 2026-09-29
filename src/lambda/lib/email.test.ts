@@ -156,6 +156,18 @@ describe('email', () => {
   it('strips a plus tag and normalizes the address', () => {
     expect(withoutPlusTag(' Jukka+kk-7f3a9c@Example.com ')).toBe('jukka@example.com')
     expect(withoutPlusTag('jukka@example.com')).toBe('jukka@example.com')
+    expect(withoutPlusTag('jukka+a+b@example.com')).toBe('jukka@example.com')
+    expect(withoutPlusTag('jukka+kk')).toBe('jukka+kk')
+    expect(withoutPlusTag('jukka@example+x.com')).toBe('jukka@example+x.com')
+  })
+
+  // A text of `+` without an `@` used to be scanned again from every `+` (KOE-1474)
+  it('strips a plus tag in linear time', () => {
+    const long = '+'.repeat(200_000)
+    const started = performance.now()
+
+    expect(withoutPlusTag(long)).toBe(long)
+    expect(performance.now() - started).toBeLessThan(1000)
   })
 
   it('tags registration mail with the sending stack (KOE-1468)', () => {

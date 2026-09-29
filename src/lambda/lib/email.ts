@@ -22,8 +22,16 @@ const userDB = new CustomDynamoClient(CONFIG.userTable)
 
 export const normalizeEmail = (email: string) => email.trim().toLowerCase()
 
-/** `name+anything@domain` → `name@domain` */
-export const withoutPlusTag = (email: string) => normalizeEmail(email).replace(/\+[^@]*@/, '@')
+/**
+ * `name+anything@domain` → `name@domain`: from the first `+` to the `@` after it. Found with
+ * indexOf rather than a pattern, which re-scanned from every `+` of a text without an `@` (KOE-1474).
+ */
+export const withoutPlusTag = (email: string) => {
+  const address = normalizeEmail(email)
+  const plus = address.indexOf('+')
+  const at = plus < 0 ? -1 : address.indexOf('@', plus)
+  return at < 0 ? address : address.slice(0, plus) + address.slice(at)
+}
 
 const staffAddresses = new Map<string, boolean>()
 
