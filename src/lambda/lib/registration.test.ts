@@ -684,10 +684,10 @@ describe('registration', () => {
       vi.clearAllMocks()
 
       // Setup default mock implementations
-      mockEmailTo.mockImplementation((reg: any) => {
-        const emails = [reg.handler.email]
-        if (reg.owner.email !== reg.handler.email) {
-          emails.push(reg.owner.email)
+      mockEmailTo.mockImplementation((reg: JsonRegistration) => {
+        const emails = [reg.handler?.email]
+        if (reg.owner?.email !== reg.handler?.email) {
+          emails.push(reg.owner?.email)
         }
         return emails
       })
