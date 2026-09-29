@@ -42,7 +42,7 @@ export const seedEvent = async (overrides: Partial<JsonConfirmedEvent> = {}): Pr
   const id = overrides.id ?? uniqueId('e2e')
   const startDate = overrides.startDate ?? startOfDay(14)
   const now = new Date().toISOString()
-  const event: JsonConfirmedEvent & { season: string } = {
+  const event: JsonConfirmedEvent & { organizerId: string; season: string } = {
     classes: [{ class: 'ALO', date: startDate, places: 20 }],
     contactInfo: {
       official: { email: 'official@example.com', name: 'Teemu Toimitsija', phone: '040 123 4567' },
@@ -52,6 +52,10 @@ export const seedEvent = async (overrides: Partial<JsonConfirmedEvent> = {}): Pr
     costMember: 40,
     createdAt: now,
     createdBy: 'e2e',
+    dates: [
+      { date: startDate, time: 'ap' },
+      { date: startDate, time: 'ip' },
+    ],
     description: 'Selaintestin koe',
     endDate: startDate,
     entries: 0,
@@ -74,7 +78,9 @@ export const seedEvent = async (overrides: Partial<JsonConfirmedEvent> = {}): Pr
     startDate,
     state: 'confirmed',
     ...overrides,
-    // The public list reads events through gsiSeasonStartDate; PutEvent derives the season the same way.
+    // The keys PutEvent derives: the public list reads events through gsiSeasonStartDate, the
+    // organizer's admin list through gsiOrganizerStartDate.
+    organizerId: overrides.organizer?.id ?? '1',
     season: helsinkiYear(overrides.startDate ?? startDate),
   }
   await putItem(TABLES.event, event)
