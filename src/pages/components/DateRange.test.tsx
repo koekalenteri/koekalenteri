@@ -1,8 +1,9 @@
-import type { Props } from './DateRange'
+import type { DateValue, Props } from './DateRange'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
-import { format, parseISO, startOfMonth } from 'date-fns'
+import { addDays, format, parseISO, startOfDay, startOfMonth } from 'date-fns'
+import { useState } from 'react'
 import { locales } from '../../i18n'
 import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 import DateRange from './DateRange'
@@ -19,6 +20,16 @@ const renderComponent = (props: Props) => {
   const inputs = screen.getAllByRole('group')
   const buttons = screen.getAllByTestId('CalendarIcon')
   return { ...res, endCalendar: buttons[1], endInput: inputs[1], startCalendar: buttons[0], startInput: inputs[0] }
+}
+
+/** A parent that keeps what DateRange reports, as the search page and the event form do. */
+const StatefulDateRange = ({ onChange, ...props }: Props) => {
+  const [range, setRange] = useState({ end: props.end, start: props.start })
+  const handleChange = (start: DateValue, end: DateValue) => {
+    setRange({ end, start })
+    onChange?.(start, end)
+  }
+  return <DateRange {...props} end={range.end} onChange={handleChange} start={range.start} />
 }
 
 describe('DateRange', () => {
@@ -157,10 +168,37 @@ describe('DateRange', () => {
       expect(changeHandler).toHaveBeenLastCalledWith(start, day16)
     })
 
+    it('keeps a date typed into the empty end date one key at a time (KOE-1481)', async () => {
+      const changeHandler = vi.fn()
+      const today = startOfDay(date)
+      const target = addDays(today, 18)
+      const { user } = renderWithUserEvents(
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <StatefulDateRange end={null} endLabel="end" onChange={changeHandler} start={today} startLabel="start" />
+        </LocalizationProvider>,
+        undefined,
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const endGroup = screen.getByRole('group', { name: 'end' })
+      const endDay = endGroup.querySelector<HTMLElement>('[role="spinbutton"]')
+      if (!endDay) throw new Error('End date day section not found')
+
+      await user.click(endDay)
+      // A person's pace: the range's debounce runs out between the keys. The year's first digit
+      // makes year 2, a whole date before the start, which used to empty the field (KOE-1481).
+      for (const key of format(target, 'ddMMyyyy')) {
+        await user.keyboard(key)
+        await flushPromises()
+      }
+
+      expect(endGroup).toHaveTextContent(format(target, 'dd.MM.yyyy'))
+      expect(changeHandler).toHaveBeenLastCalledWith(today, target)
+    })
+
     it('should not allow setting the end date before the current start date', async () => {
       const changeHandler = vi.fn()
 
-      const { endInput, user } = renderComponent({
+      const { user } = renderComponent({
         end: day16,
         endLabel: 'end',
         onChange: changeHandler,
@@ -169,13 +207,15 @@ describe('DateRange', () => {
       })
 
       const earlierDate = new Date(date.getFullYear(), date.getMonth(), 1)
-      const earlierDateString = format(earlierDate, 'dd.MM.yyyy')
-
-      await user.type(endInput, earlierDateString)
+      const endDay = screen.getByRole('group', { name: 'end' }).querySelector<HTMLElement>('[role="spinbutton"]')
+      if (!endDay) throw new Error('End date day section not found')
+      await user.click(endDay)
+      await user.keyboard(format(earlierDate, 'dd'))
       await flushPromises()
 
       // the invalid, out-of-order value is rejected: end falls back to its previous value
       expect(changeHandler).toHaveBeenCalledWith(day15, day16)
+      expect(changeHandler).not.toHaveBeenCalledWith(day15, earlierDate)
     })
   })
 })

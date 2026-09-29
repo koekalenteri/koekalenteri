@@ -31,12 +31,16 @@ test.describe('finding an event', () => {
     await expect(search.event(event)).toBeVisible()
   })
 
-  test('typing a date into the empty end date keeps it', async ({ page }) => {
-    test.fail(true, 'KOE-1481: the day and month typed into the empty end date are lost')
+  test('the end date typed into the empty field hides a later event', async ({ page }) => {
+    const event = await seedEvent({ endDate: startOfDay(20), startDate: startOfDay(20) })
     const search = new SearchPage(page)
     await search.goto()
+    await expect(search.event(event)).toBeVisible()
 
+    // Typed key by key into the empty field; the year's first digit used to empty it (KOE-1481).
     await search.setEndDate(18)
+
+    await expect(search.event(event)).toBeHidden()
   })
 
   test('"entry open" hides an event whose entry has not opened yet', async ({ page }) => {

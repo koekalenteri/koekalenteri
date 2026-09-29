@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
 import { isSameDay, isValid } from 'date-fns'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
 
@@ -51,6 +52,25 @@ const coerceToDateValue = (
   return d
 }
 
+/**
+ * A year of fewer than four digits is still being typed: the field turns the first digit of 2026
+ * into year 2, a whole and valid date. It is not passed on until the year is whole (KOE-1481).
+ */
+const isYearBeingTyped = (d: DateValue) => !!d && isValid(d) && d.getFullYear() < 1000
+
+/**
+ * What is being typed into an empty field. The picker empties a field whose value stays null after
+ * it reported a whole date, so year 2, which the range does not take, used to wipe the day and
+ * month typed before it (KOE-1481). While the value is null the field shows this instead; a field
+ * with a value keeps what is typed into it without help.
+ */
+const useTypedIntoEmpty = (value: DateValue) => {
+  const [typed, setTyped] = useState<DateValue>(null)
+  const shown = value ?? typed
+  const track = (date: DateValue) => setTyped(value ? null : date)
+  return { shown, track, untrack: () => setTyped(null) }
+}
+
 export default function DateRange({
   defaultEnd,
   defaultStart,
@@ -69,12 +89,30 @@ export default function DateRange({
   onChange,
 }: Props) {
   const { t } = useTranslation()
-  const startChanged = useDebouncedCallback((date: DateValue) =>
-    onChange?.(coerceToDateValue(date, range, {}, start), end)
-  )
-  const endChanged = useDebouncedCallback((date: DateValue) =>
-    onChange?.(start, coerceToDateValue(date, range, { min: start }, end))
-  )
+  const typedStart = useTypedIntoEmpty(start)
+  const typedEnd = useTypedIntoEmpty(end)
+
+  /** A whole date the range rejects falls back to the old value, and an empty field empties again. */
+  const accept = (date: DateValue, coerced: DateValue, untrack: () => void) => {
+    if (coerced !== date && isValid(date)) untrack()
+    return coerced
+  }
+  const startChanged = useDebouncedCallback((date: DateValue) => {
+    if (isYearBeingTyped(date)) return
+    onChange?.(accept(date, coerceToDateValue(date, range, {}, start), typedStart.untrack), end)
+  })
+  const endChanged = useDebouncedCallback((date: DateValue) => {
+    if (isYearBeingTyped(date)) return
+    onChange?.(start, accept(date, coerceToDateValue(date, range, { min: start }, end), typedEnd.untrack))
+  })
+  const handleStartChange = (date: DateValue) => {
+    typedStart.track(date)
+    startChanged(date)
+  }
+  const handleEndChange = (date: DateValue) => {
+    typedEnd.track(date)
+    endChanged(date)
+  }
 
   return (
     // Side by side where both fit with their labels readable, one under the other on a phone.
@@ -84,11 +122,11 @@ export default function DateRange({
           referenceDate={defaultStart}
           disabled={startDisabled}
           label={startLabel}
-          value={start}
+          value={typedStart.shown}
           format={t('dateFormatString.long')}
           minDate={range?.start}
           maxDate={range?.end}
-          onChange={startChanged}
+          onChange={handleStartChange}
           slotProps={{
             actionBar: {
               actions: ['clear', 'cancel', 'accept'],
@@ -107,11 +145,11 @@ export default function DateRange({
           referenceDate={defaultEnd}
           disabled={endDisabled}
           label={endLabel}
-          value={end}
+          value={typedEnd.shown}
           format={t('dateFormatString.long')}
           minDate={start ?? range?.start}
           maxDate={range?.end}
-          onChange={endChanged}
+          onChange={handleEndChange}
           slotProps={{
             actionBar: {
               actions: ['clear', 'cancel', 'accept'],
