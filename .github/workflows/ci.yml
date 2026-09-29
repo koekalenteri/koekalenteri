@@ -377,6 +377,9 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Test
         run: npm run test-e2e
+      - name: Summarize failed tests
+        if: failure()
+        run: node e2e/failure-summary.mjs >> "$GITHUB_STEP_SUMMARY"
       - name: Upload report and traces
         if: failure()
         uses: actions/upload-artifact@v7

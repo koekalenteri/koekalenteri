@@ -35,3 +35,11 @@ reused outside CI, so stop `npm start` first.
 
 Each test writes its own rows under unique ids (`fixtures/db.ts`) and never empties a table.
 Dates are relative to today (`fixtures/dates.ts`), because the lambdas run on the real clock.
+
+## When a test fails in CI
+
+The job summary on the run's page lists each failed test with its error, the failing line and the
+page's accessibility tree at that moment (`failure-summary.mjs`). For the step-by-step trace,
+download the `e2e-report` artifact and drop a `trace.zip` from it on
+[trace.playwright.dev](https://trace.playwright.dev): it runs in the browser, installs nothing and
+uploads nothing.
