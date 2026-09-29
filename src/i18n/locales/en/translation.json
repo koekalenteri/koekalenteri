@@ -65,6 +65,7 @@
   "copy": "Copy",
   "copyStartList": "Copy list",
   "copyTest": "Copy with entries",
+  "copyToEnvironment": "Copy to environment",
   "cost": "Cost",
   "costAdd": "Add cost",
   "costAddOptional": "Add optional service",
@@ -360,6 +361,32 @@
     "statusText": "",
     "viewerBanner_one": "{{names}} is also viewing this event.",
     "viewerBanner_other": "{{names}} are also viewing this event."
+  },
+  "eventCopy": {
+    "copy": "Copy",
+    "done": {
+      "dev": "The event was copied to the development environment. You will find it there under a name that starts with [Kopio].",
+      "test": "The event was copied to the test environment. You will find it there under a name that starts with [Kopio]."
+    },
+    "failed": "Copying failed: {{message}}",
+    "judgeReason": {
+      "eventType": "is not a judge of this event type in the target environment",
+      "inactive": "is not active in the target environment",
+      "missing": "is missing from the target environment's judge list",
+      "mockTrial": "may not judge a Mock trial independently in the target environment"
+    },
+    "judges": "Check these judges on the target environment's judges page:",
+    "notes": {
+      "admin": "You need administrator rights in the target environment.",
+      "payments": "Payments are not copied. Receipts and refunds are tested in the target with new test payments.",
+      "people": "Everyone's names, email addresses and phone numbers are replaced. Messages from the copied event come to you."
+    },
+    "target": {
+      "dev": "Development environment",
+      "test": "Test environment"
+    },
+    "targetLabel": "Target",
+    "title": "Copy the event to another environment"
   },
   "eventDraft": {
     "createNew": "Create a new event",

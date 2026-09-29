@@ -19,6 +19,21 @@ export const isTestEnv = (detectTestRunner: () => boolean = isTestRunnerDefined)
 
 export const isProdEnv = (): boolean => process.env.NODE_ENV === 'production'
 
+type Stage = 'prod' | 'test' | 'dev'
+
+/**
+ * Where an environment may copy an event to (KOE-1471). Never into prod: prod has no import
+ * function to receive a copy, and this list is the export's own refusal on top of that.
+ */
+const COPY_TARGETS: Record<Stage, Stage[]> = {
+  dev: ['test'],
+  prod: ['test', 'dev'],
+  test: ['dev'],
+}
+
+export const copyTargets = (stage: string): Stage[] =>
+  stage === 'prod' || stage === 'test' || stage === 'dev' ? COPY_TARGETS[stage] : []
+
 export const stackName = (
   detectTestRunner: () => boolean = isTestRunnerDefined
 ): 'koekalenteri-dev' | 'koekalenteri-test' | 'koekalenteri-prod' => {

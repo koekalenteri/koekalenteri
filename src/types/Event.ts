@@ -507,6 +507,19 @@ export type EventClass = Replace<JsonEventClass, 'date', Date>
 
 export type EventClassState = 'picked' | 'invited' | 'started' | 'ended' | 'completed'
 export type ConfirmedEventStates = 'confirmed' | EventClassState
+/** Why the target environment cannot use one of a copied event's judges as it is (KOE-1471). */
+export interface EventCopyJudgeNotice {
+  name: string
+  reason: 'missing' | 'inactive' | 'eventType' | 'mockTrial'
+}
+
+/** What copying an event into another environment answers with (KOE-1471). */
+export interface EventCopyResult {
+  eventId: string
+  judges: EventCopyJudgeNotice[]
+  target: string
+}
+
 export type EventState = 'draft' | 'tentative' | 'cancelled' | 'confirmed' | EventClassState
 
 export type Headquarters = {

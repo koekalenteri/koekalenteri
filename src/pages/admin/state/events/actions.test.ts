@@ -1,7 +1,8 @@
 import { act, renderHook } from '@testing-library/react'
-import { Provider } from 'jotai'
+import { createStore, Provider } from 'jotai'
+import { createElement } from 'react'
 import { eventWithStaticDates } from '@/__mockData__/events'
-import { putEvent } from '@/api/event'
+import { exportEventToStage, putEvent } from '@/api/event'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import {
   buildEventSavePatch,
@@ -10,6 +11,8 @@ import {
   buildStartListPublishedPatch,
   useAdminEventActions,
 } from './actions'
+import { adminEventIdAtom } from './atoms'
+import { adminEventAtom } from './derivedAtoms'
 
 vi.mock('@/api/event')
 vi.mock('@/api/user')
@@ -128,5 +131,34 @@ describe('useAdminEventActions.setResultsPublished', () => {
 
     await expect(result.current.setResultsPublished(published, undefined, true)).resolves.toBe(published)
     expect(putEvent).not.toHaveBeenCalled()
+  })
+})
+
+describe('useAdminEventActions.copyCurrentToEnvironment', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
+  })
+  afterEach(() => localStorage.clear())
+
+  it('copies the selected event into the chosen environment (KOE-1471)', async () => {
+    const store = createStore()
+    store.set(adminEventAtom(eventWithStaticDates.id), eventWithStaticDates)
+    store.set(adminEventIdAtom, eventWithStaticDates.id)
+    const { result } = renderHook(() => useAdminEventActions(), {
+      wrapper: ({ children }) => createElement(Provider, { store }, children),
+    })
+
+    const copied = await act(() => result.current.copyCurrentToEnvironment('test'))
+
+    expect(exportEventToStage).toHaveBeenCalledWith(eventWithStaticDates.id, 'test', TEST_ID_TOKEN)
+    expect(copied).toEqual({ eventId: 'copied-event', judges: [], target: 'test' })
+  })
+
+  it('sends nothing without a selected event', async () => {
+    const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
+
+    await expect(result.current.copyCurrentToEnvironment('test')).resolves.toBeUndefined()
+    expect(exportEventToStage).not.toHaveBeenCalled()
   })
 })

@@ -115,3 +115,9 @@ export async function putInvitationAttachment(
 }> {
   return { invitationAttachmentHistory: {}, key: 'mock-file-id', uploadedAt: new Date('2026-07-28T12:00:00.000Z') }
 }
+
+export const exportEventToStage = vi.fn(async (_eventId: string, target: string, _token?: string) => ({
+  eventId: 'copied-event',
+  judges: [],
+  target,
+}))

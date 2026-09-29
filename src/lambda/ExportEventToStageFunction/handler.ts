@@ -1,6 +1,7 @@
 import type { Organizer } from '../../types'
 import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
+import { copyTargets } from '../../lib/env'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeAdmin } from '../lib/auth'
@@ -8,7 +9,6 @@ import { getEvent } from '../lib/event'
 import {
   assertCopyIsScrubbed,
   attachmentKeys,
-  copyTargets,
   createEventCopy,
   importFunctionName,
   targetStackName,
