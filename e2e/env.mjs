@@ -14,7 +14,7 @@ export const FAKES_PORT = 9000
  */
 export const FRONTEND_URL = `http://localhost:${FRONTEND_PORT}`
 export const STAGE = 'dev'
-const API_URL = `http://localhost:${API_PORT}/${STAGE}`
+export const API_URL = `http://localhost:${API_PORT}/${STAGE}`
 export const FAKES_URL = `http://127.0.0.1:${FAKES_PORT}`
 
 export const DYNAMODB_ENDPOINT = process.env.DYNAMODB_ENDPOINT ?? 'http://127.0.0.1:8000'
