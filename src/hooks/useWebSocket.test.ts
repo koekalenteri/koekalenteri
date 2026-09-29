@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { TestStore } from '../test-utils/AtomProvider'
 import type { DogEvent, PublicDogEvent, Registration, User } from '../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom, useStore } from 'jotai'
 import { unwrap } from 'jotai/utils'
 import { createElement } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -891,6 +891,37 @@ describe('useWebSocket', () => {
         expect.objectContaining({ eventType: 'NOME-A', id: 'event-2', organizer: { id: 'org-1', name: 'Organizer' } })
       )
     })
+  })
+
+  it('drops an admin event patch when the admin event list failed to load', async () => {
+    // The patch has nothing to apply to; it must not turn into an unhandled rejection either.
+    const failedLoad = Promise.reject(new Error('admin events failed to load'))
+    failedLoad.catch(() => undefined)
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(Provider, {
+        children,
+        initializeState: ({ set }: TestStore) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventsAtom, failedLoad as unknown as DogEvent[])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return useStore()
+      },
+      { wrapper }
+    )
+
+    await act(async () => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', name: 'Patched', scope: 'admin:event-patch' }),
+      })
+    })
+
+    expect(result.current.get(adminEventsAtom)).toBe(failedLoad)
+    expect(result.current.get(recentlyUpdatedAtom)['admin:event:event-1']).toBeUndefined()
   })
 
   it('should update public events from scoped public event patch messages', async () => {

@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router'
 
 interface Props extends Readonly<Omit<ComponentProps<typeof Link>, 'className' | 'onClick'>> {
   readonly text: string
-  readonly sx?: Record<string, any>
+  readonly sx?: Record<string, unknown>
   readonly back?: boolean
   readonly loading?: boolean
   readonly onClick?: MouseEventHandler<HTMLAnchorElement>

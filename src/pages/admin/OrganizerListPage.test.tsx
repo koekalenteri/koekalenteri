@@ -1,9 +1,10 @@
 import { ThemeProvider } from '@mui/material'
-import { fireEvent, screen } from '@testing-library/react'
+import { act, fireEvent, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { getAdminOrganizers } from '../../api/organizer'
 import theme from '../../assets/Theme'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
@@ -36,6 +37,32 @@ describe('OrganizerListPage', () => {
     expect(screen.getAllByRole('columnheader').map((c) => c.textContent)).toEqual(
       expect.arrayContaining(['organizer.kcId', 'organizer.name'])
     )
+    expect(screen.getByText('Järjestäjä 1')).toBeInTheDocument()
+  })
+
+  it('fetches the organizations again on refresh', async () => {
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <OrganizerListPage />
+              </SnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    vi.mocked(getAdminOrganizers).mockClear()
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /updateData/ }))
+    })
+    await flushPromises()
+
+    expect(getAdminOrganizers).toHaveBeenCalledWith(TEST_ID_TOKEN, true)
     expect(screen.getByText('Järjestäjä 1')).toBeInTheDocument()
   })
 

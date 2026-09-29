@@ -11,8 +11,9 @@ const mockOrganizers: Organizer[] = [
   },
 ]
 
-export async function getAdminOrganizers(_refresh: boolean, _token?: string, _signal?: AbortSignal) {
-  return new Promise((resolve) => {
-    process.nextTick(() => resolve(mockOrganizers))
-  })
-}
+export const getAdminOrganizers = vi.fn(
+  async (_token: string, _refresh?: boolean, _signal?: AbortSignal): Promise<Organizer[]> =>
+    new Promise((resolve) => {
+      process.nextTick(() => resolve(mockOrganizers))
+    })
+)

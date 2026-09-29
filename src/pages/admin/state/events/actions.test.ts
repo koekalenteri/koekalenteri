@@ -1,8 +1,10 @@
+import type { StationTurn } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { createStore, Provider } from 'jotai'
 import { createElement } from 'react'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { exportEventToStage, putEvent } from '@/api/event'
+import { putStationTurn } from '@/api/station'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import {
   buildEventSavePatch,
@@ -11,10 +13,11 @@ import {
   buildStartListPublishedPatch,
   useAdminEventActions,
 } from './actions'
-import { adminEventIdAtom } from './atoms'
+import { adminEventIdAtom, adminEventsAtom } from './atoms'
 import { adminEventAtom } from './derivedAtoms'
 
 vi.mock('@/api/event')
+vi.mock('@/api/station')
 vi.mock('@/api/user')
 
 describe('buildEventSavePatch', () => {
@@ -160,5 +163,42 @@ describe('useAdminEventActions.copyCurrentToEnvironment', () => {
 
     await expect(result.current.copyCurrentToEnvironment('test')).resolves.toBeUndefined()
     expect(exportEventToStage).not.toHaveBeenCalled()
+  })
+})
+
+describe('useAdminEventActions.recordStationTurn', () => {
+  const turns: StationTurn[] = [
+    { dogs: [], id: 'turn-1', registrationIds: [], startedAt: new Date('2026-09-30T08:00:00Z'), stationId: '1' },
+  ]
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
+    vi.mocked(putStationTurn).mockResolvedValueOnce({ turns })
+  })
+  afterEach(() => localStorage.clear())
+
+  const renderWithEvents = (events: (typeof eventWithStaticDates)[]) => {
+    const store = createStore()
+    store.set(adminEventsAtom, events)
+    const { result } = renderHook(() => useAdminEventActions(), {
+      wrapper: ({ children }) => createElement(Provider, { store }, children),
+    })
+    return { result, store }
+  }
+
+  it('writes the answered timeline onto the stored event', async () => {
+    const { result, store } = renderWithEvents([eventWithStaticDates])
+
+    await act(() => result.current.recordStationTurn(eventWithStaticDates.id, { type: 'end' }))
+
+    expect(store.get(adminEventAtom(eventWithStaticDates.id))).toMatchObject({ turns })
+  })
+
+  it('stores nothing for an event this browser does not hold', async () => {
+    const { result, store } = renderWithEvents([])
+
+    await expect(act(() => result.current.recordStationTurn('elsewhere', { type: 'end' }))).resolves.toEqual(turns)
+    expect(await store.get(adminEventsAtom)).toEqual([])
   })
 })
