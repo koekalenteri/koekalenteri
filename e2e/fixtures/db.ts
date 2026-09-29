@@ -2,10 +2,10 @@
  * The tests' own rows in the local DynamoDB. Every test writes what it needs under ids of its own
  * and never empties a table, so tests do not depend on each other's order or leftovers.
  */
-import type { JsonConfirmedEvent } from '../../src/types'
-import { randomUUID } from 'node:crypto'
+import type { JsonConfirmedEvent, JsonDog, JsonRegistration, JsonUser, Organizer } from '../../src/types'
+import { randomInt, randomUUID } from 'node:crypto'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb'
+import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import { DYNAMODB_ENDPOINT } from '../env.mjs'
 import { endOfDay, helsinkiYear, startOfDay } from './dates'
 
@@ -20,7 +20,11 @@ const client = DynamoDBDocumentClient.from(
 
 /** The table names CustomDynamoClient derives from the template's logical ids. */
 const TABLES = {
+  dog: 'dog-table',
   event: 'event-table',
+  organizer: 'organizer-table',
+  registration: 'event-registration-table',
+  user: 'user-table',
 } as const
 
 const putItem = (table: string, item: object) => client.send(new PutCommand({ Item: item, TableName: table }))
@@ -75,3 +79,71 @@ export const seedEvent = async (overrides: Partial<JsonConfirmedEvent> = {}): Pr
   await putItem(TABLES.event, event)
   return event
 }
+
+/** An organizer with a Paytrail sub-merchant, which PaymentCreate requires before it starts a payment. */
+export const seedOrganizer = async (overrides: Partial<Organizer> = {}): Promise<Organizer> => {
+  const id = uniqueId('org')
+  const organizer: Organizer = {
+    active: true,
+    id,
+    name: `E2E-yhdistys ${id}`,
+    paytrailMerchantId: '695874',
+    ...overrides,
+  }
+  await putItem(TABLES.organizer, organizer)
+  return organizer
+}
+
+/**
+ * A two-year-old Labrador with no results, fetched from KLAPI "just now": GetDogFunction goes back
+ * to KLAPI, which the tests cannot reach, only for a row older than an hour.
+ */
+export const seedDog = async (overrides: Partial<JsonDog> = {}): Promise<JsonDog> => {
+  const number = randomInt(10000, 100000)
+  const dog: JsonDog = {
+    breedCode: '122',
+    dam: { name: 'E2E Emä' },
+    dob: startOfDay(-730),
+    gender: 'F',
+    name: `E2E Koira ${number}`,
+    refreshDate: new Date().toISOString(),
+    regNo: `FI${number}/24`,
+    results: [],
+    rfid: '246000000000000',
+    sire: { name: 'E2E Isä' },
+    titles: '',
+    ...overrides,
+  }
+  await putItem(TABLES.dog, dog)
+  return dog
+}
+
+/**
+ * A user with a secretary role in the organizer. Outside prod the lambdas send mail only to staff
+ * (KOE-1469), so an address that should receive a confirmation has to belong to one.
+ */
+export const seedStaffUser = async (overrides: Partial<JsonUser> = {}): Promise<JsonUser> => {
+  const id = uniqueId('user')
+  const now = new Date().toISOString()
+  const user: JsonUser = {
+    createdAt: now,
+    createdBy: 'e2e',
+    email: `${id}@example.com`,
+    id,
+    location: 'Tampere',
+    modifiedAt: now,
+    modifiedBy: 'e2e',
+    name: `Olli Omistaja ${id}`,
+    phone: '+358401234567',
+    roles: { '1': 'secretary' },
+    ...overrides,
+  }
+  await putItem(TABLES.user, user)
+  return user
+}
+
+/** A registration as the lambdas left it. */
+export const readRegistration = async (eventId: string, id: string) =>
+  (await client.send(new GetCommand({ Key: { eventId, id }, TableName: TABLES.registration }))).Item as
+    | JsonRegistration
+    | undefined
