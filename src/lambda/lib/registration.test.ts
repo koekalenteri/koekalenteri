@@ -9,6 +9,7 @@ import {
 import { CONFIG } from '../config'
 
 const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
+  batchWrite: vi.fn(),
   delete: vi.fn(),
   // @ts-expect-error types don't quite match
   query: vi.fn(),
@@ -68,6 +69,7 @@ const {
   participantRegistrationResponse,
   publicRegistrationPatch,
   removeRegistrationCreationMetadata,
+  saveRegistrations,
 } = await import('./registration')
 
 /**
@@ -139,6 +141,16 @@ describe('createSentRegistrationMessagesAudit', () => {
       },
       user: 'Test User',
     })
+  })
+})
+
+describe('saveRegistrations', () => {
+  it('puts the registrations into the registration table in batches', async () => {
+    const [first, second] = jsonRegistrationsToEventWithALOInvited
+
+    await saveRegistrations([first, second])
+
+    expect(mockDynamoDB.batchWrite).toHaveBeenCalledWith([first, second], 'registration-table-not-found-in-env')
   })
 })
 
@@ -672,10 +684,10 @@ describe('registration', () => {
       vi.clearAllMocks()
 
       // Setup default mock implementations
-      mockEmailTo.mockImplementation((reg: any) => {
-        const emails = [reg.handler.email]
-        if (reg.owner.email !== reg.handler.email) {
-          emails.push(reg.owner.email)
+      mockEmailTo.mockImplementation((reg: JsonRegistration) => {
+        const emails = [reg.handler?.email]
+        if (reg.owner?.email !== reg.handler?.email) {
+          emails.push(reg.owner?.email)
         }
         return emails
       })
