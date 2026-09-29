@@ -3,10 +3,7 @@ import { registerThroughApi } from '../fixtures/api'
 import { signInAs } from '../fixtures/auth'
 import { readRegistration, seedDog, seedEvent, seedOrganizer, seedStaffUser } from '../fixtures/db'
 import { issue } from '../fixtures/issue'
-import { EventViewPage } from '../pages/EventViewPage'
-
-const MORNING = 'ti 13.10. aamupäivä'
-const AFTERNOON = 'ti 13.10. iltapäivä'
+import { EventViewPage, groupTitle } from '../pages/EventViewPage'
 
 test('a secretary places registered dogs into groups by dialog and by dragging', {
   annotation: issue('KOE-1479'),
@@ -21,6 +18,8 @@ test('a secretary places registered dogs into groups by dialog and by dragging',
     organizer: { id: organizer.id, name: organizer.name },
     paymentTime: 'confirmation',
   })
+  const MORNING = groupTitle(event.startDate, 'ap')
+  const AFTERNOON = groupTitle(event.startDate, 'ip')
   const dogs = [await seedDog(), await seedDog(), await seedDog()]
   const registrations = []
   for (const dog of dogs) registrations.push(await registerThroughApi(event, dog, secretary))
