@@ -17,6 +17,9 @@
         "@emnapi/runtime"
       ],
       "entry": [
+        "e2e/fakes/server.mjs",
+        "e2e/server/api.mjs",
+        "e2e/server/frontend.mjs",
         "scripts/build-template.mjs",
         "src/index.tsx",
         "src/lambda/*Function/handler.ts",

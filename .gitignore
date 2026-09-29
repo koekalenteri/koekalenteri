@@ -6,7 +6,12 @@
 # output
 coverage
 build
+build-e2e
 dist
+
+# Playwright browser tests (KOE-396)
+/test-results
+/playwright-report
 
 # misc
 .env
