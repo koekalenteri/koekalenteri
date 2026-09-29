@@ -7,7 +7,7 @@ const TIME_ZONE = 'Europe/Helsinki'
 const DAY_MS = 24 * 60 * 60 * 1000
 
 /** yyyy-MM-dd of the Helsinki day `offset` days from today. */
-const helsinkiDay = (offset = 0): string =>
+export const helsinkiDay = (offset = 0): string =>
   new Intl.DateTimeFormat('sv-SE', { day: '2-digit', month: '2-digit', timeZone: TIME_ZONE, year: 'numeric' }).format(
     new Date(Date.now() + offset * DAY_MS)
   )
