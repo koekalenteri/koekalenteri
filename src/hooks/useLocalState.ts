@@ -22,11 +22,15 @@ export function useLocalState<T>(
     setLocalValue(initialValue)
   }, [initialValue])
 
-  // Debounced callback to notify parent of changes
-  const debouncedOnChange = useDebouncedCallback((value: T) => {
-    onChange?.(value)
-    setIsPending(false)
-  }, debounceTime)
+  // Debounced callback to notify parent of changes, delivered at once when the field loses focus
+  const debouncedOnChange = useDebouncedCallback(
+    (value: T) => {
+      onChange?.(value)
+      setIsPending(false)
+    },
+    debounceTime,
+    { flushOnBlur: true }
+  )
 
   // Function to update local state and trigger debounced update
   const updateValue = (value: T | ((prev: T) => T)) => {
