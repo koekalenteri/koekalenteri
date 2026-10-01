@@ -252,6 +252,9 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       if (props.startDate) {
         newState.season = String(newState.startDate.getFullYear())
       }
+      // The next change merges into this one, even when it comes before the form renders again: two
+      // debounced fields delivering back to back, or a click landing before the render (KOE-1483).
+      eventRef.current = newState
 
       // Keep the previous errors reference when nothing actually changed, so the errorStates/
       // helperTexts memo below (and any memoized section relying on them) can skip recomputing.

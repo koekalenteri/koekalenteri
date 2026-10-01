@@ -25,7 +25,9 @@ export const NumberInput = ({
   const [stringValue, setStringValue] = useState<string>(formatValue(value))
   const [focused, setFocused] = useState(false)
 
-  const dispatchChange = useDebouncedCallback((value: number | undefined) => onChange?.(value))
+  const dispatchChange = useDebouncedCallback((value: number | undefined) => onChange?.(value), 100, {
+    flushOnBlur: true,
+  })
   const handleChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
     (e) => {
       if (e.target.value !== stringValue) {

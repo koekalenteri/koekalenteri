@@ -18,9 +18,11 @@ const seedOrganization = async () => {
 }
 
 test.describe('a secretary', { annotation: issue('KOE-1478'), tag: '@secretary' }, () => {
-  test('creates a draft, publishes it, and it is on the front page for everyone', {
-    annotation: issue('KOE-1483', 'the form waits 400 ms after the name'),
-  }, async ({ browser, context, page }) => {
+  test('creates a draft, publishes it, and it is on the front page for everyone', async ({
+    browser,
+    context,
+    page,
+  }) => {
     const { official, organizer, secretary, name } = await seedOrganization()
     await signInAs(context, secretary)
     const form = new EventFormPage(page)
