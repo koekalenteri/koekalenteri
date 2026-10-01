@@ -56,8 +56,8 @@ const storedTurn: JsonStationTurn = {
   stationId: 'post-1',
 }
 
-const apiEvent = async (body: unknown, token?: string): Promise<APIGatewayProxyEvent> => {
-  const bearer = token ?? (await getStationEntryToken('event-1', station))
+const apiEvent = (body: unknown, token?: string): APIGatewayProxyEvent => {
+  const bearer = token ?? getStationEntryToken('event-1', station)
   const partial: Pick<APIGatewayProxyEvent, 'body' | 'headers'> = {
     body: JSON.stringify(body),
     headers: { authorization: `Bearer ${bearer}` },
@@ -78,7 +78,7 @@ describe('putStationEntryTurnLambda', () => {
   })
 
   it('writes the op onto this post, broadcasts, and echoes the public shape', async () => {
-    await putStationEntryTurnLambda(await apiEvent({ type: 'end' }))
+    await putStationEntryTurnLambda(apiEvent({ type: 'end' }))
 
     expect(mockParseStationTurnOp).toHaveBeenCalledWith({ type: 'end' })
     expect(mockWriteStationTurn).toHaveBeenCalledWith(confirmedEvent, [], 'post-1', { type: 'end' })
@@ -102,7 +102,7 @@ describe('putStationEntryTurnLambda', () => {
   it('echoes only this post: a racing span on another post stays out of the response', async () => {
     mockWriteStationTurn.mockResolvedValue([storedTurn, { ...storedTurn, id: 'turn-2', stationId: 'post-2' }])
 
-    await putStationEntryTurnLambda(await apiEvent({ type: 'end' }))
+    await putStationEntryTurnLambda(apiEvent({ type: 'end' }))
 
     expect(mockResponse).toHaveBeenCalledWith(
       200,
@@ -112,7 +112,7 @@ describe('putStationEntryTurnLambda', () => {
   })
 
   it('refuses a wrong token with the same 404 as a missing station', async () => {
-    await expect(putStationEntryTurnLambda(await apiEvent({ type: 'end' }, 'wrong-token'))).rejects.toMatchObject({
+    await expect(putStationEntryTurnLambda(apiEvent({ type: 'end' }, 'wrong-token'))).rejects.toMatchObject({
       status: 404,
     })
     expect(mockWriteStationTurn).not.toHaveBeenCalled()

@@ -997,41 +997,39 @@ describe('registration access', () => {
   const registration = { editTokenVersion: 1, eventId: 'event', id: 'registration' }
   const secret = 'test-registration-edit-token-secret'
 
-  it('authorizes only the matching bearer token', async () => {
+  it('authorizes only the matching bearer token', () => {
     const token = deriveRegistrationEditToken(registration, secret)
 
-    await expect(
-      authorizeRegistrationEdit({ headers: { authorization: `Bearer ${token}` } }, registration)
-    ).resolves.toBe(token)
-    await expect(authorizeRegistrationEdit({ headers: {} }, registration)).rejects.toThrow('404 not found')
-    await expect(
+    expect(authorizeRegistrationEdit({ headers: { authorization: `Bearer ${token}` } }, registration)).toBe(token)
+    expect(() => authorizeRegistrationEdit({ headers: {} }, registration)).toThrow('404 not found')
+    expect(() =>
       authorizeRegistrationEdit({ headers: { Authorization: 'Bearer another-secret' } }, registration)
-    ).rejects.toThrow('404 not found')
+    ).toThrow('404 not found')
   })
 
-  it('reads the edit token from its own header when Authorization carries a login', async () => {
+  it('reads the edit token from its own header when Authorization carries a login', () => {
     const token = deriveRegistrationEditToken(registration, secret)
 
-    await expect(
+    expect(
       authorizeRegistrationEdit(
         { headers: { Authorization: 'Bearer cognito-id-token', 'x-registration-token': token } },
         registration
       )
-    ).resolves.toBe(token)
-    await expect(
-      authorizeRegistrationEdit({ headers: { 'X-Registration-Token': `${token}x` } }, registration)
-    ).rejects.toThrow('404 not found')
+    ).toBe(token)
+    expect(() => authorizeRegistrationEdit({ headers: { 'X-Registration-Token': `${token}x` } }, registration)).toThrow(
+      '404 not found'
+    )
   })
 
-  it('allows a tokenless read only for a legacy registration', async () => {
+  it('allows a tokenless read only for a legacy registration', () => {
     const legacyRegistration = { eventId: registration.eventId, id: registration.id }
     const expected = deriveRegistrationEditToken(legacyRegistration, secret)
 
-    await expect(authorizeRegistrationRead({ headers: {} }, legacyRegistration)).resolves.toBe(expected)
-    await expect(authorizeRegistrationRead({ headers: {} }, registration)).rejects.toThrow('404 not found')
-    await expect(
+    expect(authorizeRegistrationRead({ headers: {} }, legacyRegistration)).toBe(expected)
+    expect(() => authorizeRegistrationRead({ headers: {} }, registration)).toThrow('404 not found')
+    expect(() =>
       authorizeRegistrationRead({ headers: { Authorization: 'Bearer invalid' } }, legacyRegistration)
-    ).rejects.toThrow('404 not found')
+    ).toThrow('404 not found')
   })
 
   it('derives one stable token until its version is changed', () => {

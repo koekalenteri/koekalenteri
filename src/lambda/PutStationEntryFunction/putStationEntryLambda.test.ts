@@ -52,8 +52,8 @@ const confirmedEvent = asJsonConfirmedEvent({
 const registration = (id: string) =>
   ({ class: 'AVO', eventId: 'event-1', group: { key: 'AVO-AP', number: 1 }, id }) as JsonRegistration
 
-const apiEvent = async (body: unknown, token?: string): Promise<APIGatewayProxyEvent> => {
-  const bearer = token ?? (await getStationEntryToken('event-1', station))
+const apiEvent = (body: unknown, token?: string): APIGatewayProxyEvent => {
+  const bearer = token ?? getStationEntryToken('event-1', station)
   const partial: Pick<APIGatewayProxyEvent, 'body' | 'headers'> = {
     body: JSON.stringify(body),
     headers: { authorization: `Bearer ${bearer}` },
@@ -73,7 +73,7 @@ describe('putStationEntryLambda', () => {
 
   it('refuses a wrong token before touching anything', async () => {
     await expect(
-      putStationEntryLambda(await apiEvent([{ eventResult: { tasks: [] }, id: 'reg-1' }], 'wrong'))
+      putStationEntryLambda(apiEvent([{ eventResult: { tasks: [] }, id: 'reg-1' }], 'wrong'))
     ).rejects.toThrow('not found')
 
     expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
@@ -82,7 +82,7 @@ describe('putStationEntryLambda', () => {
 
   it('saves under this post and attributes the write to it, whatever the body claims', async () => {
     await putStationEntryLambda(
-      await apiEvent([
+      apiEvent([
         {
           eventResult: {
             tasks: [
@@ -108,7 +108,7 @@ describe('putStationEntryLambda', () => {
 
   it('drops the whole-round fields a station link may not write', async () => {
     await putStationEntryLambda(
-      await apiEvent([
+      apiEvent([
         {
           eventResult: {
             cert: true,
@@ -137,9 +137,7 @@ describe('putStationEntryLambda', () => {
 
   it('saves a round-ending outcome that arrives without a score', async () => {
     await putStationEntryLambda(
-      await apiEvent([
-        { eventResult: { retirement: { cause: 'injury', stationId: 'post-1' }, tasks: [] }, id: 'reg-1' },
-      ])
+      apiEvent([{ eventResult: { retirement: { cause: 'injury', stationId: 'post-1' }, tasks: [] }, id: 'reg-1' }])
     )
 
     expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
@@ -162,7 +160,7 @@ describe('putStationEntryLambda', () => {
     ])
 
     await putStationEntryLambda(
-      await apiEvent([
+      apiEvent([
         {
           basedOn: undefined,
           eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] },

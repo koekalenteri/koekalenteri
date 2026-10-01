@@ -65,7 +65,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   }
 
   const registration = await getRegistration(eventId, registrationId)
-  const editToken = await getRegistrationEditToken(registration)
+  const editToken = getRegistrationEditToken(registration)
 
   if (status !== 'ok') {
     await updateTransactionStatus(transaction, status)

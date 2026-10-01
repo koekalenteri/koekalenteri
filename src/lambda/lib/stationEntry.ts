@@ -29,20 +29,20 @@ export const deriveStationEntryToken = (eventId: string, station: StationTokenFi
     secret
   )
 
-export const getStationEntryToken = async (eventId: string, station: StationTokenFields): Promise<string> =>
-  deriveStationEntryToken(eventId, station, await getRegistrationEditTokenSecret())
+export const getStationEntryToken = (eventId: string, station: StationTokenFields): string =>
+  deriveStationEntryToken(eventId, station, getRegistrationEditTokenSecret())
 
 /**
  * The station a request's Bearer token opens, or a 404 that does not say why. A wrong token, a revoked
  * one and a station that never existed all read the same from outside, exactly as the registration
  * links behave.
  */
-export const authorizeStationEntry = async (
+export const authorizeStationEntry = (
   apiEvent: Pick<APIGatewayProxyEvent, 'headers'>,
   eventId: string,
   confirmedEvent: JsonConfirmedEvent,
   stationId: string
-): Promise<JsonEventStation> => {
+): JsonEventStation => {
   // The implicit post of a single-post format opens like any other; its version lives on the event
   // only once a revocation has written it there.
   const station = resolveStation(confirmedEvent, stationId)
@@ -51,7 +51,7 @@ export const authorizeStationEntry = async (
   const token = getBearerToken(apiEvent)
   if (!token) throw new LambdaError(404, 'not found')
 
-  const expected = await getStationEntryToken(eventId, station)
+  const expected = getStationEntryToken(eventId, station)
   if (!linkTokensMatch(token, expected)) throw new LambdaError(404, 'not found')
 
   return station

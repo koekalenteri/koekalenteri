@@ -54,33 +54,24 @@ describe('startNumberLink', () => {
       )
     })
 
-    it('opens the class for the right token only', async () => {
-      const token = await getStartNumberLinkToken('event-1', confirmedEvent, 'ALO')
+    it('opens the class for the right token only', () => {
+      const token = getStartNumberLinkToken('event-1', confirmedEvent, 'ALO')
 
-      await expect(authorizeStartNumberLink(headers(token), 'event-1', confirmedEvent, 'ALO')).resolves.toBe('ALO')
-      await expect(authorizeStartNumberLink(headers(token), 'event-1', confirmedEvent, 'AVO')).rejects.toThrow(
-        'not found'
-      )
-      await expect(authorizeStartNumberLink(headers('wrong'), 'event-1', confirmedEvent, 'ALO')).rejects.toThrow(
-        'not found'
-      )
-      await expect(authorizeStartNumberLink(headers(), 'event-1', confirmedEvent, 'ALO')).rejects.toThrow('not found')
+      expect(authorizeStartNumberLink(headers(token), 'event-1', confirmedEvent, 'ALO')).toBe('ALO')
+      expect(() => authorizeStartNumberLink(headers(token), 'event-1', confirmedEvent, 'AVO')).toThrow('not found')
+      expect(() => authorizeStartNumberLink(headers('wrong'), 'event-1', confirmedEvent, 'ALO')).toThrow('not found')
+      expect(() => authorizeStartNumberLink(headers(), 'event-1', confirmedEvent, 'ALO')).toThrow('not found')
     })
 
-    it('stops opening once the class version has been bumped', async () => {
-      const token = await getStartNumberLinkToken('event-1', confirmedEvent, 'ALO')
+    it('stops opening once the class version has been bumped', () => {
+      const token = getStartNumberLinkToken('event-1', confirmedEvent, 'ALO')
       const revoked = { ...confirmedEvent, startNumberLinkVersions: { ALO: 2 } }
 
-      await expect(authorizeStartNumberLink(headers(token), 'event-1', revoked, 'ALO')).rejects.toThrow('not found')
+      expect(() => authorizeStartNumberLink(headers(token), 'event-1', revoked, 'ALO')).toThrow('not found')
       // Only that class's links die; the other secretaries are still drawing.
-      await expect(
-        authorizeStartNumberLink(
-          headers(await getStartNumberLinkToken('event-1', revoked, 'AVO')),
-          'event-1',
-          revoked,
-          'AVO'
-        )
-      ).resolves.toBe('AVO')
+      expect(
+        authorizeStartNumberLink(headers(getStartNumberLinkToken('event-1', revoked, 'AVO')), 'event-1', revoked, 'AVO')
+      ).toBe('AVO')
     })
 
     it('has no class to open where the trial runs none, and offers its event type instead', () => {

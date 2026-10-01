@@ -100,7 +100,7 @@ describe('paymentVerifyLambda', () => {
       id: 'reg456',
       paymentStatus: 'PENDING',
     })
-    mockGetRegistrationEditToken.mockResolvedValue('edit-token')
+    mockGetRegistrationEditToken.mockReturnValue('edit-token')
 
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
 

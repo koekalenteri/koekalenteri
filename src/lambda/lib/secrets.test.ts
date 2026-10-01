@@ -23,7 +23,9 @@ vi.doMock('../config', () => ({
 }))
 
 // Import the module after mocking
-const { getKLAPIConfig, getPaytrailConfig, getSSMParams, resetCache } = await import('./secrets')
+const { getKLAPIConfig, getPaytrailConfig, getRegistrationEditTokenSecret, getSSMParams, resetCache } = await import(
+  './secrets'
+)
 
 describe('secrets', () => {
   beforeEach(() => {
@@ -321,6 +323,29 @@ describe('secrets', () => {
 
       // Verify that the function throws an error
       await expect(getPaytrailConfig()).rejects.toThrow('Missing Paytrail Config!')
+    })
+  })
+
+  describe('getRegistrationEditTokenSecret', () => {
+    afterEach(() => vi.unstubAllEnvs())
+
+    it('returns the secret in the environment', () => {
+      vi.stubEnv('REGISTRATION_EDIT_TOKEN_SECRET', 'from-env')
+
+      expect(getRegistrationEditTokenSecret()).toBe('from-env')
+    })
+
+    it('returns a fixed secret under tests when none is set', () => {
+      vi.stubEnv('REGISTRATION_EDIT_TOKEN_SECRET', '')
+
+      expect(getRegistrationEditTokenSecret()).toBe('test-registration-edit-token-secret')
+    })
+
+    it('throws when there is no secret outside tests', () => {
+      vi.stubEnv('REGISTRATION_EDIT_TOKEN_SECRET', '')
+      vi.stubEnv('NODE_ENV', 'production')
+
+      expect(() => getRegistrationEditTokenSecret()).toThrow('Missing registration edit-token secret!')
     })
   })
 })

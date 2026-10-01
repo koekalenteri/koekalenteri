@@ -359,7 +359,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   await publishPublicStartList(confirmedEvent)
   const responseItems = await Promise.all(
     updatedItems.map(async (registration) =>
-      participantRegistrationResponse(registration, await getRegistrationEditToken(registration))
+      participantRegistrationResponse(registration, getRegistrationEditToken(registration))
     )
   )
 

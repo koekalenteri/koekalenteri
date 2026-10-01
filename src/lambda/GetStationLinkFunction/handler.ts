@@ -19,7 +19,7 @@ const getStationLinkLambda = lambda('getStationLink', async (event) => {
   const station = resolveStation(confirmedEvent, stationId)
   if (!station) throw new LambdaError(404, 'not found')
 
-  return response(200, { token: await getStationEntryToken(eventId, station) }, event)
+  return response(200, { token: getStationEntryToken(eventId, station) }, event)
 })
 
 export default getStationLinkLambda

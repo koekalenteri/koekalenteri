@@ -148,8 +148,8 @@ export const deriveRegistrationEditToken = (registration: RegistrationEditTokenF
     )
     .digest('base64url')
 
-export const getRegistrationEditToken = async (registration: RegistrationEditTokenFields): Promise<string> =>
-  deriveRegistrationEditToken(registration, await getRegistrationEditTokenSecret())
+export const getRegistrationEditToken = (registration: RegistrationEditTokenFields): string =>
+  deriveRegistrationEditToken(registration, getRegistrationEditTokenSecret())
 
 /** The header's value however its name was cased on the way in. */
 const getHeader = (headers: APIGatewayProxyEvent['headers'], name: string): string => {
@@ -177,29 +177,26 @@ const tokensMatch = (actual: string, expected: string): boolean => {
   return actualBuffer.length === expectedBuffer.length && timingSafeEqual(actualBuffer, expectedBuffer)
 }
 
-export const verifyRegistrationEditToken = async (
-  registration: RegistrationEditTokenFields,
-  token: string
-): Promise<string> => {
+export const verifyRegistrationEditToken = (registration: RegistrationEditTokenFields, token: string): string => {
   if (!token) throw new LambdaError(404, 'not found')
 
-  const expected = await getRegistrationEditToken(registration)
+  const expected = getRegistrationEditToken(registration)
   if (!tokensMatch(token, expected)) throw new LambdaError(404, 'not found')
   return token
 }
 
-export const authorizeRegistrationEdit = async (
+export const authorizeRegistrationEdit = (
   event: Pick<APIGatewayProxyEvent, 'headers'>,
   registration: Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>
-): Promise<string> => {
+): string => {
   const token = getBearerToken(event)
   return verifyRegistrationEditToken(registration, token)
 }
 
-export const authorizeRegistrationRead = async (
+export const authorizeRegistrationRead = (
   event: Pick<APIGatewayProxyEvent, 'headers'>,
   registration: Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>
-): Promise<string> => {
+): string => {
   const token = getBearerToken(event)
 
   // Registrations created before edit tokens were introduced have links containing
@@ -472,7 +469,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
   const ok: string[] = []
   const failed: string[] = []
   for (const registration of registrations) {
-    const editToken = await getRegistrationEditToken(registration)
+    const editToken = getRegistrationEditToken(registration)
     const to = emailTo(registration, template)
     const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, editToken, text)
     const auditSubject = context ? data.subject : templateName

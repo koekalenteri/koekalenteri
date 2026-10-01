@@ -51,8 +51,8 @@ const dog = (id: string, eventClass: 'ALO' | 'AVO', number: number) =>
     id,
   })
 
-const apiEvent = async (token?: string): Promise<APIGatewayProxyEvent> => {
-  const bearer = token ?? (await getStartNumberLinkToken('event-1', confirmedEvent, 'ALO'))
+const apiEvent = (token?: string): APIGatewayProxyEvent => {
+  const bearer = token ?? getStartNumberLinkToken('event-1', confirmedEvent, 'ALO')
   return constructPartialAPIGwEvent({ headers: { authorization: `Bearer ${bearer}` } })
 }
 
@@ -65,7 +65,7 @@ describe('getClassStartNumbersLambda', () => {
   })
 
   it('serves the class sheet for the right token, and only that class', async () => {
-    await getClassStartNumbersLambda(await apiEvent())
+    await getClassStartNumbersLambda(apiEvent())
 
     const [status, payload] = mockResponse.mock.calls[0]
     expect(status).toBe(200)
@@ -77,7 +77,7 @@ describe('getClassStartNumbersLambda', () => {
   })
 
   it('refuses a wrong token without reading the registrations', async () => {
-    await expect(getClassStartNumbersLambda(await apiEvent('wrong'))).rejects.toThrow('not found')
+    await expect(getClassStartNumbersLambda(apiEvent('wrong'))).rejects.toThrow('not found')
 
     expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
   })

@@ -138,7 +138,8 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
   return cfg
 }
 
-export const getRegistrationEditTokenSecret = async (): Promise<string> => {
+/** The secret every link token is signed with. It is in the function's environment, so read at once. */
+export const getRegistrationEditTokenSecret = (): string => {
   const secret = process.env.REGISTRATION_EDIT_TOKEN_SECRET
   if (secret) return secret
   if (process.env.NODE_ENV === 'test') return 'test-registration-edit-token-secret'

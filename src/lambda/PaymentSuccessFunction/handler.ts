@@ -293,7 +293,7 @@ const handleSuccessfulPayment = async (
   transactionExists: boolean
 ) => {
   const initialRegistration = await getRegistration(eventId, registrationId)
-  const editToken = await getRegistrationEditToken(initialRegistration)
+  const editToken = getRegistrationEditToken(initialRegistration)
 
   const paidAmount = transaction.amount / 100
   const payment = await applyPaymentToRegistration(

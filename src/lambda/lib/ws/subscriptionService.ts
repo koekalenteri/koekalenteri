@@ -106,7 +106,7 @@ export const subscribeToRegistration = async (
   if (isConnectionExpired(connection)) throw new LambdaError(401, 'Connection expired')
 
   const registration = await getRegistration(eventId, registrationId)
-  await verifyRegistrationEditToken(registration, editToken)
+  verifyRegistrationEditToken(registration, editToken)
   await subscribeRegistrationConnection(connection.connectionId, eventId, registrationId)
   const currentRegistration = await getRegistration(eventId, registrationId)
 

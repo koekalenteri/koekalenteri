@@ -14,7 +14,7 @@ const getClassStartNumbersLambda = lambda('getClassStartNumbers', async (event) 
   const eventClass = getParam(event, 'eventClass')
 
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-  await authorizeStartNumberLink(event, eventId, confirmedEvent, eventClass)
+  authorizeStartNumberLink(event, eventId, confirmedEvent, eventClass)
   const registrations = await getRegistrationsByEventId(eventId)
 
   return response(200, classStartNumbersResponse(confirmedEvent, eventClass, registrations), event)

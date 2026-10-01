@@ -17,7 +17,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   const stationId = getParam(event, 'stationId')
 
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-  const station = await authorizeStationEntry(event, eventId, confirmedEvent, stationId)
+  const station = authorizeStationEntry(event, eventId, confirmedEvent, stationId)
 
   const submissions = parseSubmissions(event.body, confirmedEvent).map((submission) =>
     stationScopedSubmission(submission, stationId, confirmedEvent.eventType)

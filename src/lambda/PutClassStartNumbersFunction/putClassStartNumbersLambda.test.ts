@@ -65,8 +65,8 @@ const registration = (id: string, eventClass: string, number: number) =>
     id,
   }) as JsonRegistration
 
-const apiEvent = async (body: unknown, token?: string): Promise<APIGatewayProxyEvent> => {
-  const bearer = token ?? (await getStartNumberLinkToken('event-1', confirmedEvent, 'ALO'))
+const apiEvent = (body: unknown, token?: string): APIGatewayProxyEvent => {
+  const bearer = token ?? getStartNumberLinkToken('event-1', confirmedEvent, 'ALO')
   const partial: Pick<APIGatewayProxyEvent, 'body' | 'headers'> = {
     body: JSON.stringify(body),
     headers: { authorization: `Bearer ${bearer}` },
@@ -91,7 +91,7 @@ describe('putClassStartNumbersLambda', () => {
 
   it('writes the class draw and publishes it to the secretary watching', async () => {
     await putClassStartNumbersLambda(
-      await apiEvent({
+      apiEvent({
         numbers: [
           { id: 'alo-1', startNumber: 2 },
           { id: 'alo-2', startNumber: 1 },
@@ -109,37 +109,37 @@ describe('putClassStartNumbersLambda', () => {
   })
 
   it('attributes the write to the class, so the trail says who drew', async () => {
-    await putClassStartNumbersLambda(await apiEvent({ numbers: [{ id: 'alo-1', startNumber: 2 }] }))
+    await putClassStartNumbersLambda(apiEvent({ numbers: [{ id: 'alo-1', startNumber: 2 }] }))
 
     expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ user: 'Luokkasihteeri (ALO)' }))
   })
 
   it('refuses a number of another class, which is the whole point of the link', async () => {
     await expect(
-      putClassStartNumbersLambda(await apiEvent({ numbers: [{ id: 'alo-1', startNumber: 3 }] }))
+      putClassStartNumbersLambda(apiEvent({ numbers: [{ id: 'alo-1', startNumber: 3 }] }))
     ).rejects.toMatchObject({ body: { error: 'startNumberOutsideClass', number: 3 }, status: 422 })
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
   it("refuses another class's dog", async () => {
-    await expect(
-      putClassStartNumbersLambda(await apiEvent({ numbers: [{ id: 'avo-1', startNumber: 1 }] }))
-    ).rejects.toThrow('does not run in ALO')
+    await expect(putClassStartNumbersLambda(apiEvent({ numbers: [{ id: 'avo-1', startNumber: 1 }] }))).rejects.toThrow(
+      'does not run in ALO'
+    )
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
   it('refuses a wrong token without reading the registrations', async () => {
     await expect(
-      putClassStartNumbersLambda(await apiEvent({ numbers: [{ id: 'alo-1', startNumber: 2 }] }, 'wrong'))
+      putClassStartNumbersLambda(apiEvent({ numbers: [{ id: 'alo-1', startNumber: 2 }] }, 'wrong'))
     ).rejects.toThrow('not found')
 
     expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
   })
 
   it('has nothing to do without numbers', async () => {
-    await expect(putClassStartNumbersLambda(await apiEvent({ numbers: [] }))).rejects.toMatchObject({
+    await expect(putClassStartNumbersLambda(apiEvent({ numbers: [] }))).rejects.toMatchObject({
       body: 'nothing to do',
       status: 422,
     })

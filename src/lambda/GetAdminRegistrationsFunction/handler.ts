@@ -10,7 +10,7 @@ import {
 const withEditTokens = (items: Awaited<ReturnType<typeof getRegistrationsByEventId>>) =>
   Promise.all(
     (items ?? []).map(async (registration) =>
-      participantRegistrationResponse(registration, await getRegistrationEditToken(registration))
+      participantRegistrationResponse(registration, getRegistrationEditToken(registration))
     )
   )
 

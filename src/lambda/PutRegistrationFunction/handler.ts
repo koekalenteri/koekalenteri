@@ -128,7 +128,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   }
 
   if (existing) {
-    await authorizeRegistrationEdit(event, existing)
+    authorizeRegistrationEdit(event, existing)
     if (operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
   }
 
@@ -211,12 +211,12 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
       registration: savedData,
       user,
     })
-    return response(200, participantRegistrationResponse(completed, await getRegistrationEditToken(completed)), event)
+    return response(200, participantRegistrationResponse(completed, getRegistrationEditToken(completed)), event)
   }
 
   await finalizeRegistrationUpdate({ existing, flags, groupPatches, origin: linkOrigin, registration: savedData, user })
 
-  return response(200, participantRegistrationResponse(savedData, await getRegistrationEditToken(savedData)), event)
+  return response(200, participantRegistrationResponse(savedData, getRegistrationEditToken(savedData)), event)
 })
 
 export default putRegistrationLambda

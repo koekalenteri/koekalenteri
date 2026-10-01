@@ -15,7 +15,7 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
   }
 
   const storedRegistration = await getRegistration(eventId, id)
-  const editToken = await authorizeRegistrationRead(event, storedRegistration)
+  const editToken = authorizeRegistrationRead(event, storedRegistration)
   const registration = { ...storedRegistration }
   const dogEvent = await getEvent<JsonConfirmedEvent>(eventId)
   if (isEventOver(dogEvent)) {

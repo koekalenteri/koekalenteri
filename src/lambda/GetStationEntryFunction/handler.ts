@@ -13,7 +13,7 @@ const getStationEntryLambda = lambda('getStationEntry', async (event) => {
   const stationId = getParam(event, 'stationId')
 
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-  const station = await authorizeStationEntry(event, eventId, confirmedEvent, stationId)
+  const station = authorizeStationEntry(event, eventId, confirmedEvent, stationId)
   const registrations = await getRegistrationsByEventId(eventId)
 
   return response(200, stationEntryResponse(confirmedEvent, station, registrations), event)
