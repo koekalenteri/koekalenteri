@@ -80,13 +80,9 @@ test.describe('a secretary', { annotation: issue('KOE-1478'), tag: '@secretary' 
     expect(await readEventsOf(organizer.id)).toEqual([])
   })
 
-  test.fail(
-    'is told when saving is refused',
-    { annotation: issue('KOE-1482', 'a refused save other than 409 shows nothing') },
-    async ({ context, page }) => {
-      await saveAfterLosingTheRole(context, page)
+  test('is told when saving is refused', { annotation: issue('KOE-1482') }, async ({ context, page }) => {
+    await saveAfterLosingTheRole(context, page)
 
-      await expect(page.getByRole('alert')).toBeVisible()
-    }
-  )
+    await expect(page.getByRole('alert')).toHaveText('Sinulla ei ole oikeutta tallentaa tätä koetta.')
+  })
 })

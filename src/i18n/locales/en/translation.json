@@ -316,6 +316,8 @@
       "game": "game"
     },
     "saved": "Changes saved",
+    "saveFailed": "Saving the event failed. Try again.",
+    "saveForbidden": "You do not have the right to save this event.",
     "secretary": "Secretary",
     "staleData": "This event was edited elsewhere after you opened it. Reload the page and apply your changes again.",
     "startDate": "Starting date",
