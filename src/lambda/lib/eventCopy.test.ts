@@ -216,6 +216,34 @@ describe('createEventCopy', () => {
     }
   })
 
+  // Test data: one tester's name on every entry, each with its own plus-address, or a source that
+  // was itself copied once
+  it('tells people who share a name apart by their address, as the source does', () => {
+    const handlers = [
+      'jukka+a@example.com',
+      'jukka+b@example.com',
+      'jukka+kk-0a1b2c@example.com',
+      'jukka+a@example.com',
+    ]
+    const registrations = handlers.map((email, i) => ({
+      ...sourceRegistrations()[1],
+      handler: { email, membership: false, name: 'Testi Testaaja' },
+      id: `reg-${i}`,
+      owner: { email, membership: false, name: 'Testi Testaaja' },
+    }))
+    const { copy: tested, originals: testedOriginals } = createEventCopy(
+      { event: sourceEvent(), registrations },
+      copier,
+      key
+    )
+    const people = tested.registrations.map((r) => `${r.handler?.name} ${r.handler?.email}`)
+
+    expect(new Set(people.slice(0, 3)).size).toBe(3)
+    expect(people[3]).toBe(people[0])
+    for (const email of tested.registrations.map((r) => r.handler?.email)) expect(email).toMatch(COPY_ADDRESS)
+    expect(findCopyLeaks(tested, copier, testedOriginals)).toEqual([])
+  })
+
   it('gives every address and number its own stand-in, even where hashes collide', () => {
     const numbers = Array.from({ length: 5000 }, (_, i) => `040 ${String(1_000_000 + i)}`)
     const registrations = numbers.map((phone, i) => ({
