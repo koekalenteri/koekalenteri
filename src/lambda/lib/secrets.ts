@@ -138,17 +138,13 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
   return cfg
 }
 
-/**
- * A promise although nothing is awaited: the secret comes from the environment today, and callers
- * already wait for it the way they wait for the SSM-held ones, so moving it there changes nothing
- * for them. Not `async` because there is nothing to await (Sonar S7503).
- */
-export const getRegistrationEditTokenSecret = (): Promise<string> => {
+/** The secret every link token is signed with. It is in the function's environment, so read at once. */
+export const getRegistrationEditTokenSecret = (): string => {
   const secret = process.env.REGISTRATION_EDIT_TOKEN_SECRET
-  if (secret) return Promise.resolve(secret)
-  if (process.env.NODE_ENV === 'test') return Promise.resolve('test-registration-edit-token-secret')
+  if (secret) return secret
+  if (process.env.NODE_ENV === 'test') return 'test-registration-edit-token-secret'
 
-  return Promise.reject(new Error('Missing registration edit-token secret!'))
+  throw new Error('Missing registration edit-token secret!')
 }
 
 /**

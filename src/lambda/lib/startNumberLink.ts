@@ -40,16 +40,12 @@ export const deriveStartNumberLinkToken = (
   secret: string
 ): string => deriveLinkToken(`start-numbers:${eventId}:${eventClass}:${version}`, secret)
 
-export const getStartNumberLinkToken = async (
-  eventId: string,
-  event: LinkVersionFields,
-  eventClass: string
-): Promise<string> =>
+export const getStartNumberLinkToken = (eventId: string, event: LinkVersionFields, eventClass: string): string =>
   deriveStartNumberLinkToken(
     eventId,
     eventClass,
     startNumberLinkVersion(event, eventClass),
-    await getRegistrationEditTokenSecret()
+    getRegistrationEditTokenSecret()
   )
 
 /**
@@ -57,18 +53,18 @@ export const getStartNumberLinkToken = async (
  * one and a class the trial does not run all read the same from outside, exactly as the post links
  * and the registration links behave.
  */
-export const authorizeStartNumberLink = async (
+export const authorizeStartNumberLink = (
   apiEvent: Pick<APIGatewayProxyEvent, 'headers'>,
   eventId: string,
   confirmedEvent: JsonConfirmedEvent,
   eventClass: string
-): Promise<string> => {
+): string => {
   if (!startNumberLinkClasses(confirmedEvent).includes(eventClass)) throw new LambdaError(404, 'not found')
 
   const token = getBearerToken(apiEvent)
   if (!token) throw new LambdaError(404, 'not found')
 
-  const expected = await getStartNumberLinkToken(eventId, confirmedEvent, eventClass)
+  const expected = getStartNumberLinkToken(eventId, confirmedEvent, eventClass)
   if (!linkTokensMatch(token, expected)) throw new LambdaError(404, 'not found')
 
   return eventClass

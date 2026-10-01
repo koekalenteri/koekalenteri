@@ -172,12 +172,12 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
       registration: savedData,
       user,
     })
-    return response(200, participantRegistrationResponse(completed, await getRegistrationEditToken(completed)), event)
+    return response(200, participantRegistrationResponse(completed, getRegistrationEditToken(completed)), event)
   }
 
   await finalizeRegistrationUpdate({ existing, groupPatches, origin, registration: savedData, user })
 
-  return response(200, participantRegistrationResponse(savedData, await getRegistrationEditToken(savedData)), event)
+  return response(200, participantRegistrationResponse(savedData, getRegistrationEditToken(savedData)), event)
 })
 
 export default putAdminRegistrationLambda

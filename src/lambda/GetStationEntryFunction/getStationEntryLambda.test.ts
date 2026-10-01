@@ -43,8 +43,8 @@ const confirmedEvent = asJsonConfirmedEvent({
   stations: [station],
 })
 
-const apiEvent = async (token?: string): Promise<APIGatewayProxyEvent> => {
-  const bearer = token ?? (await getStationEntryToken('event-1', station))
+const apiEvent = (token?: string): APIGatewayProxyEvent => {
+  const bearer = token ?? getStationEntryToken('event-1', station)
   return constructPartialAPIGwEvent({ headers: { authorization: `Bearer ${bearer}` } })
 }
 
@@ -67,7 +67,7 @@ describe('getStationEntryLambda', () => {
   })
 
   it('serves the station view for the right token', async () => {
-    await getStationEntryLambda(await apiEvent())
+    await getStationEntryLambda(apiEvent())
 
     const [status, payload] = mockResponse.mock.calls[0]
     expect(status).toBe(200)
@@ -78,7 +78,7 @@ describe('getStationEntryLambda', () => {
   })
 
   it('refuses a wrong token without reading the registrations', async () => {
-    await expect(getStationEntryLambda(await apiEvent('wrong'))).rejects.toThrow('not found')
+    await expect(getStationEntryLambda(apiEvent('wrong'))).rejects.toThrow('not found')
 
     expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
   })

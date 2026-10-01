@@ -27,7 +27,7 @@ const mockRegistrationEmailTags = vi.fn()
 const mockRegistrationEmailTemplateData = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishParticipantRegistrationPatch = vi.fn()
-const mockGetRegistrationEditToken = vi.fn().mockResolvedValue('test-edit-token')
+const mockGetRegistrationEditToken = vi.fn().mockReturnValue('test-edit-token')
 const mockSendTemplatedEmailToEventRegistrations = vi.fn().mockResolvedValue({ failed: [], ok: [] })
 
 const phaseUpdate = (field: string) => [

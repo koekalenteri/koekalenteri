@@ -17,7 +17,7 @@ const mockUpdate = vi.fn()
 const mockDocumentTransaction = vi.fn<() => Promise<unknown>>()
 const mockClaimTransactionCreation = vi.fn<() => Promise<boolean>>(() => Promise.resolve(true))
 const mockReleaseTransactionCreation = vi.fn<() => Promise<void>>(() => Promise.resolve())
-const mockAuthorizeRegistrationEdit = vi.fn<() => Promise<string>>(() => Promise.resolve('test-edit-token'))
+const mockAuthorizeRegistrationEdit = vi.fn<() => string>(() => 'test-edit-token')
 const mockGetRegistration = vi.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>(
   async (eventId, registrationId) => {
     const registration = await mockRead({ eventId, id: registrationId }, 'registration-table')
@@ -300,7 +300,9 @@ describe('paymentCreateLambda', () => {
   it('rejects requests without a valid registration edit token before inspecting payment state', async () => {
     const error = new LambdaError(404, 'not found')
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    mockAuthorizeRegistrationEdit.mockRejectedValueOnce(error)
+    mockAuthorizeRegistrationEdit.mockImplementationOnce(() => {
+      throw error
+    })
 
     try {
       const result = await paymentCreateLambda(event)

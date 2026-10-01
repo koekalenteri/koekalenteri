@@ -57,7 +57,7 @@ vi.doMock('./registration', () => ({
   ...libRegistration,
   claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
   clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
-  getRegistrationEditToken: async () => 'edit-token',
+  getRegistrationEditToken: () => 'edit-token',
   markNewRegistrationPhase: mockMarkNewRegistrationPhase,
   recordLastEmail: mockRecordLastEmail,
 }))

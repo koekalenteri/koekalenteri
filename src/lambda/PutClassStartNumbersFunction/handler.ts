@@ -21,7 +21,7 @@ const putClassStartNumbersLambda = lambda('putClassStartNumbers', async (event) 
   const eventClass = getParam(event, 'eventClass')
 
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-  await authorizeStartNumberLink(event, eventId, confirmedEvent, eventClass)
+  authorizeStartNumberLink(event, eventId, confirmedEvent, eventClass)
 
   const body = parseJSONWithFallback<{ numbers?: unknown }>(event.body, {})
   const numbers = parseStartNumberEntries(body.numbers)

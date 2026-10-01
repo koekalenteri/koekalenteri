@@ -238,7 +238,7 @@ const sendRegistrationEmail = async ({
   registration,
   user,
 }: SendRegistrationEmailOptions) => {
-  const editToken = await getRegistrationEditToken(registration)
+  const editToken = getRegistrationEditToken(registration)
   const to = emailTo(registration)
   const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context, editToken)
 
@@ -383,7 +383,7 @@ export const resolveDuplicateRegistration = async ({
   }
 
   const completed = await completeNewRegistration({ ...options, groupPatches, registration: duplicate })
-  return { completed, editToken: await getRegistrationEditToken(completed) }
+  return { completed, editToken: getRegistrationEditToken(completed) }
 }
 
 interface FinalizeRegistrationUpdateOptions {

@@ -57,7 +57,7 @@ describe('getStationLinkLambda', () => {
 
     expect(mockResponse).toHaveBeenCalledWith(
       200,
-      { token: await getStationEntryToken('event-1', station) },
+      { token: getStationEntryToken('event-1', station) },
       expect.anything()
     )
   })
@@ -70,7 +70,7 @@ describe('getStationLinkLambda', () => {
 
     expect(mockResponse).toHaveBeenCalledWith(
       200,
-      { token: await getStationEntryToken('event-1', { id: '1' }) },
+      { token: getStationEntryToken('event-1', { id: '1' }) },
       expect.anything()
     )
   })

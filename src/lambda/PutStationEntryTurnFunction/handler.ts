@@ -17,7 +17,7 @@ const putStationEntryTurnLambda = lambda('putStationEntryTurn', async (event) =>
   const stationId = getParam(event, 'stationId')
 
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-  const station = await authorizeStationEntry(event, eventId, confirmedEvent, stationId)
+  const station = authorizeStationEntry(event, eventId, confirmedEvent, stationId)
   const op = parseStationTurnOp(parseJSONWithFallback(event.body, {}))
 
   const registrations = await getRegistrationsByEventId(eventId)

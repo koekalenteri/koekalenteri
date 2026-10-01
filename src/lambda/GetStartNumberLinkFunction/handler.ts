@@ -18,7 +18,7 @@ const getStartNumberLinkLambda = lambda('getStartNumberLink', async (event) => {
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
   if (!startNumberLinkClasses(confirmedEvent).includes(eventClass)) throw new LambdaError(404, 'not found')
 
-  return response(200, { token: await getStartNumberLinkToken(eventId, confirmedEvent, eventClass) }, event)
+  return response(200, { token: getStartNumberLinkToken(eventId, confirmedEvent, eventClass) }, event)
 })
 
 export default getStartNumberLinkLambda

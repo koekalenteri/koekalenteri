@@ -325,28 +325,27 @@ describe('secrets', () => {
       await expect(getPaytrailConfig()).rejects.toThrow('Missing Paytrail Config!')
     })
   })
+
   describe('getRegistrationEditTokenSecret', () => {
     afterEach(() => vi.unstubAllEnvs())
 
-    it('resolves to the secret in the environment', async () => {
+    it('returns the secret in the environment', () => {
       vi.stubEnv('REGISTRATION_EDIT_TOKEN_SECRET', 'from-env')
 
-      await expect(getRegistrationEditTokenSecret()).resolves.toBe('from-env')
+      expect(getRegistrationEditTokenSecret()).toBe('from-env')
     })
 
-    it('resolves to a fixed secret under tests when none is set', async () => {
+    it('returns a fixed secret under tests when none is set', () => {
       vi.stubEnv('REGISTRATION_EDIT_TOKEN_SECRET', '')
 
-      await expect(getRegistrationEditTokenSecret()).resolves.toBe('test-registration-edit-token-secret')
+      expect(getRegistrationEditTokenSecret()).toBe('test-registration-edit-token-secret')
     })
 
-    it('rejects, not throws, when there is no secret outside tests', async () => {
+    it('throws when there is no secret outside tests', () => {
       vi.stubEnv('REGISTRATION_EDIT_TOKEN_SECRET', '')
       vi.stubEnv('NODE_ENV', 'production')
 
-      const secret = getRegistrationEditTokenSecret()
-
-      await expect(secret).rejects.toThrow('Missing registration edit-token secret!')
+      expect(() => getRegistrationEditTokenSecret()).toThrow('Missing registration edit-token secret!')
     })
   })
 })

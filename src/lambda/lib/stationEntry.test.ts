@@ -34,57 +34,51 @@ describe('stationEntry', () => {
       expect(before).toEqual(deriveStationEntryToken('event-1', { id: 'post-1', tokenVersion: 1 }, 'secret'))
     })
 
-    it('opens the station for the right token only', async () => {
-      const token = await getStationEntryToken('event-1', station)
+    it('opens the station for the right token only', () => {
+      const token = getStationEntryToken('event-1', station)
 
-      await expect(authorizeStationEntry(headers(token), 'event-1', confirmedEvent, 'post-1')).resolves.toMatchObject({
+      expect(authorizeStationEntry(headers(token), 'event-1', confirmedEvent, 'post-1')).toMatchObject({
         id: 'post-1',
       })
 
       // A wrong token, a missing one and an unknown station all read the same from outside.
-      await expect(authorizeStationEntry(headers('wrong'), 'event-1', confirmedEvent, 'post-1')).rejects.toThrow(
-        'not found'
-      )
-      await expect(authorizeStationEntry(headers(), 'event-1', confirmedEvent, 'post-1')).rejects.toThrow('not found')
-      await expect(authorizeStationEntry(headers(token), 'event-1', confirmedEvent, 'post-9')).rejects.toThrow(
-        'not found'
-      )
+      expect(() => authorizeStationEntry(headers('wrong'), 'event-1', confirmedEvent, 'post-1')).toThrow('not found')
+      expect(() => authorizeStationEntry(headers(), 'event-1', confirmedEvent, 'post-1')).toThrow('not found')
+      expect(() => authorizeStationEntry(headers(token), 'event-1', confirmedEvent, 'post-9')).toThrow('not found')
     })
 
-    it('opens the implicit post of a single-post format, which has nothing stored to find', async () => {
+    it('opens the implicit post of a single-post format, which has nothing stored to find', () => {
       const singlePost = asJsonConfirmedEvent({ ...confirmedEvent, eventType: 'NOME-B', stations: undefined })
-      const token = await getStationEntryToken('event-1', { id: '1' })
+      const token = getStationEntryToken('event-1', { id: '1' })
 
-      await expect(authorizeStationEntry(headers(token), 'event-1', singlePost, '1')).resolves.toMatchObject({
+      expect(authorizeStationEntry(headers(token), 'event-1', singlePost, '1')).toMatchObject({
         date: '2026-09-12',
         id: '1',
         number: 1,
         tasks: 1,
       })
       // A NOWT with no course laid out has no post at all, implicit or otherwise.
-      await expect(
+      expect(() =>
         authorizeStationEntry(headers(token), 'event-1', { ...confirmedEvent, stations: undefined }, '1')
-      ).rejects.toThrow('not found')
+      ).toThrow('not found')
     })
 
-    it('closes the implicit post to the old link once its version has been written down', async () => {
+    it('closes the implicit post to the old link once its version has been written down', () => {
       const revoked = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const, tokenVersion: 2 }
       const singlePost = asJsonConfirmedEvent({ ...confirmedEvent, eventType: 'NOME-B', stations: [revoked] })
-      const before = await getStationEntryToken('event-1', { id: '1' })
-      const after = await getStationEntryToken('event-1', revoked)
+      const before = getStationEntryToken('event-1', { id: '1' })
+      const after = getStationEntryToken('event-1', revoked)
 
-      await expect(authorizeStationEntry(headers(before), 'event-1', singlePost, '1')).rejects.toThrow('not found')
-      await expect(authorizeStationEntry(headers(after), 'event-1', singlePost, '1')).resolves.toMatchObject({
+      expect(() => authorizeStationEntry(headers(before), 'event-1', singlePost, '1')).toThrow('not found')
+      expect(authorizeStationEntry(headers(after), 'event-1', singlePost, '1')).toMatchObject({
         tokenVersion: 2,
       })
     })
 
-    it('rejects a token minted for another station or event', async () => {
-      const other = await getStationEntryToken('event-2', station)
+    it('rejects a token minted for another station or event', () => {
+      const other = getStationEntryToken('event-2', station)
 
-      await expect(authorizeStationEntry(headers(other), 'event-1', confirmedEvent, 'post-1')).rejects.toThrow(
-        'not found'
-      )
+      expect(() => authorizeStationEntry(headers(other), 'event-1', confirmedEvent, 'post-1')).toThrow('not found')
     })
   })
 

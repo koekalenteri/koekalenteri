@@ -34,7 +34,7 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
 
     const status = paymentStatus === 'fail' ? 'error' : 'ok'
     const registration = await getRegistration(eventId, registrationId)
-    const editToken = await getRegistrationEditToken(registration)
+    const editToken = getRegistrationEditToken(registration)
 
     if (status === 'error') {
       if (registration.paymentStatus === 'PENDING') {
