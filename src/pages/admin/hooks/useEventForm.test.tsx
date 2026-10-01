@@ -312,8 +312,50 @@ describe('useEventForm', () => {
 
     expect(mockSave).toHaveBeenCalledWith(mockEvent)
     expect(consoleErrorSpy).toHaveBeenCalledWith(error)
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('event.saveFailed', errorSnackbarOptions)
     expect(mockResetEvent).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('tells the secretary when the server refuses the save for lack of a right', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const error = new APIError({ status: 403, statusText: 'Forbidden' } as Response, 'Forbidden')
+    mockSave.mockRejectedValue(error)
+
+    const { result } = renderHook(() => useEventForm(), {
+      wrapper: Provider,
+    })
+
+    await act(async () => {
+      await result.current.handleSave()
+    })
+
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('event.saveForbidden', errorSnackbarOptions)
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(mockResetEvent).not.toHaveBeenCalled()
+    expect(mockNavigate).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('tells the secretary when the server fails the save for a reason it does not name', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const error = new APIError({ status: 500, statusText: 'Internal Server Error' } as Response, {})
+    mockSave.mockRejectedValue(error)
+
+    const { result } = renderHook(() => useEventForm(), {
+      wrapper: Provider,
+    })
+
+    await act(async () => {
+      await result.current.handleSave()
+    })
+
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('event.saveFailed', errorSnackbarOptions)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(error)
+    expect(mockResetEvent).not.toHaveBeenCalled()
 
     consoleErrorSpy.mockRestore()
   })

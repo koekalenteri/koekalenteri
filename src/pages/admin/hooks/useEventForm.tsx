@@ -22,6 +22,22 @@ type EventFormOptions = {
   savedMessage?: string
 }
 
+type RefusalKey = 'event.saveForbidden' | 'event.staleData' | 'event.kcIdConflict'
+
+/**
+ * The notice for a refusal the secretary can act on: no right to this event, or a 409 the server
+ * named. Anything else is unexpected and gets the general notice, with the error logged.
+ */
+const knownRefusal = (error: unknown): RefusalKey | undefined => {
+  if (!(error instanceof APIError)) return undefined
+  if (error.status === 403) return 'event.saveForbidden'
+  if (error.status === 409 && isObject(error.body)) {
+    if (error.body.error === 'staleData') return 'event.staleData'
+    if (error.body.error === 'kcIdConflict') return 'event.kcIdConflict'
+  }
+  return undefined
+}
+
 /**
  * A hook that handles common event form operations for both create and edit scenarios
  */
@@ -79,17 +95,11 @@ export default function useEventForm(options: EventFormOptions = {}) {
       }
       enqueueSnackbar(savedMessage ?? getEventSavedMessage(saved?.state, t), { variant: 'info' })
     } catch (error) {
-      if (error instanceof APIError && error.status === 409 && isObject(error.body)) {
-        if (error.body.error === 'staleData') {
-          enqueueSnackbar(t('event.staleData'), errorSnackbarOptions)
-          return
-        }
-        if (error.body.error === 'kcIdConflict') {
-          enqueueSnackbar(t('event.kcIdConflict'), errorSnackbarOptions)
-          return
-        }
-      }
-      console.error(error)
+      // A refused save must not pass in silence: the form stays as it was, and the secretary would
+      // take the quiet for a success (KOE-1482).
+      const known = knownRefusal(error)
+      if (!known) console.error(error)
+      enqueueSnackbar(t(known ?? 'event.saveFailed'), errorSnackbarOptions)
     }
   }, [changes, enqueueSnackbar, event, navigate, onDoneRedirect, resetEvent, saveEvent, savedMessage, storedEvent, t])
 

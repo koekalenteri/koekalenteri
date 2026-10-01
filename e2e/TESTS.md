@@ -43,6 +43,6 @@ bug is fixed. See [README.md](README.md) for how they run.
 | --- | --- | --- |
 | a secretary › creates a draft, publishes it, and it is on the front page for everyone | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478) |
 | a secretary › whose role has been taken away cannot save an event | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478) |
-| a secretary › is told when saving is refused **known bug** | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1482](https://koekalenteri.atlassian.net/browse/KOE-1482) a refused save other than 409 shows nothing |
+| a secretary › is told when saving is refused | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1482](https://koekalenteri.atlassian.net/browse/KOE-1482) |
 
 14 tests.
