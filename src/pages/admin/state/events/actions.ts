@@ -21,9 +21,9 @@ import {
   getResultsPublishedClassMap,
   getStartListPublishedClassMap,
   isResultsPublished,
-  isStartListPublishedForClass,
   sanitizeDogEvent,
 } from '@/lib/event'
+import { classEntry, isStartListPublished } from '@/lib/publishing'
 import { eventsAtom, userAtom, validIdTokenAtom } from '@/pages/state'
 import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
@@ -274,7 +274,8 @@ export const useAdminEventActions = () => {
     published: boolean
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
-    if (isStartListPublishedForClass(event, eventClass) === published) return event
+    // The panel's own reading, or an absent flag it shows as unpublished would skip the save (KOE-1465).
+    if (isStartListPublished(event, classEntry(event, eventClass)) === published) return event
 
     const saved = await putEvent(buildStartListClassPublishedPatch(event, eventClass, published), token)
     await storeSaved(saved)
@@ -284,7 +285,7 @@ export const useAdminEventActions = () => {
 
   async function setStartListPublished(event: DogEvent, published: boolean): Promise<DogEvent | undefined> {
     if (!event?.id) return
-    if ((event.startListPublished !== false) === published) return event
+    if (isStartListPublished(event) === published) return event
 
     const saved = await putEvent(buildStartListPublishedPatch(event, published), token)
     await storeSaved(saved)

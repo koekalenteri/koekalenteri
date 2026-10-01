@@ -6,12 +6,11 @@ import {
   isEntryOpen,
   isEventDeletable,
   isResultsPublished,
-  isStartListPublishedForClass,
   isStartNumbersAvailable,
   isStartNumbersAvailableForClass,
   uniqueClasses,
 } from '../../lib/event'
-import { getResultsBlocker, getStartListBlocker } from '../../lib/publishing'
+import { getResultsBlocker, getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
 import { eventBodySchema } from '../../lib/schema/event'
 import { patchMerge } from '../../lib/utils'
@@ -97,9 +96,6 @@ const newlyPublished = (
   return classes.filter((eventClass) => published(data, eventClass) && !published(existing, eventClass))
 }
 
-const startListFlag = (event: JsonConfirmedEvent, eventClass: RegistrationClass | undefined) =>
-  isStartListPublishedForClass(event, eventClass ?? event.eventType)
-
 /**
  * The panel greys its buttons by the publishing rules, but a button is no guard: the same rules hold
  * here, from the same code (KOE-1466). The start list waits on its participants and their invitations,
@@ -112,7 +108,9 @@ const checkPublishing = async (
 ) => {
   if (!existing) return
 
-  const startLists = Object.hasOwn(item, 'startListPublished') ? newlyPublished(data, startListFlag, existing) : []
+  const startLists = Object.hasOwn(item, 'startListPublished')
+    ? newlyPublished(data, isStartListFlagPublished, existing)
+    : []
   const results = Object.hasOwn(item, 'resultsPublished') ? newlyPublished(data, isResultsPublished, existing) : []
 
   if (startLists.length) {

@@ -101,6 +101,17 @@ describe('audit', () => {
       ])
     })
 
+    it.each([
+      { expected: 'Starttilista julkaistu', state: 'picked' as const },
+      { expected: 'Tapahtuma tallennettu', state: 'invited' as const },
+    ])('records the first publish of an absent flag on a past $state trial as $expected', ({ expected, state }) => {
+      // No flag reads as published only where the workflow invited (KOE-1465).
+      const past = { ...event, endDate: '2025-03-01', startDate: '2025-03-01', state }
+      const messages = getEventAuditMessages(past, { id: 'event-id', startListPublished: true })
+
+      expect(messages.map(({ message }) => message)).toEqual([expected])
+    })
+
     it('records class place changes without derived or no-op fields', () => {
       const existing = {
         ...event,

@@ -458,20 +458,18 @@ const getTemporalPhaseIndex = (event: EventVitals, now: Date): number => {
   return -1
 }
 
-const getPublishedStartListClasses = (
-  event: ConfirmedEvent,
-  startListClasses: string[],
-  legacyStartListPublished: boolean
-): string[] => {
-  if (legacyStartListPublished) return startListClasses
-
-  return startListClasses.filter((eventClass) => {
+/**
+ * The classes whose list is published. An absent flag counts only where the workflow carried the class
+ * to 'invited', the rule the public list and the publishing panel read it by: a trial whose date merely
+ * went by, its invitations never sent, has to be published on purpose (KOE-1465).
+ */
+const getPublishedStartListClasses = (event: ConfirmedEvent, startListClasses: string[]): string[] =>
+  startListClasses.filter((eventClass) => {
     const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
     const explicitlyPublished =
       event.startListPublished === true || isStartListPublishedClassMap(event.startListPublished)
     return isStartListPublishedForClass(event, eventClass) && (explicitlyPublished || canPublishStartList(state))
   })
-}
 
 /**
  * The phase a computed index names: the highest step it has reached. Only the two halves of `confirmed`
@@ -503,19 +501,16 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     : getStateProgressPhaseIndex(event.state, entryStarted)
   const startListClasses = eventClasses.length ? eventClasses : [event.eventType]
   const temporalPhaseIndex = getTemporalPhaseIndex(event, now)
-  const legacyStartListPublished =
-    event.startListPublished === undefined && temporalPhaseIndex >= getProgressPhaseIndex('started')
   const publishableStartListClasses = startListClasses.filter((eventClass) => {
     const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
-    return canPublishStartList(state)
+    return canPublishStartList(state, event, now)
   })
-  const publishedStartListClasses = getPublishedStartListClasses(event, startListClasses, legacyStartListPublished)
-  const startListActionable =
-    legacyStartListPublished || publishableStartListClasses.length > 0 || publishedStartListClasses.length > 0
+  const publishedStartListClasses = getPublishedStartListClasses(event, startListClasses)
+  const startListActionable = publishableStartListClasses.length > 0 || publishedStartListClasses.length > 0
   const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
 
   // Start numbers step right behind the list's: numbers ride a published list, so only published
-  // list classes count, and the absent-means-published legacy default completes the step by itself.
+  // list classes count, and their own absent-means-published legacy default completes the step there.
   const publishedStartNumbersClasses = publishedStartListClasses.filter((eventClass) =>
     isStartNumbersPublishedForClass(event, eventClass)
   )
@@ -949,18 +944,29 @@ export const isStartListPublishedClassMap = (
 ): startListPublished is Partial<Record<RegistrationClass, boolean>> =>
   typeof startListPublished === 'object' && startListPublished !== null
 
-export const getStartListPublishedClassMap = ({
-  classes,
-  startListPublished,
-}: Pick<JsonDogEvent, 'startListPublished'> & {
-  classes: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
-}): Partial<Record<RegistrationClass, boolean>> => {
-  const existingMap = isStartListPublishedClassMap(startListPublished) ? startListPublished : {}
-  const defaultPublished = isStartListPublishedClassMap(startListPublished) ? false : startListPublished !== false
+/**
+ * The event's start list flag as a full per-class map. A class missing from an existing map is
+ * unpublished; an event-level boolean covers every class; an absent flag is read class by class by the
+ * public list's rule, so expanding it never publishes a class the workflow did not carry to 'invited'
+ * (KOE-1465). A class running on several days is read from its first entry, as the panel reads it.
+ */
+export const getStartListPublishedClassMap = (
+  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> &
+    EventVitals & {
+      classes: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+    }
+): Partial<Record<RegistrationClass, boolean>> => {
+  const { classes, startListPublished } = event
   const result: Partial<Record<RegistrationClass, boolean>> = {}
 
   for (const eventClass of classes) {
-    result[eventClass.class] = existingMap[eventClass.class] ?? defaultPublished
+    if (isStartListPublishedClassMap(startListPublished)) {
+      result[eventClass.class] = startListPublished[eventClass.class] ?? false
+    } else if (startListPublished === undefined) {
+      result[eventClass.class] ??= isStartListAvailableForClass(event, eventClass)
+    } else {
+      result[eventClass.class] = startListPublished
+    }
   }
 
   return result
