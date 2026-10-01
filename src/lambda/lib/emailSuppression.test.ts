@@ -154,6 +154,17 @@ describe('assertRegistrationEmailsNotSuppressed', () => {
     ).rejects.toMatchObject({ status: 409 })
   })
 
+  it('treats a plus-address as an address of its own (KOE-1381)', async () => {
+    mockRead.mockImplementation(async ({ email }: { email: string }) =>
+      email === 'bounce@simulator.amazonses.com' ? suppressed(email) : undefined
+    )
+
+    await expect(
+      assertRegistrationEmailsNotSuppressed(registration({ owner: person('Bounce+Riikka1@Simulator.AmazonSES.com') }))
+    ).resolves.toBeUndefined()
+    expect(mockRead).toHaveBeenCalledWith({ email: 'bounce+riikka1@simulator.amazonses.com' })
+  })
+
   it('accepts a save that leaves a stored suppressed address untouched (KOE-1381)', async () => {
     mockRead.mockImplementation(async ({ email }: { email: string }) =>
       email === 'co-owner@example.com' ? suppressed(email) : undefined
