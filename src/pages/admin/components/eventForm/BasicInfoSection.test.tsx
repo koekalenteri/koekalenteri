@@ -47,6 +47,43 @@ describe('BasicInfoSection', () => {
     expect(screen.getByLabelText('event.name (locale.fi)')).toBeInTheDocument()
   })
 
+  describe('the secretary field (KOE-1473)', () => {
+    const baseEvent = {
+      classes: [],
+      description: '',
+      endDate: new TZDate('2022-06-02', TIME_ZONE),
+      id: 'test',
+      judges: [],
+      startDate: new TZDate('2022-06-01', TIME_ZONE),
+    }
+    const minsu = { email: 'minsu@example.com', id: 'u1', name: 'Minsu Rauramo', roles: { org1: 'secretary' as const } }
+
+    it('tells to choose the organizer first while there is none, under the field and in the empty list', async () => {
+      const { user } = renderComponent({ event: baseEvent, open: true, secretaries: [] })
+
+      expect(screen.getByText('event.secretaryRequiresOrganizer')).toBeInTheDocument()
+
+      await user.type(screen.getByLabelText('event.secretary'), 'minsu')
+      expect(screen.getByRole('presentation')).toHaveTextContent('event.secretaryRequiresOrganizer')
+    })
+
+    it('offers the members once the organizer is chosen, without the guidance', async () => {
+      const event = { ...baseEvent, organizer: { id: 'org1', name: 'Yhdistys' } }
+      const { user } = renderComponent({ event, open: true, secretaries: [minsu] })
+
+      expect(screen.queryByText('event.secretaryRequiresOrganizer')).not.toBeInTheDocument()
+
+      await user.type(screen.getByLabelText('event.secretary'), 'minsu')
+      expect(screen.getByRole('option', { name: 'Minsu Rauramo' })).toBeInTheDocument()
+    })
+
+    it('shows the validation message, not the guidance, when the field is disabled', () => {
+      renderComponent({ disabled: true, event: baseEvent, open: true, secretaries: [] })
+
+      expect(screen.queryByText('event.secretaryRequiresOrganizer')).not.toBeInTheDocument()
+    })
+  })
+
   describe('interactions', () => {
     it('marks a NOWT as a Mock trial and drops its ALO classes (KOE-308)', async () => {
       const testEvent: PartialEvent = {

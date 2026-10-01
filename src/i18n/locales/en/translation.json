@@ -319,6 +319,7 @@
     "saveFailed": "Saving the event failed. Try again.",
     "saveForbidden": "You do not have the right to save this event.",
     "secretary": "Secretary",
+    "secretaryRequiresOrganizer": "Select an organizer first to pick the secretary from the club's members.",
     "staleData": "This event was edited elsewhere after you opened it. Reload the page and apply your changes again.",
     "startDate": "Starting date",
     "state": "State",

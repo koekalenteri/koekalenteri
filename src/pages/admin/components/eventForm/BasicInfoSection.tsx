@@ -120,6 +120,9 @@ function BasicInfoSection({
       ) ?? [],
     [event.eventType, officials, selectedEventType?.official]
   )
+  // Without an organizer the secretary list holds the officials only (EventForm): say what to do
+  // instead of showing "required" or an empty list (KOE-1473).
+  const secretaryGuidance = !event.organizer?.id && !disabled ? t('event.secretaryRequiresOrganizer') : undefined
   const hasEntries = (event.entries ?? 0) > 0
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) => {
@@ -393,8 +396,12 @@ function BasicInfoSection({
               fields={fields}
               getOptionKey={getId}
               getOptionLabel={getNameOrEmail}
+              // The members of the organizer are offered once it is chosen; until then the list holds
+              // the officials only, and a name missing from it looks like a bug (KOE-1473).
+              helperText={secretaryGuidance}
               id="secretary"
               isOptionEqualToValue={isEqualId}
+              noOptionsText={secretaryGuidance}
               onChange={onChange}
               options={secretaries ?? []}
             />

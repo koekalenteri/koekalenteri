@@ -319,6 +319,7 @@
     "saveFailed": "Kokeen tallennus epäonnistui. Yritä uudelleen.",
     "saveForbidden": "Sinulla ei ole oikeutta tallentaa tätä koetta.",
     "secretary": "Koesihteeri",
+    "secretaryRequiresOrganizer": "Valitse ensin järjestäjä, niin voit valita koesihteerin yhdistyksen jäsenistä.",
     "staleData": "Tapahtumaa on muokattu muualla sen avaamisen jälkeen. Lataa sivu uudelleen ja tee muutokset uudestaan.",
     "startDate": "Tapahtuman alkamispäivä",
     "state": "Tila",
