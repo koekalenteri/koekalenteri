@@ -33,3 +33,9 @@ export const endOfDay = (offset = 0): string => new Date(Date.parse(startOfDay(o
 /** The Helsinki year of an instant: an event's season. */
 export const helsinkiYear = (iso: string): string =>
   new Intl.DateTimeFormat('en', { timeZone: TIME_ZONE, year: 'numeric' }).format(new Date(iso))
+
+/** The day as a group's heading names it, `ti 13.10.`: weekday and day of the Helsinki day of an instant. */
+export const groupDay = (iso: string): string =>
+  new Intl.DateTimeFormat('fi-FI', { day: 'numeric', month: 'numeric', timeZone: TIME_ZONE, weekday: 'short' }).format(
+    new Date(iso)
+  )
