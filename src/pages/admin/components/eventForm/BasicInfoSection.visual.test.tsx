@@ -98,3 +98,29 @@ it('lets a NOWT say it is a Mock trial, run in AVO and VOI (KOE-308)', async () 
   await expect.element(screen.getByRole('checkbox', { name: 'Mock trial' })).toBeChecked()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-mock-trial')
 })
+
+it('tells to choose the organizer before the secretary (KOE-1473)', async () => {
+  const event = {
+    classes: [],
+    description: '',
+    endDate: new TZDate('2026-06-02', TIME_ZONE),
+    eventType: 'NOU',
+    id: 'test',
+    judges: [],
+    name: 'Kevätkoe',
+    startDate: new TZDate('2026-06-01', TIME_ZONE),
+  }
+
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+      <Frame>
+        <BasicInfoSection event={event} open secretaries={[]} />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect
+    .element(screen.getByText('Valitse ensin järjestäjä, niin voit valita koesihteerin yhdistyksen jäsenistä.'))
+    .toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-secretary-guidance')
+})

@@ -38,6 +38,11 @@ type EventPropertyProps<P extends Property, freeSolo extends boolean> = Omit<
   validateInput?: (value: string) => string
   mapValue?: (value?: any) => PartialEvent[P]
   endAdornment?: ReactNode
+  /**
+   * Guidance shown under the field in place of the validation message: what to do before this field
+   * can be filled is more use than "required" (KOE-1473). The field still shows as in error.
+   */
+  helperText?: string
 }
 
 const getInputInitValue = <P extends Property, freeSolo extends boolean>(
@@ -61,13 +66,25 @@ const getInputInitValue = <P extends Property, freeSolo extends boolean>(
 
 const EventProperty = <P extends Property, freeSolo extends boolean>(props: EventPropertyProps<P, freeSolo>) => {
   const { t } = useTranslation()
-  const { id, event, fields, helpClick, endAdornment, onChange, validateInput, mapValue, options, ...acProps } = props
+  const {
+    id,
+    event,
+    fields,
+    helpClick,
+    helperText: guidance,
+    endAdornment,
+    onChange,
+    validateInput,
+    mapValue,
+    options,
+    ...acProps
+  } = props
   const value = event[id]
   const fixedValue = value ?? null
   const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue, props.getOptionLabel))
   const isRequired = fields?.required[id] ?? false
   const error = (isRequired || fixedValue) && validateEventField(event, id, true)
-  const helperText: string = error ? t(`validation.event.${error.key}`, error.opts) : ''
+  const helperText: string = guidance ?? (error ? t(`validation.event.${error.key}`, error.opts) : '')
 
   useEffect(() => {
     setInputValue(getInputInitValue(fixedValue, props.getOptionLabel))
