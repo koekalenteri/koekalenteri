@@ -5,7 +5,6 @@ import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
-import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { flushPromises, renderSuspended, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import JudgeListPage from './JudgeListPage'
@@ -69,17 +68,19 @@ describe('JudgeListPage', () => {
     }
 
     it('is reported for a flag switch', async () => {
-      expectConsoleOutput('reportError Error: not implemented')
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       await renderPage()
 
       await act(async () => {
         fireEvent.click(screen.getAllByRole('switch', { name: 'judgeActive' })[0])
       })
       await flushPromises()
+
+      expect(consoleError).toHaveBeenCalledWith('reportError', new Error('not implemented'))
     })
 
     it('is reported for a language toggle', async () => {
-      expectConsoleOutput('reportError Error: not implemented')
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       await renderPage()
 
       await act(async () => {
@@ -89,6 +90,8 @@ describe('JudgeListPage', () => {
         fireEvent.click(swedish)
       })
       await flushPromises()
+
+      expect(consoleError).toHaveBeenCalledWith('reportError', new Error('not implemented'))
     })
   })
 })
