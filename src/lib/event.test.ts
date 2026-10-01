@@ -12,7 +12,7 @@ import type {
 import { TZDate } from '@date-fns/tz'
 import { addDays, differenceInDays } from 'date-fns'
 import i18n from 'i18next'
-import { eventWithEntryClosing, eventWithParticipantsInvited } from '../__mockData__/events'
+import { eventWithEntryClosing, eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
 import { formatDate, TIME_ZONE } from '../i18n/dates'
 import {
   applyNewGroupsToDogEventClass,
@@ -682,6 +682,7 @@ describe('lib/event', () => {
         getStartListPublishedClassMap({
           classes: [{ class: 'ALO' }, { class: 'AVO' }],
           startListPublished: { ALO: true },
+          state: 'invited',
         })
       ).toEqual({ ALO: true, AVO: false })
     })
@@ -691,14 +692,36 @@ describe('lib/event', () => {
         getStartListPublishedClassMap({
           classes: [{ class: 'ALO' }, { class: 'AVO' }],
           startListPublished: true,
+          state: 'picked',
         })
       ).toEqual({ ALO: true, AVO: true })
       expect(
         getStartListPublishedClassMap({
           classes: [{ class: 'ALO' }, { class: 'AVO' }],
           startListPublished: false,
+          state: 'invited',
         })
       ).toEqual({ ALO: false, AVO: false })
+    })
+
+    it('expands an absent flag only for the classes the workflow carried to invited', () => {
+      // Read as the public list reads it: a past trial whose invitations were never sent has nothing
+      // published, so publishing one class must not publish the others with it (KOE-1465).
+      const lastYear = addDays(new Date(), -365)
+      expect(
+        getStartListPublishedClassMap({
+          classes: [{ class: 'ALO', state: 'invited' }, { class: 'AVO' }, { class: 'VOI', state: 'picked' }],
+          endDate: lastYear,
+          startDate: lastYear,
+          state: 'picked',
+        })
+      ).toEqual({ ALO: true, AVO: false, VOI: false })
+      expect(
+        getStartListPublishedClassMap({
+          classes: [{ class: 'ALO' }, { class: 'AVO' }],
+          state: 'invited',
+        })
+      ).toEqual({ ALO: true, AVO: true })
     })
   })
 
@@ -1630,6 +1653,43 @@ describe('publishing results', () => {
         getResultsPublishedClassMap({ classes: [{ class: 'ALO' }, { class: 'AVO' }], resultsPublished: { ALO: true } })
       ).toEqual({ ALO: true, AVO: false })
     })
+  })
+})
+
+/**
+ * A trial whose date went by without its invitations going out has no flag; the panel and the public list
+ * read that as unpublished and the panel offers the publish. The step must agree, not claim the list and
+ * the numbers riding on it as published (KOE-1465).
+ */
+describe('the start list step in the progress', () => {
+  const after = new Date('2026-09-20')
+
+  it('waits on the publish of a past trial that never sent invitations', () => {
+    const progress = getEventProgress(
+      { ...eventWithStaticDates, startListPublished: undefined, state: 'picked' },
+      after
+    )
+
+    expect(progress.publishedStartListClasses).toEqual([])
+    expect(progress.startListActionable).toBe(true)
+    expect(progress.startListCompleted).toBe(false)
+    expect(progress.startNumbersCompleted).toBe(false)
+  })
+
+  it('still reads an absent flag as published for a trial the workflow invited', () => {
+    const progress = getEventProgress(
+      { ...eventWithStaticDates, startListPublished: undefined, state: 'invited' },
+      after
+    )
+
+    expect(progress.publishedStartListClasses).toEqual(['NOU'])
+    expect(progress.startListCompleted).toBe(true)
+  })
+
+  it('completes once the trial publishes its list', () => {
+    const progress = getEventProgress({ ...eventWithStaticDates, startListPublished: true, state: 'picked' }, after)
+
+    expect(progress.startListCompleted).toBe(true)
   })
 })
 

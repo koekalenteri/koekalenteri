@@ -187,8 +187,8 @@ describe('EventStateStepper', () => {
     expect(numbersStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
   })
 
-  it('treats a missing start list field as published for a historical event with a stale state', () => {
-    render(<EventStateStepper event={{ ...eventWithStaticDates, startListPublished: undefined, state: 'picked' }} />)
+  it('treats a missing start list field as published for a historical event the workflow invited', () => {
+    render(<EventStateStepper event={{ ...eventWithStaticDates, startListPublished: undefined, state: 'invited' }} />)
 
     const startListStep = screen
       .getByText(/^event\.states\.startListPublished/, { selector: '.MuiStepLabel-label' })
@@ -196,6 +196,26 @@ describe('EventStateStepper', () => {
 
     expect(startListStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-completed')
     expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
+  })
+
+  /**
+   * A past trial whose invitations were never sent has no published list, whatever its date: the public
+   * list stays hidden and the panel offers to publish it, so the step waits on that publish rather than
+   * claiming it — and the numbers riding on the list with it (KOE-1465).
+   */
+  it('waits on the start list of a past trial that never sent invitations', () => {
+    render(<EventStateStepper event={{ ...eventWithStaticDates, startListPublished: undefined, state: 'picked' }} />)
+
+    const startListStep = screen
+      .getByText(/^event\.states\.publishStartList/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+    const numbersStep = screen
+      .getByText(/^event\.states\.publishStartNumbers/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-active')
+    expect(numbersStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
   })
 
   it('keeps an explicitly hidden historical start list unpublished', () => {

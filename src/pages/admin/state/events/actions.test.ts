@@ -70,6 +70,27 @@ describe('buildStartListClassPublishedPatch', () => {
       startListPublished: { ALO: false, AVO: true },
     })
   })
+
+  it('does not publish the other classes of a trial whose absent flag the workflow never carried to invited', () => {
+    expect(
+      buildStartListClassPublishedPatch(
+        {
+          ...eventWithStaticDates,
+          classes: [
+            { class: 'ALO', date: eventWithStaticDates.startDate },
+            { class: 'AVO', date: eventWithStaticDates.startDate },
+          ],
+          startListPublished: undefined,
+          state: 'picked',
+        },
+        'ALO',
+        true
+      )
+    ).toEqual({
+      id: eventWithStaticDates.id,
+      startListPublished: { ALO: true, AVO: false },
+    })
+  })
 })
 
 describe('buildStartListPublishedPatch', () => {
@@ -130,6 +151,65 @@ describe('useAdminEventActions.setResultsPublished', () => {
     const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
 
     await expect(result.current.setResultsPublished(published, undefined, true)).resolves.toBe(published)
+    expect(putEvent).not.toHaveBeenCalled()
+  })
+})
+
+/**
+ * A past trial whose invitations were never sent has no flag, and the panel shows its list as
+ * unpublished. Reading the absent flag as published here returned before the save, so the publish
+ * reported success and changed nothing (KOE-1465).
+ */
+describe('useAdminEventActions start list publishing', () => {
+  const pastPicked = {
+    ...eventWithStaticDates,
+    id: 'past-picked',
+    startListPublished: undefined,
+    state: 'picked' as const,
+  }
+  const classed = {
+    ...pastPicked,
+    classes: [
+      { class: 'ALO' as const, date: eventWithStaticDates.startDate },
+      { class: 'AVO' as const, date: eventWithStaticDates.startDate },
+    ],
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
+  })
+  afterEach(() => localStorage.removeItem('idToken'))
+
+  it('saves the publish of a classless trial that never sent invitations', async () => {
+    vi.mocked(putEvent).mockResolvedValueOnce({ ...pastPicked, startListPublished: true })
+    const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
+
+    const saved = await act(() => result.current.setStartListPublished(pastPicked, true))
+
+    expect(putEvent).toHaveBeenCalledWith({ id: pastPicked.id, startListPublished: true }, TEST_ID_TOKEN)
+    expect(saved).toMatchObject({ startListPublished: true })
+  })
+
+  it('saves the publish of one class, leaving the others unpublished', async () => {
+    vi.mocked(putEvent).mockResolvedValueOnce({ ...classed, startListPublished: { ALO: true, AVO: false } })
+    const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
+
+    await act(() => result.current.setStartListClassPublished(classed, 'ALO', true))
+
+    expect(putEvent).toHaveBeenCalledWith(
+      { id: classed.id, startListPublished: { ALO: true, AVO: false } },
+      TEST_ID_TOKEN
+    )
+  })
+
+  it.each([
+    { event: { ...pastPicked, state: 'invited' as const }, published: true },
+    { event: pastPicked, published: false },
+  ])('saves nothing when the list already reads $published', async ({ event, published }) => {
+    const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
+
+    await expect(result.current.setStartListPublished(event, published)).resolves.toBe(event)
     expect(putEvent).not.toHaveBeenCalled()
   })
 })

@@ -1,5 +1,5 @@
 import type { JsonConfirmedEvent } from '../types'
-import { getResultsBlocker, getStartListBlocker, getStartNumbersBlocker } from './publishing'
+import { getResultsBlocker, getStartListBlocker, getStartNumbersBlocker, isStartListFlagPublished } from './publishing'
 import { groupParticipantsByClass } from './registration'
 
 const now = new Date()
@@ -52,6 +52,26 @@ describe('lib/publishing', () => {
       expect(getStartListBlocker(classless, undefined, [{ ...invited, class: undefined, eventType: 'NOU' }])).toBe(
         undefined
       )
+    })
+  })
+
+  describe('isStartListFlagPublished', () => {
+    const past = { endDate: inDays(-30), startDate: inDays(-30), startListPublished: undefined }
+
+    it('reads an absent flag as published only where the workflow invited (KOE-1465)', () => {
+      expect(isStartListFlagPublished(event({ ...past, state: 'picked' }), 'ALO')).toBe(false)
+      expect(isStartListFlagPublished(event({ ...past, classes: [], state: 'picked' }), undefined)).toBe(false)
+      expect(isStartListFlagPublished(event({ ...past, state: 'invited' }), 'ALO')).toBe(true)
+      expect(isStartListFlagPublished(event({ ...past, classes: [], state: 'invited' }), undefined)).toBe(true)
+    })
+
+    it('reads a stored flag as stored, even ahead of the state', () => {
+      // A publish ahead of the state is still a publish for the rules to judge.
+      expect(isStartListFlagPublished(event({ startListPublished: { ALO: true }, state: 'picked' }), 'ALO')).toBe(true)
+      expect(isStartListFlagPublished(event({ startListPublished: { ALO: false } }), 'ALO')).toBe(false)
+      expect(
+        isStartListFlagPublished(event({ classes: [], startListPublished: true, state: 'picked' }), undefined)
+      ).toBe(true)
     })
   })
 

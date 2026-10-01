@@ -563,6 +563,48 @@ describe('putEventLambda', () => {
       expect(res.statusCode).toEqual(200)
     })
 
+    it('judges the first publish of a past trial that never sent invitations and has no flag (KOE-1465)', async () => {
+      // No flag reads as published only where the workflow invited; read as published here, the
+      // publish looked like a flag left as it was and skipped the rules.
+      const pastPicked: JsonDogEvent = {
+        ...mockEvent,
+        endDate: '2025-03-01',
+        startDate: '2025-03-01',
+        startListPublished: undefined,
+        state: 'picked',
+      }
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(pastPicked)
+      mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+
+      const res = await publish({ startListPublished: true })
+
+      expect(JSON.parse(res.body)).toMatchObject({ publish: 'startList', reason: 'participants' })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('publishes the start list of a past trial that never sent invitations and has no flag (KOE-1465)', async () => {
+      const pastPicked: JsonDogEvent = {
+        ...mockEvent,
+        endDate: '2025-03-01',
+        startDate: '2025-03-01',
+        startListPublished: undefined,
+        state: 'picked',
+      }
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(pastPicked)
+      mockGetRegistrationsByEventId.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
+
+      const res = await publish({ startListPublished: true })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ startListPublished: true })
+      )
+    })
+
     it('always lets a start list be hidden', async () => {
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true })
