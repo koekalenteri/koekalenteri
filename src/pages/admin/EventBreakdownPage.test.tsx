@@ -188,6 +188,6 @@ describe('EventBreakdownPage', () => {
     await renderAsAdmin()
     await flushPromises()
 
-    await screen.findByText('stats.noDataForYear')
+    expect(await screen.findByText('stats.noDataForYear')).toBeInTheDocument()
   })
 })

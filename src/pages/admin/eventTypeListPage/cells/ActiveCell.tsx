@@ -3,14 +3,15 @@ import type { ChangeEvent } from 'react'
 import type { EventType } from '@/types'
 import Switch from '@mui/material/Switch'
 import { useCallback } from 'react'
+import { reportError } from '@/lib/client/error'
 import { useAdminEventTypeActions } from '../../state'
 
 const ActiveCell = (props: GridRenderCellParams<EventType, boolean>) => {
   const actions = useAdminEventTypeActions()
 
   const toggleActive = useCallback(
-    async (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      actions.save({ ...props.row, active: checked })
+    (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
+      void actions.save({ ...props.row, active: checked }).catch(reportError)
     },
     [actions, props.row]
   )

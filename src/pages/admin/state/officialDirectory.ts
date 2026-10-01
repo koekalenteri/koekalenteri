@@ -50,6 +50,6 @@ export const useOfficialDirectoryRefresh = <T extends Official>(
     const entries = await fetch(token, true)
     const users = await getUsers(token)
     setEntries(sortOfficialDirectory([...entries]))
-    setUsers(users)
+    await setUsers(users)
   }
 }

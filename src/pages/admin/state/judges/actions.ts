@@ -21,7 +21,7 @@ export const useAdminJudgesActions = () => {
     const saved = await putJudge(judge, token)
     const newJudges = judges.map<Judge>((j) => ({ ...j }))
     newJudges.splice(index, 1, saved)
-    setJudges(newJudges)
+    await setJudges(newJudges)
   }
 
   return {

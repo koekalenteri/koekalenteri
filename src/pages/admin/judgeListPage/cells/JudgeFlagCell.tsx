@@ -5,6 +5,7 @@ import Switch from '@mui/material/Switch'
 import { useAtomValue } from 'jotai'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { reportError } from '@/lib/client/error'
 import { isAdminAtom } from '@/pages/state'
 import { useAdminJudgesActions } from '../../state'
 
@@ -26,7 +27,7 @@ export const createJudgeFlagCell = (flag: JudgeFlag) => {
 
     const toggle = useCallback(
       (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
-        actions.save({ ...props.row, [flag]: checked })
+        void actions.save({ ...props.row, [flag]: checked }).catch(reportError)
       },
       [actions, props.row]
     )

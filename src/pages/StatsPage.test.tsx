@@ -33,7 +33,7 @@ describe('StatsPage', () => {
     )
     await flushPromises()
 
-    await screen.findByText('stats.title', { exact: false })
+    expect(await screen.findByText('stats.title', { exact: false })).toBeInTheDocument()
   })
 
   it('takes the selected year out of the all-years payload instead of re-requesting it', async () => {
@@ -89,7 +89,7 @@ describe('StatsPage', () => {
     await renderPage()
     await flushPromises()
 
-    await screen.findByText('stats.retentionTitle')
+    expect(await screen.findByText('stats.retentionTitle')).toBeInTheDocument()
   })
 
   it('hides the retention chart until a rebuild has written the records', async () => {

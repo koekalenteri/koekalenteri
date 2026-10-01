@@ -7,6 +7,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { t } from 'i18next'
 import { useAtomValue } from 'jotai'
 import { useCallback } from 'react'
+import { reportError } from '@/lib/client/error'
 import { isAdminAtom } from '@/pages/state'
 import { useAdminJudgesActions } from '../../state'
 
@@ -18,7 +19,7 @@ const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
 
   const changeLanguges = useCallback(
     (_event: React.MouseEvent<HTMLElement, MouseEvent>, languages: string[]) => {
-      actions.save({ ...props.row, languages })
+      void actions.save({ ...props.row, languages }).catch(reportError)
     },
     [actions, props.row]
   )

@@ -27,7 +27,7 @@ import {
   useConfirmedEvent,
 } from './state'
 
-export const loader = async ({ params, request }: { params: Params<string>; request: Request }) => {
+export const loader = ({ params, request }: { params: Params<string>; request: Request }) => {
   const createPaymentWrap = async () => {
     if (params.id && params.registrationId) {
       try {

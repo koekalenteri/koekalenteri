@@ -196,7 +196,7 @@ describe('OrganizerStatsPage', () => {
     )
     await flushPromises()
 
-    await screen.findByDisplayValue('Järjestäjä 1')
+    expect(await screen.findByDisplayValue('Järjestäjä 1')).toBeInTheDocument()
   })
 
   it('builds the class filter from the fetched capacity stats and renders the capacity charts', async () => {

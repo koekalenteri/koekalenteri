@@ -207,7 +207,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
       const insert = index === -1
       regs.splice(insert ? regs.length : index, insert ? 0 : 1, reg)
     }
-    setEventRegistrations([...regs])
+    void setEventRegistrations([...regs])
   }
 
   const updateAdminRegistration = (saved: Registration) => updateAdminRegistrations([saved])
@@ -258,8 +258,8 @@ export const useAdminRegistrationActions = (eventId: string) => {
         inFlightGroupMovesRef.current.forEach((command) => {
           command.resolve(undefined)
         })
-        setEventRegistrations(confirmed)
-        setEvent({ ...event, classes, entries })
+        await setEventRegistrations(confirmed)
+        await setEvent({ ...event, classes, entries })
         setBackgroundActionsRunning(false)
       } catch (e) {
         failed = true
@@ -276,7 +276,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
         if (token) {
           try {
             const latest = await getRegistrations(targetEventId, token)
-            if (Array.isArray(latest)) setEventRegistrations(latest)
+            if (Array.isArray(latest)) await setEventRegistrations(latest)
           } catch (refreshError) {
             console.error('Unable to refresh registrations after group move failure', refreshError)
           }
@@ -419,7 +419,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
       if (!token) throw new Error('missing token')
 
       const { classes, failed, ok, registrations, startListPublished, state } = await sendTemplatedEmail(message, token)
-      setEvent({ ...event, classes, startListPublished, state })
+      await setEvent({ ...event, classes, startListPublished, state })
       updateAdminRegistrations(registrations)
 
       return { failed, ok }

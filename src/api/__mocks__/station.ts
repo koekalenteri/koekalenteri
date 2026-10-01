@@ -1,4 +1,4 @@
-import type { EventResult, StationEntry } from '../../types'
+import type { EventResult, StationEntry, StationTurn } from '../../types'
 import type { EventResultSubmission, EventResultsResponse } from '../registration'
 import { vi } from 'vitest'
 
@@ -6,6 +6,12 @@ export const getStationEntry = vi.fn(
   async (_eventId: string, _stationId: string, _token: string, _signal?: AbortSignal): Promise<StationEntry> => {
     throw new Error('not mocked')
   }
+)
+
+export const putStationTurn = vi.fn(
+  async (_eventId: string, _op: unknown, _token: string, _signal?: AbortSignal): Promise<{ turns: StationTurn[] }> => ({
+    turns: [],
+  })
 )
 
 /** Same shape as the registration mock's putEventResults: every submission reads as written. */

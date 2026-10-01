@@ -14,17 +14,16 @@ export const useAdminOrganizersActions = () => {
     save,
   }
 
-  function refresh() {
+  async function refresh() {
     if (!token) throw new Error('missing token')
-    getAdminOrganizers(token, true).then((organizers) => {
-      setOrganizers([...organizers].sort(compareByLocalizedString('name')))
-    })
+    const organizers = await getAdminOrganizers(token, true)
+    await setOrganizers([...organizers].sort(compareByLocalizedString('name')))
   }
 
   async function save(organizer: Organizer) {
     if (!token) throw new Error('missing token')
     const saved = await putOrganizer(organizer, token)
 
-    setOrganizers([...organizers.filter((o) => o.id !== saved.id), saved].sort(compareByLocalizedString('name')))
+    await setOrganizers([...organizers.filter((o) => o.id !== saved.id), saved].sort(compareByLocalizedString('name')))
   }
 }

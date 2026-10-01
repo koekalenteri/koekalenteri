@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@mui/material'
-import { act, fireEvent, screen } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -11,12 +11,15 @@ import {
   eventWithEntryOpenButNoEntries,
   eventWithParticipantsInvited,
 } from '../../__mockData__/events'
+import { putEvent } from '../../api/event'
 import { getUser } from '../../api/user'
 import theme from '../../assets/Theme'
+import { Path } from '../../routeConfig'
+import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { AtomObserver, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventListPage, { canViewEvent, getEventDoubleClickPath } from './EventListPage'
-import { adminEventIdAtom } from './state'
+import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './state'
 
 vi.mock('../../api/event')
 vi.mock('../../api/judge')
@@ -207,5 +210,118 @@ describe('EventListPage', () => {
   it('only enables the registrations view for confirmed events', () => {
     expect(canViewEvent(eventWithEntryOpenButNoEntries)).toBe(true)
     expect(canViewEvent({ ...eventWithEntryOpenButNoEntries, state: 'draft' })).toBe(false)
+  })
+  describe('toolbar actions', () => {
+    // The draft and the selection live in localStorage; each case starts from its own.
+    afterEach(() => localStorage.clear())
+
+    const Where = () => <div data-testid="where">{useLocation().pathname}</div>
+
+    const renderWith = (initialize: Parameters<typeof Provider>[0]['initializeState']) =>
+      renderSuspendedWithUserEvents(
+        <ThemeProvider theme={theme}>
+          <Provider initializeState={initialize}>
+            <MemoryRouter>
+              <Where />
+              <Suspense fallback={<div>loading...</div>}>
+                <SnackbarProvider>
+                  <ConfirmProvider>
+                    <EventListPage />
+                  </ConfirmProvider>
+                </SnackbarProvider>
+              </Suspense>
+            </MemoryRouter>
+          </Provider>
+        </ThemeProvider>,
+        undefined,
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+
+    it('opens a new event straight away when there is no draft', async () => {
+      await renderWith(({ set }) => set(idTokenAtom, TEST_ID_TOKEN))
+      await flushPromises()
+
+      // Opening the form suspends on the way; an awaited act waits for it, as in the double-click case.
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'createEvent' }))
+      })
+      await flushPromises()
+
+      expect(screen.getByTestId('where')).toHaveTextContent(Path.admin.newEvent)
+    })
+
+    it('asks before starting over from an unsaved draft', async () => {
+      const { user } = await renderWith(({ set }) => {
+        set(idTokenAtom, TEST_ID_TOKEN)
+        set(adminNewEventAtom, { ...eventWithEntryNotYetOpen, id: '', modifiedAt: new Date(), name: 'draft' })
+      })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'createEvent' }))
+      await flushPromises()
+      await act(async () => {
+        fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'eventDraft.createNew' }))
+      })
+      await flushPromises()
+
+      expect(screen.getByTestId('where')).toHaveTextContent(Path.admin.newEvent)
+      expect(JSON.parse(localStorage.getItem('newEvent') ?? '{}').name).not.toBe('draft')
+    })
+
+    it('keeps the draft when told to stay with it', async () => {
+      const { user } = await renderWith(({ set }) => {
+        set(idTokenAtom, TEST_ID_TOKEN)
+        set(adminNewEventAtom, { ...eventWithEntryNotYetOpen, id: '', modifiedAt: new Date(), name: 'draft' })
+      })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'createEvent' }))
+      await flushPromises()
+      await act(async () => {
+        fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'unsavedChanges.stay' }))
+      })
+      await flushPromises()
+
+      expect(screen.getByTestId('where')).toHaveTextContent(Path.admin.newEvent)
+      expect(JSON.parse(localStorage.getItem('newEvent') ?? '{}').name).toBe('draft')
+    })
+
+    it('copies the selected event into a new one', async () => {
+      await renderWith(({ set }) => {
+        set(idTokenAtom, TEST_ID_TOKEN)
+        set(adminEventIdAtom, eventWithEntryClosed.id)
+      })
+      await flushPromises()
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'copy' }))
+      })
+      await flushPromises()
+
+      expect(screen.getByTestId('where')).toHaveTextContent(Path.admin.newEvent)
+    })
+
+    it('reports a deletion the server refuses instead of leaving it unhandled', async () => {
+      // Only an event nobody can have entered yet is deletable. The mock server does not know this
+      // one, so the save rejects, and the rejection has to reach reportError.
+      const tentative = { ...eventWithEntryNotYetOpen, id: 'tentative', state: 'tentative' as const }
+      expectConsoleOutput('reportError Error: not found')
+      const { user } = await renderWith(({ set }) => {
+        set(idTokenAtom, TEST_ID_TOKEN)
+        set(adminEventsAtom, [tentative])
+        set(adminEventIdAtom, tentative.id)
+      })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'delete' }))
+      await flushPromises()
+      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'delete' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({ deletedAt: expect.any(Date), id: tentative.id }),
+        TEST_ID_TOKEN
+      )
+    })
   })
 })

@@ -108,7 +108,7 @@ export default function RegistrationList({
   const navigate = useNavigate()
 
   const onEdit = (registration: StrippedRegistration) => {
-    navigate(`${Path.registration(registration)}/edit`)
+    void navigate(`${Path.registration(registration)}/edit`)
   }
 
   const allColumns: GridColDef<StrippedRegistration>[] = [

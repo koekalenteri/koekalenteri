@@ -143,7 +143,7 @@ export const useAdminEventActions = () => {
   const patchStoredEvent = useAtomCallback(
     useCallback(async (get, set, eventId: string, patch: Partial<DogEvent>) => {
       const stored = (await get(adminEventsAtom)).find((event) => event.id === eventId)
-      if (stored) set(adminEventAtom(eventId), { ...stored, ...patch })
+      if (stored) await set(adminEventAtom(eventId), { ...stored, ...patch })
     }, [])
   )
 

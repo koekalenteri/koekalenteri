@@ -75,7 +75,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
       }
       resetEvent()
       if (onDoneRedirect) {
-        navigate(onDoneRedirect)
+        void navigate(onDoneRedirect)
       }
       enqueueSnackbar(savedMessage ?? getEventSavedMessage(saved?.state, t), { variant: 'info' })
     } catch (error) {
@@ -96,7 +96,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
   const handleCancel = useCallback(() => {
     resetEvent()
     if (onDoneRedirect) {
-      navigate(onDoneRedirect)
+      void navigate(onDoneRedirect)
     }
   }, [navigate, resetEvent, onDoneRedirect])
 

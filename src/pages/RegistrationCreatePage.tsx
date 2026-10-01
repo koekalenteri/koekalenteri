@@ -39,7 +39,7 @@ export function Component() {
         setRegistration(newState)
 
         if (params.class && params.class !== newState.class) {
-          navigate(Path.register(event, newState.class ?? undefined))
+          void navigate(Path.register(event, newState.class ?? undefined))
         }
       }
     },
@@ -54,9 +54,9 @@ export function Component() {
       const saved = await actions.save(registration, event)
       if (!saved) return
       if (event.paymentTime === 'confirmation') {
-        navigate(Path.registration(saved))
+        void navigate(Path.registration(saved))
       } else {
-        navigate(Path.payment(saved))
+        void navigate(Path.payment(saved))
       }
     } catch (error) {
       console.error(error)
@@ -65,7 +65,7 @@ export function Component() {
 
   const handleCancel = useCallback(() => {
     resetRegistration()
-    navigate(Path.home)
+    void navigate(Path.home)
     return true
   }, [navigate, resetRegistration])
 

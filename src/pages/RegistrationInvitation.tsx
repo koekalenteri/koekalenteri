@@ -70,7 +70,7 @@ export const deferredLoader = async (
   return { event, registration }
 }
 
-export const loader = async ({ params, request }: { params: Params<string>; request: Request }) => {
+export const loader = ({ params, request }: { params: Params<string>; request: Request }) => {
   const { editToken, id, registrationId } = params
 
   return {

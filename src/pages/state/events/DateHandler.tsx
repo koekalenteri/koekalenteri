@@ -2,6 +2,7 @@ import { addDays } from 'date-fns'
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { zonedStartOfDay } from '@/i18n/dates'
+import { reportError } from '@/lib/client/error'
 import { eventFilterAtom, eventMetadataAtom } from './atoms'
 import { RANGE_INCREMENTAL_THROTTLE, useFetchEvents } from './hooks'
 
@@ -44,7 +45,7 @@ export function DateHandler() {
     // Default start to "today" when missing.
     // This ensures pages that don't set a start date still get event data.
     const start = filter.start ?? today
-    fetchEvents(start, filter.end || undefined)
+    void fetchEvents(start, filter.end || undefined).catch(reportError)
   }, [filter.start, filter.end, fetchEvents, today])
 
   useEffect(() => {
