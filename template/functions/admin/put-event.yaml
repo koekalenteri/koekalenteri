@@ -6,6 +6,10 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
+        # A publish is held to its rules here (KOE-1466), which means reading the event's participants;
+        # without this the save of a start list flag died in AccessDenied (KOE-1465).
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
