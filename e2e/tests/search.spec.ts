@@ -1,10 +1,13 @@
 import { expect, test } from '@playwright/test'
 import { endOfDay, startOfDay } from '../fixtures/dates'
 import { seedEvent } from '../fixtures/db'
+import { issue } from '../fixtures/issue'
 import { SearchPage } from '../pages/SearchPage'
 
-test.describe('finding an event', () => {
-  test('the event type filter shows the matching event and hides the other', async ({ page }) => {
+test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public' }, () => {
+  test('the event type filter shows the matching event and hides the other', {
+    annotation: issue('KOE-1480', 'the options are picked with includeHidden'),
+  }, async ({ page }) => {
     const nomeB = await seedEvent({ eventType: 'NOME-B' })
     const nowt = await seedEvent({ eventType: 'NOWT' })
     const search = new SearchPage(page)
@@ -31,7 +34,9 @@ test.describe('finding an event', () => {
     await expect(search.event(event)).toBeVisible()
   })
 
-  test('the end date typed into the empty field hides a later event', async ({ page }) => {
+  test('the end date typed into the empty field hides a later event', { annotation: issue('KOE-1481') }, async ({
+    page,
+  }) => {
     const event = await seedEvent({ endDate: startOfDay(20), startDate: startOfDay(20) })
     const search = new SearchPage(page)
     await search.goto()

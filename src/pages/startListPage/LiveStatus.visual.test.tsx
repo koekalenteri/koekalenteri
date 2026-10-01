@@ -2,6 +2,7 @@ import type { PublicConfirmedEvent } from '../../types/Event'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
+import { freezeClockAt } from '../../test-utils/freezeClock'
 import { LiveStatus } from './LiveStatus'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -12,8 +13,10 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 )
 
 // The open turn starts a fixed distance before "now" so its elapsed minutes render stably; the
-// closed spans carry fixed durations, so the pace line is stable too.
-const now = Date.now()
+// closed spans carry fixed durations, so the pace line is stable too. "Now" is midday: on the real
+// clock the first twenty minutes after midnight put the turns on the day before, and the view,
+// which shows today's turns, came up empty.
+const now = freezeClockAt('2026-06-13')
 const minutesAgo = (minutes: number) => new Date(now - minutes * 60000)
 
 const event = {

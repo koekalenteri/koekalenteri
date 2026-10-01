@@ -16,9 +16,10 @@ import { TIME_ZONE } from '@/i18n/dates'
  *
  * Call it at the top of the file, above the fixtures. A fixture built from absolute dates does not
  * read the clock, so it does not matter that the hook fires after the module is evaluated — but one
- * built from `Date.now()` does, and belongs inside a test rather than at module scope.
+ * built from `Date.now()` does: build it from the returned instant instead, or inside a test.
  *
  * @param day the frozen day as `yyyy-MM-dd`; midday, so no time zone lands it on a neighbour.
+ * @returns the frozen instant in milliseconds, for fixtures that count back from "now".
  */
 export const freezeClockAt = (day: string) => {
   const frozen = new TZDate(`${day}T12:00:00`, TIME_ZONE).getTime()
@@ -30,4 +31,6 @@ export const freezeClockAt = (day: string) => {
   afterAll(() => {
     vi.useRealTimers()
   })
+
+  return frozen
 }

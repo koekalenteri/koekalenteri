@@ -52,10 +52,23 @@ const isStaffAddress = async (address: string): Promise<boolean> => {
   return staff
 }
 
+/** The Amazon SES mailbox simulator: SES answers mail sent to it itself, and no person reads it. */
+const SES_SIMULATOR_DOMAIN = 'simulator.amazonses.com'
+
+/** Exactly that domain after the last `@`: not a subdomain, not a look-alike, not a longer name. */
+const isSesSimulatorAddress = (address: string) => {
+  const at = address.lastIndexOf('@')
+  return at > 0 && address.slice(at + 1) === SES_SIMULATOR_DOMAIN
+}
+
 /**
  * Outside prod, mail goes only to the environment's own staff: users with admin rights or a role,
  * at their own address or a plus-address of it. Data copied from prod keeps nobody else reachable,
  * even through a field the copy failed to rewrite (KOE-1469).
+ *
+ * The SES mailbox simulator goes through as well, without a user lookup. A staff address is a real
+ * mailbox and never bounces, so `bounce@simulator.amazonses.com` is how a tester makes a message
+ * bounce and sees SesNotificationFunction mark the registration (KOE-1381).
  */
 const deliverableRecipients = async (to: string[]): Promise<string[]> => {
   if (CONFIG.stageName === 'prod') return to
@@ -64,7 +77,11 @@ const deliverableRecipients = async (to: string[]): Promise<string[]> => {
   for (const recipient of to) {
     const address = normalizeEmail(recipient)
     const base = withoutPlusTag(address)
-    if ((await isStaffAddress(address)) || (base !== address && (await isStaffAddress(base)))) {
+    if (
+      isSesSimulatorAddress(address) ||
+      (await isStaffAddress(address)) ||
+      (base !== address && (await isStaffAddress(base)))
+    ) {
       deliverable.push(recipient)
     }
   }

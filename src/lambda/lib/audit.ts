@@ -12,6 +12,7 @@ import type {
   RegistrationClass,
 } from '../../types'
 import { getStartListPublishedClassMap, isStartListPublishedClassMap } from '../../lib/event'
+import { isStartListFlagPublished } from '../../lib/publishing'
 import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -90,7 +91,7 @@ const getStartListAuditMessages = (
   if (item.startListPublished == null) return []
 
   if (typeof item.startListPublished === 'boolean') {
-    const wasPublished = existing.startListPublished !== false
+    const wasPublished = isStartListFlagPublished(existing, undefined)
     if (wasPublished === item.startListPublished) return []
 
     return [
@@ -116,10 +117,7 @@ const getStartListAuditMessages = (
     }
   }
 
-  const nextMap = getStartListPublishedClassMap({
-    classes: existing.classes,
-    startListPublished,
-  })
+  const nextMap = getStartListPublishedClassMap({ ...existing, startListPublished })
   return Object.entries(nextMap)
     .filter(([eventClass, published]) => existingMap[eventClass as RegistrationClass] !== published)
     .map(([eventClass, published]) => ({

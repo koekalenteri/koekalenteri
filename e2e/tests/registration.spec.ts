@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
 import { readRegistration, seedDog, seedEvent, seedOrganizer, seedStaffUser } from '../fixtures/db'
 import { sentTo } from '../fixtures/fakes'
+import { issue } from '../fixtures/issue'
 import { PaymentPage } from '../pages/PaymentPage'
 import { RegistrationPage } from '../pages/RegistrationPage'
 
@@ -34,7 +35,7 @@ const register = async (page: Page) => {
   return { key, owner, payment }
 }
 
-test.describe('registering and paying', () => {
+test.describe('registering and paying', { annotation: issue('KOE-1477'), tag: ['@public', '@payment'] }, () => {
   test('a paid registration is stored as paid, confirmed by email and shown as paid', async ({ page }) => {
     const { key, owner, payment } = await register(page)
 
@@ -60,7 +61,9 @@ test.describe('registering and paying', () => {
     expect((await sentTo(owner.email)).map((message) => message.template)).not.toContain('receipt-e2e-fi')
   })
 
-  test('a return signed with the wrong secret is not taken as a payment', async ({ page }) => {
+  test('a return signed with the wrong secret is not taken as a payment', {
+    annotation: issue('KOE-1484', 'the page still says the payment is being verified'),
+  }, async ({ page }) => {
     const { key, owner, payment } = await register(page)
 
     await payment.payAtBank('Väärennetty paluu')

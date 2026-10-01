@@ -151,6 +151,39 @@ describe('email', () => {
       sentTo(['stranger@example.com'])
       expect(mockQuery).not.toHaveBeenCalled()
     })
+
+    it('delivers to the SES mailbox simulator without looking it up (KOE-1381)', async () => {
+      await sendTemplatedMail(
+        'registration',
+        'fi',
+        'sender@example.com',
+        ['bounce@simulator.amazonses.com', ' Bounce+Riikka1@Simulator.AmazonSES.com', 'stranger@example.com'],
+        {}
+      )
+
+      sentTo(['bounce@simulator.amazonses.com', ' Bounce+Riikka1@Simulator.AmazonSES.com'])
+      expect(mockQuery).toHaveBeenCalledTimes(1)
+      expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ values: { ':email': 'stranger@example.com' } }))
+    })
+
+    it('does not take a look-alike of the simulator domain for it', async () => {
+      await sendTemplatedMail(
+        'registration',
+        'fi',
+        'sender@example.com',
+        [
+          'bounce@evilsimulator.amazonses.com',
+          'bounce@x.simulator.amazonses.com',
+          'bounce@simulator.amazonses.com.evil.fi',
+          'simulator.amazonses.com',
+          '@simulator.amazonses.com',
+          'simulator.amazonses.com@example.com',
+        ],
+        {}
+      )
+
+      expect(mockSend).not.toHaveBeenCalled()
+    })
   })
 
   it('strips a plus tag and normalizes the address', () => {

@@ -36,14 +36,10 @@ const queryChangedSince = async (since: string): Promise<JsonDogEvent[]> => {
   const updatedAfter = new Date(Number(since)).toISOString()
   const startSeason = Number(updatedAfter.substring(0, 4))
   const endSeason = Number(new Date().toISOString().substring(0, 4))
-  const result: JsonDogEvent[] = []
+  const seasons = Array.from({ length: endSeason - startSeason + 1 }, (_, index) => startSeason + index)
 
-  for (let season = startSeason; season <= endSeason; season++) {
-    const seasonEvents = await querySeason(season, updatedAfter)
-    if (seasonEvents) result.push(...seasonEvents)
-  }
-
-  return result
+  const perSeason = await Promise.all(seasons.map((season) => querySeason(season, updatedAfter)))
+  return perSeason.flatMap((seasonEvents) => seasonEvents ?? [])
 }
 
 /** Every event there is, season by season, for the superadmin who may see them all. */
@@ -69,19 +65,17 @@ const queryAllSeasons = async (): Promise<JsonDogEvent[]> => {
  * club, and nothing of anyone else's (KOE-1341).
  */
 const queryOrganizers = async (organizerIds: string[]): Promise<JsonDogEvent[]> => {
-  const result: JsonDogEvent[] = []
-
-  for (const organizerId of organizerIds) {
-    const organizerEvents = await dynamoDB.query<JsonDogEvent>({
-      index: 'gsiOrganizerStartDate',
-      key: 'organizerId = :organizerId',
-      table: CONFIG.eventTable,
-      values: { ':organizerId': organizerId },
-    })
-    if (organizerEvents) result.push(...organizerEvents)
-  }
-
-  return result
+  const perOrganizer = await Promise.all(
+    organizerIds.map((organizerId) =>
+      dynamoDB.query<JsonDogEvent>({
+        index: 'gsiOrganizerStartDate',
+        key: 'organizerId = :organizerId',
+        table: CONFIG.eventTable,
+        values: { ':organizerId': organizerId },
+      })
+    )
+  )
+  return perOrganizer.flatMap((organizerEvents) => organizerEvents ?? [])
 }
 
 const queryEvents = async (user: JsonUser, memberOf: string[], since?: string): Promise<JsonDogEvent[]> => {

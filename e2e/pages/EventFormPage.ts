@@ -42,6 +42,9 @@ export class EventFormPage {
     await this.pick('Vastaava koetoimitsija', official.name)
     await this.pick('Ylituomari', 'Tuomari 1')
     await this.page.getByRole('textbox', { name: 'Koepaikkojen määrä' }).fill('20')
+    // A number reaches the form after the same debounce as the name, and the price changed right
+    // after it dropped the places (KOE-1483).
+    await this.page.waitForTimeout(400)
     await this.page.getByRole('textbox', { exact: true, name: 'Osallistumismaksu Hinta' }).fill('50')
     // The secretary's email is the contact shown; the official's checkbox comes first.
     await this.page.getByRole('checkbox', { name: 'Sähköposti' }).last().check()
