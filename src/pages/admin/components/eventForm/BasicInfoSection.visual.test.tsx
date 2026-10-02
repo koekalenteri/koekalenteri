@@ -22,6 +22,9 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 )
 
 it('shows a name field per language, Finnish first (KOE-1263)', async () => {
+  // With the organizer chosen, as a trial is normally filled in, the secretary field asks for
+  // nothing more (KOE-1473); the case without one has its own screenshot below.
+  const organizer = { id: 'org1', name: 'Suomen Noutajakoirajärjestö ry' }
   const event = {
     classes: [],
     description: '',
@@ -30,18 +33,23 @@ it('shows a name field per language, Finnish first (KOE-1263)', async () => {
     judges: [],
     name: 'Kevätkoe',
     names: { en: 'Spring trial' },
+    organizer,
     startDate: new TZDate('2026-06-01', TIME_ZONE),
   }
 
   const screen = await render(
     <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
       <Frame>
-        <BasicInfoSection event={event} open />
+        <BasicInfoSection event={event} open organizers={[organizer]} />
       </Frame>
     </TestProvider>
   )
 
   await expect.element(screen.getByLabelText('Nimi (Suomeksi)')).toBeVisible()
+  await expect.element(screen.getByLabelText('Järjestäjä')).toHaveValue('Suomen Noutajakoirajärjestö ry')
+  await expect
+    .element(screen.getByText('Valitse ensin järjestäjä, niin voit valita koesihteerin yhdistyksen jäsenistä.'))
+    .not.toBeInTheDocument()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-names')
 })
 
