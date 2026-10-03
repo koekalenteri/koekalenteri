@@ -34,6 +34,10 @@ commits on the same branch.
 
 - One commit, conventional title with the issue key, body with the root cause. CI, test and Sonar
   housekeeping carries no issue key.
+- Every issue whose tester should hear that the change is on dev goes in the **title**, e.g.
+  `feat(email): … (KOE-1469, KOE-1381)`. `jira-testable` comments on the keys it finds after the
+  merge, and only the title is sure to reach main: the squash body is sometimes empty, and a
+  `Refs: KOE-x` line is never a claim (`claimedKeys` in `scripts/lib/jira.mjs`).
 - `git rebase origin/main`, push, `gh pr create`. Never merge, queue or enable auto-merge, never
   push to main.
 - Comment on the Jira issue with the PR link: what was wrong, what changed, what to try. Every

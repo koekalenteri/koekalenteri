@@ -61,6 +61,11 @@ For each finding, find the cause once yourself with evidence, as in `/ticket` st
 - If the issue has a PR still open (`gh pr list --search "<KEY> in:title" --state open`; without
   `in:title` the search also returns PRs that only mention the key), the implementer adds commits
   to that branch. Otherwise a new branch and PR from `origin/main` with the same key.
+- The fix's PR title names the issue the comment was on, also when the change itself belongs to
+  another issue. That is how the tester hears it is on dev: `jira-testable` comments on every key
+  in the merged title, also on an issue in Testing In Progress (it just does not move it).
+- Merging puts the change on dev only; the test environment gets it with the next pre-release.
+  Say "dev" in the comment, not "testi- ja kehitysympäristö".
 - The reviewers and the CI watcher run per PR as in `/ticket` step 3.
 - The Jira comment for a fix goes on when the PR is open and links it; it answers the tester's
   comment: what was wrong, what changed, what to try.
