@@ -62,31 +62,42 @@ const updateItems = async (oldItems: JsonRegistration[], moves: RegistrationGrou
     throw new LambdaError(409, 'Registration groups have changed. Please refresh and retry.')
   }
 
-  // Finally save any changes
-  for (const reg of updatedItems) {
-    const oldGroup = oldItems.find((r) => r.id === reg.id)?.group
-    const old = oldItems.find((item) => item.id === reg.id)
-    if (
-      reg.group?.key !== oldGroup?.key ||
-      reg.group?.number !== oldGroup?.number ||
-      reg.cancelled !== old?.cancelled ||
-      reg.cancelReason !== old?.cancelReason
-    ) {
+  // Finally save any changes. Every registration's row is its own; the saves need not wait for
+  // one another.
+  const oldById = new Map(oldItems.map((item) => [item.id, item]))
+  const changed = updatedItems.filter((reg) => hasGroupChanged(reg, oldById.get(reg.id)))
+  await Promise.all(
+    changed.map((reg) => {
+      const old = oldById.get(reg.id)
       const reason = moves.some((move) => move.id === reg.id) ? 'siirto' : 'seuraus'
-
-      // update cancellation status, so the counts get right in updateRegistrations
-      reg.cancelled = reg.group?.key === GROUP_KEY_CANCELLED
-
-      await saveGroup(reg, oldGroup, user, reason, reg.cancelReason)
-
-      // The move decided the number is gone (KOE-1428); the row and the dog's trail follow.
-      if (old?.startGroup && !reg.startGroup) {
-        await releaseStartNumber(reg.eventId, reg, old.startGroup.number, user.name)
-      }
-    }
-  }
+      return saveChangedGroup(reg, old, user, reason)
+    })
+  )
 
   return updatedItems
+}
+
+const hasGroupChanged = (reg: JsonRegistration, old: JsonRegistration | undefined) =>
+  reg.group?.key !== old?.group?.key ||
+  reg.group?.number !== old?.group?.number ||
+  reg.cancelled !== old?.cancelled ||
+  reg.cancelReason !== old?.cancelReason
+
+const saveChangedGroup = async (
+  reg: JsonRegistration,
+  old: JsonRegistration | undefined,
+  user: JsonUser,
+  reason: string
+) => {
+  // update cancellation status, so the counts get right in updateRegistrations
+  reg.cancelled = reg.group?.key === GROUP_KEY_CANCELLED
+
+  await saveGroup(reg, old?.group, user, reason, reg.cancelReason)
+
+  // The move decided the number is gone (KOE-1428); the row and the dog's trail follow.
+  if (old?.startGroup && !reg.startGroup) {
+    await releaseStartNumber(reg.eventId, reg, old.startGroup.number, user.name)
+  }
 }
 
 const parseMoves = (json: string | null): RegistrationGroupMove[] => {
@@ -252,13 +263,15 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user
     )
 
-    for (const reg of awaitingPayment) {
-      await audit({
-        auditKey: registrationAuditKey(reg),
-        message: 'Koekutsu lähetetään, kun koepaikka on maksettu',
-        user: user.name,
-      })
-    }
+    await Promise.all(
+      awaitingPayment.map((reg) =>
+        audit({
+          auditKey: registrationAuditKey(reg),
+          message: 'Koekutsu lähetetään, kun koepaikka on maksettu',
+          user: user.name,
+        })
+      )
+    )
 
     /**
      * Registrations in reserve group that moved up from previous 'reserve' email, receive updated 'reserve' email

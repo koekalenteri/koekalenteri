@@ -32,6 +32,12 @@ const judgeClasses = (judge: PublicJudge, event: PublicDogEvent) => {
   return classes.length ? ` (${classes.join(', ')})` : ''
 }
 
+/** The countdown to the entry's close, while the entry is open and has a day it closes on. */
+const EntryTimeLeft = ({ event }: Props) => {
+  if (!isEntryOpen(event) || !event.entryEndDate) return null
+  return <TimeLeft date={zonedEndOfDay(event.entryEndDate)} />
+}
+
 export const EventInfo = ({ event }: Props) => {
   const { t } = useTranslation()
   const official = useMemo(() => printContactInfo(event.contactInfo?.official), [event.contactInfo?.official])
@@ -58,7 +64,7 @@ export const EventInfo = ({ event }: Props) => {
       <ItemWithCaption label={t('entryTime')} order={{ xs: 1 }}>
         {t('dateFormat.datespan', { end: event.entryEndDate, start: event.entryStartDate })}
         <EntryStatus event={event} />
-        {isEntryOpen(event) && event.entryEndDate ? <TimeLeft date={zonedEndOfDay(event.entryEndDate)} /> : ''}
+        <EntryTimeLeft event={event} />
       </ItemWithCaption>
       {classes.length ? (
         <ItemWithCaption

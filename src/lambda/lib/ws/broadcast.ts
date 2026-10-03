@@ -26,36 +26,45 @@ export const broadcast = async <TPayload>({
   log?.({ audience: recipients.length })
 
   const counts = { attempted: 0, failed: 0, gone: 0, sent: 0 }
-  const limit = Math.max(1, Math.floor(concurrency))
 
-  for (let offset = 0; offset < recipients.length; offset += limit) {
-    const batch = recipients.slice(offset, offset + limit)
-    await Promise.allSettled(
-      batch.map(async (recipient) => {
-        const { connectionId } = recipient
-        counts.attempted += 1
-        let outcome: SendOutcome
-        try {
-          const data = Buffer.from(JSON.stringify(buildPayload(recipients, recipient)))
-          outcome = await send(connectionId, data)
-        } catch (error) {
-          counts.failed += 1
-          logger.error('ws.broadcast.unexpected-error', { connectionId, error })
-          return
-        }
-        if (outcome === 'sent') {
-          counts.sent += 1
-          return
-        }
-        if (outcome === 'gone') {
-          counts.gone += 1
-          await onGoneConnection?.(connectionId)
-          return
-        }
-        counts.failed += 1
-      })
-    )
+  const deliver = async (recipient: WebSocketConnection) => {
+    const { connectionId } = recipient
+    counts.attempted += 1
+    let outcome: SendOutcome
+    try {
+      const data = Buffer.from(JSON.stringify(buildPayload(recipients, recipient)))
+      outcome = await send(connectionId, data)
+    } catch (error) {
+      counts.failed += 1
+      logger.error('ws.broadcast.unexpected-error', { connectionId, error })
+      return
+    }
+    if (outcome === 'sent') {
+      counts.sent += 1
+      return
+    }
+    if (outcome === 'gone') {
+      counts.gone += 1
+      await onGoneConnection?.(connectionId)
+      return
+    }
+    counts.failed += 1
   }
+
+  // A pool of `concurrency` workers, each taking the next recipient as soon as its own is done, so
+  // one slow connection holds up one worker rather than a whole batch. A worker's own failure (the
+  // gone-connection cleanup rejecting) ends only that recipient, as the batches' allSettled did.
+  let next = 0
+  const work = async (): Promise<void> => {
+    const recipient = recipients[next++]
+    if (!recipient) return
+    await deliver(recipient).catch((error: unknown) =>
+      logger.error('ws.broadcast.unexpected-error', { connectionId: recipient.connectionId, error })
+    )
+    return work()
+  }
+  const workers = Math.min(Math.max(1, Math.floor(concurrency)), recipients.length)
+  await Promise.all(Array.from({ length: workers }, work))
 
   logger.info('ws.broadcast.summary', { ...counts })
   return counts

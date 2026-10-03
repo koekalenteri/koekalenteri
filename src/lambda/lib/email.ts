@@ -33,23 +33,32 @@ export const withoutPlusTag = (email: string) => {
   return at < 0 ? address : address.slice(0, plus) + address.slice(at)
 }
 
-const staffAddresses = new Map<string, boolean>()
+/**
+ * The lookups in flight and their answers, so the recipients of one message resolved together ask
+ * about each address once. A lookup that fails is forgotten, and the next message asks again.
+ */
+const staffAddresses = new Map<string, Promise<boolean>>()
 
 const isStaffUser = (user: JsonUser) =>
   !user.deletedAt && (user.admin === true || Object.values(user.roles ?? {}).some(Boolean))
 
-const isStaffAddress = async (address: string): Promise<boolean> => {
-  const cached = staffAddresses.get(address)
-  if (cached !== undefined) return cached
-
+const queryStaffAddress = async (address: string): Promise<boolean> => {
   const users = await userDB.query<JsonUser>({
     index: 'gsiEmail',
     key: 'email = :email',
     values: { ':email': address },
   })
-  const staff = users?.some(isStaffUser) ?? false
-  staffAddresses.set(address, staff)
-  return staff
+  return users?.some(isStaffUser) ?? false
+}
+
+const isStaffAddress = (address: string): Promise<boolean> => {
+  const cached = staffAddresses.get(address)
+  if (cached !== undefined) return cached
+
+  const lookup = queryStaffAddress(address)
+  staffAddresses.set(address, lookup)
+  void lookup.catch(() => staffAddresses.delete(address))
+  return lookup
 }
 
 /** The Amazon SES mailbox simulator: SES answers mail sent to it itself, and no person reads it. */
@@ -73,19 +82,15 @@ const isSesSimulatorAddress = (address: string) => {
 const deliverableRecipients = async (to: string[]): Promise<string[]> => {
   if (CONFIG.stageName === 'prod') return to
 
-  const deliverable: string[] = []
-  for (const recipient of to) {
-    const address = normalizeEmail(recipient)
-    const base = withoutPlusTag(address)
-    if (
-      isSesSimulatorAddress(address) ||
-      (await isStaffAddress(address)) ||
-      (base !== address && (await isStaffAddress(base)))
-    ) {
-      deliverable.push(recipient)
-    }
-  }
-  return deliverable
+  const verdicts = await Promise.all(to.map(isDeliverableRecipient))
+  return to.filter((_, index) => verdicts[index])
+}
+
+const isDeliverableRecipient = async (recipient: string): Promise<boolean> => {
+  const address = normalizeEmail(recipient)
+  if (isSesSimulatorAddress(address) || (await isStaffAddress(address))) return true
+  const base = withoutPlusTag(address)
+  return base !== address && isStaffAddress(base)
 }
 
 export const __resetStaffAddressCache = () => staffAddresses.clear()

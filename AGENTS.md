@@ -257,6 +257,13 @@ time instead of fixing it in a second commit.
   sync handler, write `void promise.catch(reportError)` when it can reject, or plain `void` when it
   cannot or already handles its own errors: `navigate(...)`, cached-collection setters, the
   publishing handlers.
+- **No `await` inside a loop (S9382).** Rows that do not depend on each other go through
+  `Promise.all` over a `map`; collect the per-row work in a named helper and let the caller fan it
+  out. Decide first, write second: `assignStartNumbers` validates every entry and queues the writes
+  as closures, then runs them, so a refused draw writes nothing. A walk whose next step depends on
+  the previous answer is a recursive function (`queryAllSeasons`); a bounded fan-out is a pool of
+  workers each taking the next item (`broadcast`). Sequential on purpose — the SES send rate in
+  `sendTemplatedEmailToEventRegistrations` — stays a loop, with the reason in the commit message.
 - Avoid `as const` on an array whose element types the caller needs to see as non-promise; the
   bare array literal already infers the tuple.
 
