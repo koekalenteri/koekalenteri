@@ -25,16 +25,19 @@ import { audit, auditStrict, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { cloneRegistrationPeople, normalizeRegistrationEmails } from './emailSuppression'
 import { repairReadyRegistrationGroups, updateRegistrations } from './event'
+import { httpError } from './lambda'
 import { logger } from './log'
 import {
   claimNewRegistrationPostProcessing,
   clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
   DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
+  findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
   getRegistrationEditToken,
   markNewRegistrationPhase,
   recordLastEmail,
+  registrationConflictBody,
 } from './registration'
 import { getRegistrationChanges } from './registrationAudit'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from './stats'
@@ -384,6 +387,27 @@ export const resolveDuplicateRegistration = async ({
 
   const completed = await completeNewRegistration({ ...options, groupPatches, registration: duplicate })
   return { completed, editToken: getRegistrationEditToken(completed) }
+}
+
+/**
+ * What both registration APIs ask before they create: does the dog already have a registration in
+ * the event, and if so, is this the retry of a creation that did not finish? The retry is completed
+ * and returned; any other duplicate is refused with 409. Nothing when the dog is new to the event.
+ */
+export const completeDuplicateRegistration = async (
+  options: Omit<ResolveDuplicateRegistrationOptions, 'duplicate'>
+): Promise<{ completed: JsonRegistration; editToken: string } | undefined> => {
+  const { registration } = options
+  const duplicate = await findExistingRegistrationToEventForDog(
+    registration.eventId ?? '',
+    registration.dog?.regNo ?? '',
+    registration.creationIdempotencyKey ?? undefined
+  )
+  if (!duplicate) return undefined
+
+  const resolved = await resolveDuplicateRegistration({ ...options, duplicate })
+  if ('conflict' in resolved) throw httpError(409, registrationConflictBody(resolved.conflict))
+  return resolved
 }
 
 interface FinalizeRegistrationUpdateOptions {

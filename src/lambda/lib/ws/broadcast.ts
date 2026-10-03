@@ -1,5 +1,6 @@
 import type { SendOutcome } from './gatewaySender'
 import type { WebSocketConnection } from './types'
+import { mapWithConcurrency } from '../../../lib/utils'
 import { logger } from '../../lib/log'
 import { sendToConnection } from './gatewaySender'
 
@@ -26,36 +27,38 @@ export const broadcast = async <TPayload>({
   log?.({ audience: recipients.length })
 
   const counts = { attempted: 0, failed: 0, gone: 0, sent: 0 }
-  const limit = Math.max(1, Math.floor(concurrency))
 
-  for (let offset = 0; offset < recipients.length; offset += limit) {
-    const batch = recipients.slice(offset, offset + limit)
-    await Promise.allSettled(
-      batch.map(async (recipient) => {
-        const { connectionId } = recipient
-        counts.attempted += 1
-        let outcome: SendOutcome
-        try {
-          const data = Buffer.from(JSON.stringify(buildPayload(recipients, recipient)))
-          outcome = await send(connectionId, data)
-        } catch (error) {
-          counts.failed += 1
-          logger.error('ws.broadcast.unexpected-error', { connectionId, error })
-          return
-        }
-        if (outcome === 'sent') {
-          counts.sent += 1
-          return
-        }
-        if (outcome === 'gone') {
-          counts.gone += 1
-          await onGoneConnection?.(connectionId)
-          return
-        }
-        counts.failed += 1
-      })
-    )
+  const deliver = async (recipient: WebSocketConnection) => {
+    const { connectionId } = recipient
+    counts.attempted += 1
+    let outcome: SendOutcome
+    try {
+      const data = Buffer.from(JSON.stringify(buildPayload(recipients, recipient)))
+      outcome = await send(connectionId, data)
+    } catch (error) {
+      counts.failed += 1
+      logger.error('ws.broadcast.unexpected-error', { connectionId, error })
+      return
+    }
+    if (outcome === 'sent') {
+      counts.sent += 1
+      return
+    }
+    if (outcome === 'gone') {
+      counts.gone += 1
+      await onGoneConnection?.(connectionId)
+      return
+    }
+    counts.failed += 1
   }
+
+  // A recipient's own failure (the gone-connection cleanup rejecting) ends only that recipient, as
+  // the batches' allSettled did before the pool.
+  await mapWithConcurrency(recipients, concurrency, (recipient) =>
+    deliver(recipient).catch((error: unknown) =>
+      logger.error('ws.broadcast.unexpected-error', { connectionId: recipient.connectionId, error })
+    )
+  )
 
   logger.info('ws.broadcast.summary', { ...counts })
   return counts

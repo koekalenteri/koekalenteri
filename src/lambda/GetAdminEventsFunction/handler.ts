@@ -42,22 +42,19 @@ const queryChangedSince = async (since: string): Promise<JsonDogEvent[]> => {
   return perSeason.flatMap((seasonEvents) => seasonEvents ?? [])
 }
 
-/** Every event there is, season by season, for the superadmin who may see them all. */
+/**
+ * Every event there is, season by season, for the superadmin who may see them all. Each season is
+ * read only once the one after it has answered: whether to go on depends on what it held.
+ */
 const queryAllSeasons = async (): Promise<JsonDogEvent[]> => {
-  const result: JsonDogEvent[] = []
-  let empty = 0
-
-  for (
-    let season = new Date().getFullYear() + 1;
-    season >= EARLIEST_SEASON && empty < EMPTY_SEASONS_TO_STOP;
-    season--
-  ) {
+  const walkBack = async (season: number, empty: number): Promise<JsonDogEvent[]> => {
+    if (season < EARLIEST_SEASON || empty >= EMPTY_SEASONS_TO_STOP) return []
     const seasonEvents = (await querySeason(season)) ?? []
-    empty = seasonEvents.length ? 0 : empty + 1
-    result.push(...seasonEvents)
+    const earlier = await walkBack(season - 1, seasonEvents.length ? 0 : empty + 1)
+    return [...seasonEvents, ...earlier]
   }
 
-  return result
+  return walkBack(new Date().getFullYear() + 1, 0)
 }
 
 /**

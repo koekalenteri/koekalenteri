@@ -14,7 +14,6 @@ import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import {
   applyOwnerOverrides,
-  findExistingRegistrationToEventForDog,
   getRegistration,
   getRegistrationEditToken,
   participantRegistrationResponse,
@@ -25,11 +24,11 @@ import {
 import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
 import {
   applyRegistrationPatchRequest,
+  completeDuplicateRegistration,
   completeNewRegistration,
   finalizeRegistrationUpdate,
   initializeNewRegistration,
   parseRegistrationRequest,
-  resolveDuplicateRegistration,
 } from '../lib/registrationWorkflow'
 
 /** What the audit trail says of a registration an organizer made. */
@@ -128,23 +127,14 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   registration = prepared.registration
 
   if (!update) {
-    const duplicate = await findExistingRegistrationToEventForDog(
-      registration.eventId ?? '',
-      registration.dog?.regNo ?? '',
-      registration.creationIdempotencyKey ?? undefined
-    )
-    if (duplicate) {
-      const resolved = await resolveDuplicateRegistration({
-        auditMessage: CREATED_AUDIT_MESSAGE,
-        confirmedEvent,
-        duplicate,
-        origin,
-        registration,
-        user,
-      })
-      if ('conflict' in resolved) throw httpError(409, registrationConflictBody(resolved.conflict))
-      return response(200, participantRegistrationResponse(resolved.completed, resolved.editToken), event)
-    }
+    const retried = await completeDuplicateRegistration({
+      auditMessage: CREATED_AUDIT_MESSAGE,
+      confirmedEvent,
+      origin,
+      registration,
+      user,
+    })
+    if (retried) return response(200, participantRegistrationResponse(retried.completed, retried.editToken), event)
     initializeNewRegistration(registration, timestamp, user, 'ready')
   }
 

@@ -202,6 +202,30 @@ export const splitEvenly = (total: number, count: number): number[] => {
 }
 
 /**
+ * `items.map(fn)` with at most `limit` calls in flight: a pool of `limit` workers, each taking the
+ * next item as soon as its own is done, so one slow call holds up one worker rather than a batch.
+ * The results keep the items' order. A rejected call rejects the whole map, as `Promise.all` does;
+ * a caller that wants every item attempted catches inside `fn`.
+ */
+export const mapWithConcurrency = async <T, R>(
+  items: readonly T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<R>
+): Promise<R[]> => {
+  const results: R[] = []
+  let next = 0
+  const work = async (): Promise<void> => {
+    const index = next++
+    if (index >= items.length) return
+    results[index] = await fn(items[index], index)
+    return work()
+  }
+  const workers = Math.min(Math.max(1, Math.floor(limit)), items.length)
+  await Promise.all(Array.from({ length: workers }, work))
+  return results
+}
+
+/**
  * `promise`, but rejecting once `ms` has passed without it settling. Only for waits that something
  * is blocked on: a promise that never settles has no error to report and no failure path to take,
  * so whatever is waiting for it waits forever, showing a spinner and nothing else (KOE-1463).

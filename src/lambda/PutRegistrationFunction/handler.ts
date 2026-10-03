@@ -1,3 +1,4 @@
+import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { AuditActor } from '../../lib/audit'
 import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
 import { isEntryOpen, isEventOver } from '../../lib/event'
@@ -26,7 +27,6 @@ import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import {
   applyOwnerOverrides,
   authorizeRegistrationEdit,
-  findExistingRegistrationToEventForDog,
   getRegistration,
   getRegistrationEditToken,
   hasRegistrationChanges,
@@ -37,11 +37,11 @@ import {
 import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
 import {
   applyRegistrationPatchRequest,
+  completeDuplicateRegistration,
   completeNewRegistration,
   finalizeRegistrationUpdate,
   initializeNewRegistration,
   parseRegistrationRequest,
-  resolveDuplicateRegistration,
 } from '../lib/registrationWorkflow'
 import { validateBody } from '../lib/request'
 
@@ -103,24 +103,64 @@ const buildPublicRegistrationData = (
   return { data, flags: { cancel, confirm, invitation: invitation.read } }
 }
 
-const putRegistrationLambda = lambda('putRegistration', async (event) => {
-  const timestamp = new Date().toISOString()
-  const linkOrigin = getFrontendOrigin(event)
+/** The request body as the registration to store, or as the operations to apply to a stored one. */
+const parsePublicRegistrationBody = (event: APIGatewayProxyEvent) => {
   const patchRequest = isPatchRequest(event)
-
   const body: Patch<JsonRegistration> | JsonRegistrationPatchRequest = parseJSONWithFallback(event.body)
   validateBody(registrationBodySchema, body)
 
   const request = parseRegistrationRequest(body, patchRequest)
   if ('invalid' in request) throw httpError(400, { message: `Bad request: ${request.invalid}` })
   const { operationRequest } = request
-  let registration = operationRequest
+  const registration = operationRequest
     ? request.registration
     : normalizeRegistrationEmails(publicRegistrationPatch(request.registration, Boolean(request.registration.id)))
 
   if (patchRequest && (!registration.eventId || !registration.id)) {
     throw httpError(400, { message: 'Bad request: PATCH requires eventId and id' })
   }
+
+  return { operationRequest, registration }
+}
+
+/**
+ * A registration for a dog the event does not have yet: refused while entry is closed, completed
+ * when it is the retry of a creation that did not finish, and otherwise started. The completed
+ * retry is returned; a started registration is initialized in place.
+ */
+const startNewRegistration = async (
+  registration: Patch<JsonRegistration>,
+  confirmedEvent: JsonConfirmedEvent,
+  user: AuditActor,
+  origin: string,
+  timestamp: string
+) => {
+  if (!isEntryOpen(confirmedEvent)) {
+    throw httpError(410, { message: 'Gone: Entry is not open' })
+  }
+  const retried = await completeDuplicateRegistration({
+    auditMessage: CREATED_AUDIT_MESSAGE,
+    confirmedEvent,
+    origin,
+    registration,
+    user,
+  })
+  if (retried) return retried
+
+  initializeNewRegistration(
+    registration,
+    timestamp,
+    user,
+    confirmedEvent.paymentTime === 'confirmation' ? 'ready' : 'creating'
+  )
+  return undefined
+}
+
+const putRegistrationLambda = lambda('putRegistration', async (event) => {
+  const timestamp = new Date().toISOString()
+  const linkOrigin = getFrontendOrigin(event)
+  const { operationRequest, registration: requested } = parsePublicRegistrationBody(event)
+  let registration = requested
 
   const { confirmedEvent, existing } = await getData(registration)
   if (!confirmedEvent || isEventOver(confirmedEvent)) {
@@ -139,32 +179,8 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     (await authorize(event)) ?? registrationActor(existing ? patchMerge(existing, registration) : registration)
 
   if (!existing) {
-    if (!isEntryOpen(confirmedEvent)) {
-      throw httpError(410, { message: 'Gone: Entry is not open' })
-    }
-    const duplicate = await findExistingRegistrationToEventForDog(
-      registration.eventId ?? '',
-      registration.dog?.regNo ?? '',
-      registration.creationIdempotencyKey ?? undefined
-    )
-    if (duplicate) {
-      const resolved = await resolveDuplicateRegistration({
-        auditMessage: CREATED_AUDIT_MESSAGE,
-        confirmedEvent,
-        duplicate,
-        origin: linkOrigin,
-        registration,
-        user,
-      })
-      if ('conflict' in resolved) throw httpError(409, registrationConflictBody(resolved.conflict))
-      return response(200, participantRegistrationResponse(resolved.completed, resolved.editToken), event)
-    }
-    initializeNewRegistration(
-      registration,
-      timestamp,
-      user,
-      confirmedEvent.paymentTime === 'confirmation' ? 'ready' : 'creating'
-    )
+    const retried = await startNewRegistration(registration, confirmedEvent, user, linkOrigin, timestamp)
+    if (retried) return response(200, participantRegistrationResponse(retried.completed, retried.editToken), event)
   }
 
   // modification info is always updated

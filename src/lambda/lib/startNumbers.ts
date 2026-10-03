@@ -7,7 +7,8 @@ import {
   getStartNumbersPublishedClassMap,
   startNumbersSlotKey,
 } from '../../lib/event'
-import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
+import { getRegistrationClass, isScorableRegistration, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
+import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -104,24 +105,34 @@ export const freezeStartNumbers = async (
     })
   }
 
-  const patches: Patch<JsonRegistration>[] = []
-  for (const registration of scoped) {
-    if (!registration.group?.date) continue
+  const patches = await mapWithConcurrency(scoped, REGISTRATION_WRITE_CONCURRENCY, (registration) =>
+    publishStartNumber(eventId, registration, user)
+  )
+  return patches.filter((patch) => patch !== undefined)
+}
 
-    // An existing snapshot is already the dog's own number — the venue's entered draw (KOE-1218) or
-    // an earlier publish. Freezing over it would replace the drawn numbers with the working order in
-    // the same request that makes them public, so publishing only fills the gaps. The number still
-    // goes public here, so the dog's trail records the publish either way (KOE-1355).
-    const startGroup = registration.startGroup ?? { ...registration.group }
-    if (!registration.startGroup) {
-      await updateRegistrationField(eventId, registration.id, 'startGroup', startGroup)
-      patches.push({ id: registration.id, startGroup })
-    }
+/**
+ * An existing snapshot is already the dog's own number — the venue's entered draw (KOE-1218) or an
+ * earlier publish. Freezing over it would replace the drawn numbers with the working order in the
+ * same request that makes them public, so publishing only fills the gaps. The number still goes
+ * public here, so the dog's trail records the publish either way (KOE-1355).
+ */
+const publishStartNumber = async (
+  eventId: string,
+  registration: JsonRegistration,
+  user: string
+): Promise<Patch<JsonRegistration> | undefined> => {
+  if (!registration.group?.date) return undefined
 
-    await auditStartNumber(registration, `Starttinumero julkaistu: ${startGroup.number}`, user)
+  const startGroup = registration.startGroup ?? { ...registration.group }
+  let patch: Patch<JsonRegistration> | undefined
+  if (!registration.startGroup) {
+    await updateRegistrationField(eventId, registration.id, 'startGroup', startGroup)
+    patch = { id: registration.id, startGroup }
   }
 
-  return patches
+  await auditStartNumber(registration, `Starttinumero julkaistu: ${startGroup.number}`, user)
+  return patch
 }
 
 /**
@@ -171,7 +182,6 @@ export const assignStartNumbers = async (
   entries: StartNumberEntry[],
   user: string
 ): Promise<Patch<JsonRegistration>[]> => {
-  const patches: Patch<JsonRegistration>[] = []
   const byId = new Map(registrations.map((registration) => [registration.id, registration]))
 
   for (const entry of entries) {
@@ -183,6 +193,9 @@ export const assignStartNumbers = async (
 
   const requested = new Map(entries.map((entry) => [entry.id, entry.startNumber]))
 
+  // Every number is checked before any is written, so a refused draw leaves the numbers as they
+  // were instead of half-entered.
+  const writes: Array<() => Promise<Patch<JsonRegistration>>> = []
   for (const entry of entries) {
     const registration = byId.get(entry.id)
     if (!registration) continue
@@ -191,46 +204,71 @@ export const assignStartNumbers = async (
       throw new LambdaError(422, `Registration '${entry.id}' has no start slot to number`)
     }
 
-    for (const other of registrations) {
-      if (other.id === entry.id) continue
-
-      const otherNumber = requested.get(other.id) ?? other.startGroup?.number
-      if (otherNumber !== entry.startNumber) continue
-
-      // Two dogs asked for the same number in one draw: a form bug or two phones colliding.
-      if (requested.has(other.id)) {
-        throw refusedNumber('startNumberAssignedTwice', entry.startNumber, `assigned twice`)
-      }
-
-      // A holder that is no longer running yields its slot: this is how the secretary fills a
-      // vacated place, and yielding it removes the POISSA row from the public list "kunnolla", as
-      // KOE-1218 asks. A dog moved back to the reserve list releases its number on the move itself
-      // (KOE-1428); one demoted before that was so still holds one, and yields it here the same.
-      if (!isScorableRegistration(other)) {
-        patches.push(await releaseStartNumber(eventId, other, entry.startNumber, user))
-        continue
-      }
-
-      throw refusedNumber(
-        'startNumberTaken',
-        entry.startNumber,
-        `is already taken`,
-        getRegistrationClass(other) ?? undefined
-      )
+    for (const holder of yieldingHolders(entry, registrations, requested)) {
+      writes.push(() => releaseStartNumber(eventId, holder, entry.startNumber, user))
     }
 
     const startGroup = { ...placement, number: entry.startNumber }
-    await updateRegistrationField(eventId, entry.id, 'startGroup', startGroup)
-    patches.push({ id: entry.id, startGroup })
-
-    // The previous number is part of the answer: a corrected entry reads as the correction it is,
-    // not as a number that has always been the dog's (KOE-1355).
-    const previous = registration.startGroup?.number
-    const change = previous !== undefined && previous !== entry.startNumber ? `${previous} -> ` : ''
-    await auditStartNumber(registration, `Starttinumero tallennettu: ${change}${entry.startNumber}`, user)
+    writes.push(() => writeStartNumber(eventId, registration, startGroup, user))
   }
 
-  return patches
+  return mapWithConcurrency(writes, REGISTRATION_WRITE_CONCURRENCY, (write) => write())
+}
+
+/**
+ * The dogs that give up the number an entry asks for, or the refusal when one of them may not.
+ *
+ * A holder that is no longer running yields its slot: this is how the secretary fills a vacated
+ * place, and yielding it removes the POISSA row from the public list "kunnolla", as KOE-1218 asks.
+ * A dog moved back to the reserve list releases its number on the move itself (KOE-1428); one
+ * demoted before that was so still holds one, and yields it here the same.
+ */
+const yieldingHolders = (
+  entry: StartNumberEntry,
+  registrations: JsonRegistration[],
+  requested: Map<string, number>
+): JsonRegistration[] => {
+  const yielding: JsonRegistration[] = []
+  for (const other of registrations) {
+    if (other.id === entry.id) continue
+
+    const otherNumber = requested.get(other.id) ?? other.startGroup?.number
+    if (otherNumber !== entry.startNumber) continue
+
+    // Two dogs asked for the same number in one draw: a form bug or two phones colliding.
+    if (requested.has(other.id)) {
+      throw refusedNumber('startNumberAssignedTwice', entry.startNumber, `assigned twice`)
+    }
+
+    if (!isScorableRegistration(other)) {
+      yielding.push(other)
+      continue
+    }
+
+    throw refusedNumber(
+      'startNumberTaken',
+      entry.startNumber,
+      `is already taken`,
+      getRegistrationClass(other) ?? undefined
+    )
+  }
+  return yielding
+}
+
+const writeStartNumber = async (
+  eventId: string,
+  registration: JsonRegistration,
+  startGroup: NonNullable<JsonRegistration['startGroup']>,
+  user: string
+): Promise<Patch<JsonRegistration>> => {
+  await updateRegistrationField(eventId, registration.id, 'startGroup', startGroup)
+
+  // The previous number is part of the answer: a corrected entry reads as the correction it is,
+  // not as a number that has always been the dog's (KOE-1355).
+  const previous = registration.startGroup?.number
+  const change = previous !== undefined && previous !== startGroup.number ? `${previous} -> ` : ''
+  await auditStartNumber(registration, `Starttinumero tallennettu: ${change}${startGroup.number}`, user)
+  return { id: registration.id, startGroup }
 }
 
 /** The stored entries of a scope as slot keys; a stored day may have come back as a date. */

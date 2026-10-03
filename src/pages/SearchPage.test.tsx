@@ -97,19 +97,15 @@ describe('SearchPage', () => {
     expect(screen.queryAllByRole('article')).toHaveLength(0)
   })
 
-  it('filters by event type', async () => {
-    // start is required for fetching events
-    await renderPage('/?s=2021-01-01&t=NOME-B', locales.fi)
+  // start is required for fetching events
+  it.each([
+    ['event type', '/?s=2021-01-01&t=NOME-B', 'NOME-B'],
+    ['event class', '/?s=2021-01-01&c=AVO', 'AVO'],
+    ['judge', '/?j=Tuomari%202', 'Tuomari 2'],
+  ])('filters by %s', async (_filter, url, chip) => {
+    await renderPage(url, locales.fi)
     await flushPage()
-    expect(screen.getByRole('button', { name: 'NOME-B' })).toBeInTheDocument()
-    expect(screen.getAllByRole('article')).toHaveLength(5)
-  })
-
-  it('filters by event class', async () => {
-    // start is required for fetching events
-    await renderPage('/?s=2021-01-01&c=AVO', locales.fi)
-    await flushPage()
-    expect(screen.getByRole('button', { name: 'AVO' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: chip })).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
@@ -120,13 +116,6 @@ describe('SearchPage', () => {
     expect(screen.getByRole('button', { name: 'Järjestäjä 2' })).toBeInTheDocument()
     expect(screen.getByText(/filter.results count/i)).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(1)
-  })
-
-  it('filters by judge', async () => {
-    await renderPage('/?j=Tuomari%202', locales.fi)
-    await flushPage()
-    expect(screen.getByRole('button', { name: 'Tuomari 2' })).toBeInTheDocument()
-    expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
   it('filters by entryUpcoming', async () => {
