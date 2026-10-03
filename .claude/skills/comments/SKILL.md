@@ -1,9 +1,9 @@
 ---
-name: feedback
-description: Go through the comments testers and users have left on Jira issues that are in progress or in testing, and react to each one — answer a question, start a fix for a finding, or bring a decision to the user. Fixes run through the same implementer, reviewers and CI watcher as /ticket. Use for "katso tikettien kommentit ja reagoi niihin" or "/feedback".
+name: comments
+description: Go through the comments testers and users have left on Jira issues that are in progress or in testing, and react to each one — answer a question, start a fix for a finding, or bring a decision to the user. Fixes run through the same implementer, reviewers and CI watcher as /ticket. Use for "katso tikettien kommentit ja reagoi niihin" or "/comments".
 ---
 
-# /feedback [days]
+# /comments [days]
 
 This session orchestrates, as in `/ticket` (`.claude/skills/ticket/SKILL.md`). It reads, sorts
 and answers; code changes go to implementers.
@@ -11,7 +11,7 @@ and answers; code changes go to implementers.
 ## 1. Find what is open
 
 ```
-.claude/skills/feedback/open-comments.sh [days]
+.claude/skills/comments/open-comments.sh [days]
 ```
 
 One line per issue: key, status, type, number of open comments, their comment ids, `TRUNCATED`

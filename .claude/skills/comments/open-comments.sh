@@ -5,7 +5,7 @@
 # testattavissa" comments. Those do not answer anyone, so they are skipped when finding the last
 # reply; every other comment by someone else after the last reply is open.
 #
-# Usage: .claude/skills/feedback/open-comments.sh [days]   (default 30)
+# Usage: .claude/skills/comments/open-comments.sh [days]   (default 30)
 set -euo pipefail
 
 root=$(git rev-parse --show-toplevel)
