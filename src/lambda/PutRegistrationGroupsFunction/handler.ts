@@ -6,8 +6,10 @@ import {
   GROUP_KEY_RESERVE,
   getRegistrationGroupKey,
   isParticipantGroup,
+  REGISTRATION_WRITE_CONCURRENCY,
 } from '../../lib/registration'
 import { applyRegistrationGroupMoves } from '../../lib/registrationGroups'
+import { mapWithConcurrency } from '../../lib/utils'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
@@ -66,13 +68,11 @@ const updateItems = async (oldItems: JsonRegistration[], moves: RegistrationGrou
   // one another.
   const oldById = new Map(oldItems.map((item) => [item.id, item]))
   const changed = updatedItems.filter((reg) => hasGroupChanged(reg, oldById.get(reg.id)))
-  await Promise.all(
-    changed.map((reg) => {
-      const old = oldById.get(reg.id)
-      const reason = moves.some((move) => move.id === reg.id) ? 'siirto' : 'seuraus'
-      return saveChangedGroup(reg, old, user, reason)
-    })
-  )
+  await mapWithConcurrency(changed, REGISTRATION_WRITE_CONCURRENCY, (reg) => {
+    const old = oldById.get(reg.id)
+    const reason = moves.some((move) => move.id === reg.id) ? 'siirto' : 'seuraus'
+    return saveChangedGroup(reg, old, user, reason)
+  })
 
   return updatedItems
 }
@@ -263,14 +263,12 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user
     )
 
-    await Promise.all(
-      awaitingPayment.map((reg) =>
-        audit({
-          auditKey: registrationAuditKey(reg),
-          message: 'Koekutsu lähetetään, kun koepaikka on maksettu',
-          user: user.name,
-        })
-      )
+    await mapWithConcurrency(awaitingPayment, REGISTRATION_WRITE_CONCURRENCY, (reg) =>
+      audit({
+        auditKey: registrationAuditKey(reg),
+        message: 'Koekutsu lähetetään, kun koepaikka on maksettu',
+        user: user.name,
+      })
     )
 
     /**

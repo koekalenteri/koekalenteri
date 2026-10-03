@@ -7,7 +7,8 @@ import {
   getStartNumbersPublishedClassMap,
   startNumbersSlotKey,
 } from '../../lib/event'
-import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
+import { getRegistrationClass, isScorableRegistration, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
+import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -104,7 +105,9 @@ export const freezeStartNumbers = async (
     })
   }
 
-  const patches = await Promise.all(scoped.map((registration) => publishStartNumber(eventId, registration, user)))
+  const patches = await mapWithConcurrency(scoped, REGISTRATION_WRITE_CONCURRENCY, (registration) =>
+    publishStartNumber(eventId, registration, user)
+  )
   return patches.filter((patch) => patch !== undefined)
 }
 
@@ -209,7 +212,7 @@ export const assignStartNumbers = async (
     writes.push(() => writeStartNumber(eventId, registration, startGroup, user))
   }
 
-  return Promise.all(writes.map((write) => write()))
+  return mapWithConcurrency(writes, REGISTRATION_WRITE_CONCURRENCY, (write) => write())
 }
 
 /**

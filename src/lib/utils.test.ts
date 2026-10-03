@@ -26,6 +26,7 @@ import {
   isDateString,
   isEmpty,
   isObject,
+  mapWithConcurrency,
   merge,
   parseDateOnlyString,
   parseJSON,
@@ -804,6 +805,46 @@ describe('utils', () => {
 
     it('returns zeros when total is zero', () => {
       expect(splitEvenly(0, 3)).toEqual([0, 0, 0])
+    })
+  })
+
+  describe('mapWithConcurrency', () => {
+    it('maps every item in order with the result of each', async () => {
+      const results = await mapWithConcurrency([3, 1, 2], 2, async (item, index) => `${index}:${item * 10}`)
+
+      expect(results).toEqual(['0:30', '1:10', '2:20'])
+    })
+
+    it('keeps at most the limit in flight and starts the items in order', async () => {
+      let active = 0
+      let maxActive = 0
+      const started: number[] = []
+      const results = await mapWithConcurrency([1, 2, 3, 4, 5], 2, async (item) => {
+        started.push(item)
+        active += 1
+        maxActive = Math.max(maxActive, active)
+        await Promise.resolve()
+        active -= 1
+        return item
+      })
+
+      expect(maxActive).toBe(2)
+      expect(started).toEqual([1, 2, 3, 4, 5])
+      expect(results).toEqual([1, 2, 3, 4, 5])
+    })
+
+    it('does not start more workers than there are items, and at least one', async () => {
+      expect(await mapWithConcurrency([], 10, async (item: number) => item)).toEqual([])
+      expect(await mapWithConcurrency([7], 0, async (item) => item + 1)).toEqual([8])
+    })
+
+    it('rejects when a call rejects', async () => {
+      await expect(
+        mapWithConcurrency([1, 2], 1, async (item) => {
+          if (item === 2) throw new Error('second failed')
+          return item
+        })
+      ).rejects.toThrow('second failed')
     })
   })
 

@@ -35,9 +35,12 @@ export const withoutPlusTag = (email: string) => {
 
 /**
  * The lookups in flight and their answers, so the recipients of one message resolved together ask
- * about each address once. A lookup that fails is forgotten, and the next message asks again.
+ * about each address once. A lookup that fails is forgotten, and the next message asks again. An
+ * answer expires after a few minutes: the map lives as long as the warm Lambda does, and a role
+ * granted or taken away must reach the next message, not the next cold start.
  */
-const staffAddresses = new Map<string, Promise<boolean>>()
+const staffAddresses = new Map<string, { expiresAt: number; verdict: Promise<boolean> }>()
+const STAFF_ADDRESS_TTL_MS = 5 * 60 * 1000
 
 const isStaffUser = (user: JsonUser) =>
   !user.deletedAt && (user.admin === true || Object.values(user.roles ?? {}).some(Boolean))
@@ -53,12 +56,12 @@ const queryStaffAddress = async (address: string): Promise<boolean> => {
 
 const isStaffAddress = (address: string): Promise<boolean> => {
   const cached = staffAddresses.get(address)
-  if (cached !== undefined) return cached
+  if (cached && cached.expiresAt > Date.now()) return cached.verdict
 
-  const lookup = queryStaffAddress(address)
-  staffAddresses.set(address, lookup)
-  void lookup.catch(() => staffAddresses.delete(address))
-  return lookup
+  const verdict = queryStaffAddress(address)
+  staffAddresses.set(address, { expiresAt: Date.now() + STAFF_ADDRESS_TTL_MS, verdict })
+  void verdict.catch(() => staffAddresses.delete(address))
+  return verdict
 }
 
 /** The Amazon SES mailbox simulator: SES answers mail sent to it itself, and no person reads it. */

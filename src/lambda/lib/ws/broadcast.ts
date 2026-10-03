@@ -1,5 +1,6 @@
 import type { SendOutcome } from './gatewaySender'
 import type { WebSocketConnection } from './types'
+import { mapWithConcurrency } from '../../../lib/utils'
 import { logger } from '../../lib/log'
 import { sendToConnection } from './gatewaySender'
 
@@ -51,20 +52,13 @@ export const broadcast = async <TPayload>({
     counts.failed += 1
   }
 
-  // A pool of `concurrency` workers, each taking the next recipient as soon as its own is done, so
-  // one slow connection holds up one worker rather than a whole batch. A worker's own failure (the
-  // gone-connection cleanup rejecting) ends only that recipient, as the batches' allSettled did.
-  let next = 0
-  const work = async (): Promise<void> => {
-    const recipient = recipients[next++]
-    if (!recipient) return
-    await deliver(recipient).catch((error: unknown) =>
+  // A recipient's own failure (the gone-connection cleanup rejecting) ends only that recipient, as
+  // the batches' allSettled did before the pool.
+  await mapWithConcurrency(recipients, concurrency, (recipient) =>
+    deliver(recipient).catch((error: unknown) =>
       logger.error('ws.broadcast.unexpected-error', { connectionId: recipient.connectionId, error })
     )
-    return work()
-  }
-  const workers = Math.min(Math.max(1, Math.floor(concurrency)), recipients.length)
-  await Promise.all(Array.from({ length: workers }, work))
+  )
 
   logger.info('ws.broadcast.summary', { ...counts })
   return counts

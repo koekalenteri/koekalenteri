@@ -34,6 +34,15 @@ import { isObject, unique } from './utils'
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
 
+/**
+ * How many of one event's registration rows are written at once when a request touches many: a
+ * start list publish, a draw, a move that renumbers a class. The rows of one event share a DynamoDB
+ * partition (the table's hash key is eventId), whose write rate is capped whatever the table's
+ * billing mode, and each write audits and broadcasts in turn. Ten keeps a class's worth of writes
+ * well under that cap and well under the SDK's socket pool; a limit here, not an implicit one there.
+ */
+export const REGISTRATION_WRITE_CONCURRENCY = 10
+
 /** Key of the sole owner when there is no sibling to disambiguate from (fresh drafts, legacy records). */
 export const DEFAULT_OWNER_KEY = 'owner-1'
 
