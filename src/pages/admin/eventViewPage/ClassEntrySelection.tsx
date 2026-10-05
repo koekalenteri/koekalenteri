@@ -297,6 +297,7 @@ const ClassEntrySelection = ({
     canArrangeReserve,
     confirm,
     disabled: movementDisabled,
+    event,
     onCancelOpen: handleCancel,
     registrations,
     saveGroups: actions.saveGroups,
@@ -313,13 +314,14 @@ const ClassEntrySelection = ({
     (registration: Registration, toGroupKey: string) =>
       confirmMoveToParticipants({
         confirm,
-        dogName: registration.dog.name,
+        event,
         fromGroupKey: getRegistrationGroupKey(registration),
+        registration,
         state,
         t,
         toGroupKey,
       }),
-    [confirm, state, t]
+    [confirm, event, state, t]
   )
 
   const handleMoveToGroup = useCallback(

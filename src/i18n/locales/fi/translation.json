@@ -450,6 +450,7 @@
       "moveToParticipants": {
         "confirm": "Lisää osallistujiin",
         "description": "Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta. Oletko varma että haluat lisätä koiran {{dogName}} osallistujiin?",
+        "description_awaitingPayment": "Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta. Koekutsu lähetetään vasta, kun koepaikka on maksettu. Oletko varma että haluat lisätä koiran {{dogName}} osallistujiin?",
         "description_invited": "Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta sekä koekutsu. Oletko varma että haluat lisätä koiran {{dogName}} osallistujiin?",
         "title": "Olet lisäämässä koiraa {{dogName}} osallistujiin"
       },

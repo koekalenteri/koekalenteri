@@ -1,6 +1,7 @@
 import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '@/types'
 import type { DragItem } from './types'
 import { renderHook } from '@testing-library/react'
+import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import { recordEvent } from '@/lib/client/rum'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 import { determineChangesFromDrop } from './dnd'
@@ -40,6 +41,8 @@ describe('useDnDHandlers', () => {
     group: { key: 'group1', number: 1 },
     id: 'reg1',
     modifiedAt: new Date(),
+    // A paid place: the prompt reads it to promise the koekutsu with the place.
+    paymentStatus: 'SUCCESS',
     // The handlers read only the fields above; the minimal fixture converts here.
   } as unknown as Registration
 
@@ -67,6 +70,7 @@ describe('useDnDHandlers', () => {
   const defaultProps = {
     canArrangeReserve: true,
     confirm: mockConfirm,
+    event: eventWithStaticDatesAnd3Classes,
     onCancelOpen: mockOnCancelOpen,
     registrations: mockRegistrations,
     saveGroups: mockSaveGroups,
@@ -146,6 +150,7 @@ describe('useDnDHandlers', () => {
       const props = {
         ...defaultProps,
         confirm: mockConfirmWithStructure,
+        event: { ...eventWithStaticDatesAnd3Classes, state: 'invited' as const },
         state: 'invited' as const,
       }
 

@@ -1,4 +1,5 @@
 import type {
+  DogEvent,
   EventClassState,
   EventState,
   Registration,
@@ -19,6 +20,7 @@ import { confirmMoveToParticipants } from './moveConfirmation'
 
 interface UseDnDHandlersArgs {
   disabled?: boolean
+  event: DogEvent
   registrations: Registration[]
   state?: EventClassState | EventState
   canArrangeReserve: boolean
@@ -38,6 +40,7 @@ const findAnchor = (change: Pick<Registration, 'group' | 'id'>, registrations: R
 }
 
 export const useDnDHandlers = ({
+  event,
   registrations,
   state,
   disabled,
@@ -58,8 +61,9 @@ export const useDnDHandlers = ({
 
     const mayMove = await confirmMoveToParticipants({
       confirm,
-      dogName: reg.dog.name,
+      event,
       fromGroupKey: item.groupKey,
+      registration: reg,
       state,
       t,
       toGroupKey: group.key,
