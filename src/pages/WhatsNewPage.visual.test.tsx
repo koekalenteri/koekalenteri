@@ -9,7 +9,9 @@ import '../index.css'
 import { DataMemoryRouter } from '../test-utils/utils'
 import { WhatsNewPage } from './WhatsNewPage'
 
-// Tall enough for the newest release in full; the older ones below it are the same shape.
+// The page lists every release, newest first, and grows with each one; whatever lies below the
+// viewport is left unpainted, and the viewport cannot grow past the browser window. So the shot
+// is of the newest release alone, with the viewport sized to it; the older ones are the same shape.
 const VIEWPORT = { height: 900, width: 900 }
 
 vi.mock('./components/Header', () => ({ default: () => null }))
@@ -27,5 +29,8 @@ it('shows the newest release first', async () => {
   )
 
   await expect.element(screen.getByRole('heading', { name: 'Uutta koekalenterissa' })).toBeVisible()
-  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('whats-new')
+  const newest = screen.container.querySelector('section')
+  if (!newest) throw new Error('the page has no release section')
+  await page.viewport(VIEWPORT.width, Math.ceil(newest.getBoundingClientRect().bottom))
+  await expect(page.elementLocator(newest)).toMatchScreenshot('whats-new')
 })

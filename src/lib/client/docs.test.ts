@@ -47,7 +47,14 @@ describe('docs', () => {
   describe('releaseNotesFor', () => {
     it('gives the releases newest first, in the reader’s language', () => {
       const versions = releaseNotesFor('en').map((note) => note.version)
-      expect(versions.slice(0, 2)).toEqual(['1.11.2', '1.11.1'])
+      // Newest first by version, not by text: 2.0.0 comes before 1.11.2, and 1.11.2 before 1.11.1.
+      const newestFirst = (a: string, b: string) => {
+        const [major, minor, patch] = a.split('.').map(Number)
+        const [bMajor, bMinor, bPatch] = b.split('.').map(Number)
+        return bMajor - major || bMinor - minor || bPatch - patch
+      }
+      expect(versions).toEqual([...versions].sort(newestFirst))
+      expect(versions).toContain('1.11.2')
       expect(releaseNotesFor('en')[0].html).toContain('<h2>New</h2>')
       expect(releaseNotesFor('fi')[0].html).toContain('<h2>Uutta</h2>')
     })
