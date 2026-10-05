@@ -6,6 +6,7 @@ import { elemOf, isObj, resolveForCompletion, resolveScopeBaseForPath } from './
 const HELPERS = new Set(['if', 'unless', 'each', 'else'])
 
 const mustacheRe = /{{{?([^{}]*?)}}}?/g // naive but effective for linting
+const blockParamsRe = /\bas\s+\|[^|]*\|/g
 const identPathRe = /\b[A-Za-z_@][\w$]*(?:\.[A-Za-z_][\w$]*)*\b/g
 
 type PathValidation = { ok: true } | { ok: false; badIdx: number }
@@ -83,7 +84,10 @@ export const getLintSource =
     for (const m of doc.matchAll(mustacheRe)) {
       const inner = m[1]
       const innerStart = m.index + (m[0].startsWith('{{{') ? 3 : 2)
-      const stripped = inner.replaceAll(/"(?:\\.|[^"]*)"|'(?:\\.|[^']*)'/g, (s) => ' '.repeat(s.length))
+      const stripped = inner
+        .replaceAll(/"(?:\\.|[^"]*)"|'(?:\\.|[^']*)'/g, (s) => ' '.repeat(s.length))
+        // Block params (`as |item index|`) declare names, they do not read fields.
+        .replaceAll(blockParamsRe, (s) => ' '.repeat(s.length))
 
       for (const idm of stripped.matchAll(identPathRe)) {
         const full = idm[0]

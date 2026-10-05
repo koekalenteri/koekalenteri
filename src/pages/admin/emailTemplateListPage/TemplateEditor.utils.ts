@@ -59,9 +59,14 @@ const resolveStartBaseAndParts = (raw: string, allScopes: EachScope[]) => {
   }
 
   // If first segment equals any visible alias, switch to that base and consume it
-  const aliasOwner = parts[0] && [...scopeStack].reverse().find((s) => s.alias === parts[0])
+  const visible = [...scopeStack].reverse()
+  const aliasOwner = parts[0] && visible.find((s) => s.alias === parts[0])
   if (aliasOwner) {
     startBase = aliasOwner.base
+    parts.shift()
+  } else if (parts[0] && visible.some((s) => s.indexAlias === parts[0])) {
+    // The index alias is a number (or a key), it has no fields of its own
+    startBase = 'number'
     parts.shift()
   }
   return { parts, startBase }
@@ -80,9 +85,10 @@ function buildEachScopes(doc: string, pos: number, root: Schema): EachScope[] {
   }
 
   for (let m = tagRe.exec(doc); m; m = tagRe.exec(doc)) {
-    const start = m.index
     const full = m[1].trim()
-    if (start >= pos) break
+    // A tag opens its scope only for what follows it: the fields named in the {{#each ...}}
+    // itself still live in the enclosing scope (KOE-1499).
+    if (m.index + m[0].length > pos) break
 
     if (isCloseEach(full)) {
       if (scopes.length > 1) scopes.pop()
