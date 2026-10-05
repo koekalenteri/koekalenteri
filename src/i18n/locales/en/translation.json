@@ -450,6 +450,7 @@
       "moveToParticipants": {
         "confirm": "Add to participants",
         "description": "Once the dog has been added, it is sent a confirmation of its place. Are you sure you want to add the dog {{dogName}} to the participants?",
+        "description_awaitingPayment": "Once the dog has been added, it is sent a confirmation of its place. The invitation is sent only once the place has been paid for. Are you sure you want to add the dog {{dogName}} to the participants?",
         "description_invited": "Once the dog has been added, it is sent a confirmation of its place and the invitation. Are you sure you want to add the dog {{dogName}} to the participants?",
         "title": "You are adding the dog {{dogName}} to the participants"
       },
