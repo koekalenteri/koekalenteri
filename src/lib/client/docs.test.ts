@@ -55,8 +55,10 @@ describe('docs', () => {
       }
       expect(versions).toEqual([...versions].sort(newestFirst))
       expect(versions).toContain('1.11.2')
-      expect(releaseNotesFor('en')[0].html).toContain('<h2>New</h2>')
-      expect(releaseNotesFor('fi')[0].html).toContain('<h2>Uutta</h2>')
+      // A known release, not the newest: a patch release may have no new features to list.
+      const notes = (language: string) => releaseNotesFor(language).find((note) => note.version === '1.11.2')?.html
+      expect(notes('en')).toContain('<h2>New</h2>')
+      expect(notes('fi')).toContain('<h2>Uutta</h2>')
     })
 
     it('falls back to Finnish for a language with no notes', () => {
