@@ -109,6 +109,75 @@ describe('adminEventsRemoteAtom', () => {
 
       await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toHaveLength(4))
     })
+
+    it('does not hide the fetched list after a write of a whole list, as a websocket patch makes', async () => {
+      const { resolveNext, store } = await startRefresh()
+      store.set(adminEventsRemoteAtom, [...(await store.get(adminEventsRemoteAtom)), third])
+
+      resolveNext([first, second, third, event('fourth', '2026-05-01', '2026-01-03')])
+
+      await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toHaveLength(4))
+    })
+
+    it('keeps a write the fetch was requested before', async () => {
+      const { resolveNext, store } = await startRefresh()
+      const saved = { ...first, name: 'saved' }
+      store.set(adminEventsRemoteAtom, (events) => [saved, ...events.slice(1), third])
+
+      resolveNext([first, second, event('fourth', '2026-05-01', '2026-01-03')])
+
+      await vi.waitFor(() =>
+        expect(store.get(adminEventsRemoteAtom)).toEqual([
+          saved,
+          second,
+          third,
+          event('fourth', '2026-05-01', '2026-01-03'),
+        ])
+      )
+    })
+
+    it('lets the fetch replace a written event it carries a newer version of', async () => {
+      const { resolveNext, store } = await startRefresh()
+      store.set(adminEventsRemoteAtom, (events) => [{ ...events[0], name: 'saved' }, ...events.slice(1)])
+      const newer = { ...event('first', '2026-02-01', '2026-01-05'), name: 'newer' }
+
+      resolveNext([newer, second])
+
+      await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([newer, second]))
+    })
+  })
+
+  it('keeps showing the local list when the next fetch fails', async () => {
+    vi.mocked(getAdminEvents).mockResolvedValueOnce([first]).mockRejectedValueOnce(new Error('network'))
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
+    store.set(adminEventsRemoteAtom, (events) => [...events, second])
+    store.sub(adminEventsRemoteAtom, () => undefined)
+
+    store.set(idTokenAtom, NEXT_ID_TOKEN)
+    await vi.waitFor(() => expect(getAdminEvents).toHaveBeenCalledTimes(2))
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(store.get(adminEventsRemoteAtom)).toEqual([first, second])
+  })
+
+  it('does not serve the previous login’s local list while the next login’s fetch is pending', async () => {
+    vi.mocked(getAdminEvents)
+      .mockResolvedValueOnce([first])
+      .mockReturnValueOnce(new Promise(() => undefined))
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
+    store.set(adminEventsRemoteAtom, [first, second])
+    store.sub(adminEventsRemoteAtom, () => undefined)
+
+    store.set(idTokenAtom, undefined)
+    await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([]))
+    store.set(idTokenAtom, NEXT_ID_TOKEN)
+    await vi.waitFor(() => expect(getAdminEvents).toHaveBeenCalledTimes(2))
+
+    expect(store.get(adminEventsRemoteAtom)).toEqual([])
   })
 
   it('lets a local write after the new fetch build on the new list', async () => {
