@@ -1,3 +1,4 @@
+import type { Getter } from 'jotai'
 import type { DogEvent, User } from '@/types'
 import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
@@ -24,20 +25,6 @@ export const reconcileAdminEvents = (existing: DogEvent[], changed: DogEvent[]):
   return sortEvents([...byId.values()])
 }
 
-const remoteAdminEventsAtom = atom(async (get) => {
-  const token = get(validIdTokenAtom)
-  const user = await get(userAtom)
-  if (!token || !user) return []
-
-  const scopeKey = 'adminEvents:scope'
-  const stored = parseStorageJSON(sessionStorage.getItem('adminEvents'))
-  const cached = sessionStorage.getItem(scopeKey) === cacheScope(user) && Array.isArray(stored) ? stored : undefined
-  const since = cached ? latestCollectionUpdate(cached)?.getTime() : undefined
-  const events = await getAdminEvents(token, since)
-
-  sessionStorage.setItem(scopeKey, cacheScope(user))
-  return cached && since ? reconcileAdminEvents(cached, events) : sortEvents(events)
-})
 type LocalAdminEvents = { events: DogEvent[]; fetchKey: string }
 
 /**
@@ -46,31 +33,59 @@ type LocalAdminEvents = { events: DogEvent[]; fetchKey: string }
  */
 const fetchKeyAtom = atom((get) => `${get(userRefreshAtom)}:${get(validIdTokenAtom) ?? ''}`)
 
+// The list is returned with the key it was fetched for, so a settled fetch can be told apart from
+// the previous one that unwrap may still hold while the next is pending.
+const remoteAdminEventsAtom = atom(async (get): Promise<LocalAdminEvents> => {
+  const fetchKey = get(fetchKeyAtom)
+  const token = get(validIdTokenAtom)
+  const user = await get(userAtom)
+  if (!token || !user) return { events: [], fetchKey }
+
+  const scopeKey = 'adminEvents:scope'
+  const stored = parseStorageJSON(sessionStorage.getItem('adminEvents'))
+  const cached = sessionStorage.getItem(scopeKey) === cacheScope(user) && Array.isArray(stored) ? stored : undefined
+  const since = cached ? latestCollectionUpdate(cached)?.getTime() : undefined
+  const events = await getAdminEvents(token, since)
+
+  sessionStorage.setItem(scopeKey, cacheScope(user))
+  return { events: cached && since ? reconcileAdminEvents(cached, events) : sortEvents(events), fetchKey }
+})
+
 /**
  * A list written locally (a save, a websocket patch), layered on the fetch it was made during. It
  * is served only while that fetch is the current one: a new fetch, after a token refresh or a new
  * login, replaces the local list instead of staying hidden under it (KOE-1500).
  */
 const adminEventsOverrideAtom = atom<LocalAdminEvents | undefined>(undefined)
-const localAdminEvents = (local: LocalAdminEvents | undefined, fetchKey: string) =>
-  local?.fetchKey === fetchKey ? local.events : undefined
 // Once the fetch has settled, serve the list synchronously: a dependent reading it in a plain
 // getter (adminEventAtom) then gets the array instead of chaining a fresh `.then` Promise for
 // every new event id, which would suspend its subscribers on each selection.
 const loadedAdminEventsAtom = unwrap(remoteAdminEventsAtom)
 
+/**
+ * The list to serve or to build a write on, with the key it belongs to. The current fetch's list
+ * comes first, whether local or fetched. While the fetch is pending, the last local list stands
+ * in, under its own older key, so the fetched list replaces it when it settles instead of
+ * staying hidden under it.
+ */
+const currentAdminEvents = (get: Getter): LocalAdminEvents | undefined => {
+  const fetchKey = get(fetchKeyAtom)
+  const local = get(adminEventsOverrideAtom)
+  if (local?.fetchKey === fetchKey) return local
+  const loaded = get(loadedAdminEventsAtom)
+  if (loaded?.fetchKey === fetchKey) return loaded
+  return local ?? loaded
+}
+
 export const adminEventsRemoteAtom = atom(
-  (get) =>
-    localAdminEvents(get(adminEventsOverrideAtom), get(fetchKeyAtom)) ??
-    get(loadedAdminEventsAtom) ??
-    get(remoteAdminEventsAtom),
+  (get) => currentAdminEvents(get)?.events ?? get(remoteAdminEventsAtom).then(({ events }) => events),
   (get, set, value: DogEvent[] | ((previous: DogEvent[]) => DogEvent[])) => {
-    const fetchKey = get(fetchKeyAtom)
-    set(adminEventsOverrideAtom, (current) => {
-      if (typeof value !== 'function') return { events: value, fetchKey }
-      const previous = localAdminEvents(current, fetchKey) ?? get(loadedAdminEventsAtom)
-      if (!previous) throw new Error('Cannot update admin events before they have loaded')
-      return { events: value(previous), fetchKey }
-    })
+    if (typeof value !== 'function') {
+      set(adminEventsOverrideAtom, { events: value, fetchKey: get(fetchKeyAtom) })
+      return
+    }
+    const base = currentAdminEvents(get)
+    if (!base) throw new Error('Cannot update admin events before they have loaded')
+    set(adminEventsOverrideAtom, { events: value(base.events), fetchKey: base.fetchKey })
   }
 )

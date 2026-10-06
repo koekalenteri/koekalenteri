@@ -60,11 +60,55 @@ describe('adminEventsRemoteAtom', () => {
 
     // Sign out, then sign in again
     store.set(idTokenAtom, undefined)
-    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([])
+    await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([]))
     store.set(idTokenAtom, NEXT_ID_TOKEN)
 
-    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first, second, third])
+    await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([first, second, third]))
     expect(getAdminEvents).toHaveBeenCalledTimes(2)
+  })
+
+  describe('while the next fetch is pending', () => {
+    const startRefresh = async () => {
+      let resolveNext: (events: DogEvent[]) => void = () => undefined
+      const next = new Promise<DogEvent[]>((resolve) => {
+        resolveNext = resolve
+      })
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([first]).mockReturnValueOnce(next)
+      const store = createStore()
+      store.set(idTokenAtom, TEST_ID_TOKEN)
+      await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
+      // A save has made the list a local one
+      store.set(adminEventsRemoteAtom, (events) => [...events, second])
+      // A mounted component, as in the app
+      store.sub(adminEventsRemoteAtom, () => undefined)
+      // A token refresh starts the next fetch, which stays pending
+      store.set(idTokenAtom, NEXT_ID_TOKEN)
+      await vi.waitFor(() => expect(getAdminEvents).toHaveBeenCalledTimes(2))
+      return { resolveNext, store }
+    }
+
+    it('keeps showing the local list instead of suspending', async () => {
+      const { store } = await startRefresh()
+
+      expect(store.get(adminEventsRemoteAtom)).toEqual([first, second])
+    })
+
+    it('lets a write build on the local list', async () => {
+      const { store } = await startRefresh()
+
+      store.set(adminEventsRemoteAtom, (events) => [...events, third])
+
+      expect(store.get(adminEventsRemoteAtom)).toEqual([first, second, third])
+    })
+
+    it('does not hide the fetched list once it settles after such a write (KOE-1500)', async () => {
+      const { resolveNext, store } = await startRefresh()
+      store.set(adminEventsRemoteAtom, (events) => [...events, third])
+
+      resolveNext([first, second, third, event('fourth', '2026-05-01', '2026-01-03')])
+
+      await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toHaveLength(4))
+    })
   })
 
   it('lets a local write after the new fetch build on the new list', async () => {
@@ -75,7 +119,7 @@ describe('adminEventsRemoteAtom', () => {
     store.set(adminEventsRemoteAtom, [])
 
     store.set(idTokenAtom, NEXT_ID_TOKEN)
-    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first, second])
+    await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([first, second]))
     store.set(adminEventsRemoteAtom, (events) => [...events, third])
 
     expect(store.get(adminEventsRemoteAtom)).toEqual([first, second, third])
