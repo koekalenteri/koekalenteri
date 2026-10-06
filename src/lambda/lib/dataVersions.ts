@@ -110,7 +110,39 @@ export async function bumpDataVersion(collection: VersionedCollection, scopes: s
   }
 }
 
-export const readStoredDataVersions = async () => (await client.readAll<VersionRecord>()) ?? []
+/**
+ * The registry of applied data migrations shares this table: `scope` is the migration's name, and
+ * the row says when it ran and how many rows it changed. They are not versions, so the weekly
+ * repair must not measure them (`readStoredDataVersions` leaves them out).
+ */
+const MIGRATIONS_COLLECTION = 'migrations'
+
+interface MigrationRecord {
+  appliedAt: string
+  collection: typeof MIGRATIONS_COLLECTION
+  count: number
+  scope: string
+}
+
+/** The names, out of the given ones, that are recorded as applied. One batchGet, whatever the number. */
+export const readAppliedMigrations = async (names: string[]): Promise<Set<string>> => {
+  const records = await client.batchGet<MigrationRecord>(
+    names.map((scope) => ({ collection: MIGRATIONS_COLLECTION, scope }))
+  )
+  return new Set(records.map((record) => record.scope))
+}
+
+export const markMigrationApplied = (name: string, count: number) =>
+  client.update(
+    { collection: MIGRATIONS_COLLECTION, scope: name },
+    { set: { appliedAt: new Date().toISOString(), count } }
+  )
+
+export const readStoredDataVersions = async () =>
+  ((await client.readAll<VersionRecord | MigrationRecord>()) ?? []).filter(isVersionRecord)
+
+const isVersionRecord = (record: VersionRecord | MigrationRecord): record is VersionRecord =>
+  record.collection !== MIGRATIONS_COLLECTION
 
 /**
  * Records the fingerprint the weekly repair measured, reminting the revision when the data moved

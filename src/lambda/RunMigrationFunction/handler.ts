@@ -2,7 +2,9 @@ import type { JsonDogEvent, RegistrationClass } from '../../types'
 import { getEventSeason } from '../../lib/event'
 import { CONFIG } from '../config'
 import { authorizeAdmin } from '../lib/auth'
-import { lambda, response } from '../lib/lambda'
+import { markMigrationApplied, readAppliedMigrations } from '../lib/dataVersions'
+import { isDirectInvoke, lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
@@ -82,16 +84,30 @@ const migrations: EventMigration[] = [
   },
 ]
 
+/**
+ * The admin button (API Gateway) is a forced full run, so a correction run is always possible. The
+ * deploy invokes the function directly and only the migrations the registry does not list as
+ * applied run, which makes a deploy without new migrations one registry read and no table scan.
+ */
 const runMigrationLambda = lambda('runMigration', async (event) => {
-  await authorizeAdmin(event)
+  const direct = isDirectInvoke(event)
+  if (!direct) await authorizeAdmin(event)
+
+  const applied = direct ? await readAppliedMigrations(migrations.map(({ name }) => name)) : new Set<string>()
+  const pending = migrations.filter(({ name }) => !applied.has(name))
+
+  if (!pending.length) {
+    logger.info('no migrations pending')
+    return response(200, [], event)
+  }
 
   const events = (await dynamoDB.readAll<JsonDogEvent>()) ?? []
 
-  const migrationResults = migrations.map((migration) => ({ count: 0, name: migration.name }))
+  const migrationResults = pending.map((migration) => ({ count: 0, name: migration.name }))
   const modifiedEvents = new Set<JsonDogEvent>()
 
   for (const item of events) {
-    migrations.forEach((migration, index) => {
+    pending.forEach((migration, index) => {
       if (migration.run(item)) {
         migrationResults[index].count++
         modifiedEvents.add(item)
@@ -109,14 +125,11 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
     await dynamoDB.write(item)
   }
 
-  return response(
-    200,
-    migrationResults.map(({ count, name }) => ({
-      count,
-      name,
-    })),
-    event
-  )
+  // Only after every write went through: a failed run records nothing and the next one starts over.
+  await Promise.all(migrationResults.map(({ count, name }) => markMigrationApplied(name, count)))
+  logger.info('migrations applied', { migrations: migrationResults })
+
+  return response(200, migrationResults, event)
 })
 
 export default runMigrationLambda

@@ -146,6 +146,23 @@ jobs:
               ParameterKey=Branch,ParameterValue=${{ env.branch }}' \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-confirm-changeset --no-fail-on-empty-changeset
+      # Data migrations (KOE-1502): the function applies the ones its registry does not list yet and
+      # answers with their counters. The lambda wrapper turns a failure into a non-200 answer instead of
+      # a function error, so the answer is checked here; a failed run fails the job and with it
+      # deploy-frontend, which needs this job.
+      - name: Run data migrations
+        run: |
+          function_name=$(aws cloudformation describe-stack-resource \
+            --stack-name "${{ env.environment }}" \
+            --logical-resource-id RunMigrationFunction \
+            --query StackResourceDetail.PhysicalResourceId --output text)
+          aws lambda invoke --function-name "$function_name" \
+            --cli-binary-format raw-in-base64-out --cli-read-timeout 900 \
+            --payload '{}' migration-result.json
+          cat migration-result.json
+          jq -e '.statusCode == 200' migration-result.json > /dev/null \
+            || { echo "::error::Data migrations failed"; exit 1; }
+          jq -r '.body | fromjson | if length == 0 then "No migrations pending" else .[] | "\(.name): \(.count) rows" end' migration-result.json
 
   deploy-frontend:
     # After the backend, never beside it: the Amplify build reads its configuration from environment

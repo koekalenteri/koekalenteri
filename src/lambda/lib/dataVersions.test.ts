@@ -9,14 +9,16 @@ vi.doMock('nanoid', () => ({ nanoid: () => `test-revision-${++revision.next}` })
 
 const mockBatchGet = vi.fn()
 const mockUpdate = vi.fn()
+const mockReadAll = vi.fn()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
-    return { batchGet: mockBatchGet, update: mockUpdate }
+    return { batchGet: mockBatchGet, readAll: mockReadAll, update: mockUpdate }
   }),
 }))
 
-const { bumpDataVersion, getDataVersions } = await import('./dataVersions')
+const { bumpDataVersion, getDataVersions, markMigrationApplied, readAppliedMigrations, readStoredDataVersions } =
+  await import('./dataVersions')
 
 const NOW = '2026-08-30T12:00:00.000Z'
 
@@ -149,5 +151,47 @@ describe('bumpDataVersion', () => {
     await bumpDataVersion('users', [])
 
     expect(mockUpdate).not.toHaveBeenCalled()
+  })
+})
+
+describe('migration registry', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockBatchGet.mockResolvedValue([])
+    mockUpdate.mockResolvedValue(undefined)
+  })
+
+  it('reads the named migrations in one batchGet and returns the applied names', async () => {
+    mockBatchGet.mockResolvedValueOnce([
+      { appliedAt: NOW, collection: 'migrations', count: 3, scope: 'backfillOrganizerId' },
+    ])
+
+    const applied = await readAppliedMigrations(['backfillOrganizerId', 'fixSeasonFromStartDate'])
+
+    expect(mockBatchGet).toHaveBeenCalledTimes(1)
+    expect(mockBatchGet).toHaveBeenCalledWith([
+      { collection: 'migrations', scope: 'backfillOrganizerId' },
+      { collection: 'migrations', scope: 'fixSeasonFromStartDate' },
+    ])
+    expect(applied).toEqual(new Set(['backfillOrganizerId']))
+  })
+
+  it('records a migration with the time and the number of rows it changed', async () => {
+    await markMigrationApplied('backfillOrganizerId', 4)
+
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { collection: 'migrations', scope: 'backfillOrganizerId' },
+      { set: { appliedAt: NOW, count: 4 } }
+    )
+  })
+
+  it('keeps migration rows out of what the weekly repair measures', async () => {
+    const version = { collection: 'judges', count: 2, revision: 'aaa', scope: '*' }
+    mockReadAll.mockResolvedValueOnce([
+      version,
+      { appliedAt: NOW, collection: 'migrations', count: 3, scope: 'backfillOrganizerId' },
+    ])
+
+    expect(await readStoredDataVersions()).toEqual([version])
   })
 })

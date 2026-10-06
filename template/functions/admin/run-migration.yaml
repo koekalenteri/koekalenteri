@@ -16,6 +16,9 @@
             TableName: !Ref UserLinkTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
+        # The registry of applied migrations (collection `migrations`) lives in the version table.
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DataVersionTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         RunMigration:

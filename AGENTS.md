@@ -52,9 +52,18 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 
 - A one-off data migration is an entry in the `migrations` array of
   `src/lambda/RunMigrationFunction/handler.ts`: a `name` plus an idempotent `run(event)` that
-  mutates the item and returns whether it changed. The lambda runs every migration over all event
-  rows via `POST /admin/migrate` (admin-only) and reports per-migration counts, so a migration must
-  stay safe to re-run on every invocation.
+  mutates the item and returns whether it changed.
+- The deploy runs it, nobody runs it by hand: after `sam deploy`, the `Run data migrations` step of
+  `deploy-backend` in `release.yml` invokes the function directly (`aws lambda invoke`, no
+  `requestContext`, so no Cognito check) and prints the counters. A failed run fails the job before
+  the frontend is published.
+- Applied migrations are recorded in the data version table (collection `migrations`, scope = the
+  migration's name, fields `appliedAt` and `count`; every environment has its own table). A deploy
+  runs only the migrations missing from it, and with none missing it reads the registry once and
+  never touches the event table. So an applied migration does not run again: **a migration whose code
+  changes gets a new name**, or the change never reaches an environment that has recorded the old one.
+- `POST /admin/migrate` (admin-only) stays a forced run of every migration, for a correction run
+  (a wrong season, say), and records them again. A migration must therefore stay safe to re-run.
 - Do not write a data migration as a repo script or npm command. The KOE-1266 start number backfill
   started as `scripts/backfill-start-numbers-published.mjs` and was moved into the lambda to keep
   the practice uniform.

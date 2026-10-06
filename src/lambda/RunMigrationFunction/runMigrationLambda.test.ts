@@ -7,6 +7,8 @@ const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
 const mockReadAll = vi.fn()
 const mockWrite = vi.fn()
+const mockReadApplied = vi.fn()
+const mockMarkApplied = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -22,6 +24,11 @@ vi.doMock('../lib/auth', () => ({
     if (!user.admin) throw httpError(403, 'Forbidden')
     return user
   },
+}))
+
+vi.doMock('../lib/dataVersions', () => ({
+  markMigrationApplied: mockMarkApplied,
+  readAppliedMigrations: mockReadApplied,
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
@@ -43,9 +50,11 @@ describe('runMigrationLambda', () => {
     { count: startNumbers, name: 'backfillStartNumbersPublished' },
   ]
 
+  // An API Gateway request: it always carries a requestContext, which is what tells it from a direct invoke.
   const event = constructPartialAPIGwEvent({
     body: '',
     headers: {},
+    requestContext: { requestId: 'req-1' },
   })
 
   beforeEach(() => {
@@ -80,6 +89,8 @@ describe('runMigrationLambda', () => {
     ])
 
     mockWrite.mockResolvedValue({})
+    mockReadApplied.mockResolvedValue(new Set())
+    mockMarkApplied.mockResolvedValue(undefined)
   })
 
   it('returns 403 if authenticated user is not an admin', async () => {
@@ -410,6 +421,135 @@ describe('runMigrationLambda', () => {
 
       expect(mockWrite).not.toHaveBeenCalled()
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0), event)
+    })
+  })
+  describe('registry of applied migrations', () => {
+    const allNames = [
+      'populateUpdatedAt',
+      'backfillOrganizerId',
+      'fixSeasonFromStartDate',
+      'backfillStartNumbersPublished',
+    ]
+
+    // What `aws lambda invoke` delivers: no API Gateway around it, so no requestContext.
+    const directEvent = constructPartialAPIGwEvent({})
+
+    // A function: the migrations mutate the rows they are given.
+    const organizerRow = () => ({
+      id: 'event1',
+      organizer: { id: 7 },
+      season: '2025',
+      startDate: '2025-01-01',
+      updatedAt: 'kept',
+    })
+
+    it('forces a full run from the admin path without consulting the registry', async () => {
+      mockReadApplied.mockResolvedValue(new Set(allNames))
+
+      await runMigrationLambda(event)
+
+      expect(mockReadApplied).not.toHaveBeenCalled()
+      expect(mockReadAll).toHaveBeenCalledTimes(1)
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 2), event)
+    })
+
+    it('records every migration of a forced run', async () => {
+      await runMigrationLambda(event)
+
+      expect(mockMarkApplied).toHaveBeenCalledTimes(4)
+      expect(mockMarkApplied).toHaveBeenCalledWith('fixSeasonFromStartDate', 2)
+      expect(mockMarkApplied).toHaveBeenCalledWith('populateUpdatedAt', 0)
+    })
+
+    it('reads the registry once, for every migration in the code', async () => {
+      await runMigrationLambda(directEvent)
+
+      expect(mockReadApplied).toHaveBeenCalledTimes(1)
+      expect(mockReadApplied).toHaveBeenCalledWith(allNames)
+    })
+
+    it('returns without reading the event table when nothing is missing', async () => {
+      mockReadApplied.mockResolvedValue(new Set(allNames))
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockReadAll).not.toHaveBeenCalled()
+      expect(mockWrite).not.toHaveBeenCalled()
+      expect(mockMarkApplied).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, [], directEvent)
+    })
+
+    it('does not authorize a direct invocation', async () => {
+      mockAuthorize.mockResolvedValue(null)
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockAuthorize).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), directEvent)
+    })
+
+    it.each([
+      ['an empty body', { body: '' }],
+      ['a body that names a null requestContext', { body: JSON.stringify({ requestContext: null }) }],
+      ['a header that mimics direct invocation', { body: '', headers: { requestContext: '' } }],
+    ])('still authorizes an API Gateway event with %s', async (_label, extra) => {
+      mockAuthorize.mockResolvedValue(null)
+      const apiEvent = constructPartialAPIGwEvent({ ...extra, requestContext: { requestId: 'req-1' } })
+
+      await runMigrationLambda(apiEvent)
+
+      expect(mockAuthorize).toHaveBeenCalledWith(apiEvent)
+      expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', apiEvent)
+      expect(mockReadAll).not.toHaveBeenCalled()
+    })
+
+    it('reads the event table once and runs only the missing migrations', async () => {
+      mockReadApplied.mockResolvedValue(
+        new Set(['populateUpdatedAt', 'fixSeasonFromStartDate', 'backfillStartNumbersPublished'])
+      )
+      mockReadAll.mockResolvedValueOnce([organizerRow(), { ...organizerRow(), id: 'event2', organizerId: 7 }])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockReadAll).toHaveBeenCalledTimes(1)
+      expect(mockWrite).toHaveBeenCalledTimes(1)
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'event1', organizerId: 7, updatedAt: expect.not.stringMatching(/^kept$/) })
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'backfillOrganizerId' }], directEvent)
+    })
+
+    it('does not run an applied migration even when its rows would change', async () => {
+      mockReadApplied.mockResolvedValue(new Set(['fixSeasonFromStartDate']))
+      mockReadAll.mockResolvedValueOnce([{ id: 'event1', season: '2024', startDate: '2025-01-01', updatedAt: 'kept' }])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWrite).not.toHaveBeenCalled()
+    })
+
+    it('records each migration it ran, with its count, after the writes', async () => {
+      mockReadApplied.mockResolvedValue(
+        new Set(['populateUpdatedAt', 'fixSeasonFromStartDate', 'backfillStartNumbersPublished'])
+      )
+      mockReadAll.mockResolvedValueOnce([organizerRow()])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockMarkApplied).toHaveBeenCalledTimes(1)
+      expect(mockMarkApplied).toHaveBeenCalledWith('backfillOrganizerId', 1)
+    })
+
+    it('records nothing when a write fails', async () => {
+      mockReadApplied.mockResolvedValue(
+        new Set(['populateUpdatedAt', 'fixSeasonFromStartDate', 'backfillStartNumbersPublished'])
+      )
+      mockReadAll.mockResolvedValueOnce([organizerRow()])
+      mockWrite.mockRejectedValueOnce(new Error('write failed'))
+
+      await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
+
+      expect(mockMarkApplied).not.toHaveBeenCalled()
     })
   })
 })
