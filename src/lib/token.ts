@@ -3,6 +3,7 @@ export const ID_TOKEN_REFRESH_MARGIN_MS = 60_000
 interface JwtPayload {
   exp?: unknown
   iat?: unknown
+  sub?: unknown
 }
 
 const getJwtPayload = (token: string): JwtPayload | undefined => {
@@ -37,6 +38,12 @@ const numericDate = (value: unknown): number | undefined => {
 }
 
 export const getJwtExpiresAt = (token: string): number | undefined => numericDate(getJwtPayload(token)?.exp)
+
+/** Whom the token was issued to: the same person keeps it across a refresh, a new login does not. */
+export const getJwtSubject = (token: string): string | undefined => {
+  const subject = getJwtPayload(token)?.sub
+  return typeof subject === 'string' && subject ? subject : undefined
+}
 
 export const isValidIdToken = (token: string, now = Date.now()): boolean => {
   const expiresAt = getJwtExpiresAt(token)

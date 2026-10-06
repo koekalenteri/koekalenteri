@@ -25,15 +25,13 @@ export const adminEventAtom = atomFamily((eventId: string | undefined) =>
         ? events.then((items) => items.find((event) => event.id === eventId) ?? fallback)
         : (events.find((event) => event.id === eventId) ?? fallback)
     },
-    async (get, set, value: DogEvent) => {
+    async (_get, set, value: DogEvent) => {
       if (!value) return
-      const events = await get(adminEventsAtom)
-      const next = events.filter((event) => event.id !== eventId)
-      next.push(value)
       // A new event went to the end of the list and a redated one stayed in its old slot until
       // the next full fetch (KOE-1302); keep the secretary's list in the same order the fetch uses.
-      next.sort(compareEventsByDate)
-      set(adminEventsAtom, next)
+      await set(adminEventsAtom, (events) =>
+        [...events.filter((event) => event.id !== eventId), value].sort(compareEventsByDate)
+      )
     }
   )
 )
