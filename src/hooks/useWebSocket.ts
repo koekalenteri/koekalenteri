@@ -312,15 +312,19 @@ export const useWebSocket = () => {
   const setAdminEvents = useAtomCallback(
     useCallback(
       async (get, set, eventId: string, patch: Patch<DogEvent>) => {
-        let events: DogEvent[]
         try {
-          events = await get(adminEventsAtom)
+          await get(adminEventsAtom)
         } catch {
           return
         }
-        const next = applyPatchOrInsert(events, eventId, patch)
-        if (next !== events) markRecentlyUpdated('admin:event', eventId)
-        set(adminEventsAtom, next)
+        let changed = false
+        // An update, so the patch lands on the list of the current fetch, even one still pending
+        await set(adminEventsAtom, (events) => {
+          const next = applyPatchOrInsert(events, eventId, patch)
+          changed = next !== events
+          return next
+        })
+        if (changed) markRecentlyUpdated('admin:event', eventId)
       },
       [markRecentlyUpdated]
     )

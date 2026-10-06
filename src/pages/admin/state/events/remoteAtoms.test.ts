@@ -2,7 +2,7 @@ import type { DogEvent } from '@/types'
 import { createStore } from 'jotai'
 import { getAdminEvents } from '@/api/event'
 import { idTokenAtom } from '@/pages/state'
-import { TEST_ID_TOKEN } from '@/test-utils/utils'
+import { makeTestIdToken } from '@/test-utils/utils'
 import { adminEventsRemoteAtom, reconcileAdminEvents } from './remoteAtoms'
 
 vi.mock('@/api/event', () => ({
@@ -25,25 +25,43 @@ describe('reconcileAdminEvents', () => {
 })
 
 describe('adminEventsRemoteAtom', () => {
-  const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
-  // A second valid token, as a session refresh or a new login hands out
-  const NEXT_ID_TOKEN = `header.${encodeBase64Url(JSON.stringify({ exp: 4102444800, iat: 2 }))}.signature`
+  // A refresh hands the same person a new token, a new login may be someone else
+  const TOKEN = makeTestIdToken({ iat: 1, sub: 'secretary-a' })
+  const REFRESHED_TOKEN = makeTestIdToken({ iat: 2, sub: 'secretary-a' })
+  const OTHER_TOKEN = makeTestIdToken({ iat: 3, sub: 'secretary-b' })
 
   const first = event('first', '2026-02-01', '2026-01-01')
   const second = event('second', '2026-03-01', '2026-01-01')
   const third = event('third', '2026-04-01', '2026-01-02')
+  const fourth = event('fourth', '2026-05-01', '2026-01-03')
 
   beforeEach(() => {
     vi.mocked(getAdminEvents).mockReset()
   })
 
-  it('layers a local write on the fetched list', async () => {
-    vi.mocked(getAdminEvents).mockResolvedValue([first])
-    const store = createStore()
-    store.set(idTokenAtom, TEST_ID_TOKEN)
-    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
+  const pendingFetch = () => {
+    let resolve: (events: DogEvent[]) => void = () => undefined
+    let reject: (error: Error) => void = () => undefined
+    const promise = new Promise<DogEvent[]>((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+    return { promise, reject, resolve }
+  }
 
-    store.set(adminEventsRemoteAtom, (events) => [...events, second])
+  // The first fetch has settled, a save has written the list locally and a component is mounted
+  const loadedStore = async () => {
+    vi.mocked(getAdminEvents).mockResolvedValueOnce([first])
+    const store = createStore()
+    store.set(idTokenAtom, TOKEN)
+    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
+    await store.set(adminEventsRemoteAtom, (events) => [...events, second])
+    store.sub(adminEventsRemoteAtom, () => undefined)
+    return store
+  }
+
+  it('layers a local write on the fetched list', async () => {
+    const store = await loadedStore()
 
     expect(store.get(adminEventsRemoteAtom)).toEqual([first, second])
     expect(getAdminEvents).toHaveBeenCalledTimes(1)
@@ -52,39 +70,40 @@ describe('adminEventsRemoteAtom', () => {
   it('serves the next fetch instead of the local list once the token has changed (KOE-1500)', async () => {
     vi.mocked(getAdminEvents).mockResolvedValueOnce([]).mockResolvedValueOnce([first, second, third])
     const store = createStore()
-    store.set(idTokenAtom, TEST_ID_TOKEN)
+    store.set(idTokenAtom, TOKEN)
     await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([])
     // A websocket patch arrives into the empty list, and the list is now a local one
-    store.set(adminEventsRemoteAtom, [second])
+    await store.set(adminEventsRemoteAtom, (events) => [...events, second])
     expect(store.get(adminEventsRemoteAtom)).toEqual([second])
 
     // Sign out, then sign in again
     store.set(idTokenAtom, undefined)
     await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([]))
-    store.set(idTokenAtom, NEXT_ID_TOKEN)
+    store.set(idTokenAtom, REFRESHED_TOKEN)
 
     await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([first, second, third]))
     expect(getAdminEvents).toHaveBeenCalledTimes(2)
   })
 
-  describe('while the next fetch is pending', () => {
+  it('lets a local write after the new fetch build on the new list', async () => {
+    const store = await loadedStore()
+    vi.mocked(getAdminEvents).mockResolvedValueOnce([first, third])
+
+    store.set(idTokenAtom, REFRESHED_TOKEN)
+    await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([first, third]))
+    await store.set(adminEventsRemoteAtom, (events) => [...events, fourth])
+
+    expect(store.get(adminEventsRemoteAtom)).toEqual([first, third, fourth])
+  })
+
+  describe('while a refreshed token’s fetch is pending', () => {
     const startRefresh = async () => {
-      let resolveNext: (events: DogEvent[]) => void = () => undefined
-      const next = new Promise<DogEvent[]>((resolve) => {
-        resolveNext = resolve
-      })
-      vi.mocked(getAdminEvents).mockResolvedValueOnce([first]).mockReturnValueOnce(next)
-      const store = createStore()
-      store.set(idTokenAtom, TEST_ID_TOKEN)
-      await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
-      // A save has made the list a local one
-      store.set(adminEventsRemoteAtom, (events) => [...events, second])
-      // A mounted component, as in the app
-      store.sub(adminEventsRemoteAtom, () => undefined)
-      // A token refresh starts the next fetch, which stays pending
-      store.set(idTokenAtom, NEXT_ID_TOKEN)
+      const store = await loadedStore()
+      const next = pendingFetch()
+      vi.mocked(getAdminEvents).mockReturnValueOnce(next.promise)
+      store.set(idTokenAtom, REFRESHED_TOKEN)
       await vi.waitFor(() => expect(getAdminEvents).toHaveBeenCalledTimes(2))
-      return { resolveNext, store }
+      return { next, store }
     }
 
     it('keeps showing the local list instead of suspending', async () => {
@@ -93,104 +112,55 @@ describe('adminEventsRemoteAtom', () => {
       expect(store.get(adminEventsRemoteAtom)).toEqual([first, second])
     })
 
-    it('lets a write build on the local list', async () => {
-      const { store } = await startRefresh()
+    it('lays an update on the fetched list once it settles', async () => {
+      const { next, store } = await startRefresh()
 
-      store.set(adminEventsRemoteAtom, (events) => [...events, third])
+      const written = store.set(adminEventsRemoteAtom, (events) => [...events, third])
+      next.resolve([first, second, fourth])
+      await written
 
-      expect(store.get(adminEventsRemoteAtom)).toEqual([first, second, third])
+      expect(store.get(adminEventsRemoteAtom)).toEqual([first, second, fourth, third])
     })
 
-    it('does not hide the fetched list once it settles after such a write (KOE-1500)', async () => {
-      const { resolveNext, store } = await startRefresh()
-      store.set(adminEventsRemoteAtom, (events) => [...events, third])
+    it('keeps an event an update removed out of the fetched list', async () => {
+      const { next, store } = await startRefresh()
 
-      resolveNext([first, second, third, event('fourth', '2026-05-01', '2026-01-03')])
+      const written = store.set(adminEventsRemoteAtom, (events) => events.filter((item) => item.id !== 'second'))
+      next.resolve([first, second, fourth])
+      await written
 
-      await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toHaveLength(4))
+      expect(store.get(adminEventsRemoteAtom)).toEqual([first, fourth])
     })
 
-    it('does not hide the fetched list after a write of a whole list, as a websocket patch makes', async () => {
-      const { resolveNext, store } = await startRefresh()
-      store.set(adminEventsRemoteAtom, [...(await store.get(adminEventsRemoteAtom)), third])
+    it('reports a failed fetch instead of the list fetched with the previous token', async () => {
+      const { next, store } = await startRefresh()
 
-      resolveNext([first, second, third, event('fourth', '2026-05-01', '2026-01-03')])
+      next.reject(new Error('network'))
 
-      await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toHaveLength(4))
-    })
-
-    it('keeps a write the fetch was requested before', async () => {
-      const { resolveNext, store } = await startRefresh()
-      const saved = { ...first, name: 'saved' }
-      store.set(adminEventsRemoteAtom, (events) => [saved, ...events.slice(1), third])
-
-      resolveNext([first, second, event('fourth', '2026-05-01', '2026-01-03')])
-
-      await vi.waitFor(() =>
-        expect(store.get(adminEventsRemoteAtom)).toEqual([
-          saved,
-          second,
-          third,
-          event('fourth', '2026-05-01', '2026-01-03'),
-        ])
-      )
-    })
-
-    it('lets the fetch replace a written event it carries a newer version of', async () => {
-      const { resolveNext, store } = await startRefresh()
-      store.set(adminEventsRemoteAtom, (events) => [{ ...events[0], name: 'saved' }, ...events.slice(1)])
-      const newer = { ...event('first', '2026-02-01', '2026-01-05'), name: 'newer' }
-
-      resolveNext([newer, second])
-
-      await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([newer, second]))
+      await vi.waitFor(() => expect(() => store.get(adminEventsRemoteAtom)).toThrow('network'))
     })
   })
 
-  it('keeps showing the local list when the next fetch fails', async () => {
-    vi.mocked(getAdminEvents).mockResolvedValueOnce([first]).mockRejectedValueOnce(new Error('network'))
-    const store = createStore()
-    store.set(idTokenAtom, TEST_ID_TOKEN)
-    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
-    store.set(adminEventsRemoteAtom, (events) => [...events, second])
-    store.sub(adminEventsRemoteAtom, () => undefined)
+  it('waits for another person’s fetch instead of serving the previous login’s list', async () => {
+    const store = await loadedStore()
+    vi.mocked(getAdminEvents).mockReturnValueOnce(pendingFetch().promise)
 
-    store.set(idTokenAtom, NEXT_ID_TOKEN)
+    store.set(idTokenAtom, OTHER_TOKEN)
     await vi.waitFor(() => expect(getAdminEvents).toHaveBeenCalledTimes(2))
-    await new Promise((resolve) => setTimeout(resolve, 0))
 
-    expect(store.get(adminEventsRemoteAtom)).toEqual([first, second])
+    expect(store.get(adminEventsRemoteAtom)).toBeInstanceOf(Promise)
   })
 
-  it('does not serve the previous login’s local list while the next login’s fetch is pending', async () => {
-    vi.mocked(getAdminEvents)
-      .mockResolvedValueOnce([first])
-      .mockReturnValueOnce(new Promise(() => undefined))
-    const store = createStore()
-    store.set(idTokenAtom, TEST_ID_TOKEN)
-    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
-    store.set(adminEventsRemoteAtom, [first, second])
-    store.sub(adminEventsRemoteAtom, () => undefined)
+  it('waits for the next fetch instead of serving the empty list of a signed-out session', async () => {
+    const store = await loadedStore()
+    vi.mocked(getAdminEvents).mockReturnValueOnce(pendingFetch().promise)
 
+    // An expired token in a hidden tab reads as signed out until the session is refreshed
     store.set(idTokenAtom, undefined)
     await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([]))
-    store.set(idTokenAtom, NEXT_ID_TOKEN)
+    store.set(idTokenAtom, REFRESHED_TOKEN)
     await vi.waitFor(() => expect(getAdminEvents).toHaveBeenCalledTimes(2))
 
-    expect(store.get(adminEventsRemoteAtom)).toEqual([])
-  })
-
-  it('lets a local write after the new fetch build on the new list', async () => {
-    vi.mocked(getAdminEvents).mockResolvedValueOnce([first]).mockResolvedValueOnce([first, second])
-    const store = createStore()
-    store.set(idTokenAtom, TEST_ID_TOKEN)
-    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
-    store.set(adminEventsRemoteAtom, [])
-
-    store.set(idTokenAtom, NEXT_ID_TOKEN)
-    await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([first, second]))
-    store.set(adminEventsRemoteAtom, (events) => [...events, third])
-
-    expect(store.get(adminEventsRemoteAtom)).toEqual([first, second, third])
+    expect(store.get(adminEventsRemoteAtom)).toBeInstanceOf(Promise)
   })
 })

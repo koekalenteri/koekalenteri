@@ -1,4 +1,4 @@
-import { getIdTokenDiagnostics, getJwtExpiresAt, isValidIdToken } from './token'
+import { getIdTokenDiagnostics, getJwtExpiresAt, getJwtSubject, isValidIdToken } from './token'
 
 const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
 const makeToken = (payload: object) => `header.${encodeBase64Url(JSON.stringify(payload))}.signature`
@@ -17,6 +17,13 @@ describe('token', () => {
     const token = makeToken({ exp: 1_782_733_200 })
 
     expect(getJwtExpiresAt(token)).toBe(1_782_733_200_000)
+  })
+
+  it('reads the subject a JWT was issued to', () => {
+    expect(getJwtSubject(makeToken({ sub: 'user-1' }))).toBe('user-1')
+    expect(getJwtSubject(makeToken({ sub: '' }))).toBeUndefined()
+    expect(getJwtSubject(makeToken({}))).toBeUndefined()
+    expect(getJwtSubject('not-a-jwt')).toBeUndefined()
   })
 
   it('only accepts JWTs with an expiration time in the future', () => {

@@ -12,6 +12,12 @@ import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 're
 
 export const TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature'
 
+const encodeBase64Url = (value: string) => btoa(value).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '')
+
+/** A valid id token with the given claims, for a test that needs a second token or a subject. */
+export const makeTestIdToken = (claims: Record<string, unknown> = {}) =>
+  `header.${encodeBase64Url(JSON.stringify({ exp: 4102444800, ...claims }))}.signature`
+
 /**
  * Abstraction to avoid re-writing all tests for the time being
  * @see https://github.com/remix-run/react-router/blob/main/packages/react-router/__tests__/data-memory-router-test.tsx
