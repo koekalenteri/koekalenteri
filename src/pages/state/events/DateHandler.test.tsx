@@ -55,6 +55,7 @@ function renderDateHandler(lastSyncAt: number, filterStart: Date | null = start)
           withUpcomingEntry: false,
         })
         set(eventMetadataAtom, {
+          cursor: lastSyncAt,
           lastRangeEnd: end.getTime(),
           lastRangeStart: start.getTime(),
           lastSyncAt,
@@ -77,7 +78,11 @@ describe('DateHandler visibility refresh', () => {
     vi.clearAllMocks()
     localStorage.clear()
     visibilityStateSpy = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible')
-    ;(getEvents as import('vitest').Mock).mockResolvedValue({ events: [], unchangedIds: ['event-1'] })
+    ;(getEvents as import('vitest').Mock).mockResolvedValue({
+      cursor: initialSystemTime.getTime(),
+      events: [],
+      unchangedIds: ['event-1'],
+    })
   })
 
   afterEach(() => {

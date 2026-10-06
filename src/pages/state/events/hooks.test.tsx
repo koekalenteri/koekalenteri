@@ -156,6 +156,7 @@ describe('useFetchEvents', () => {
       }),
       {
         wrapper: wrapperWithState([cached, outside], {
+          cursor: lastSyncAt,
           lastRangeEnd: end.getTime(),
           lastRangeStart: start.getTime(),
           lastSyncAt,
@@ -197,7 +198,12 @@ describe('useFetchEvents', () => {
       .mockResolvedValueOnce({ cursor: Date.parse('2026-06-01T00:00:00.000Z'), events: [current], unchangedIds: [] })
 
     const { result } = renderHook(() => ({ events: useAtomValue(eventsAtom), fetchEvents: useFetchEvents() }), {
-      wrapper: wrapperWithState([staleCopy], { lastRangeEnd: null, lastRangeStart: Date.now(), lastSyncAt }),
+      wrapper: wrapperWithState([staleCopy], {
+        cursor: lastSyncAt,
+        lastRangeEnd: null,
+        lastRangeStart: Date.now(),
+        lastSyncAt,
+      }),
     })
 
     await act(async () => {
@@ -222,7 +228,12 @@ describe('useFetchEvents', () => {
     })
 
     const { result } = renderHook(() => ({ events: useAtomValue(eventsAtom), fetchEvents: useFetchEvents() }), {
-      wrapper: wrapperWithState([copy], { lastRangeEnd: null, lastRangeStart: Date.now(), lastSyncAt }),
+      wrapper: wrapperWithState([copy], {
+        cursor: lastSyncAt,
+        lastRangeEnd: null,
+        lastRangeStart: Date.now(),
+        lastSyncAt,
+      }),
     })
 
     await act(async () => {
@@ -231,6 +242,57 @@ describe('useFetchEvents', () => {
 
     expect(getEvents).toHaveBeenCalledTimes(1)
     expect(result.current.events).toEqual([copy])
+  })
+
+  it('keeps a copy newer than the server stamps it, an edit the server has not caught up with', async () => {
+    const start = new Date('2026-04-05T00:00:00.000Z')
+    const newer = { ...makeEvent('may', '2026-05-10T00:00:00.000Z'), modifiedAt: new Date('2026-07-01T00:00:00.000Z') }
+    const lastSyncAt = Date.now() - 60 * 60 * 1000
+
+    ;(getEvents as import('vitest').Mock).mockResolvedValueOnce({
+      cursor: lastSyncAt,
+      events: [],
+      unchanged: [{ id: 'may', updatedAt: '2026-06-01T00:00:00.000Z' }],
+      unchangedIds: ['may'],
+    })
+
+    const { result } = renderHook(() => ({ events: useAtomValue(eventsAtom), fetchEvents: useFetchEvents() }), {
+      wrapper: wrapperWithState([newer], {
+        cursor: lastSyncAt,
+        lastRangeEnd: null,
+        lastRangeStart: Date.now(),
+        lastSyncAt,
+      }),
+    })
+
+    await act(async () => {
+      await result.current.fetchEvents(start)
+    })
+
+    expect(getEvents).toHaveBeenCalledTimes(1)
+    expect(result.current.events).toEqual([newer])
+  })
+
+  it('fetches in full when the metadata has no server cursor, never asking since the client clock (KOE-1501)', async () => {
+    const start = new Date('2026-04-05T00:00:00.000Z')
+    const copy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const lastSyncAt = Date.now() - 60 * 60 * 1000
+
+    ;(getEvents as import('vitest').Mock).mockResolvedValueOnce({ events: [copy], unchangedIds: [] })
+
+    const { result } = renderHook(
+      () => ({ fetchEvents: useFetchEvents(), metadata: useAtomValue(eventMetadataAtom) }),
+      {
+        wrapper: wrapperWithState([copy], { lastRangeEnd: null, lastRangeStart: Date.now(), lastSyncAt }),
+      }
+    )
+
+    await act(async () => {
+      await result.current.fetchEvents(start)
+    })
+
+    expect(getEvents).toHaveBeenCalledWith(start, undefined, undefined)
+    expect(result.current.metadata.cursor).toBeUndefined()
   })
 
   it("asks from the server's cursor, not the client clock, and stores the next one (KOE-1501)", async () => {

@@ -1,4 +1,10 @@
-import { collectionResponseCursor, collectionSince, latestCollectionUpdate, reconcileCollection } from './incremental'
+import {
+  collectionResponseCursor,
+  collectionSince,
+  itemStamp,
+  latestCollectionUpdate,
+  reconcileCollection,
+} from './incremental'
 
 describe('incremental collections', () => {
   it('finds the latest modification timestamp', () => {
@@ -19,6 +25,19 @@ describe('incremental collections', () => {
         { id: 'b', lastSeen: '2024-01-05T00:00:00.000Z', modifiedAt: '2024-01-02T00:00:00.000Z' },
       ])
     ).toEqual(new Date('2024-01-05T00:00:00.000Z'))
+  })
+
+  it('counts a deletion as a change', () => {
+    expect(
+      latestCollectionUpdate([
+        { deletedAt: '2024-01-06T00:00:00.000Z', id: 'a', modifiedAt: '2024-01-01T00:00:00.000Z' },
+      ])
+    ).toEqual(new Date('2024-01-06T00:00:00.000Z'))
+  })
+
+  it('has no stamp for a row that carries none, or only unparseable ones', () => {
+    expect(itemStamp({})).toBeUndefined()
+    expect(itemStamp({ modifiedAt: 'not a date' })).toBeUndefined()
   })
 
   it('takes the latest timestamp a row carries, not the first one present', () => {
