@@ -73,6 +73,9 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   with the same hash.
 - `POST /admin/migrate` (admin-only) stays a forced run of every migration, for a correction run
   (a wrong season, say), and leaves the registry as it is when the hashes match. A migration must therefore stay safe to re-run.
+- Copying events from prod into dev or test never copies the data version table, so the receiving
+  environment's registry may already list migrations as applied that its new rows still need: run the
+  forced `POST /admin/migrate` after such a copy.
 - Do not write a data migration as a repo script or npm command. The KOE-1266 start number backfill
   started as `scripts/backfill-start-numbers-published.mjs` and was moved into the lambda to keep
   the practice uniform.

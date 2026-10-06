@@ -1,12 +1,14 @@
 import type { JsonDogEvent, RegistrationClass } from '../../types'
 import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
+import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { isConditionalCheckFailure } from '../lib/api-gw'
 import { authorizeAdmin } from '../lib/auth'
 import { markMigrationApplied, readAppliedMigrations } from '../lib/dataVersions'
 import { isDirectInvoke, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
+import { createPatch } from '../lib/patch'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
@@ -97,49 +99,70 @@ const registered = migrations.map((migration) => ({ hash: hashOf(migration), mig
 
 const MAX_WRITE_ATTEMPTS = 3
 
+/** Rows are independent partitions; a modest fan-out keeps a large table well inside the timeout. */
+const WRITE_CONCURRENCY = 5
+
 type Pending = (typeof registered)[number]
 
-/** A row as read, with the `updatedAt` it had then: the migrations and the bump change the item. */
-type ReadRow = { changed: boolean[]; item: JsonDogEvent; readUpdatedAt: string | undefined }
+/**
+ * A row as read: a copy from before the migrations ran, to diff what they changed, and the
+ * `updatedAt` it had then, which the migrations and the bump leave alone on the item but a writer
+ * moving the row does not.
+ */
+type ReadRow = { before: JsonDogEvent; changed: boolean[]; item: JsonDogEvent; readUpdatedAt: string | undefined }
 
-const migrateRow = (item: JsonDogEvent, pending: Pending[]): ReadRow => ({
-  changed: pending.map(({ migration }) => migration.run(item)),
-  item,
-  readUpdatedAt: item.updatedAt,
-})
-
-/** The write only lands when nobody changed the row since it was read. */
-const unchangedSince = (readUpdatedAt: string | undefined) =>
-  readUpdatedAt === undefined
-    ? { expression: 'attribute_not_exists(updatedAt)' }
-    : { expression: 'updatedAt = :read', values: { ':read': readUpdatedAt } }
+const migrateRow = (item: JsonDogEvent, pending: Pending[]): ReadRow => {
+  const before = structuredClone(item)
+  return { before, changed: pending.map(({ migration }) => migration.run(item)), item, readUpdatedAt: before.updatedAt }
+}
 
 /**
+ * The write only lands on a row that still exists and that nobody moved since it was read. Without
+ * the existence check an update of a deleted row would create a stub holding only the migrated fields.
+ */
+const existsAndUnchangedSince = (readUpdatedAt: string | undefined) => ({
+  expression: `attribute_exists(#id) AND ${readUpdatedAt === undefined ? 'attribute_not_exists(#updatedAt)' : '#updatedAt = :read'}`,
+  names: { '#id': 'id', '#updatedAt': 'updatedAt' },
+  ...(readUpdatedAt === undefined ? {} : { values: { ':read': readUpdatedAt } }),
+})
+
+/**
+ * Writes only the fields the migrations changed, plus the bump. A whole-row Put would also write back
+ * every other field as read, and some writers move fields without touching `updatedAt` (a start list
+ * publication, the registration group lock), so the condition could not see them and the Put would
+ * undo them.
+ *
  * Every migration's change must reach browsers that already cache the event: the incremental fetch
  * (`changedSince` in lambda/lib/incremental.ts) reads `updatedAt`, and a row rewritten without moving
  * it comes back as unchanged, so the change would never reach anyone already holding the event.
  * `modifiedAt` stays untouched: it records a user's edit, which this is not.
  *
- * A row saved by someone else since it was read is read again and migrated afresh, so their change
- * survives. Returns what changed in the row that was finally written, none when nothing was left to do.
+ * A row changed by someone else since it was read is read again and migrated afresh, up to
+ * MAX_WRITE_ATTEMPTS writes. Returns what changed in the row that was finally written, nothing when
+ * the row is gone or needs nothing any more.
  */
-const writeRow = async (row: ReadRow, pending: Pending[]): Promise<boolean[]> => {
-  let current = row
-  for (let attempt = 1; current.changed.some(Boolean); attempt++) {
-    current.item.updatedAt = new Date().toISOString()
-    try {
-      await dynamoDB.write(current.item, undefined, unchangedSince(current.readUpdatedAt))
-      return current.changed
-    } catch (error) {
-      if (!isConditionalCheckFailure(error)) throw error
-      if (attempt >= MAX_WRITE_ATTEMPTS) {
-        throw new LambdaError(409, `Event ${current.item.id} kept changing while it was migrated`)
-      }
-      const fresh = await dynamoDB.read<JsonDogEvent>({ id: current.item.id }, undefined, true)
-      current = fresh ? migrateRow(fresh, pending) : { ...current, changed: pending.map(() => false) }
+const writeRow = async (row: ReadRow, pending: Pending[], attempt = 1): Promise<boolean[]> => {
+  if (!row.changed.some(Boolean)) return row.changed
+
+  const { remove, set } = createPatch(row.item, row.before)
+  try {
+    await dynamoDB.update(
+      { id: row.item.id },
+      { ...(remove ? { remove } : {}), set: { ...set, updatedAt: new Date().toISOString() } },
+      undefined,
+      undefined,
+      existsAndUnchangedSince(row.readUpdatedAt)
+    )
+    return row.changed
+  } catch (error) {
+    if (!isConditionalCheckFailure(error)) throw error
+    if (attempt >= MAX_WRITE_ATTEMPTS) {
+      throw new LambdaError(409, `Event ${row.item.id} kept changing while it was migrated`)
     }
+    const fresh = await dynamoDB.read<JsonDogEvent>({ id: row.item.id }, undefined, true)
+    if (!fresh) return pending.map(() => false)
+    return writeRow(migrateRow(fresh, pending), pending, attempt + 1)
   }
-  return current.changed
 }
 
 /**
@@ -165,13 +188,8 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
   const events = (await dynamoDB.readAll<JsonDogEvent>()) ?? []
   const modifiedRows = events.map((item) => migrateRow(item, pending)).filter(({ changed }) => changed.some(Boolean))
 
-  const counts = pending.map(() => 0)
-  for (const row of modifiedRows) {
-    const written = await writeRow(row, pending)
-    written.forEach((changed, index) => {
-      if (changed) counts[index]++
-    })
-  }
+  const written = await mapWithConcurrency(modifiedRows, WRITE_CONCURRENCY, (row) => writeRow(row, pending))
+  const counts = pending.map((_, index) => written.filter((changed) => changed[index]).length)
 
   const migrationResults = pending.map(({ migration }, index) => ({ count: counts[index], name: migration.name }))
 

@@ -184,6 +184,9 @@ describe('migration registry', () => {
     expect(applied.get('neverRecorded')).toBeUndefined()
   })
 
+  // The expression is what DynamoDB judges, which a mock cannot: it was run against DynamoDB-local for
+  // the four row states. No row, a row without a hash and a row with another hash are written; a row
+  // with the same hash is refused (ConditionalCheckFailedException, swallowed below).
   it('records a migration with the time, the rows it changed and the hash of its code', async () => {
     await markMigrationApplied('backfillOrganizerId', 4, 'abc123')
 
@@ -193,7 +196,7 @@ describe('migration registry', () => {
       undefined,
       undefined,
       {
-        expression: 'attribute_not_exists(appliedAt) OR #hash <> :hash',
+        expression: 'attribute_not_exists(#hash) OR #hash <> :hash',
         names: { '#hash': 'hash' },
         values: { ':hash': 'abc123' },
       }
