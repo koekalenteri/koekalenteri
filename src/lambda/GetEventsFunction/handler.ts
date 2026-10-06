@@ -2,7 +2,7 @@ import type { JsonDogEvent } from '../../types'
 import { formatDate, TIME_ZONE, zonedEndOfDay, zonedParseDate } from '../../i18n/dates'
 import { sanitizeDogEvent } from '../../lib/event'
 import { CONFIG } from '../config'
-import { changedSince, parseDateParam } from '../lib/incremental'
+import { changedSince, collectionCursor, parseDateParam } from '../lib/incremental'
 import { lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -81,6 +81,9 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
   return perSeason.flatMap((seasonEvents) => seasonEvents ?? [])
 }
 
+/** How far the cursor trails the newest stamp, to catch rows stamped before they were committed */
+const CURSOR_LOOKBACK_MS = 60 * 1000
+
 const getEventsLambda = lambda('getEvents', async (event) => {
   const start = parseDateParam(event.queryStringParameters?.start)
   const end = parseDateParam(event.queryStringParameters?.end)
@@ -90,9 +93,16 @@ const getEventsLambda = lambda('getEvents', async (event) => {
 
   if (since) {
     const rangedItems = publicItems.filter((item) => inRequestedRange(item, start, end))
-    const { changed: changedEvents, unchangedIds } = changedSince(rangedItems, since)
+    const { changed: events, unchanged, unchangedIds } = changedSince(rangedItems, since)
 
-    return response(200, { events: changedEvents, unchangedIds }, event)
+    // The cursor is the server's watermark for the next ask; the client's clock is no measure of
+    // it (KOE-1501). It trails the newest stamp by CURSOR_LOOKBACK_MS and never falls behind
+    // `since`: a row committed a moment late with an older stamp is then still asked for, and the
+    // few rows delivered twice are merged by id. `unchangedIds` stays for the clients that read
+    // only it.
+    const cursor = Math.max(since.getTime(), collectionCursor(rangedItems, since) - CURSOR_LOOKBACK_MS)
+
+    return response(200, { cursor, events, unchanged, unchangedIds }, event)
   }
 
   if (start || end) {

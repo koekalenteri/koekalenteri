@@ -23,7 +23,8 @@ test('getEvents', async () => {
 
   const events = await getEvents()
 
-  expect(events).toEqual({ events: [emptyEvent], unchangedIds: [] })
+  // A full list's cursor is the latest stamp among its events, as the server would compute it (KOE-1501)
+  expect(events).toEqual({ cursor: emptyEvent.modifiedAt.getTime(), events: [emptyEvent], unchangedIds: [] })
   expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/event/`, expect.any(Object))
 })
@@ -73,7 +74,7 @@ describe('getEvents with since', () => {
     const since = 123
     const events = await getEvents(undefined, undefined, since)
 
-    expect(events).toEqual({ events: [emptyEvent], unchangedIds: [] })
+    expect(events).toEqual({ cursor: emptyEvent.modifiedAt.getTime(), events: [emptyEvent], unchangedIds: [] })
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/event/?since=123`, expect.any(Object))
   })

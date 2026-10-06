@@ -16,12 +16,16 @@ export type FilterProps = {
 
 export type EventMetadata = {
   /**
-   * Watermark for incremental syncing of public events.
-   *
-   * When present, subsequent range fetches can ask only events modified after this timestamp
-   * (via `/event/?since=...`).
+   * When this client last synced a range, by its own clock. Only the sync throttle reads it.
    */
   lastSyncAt?: number // epoch ms
+
+  /**
+   * The server's watermark from the last sync: the next range fetch asks only for events
+   * modified after it (via `/event/?since=...`). The server's stamps are what `since` is
+   * compared with, so the client's clock has no say in it (KOE-1501).
+   */
+  cursor?: number // epoch ms, server time
 
   /**
    * The last successfully fetched range parameters for the list view.

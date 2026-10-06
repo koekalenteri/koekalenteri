@@ -5,8 +5,14 @@ type Timestamp = Date | string
  * `lastSeen` counts: a user row whose lastSeen was refreshed is a changed row, even though that
  * refresh deliberately leaves modifiedAt - and with it the collection version - alone. The cursor
  * has to advance past it or the next incremental fetch asks for the same rows again.
+ * `deletedAt` counts for the same reason: a deletion is a change.
  */
-type TimestampedItem = { lastSeen?: Timestamp; modifiedAt?: Timestamp; updatedAt?: Timestamp }
+export type TimestampedItem = {
+  deletedAt?: Timestamp
+  lastSeen?: Timestamp
+  modifiedAt?: Timestamp
+  updatedAt?: Timestamp
+}
 
 const timestampValue = (value?: Timestamp): number => {
   if (value instanceof Date) return value.getTime()
@@ -14,16 +20,26 @@ const timestampValue = (value?: Timestamp): number => {
   return Number.NaN
 }
 
-export const latestCollectionUpdate = <T>(items: T[]): Date | undefined => {
-  const latest = items.reduce((max, item) => {
-    const { lastSeen, modifiedAt, updatedAt } = item as T & TimestampedItem
-    // The same rule the backend applies when it computes a cursor: the latest of the timestamps
-    // the row carries, not the first one that happens to be present.
-    return [updatedAt, modifiedAt, lastSeen].reduce<number>((latest, value) => {
-      const timestamp = timestampValue(value)
-      return Number.isNaN(timestamp) ? latest : Math.max(latest, timestamp)
-    }, max)
+/**
+ * The latest stamp a row carries (epoch ms), not the first one that happens to be present. The one
+ * rule both the backend (what is changed, what the cursor is) and the client (is my copy current)
+ * judge a row by, so the two cannot drift apart (KOE-1501).
+ */
+export const itemStamp = (item: TimestampedItem): number | undefined => {
+  const { deletedAt, lastSeen, modifiedAt, updatedAt } = item
+  const latest = [updatedAt, modifiedAt, deletedAt, lastSeen].reduce<number>((max, value) => {
+    const timestamp = timestampValue(value)
+    return Number.isNaN(timestamp) ? max : Math.max(max, timestamp)
   }, Number.NEGATIVE_INFINITY)
+
+  return Number.isFinite(latest) ? latest : undefined
+}
+
+export const latestCollectionUpdate = <T>(items: T[]): Date | undefined => {
+  const latest = items.reduce<number>(
+    (max, item) => Math.max(max, itemStamp(item as T & TimestampedItem) ?? Number.NEGATIVE_INFINITY),
+    Number.NEGATIVE_INFINITY
+  )
 
   return Number.isFinite(latest) ? new Date(latest) : undefined
 }

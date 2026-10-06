@@ -2,6 +2,9 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import { vi } from 'vitest'
 import { answerRejections } from '../test-utils/helpers'
 
+/** The handler's lookback: the cursor trails the newest stamp by this much */
+const CURSOR_LOOKBACK_MS = 60 * 1000
+
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockQuery = vi.fn()
@@ -306,7 +309,16 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, { events: [allEvents[1]], unchangedIds: ['event1'] }, rangeEvent)
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      {
+        cursor: Date.parse('2026-01-02T10:00:00.000Z') - CURSOR_LOOKBACK_MS,
+        events: [allEvents[1]],
+        unchanged: [{ id: 'event1', updatedAt: '2026-01-01T10:00:00.000Z' }],
+        unchangedIds: ['event1'],
+      },
+      rangeEvent
+    )
   })
 
   it('accepts ISO string end and since query params', async () => {
@@ -346,7 +358,16 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, { events: [allEvents[1]], unchangedIds: ['event1'] }, rangeEvent)
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      {
+        cursor: Date.parse('2026-01-03T10:00:00.000Z') - CURSOR_LOOKBACK_MS,
+        events: [allEvents[1]],
+        unchanged: [{ id: 'event1', updatedAt: '2026-01-01T10:00:00.000Z' }],
+        unchangedIds: ['event1'],
+      },
+      rangeEvent
+    )
   })
 
   it('returns unchanged ids only for unchanged in-range events when since is used with range filters', async () => {
@@ -386,7 +407,59 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, { events: [allEvents[1]], unchangedIds: ['event1'] }, rangeEvent)
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      {
+        cursor: Date.parse('2026-01-03T10:00:00.000Z') - CURSOR_LOOKBACK_MS,
+        events: [allEvents[1]],
+        unchanged: [{ id: 'event1', updatedAt: '2026-01-01T10:00:00.000Z' }],
+        unchangedIds: ['event1'],
+      },
+      rangeEvent
+    )
+  })
+
+  it('hands out a cursor that still reaches a row stamped just before the newest one (KOE-1501)', async () => {
+    const newest = Date.parse('2026-01-03T10:00:00.000Z')
+    mockQuery.mockResolvedValueOnce([
+      { id: 'new', modifiedAt: '2026-01-03T10:00:00.000Z', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
+    ])
+    mockSanitizeDogEvent.mockImplementation((e: unknown) => e)
+    const since = Date.parse('2026-01-01T00:00:00.000Z')
+
+    await getEventsLambda(asEvent({ ...event, queryStringParameters: { since: String(since) } }))
+    const { cursor } = mockResponse.mock.calls[0][1]
+
+    // A row committed late, stamped 30 s before the newest one seen, is at or after the cursor
+    expect(cursor).toBeLessThanOrEqual(newest - 30 * 1000)
+  })
+
+  it('keeps the cursor at since when no event in range is newer than it (KOE-1501)', async () => {
+    const since = Date.parse('2026-01-05T00:00:00.000Z')
+    mockQuery.mockResolvedValueOnce([
+      {
+        id: 'event1',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+        startDate: '2026-01-03T00:00:00.000Z',
+        state: 'confirmed',
+      },
+    ])
+    mockSanitizeDogEvent.mockImplementation((e: unknown) => e)
+
+    const rangeEvent = asEvent({ ...event, queryStringParameters: { since: String(since) } })
+
+    await getEventsLambda(rangeEvent)
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      {
+        cursor: since,
+        events: [],
+        unchanged: [{ id: 'event1', updatedAt: '2026-01-01T10:00:00.000Z' }],
+        unchangedIds: ['event1'],
+      },
+      rangeEvent
+    )
   })
 
   it('queries all derived seasons for cross-year ranges', async () => {

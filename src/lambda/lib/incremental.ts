@@ -1,3 +1,5 @@
+import { itemStamp } from '../../lib/incremental'
+
 export function parseDateParam(value: string | undefined): Date | undefined {
   if (!value) return undefined
 
@@ -6,43 +8,39 @@ export function parseDateParam(value: string | undefined): Date | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d
 }
 
-interface TimestampedItem {
-  deletedAt?: string
-  /**
-   * A user row also changes when its lastSeen is refreshed, and that refresh deliberately leaves
-   * modifiedAt - and with it the collection version - alone (see lib/auth.ts). An incremental
-   * fetch is therefore the only way an admin list ever sees a new lastSeen.
-   */
-  lastSeen?: string
-  modifiedAt?: string
-  updatedAt?: string
-}
+type TimestampedItem = Parameters<typeof itemStamp>[0]
 
-const getUpdatedAt = (item: TimestampedItem) => {
-  const timestamps = [item.updatedAt, item.modifiedAt, item.deletedAt, item.lastSeen]
-    .filter((value): value is string => typeof value === 'string')
-    .map((value) => new Date(value))
-    .filter((value) => !Number.isNaN(value.getTime()))
-
-  if (!timestamps.length) return undefined
-  return new Date(Math.max(...timestamps.map((value) => value.getTime())))
+/** The latest stamp a row carries, the one `changedSince` judges it by. */
+const itemUpdatedAt = (item: TimestampedItem) => {
+  const stamp = itemStamp(item)
+  return stamp === undefined ? undefined : new Date(stamp)
 }
 
 export const collectionCursor = <T extends TimestampedItem>(items: T[], fallback?: Date) =>
-  items.reduce((latest, item) => Math.max(latest, getUpdatedAt(item)?.getTime() ?? latest), fallback?.getTime() ?? 0)
+  items.reduce((latest, item) => Math.max(latest, itemUpdatedAt(item)?.getTime() ?? latest), fallback?.getTime() ?? 0)
 
 export const changedItemsSince = <T extends TimestampedItem>(items: T[], since: Date) =>
   items.filter((item) => {
-    const updatedAt = getUpdatedAt(item)
+    const updatedAt = itemUpdatedAt(item)
     return !updatedAt || updatedAt >= since
   })
 
+/**
+ * `unchanged` carries each quiet row's stamp: "unchanged since `since`" says nothing about a copy a
+ * client took long before, and the stamp is what tells a current copy from a stale one (KOE-1501).
+ * A row with no stamp is never quiet, so every unchanged row has one.
+ */
 export function changedSince<T extends TimestampedItem & { id: string }>(items: T[], since: Date) {
-  const changed = changedItemsSince(items, since)
-  const changedIds = new Set(changed.map((item) => item.id))
-  const unchangedIds = items.filter((item) => !changedIds.has(item.id)).map((item) => item.id)
+  const changed: T[] = []
+  const unchanged: { id: string; updatedAt: string }[] = []
 
-  return { changed, unchangedIds }
+  for (const item of items) {
+    const updatedAt = itemUpdatedAt(item)
+    if (!updatedAt || updatedAt >= since) changed.push(item)
+    else unchanged.push({ id: item.id, updatedAt: updatedAt.toISOString() })
+  }
+
+  return { changed, unchanged, unchangedIds: unchanged.map(({ id }) => id) }
 }
 
 export const collectionChangesSince = <T extends TimestampedItem>(

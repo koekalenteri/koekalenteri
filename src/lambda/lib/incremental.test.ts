@@ -1,4 +1,4 @@
-import { changedItemsSince, collectionChangesSince, parseDateParam } from './incremental'
+import { changedItemsSince, changedSince, collectionChangesSince, parseDateParam } from './incremental'
 
 describe('incremental collection helpers', () => {
   const since = new Date('2024-01-02T00:00:00.000Z')
@@ -53,6 +53,23 @@ describe('incremental collection helpers', () => {
       cursor: Date.parse('2024-01-03T00:00:00.000Z'),
       deletedIds: ['1'],
       items: [{ id: 2, modifiedAt: '2024-01-03T00:00:00.000Z' }],
+    })
+  })
+
+  it('splits rows into changed and unchanged, with the unchanged rows stamps', () => {
+    expect(
+      changedSince(
+        [
+          { id: 'old', modifiedAt: '2024-01-01T00:00:00.000Z', updatedAt: '2023-12-01T00:00:00.000Z' },
+          { id: 'new', modifiedAt: '2024-01-03T00:00:00.000Z' },
+          { id: 'unstamped' },
+        ],
+        since
+      )
+    ).toEqual({
+      changed: [{ id: 'new', modifiedAt: '2024-01-03T00:00:00.000Z' }, { id: 'unstamped' }],
+      unchanged: [{ id: 'old', updatedAt: '2024-01-01T00:00:00.000Z' }],
+      unchangedIds: ['old'],
     })
   })
 })
