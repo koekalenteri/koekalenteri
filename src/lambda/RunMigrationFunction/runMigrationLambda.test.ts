@@ -19,7 +19,7 @@ vi.doMock('../lib/lambda', async () => ({
 
 vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
-  authorizeAdmin: async (event: any) => {
+  authorizeAdmin: async (event: unknown) => {
     const user = await mockAuthorize(event)
     if (!user) throw httpError(401, 'Unauthorized')
     if (!user.admin) throw httpError(403, 'Forbidden')
@@ -571,6 +571,17 @@ describe('runMigrationLambda', () => {
       await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
 
       expect(mockMarkApplied).not.toHaveBeenCalled()
+    })
+
+    it('starts no further row after a write has failed', async () => {
+      mockReadApplied.mockResolvedValue(allButOrganizer())
+      mockReadAll.mockResolvedValueOnce(Array.from({ length: 12 }, (_, i) => ({ ...organizerRow(), id: `event${i}` })))
+      mockUpdate.mockRejectedValueOnce(new Error('write failed'))
+
+      await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
+
+      // Only the rows already in flight (the concurrency limit) were written, not the other seven
+      expect(mockUpdate).toHaveBeenCalledTimes(5)
     })
   })
 

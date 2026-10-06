@@ -188,7 +188,19 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
   const events = (await dynamoDB.readAll<JsonDogEvent>()) ?? []
   const modifiedRows = events.map((item) => migrateRow(item, pending)).filter(({ changed }) => changed.some(Boolean))
 
-  const written = await mapWithConcurrency(modifiedRows, WRITE_CONCURRENCY, (row) => writeRow(row, pending))
+  // After a failed write no further row is started: the invocation answers with the failure, and
+  // writes still going on in the background after that answer would be a surprise. Rows already
+  // being written finish; a half-done run is safe because every migration can be run again.
+  let failed = false
+  const written = await mapWithConcurrency(modifiedRows, WRITE_CONCURRENCY, async (row) => {
+    if (failed) return pending.map(() => false)
+    try {
+      return await writeRow(row, pending)
+    } catch (error) {
+      failed = true
+      throw error
+    }
+  })
   const counts = pending.map((_, index) => written.filter((changed) => changed[index]).length)
 
   const migrationResults = pending.map(({ migration }, index) => ({ count: counts[index], name: migration.name }))
