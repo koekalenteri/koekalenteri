@@ -9,14 +9,16 @@ vi.doMock('nanoid', () => ({ nanoid: () => `test-revision-${++revision.next}` })
 
 const mockBatchGet = vi.fn()
 const mockUpdate = vi.fn()
+const mockReadAll = vi.fn()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
-    return { batchGet: mockBatchGet, update: mockUpdate }
+    return { batchGet: mockBatchGet, readAll: mockReadAll, update: mockUpdate }
   }),
 }))
 
-const { bumpDataVersion, getDataVersions } = await import('./dataVersions')
+const { bumpDataVersion, getDataVersions, markMigrationApplied, readAppliedMigrations, readStoredDataVersions } =
+  await import('./dataVersions')
 
 const NOW = '2026-08-30T12:00:00.000Z'
 
@@ -149,5 +151,82 @@ describe('bumpDataVersion', () => {
     await bumpDataVersion('users', [])
 
     expect(mockUpdate).not.toHaveBeenCalled()
+  })
+})
+
+describe('migration registry', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockBatchGet.mockResolvedValue([])
+    mockUpdate.mockResolvedValue(undefined)
+  })
+
+  it('reads the named migrations in one batchGet and returns the stored hashes', async () => {
+    mockBatchGet.mockResolvedValueOnce([
+      { appliedAt: NOW, collection: 'migrations', count: 3, hash: 'abc123', scope: 'backfillOrganizerId' },
+      { appliedAt: NOW, collection: 'migrations', count: 1, scope: 'fixSeasonFromStartDate' },
+    ])
+
+    const applied = await readAppliedMigrations(['backfillOrganizerId', 'fixSeasonFromStartDate'])
+
+    expect(mockBatchGet).toHaveBeenCalledTimes(1)
+    expect(mockBatchGet).toHaveBeenCalledWith([
+      { collection: 'migrations', scope: 'backfillOrganizerId' },
+      { collection: 'migrations', scope: 'fixSeasonFromStartDate' },
+    ])
+    // A row from before hashes existed maps to undefined, like one never written
+    expect(applied).toEqual(
+      new Map([
+        ['backfillOrganizerId', 'abc123'],
+        ['fixSeasonFromStartDate', undefined],
+      ])
+    )
+    expect(applied.get('neverRecorded')).toBeUndefined()
+  })
+
+  it('records a migration with the time, the rows it changed and the hash of its code', async () => {
+    await markMigrationApplied('backfillOrganizerId', 4, 'abc123')
+
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { collection: 'migrations', scope: 'backfillOrganizerId' },
+      { set: { appliedAt: NOW, count: 4, hash: 'abc123' } },
+      undefined,
+      undefined,
+      {
+        expression: 'attribute_not_exists(appliedAt) OR #hash <> :hash',
+        names: { '#hash': 'hash' },
+        values: { ':hash': 'abc123' },
+      }
+    )
+  })
+
+  it('leaves an earlier mark alone when a concurrent run already recorded it', async () => {
+    mockUpdate.mockRejectedValueOnce(
+      Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
+    )
+
+    await expect(markMigrationApplied('backfillOrganizerId', 0, 'abc123')).resolves.toBeUndefined()
+  })
+
+  it('does not swallow any other failure of the mark', async () => {
+    mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+
+    await expect(markMigrationApplied('backfillOrganizerId', 0, 'abc123')).rejects.toThrow('throttled')
+  })
+
+  it('keeps migration rows out of what the weekly repair measures', async () => {
+    const version = { collection: 'judges', count: 2, revision: 'aaa', scope: '*' }
+    mockReadAll.mockResolvedValueOnce([
+      version,
+      { appliedAt: NOW, collection: 'migrations', count: 3, scope: 'backfillOrganizerId' },
+    ])
+
+    expect(await readStoredDataVersions()).toEqual([version])
+  })
+
+  it('reads an empty table as no stored versions', async () => {
+    mockReadAll.mockResolvedValueOnce(undefined)
+
+    expect(await readStoredDataVersions()).toEqual([])
   })
 })

@@ -90,6 +90,15 @@ export const isHttpMethod = (event: Partial<Pick<APIGatewayProxyEvent, 'httpMeth
 export const isPatchRequest = (event: Partial<Pick<APIGatewayProxyEvent, 'httpMethod'>>): boolean =>
   isHttpMethod(event, 'PATCH')
 
+/**
+ * A lambda invoked with `aws lambda invoke` gets the payload as given, with no API Gateway around
+ * it. API Gateway builds `requestContext` itself for every request it forwards and nothing in the
+ * request (headers, query, body) can remove it, so its absence means the caller was authorized by
+ * IAM to invoke the function.
+ */
+export const isDirectInvoke = (event: Partial<Pick<APIGatewayProxyEvent, 'requestContext'>>): boolean =>
+  !event.requestContext
+
 export const allowOrigin = (event: APIGatewayProxyEvent) => {
   const origin = getOrigin(event)
   // Exact host or a subdomain (dot boundary), https only. A bare endsWith would

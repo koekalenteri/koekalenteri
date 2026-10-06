@@ -26,6 +26,20 @@ permissions:
   contents: write
   id-token: write # for the OIDC token the deploy role is assumed with
 
+# One deploy per environment at a time (KOE-1502): the data migration step runs after `sam deploy`, and
+# a second deploy starting under it would run its migrations against a stack the first one is still
+# changing. The group is on the workflow, so one run holds it from `setup` to the last job; a job-level
+# group could not be shared by deploy-backend and deploy-frontend without letting another run's backend
+# slip between them. A workflow-level group cannot read job outputs, so the environment is worked out
+# here from the same inputs the `setEnv` step reads: keep the two in step. The caller's own group in
+# ci.yml (`deploy-dev-<ref>`) must not get this name, or the caller and the called workflow wait for
+# each other. A running deploy is never cancelled, but GitHub lets only one run wait per group: a
+# newer waiting run replaces an older waiting one, so of several deploys queued behind a running one
+# only the last is deployed.
+concurrency:
+  group: deploy-${{ inputs.env || ((github.event_name == 'workflow_dispatch' || github.event.release.prerelease) && 'test' || 'prod') }}
+  cancel-in-progress: false
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -146,6 +160,23 @@ jobs:
               ParameterKey=Branch,ParameterValue=${{ env.branch }}' \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-confirm-changeset --no-fail-on-empty-changeset
+      # Data migrations (KOE-1502): the function applies the ones its registry does not list yet and
+      # answers with their counters. The lambda wrapper turns a failure into a non-200 answer instead of
+      # a function error, so the answer is checked here; a failed run fails the job and with it
+      # deploy-frontend, which needs this job.
+      - name: Run data migrations
+        run: |
+          function_name=$(aws cloudformation describe-stack-resource \
+            --stack-name "${{ env.environment }}" \
+            --logical-resource-id RunMigrationFunction \
+            --query StackResourceDetail.PhysicalResourceId --output text)
+          aws lambda invoke --function-name "$function_name" \
+            --cli-binary-format raw-in-base64-out --cli-read-timeout 900 \
+            --payload '{}' migration-result.json
+          cat migration-result.json
+          jq -e '.statusCode == 200' migration-result.json > /dev/null \
+            || { echo "::error::Data migrations failed"; exit 1; }
+          jq -r '.body | fromjson | if length == 0 then "No migrations pending" else .[] | "\(.name): \(.count) rows" end' migration-result.json
 
   deploy-frontend:
     # After the backend, never beside it: the Amplify build reads its configuration from environment

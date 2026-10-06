@@ -1,5 +1,6 @@
 import type { APIGatewayEvent, APIGatewayProxyEvent } from 'aws-lambda'
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
 vi.mock('../config', () => ({ CONFIG: { stageName: 'test' } }))
@@ -9,7 +10,7 @@ vi.mock('aws-embedded-metrics', () => ({
   Unit: { Count: 'Count' },
 }))
 
-const { httpError, lambda, LambdaError, wsLambda } = await import('./lambda')
+const { httpError, lambda, LambdaError, response, wsLambda } = await import('./lambda')
 
 const event = { headers: {}, requestContext: { requestId: 'req-1' } } as unknown as APIGatewayProxyEvent
 const wsEvent = {
@@ -34,6 +35,16 @@ describe('lambda wrapper', () => {
   afterEach(() => {
     errorSpy.mockRestore()
     infoSpy.mockRestore()
+  })
+
+  it('serves a direct invocation, which carries no requestContext', async () => {
+    const handler = lambda('test', async (e) => response(200, { ok: true }, e))
+    const directEvent = constructPartialAPIGwEvent({})
+
+    const result = await handler(directEvent)
+
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual({ ok: true })
   })
 
   it('answers httpError with the body as written', async () => {

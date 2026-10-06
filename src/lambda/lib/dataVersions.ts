@@ -2,6 +2,7 @@ import type { DataVersion, DataVersions } from '../../types'
 import { nanoid } from 'nanoid'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { isConditionalCheckFailure } from './api-gw'
 import { logger } from './log'
 
 /** Every collection but `users` has a single version; see `userScopes()` in lib/user.ts. */
@@ -110,7 +111,63 @@ export async function bumpDataVersion(collection: VersionedCollection, scopes: s
   }
 }
 
-export const readStoredDataVersions = async () => (await client.readAll<VersionRecord>()) ?? []
+/**
+ * The registry of applied data migrations shares this table: `scope` is the migration's name, and
+ * the row says when it ran and how many rows it changed. They are not versions, so the weekly
+ * repair must not measure them (`readStoredDataVersions` leaves them out).
+ */
+const MIGRATIONS_COLLECTION = 'migrations'
+
+interface MigrationRecord {
+  appliedAt: string
+  collection: typeof MIGRATIONS_COLLECTION
+  count: number
+  /** Digest of the migration's code when it ran; absent on rows from before hashes existed. */
+  hash?: string
+  scope: string
+}
+
+/**
+ * The stored code hash of each named migration that is recorded as applied; one batchGet, whatever
+ * the number. A row written before hashes existed maps to undefined, as does one never written, and
+ * a caller compares the current hash against the value so both read as pending.
+ */
+export const readAppliedMigrations = async (names: string[]): Promise<Map<string, string | undefined>> => {
+  const records = await client.batchGet<MigrationRecord>(
+    names.map((scope) => ({ collection: MIGRATIONS_COLLECTION, scope }))
+  )
+  return new Map(records.map((record) => [record.scope, record.hash]))
+}
+
+/**
+ * Records a migration unless a concurrent run already did: its mark, with the larger count, must
+ * not be overwritten by a run that found nothing left to change. A migration whose code changed
+ * (another hash) is marked again.
+ */
+export const markMigrationApplied = async (name: string, count: number, hash: string) => {
+  try {
+    await client.update(
+      { collection: MIGRATIONS_COLLECTION, scope: name },
+      { set: { appliedAt: new Date().toISOString(), count, hash } },
+      undefined,
+      undefined,
+      {
+        expression: 'attribute_not_exists(appliedAt) OR #hash <> :hash',
+        names: { '#hash': 'hash' },
+        values: { ':hash': hash },
+      }
+    )
+  } catch (error) {
+    if (!isConditionalCheckFailure(error)) throw error
+    logger.info('migration already recorded', { name })
+  }
+}
+
+export const readStoredDataVersions = async () =>
+  ((await client.readAll<VersionRecord | MigrationRecord>()) ?? []).filter(isVersionRecord)
+
+const isVersionRecord = (record: VersionRecord | MigrationRecord): record is VersionRecord =>
+  record.collection !== MIGRATIONS_COLLECTION
 
 /**
  * Records the fingerprint the weekly repair measured, reminting the revision when the data moved
