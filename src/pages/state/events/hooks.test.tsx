@@ -179,6 +179,95 @@ describe('useFetchEvents', () => {
     })
   })
 
+  it('refetches the range when an unchanged event is held as an older copy (KOE-1501)', async () => {
+    const start = new Date('2026-04-05T00:00:00.000Z')
+    // Cached in May with makeEvent's January stamp; the server's row has been updated since, but
+    // before the last sync, so the server rightly lists it as unchanged
+    const staleCopy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const current = { ...staleCopy, modifiedAt: new Date('2026-06-01T00:00:00.000Z') }
+    const lastSyncAt = Date.now() - 60 * 60 * 1000
+
+    ;(getEvents as import('vitest').Mock)
+      .mockResolvedValueOnce({
+        cursor: lastSyncAt,
+        events: [],
+        unchanged: [{ id: 'may', updatedAt: '2026-06-01T00:00:00.000Z' }],
+        unchangedIds: ['may'],
+      })
+      .mockResolvedValueOnce({ cursor: Date.parse('2026-06-01T00:00:00.000Z'), events: [current], unchangedIds: [] })
+
+    const { result } = renderHook(() => ({ events: useAtomValue(eventsAtom), fetchEvents: useFetchEvents() }), {
+      wrapper: wrapperWithState([staleCopy], { lastRangeEnd: null, lastRangeStart: Date.now(), lastSyncAt }),
+    })
+
+    await act(async () => {
+      await result.current.fetchEvents(start)
+    })
+
+    expect(getEvents).toHaveBeenNthCalledWith(1, start, undefined, lastSyncAt)
+    expect(getEvents).toHaveBeenNthCalledWith(2, start, undefined)
+    expect(result.current.events).toEqual([current])
+  })
+
+  it('keeps a copy the server stamps the same as the one it holds', async () => {
+    const start = new Date('2026-04-05T00:00:00.000Z')
+    const copy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const lastSyncAt = Date.now() - 60 * 60 * 1000
+
+    ;(getEvents as import('vitest').Mock).mockResolvedValueOnce({
+      cursor: lastSyncAt,
+      events: [],
+      unchanged: [{ id: 'may', updatedAt: '2026-01-01T00:00:00.000Z' }],
+      unchangedIds: ['may'],
+    })
+
+    const { result } = renderHook(() => ({ events: useAtomValue(eventsAtom), fetchEvents: useFetchEvents() }), {
+      wrapper: wrapperWithState([copy], { lastRangeEnd: null, lastRangeStart: Date.now(), lastSyncAt }),
+    })
+
+    await act(async () => {
+      await result.current.fetchEvents(start)
+    })
+
+    expect(getEvents).toHaveBeenCalledTimes(1)
+    expect(result.current.events).toEqual([copy])
+  })
+
+  it("asks from the server's cursor, not the client clock, and stores the next one (KOE-1501)", async () => {
+    const start = new Date('2026-01-02T00:00:00.000Z')
+    const cached = makeEvent('cached', '2026-01-03T00:00:00.000Z')
+    const cursor = Date.parse('2026-01-01T12:00:00.000Z')
+    const nextCursor = Date.parse('2026-01-02T12:00:00.000Z')
+    const lastSyncAt = Date.now() - 10 * 60 * 1000
+
+    ;(getEvents as import('vitest').Mock).mockResolvedValueOnce({
+      cursor: nextCursor,
+      events: [],
+      unchanged: [{ id: 'cached', updatedAt: '2026-01-01T00:00:00.000Z' }],
+      unchangedIds: ['cached'],
+    })
+
+    const { result } = renderHook(
+      () => ({ fetchEvents: useFetchEvents(), metadata: useAtomValue(eventMetadataAtom) }),
+      {
+        wrapper: wrapperWithState([cached], {
+          cursor,
+          lastRangeEnd: null,
+          lastRangeStart: start.getTime(),
+          lastSyncAt,
+        }),
+      }
+    )
+
+    await act(async () => {
+      await result.current.fetchEvents(start)
+    })
+
+    expect(getEvents).toHaveBeenCalledWith(start, undefined, cursor)
+    expect(result.current.metadata.cursor).toBe(nextCursor)
+    expect(result.current.metadata.lastSyncAt).toBeGreaterThan(lastSyncAt)
+  })
+
   it('sets eventsLoadingAtom to true before the API call and false after', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')

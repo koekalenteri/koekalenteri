@@ -18,7 +18,8 @@ interface TimestampedItem {
   updatedAt?: string
 }
 
-const getUpdatedAt = (item: TimestampedItem) => {
+/** The latest stamp a row carries, the one `changedSince` judges it by. */
+export const itemUpdatedAt = (item: TimestampedItem) => {
   const timestamps = [item.updatedAt, item.modifiedAt, item.deletedAt, item.lastSeen]
     .filter((value): value is string => typeof value === 'string')
     .map((value) => new Date(value))
@@ -29,11 +30,11 @@ const getUpdatedAt = (item: TimestampedItem) => {
 }
 
 export const collectionCursor = <T extends TimestampedItem>(items: T[], fallback?: Date) =>
-  items.reduce((latest, item) => Math.max(latest, getUpdatedAt(item)?.getTime() ?? latest), fallback?.getTime() ?? 0)
+  items.reduce((latest, item) => Math.max(latest, itemUpdatedAt(item)?.getTime() ?? latest), fallback?.getTime() ?? 0)
 
 export const changedItemsSince = <T extends TimestampedItem>(items: T[], since: Date) =>
   items.filter((item) => {
-    const updatedAt = getUpdatedAt(item)
+    const updatedAt = itemUpdatedAt(item)
     return !updatedAt || updatedAt >= since
   })
 

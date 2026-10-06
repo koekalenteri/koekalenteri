@@ -11,13 +11,18 @@ import type {
 } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
+import { latestCollectionUpdate } from '../lib/incremental'
 import http, { withToken } from './http'
 
 const PATH = '/event/'
 const ADMIN_PATH = '/admin/event/'
 
 export type PublicEventsDeltaResponse = {
+  /** The server's watermark for the next incremental fetch (KOE-1501) */
+  cursor?: number
   events: PublicDogEvent[]
+  /** The unchanged events' stamps, so a stale cached copy can be told from a current one (KOE-1501) */
+  unchanged?: { id: string; updatedAt: string }[]
   unchangedIds: string[]
 }
 
@@ -80,7 +85,9 @@ export const getEvents = async (
 
   if (isPublicEventsDeltaResponse(response)) return response
 
-  return { events: response, unchangedIds: [] }
+  // A full list carries no cursor of its own: the latest stamp among its events is what the
+  // server would have computed for it.
+  return { cursor: latestCollectionUpdate(response)?.getTime(), events: response, unchangedIds: [] }
 }
 
 // The endpoint serves the sanitized public event, so the public-only `liveTurns` rides along.

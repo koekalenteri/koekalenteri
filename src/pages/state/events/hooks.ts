@@ -1,3 +1,4 @@
+import type { PublicEventsDeltaResponse } from '@/api/event'
 import type { DogEvent, PublicDogEvent } from '@/types'
 import type { EventMetadata } from './types'
 import { useAtomValue } from 'jotai'
@@ -6,6 +7,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import { getEvent, getEvents } from '@/api/event'
 import { reportError } from '@/lib/client/error'
 import { compareEventsByDate } from '@/lib/event'
+import { latestCollectionUpdate } from '@/lib/incremental'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
 import { eventAtom } from './derivedAtoms'
@@ -76,21 +78,31 @@ function reconcileRange<T extends DogEventSortKey & DogEventRangeKey>(
   return mergeAndSortByDate(retainedOutsideRange, [...retainedUnchangedInRange, ...changed])
 }
 
+/**
+ * Whether the delta cannot be applied as it is: an unchanged event this client does not hold, or
+ * holds as a copy older than the server's. "Unchanged since the last sync" is true of the server's
+ * row, not of a copy taken in an earlier range that no sync has covered since (KOE-1501).
+ */
 function hasMissingUnchangedEvents<T extends DogEventSortKey & DogEventRangeKey>(
   existing: T[],
   changed: T[],
-  unchangedIds: string[],
+  response: Pick<PublicEventsDeltaResponse, 'unchanged' | 'unchangedIds'>,
   start: Date,
   end?: Date
 ): boolean {
-  if (!unchangedIds.length) return false
+  if (!response.unchangedIds.length) return false
 
-  const knownIds = new Set([
-    ...existing.filter((event) => overlapsRange(event, start, end)).map((event) => event.id),
-    ...changed.map((event) => event.id),
-  ])
+  const known = new Map<string, T>()
+  for (const event of existing) if (overlapsRange(event, start, end)) known.set(event.id, event)
+  for (const event of changed) known.set(event.id, event)
+  const serverStamps = new Map((response.unchanged ?? []).map(({ id, updatedAt }) => [id, Date.parse(updatedAt)]))
 
-  return unchangedIds.some((id) => !knownIds.has(id))
+  return response.unchangedIds.some((id) => {
+    const copy = known.get(id)
+    if (!copy) return true
+    const serverStamp = serverStamps.get(id)
+    return serverStamp !== undefined && latestCollectionUpdate([copy])?.getTime() !== serverStamp
+  })
 }
 
 function isSingleFresh(metadata: EventMetadata, id: string): boolean {
@@ -145,13 +157,14 @@ function buildRangeMetadata(
   metadata: EventMetadata,
   request: RangeRequest,
   now: number,
-  includeSyncAt: boolean
+  synced?: { cursor: number | undefined }
 ): EventMetadata {
   return {
     ...metadata,
+    cursor: synced ? (synced.cursor ?? metadata.cursor) : metadata.cursor,
     lastRangeEnd: request.end,
     lastRangeStart: request.start,
-    lastSyncAt: includeSyncAt ? now : metadata.lastSyncAt,
+    lastSyncAt: synced ? now : metadata.lastSyncAt,
     retainedStart: request.start,
   }
 }
@@ -175,17 +188,19 @@ async function getRangeSyncResult(
   const strategy = getRangeStrategy(metadata, preparedEvents.length, start, end, now)
 
   if (strategy.kind === 'throttled') {
-    return { metadata: buildRangeMetadata(metadata, strategy.request, now, false) }
+    return { metadata: buildRangeMetadata(metadata, strategy.request, now) }
   }
 
-  const response = await getEvents(start, end, strategy.isCold ? undefined : metadata.lastSyncAt)
-  const completeResponse = hasMissingUnchangedEvents(preparedEvents, response.events, response.unchangedIds, start, end)
+  // Metadata written before the server handed out cursors has only the client-clock sync time.
+  const since = metadata.cursor ?? metadata.lastSyncAt
+  const response = await getEvents(start, end, strategy.isCold ? undefined : since)
+  const completeResponse = hasMissingUnchangedEvents(preparedEvents, response.events, response, start, end)
     ? await getEvents(start, end)
     : response
 
   return {
     events: reconcileRange(preparedEvents, completeResponse.events, completeResponse.unchangedIds, start, end),
-    metadata: buildRangeMetadata(metadata, strategy.request, now, true),
+    metadata: buildRangeMetadata(metadata, strategy.request, now, { cursor: completeResponse.cursor }),
   }
 }
 

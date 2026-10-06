@@ -2,7 +2,7 @@ import type { JsonDogEvent } from '../../types'
 import { formatDate, TIME_ZONE, zonedEndOfDay, zonedParseDate } from '../../i18n/dates'
 import { sanitizeDogEvent } from '../../lib/event'
 import { CONFIG } from '../config'
-import { changedSince, parseDateParam } from '../lib/incremental'
+import { changedSince, collectionCursor, itemUpdatedAt, parseDateParam } from '../lib/incremental'
 import { lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -91,8 +91,21 @@ const getEventsLambda = lambda('getEvents', async (event) => {
   if (since) {
     const rangedItems = publicItems.filter((item) => inRequestedRange(item, start, end))
     const { changed: changedEvents, unchangedIds } = changedSince(rangedItems, since)
+    // The unchanged rows' stamps let the client tell a copy it took long ago from a current one:
+    // "unchanged since the last sync" says nothing about a copy that no sync has covered. The
+    // cursor is the server's watermark for the next ask; the client's clock is no measure of it
+    // (KOE-1501). `unchangedIds` stays for the clients that read only it.
+    const byId = new Map(rangedItems.map((item) => [item.id, item]))
+    const unchanged = unchangedIds.flatMap((id) => {
+      const updatedAt = itemUpdatedAt(byId.get(id) ?? {})?.toISOString()
+      return updatedAt ? [{ id, updatedAt }] : []
+    })
 
-    return response(200, { events: changedEvents, unchangedIds }, event)
+    return response(
+      200,
+      { cursor: collectionCursor(rangedItems, since), events: changedEvents, unchanged, unchangedIds },
+      event
+    )
   }
 
   if (start || end) {
