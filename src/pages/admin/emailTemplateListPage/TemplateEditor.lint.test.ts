@@ -35,6 +35,45 @@ describe('TemplateEditor.lint', () => {
     expect(diagnostics[0].message).toContain('unknownKey')
   })
 
+  describe('#each blocks', () => {
+    const listSchema = {
+      ...schema,
+      qualifyingResults: [{ date: '2026-01-01', result: 'ALO1' }],
+    }
+
+    it('reads the list named in the opening tag from the enclosing scope, not the loop (KOE-1499)', async () => {
+      const lint = getLintSource(listSchema)
+      const doc = '{{#each qualifyingResults}}\n{{this.result}}, {{this.date}}\n{{/each}}'
+
+      expect(await lint(makeView(doc))).toEqual([])
+    })
+
+    it('still flags an unknown list in the opening tag', async () => {
+      const lint = getLintSource(listSchema)
+      const doc = '{{#each unknownList}}{{this.result}}{{/each}}'
+      const diagnostics = await lint(makeView(doc))
+
+      expect(diagnostics).toHaveLength(1)
+      expect(diagnostics[0].message).toContain('unknownList')
+    })
+
+    it('accepts block params and the alias they declare', async () => {
+      const lint = getLintSource(listSchema)
+      const doc = '{{#each qualifyingResults as |r idx|}}{{r.result}} {{idx}}{{/each}}'
+
+      expect(await lint(makeView(doc))).toEqual([])
+    })
+
+    it('flags an unknown field through the alias', async () => {
+      const lint = getLintSource(listSchema)
+      const doc = '{{#each qualifyingResults as |r|}}{{r.unknownKey}}{{/each}}'
+      const diagnostics = await lint(makeView(doc))
+
+      expect(diagnostics).toHaveLength(1)
+      expect(diagnostics[0].message).toContain('unknownKey')
+    })
+  })
+
   describe('syntax errors', () => {
     it('marks the block that is closed with the wrong tag, and the unknown field after it', async () => {
       const lint = getLintSource(schema)
