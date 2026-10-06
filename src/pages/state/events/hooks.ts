@@ -98,18 +98,19 @@ function hasMissingUnchangedEvents<T extends DogEventSortKey & DogEventRangeKey 
   for (const event of existing) if (overlapsRange(event, start, end)) known.set(event.id, event)
   for (const event of changed) known.set(event.id, event)
 
-  // A server that sends no stamps can only be asked whether the event is held at all.
-  const serverStamps =
-    response.unchanged && new Map(response.unchanged.map(({ id, updatedAt }) => [id, Date.parse(updatedAt)]))
+  // A server that sends no stamps (an older deploy) cannot vouch for any copy: fetch in full.
+  if (!response.unchanged) return true
+
+  const serverStamps = new Map(response.unchanged.map(({ id, updatedAt }) => [id, Date.parse(updatedAt)]))
 
   return response.unchangedIds.some((id) => {
     const copy = known.get(id)
     if (!copy) return true
-    if (!serverStamps) return false
 
     const serverStamp = serverStamps.get(id)
     const copyStamp = itemStamp(copy)
-    return serverStamp === undefined || copyStamp === undefined || copyStamp < serverStamp
+    // Negated so that an unreadable stamp (NaN) counts as stale, like a missing one
+    return serverStamp === undefined || copyStamp === undefined || !(copyStamp >= serverStamp)
   })
 }
 

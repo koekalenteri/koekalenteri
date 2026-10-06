@@ -81,6 +81,9 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
   return perSeason.flatMap((seasonEvents) => seasonEvents ?? [])
 }
 
+/** How far the cursor trails the newest stamp, to catch rows stamped before they were committed */
+const CURSOR_LOOKBACK_MS = 60 * 1000
+
 const getEventsLambda = lambda('getEvents', async (event) => {
   const start = parseDateParam(event.queryStringParameters?.start)
   const end = parseDateParam(event.queryStringParameters?.end)
@@ -93,8 +96,13 @@ const getEventsLambda = lambda('getEvents', async (event) => {
     const { changed: events, unchanged, unchangedIds } = changedSince(rangedItems, since)
 
     // The cursor is the server's watermark for the next ask; the client's clock is no measure of
-    // it (KOE-1501). `unchangedIds` stays for the clients that read only it.
-    return response(200, { cursor: collectionCursor(rangedItems, since), events, unchanged, unchangedIds }, event)
+    // it (KOE-1501). It trails the newest stamp by CURSOR_LOOKBACK_MS and never falls behind
+    // `since`: a row committed a moment late with an older stamp is then still asked for, and the
+    // few rows delivered twice are merged by id. `unchangedIds` stays for the clients that read
+    // only it.
+    const cursor = Math.max(since.getTime(), collectionCursor(rangedItems, since) - CURSOR_LOOKBACK_MS)
+
+    return response(200, { cursor, events, unchanged, unchangedIds }, event)
   }
 
   if (start || end) {

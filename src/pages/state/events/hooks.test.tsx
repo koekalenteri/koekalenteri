@@ -244,6 +244,63 @@ describe('useFetchEvents', () => {
     expect(result.current.events).toEqual([copy])
   })
 
+  it('refetches in full when the server sends unchanged ids without their stamps (KOE-1501)', async () => {
+    const start = new Date('2026-04-05T00:00:00.000Z')
+    const copy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const lastSyncAt = Date.now() - 60 * 60 * 1000
+
+    ;(getEvents as import('vitest').Mock)
+      .mockResolvedValueOnce({ cursor: lastSyncAt, events: [], unchangedIds: ['may'] })
+      .mockResolvedValueOnce({ cursor: lastSyncAt, events: [copy], unchangedIds: [] })
+
+    const { result } = renderHook(() => ({ events: useAtomValue(eventsAtom), fetchEvents: useFetchEvents() }), {
+      wrapper: wrapperWithState([copy], {
+        cursor: lastSyncAt,
+        lastRangeEnd: null,
+        lastRangeStart: Date.now(),
+        lastSyncAt,
+      }),
+    })
+
+    await act(async () => {
+      await result.current.fetchEvents(start)
+    })
+
+    expect(getEvents).toHaveBeenCalledTimes(2)
+    expect(getEvents).toHaveBeenNthCalledWith(2, start, undefined)
+  })
+
+  it('refetches in full when the stamp the server gives an unchanged event is unreadable (KOE-1501)', async () => {
+    const start = new Date('2026-04-05T00:00:00.000Z')
+    const copy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const lastSyncAt = Date.now() - 60 * 60 * 1000
+
+    ;(getEvents as import('vitest').Mock)
+      .mockResolvedValueOnce({
+        cursor: lastSyncAt,
+        events: [],
+        unchanged: [{ id: 'may', updatedAt: 'not a date' }],
+        unchangedIds: ['may'],
+      })
+      .mockResolvedValueOnce({ cursor: lastSyncAt, events: [copy], unchangedIds: [] })
+
+    const { result } = renderHook(() => ({ events: useAtomValue(eventsAtom), fetchEvents: useFetchEvents() }), {
+      wrapper: wrapperWithState([copy], {
+        cursor: lastSyncAt,
+        lastRangeEnd: null,
+        lastRangeStart: Date.now(),
+        lastSyncAt,
+      }),
+    })
+
+    await act(async () => {
+      await result.current.fetchEvents(start)
+    })
+
+    expect(getEvents).toHaveBeenCalledTimes(2)
+    expect(getEvents).toHaveBeenNthCalledWith(2, start, undefined)
+  })
+
   it('keeps a copy newer than the server stamps it, an edit the server has not caught up with', async () => {
     const start = new Date('2026-04-05T00:00:00.000Z')
     const newer = { ...makeEvent('may', '2026-05-10T00:00:00.000Z'), modifiedAt: new Date('2026-07-01T00:00:00.000Z') }
