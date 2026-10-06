@@ -161,9 +161,10 @@ describe('migration registry', () => {
     mockUpdate.mockResolvedValue(undefined)
   })
 
-  it('reads the named migrations in one batchGet and returns the applied names', async () => {
+  it('reads the named migrations in one batchGet and returns the stored hashes', async () => {
     mockBatchGet.mockResolvedValueOnce([
-      { appliedAt: NOW, collection: 'migrations', count: 3, scope: 'backfillOrganizerId' },
+      { appliedAt: NOW, collection: 'migrations', count: 3, hash: 'abc123', scope: 'backfillOrganizerId' },
+      { appliedAt: NOW, collection: 'migrations', count: 1, scope: 'fixSeasonFromStartDate' },
     ])
 
     const applied = await readAppliedMigrations(['backfillOrganizerId', 'fixSeasonFromStartDate'])
@@ -173,16 +174,44 @@ describe('migration registry', () => {
       { collection: 'migrations', scope: 'backfillOrganizerId' },
       { collection: 'migrations', scope: 'fixSeasonFromStartDate' },
     ])
-    expect(applied).toEqual(new Set(['backfillOrganizerId']))
+    // A row from before hashes existed maps to undefined, like one never written
+    expect(applied).toEqual(
+      new Map([
+        ['backfillOrganizerId', 'abc123'],
+        ['fixSeasonFromStartDate', undefined],
+      ])
+    )
+    expect(applied.get('neverRecorded')).toBeUndefined()
   })
 
-  it('records a migration with the time and the number of rows it changed', async () => {
-    await markMigrationApplied('backfillOrganizerId', 4)
+  it('records a migration with the time, the rows it changed and the hash of its code', async () => {
+    await markMigrationApplied('backfillOrganizerId', 4, 'abc123')
 
     expect(mockUpdate).toHaveBeenCalledWith(
       { collection: 'migrations', scope: 'backfillOrganizerId' },
-      { set: { appliedAt: NOW, count: 4 } }
+      { set: { appliedAt: NOW, count: 4, hash: 'abc123' } },
+      undefined,
+      undefined,
+      {
+        expression: 'attribute_not_exists(appliedAt) OR #hash <> :hash',
+        names: { '#hash': 'hash' },
+        values: { ':hash': 'abc123' },
+      }
     )
+  })
+
+  it('leaves an earlier mark alone when a concurrent run already recorded it', async () => {
+    mockUpdate.mockRejectedValueOnce(
+      Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
+    )
+
+    await expect(markMigrationApplied('backfillOrganizerId', 0, 'abc123')).resolves.toBeUndefined()
+  })
+
+  it('does not swallow any other failure of the mark', async () => {
+    mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+
+    await expect(markMigrationApplied('backfillOrganizerId', 0, 'abc123')).rejects.toThrow('throttled')
   })
 
   it('keeps migration rows out of what the weekly repair measures', async () => {

@@ -1,9 +1,11 @@
 import type { JsonDogEvent, RegistrationClass } from '../../types'
+import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
 import { CONFIG } from '../config'
+import { isConditionalCheckFailure } from '../lib/api-gw'
 import { authorizeAdmin } from '../lib/auth'
 import { markMigrationApplied, readAppliedMigrations } from '../lib/dataVersions'
-import { isDirectInvoke, lambda, response } from '../lib/lambda'
+import { isDirectInvoke, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -85,16 +87,75 @@ const migrations: EventMigration[] = [
 ]
 
 /**
+ * Identifies the code of a migration. The text is the bundled function, so a change of the build can
+ * alter it without a source change (the migration then reruns once, which is harmless) and a change
+ * inside a helper the migration calls does not alter it (that migration needs a new name).
+ */
+const hashOf = ({ run }: EventMigration) => createHash('sha256').update(run.toString()).digest('hex').slice(0, 16)
+
+const registered = migrations.map((migration) => ({ hash: hashOf(migration), migration }))
+
+const MAX_WRITE_ATTEMPTS = 3
+
+type Pending = (typeof registered)[number]
+
+/** A row as read, with the `updatedAt` it had then: the migrations and the bump change the item. */
+type ReadRow = { changed: boolean[]; item: JsonDogEvent; readUpdatedAt: string | undefined }
+
+const migrateRow = (item: JsonDogEvent, pending: Pending[]): ReadRow => ({
+  changed: pending.map(({ migration }) => migration.run(item)),
+  item,
+  readUpdatedAt: item.updatedAt,
+})
+
+/** The write only lands when nobody changed the row since it was read. */
+const unchangedSince = (readUpdatedAt: string | undefined) =>
+  readUpdatedAt === undefined
+    ? { expression: 'attribute_not_exists(updatedAt)' }
+    : { expression: 'updatedAt = :read', values: { ':read': readUpdatedAt } }
+
+/**
+ * Every migration's change must reach browsers that already cache the event: the incremental fetch
+ * (`changedSince` in lambda/lib/incremental.ts) reads `updatedAt`, and a row rewritten without moving
+ * it comes back as unchanged, so the change would never reach anyone already holding the event.
+ * `modifiedAt` stays untouched: it records a user's edit, which this is not.
+ *
+ * A row saved by someone else since it was read is read again and migrated afresh, so their change
+ * survives. Returns what changed in the row that was finally written, none when nothing was left to do.
+ */
+const writeRow = async (row: ReadRow, pending: Pending[]): Promise<boolean[]> => {
+  let current = row
+  for (let attempt = 1; current.changed.some(Boolean); attempt++) {
+    current.item.updatedAt = new Date().toISOString()
+    try {
+      await dynamoDB.write(current.item, undefined, unchangedSince(current.readUpdatedAt))
+      return current.changed
+    } catch (error) {
+      if (!isConditionalCheckFailure(error)) throw error
+      if (attempt >= MAX_WRITE_ATTEMPTS) {
+        throw new LambdaError(409, `Event ${current.item.id} kept changing while it was migrated`)
+      }
+      const fresh = await dynamoDB.read<JsonDogEvent>({ id: current.item.id }, undefined, true)
+      current = fresh ? migrateRow(fresh, pending) : { ...current, changed: pending.map(() => false) }
+    }
+  }
+  return current.changed
+}
+
+/**
  * The admin button (API Gateway) is a forced full run, so a correction run is always possible. The
  * deploy invokes the function directly and only the migrations the registry does not list as
- * applied run, which makes a deploy without new migrations one registry read and no table scan.
+ * applied with the same code hash run, which makes a deploy without new migrations one registry
+ * read and no table scan.
  */
 const runMigrationLambda = lambda('runMigration', async (event) => {
   const direct = isDirectInvoke(event)
   if (!direct) await authorizeAdmin(event)
 
-  const applied = direct ? await readAppliedMigrations(migrations.map(({ name }) => name)) : new Set<string>()
-  const pending = migrations.filter(({ name }) => !applied.has(name))
+  const applied = direct
+    ? await readAppliedMigrations(migrations.map(({ name }) => name))
+    : new Map<string, string | undefined>()
+  const pending = registered.filter(({ hash, migration }) => applied.get(migration.name) !== hash)
 
   if (!pending.length) {
     logger.info('no migrations pending')
@@ -102,31 +163,22 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
   }
 
   const events = (await dynamoDB.readAll<JsonDogEvent>()) ?? []
+  const modifiedRows = events.map((item) => migrateRow(item, pending)).filter(({ changed }) => changed.some(Boolean))
 
-  const migrationResults = pending.map((migration) => ({ count: 0, name: migration.name }))
-  const modifiedEvents = new Set<JsonDogEvent>()
-
-  for (const item of events) {
-    pending.forEach((migration, index) => {
-      if (migration.run(item)) {
-        migrationResults[index].count++
-        modifiedEvents.add(item)
-      }
+  const counts = pending.map(() => 0)
+  for (const row of modifiedRows) {
+    const written = await writeRow(row, pending)
+    written.forEach((changed, index) => {
+      if (changed) counts[index]++
     })
   }
 
-  // Every migration's change must reach browsers that already cache the event: the incremental
-  // fetch (`changedSince` in lambda/lib/incremental.ts) reads `updatedAt`, and a row rewritten
-  // without moving it comes back as unchanged, so the change would never reach anyone already
-  // holding the event. `modifiedAt` stays untouched: it records a user's edit, which this is not.
-  const updatedAt = new Date().toISOString()
-  for (const item of modifiedEvents) {
-    item.updatedAt = updatedAt
-    await dynamoDB.write(item)
-  }
+  const migrationResults = pending.map(({ migration }, index) => ({ count: counts[index], name: migration.name }))
 
   // Only after every write went through: a failed run records nothing and the next one starts over.
-  await Promise.all(migrationResults.map(({ count, name }) => markMigrationApplied(name, count)))
+  await Promise.all(
+    pending.map(({ hash }, index) => markMigrationApplied(migrationResults[index].name, counts[index], hash))
+  )
   logger.info('migrations applied', { migrations: migrationResults })
 
   return response(200, migrationResults, event)

@@ -360,10 +360,16 @@ export default class CustomDynamoClient {
     return items
   }
 
-  async write<T extends object>(Item: T, table?: string): Promise<unknown> {
+  /** With a condition, a Put that fails it rejects with `ConditionalCheckFailedException`. */
+  async write<T extends object>(Item: T, table?: string, condition?: UpdateCondition): Promise<unknown> {
     const params: PutCommandInput = {
       Item,
       TableName: table ? fromSamLocalTable(table) : this.table,
+    }
+    if (condition) {
+      params.ConditionExpression = condition.expression
+      if (condition.names) params.ExpressionAttributeNames = condition.names
+      if (condition.values) params.ExpressionAttributeValues = condition.values
     }
     logDb('DB.write', params)
     return this.docClient.send(new PutCommand(params))

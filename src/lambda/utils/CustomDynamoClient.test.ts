@@ -397,6 +397,38 @@ describe('CustomDynamoClient', () => {
       })
     })
 
+    it('sends a condition with its names and values', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.write({ id: '1' }, undefined, {
+        expression: '#u = :read',
+        names: { '#u': 'updatedAt' },
+        values: { ':read': 'then' },
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        ConditionExpression: '#u = :read',
+        ExpressionAttributeNames: { '#u': 'updatedAt' },
+        ExpressionAttributeValues: { ':read': 'then' },
+        Item: { id: '1' },
+        TableName: 'test-table',
+      })
+    })
+
+    it('sends a condition that needs no names or values as the expression alone', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.write({ id: '1' }, undefined, { expression: 'attribute_not_exists(updatedAt)' })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        ConditionExpression: 'attribute_not_exists(updatedAt)',
+        Item: { id: '1' },
+        TableName: 'test-table',
+      })
+    })
+
     it('uses provided table name', async () => {
       const client = new CustomDynamoClient('DefaultTable')
       mockSend.mockImplementationOnce((command: Record<string, any>) => {

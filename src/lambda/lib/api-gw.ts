@@ -14,3 +14,6 @@ export const isAwsServiceError = (
 ): error is { name?: string; message?: string; $metadata?: { httpStatusCode?: number } } => {
   return typeof error === 'object' && error !== null && 'name' in error
 }
+
+export const isConditionalCheckFailure = (error: unknown) =>
+  isAwsServiceError(error) && error.name === 'ConditionalCheckFailedException'

@@ -58,12 +58,21 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `requestContext`, so no Cognito check) and prints the counters. A failed run fails the job before
   the frontend is published.
 - Applied migrations are recorded in the data version table (collection `migrations`, scope = the
-  migration's name, fields `appliedAt` and `count`; every environment has its own table). A deploy
-  runs only the migrations missing from it, and with none missing it reads the registry once and
-  never touches the event table. So an applied migration does not run again: **a migration whose code
-  changes gets a new name**, or the change never reaches an environment that has recorded the old one.
+  migration's name, fields `appliedAt`, `count` and `hash`; every environment has its own table). A
+  deploy runs only the migrations whose row is missing or whose stored `hash` differs from the hash of
+  `run.toString()`, and with none pending it reads the registry once and never touches the event
+  table. So an applied migration does not run again, and **a changed migration body reruns by
+  itself**. Two limits are accepted: the hashed text is the bundled code, so an esbuild or dependency
+  change can alter it without a source change and rerun a migration once (harmless, migrations are
+  idempotent); and a change inside a helper the migration calls (`getEventSeason`, say) does not alter
+  it, so a migration whose behaviour changes through a helper **needs a new name**.
+- Each modified row is written with the condition that its `updatedAt` is still the one read (or that
+  it had none), so a secretary's save is never overwritten: on a conflict the row is read again,
+  migrated again and retried, at most three attempts. If they run out the invocation fails (non-200),
+  records nothing, and the next deploy picks the migrations up. A mark never overwrites an earlier one
+  with the same hash.
 - `POST /admin/migrate` (admin-only) stays a forced run of every migration, for a correction run
-  (a wrong season, say), and records them again. A migration must therefore stay safe to re-run.
+  (a wrong season, say), and leaves the registry as it is when the hashes match. A migration must therefore stay safe to re-run.
 - Do not write a data migration as a repo script or npm command. The KOE-1266 start number backfill
   started as `scripts/backfill-start-numbers-published.mjs` and was moved into the lambda to keep
   the practice uniform.
