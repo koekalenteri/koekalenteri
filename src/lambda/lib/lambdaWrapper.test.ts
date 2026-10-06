@@ -1,5 +1,6 @@
 import type { APIGatewayEvent, APIGatewayProxyEvent } from 'aws-lambda'
 import { vi } from 'vitest'
+import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
 vi.mock('../config', () => ({ CONFIG: { stageName: 'test' } }))
@@ -38,7 +39,7 @@ describe('lambda wrapper', () => {
 
   it('serves a direct invocation, which carries no requestContext', async () => {
     const handler = lambda('test', async (e) => response(200, { ok: true }, e))
-    const directEvent = {} as unknown as APIGatewayProxyEvent
+    const directEvent = constructPartialAPIGwEvent({})
 
     const result = await handler(directEvent)
 

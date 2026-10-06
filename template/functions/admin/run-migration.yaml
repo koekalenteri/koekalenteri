@@ -3,6 +3,8 @@
     Properties:
       CodeUri: lambda/RunMigrationFunction
       Handler: handler.default
+      # The deploy waits for the answer: a full scan and a write per modified row outlast the global 60 s.
+      Timeout: 900
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable

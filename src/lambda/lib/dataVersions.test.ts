@@ -194,4 +194,10 @@ describe('migration registry', () => {
 
     expect(await readStoredDataVersions()).toEqual([version])
   })
+
+  it('reads an empty table as no stored versions', async () => {
+    mockReadAll.mockResolvedValueOnce(undefined)
+
+    expect(await readStoredDataVersions()).toEqual([])
+  })
 })
