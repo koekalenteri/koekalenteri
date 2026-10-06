@@ -61,8 +61,9 @@ const createWrapper =
       <Provider
         initializeState={({ set }) => {
           set(adminEmailTemplatesAtom, emailTemplates)
-          set(adminEventsAtom, [eventWithStaticDates])
+          // The token first: the seeded list stands for the one fetched with it (KOE-1500)
           set(idTokenAtom, TEST_ID_TOKEN)
+          set(adminEventsAtom, [eventWithStaticDates])
         }}
       >
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
