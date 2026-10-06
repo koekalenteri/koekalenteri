@@ -33,9 +33,12 @@ permissions:
 # slip between them. A workflow-level group cannot read job outputs, so the environment is worked out
 # here from the same inputs the `setEnv` step reads: keep the two in step. The caller's own group in
 # ci.yml (`deploy-dev-<ref>`) must not get this name, or the caller and the called workflow wait for
-# each other. A running deploy is never cancelled, but GitHub lets only one run wait per group: a
+# each other. This group never cancels a running deploy, but GitHub lets only one run wait per group: a
 # newer waiting run replaces an older waiting one, so of several deploys queued behind a running one
-# only the last is deployed.
+# only the last is deployed. Dev is the exception to "never cancelled": the deploy-dev job in ci.yml
+# has its own group (`deploy-dev-<ref>`) with cancel-in-progress, so a newer push cancels a running dev
+# deploy, the migration step included. The migration lambda then runs on to its end, but this run no
+# longer waits for it.
 concurrency:
   group: deploy-${{ inputs.env || ((github.event_name == 'workflow_dispatch' || github.event.release.prerelease) && 'test' || 'prod') }}
   cancel-in-progress: false

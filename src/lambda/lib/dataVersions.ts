@@ -141,8 +141,10 @@ export const readAppliedMigrations = async (names: string[]): Promise<Map<string
 
 /**
  * Records a migration unless a concurrent run already did: its mark, with the larger count, must
- * not be overwritten by a run that found nothing left to change. A migration whose code changed
- * (another hash) is marked again.
+ * not be overwritten by a run that found nothing left to change. The mark lands when the row has no
+ * hash (no row at all, or one from before hashes existed) or a different one (the migration's code
+ * changed); an equal hash is "someone already recorded it". Checked against DynamoDB-local for the
+ * four row states: no row, no hash and a different hash write, an equal hash is refused.
  */
 export const markMigrationApplied = async (name: string, count: number, hash: string) => {
   try {
@@ -152,7 +154,7 @@ export const markMigrationApplied = async (name: string, count: number, hash: st
       undefined,
       undefined,
       {
-        expression: 'attribute_not_exists(appliedAt) OR #hash <> :hash',
+        expression: 'attribute_not_exists(#hash) OR #hash <> :hash',
         names: { '#hash': 'hash' },
         values: { ':hash': hash },
       }
