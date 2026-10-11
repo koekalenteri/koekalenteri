@@ -28,7 +28,7 @@ vi.mock('../api/registration')
 
 // The file's other tests read keys; the English ones read the app's real English (KOE-1513).
 vi.mock('react-i18next', async (importOriginal) =>
-  (await import('@/test-utils/language')).spyOnUseTranslation(importOriginal)
+  (await import('../test-utils/language')).spyOnUseTranslation(importOriginal)
 )
 vi.mock('react-router', async () => ({
   ...(await vi.importActual<typeof import('react-router')>('react-router')),

@@ -44,25 +44,30 @@ export const spyOnUseTranslation = async (importOriginal: () => Promise<typeof i
 }
 
 /**
- * The tests inside read the app's real text in `language`, where the file's other tests read keys.
- * Needs the file to mock react-i18next with `spyOnUseTranslation`. The module is read when a test
- * starts, not imported here: that mock's factory imports this file, and a static import of the
- * module it is still building would wait on itself.
+ * The tests inside see the view in `language` with the app's real text, where the file's other tests
+ * read keys: the page switches to `language` as `describeInLanguage` does, and `useTranslation` gives
+ * that language's `t`. Needs the file to mock react-i18next with `spyOnUseTranslation`. The module is
+ * read when a test starts, not imported here: that mock's factory imports this file, and a static
+ * import of the module it is still building would wait on itself.
  */
 export const describeWithTranslations = (language: Language, tests: () => void): void => {
   describe(`in ${language}, with the app's text`, () => {
-    let restore: (() => void) | undefined
+    const spiedUseTranslation = async () => vi.mocked((await import('react-i18next')).useTranslation)
     beforeEach(async () => {
-      const useTranslation = vi.mocked((await import('react-i18next')).useTranslation)
-      const keysOnly = useTranslation.getMockImplementation()
-      restore = keysOnly && (() => useTranslation.mockImplementation(keysOnly))
+      await switchLanguage(language)
+      const useTranslation = await spiedUseTranslation()
       useTranslation.mockImplementation(() => {
         const t = i18n.getFixedT(language)
         const response: [typeof t, typeof i18n, boolean] = [t, i18n, true]
         return Object.assign(response, { i18n, ready: true, t })
       })
     })
-    afterEach(() => restore?.())
+    // Back to the factory's own useTranslation, whatever the test queued on it.
+    afterEach(async () => {
+      const useTranslation = await spiedUseTranslation()
+      useTranslation.mockReset()
+      await switchLanguage('fi')
+    })
     tests()
   })
 }
