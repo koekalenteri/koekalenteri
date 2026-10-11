@@ -4,6 +4,7 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
+import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -13,6 +14,7 @@ import mockResponse from '../api/__mocks__/paymentCreate.response.json'
 import { createPayment } from '../api/payment'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
+import { languageStorageKey } from '../lib/client/storage'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 import LoadingIndicator from './components/LoadingIndicator'
@@ -37,9 +39,13 @@ const asPaymentEvent = (event: Partial<PublicConfirmedEvent>) => event as Public
 
 describe('PaymentPage', () => {
   beforeAll(() => vi.useFakeTimers())
-  afterEach(() => {
+  afterEach(async () => {
     vi.runOnlyPendingTimers()
     vi.clearAllMocks()
+    // A test that switches the language leaves it in storage, i18next and <html lang>; the next one starts in Finnish.
+    localStorage.clear()
+    document.documentElement.lang = 'fi'
+    await i18n.changeLanguage('fi')
   })
   afterAll(() => vi.useRealTimers())
 
@@ -154,6 +160,43 @@ describe('PaymentPage', () => {
   })
 
   describe('PaymentPageWithData', () => {
+    it('shows the page in the registration language over the stored one (KOE-1508)', async () => {
+      localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
+
+      render(
+        <Provider>
+          <PaymentPageWithData
+            registrationId="test-reg-id"
+            event={null}
+            registration={{ ...testRegistration, language: 'en' }}
+          />
+        </Provider>
+      )
+      await flushPromises()
+
+      expect(i18n.language).toBe('en')
+      expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('en'))
+      expect(document.documentElement.lang).toBe('en')
+    })
+
+    it('keeps the stored language for a registration without one (KOE-1508)', async () => {
+      localStorage.setItem(languageStorageKey, JSON.stringify('en'))
+      await i18n.changeLanguage('en')
+      // A registration saved before the language field existed has no language at all.
+      const registration = { ...testRegistration }
+      Reflect.deleteProperty(registration, 'language')
+
+      render(
+        <Provider>
+          <PaymentPageWithData registrationId="test-reg-id" event={null} registration={registration} />
+        </Provider>
+      )
+      await flushPromises()
+
+      expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('en'))
+      expect(i18n.language).toBe('en')
+    })
+
     it('should show error message when event is not found', async () => {
       const { container } = render(
         <Provider>
