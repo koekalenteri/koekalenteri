@@ -1,4 +1,5 @@
 import type { Params } from 'react-router'
+import type { CreatePaymentResult } from '../api/payment'
 import type { CreatePaymentResponse, PublicConfirmedEvent, Registration } from '../types'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
@@ -11,6 +12,7 @@ import { Await, useLoaderData, useParams } from 'react-router'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
 import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
+import { paytrailErrorText } from '../lib/payment'
 import { printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
@@ -58,7 +60,8 @@ interface Props {
   readonly event?: PublicConfirmedEvent | null
   readonly registration?: Registration | null
   readonly response?: CreatePaymentResponse
-  readonly responseErrorMessage?: string
+  /** Paytrail's words when it refused the payment; empty when it gave none (KOE-1513). */
+  readonly paytrailError?: string
   readonly responseStatus?: number
 }
 
@@ -75,7 +78,7 @@ export const PaymentPageWithData = ({
   event,
   registration,
   response,
-  responseErrorMessage,
+  paytrailError,
   responseStatus,
 }: Props) => {
   const { t } = useTranslation()
@@ -123,8 +126,14 @@ export const PaymentPageWithData = ({
     return renderNotice(t('paymentPage.alreadyPaid'))
   }
 
-  if (responseErrorMessage) {
-    return renderNotice(responseErrorMessage)
+  // Paytrail's refusal before the status branches: its status is Paytrail's, not this API's.
+  if (paytrailError !== undefined) {
+    return renderNotice(
+      t('paymentPage.errorPaytrail', {
+        error: paytrailErrorText(paytrailError) ?? t('audit.unknownError'),
+        status: responseStatus,
+      })
+    )
   }
 
   if (responseStatus === 501) {
@@ -195,8 +204,7 @@ export function Component() {
   const { editToken, id, registrationId } = useParams()
   const event = useConfirmedEvent(id)
   const registration = useAtomValue(registrationAtom(`${id ?? ''}:${registrationId ?? ''}:${editToken ?? ''}`))
-  const data: { response: Promise<{ errorMessage?: string; response?: CreatePaymentResponse; status: number }> } =
-    useLoaderData()
+  const data: { response: Promise<CreatePaymentResult> } = useLoaderData()
   const setRegistration = useSetAtom(newRegistrationAtom)
   const resetRegistration = useCallback(() => setRegistration(createNewRegistration()), [setRegistration])
 
@@ -223,7 +231,7 @@ export function Component() {
               event={event}
               registration={registration}
               response={response?.response}
-              responseErrorMessage={response?.errorMessage}
+              paytrailError={response?.paytrailError}
               responseStatus={response?.status}
             />
           )}

@@ -4,7 +4,6 @@ import type {
   JsonRefundTransaction,
   JsonUser,
   Organizer,
-  PaytrailRefusalBody,
   RefundItem,
   RefundPaymentResponse,
   TransactionItem,
@@ -12,7 +11,7 @@ import type {
 import { nanoid } from 'nanoid'
 import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
-import { getProviderName } from '../../lib/payment'
+import { getProviderName, paytrailRefusalBody } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
@@ -121,8 +120,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
       })
       // Paytrail's own words, marked as Paytrail's: the dialog puts them in the secretary's language
       // and tells them from this API's own errors, which also answer `{ error }` (KOE-1511).
-      const body: PaytrailRefusalBody = { error: error.error ?? '', provider: 'paytrail' }
-      throw httpError(error.status, body)
+      throw httpError(error.status, paytrailRefusalBody(error.error))
     }
 
     throw error

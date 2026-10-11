@@ -733,6 +733,7 @@
     "error412": "Maksupalvelua ei ole määritetty tälle yhdistykselle",
     "error500": "Maksun luonti epäonnistui, yritä myöhemmin uudelleen",
     "error501MerchantInactive": "Yhdistyksen maksupalvelusopimus ei ole voimassa. Ilmoittautumista ei voitu ottaa vastaan. Ota yhteyttä kokeen koesihteeriin {{contact}}",
+    "errorPaytrail": "Maksun luonti epäonnistui Paytrailissa ({{status}}): {{error}}",
     "registrationNotFound": "Ilmoittautumista {{registrationId}} ei löydy.",
     "title": "Ilmoittautumisen maksu"
   },

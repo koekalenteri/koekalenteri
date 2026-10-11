@@ -10,6 +10,7 @@ import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { auditUser } from '../../lib/audit'
 import { getPaymentBalance } from '../../lib/cost'
+import { paytrailRefusalBody } from '../../lib/payment'
 import { isParticipantGroup, registrationActor } from '../../lib/registration'
 import { paymentCreateSchema } from '../../lib/schema/payment'
 import { splitName } from '../../lib/string'
@@ -21,7 +22,6 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
   claimTransactionCreation,
-  formatPaytrailErrorMessage,
   getTransactionsByReference,
   paymentDescription,
   releaseTransactionCreation,
@@ -185,11 +185,9 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   } catch (error: unknown) {
     await releaseTransactionCreation(dynamoDB, 'payment', eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
-      return response(
-        error.status,
-        { error: error.error, message: formatPaytrailErrorMessage('Maksun luonti', error) },
-        event
-      )
+      // Paytrail's own words, marked as Paytrail's: the payment page puts them in the payer's language
+      // (KOE-1513). Answered rather than thrown, so a Paytrail 5xx is not logged again as unhandled.
+      return response(error.status, paytrailRefusalBody(error.error), event)
     }
 
     throw error

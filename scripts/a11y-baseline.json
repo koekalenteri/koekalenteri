@@ -19,6 +19,12 @@
     },
     "payment-page-methods-phone": {
       "nested-interactive": 1
+    },
+    "payment-page-paytrail-refusal": {
+      "nested-interactive": 1
+    },
+    "payment-page-paytrail-refusal-en": {
+      "nested-interactive": 1
     }
   },
   "src/pages/RegistrationInvitation.visual.test.tsx": {

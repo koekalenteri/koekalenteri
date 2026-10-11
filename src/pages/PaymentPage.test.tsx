@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react'
 import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 import mockResponse from '../api/__mocks__/paymentCreate.response.json'
@@ -25,6 +26,11 @@ vi.mock('../api/event')
 vi.mock('../api/payment')
 vi.mock('../api/registration')
 
+// The file's other tests read keys; the English ones read the app's real English (KOE-1513).
+vi.mock('react-i18next', async (importOriginal) => {
+  const original = await importOriginal<typeof import('react-i18next')>()
+  return { ...original, useTranslation: vi.fn(original.useTranslation) }
+})
 vi.mock('react-router', async () => ({
   ...(await vi.importActual<typeof import('react-router')>('react-router')),
   useParams: vi.fn(),
@@ -463,49 +469,74 @@ describe('PaymentPage', () => {
       expect(container).toHaveTextContent('paymentPage.error501MerchantInactive contact')
     })
 
-    it('should show payment error message from backend', async () => {
-      const event = {
-        cost: 50,
-        id: 'test-id',
-        paymentTime: 'registration' as const,
-      }
-      const registration = {
-        ...testRegistration,
-        totalAmount: 50,
-      }
+    // Paytrail's refusal in the payer's language, with Paytrail's status and words whatever they came
+    // as (KOE-1513). Its status is Paytrail's, so it is not read as this API's own 500 or 404.
+    describe('in English (KOE-1513)', () => {
+      const keysOnly = vi.mocked(useTranslation).getMockImplementation()
+      beforeEach(() => {
+        vi.mocked(useTranslation).mockImplementation(() => {
+          const t = i18n.getFixedT('en')
+          const response: [typeof t, typeof i18n, boolean] = [t, i18n, true]
+          return Object.assign(response, { i18n, ready: true, t })
+        })
+      })
+      afterEach(() => {
+        if (keysOnly) vi.mocked(useTranslation).mockImplementation(keysOnly)
+      })
 
-      const routes: RouteObject[] = [
-        {
-          element: (
-            <PaymentPageWithData
-              registrationId="test-reg-id"
-              event={asPaymentEvent(event)}
-              registration={registration}
-              response={undefined}
-              responseErrorMessage="Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment"
-              responseStatus={400}
-            />
-          ),
-          path: '/test-path',
-        },
-      ]
+      it.each([
+        [
+          'its JSON answer',
+          400,
+          JSON.stringify({ message: 'Paytrail provider rejected payment', status: 'error' }),
+          'Payment could not be created at Paytrail (400): Paytrail provider rejected payment',
+        ],
+        [
+          'a plain-text answer',
+          503,
+          'Service Unavailable',
+          'Payment could not be created at Paytrail (503): Service Unavailable',
+        ],
+        ['an empty answer', 500, '', 'Payment could not be created at Paytrail (500): Unknown error'],
+        [
+          'a status this API also answers',
+          404,
+          'Not Found',
+          'Payment could not be created at Paytrail (404): Not Found',
+        ],
+      ])('names a Paytrail refusal with %s', async (_case, status, paytrailError, expected) => {
+        const registration = { ...testRegistration, language: 'en' as const, totalAmount: 50 }
+        const routes: RouteObject[] = [
+          {
+            element: (
+              <PaymentPageWithData
+                registrationId="test-reg-id"
+                event={asPaymentEvent({ cost: 50, id: 'test-id', paymentTime: 'registration' })}
+                registration={registration}
+                response={undefined}
+                paytrailError={paytrailError}
+                responseStatus={status}
+              />
+            ),
+            path: '/test-path',
+          },
+        ]
 
-      const { container } = render(
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <Provider>
-              <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-            </Provider>
-          </LocalizationProvider>
-        </ThemeProvider>
-      )
+        render(
+          <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.en}>
+              <Provider>
+                <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+              </Provider>
+            </LocalizationProvider>
+          </ThemeProvider>
+        )
+        await flushPromises()
 
-      await flushPromises()
-
-      expect(container).toHaveTextContent(
-        'Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment'
-      )
-      expect(container).not.toHaveTextContent('paymentPage.choosePaymentMethod')
+        expect(screen.getByText(expected)).toBeInTheDocument()
+        expect(screen.queryByText(i18n.t('paymentPage.error500', { lng: 'en' }))).toBeNull()
+        expect(screen.queryByText(i18n.t('paymentPage.error404', { lng: 'en' }))).toBeNull()
+      })
     })
   })
 

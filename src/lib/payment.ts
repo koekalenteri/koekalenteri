@@ -217,6 +217,19 @@ export const paytrailErrorMessage = (error?: string): string | undefined => {
 export const paytrailErrorText = (error?: string): string | undefined =>
   paytrailErrorMessage(error) ?? (error === '' ? undefined : error)
 
-/** A refund answer that is Paytrail's refusal, as RefundCreate marks it, not one of the API's own errors. */
+/**
+ * The answer PaymentCreate and RefundCreate give when Paytrail refuses: its own words as they came,
+ * empty when it gave none, marked as Paytrail's. The payment page and the refund dialog build the
+ * sentence in the reader's language (KOE-1511, KOE-1513).
+ */
+export const paytrailRefusalBody = (error?: string): PaytrailRefusalBody => ({
+  error: error ?? '',
+  provider: 'paytrail',
+})
+
+/**
+ * A payment creation or refund answer that is Paytrail's refusal, as `paytrailRefusalBody` marks it,
+ * not one of the API's own errors, which also answer `{ error }`. Read by PaymentPage and RefundDialog.
+ */
 export const isPaytrailRefusal = (body: unknown): body is PaytrailRefusalBody =>
   isObject(body) && body.provider === 'paytrail' && typeof body.error === 'string'

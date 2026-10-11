@@ -68,35 +68,21 @@ describe('payment', () => {
       expect(res).toEqual({ response: mockResponse, status: 200 })
     })
 
-    it('should preserve payment error message from backend', async () => {
-      fetchMock.mockResponse(
-        JSON.stringify({
-          error: JSON.stringify({ message: 'Paytrail provider rejected payment', status: 'error' }),
-          message: 'Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment',
-        }),
-        { status: 400 }
-      )
-
-      const res = await createPayment('test', 'test')
-
-      expect(res).toEqual({
-        errorMessage: 'Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment',
-        response: undefined,
-        status: 400,
-      })
-    })
-
-    // Paytrail's JSON words stand; this API's own error is left for the page to name by its status.
+    // A refusal marked as Paytrail's hands its words on as they came, for the page to put in the
+    // payer's language (KOE-1513); every other error is this API's own and the page names it by status.
     it.each([
-      ["Paytrail's JSON message", JSON.stringify({ message: 'Rejected' }), 'Rejected'],
-      ["the API's own error", 'Registration not found', undefined],
-      ['an error that is not text', { code: 'E1' }, undefined],
-    ])('reads %s without a message beside it', async (_case, error, errorMessage) => {
-      fetchMock.mockResponse(JSON.stringify({ error }), { status: 404 })
+      ["Paytrail's JSON answer", { error: '{"message":"Rejected"}', provider: 'paytrail' }, '{"message":"Rejected"}'],
+      ["Paytrail's plain-text answer", { error: 'Service Unavailable', provider: 'paytrail' }, 'Service Unavailable'],
+      ["Paytrail's empty answer", { error: '', provider: 'paytrail' }, ''],
+      ["the API's own error", { error: 'Registration not found' }, undefined],
+      ['a validation error with an English message', { errors: ['eventId'], message: 'Invalid body' }, undefined],
+      ['an error that is not text', { error: { code: 'E1' } }, undefined],
+    ])('reads %s', async (_case, body, paytrailError) => {
+      fetchMock.mockResponse(JSON.stringify(body), { status: 400 })
 
       const res = await createPayment('test', 'test')
 
-      expect(res).toEqual({ errorMessage, response: undefined, status: 404 })
+      expect(res).toEqual({ paytrailError, response: undefined, status: 400 })
     })
   })
 })
