@@ -45,9 +45,12 @@ describe('admin event derived atoms', () => {
   it.each([
     ['its English name', 'autumn'],
     ['its Finnish name', 'syyskoe'],
+    // The name and the place read side by side, as they did before translations (KOE-1453).
+    ['its Finnish name and place', 'syyskoe vaasa'],
   ])('finds an event by %s', async (_case, filter) => {
     const named: DogEvent = {
       ...event('named', new Date('2026-06-10T00:00:00.000+03:00')),
+      location: 'Vaasa',
       name: 'Syyskoe',
       names: { en: 'Autumn trial' },
     }

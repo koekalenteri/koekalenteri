@@ -85,14 +85,15 @@ export const adminFilteredEventsAtom = atom(async (get) => {
       !event.deletedAt &&
       (showPast || !event.endDate || !isEventOver(event)) &&
       (!filter ||
-        // Every name the event goes by: the list shows the one in the UI language (KOE-1453).
+        // Every name the event goes by: the list shows the one in the UI language (KOE-1453). The
+        // translations come last, so the fields a search spans ("syyskoe vaasa") stay side by side.
         [
           event.eventType,
           event.name,
-          ...Object.values(event.names ?? {}),
           event.location,
           event.official?.name,
           event.secretary?.name,
+          ...Object.values(event.names ?? {}),
         ]
           .join(' ')
           .toLocaleLowerCase(i18next.language)

@@ -99,38 +99,53 @@ describe('EventListPage', () => {
   })
 
   // The copy dialog names the event the way the list row does (KOE-1453).
+  const named = { ...eventWithEntryClosed, name: 'Syyskoe', names: { en: 'Autumn trial' } }
+
+  /** The list with the named event selected, and its copy dialog opened. */
+  const openCopyDialog = async () => {
+    const { user } = await renderSuspendedWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminEventsAtom, [named])
+            set(adminEventIdAtom, named.id)
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <ConfirmProvider>
+                  <EventListPage />
+                </ConfirmProvider>
+              </SnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'copyToEnvironment' }))
+    await flushPromises()
+
+    return within(screen.getByRole('dialog'))
+  }
+
+  it('names the event in the copy dialog by its Finnish name in a Finnish view', async () => {
+    const dialog = await openCopyDialog()
+
+    expect(dialog.getByText('Syyskoe')).toBeInTheDocument()
+    expect(dialog.queryByText('Autumn trial')).not.toBeInTheDocument()
+  })
+
   describeInLanguage('en', () => {
     it('names the event in the copy dialog by its English name', async () => {
-      const named = { ...eventWithEntryClosed, name: 'Syyskoe', names: { en: 'Autumn trial' } }
-      const { user } = await renderSuspendedWithUserEvents(
-        <ThemeProvider theme={theme}>
-          <Provider
-            initializeState={({ set }) => {
-              set(idTokenAtom, TEST_ID_TOKEN)
-              set(adminEventsAtom, [named])
-              set(adminEventIdAtom, named.id)
-            }}
-          >
-            <MemoryRouter>
-              <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
-                  <ConfirmProvider>
-                    <EventListPage />
-                  </ConfirmProvider>
-                </SnackbarProvider>
-              </Suspense>
-            </MemoryRouter>
-          </Provider>
-        </ThemeProvider>,
-        undefined,
-        { advanceTimers: vi.advanceTimersByTime }
-      )
-      await flushPromises()
+      const dialog = await openCopyDialog()
 
-      await user.click(screen.getByRole('button', { name: 'copyToEnvironment' }))
-      await flushPromises()
-
-      expect(within(screen.getByRole('dialog')).getByText('Autumn trial')).toBeInTheDocument()
+      expect(dialog.getByText('Autumn trial')).toBeInTheDocument()
     })
   })
 
