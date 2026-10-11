@@ -10,6 +10,13 @@ import type {
   Patch,
   RegistrationClass,
 } from '../../types'
+import {
+  eventChangedAudit,
+  eventCreatedAudit,
+  eventDeletedAudit,
+  eventSavedAudit,
+  startListAudit,
+} from '../../lib/audit'
 import { getStartListPublishedClassMap, isStartListPublishedClassMap } from '../../lib/event'
 import { isStartListFlagPublished } from '../../lib/publishing'
 import { patchMerge } from '../../lib/utils'
@@ -92,11 +99,7 @@ const getStartListAuditMessages = (
     const wasPublished = isStartListFlagPublished(existing, undefined)
     if (wasPublished === item.startListPublished) return []
 
-    return [
-      {
-        messageKey: item.startListPublished ? 'audit.messages.startListPublished' : 'audit.messages.startListHidden',
-      },
-    ]
+    return [startListAudit(item.startListPublished)]
   }
 
   const existingMap = getStartListPublishedClassMap(existing)
@@ -117,10 +120,7 @@ const getStartListAuditMessages = (
   const nextMap = getStartListPublishedClassMap({ ...existing, startListPublished })
   return Object.entries(nextMap)
     .filter(([eventClass, published]) => existingMap[eventClass as RegistrationClass] !== published)
-    .map(([eventClass, published]) => ({
-      messageKey: published ? 'audit.messages.classStartListPublished' : 'audit.messages.classStartListHidden',
-      messageParams: { eventClass },
-    }))
+    .map(([eventClass, published]) => startListAudit(published, eventClass))
 }
 
 const formatAuditValue = (value: unknown): JsonAuditChangeValue => {
@@ -183,10 +183,8 @@ export const getEventAuditMessages = (
   existing: JsonConfirmedEvent | undefined,
   item: Patch<JsonConfirmedEvent>
 ): EventAuditMessage[] => {
-  if (!existing) return [{ messageKey: 'audit.messages.eventCreated' }]
-  if (item.deletedAt && !existing.deletedAt) {
-    return [{ messageKey: 'audit.messages.eventDeleted' }]
-  }
+  if (!existing) return [eventCreatedAudit()]
+  if (item.deletedAt && !existing.deletedAt) return [eventDeletedAudit()]
 
   const messages: EventAuditMessage[] = getStartListAuditMessages(existing, item)
   const next = patchMerge(existing, item)
@@ -210,13 +208,10 @@ export const getEventAuditMessages = (
 
   const changes = [...(classPlaceChanges ?? []), ...getEventChanges(existing, item, next, fields)]
   if (changes.length) {
-    messages.push({
-      changes,
-      messageKey: 'audit.changed',
-    })
+    messages.push(eventChangedAudit(changes))
   }
 
-  return messages.length ? messages : [{ messageKey: 'audit.messages.eventSaved' }]
+  return messages.length ? messages : [eventSavedAudit()]
 }
 
 export const audit = async (item: Omit<JsonAuditRecord, 'timestamp'>) => {

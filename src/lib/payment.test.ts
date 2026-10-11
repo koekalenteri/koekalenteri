@@ -7,6 +7,7 @@ import {
   getRegistrationPaymentDetails,
   isInvitationAwaitingPayment,
   isPaymentUnsettled,
+  isPaytrailRefusal,
   isRegistrationPaid,
   PROVIDER_NAMES,
   paytrailErrorMessage,
@@ -16,6 +17,19 @@ import {
 } from './payment'
 
 describe('payment', () => {
+  describe('isPaytrailRefusal', () => {
+    it.each([
+      ['a marked refusal', { error: 'Revert failed', provider: 'paytrail' }, true],
+      ['a marked refusal without words', { error: '', provider: 'paytrail' }, true],
+      ['a marked body without an error', { provider: 'paytrail' }, false],
+      ["the API's own error", { error: 'Forbidden' }, false],
+      ['another provider', { error: 'x', provider: 'nordea' }, false],
+      ['text', 'Refund already in progress', false],
+    ])('takes %s as %s', (_case, body, expected) => {
+      expect(isPaytrailRefusal(body)).toBe(expected)
+    })
+  })
+
   // What Paytrail said: its JSON `message`, else whatever text it gave (an HTML or plain 5xx, or why
   // the request failed), else nothing (KOE-1511).
   describe('paytrailErrorText', () => {

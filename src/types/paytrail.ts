@@ -29,6 +29,15 @@ export interface RefundPaymentResponse {
   transactionId: string
 }
 
+/**
+ * The body of a refund Paytrail refused: its own words (JSON or not, empty when it gave none), marked
+ * as Paytrail's so the dialog tells it from the API's own `{ error }` answers (KOE-1511).
+ */
+export interface PaytrailRefusalBody {
+  error: string
+  provider: 'paytrail'
+}
+
 export interface VerifyPaymentResponse {
   status: 'ok' | 'error'
   editToken?: string

@@ -5,6 +5,7 @@ import type {
   MinimalEventForCost,
   MinimalRegistrationForCost,
   PaymentBalanceRegistration,
+  PaytrailRefusalBody,
   Registration,
 } from '../types'
 import type { AuditActor } from './audit'
@@ -215,3 +216,7 @@ export const paytrailErrorMessage = (error?: string): string | undefined => {
  */
 export const paytrailErrorText = (error?: string): string | undefined =>
   paytrailErrorMessage(error) ?? (error === '' ? undefined : error)
+
+/** A refund answer that is Paytrail's refusal, as RefundCreate marks it, not one of the API's own errors. */
+export const isPaytrailRefusal = (body: unknown): body is PaytrailRefusalBody =>
+  isObject(body) && body.provider === 'paytrail' && typeof body.error === 'string'

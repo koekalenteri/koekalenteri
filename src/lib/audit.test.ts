@@ -13,8 +13,13 @@ import {
   emailFailedAudit,
   emailSentAudit,
   emailSubjectAuditKey,
+  emailsSentAudit,
+  eventChangedAudit,
   eventCopiedFromAudit,
   eventCopiedToAudit,
+  eventCreatedAudit,
+  eventDeletedAudit,
+  eventSavedAudit,
   formatAuditDetail,
   formatAuditMessage,
   groupChangeAudit,
@@ -29,6 +34,7 @@ import {
   registrationCreatedAudit,
   registrationDaysMismatchAudit,
   resultSavedAudit,
+  startListAudit,
   startNumberPublishedAudit,
   startNumberReleasedAudit,
   startNumberSavedAudit,
@@ -99,6 +105,11 @@ describe('groupChangeAudit', () => {
       messageKey: 'audit.messages.groupSet',
       messageParams: { toNumber: 4 },
     })
+  })
+
+  // A cancellation's reason edited on a dog that never stood in a group: no group to name (KOE-1511).
+  it('writes no row when neither side has a group', () => {
+    expect(groupChangeAudit(undefined, undefined, 'move')).toBeUndefined()
   })
 
   it('names a registration left without a group by the group it had', () => {
@@ -222,6 +233,12 @@ describe('resultSavedAudit', () => {
 })
 
 /** Every message, built as a lambda builds it. */
+const groupRow = (...args: Parameters<typeof groupChangeAudit>): AuditMessage => {
+  const row = groupChangeAudit(...args)
+  if (!row) throw new Error('the change names no group')
+  return row
+}
+
 const dayGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 2, time: 'ip' as const }
 const kpGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-kp', number: 4, time: 'kp' as const }
 
@@ -250,11 +267,11 @@ const messages: Array<[string, AuditMessage]> = [
   ['emailBlocked (one)', emailBlockedAudit(1)],
   ['emailDeliveryFailed', emailDeliveryFailedAudit({ email: 'a@example.com', status: 'bounce' })],
   ['emailDeliveryFailed (complaint)', emailDeliveryFailedAudit({ email: 'a@example.com', status: 'complaint' })],
-  ['groupChanged', groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move')],
-  ['groupChanged (consequence)', groupChangeAudit(dayGroup, { ...dayGroup, number: 1 }, 'consequence')],
-  ['groupChanged (no reason)', groupChangeAudit(kpGroup, { key: 'cancelled', number: 5 })],
-  ['groupSet', groupChangeAudit(undefined, { key: 'reserve', number: 2 }, 'automatic')],
-  ['groupRemoved', groupChangeAudit({ key: 'cancelled', number: 2 }, undefined, 'consequence')],
+  ['groupChanged', groupRow(dayGroup, { key: 'reserve', number: 1 }, 'move')],
+  ['groupChanged (consequence)', groupRow(dayGroup, { ...dayGroup, number: 1 }, 'consequence')],
+  ['groupChanged (no reason)', groupRow(kpGroup, { key: 'cancelled', number: 5 })],
+  ['groupSet', groupRow(undefined, { key: 'reserve', number: 2 }, 'automatic')],
+  ['groupRemoved', groupRow({ key: 'cancelled', number: 2 }, undefined, 'consequence')],
   ['registrationCreated', registrationCreatedAudit()],
   ['registrationAdded', registrationAddedAudit()],
   ['registrationConfirmed', registrationConfirmedAudit()],
@@ -277,6 +294,24 @@ const messages: Array<[string, AuditMessage]> = [
   ['resultChangedDetail', resultSavedAudit(true, 'HYV, 20/30 p')],
   ['eventCopiedTo', eventCopiedToAudit('test', 'copy-1')],
   ['eventCopiedFrom', eventCopiedFromAudit('prod', 'source-1')],
+  ['eventCreated', eventCreatedAudit()],
+  ['eventDeleted', eventDeletedAudit()],
+  ['eventSaved', eventSavedAudit()],
+  ['changed', eventChangedAudit([{ field: 'name', next: { text: 'b' }, previous: { text: 'a' } }])],
+  ['startListPublished', startListAudit(true)],
+  ['startListHidden', startListAudit(false)],
+  ['classStartListPublished', startListAudit(true, 'ALO')],
+  ['classStartListHidden', startListAudit(false, 'ALO')],
+  ['emailSent', emailsSentAudit({ failed: [], ok: ['a@example.com'], registrations: [], template: 'picked' })],
+  [
+    'classEmailSent',
+    emailsSentAudit({
+      failed: ['b@example.com'],
+      ok: ['a@example.com'],
+      registrations: [{ class: 'ALO' }, { class: 'ALO' }],
+      template: 'invitation',
+    }),
+  ],
 ]
 
 const i18n = i18next.createInstance()
@@ -321,20 +356,17 @@ describe('each audit message', () => {
 
 describe('formatAuditMessage', () => {
   it.each([
+    [groupRow(dayGroup, { key: 'reserve', number: 1 }, 'move'), 'Ryhmä: la 3.8. ip #2 -> Ilmoittautuneet #1 siirto'],
     [
-      groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move'),
-      'Ryhmä: la 3.8. ip #2 -> Ilmoittautuneet #1 siirto',
-    ],
-    [
-      groupChangeAudit(
+      groupRow(
         { date: '2026-10-31T22:00:00.000Z', key: '2026-11-01-ap', number: 3, time: 'ap' },
         { key: 'reserve', number: 1 },
         'move'
       ),
       'Ryhmä: su 1.11. ap #3 -> Ilmoittautuneet #1 siirto',
     ],
-    [groupChangeAudit(kpGroup, { key: 'cancelled', number: 5 }), 'Ryhmä: la 3.8. kp #4 -> Peruneet #5'],
-    [groupChangeAudit({ key: 'reserve', number: 1 }, undefined, 'consequence'), 'Ryhmä: Ilmoittautuneet #1 -> seuraus'],
+    [groupRow(kpGroup, { key: 'cancelled', number: 5 }), 'Ryhmä: la 3.8. kp #4 -> Peruneet #5'],
+    [groupRow({ key: 'reserve', number: 1 }, undefined, 'consequence'), 'Ryhmä: Ilmoittautuneet #1 poistettu seuraus'],
     [startNumbersPublishedAudit(true, { date: '2026-09-14', time: 'ip' }), 'Starttinumerot julkaistu ma 14.9. ip'],
     [registrationCancelledAudit('dog-heat'), 'Ilmoittautuminen peruttiin, syy: Koiran juoksut'],
     [registrationCancelledAudit(), 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'],
@@ -348,9 +380,10 @@ describe('formatAuditMessage', () => {
   })
 
   it.each([
-    [groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move'), 'Group: Sat 3.8. pm #2 -> Registered #1 move'],
-    [groupChangeAudit(kpGroup, { key: 'cancelled', number: 5 }), 'Group: Sat 3.8. #4 -> Cancelled #5'],
-    [groupChangeAudit(undefined, { key: 'kp', number: 4 }), 'Group: #4'],
+    [groupRow(dayGroup, { key: 'reserve', number: 1 }, 'move'), 'Group: Sat 3.8. pm #2 -> Registered #1 move'],
+    [groupRow(kpGroup, { key: 'cancelled', number: 5 }), 'Group: Sat 3.8. #4 -> Cancelled #5'],
+    [groupRow(undefined, { key: 'kp', number: 4 }), 'Group: #4'],
+    [groupRow({ key: 'reserve', number: 1 }, undefined, 'consequence'), 'Group: Registered #1 removed knock-on'],
     [startNumbersEnteredAudit(1, 'ALO'), 'Start number entered for 1 dog (ALO)'],
     [startNumbersEnteredAudit(3), 'Start numbers entered for 3 dogs'],
     [emailBlockedAudit(1), 'Message blocked in the test environment (1 recipient)'],
@@ -372,7 +405,7 @@ describe('formatAuditMessage', () => {
   })
 
   it('reads a day the API revived into a Date as the day it was (KOE-1442)', () => {
-    const row = groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move')
+    const row = groupRow(dayGroup, { key: 'reserve', number: 1 }, 'move')
     const revived = { ...row, messageParams: { ...row.messageParams, fromDate: parseDateOnlyString('2024-08-03') } }
 
     expect(formatAuditMessage(en(), revived)).toBe('Group: Sat 3.8. pm #2 -> Registered #1 move')

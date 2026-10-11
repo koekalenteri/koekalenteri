@@ -265,7 +265,7 @@ describe('refundCreateLambda', () => {
     expect(mockDynamoWrite).not.toHaveBeenCalled()
   })
 
-  it('audits and returns Paytrail refund errors', async () => {
+  it('audits a Paytrail refusal and rejects with its words', async () => {
     const paytrailMessage =
       'API refund failed and provider does not support email refunds. Provider message: Revert failed'
     const paytrailError = JSON.stringify({ message: paytrailMessage, status: 'error' })
@@ -275,7 +275,9 @@ describe('refundCreateLambda', () => {
       messageParams: { error: paytrailMessage, status: 400 },
     })
 
+    // Thrown as httpError and answered by the wrapper (answerRejections here) with the body as written.
     await refundCreateLambda(event)
+    expect(mockResponse).toHaveBeenCalledWith(400, { error: paytrailError, provider: 'paytrail' }, event)
 
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
@@ -283,7 +285,8 @@ describe('refundCreateLambda', () => {
       messageParams: { error: paytrailMessage, status: 400 },
       user: 'Test User',
     })
-    expect(mockResponse).toHaveBeenCalledWith(400, { error: paytrailError, provider: 'paytrail' }, event)
+    // The claim is let go and the row written before the request is refused.
+    expect(mockReleaseTransactionCreation).toHaveBeenCalledTimes(1)
     expect(mockDynamoWrite).not.toHaveBeenCalled()
     expect(mockDynamoUpdate).not.toHaveBeenCalled()
   })
@@ -296,7 +299,6 @@ describe('refundCreateLambda', () => {
     })
 
     await refundCreateLambda(event)
-
     expect(mockResponse).toHaveBeenCalledWith(502, { error: '', provider: 'paytrail' }, event)
   })
 

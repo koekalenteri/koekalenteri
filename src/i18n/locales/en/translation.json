@@ -53,7 +53,7 @@
       "eventDeleted": "Event deleted",
       "eventSaved": "Event saved",
       "groupChanged": "Group: {{from}} -> {{to}} {{reason}}",
-      "groupRemoved": "Group: {{from}} -> {{reason}}",
+      "groupRemoved": "Group: {{from}} removed {{reason}}",
       "groupSet": "Group: {{to}} {{reason}}",
       "internalNotesChanged": "Changed the internal comment",
       "invitationAwaitingPayment": "The invitation is sent once the place has been paid",
@@ -972,7 +972,6 @@
         "balance": "The refund amount exceeds the unrefunded part of the payment. Unrefunded: {{remaining}}",
         "default": "The refund failed. Check that the Paytrail account has enough balance for the refund, or try again later.",
         "notFound": "The payment transaction was not found. It is probably too old to be refunded.",
-        "provider": "The refund failed at Paytrail ({{status}}): {{message}}",
         "unknownAmount": "(unknown)"
       },
       "excessOnly": "Refund the overpaid part {{amount}}",

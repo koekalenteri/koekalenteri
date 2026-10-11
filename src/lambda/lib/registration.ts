@@ -14,6 +14,7 @@ import {
   emailFailedAudit,
   emailSentAudit,
   emailSubjectAuditKey,
+  emailsSentAudit,
   registrationCancelledAudit,
 } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
@@ -21,7 +22,6 @@ import {
   GROUP_KEY_RESERVE,
   getRegistrationClass,
   isParticipantGroup,
-  isRegistrationClass,
   PUBLIC_REGISTRATION_FIELDS,
   PUBLIC_REGISTRATION_UPDATE_FIELDS,
   resolveOwnerPerson,
@@ -41,51 +41,17 @@ const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
 const NEW_REGISTRATION_LEASE_DURATION_MS = 90 * 1000
 
-type SentRegistrationMessagesAudit = {
+type SentRegistrationMessagesAudit = Parameters<typeof emailsSentAudit>[0] & {
   event: Pick<JsonConfirmedEvent, 'id'>
-  failed: string[]
-  ok: string[]
-  registrations: Pick<JsonRegistration, 'class'>[]
-  template: EmailTemplateId
   user: string
 }
 
-export const createSentRegistrationMessagesAudit = ({
-  event,
-  failed,
-  ok,
-  registrations,
-  template,
+/** The event's row for a template sent to a set of registrations. */
+export const createSentRegistrationMessagesAudit = ({ event, user, ...sent }: SentRegistrationMessagesAudit) => ({
+  auditKey: eventAuditKey(event),
+  ...emailsSentAudit(sent),
   user,
-}: SentRegistrationMessagesAudit) => {
-  const messageClasses = [
-    ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
-  ]
-  const messageClass = messageClasses.length === 1 ? messageClasses[0] : undefined
-
-  return {
-    auditKey: eventAuditKey(event),
-    ...(failed.length
-      ? {
-          details: [
-            {
-              detailKey: 'audit.details.failedRecipients',
-              detailParams: { recipients: failed.join('\n') },
-            },
-          ],
-        }
-      : {}),
-    messageKey: messageClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent',
-    messageParams: {
-      ...(messageClass ? { eventClass: messageClass } : {}),
-      failed: failed.length,
-      ok: ok.length,
-      template,
-      templateKey: `emailTemplate.${template}`,
-    },
-    user,
-  }
-}
+})
 
 const newRegistrationWorkflowFields = [
   'newRegistrationAuditAt',

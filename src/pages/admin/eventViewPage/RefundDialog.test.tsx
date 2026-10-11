@@ -400,6 +400,27 @@ describe('RefundDialog', () => {
     })
   })
 
+  it('takes only a well-formed Paytrail refusal for one', async () => {
+    mockRefundImplementation = vi
+      .fn()
+      .mockRejectedValue(
+        new APIError(new Response(null, { status: 502, statusText: 'Bad Gateway' }), { provider: 'paytrail' })
+      )
+
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
+    await flushPromises()
+
+    fireEvent.click(screen.getByText('refund'))
+    await waitFor(() => {
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.error.default', {
+        persist: true,
+        variant: 'error',
+      })
+    })
+  })
+
   it('handles other API errors', async () => {
     mockRefundImplementation = vi.fn().mockRejectedValue(
       new APIError(new Response(null, { status: 500, statusText: 'Internal Server Error' }), {
@@ -440,7 +461,7 @@ describe('RefundDialog', () => {
 
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.error.provider message, status', {
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('audit.messages.refundPaytrailFailed error, status', {
         persist: true,
         variant: 'error',
       })
@@ -476,7 +497,7 @@ describe('RefundDialog', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'Refund' }))
       await waitFor(() => {
-        expect(enqueueSnackbarMock).toHaveBeenCalledWith('The refund failed at Paytrail (400): Revert failed', {
+        expect(enqueueSnackbarMock).toHaveBeenCalledWith('Refund failed at Paytrail (400): Revert failed', {
           persist: true,
           variant: 'error',
         })
@@ -487,9 +508,9 @@ describe('RefundDialog', () => {
     // never got an answer as the reason it failed, and some answers have no words at all. None of
     // them is the balance problem the default message guesses at.
     it.each([
-      ['a plain-text answer', 503, 'Service Unavailable', 'The refund failed at Paytrail (503): Service Unavailable'],
-      ['a request that failed', 500, 'fetch failed', 'The refund failed at Paytrail (500): fetch failed'],
-      ['an answer without words', 502, '', 'The refund failed at Paytrail (502): Unknown error'],
+      ['a plain-text answer', 503, 'Service Unavailable', 'Refund failed at Paytrail (503): Service Unavailable'],
+      ['a request that failed', 500, 'fetch failed', 'Refund failed at Paytrail (500): fetch failed'],
+      ['an answer without words', 502, '', 'Refund failed at Paytrail (502): Unknown error'],
     ])('names %s as Paytrail gave it', async (_case, status, error, expected) => {
       mockRefundImplementation = vi
         .fn()

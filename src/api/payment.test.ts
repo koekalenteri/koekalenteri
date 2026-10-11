@@ -90,6 +90,7 @@ describe('payment', () => {
     it.each([
       ["Paytrail's JSON message", JSON.stringify({ message: 'Rejected' }), 'Rejected'],
       ["the API's own error", 'Registration not found', undefined],
+      ['an error that is not text', { code: 'E1' }, undefined],
     ])('reads %s without a message beside it', async (_case, error, errorMessage) => {
       fetchMock.mockResponse(JSON.stringify({ error }), { status: 404 })
 

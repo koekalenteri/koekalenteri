@@ -2,14 +2,17 @@ import type { ParseKeys, TFunction } from 'i18next'
 import type {
   AuditRecord,
   AuditUserSource,
+  EmailTemplateId,
+  JsonAuditChange,
   JsonAuditDetail,
   JsonAuditRecord,
   JsonEmailDeliveryStatus,
+  JsonRegistration,
   JsonRegistrationGroup,
 } from '../types'
 import { format } from 'date-fns/format'
 import { formatDate, zonedParseDate } from '../i18n/dates'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isPredefinedReason } from './registration'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isPredefinedReason, isRegistrationClass } from './registration'
 import { isDateOnlyString } from './utils'
 
 /**
@@ -90,15 +93,30 @@ const groupParams = (side: 'from' | 'to', group: NonNullable<AuditGroup>): Audit
 /** Why a registration's group changed: the secretary moved it, another move pushed it, or the automatic repair placed it. */
 export type GroupChangeReason = 'automatic' | 'consequence' | 'move'
 
-export const groupChangeAudit = (previous: AuditGroup, group: AuditGroup, reason?: GroupChangeReason): AuditMessage => {
-  const messageParams = {
+/** The key of a group row by the sides it names; none for a row that names no group at all. */
+const groupChangeKey = (previous: AuditGroup, group: AuditGroup): AuditMessageKey | undefined => {
+  if (group) return previous ? 'audit.messages.groupChanged' : 'audit.messages.groupSet'
+  return previous ? 'audit.messages.groupRemoved' : undefined
+}
+
+/**
+ * A group change as a row that names the group on either side; the reader names the sides by the
+ * same rule. A change with no group on either side (a cancellation's reason edited on a dog that was
+ * never placed) says nothing of groups and writes no row (KOE-1511).
+ */
+export const groupChangeAudit = (
+  previous: AuditGroup,
+  group: AuditGroup,
+  reason?: GroupChangeReason
+): AuditMessage | undefined => {
+  const messageKey = groupChangeKey(previous, group)
+  if (!messageKey) return undefined
+
+  return auditMessage(messageKey, {
     ...(previous ? groupParams('from', previous) : {}),
     ...(group ? groupParams('to', group) : {}),
     ...(reason ? { reasonKey: `audit.groupReason.${reason}` } : {}),
-  }
-  if (!group) return auditMessage('audit.messages.groupRemoved', messageParams)
-
-  return auditMessage(previous ? 'audit.messages.groupChanged' : 'audit.messages.groupSet', messageParams)
+  })
 }
 
 export const startNumberPublishedAudit = (number: number) =>
@@ -255,6 +273,57 @@ export const eventCopiedToAudit = (stage: string, eventId: string) =>
 
 export const eventCopiedFromAudit = (stage: string, eventId: string) =>
   auditMessage('audit.messages.eventCopiedFrom', { eventId, stage })
+
+export const eventCreatedAudit = () => auditMessage('audit.messages.eventCreated')
+
+export const eventDeletedAudit = () => auditMessage('audit.messages.eventDeleted')
+
+export const eventSavedAudit = () => auditMessage('audit.messages.eventSaved')
+
+/** An event edit: the trail names the changed fields from the changes themselves. */
+export const eventChangedAudit = (changes: JsonAuditChange[]): { changes: JsonAuditChange[]; messageKey: string } => ({
+  changes,
+  messageKey: 'audit.changed',
+})
+
+/** The start list published or hidden, for the whole event or for one class. */
+export const startListAudit = (published: boolean, eventClass?: string) => {
+  if (eventClass) {
+    return auditMessage(published ? 'audit.messages.classStartListPublished' : 'audit.messages.classStartListHidden', {
+      eventClass,
+    })
+  }
+  return auditMessage(published ? 'audit.messages.startListPublished' : 'audit.messages.startListHidden')
+}
+
+interface EmailsSent {
+  failed: string[]
+  ok: string[]
+  registrations: Pick<JsonRegistration, 'class'>[]
+  template: EmailTemplateId
+}
+
+/**
+ * A template sent to a set of registrations, on the event's trail: to one class when they all stand
+ * in one, the failed recipients as a detail.
+ */
+export const emailsSentAudit = ({ failed, ok, registrations, template }: EmailsSent): AuditMessage => {
+  const classes = [...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass))]
+  const eventClass = classes.length === 1 ? classes[0] : undefined
+
+  return {
+    ...(failed.length
+      ? { details: [{ detailKey: 'audit.details.failedRecipients', detailParams: { recipients: failed.join('\n') } }] }
+      : {}),
+    ...auditMessage(eventClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent', {
+      ...(eventClass ? { eventClass } : {}),
+      failed: failed.length,
+      ok: ok.length,
+      template,
+      templateKey: `emailTemplate.${template}`,
+    }),
+  }
+}
 
 /*
  * Reading a row back, in the reader's language.
