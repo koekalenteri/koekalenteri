@@ -53,6 +53,7 @@
       "eventDeleted": "Tapahtuma poistettu",
       "eventSaved": "Tapahtuma tallennettu",
       "groupChanged": "Ryhmä: {{from}} -> {{to}} {{reason}}",
+      "groupRemoved": "Ryhmä: {{from}} poistettu {{reason}}",
       "groupSet": "Ryhmä: {{to}} {{reason}}",
       "internalNotesChanged": "Muutti sisäistä kommenttia",
       "invitationAwaitingPayment": "Koekutsu lähetetään, kun koepaikka on maksettu",
@@ -99,6 +100,8 @@
       "kp": "kp"
     },
     "title": "Muutoshistoria ({{count}})",
+    "unknown": "Tuntematon merkintä: {{key}}",
+    "unknownError": "Tuntematon virhe",
     "userSource": {
       "registration": "(ilmoittautumisen tiedoista)"
     },
@@ -970,7 +973,6 @@
         "balance": "Palautettava määrä ylittää palauttamattoman maksun osuuden. Palauttamatta: {{remaining}}",
         "default": "Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.",
         "notFound": "Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.",
-        "provider": "Maksun palautus epäonnistui Paytrailissa: {{message}}",
         "unknownAmount": "(ei tiedossa)"
       },
       "excessOnly": "Palauta liikaa maksettu osuus {{amount}}",

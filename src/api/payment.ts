@@ -1,4 +1,5 @@
 import type { CreatePaymentResponse, RefundPaymentResponse, VerifyPaymentResponse } from '../types'
+import { paytrailErrorMessage } from '../lib/payment'
 import { isObject } from '../lib/utils'
 import http, { APIError, withRegistrationAuth, withToken, withUserRouteFallback } from './http'
 
@@ -15,16 +16,8 @@ const getPaymentErrorMessage = (error: APIError) => {
     return error.body.message
   }
 
-  if (typeof error.body.error === 'string' && error.body.error) {
-    try {
-      const details = JSON.parse(error.body.error)
-      return typeof details?.message === 'string' ? details.message : undefined
-    } catch {
-      return undefined
-    }
-  }
-
-  return undefined
+  // Paytrail's JSON message only: any other `error` is this API's own, and the page names it by status.
+  return typeof error.body.error === 'string' ? paytrailErrorMessage(error.body.error) : undefined
 }
 
 export const createPayment = async (

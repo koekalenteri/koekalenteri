@@ -233,7 +233,6 @@ describe('registrationWorkflow', () => {
       expect(mockAuditStrict).toHaveBeenCalledWith(
         {
           auditKey: `${saved.eventId}:${saved.id}`,
-          message: 'Ilmoittautui',
           messageKey: 'audit.messages.registrationCreated',
           user: 'Test User',
         },
@@ -287,7 +286,6 @@ describe('registrationWorkflow', () => {
 
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Valitut päivät (1.1.2030) eivät ole tapahtuman päiviä',
           messageKey: 'audit.messages.registrationDaysOutsideEvent',
           messageParams: { days: '1.1.2030' },
         })
@@ -392,7 +390,6 @@ describe('registrationWorkflow', () => {
               previous: { text: 'additional notes' },
             },
           ],
-          message: 'Muutti: Lisätiedot',
           messageKey: 'audit.changed',
         })
       )
@@ -407,8 +404,6 @@ describe('registrationWorkflow', () => {
       )
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
-          message:
-            'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
           messageKey: 'audit.messages.emailSentTo',
           messageParams: {
             recipients: 'handler@example.com, owner@example.com',
@@ -431,12 +426,10 @@ describe('registrationWorkflow', () => {
       })
 
       expect(mockAudit).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Muutti: Lisätiedot', user: 'Payer Name', userSource: 'registration' })
+        expect.objectContaining({ messageKey: 'audit.changed', user: 'Payer Name', userSource: 'registration' })
       )
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
-          message:
-            'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
           user: 'Payer Name',
           userSource: 'registration',
         })
@@ -450,7 +443,6 @@ describe('registrationWorkflow', () => {
 
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Ilmoittautumisen vahvistus',
           messageKey: 'audit.messages.registrationConfirmed',
         })
       )
@@ -469,9 +461,8 @@ describe('registrationWorkflow', () => {
 
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Ilmoittautuminen peruttiin, syy: Koiran juoksut',
           messageKey: 'audit.messages.registrationCancelled',
-          messageParams: { reason: 'Koiran juoksut', reasonKey: 'registration.cancelReason.dog-heat' },
+          messageParams: { reasonKey: 'registration.cancelReason.dog-heat' },
         })
       )
       expect(mockSendTemplatedMail).toHaveBeenCalledWith(
@@ -518,11 +509,14 @@ describe('registrationWorkflow', () => {
               previous: { text: 'ke 10.2.2021 (ap)' },
             }),
           ],
-          message: 'Muutti: Ryhmät',
+          messageKey: 'audit.changed',
         })
       )
       expect(mockAudit).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Valitut päivät (1.1.2030) eivät ole tapahtuman päiviä' })
+        expect.objectContaining({
+          messageKey: 'audit.messages.registrationDaysOutsideEvent',
+          messageParams: { days: '1.1.2030' },
+        })
       )
     })
 

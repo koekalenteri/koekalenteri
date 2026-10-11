@@ -211,7 +211,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: expect.any(String),
-        message: 'Ilmoittautui',
+        messageKey: 'audit.messages.registrationCreated',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -253,11 +253,14 @@ describe('putRegistrationLabmda', () => {
 
     expect(res.statusCode).toEqual(200)
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Ilmoittautui' }),
+      expect.objectContaining({ messageKey: 'audit.messages.registrationCreated' }),
       'audit-table-not-found-in-env'
     )
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Valitut päivät (10.2.2021) eivät ole luokan VOI päiviä' }),
+      expect.objectContaining({
+        messageKey: 'audit.messages.registrationDaysOutsideClass',
+        messageParams: { days: '10.2.2021', eventClass: 'VOI' },
+      }),
       'audit-table-not-found-in-env'
     )
     expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
@@ -571,30 +574,16 @@ describe('putRegistrationLabmda', () => {
   })
 
   // A missing or predefined reason is named by its key, so the trail reads it in the reader's
-  // language; a reason the entrant wrote has no key and is shown as written (KOE-1442).
+  // language; a reason the entrant wrote has no key and is shown as written (KOE-1442). Neither
+  // stores a Finnish text beside it (KOE-1511).
   it.each([
-    [undefined, 'Ilmoittautuminen peruttiin, syy: (ei täytetty)', '(ei täytetty)', 'audit.reasonMissing'],
-    [
-      'dog-heat',
-      'Ilmoittautuminen peruttiin, syy: Koiran juoksut',
-      'Koiran juoksut',
-      'registration.cancelReason.dog-heat',
-    ],
-    [
-      'handler-sick',
-      'Ilmoittautuminen peruttiin, syy: Ohjaajan sairastuminen',
-      'Ohjaajan sairastuminen',
-      'registration.cancelReason.handler-sick',
-    ],
-    [
-      'dog-sick',
-      'Ilmoittautuminen peruttiin, syy: Koiran sairastuminen',
-      'Koiran sairastuminen',
-      'registration.cancelReason.dog-sick',
-    ],
-    ['gdpr', 'Ilmoittautuminen peruttiin, syy: En halua kertoa', 'En halua kertoa', 'registration.cancelReason.gdpr'],
-    ['custom reason', 'Ilmoittautuminen peruttiin, syy: custom reason', 'custom reason', undefined],
-  ])('should do happy path for cancelled registration', async (cancelReason, auditMessage, reason, reasonKey) => {
+    [undefined, { reasonKey: 'audit.reasonMissing' }],
+    ['dog-heat', { reasonKey: 'registration.cancelReason.dog-heat' }],
+    ['handler-sick', { reasonKey: 'registration.cancelReason.handler-sick' }],
+    ['dog-sick', { reasonKey: 'registration.cancelReason.dog-sick' }],
+    ['gdpr', { reasonKey: 'registration.cancelReason.gdpr' }],
+    ['custom reason', { reason: 'custom reason' }],
+  ])('should do happy path for cancelled registration', async (cancelReason, messageParams) => {
     const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -622,9 +611,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: auditMessage,
         messageKey: 'audit.messages.registrationCancelled',
-        messageParams: { reason, ...(reasonKey ? { reasonKey } : {}) },
+        messageParams,
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -633,7 +621,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
+        messageKey: 'audit.messages.emailSentTo',
+        messageParams: expect.objectContaining({ recipients: 'handler@example.com, owner@example.com' }),
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -713,7 +702,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
+        messageKey: 'audit.messages.registrationCancelled',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -722,7 +711,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
+        messageKey: 'audit.messages.emailSentTo',
+        messageParams: expect.objectContaining({ recipients: 'handler@example.com, owner@example.com' }),
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -790,7 +780,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
+        messageKey: 'audit.messages.registrationCancelled',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -799,7 +789,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
+        messageKey: 'audit.messages.emailSentTo',
+        messageParams: expect.objectContaining({ recipients: 'handler@example.com, owner@example.com' }),
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -867,7 +858,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
+        messageKey: 'audit.messages.registrationCancelled',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -876,7 +867,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
+        messageKey: 'audit.messages.emailSentTo',
+        messageParams: expect.objectContaining({ recipients: 'handler@example.com, owner@example.com' }),
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -944,7 +936,6 @@ describe('putRegistrationLabmda', () => {
             previous: { text: 'additional notes' },
           },
         ],
-        message: 'Muutti: Lisätiedot',
         messageKey: 'audit.changed',
         user: 'Owner Name',
         userSource: 'registration',
@@ -954,8 +945,6 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message:
-          'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -1008,8 +997,6 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
-        message:
-          'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'New Payer',
         userSource: 'registration',
       }),
@@ -1062,7 +1049,7 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({ modifiedBy: 'Kirjautunut Käyttäjä' })
     )
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Muutti: Lisätiedot', user: 'Kirjautunut Käyttäjä' }),
+      expect.objectContaining({ messageKey: 'audit.changed', user: 'Kirjautunut Käyttäjä' }),
       'audit-table-not-found-in-env'
     )
     expect(mockDynamoDBWrite).not.toHaveBeenCalledWith(
@@ -1204,7 +1191,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: expect.any(String),
-        message: 'Ilmoittautumisen vahvistus',
+        messageKey: 'audit.messages.registrationConfirmed',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -1213,8 +1200,6 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message:
-          'Sähköposti: Vahvistit vastaanottavasi koepaikan, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -1317,7 +1302,7 @@ describe('putRegistrationLabmda', () => {
     // No audit message for confirmation
     expect(mockDynamoDBWrite).not.toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Ilmoittautumisen vahvistus',
+        messageKey: 'audit.messages.registrationConfirmed',
       })
     )
 

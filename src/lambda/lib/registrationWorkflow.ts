@@ -185,7 +185,7 @@ const updateAuditEntry = (
   registration: JsonRegistration,
   existing: JsonRegistration,
   confirmedEvent: JsonConfirmedEvent
-): Pick<JsonAuditRecord, 'changes' | 'message' | 'messageKey' | 'messageParams'> | undefined => {
+): Pick<JsonAuditRecord, 'changes' | 'messageKey' | 'messageParams'> | undefined => {
   if (cancel) return getCancelAuditMessage(registration)
   if (confirm) return registrationConfirmedAudit()
   return getRegistrationChanges(existing, registration, confirmedEvent)
@@ -262,7 +262,7 @@ const sendRegistrationEmail = async ({
   )
   await audit({
     auditKey: registrationAuditKey(registration),
-    ...emailSentAudit(templateData.subject, emailSubjectAuditKey(context), to),
+    ...emailSentAudit(emailSubjectAuditKey(context), to, templateData.subject),
     ...auditUser(user),
   })
   // The change itself was broadcast before the email went, so the message column learns of the

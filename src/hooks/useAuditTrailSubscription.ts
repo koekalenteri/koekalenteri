@@ -1,15 +1,8 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type { AuditRecord } from '../types'
 import { useContext, useEffect } from 'react'
+import { mergeAuditTrail } from '../lib/audit'
 import { WebSocketContext } from './useWebSocket'
-
-const auditRecordId = (record: AuditRecord) => `${record.auditKey}:${record.timestamp.toISOString()}`
-
-export const mergeAuditTrail = (current: AuditRecord[], incoming: AuditRecord[]) => {
-  const records = new Map(current.map((record) => [auditRecordId(record), record]))
-  for (const record of incoming) records.set(auditRecordId(record), record)
-  return [...records.values()].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-}
 
 export const useAuditTrailSubscription = (
   auditKey: string,

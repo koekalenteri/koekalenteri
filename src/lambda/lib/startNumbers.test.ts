@@ -68,7 +68,6 @@ describe('startNumbers', () => {
       expect(mockAudit).toHaveBeenCalledTimes(1)
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:run-1',
-        message: 'Starttinumero julkaistu: 1',
         messageKey: 'audit.messages.startNumberPublished',
         messageParams: { number: 1 },
         user: USER,
@@ -86,7 +85,6 @@ describe('startNumbers', () => {
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:run-1',
-        message: 'Starttinumero julkaistu: 7',
         messageKey: 'audit.messages.startNumberPublished',
         messageParams: { number: 7 },
         user: USER,
@@ -326,7 +324,6 @@ describe('startNumbers', () => {
       // Losing the number is as much a fact about the cancelled dog as gaining it is about the riser.
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:can-2',
-        message: 'Starttinumero vapautettu: 5',
         messageKey: 'audit.messages.startNumberReleased',
         messageParams: { number: 5 },
         user: USER,
@@ -356,7 +353,6 @@ describe('startNumbers', () => {
       expect(mockRemoveRegistrationField).toHaveBeenCalledWith('event-1', 'res-2', 'startGroup')
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:res-2',
-        message: 'Starttinumero vapautettu: 5',
         messageKey: 'audit.messages.startNumberReleased',
         messageParams: { number: 5 },
         user: USER,
@@ -395,7 +391,6 @@ describe('startNumbers', () => {
 
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:run-1',
-        message: 'Starttinumero tallennettu: 4',
         messageKey: 'audit.messages.startNumberSaved',
         messageParams: { number: 4 },
         user: USER,
@@ -403,7 +398,6 @@ describe('startNumbers', () => {
       // A corrected number reads as the correction it is, which is what the work list showed.
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:run-2',
-        message: 'Starttinumero tallennettu: 9 -> 13',
         messageKey: 'audit.messages.startNumberChanged',
         messageParams: { number: 13, previous: 9 },
         user: USER,

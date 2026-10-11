@@ -68,17 +68,6 @@ export class PaytrailError extends Error {
   }
 }
 
-export const parsePaytrailErrorMessage = (error?: string) => {
-  if (!error) return 'Tuntematon virhe'
-
-  try {
-    const details = JSON.parse(error) as { message?: unknown }
-    return typeof details.message === 'string' ? details.message : error
-  } catch {
-    return error
-  }
-}
-
 const createCallbackUrls = (baseUrl: string): CallbackUrl => ({
   cancel: `${baseUrl}/cancel`,
   success: `${baseUrl}/success`,

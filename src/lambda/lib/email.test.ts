@@ -112,7 +112,6 @@ describe('email', () => {
       sentTo(['admin@example.com'])
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:reg-1',
-        message: 'Viesti estetty testiympäristössä (4 vastaanottajaa)',
         messageKey: 'audit.messages.emailBlocked',
         messageParams: { count: 4 },
         user: 'system',

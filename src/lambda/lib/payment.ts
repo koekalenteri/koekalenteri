@@ -14,13 +14,14 @@ import type { PaytrailError } from './paytrail'
 import { getFixedT } from '../../i18n/lambda'
 import { auditUser, refundPaytrailFailedAudit } from '../../lib/audit'
 import { localizedEventName } from '../../lib/event'
+import { paytrailErrorText } from '../../lib/payment'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { getEvent } from './event'
 import { LambdaError } from './lambda'
 import { logger } from './log'
-import { parsePaytrailErrorMessage, paytrail } from './paytrail'
+import { paytrail } from './paytrail'
 import { getRegistration } from './registration'
 
 const { registrationTable, transactionTable } = CONFIG
@@ -97,15 +98,11 @@ export const releaseTransactionCreation = async (
 }
 
 export const formatPaytrailErrorMessage = (operation: string, error: PaytrailError) =>
-  `${operation} epäonnistui Paytrailissa (${error.status}): ${parsePaytrailErrorMessage(error.error)}`
+  `${operation} epäonnistui Paytrailissa (${error.status}): ${paytrailErrorText(error.error) ?? 'Tuntematon virhe'}`
 
-/** A refund Paytrail refused, for the registration's trail; its `message` is also what the secretary is answered. */
+/** A refund Paytrail refused, for the registration's trail. */
 export const refundPaytrailErrorAudit = (error: PaytrailError) =>
-  refundPaytrailFailedAudit(
-    formatPaytrailErrorMessage('Maksun palautus', error),
-    error.status,
-    parsePaytrailErrorMessage(error.error)
-  )
+  refundPaytrailFailedAudit(error.status, paytrailErrorText(error.error))
 
 interface CancelTransactionOptions<T extends JsonTransaction> {
   auditMessage: (transaction: T, provider: string | undefined) => AuditMessage

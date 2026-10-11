@@ -4,6 +4,7 @@ import type {
   JsonRefundTransaction,
   JsonUser,
   Organizer,
+  PaytrailRefusalBody,
   RefundItem,
   RefundPaymentResponse,
   TransactionItem,
@@ -17,7 +18,7 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
-import { LambdaError, lambda, response } from '../lib/lambda'
+import { httpError, LambdaError, lambda, response } from '../lib/lambda'
 import { claimTransactionCreation, refundPaytrailErrorAudit, releaseTransactionCreation } from '../lib/payment'
 import { PaytrailError, paytrail } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
@@ -113,13 +114,15 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   } catch (error: unknown) {
     await releaseTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
-      const auditMessage = refundPaytrailErrorAudit(error)
       await audit({
         auditKey: registrationAuditKey(registration),
-        ...auditMessage,
+        ...refundPaytrailErrorAudit(error),
         user: user.name,
       })
-      return response(error.status, { error: error.error, message: auditMessage.message }, event)
+      // Paytrail's own words, marked as Paytrail's: the dialog puts them in the secretary's language
+      // and tells them from this API's own errors, which also answer `{ error }` (KOE-1511).
+      const body: PaytrailRefusalBody = { error: error.error ?? '', provider: 'paytrail' }
+      throw httpError(error.status, body)
     }
 
     throw error

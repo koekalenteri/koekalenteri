@@ -24,24 +24,6 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 const { eventTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
 
-const templateAuditLabels: Partial<Record<RegistrationMessage['template'], string>> = {
-  invitation: 'Koekutsu',
-  message: 'Viesti osallistujille',
-  'payment-request': 'Maksupyyntö',
-  picked: 'Koepaikkailmoitus',
-  registration: 'Vahvistusviesti',
-  reserve: 'Varasijailmoitus',
-}
-
-const templateAuditLabelKeys: Partial<Record<RegistrationMessage['template'], string>> = {
-  invitation: 'emailTemplate.invitation',
-  message: 'emailTemplate.message',
-  'payment-request': 'emailTemplate.payment-request',
-  picked: 'emailTemplate.picked',
-  registration: 'emailTemplate.registration',
-  reserve: 'emailTemplate.reserve',
-}
-
 const updatesParticipantState = (template: RegistrationMessage['template']) =>
   template === 'picked' || template === 'invitation'
 
@@ -150,10 +132,9 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     createSentRegistrationMessagesAudit({
       event: confirmedEvent,
       failed,
-      label: templateAuditLabels[template] ?? template,
-      labelKey: templateAuditLabelKeys[template] ?? '',
       ok,
       registrations,
+      template,
       user: user.name,
     })
   )

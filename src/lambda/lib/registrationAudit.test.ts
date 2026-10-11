@@ -54,7 +54,6 @@ describe('getRegistrationChanges', () => {
         },
         { field: 'notes', labelKey: 'registration.notes', next: { state: 'empty' }, previous: { text: before.notes } },
       ],
-      message: 'Muutti: Koiran tiedot, Lisätiedot',
       messageKey: 'audit.changed',
     })
     expect(loggedLines(debugSpy)).toContainEqual(
@@ -76,22 +75,16 @@ describe('getRegistrationChanges', () => {
             previous: { text: 'ke 10.2.2021 (ap)' },
           },
         ],
-        message: 'Muutti: Ryhmät',
+        messageKey: 'audit.changed',
       })
     )
   })
 
   it.each([
-    [
-      'reserve',
-      { reserve: 'WEEK' as const },
-      'Pystyn ottamaan koepaikan vastaan varasijalta',
-      'Koepäivänä',
-      'Viikon varoitusajalla',
-    ],
-    ['class', { class: 'AVO' as const }, 'Koeluokka', undefined, 'AVO'],
-    ['language', { language: 'en' as const }, 'Kieli', 'suomi', 'englanti'],
-  ])('shows a %s change in words', (field, updated, label, previous, next) => {
+    ['reserve', { reserve: 'WEEK' as const }, 'Koepäivänä', 'Viikon varoitusajalla'],
+    ['class', { class: 'AVO' as const }, undefined, 'AVO'],
+    ['language', { language: 'en' as const }, 'suomi', 'englanti'],
+  ])('shows a %s change in words', (field, updated, previous, next) => {
     expect(changesOf(updated)).toEqual(
       expect.objectContaining({
         changes: [
@@ -101,7 +94,7 @@ describe('getRegistrationChanges', () => {
             previous: previous ? { text: previous } : { state: 'empty' },
           }),
         ],
-        message: `Muutti: ${label}`,
+        messageKey: 'audit.changed',
       })
     )
   })
@@ -123,7 +116,7 @@ describe('getRegistrationChanges', () => {
             previous: { state: 'empty' },
           },
         ],
-        message: 'Muutti: Lisäpalvelut, Osallistumismaksu',
+        messageKey: 'audit.changed',
       })
     )
   })
@@ -162,7 +155,7 @@ describe('getRegistrationChanges', () => {
             previous: { state: 'empty' },
           },
         ],
-        message: 'Muutti: Ilmoitetut koetulokset',
+        messageKey: 'audit.changed',
       })
     )
   })
@@ -183,7 +176,7 @@ describe('getRegistrationChanges', () => {
             previous: { text: `Nimi: ${before.payer?.name}\nSähköposti: ${before.payer?.email}` },
           },
         ],
-        message: 'Muutti: Maksajan tiedot',
+        messageKey: 'audit.changed',
       })
     )
   })
@@ -211,7 +204,7 @@ describe('getRegistrationChanges', () => {
             previous: { text: 'Omistaja 1: First Owner, first@example.com' },
           },
         ],
-        message: 'Muutti: Omistajien tiedot',
+        messageKey: 'audit.changed',
       })
     )
   })
@@ -243,7 +236,7 @@ describe('getRegistrationChanges', () => {
             previous: { text: 'First Owner' },
           },
         ],
-        message: 'Muutti: Omistaja ohjaa',
+        messageKey: 'audit.changed',
       })
     )
   })
@@ -262,7 +255,7 @@ describe('getRegistrationChanges', () => {
     expect(getRegistrationChanges(before, updated, event)).toEqual(
       expect.objectContaining({
         changes: [expect.objectContaining({ field: 'owners' })],
-        message: 'Muutti: Omistajien tiedot',
+        messageKey: 'audit.changed',
       })
     )
   })

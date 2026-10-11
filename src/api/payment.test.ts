@@ -85,5 +85,18 @@ describe('payment', () => {
         status: 400,
       })
     })
+
+    // Paytrail's JSON words stand; this API's own error is left for the page to name by its status.
+    it.each([
+      ["Paytrail's JSON message", JSON.stringify({ message: 'Rejected' }), 'Rejected'],
+      ["the API's own error", 'Registration not found', undefined],
+      ['an error that is not text', { code: 'E1' }, undefined],
+    ])('reads %s without a message beside it', async (_case, error, errorMessage) => {
+      fetchMock.mockResponse(JSON.stringify({ error }), { status: 404 })
+
+      const res = await createPayment('test', 'test')
+
+      expect(res).toEqual({ errorMessage, response: undefined, status: 404 })
+    })
   })
 })

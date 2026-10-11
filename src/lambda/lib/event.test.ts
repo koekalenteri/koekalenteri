@@ -561,6 +561,15 @@ describe('lib/event', () => {
       expect(mockAudit).toHaveBeenCalled()
     })
 
+    // A guard: no row when neither side names a group. Today's callers always pass one, as
+    // normalizeRegistrationGroups gives every registration a group (KOE-1511).
+    it('writes no group row when neither side has a group', async () => {
+      await saveGroup({ eventId: 'e6', id: 'r6' }, undefined, { name: 'user' }, 'move')
+
+      expect(mockUpdate).toHaveBeenCalledTimes(1)
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
     it('calls update without cancelReason for non-cancelled group', async () => {
       const group = {
         eventId: 'e5',
@@ -588,17 +597,13 @@ describe('lib/event', () => {
       // The Finnish sentence for old readers, and the parts the trail names in the reader's language (KOE-1442)
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'audit-key',
-        message: 'Ryhmä: Ilmoittautuneet #1 -> la 3.8. ip #3 siirto',
         messageKey: 'audit.messages.groupChanged',
         messageParams: {
-          fromGroup: 'Ilmoittautuneet',
           fromGroupKey: 'eventManagement.participantSelection.registered',
           fromNumber: 1,
-          reason: 'siirto',
           reasonKey: 'audit.groupReason.move',
           toDate: '2024-08-03',
           toNumber: 3,
-          toTime: 'ip',
           toTimeKey: 'audit.time.ip',
         },
         user: 'admin',
@@ -646,12 +651,9 @@ describe('lib/event', () => {
       // Verify audit was called without the previous group info
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'audit-key',
-        message: 'Ryhmä: Ilmoittautuneet #2 (automaattinen sijoitus)',
         messageKey: 'audit.messages.groupSet',
         messageParams: {
-          reason: '(automaattinen sijoitus)',
           reasonKey: 'audit.groupReason.automatic',
-          toGroup: 'Ilmoittautuneet',
           toGroupKey: 'eventManagement.participantSelection.registered',
           toNumber: 2,
         },
@@ -682,14 +684,11 @@ describe('lib/event', () => {
       // Verify audit was called
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'audit-key',
-        message: 'Ryhmä: la 3.8. ip #10 -> Peruneet #5',
         messageKey: 'audit.messages.groupChanged',
         messageParams: {
           fromDate: '2024-08-03',
           fromNumber: 10,
-          fromTime: 'ip',
           fromTimeKey: 'audit.time.ip',
-          toGroup: 'Peruneet',
           toGroupKey: 'eventManagement.participantSelection.cancelled',
           toNumber: 5,
         },

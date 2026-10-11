@@ -71,7 +71,6 @@ describe('paymentCancelLambda', () => {
 
     const options = mockCancelTransaction.mock.lastCall?.[0]
     expect(options?.auditMessage(transaction, 'paytrail')).toEqual({
-      message: 'Maksu epäonnistui (Paytrail), 50,00 €',
       messageKey: 'audit.messages.paymentFailed',
       messageParams: { amount: '50,00 €', provider: 'Paytrail' },
     })

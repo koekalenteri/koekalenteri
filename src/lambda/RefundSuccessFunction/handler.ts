@@ -135,7 +135,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
     await audit({
       auditKey: registrationAuditKey(registration),
       // There is no refund subject: the context falls back to the plain one, and so does the key.
-      ...emailSentAudit(templateData.subject, emailSubjectAuditKey(), recipient),
+      ...emailSentAudit(emailSubjectAuditKey(), recipient, templateData.subject),
       user: transaction.user,
     })
   } catch (e) {

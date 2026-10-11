@@ -260,7 +260,7 @@ const sendPaymentReceipt = async ({
   )
   await audit({
     auditKey: registrationAuditKey(registration),
-    ...emailSentAudit(templateData.subject, emailSubjectAuditKey('receipt'), receiptTo),
+    ...emailSentAudit(emailSubjectAuditKey('receipt'), receiptTo, templateData.subject),
     ...auditUser(transactionActor(transaction)),
   })
 }
@@ -385,7 +385,7 @@ const handleSuccessfulPayment = async (
 
       await audit({
         auditKey: registrationAuditKey(registration),
-        ...emailSentAudit(data.subject, emailSubjectAuditKey(context), to),
+        ...emailSentAudit(emailSubjectAuditKey(context), to, data.subject),
         ...auditUser(transactionActor(transaction)),
       })
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'confirmationSentAt')

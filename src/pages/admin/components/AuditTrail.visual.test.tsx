@@ -27,7 +27,6 @@ const rows: AuditRecord[] = [
         previous: { state: 'empty' },
       },
     ],
-    message: 'Muutti: Lisätiedot',
     messageKey: 'audit.changed',
     timestamp: new Date('2026-09-12T11:40:02.000Z'),
     user: 'Sihteeri Sirpa',
@@ -74,12 +73,11 @@ it('tells a name taken from the registration from a login', async () => {
 })
 
 // The rows a registration's trail is made of since KOE-1442: each names its message by a key and
-// carries the parts as parameters, so the trail reads in the secretary's language. The stored
-// Finnish `message` is the fallback for rows written before the keys and for readers without them.
+// carries the parts as parameters, so the trail reads in the secretary's language, and stores no
+// Finnish `message` beside them (KOE-1511).
 const keyedRows: AuditRecord[] = [
   {
     auditKey: 'event-1:reg-1',
-    message: 'Starttinumero vapautettu: 2',
     messageKey: 'audit.messages.startNumberReleased',
     messageParams: { number: 2 },
     timestamp: new Date('2026-09-21T17:55:06.000Z'),
@@ -87,17 +85,13 @@ const keyedRows: AuditRecord[] = [
   },
   {
     auditKey: 'event-1:reg-1',
-    message: 'Ryhmä: la 7.11. ip #2 -> Ilmoittautuneet #1 siirto',
     messageKey: 'audit.messages.groupChanged',
     // As the API hands it over: its JSON reviver turns the bare day into a Date.
     messageParams: {
       fromDate: parseDateOnlyString('2026-11-07'),
       fromNumber: 2,
-      fromTime: 'ip',
       fromTimeKey: 'audit.time.ip',
-      reason: 'siirto',
       reasonKey: 'audit.groupReason.move',
-      toGroup: 'Ilmoittautuneet',
       toGroupKey: 'eventManagement.participantSelection.registered',
       toNumber: 1,
     },
@@ -106,15 +100,13 @@ const keyedRows: AuditRecord[] = [
   },
   {
     auditKey: 'event-1:reg-1',
-    message: 'Sähköposti: Koekutsu, vastaanottajat: minsu@example.com',
     messageKey: 'audit.messages.emailSentTo',
-    messageParams: { recipients: 'minsu@example.com', template: 'Koekutsu', templateKey: 'emailTemplate.invitation' },
+    messageParams: { recipients: 'minsu@example.com', templateKey: 'emailTemplate.invitation' },
     timestamp: new Date('2026-08-04T17:00:10.000Z'),
     user: 'Minsu Rauramo',
   },
   {
     auditKey: 'event-1:reg-1',
-    message: 'Ilmoittautuminen peruttiin, syy: Koiran juoksut',
     messageKey: 'audit.messages.registrationCancelled',
     messageParams: { reasonKey: 'registration.cancelReason.dog-heat' },
     timestamp: new Date('2026-08-04T16:59:59.000Z'),
@@ -122,7 +114,6 @@ const keyedRows: AuditRecord[] = [
   },
   {
     auditKey: 'event-1:reg-1',
-    message: 'Maksu (Nordea), 19,00 €',
     messageKey: 'audit.messages.payment',
     messageParams: { amount: '19,00 €', provider: 'Nordea' },
     timestamp: new Date('2026-08-04T16:58:29.000Z'),

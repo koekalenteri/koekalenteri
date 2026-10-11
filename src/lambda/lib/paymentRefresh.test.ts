@@ -5,7 +5,6 @@ const mockGetPayment = vi.fn()
 const mockDynamoUpdate = vi.fn()
 
 vi.doMock('./paytrail', () => ({
-  parsePaytrailErrorMessage: vi.fn(),
   paytrail: { getPayment: mockGetPayment },
 }))
 

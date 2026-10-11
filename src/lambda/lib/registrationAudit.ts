@@ -217,7 +217,7 @@ export const getRegistrationChanges = (
   existing: JsonRegistration,
   data: JsonRegistration,
   event: AuditedEvent
-): Pick<JsonAuditRecord, 'changes' | 'message' | 'messageKey'> | undefined => {
+): Pick<JsonAuditRecord, 'changes' | 'messageKey'> | undefined => {
   const t = getFixedT('fi')
   logger.debug('audit changes', { changes: getNestedChanges(existing, data) })
 
@@ -240,7 +240,6 @@ export const getRegistrationChanges = (
 
   return {
     changes: reported,
-    message: `Muutti: ${reported.map((change) => t(change.labelKey)).join(', ')}`,
     messageKey: 'audit.changed',
   }
 }

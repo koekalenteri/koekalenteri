@@ -394,11 +394,8 @@ export const saveGroup = async (
       registrationTable
     )
   }
-  await audit({
-    auditKey: registrationAuditKey(registrationKey),
-    ...groupChangeAudit(previous, group, reason),
-    ...auditUser(user),
-  })
+  const groupAudit = groupChangeAudit(previous, group, reason)
+  if (groupAudit) await audit({ auditKey: registrationAuditKey(registrationKey), ...groupAudit, ...auditUser(user) })
 }
 
 export const fixRegistrationGroups = async <T extends JsonRegistration>(

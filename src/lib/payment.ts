@@ -5,6 +5,7 @@ import type {
   MinimalEventForCost,
   MinimalRegistrationForCost,
   PaymentBalanceRegistration,
+  PaytrailRefusalBody,
   Registration,
 } from '../types'
 import type { AuditActor } from './audit'
@@ -27,6 +28,7 @@ import {
   shouldSendInvitationToRegistration,
 } from './registration'
 import { capitalize } from './string'
+import { isObject } from './utils'
 
 export const PROVIDER_NAMES: Record<string, string> = {
   aktia: 'Aktia',
@@ -192,3 +194,29 @@ export const transactionActor = (transaction: Pick<JsonTransaction, 'user' | 'us
   name: transaction.user ?? 'anonymous',
   ...(transaction.userSource ? { source: transaction.userSource } : {}),
 })
+
+/**
+ * The `message` of a Paytrail error answered as JSON, or nothing when the answer was something else.
+ * The payment page shows only this: any other error text it gets is the API's own (KOE-1511).
+ */
+export const paytrailErrorMessage = (error?: string): string | undefined => {
+  if (!error) return undefined
+  try {
+    const details: unknown = JSON.parse(error)
+    if (isObject(details) && typeof details.message === 'string' && details.message) return details.message
+  } catch {
+    // Not JSON: an HTML or plain answer, or the reason the request failed.
+  }
+  return undefined
+}
+
+/**
+ * What Paytrail said of a refusal: its JSON `message`, else the text it answered with (an HTML or
+ * plain 5xx, or why the request failed), else nothing (KOE-1511).
+ */
+export const paytrailErrorText = (error?: string): string | undefined =>
+  paytrailErrorMessage(error) ?? (error === '' ? undefined : error)
+
+/** A refund answer that is Paytrail's refusal, as RefundCreate marks it, not one of the API's own errors. */
+export const isPaytrailRefusal = (body: unknown): body is PaytrailRefusalBody =>
+  isObject(body) && body.provider === 'paytrail' && typeof body.error === 'string'

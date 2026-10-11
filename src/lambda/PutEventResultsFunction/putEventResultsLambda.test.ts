@@ -167,7 +167,6 @@ describe('putEventResultsLambda', () => {
     // The sentence is translated, the result's own text rides along as a part (KOE-1442).
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event-1:reg-1',
-      message: 'Tallensi tuloksen: AVO1, 65/80 p',
       messageKey: 'audit.messages.resultSavedDetail',
       messageParams: { result: 'AVO1, 65/80 p' },
       user: 'Sihteeri',
@@ -183,7 +182,6 @@ describe('putEventResultsLambda', () => {
 
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event-1:reg-1',
-      message: 'Muutti tulosta: AVO1, 65/80 p',
       messageKey: 'audit.messages.resultChangedDetail',
       messageParams: { result: 'AVO1, 65/80 p' },
       user: 'Sihteeri',
