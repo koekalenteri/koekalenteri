@@ -2,7 +2,6 @@ import type { ConfirmedEvent, Registration } from '../../types'
 import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { render } from 'vitest-browser-react'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
@@ -14,6 +13,7 @@ import { TestProvider } from '../../test-utils/AtomProvider'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { freezeClockAt } from '../../test-utils/freezeClock'
 import { DataMemoryRouter, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventViewPage from './EventViewPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
@@ -81,7 +81,7 @@ it("shows the event's status row, info panel and class tabs above the entry grid
             set(adminEventRegistrationsAtom(event.id), registrations)
           }}
         >
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <ConfirmProvider>
               <Suspense fallback={<div>loading...</div>}>
                 <DataMemoryRouter
@@ -90,7 +90,7 @@ it("shows the event's status row, info panel and class tabs above the entry grid
                 />
               </Suspense>
             </ConfirmProvider>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </TestProvider>
       </ThemeProvider>
     </div>

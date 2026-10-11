@@ -4,7 +4,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { act, fireEvent, screen } from '@testing-library/react'
 import { createStore } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MemoryRouter } from 'react-router'
@@ -21,6 +20,7 @@ import {
   runPendingTimers,
   TEST_ID_TOKEN,
 } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import EventCreatePage from './EventCreatePage'
 import { adminNewEventAtom } from './state'
 
@@ -65,9 +65,9 @@ describe('EventEditPage', () => {
           <Provider initializeState={({ set }) => set(adminNewEventAtom, initialValue)}>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
+                <AppSnackbarProvider>
                   <EventCreatePage />
-                </SnackbarProvider>
+                </AppSnackbarProvider>
               </Suspense>
             </MemoryRouter>
           </Provider>
@@ -92,9 +92,9 @@ describe('EventEditPage', () => {
           >
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
+                <AppSnackbarProvider>
                   <EventCreatePage />
-                </SnackbarProvider>
+                </AppSnackbarProvider>
               </Suspense>
             </MemoryRouter>
           </Provider>

@@ -1,12 +1,12 @@
 import { ThemeProvider } from '@mui/material'
 import { act, fireEvent, screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getEventTypes, putEventType } from '../../api/eventType'
 import theme from '../../assets/Theme'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventTypeListPage from './EventTypeListPage'
 
@@ -24,9 +24,9 @@ describe('EventTypeListPage', () => {
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <EventTypeListPage />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>

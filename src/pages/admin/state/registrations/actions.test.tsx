@@ -1,7 +1,6 @@
 import type React from 'react'
 import { act, renderHook } from '@testing-library/react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
@@ -23,7 +22,6 @@ import { adminProjectedEventRegistrationsAtom } from './derivedAtoms'
 const mockEnqueueSnackbar = vi.fn()
 
 vi.mock('notistack', () => ({
-  SnackbarProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useSnackbar: () => ({ enqueueSnackbar: mockEnqueueSnackbar }),
 }))
 
@@ -39,7 +37,7 @@ function wrapper({ children }: { readonly children: React.ReactNode }) {
         set(adminEventRegistrationsAtom(eventWithStaticDates.id), [registrationWithStaticDates])
       }}
     >
-      <SnackbarProvider>{children}</SnackbarProvider>
+      {children}
     </Provider>
   )
 }
@@ -68,7 +66,7 @@ function groupQueueWrapper({ children }: { readonly children: React.ReactNode })
         set(adminEventRegistrationsAtom(eventWithStaticDates.id), [registrationWithStaticDates, queuedRegistration])
       }}
     >
-      <SnackbarProvider>{children}</SnackbarProvider>
+      {children}
     </Provider>
   )
 }
@@ -181,7 +179,7 @@ describe('useAdminRegistrationActions', () => {
           set(adminEventRegistrationsFetchedAtAtom(eventId), fetchedAt)
         }}
       >
-        <SnackbarProvider>{children}</SnackbarProvider>
+        {children}
       </Provider>
     )
 
@@ -308,7 +306,7 @@ describe('useAdminRegistrationActions', () => {
           set(adminEventRegistrationsAtom(unsettled.id), [registrationWithStaticDates])
         }}
       >
-        <SnackbarProvider>{children}</SnackbarProvider>
+        {children}
       </Provider>
     )
     vi.mocked(sendTemplatedEmail).mockResolvedValueOnce({

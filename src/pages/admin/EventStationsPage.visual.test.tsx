@@ -3,7 +3,6 @@ import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { addDays } from 'date-fns'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
@@ -14,6 +13,7 @@ import { Path } from '../../routeConfig'
 import { TestProvider } from '../../test-utils/AtomProvider'
 import { freezeClockAt } from '../../test-utils/freezeClock'
 import { DataMemoryRouter } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import EventStationsPage from './EventStationsPage'
 import { adminEventsAtom } from './state'
 
@@ -45,14 +45,14 @@ it("lays out the course under each of the trial's days", async () => {
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <TestProvider initializeState={({ set }) => set(adminEventsAtom, [event])}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <Suspense fallback={<div>loading...</div>}>
                 <DataMemoryRouter
                   initialEntries={[Path.admin.stations(event.id)]}
                   routes={[{ element: <EventStationsPage />, path: Path.admin.stations() }]}
                 />
               </Suspense>
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </TestProvider>
         </LocalizationProvider>
       </ThemeProvider>

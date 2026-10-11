@@ -2,12 +2,12 @@ import type { RouteObject } from 'react-router'
 import type { ClassStartNumbers } from '../types'
 import { ThemeProvider } from '@mui/material'
 import { cleanup, screen, within } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { getClassStartNumbers, putClassStartNumbers } from '../api/startNumbers'
 import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
 import { Component as ClassStartNumbersPage } from './ClassStartNumbersPage'
+import AppSnackbarProvider from './components/AppSnackbarProvider'
 
 vi.mock('../api/startNumbers')
 
@@ -53,9 +53,9 @@ const renderPage = () => {
 
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
-      <SnackbarProvider>
+      <AppSnackbarProvider>
         <DataMemoryRouter initialEntries={[Path.classStartNumbers('event-1', 'ALO', 'link-token')]} routes={routes} />
-      </SnackbarProvider>
+      </AppSnackbarProvider>
     </ThemeProvider>,
     undefined,
     { advanceTimers: vi.advanceTimersByTime }

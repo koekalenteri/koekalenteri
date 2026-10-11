@@ -4,7 +4,6 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -14,6 +13,7 @@ import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventStationsPage from './EventStationsPage'
 
@@ -37,9 +37,9 @@ const renderPage = (language: Language) => {
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <DataMemoryRouter initialEntries={[Path.admin.stations(eventWithStaticDates.id)]} routes={routes} />
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </LocalizationProvider>

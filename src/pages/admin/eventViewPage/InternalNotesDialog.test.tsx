@@ -1,15 +1,15 @@
 import type { ReactNode } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import InternalNotesDialog from './InternalNotesDialog'
 
 const Wrapper = ({ children }: { readonly children: ReactNode }) => (
   <ThemeProvider theme={theme}>
-    <SnackbarProvider>{children}</SnackbarProvider>
+    <AppSnackbarProvider>{children}</AppSnackbarProvider>
   </ThemeProvider>
 )
 

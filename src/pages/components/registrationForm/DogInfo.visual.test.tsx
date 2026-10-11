@@ -2,7 +2,6 @@ import type { DeepPartial, Language, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { SnackbarProvider } from 'notistack'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
@@ -10,6 +9,7 @@ import { locales } from '@/i18n'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { freezeClockAt } from '@/test-utils/freezeClock'
 import { describeInLanguage } from '@/test-utils/language'
+import AppSnackbarProvider from '../AppSnackbarProvider'
 import { DogInfo } from './DogInfo'
 
 // The fixtures below carry absolute dates, and what the view says about them depends on where
@@ -27,7 +27,7 @@ const Frame = ({ children, language = 'fi', width = 900 }: FrameProps) => (
   <div data-testid="visual-root" style={{ background: '#fff', padding: 16, width }}>
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
-        <SnackbarProvider>{children}</SnackbarProvider>
+        <AppSnackbarProvider>{children}</AppSnackbarProvider>
       </LocalizationProvider>
     </ThemeProvider>
   </div>

@@ -1,26 +1,27 @@
+import type { ComponentProps } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
 import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import { AddCostDialog } from './AddCostDialog'
 
-const renderAddCostDialog = (props: any) => {
+const renderAddCostDialog = (props: ComponentProps<typeof AddCostDialog>) => {
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <Provider>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <AddCostDialog {...props} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>
@@ -285,7 +286,7 @@ describe('AddCostDialog', () => {
             <Provider>
               <MemoryRouter>
                 <Suspense fallback={<div>loading...</div>}>
-                  <SnackbarProvider>
+                  <AppSnackbarProvider>
                     <AddCostDialog
                       open={true}
                       mode="optional"
@@ -294,7 +295,7 @@ describe('AddCostDialog', () => {
                       onClose={onClose}
                       onAdd={onAdd}
                     />
-                  </SnackbarProvider>
+                  </AppSnackbarProvider>
                 </Suspense>
               </MemoryRouter>
             </Provider>
@@ -536,7 +537,7 @@ describe('AddCostDialog', () => {
 
       const { user } = renderAddCostDialog({
         availableKeys: ['breed'],
-        existingBreedCodes: ['001'],
+        existingBreedCodes: ['122'],
         mode: 'other',
         onAdd,
         onClose,
@@ -549,9 +550,14 @@ describe('AddCostDialog', () => {
       await user.click(breedInput)
       await flushPromises()
 
-      // Existing breed codes should be filtered out
-      // This depends on the PRIORIZED_BREED_CODES mock, but we verify the selector is rendered
-      expect(breedInput).toBeInTheDocument()
+      const options = await screen.findAllByRole('option')
+      expect(options.map((option) => option.textContent)).toEqual([
+        'breed:110',
+        'breed:111',
+        'breed:121',
+        'breed:263',
+        'breed:312',
+      ])
     })
 
     it('should add earlyBird cost without additional data', async () => {

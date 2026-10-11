@@ -1,6 +1,5 @@
 import type { Judge, Language } from '../../types'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
@@ -10,6 +9,7 @@ import { muiLocales } from '../../i18n'
 import { TestProvider } from '../../test-utils/AtomProvider'
 import { describeInLanguage } from '../../test-utils/language'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import JudgeListPage from './JudgeListPage'
 import { adminJudgesAtom } from './state'
@@ -71,11 +71,11 @@ const renderList = async (language: Language = 'fi') => {
           }}
         >
           <MemoryRouter>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <Suspense fallback={<div>loading...</div>}>
                 <JudgeListPage />
               </Suspense>
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </MemoryRouter>
         </TestProvider>
       </ThemeProvider>

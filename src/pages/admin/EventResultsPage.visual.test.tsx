@@ -2,7 +2,6 @@ import type { ConfirmedEvent } from '../../types'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
@@ -14,6 +13,7 @@ import { TestProvider } from '../../test-utils/AtomProvider'
 import { freezeClockAt } from '../../test-utils/freezeClock'
 import { describeInLanguage } from '../../test-utils/language'
 import { DataMemoryRouter } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import EventResultsPage from './EventResultsPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 
@@ -45,14 +45,14 @@ describeInLanguage('en', () => {
                 set(adminEventRegistrationsAtom(event.id), registrations)
               }}
             >
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <Suspense fallback={<div>loading...</div>}>
                   <DataMemoryRouter
                     initialEntries={[Path.admin.results(event.id)]}
                     routes={[{ element: <EventResultsPage />, path: Path.admin.results() }]}
                   />
                 </Suspense>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </TestProvider>
           </LocalizationProvider>
         </ThemeProvider>

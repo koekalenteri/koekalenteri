@@ -4,7 +4,6 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -13,6 +12,7 @@ import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventEditPage from './EventEditPage'
 
@@ -70,9 +70,9 @@ describe('EventEditPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[Path.admin.editEvent(eventWithStaticDates.id)]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -106,9 +106,9 @@ describe('EventEditPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[Path.admin.editEvent(eventWithStaticDates.id)]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>

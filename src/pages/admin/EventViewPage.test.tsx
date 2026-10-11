@@ -4,7 +4,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import {
@@ -23,6 +22,7 @@ import {
   renderSuspendedWithUserEvents,
   runPendingTimers,
 } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import EventViewPage from './EventViewPage'
 import { adminEventClassAtom, adminEventIdAtom } from './state'
 
@@ -71,11 +71,11 @@ describe('EventViewPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <DataMemoryRouter initialEntries={[Path.admin.viewEvent(eventWithStaticDates.id)]} routes={routes} />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -100,11 +100,11 @@ describe('EventViewPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <DataMemoryRouter initialEntries={[Path.admin.viewEvent(eventWithStaticDates.id)]} routes={routes} />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -129,14 +129,14 @@ describe('EventViewPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <DataMemoryRouter
                     initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAndClass.id)]}
                     routes={routes}
                   />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -164,14 +164,14 @@ describe('EventViewPage', () => {
             }}
           >
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <DataMemoryRouter
                     initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAndClass.id)]}
                     routes={routes}
                   />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -203,14 +203,14 @@ describe('EventViewPage', () => {
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
             <Provider>
               <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
+                <AppSnackbarProvider>
                   <ConfirmProvider>
                     <DataMemoryRouter
                       initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAnd3Classes.id)]}
                       routes={routes}
                     />
                   </ConfirmProvider>
-                </SnackbarProvider>
+                </AppSnackbarProvider>
               </Suspense>
             </Provider>
           </LocalizationProvider>
@@ -248,14 +248,14 @@ describe('EventViewPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <DataMemoryRouter
                     initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAnd3Classes.id)]}
                     routes={routes}
                   />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -286,11 +286,11 @@ describe('EventViewPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <DataMemoryRouter initialEntries={[Path.admin.viewEvent(eventWithStaticDates.id)]} routes={routes} />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>

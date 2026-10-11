@@ -1,8 +1,8 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { SnackbarProvider } from 'notistack'
 import { render } from 'vitest-browser-react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import InternalNotesDialog from './InternalNotesDialog'
 
 const registration = { ...registrationWithStaticDates, internalNotes: 'Ei vastaa puhelimeen, käytä sähköpostia.' }
@@ -10,9 +10,9 @@ const registration = { ...registrationWithStaticDates, internalNotes: 'Ei vastaa
 it('shows the stored note, open', async () => {
   const screen = await render(
     <ThemeProvider theme={theme}>
-      <SnackbarProvider>
+      <AppSnackbarProvider>
         <InternalNotesDialog open onClose={() => {}} registration={registration} onSave={async () => {}} />
-      </SnackbarProvider>
+      </AppSnackbarProvider>
     </ThemeProvider>
   )
 

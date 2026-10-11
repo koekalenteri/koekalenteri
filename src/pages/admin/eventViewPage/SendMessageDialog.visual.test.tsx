@@ -3,7 +3,6 @@ import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '@/__mockData__/events'
@@ -12,6 +11,7 @@ import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { describeInLanguage } from '@/test-utils/language'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { adminEmailTemplatesAtom, adminEventsAtom } from '../state'
 import SendMessageDialog from './SendMessageDialog'
 
@@ -50,7 +50,7 @@ const renderDialog = (language: Language = 'fi') =>
             set(adminEventsAtom, [eventWithStaticDates])
           }}
         >
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <ConfirmProvider>
               <Suspense fallback={<div>loading...</div>}>
                 <SendMessageDialog
@@ -61,7 +61,7 @@ const renderDialog = (language: Language = 'fi') =>
                 />
               </Suspense>
             </ConfirmProvider>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </TestProvider>
       </LocalizationProvider>
     </ThemeProvider>

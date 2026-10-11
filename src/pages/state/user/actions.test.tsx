@@ -2,12 +2,12 @@ import type React from 'react'
 import { act, renderHook } from '@testing-library/react'
 import * as auth from 'aws-amplify/auth'
 import { useAtomValue } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import * as userAPI from '@/api/user'
 import { Path } from '@/routeConfig'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { useUserActions } from './actions'
 import { idTokenAtom } from './atoms'
 
@@ -22,14 +22,14 @@ vi.mock('aws-amplify/auth', () => ({
 function wrapper({ children }: { readonly children: React.ReactNode }) {
   return (
     <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
-      <SnackbarProvider>
+      <AppSnackbarProvider>
         <MemoryRouter initialEntries={['/current-page']}>
           <Routes>
             <Route path="/" element={children} />
             <Route path="/current-page" element={children} />
           </Routes>
         </MemoryRouter>
-      </SnackbarProvider>
+      </AppSnackbarProvider>
     </Provider>
   )
 }

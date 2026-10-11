@@ -4,13 +4,13 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter, useParams } from 'react-router'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { flushPromises, renderSuspended } from '../test-utils/utils'
+import AppSnackbarProvider from './components/AppSnackbarProvider'
 import RegistrationEditPage from './RegistrationEditPage'
 
 vi.mock('../api/user')
@@ -35,9 +35,9 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <Provider>
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <MemoryRouter>{children} </MemoryRouter>
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </LocalizationProvider>

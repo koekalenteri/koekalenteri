@@ -6,7 +6,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen, within } from '@testing-library/react'
 import { addDays } from 'date-fns'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -17,6 +16,7 @@ import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventStartNumbersPage from './EventStartNumbersPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
@@ -44,9 +44,9 @@ const renderPage = (language: Language, registrations: Registration[] = registra
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <DataMemoryRouter initialEntries={[Path.admin.startNumbers(eventWithStations.id)]} routes={routes} />
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </LocalizationProvider>

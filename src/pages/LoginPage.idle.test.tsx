@@ -1,11 +1,11 @@
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter } from '../test-utils/utils'
+import AppSnackbarProvider from './components/AppSnackbarProvider'
 import { Component as LoginPage } from './LoginPage'
 import { idTokenAtom } from './state'
 
@@ -23,16 +23,11 @@ describe('LoginPage', () => {
     render(
       <Provider initializeState={({ set }) => set(idTokenAtom, undefined)}>
         <ThemeProvider theme={theme}>
-          <SnackbarProvider
-            anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-            classes={{ containerRoot: 'snack' }}
-            disableWindowBlurListener
-            maxSnack={3}
-          >
+          <AppSnackbarProvider>
             <Authenticator.Provider>
               <DataMemoryRouter initialEntries={[Path.login]} routes={routes} />
             </Authenticator.Provider>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </ThemeProvider>
       </Provider>
     )

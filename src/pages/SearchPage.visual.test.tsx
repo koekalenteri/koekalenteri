@@ -3,7 +3,6 @@ import { TZDate } from '@date-fns/tz'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
@@ -12,6 +11,7 @@ import { emptyEvent } from '../__mockData__/emptyEvent'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { TIME_ZONE } from '../i18n/dates'
+import AppSnackbarProvider from './components/AppSnackbarProvider'
 // The register link's black/bold/underlined look is a global class, not a theme override; without
 // it the link falls back to the browser's default blue (KOE-1324, caught against a real device).
 import '../index.css'
@@ -102,13 +102,13 @@ const renderAt = async (
       <ThemeProvider theme={stillTheme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <TestProvider initializeState={({ set }) => set(eventFilterAtom, fixedFilter)}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <MemoryRouter>
                 <Suspense fallback={<div>loading...</div>}>
                   <SearchPage />
                 </Suspense>
               </MemoryRouter>
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </TestProvider>
         </LocalizationProvider>
       </ThemeProvider>

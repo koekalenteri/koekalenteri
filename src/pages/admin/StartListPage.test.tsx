@@ -1,13 +1,13 @@
 import type { Registration, RegistrationClass } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { mockRegistrations } from '../../api/__mocks__/registration'
 import theme from '../../assets/Theme'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import StartListPage from './StartListPage'
 
@@ -33,13 +33,13 @@ describe('OrganizerListPage', () => {
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <MemoryRouter initialEntries={['/testInvited']}>
                 <Routes>
                   <Route path=":id" element={<StartListPage />} />
                 </Routes>
               </MemoryRouter>
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </ThemeProvider>
@@ -69,13 +69,13 @@ describe('OrganizerListPage', () => {
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <MemoryRouter initialEntries={['/testInvited']}>
                 <Routes>
                   <Route path=":id" element={<StartListPage />} />
                 </Routes>
               </MemoryRouter>
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </ThemeProvider>

@@ -2,12 +2,12 @@ import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 // RegistrationEditDialog is a thin data-fetching wrapper (event/registration come from atoms
@@ -25,7 +25,7 @@ it('scrolls a long registration form inside a fixed-height frame', async () => {
   const screen = await render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <SnackbarProvider>
+        <AppSnackbarProvider>
           <ConfirmProvider>
             <RegistrationDialogBase
               changes={false}
@@ -37,7 +37,7 @@ it('scrolls a long registration form inside a fixed-height frame', async () => {
               setRegistration={() => {}}
             />
           </ConfirmProvider>
-        </SnackbarProvider>
+        </AppSnackbarProvider>
       </LocalizationProvider>
     </ThemeProvider>
   )
@@ -61,7 +61,7 @@ it('shows the entry read-only once the trial is over', async () => {
   const screen = await render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <SnackbarProvider>
+        <AppSnackbarProvider>
           <ConfirmProvider>
             <RegistrationDialogBase
               changes={false}
@@ -74,7 +74,7 @@ it('shows the entry read-only once the trial is over', async () => {
               setRegistration={() => {}}
             />
           </ConfirmProvider>
-        </SnackbarProvider>
+        </AppSnackbarProvider>
       </LocalizationProvider>
     </ThemeProvider>
   )
