@@ -2,6 +2,7 @@ import type { JsonRefundTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
+import { getProviderName } from '../../lib/payment'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { cancelTransaction } from '../lib/payment'
@@ -23,7 +24,7 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
   const cancelled = await cancelTransaction<JsonRefundTransaction>({
     auditActor: (transaction) => ({ name: transaction.user }),
     auditMessage: (transaction) =>
-      paymentAudit('refundFailed', transaction.provider ?? '', formatMoney(transaction.amount / 100)),
+      paymentAudit('refundFailed', getProviderName(transaction.provider), formatMoney(transaction.amount / 100)),
     params,
     statusField: 'refundStatus',
   })

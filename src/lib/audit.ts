@@ -7,9 +7,9 @@ import type {
   JsonRegistrationGroup,
 } from '../types'
 import { format } from 'date-fns/format'
-import { formatDate, zonedParseDate } from '../i18n/dates'
+import { formatDate, WEEKDAY_DAY_FORMAT, zonedParseDate } from '../i18n/dates'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from './registration'
-import { isDateOnlyString, isDateString } from './utils'
+import { isDateOnlyString } from './utils'
 
 /**
  * Whom an audit row is attributed to. An authenticated user has no `source`; a name taken from the
@@ -63,8 +63,8 @@ const dayParamName = (prefix: DayParamPrefix, part: DayParamPart) =>
 /** A bare yyyy-MM-dd is a day in Finnish time; anything else is an instant already. */
 const toDay = (date: string | Date) => (isDateOnlyString(date) ? zonedParseDate(date) : date)
 
-/** A day as the Finnish trail names it ("la 7.11."), the format `dateFormat.wdshort` gives. */
-const finnishAuditDay = (date: string | Date) => formatDate(toDay(date), 'eee d.M.')
+/** A day as the Finnish trail names it ("su 8.11."): the pattern Finnish `dateFormat.wdshort` (wdshort2) uses. */
+const finnishAuditDay = (date: string | Date) => formatDate(toDay(date), WEEKDAY_DAY_FORMAT)
 
 export const formatGroupAuditInfo = (group: AuditGroup): string => {
   if (!group) return ''
@@ -360,14 +360,14 @@ const isRevivedDay = (value: Date) =>
   value.getHours() === 12 && value.getMinutes() === 0 && value.getSeconds() === 0 && value.getMilliseconds() === 0
 
 /**
- * A day as a Date to format in Finnish time. A day written as yyyy-MM-dd arrives as that string over
- * the WebSocket and as local noon through the API; both are read as that day in Finnish time, so a
- * reader west of UTC-10 sees the same day. An instant (a full timestamp) is taken as it is.
+ * A day parameter (`date`, `fromDate`, `toDate`) as a Date to format in Finnish time. `dayParams`
+ * writes these only as yyyy-MM-dd, which arrives as that string over the WebSocket and as local noon
+ * through the API; both are read as that day in Finnish time, so a reader west of UTC-10 sees the
+ * same day. Only for these: an instant elsewhere is formatted as the instant it is.
  */
-export const auditDay = (value: unknown): Date | undefined => {
-  if (value instanceof Date) return isRevivedDay(value) ? zonedParseDate(format(value, 'yyyy-MM-dd')) : value
-  if (isDateOnlyString(value)) return zonedParseDate(value)
-  return typeof value === 'string' && isDateString(value) ? new Date(value) : undefined
+const auditDay = (value: unknown): Date | undefined => {
+  if (value instanceof Date) return zonedParseDate(format(value, 'yyyy-MM-dd'))
+  return isDateOnlyString(value) ? zonedParseDate(value) : undefined
 }
 
 /** Text a parameter can stand for. A free text that happened to look like a date was revived too. */
@@ -443,6 +443,19 @@ export const formatAuditMessage = (
   if (!isAuditTranslationKey(messageKey)) return message
 
   return t(messageKey, { ...auditMessageParams(t, messageParams), defaultValue: message }).trim()
+}
+
+/**
+ * A change label's parameters as its translation reads them. `eventDate` is an instant, the class
+ * day's midnight in Finnish time (`getClassPlaceChanges`), and is formatted as that instant there,
+ * never through the day reader above, which would take a UTC-10 reader's local noon for a bare day.
+ */
+export const auditLabelParams = (params?: AuditReadParams) => {
+  const eventDate = params?.eventDate
+  return {
+    ...params,
+    ...(eventDate ? { eventDate: formatDate(new Date(String(eventDate)), 'd.M.yyyy') } : {}),
+  }
 }
 
 export const formatAuditDetail = (t: TFunction, { detailKey, detailParams }: JsonAuditDetail) => {

@@ -3,7 +3,7 @@ import i18next from 'i18next'
 import { i18nInitOptions } from '../i18n/config'
 import { registerFormatters } from '../i18n/formatters'
 import {
-  auditDay,
+  auditLabelParams,
   auditUser,
   duplicatePaymentAudit,
   duplicatePaymentOfOtherAudit,
@@ -57,6 +57,9 @@ describe('formatGroupAuditInfo', () => {
     expect(
       formatGroupAuditInfo({ date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 20, time: 'ip' })
     ).toBe('la 3.8. ip #20')
+    expect(
+      formatGroupAuditInfo({ date: '2026-10-31T22:00:00.000Z', key: '2026-11-01-ap', number: 3, time: 'ap' })
+    ).toBe('su 1.11. ap #3')
   })
 })
 
@@ -236,6 +239,17 @@ const messages: Array<[string, AuditMessage]> = [
   ['startNumbersHidden', startNumbersPublishedAudit(false)],
   ['classStartNumbersHidden', startNumbersPublishedAudit(false, { eventClass: 'ALO' })],
   ['classStartNumbersHiddenDay', startNumbersPublishedAudit(false, { date: '2026-09-12', eventClass: 'ALO' })],
+  // Not only Saturday: the short and the abbreviated Finnish weekday agree on "la" alone.
+  ['startNumbersPublishedDay (Sunday)', startNumbersPublishedAudit(true, { date: '2026-09-13', eventClass: 'ALO' })],
+  ['startNumbersPublishedDay (Monday)', startNumbersPublishedAudit(true, { date: '2026-09-14', time: 'ip' })],
+  [
+    'groupChanged (Sunday)',
+    groupChangeAudit(
+      { date: '2026-10-31T22:00:00.000Z', key: '2026-11-01-ap', number: 3, time: 'ap' },
+      { key: 'reserve', number: 1 },
+      'move'
+    ),
+  ],
   [
     'classStartNumbersPublishedDay',
     startNumbersPublishedAudit(true, { date: '2026-09-12', eventClass: 'ALO', time: 'ip' }),
@@ -351,8 +365,8 @@ describe('formatAuditMessage in English', () => {
       'Registration cancelled, reason: 2026-10-18'
     )
     // A full timestamp keeps its time: only the reviver's local noon marks a bare day.
-    expect(formatAuditMessage(en(), { ...row, messageParams: { reason: new Date('2026-10-18T10:00:00.000Z') } })).toBe(
-      'Registration cancelled, reason: 2026-10-18T10:00:00.000Z'
+    expect(formatAuditMessage(en(), { ...row, messageParams: { reason: new Date('2026-10-18T10:00:07.000Z') } })).toBe(
+      'Registration cancelled, reason: 2026-10-18T10:00:07.000Z'
     )
   })
 
@@ -385,22 +399,18 @@ describe('formatAuditDetail', () => {
   })
 })
 
-describe('auditDay', () => {
-  // Each form a day reaches the trail in reads as the same Finnish day, wherever the reader is.
+describe('auditLabelParams', () => {
+  // The class day is written as its Helsinki midnight, an instant; at UTC-10 that instant is local
+  // noon, which must not be taken for a revived bare day (KOE-1442).
   it.each([
-    ['a bare day', '2026-11-07'] as const,
-    ['a day the reviver made local noon', parseDateOnlyString('2026-11-07')] as const,
-  ])('reads %s as that day in Finnish time', (_name, value) => {
-    expect(auditDay(value)).toEqual(new Date('2026-11-06T22:00:00.000Z'))
+    ['an instant revived into a Date', new Date('2026-09-18T21:00:00.000Z')] as const,
+    ['an instant over the WebSocket', '2026-09-18T21:00:00.000Z'] as const,
+  ])('formats %s as the day in Finnish time', (_name, eventDate) => {
+    expect(auditLabelParams({ eventClass: 'ALO', eventDate })).toEqual({ eventClass: 'ALO', eventDate: '19.9.2026' })
   })
 
-  it('takes an instant as it is', () => {
-    expect(auditDay('2024-08-02T21:00:00.000Z')).toEqual(new Date('2024-08-02T21:00:00.000Z'))
-    expect(auditDay(new Date('2024-08-02T21:30:00.000Z'))).toEqual(new Date('2024-08-02T21:30:00.000Z'))
-  })
-
-  it('has no day for anything else', () => {
-    expect(auditDay('ALO')).toBeUndefined()
-    expect(auditDay(3)).toBeUndefined()
+  it('leaves parameters without a date as they are', () => {
+    expect(auditLabelParams({ eventClass: 'ALO' })).toEqual({ eventClass: 'ALO' })
+    expect(auditLabelParams()).toEqual({})
   })
 })

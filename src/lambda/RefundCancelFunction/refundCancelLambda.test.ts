@@ -46,10 +46,11 @@ describe('refundCancelLambda', () => {
     user: 'Sihteeri',
   })
 
-  // The failed refund is named by its key, the provider and the amount as parts (KOE-1442).
+  // The failed refund is named by its key, the provider by its display name as the other refund rows
+  // name it, and the amount as parts (KOE-1442).
   it.each([
-    ['nordea', 'Palautus epäonnistui (nordea), 10,00 €', 'nordea'],
-    [undefined, 'Palautus epäonnistui (), 10,00 €', ''],
+    ['nordea', 'Palautus epäonnistui (Nordea), 10,00 €', 'Nordea'],
+    ['email refund', 'Palautus epäonnistui (Sähköposti + tilisiirto), 10,00 €', 'Sähköposti + tilisiirto'],
   ])('audits a failed refund through %s', async (provider, message, providerParam) => {
     let audited: AuditMessage | undefined
     mockCancelTransaction.mockImplementationOnce(async ({ auditMessage }) => {

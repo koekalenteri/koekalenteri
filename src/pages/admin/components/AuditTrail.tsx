@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '@/i18n/dates'
-import { auditDay, formatAuditDetail, formatAuditMessage } from '@/lib/audit'
+import { auditLabelParams, formatAuditDetail, formatAuditMessage } from '@/lib/audit'
 import CollapsibleSection from '../../components/CollapsibleSection'
 
 interface Props {
@@ -28,12 +28,10 @@ const useAuditFormatter = () => {
   const changeLabel = (change: AuditChange) => {
     if (!change.labelKey) return change.field
 
-    const eventDate = auditDay(change.labelParams?.eventDate)
-    const labelParams = {
-      ...change.labelParams,
-      ...(eventDate ? { eventDate: formatDate(eventDate, 'd.M.yyyy') } : {}),
-    }
-    return t(change.labelKey as ParseKeys<'translation'>, { ...labelParams, defaultValue: change.field })
+    return t(change.labelKey as ParseKeys<'translation'>, {
+      ...auditLabelParams(change.labelParams),
+      defaultValue: change.field,
+    })
   }
 
   const changeValue = (value: AuditChangeValueData) => {

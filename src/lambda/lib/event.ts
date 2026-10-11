@@ -15,8 +15,9 @@ import { randomUUID } from 'node:crypto'
 import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
-import { GROUP_KEY_CANCELLED, hasPriority } from '../../lib/registration'
+import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
+import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -408,14 +409,16 @@ export const fixRegistrationGroups = async <T extends JsonRegistration>(
   const previousGroups = new Map(items.map((item) => [item, item.group ? { ...item.group } : undefined]))
   normalizeRegistrationGroups(items)
 
-  for (const registration of items) {
+  if (!save) return items
+
+  // Each registration's row and audit line is its own; the saves need not wait for one another.
+  const moved = items.filter((registration) => {
     const previous = previousGroups.get(registration)
-    if (registration.group?.key !== previous?.key || registration.group?.number !== previous?.number) {
-      if (save) {
-        await saveGroup(registration, previous, user, 'automatic')
-      }
-    }
-  }
+    return registration.group?.key !== previous?.key || registration.group?.number !== previous?.number
+  })
+  await mapWithConcurrency(moved, REGISTRATION_WRITE_CONCURRENCY, (registration) =>
+    saveGroup(registration, previousGroups.get(registration), user, 'automatic')
+  )
 
   return items
 }

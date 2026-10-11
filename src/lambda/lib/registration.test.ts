@@ -790,6 +790,13 @@ describe('registration', () => {
         { eventId: 'testALOInvited', id: 'testALOInvited1' },
         { set: { lastEmail: 'Ilmoittautumisesi on peruttu 1.1.2023 14:00', updatedAt: expect.any(String) } }
       )
+      // The trail names it by the cancellation subject's key too (KOE-1442).
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          messageKey: 'audit.messages.emailSentTo',
+          messageParams: expect.objectContaining({ templateKey: 'registration.email.subject_cancel' }),
+        })
+      )
       vi.useRealTimers()
     })
 
