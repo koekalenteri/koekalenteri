@@ -1975,7 +1975,10 @@ describe('results published day by day', () => {
     })
 
     it('keeps part of the days as a sorted list without repeats', () => {
-      expect(foldDayScope(['2026-09-13', '2026-09-13/ip', '2026-09-13'], days)).toEqual(['2026-09-13', '2026-09-13/ip'])
+      // A three-day class with two of its days out, given out of order and once twice.
+      const threeDays = [...days, '2026-09-14']
+      expect(foldDayScope(['2026-09-13', '2026-09-12', '2026-09-13'], threeDays)).toEqual(['2026-09-12', '2026-09-13'])
+      expect(foldDayScope(['2026-09-13/ip', '2026-09-12'], threeDays)).toEqual(['2026-09-12', '2026-09-13/ip'])
     })
   })
 

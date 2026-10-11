@@ -11,9 +11,9 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
+import { refusalCode } from '@/api/http'
 import { zonedParseDate } from '@/i18n/dates'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { refusalCode } from '@/lib/client/startNumberErrors'
 import {
   getClassDays,
   getPublishedStartNumbersSlots,
