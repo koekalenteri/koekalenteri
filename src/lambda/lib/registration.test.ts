@@ -903,6 +903,45 @@ describe('registration', () => {
       expect(registration.invitationRead).toBe(false)
     })
 
+    it('sends to one registration at a time, in order, for the SES send rate', async () => {
+      let releaseFirst: () => void = () => undefined
+      mockSESSend.mockImplementationOnce(
+        () =>
+          new Promise<void>((resolve) => {
+            releaseFirst = resolve
+          })
+      )
+
+      const sending = sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        JSON.parse(JSON.stringify(eventWithALOClassInvited)),
+        jsonRegistrationsToEventWithALOInvited.slice(0, 2).map((r) => ({ ...r })),
+        'https://example.com',
+        'Test message',
+        { name: 'admin-user' },
+        ''
+      )
+
+      await vi.waitFor(() => expect(mockSESSend).toHaveBeenCalledTimes(1))
+      // A turn of the event loop in which a parallel send would have started.
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(mockSESSend).toHaveBeenCalledTimes(1)
+
+      releaseFirst()
+      await expect(sending).resolves.toEqual({
+        failed: [],
+        ok: ['handler1@example.com', 'owner1@example.com', 'handler2@example.com', 'owner2@example.com'],
+      })
+      expect(mockSESSend).toHaveBeenNthCalledWith(1, [
+        ['handler1@example.com', 'owner1@example.com'],
+        expect.any(String),
+      ])
+      expect(mockSESSend).toHaveBeenNthCalledWith(2, [
+        ['handler2@example.com', 'owner2@example.com'],
+        expect.any(String),
+      ])
+    })
+
     it('should handle failed email sending', async () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       // Make the second email fail

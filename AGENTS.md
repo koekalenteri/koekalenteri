@@ -285,8 +285,9 @@ time instead of fixing it in a second commit.
   named helper and let the caller fan it out. Decide first, write second: `assignStartNumbers`
   validates every entry and queues the writes as closures, then runs them, so a refused draw writes
   nothing. A walk whose next step depends on the previous answer is a recursive function
-  (`queryAllSeasons`). Sequential on purpose — the SES send rate in
-  `sendTemplatedEmailToEventRegistrations` — stays a loop, with the reason in the commit message.
+  (`queryAllSeasons`). Sequential on purpose (the SES send rate in
+  `sendTemplatedEmailToEventRegistrations`) runs through `mapWithConcurrency` with a limit of 1: one
+  worker, item by item in order, and no `await` inside a loop.
 - A module-level cache in a lambda outlives the request: the warm container keeps it for hours. Give
   it a TTL (`secrets.ts`, the staff-address cache in `email.ts`) and forget a failed lookup rather
   than caching the rejection.

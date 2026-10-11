@@ -22,7 +22,7 @@ import {
   PUBLIC_REGISTRATION_UPDATE_FIELDS,
   resolveOwnerPerson,
 } from '../../lib/registration'
-import { isObject } from '../../lib/utils'
+import { isObject, mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, eventAuditKey, registrationAuditKey } from './audit'
@@ -458,7 +458,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
   const templateName = t(`emailTemplate.${template}`)
   const ok: string[] = []
   const failed: string[] = []
-  for (const registration of registrations) {
+  const sendToRegistration = async (registration: JsonRegistration) => {
     const editToken = getRegistrationEditToken(registration)
     const to = emailTo(registration, template)
     const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, editToken, text)
@@ -503,6 +503,8 @@ export const sendTemplatedEmailToEventRegistrations = async (
       logger.error('failed to send registration email', { error: e, template: auditSubject })
     }
   }
+  // One at a time, in order: the SES send rate (AGENTS.md, Promises and async).
+  await mapWithConcurrency(registrations, 1, sendToRegistration)
   return { failed, ok }
 }
 
