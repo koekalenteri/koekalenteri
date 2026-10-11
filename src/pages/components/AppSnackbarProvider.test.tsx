@@ -25,7 +25,7 @@ const renderNotice = (variant: VariantType) =>
 
 describe('AppSnackbarProvider', () => {
   it.each(['success', 'info', 'warning', 'error'] as const)(
-    'paints the %s variant in the theme colour',
+    'paints the %s variant and its close button in the theme colour',
     async (variant) => {
       renderNotice(variant)
 
@@ -33,6 +33,8 @@ describe('AppSnackbarProvider', () => {
         backgroundColor: theme.palette[variant].main,
         color: theme.palette[variant].contrastText,
       })
+      // MUI's default rgba(0, 0, 0, 0.54) is all but lost on the darker grounds.
+      expect(screen.getByRole('button', { name: 'close' })).toHaveStyle({ color: theme.palette[variant].contrastText })
     }
   )
 
