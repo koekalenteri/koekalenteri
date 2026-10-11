@@ -753,6 +753,20 @@ describe('lib/event', () => {
         }
         expect(getStartListPublishedClassMap(twoDays)).toEqual({ ALO: true })
       })
+
+      it('keeps a class published whatever the order of its days', () => {
+        // A later picked day must not overwrite the invited one: toggling another class would
+        // silently unpublish ALO's invited day.
+        const twoDays = {
+          ...event,
+          classes: [
+            { class: 'ALO' as const, date: '2026-06-13', state: 'invited' as const },
+            { class: 'ALO' as const, date: '2026-06-14', state: 'picked' as const },
+          ],
+          endDate: '2026-06-14',
+        }
+        expect(getStartListPublishedClassMap(twoDays)).toEqual({ ALO: true })
+      })
     })
 
     it('expands an absent flag only for the classes the workflow carried to invited', () => {
