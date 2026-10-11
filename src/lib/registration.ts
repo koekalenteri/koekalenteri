@@ -695,6 +695,26 @@ interface RegistrationEmailTemplateOptions {
   paymentBalance?: PaymentBalance
 }
 
+/**
+ * The participant list's name for the last message sent, in the language `t` speaks (KOE-1454). A
+ * registration email goes by its subject, as the email itself does: one template sends the
+ * confirmation and the cancellation alike (KOE-1455). A string was recorded before KOE-1454 as a
+ * finished Finnish sentence and is shown as it was written.
+ */
+export const getLastEmailText = (
+  lastEmail: Registration['lastEmail'] | JsonRegistration['lastEmail'],
+  t: TFunction
+): string => {
+  if (lastEmail === undefined) return ''
+  if (typeof lastEmail === 'string') return lastEmail
+
+  const { context, groupNumber, sentAt, template } = lastEmail
+  const name =
+    template === 'registration' ? t('registration.email.subject', { context }) : t(`emailTemplate.${template}`)
+  const place = template === 'reserve' ? ` (#${groupNumber ?? '?'})` : ''
+  return `${name}${place} ${t('dateFormat.date', { date: sentAt })} ${t('dateFormat.time', { date: sentAt })}`
+}
+
 export const getRegistrationEmailTemplateData = (
   registration: JsonRegistration | Registration,
   confirmedEvent: JsonConfirmedEvent | ConfirmedEvent,

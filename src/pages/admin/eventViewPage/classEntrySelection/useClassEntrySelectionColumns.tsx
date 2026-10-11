@@ -23,6 +23,7 @@ import {
   canRefund,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
+  getLastEmailText,
   getRegistrationClass,
   getRegistrationGroupKey,
   isParticipantGroup,
@@ -358,7 +359,7 @@ export function useClassEntrySelectionColumns(
         field: 'lastEmail',
         flex: 1,
         headerName: t('eventManagement.participantSelection.lastMessage'),
-        valueGetter: (_value, row) => row.lastEmail ?? '',
+        valueGetter: (_value, row) => getLastEmailText(row.lastEmail, t),
         width: 130,
       },
       {

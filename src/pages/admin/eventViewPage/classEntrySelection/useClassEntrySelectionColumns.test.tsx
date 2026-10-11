@@ -1029,3 +1029,34 @@ describe('Edge cases', () => {
     expect(entryColumns).toHaveLength(9)
   })
 })
+
+/**
+ * KOE-1454: the message column names the last message in the language the list is read in. The
+ * registration stores what was sent, not a sentence, and the column composes the name with the
+ * view's own `t` (the stand-in here echoes keys; `getLastEmailText` is tested in both languages in
+ * src/lib/registration.test.ts).
+ */
+describe('lastEmail column', () => {
+  const lastEmailText = (lastEmail: Registration['lastEmail']) => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes)
+    )
+    const column = result.current.entryColumns.find((col) => col.field === 'lastEmail')
+    const getter = column?.valueGetter as (value: unknown, row: Registration) => string
+    return getter(undefined, { ...registrationWithStaticDates, lastEmail })
+  }
+
+  it("composes the name of a recorded message with the view's translations", () => {
+    expect(
+      lastEmailText({ context: '', groupNumber: 2, sentAt: new Date('2023-01-01T12:00:00Z'), template: 'reserve' })
+    ).toBe('emailTemplate.reserve (#2) dateFormat.date date dateFormat.time date')
+  })
+
+  it('shows a message recorded as text before KOE-1454 as it was written', () => {
+    expect(lastEmailText('Peruutus 1.1.2026 12:00')).toBe('Peruutus 1.1.2026 12:00')
+  })
+
+  it('is empty when no message has been sent', () => {
+    expect(lastEmailText(undefined)).toBe('')
+  })
+})

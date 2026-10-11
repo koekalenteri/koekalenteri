@@ -3,12 +3,12 @@ import type { AuditActor } from '../../lib/audit'
 import type {
   EmailTemplateId,
   JsonConfirmedEvent,
+  JsonLastEmail,
   JsonRegistration,
   Patch,
   RegistrationTemplateContext,
 } from '../../types'
 import { createHmac, timingSafeEqual } from 'node:crypto'
-import { formatDate } from '../../i18n/dates'
 import { getFixedT } from '../../i18n/lambda'
 import { auditUser } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
@@ -354,7 +354,7 @@ export const clearRegistrationEmailDeliveryStatus = async (
   id: JsonRegistration['id']
 ) => dynamoDB.update({ eventId, id }, { remove: ['emailDeliveryStatus'], set: { updatedAt: new Date().toISOString() } })
 
-const setLastEmail = async (reg: JsonRegistration, value: string) => {
+const setLastEmail = async (reg: JsonRegistration, value: JsonLastEmail) => {
   // update the in-memory object too
   reg.lastEmail = value
   return updateRegistrationField(reg.eventId, reg.id, 'lastEmail', value)
@@ -414,29 +414,20 @@ export const updateReserveNotified = async (registrations: JsonRegistration[]) =
       .map(({ eventId, id, group }) => updateRegistrationField(eventId, id, 'reserveNotified', group?.number ?? 999))
   )
 
-// exported for testing
-export const getLastEmailInfo = (
-  template: EmailTemplateId,
-  templateName: string,
-  registration: JsonRegistration,
-  date: string
-): string => {
-  if (template === 'reserve') {
-    return `${templateName} (#${registration.group?.number ?? '?'}) ${date}`
-  }
-
-  return `${templateName} ${date}`
-}
-
 /**
- * The name of a message sent. One template sends the confirmation, the change and the cancellation
- * alike, so a registration email goes by its subject for the context, as the email itself does; the
- * template's own name would call a cancellation a confirmation (KOE-1455).
+ * The message just sent, as the registration's last one: what was sent, not a sentence about it, so the
+ * participant list names it in the language the secretary reads the list in (KOE-1454). A reserve
+ * notification keeps the reserve place it told.
  */
 // exported for testing
-export const getLastEmailName = (template: EmailTemplateId, context: RegistrationTemplateContext): string => {
-  const t = getFixedT('fi')
-  return template === 'registration' ? t('registration.email.subject', { context }) : t(`emailTemplate.${template}`)
+export const getLastEmail = (
+  template: EmailTemplateId,
+  context: RegistrationTemplateContext,
+  registration: JsonRegistration,
+  sentAt: string
+): JsonLastEmail => {
+  const groupNumber = template === 'reserve' ? registration.group?.number : undefined
+  return groupNumber === undefined ? { context, sentAt, template } : { context, groupNumber, sentAt, template }
 }
 
 /**
@@ -447,9 +438,8 @@ export const recordLastEmail = async (
   registration: JsonRegistration,
   template: EmailTemplateId,
   context: RegistrationTemplateContext
-): Promise<string> => {
-  const date = formatDate(new Date(), 'd.M.yyyy HH:mm')
-  const lastEmail = getLastEmailInfo(template, getLastEmailName(template, context), registration, date)
+): Promise<JsonLastEmail> => {
+  const lastEmail = getLastEmail(template, context, registration, new Date().toISOString())
   await updateRegistrationField(registration.eventId, registration.id, 'lastEmail', lastEmail)
   return lastEmail
 }
@@ -464,7 +454,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
   context: RegistrationTemplateContext
 ) => {
   const t = getFixedT('fi')
-  const lastEmailDate = formatDate(new Date(), 'd.M.yyyy HH:mm')
+  const sentAt = new Date().toISOString()
   const templateName = t(`emailTemplate.${template}`)
   const ok: string[] = []
   const failed: string[] = []
@@ -489,10 +479,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
         message: `Email: ${auditSubject}, to: ${to.join(', ')}`,
         ...auditUser(user),
       })
-      await setLastEmail(
-        registration,
-        getLastEmailInfo(template, getLastEmailName(template, context), registration, lastEmailDate)
-      )
+      await setLastEmail(registration, getLastEmail(template, context, registration, sentAt))
 
       // Update the messagesSent property to track that this template has been sent
       const messagesSent = registration.messagesSent || {}
