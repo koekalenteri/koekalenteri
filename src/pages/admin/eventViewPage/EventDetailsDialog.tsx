@@ -1,8 +1,10 @@
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { useCallback } from 'react'
+import { localizedEventName } from '@/lib/event'
+import { languageAtom } from '../../state'
 import EventForm from '../components/EventForm'
 import useEventForm from '../hooks/useEventForm'
 import { adminEventAtom } from '../state'
@@ -15,6 +17,7 @@ interface Props {
 
 export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
   const [storedEvent] = useAtom(adminEventAtom(eventId))
+  const language = useAtomValue(languageAtom)
 
   // Use the hook with custom options
   const {
@@ -70,7 +73,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
         },
       }}
     >
-      <DialogTitle id="reg-dialog-title">{event.name}</DialogTitle>
+      <DialogTitle id="reg-dialog-title">{localizedEventName(event, language)}</DialogTitle>
       <DialogContent dividers sx={{ height: '100%', p: 0 }}>
         <EventForm
           event={event}
