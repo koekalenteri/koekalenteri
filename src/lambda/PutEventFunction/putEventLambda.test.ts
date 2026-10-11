@@ -605,6 +605,29 @@ describe('putEventLambda', () => {
       )
     })
 
+    it('publishes the results of a past picked class whose start list was published (KOE-1509)', async () => {
+      // Place notices went, invitations never did: the class stays 'picked' after the trial.
+      const pastPicked: JsonDogEvent = {
+        ...mockEvent,
+        classes: [{ class: 'ALO', date: '2025-03-01', state: 'picked' }],
+        endDate: '2025-03-01',
+        startDate: '2025-03-01',
+        startListPublished: { ALO: true },
+        state: 'picked',
+      }
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(pastPicked)
+
+      const res = await publish({ resultsPublished: { ALO: true } })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ resultsPublished: { ALO: true } })
+      )
+    })
+
     it('always lets a start list be hidden', async () => {
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true })

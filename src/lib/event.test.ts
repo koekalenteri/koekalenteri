@@ -14,6 +14,7 @@ import { addDays, differenceInDays } from 'date-fns'
 import i18n from 'i18next'
 import { eventWithEntryClosing, eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
 import { formatDate, TIME_ZONE } from '../i18n/dates'
+import { freezeClockAt } from '../test-utils/freezeClock'
 import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
@@ -1657,12 +1658,88 @@ describe('publishing results', () => {
       expect(isStartListAvailableForClass({ ...past, startListPublished: { ALO: true } }, { class: 'ALO' })).toBe(true)
     })
 
-    it('does not overrule a class that says it is not ready', () => {
+    it('does not overrule a class that says it is not ready while the trial is still to come', () => {
       // Per-day publication rides on the class's own state, because the flag is per class name and
       // cannot tell one day from another.
+      const ahead = addDays(new Date(), 30)
       expect(
-        isStartListAvailableForClass({ ...past, startListPublished: { ALO: true } }, { class: 'ALO', state: 'picked' })
+        isStartListAvailableForClass(
+          { endDate: ahead, startDate: ahead, startListPublished: { ALO: true }, state: 'confirmed' },
+          { class: 'ALO', state: 'picked' }
+        )
       ).toBe(false)
+    })
+  })
+
+  describe('a picked class published on purpose (KOE-1509)', () => {
+    // A one-day NOME-B with only ALO: the place notices went, the invitations never did.
+    const oneDay = {
+      classes: [{ class: 'ALO' as const, date: '2026-06-13', state: 'picked' as const }],
+      endDate: '2026-06-13',
+      startDate: '2026-06-13',
+      startListPublished: { ALO: true },
+      state: 'picked' as const,
+    }
+    const dog = { class: 'ALO', group: { date: '2026-06-13' } }
+    // The secretary published the list for the invited first day; the second day was added later.
+    const twoDays = {
+      classes: [
+        { class: 'ALO' as const, date: '2026-06-13', state: 'invited' as const },
+        { class: 'ALO' as const, date: '2026-06-14', state: 'picked' as const },
+      ],
+      endDate: '2026-06-14',
+      startDate: '2026-06-13',
+      startListPublished: { ALO: true },
+      state: 'confirmed' as const,
+    }
+    const firstDay = { class: 'ALO', group: { date: '2026-06-13' } }
+    const secondDay = { class: 'ALO', group: { date: '2026-06-14' } }
+
+    describe('once the trial is over', () => {
+      freezeClockAt('2026-06-15')
+
+      it('opens the list, and the results riding on it', () => {
+        // The invitations can no longer be sent, so the list follows the explicit publish.
+        expect(isStartListAvailableForClass(oneDay, oneDay.classes[0])).toBe(true)
+        expect(isStartListAvailableForClass({ ...oneDay, classes: undefined }, oneDay.classes[0])).toBe(true)
+        expect(isStartListAvailableForRegistration(oneDay, dog)).toBe(true)
+        expect(isResultsAvailableForRegistration({ ...oneDay, resultsPublished: { ALO: true } }, dog)).toBe(true)
+      })
+
+      it.each([
+        { case: 'a cancelled trial', event: { ...oneDay, state: 'cancelled' as const } },
+        { case: 'no flag', event: { ...oneDay, startListPublished: undefined } },
+        { case: 'a hidden class', event: { ...oneDay, startListPublished: { ALO: false } } },
+        // An event-wide true is the old, pre-map flag: it must not reveal a picked class at deploy.
+        { case: 'an event-wide flag', event: { ...oneDay, startListPublished: true } },
+      ])('keeps it hidden for $case', ({ event }) => {
+        expect(isStartListAvailableForRegistration(event, dog)).toBe(false)
+      })
+
+      it('keeps a picked day hidden when another day of the class was invited', () => {
+        // The flag was meant for the invited day; it cannot tell the picked one apart.
+        expect(isStartListAvailableForRegistration(twoDays, firstDay)).toBe(true)
+        expect(isStartListAvailableForRegistration(twoDays, secondDay)).toBe(false)
+      })
+    })
+
+    describe('on the last day of the trial', () => {
+      freezeClockAt('2026-06-14')
+
+      it('keeps the picked class hidden while the invitations can still go', () => {
+        const today = {
+          ...oneDay,
+          classes: [{ ...oneDay.classes[0], date: '2026-06-14' }],
+          endDate: '2026-06-14',
+          startDate: '2026-06-14',
+        }
+        expect(isStartListAvailableForRegistration(today, { class: 'ALO', group: { date: '2026-06-14' } })).toBe(false)
+      })
+
+      it('keeps the picked day hidden beside the invited one', () => {
+        expect(isStartListAvailableForRegistration(twoDays, firstDay)).toBe(true)
+        expect(isStartListAvailableForRegistration(twoDays, secondDay)).toBe(false)
+      })
     })
   })
 
