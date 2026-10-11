@@ -54,6 +54,13 @@ In one message, start in the background:
 
 Reviewers start fresh every round. Do not pass them the implementer's report.
 
+Before starting them, and again whenever a round seems to stall, check
+`gh pr view <pr> --json mergeable,mergeStateStatus`. A branch that conflicts with `main` gets no
+CI run, so nothing will ever report: send the implementer straight back to merge `origin/main`
+(by meaning, not only text, when the conflicting change on main touches the same rule), then
+start the round. `main` moves while a ticket is open, so expect this on any PR that lives through
+several rounds (#1520 stalled on it after #1519 landed).
+
 ## 5. Feedback
 
 When all have reported:
@@ -81,7 +88,8 @@ on only with their permission, for as many rounds as they allow.
 
 Check from the source, not from the agents' reports:
 
-- `gh pr view <pr> --json state,isDraft,commits` and `gh pr checks <pr>`: every check passed.
+- `gh pr view <pr> --json state,isDraft,commits,mergeable` and `gh pr checks <pr>`: `mergeable`
+  is `MERGEABLE`, and every check passed for the last commit.
 - `api/qualitygates/project_status?projectKey=koekalenteri_koekalenteri&pullRequest=<pr>`:
   status `OK`, for the PR's last commit.
 - `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED`:

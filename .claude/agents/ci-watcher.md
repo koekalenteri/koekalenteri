@@ -10,6 +10,14 @@ log line. The orchestrator gives you the PR number.
 
 ## Wait
 
+0. First `gh pr view <pr> --json mergeable,mergeStateStatus,headRefOid`. A PR that conflicts
+   with its base (`CONFLICTING`, `DIRTY`) gets no `pull_request` run at all, so there is nothing
+   to wait for: report at once, as the one blocking item, that the branch must merge
+   `origin/main`, with the conflicting files from
+   `git merge-tree --write-tree --name-only origin/main origin/<branch>`. `UNKNOWN` means GitHub
+   is still computing; ask again after a few seconds. Likewise, if `gh pr checks` lists no run
+   for `headRefOid` a few minutes after the push, report that rather than wait (#1520 sat
+   behind conflicts with no checks).
 1. `gh pr checks <pr> --watch` in the foreground (timeout up to 10 min; run it again if it times
    out). Without `--fail-fast` it returns only once every check is done, and exits non-zero if
    any failed.

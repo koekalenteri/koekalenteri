@@ -56,7 +56,10 @@ commits on the same branch.
 
 Each message from the orchestrator is one package from the reviewers and the CI watcher. Fix what
 belongs to this PR as new commits (no force-push), and check before pushing that the PR is still
-open (`gh pr view <pr> --json state`). If you disagree with a finding, say why with evidence;
+open (`gh pr view <pr> --json state`). After pushing, check
+`gh pr view <pr> --json mergeable,mergeStateStatus`: a `CONFLICTING` branch gets no CI run, so
+merge `origin/main` (a merge commit, no force-push), resolve by meaning, not only text, rerun the
+touched tests and push again. Never wait on CI yourself; the CI watcher does. If you disagree with a finding, say why with evidence;
 do not quietly skip it. Report what you changed per finding.
 
 Never touch production, not even to read, without the user's permission.
