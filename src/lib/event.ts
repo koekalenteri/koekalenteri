@@ -614,6 +614,34 @@ export const getEventStateForClass = (
   eventClass?: string
 ) => event.classes?.find((item) => item.class === eventClass)?.state ?? event.state
 
+type StartListClassEvent = Pick<JsonDogEvent, 'state' | 'startListPublished'> &
+  EventVitals & {
+    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+  }
+
+/**
+ * A class left at 'picked' never had its invitations sent, and once the trial is over they no longer
+ * can be: the publishing panel stops waiting on them then (getStartListBlocker reads the same
+ * isEntryEditingClosed), so the public list follows the secretary's publish from that point on, or
+ * the class and its results would stay off the web for good (KOE-1509).
+ *
+ * Only the class's own entry in the per-class map counts. The panel always writes the map; an
+ * event-wide `true` is the old flag, and reading it here would put picked classes of old trials on
+ * the web at deploy. And where another day of the class was invited, the flag was meant for that
+ * day: it cannot tell the days apart, so the picked one stays hidden.
+ */
+const isPickedClassPublishedAfterTrial = (
+  event: StartListClassEvent,
+  eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
+) =>
+  isEntryEditingClosed(event, eventClass.state) &&
+  isValidForEntry(event.state) &&
+  isStartListPublishedClassMap(event.startListPublished) &&
+  isStartListPublishedForClass(event, eventClass.class) &&
+  !(event.classes ?? []).some(
+    (item) => item.class === eventClass.class && canPublishStartList(item.state ?? event.state)
+  )
+
 /**
  * An absent flag counts as published only for an event the workflow actually carried to 'invited' —
  * those records predate the flag. An event that reaches the gate on its dates alone must have been
@@ -621,16 +649,17 @@ export const getEventStateForClass = (
  * list on the web by itself.
  */
 export const isStartListAvailableForClass = (
-  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> & EventVitals,
+  event: StartListClassEvent,
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
 ) => {
   if (canPublishStartList(eventClass.state ?? event.state)) return isStartListPublishedForClass(event, eventClass.class)
 
   // A class carrying its own state below 'invited' says this day is not ready, and the calendar must
   // not overrule it: that is how one day of a class stays hidden while another is public, since the
-  // published flag is per class name and cannot tell the days apart. Only a class with no state of its
-  // own falls through to what the event's dates say.
-  if (eventClass.state !== undefined) return false
+  // published flag is per class name and cannot tell the days apart. Past the trial it yields to an
+  // explicit publish (above). Only a class with no state of its own falls through to what the event's
+  // dates say.
+  if (eventClass.state !== undefined) return isPickedClassPublishedAfterTrial(event, eventClass)
   if (!canPublishStartList(event.state, event)) return false
 
   return isStartListPublishedClassMap(event.startListPublished)
@@ -962,9 +991,14 @@ export const isStartListPublishedClassMap = (
 ): startListPublished is Partial<Record<RegistrationClass, boolean>> =>
   typeof startListPublished === 'object' && startListPublished !== null
 
+/** A class entry whose own state has not reached the invitations. */
+const isHeldAtPicking = (eventClass: Pick<JsonDogEvent['classes'][number], 'state'>) =>
+  eventClass.state !== undefined && !canPublishStartList(eventClass.state)
+
 /**
  * The event's start list flag as a full per-class map. A class missing from an existing map is
- * unpublished; an event-level boolean covers every class; an absent flag is read class by class by the
+ * unpublished; an event-level boolean covers every class but one held at 'picked' by its own state
+ * (KOE-1509); an absent flag is read class by class by the
  * public list's rule, so expanding it never publishes a class the workflow did not carry to 'invited'
  * (KOE-1465). A class running on several days is read from its first entry, as the panel reads it.
  */
@@ -983,7 +1017,10 @@ export const getStartListPublishedClassMap = (
     } else if (startListPublished === undefined) {
       result[eventClass.class] ??= isStartListAvailableForClass(event, eventClass)
     } else {
-      result[eventClass.class] = startListPublished
+      // An event-wide true never opens a class held at 'picked' by its own state, but a map entry does
+      // once the trial is over (KOE-1509): expanding it must not publish that class by itself. A class
+      // with any entry past the picking keeps the flag.
+      result[eventClass.class] ||= startListPublished && !isHeldAtPicking(eventClass)
     }
   }
 

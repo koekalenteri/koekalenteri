@@ -1,5 +1,13 @@
 import type { JsonConfirmedEvent } from '../types'
-import { getResultsBlocker, getStartListBlocker, getStartNumbersBlocker, isStartListFlagPublished } from './publishing'
+import { freezeClockAt } from '../test-utils/freezeClock'
+import {
+  classEntry,
+  getResultsBlocker,
+  getStartListBlocker,
+  getStartNumbersBlocker,
+  isStartListFlagPublished,
+  isStartListPublished,
+} from './publishing'
 import { groupParticipantsByClass } from './registration'
 
 const now = new Date()
@@ -93,6 +101,30 @@ describe('lib/publishing', () => {
       expect(getResultsBlocker(event({ state: 'ended' }), 'ALO')).toBe('startList')
       expect(getResultsBlocker(event({ startListPublished: { ALO: true } }), 'ALO')).toBe('state')
       expect(getResultsBlocker(event({ startListPublished: { ALO: true }, state: 'ended' }), 'ALO')).toBeUndefined()
+    })
+  })
+
+  describe('a picked class whose trial is over (KOE-1509)', () => {
+    freezeClockAt('2026-06-15')
+
+    // A one-day NOME-B with only ALO: the place notices went, the invitations never did.
+    const picked = event({
+      classes: [{ class: 'ALO', date: '2026-06-13', state: 'picked' }],
+      endDate: '2026-06-13',
+      entryEndDate: '2026-05-23',
+      entryStartDate: '2026-05-02',
+      startDate: '2026-06-13',
+      startListPublished: { ALO: true },
+      state: 'picked',
+    })
+
+    it('reads the published list the way the admin let it be published', () => {
+      expect(getStartListBlocker(picked, 'ALO', [uninvited])).toBeUndefined()
+      expect(isStartListPublished(picked, classEntry(picked, 'ALO'))).toBe(true)
+    })
+
+    it('lets its results be published', () => {
+      expect(getResultsBlocker(picked, 'ALO')).toBeUndefined()
     })
   })
 
