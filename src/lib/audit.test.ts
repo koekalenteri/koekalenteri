@@ -3,6 +3,7 @@ import i18next from 'i18next'
 import { i18nInitOptions } from '../i18n/config'
 import { registerFormatters } from '../i18n/formatters'
 import {
+  auditDay,
   auditUser,
   duplicatePaymentAudit,
   duplicatePaymentOfOtherAudit,
@@ -172,8 +173,7 @@ describe('emailDeliveryFailedAudit', () => {
         },
         { detailKey: 'audit.details.deliveryReason', detailParams: { reason: 'abuse' } },
       ],
-      message:
-        'Sähköpostin toimitus epäonnistui (merkittiin roskapostiksi): a@example.com, template: picked, reason: abuse',
+      message: 'Sähköpostin toimitus epäonnistui (merkittiin roskapostiksi): a@example.com',
       messageKey: 'audit.messages.emailDeliveryFailed',
       messageParams: {
         email: 'a@example.com',
@@ -232,6 +232,10 @@ const messages: Array<[string, AuditMessage]> = [
   ['startNumbersPublished', startNumbersPublishedAudit(true)],
   ['classStartNumbersPublished', startNumbersPublishedAudit(true, { eventClass: 'ALO' })],
   ['startNumbersHiddenDay', startNumbersPublishedAudit(false, { date: '2026-09-12' })],
+  ['startNumbersPublishedDay', startNumbersPublishedAudit(true, { date: '2026-09-12', time: 'kp' })],
+  ['startNumbersHidden', startNumbersPublishedAudit(false)],
+  ['classStartNumbersHidden', startNumbersPublishedAudit(false, { eventClass: 'ALO' })],
+  ['classStartNumbersHiddenDay', startNumbersPublishedAudit(false, { date: '2026-09-12', eventClass: 'ALO' })],
   [
     'classStartNumbersPublishedDay',
     startNumbersPublishedAudit(true, { date: '2026-09-12', eventClass: 'ALO', time: 'ip' }),
@@ -245,6 +249,10 @@ const messages: Array<[string, AuditMessage]> = [
   ['emailBlocked (one)', emailBlockedAudit(1)],
   ['emailDeliveryFailed', emailDeliveryFailedAudit({ email: 'a@example.com', status: 'bounce' })],
   ['emailDeliveryFailed (complaint)', emailDeliveryFailedAudit({ email: 'a@example.com', status: 'complaint' })],
+  [
+    'emailDeliveryFailed (template, reason)',
+    emailDeliveryFailedAudit({ email: 'a@example.com', reason: 'abuse', status: 'complaint', template: 'picked' }),
+  ],
   ['groupChanged', groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move')],
   ['groupChanged (consequence)', groupChangeAudit(dayGroup, { ...dayGroup, number: 1 }, 'consequence')],
   ['groupChanged (no reason)', groupChangeAudit(kpGroup, { key: 'cancelled', number: 5 })],
@@ -342,6 +350,10 @@ describe('formatAuditMessage in English', () => {
     expect(formatAuditMessage(en(), { ...row, messageParams: { reason: parseDateOnlyString('2026-10-18') } })).toBe(
       'Registration cancelled, reason: 2026-10-18'
     )
+    // A full timestamp keeps its time: only the reviver's local noon marks a bare day.
+    expect(formatAuditMessage(en(), { ...row, messageParams: { reason: new Date('2026-10-18T10:00:00.000Z') } })).toBe(
+      'Registration cancelled, reason: 2026-10-18T10:00:00.000Z'
+    )
   })
 
   it('shows the stored text for a key outside the audit translations, and for one this bundle lacks', () => {
@@ -370,5 +382,25 @@ describe('formatAuditDetail', () => {
     expect(formatAuditDetail(en(), template)).toBe('Template: Picked notification')
     expect(formatAuditDetail(en(), reason)).toBe('Reason: abuse')
     expect(formatAuditDetail(en(), { detailKey: 'nope' })).toBe('')
+  })
+})
+
+describe('auditDay', () => {
+  // Each form a day reaches the trail in reads as the same Finnish day, wherever the reader is.
+  it.each([
+    ['a bare day', '2026-11-07'] as const,
+    ['a day the reviver made local noon', parseDateOnlyString('2026-11-07')] as const,
+  ])('reads %s as that day in Finnish time', (_name, value) => {
+    expect(auditDay(value)).toEqual(new Date('2026-11-06T22:00:00.000Z'))
+  })
+
+  it('takes an instant as it is', () => {
+    expect(auditDay('2024-08-02T21:00:00.000Z')).toEqual(new Date('2024-08-02T21:00:00.000Z'))
+    expect(auditDay(new Date('2024-08-02T21:30:00.000Z'))).toEqual(new Date('2024-08-02T21:30:00.000Z'))
+  })
+
+  it('has no day for anything else', () => {
+    expect(auditDay('ALO')).toBeUndefined()
+    expect(auditDay(3)).toBeUndefined()
   })
 })

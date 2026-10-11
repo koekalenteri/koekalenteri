@@ -1,4 +1,4 @@
-import type { DeepPartial, JsonConfirmedEvent, JsonDogEvent, JsonRegistration, JsonUser } from '../../types'
+import type { DeepPartial, JsonConfirmedEvent, JsonDogEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { PRIORITY_MEMBER } from '../../lib/priority'
 
@@ -541,7 +541,7 @@ describe('lib/event', () => {
 
     it('calls update and audit for cancelled group with reason', async () => {
       const group = { eventId: 'e4', group: { key: 'cancelled', number: 1 }, id: 'r1' }
-      await saveGroup(group, { key: 'reserve', number: 1 }, { name: 'user' } as JsonUser, 'move', 'cancelled by user')
+      await saveGroup(group, { key: 'reserve', number: 1 }, { name: 'user' }, 'move', 'cancelled by user')
 
       // Verify update was called with correct parameters
       expect(mockUpdate).toHaveBeenCalledWith(
@@ -568,7 +568,7 @@ describe('lib/event', () => {
         id: 'r2',
       }
       const previousGroup = { key: 'reserve', number: 1 }
-      const user = { name: 'admin' } as JsonUser
+      const user = { name: 'admin' }
 
       await saveGroup(group, previousGroup, user, 'move')
 
@@ -608,7 +608,7 @@ describe('lib/event', () => {
     it('removes cancelReason when moving out of the cancelled group', async () => {
       const group = { eventId: 'e5', group: { key: 'reserve', number: 1 }, id: 'r2' }
 
-      await saveGroup(group, { key: 'cancelled', number: 1 }, { name: 'admin' } as JsonUser, 'move')
+      await saveGroup(group, { key: 'cancelled', number: 1 }, { name: 'admin' }, 'move')
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { eventId: 'e5', id: 'r2' },
@@ -626,7 +626,7 @@ describe('lib/event', () => {
 
     it('handles case with no previous group', async () => {
       const group = { eventId: 'e6', group: { key: 'reserve', number: 2 }, id: 'r3' }
-      const user = { name: 'secretary' } as JsonUser
+      const user = { name: 'secretary' }
 
       await saveGroup(group, undefined, user, 'automatic')
 
@@ -662,7 +662,7 @@ describe('lib/event', () => {
     it('handles cancelled group without cancelReason', async () => {
       const group = { eventId: 'e7', group: { key: 'cancelled', number: 5 }, id: 'r4' }
       const previousGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 10, time: 'ip' as const }
-      const user = { name: 'organizer' } as JsonUser
+      const user = { name: 'organizer' }
 
       await saveGroup(group, previousGroup, user)
 
@@ -706,7 +706,7 @@ describe('lib/event', () => {
     })
 
     it('fixes group numbers and calls saveGroup if save=true', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs = [
         { class: 'ALO', group: { key: 'A', number: 3 } },
         { class: 'ALO', group: { key: 'A', number: 1 } },
@@ -719,7 +719,7 @@ describe('lib/event', () => {
     })
 
     it('fixes group numbers but does not call saveGroup if save=false', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs = [
         { class: 'ALO', group: { key: 'A', number: 3 } },
         { class: 'ALO', group: { key: 'A', number: 1 } },
@@ -731,7 +731,7 @@ describe('lib/event', () => {
     })
 
     it('handles multiple numbering groups correctly', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs = [
         // First numbering group - ALO class
         { class: 'ALO', group: { key: 'A', number: 2 } },
@@ -753,7 +753,7 @@ describe('lib/event', () => {
     })
 
     it('updates group key if it has changed', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs = [
         {
           cancelled: true,
@@ -771,7 +771,7 @@ describe('lib/event', () => {
     })
 
     it('preserves additional group properties', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs = [
         {
           class: 'ALO',
@@ -792,7 +792,7 @@ describe('lib/event', () => {
     })
 
     it('handles empty array', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs: JsonRegistration[] = []
 
       const result = await fixRegistrationGroups(regs, user, true)
@@ -802,7 +802,7 @@ describe('lib/event', () => {
     })
 
     it('handles single registration', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs = [{ class: 'ALO', group: { key: 'A', number: 5 } }] as JsonRegistration[]
 
       const result = await fixRegistrationGroups(regs, user, true)
@@ -812,7 +812,7 @@ describe('lib/event', () => {
     })
 
     it('skips update if group key and number are already correct', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs = [{ class: 'ALO', group: { key: 'A', number: 1 } }] as JsonRegistration[]
 
       const result = await fixRegistrationGroups(regs, user, true)
@@ -822,7 +822,7 @@ describe('lib/event', () => {
     })
 
     it('uses shared normalization ordering for missing group numbers', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs = [
         { class: 'ALO', group: { key: 'A', number: undefined }, id: 'unassigned' },
         { class: 'ALO', group: { key: 'A', number: 1000 }, id: 'numbered' },
@@ -834,7 +834,7 @@ describe('lib/event', () => {
     })
 
     it('creates group property if it does not exist', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       const regs = [
         { class: 'ALO', eventId: 'event1', id: 'reg1' }, // No group property
       ] as JsonRegistration[]
@@ -848,7 +848,7 @@ describe('lib/event', () => {
     })
 
     it('handles registrations with different dates and times', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       mockAudit.mockClear()
 
       const regs = asJsonRegistrations([
@@ -880,7 +880,7 @@ describe('lib/event', () => {
     })
 
     it('handles special group keys like cancelled and reserve', async () => {
-      const user = { name: 'user' } as JsonUser
+      const user = { name: 'user' }
       mockAudit.mockClear()
 
       const regs = asJsonRegistrations([

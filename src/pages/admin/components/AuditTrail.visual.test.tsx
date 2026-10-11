@@ -106,7 +106,7 @@ const keyedRows: AuditRecord[] = [
   },
   {
     auditKey: 'event-1:reg-1',
-    message: 'Email: Koekutsu, to: minsu@example.com',
+    message: 'Sähköposti: Koekutsu, vastaanottajat: minsu@example.com',
     messageKey: 'audit.messages.emailSentTo',
     messageParams: { recipients: 'minsu@example.com', template: 'Koekutsu', templateKey: 'emailTemplate.invitation' },
     timestamp: new Date('2026-08-04T17:00:10.000Z'),

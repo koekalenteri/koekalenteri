@@ -304,7 +304,7 @@ describe('putStartNumbersLambda', () => {
     )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Starttinumerot syötetty 1 koiralle (ALO)',
+        message: 'Starttinumero syötetty 1 koiralle (ALO)',
         messageKey: 'audit.messages.startNumbersEnteredClass',
         messageParams: { count: 1, eventClass: 'ALO' },
       })

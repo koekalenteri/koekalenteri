@@ -633,7 +633,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -722,7 +722,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -799,7 +799,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -876,7 +876,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -954,7 +954,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+        message:
+          'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -1007,7 +1008,8 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+        message:
+          'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'New Payer',
         userSource: 'registration',
       }),
@@ -1211,7 +1213,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Vahvistit vastaanottavasi koepaikan, to: handler@example.com, owner@example.com',
+        message:
+          'Sähköposti: Vahvistit vastaanottavasi koepaikan, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),

@@ -327,6 +327,15 @@ describe('putAdminRegistrationLambda', () => {
       'test-token'
     )
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    // The secretary's entry is named by its key in the trail (KOE-1442).
+    expect(mockDynamoDB.write).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Lisäsi ilmoittautumisen',
+        messageKey: 'audit.messages.registrationAdded',
+        user: 'Test User',
+      }),
+      expect.any(String)
+    )
 
     expect(result.statusCode).toBe(200)
   })

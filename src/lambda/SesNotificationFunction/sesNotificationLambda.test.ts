@@ -137,8 +137,7 @@ describe('sesNotificationLambda', () => {
         },
         { detailKey: 'audit.details.deliveryReason', detailParams: { reason: 'smtp; 550 5.1.1 user unknown' } },
       ],
-      message:
-        'Sähköpostin toimitus epäonnistui (palautui): Handler@Example.com, template: invitation, reason: smtp; 550 5.1.1 user unknown',
+      message: 'Sähköpostin toimitus epäonnistui (palautui): Handler@Example.com',
       messageKey: 'audit.messages.emailDeliveryFailed',
       messageParams: { email: 'Handler@Example.com', status: 'palautui', statusKey: 'audit.deliveryStatus.bounce' },
       user: 'system',

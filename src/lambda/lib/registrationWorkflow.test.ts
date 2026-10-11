@@ -402,7 +402,8 @@ describe('registrationWorkflow', () => {
       )
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+          message:
+            'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
           messageKey: 'audit.messages.emailSentTo',
           messageParams: {
             recipients: 'handler@example.com, owner@example.com',
@@ -429,7 +430,8 @@ describe('registrationWorkflow', () => {
       )
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+          message:
+            'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
           user: 'Payer Name',
           userSource: 'registration',
         })

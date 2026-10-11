@@ -9,7 +9,7 @@ import type {
 import { format } from 'date-fns/format'
 import { formatDate, zonedParseDate } from '../i18n/dates'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from './registration'
-import { isDateOnlyString } from './utils'
+import { isDateOnlyString, isDateString } from './utils'
 
 /**
  * Whom an audit row is attributed to. An authenticated user has no `source`; a name taken from the
@@ -63,8 +63,8 @@ const dayParamName = (prefix: DayParamPrefix, part: DayParamPart) =>
 /** A bare yyyy-MM-dd is a day in Finnish time; anything else is an instant already. */
 const toDay = (date: string | Date) => (isDateOnlyString(date) ? zonedParseDate(date) : date)
 
-/** A day as the Finnish trail names it ("la 7.11."), the same format `audit.day` gives in Finnish. */
-const finnishAuditDay = (date: string | Date) => formatDate(toDay(date), 'eeeeee d.M.')
+/** A day as the Finnish trail names it ("la 7.11."), the format `dateFormat.wdshort` gives. */
+const finnishAuditDay = (date: string | Date) => formatDate(toDay(date), 'eee d.M.')
 
 export const formatGroupAuditInfo = (group: AuditGroup): string => {
   if (!group) return ''
@@ -152,8 +152,9 @@ const startNumbersPublishedKey = (published: boolean, eventClass?: string, day?:
 }
 
 /**
- * Numbers published or hidden, for a class, a day or a half of one: the same sentences the
- * publishing panel confirms with. The day and the time go as parts, for the trail to name.
+ * Numbers published or hidden, for a class, a day or a half of one. The keys are the publishing
+ * panel's, but the day reads as the group rows do ("la 12.9. ap"), not as the panel's confirmation
+ * names a half. The day and the time go as parts, for the trail to name.
  */
 export const startNumbersPublishedAudit = (published: boolean, { date, eventClass, time }: StartNumbersScope = {}) => {
   const state = published ? 'julkaistu' : 'piilotettu'
@@ -168,17 +169,12 @@ export const startNumbersPublishedAudit = (published: boolean, { date, eventClas
   )
 }
 
-export const startNumbersEnteredAudit = (count: number, eventClass?: string) =>
-  eventClass
-    ? auditMessage(
-        'audit.messages.startNumbersEnteredClass',
-        `Starttinumerot syötetty ${count} koiralle (${eventClass})`,
-        {
-          count,
-          eventClass,
-        }
-      )
-    : auditMessage('audit.messages.startNumbersEntered', `Starttinumerot syötetty ${count} koiralle`, { count })
+export const startNumbersEnteredAudit = (count: number, eventClass?: string) => {
+  const entered = `${count === 1 ? 'Starttinumero' : 'Starttinumerot'} syötetty ${count} koiralle`
+  return eventClass
+    ? auditMessage('audit.messages.startNumbersEnteredClass', `${entered} (${eventClass})`, { count, eventClass })
+    : auditMessage('audit.messages.startNumbersEntered', entered, { count })
+}
 
 /**
  * The translation that names a sent registration email by its subject for the context, as the email
@@ -192,21 +188,25 @@ export const emailSubjectAuditKey = (context?: string) =>
  * subject in the registration's language; `templateKey` names it for the reader.
  */
 export const emailSentAudit = (template: string, templateKey: string, recipients: string[]) =>
-  auditMessage('audit.messages.emailSentTo', `Email: ${template}, to: ${recipients.join(', ')}`, {
+  auditMessage('audit.messages.emailSentTo', `Sähköposti: ${template}, vastaanottajat: ${recipients.join(', ')}`, {
     recipients: recipients.join(', '),
     template,
     templateKey,
   })
 
 export const emailFailedAudit = (template: string, templateKey: string, recipients: string[]) =>
-  auditMessage('audit.messages.emailFailedTo', `FAILED ${template}: ${recipients.join(', ')}`, {
+  auditMessage('audit.messages.emailFailedTo', `Lähetys epäonnistui: ${template}: ${recipients.join(', ')}`, {
     recipients: recipients.join(', '),
     template,
     templateKey,
   })
 
 export const emailBlockedAudit = (count: number) =>
-  auditMessage('audit.messages.emailBlocked', `Viesti estetty testiympäristössä (${count} vastaanottajaa)`, { count })
+  auditMessage(
+    'audit.messages.emailBlocked',
+    `Viesti estetty testiympäristössä (${count} ${count === 1 ? 'vastaanottaja' : 'vastaanottajaa'})`,
+    { count }
+  )
 
 const DELIVERY_STATUS_TEXTS: Record<JsonEmailDeliveryStatus['status'], string> = {
   bounce: 'palautui',
@@ -218,8 +218,6 @@ type EmailDeliveryFailure = Pick<JsonEmailDeliveryStatus, 'email' | 'reason' | '
 /** A bounce or a complaint SES reported. The template and the reason are details, shown on request. */
 export const emailDeliveryFailedAudit = ({ email, reason, status, template }: EmailDeliveryFailure): AuditMessage => {
   const statusText = DELIVERY_STATUS_TEXTS[status]
-  const templateText = template ? `, template: ${template}` : ''
-  const reasonText = reason ? `, reason: ${reason}` : ''
   const details: JsonAuditDetail[] = [
     ...(template
       ? [
@@ -236,7 +234,7 @@ export const emailDeliveryFailedAudit = ({ email, reason, status, template }: Em
     ...(details.length ? { details } : {}),
     ...auditMessage(
       'audit.messages.emailDeliveryFailed',
-      `Sähköpostin toimitus epäonnistui (${statusText}): ${email}${templateText}${reasonText}`,
+      `Sähköpostin toimitus epäonnistui (${statusText}): ${email}`,
       { email, status: statusText, statusKey: `audit.deliveryStatus.${status}` }
     ),
   }
@@ -354,21 +352,27 @@ const isAuditTranslationKey = (value: unknown): value is ParseKeys<'translation'
 
 const DAY_PARAMS = new Set(['date', 'fromDate', 'toDate'])
 
-/** A Date the API's JSON reviver made of a bare yyyy-MM-dd: local noon of that day, back to the day. */
-const revivedDay = (value: Date) => format(value, 'yyyy-MM-dd')
+/**
+ * The API's JSON reviver turns a bare yyyy-MM-dd into local noon of that day (`parseDateOnlyString`);
+ * that mark is how a revived day is told from a revived instant.
+ */
+const isRevivedDay = (value: Date) =>
+  value.getHours() === 12 && value.getMinutes() === 0 && value.getSeconds() === 0 && value.getMilliseconds() === 0
 
 /**
- * A day parameter as the day in Finnish time. Written as yyyy-MM-dd, it arrives as that string over
- * the WebSocket and as a Date through the API.
+ * A day as a Date to format in Finnish time. A day written as yyyy-MM-dd arrives as that string over
+ * the WebSocket and as local noon through the API; both are read as that day in Finnish time, so a
+ * reader west of UTC-10 sees the same day. An instant (a full timestamp) is taken as it is.
  */
-const auditDay = (value: unknown): Date | undefined => {
-  if (value instanceof Date) return zonedParseDate(revivedDay(value))
-  return isDateOnlyString(value) ? zonedParseDate(value) : undefined
+export const auditDay = (value: unknown): Date | undefined => {
+  if (value instanceof Date) return isRevivedDay(value) ? zonedParseDate(format(value, 'yyyy-MM-dd')) : value
+  if (isDateOnlyString(value)) return zonedParseDate(value)
+  return typeof value === 'string' && isDateString(value) ? new Date(value) : undefined
 }
 
-/** Text a parameter can stand for. A free text that happened to look like a day was revived too. */
+/** Text a parameter can stand for. A free text that happened to look like a date was revived too. */
 const paramText = (value: unknown) => {
-  if (value instanceof Date) return revivedDay(value)
+  if (value instanceof Date) return isRevivedDay(value) ? format(value, 'yyyy-MM-dd') : value.toISOString()
   return typeof value === 'string' || typeof value === 'number' ? String(value) : ''
 }
 
@@ -393,7 +397,7 @@ const translateAuditParams = (t: TFunction, params: AuditReadParams = {}): Audit
 const dayLabel = (t: TFunction, params: AuditReadParams, prefix: DayParamPrefix) => {
   const date = auditDay(params[dayParamName(prefix, 'Date')])
   const time = params[dayParamName(prefix, 'Time')]
-  return [date ? t('audit.day', { date }) : '', typeof time === 'string' ? time : ''].filter(Boolean).join(' ')
+  return [date ? t('dateFormat.wdshort', { date }) : '', typeof time === 'string' ? time : ''].filter(Boolean).join(' ')
 }
 
 /** A group of a group move: a named list ("Registered #1") or a day and time ("Sat 7.11. pm #2"). */
