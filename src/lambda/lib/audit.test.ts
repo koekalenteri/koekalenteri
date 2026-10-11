@@ -1,4 +1,4 @@
-import type { AuditRecord, JsonAuditRecord, JsonConfirmedEvent } from '../../types'
+import type { JsonAuditRecord, JsonConfirmedEvent } from '../../types'
 import { vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
@@ -155,7 +155,7 @@ describe('audit', () => {
 
   describe('audit', () => {
     it('writes to database', async () => {
-      const record: Omit<AuditRecord, 'timestamp'> = { auditKey: 'key', message: 'message', user: 'user' }
+      const record: Omit<JsonAuditRecord, 'timestamp'> = { auditKey: 'key', message: 'message', user: 'user' }
 
       await audit(record)
 

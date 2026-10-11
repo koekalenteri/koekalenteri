@@ -6,6 +6,8 @@ import {
   jsonRegistrationsToEventWithALOInvited,
   jsonRegistrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
+import { formatDate } from '../../i18n/dates'
+import { formatGroupAuditInfo } from '../../lib/audit'
 import { httpError } from '../lib/lambda'
 import { constructAPIGwEvent as constructRawAPIGwEvent } from '../test-utils/helpers'
 
@@ -483,17 +485,22 @@ describe('putRegistrationGroupsLambda', () => {
       user: mockUser.name,
     })
     // The move names its groups by their parts and its reason by a key, so the trail reads in the
-    // secretary's language (KOE-1442); the dog pushed up by it says why it moved.
+    // secretary's language (KOE-1442); the dog pushed up by it says why it moved. The fixture's days
+    // are relative to today, so the expected day is read from it.
+    const movedFrom = registration.group
+    const pushedUp = stored[1]
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: `${event.id}:${registration.id}`,
-      message: 'Ryhmä: su 18.10. ap #1 -> Ilmoittautuneet #3 siirto',
+      message: `Ryhmä: ${formatGroupAuditInfo(movedFrom)} -> Ilmoittautuneet #3 siirto`,
       messageKey: 'audit.messages.groupChanged',
       messageParams: {
-        fromDate: '2026-10-18',
+        fromDate: formatDate(movedFrom?.date ?? '', 'yyyy-MM-dd'),
         fromNumber: 1,
-        fromTimeKey: 'registration.time.ap',
+        fromTime: 'ap',
+        fromTimeKey: 'audit.time.ap',
         reason: 'siirto',
         reasonKey: 'audit.groupReason.move',
+        toGroup: 'Ilmoittautuneet',
         toGroupKey: 'eventManagement.participantSelection.registered',
         toNumber: 3,
       },
@@ -501,7 +508,9 @@ describe('putRegistrationGroupsLambda', () => {
     })
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Ryhmä: su 18.10. ip #2 -> su 18.10. ip #1 seuraus',
+        auditKey: `${event.id}:${pushedUp.id}`,
+        message: expect.stringMatching(/ seuraus$/),
+        messageKey: 'audit.messages.groupChanged',
         messageParams: expect.objectContaining({ reasonKey: 'audit.groupReason.consequence' }),
       })
     )

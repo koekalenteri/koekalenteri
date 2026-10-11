@@ -40,9 +40,6 @@ interface StartNumbersRequest {
 
 const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/
 
-/** "4.9.2026" from a day key, for the audit trail's Finnish reader. */
-const auditDay = (date: string) => date.split('-').reverse().map(Number).join('.')
-
 /**
  * The one endpoint that writes start numbers (KOE-1017, KOE-1218). Publishing freezes each
  * participant's current group into `startGroup` in the same locked request that flips the flag, so
@@ -110,10 +107,9 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
       confirmedEvent.startNumbersPublished = state.startNumbersPublished
       confirmedEvent.updatedAt = state.updatedAt
       publicationChanged = true
-      const scope = [eventClass, date && auditDay(date), time].filter(Boolean).join(', ')
       await audit({
         auditKey: eventAuditKey(confirmedEvent),
-        ...startNumbersPublishedAudit(body.published, scope),
+        ...startNumbersPublishedAudit(body.published, { date, eventClass, time }),
         user: user.name,
       })
     }

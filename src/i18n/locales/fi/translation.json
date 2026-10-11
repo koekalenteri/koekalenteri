@@ -14,6 +14,7 @@
     "after": "jälkeen",
     "before": "ennen",
     "changed": "Muutti",
+    "day": "{{date, wdshort2}}",
     "deliveryStatus": {
       "bounce": "palautui",
       "complaint": "merkittiin roskapostiksi"
@@ -42,6 +43,7 @@
       "classStartNumbersPublished": "{{eventClass}} starttinumerot julkaistu",
       "classStartNumbersPublishedDay": "{{eventClass}} starttinumerot julkaistu {{day}}",
       "emailBlocked": "Viesti estetty testiympäristössä ({{count}} vastaanottajaa)",
+      "emailBlocked_one": "Viesti estetty testiympäristössä ({{count}} vastaanottajaa)",
       "emailDeliveryFailed": "Sähköpostin toimitus epäonnistui ({{status}}): {{email}}",
       "emailFailedTo": "FAILED {{template}}: {{recipients}}",
       "emailSent": "{{template}} lähetetty: onnistui {{ok}}, epäonnistui {{failed}}",
@@ -80,18 +82,23 @@
       "startNumberReleased": "Starttinumero vapautettu: {{number}}",
       "startNumberSaved": "Starttinumero tallennettu: {{number}}",
       "startNumbersEntered": "Starttinumerot syötetty {{count}} koiralle",
+      "startNumbersEntered_one": "Starttinumerot syötetty {{count}} koiralle",
       "startNumbersEnteredClass": "Starttinumerot syötetty {{count}} koiralle ({{eventClass}})",
+      "startNumbersEnteredClass_one": "Starttinumerot syötetty {{count}} koiralle ({{eventClass}})",
       "startNumbersHidden": "Starttinumerot piilotettu",
       "startNumbersHiddenDay": "Starttinumerot piilotettu {{day}}",
-      "startNumbersHiddenScope": "Starttinumerot piilotettu ({{scope}})",
       "startNumbersPublished": "Starttinumerot julkaistu",
-      "startNumbersPublishedDay": "Starttinumerot julkaistu {{day}}",
-      "startNumbersPublishedScope": "Starttinumerot julkaistu ({{scope}})"
+      "startNumbersPublishedDay": "Starttinumerot julkaistu {{day}}"
     },
     "no": "ei",
     "reasonMissing": "(ei täytetty)",
     "removed": "(poistettu)",
     "showDetails": "Näytä audit-lisätiedot",
+    "time": {
+      "ap": "ap",
+      "ip": "ip",
+      "kp": "kp"
+    },
     "title": "Muutoshistoria ({{count}})",
     "userSource": {
       "registration": "(ilmoittautumisen tiedoista)"

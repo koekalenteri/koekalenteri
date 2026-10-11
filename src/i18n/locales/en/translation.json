@@ -14,6 +14,7 @@
     "after": "after",
     "before": "before",
     "changed": "Changed",
+    "day": "{{date, wdshort3}}",
     "deliveryStatus": {
       "bounce": "bounced",
       "complaint": "marked as spam"
@@ -42,6 +43,7 @@
       "classStartNumbersPublished": "{{eventClass}} start numbers published",
       "classStartNumbersPublishedDay": "{{eventClass}} start numbers published {{day}}",
       "emailBlocked": "Message blocked in the test environment ({{count}} recipients)",
+      "emailBlocked_one": "Message blocked in the test environment ({{count}} recipient)",
       "emailDeliveryFailed": "Email delivery failed ({{status}}): {{email}}",
       "emailFailedTo": "FAILED {{template}}: {{recipients}}",
       "emailSent": "{{template}} sent: succeeded {{ok}}, failed {{failed}}",
@@ -80,18 +82,23 @@
       "startNumberReleased": "Start number released: {{number}}",
       "startNumberSaved": "Start number saved: {{number}}",
       "startNumbersEntered": "Start numbers entered for {{count}} dogs",
+      "startNumbersEntered_one": "Start number entered for {{count}} dog",
       "startNumbersEnteredClass": "Start numbers entered for {{count}} dogs ({{eventClass}})",
+      "startNumbersEnteredClass_one": "Start number entered for {{count}} dog ({{eventClass}})",
       "startNumbersHidden": "Start numbers hidden",
       "startNumbersHiddenDay": "Start numbers hidden {{day}}",
-      "startNumbersHiddenScope": "Start numbers hidden ({{scope}})",
       "startNumbersPublished": "Start numbers published",
-      "startNumbersPublishedDay": "Start numbers published {{day}}",
-      "startNumbersPublishedScope": "Start numbers published ({{scope}})"
+      "startNumbersPublishedDay": "Start numbers published {{day}}"
     },
     "no": "no",
     "reasonMissing": "(not filled in)",
     "removed": "(removed)",
     "showDetails": "Show audit details",
+    "time": {
+      "ap": "am",
+      "ip": "pm",
+      "kp": ""
+    },
     "title": "Audit trail ({{count}})",
     "userSource": {
       "registration": "(from the registration)"

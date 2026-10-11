@@ -38,7 +38,9 @@ export interface JsonAuditRecord {
   message: string
 }
 
-export interface AuditRecord extends Omit<JsonAuditRecord, 'timestamp'> {
+export interface AuditRecord extends Omit<JsonAuditRecord, 'timestamp' | 'messageParams'> {
+  /** As the API's JSON reviver leaves them: a parameter written as a bare yyyy-MM-dd arrives as a Date. */
+  messageParams?: Record<string, AuditMessageParam | Date>
   timestamp: Date
 }
 

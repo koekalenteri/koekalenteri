@@ -67,7 +67,7 @@ describe('AuditTrail', () => {
             messageParams: {
               fromDate: '2026-11-07',
               fromNumber: 2,
-              fromTimeKey: 'registration.time.ip',
+              fromTimeKey: 'audit.time.ip',
               toGroupKey: 'eventManagement.participantSelection.registered',
               toNumber: 1,
             },

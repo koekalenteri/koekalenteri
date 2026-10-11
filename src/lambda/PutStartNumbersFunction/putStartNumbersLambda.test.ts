@@ -114,9 +114,9 @@ describe('putStartNumbersLambda', () => {
     )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Starttinumerot julkaistu (ALO)',
-        messageKey: 'audit.messages.startNumbersPublishedScope',
-        messageParams: { scope: 'ALO' },
+        message: 'ALO starttinumerot julkaistu',
+        messageKey: 'audit.messages.classStartNumbersPublished',
+        messageParams: { eventClass: 'ALO' },
         user: 'Sihteeri',
       })
     )
@@ -175,7 +175,11 @@ describe('putStartNumbersLambda', () => {
       expect.anything()
     )
     expect(mockAudit).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Starttinumerot julkaistu (ALO, 12.9.2026)' })
+      expect.objectContaining({
+        message: 'ALO starttinumerot julkaistu la 12.9.',
+        messageKey: 'audit.messages.classStartNumbersPublishedDay',
+        messageParams: { date: '2026-09-12', eventClass: 'ALO' },
+      })
     )
   })
 
@@ -204,7 +208,11 @@ describe('putStartNumbersLambda', () => {
       expect.anything()
     )
     expect(mockAudit).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Starttinumerot julkaistu (ALO, 12.9.2026, ap)' })
+      expect.objectContaining({
+        message: 'ALO starttinumerot julkaistu la 12.9. ap',
+        messageKey: 'audit.messages.classStartNumbersPublishedDay',
+        messageParams: { date: '2026-09-12', eventClass: 'ALO', time: 'ap', timeKey: 'audit.time.ap' },
+      })
     )
   })
 

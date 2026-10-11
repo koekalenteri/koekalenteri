@@ -591,13 +591,15 @@ describe('lib/event', () => {
         message: 'Ryhmä: Ilmoittautuneet #1 -> la 3.8. ip #3 siirto',
         messageKey: 'audit.messages.groupChanged',
         messageParams: {
+          fromGroup: 'Ilmoittautuneet',
           fromGroupKey: 'eventManagement.participantSelection.registered',
           fromNumber: 1,
           reason: 'siirto',
           reasonKey: 'audit.groupReason.move',
           toDate: '2024-08-03',
           toNumber: 3,
-          toTimeKey: 'registration.time.ip',
+          toTime: 'ip',
+          toTimeKey: 'audit.time.ip',
         },
         user: 'admin',
       })
@@ -649,6 +651,7 @@ describe('lib/event', () => {
         messageParams: {
           reason: '(automaattinen sijoitus)',
           reasonKey: 'audit.groupReason.automatic',
+          toGroup: 'Ilmoittautuneet',
           toGroupKey: 'eventManagement.participantSelection.registered',
           toNumber: 2,
         },
@@ -684,7 +687,9 @@ describe('lib/event', () => {
         messageParams: {
           fromDate: '2024-08-03',
           fromNumber: 10,
-          fromTimeKey: 'registration.time.ip',
+          fromTime: 'ip',
+          fromTimeKey: 'audit.time.ip',
+          toGroup: 'Peruneet',
           toGroupKey: 'eventManagement.participantSelection.cancelled',
           toNumber: 5,
         },

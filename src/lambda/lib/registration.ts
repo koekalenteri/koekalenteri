@@ -651,7 +651,7 @@ export const findExistingRegistrationToEventForDog = async (
 }
 
 export const getCancelAuditMessage = (data: JsonRegistration) => {
-  if (!data.cancelReason) return registrationCancelledAudit('(ei täytetty)', 'audit.reasonMissing')
+  if (!data.cancelReason) return registrationCancelledAudit()
 
   if (isPredefinedReason(data.cancelReason)) {
     const reasonKey = `registration.cancelReason.${data.cancelReason}` as const
