@@ -1,19 +1,22 @@
-import { ThemeProvider } from '@mui/material/styles'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { registrationWithManualResults, registrationWithStaticDatesAndClass } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
-import { locales } from '@/i18n'
+import { locales, muiLocales } from '@/i18n'
 import { getRequirements } from '@/rules'
 import { freezeClockAt } from '@/test-utils/freezeClock'
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
+/** The app's theme in Finnish, as App.tsx gives it: MUI's own texts (the date picker's) are Finnish too. */
+const finnishTheme = createTheme(theme, muiLocales.fi)
+
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
 const Frame = ({ children, width = 1000 }: { readonly children: React.ReactNode; readonly width?: number }) => (
   <div data-testid="visual-root" style={{ background: '#fff', padding: 16, width }}>
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={finnishTheme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         {children}
       </LocalizationProvider>
@@ -114,7 +117,7 @@ describe('the date picker on a phone', () => {
     )
 
     await screen
-      .getByRole('button', { name: /^Choose date/ })
+      .getByRole('button', { name: /^Valitse päivä/ })
       .nth(1)
       .click()
 
