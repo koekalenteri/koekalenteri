@@ -5,9 +5,11 @@ import type {
   JsonQualifyingResult,
   JsonRegistration,
   QualifyingResult,
+  Registration,
   RegistrationClass,
 } from '../types'
 import type { SortableRegistration } from './registration'
+import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
@@ -19,6 +21,7 @@ import {
   GROUP_KEY_RESERVE,
   getCurrentInvitationAttachment,
   getInvitationReadStatus,
+  getLastEmailText,
   getNextClass,
   getOwnerRole,
   getParticipantMessageInfo,
@@ -1417,5 +1420,62 @@ describe('getRegistrationActorName', () => {
       name: 'Separate Payer',
       source: 'registration',
     })
+  })
+})
+
+/**
+ * KOE-1454: the participant list names the last message in the language it is read in. The real
+ * locales are used on purpose, so a renamed key or a wrong subject fails here.
+ */
+describe('getLastEmailText', () => {
+  const sentAt = new Date('2023-01-01T12:00:00Z')
+  // getFixedT returns i18next's own TFunction with the namespace fixed; the helper takes the plain one.
+  const fi = i18n.getFixedT('fi') as TFunction
+  const en = i18n.getFixedT('en') as TFunction
+
+  it.each<[Registration['lastEmail'], string, string]>([
+    [
+      { context: 'cancel', sentAt, template: 'registration' },
+      'Ilmoittautumisesi on peruttu 1.1.2023 14:00',
+      'Registration cancelled 1.1.2023 14:00',
+    ],
+    [
+      { context: '', sentAt, template: 'registration' },
+      'Ilmoittautumisen vahvistus 1.1.2023 14:00',
+      'Registration confirmation 1.1.2023 14:00',
+    ],
+    [
+      { context: '', groupNumber: 2, sentAt, template: 'reserve' },
+      'Varasijailmoitus (#2) 1.1.2023 14:00',
+      'Reserve notification (#2) 1.1.2023 14:00',
+    ],
+    [
+      { context: '', sentAt, template: 'reserve' },
+      'Varasijailmoitus (#?) 1.1.2023 14:00',
+      'Reserve notification (#?) 1.1.2023 14:00',
+    ],
+    [
+      { context: 'cancel', sentAt, template: 'cancel-picked' },
+      'Peruutusilmoitus koepaikalta 1.1.2023 14:00',
+      'Cancel notice (picked) 1.1.2023 14:00',
+    ],
+    [{ context: '', sentAt, template: 'invitation' }, 'Koekutsu 1.1.2023 14:00', 'Invitation 1.1.2023 14:00'],
+  ])("names %o in the reader's language", (lastEmail, expectedFi, expectedEn) => {
+    expect(getLastEmailText(lastEmail, fi)).toBe(expectedFi)
+    expect(getLastEmailText(lastEmail, en)).toBe(expectedEn)
+  })
+
+  it('reads a send time that has not been revived into a Date', () => {
+    expect(getLastEmailText({ context: '', sentAt: '2023-01-01T12:00:00.000Z', template: 'invitation' }, en)).toBe(
+      'Invitation 1.1.2023 14:00'
+    )
+  })
+
+  it('shows a message recorded as text before KOE-1454 as it was written', () => {
+    expect(getLastEmailText('Peruutus 1.1.2026 12:00', en)).toBe('Peruutus 1.1.2026 12:00')
+  })
+
+  it('is empty when no message has been sent', () => {
+    expect(getLastEmailText(undefined, en)).toBe('')
   })
 })

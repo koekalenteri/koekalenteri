@@ -195,6 +195,24 @@ export interface JsonEmailDeliveryStatus {
 /** Which owner a `ownerHandles`/`ownerPays` flag names: `true` the (first) owner, a string an owner's `key`. */
 export type OwnerSelection = boolean | string
 
+/**
+ * The last message sent to a registration: what was sent, not a sentence about it, so the participant
+ * list can name it in the language the secretary reads the list in (KOE-1454).
+ */
+export interface JsonLastEmail {
+  template: EmailTemplateId
+  /** The registration email's context; one template sends the confirmation and the cancellation alike. */
+  context: RegistrationTemplateContext
+  sentAt: string
+  /** The reserve place a reserve notification told. */
+  groupNumber?: number
+}
+
+/** The JSON reviver turns `sentAt` into a Date on the way in; a value built in the browser may still hold the string. */
+export interface LastEmail extends Omit<JsonLastEmail, 'sentAt'> {
+  sentAt: Date | string
+}
+
 export interface JsonRegistration extends JsonDbRecord {
   agreeToTerms: boolean
   breeder: RegistrationBreeder
@@ -234,7 +252,11 @@ export interface JsonRegistration extends JsonDbRecord {
   invitationAttachmentUpdatedAt?: string
   invitationRead?: boolean
   language: Language
-  lastEmail?: string
+  /**
+   * A string is a message recorded before KOE-1454, a finished Finnish sentence that cannot be parsed
+   * back into a template; the list shows it as it was written.
+   */
+  lastEmail?: string | JsonLastEmail
   /** tracks which message templates have been sent to this registration */
   messagesSent?: Partial<Record<EmailTemplateId, boolean>>
   notes: string
@@ -324,6 +346,7 @@ export interface Registration
       | 'dog'
       | 'eventResult'
       | 'invitationAttachmentUpdatedAt'
+      | 'lastEmail'
       | 'paidAt'
       | 'qualifyingResults'
       | 'refundAt'
@@ -336,6 +359,7 @@ export interface Registration
   dates: RegistrationDate[]
   dog: Dog
   eventResult?: EventResult
+  lastEmail?: string | LastEmail
   paidAt?: Date
   refundAt?: Date
   qualifyingResults: QualifyingResult[]

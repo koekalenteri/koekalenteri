@@ -34,6 +34,9 @@ const ipGroup = { date: aloDate, time: 'ip' as const }
 const apKey = eventRegistrationDateKey(apGroup)
 const ipKey = eventRegistrationDateKey(ipGroup)
 
+// KOE-1454: the message column names what was sent in the language the list is read in.
+const sentAt = new Date('2021-01-20T10:15:00Z')
+
 const dog = (regNo: string, name: string) => ({ ...registrationWithStaticDates.dog, name, regNo })
 
 const registrations: Registration[] = [
@@ -44,6 +47,7 @@ const registrations: Registration[] = [
     dog: dog('TESTDOG-0001', 'Aamun Aluke'),
     group: { ...apGroup, key: apKey, number: 1 },
     id: 'ap-1',
+    lastEmail: { context: '', sentAt, template: 'picked' },
   },
   {
     ...registrationWithStaticDates,
@@ -68,6 +72,7 @@ const registrations: Registration[] = [
     dog: dog('TESTDOG-0004', 'Varasijan Koira'),
     group: { key: GROUP_KEY_RESERVE, number: 1 },
     id: 'reserve-1',
+    lastEmail: { context: '', groupNumber: 1, sentAt, template: 'reserve' },
   },
 ]
 

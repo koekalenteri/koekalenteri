@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonLastEmail, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
@@ -51,7 +51,12 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const mockClaimNewRegistrationPostProcessing = vi.fn()
 const mockMarkNewRegistrationPhase = vi.fn()
 const mockClearRegistrationEmailDeliveryStatus = vi.fn()
-const mockRecordLastEmail = vi.fn(async () => 'last-email')
+const recordedLastEmail: JsonLastEmail = {
+  context: 'cancel',
+  sentAt: '2023-01-01T12:00:00.000Z',
+  template: 'registration',
+}
+const mockRecordLastEmail = vi.fn(async () => recordedLastEmail)
 const libRegistration = await import('./registration')
 vi.doMock('./registration', () => ({
   ...libRegistration,
@@ -453,7 +458,7 @@ describe('registrationWorkflow', () => {
       expect(mockRecordLastEmail).toHaveBeenCalledWith(saved, 'registration', 'cancel')
       expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
         saved.eventId,
-        [{ eventId: saved.eventId, id: saved.id, lastEmail: 'last-email' }],
+        [{ eventId: saved.eventId, id: saved.id, lastEmail: recordedLastEmail }],
         expect.any(String)
       )
     })

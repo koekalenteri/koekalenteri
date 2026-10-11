@@ -1,4 +1,4 @@
-import type { DeepPartial, EmailTemplateId, JsonRegistration } from '../../types'
+import type { DeepPartial, EmailTemplateId, JsonRegistration, RegistrationTemplateContext } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { eventWithALOClassInvited } from '../../__mockData__/events'
@@ -53,8 +53,7 @@ const {
   authorizeRegistrationRead,
   claimNewRegistrationPostProcessing,
   deriveRegistrationEditToken,
-  getLastEmailInfo,
-  getLastEmailName,
+  getLastEmail,
   findClassesToMark,
   findExistingRegistrationToEventForDog,
   hasRegistrationChanges,
@@ -64,6 +63,7 @@ const {
   groupRegistrationsByClass,
   groupRegistrationsByClassAndGroup,
   createSentRegistrationMessagesAudit,
+  recordLastEmail,
   sendTemplatedEmailToEventRegistrations,
   patchRegistration,
   participantRegistrationResponse,
@@ -291,37 +291,57 @@ describe('registration', () => {
   beforeAll(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
   })
-  describe('getLastEmailInfo', () => {
+  describe('getLastEmail', () => {
     const reg = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[6]))
-    const date = '2024-08-08T08:32:00.000Z'
+    const sentAt = '2024-08-08T08:32:00.000Z'
 
-    it.each<[EmailTemplateId, string]>([
-      ['access', `access-name ${date}`],
-      ['invitation', `invitation-name ${date}`],
-      ['picked', `picked-name ${date}`],
-      ['receipt', `receipt-name ${date}`],
-      ['refund', `refund-name ${date}`],
-      ['registration', `registration-name ${date}`],
-      ['reserve', `reserve-name (#${reg.group.number}) ${date}`],
-    ])('should do blah', (templateId, expected) => {
-      expect(getLastEmailInfo(templateId, `${templateId}-name`, reg, date)).toEqual(expected)
+    it.each<[EmailTemplateId, RegistrationTemplateContext]>([
+      ['access', ''],
+      ['invitation', 'invitation'],
+      ['picked', ''],
+      ['receipt', 'receipt'],
+      ['refund', 'refund'],
+      ['registration', 'cancel'],
+    ])('records what was sent for %s, not a sentence (KOE-1454)', (template, context) => {
+      expect(getLastEmail(template, context, reg, sentAt)).toEqual({ context, sentAt, template })
     })
 
-    it('should print "?" in place of missing number for reserve', () => {
-      expect(getLastEmailInfo('reserve', 'name', {} as JsonRegistration, date)).toEqual(`name (#?) ${date}`)
+    it('records the reserve place a reserve notification told', () => {
+      expect(getLastEmail('reserve', '', reg, sentAt)).toEqual({
+        context: '',
+        groupNumber: reg.group.number,
+        sentAt,
+        template: 'reserve',
+      })
+    })
+
+    it('leaves the reserve place out when the registration has none', () => {
+      expect(getLastEmail('reserve', '', { ...reg, group: undefined }, sentAt)).toEqual({
+        context: '',
+        sentAt,
+        template: 'reserve',
+      })
     })
   })
 
-  describe('getLastEmailName', () => {
-    it('names a registration email by what it tells, not by its template (KOE-1455)', () => {
-      expect(getLastEmailName('registration', 'cancel')).toBe('Ilmoittautumisesi on peruttu')
-      expect(getLastEmailName('registration', 'update')).toBe('Ilmoittautumisesi tietoja on muokattu')
-      expect(getLastEmailName('registration', '')).toBe('Ilmoittautumisen vahvistus')
+  describe('recordLastEmail', () => {
+    afterEach(() => {
+      vi.useRealTimers()
     })
 
-    it('names any other email by its template', () => {
-      expect(getLastEmailName('reserve', '')).toBe('Varasijailmoitus')
-      expect(getLastEmailName('invitation', 'invitation')).toBe('Koekutsu')
+    it('stores the sent message as a structure the list names in its own language (KOE-1454)', async () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2023-01-01T12:00:00.000Z'))
+      const registration = { ...jsonRegistrationsToEventWithALOInvited[0] }
+      const expected = { context: 'cancel', sentAt: '2023-01-01T12:00:00.000Z', template: 'registration' }
+
+      await expect(recordLastEmail(registration, 'registration', 'cancel')).resolves.toEqual(expected)
+
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: registration.eventId, id: registration.id },
+        { set: { lastEmail: expected, updatedAt: expect.any(String) } }
+      )
+      expect(registration.lastEmail).toBe(jsonRegistrationsToEventWithALOInvited[0].lastEmail)
     })
   })
 
@@ -736,7 +756,7 @@ describe('registration', () => {
         { eventId: 'testALOInvited', id: 'testALOInvited1' },
         {
           set: {
-            lastEmail: 'Koekutsu 1.1.2023 14:00',
+            lastEmail: { context: '', sentAt: '2023-01-01T12:00:00.000Z', template: 'invitation' },
             updatedAt: expect.any(String),
           },
         }
@@ -782,7 +802,12 @@ describe('registration', () => {
 
       expect(mockDynamoDB.update).toHaveBeenCalledWith(
         { eventId: 'testALOInvited', id: 'testALOInvited1' },
-        { set: { lastEmail: 'Ilmoittautumisesi on peruttu 1.1.2023 14:00', updatedAt: expect.any(String) } }
+        {
+          set: {
+            lastEmail: { context: 'cancel', sentAt: '2023-01-01T12:00:00.000Z', template: 'registration' },
+            updatedAt: expect.any(String),
+          },
+        }
       )
       vi.useRealTimers()
     })
@@ -878,6 +903,45 @@ describe('registration', () => {
       expect(registration.invitationRead).toBe(false)
     })
 
+    it('sends to one registration at a time, in order, for the SES send rate', async () => {
+      let releaseFirst: () => void = () => undefined
+      mockSESSend.mockImplementationOnce(
+        () =>
+          new Promise<void>((resolve) => {
+            releaseFirst = resolve
+          })
+      )
+
+      const sending = sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        JSON.parse(JSON.stringify(eventWithALOClassInvited)),
+        jsonRegistrationsToEventWithALOInvited.slice(0, 2).map((r) => ({ ...r })),
+        'https://example.com',
+        'Test message',
+        { name: 'admin-user' },
+        ''
+      )
+
+      await vi.waitFor(() => expect(mockSESSend).toHaveBeenCalledTimes(1))
+      // A turn of the event loop in which a parallel send would have started.
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(mockSESSend).toHaveBeenCalledTimes(1)
+
+      releaseFirst()
+      await expect(sending).resolves.toEqual({
+        failed: [],
+        ok: ['handler1@example.com', 'owner1@example.com', 'handler2@example.com', 'owner2@example.com'],
+      })
+      expect(mockSESSend).toHaveBeenNthCalledWith(1, [
+        ['handler1@example.com', 'owner1@example.com'],
+        expect.any(String),
+      ])
+      expect(mockSESSend).toHaveBeenNthCalledWith(2, [
+        ['handler2@example.com', 'owner2@example.com'],
+        expect.any(String),
+      ])
+    })
+
     it('should handle failed email sending', async () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       // Make the second email fail
@@ -970,7 +1034,7 @@ describe('registration', () => {
         { eventId: 'testALOInvited', id: 'testALOInvited1' },
         {
           set: {
-            lastEmail: 'Varasijailmoitus (#1) 1.1.2023 14:00',
+            lastEmail: { context: '', groupNumber: 1, sentAt: '2023-01-01T12:00:00.000Z', template: 'reserve' },
             updatedAt: expect.any(String),
           },
         }
