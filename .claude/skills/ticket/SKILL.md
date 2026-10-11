@@ -48,6 +48,9 @@ When all have reported:
   The gate checks ratings, duplication and hotspots, not the issue count, so a PR with new code
   smells passes it (#1450 did with 8). Only an issue on a line the PR did not touch, or one from
   a rule SonarCloud just added, belongs elsewhere.
+- A real bug the review finds outside the issue's scope (it predates the PR, or fixing it would
+  change a shared rule the issue does not ask about): not the implementer's. Bring it to the
+  user with the evidence and ask whether it gets its own issue. See "Follow-up issues" below.
 - Send the rest to the implementer through `SendMessage` (its agent ID from step 2), as one
   package. Do not start a new implementer; its context is the point.
 
@@ -69,8 +72,22 @@ Only when all of these hold, mark the PR ready: `gh pr ready <pr>`. Otherwise it
 and the report says which item is missing.
 
 Then tell the user: the PR and whether it is ready, what was wrong and what changed, the review
-rounds and what they caught, CI state per check, the Sonar gate and issue count, and anything
-open or waiting on them.
+rounds and what they caught, CI state per check, the Sonar gate and issue count, out-of-scope
+findings and the follow-up issues created for them, and anything open or waiting on them.
+
+## Follow-up issues
+
+When the user approves an issue for something found while working on `<KEY>`:
+
+1. Check the finding against the code yourself before writing it; a reviewer's trace is not proof.
+2. Search the open issues (`statusCategory != Done`) for one that already covers it. Read the
+   candidates' descriptions and comments, not only the summaries. If one covers it, propose
+   using that issue instead; if one is related, propose linking it.
+3. Create the issue under the same epic as `<KEY>` unless another fits better, and say in the
+   description that it was found while working on `<KEY>`, with the PR link.
+4. Link it to `<KEY>` with "Relates" (`createIssueLink`), and to any related issue from step 2.
+5. Comment on `<KEY>`: one line per new issue, linked, saying what it is and that the PR does not
+   change it. A tester reading `<KEY>` must find the follow-ups there, not only in this session.
 
 ## Rules
 
