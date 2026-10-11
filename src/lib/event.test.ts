@@ -40,9 +40,9 @@ import {
   getStartListPublishedClassMap,
   getStartNumbersDayTimes,
   getUniqueEventClasses,
+  hasAvailableResults,
   hasExplicitPlacesForClass,
   hasMockTrialChoice,
-  hasPublishedResults,
   hasRetrieveTypeChoice,
   hasSharedReserveList,
   isDetaultEntryEndDate,
@@ -313,24 +313,28 @@ describe('lib/event', () => {
   })
 
   describe('isStartListPublished', () => {
+    // No dates, so only the workflow state and the flags decide; the date path has its own tests.
+    const noDates = { endDate: undefined, startDate: undefined }
+
     it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
       'Should return true when state is %p and startListPublished is undefined or true',
       (state) => {
-        expect(isStartListAvailable({ state })).toEqual(true)
-        expect(isStartListAvailable({ startListPublished: true, state })).toEqual(true)
+        expect(isStartListAvailable({ ...noDates, state })).toEqual(true)
+        expect(isStartListAvailable({ ...noDates, startListPublished: true, state })).toEqual(true)
       }
     )
 
     it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
       'Should return false when state is %p and startListPublished is false',
       (state) => {
-        expect(isStartListAvailable({ startListPublished: false, state })).toEqual(false)
+        expect(isStartListAvailable({ ...noDates, startListPublished: false, state })).toEqual(false)
       }
     )
 
     it('returns true when at least one class start list is published', () => {
       expect(
         isStartListAvailable({
+          ...noDates,
           startListPublished: { ALO: false, AVO: true },
           state: 'invited',
         })
@@ -340,6 +344,7 @@ describe('lib/event', () => {
     it('returns true when an invited class start list is published even if the event is only confirmed', () => {
       expect(
         isStartListAvailable({
+          ...noDates,
           classes: [
             { class: 'ALO', state: 'picked' },
             { class: 'AVO', state: 'invited' },
@@ -353,6 +358,7 @@ describe('lib/event', () => {
     it('returns false when the only published class is not yet invited', () => {
       expect(
         isStartListAvailable({
+          ...noDates,
           classes: [
             { class: 'ALO', state: 'picked' },
             { class: 'AVO', state: 'picked' },
@@ -366,6 +372,7 @@ describe('lib/event', () => {
     it('returns false when class-specific publishing is configured but no class is published', () => {
       expect(
         isStartListAvailable({
+          ...noDates,
           startListPublished: { ALO: false, AVO: false },
           state: 'invited',
         })
@@ -375,6 +382,7 @@ describe('lib/event', () => {
     it('returns false for a sparse class-specific map when omitted classes are unpublished', () => {
       expect(
         isStartListAvailable({
+          ...noDates,
           classes: [{ class: 'ALO' }, { class: 'AVO' }],
           startListPublished: { ALO: false },
           state: 'invited',
@@ -385,7 +393,7 @@ describe('lib/event', () => {
     it.each<EventState>(['draft', 'tentative', 'cancelled', 'confirmed', 'picked'])(
       'Should return false when state is %p',
       (state) => {
-        expect(isStartListAvailable({ state })).toEqual(false)
+        expect(isStartListAvailable({ ...noDates, state })).toEqual(false)
       }
     )
 
@@ -792,7 +800,13 @@ describe('lib/event', () => {
         ${[{ class: 'ALO', date }]} | ${[{ classes: [{ class: 'ALO', date }], day: date }]}
       `(
         'returns day: $expected.0.day, classes.length: $expected.0.classes.length for test $#',
-        ({ classes, expected }: { classes: DogEvent['classes']; expected: any }) => {
+        ({
+          classes,
+          expected,
+        }: {
+          classes: DogEvent['classes']
+          expected: ReturnType<typeof getEventClassesByDays>
+        }) => {
           expect(getEventClassesByDays({ classes, endDate: date, startDate: date })).toEqual(expected)
         }
       )
@@ -812,7 +826,13 @@ describe('lib/event', () => {
         ${[{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }, { class: 'VOI', date: startDate }]} | ${[{ classes: [{ class: 'VOI', date: startDate }], day: startDate }, { classes: [{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }], day: endDate }]}
       `(
         'returns day: $expected.0.day, classes.length: $expected.0.classes.length, day: $expected.1.day, classes.length: $expected.1.classes.length for test $#',
-        ({ classes, expected }: { classes: DogEvent['classes']; expected: any }) => {
+        ({
+          classes,
+          expected,
+        }: {
+          classes: DogEvent['classes']
+          expected: ReturnType<typeof getEventClassesByDays>
+        }) => {
           expect(getEventClassesByDays({ classes, endDate, startDate })).toEqual(expected)
         }
       )
@@ -1533,16 +1553,35 @@ describe('publishing results', () => {
     })
   })
 
-  describe('hasPublishedResults', () => {
-    it('is true as soon as any class is public', () => {
-      expect(hasPublishedResults({ resultsPublished: true })).toBe(true)
-      expect(hasPublishedResults({ resultsPublished: { ALO: false, AVO: true } })).toBe(true)
+  describe('hasAvailableResults', () => {
+    // Held in 2021 and left 'picked': only the dates and the flags open anything.
+    const past = { endDate: new Date('2021-02-11'), startDate: new Date('2021-02-10'), state: 'picked' as const }
+    const classes = [{ class: 'ALO' as const }, { class: 'AVO' as const }]
+
+    it('needs the list and the results of a classless event public', () => {
+      expect(hasAvailableResults({ ...past, resultsPublished: true, startListPublished: true })).toBe(true)
+      expect(hasAvailableResults({ ...past, resultsPublished: true, startListPublished: false })).toBe(false)
+      expect(hasAvailableResults({ ...past, resultsPublished: false, startListPublished: true })).toBe(false)
     })
 
-    it('is false with nothing published', () => {
-      expect(hasPublishedResults({})).toBe(false)
-      expect(hasPublishedResults({ resultsPublished: false })).toBe(false)
-      expect(hasPublishedResults({ resultsPublished: { ALO: false } })).toBe(false)
+    it('waits for the dogs to have run', () => {
+      const ahead = { endDate: addDays(new Date(), 31), startDate: addDays(new Date(), 30), state: 'picked' as const }
+      expect(hasAvailableResults({ ...ahead, resultsPublished: true, startListPublished: true })).toBe(false)
+    })
+
+    it('needs one class with both its list and its results public', () => {
+      expect(hasAvailableResults({ ...past, classes, resultsPublished: { AVO: true }, startListPublished: true })).toBe(
+        true
+      )
+      // ALO's list is public and AVO's results are, but no class has both.
+      expect(
+        hasAvailableResults({
+          ...past,
+          classes,
+          resultsPublished: { AVO: true },
+          startListPublished: { ALO: true, AVO: false },
+        })
+      ).toBe(false)
     })
   })
 
@@ -1729,6 +1768,7 @@ describe('isResultsAvailableForRegistration', () => {
       { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
       { class: 'AVO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
     ],
+    endDate: new Date('2026-09-12'),
     startDate: new Date('2026-09-12'),
     state: 'ended' as const,
   }
@@ -1756,6 +1796,9 @@ describe('isResultsAvailableForRegistration', () => {
         { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
         { class: 'ALO' as const, date: new Date('2026-09-13'), state: 'invited' as const },
       ],
+      // No end date, so only the class states decide: the date path reads the whole event and would
+      // open the second day too once the trial is under way.
+      endDate: undefined,
       resultsPublished: true,
       startDate: new Date('2026-09-12'),
       state: 'ended' as const,
@@ -1774,6 +1817,7 @@ describe('isResultsAvailableForRegistration', () => {
     // A tolling aptitude trial (NOU) has no classes; its dogs carry no class either.
     const classless = {
       classes: [],
+      endDate: new Date('2026-09-26'),
       startDate: new Date('2026-09-26'),
       startListPublished: true,
       state: 'ended' as const,

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import type { EventClassState, EventState, PublicDogEvent, RegistrationClass } from '@/types'
+import type { StartListAvailabilityEvent } from '@/lib/event'
+import type { PublicDogEvent } from '@/types'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Stack from '@mui/material/Stack'
@@ -10,32 +11,23 @@ import { Path } from '@/routeConfig'
 import LinkButton from '../../components/LinkButton'
 
 interface Props {
-  readonly id: string
-  readonly classes?: Array<{ class: RegistrationClass; state?: EventClassState }>
-  readonly state: EventState
-  readonly startListPublished?: boolean | Partial<Record<RegistrationClass, boolean>>
-  readonly resultsPublished?: NonNullable<PublicDogEvent['resultsPublished']>
+  /** What the two gates read, the dates included: a state never advanced opens by them (KOE-1504). */
+  readonly event: Pick<PublicDogEvent, 'id'> & StartListAvailabilityEvent & Parameters<typeof hasAllResultsPublished>[0]
   /** Whether a post is being run right now (KOE-1259), so the list can say the start list is live. */
   readonly live?: boolean
   readonly text?: string | ReactNode | null
 }
 
-export function EventStateInfo({
-  id,
-  classes,
-  state,
-  startListPublished,
-  resultsPublished,
-  live = false,
-  text = null,
-}: Props) {
+export function EventStateInfo({ event, live = false, text = null }: Props) {
   const { t } = useTranslation()
   const [startListLoading, setStartListLoading] = useState(false)
 
-  if (isStartListAvailable({ classes, startListPublished, state })) {
+  const { id, state } = event
+
+  if (isStartListAvailable(event)) {
     // While any class is still running the list is the participants; only a complete set of
     // published results turns the same page into the results (KOE-1285).
-    const complete = hasAllResultsPublished({ classes, resultsPublished })
+    const complete = hasAllResultsPublished(event)
     const link = (
       <LinkButton
         aria-label={startListLoading ? t('loading') : undefined}

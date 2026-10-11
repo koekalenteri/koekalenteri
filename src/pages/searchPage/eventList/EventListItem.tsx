@@ -171,15 +171,7 @@ const EventHeader = ({ event }: Props) => {
             {isEntryOpen(event) ? (
               <LinkButton to={Path.register(event)} text={t('register')} sx={{ pr: 0 }} />
             ) : (
-              <EventStateInfo
-                classes={event.classes}
-                id={event.id}
-                live={liveViewEnabled && isEventLive(event)}
-                state={event.state}
-                startListPublished={event.startListPublished}
-                resultsPublished={event.resultsPublished}
-                text={infoText}
-              />
+              <EventStateInfo event={event} live={liveViewEnabled && isEventLive(event)} text={infoText} />
             )}
           </Typography>
         </Grid>

@@ -1,4 +1,5 @@
 import type { PublicDogEvent } from '@/types'
+import { eventWithStaticDates } from '@/__mockData__/events'
 import { zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
 import {
   deserializeFilter,
@@ -162,7 +163,22 @@ describe('state.events.filters', () => {
 
   describe('withinResultsFilter', () => {
     const filter = deserializeFilter('b=r')
-    const event = (resultsPublished?: PublicDogEvent['resultsPublished']) => ({ resultsPublished }) as PublicDogEvent
+    // A classless trial held in 2021 with its start list public: only the results flag varies.
+    const event = (
+      resultsPublished?: PublicDogEvent['resultsPublished'],
+      startListPublished: PublicDogEvent['startListPublished'] = true
+    ): PublicDogEvent => ({ ...eventWithStaticDates, resultsPublished, startListPublished, state: 'picked' })
+    // The same trial with two classes of no state of their own, so the dates and the flags decide.
+    const classed = (
+      resultsPublished: PublicDogEvent['resultsPublished'],
+      startListPublished: PublicDogEvent['startListPublished'] = true
+    ): PublicDogEvent => ({
+      ...event(resultsPublished, startListPublished),
+      classes: [
+        { class: 'ALO', date: eventWithStaticDates.startDate },
+        { class: 'AVO', date: eventWithStaticDates.startDate },
+      ],
+    })
 
     it('passes everything while the switch is off', () => {
       expect(withinResultsFilter(event(), deserializeFilter(''))).toBe(true)
@@ -173,8 +189,20 @@ describe('state.events.filters', () => {
       expect(withinResultsFilter(event(false), filter)).toBe(false)
       expect(withinResultsFilter(event(true), filter)).toBe(true)
       // One published class is enough: the reader came for results, not for completeness.
-      expect(withinResultsFilter(event({ ALO: true, AVO: false }), filter)).toBe(true)
-      expect(withinResultsFilter(event({ ALO: false }), filter)).toBe(false)
+      expect(withinResultsFilter(classed({ ALO: true, AVO: false }), filter)).toBe(true)
+      expect(withinResultsFilter(classed({ ALO: false }), filter)).toBe(false)
+    })
+
+    it('leaves out an event whose start list is hidden, since its row has no link to the results (KOE-1504)', () => {
+      // The secretary hid the start list after publishing the results: the row says only that the
+      // trial is over, so listing it under "results published" would promise what the row cannot show.
+      expect(withinResultsFilter(event(true, false), filter)).toBe(false)
+    })
+
+    it('leaves out an event whose only published results are in a class with a hidden start list', () => {
+      // AVO's results went out and then its list was hidden; ALO's list is public but has no results.
+      // Some list and some results are public, but no class has both, so there is nothing to read.
+      expect(withinResultsFilter(classed({ AVO: true }, { ALO: true, AVO: false }), filter)).toBe(false)
     })
   })
 })

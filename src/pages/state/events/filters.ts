@@ -3,7 +3,7 @@ import type { PublicDogEvent } from '@/types'
 import type { FilterProps } from './types'
 import { format } from 'date-fns'
 import { formatDateSpan, zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '@/i18n/dates'
-import { hasPublishedResults, isEntryClosing, isEntryOpen, isEntryUpcoming } from '@/lib/event'
+import { hasAvailableResults, isEntryClosing, isEntryOpen, isEntryUpcoming } from '@/lib/event'
 import { isRegistrationClass } from '@/lib/registration'
 
 export const readDate = (date: string | null) => (date ? zonedParseDate(date) : null)
@@ -45,8 +45,13 @@ export function withinSwitchFilters(
   return result !== false
 }
 
+/**
+ * The results are read through the start list page, so an event is listed only where some class has
+ * both its list and its results public (KOE-1504). Whether the row's link says "results" or "start
+ * list" is a separate question, answered by whether every class's results are out.
+ */
 export function withinResultsFilter(event: PublicDogEvent, { withResults }: FilterProps) {
-  return !withResults || hasPublishedResults(event)
+  return !withResults || hasAvailableResults(event)
 }
 
 export function withinEventTypeFilter(event: PublicDogEvent, { eventType }: FilterProps) {
