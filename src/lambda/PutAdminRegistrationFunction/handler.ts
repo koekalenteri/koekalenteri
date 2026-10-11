@@ -1,4 +1,5 @@
 import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
+import { registrationAddedAudit } from '../../lib/audit'
 import { InvalidPatchError } from '../../lib/patch'
 import { hasInvalidRegistrationArrayFields } from '../../lib/registration'
 import { patchMerge } from '../../lib/utils'
@@ -32,7 +33,7 @@ import {
 } from '../lib/registrationWorkflow'
 
 /** What the audit trail says of a registration an organizer made. */
-const CREATED_AUDIT_MESSAGE = 'Lisäsi ilmoittautumisen'
+const CREATED_AUDIT_MESSAGE = registrationAddedAudit()
 
 const PROTECTED_PATCH_FIELDS = new Set([
   'createdAt',

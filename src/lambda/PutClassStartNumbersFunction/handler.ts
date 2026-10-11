@@ -1,4 +1,5 @@
 import type { JsonConfirmedEvent, JsonRegistration, Patch } from '../../types'
+import { startNumbersEnteredAudit } from '../../lib/audit'
 import { audit, eventAuditKey } from '../lib/audit'
 import { getEvent, lockRegistrationGroups } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
@@ -37,7 +38,7 @@ const putClassStartNumbersLambda = lambda('putClassStartNumbers', async (event) 
     patches = await assignStartNumbers(eventId, registrations, numbers, user)
     await audit({
       auditKey: eventAuditKey(confirmedEvent),
-      message: `Starttinumerot syötetty ${numbers.length} koiralle (${eventClass})`,
+      ...startNumbersEnteredAudit(numbers.length, eventClass),
       user,
     })
   } finally {

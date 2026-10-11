@@ -1,9 +1,10 @@
+import type { AuditMessage } from '../../lib/audit'
 import type { JsonPaymentTransaction } from '../../types'
 import { vi } from 'vitest'
 import { answerRejections, constructAPIGwEvent } from '../test-utils/helpers'
 
 interface CancelOptions {
-  auditMessage: (transaction: JsonPaymentTransaction, provider: string | undefined) => string
+  auditMessage: (transaction: JsonPaymentTransaction, provider: string | undefined) => AuditMessage
   auditActor: (transaction: JsonPaymentTransaction) => { name: string; source?: string }
   params: Record<string, string>
   statusField: string
@@ -69,7 +70,11 @@ describe('paymentCancelLambda', () => {
     await paymentCancelLambda(event)
 
     const options = mockCancelTransaction.mock.lastCall?.[0]
-    expect(options?.auditMessage(transaction, 'paytrail')).toBe('Maksu epäonnistui (Paytrail), 50,00 €')
+    expect(options?.auditMessage(transaction, 'paytrail')).toEqual({
+      message: 'Maksu epäonnistui (Paytrail), 50,00 €',
+      messageKey: 'audit.messages.paymentFailed',
+      messageParams: { amount: '50,00 €', provider: 'Paytrail' },
+    })
     expect(options?.auditActor(transaction)).toEqual({ name: 'anonymous' })
   })
 })

@@ -9,6 +9,7 @@ import type {
   TransactionItem,
 } from '../../types'
 import { nanoid } from 'nanoid'
+import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
@@ -17,7 +18,7 @@ import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { LambdaError, lambda, response } from '../lib/lambda'
-import { claimTransactionCreation, formatPaytrailErrorMessage, releaseTransactionCreation } from '../lib/payment'
+import { claimTransactionCreation, refundPaytrailErrorAudit, releaseTransactionCreation } from '../lib/payment'
 import { PaytrailError, paytrail } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -112,13 +113,13 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   } catch (error: unknown) {
     await releaseTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
-      const message = formatPaytrailErrorMessage('Maksun palautus', error)
+      const auditMessage = refundPaytrailErrorAudit(error)
       await audit({
         auditKey: registrationAuditKey(registration),
-        message,
+        ...auditMessage,
         user: user.name,
       })
-      return response(error.status, { error: error.error, message }, event)
+      return response(error.status, { error: error.error, message: auditMessage.message }, event)
     }
 
     throw error
@@ -167,7 +168,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   if (result.status === 'pending' || result.provider === 'email refund') {
     await audit({
       auditKey: registrationAuditKey(registration),
-      message: `Palautus on kesken (${getProviderName(transaction.provider)}), ${formatMoney(amount / 100)}`,
+      ...paymentAudit('refundPending', getProviderName(transaction.provider), formatMoney(amount / 100)),
       user: transaction.user,
     })
   }

@@ -314,8 +314,26 @@ describe('paymentSuccessLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
       message: 'Maksu (Paytrail), 50,00\u00a0€',
+      messageKey: 'audit.messages.payment',
+      messageParams: { amount: '50,00\u00a0€', provider: 'Paytrail' },
       user: 'user123',
     })
+    // The receipt and the confirmation are named by their subjects' keys, the recipients kept as written (KOE-1442).
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messageKey: 'audit.messages.emailSentTo',
+        messageParams: expect.objectContaining({
+          recipients: 'test@example.com',
+          templateKey: 'registration.email.subject_receipt',
+        }),
+      })
+    )
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messageKey: 'audit.messages.emailSentTo',
+        messageParams: expect.objectContaining({ templateKey: 'registration.email.subject' }),
+      })
+    )
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
@@ -377,12 +395,19 @@ describe('paymentSuccessLambda', () => {
       updatedAt: expect.any(String),
     })
     expect(mockAudit).toHaveBeenCalledWith(
-      expect.objectContaining({ auditKey: 'event123:reg456', message: expect.stringContaining('Päällekkäinen maksu') })
+      expect.objectContaining({
+        auditKey: 'event123:reg456',
+        message: expect.stringContaining('Päällekkäinen maksu'),
+        messageKey: 'audit.messages.paymentDuplicate',
+        messageParams: expect.objectContaining({ registrationId: 'other-registration' }),
+      })
     )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: 'event123:other-registration',
         message: expect.stringContaining('maksun ilmoittautuminen: reg456'),
+        messageKey: 'audit.messages.paymentDuplicateOther',
+        messageParams: expect.objectContaining({ registrationId: 'reg456' }),
       })
     )
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)

@@ -245,8 +245,16 @@ describe('refundSuccessLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
       message: 'Palautus (Paytrail), 10,00\u00A0€',
+      messageKey: 'audit.messages.refund',
+      messageParams: { amount: '10,00\u00A0€', provider: 'Paytrail' },
       user: 'Test User',
     })
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messageKey: 'audit.messages.emailSentTo',
+        messageParams: expect.objectContaining({ templateKey: 'registration.email.subject' }),
+      })
+    )
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)

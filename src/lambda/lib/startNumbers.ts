@@ -1,6 +1,8 @@
+import type { AuditMessage } from '../../lib/audit'
 import type { StartNumbersTime } from '../../lib/event'
 import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass, StartNumbersDayScope } from '../../types'
 import { formatDate } from '../../i18n/dates'
+import { startNumberPublishedAudit, startNumberReleasedAudit, startNumberSavedAudit } from '../../lib/audit'
 import {
   getStartNumbersClassDays,
   getStartNumbersDayScope,
@@ -36,7 +38,7 @@ export const parseStartNumberEntries = (numbers: unknown): StartNumberEntry[] =>
 
 /** The day a placement falls on, in the event's time zone — the key the published-days list holds. */
 /** ` (ALO)` after a message about one class, nothing after one about the whole event. */
-export const classSuffix = (eventClass?: RegistrationClass) => (eventClass ? ` (${eventClass})` : '')
+const classSuffix = (eventClass?: RegistrationClass) => (eventClass ? ` (${eventClass})` : '')
 
 const placementDay = (date: string | Date) => formatDate(date, 'yyyy-MM-dd')
 
@@ -55,8 +57,8 @@ const inScope = (
  * line for the whole class, which does not answer the secretary's question about one dog: the work
  * list shows number 13, and the trail has to say where that came from and when it went public.
  */
-const auditStartNumber = (registration: JsonRegistration, message: string, user: string) =>
-  audit({ auditKey: registrationAuditKey(registration), message, user })
+const auditStartNumber = (registration: JsonRegistration, message: AuditMessage, user: string) =>
+  audit({ auditKey: registrationAuditKey(registration), ...message, user })
 
 /**
  * Freeze the published order: each scorable participant's current group becomes its `startGroup`.
@@ -131,7 +133,7 @@ const publishStartNumber = async (
     patch = { id: registration.id, startGroup }
   }
 
-  await auditStartNumber(registration, `Starttinumero julkaistu: ${startGroup.number}`, user)
+  await auditStartNumber(registration, startNumberPublishedAudit(startGroup.number), user)
   return patch
 }
 
@@ -152,7 +154,7 @@ export const releaseStartNumber = async (
   user: string
 ): Promise<Patch<JsonRegistration>> => {
   await removeRegistrationField(eventId, registration.id, 'startGroup')
-  await auditStartNumber(registration, `Starttinumero vapautettu: ${number}`, user)
+  await auditStartNumber(registration, startNumberReleasedAudit(number), user)
   return { id: registration.id, startGroup: null }
 }
 
@@ -265,9 +267,7 @@ const writeStartNumber = async (
 
   // The previous number is part of the answer: a corrected entry reads as the correction it is,
   // not as a number that has always been the dog's (KOE-1355).
-  const previous = registration.startGroup?.number
-  const change = previous !== undefined && previous !== startGroup.number ? `${previous} -> ` : ''
-  await auditStartNumber(registration, `Starttinumero tallennettu: ${change}${startGroup.number}`, user)
+  await auditStartNumber(registration, startNumberSavedAudit(startGroup.number, registration.startGroup?.number), user)
   return { id: registration.id, startGroup }
 }
 

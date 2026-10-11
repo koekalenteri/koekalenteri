@@ -44,6 +44,7 @@ const {
   claimTransactionCreation,
   formatPaytrailErrorMessage,
   paymentDescription,
+  refundPaytrailErrorAudit,
   releaseTransactionCreation,
   verifyParams,
 } = await import('./payment')
@@ -215,7 +216,11 @@ describe('payment', () => {
     it('marks the transaction failed, patches a pending registration, and audits', async () => {
       const cancelled = await cancelTransaction<JsonPaymentTransaction>({
         auditActor: (transaction) => ({ name: transaction.user ?? 'anonymous' }),
-        auditMessage: (transaction, provider) => `${provider}: ${transaction.amount}`,
+        auditMessage: (transaction, provider) => ({
+          message: `${provider}: ${transaction.amount}`,
+          messageKey: 'audit.messages.paymentFailed',
+          messageParams: { amount: transaction.amount, provider: provider ?? '' },
+        }),
         params,
         statusField: 'paymentStatus',
         updateProvider: true,
@@ -243,6 +248,8 @@ describe('payment', () => {
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:registration-1',
         message: 'paytrail: 5000',
+        messageKey: 'audit.messages.paymentFailed',
+        messageParams: { amount: 5000, provider: 'paytrail' },
         user: 'Test User',
       })
     })
@@ -258,7 +265,7 @@ describe('payment', () => {
 
       await cancelTransaction<JsonPaymentTransaction>({
         auditActor: () => ({ name: 'unused' }),
-        auditMessage: () => 'unused',
+        auditMessage: () => ({ message: 'unused' }),
         params,
         statusField: 'paymentStatus',
         updateProvider: true,
@@ -277,7 +284,7 @@ describe('payment', () => {
       await expect(
         cancelTransaction<JsonPaymentTransaction>({
           auditActor: () => ({ name: 'unused' }),
-          auditMessage: () => 'unused',
+          auditMessage: () => ({ message: 'unused' }),
           params,
           statusField: 'paymentStatus',
         })
@@ -294,5 +301,17 @@ describe('payment', () => {
     expect(formatPaytrailErrorMessage('Maksun luonti', error)).toBe(
       'Maksun luonti epäonnistui Paytrailissa (400): Invalid request'
     )
+  })
+
+  it('audits a refused refund with Paytrail status and message as parameters (KOE-1442)', () => {
+    const error = Object.assign(new Error('400 Revert failed'), {
+      error: JSON.stringify({ message: 'Revert failed' }),
+      status: 400,
+    })
+    expect(refundPaytrailErrorAudit(error)).toEqual({
+      message: 'Maksun palautus epäonnistui Paytrailissa (400): Revert failed',
+      messageKey: 'audit.messages.refundPaytrailFailed',
+      messageParams: { error: 'Revert failed', status: 400 },
+    })
   })
 })

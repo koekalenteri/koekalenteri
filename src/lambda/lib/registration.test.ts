@@ -728,6 +728,12 @@ describe('registration', () => {
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'testALOInvited:testALOInvited1',
         message: 'Email: Koekutsu, to: handler1@example.com, owner1@example.com',
+        messageKey: 'audit.messages.emailSentTo',
+        messageParams: {
+          recipients: 'handler1@example.com, owner1@example.com',
+          template: 'Koekutsu',
+          templateKey: 'emailTemplate.invitation',
+        },
         user: 'admin-user',
       })
 
@@ -905,6 +911,12 @@ describe('registration', () => {
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'testALOInvited:testALOInvited2',
         message: 'FAILED Koekutsu: handler2@example.com, owner2@example.com',
+        messageKey: 'audit.messages.emailFailedTo',
+        messageParams: {
+          recipients: 'handler2@example.com, owner2@example.com',
+          template: 'Koekutsu',
+          templateKey: 'emailTemplate.invitation',
+        },
         user: 'admin-user',
       })
 

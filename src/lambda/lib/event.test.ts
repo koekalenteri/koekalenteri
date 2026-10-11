@@ -30,7 +30,6 @@ vi.doMock('./audit', () => ({
 const {
   findQualificationStartDate,
   fixRegistrationGroups,
-  formatGroupAuditInfo,
   getEvent,
   getStateFromTemplate,
   lockRegistrationGroups,
@@ -78,16 +77,6 @@ describe('lib/event', () => {
 
       mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
       await expect(release()).resolves.toBeUndefined()
-    })
-  })
-
-  describe('formatGroupAuditInfo', () => {
-    it('should format properly', () => {
-      expect(formatGroupAuditInfo({ key: 'cancelled', number: 5 })).toEqual('Peruneet #5')
-      expect(formatGroupAuditInfo({ key: 'reserve', number: 1 })).toEqual('Ilmoittautuneet #1')
-      expect(
-        formatGroupAuditInfo({ date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 20, time: 'ip' })
-      ).toEqual('la 3.8. ip #20')
     })
   })
 
@@ -552,7 +541,7 @@ describe('lib/event', () => {
 
     it('calls update and audit for cancelled group with reason', async () => {
       const group = { eventId: 'e4', group: { key: 'cancelled', number: 1 }, id: 'r1' }
-      await saveGroup(group, { key: 'reserve', number: 1 }, { name: 'user' } as JsonUser, 'test', 'cancelled by user')
+      await saveGroup(group, { key: 'reserve', number: 1 }, { name: 'user' } as JsonUser, 'move', 'cancelled by user')
 
       // Verify update was called with correct parameters
       expect(mockUpdate).toHaveBeenCalledWith(
@@ -581,7 +570,7 @@ describe('lib/event', () => {
       const previousGroup = { key: 'reserve', number: 1 }
       const user = { name: 'admin' } as JsonUser
 
-      await saveGroup(group, previousGroup, user, 'manual assignment')
+      await saveGroup(group, previousGroup, user, 'move')
 
       // Verify update was called with correct parameters (no cancelReason)
       expect(mockUpdate).toHaveBeenCalledWith(
@@ -596,10 +585,20 @@ describe('lib/event', () => {
         expect.anything()
       )
 
-      // Verify audit was called with proper message
+      // The Finnish sentence for old readers, and the parts the trail names in the reader's language (KOE-1442)
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'audit-key',
-        message: expect.stringContaining('Ryhmä: Ilmoittautuneet #1 -> la 3.8. ip #3 manual assignment'),
+        message: 'Ryhmä: Ilmoittautuneet #1 -> la 3.8. ip #3 siirto',
+        messageKey: 'audit.messages.groupChanged',
+        messageParams: {
+          fromGroupKey: 'eventManagement.participantSelection.registered',
+          fromNumber: 1,
+          reason: 'siirto',
+          reasonKey: 'audit.groupReason.move',
+          toDate: '2024-08-03',
+          toNumber: 3,
+          toTimeKey: 'registration.time.ip',
+        },
         user: 'admin',
       })
     })
@@ -607,7 +606,7 @@ describe('lib/event', () => {
     it('removes cancelReason when moving out of the cancelled group', async () => {
       const group = { eventId: 'e5', group: { key: 'reserve', number: 1 }, id: 'r2' }
 
-      await saveGroup(group, { key: 'cancelled', number: 1 }, { name: 'admin' } as JsonUser, 'manual assignment')
+      await saveGroup(group, { key: 'cancelled', number: 1 }, { name: 'admin' } as JsonUser, 'move')
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { eventId: 'e5', id: 'r2' },
@@ -627,7 +626,7 @@ describe('lib/event', () => {
       const group = { eventId: 'e6', group: { key: 'reserve', number: 2 }, id: 'r3' }
       const user = { name: 'secretary' } as JsonUser
 
-      await saveGroup(group, undefined, user, 'new registration')
+      await saveGroup(group, undefined, user, 'automatic')
 
       // Verify update was called
       expect(mockUpdate).toHaveBeenCalledWith(
@@ -645,7 +644,14 @@ describe('lib/event', () => {
       // Verify audit was called without the previous group info
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'audit-key',
-        message: expect.stringContaining('Ryhmä: Ilmoittautuneet #2 new registration'),
+        message: 'Ryhmä: Ilmoittautuneet #2 (automaattinen sijoitus)',
+        messageKey: 'audit.messages.groupSet',
+        messageParams: {
+          reason: '(automaattinen sijoitus)',
+          reasonKey: 'audit.groupReason.automatic',
+          toGroupKey: 'eventManagement.participantSelection.registered',
+          toNumber: 2,
+        },
         user: 'secretary',
       })
     })
@@ -673,7 +679,15 @@ describe('lib/event', () => {
       // Verify audit was called
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'audit-key',
-        message: expect.stringContaining('Ryhmä: la 3.8. ip #10 -> Peruneet #5'),
+        message: 'Ryhmä: la 3.8. ip #10 -> Peruneet #5',
+        messageKey: 'audit.messages.groupChanged',
+        messageParams: {
+          fromDate: '2024-08-03',
+          fromNumber: 10,
+          fromTimeKey: 'registration.time.ip',
+          toGroupKey: 'eventManagement.participantSelection.cancelled',
+          toNumber: 5,
+        },
         user: 'organizer',
       })
     })

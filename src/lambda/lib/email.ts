@@ -10,6 +10,7 @@ import type {
 } from '../../types'
 import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
 import { getFixedT } from '../../i18n/lambda'
+import { emailBlockedAudit } from '../../lib/audit'
 import { getPaymentBalance } from '../../lib/cost'
 import { getRegistrationEmailTemplateData, getRegistrationOwners, isPayerTemplate } from '../../lib/registration'
 import { CONFIG } from '../config'
@@ -107,7 +108,7 @@ const auditBlockedRecipients = async (tags: MessageTag[] | undefined, blocked: n
 
   await audit({
     auditKey: registrationAuditKey({ eventId, id: registrationId }),
-    message: `Viesti estetty testiympäristössä (${blocked} vastaanottajaa)`,
+    ...emailBlockedAudit(blocked),
     user: 'system',
   })
 }

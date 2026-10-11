@@ -10,7 +10,13 @@ import type {
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { formatDate } from '../../i18n/dates'
 import { getFixedT } from '../../i18n/lambda'
-import { auditUser } from '../../lib/audit'
+import {
+  auditUser,
+  emailFailedAudit,
+  emailSentAudit,
+  emailSubjectAuditKey,
+  registrationCancelledAudit,
+} from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
 import {
   GROUP_KEY_RESERVE,
@@ -473,6 +479,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
     const to = emailTo(registration, template)
     const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, editToken, text)
     const auditSubject = context ? data.subject : templateName
+    const auditSubjectKey = context ? emailSubjectAuditKey(context) : `emailTemplate.${template}`
     try {
       await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
       await sendTemplatedMail(
@@ -486,7 +493,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       ok.push(...to)
       await audit({
         auditKey: registrationAuditKey(registration),
-        message: `Email: ${auditSubject}, to: ${to.join(', ')}`,
+        ...emailSentAudit(auditSubject, auditSubjectKey, to),
         ...auditUser(user),
       })
       await setLastEmail(
@@ -510,7 +517,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       failed.push(...to)
       await audit({
         auditKey: registrationAuditKey(registration),
-        message: `FAILED ${auditSubject}: ${to.join(', ')}`,
+        ...emailFailedAudit(auditSubject, auditSubjectKey, to),
         ...auditUser(user),
       })
       logger.error('failed to send registration email', { error: e, template: auditSubject })
@@ -644,16 +651,14 @@ export const findExistingRegistrationToEventForDog = async (
 }
 
 export const getCancelAuditMessage = (data: JsonRegistration) => {
-  if (!data.cancelReason) return 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'
+  if (!data.cancelReason) return registrationCancelledAudit('(ei täytetty)', 'audit.reasonMissing')
 
   if (isPredefinedReason(data.cancelReason)) {
-    const t = getFixedT('fi')
-    const reason = t(`registration.cancelReason.${data.cancelReason}`)
-
-    return `Ilmoittautuminen peruttiin, syy: ${reason}`
+    const reasonKey = `registration.cancelReason.${data.cancelReason}` as const
+    return registrationCancelledAudit(getFixedT('fi')(reasonKey), reasonKey)
   }
 
-  return `Ilmoittautuminen peruttiin, syy: ${data.cancelReason}`
+  return registrationCancelledAudit(data.cancelReason)
 }
 
 const omitTechnicalRegistrationFields = (registration: JsonRegistration): Partial<JsonRegistration> => {

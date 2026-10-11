@@ -1,7 +1,14 @@
 import type { JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { getFixedT } from '../../i18n/lambda'
-import { auditUser } from '../../lib/audit'
+import {
+  auditUser,
+  duplicatePaymentAudit,
+  duplicatePaymentOfOtherAudit,
+  emailSentAudit,
+  emailSubjectAuditKey,
+  paymentAudit,
+} from '../../lib/audit'
 import { getCostSegmentName } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
 import {
@@ -89,6 +96,8 @@ const recordDuplicatePayment = async (
     status: 'ok' as const,
     statusAt: duplicatePaymentAt,
   }
+  const providerName = getProviderName(provider)
+  const amount = formatMoney(transaction.amount / 100)
   if (transactionExists) {
     await dynamoDB.update(
       { transactionId: transaction.transactionId },
@@ -121,12 +130,12 @@ const recordDuplicatePayment = async (
   })
   await audit({
     auditKey: registrationAuditKey(registration),
-    message: `Päällekkäinen maksu (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}, toinen ilmoittautuminen: ${duplicateOfRegistrationId}`,
+    ...duplicatePaymentAudit(providerName, amount, duplicateOfRegistrationId),
     ...auditUser(transactionActor(transaction)),
   })
   await audit({
     auditKey: registrationAuditKey(duplicateOf),
-    message: `Toisen ilmoittautumisen päällekkäinen maksu (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}, maksun ilmoittautuminen: ${registration.id}`,
+    ...duplicatePaymentOfOtherAudit(providerName, amount, registration.id),
     ...auditUser(transactionActor(transaction)),
   })
 }
@@ -251,7 +260,7 @@ const sendPaymentReceipt = async ({
   )
   await audit({
     auditKey: registrationAuditKey(registration),
-    message: `Email: ${templateData.subject}, to: ${receiptTo.join(', ')}`,
+    ...emailSentAudit(templateData.subject, emailSubjectAuditKey('receipt'), receiptTo),
     ...auditUser(transactionActor(transaction)),
   })
 }
@@ -352,7 +361,7 @@ const handleSuccessfulPayment = async (
     if (!workflow.paymentAuditAt) {
       await audit({
         auditKey: registrationAuditKey(registration),
-        message: `Maksu (${getProviderName(provider)}), ${formatMoney(paidAmount)}`,
+        ...paymentAudit('payment', getProviderName(provider), formatMoney(paidAmount)),
         ...auditUser(transactionActor(transaction)),
       })
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'paymentAuditAt')
@@ -376,7 +385,7 @@ const handleSuccessfulPayment = async (
 
       await audit({
         auditKey: registrationAuditKey(registration),
-        message: `Email: ${data.subject}, to: ${to.join(', ')}`,
+        ...emailSentAudit(data.subject, emailSubjectAuditKey(context), to),
         ...auditUser(transactionActor(transaction)),
       })
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'confirmationSentAt')

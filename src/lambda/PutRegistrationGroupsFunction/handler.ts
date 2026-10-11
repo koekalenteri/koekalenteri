@@ -1,4 +1,6 @@
+import type { GroupChangeReason } from '../../lib/audit'
 import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonUser, RegistrationGroupMove } from '../../types'
+import { invitationAwaitingPaymentAudit } from '../../lib/audit'
 import { hasSharedReserveList } from '../../lib/event'
 import { isInvitationAwaitingPayment, shouldSendInvitationAfterPayment } from '../../lib/payment'
 import {
@@ -70,7 +72,7 @@ const updateItems = async (oldItems: JsonRegistration[], moves: RegistrationGrou
   const changed = updatedItems.filter((reg) => hasGroupChanged(reg, oldById.get(reg.id)))
   await mapWithConcurrency(changed, REGISTRATION_WRITE_CONCURRENCY, (reg) => {
     const old = oldById.get(reg.id)
-    const reason = moves.some((move) => move.id === reg.id) ? 'siirto' : 'seuraus'
+    const reason = moves.some((move) => move.id === reg.id) ? 'move' : 'consequence'
     return saveChangedGroup(reg, old, user, reason)
   })
 
@@ -87,7 +89,7 @@ const saveChangedGroup = async (
   reg: JsonRegistration,
   old: JsonRegistration | undefined,
   user: JsonUser,
-  reason: string
+  reason: GroupChangeReason
 ) => {
   // update cancellation status, so the counts get right in updateRegistrations
   reg.cancelled = reg.group?.key === GROUP_KEY_CANCELLED
@@ -266,7 +268,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     await mapWithConcurrency(awaitingPayment, REGISTRATION_WRITE_CONCURRENCY, (reg) =>
       audit({
         auditKey: registrationAuditKey(reg),
-        message: 'Koekutsu lähetetään, kun koepaikka on maksettu',
+        ...invitationAwaitingPaymentAudit(),
         user: user.name,
       })
     )
@@ -354,10 +356,9 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   // audit cancellations
   for (const reg of cancelled) {
-    const message = getCancelAuditMessage(reg)
     await audit({
       auditKey: registrationAuditKey(reg),
-      message,
+      ...getCancelAuditMessage(reg),
       user: user.name,
     })
   }

@@ -1,5 +1,6 @@
 import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass } from '../../types'
 import type { StartNumberEntry } from '../lib/startNumbers'
+import { startNumbersEnteredAudit, startNumbersPublishedAudit } from '../../lib/audit'
 import { getStartNumbersDayTimes, isStartNumbersTime } from '../../lib/event'
 import { getStartNumbersBlocker } from '../../lib/publishing'
 import {
@@ -17,7 +18,6 @@ import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import {
   assignStartNumbers,
-  classSuffix,
   freezeStartNumbers,
   parseStartNumberEntries,
   setStartNumbersPublishedState,
@@ -111,10 +111,9 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
       confirmedEvent.updatedAt = state.updatedAt
       publicationChanged = true
       const scope = [eventClass, date && auditDay(date), time].filter(Boolean).join(', ')
-      const scopeSuffix = scope ? ` (${scope})` : ''
       await audit({
         auditKey: eventAuditKey(confirmedEvent),
-        message: `Starttinumerot ${body.published ? 'julkaistu' : 'piilotettu'}${scopeSuffix}`,
+        ...startNumbersPublishedAudit(body.published, scope),
         user: user.name,
       })
     }
@@ -123,7 +122,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
       patches.push(...(await assignStartNumbers(eventId, registrations, numbers, user.name)))
       await audit({
         auditKey: eventAuditKey(confirmedEvent),
-        message: `Starttinumerot syötetty ${numbers.length} koiralle${classSuffix(eventClass)}`,
+        ...startNumbersEnteredAudit(numbers.length, eventClass),
         user: user.name,
       })
     }

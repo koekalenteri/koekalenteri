@@ -113,13 +113,20 @@ describe('putStartNumbersLambda', () => {
       expect.anything()
     )
     expect(mockAudit).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Starttinumerot julkaistu (ALO)', user: 'Sihteeri' })
+      expect.objectContaining({
+        message: 'Starttinumerot julkaistu (ALO)',
+        messageKey: 'audit.messages.startNumbersPublishedScope',
+        messageParams: { scope: 'ALO' },
+        user: 'Sihteeri',
+      })
     )
     // The class-wide line does not answer "what number does this dog have": the dog's own trail
     // carries the number the secretary sees on the work list (KOE-1355).
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event-1:run-1',
       message: 'Starttinumero julkaistu: 1',
+      messageKey: 'audit.messages.startNumberPublished',
+      messageParams: { number: 1 },
       user: 'Sihteeri',
     })
     expect(mockPublishRegistrationPatches).toHaveBeenCalled()
@@ -288,11 +295,17 @@ describe('putStartNumbersLambda', () => {
       expect.objectContaining({ number: 4 })
     )
     expect(mockAudit).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Starttinumerot syötetty 1 koiralle (ALO)' })
+      expect.objectContaining({
+        message: 'Starttinumerot syötetty 1 koiralle (ALO)',
+        messageKey: 'audit.messages.startNumbersEnteredClass',
+        messageParams: { count: 1, eventClass: 'ALO' },
+      })
     )
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event-1:run-1',
       message: 'Starttinumero tallennettu: 1 -> 4',
+      messageKey: 'audit.messages.startNumberChanged',
+      messageParams: { number: 4, previous: 1 },
       user: 'Sihteeri',
     })
     // Entering the draw changes no publication state, so the event is left where it stands.
