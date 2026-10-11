@@ -1,5 +1,7 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import type { Registration, RegistrationDate } from '@/types'
+import type DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
+import type { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySelectionColumns'
 import { act, render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
@@ -23,8 +25,20 @@ const mockedGroups: RegistrationDate[] = [
   { date: eventWithStaticDatesAnd3Classes.startDate, key: '2021-02-10-ip', time: 'ip' } as RegistrationDate,
 ]
 
-let mockLastCallbacks: any
-let mockDroppableProps: any[] = []
+type Callbacks = NonNullable<Parameters<typeof useClassEntrySelectionColumns>[2]>
+type CallbackName = {
+  [K in keyof Callbacks]-?: NonNullable<Callbacks[K]> extends (id: string) => void ? K : never
+}[keyof Callbacks]
+
+let mockLastCallbacks: Callbacks | undefined
+let mockDroppableProps: ComponentProps<typeof DroppableDataGrid>[] = []
+
+/** The callback the columns were last given, failing the test when the page did not pass it. */
+const callback = (name: CallbackName) => {
+  const fn = mockLastCallbacks?.[name]
+  if (!fn) throw new Error(`no ${name} callback was passed to the columns`)
+  return fn
+}
 
 vi.mock('@/hooks/useAdminEventRegistrationDates', () => ({
   useAdminEventRegistrationDates: () => mockedGroups,
@@ -59,7 +73,7 @@ vi.mock('./classEntrySelection/useDnDHandlers', () => ({
 }))
 
 vi.mock('./classEntrySelection/useClassEntrySelectionColumns', () => ({
-  useClassEntrySelectionColumns: (_available: unknown, _event: unknown, callbacks: unknown) => {
+  useClassEntrySelectionColumns: (_available: unknown, _event: unknown, callbacks: Callbacks) => {
     mockLastCallbacks = callbacks
     return {
       cancelledColumns: [{ field: 'id', sortable: false }],
@@ -70,7 +84,7 @@ vi.mock('./classEntrySelection/useClassEntrySelectionColumns', () => ({
 }))
 
 vi.mock('./classEntrySelection/DroppableDataGrid', () => ({
-  default: (props: any) => {
+  default: (props: ComponentProps<typeof DroppableDataGrid>) => {
     mockDroppableProps.push(props)
     return <div data-testid="droppable-grid" />
   },
@@ -82,7 +96,7 @@ vi.mock('./classEntrySelection/NoRowsOverlay', () => ({ default: () => <div /> }
 vi.mock('../../components/NullComponent', () => ({ NullComponent: () => <div /> }))
 
 vi.mock('./MoveToGroupDialog', () => ({
-  default: (props: any) =>
+  default: (props: ComponentProps<typeof import('./MoveToGroupDialog').default>) =>
     props.open ? (
       <button onClick={() => props.onMove('2021-02-10-ip')} type="button">
         move-group
@@ -91,7 +105,7 @@ vi.mock('./MoveToGroupDialog', () => ({
 }))
 
 vi.mock('./MoveToPositionDialog', () => ({
-  default: (props: any) =>
+  default: (props: ComponentProps<typeof import('./MoveToPositionDialog').default>) =>
     props.open ? (
       <>
         <button onClick={() => props.onMove(2.5)} type="button">
@@ -103,7 +117,8 @@ vi.mock('./MoveToPositionDialog', () => ({
 }))
 
 vi.mock('./SendMessageDialog', () => ({
-  default: (props: any) => (props.open ? <div>send-message-open</div> : null),
+  default: (props: ComponentProps<typeof import('./SendMessageDialog').default>) =>
+    props.open ? <div>send-message-open</div> : null,
 }))
 
 function Wrapper(props: { readonly children?: ReactNode }) {
@@ -163,7 +178,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     await flushPromises()
     await act(async () => {
-      await mockLastCallbacks.moveToReserve('target-participant')
+      callback('moveToReserve')('target-participant')
     })
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
@@ -192,15 +207,15 @@ describe('ClassEntrySelection behavior coverage', () => {
     )
     await flushPromises()
 
-    expect(mockLastCallbacks.movementDisabled).toBe(true)
-    expect(mockLastCallbacks.actionsDisabled).toBe(true)
+    expect(mockLastCallbacks?.movementDisabled).toBe(true)
+    expect(mockLastCallbacks?.actionsDisabled).toBe(true)
     await act(async () => {
-      mockLastCallbacks.openEditDialog(registration.id)
-      mockLastCallbacks.cancelRegistration(registration.id)
-      mockLastCallbacks.sendMessage(registration.id)
-      await mockLastCallbacks.moveToReserve(registration.id)
-      mockLastCallbacks.moveToGroup(registration.id)
-      mockLastCallbacks.moveToPosition(registration.id)
+      callback('openEditDialog')(registration.id)
+      callback('cancelRegistration')(registration.id)
+      callback('sendMessage')(registration.id)
+      callback('moveToReserve')(registration.id)
+      callback('moveToGroup')(registration.id)
+      callback('moveToPosition')(registration.id)
     })
 
     expect(mockSaveGroups).not.toHaveBeenCalled()
@@ -214,8 +229,8 @@ describe('ClassEntrySelection behavior coverage', () => {
     expect(screen.queryByRole('button', { name: 'move-position' })).not.toBeInTheDocument()
     expect(mockDroppableProps).not.toHaveLength(0)
     mockDroppableProps.forEach((props) => {
-      expect(props.canDrop({ groupKey: GROUP_KEY_RESERVE })).toBe(false)
-      expect(props.slotProps.row.draggable).toBe(false)
+      expect(props.canDrop?.({ groupKey: GROUP_KEY_RESERVE, groups: [], id: 'dragged', index: 0 })).toBe(false)
+      expect(props.slotProps?.row?.draggable).toBe(false)
     })
   })
 
@@ -259,7 +274,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     await flushPromises()
 
     await act(async () => {
-      mockLastCallbacks.moveToGroup('participant-1')
+      callback('moveToGroup')('participant-1')
     })
     await flushPromises()
     await user.click(screen.getByRole('button', { name: 'move-group' }))
@@ -272,7 +287,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     ])
 
     await act(async () => {
-      mockLastCallbacks.moveToPosition('reserve-1')
+      callback('moveToPosition')('reserve-1')
     })
     await flushPromises()
     await user.click(screen.getByRole('button', { name: 'move-position' }))
@@ -285,7 +300,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     ])
 
     await act(async () => {
-      mockLastCallbacks.moveToPosition('participant-1')
+      callback('moveToPosition')('participant-1')
     })
     await flushPromises()
     await user.click(screen.getByRole('button', { name: 'move-position' }))
@@ -298,7 +313,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     ])
 
     await act(async () => {
-      mockLastCallbacks.moveToParticipants('reserve-1')
+      callback('moveToParticipants')('reserve-1')
     })
     await flushPromises()
     await user.click(screen.getByRole('button', { name: 'move-group' }))
@@ -311,7 +326,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     ])
 
     await act(async () => {
-      mockLastCallbacks.sendMessage('participant-1')
+      callback('sendMessage')('participant-1')
     })
     await flushPromises()
     expect(screen.getByText('send-message-open')).toBeInTheDocument()
@@ -344,7 +359,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     await flushPromises()
 
     await act(async () => {
-      mockLastCallbacks.moveToPosition('reserve-1')
+      callback('moveToPosition')('reserve-1')
     })
     await flushPromises()
 
@@ -398,7 +413,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     await flushPromises()
 
     await act(async () => {
-      mockLastCallbacks.moveToPosition('reserve-1')
+      callback('moveToPosition')('reserve-1')
     })
     await flushPromises()
 
@@ -445,7 +460,7 @@ describe('ClassEntrySelection behavior coverage', () => {
       await flushPromises()
 
       await act(async () => {
-        mockLastCallbacks[action]('reserve-1')
+        callback(action)('reserve-1')
       })
       await flushPromises()
 
@@ -505,7 +520,7 @@ describe('ClassEntrySelection behavior coverage', () => {
       await flushPromises()
 
       await act(async () => {
-        mockLastCallbacks.moveToGroup('participant-1')
+        callback('moveToGroup')('participant-1')
       })
       await flushPromises()
       await rendered.user.click(screen.getByRole('button', { name: 'move-group' }))

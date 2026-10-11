@@ -3,6 +3,7 @@ import { act, render, screen } from '@testing-library/react'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
+import { enqueueSnackbar } from 'notistack'
 import App from './App'
 import theme from './assets/Theme'
 import { useAuthSessionInitialization } from './hooks/useAuthSessionInitialization'
@@ -25,20 +26,30 @@ vi.mock('aws-amplify/auth', async (importOriginal) => ({
 vi.mock('./hooks/WebSocketProvider', () => ({
   default: ({ children }: { readonly children: React.ReactNode }) => children,
 }))
-// Every route is a page that saves: what App owns is the frame the pages render in, not the pages.
+// Every route is a page that saves and shows a MUI and a date-adapter text, the two locales App
+// passes down: what App owns is the frame the pages render in, not the pages.
 // The factory is hoisted above the file's imports, JSX runtime included, hence createElement.
 vi.mock('./routes', async () => {
   const { useSnackbar } = await import('notistack')
   const { createElement, useEffect } = await import('react')
+  const { default: Pagination } = await import('@mui/material/Pagination')
+  const { usePickerAdapter } = await import('@mui/x-date-pickers/hooks')
   const SavingPage = () => {
     const { enqueueSnackbar } = useSnackbar()
+    const adapter = usePickerAdapter()
     useEffect(() => {
       enqueueSnackbar('Saved', { variant: 'success' })
     }, [enqueueSnackbar])
     useEffect(() => {
       pageMounted()
     }, [])
-    return createElement('p', null, 'PAGE')
+    return createElement(
+      'div',
+      null,
+      createElement('p', null, 'PAGE'),
+      createElement('p', null, adapter.format(new Date(2024, 0, 1), 'weekday')),
+      createElement(Pagination, { count: 1 })
+    )
   }
   return { default: [{ Component: SavingPage, path: '*' }] }
 })
@@ -52,10 +63,18 @@ const renderApp = (store = createStore()) =>
     </Provider>
   )
 
+const inSeconds = (seconds: number) => Math.floor(Date.now() / 1000) + seconds
 /** A valid id token that is already inside the refresh margin, so a refresh would start at once. */
-const expiringIdToken = () => makeTestIdToken({ exp: Math.floor(Date.now() / 1000) + 30 })
+const expiringIdToken = () => makeTestIdToken({ exp: inSeconds(30) })
 /** A valid id token far from its refresh, so a logged-in render schedules nothing that fires. */
-const freshIdToken = () => makeTestIdToken({ exp: Math.floor(Date.now() / 1000) + 3600 })
+const freshIdToken = (sub = 'user') => makeTestIdToken({ exp: inSeconds(3600), sub })
+
+const resolveSessionWith = (idToken: string) => {
+  const jwt = { payload: {}, toString: () => idToken }
+  vi.mocked(fetchAuthSession).mockResolvedValue({ tokens: { accessToken: jwt, idToken: jwt } })
+}
+
+const storeLanguage = (language: string) => localStorage.setItem(languageStorageKey, JSON.stringify(language))
 
 describe('App', () => {
   beforeEach(() => {
@@ -88,8 +107,8 @@ describe('App', () => {
     expect(screen.queryByText('PAGE')).not.toBeInTheDocument()
   })
 
-  it('brings i18n and the document back to the stored language', async () => {
-    localStorage.setItem(languageStorageKey, JSON.stringify('en'))
+  it('brings i18n, the document and the MUI and date locales to the stored language', async () => {
+    storeLanguage('en')
     await switchLanguage('fi')
 
     renderApp()
@@ -97,12 +116,31 @@ describe('App', () => {
     expect(await screen.findByText('PAGE')).toBeInTheDocument()
     expect(i18n.language).toBe('en')
     expect(document.documentElement.lang).toBe('en')
+    expect(screen.getByRole('navigation', { name: 'pagination navigation' })).toBeInTheDocument()
+    expect(screen.getByText('Monday')).toBeInTheDocument()
+  })
+
+  it('follows a language another tab stores', async () => {
+    renderApp()
+    expect(await screen.findByRole('navigation', { name: 'Sivutus navigaatio' })).toBeInTheDocument()
+
+    storeLanguage('en')
+    // The setup's localStorage is a plain object, which jsdom refuses as the init's storageArea.
+    const event = new StorageEvent('storage', { key: languageStorageKey })
+    Object.defineProperty(event, 'storageArea', { value: localStorage })
+    act(() => {
+      globalThis.dispatchEvent(event)
+    })
+    await flushPromises()
+
+    expect(i18n.language).toBe('en')
+    expect(document.documentElement.lang).toBe('en')
+    expect(screen.getByRole('navigation', { name: 'pagination navigation' })).toBeInTheDocument()
   })
 
   it('does not refresh the session before it has been initialized', async () => {
     const idToken = expiringIdToken()
-    const jwt = { payload: {}, toString: () => idToken }
-    vi.mocked(fetchAuthSession).mockResolvedValue({ tokens: { accessToken: jwt, idToken: jwt } })
+    resolveSessionWith(idToken)
     vi.mocked(useAuthSessionInitialization).mockReturnValue(false)
     const store = createStore()
     store.set(idTokenAtom, idToken)
@@ -114,7 +152,19 @@ describe('App', () => {
     expect(fetchAuthSession).not.toHaveBeenCalled()
   })
 
-  it('remounts the authenticator and the pages under it when the user logs in and out', async () => {
+  it('refreshes an expiring session once it has been initialized', async () => {
+    const refreshed = freshIdToken('refreshed')
+    resolveSessionWith(refreshed)
+    const store = createStore()
+    store.set(idTokenAtom, expiringIdToken())
+
+    renderApp(store)
+    await flushPromises()
+
+    expect(store.get(idTokenAtom)).toBe(refreshed)
+  })
+
+  it('remounts the authenticator and the pages under it when the user logs in and out, not on a refresh', async () => {
     // The mocked authenticator's route never leaves "idle", so the remount is read from the page under it.
     const store = createStore()
     renderApp(store)
@@ -125,8 +175,19 @@ describe('App', () => {
     expect(await screen.findByText('PAGE')).toBeInTheDocument()
     expect(pageMounted).toHaveBeenCalledTimes(2)
 
+    // A refreshed token keeps the user logged in, and a form being filled in where it is.
+    act(() => store.set(idTokenAtom, freshIdToken('refreshed')))
+    await flushPromises()
+    expect(pageMounted).toHaveBeenCalledTimes(2)
+
+    // Logging out says goodbye just before the token goes; the notice outlives the remount.
+    act(() => {
+      enqueueSnackbar('Goodbye')
+    })
+    expect(await screen.findByText('Goodbye')).toBeInTheDocument()
     act(() => store.set(idTokenAtom, undefined))
     expect(await screen.findByText('PAGE')).toBeInTheDocument()
     expect(pageMounted).toHaveBeenCalledTimes(3)
+    expect(screen.getByText('Goodbye')).toBeInTheDocument()
   })
 })

@@ -550,9 +550,14 @@ describe('AddCostDialog', () => {
       await user.click(breedInput)
       await flushPromises()
 
-      // Existing breed codes should be filtered out
-      // This depends on the PRIORIZED_BREED_CODES mock, but we verify the selector is rendered
-      expect(breedInput).toBeInTheDocument()
+      const options = await screen.findAllByRole('option')
+      expect(options.map((option) => option.textContent)).toEqual([
+        'breed:110',
+        'breed:111',
+        'breed:121',
+        'breed:263',
+        'breed:312',
+      ])
     })
 
     it('should add earlyBird cost without additional data', async () => {
