@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
+import { languageStorageKey } from '@/lib/client/storage'
 import LanguageMenu from './LanguageMenu'
 
 test('It should render the button', () => {
@@ -48,7 +49,7 @@ test('It should change the language', () => {
   expect(within(menu).getByText('locale.en')).toHaveClass('Mui-selected')
   expect(within(menu).getByText('locale.fi')).not.toHaveClass('Mui-selected')
 
-  expect(localStorage.getItem('language')).toEqual('"en"')
+  expect(localStorage.getItem(languageStorageKey)).toEqual('"en"')
 
-  localStorage.setItem('language', '"fi"')
+  localStorage.setItem(languageStorageKey, '"fi"')
 })

@@ -97,7 +97,6 @@
   },
   "src/pages/components/ServiceWorkerUpdateNotifier.visual.test.tsx": {
     "update-notice-en": {
-      "button-name": 1,
       "color-contrast": 2
     }
   },

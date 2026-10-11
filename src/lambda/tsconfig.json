@@ -16,7 +16,7 @@
     "types": ["node", "vitest/globals"],
     "useUnknownInCatchVariables": true
   },
-  "exclude": ["../lib/client", "../i18n/index.ts", "../i18n/index.test.ts", "../i18n/language.ts"],
+  "exclude": ["../lib/client"],
   "extends": "@tsconfig/node24/tsconfig.json",
   "include": ["../i18n", "../lib", "../__mockData__", "./**/*.ts"]
 }

@@ -6,9 +6,9 @@ import { enUS as genUS, fiFI as gfiFI } from '@mui/x-data-grid/locales'
 import { enUS as denUS, fiFI as dfiFI } from '@mui/x-date-pickers/locales'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import { readStoredLanguage } from '../lib/client/storage'
 import { i18nInitOptions } from './config'
 import { registerFormatters } from './formatters'
-import { readStoredLanguage } from './language'
 import { fiAuthenticationDict } from './locales/fi/auth'
 
 export type { Language } from '../types'
@@ -24,7 +24,6 @@ export const muiLocales: Record<Language, Localization> = {
 // otherwise be Finnish for a reader who chose English (KOE-1457, KOE-1268). App's effect stays as the
 // guard for a choice that changes later.
 const storedLanguage = readStoredLanguage()
-document.documentElement.lang = storedLanguage
 
 i18n
   .use(initReactI18next)
@@ -35,4 +34,4 @@ i18n
 registerFormatters(i18n)
 
 I18n.putVocabularies({ fi: fiAuthenticationDict })
-I18n.setLanguage('fi')
+I18n.setLanguage(storedLanguage)
