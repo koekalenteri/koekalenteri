@@ -18,13 +18,31 @@ reports. The gate is the pull request and the user's merge; nothing here approve
 - Anything only the user can unblock (a decision, a secret, a setting, production access): ask
   now, in one batch.
 
-## 2. Implement
+## 2. Plan
 
 Start `implementer` in the background with `isolation: "worktree"`. Give it the key, the branch
-name (`koe-<n>-<slug>`), the cause and how it was established, and what is already verified.
+name (`koe-<n>-<slug>`), the cause and how it was established, and what is already verified, and
+ask for its plan first. It answers before its first edit with:
+
+- the cause, confirmed or corrected;
+- every place that reads or decides the same thing, with the `git grep` it ran and its output,
+  each marked as changing or not, and why;
+- the approach in a few sentences, naming any stored shape or shared rule it changes;
+- the test that will fail without the change.
+
+Check the reader list against the code yourself; one reader missed here costs a review round
+later (#1507 found three, one per round). When the plan changes a shared rule, a flag or a stored
+shape, run `reviewer` with `root-cause` and `rule-readers` on the plan (give them the plan text
+and the key instead of a PR number) before any code exists.
+
+Skip the plan when the change has one reader and nothing to choose, and say so in the handover.
+
+## 3. Implement
+
+Send the approved plan, with any corrections, to the same implementer through `SendMessage`.
 It opens the PR as a draft. Wait for its report: the PR URL and the failing-test evidence.
 
-## 3. Review and CI, in parallel
+## 4. Review and CI, in parallel
 
 In one message, start in the background:
 
@@ -36,7 +54,7 @@ In one message, start in the background:
 
 Reviewers start fresh every round. Do not pass them the implementer's report.
 
-## 4. Feedback
+## 5. Feedback
 
 When all have reported:
 
@@ -54,10 +72,12 @@ When all have reported:
 - Send the rest to the implementer through `SendMessage` (its agent ID from step 2), as one
   package. Do not start a new implementer; its context is the point.
 
-After its fix, run step 3 again with only the CI watcher and the reviewers whose findings were
-addressed. At most two feedback rounds; what is still open after that goes to the user.
+After its fix, run step 4 again with only the CI watcher and the reviewers whose findings were
+addressed. At most three feedback rounds by default. When findings are still open after the
+third, stop and ask the user whether to continue, with what is open and how the rounds went; go
+on only with their permission, for as many rounds as they allow.
 
-## 5. Ready and report
+## 6. Ready and report
 
 Check from the source, not from the agents' reports:
 
@@ -65,7 +85,7 @@ Check from the source, not from the agents' reports:
 - `api/qualitygates/project_status?projectKey=koekalenteri_koekalenteri&pullRequest=<pr>`:
   status `OK`, for the PR's last commit.
 - `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED`:
-  `total` is `0`, or every remaining issue was sorted to `main` or `user` in step 4.
+  `total` is `0`, or every remaining issue was sorted to `main` or `user` in step 5.
 - Every review finding is fixed, or answered with evidence.
 
 Only when all of these hold, mark the PR ready: `gh pr ready <pr>`. Otherwise it stays a draft
@@ -94,7 +114,7 @@ When the user approves an issue for something found while working on `<KEY>`:
 - No CI, test or Sonar housekeeping issues in Jira; those PRs carry no issue key.
 - Production only with the user's permission, also for reading.
 - Agents never merge, queue, enable auto-merge or push to main.
-- A PR is a draft until step 5 says otherwise. Only the orchestrator marks it ready, and before
+- A PR is a draft until step 6 says otherwise. Only the orchestrator marks it ready, and before
   sending new work to a PR that is already ready, turns it back: `gh pr ready <pr> --undo`.
 - Before sending a follow-up to a PR, check it is still open; a merged PR gets a new one from
   `origin/main`.
