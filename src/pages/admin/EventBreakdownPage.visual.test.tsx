@@ -1,19 +1,19 @@
-import type { AllYearlyStatsResponse } from '@/api/stats'
-import type { EventBreakdownEntry } from '@/types/Stats'
+import type { AllYearlyStatsResponse } from '../../api/stats'
+import type { EventBreakdownEntry } from '../../types/Stats'
 import { ThemeProvider } from '@mui/material/styles'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
-import theme from '@/assets/Theme'
-import { TestProvider } from '@/test-utils/AtomProvider'
-import { TEST_ID_TOKEN } from '@/test-utils/utils'
-import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS } from '@/types/Stats'
+import theme from '../../assets/Theme'
+import { TestProvider } from '../../test-utils/AtomProvider'
+import { TEST_ID_TOKEN } from '../../test-utils/utils'
+import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS } from '../../types/Stats'
 import { idTokenAtom } from '../state'
 import EventBreakdownPage from './EventBreakdownPage'
 
-// The page picks the current year when its module loads, before any beforeAll could freeze the clock,
-// so the clock is frozen ahead of the imports: the year picker would otherwise move every new year.
+// The page reads the year when its module loads; see freezeClockAt for why the clock is frozen here,
+// ahead of the imports.
 vi.hoisted(() => vi.useFakeTimers({ now: new Date('2026-10-07T09:00:00Z'), toFake: ['Date'] }))
 afterAll(() => vi.useRealTimers())
 
@@ -52,15 +52,15 @@ const stats: AllYearlyStatsResponse = {
 }
 
 // The breakdown is a site admin's.
-vi.mock(import('@/api/user'), async (importOriginal) => ({
+vi.mock(import('../../api/user'), async (importOriginal) => ({
   ...(await importOriginal()),
   getUser: async () => ({ admin: true, email: 'admin@example.com', id: 'admin', name: 'Anni Admin' }),
 }))
-vi.mock(import('@/api/stats'), async (importOriginal) => ({
+vi.mock(import('../../api/stats'), async (importOriginal) => ({
   ...(await importOriginal()),
   getAllYearlyStats: async () => stats,
 }))
-vi.mock(import('@/api/organizer'), async (importOriginal) => ({
+vi.mock(import('../../api/organizer'), async (importOriginal) => ({
   ...(await importOriginal()),
   getAdminOrganizers: async () => [
     { id: '1', name: 'Auran Nuuskut ry' },

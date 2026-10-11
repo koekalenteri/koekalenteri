@@ -18,6 +18,18 @@ import { TIME_ZONE } from '../i18n/dates'
  * read the clock, so it does not matter that the hook fires after the module is evaluated — but one
  * built from `Date.now()` does: build it from the returned instant instead, or inside a test.
  *
+ * A component that reads the clock when its own module loads (a `CURRENT_YEAR` at module scope, an
+ * atom like `adminStatsYearAtom` whose initial value is `new Date().getFullYear()`) has read it before
+ * any `beforeAll`, so this hook is too late for it. Such a test freezes `Date` ahead of the imports
+ * instead, at the same instant (midday in Helsinki), and restores it when the file is done:
+ *
+ *     vi.hoisted(() => vi.useFakeTimers({ now: new Date('2026-10-07T09:00:00Z'), toFake: ['Date'] }))
+ *     afterAll(() => vi.useRealTimers())
+ *
+ * `vi.hoisted` runs before the imports are evaluated and cannot import this helper, so the instant is
+ * written out there. Assert something the frozen day decides (the selected year) before the capture,
+ * so a wrong instant fails the test rather than slipping under the screenshot tolerance.
+ *
  * @param day the frozen day as `yyyy-MM-dd`; midday, so no time zone lands it on a neighbour.
  * @returns the frozen instant in milliseconds, for fixtures that count back from "now".
  */
