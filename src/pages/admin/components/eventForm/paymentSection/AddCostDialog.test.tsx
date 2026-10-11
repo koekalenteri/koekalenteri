@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -11,7 +12,7 @@ import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
 import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import { AddCostDialog } from './AddCostDialog'
 
-const renderAddCostDialog = (props: any) => {
+const renderAddCostDialog = (props: ComponentProps<typeof AddCostDialog>) => {
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
@@ -536,7 +537,7 @@ describe('AddCostDialog', () => {
 
       const { user } = renderAddCostDialog({
         availableKeys: ['breed'],
-        existingBreedCodes: ['001'],
+        existingBreedCodes: ['122'],
         mode: 'other',
         onAdd,
         onClose,

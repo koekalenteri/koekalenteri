@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -12,8 +13,14 @@ import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
 import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import PaymentSection from './PaymentSection'
 
+type SectionProps = ComponentProps<typeof PaymentSection>
+
 // Helper function to render the PaymentSection component with all required providers
-const renderPaymentSection = (testEvent: any, onChange: any, extraProps: Record<string, unknown> = {}) => {
+const renderPaymentSection = (
+  testEvent: SectionProps['event'],
+  onChange: SectionProps['onChange'],
+  extraProps: Partial<SectionProps> = {}
+) => {
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
@@ -491,7 +498,7 @@ describe('PaymentSection', () => {
   })
 
   it('allows selecting payment time', async () => {
-    const testEvent = { ...eventWithStaticDates, paymentTime: 'registration' }
+    const testEvent: SectionProps['event'] = { ...eventWithStaticDates, paymentTime: 'registration' }
     const onChange = vi.fn((props) => Object.assign(testEvent, props))
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
@@ -623,7 +630,7 @@ describe('PaymentSection', () => {
     const testEvent = { ...eventWithStaticDates }
     const onChange = vi.fn((props) => Object.assign(testEvent, props))
     renderPaymentSection(testEvent, onChange, {
-      errors: [false, { key: 'costMemberHigh', opts: { list: ['normal'] } }],
+      errors: [false, { key: 'costMemberHigh', opts: { field: 'costMember', list: ['normal'] } }],
     })
     await flushPromises()
 
