@@ -16,6 +16,12 @@ commits on the same branch.
   the credentials).
 - Confirm the cause yourself, even when it is handed to you. If it is wrong, say so before
   writing a fix.
+- Unless the orchestrator says to skip it, report your plan and wait for its answer before the
+  first edit: the cause, every place that reads or decides the same thing (the `git grep` you ran
+  and its output, each marked as changing or not, and why), the approach in a few sentences with
+  any stored shape or shared rule it changes, and the test that will fail without the change.
+  When the work later shows a reader the plan missed, or a different approach, say so before
+  changing course.
 
 ## Doing it
 
