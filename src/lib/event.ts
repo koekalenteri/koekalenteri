@@ -290,12 +290,19 @@ export const newEventStartDate = zonedStartOfDay(nextSaturday(addDays(Date.now()
 export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
 export const newEventEntryEndDate = defaultEntryEndDate(newEventStartDate)
 
-export const isStartListAvailable = (
-  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> &
-    EventVitals & {
-      classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
-    }
-) => {
+/**
+ * The dates the start list gate falls back on when the workflow state has not caught up: whether the
+ * event is under way or over. Both keys are required, so an object literal that leaves them out does
+ * not compile; the gate would otherwise lose its date path and stay shut without a word (KOE-1504).
+ */
+type EventDates = { [K in 'startDate' | 'endDate']: EventVitals[K] }
+
+export type StartListAvailabilityEvent = Pick<JsonDogEvent, 'state' | 'startListPublished'> &
+  EventDates & {
+    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+  }
+
+export const isStartListAvailable = (event: StartListAvailabilityEvent) => {
   const { classes, state, startListPublished } = event
 
   if (classes?.length) {
@@ -864,7 +871,8 @@ export const isStartNumbersAvailableForClass = (
 
 export const isStartNumbersAvailable = (
   event: StartNumbersEvent &
-    EventVitals & {
+    EventVitals &
+    EventDates & {
       classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
     }
 ) => {
@@ -919,7 +927,7 @@ export const getStartNumbersPublishedClassMap = ({
  * unpublished result must not ride out on the back of a published list.
  */
 export const isResultsAvailableForRegistration = (
-  event: Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'> & AvailabilityEvent,
+  event: Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'> & AvailabilityEvent & EventDates,
   registration: AvailabilityRegistration
 ) => {
   // A classless event (NOU, NOME-A) publishes its results as the one flag for the whole event (KOE-1464).

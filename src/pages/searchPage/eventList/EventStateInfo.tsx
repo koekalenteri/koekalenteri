@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { StartListAvailabilityEvent } from '@/lib/event'
 import type { PublicDogEvent } from '@/types'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
@@ -10,22 +11,8 @@ import { Path } from '@/routeConfig'
 import LinkButton from '../../components/LinkButton'
 
 interface Props {
-  /**
-   * The dates are needed too: an event whose state was never advanced (a classless trial left
-   * 'picked', say) opens its start list by its dates alone (KOE-1504).
-   */
-  readonly event: Pick<
-    PublicDogEvent,
-    | 'classes'
-    | 'endDate'
-    | 'entryEndDate'
-    | 'entryStartDate'
-    | 'id'
-    | 'resultsPublished'
-    | 'startDate'
-    | 'startListPublished'
-    | 'state'
-  >
+  /** What the two gates read, the dates included: a state never advanced opens by them (KOE-1504). */
+  readonly event: Pick<PublicDogEvent, 'id'> & StartListAvailabilityEvent & Parameters<typeof hasAllResultsPublished>[0]
   /** Whether a post is being run right now (KOE-1259), so the list can say the start list is live. */
   readonly live?: boolean
   readonly text?: string | ReactNode | null

@@ -3,7 +3,7 @@ import type { PublicDogEvent } from '@/types'
 import type { FilterProps } from './types'
 import { format } from 'date-fns'
 import { formatDateSpan, zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '@/i18n/dates'
-import { hasPublishedResults, isEntryClosing, isEntryOpen, isEntryUpcoming } from '@/lib/event'
+import { hasPublishedResults, isEntryClosing, isEntryOpen, isEntryUpcoming, isStartListAvailable } from '@/lib/event'
 import { isRegistrationClass } from '@/lib/registration'
 
 export const readDate = (date: string | null) => (date ? zonedParseDate(date) : null)
@@ -45,8 +45,13 @@ export function withinSwitchFilters(
   return result !== false
 }
 
+/**
+ * The results are read through the start list page, so an event whose start list is not public has
+ * no way to show them, and its row says only that the trial is over. The filter asks what the row's
+ * link asks (KOE-1504).
+ */
 export function withinResultsFilter(event: PublicDogEvent, { withResults }: FilterProps) {
-  return !withResults || hasPublishedResults(event)
+  return !withResults || (isStartListAvailable(event) && hasPublishedResults(event))
 }
 
 export function withinEventTypeFilter(event: PublicDogEvent, { eventType }: FilterProps) {

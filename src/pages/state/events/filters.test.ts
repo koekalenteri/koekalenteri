@@ -1,4 +1,5 @@
 import type { PublicDogEvent } from '@/types'
+import { eventWithStaticDates } from '@/__mockData__/events'
 import { zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
 import {
   deserializeFilter,
@@ -162,7 +163,11 @@ describe('state.events.filters', () => {
 
   describe('withinResultsFilter', () => {
     const filter = deserializeFilter('b=r')
-    const event = (resultsPublished?: PublicDogEvent['resultsPublished']) => ({ resultsPublished }) as PublicDogEvent
+    // A classless trial held in 2021 with its start list public: only the results flag varies.
+    const event = (
+      resultsPublished?: PublicDogEvent['resultsPublished'],
+      startListPublished: PublicDogEvent['startListPublished'] = true
+    ): PublicDogEvent => ({ ...eventWithStaticDates, resultsPublished, startListPublished, state: 'picked' })
 
     it('passes everything while the switch is off', () => {
       expect(withinResultsFilter(event(), deserializeFilter(''))).toBe(true)
@@ -175,6 +180,12 @@ describe('state.events.filters', () => {
       // One published class is enough: the reader came for results, not for completeness.
       expect(withinResultsFilter(event({ ALO: true, AVO: false }), filter)).toBe(true)
       expect(withinResultsFilter(event({ ALO: false }), filter)).toBe(false)
+    })
+
+    it('leaves out an event whose start list is hidden, since its row has no link to the results (KOE-1504)', () => {
+      // The secretary hid the start list after publishing the results: the row says only that the
+      // trial is over, so listing it under "results published" would promise what the row cannot show.
+      expect(withinResultsFilter(event(true, false), filter)).toBe(false)
     })
   })
 })
