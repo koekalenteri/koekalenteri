@@ -1,5 +1,6 @@
 import type { ParseKeys, TFunction } from 'i18next'
 import type {
+  AuditRecord,
   AuditUserSource,
   JsonAuditDetail,
   JsonAuditRecord,
@@ -25,6 +26,16 @@ export const auditUser = (actor: AuditActor): Pick<JsonAuditRecord, 'user' | 'us
   user: actor.name,
   ...(actor.source ? { userSource: actor.source } : {}),
 })
+
+/** A row of the audit table is its auditKey and timestamp, the table's own key. */
+export const auditRecordId = (record: AuditRecord) => `${record.auditKey}:${record.timestamp.toISOString()}`
+
+/** A trail with rows added, each row once, newest first. */
+export const mergeAuditTrail = (current: AuditRecord[], incoming: AuditRecord[]) => {
+  const records = new Map(current.map((record) => [auditRecordId(record), record]))
+  for (const record of incoming) records.set(auditRecordId(record), record)
+  return [...records.values()].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+}
 
 /**
  * What an audit row says: a `messageKey` and its `messageParams`, which the trail translates into the

@@ -303,6 +303,26 @@ describe('payment', () => {
     )
   })
 
+  it.each([
+    [
+      'plain text as it came',
+      'Service Unavailable',
+      'Maksun luonti epäonnistui Paytrailissa (503): Service Unavailable',
+    ],
+    ['no words as unknown', undefined, 'Maksun luonti epäonnistui Paytrailissa (503): Tuntematon virhe'],
+  ])('formats a Paytrail error with %s', (_case, text, expected) => {
+    const error = Object.assign(new Error(`503 ${text}`), { error: text, status: 503 })
+    expect(formatPaytrailErrorMessage('Maksun luonti', error)).toBe(expected)
+  })
+
+  it('audits a refusal answered in plain text as that text', () => {
+    const error = Object.assign(new Error('503 Service Unavailable'), { error: 'Service Unavailable', status: 503 })
+    expect(refundPaytrailErrorAudit(error)).toEqual({
+      messageKey: 'audit.messages.refundPaytrailFailed',
+      messageParams: { error: 'Service Unavailable', status: 503 },
+    })
+  })
+
   it('audits a refused refund with Paytrail status and message as parameters, and no Finnish text (KOE-1511)', () => {
     const error = Object.assign(new Error('400 Revert failed'), {
       error: JSON.stringify({ message: 'Revert failed' }),

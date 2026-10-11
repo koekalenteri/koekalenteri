@@ -9,9 +9,8 @@ import { alpha } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { auditRecordId } from '@/hooks/useAuditTrailSubscription'
 import { formatDate } from '@/i18n/dates'
-import { auditLabelParams, formatAuditDetail, formatAuditMessage } from '@/lib/audit'
+import { auditLabelParams, auditRecordId, formatAuditDetail, formatAuditMessage } from '@/lib/audit'
 import CollapsibleSection from '../../components/CollapsibleSection'
 
 interface Props {

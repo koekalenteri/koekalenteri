@@ -118,8 +118,9 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
         ...refundPaytrailErrorAudit(error),
         user: user.name,
       })
-      // Paytrail's own words; the dialog puts them in the secretary's language (KOE-1511).
-      return response(error.status, { error: error.error }, event)
+      // Paytrail's own words, marked as Paytrail's: the dialog puts them in the secretary's language
+      // and tells them from this API's own errors, which also answer `{ error }` (KOE-1511).
+      return response(error.status, { error: error.error ?? '', provider: 'paytrail' }, event)
     }
 
     throw error

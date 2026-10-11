@@ -23,7 +23,7 @@ import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { getPaymentBalance } from '@/lib/cost'
 import { rowSelectionModel } from '@/lib/datagrid'
 import { formatMoney } from '@/lib/money'
-import { canRefundExcess } from '@/lib/payment'
+import { canRefundExcess, paytrailErrorText } from '@/lib/payment'
 import { GROUP_KEY_RESERVE } from '@/lib/registration'
 import { isObject } from '@/lib/utils'
 import { NullComponent } from '../../components/NullComponent'
@@ -254,19 +254,16 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
     (error: APIError): string | null => {
       if (!isObject(error.body)) return null
 
-      // Paytrail's own words, in the reader's sentence: never a text the API wrote in Finnish (KOE-1511).
-      if (typeof error.body.error === 'string' && error.body.error) {
-        try {
-          const details = JSON.parse(error.body.error)
-          if (typeof details?.message === 'string' && details.message) {
-            return t('registration.refundDialog.error.provider', { message: details.message, status: error.status })
-          }
-        } catch {
-          return null
-        }
-      }
+      // Only a refusal the API marks as Paytrail's: its own errors also answer `{ error }`.
+      if (error.body.provider !== 'paytrail') return null
 
-      return null
+      // Paytrail's own words, JSON or not, in the reader's sentence; never a text the API wrote in
+      // Finnish (KOE-1511).
+      const text = typeof error.body.error === 'string' ? paytrailErrorText(error.body.error) : undefined
+      return t('registration.refundDialog.error.provider', {
+        message: text ?? t('audit.unknownError'),
+        status: error.status,
+      })
     },
     [t]
   )

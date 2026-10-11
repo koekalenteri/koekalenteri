@@ -429,6 +429,7 @@ describe('RefundDialog', () => {
     mockRefundImplementation = vi.fn().mockRejectedValue(
       new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {
         error: JSON.stringify({ message: paytrailMessage, status: 'error' }),
+        provider: 'paytrail',
       })
     )
 
@@ -464,6 +465,7 @@ describe('RefundDialog', () => {
         new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {
           error: JSON.stringify({ message: 'Revert failed', status: 'error' }),
           message: 'Maksun palautus epäonnistui Paytrailissa (400): Revert failed',
+          provider: 'paytrail',
         })
       )
 
@@ -478,6 +480,31 @@ describe('RefundDialog', () => {
           persist: true,
           variant: 'error',
         })
+      })
+    })
+
+    // Paytrail does not always answer JSON: an HTML or plain 5xx comes as its text, a request that
+    // never got an answer as the reason it failed, and some answers have no words at all. None of
+    // them is the balance problem the default message guesses at.
+    it.each([
+      ['a plain-text answer', 503, 'Service Unavailable', 'The refund failed at Paytrail (503): Service Unavailable'],
+      ['a request that failed', 500, 'fetch failed', 'The refund failed at Paytrail (500): fetch failed'],
+      ['an answer without words', 502, '', 'The refund failed at Paytrail (502): Unknown error'],
+    ])('names %s as Paytrail gave it', async (_case, status, error, expected) => {
+      mockRefundImplementation = vi
+        .fn()
+        .mockRejectedValue(
+          new APIError(new Response(null, { status, statusText: 'Error' }), { error, provider: 'paytrail' })
+        )
+
+      render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Refund' }))
+      await waitFor(() => {
+        expect(enqueueSnackbarMock).toHaveBeenCalledWith(expected, { persist: true, variant: 'error' })
       })
     })
   })

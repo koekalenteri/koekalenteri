@@ -283,15 +283,21 @@ describe('refundCreateLambda', () => {
       messageParams: { error: paytrailMessage, status: 400 },
       user: 'Test User',
     })
-    expect(mockResponse).toHaveBeenCalledWith(
-      400,
-      {
-        error: paytrailError,
-      },
-      event
-    )
+    expect(mockResponse).toHaveBeenCalledWith(400, { error: paytrailError, provider: 'paytrail' }, event)
     expect(mockDynamoWrite).not.toHaveBeenCalled()
     expect(mockDynamoUpdate).not.toHaveBeenCalled()
+  })
+
+  it('marks a Paytrail refusal without words as Paytrail, with an empty error', async () => {
+    mockRefundPayment.mockRejectedValueOnce(new MockPaytrailError(502, undefined))
+    mockRefundPaytrailErrorAudit.mockReturnValueOnce({
+      messageKey: 'audit.messages.refundPaytrailFailed',
+      messageParams: { errorKey: 'audit.unknownError', status: 502 },
+    })
+
+    await refundCreateLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(502, { error: '', provider: 'paytrail' }, event)
   })
 
   it('creates a refund transaction with items', async () => {

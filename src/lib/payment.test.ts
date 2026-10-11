@@ -9,11 +9,35 @@ import {
   isPaymentUnsettled,
   isRegistrationPaid,
   PROVIDER_NAMES,
+  paytrailErrorMessage,
+  paytrailErrorText,
   shouldSendInvitationAfterPayment,
   transactionActor,
 } from './payment'
 
 describe('payment', () => {
+  // What Paytrail said: its JSON `message`, else whatever text it gave (an HTML or plain 5xx, or why
+  // the request failed), else nothing (KOE-1511).
+  describe('paytrailErrorText', () => {
+    it.each([
+      [
+        'its JSON message',
+        JSON.stringify({ message: 'Revert failed', status: 'error' }),
+        'Revert failed',
+        'Revert failed',
+      ],
+      ['JSON without a message as it came', JSON.stringify({ status: 'error' }), '{"status":"error"}', undefined],
+      ['JSON with an empty message as it came', JSON.stringify({ message: '' }), '{"message":""}', undefined],
+      ['a JSON value that is not an object as it came', '"busy"', '"busy"', undefined],
+      ['plain text as it came', 'Service Unavailable', 'Service Unavailable', undefined],
+      ['nothing for an empty answer', '', undefined, undefined],
+      ['nothing for no answer', undefined, undefined, undefined],
+    ])('reads %s', (_case, error, text, message) => {
+      expect(paytrailErrorText(error)).toBe(text)
+      expect(paytrailErrorMessage(error)).toBe(message)
+    })
+  })
+
   describe('getProviderName', () => {
     it.each(Object.entries(PROVIDER_NAMES))('should return provider name from map', (id, name) => {
       expect(getProviderName(id)).toEqual(name)

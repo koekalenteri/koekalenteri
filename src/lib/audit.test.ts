@@ -1,3 +1,4 @@
+import type { AuditRecord } from '../types'
 import type { AuditMessage } from './audit'
 import i18next from 'i18next'
 import { i18nInitOptions } from '../i18n/config'
@@ -19,6 +20,7 @@ import {
   groupChangeAudit,
   internalNotesChangedAudit,
   invitationAwaitingPaymentAudit,
+  mergeAuditTrail,
   paymentAudit,
   refundPaytrailFailedAudit,
   registrationAddedAudit,
@@ -45,6 +47,22 @@ describe('auditUser', () => {
       user: 'Payer Name',
       userSource: 'registration',
     })
+  })
+})
+
+describe('mergeAuditTrail', () => {
+  const record = (timestamp: string, messageKey: string): AuditRecord => ({
+    auditKey: 'event:event-1',
+    messageKey,
+    timestamp: new Date(timestamp),
+    user: 'admin',
+  })
+
+  it('merges, orders, and deduplicates audit records', () => {
+    const newer = record('2026-07-14T12:01:00.000Z', 'audit.messages.eventSaved')
+    const older = record('2026-07-14T12:00:00.000Z', 'audit.messages.eventCreated')
+
+    expect(mergeAuditTrail([newer], [older, newer])).toEqual([newer, older])
   })
 })
 
@@ -224,10 +242,12 @@ const messages: Array<[string, AuditMessage]> = [
     startNumbersPublishedAudit(true, { date: '2026-09-12', eventClass: 'ALO', time: 'ip' }),
   ],
   ['startNumbersEntered', startNumbersEnteredAudit(5)],
+  ['startNumbersEntered (one)', startNumbersEnteredAudit(1)],
   ['startNumbersEnteredClass', startNumbersEnteredAudit(1, 'AVO')],
   ['emailSentTo', emailSentAudit('emailTemplate.invitation', ['a@example.com', 'b@example.com'])],
   ['emailFailedTo', emailFailedAudit('emailTemplate.invitation', ['a@example.com'])],
   ['emailBlocked', emailBlockedAudit(4)],
+  ['emailBlocked (one)', emailBlockedAudit(1)],
   ['emailDeliveryFailed', emailDeliveryFailedAudit({ email: 'a@example.com', status: 'bounce' })],
   ['emailDeliveryFailed (complaint)', emailDeliveryFailedAudit({ email: 'a@example.com', status: 'complaint' })],
   ['groupChanged', groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move')],
@@ -285,6 +305,16 @@ describe('each audit message', () => {
     for (const key of keys) {
       expect(i18n.getResource('fi', 'translation', String(key))).toEqual(expect.any(String))
       expect(i18n.getResource('en', 'translation', String(key))).toEqual(expect.any(String))
+    }
+  })
+
+  // The keys exist; the parameters must also be the ones each translation names, or i18next leaves
+  // the placeholder in the text.
+  it.each(messages)('%s fills every placeholder in both languages', (_name, row) => {
+    for (const t of [fi(), en()]) {
+      const text = formatAuditMessage(t, row)
+      expect(text).not.toMatch(/\{\{|\}\}/)
+      expect(text).not.toBe(t('audit.unknown', { key: row.messageKey }))
     }
   })
 })
