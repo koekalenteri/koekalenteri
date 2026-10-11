@@ -15,6 +15,36 @@ const FROM_ADMIN = 'admin'
 /** Whether a page was opened through `Path.registrationFromAdmin`, given the location's search. */
 export const isFromAdmin = (search: string) => new URLSearchParams(search).get(FROM_PARAM) === FROM_ADMIN
 
+/** A registrant's page (`/r/...`, `/p/...`) as the email links address it, relative to the site. */
+const PARTICIPANT_PAGE = /^\/[pr]\//
+
+/** A site-relative `href` marked as opened from the admin side, its path, query and fragment kept. */
+const markFromAdmin = (href: string) => {
+  const url = new URL(href, 'https://admin.invalid')
+  url.searchParams.set(FROM_PARAM, FROM_ADMIN)
+  return `${url.pathname}${url.search}${url.hash}`
+}
+
+/**
+ * An email's HTML as the admin side previews it, with every link to a registrant's page marked as
+ * opened from the admin side, so following one keeps the secretary's language (KOE-1512). The links
+ * are marked in the rendered HTML rather than in the template data, because templates append to
+ * them (`{{link}}/cancel`); the emails themselves are built without the mark. HTML without such a
+ * link comes back as it was.
+ */
+export const markParticipantLinksFromAdmin = (html: string): string => {
+  const page = new DOMParser().parseFromString(html, 'text/html')
+  let marked = false
+  for (const link of page.querySelectorAll('a[href]')) {
+    const href = link.getAttribute('href')
+    if (href && PARTICIPANT_PAGE.test(href)) {
+      link.setAttribute('href', markFromAdmin(href))
+      marked = true
+    }
+  }
+  return marked ? page.documentElement.outerHTML : html
+}
+
 type RegistrationIds = Pick<Registration, 'eventId' | 'id'>
 type ParticipantRegistration = RegistrationIds & Pick<Registration, 'editToken'>
 
@@ -74,8 +104,7 @@ export const Path = {
    * The registrant's page as the admin side links to it: marked, so opening it keeps the secretary's
    * language instead of switching to the registration's (KOE-1512).
    */
-  registrationFromAdmin: (registration: ParticipantRegistration) =>
-    `${participantPath('r', registration)}?${FROM_PARAM}=${FROM_ADMIN}`,
+  registrationFromAdmin: (registration: ParticipantRegistration) => markFromAdmin(participantPath('r', registration)),
   registrationOk: (registration: ParticipantRegistration) => participantPath('r', registration, '/saved'),
   startList: (id: string = ':id') => `/startlist/${id}`,
   stats: '/stats',

@@ -29,11 +29,13 @@ const renderPage = (
   return renderHook(() => useRegistrationLanguage(registration), { wrapper })
 }
 
-/** A store as App boots it: the stored language, Finnish here. */
-const finnishStore = () => {
-  localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
+/** A store as App boots it, from the stored language. */
+const storeIn = (language: Language) => {
+  localStorage.setItem(languageStorageKey, JSON.stringify(language))
   return createStore()
 }
+
+const finnishStore = () => storeIn('fi')
 
 const pickFromMenu = (store: ReturnType<typeof createStore>, language: Language) =>
   act(() => store.set(languageAtom, language))
@@ -97,12 +99,15 @@ describe('useRegistrationLanguage', () => {
     // A registration saved before the language field existed has none.
     ['a registration without a language', { eventId: 'event-1', id: 'registration-old' }],
   ])('leaves the language alone for %s', (_name, registration) => {
-    const store = finnishStore()
+    // English, not the Finnish a missing language would turn into.
+    const store = storeIn('en')
 
     const { result } = renderPage(store, registration)
 
-    expect(result.current).toBe('fi')
-    expect(storedLanguage()).toBe(JSON.stringify('fi'))
+    expect(result.current).toBe('en')
+    expect(storedLanguage()).toBe(JSON.stringify('en'))
+    // Nothing decided yet: the registration's language applies once it is there.
+    expect(sessionStorage).toHaveLength(0)
   })
 
   it('switches again after sign-out, which forgets the tab decisions', () => {

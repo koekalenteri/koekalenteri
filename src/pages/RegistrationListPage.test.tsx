@@ -172,11 +172,16 @@ describe('RegistrationListPage', () => {
     }
   )
 
-  it('keeps the reader language when the registration is opened from the admin dialog (KOE-1512)', async () => {
+  it.each([
+    // The registration dialog's link
+    '/r/test1/nou-registration?from=admin',
+    // A link in the email preview that the template appends to
+    '/r/test1/nou-registration/cancel?from=admin',
+  ])('keeps the reader language when the registration is opened from the admin side (%s, KOE-1512)', async (path) => {
     localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
     vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...registrationWithStaticDates, language: 'en' })
 
-    await renderWithRouter('/r/test1/nou-registration?from=admin')
+    await renderWithRouter(path)
     await flushPromises()
 
     expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
