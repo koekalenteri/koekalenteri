@@ -991,9 +991,14 @@ export const isStartListPublishedClassMap = (
 ): startListPublished is Partial<Record<RegistrationClass, boolean>> =>
   typeof startListPublished === 'object' && startListPublished !== null
 
+/** A class entry whose own state has not reached the invitations. */
+const isHeldAtPicking = (eventClass: Pick<JsonDogEvent['classes'][number], 'state'>) =>
+  eventClass.state !== undefined && !canPublishStartList(eventClass.state)
+
 /**
  * The event's start list flag as a full per-class map. A class missing from an existing map is
- * unpublished; an event-level boolean covers every class; an absent flag is read class by class by the
+ * unpublished; an event-level boolean covers every class but one held at 'picked' by its own state
+ * (KOE-1509); an absent flag is read class by class by the
  * public list's rule, so expanding it never publishes a class the workflow did not carry to 'invited'
  * (KOE-1465). A class running on several days is read from its first entry, as the panel reads it.
  */
@@ -1012,7 +1017,10 @@ export const getStartListPublishedClassMap = (
     } else if (startListPublished === undefined) {
       result[eventClass.class] ??= isStartListAvailableForClass(event, eventClass)
     } else {
-      result[eventClass.class] = startListPublished
+      // An event-wide true never opens a class held at 'picked' by its own state, but a map entry does
+      // once the trial is over (KOE-1509): expanding it must not publish that class by itself. A class
+      // with any entry past the picking keeps the flag.
+      result[eventClass.class] ||= startListPublished && !isHeldAtPicking(eventClass)
     }
   }
 

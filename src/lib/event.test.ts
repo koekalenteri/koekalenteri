@@ -713,6 +713,48 @@ describe('lib/event', () => {
       ).toEqual({ ALO: false, AVO: false })
     })
 
+    describe('an event-wide true over a picked class (KOE-1509)', () => {
+      freezeClockAt('2026-06-15')
+
+      // An event-wide true never opens a class kept at 'picked', but a map entry does once the trial
+      // is over: expanding the flag when another class is toggled must not publish AVO by itself.
+      const event = {
+        classes: [
+          { class: 'ALO' as const, date: '2026-06-13', state: 'invited' as const },
+          { class: 'AVO' as const, date: '2026-06-13', state: 'picked' as const },
+        ],
+        endDate: '2026-06-13',
+        startDate: '2026-06-13',
+        startListPublished: true,
+        state: 'picked' as const,
+      }
+
+      it('expands the picked class as unpublished', () => {
+        expect(getStartListPublishedClassMap(event)).toEqual({ ALO: true, AVO: false })
+      })
+
+      it('leaves every class reading as it did before the expansion', () => {
+        const expanded = { ...event, startListPublished: getStartListPublishedClassMap(event) }
+        for (const eventClass of event.classes) {
+          expect(isStartListAvailableForClass(expanded, eventClass)).toBe(
+            isStartListAvailableForClass(event, eventClass)
+          )
+        }
+      })
+
+      it('keeps a class published where another of its days is past the picking', () => {
+        const twoDays = {
+          ...event,
+          classes: [
+            { class: 'ALO' as const, date: '2026-06-13', state: 'picked' as const },
+            { class: 'ALO' as const, date: '2026-06-14', state: 'invited' as const },
+          ],
+          endDate: '2026-06-14',
+        }
+        expect(getStartListPublishedClassMap(twoDays)).toEqual({ ALO: true })
+      })
+    })
+
     it('expands an absent flag only for the classes the workflow carried to invited', () => {
       // Read as the public list reads it: a past trial whose invitations were never sent has nothing
       // published, so publishing one class must not publish the others with it (KOE-1465).
@@ -1657,18 +1699,6 @@ describe('publishing results', () => {
       expect(isStartListAvailableForClass(past, { class: 'ALO' })).toBe(false)
       expect(isStartListAvailableForClass({ ...past, startListPublished: { ALO: true } }, { class: 'ALO' })).toBe(true)
     })
-
-    it('does not overrule a class that says it is not ready while the trial is still to come', () => {
-      // Per-day publication rides on the class's own state, because the flag is per class name and
-      // cannot tell one day from another.
-      const ahead = addDays(new Date(), 30)
-      expect(
-        isStartListAvailableForClass(
-          { endDate: ahead, startDate: ahead, startListPublished: { ALO: true }, state: 'confirmed' },
-          { class: 'ALO', state: 'picked' }
-        )
-      ).toBe(false)
-    })
   })
 
   describe('a picked class published on purpose (KOE-1509)', () => {
@@ -1720,6 +1750,34 @@ describe('publishing results', () => {
         // The flag was meant for the invited day; it cannot tell the picked one apart.
         expect(isStartListAvailableForRegistration(twoDays, firstDay)).toBe(true)
         expect(isStartListAvailableForRegistration(twoDays, secondDay)).toBe(false)
+      })
+
+      it('keeps a picked day hidden beside a day that has the invited state from the event', () => {
+        const inherited = {
+          ...twoDays,
+          classes: [
+            { class: 'ALO' as const, date: '2026-06-13' },
+            { class: 'ALO' as const, date: '2026-06-14', state: 'picked' as const },
+          ],
+          state: 'invited' as const,
+        }
+        expect(isStartListAvailableForRegistration(inherited, firstDay)).toBe(true)
+        expect(isStartListAvailableForRegistration(inherited, secondDay)).toBe(false)
+      })
+
+      it('opens a picked class beside an invited class of another name', () => {
+        // Only another day of the same class holds it back.
+        const twoClasses = {
+          ...oneDay,
+          classes: [
+            { class: 'ALO' as const, date: '2026-06-13', state: 'invited' as const },
+            { class: 'AVO' as const, date: '2026-06-13', state: 'picked' as const },
+          ],
+          startListPublished: { ALO: true, AVO: true },
+        }
+        expect(isStartListAvailableForRegistration(twoClasses, { class: 'AVO', group: { date: '2026-06-13' } })).toBe(
+          true
+        )
       })
     })
 

@@ -111,6 +111,8 @@ describe('lib/publishing', () => {
     const picked = event({
       classes: [{ class: 'ALO', date: '2026-06-13', state: 'picked' }],
       endDate: '2026-06-13',
+      entryEndDate: '2026-05-23',
+      entryStartDate: '2026-05-02',
       startDate: '2026-06-13',
       startListPublished: { ALO: true },
       state: 'picked',
