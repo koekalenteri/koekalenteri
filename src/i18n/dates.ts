@@ -23,6 +23,12 @@ interface DateFormatOptions {
 
 export const TIME_ZONE = 'Europe/Helsinki'
 
+/**
+ * A day with its short weekday, "su 8.11." in Finnish: the `wdshort2` formatter, and the day the
+ * audit trail writes into its stored Finnish text. One pattern, so the two cannot drift apart.
+ */
+export const WEEKDAY_DAY_FORMAT = 'eeeeee d.M.'
+
 export const locales: Record<Language, Locale> = { en, fi }
 
 export function formatDate(

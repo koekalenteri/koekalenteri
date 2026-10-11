@@ -1,5 +1,6 @@
 import type { SNSEvent } from 'aws-lambda'
 import type { EmailTemplateId, JsonConfirmedEvent, JsonEmailDeliveryStatus, JsonEmailSuppression } from '../../types'
+import { emailDeliveryFailedAudit } from '../../lib/audit'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getEvent } from '../lib/event'
@@ -76,13 +77,6 @@ const buildDeliveryStatus = (notification: SesNotification): JsonEmailDeliverySt
   return undefined
 }
 
-const formatAuditMessage = (status: JsonEmailDeliveryStatus) => {
-  const type = status.status === 'bounce' ? 'palautui' : 'merkittiin roskapostiksi'
-  const template = status.template ? `, template: ${status.template}` : ''
-  const reason = status.reason ? `, reason: ${status.reason}` : ''
-  return `Sähköpostin toimitus epäonnistui (${type}): ${status.email}${template}${reason}`
-}
-
 const writeEmailSuppression = async (eventId: string, registrationId: string, status: JsonEmailDeliveryStatus) => {
   const emailSuppression: JsonEmailSuppression = {
     email: status.email.trim().toLowerCase(),
@@ -155,7 +149,7 @@ const handleNotification = async (notification: SesNotification) => {
 
   await audit({
     auditKey: registrationAuditKey({ eventId, id: registrationId }),
-    message: formatAuditMessage(status),
+    ...emailDeliveryFailedAudit(status),
     user: 'system',
   })
 }

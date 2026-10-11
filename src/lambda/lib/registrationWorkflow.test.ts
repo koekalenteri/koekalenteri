@@ -2,6 +2,7 @@ import type { JsonConfirmedEvent, JsonLastEmail, JsonRegistration } from '../../
 import { vi } from 'vitest'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
+import { registrationCreatedAudit } from '../../lib/audit'
 
 const mockUpdateRegistrations = vi.fn<(eventId: string) => Promise<JsonConfirmedEvent>>()
 const mockRepairReadyRegistrationGroups = vi.fn<() => Promise<Partial<JsonRegistration>[]>>()
@@ -208,7 +209,7 @@ describe('registrationWorkflow', () => {
   describe('completeNewRegistration', () => {
     const complete = (saved: JsonRegistration) =>
       completeNewRegistration({
-        auditMessage: 'Ilmoittautui',
+        auditMessage: registrationCreatedAudit(),
         confirmedEvent,
         groupPatches: [
           { group: { key: 'reserve', number: 2 }, id: 'other' },
@@ -230,7 +231,12 @@ describe('registrationWorkflow', () => {
       expect(mockPublishEventCounts).toHaveBeenCalledWith(recounted)
       expect(mockApplyNewRegistrationStatsOnce).toHaveBeenCalledWith(saved, recounted, 'token')
       expect(mockAuditStrict).toHaveBeenCalledWith(
-        { auditKey: `${saved.eventId}:${saved.id}`, message: 'Ilmoittautui', user: 'Test User' },
+        {
+          auditKey: `${saved.eventId}:${saved.id}`,
+          message: 'Ilmoittautui',
+          messageKey: 'audit.messages.registrationCreated',
+          user: 'Test User',
+        },
         saved.createdAt
       )
       expect(mockSendTemplatedMail).toHaveBeenCalledWith(
@@ -280,7 +286,11 @@ describe('registrationWorkflow', () => {
       await complete(saved)
 
       expect(mockAudit).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Valitut päivät (1.1.2030) eivät ole tapahtuman päiviä' })
+        expect.objectContaining({
+          message: 'Valitut päivät (1.1.2030) eivät ole tapahtuman päiviä',
+          messageKey: 'audit.messages.registrationDaysOutsideEvent',
+          messageParams: { days: '1.1.2030' },
+        })
       )
     })
 
@@ -317,7 +327,7 @@ describe('registrationWorkflow', () => {
   describe('resolveDuplicateRegistration', () => {
     const resolve = (duplicate: JsonRegistration, creationIdempotencyKey?: string) =>
       resolveDuplicateRegistration({
-        auditMessage: 'Ilmoittautui',
+        auditMessage: registrationCreatedAudit(),
         confirmedEvent,
         duplicate,
         origin,
@@ -397,7 +407,14 @@ describe('registrationWorkflow', () => {
       )
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+          message:
+            'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
+          messageKey: 'audit.messages.emailSentTo',
+          messageParams: {
+            recipients: 'handler@example.com, owner@example.com',
+            template: 'Ilmoittautumisesi tietoja on muokattu',
+            templateKey: 'registration.email.subject_update',
+          },
         })
       )
     })
@@ -418,9 +435,29 @@ describe('registrationWorkflow', () => {
       )
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+          message:
+            'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
           user: 'Payer Name',
           userSource: 'registration',
+        })
+      )
+    })
+
+    it('records a confirmation by its key, not by what changed (KOE-1442)', async () => {
+      const saved = { ...registration, confirmed: true }
+
+      await finalize(saved, registration, { cancel: false, confirm: true, invitation: false })
+
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Ilmoittautumisen vahvistus',
+          messageKey: 'audit.messages.registrationConfirmed',
+        })
+      )
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          messageKey: 'audit.messages.emailSentTo',
+          messageParams: expect.objectContaining({ templateKey: 'registration.email.subject_confirm' }),
         })
       )
     })
@@ -431,7 +468,11 @@ describe('registrationWorkflow', () => {
       await finalize(saved, registration, { cancel: true, confirm: false, invitation: false })
 
       expect(mockAudit).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Ilmoittautuminen peruttiin, syy: Koiran juoksut' })
+        expect.objectContaining({
+          message: 'Ilmoittautuminen peruttiin, syy: Koiran juoksut',
+          messageKey: 'audit.messages.registrationCancelled',
+          messageParams: { reason: 'Koiran juoksut', reasonKey: 'registration.cancelReason.dog-heat' },
+        })
       )
       expect(mockSendTemplatedMail).toHaveBeenCalledWith(
         'registration',

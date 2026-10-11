@@ -1,6 +1,7 @@
 import type { JsonConfirmedEvent, JsonRefundTransaction, JsonRegistration } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { getFixedT } from '../../i18n/lambda'
+import { emailSentAudit, emailSubjectAuditKey, paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
@@ -133,7 +134,8 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
 
     await audit({
       auditKey: registrationAuditKey(registration),
-      message: `Email: ${templateData.subject}, to: ${recipient.join(', ')}`,
+      // There is no refund subject: the context falls back to the plain one, and so does the key.
+      ...emailSentAudit(templateData.subject, emailSubjectAuditKey(), recipient),
       user: transaction.user,
     })
   } catch (e) {
@@ -143,7 +145,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
 
   await audit({
     auditKey: registrationAuditKey(registration),
-    message: `Palautus (${providerName}), ${formatMoney(amount)}`,
+    ...paymentAudit('refund', providerName, formatMoney(amount)),
     user: transaction.user,
   })
   await publishRegistrationPatches(

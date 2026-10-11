@@ -747,7 +747,13 @@ describe('registration', () => {
       expect(mockAudit).toHaveBeenCalledTimes(2)
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'testALOInvited:testALOInvited1',
-        message: 'Email: Koekutsu, to: handler1@example.com, owner1@example.com',
+        message: 'Sähköposti: Koekutsu, vastaanottajat: handler1@example.com, owner1@example.com',
+        messageKey: 'audit.messages.emailSentTo',
+        messageParams: {
+          recipients: 'handler1@example.com, owner1@example.com',
+          template: 'Koekutsu',
+          templateKey: 'emailTemplate.invitation',
+        },
         user: 'admin-user',
       })
 
@@ -808,6 +814,13 @@ describe('registration', () => {
             updatedAt: expect.any(String),
           },
         }
+      )
+      // The trail names it by the cancellation subject's key too (KOE-1442).
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          messageKey: 'audit.messages.emailSentTo',
+          messageParams: expect.objectContaining({ templateKey: 'registration.email.subject_cancel' }),
+        })
       )
       vi.useRealTimers()
     })
@@ -968,7 +981,13 @@ describe('registration', () => {
       // Check audit entries for failure
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'testALOInvited:testALOInvited2',
-        message: 'FAILED Koekutsu: handler2@example.com, owner2@example.com',
+        message: 'Lähetys epäonnistui: Koekutsu: handler2@example.com, owner2@example.com',
+        messageKey: 'audit.messages.emailFailedTo',
+        messageParams: {
+          recipients: 'handler2@example.com, owner2@example.com',
+          template: 'Koekutsu',
+          templateKey: 'emailTemplate.invitation',
+        },
         user: 'admin-user',
       })
 

@@ -1,4 +1,5 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import { internalNotesChangedAudit } from '../../lib/audit'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
@@ -21,7 +22,7 @@ const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (ev
   await publishRegistrationPatches(eventId, [{ id, internalNotes }], confirmedEvent.organizer.id)
   await audit({
     auditKey: registrationAuditKey({ eventId, id }),
-    message: 'Muutti sisäistä kommenttia',
+    ...internalNotesChangedAudit(),
     user: user.name,
   })
 

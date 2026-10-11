@@ -570,14 +570,31 @@ describe('putRegistrationLabmda', () => {
     expect(JSON.parse(res.body)).not.toHaveProperty('emailDeliveryStatus')
   })
 
+  // A missing or predefined reason is named by its key, so the trail reads it in the reader's
+  // language; a reason the entrant wrote has no key and is shown as written (KOE-1442).
   it.each([
-    [undefined, 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'],
-    ['dog-heat', 'Ilmoittautuminen peruttiin, syy: Koiran juoksut'],
-    ['handler-sick', 'Ilmoittautuminen peruttiin, syy: Ohjaajan sairastuminen'],
-    ['dog-sick', 'Ilmoittautuminen peruttiin, syy: Koiran sairastuminen'],
-    ['gdpr', 'Ilmoittautuminen peruttiin, syy: En halua kertoa'],
-    ['custom reason', 'Ilmoittautuminen peruttiin, syy: custom reason'],
-  ])('should do happy path for cancelled registration', async (cancelReason, auditMessage) => {
+    [undefined, 'Ilmoittautuminen peruttiin, syy: (ei täytetty)', '(ei täytetty)', 'audit.reasonMissing'],
+    [
+      'dog-heat',
+      'Ilmoittautuminen peruttiin, syy: Koiran juoksut',
+      'Koiran juoksut',
+      'registration.cancelReason.dog-heat',
+    ],
+    [
+      'handler-sick',
+      'Ilmoittautuminen peruttiin, syy: Ohjaajan sairastuminen',
+      'Ohjaajan sairastuminen',
+      'registration.cancelReason.handler-sick',
+    ],
+    [
+      'dog-sick',
+      'Ilmoittautuminen peruttiin, syy: Koiran sairastuminen',
+      'Koiran sairastuminen',
+      'registration.cancelReason.dog-sick',
+    ],
+    ['gdpr', 'Ilmoittautuminen peruttiin, syy: En halua kertoa', 'En halua kertoa', 'registration.cancelReason.gdpr'],
+    ['custom reason', 'Ilmoittautuminen peruttiin, syy: custom reason', 'custom reason', undefined],
+  ])('should do happy path for cancelled registration', async (cancelReason, auditMessage, reason, reasonKey) => {
     const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -606,6 +623,8 @@ describe('putRegistrationLabmda', () => {
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: auditMessage,
+        messageKey: 'audit.messages.registrationCancelled',
+        messageParams: { reason, ...(reasonKey ? { reasonKey } : {}) },
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -614,7 +633,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -703,7 +722,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -780,7 +799,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -857,7 +876,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        message: 'Sähköposti: Ilmoittautumisesi on peruttu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -935,7 +954,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+        message:
+          'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),
@@ -988,7 +1008,8 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+        message:
+          'Sähköposti: Ilmoittautumisesi tietoja on muokattu, vastaanottajat: handler@example.com, owner@example.com',
         user: 'New Payer',
         userSource: 'registration',
       }),
@@ -1192,7 +1213,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Vahvistit vastaanottavasi koepaikan, to: handler@example.com, owner@example.com',
+        message:
+          'Sähköposti: Vahvistit vastaanottavasi koepaikan, vastaanottajat: handler@example.com, owner@example.com',
         user: 'Owner Name',
         userSource: 'registration',
       }),

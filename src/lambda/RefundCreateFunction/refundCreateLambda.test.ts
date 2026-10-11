@@ -1,3 +1,4 @@
+import type { AuditMessage } from '../../lib/audit'
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
@@ -42,7 +43,8 @@ class MockPaytrailError extends Error {
   }
 }
 
-const mockFormatPaytrailErrorMessage = vi.fn<(operation: string, error: MockPaytrailError) => string>()
+// Tested with real Paytrail errors in lib/payment.test.ts; here the handler only has to write what it returns.
+const mockRefundPaytrailErrorAudit = vi.fn<(error: MockPaytrailError) => AuditMessage>()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -93,7 +95,7 @@ vi.doMock('nanoid', () => ({
 
 vi.doMock('../lib/payment', () => ({
   claimTransactionCreation: mockClaimTransactionCreation,
-  formatPaytrailErrorMessage: mockFormatPaytrailErrorMessage,
+  refundPaytrailErrorAudit: mockRefundPaytrailErrorAudit,
   releaseTransactionCreation: mockReleaseTransactionCreation,
 }))
 
@@ -268,15 +270,19 @@ describe('refundCreateLambda', () => {
       'API refund failed and provider does not support email refunds. Provider message: Revert failed'
     const paytrailError = JSON.stringify({ message: paytrailMessage, status: 'error' })
     mockRefundPayment.mockRejectedValueOnce(new MockPaytrailError(400, paytrailError))
-    mockFormatPaytrailErrorMessage.mockReturnValueOnce(
-      `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`
-    )
+    mockRefundPaytrailErrorAudit.mockReturnValueOnce({
+      message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
+      messageKey: 'audit.messages.refundPaytrailFailed',
+      messageParams: { error: paytrailMessage, status: 400 },
+    })
 
     await refundCreateLambda(event)
 
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
       message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
+      messageKey: 'audit.messages.refundPaytrailFailed',
+      messageParams: { error: paytrailMessage, status: 400 },
       user: 'Test User',
     })
     expect(mockResponse).toHaveBeenCalledWith(
@@ -437,6 +443,8 @@ describe('refundCreateLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
       message: 'Palautus on kesken (Paytrail), 10,00 €',
+      messageKey: 'audit.messages.refundPending',
+      messageParams: { amount: '10,00 €', provider: 'Paytrail' },
       user: 'Test User',
     })
 
@@ -478,6 +486,8 @@ describe('refundCreateLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
       message: 'Palautus on kesken (Sähköposti + tilisiirto), 10,00 €',
+      messageKey: 'audit.messages.refundPending',
+      messageParams: { amount: '10,00 €', provider: 'Sähköposti + tilisiirto' },
       user: 'Test User',
     })
 

@@ -1,6 +1,7 @@
 import type { JsonDogEvent, JsonJudge, JsonUser, Organizer } from '../../types'
 import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { nanoid } from 'nanoid'
+import { eventCopiedFromAudit } from '../../lib/audit'
 import { getEventSeason } from '../../lib/event'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey } from '../lib/audit'
@@ -70,7 +71,7 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
 
   await audit({
     auditKey: eventAuditKey(event),
-    message: `Kopioitu ympäristöstä ${source.stage} (${source.eventId})`,
+    ...eventCopiedFromAudit(source.stage, source.eventId),
     user: copier.name,
   })
 

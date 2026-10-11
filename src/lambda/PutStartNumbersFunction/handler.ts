@@ -1,5 +1,6 @@
 import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass } from '../../types'
 import type { StartNumberEntry } from '../lib/startNumbers'
+import { startNumbersEnteredAudit, startNumbersPublishedAudit } from '../../lib/audit'
 import { getStartNumbersDayTimes, isStartNumbersTime } from '../../lib/event'
 import { getStartNumbersBlocker } from '../../lib/publishing'
 import {
@@ -17,7 +18,6 @@ import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 import {
   assignStartNumbers,
-  classSuffix,
   freezeStartNumbers,
   parseStartNumberEntries,
   setStartNumbersPublishedState,
@@ -39,9 +39,6 @@ interface StartNumbersRequest {
 }
 
 const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/
-
-/** "4.9.2026" from a day key, for the audit trail's Finnish reader. */
-const auditDay = (date: string) => date.split('-').reverse().map(Number).join('.')
 
 /**
  * The one endpoint that writes start numbers (KOE-1017, KOE-1218). Publishing freezes each
@@ -110,11 +107,9 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
       confirmedEvent.startNumbersPublished = state.startNumbersPublished
       confirmedEvent.updatedAt = state.updatedAt
       publicationChanged = true
-      const scope = [eventClass, date && auditDay(date), time].filter(Boolean).join(', ')
-      const scopeSuffix = scope ? ` (${scope})` : ''
       await audit({
         auditKey: eventAuditKey(confirmedEvent),
-        message: `Starttinumerot ${body.published ? 'julkaistu' : 'piilotettu'}${scopeSuffix}`,
+        ...startNumbersPublishedAudit(body.published, { date, eventClass, time }),
         user: user.name,
       })
     }
@@ -123,7 +118,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
       patches.push(...(await assignStartNumbers(eventId, registrations, numbers, user.name)))
       await audit({
         auditKey: eventAuditKey(confirmedEvent),
-        message: `Starttinumerot syötetty ${numbers.length} koiralle${classSuffix(eventClass)}`,
+        ...startNumbersEnteredAudit(numbers.length, eventClass),
         user: user.name,
       })
     }

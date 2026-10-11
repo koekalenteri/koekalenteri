@@ -1,6 +1,5 @@
 import type { ParseKeys } from 'i18next'
 import type {
-  AuditRecord,
   JsonAuditChange,
   JsonAuditChangeValue,
   JsonAuditDetail,
@@ -224,7 +223,7 @@ export const getEventAuditMessages = (
   return messages.length ? messages : [{ message: 'Tapahtuma tallennettu', messageKey: 'audit.messages.eventSaved' }]
 }
 
-export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
+export const audit = async (item: Omit<JsonAuditRecord, 'timestamp'>) => {
   try {
     const record = { ...item, timestamp: new Date().toISOString() }
     await dynamoDB.write(record, auditTable)
@@ -238,7 +237,7 @@ export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
  * Durable workflow phases must not acknowledge an audit that failed to persist
  * or publish. Callers use this variant when a retry marker follows the audit.
  */
-export const auditStrict = async (item: Omit<AuditRecord, 'timestamp'>, effectId?: string) => {
+export const auditStrict = async (item: Omit<JsonAuditRecord, 'timestamp'>, effectId?: string) => {
   // auditKey + timestamp is the DynamoDB key. A durable workflow supplies a
   // stable effect id here, so retrying after publication/marker failure
   // overwrites the same audit item instead of creating another record.

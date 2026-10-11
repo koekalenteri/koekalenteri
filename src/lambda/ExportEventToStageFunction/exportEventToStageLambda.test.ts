@@ -126,6 +126,8 @@ describe('exportEventToStageLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: `event:${eventWithParticipantsInvited.id}`,
       message: 'Kopioitu ympäristöön test (copy-1)',
+      messageKey: 'audit.messages.eventCopiedTo',
+      messageParams: { eventId: 'copy-1', stage: 'test' },
       user: admin.name,
     })
     expect(mockResponse).toHaveBeenCalledWith(200, { eventId: 'copy-1', judges: [], target: 'test' }, event)

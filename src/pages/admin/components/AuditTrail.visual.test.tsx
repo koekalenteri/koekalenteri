@@ -2,6 +2,8 @@ import type { AuditRecord } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
+import { parseDateOnlyString } from '@/lib/utils'
+import { describeInLanguage } from '@/test-utils/language'
 import { AuditTrail } from './AuditTrail'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -69,4 +71,80 @@ it('tells a name taken from the registration from a login', async () => {
   await expect.element(screen.getByText('Ilmoittautui')).toBeVisible()
 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('audit-trail-user-sources')
+})
+
+// The rows a registration's trail is made of since KOE-1442: each names its message by a key and
+// carries the parts as parameters, so the trail reads in the secretary's language. The stored
+// Finnish `message` is the fallback for rows written before the keys and for readers without them.
+const keyedRows: AuditRecord[] = [
+  {
+    auditKey: 'event-1:reg-1',
+    message: 'Starttinumero vapautettu: 2',
+    messageKey: 'audit.messages.startNumberReleased',
+    messageParams: { number: 2 },
+    timestamp: new Date('2026-09-21T17:55:06.000Z'),
+    user: 'Minsu Rauramo',
+  },
+  {
+    auditKey: 'event-1:reg-1',
+    message: 'Ryhmä: la 7.11. ip #2 -> Ilmoittautuneet #1 siirto',
+    messageKey: 'audit.messages.groupChanged',
+    // As the API hands it over: its JSON reviver turns the bare day into a Date.
+    messageParams: {
+      fromDate: parseDateOnlyString('2026-11-07'),
+      fromNumber: 2,
+      fromTime: 'ip',
+      fromTimeKey: 'audit.time.ip',
+      reason: 'siirto',
+      reasonKey: 'audit.groupReason.move',
+      toGroup: 'Ilmoittautuneet',
+      toGroupKey: 'eventManagement.participantSelection.registered',
+      toNumber: 1,
+    },
+    timestamp: new Date('2026-09-21T17:54:48.000Z'),
+    user: 'Minsu Rauramo',
+  },
+  {
+    auditKey: 'event-1:reg-1',
+    message: 'Sähköposti: Koekutsu, vastaanottajat: minsu@example.com',
+    messageKey: 'audit.messages.emailSentTo',
+    messageParams: { recipients: 'minsu@example.com', template: 'Koekutsu', templateKey: 'emailTemplate.invitation' },
+    timestamp: new Date('2026-08-04T17:00:10.000Z'),
+    user: 'Minsu Rauramo',
+  },
+  {
+    auditKey: 'event-1:reg-1',
+    message: 'Ilmoittautuminen peruttiin, syy: Koiran juoksut',
+    messageKey: 'audit.messages.registrationCancelled',
+    messageParams: { reasonKey: 'registration.cancelReason.dog-heat' },
+    timestamp: new Date('2026-08-04T16:59:59.000Z'),
+    user: 'Minsu Rauramo',
+  },
+  {
+    auditKey: 'event-1:reg-1',
+    message: 'Maksu (Nordea), 19,00 €',
+    messageKey: 'audit.messages.payment',
+    messageParams: { amount: '19,00 €', provider: 'Nordea' },
+    timestamp: new Date('2026-08-04T16:58:29.000Z'),
+    user: 'Minsu Rauramo',
+    userSource: 'registration',
+  },
+]
+
+describeInLanguage('en', () => {
+  it('reads a registration trail in English (KOE-1442)', async () => {
+    const screen = await render(
+      <Frame>
+        <AuditTrail auditTrail={keyedRows} fullHeight />
+      </Frame>
+    )
+
+    await expect.element(screen.getByText('Start number released: 2')).toBeVisible()
+    await expect.element(screen.getByText('Group: Sat 7.11. pm #2 -> Registered #1 move')).toBeVisible()
+    await expect.element(screen.getByText('Email: Invitation, to: minsu@example.com')).toBeVisible()
+    await expect.element(screen.getByText('Registration cancelled, reason: The dog being in heat')).toBeVisible()
+    await expect.element(screen.getByText('Payment (Nordea), 19,00 €')).toBeVisible()
+
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('audit-trail-keyed-messages-en')
+  })
 })

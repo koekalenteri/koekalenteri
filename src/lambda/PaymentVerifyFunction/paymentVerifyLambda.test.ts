@@ -202,6 +202,8 @@ describe('paymentVerifyLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
       message: 'Maksu epäonnistui (Paytrail), 50,00\u00a0€',
+      messageKey: 'audit.messages.paymentFailed',
+      messageParams: { amount: '50,00\u00a0€', provider: 'Paytrail' },
       user: 'user123',
     })
 

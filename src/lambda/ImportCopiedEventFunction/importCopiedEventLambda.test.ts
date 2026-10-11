@@ -107,6 +107,8 @@ describe('importCopiedEvent', () => {
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event:copy-1',
       message: 'Kopioitu ympäristöstä prod (source-1)',
+      messageKey: 'audit.messages.eventCopiedFrom',
+      messageParams: { eventId: 'source-1', stage: 'prod' },
       user: copier.name,
     })
     expect(result).toEqual({ eventId: 'copy-1', judges: [{ name: 'Puuttuva Tuomari', reason: 'missing' }] })

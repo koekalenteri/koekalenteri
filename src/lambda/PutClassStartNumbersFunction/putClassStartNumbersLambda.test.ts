@@ -111,7 +111,13 @@ describe('putClassStartNumbersLambda', () => {
   it('attributes the write to the class, so the trail says who drew', async () => {
     await putClassStartNumbersLambda(apiEvent({ numbers: [{ id: 'alo-1', startNumber: 2 }] }))
 
-    expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ user: 'Luokkasihteeri (ALO)' }))
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messageKey: 'audit.messages.startNumbersEnteredClass',
+        messageParams: { count: 1, eventClass: 'ALO' },
+        user: 'Luokkasihteeri (ALO)',
+      })
+    )
   })
 
   it('refuses a number of another class, which is the whole point of the link', async () => {

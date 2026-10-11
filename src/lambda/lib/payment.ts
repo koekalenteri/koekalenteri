@@ -1,4 +1,4 @@
-import type { AuditActor } from '../../lib/audit'
+import type { AuditActor, AuditMessage } from '../../lib/audit'
 import type {
   DogEvent,
   JsonDogEvent,
@@ -12,7 +12,7 @@ import type {
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import type { PaytrailError } from './paytrail'
 import { getFixedT } from '../../i18n/lambda'
-import { auditUser } from '../../lib/audit'
+import { auditUser, refundPaytrailFailedAudit } from '../../lib/audit'
 import { localizedEventName } from '../../lib/event'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -99,8 +99,16 @@ export const releaseTransactionCreation = async (
 export const formatPaytrailErrorMessage = (operation: string, error: PaytrailError) =>
   `${operation} epäonnistui Paytrailissa (${error.status}): ${parsePaytrailErrorMessage(error.error)}`
 
+/** A refund Paytrail refused, for the registration's trail; its `message` is also what the secretary is answered. */
+export const refundPaytrailErrorAudit = (error: PaytrailError) =>
+  refundPaytrailFailedAudit(
+    formatPaytrailErrorMessage('Maksun palautus', error),
+    error.status,
+    parsePaytrailErrorMessage(error.error)
+  )
+
 interface CancelTransactionOptions<T extends JsonTransaction> {
-  auditMessage: (transaction: T, provider: string | undefined) => string
+  auditMessage: (transaction: T, provider: string | undefined) => AuditMessage
   auditActor: (transaction: T) => AuditActor
   params: Partial<PaytrailCallbackParams>
   statusField: RegistrationStatusField
@@ -159,7 +167,7 @@ export const cancelTransaction = async <T extends JsonTransaction>({
 
   await audit({
     auditKey: registrationAuditKey(registration),
-    message: auditMessage(transaction, provider),
+    ...auditMessage(transaction, provider),
     ...auditUser(auditActor(transaction)),
   })
 

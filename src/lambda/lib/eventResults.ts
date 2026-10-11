@@ -9,6 +9,7 @@ import type {
   Patch,
   PublicJudge,
 } from '../../types'
+import { resultSavedAudit } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
 import { makeArray } from '../../lib/judge'
 import { isScorableRegistration } from '../../lib/registration'
@@ -62,8 +63,8 @@ const RETIREMENT_CAUSE_TEXT: Record<EventResultRetirement['cause'], string> = {
 
 /**
  * What the audit line says was saved: the result, the points, and the outcome extra info — the
- * secretary must be able to read back from the trail what they entered (KOE-1284). Audit messages
- * are stored as Finnish text, like every message this module's callers write.
+ * secretary must be able to read back from the trail what they entered (KOE-1284). The sentence
+ * around it is translated (KOE-1442); the fault and retirement names inside it are still Finnish.
  */
 const auditResultText = (eventResult: JsonEventResult): string => {
   const parts: string[] = []
@@ -76,7 +77,7 @@ const auditResultText = (eventResult: JsonEventResult): string => {
   }
   if (eventResult.retirement) parts.push(RETIREMENT_CAUSE_TEXT[eventResult.retirement.cause])
   if (eventResult.notes) parts.push(eventResult.notes)
-  return parts.length ? `: ${parts.join(', ')}` : ''
+  return parts.join(', ')
 }
 
 interface ResultSubmission {
@@ -500,7 +501,7 @@ export const processResultSubmissions = async (
     await updateRegistrationField(eventId, submission.id, 'eventResult', eventResult)
     await audit({
       auditKey: registrationAuditKey({ eventId, id: submission.id }),
-      message: `${outcome.hadStored ? 'Muutti tulosta' : 'Tallensi tuloksen'}${auditResultText(eventResult)}`,
+      ...resultSavedAudit(outcome.hadStored, auditResultText(eventResult)),
       user: userName,
     })
 

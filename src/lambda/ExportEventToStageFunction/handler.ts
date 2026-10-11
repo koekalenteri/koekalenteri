@@ -1,6 +1,7 @@
 import type { Organizer } from '../../types'
 import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
+import { eventCopiedToAudit } from '../../lib/audit'
 import { copyTargets } from '../../lib/env'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey } from '../lib/audit'
@@ -83,7 +84,7 @@ const exportEventToStageLambda = lambda('exportEventToStage', async (event) => {
 
   await audit({
     auditKey: eventAuditKey(source),
-    message: `Kopioitu ympäristöön ${target} (${result.eventId})`,
+    ...eventCopiedToAudit(target, result.eventId),
     user: user.name,
   })
 

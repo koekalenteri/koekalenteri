@@ -9,7 +9,7 @@ const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockAudit = vi.fn()
-const mockRegistrationAuditKey = vi.fn()
+const mockRegistrationAuditKey = vi.fn(({ eventId, id }: { eventId: string; id: string }) => `${eventId}:${id}`)
 const mockGetAuthorizedEvent = vi.fn()
 const mockGetRegistrationsByEventId = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
@@ -164,6 +164,30 @@ describe('putEventResultsLambda', () => {
     )
 
     expect(mockAudit).toHaveBeenCalledTimes(2)
+    // The sentence is translated, the result's own text rides along as a part (KOE-1442).
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event-1:reg-1',
+      message: 'Tallensi tuloksen: AVO1, 65/80 p',
+      messageKey: 'audit.messages.resultSavedDetail',
+      messageParams: { result: 'AVO1, 65/80 p' },
+      user: 'Sihteeri',
+    })
+  })
+
+  it('audits a changed result as a change', async () => {
+    mockGetRegistrationsByEventId.mockResolvedValue([
+      { ...registration('reg-1'), eventResult: { points: 40, result: 'AVO3', tasks: scores(10, 10, 10, 10) } },
+    ])
+
+    await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event-1:reg-1',
+      message: 'Muutti tulosta: AVO1, 65/80 p',
+      messageKey: 'audit.messages.resultChangedDetail',
+      messageParams: { result: 'AVO1, 65/80 p' },
+      user: 'Sihteeri',
+    })
   })
 
   it('rejects an empty submission without touching anything', async () => {

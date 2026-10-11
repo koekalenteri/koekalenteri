@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '@/i18n/dates'
+import { auditLabelParams, formatAuditDetail, formatAuditMessage } from '@/lib/audit'
 import CollapsibleSection from '../../components/CollapsibleSection'
 
 interface Props {
@@ -21,43 +22,16 @@ type AuditChange = NonNullable<AuditRecord['changes']>[number]
 type AuditChangeValueData = AuditChange['previous']
 type AuditDetail = NonNullable<AuditRecord['details']>[number]
 
-const auditMessageKeys: Partial<Record<string, ParseKeys<'translation'>>> = {
-  'audit.changed': 'audit.changed',
-  'audit.messages.classEmailSent': 'audit.messages.classEmailSent',
-  'audit.messages.classStartListHidden': 'audit.messages.classStartListHidden',
-  'audit.messages.classStartListPublished': 'audit.messages.classStartListPublished',
-  'audit.messages.emailSent': 'audit.messages.emailSent',
-  'audit.messages.eventCreated': 'audit.messages.eventCreated',
-  'audit.messages.eventDeleted': 'audit.messages.eventDeleted',
-  'audit.messages.eventSaved': 'audit.messages.eventSaved',
-  'audit.messages.startListHidden': 'audit.messages.startListHidden',
-  'audit.messages.startListPublished': 'audit.messages.startListPublished',
-}
-
-const auditMessageParamKeys: Partial<Record<string, ParseKeys<'translation'>>> = {
-  'emailTemplate.cancel-early': 'emailTemplate.cancel-early',
-  'emailTemplate.invitation': 'emailTemplate.invitation',
-  'emailTemplate.picked': 'emailTemplate.picked',
-  'emailTemplate.registration': 'emailTemplate.registration',
-  'emailTemplate.reserve': 'emailTemplate.reserve',
-}
-
-const auditDetailKeys: Partial<Record<string, ParseKeys<'translation'>>> = {
-  'audit.details.failedRecipients': 'audit.details.failedRecipients',
-}
-
 const useAuditFormatter = () => {
   const { t } = useTranslation()
 
   const changeLabel = (change: AuditChange) => {
     if (!change.labelKey) return change.field
 
-    const eventDate = change.labelParams?.eventDate
-    const labelParams = {
-      ...change.labelParams,
-      ...(eventDate ? { eventDate: formatDate(new Date(String(eventDate)), 'd.M.yyyy') } : {}),
-    }
-    return t(change.labelKey as ParseKeys<'translation'>, { ...labelParams, defaultValue: change.field })
+    return t(change.labelKey as ParseKeys<'translation'>, {
+      ...auditLabelParams(change.labelParams),
+      defaultValue: change.field,
+    })
   }
 
   const changeValue = (value: AuditChangeValueData) => {
@@ -71,31 +45,13 @@ const useAuditFormatter = () => {
     return `${sign} ${label}:${text.includes('\n') ? '\n' : ' '}${text}`
   }
 
-  const messageParams = (row: AuditRecord) => {
-    const templateKey = typeof row.messageParams?.templateKey === 'string' ? row.messageParams.templateKey : undefined
-    const templateTranslationKey = templateKey ? auditMessageParamKeys[templateKey] : undefined
-
-    return {
-      ...row.messageParams,
-      ...(templateTranslationKey ? { template: t(templateTranslationKey) } : {}),
-    }
-  }
-
   const message = (row: AuditRecord) => {
     if (row.changes?.length) return `${t('audit.changed')}: ${row.changes.map(changeLabel).join(', ')}`
 
-    const messageKey = row.messageKey ? auditMessageKeys[row.messageKey] : undefined
-    if (messageKey) return t(messageKey, messageParams(row))
-
-    return row.message
+    return formatAuditMessage(t, row)
   }
 
-  const detail = (item: AuditDetail) => {
-    const detailKey = auditDetailKeys[item.detailKey]
-    if (detailKey) return t(detailKey, item.detailParams)
-
-    return ''
-  }
+  const detail = (item: AuditDetail) => formatAuditDetail(t, item)
 
   /** The actor, marked when the name came from the registration's people rather than a login. */
   const user = (row: AuditRecord) =>

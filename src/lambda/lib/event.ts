@@ -1,4 +1,4 @@
-import type { AuditActor } from '../../lib/audit'
+import type { AuditActor, GroupChangeReason } from '../../lib/audit'
 import type {
   ConfirmedEventStates,
   EventClassState,
@@ -13,11 +13,11 @@ import type {
 } from '../../types'
 import { randomUUID } from 'node:crypto'
 import { addDays } from 'date-fns/addDays'
-import { formatDate, zonedStartOfDay } from '../../i18n/dates'
-import { auditUser } from '../../lib/audit'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, hasPriority } from '../../lib/registration'
+import { zonedStartOfDay } from '../../i18n/dates'
+import { auditUser, groupChangeAudit } from '../../lib/audit'
+import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
-import { isDefined } from '../../lib/typeGuards'
+import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -357,22 +357,11 @@ export const lockRegistrationPayments = (eventId: string, retries: number = 8) =
     'Registration payments are being updated. Please retry.'
   )
 
-export const formatGroupAuditInfo = (group: JsonRegistrationGroupInfo['group']): string => {
-  if (!group) return ''
-
-  if (group.key === GROUP_KEY_CANCELLED) return `Peruneet #${group.number}`
-  if (group.key === GROUP_KEY_RESERVE) return `Ilmoittautuneet #${group.number}`
-
-  const groupKey = [group.date && formatDate(group.date, 'eeeeee d.M.'), group.time].filter(isDefined).join(' ')
-
-  return `${groupKey} #${group.number}`
-}
-
 export const saveGroup = async (
   { eventId, id, group }: JsonRegistrationGroupInfo,
   previous: JsonRegistrationGroupInfo['group'],
   user: AuditActor,
-  reason: string = '',
+  reason?: GroupChangeReason,
   cancelReason?: string
 ) => {
   const registrationKey = { eventId, id }
@@ -405,10 +394,9 @@ export const saveGroup = async (
       registrationTable
     )
   }
-  const oldGroupInfo = previous ? `${formatGroupAuditInfo(previous)} -> ` : ''
   await audit({
     auditKey: registrationAuditKey(registrationKey),
-    message: `Ryhmä: ${oldGroupInfo}${formatGroupAuditInfo(group)} ${reason}`.trim(),
+    ...groupChangeAudit(previous, group, reason),
     ...auditUser(user),
   })
 }
@@ -421,14 +409,16 @@ export const fixRegistrationGroups = async <T extends JsonRegistration>(
   const previousGroups = new Map(items.map((item) => [item, item.group ? { ...item.group } : undefined]))
   normalizeRegistrationGroups(items)
 
-  for (const registration of items) {
+  if (!save) return items
+
+  // Each registration's row and audit line is its own; the saves need not wait for one another.
+  const moved = items.filter((registration) => {
     const previous = previousGroups.get(registration)
-    if (registration.group?.key !== previous?.key || registration.group?.number !== previous?.number) {
-      if (save) {
-        await saveGroup(registration, previous, user, '(automaattinen sijoitus)')
-      }
-    }
-  }
+    return registration.group?.key !== previous?.key || registration.group?.number !== previous?.number
+  })
+  await mapWithConcurrency(moved, REGISTRATION_WRITE_CONCURRENCY, (registration) =>
+    saveGroup(registration, previousGroups.get(registration), user, 'automatic')
+  )
 
   return items
 }

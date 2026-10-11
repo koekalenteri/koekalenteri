@@ -42,10 +42,66 @@ describe('AuditTrail', () => {
   it('formats class-specific email messages', () => {
     render(<AuditTrail auditTrail={[auditRecord()]} fullHeight />, { wrapper: Wrapper })
 
+    // The stored message rides along as the default, for a key this bundle does not have.
     expect(
-      screen.getByText('audit.messages.classEmailSent eventClass, failed, ok, template, templateKey')
+      screen.getByText('audit.messages.classEmailSent eventClass, failed, ok, template, templateKey, defaultValue')
     ).toBeInTheDocument()
     expect(screen.getByText(/04\.08\.2026 13:30:00 Testikäyttäjä/)).toBeInTheDocument()
+  })
+
+  it('names a change without a label key by its field', () => {
+    render(
+      <AuditTrail
+        auditTrail={[
+          auditRecord({
+            changes: [{ field: 'notes', next: { text: 'uusi' }, previous: { state: 'empty' } }],
+            message: 'Muutti: notes',
+            messageKey: 'audit.changed',
+          }),
+        ]}
+        fullHeight
+      />,
+      { wrapper: Wrapper }
+    )
+
+    expect(screen.getByText('audit.changed: notes')).toBeInTheDocument()
+  })
+
+  it('shows the stored message for a key outside the audit translations', () => {
+    render(<AuditTrail auditTrail={[auditRecord({ message: 'Tallennettu teksti', messageKey: 'x' })]} fullHeight />, {
+      wrapper: Wrapper,
+    })
+
+    expect(screen.getByText('Tallennettu teksti')).toBeInTheDocument()
+  })
+
+  it('names the groups of a move from their parts (KOE-1442)', () => {
+    render(
+      <AuditTrail
+        auditTrail={[
+          auditRecord({
+            message: 'Ryhmä: la 7.11. ip #2 -> Ilmoittautuneet #1',
+            messageKey: 'audit.messages.groupChanged',
+            messageParams: {
+              fromDate: '2026-11-07',
+              fromNumber: 2,
+              fromTimeKey: 'audit.time.ip',
+              toGroupKey: 'eventManagement.participantSelection.registered',
+              toNumber: 1,
+            },
+          }),
+        ]}
+        fullHeight
+      />,
+      { wrapper: Wrapper }
+    )
+
+    // A move without a reason still hands the translation one, or it would print the placeholder.
+    expect(
+      screen.getByText(
+        'audit.messages.groupChanged fromDate, fromNumber, fromTimeKey, toGroupKey, toNumber, fromTime, toGroup, from, reason, to, defaultValue'
+      )
+    ).toBeInTheDocument()
   })
 
   it('marks a name taken from the registration rather than a login', () => {
@@ -87,6 +143,6 @@ describe('AuditTrail', () => {
 
     await user.click(screen.getByRole('button', { name: 'audit.showDetails' }))
 
-    expect(screen.getByText('audit.details.failedRecipients recipients')).toBeInTheDocument()
+    expect(screen.getByText('audit.details.failedRecipients recipients, defaultValue')).toBeInTheDocument()
   })
 })

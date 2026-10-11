@@ -1,4 +1,4 @@
-import type { AuditActor } from '../../lib/audit'
+import type { AuditActor, AuditMessage } from '../../lib/audit'
 import type {
   EmailTemplateId,
   JsonAuditRecord,
@@ -10,7 +10,13 @@ import type {
 } from '../../types'
 import { nanoid } from 'nanoid'
 import { formatDate } from '../../i18n/dates'
-import { auditUser } from '../../lib/audit'
+import {
+  auditUser,
+  emailSentAudit,
+  emailSubjectAuditKey,
+  registrationConfirmedAudit,
+  registrationDaysMismatchAudit,
+} from '../../lib/audit'
 import { registrationDatesOutsideClass } from '../../lib/event'
 import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
 import {
@@ -159,10 +165,9 @@ const auditDateMismatch = async (registration: JsonRegistration, confirmedEvent:
   if (!mismatches.length) return
 
   const days = unique(mismatches.map((rd) => formatDate(rd.date, 'd.M.yyyy'))).join(', ')
-  const target = registration.class ? `luokan ${registration.class}` : 'tapahtuman'
   await audit({
     auditKey: registrationAuditKey(registration),
-    message: `Valitut päivät (${days}) eivät ole ${target} päiviä`,
+    ...registrationDaysMismatchAudit(days, registration.class),
     ...auditUser(user),
   })
 }
@@ -180,9 +185,9 @@ const updateAuditEntry = (
   registration: JsonRegistration,
   existing: JsonRegistration,
   confirmedEvent: JsonConfirmedEvent
-): Pick<JsonAuditRecord, 'changes' | 'message' | 'messageKey'> | undefined => {
-  if (cancel) return { message: getCancelAuditMessage(registration) }
-  if (confirm) return { message: 'Ilmoittautumisen vahvistus' }
+): Pick<JsonAuditRecord, 'changes' | 'message' | 'messageKey' | 'messageParams'> | undefined => {
+  if (cancel) return getCancelAuditMessage(registration)
+  if (confirm) return registrationConfirmedAudit()
   return getRegistrationChanges(existing, registration, confirmedEvent)
 }
 
@@ -257,7 +262,7 @@ const sendRegistrationEmail = async ({
   )
   await audit({
     auditKey: registrationAuditKey(registration),
-    message: `Email: ${templateData.subject}, to: ${to.join(', ')}`,
+    ...emailSentAudit(templateData.subject, emailSubjectAuditKey(context), to),
     ...auditUser(user),
   })
   // The change itself was broadcast before the email went, so the message column learns of the
@@ -290,7 +295,7 @@ export const initializeNewRegistration = (
 
 interface CompleteNewRegistrationOptions {
   /** What the audit trail says of the creation. */
-  auditMessage: string
+  auditMessage: AuditMessage
   confirmedEvent: JsonConfirmedEvent
   groupPatches: Patch<JsonRegistration>[]
   origin: string
@@ -330,10 +335,7 @@ export const completeNewRegistration = async ({
       await applyNewRegistrationStatsOnce(saved, event, claim.token)
     }
     if (!saved.newRegistrationAuditAt) {
-      await auditStrict(
-        { auditKey: registrationAuditKey(saved), message: auditMessage, ...auditUser(user) },
-        saved.createdAt
-      )
+      await auditStrict({ auditKey: registrationAuditKey(saved), ...auditMessage, ...auditUser(user) }, saved.createdAt)
       await auditDateMismatch(saved, event, user)
       await phase('newRegistrationAuditAt')
     }

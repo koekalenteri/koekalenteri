@@ -1,6 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { AuditActor } from '../../lib/audit'
 import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
+import { registrationCreatedAudit } from '../../lib/audit'
 import { isEntryOpen, isEventOver } from '../../lib/event'
 import { InvalidPatchError } from '../../lib/patch'
 import { qualifyJsonRegistration } from '../../lib/qualification'
@@ -46,7 +47,7 @@ import {
 import { validateBody } from '../lib/request'
 
 /** What the participant's own audit trail says of a registration they made. */
-const CREATED_AUDIT_MESSAGE = 'Ilmoittautui'
+const CREATED_AUDIT_MESSAGE = registrationCreatedAudit()
 
 const getData = async (registration: Patch<JsonRegistration>) => {
   const eventId = typeof registration.eventId === 'string' ? registration.eventId : ''
