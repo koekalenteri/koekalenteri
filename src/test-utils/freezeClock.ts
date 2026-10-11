@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz'
-import { TIME_ZONE } from '@/i18n/dates'
+import { TIME_ZONE } from '../i18n/dates'
 
 /**
  * Freezes the calling file's clock to one day, so that a screenshot of anything date-shaped renders

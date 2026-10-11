@@ -3,12 +3,11 @@ import { act, renderHook } from '@testing-library/react'
 import { createStore, Provider } from 'jotai'
 import { createElement } from 'react'
 import { eventWithStaticDates } from '@/__mockData__/events'
-import { exportEventToStage, putEvent } from '@/api/event'
+import { exportEventToStage, putEvent, putResultsPublished } from '@/api/event'
 import { putStationTurn } from '@/api/station'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import {
   buildEventSavePatch,
-  buildResultsPublishedPatch,
   buildStartListClassPublishedPatch,
   buildStartListPublishedPatch,
   useAdminEventActions,
@@ -105,33 +104,16 @@ describe('buildStartListPublishedPatch', () => {
   })
 })
 
-describe('buildResultsPublishedPatch', () => {
-  it('uses an event-level boolean for events without classes (KOE-1464)', () => {
-    expect(buildResultsPublishedPatch(eventWithStaticDates, undefined, true)).toEqual({
-      id: eventWithStaticDates.id,
-      resultsPublished: true,
-    })
-  })
-
-  it('keeps the other classes when publishing one', () => {
-    const event = {
-      ...eventWithStaticDates,
-      classes: [
-        { class: 'ALO' as const, date: eventWithStaticDates.startDate },
-        { class: 'AVO' as const, date: eventWithStaticDates.startDate },
-      ],
-      resultsPublished: { AVO: true },
-    }
-
-    expect(buildResultsPublishedPatch(event, 'ALO', true)).toEqual({
-      id: eventWithStaticDates.id,
-      resultsPublished: { ALO: true, AVO: true },
-    })
-  })
-})
-
 describe('useAdminEventActions.setResultsPublished', () => {
   const classless = { ...eventWithStaticDates, id: 'classless-results' }
+  const twoDays = {
+    ...eventWithStaticDates,
+    classes: [
+      { class: 'ALO' as const, date: new Date('2021-02-10') },
+      { class: 'ALO' as const, date: new Date('2021-02-11') },
+    ],
+    id: 'two-day-results',
+  }
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -139,22 +121,58 @@ describe('useAdminEventActions.setResultsPublished', () => {
   })
   afterEach(() => localStorage.removeItem('idToken'))
 
-  it('saves the one flag of a classless event (KOE-1464)', async () => {
-    vi.mocked(putEvent).mockResolvedValueOnce({ ...classless, resultsPublished: true })
+  it('asks the server for the one day, never sending a flag of its own (KOE-1510)', async () => {
+    vi.mocked(putResultsPublished).mockResolvedValueOnce({
+      event: { ...twoDays, resultsPublished: { ALO: ['2021-02-10'] } },
+    })
     const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
 
-    const saved = await act(() => result.current.setResultsPublished(classless, undefined, true))
+    const saved = await act(() => result.current.setResultsPublished(twoDays, 'ALO', '2021-02-10', true))
 
-    expect(putEvent).toHaveBeenCalledWith({ id: classless.id, resultsPublished: true }, TEST_ID_TOKEN)
-    expect(saved).toMatchObject({ resultsPublished: true })
+    expect(putResultsPublished).toHaveBeenCalledWith(
+      twoDays.id,
+      { date: '2021-02-10', eventClass: 'ALO', published: true },
+      TEST_ID_TOKEN
+    )
+    expect(putEvent).not.toHaveBeenCalled()
+    expect(saved).toMatchObject({ resultsPublished: { ALO: ['2021-02-10'] } })
   })
 
-  it('saves nothing when the flag already reads that way', async () => {
+  it('hides a published day, which a class-wide reading would have skipped', async () => {
+    // The class as a whole is not published (day two is not), so only the day can tell a hide is due.
+    const firstDay = { ...twoDays, resultsPublished: { ALO: [new Date('2021-02-10')] } }
+    vi.mocked(putResultsPublished).mockResolvedValueOnce({ event: { ...twoDays, resultsPublished: { ALO: false } } })
+    const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
+
+    const saved = await act(() => result.current.setResultsPublished(firstDay, 'ALO', '2021-02-10', false))
+
+    expect(putResultsPublished).toHaveBeenCalledWith(
+      twoDays.id,
+      { date: '2021-02-10', eventClass: 'ALO', published: false },
+      TEST_ID_TOKEN
+    )
+    expect(saved).toMatchObject({ resultsPublished: { ALO: false } })
+  })
+
+  it('names the day of a classless event too', async () => {
+    vi.mocked(putResultsPublished).mockResolvedValueOnce({ event: { ...classless, resultsPublished: ['2021-02-10'] } })
+    const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
+
+    await act(() => result.current.setResultsPublished(classless, undefined, '2021-02-10', true))
+
+    expect(putResultsPublished).toHaveBeenCalledWith(
+      classless.id,
+      { date: '2021-02-10', eventClass: undefined, published: true },
+      TEST_ID_TOKEN
+    )
+  })
+
+  it('saves nothing when the day already reads that way', async () => {
     const published = { ...classless, resultsPublished: true }
     const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
 
-    await expect(result.current.setResultsPublished(published, undefined, true)).resolves.toBe(published)
-    expect(putEvent).not.toHaveBeenCalled()
+    await expect(result.current.setResultsPublished(published, undefined, '2021-02-11', true)).resolves.toBe(published)
+    expect(putResultsPublished).not.toHaveBeenCalled()
   })
 })
 

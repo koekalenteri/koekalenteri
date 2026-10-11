@@ -14,6 +14,7 @@ import { addDays, differenceInDays } from 'date-fns'
 import i18n from 'i18next'
 import { eventWithEntryClosing, eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
 import { formatDate, TIME_ZONE } from '../i18n/dates'
+import { freezeClockAt } from '../test-utils/freezeClock'
 import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
@@ -36,11 +37,12 @@ import {
   getParticipantsPhase,
   getPublishedStartNumbersDays,
   getPublishedStartNumbersSlots,
-  getResultsPublishedClassMap,
   getStartListPublishedClassMap,
   getStartNumbersDayTimes,
   getUniqueEventClasses,
+  hasAllResultsPublished,
   hasAvailableResults,
+  hasDayStarted,
   hasExplicitPlacesForClass,
   hasMockTrialChoice,
   hasRetrieveTypeChoice,
@@ -55,6 +57,7 @@ import {
   isResultsAvailableForClass,
   isResultsAvailableForRegistration,
   isResultsPublished,
+  isResultsPublishedForDay,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartListAvailableForRegistration,
@@ -73,6 +76,7 @@ import {
   registrationDatesOutsideClass,
   sanitizeDogEvent,
   startNumbersSlotKey,
+  withResultsDay,
 } from './event'
 
 describe('lib/event', () => {
@@ -1685,12 +1689,136 @@ describe('publishing results', () => {
       expect(isResultsAvailableForClass({ state: 'ended' }, { class: 'ALO' })).toBe(false)
     })
   })
+})
 
-  describe('getResultsPublishedClassMap', () => {
-    it('fills in every class, defaulting to not published', () => {
-      expect(
-        getResultsPublishedClassMap({ classes: [{ class: 'ALO' }, { class: 'AVO' }], resultsPublished: { ALO: true } })
-      ).toEqual({ ALO: true, AVO: false })
+/**
+ * A class running on two days publishes each day on its own (KOE-1510): the first day's results go out
+ * that evening while the second day is still to be scored.
+ */
+describe('results published day by day', () => {
+  const twoDays = {
+    classes: [
+      { class: 'ALO' as const, date: '2026-09-12' },
+      { class: 'ALO' as const, date: '2026-09-13' },
+      { class: 'AVO' as const, date: '2026-09-12' },
+    ],
+    endDate: '2026-09-13',
+    startDate: '2026-09-12',
+  }
+
+  describe('isResultsPublishedForDay', () => {
+    it('reads a listed day, stored or revived, and nothing else', () => {
+      for (const day of ['2026-09-12', new Date('2026-09-12')]) {
+        const event = { resultsPublished: { ALO: [day] } }
+        expect(isResultsPublishedForDay(event, 'ALO', '2026-09-12')).toBe(true)
+        expect(isResultsPublishedForDay(event, 'ALO', new Date('2026-09-13'))).toBe(false)
+        expect(isResultsPublishedForDay(event, 'AVO', '2026-09-12')).toBe(false)
+      }
+    })
+
+    it('reads a plain true as every day and an absent flag as none', () => {
+      expect(isResultsPublishedForDay({ resultsPublished: { ALO: true } }, 'ALO', '2026-09-13')).toBe(true)
+      expect(isResultsPublishedForDay({}, 'ALO', '2026-09-12')).toBe(false)
+      expect(isResultsPublishedForDay({ resultsPublished: { ALO: ['2026-09-12'] } }, 'ALO', undefined)).toBe(false)
+    })
+
+    it('reads the days of a classless event from its one scope', () => {
+      const event = { resultsPublished: ['2026-09-26'] }
+      expect(isResultsPublishedForDay(event, undefined, '2026-09-26')).toBe(true)
+      expect(isResultsPublishedForDay(event, undefined, '2026-09-27')).toBe(false)
+    })
+  })
+
+  describe('isResultsPublished and hasAllResultsPublished', () => {
+    it('count a class only once every one of its days is out', () => {
+      const firstDay = { ...twoDays, resultsPublished: { ALO: ['2026-09-12'], AVO: true } }
+      expect(isResultsPublished(firstDay, 'ALO')).toBe(false)
+      expect(isResultsPublished(firstDay, 'AVO')).toBe(true)
+      expect(hasAllResultsPublished(firstDay)).toBe(false)
+
+      const bothDays = { ...twoDays, resultsPublished: { ALO: ['2026-09-12', '2026-09-13'], AVO: true } }
+      expect(hasAllResultsPublished(bothDays)).toBe(true)
+      expect(hasAllResultsPublished({ ...twoDays, resultsPublished: { ALO: true, AVO: true } })).toBe(true)
+    })
+
+    it('count a two-day classless event only once both its days are out', () => {
+      const classless = { classes: [], endDate: '2026-09-27', startDate: '2026-09-26' }
+      expect(hasAllResultsPublished({ ...classless, resultsPublished: ['2026-09-26'] })).toBe(false)
+      expect(hasAllResultsPublished({ ...classless, resultsPublished: ['2026-09-26', '2026-09-27'] })).toBe(true)
+    })
+  })
+
+  describe('withResultsDay', () => {
+    const event = { ...twoDays, classes: twoDays.classes.map((item) => ({ ...item, state: undefined })) }
+
+    it('publishes only the day it names, whatever the clock says', () => {
+      expect(withResultsDay({ ...event, resultsPublished: undefined }, 'ALO', '2026-09-12', true)).toEqual({
+        ALO: ['2026-09-12'],
+        AVO: false,
+      })
+    })
+
+    it('folds the last day into a plain true and the last hidden day into false', () => {
+      const firstDay = { ...event, resultsPublished: { ALO: ['2026-09-12'] } }
+      expect(withResultsDay(firstDay, 'ALO', '2026-09-13', true)).toEqual({ ALO: true, AVO: false })
+      expect(withResultsDay(firstDay, 'ALO', '2026-09-12', false)).toEqual({ ALO: false, AVO: false })
+    })
+
+    it('hides one day of a class published as a whole and keeps the other', () => {
+      const everyDay = { ...event, resultsPublished: { ALO: true, AVO: true } }
+      expect(withResultsDay(everyDay, 'ALO', '2026-09-12', false)).toEqual({ ALO: ['2026-09-13'], AVO: true })
+    })
+
+    it('keeps an event-wide true for every class while publishing one of them', () => {
+      expect(withResultsDay({ ...event, resultsPublished: true }, 'ALO', '2026-09-13', false)).toEqual({
+        ALO: ['2026-09-12'],
+        AVO: true,
+      })
+    })
+
+    it('stores the days as day keys, even where a revived date found its way into the flag', () => {
+      // A date stands where the client's reviver would have put one; the stored list holds keys only.
+      const revived = { ...event, resultsPublished: { ALO: [new Date('2026-09-12T09:00:00.000Z')] } }
+      expect(withResultsDay(revived, 'AVO', '2026-09-12', true)).toEqual({ ALO: ['2026-09-12'], AVO: true })
+    })
+
+    it('publishes a classless event day by day as its one scope', () => {
+      const classless = { classes: [], endDate: '2026-09-27', resultsPublished: undefined, startDate: '2026-09-26' }
+      expect(withResultsDay(classless, undefined, '2026-09-26', true)).toEqual(['2026-09-26'])
+      expect(withResultsDay({ ...classless, resultsPublished: ['2026-09-26'] }, undefined, '2026-09-27', true)).toBe(
+        true
+      )
+    })
+  })
+
+  describe('hasDayStarted', () => {
+    it('opens a day at its midnight in Finnish time', () => {
+      expect(hasDayStarted('2026-09-13', new Date('2026-09-12T23:59:00+03:00'))).toBe(false)
+      expect(hasDayStarted('2026-09-13', new Date('2026-09-13T00:00:00+03:00'))).toBe(true)
+      expect(hasDayStarted(new Date('2026-09-12'), new Date('2026-09-12T08:00:00+03:00'))).toBe(true)
+    })
+  })
+
+  describe('a classless two-day trial', () => {
+    freezeClockAt('2026-09-27')
+
+    const classless = {
+      classes: [],
+      endDate: new Date('2026-09-27'),
+      resultsPublished: ['2026-09-26'],
+      startDate: new Date('2026-09-26'),
+      startListPublished: true,
+      state: 'invited' as const,
+    }
+
+    it('shows the dog of the published day only', () => {
+      expect(isResultsAvailableForRegistration(classless, { group: { date: new Date('2026-09-26') } })).toBe(true)
+      expect(isResultsAvailableForRegistration(classless, { group: { date: new Date('2026-09-27') } })).toBe(false)
+    })
+
+    it('lists the trial among those with results once a day is out', () => {
+      expect(hasAvailableResults(classless)).toBe(true)
+      expect(hasAvailableResults({ ...classless, resultsPublished: [] })).toBe(false)
     })
   })
 })
@@ -1754,6 +1882,20 @@ describe('the results step in the progress', () => {
     expect(getEventProgress({ ...ended, resultsPublished: { ALO: true } }, after).phase).toBe('ended')
   })
 
+  it('stops at ended while a class has only its first day published (KOE-1510)', () => {
+    const twoDays = {
+      ...ended,
+      classes: [...ended.classes, { class: 'ALO' as const, date: new Date('2026-09-13'), state: 'ended' as const }],
+      endDate: new Date('2026-09-13'),
+      resultsPublished: { ALO: ['2026-09-12'], AVO: true },
+    }
+
+    expect(getEventProgress(twoDays, after).resultsCompleted).toBe(false)
+    expect(getEventProgress({ ...twoDays, resultsPublished: { ALO: true, AVO: true } }, after).resultsCompleted).toBe(
+      true
+    )
+  })
+
   it('reaches the results step once every class is published', () => {
     const published = { ...ended, resultsPublished: { ALO: true, AVO: true } }
 
@@ -1789,28 +1931,45 @@ describe('isResultsAvailableForRegistration', () => {
     expect(isResultsAvailableForRegistration(partly, dog('AVO'))).toBe(false)
   })
 
-  it('matches the class entry on the day the dog runs', () => {
-    // A multi-day event has one entry per class per day, and they can be in different states.
+  describe('on the first day of a two-day trial (KOE-1510)', () => {
+    freezeClockAt('2026-09-12')
+
+    // The class states are the ones the workflow really writes: it never goes past 'invited', so the
+    // calendar has the trial under way and only the flag can tell the two days apart.
     const twoDays = {
       classes: [
-        { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+        { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'invited' as const },
         { class: 'ALO' as const, date: new Date('2026-09-13'), state: 'invited' as const },
       ],
-      // No end date, so only the class states decide: the date path reads the whole event and would
-      // open the second day too once the trial is under way.
-      endDate: undefined,
-      resultsPublished: true,
+      endDate: new Date('2026-09-13'),
       startDate: new Date('2026-09-12'),
-      state: 'ended' as const,
+      startListPublished: true,
+      state: 'invited' as const,
     }
+    const firstDayDog = { class: 'ALO', group: { date: new Date('2026-09-12') } }
+    const secondDayDog = { class: 'ALO', group: { date: new Date('2026-09-13') } }
 
-    expect(isResultsAvailableForRegistration(twoDays, { class: 'ALO', group: { date: new Date('2026-09-12') } })).toBe(
-      true
-    )
-    // The second day has not run yet, so nothing to show even though the flag is on.
-    expect(isResultsAvailableForRegistration(twoDays, { class: 'ALO', group: { date: new Date('2026-09-13') } })).toBe(
-      false
-    )
+    it('shows the first day only once that day is published', () => {
+      const firstDay = { ...twoDays, resultsPublished: { ALO: ['2026-09-12'] } }
+
+      expect(isResultsAvailableForRegistration(firstDay, firstDayDog)).toBe(true)
+      // The second day is being scored now; its results wait for their own publish.
+      expect(isResultsAvailableForRegistration(firstDay, secondDayDog)).toBe(false)
+    })
+
+    it('reads a day the JSON reviver turned into a date', () => {
+      const revived = { ...twoDays, resultsPublished: { ALO: [new Date('2026-09-12')] } }
+
+      expect(isResultsAvailableForRegistration(revived, firstDayDog)).toBe(true)
+      expect(isResultsAvailableForRegistration(revived, secondDayDog)).toBe(false)
+    })
+
+    it('still reads a plain true as every day, so stored events keep their meaning', () => {
+      const everyDay = { ...twoDays, resultsPublished: { ALO: true } }
+
+      expect(isResultsAvailableForRegistration(everyDay, firstDayDog)).toBe(true)
+      expect(isResultsAvailableForRegistration(everyDay, secondDayDog)).toBe(true)
+    })
   })
 
   it('shows the results of a classless event once its one flag is on (KOE-1464)', () => {
@@ -1853,6 +2012,35 @@ describe('isEventLive', () => {
 
   it('is quiet with nothing run', () => {
     expect(isEventLive({ classes: [{ class: 'ALO' }] }, now)).toBe(false)
+  })
+
+  describe('on a two-day trial published day by day (KOE-1510)', () => {
+    const twoDays = {
+      classes: [
+        { class: 'ALO' as const, date: '2026-09-12' },
+        { class: 'ALO' as const, date: '2026-09-13' },
+      ],
+      endDate: '2026-09-13',
+      resultsPublished: { ALO: ['2026-09-12'] },
+      startDate: '2026-09-12',
+    }
+
+    it('goes quiet once the day is published, though the next day is still to come', () => {
+      const evening = new Date('2026-09-12T18:00:00+03:00')
+      expect(isEventLive({ ...twoDays, liveTurns: running }, evening)).toBe(false)
+    })
+
+    it('lights up again with the turn of the next morning', () => {
+      const sunday = new Date('2026-09-13T10:00:00+03:00')
+      const sundayTurn = [{ startedAt: new Date('2026-09-13T08:00:00+03:00') }]
+      expect(isEventLive({ ...twoDays, liveTurns: sundayTurn }, sunday)).toBe(true)
+    })
+
+    it('reads a classless event by its own day', () => {
+      const classless = { classes: [], endDate: '2026-09-13', startDate: '2026-09-12' }
+      expect(isEventLive({ ...classless, liveTurns: running, resultsPublished: ['2026-09-12'] }, now)).toBe(false)
+      expect(isEventLive({ ...classless, liveTurns: running, resultsPublished: ['2026-09-13'] }, now)).toBe(true)
+    })
   })
 })
 

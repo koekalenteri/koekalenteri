@@ -70,6 +70,10 @@ export const putStartNumbers = vi.fn(async (_eventId: string, _request: unknown,
   event: mockEvents[0],
 }))
 
+export const putResultsPublished = vi.fn(async (_eventId: string, _request: unknown, _token?: string) => ({
+  event: mockEvents[0],
+}))
+
 export const getEventAuditTrail = vi.fn(
   async (_id: string, _token: string, _signal?: AbortSignal): Promise<AuditRecord[] | undefined> => []
 )

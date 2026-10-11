@@ -15,6 +15,8 @@ import type {
   RegistrationClass,
   RegistrationDate,
   RegistrationTime,
+  ResultsDayScope,
+  ResultsPublishedState,
   SanitizedJsonPublicDogEvent,
   SanitizedPublicConfirmedDogEvent,
   SanitizedPublicDogEvent,
@@ -30,7 +32,7 @@ import { nextSaturday } from 'date-fns/nextSaturday'
 import { parseISO } from 'date-fns/parseISO'
 import { sub } from 'date-fns/sub'
 import { subDays } from 'date-fns/subDays'
-import { formatDate, TIME_ZONE, zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
+import { formatDate, TIME_ZONE, zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../i18n/dates'
 import { LANGUAGES } from '../types'
 import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
@@ -301,7 +303,8 @@ type EventDates = { [K in 'startDate' | 'endDate']: EventVitals[K] }
 
 export type StartListAvailabilityEvent = Pick<JsonDogEvent, 'state' | 'startListPublished'> &
   EventDates & {
-    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+    /** The day too, where the caller has it: the results of each day are published on their own (KOE-1510). */
+    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
   }
 
 /** What a per-class results gate reads besides the dates. */
@@ -361,72 +364,128 @@ export const canPublishResults = (
   now = new Date()
 ) => state === 'started' || state === 'ended' || state === 'completed' || hasReachedPhaseByDate(event, 'started', now)
 
+/** Whether the day has begun in the event's zone: before it, none of its dogs has run (KOE-1510). */
+export const hasDayStarted = (day: Date | string, now = new Date()) =>
+  zonedParseDate(startListAvailabilityDateKey(day)) <= now
+
 const isResultsPublishedClassMap = (
   resultsPublished: JsonDogEvent['resultsPublished']
-): resultsPublished is Partial<Record<RegistrationClass, boolean>> =>
-  typeof resultsPublished === 'object' && resultsPublished !== null
+): resultsPublished is Partial<Record<RegistrationClass, ResultsDayScope>> =>
+  typeof resultsPublished === 'object' && resultsPublished !== null && !Array.isArray(resultsPublished)
 
 /**
- * Publishing is explicit. Where the start list treats an absent flag as published — its records predate
- * the flag — an absent results flag means not published: a result nobody released must not leak.
+ * The days whose results are out, for the class or, given none, for a classless event (NOU, NOME-A),
+ * whose one scope covers the whole event (KOE-1464, KOE-1510). A class map names classes, so it has
+ * nothing to say about an event without one.
  *
- * Without a class it answers for a classless event (NOU, NOME-A), whose one flag covers the whole
- * event (KOE-1464).
+ * Publishing is explicit. Where the start list treats an absent flag as published (its records
+ * predate the flag), an absent results flag means not published: a result nobody released must not
+ * leak.
  */
-export const isResultsPublished = (event: Pick<JsonDogEvent, 'resultsPublished'>, eventClass?: RegistrationClass) =>
-  isResultsPublishedClassMap(event.resultsPublished)
-    ? eventClass !== undefined && event.resultsPublished[eventClass] === true
-    : event.resultsPublished === true
+const getResultsDayScope = (
+  { resultsPublished }: Pick<JsonDogEvent, 'resultsPublished'>,
+  eventClass?: RegistrationClass
+): ResultsDayScope => {
+  if (!isResultsPublishedClassMap(resultsPublished)) return resultsPublished ?? false
+  return eventClass ? (resultsPublished[eventClass] ?? false) : false
+}
 
-/** Every class's results are out — the public list is no longer just participants (KOE-1285). */
-export const hasAllResultsPublished = (
-  event: Pick<JsonDogEvent, 'resultsPublished'> & { classes?: Array<Pick<EventClass, 'class'>> | null }
-): boolean => {
+/** Whether one day's results of the class, or of a classless event, are out (KOE-1510). */
+export const isResultsPublishedForDay = (
+  event: Pick<JsonDogEvent, 'resultsPublished'>,
+  eventClass: RegistrationClass | undefined,
+  date: Date | string | undefined
+) => scopeHasDay(getResultsDayScope(event, eventClass), date)
+
+type ResultsDaysEvent = Pick<JsonDogEvent, 'resultsPublished'> & ClassDaysEvent
+
+/** Whether the results of every day the class runs, or the classless event does, are out. */
+export const isResultsPublished = (event: ResultsDaysEvent, eventClass?: RegistrationClass) =>
+  scopeHasEveryDay(getResultsDayScope(event, eventClass), getClassDays(event, eventClass))
+
+/** Every day of every class has its results out: the public list is no longer just participants (KOE-1285). */
+export const hasAllResultsPublished = (event: ResultsDaysEvent): boolean => {
   const classes = uniqueClasses(event)
   if (classes.length === 0) return isResultsPublished(event)
   return classes.every((eventClass) => isResultsPublished(event, eventClass))
 }
 
 /**
- * Whether the event is live: a post has been run today (or a span is still open) and the trial is not
- * over. The one rule for the calendar's chip and the start list's live section alike — it holds to
- * the end of the day, or to the results' publication if that comes first, and a two-day trial lights
- * up again with the next morning's first turn.
+ * Whether today's results are all out: those of every class entry dated today in the event's zone,
+ * or a classless event's today (KOE-1510). A trial whose entries name no day today falls back on the
+ * whole trial being published.
+ */
+const isTodaysResultsPublished = (event: ResultsDaysEvent, now: Date) => {
+  const classes = event.classes ?? []
+  if (classes.length === 0) return isResultsPublishedForDay(event, undefined, now)
+
+  const today = startListAvailabilityDateKey(now)
+  const todays = classes.filter((item) => {
+    const date = item.date ?? event.startDate
+    return !!date && startListAvailabilityDateKey(date) === today
+  })
+  if (todays.length === 0) return hasAllResultsPublished(event)
+  return todays.every((item) => isResultsPublishedForDay(event, item.class, today))
+}
+
+/**
+ * Whether the event is live: a post has been run today (or a span is still open) and the day's
+ * results are not yet all out. The one rule for the calendar's chip and the start list's live section
+ * alike: it holds to the end of the day, or to the publication of the day's results if that comes
+ * first, and a two-day trial lights up again with the next morning's first turn.
  */
 export const isEventLive = (
-  event: Pick<JsonDogEvent, 'resultsPublished'> & {
-    classes?: Array<Pick<EventClass, 'class'>> | null
+  event: ResultsDaysEvent & {
     liveTurns?: readonly { startedAt: string | Date; endedAt?: string | Date }[]
   },
   now: Date = new Date()
-): boolean => !hasAllResultsPublished(event) && isLiveNow(event.liveTurns ?? [], now)
+): boolean => !isTodaysResultsPublished(event, now) && isLiveNow(event.liveTurns ?? [], now)
 
 /**
- * A result reaches the public on the start list's own rows — it has no other transport — so a published
- * result on an unpublished list is invisible. Requiring the list here keeps the two from disagreeing,
- * and means hiding a list hides the results riding on it.
+ * A result reaches the public on the start list's rows, so a published result on an unpublished list
+ * is invisible. Requiring the list here keeps the two from disagreeing, and means hiding a list hides
+ * the results riding on it. The entry's own day decides, because each day of a class is published on
+ * its own (KOE-1510).
  */
 export const isResultsAvailableForClass = (
   event: ResultsGateFlags & EventVitals,
-  eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
+  eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }
 ) =>
   isStartListAvailableForClass(event, eventClass) &&
   canPublishResults(eventClass.state ?? event.state, event) &&
-  isResultsPublished(event, eventClass.class)
+  isResultsPublishedForDay(event, eventClass.class, eventClass.date ?? event.startDate)
 
-export const getResultsPublishedClassMap = ({
-  classes,
-  resultsPublished,
-}: Pick<JsonDogEvent, 'resultsPublished'> & {
-  classes: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
-}): Partial<Record<RegistrationClass, boolean>> => {
-  const existingMap = isResultsPublishedClassMap(resultsPublished) ? resultsPublished : {}
-  const result: Partial<Record<RegistrationClass, boolean>> = {}
+type ResultsFoldEvent = Pick<JsonDogEvent, 'resultsPublished' | 'classes' | 'startDate' | 'endDate'>
 
-  for (const eventClass of classes) {
-    result[eventClass.class] = existingMap[eventClass.class] ?? resultsPublished === true
+/** A class's results scope as it is stored: day keys only, `true` for every day and `false` for none. */
+const foldResultsScope = (
+  event: ResultsFoldEvent,
+  eventClass: RegistrationClass | undefined,
+  change?: { day: string; published: boolean }
+): ResultsDayScope => {
+  const days = getClassDays(event, eventClass)
+  const keys = scopeKeys(getResultsDayScope(event, eventClass), days)
+  return foldDayScope(change ? withDayKey(keys, change.day, change.published) : keys, days)
+}
+
+/**
+ * The stored flag once one day of the class, or of a classless event, is published or hidden
+ * (KOE-1510). Only the named day changes, whatever the clock says about the others. Every class is
+ * written back as day keys, so no date an earlier write let in survives the next.
+ */
+export const withResultsDay = (
+  event: ResultsFoldEvent,
+  eventClass: RegistrationClass | undefined,
+  day: string,
+  published: boolean
+): ResultsPublishedState => {
+  const change = { day, published }
+  if (!eventClass) return foldResultsScope(event, undefined, change)
+
+  const result: Partial<Record<RegistrationClass, ResultsDayScope>> = {}
+  for (const item of uniqueClasses(event)) {
+    result[item] = foldResultsScope(event, item, item === eventClass ? change : undefined)
   }
-
   return result
 }
 
@@ -676,20 +735,23 @@ export const isStartListAvailableForRegistration = (
   return eventClass ? isStartListAvailableForClass(event, eventClass) : false
 }
 
-type StartNumbersDaysEvent = Pick<JsonDogEvent, 'startNumbersPublished'> & {
+/** What reading the days a class runs needs: its entries, or the event's own span where it has none. */
+type ClassDaysEvent = {
   classes?: Array<Pick<JsonDogEvent['classes'][number], 'class'> & { date?: Date | string }>
   startDate?: Date | string
   endDate?: Date | string
 }
+
+type StartNumbersDaysEvent = Pick<JsonDogEvent, 'startNumbersPublished'> & ClassDaysEvent
 
 /**
  * The days a class runs, as day keys: one class entry per day, or the event's own days when it has
  * none. A classless span is capped: no trial runs longer, and an open-ended fixture (an end date
  * decades away) must not turn a render into a loop over ten thousand days.
  */
-const START_NUMBERS_MAX_DAYS = 14
+const CLASS_MAX_DAYS = 14
 
-export const getStartNumbersClassDays = (event: StartNumbersDaysEvent, eventClass?: string): string[] => {
+export const getClassDays = (event: ClassDaysEvent, eventClass?: string): string[] => {
   const classes = event.classes ?? []
   const classDates = eventClass
     ? classes.filter((item) => item.class === eventClass).map((item) => item.date ?? event.startDate)
@@ -701,7 +763,7 @@ export const getStartNumbersClassDays = (event: StartNumbersDaysEvent, eventClas
   const days: string[] = []
   const first = zonedStartOfDay(event.startDate)
   const last = startListAvailabilityDateKey(event.endDate ?? event.startDate)
-  for (let offset = 0; offset < START_NUMBERS_MAX_DAYS; offset++) {
+  for (let offset = 0; offset < CLASS_MAX_DAYS; offset++) {
     const key = startListAvailabilityDateKey(addDays(first, offset))
     days.push(key)
     if (key >= last) break
@@ -759,16 +821,49 @@ const scopeSlotKeys = (scope: Array<string | Date>) =>
 /** Only the whole days of a scope list: a half-day entry does not make its day published. */
 const scopeDayKeys = (scope: Array<string | Date>) => scopeSlotKeys(scope).filter((key) => !key.includes('/'))
 
+/** A scope of published days, the start numbers' or the results': every day, none, or the listed ones. */
+type DayScope = StartNumbersDayScope | ResultsDayScope
+
+/** Whether a scope covers the day: a list by its whole days, a plain flag every day alike. */
+const scopeHasDay = (scope: DayScope, date: Date | string | undefined) =>
+  Array.isArray(scope) ? !!date && scopeDayKeys(scope).includes(startListAvailabilityDateKey(date)) : scope
+
+/** Whether a scope covers every one of the days; a list covers nothing of a class without days. */
+const scopeHasEveryDay = (scope: DayScope, days: string[]) => {
+  if (!Array.isArray(scope)) return scope
+
+  const published = scopeDayKeys(scope)
+  return days.length > 0 && days.every((day) => published.includes(day))
+}
+
+/** The keys a scope covers, `true` standing for every one of the days. */
+export const scopeKeys = (scope: DayScope, days: string[]): string[] => {
+  if (Array.isArray(scope)) return scopeSlotKeys(scope)
+  return scope ? days : []
+}
+
+/** One whole day published or hidden in a list of keys; nothing else in the list moves. */
+export const withDayKey = (keys: string[], day: string, published: boolean) =>
+  published ? [...keys, day] : keys.filter((key) => key !== day)
+
+/**
+ * A list of keys folded back into the stored scope: in order and without repeats, `true` once it
+ * covers every day and `false` once it is empty. A class published day by day therefore ends up
+ * stored as it was before day lists existed.
+ */
+export const foldDayScope = (keys: string[], days: string[]): DayScope => {
+  const next = [...new Set(keys)].sort((a, b) => a.localeCompare(b))
+  if (next.length === 0) return false
+  if (days.every((day) => next.includes(day))) return true
+  return next
+}
+
 /** Whether the numbers of one day of the class (or of a classless event) are out (KOE-1304). */
 export const isStartNumbersPublishedForDay = (
   event: Pick<JsonDogEvent, 'startNumbersPublished'>,
   eventClass: string | undefined,
   date: Date | string | undefined
-) => {
-  const scope = getStartNumbersDayScope(event, eventClass)
-  if (Array.isArray(scope)) return !!date && scopeDayKeys(scope).includes(startListAvailabilityDateKey(date))
-  return scope
-}
+) => scopeHasDay(getStartNumbersDayScope(event, eventClass), date)
 
 /**
  * Whether the numbers of one slot are out (KOE-1430): the whole day counts, and so does the half the
@@ -792,19 +887,13 @@ export const isStartNumbersPublishedForSlot = (
 }
 
 /** Whether the class's numbers are out for every day it runs: a day list only counts once it is complete. */
-export const isStartNumbersPublishedForClass = (event: StartNumbersDaysEvent, eventClass?: string) => {
-  const scope = getStartNumbersDayScope(event, eventClass)
-  if (!Array.isArray(scope)) return scope
-
-  const published = scopeDayKeys(scope)
-  const days = getStartNumbersClassDays(event, eventClass)
-  return days.length > 0 && days.every((day) => published.includes(day))
-}
+export const isStartNumbersPublishedForClass = (event: StartNumbersDaysEvent, eventClass?: string) =>
+  scopeHasEveryDay(getStartNumbersDayScope(event, eventClass), getClassDays(event, eventClass))
 
 /** The days of the class whose numbers are out, for telling a partly published class apart (KOE-1304). */
 export const getPublishedStartNumbersDays = (event: StartNumbersDaysEvent, eventClass?: string): string[] => {
   const scope = getStartNumbersDayScope(event, eventClass)
-  const days = getStartNumbersClassDays(event, eventClass)
+  const days = getClassDays(event, eventClass)
   if (Array.isArray(scope)) {
     const published = scopeDayKeys(scope)
     return days.filter((day) => published.includes(day))
@@ -828,7 +917,7 @@ export const getPublishedStartNumbersSlots = (
   eventClass?: string
 ): PublishedStartNumbersSlot[] => {
   const scope = getStartNumbersDayScope(event, eventClass)
-  const days = getStartNumbersClassDays(event, eventClass)
+  const days = getClassDays(event, eventClass)
   if (!Array.isArray(scope)) return scope ? days.map((date) => ({ date })) : []
 
   const keys = scopeSlotKeys(scope)
@@ -922,15 +1011,21 @@ export const getStartNumbersPublishedClassMap = ({
   return result
 }
 
+/** A classless event's list is out and its trial has run, so its published days can be read. */
+const isClasslessResultsOpen = (event: ResultsAvailabilityEvent) =>
+  isStartListAvailable(event) && canPublishResults(event.state, event)
+
 /**
- * Whether any results can be read on the public start list page: some class whose list and results are
- * both public, the same class for both. A list public in one class and results in another show nothing.
- * A classless event (NOU, NOME-A) publishes its results as the one flag for the whole event (KOE-1464).
+ * Whether any results can be read on the public start list page: some class day whose list and results
+ * are both public, the same class for both. A list public in one class and results in another show
+ * nothing. A classless event (NOU, NOME-A) publishes its results as one scope for the whole event
+ * (KOE-1464), any day of which will do here.
  */
 export const hasAvailableResults = (event: ResultsAvailabilityEvent): boolean => {
   if (event.classes?.length) return event.classes.some((eventClass) => isResultsAvailableForClass(event, eventClass))
 
-  return isStartListAvailable(event) && canPublishResults(event.state, event) && isResultsPublished(event)
+  const scope = getResultsDayScope(event)
+  return isClasslessResultsOpen(event) && (Array.isArray(scope) ? scope.length > 0 : scope)
 }
 
 /**
@@ -943,7 +1038,11 @@ export const isResultsAvailableForRegistration = (
   event: ResultsAvailabilityEvent & AvailabilityEvent,
   registration: AvailabilityRegistration
 ) => {
-  if (!event.classes?.length) return hasAvailableResults(event)
+  if (!event.classes?.length) {
+    // A classless event publishes day by day too: the dog's own day decides (KOE-1510).
+    const date = registration.group.date ?? event.startDate
+    return isClasslessResultsOpen(event) && isResultsPublishedForDay(event, undefined, date)
+  }
 
   const eventClass = findRegistrationClass(event, registration)
 

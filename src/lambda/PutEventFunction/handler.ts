@@ -5,12 +5,11 @@ import {
   getEventSeason,
   isEntryOpen,
   isEventDeletable,
-  isResultsPublished,
   isStartNumbersAvailable,
   isStartNumbersAvailableForClass,
   uniqueClasses,
 } from '../../lib/event'
-import { getResultsBlocker, getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
+import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
 import { eventBodySchema } from '../../lib/schema/event'
 import { patchMerge } from '../../lib/utils'
@@ -98,8 +97,8 @@ const newlyPublished = (
 
 /**
  * The panel greys its buttons by the publishing rules, but a button is no guard: the same rules hold
- * here, from the same code (KOE-1466). The start list waits on its participants and their invitations,
- * the results on the start list and on the trial having run.
+ * here, from the same code (KOE-1466). The start list waits on its participants and their invitations.
+ * The results are not published here at all, see putEventLambda.
  */
 const checkPublishing = async (
   existing: JsonConfirmedEvent | undefined,
@@ -111,19 +110,12 @@ const checkPublishing = async (
   const startLists = Object.hasOwn(item, 'startListPublished')
     ? newlyPublished(data, isStartListFlagPublished, existing)
     : []
-  const results = Object.hasOwn(item, 'resultsPublished') ? newlyPublished(data, isResultsPublished, existing) : []
-
   if (startLists.length) {
     const participants = groupParticipantsByClass(await getRegistrationsByEventId(data.id))
     for (const eventClass of startLists) {
       const reason = getStartListBlocker(data, eventClass, participants[eventClass ?? data.eventType] ?? [])
       if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'startList', reason })
     }
-  }
-
-  for (const eventClass of results) {
-    const reason = getResultsBlocker(data, eventClass)
-    if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'results', reason })
   }
 }
 
@@ -161,8 +153,6 @@ const initializeNewEvent = (item: Patch<JsonConfirmedEvent>, timestamp: string, 
   // The numbers are the secretary's own decision (KOE-1006); old events lack the field and read as
   // published, so only a new event starts from the explicit 'not yet'.
   item.startNumbersPublished = false
-  // A new event has no results to have published; a client-side copy would otherwise carry the flag.
-  delete item.resultsPublished
 }
 
 const invalidEventDateField = (data: JsonConfirmedEvent) =>
@@ -250,6 +240,10 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   const item: Patch<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
   validateBody(eventBodySchema, item)
+  // Results are published a day at a time through PutResultsPublishedFunction, which folds the day
+  // into the stored flag and holds it to its rules (KOE-1510). A flag riding an event save, a stale
+  // copy or one a client-side copy of the event carried, is never taken: the stored one stays.
+  delete item.resultsPublished
 
   const clientModifiedAt = item.modifiedAt
 

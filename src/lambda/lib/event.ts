@@ -10,11 +10,13 @@ import type {
   JsonRegistrationGroupInfo,
   Patch,
   Registration,
+  RegistrationClass,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
 import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
+import { withResultsDay } from '../../lib/event'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { mapWithConcurrency } from '../../lib/utils'
@@ -454,3 +456,30 @@ export const linkedEventProjection = (confirmedEvent: JsonConfirmedEvent): JsonL
   names: confirmedEvent.names,
   startDate: confirmedEvent.startDate,
 })
+
+interface ResultsDayPublish {
+  /** The class whose day changes; absent for a classless event. */
+  eventClass?: RegistrationClass
+  /** The day, yyyy-MM-dd. Only this day changes (KOE-1510). */
+  date: string
+  published: boolean
+}
+
+/**
+ * Publish or hide one day's results on the event record (KOE-1510). The scope is folded here from the
+ * stored day keys, never from a client's copy, whose JSON reviver has turned them into dates.
+ *
+ * `updatedAt` moves with the flag so an incremental fetch carries it, as with the start numbers
+ * (KOE-1352). `modifiedAt` stays: publishing is not an edit to the event.
+ */
+export const setResultsPublishedState = async (
+  confirmedEvent: JsonConfirmedEvent,
+  { date, eventClass, published }: ResultsDayPublish,
+  now: Date = new Date()
+): Promise<Pick<JsonConfirmedEvent, 'resultsPublished' | 'updatedAt'>> => {
+  const resultsPublished = withResultsDay(confirmedEvent, eventClass, date, published)
+  const updatedAt = now.toISOString()
+  await dynamoDB.update({ id: confirmedEvent.id }, { set: { resultsPublished, updatedAt } }, eventTable)
+
+  return { resultsPublished, updatedAt }
+}

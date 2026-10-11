@@ -185,8 +185,8 @@ export default function EventViewPage() {
       <Title event={event} />
       <InfoPanel
         event={event}
-        onSetResultsPublished={(eventClass, published) =>
-          eventActions.setResultsPublished(event, eventClass, published)
+        onSetResultsPublished={(eventClass, date, published) =>
+          eventActions.setResultsPublished(event, eventClass, date, published)
         }
         onSetStartNumbersPublished={(eventClass, published, date, time) =>
           eventClass

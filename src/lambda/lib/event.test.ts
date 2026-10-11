@@ -37,6 +37,7 @@ const {
   patchEvent,
   saveEvent,
   saveGroup,
+  setResultsPublishedState,
   updateRegistrations,
   upgradeClassState,
   upgradeEventState,
@@ -448,8 +449,8 @@ describe('lib/event', () => {
       expect(result.members).toBe(1)
 
       // Verify class counts
-      const aloClass = result.classes.find((c: any) => c.class === 'ALO')
-      const avoClass = result.classes.find((c: any) => c.class === 'AVO')
+      const aloClass = result.classes.find((c) => c.class === 'ALO')
+      const avoClass = result.classes.find((c) => c.class === 'AVO')
       expect(aloClass?.entries).toBe(2)
       expect(aloClass?.members).toBe(0)
       expect(avoClass?.entries).toBe(1)
@@ -501,8 +502,8 @@ describe('lib/event', () => {
       expect(result.members).toBe(0)
 
       // Verify class counts were updated to zero
-      const aloClass = result.classes.find((c: any) => c.class === 'ALO')
-      const avoClass = result.classes.find((c: any) => c.class === 'AVO')
+      const aloClass = result.classes.find((c) => c.class === 'ALO')
+      const avoClass = result.classes.find((c) => c.class === 'AVO')
       expect(aloClass?.entries).toBe(0)
       expect(aloClass?.members).toBe(0)
       expect(avoClass?.entries).toBe(0)
@@ -1320,6 +1321,57 @@ describe('lib/event', () => {
       expect(upgradeEventState('invited', 'invited')).toBe('invited')
       expect(upgradeEventState('started', 'started')).toBe('started')
       expect(upgradeEventState('ended', 'ended')).toBe('ended')
+    })
+  })
+
+  describe('setResultsPublishedState', () => {
+    const twoDays = asJsonConfirmedEvent({
+      classes: [
+        { class: 'ALO', date: '2026-09-12' },
+        { class: 'ALO', date: '2026-09-13' },
+      ],
+      endDate: '2026-09-13',
+      id: 'event-1',
+      resultsPublished: { ALO: ['2026-09-12'] },
+      startDate: '2026-09-12',
+    })
+    const now = new Date('2026-09-13T15:00:00.000Z')
+
+    beforeEach(() => {
+      mockUpdate.mockReset()
+    })
+
+    it('writes the flag with the named day folded in, and moves updatedAt with it (KOE-1510)', async () => {
+      const state = await setResultsPublishedState(
+        twoDays,
+        { date: '2026-09-13', eventClass: 'ALO', published: true },
+        now
+      )
+
+      expect(state).toEqual({ resultsPublished: { ALO: true }, updatedAt: '2026-09-13T15:00:00.000Z' })
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { resultsPublished: { ALO: true }, updatedAt: '2026-09-13T15:00:00.000Z' } },
+        expect.any(String)
+      )
+    })
+
+    it('hides one day and leaves the other as it was', async () => {
+      const state = await setResultsPublishedState(
+        twoDays,
+        { date: '2026-09-12', eventClass: 'ALO', published: false },
+        now
+      )
+
+      expect(state.resultsPublished).toEqual({ ALO: false })
+    })
+
+    it('lets a failed write through rather than claiming the change', async () => {
+      mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+
+      await expect(
+        setResultsPublishedState(twoDays, { date: '2026-09-13', eventClass: 'ALO', published: true }, now)
+      ).rejects.toThrow('throttled')
     })
   })
 })

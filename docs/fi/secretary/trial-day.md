@@ -97,8 +97,13 @@ kalenteri pyytää vahvistuksen. Julkaisu edellyttää, että luokan starttilist
 rivillä lukee *{t:eventManagement.results.startListRequired}* — ja että koe on alkanut. Julkaistu
 tulos näkyy julkisella starttilistalla koirakon rivin viimeisenä rivinä, ja myöhemmin tallennetut
 korjaukset näkyvät siellä sellaisinaan. **{t:eventManagement.results.hide}** piilottaa
-luokan tulokset uudelleen. Kokeessa, jossa ei ole luokkia (esimerkiksi NOU), on yksi koetyypin
-mukaan nimetty rivi, joka julkaisee koko kokeen tulokset.
+rivin tulokset uudelleen. Kokeessa, jossa ei ole luokkia (esimerkiksi NOU), on koetyypin mukaan
+nimetty rivi, joka julkaisee koko kokeen tulokset.
+
+Useampipäiväisessä kokeessa jokaisella luokalla on oma rivi kullekin koepäivälle, ja jokainen päivä
+julkaistaan ja piilotetaan erikseen. Ensimmäisen päivän tulokset voi julkaista heti päivän
+päätteeksi, eikä toisen päivän tuloksia näytetä, ennen kuin myös se päivä on julkaistu. Päivää ei
+voi julkaista ennen kuin se on alkanut.
 
 Julkaisu koskee vain Koekalenteria: se ei lähetä tuloksia Kennelliittoon.
 

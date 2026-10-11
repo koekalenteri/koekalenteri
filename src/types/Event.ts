@@ -41,11 +41,22 @@ export type StartNumbersDayScope = boolean | Array<string | Date>
 export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<RegistrationClass, StartNumbersDayScope>>
 
 /**
- * Same shape as `StartListPublishedState`, so per-class publishing works the same way — but not the
- * same default. An absent start list flag means published, for records that predate it; an absent
- * results flag means not published, because a result nobody released must never appear.
+ * Which days' results are out: every day (`true`), none (`false`), or the listed days as yyyy-MM-dd
+ * in the event's time zone (KOE-1510). Each day of a multi-day class is published on its own, so the
+ * first day's results can be public while the second day is still being scored. Whole days only: the
+ * halves start numbers can be drawn in do not apply to results.
+ *
+ * Stored as strings; the browser's JSON date reviver turns them into `Date`s, as with
+ * `StartNumbersDayScope`. Compare through a day key, never by string equality.
  */
-export type ResultsPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
+export type ResultsDayScope = boolean | Array<string | Date>
+
+/**
+ * Per class like `StartListPublishedState`, or one scope for a classless event, but not the same
+ * default. An absent start list flag means published, for records that predate it; an absent results
+ * flag means not published, because a result nobody released must never appear.
+ */
+export type ResultsPublishedState = ResultsDayScope | Partial<Record<RegistrationClass, ResultsDayScope>>
 
 export interface JsonInvitationAttachmentVersion {
   className?: string

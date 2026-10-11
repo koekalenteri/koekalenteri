@@ -15,8 +15,8 @@ import { zonedParseDate } from '@/i18n/dates'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { refusalCode } from '@/lib/client/startNumberErrors'
 import {
+  getClassDays,
   getPublishedStartNumbersSlots,
-  getStartNumbersClassDays,
   getStartNumbersDayTimes,
   isStartNumbersPublishedForDay,
   isStartNumbersPublishedForSlot,
@@ -59,7 +59,7 @@ interface ClassDay {
 
 /** The days a class runs, one per class entry — or the event's own days where it has no classes. */
 const classDays = (event: ConfirmedEvent, className: string): ClassDay[] =>
-  getStartNumbersClassDays(event, event.classes.length ? className : undefined).map((key) => ({
+  getClassDays(event, event.classes.length ? className : undefined).map((key) => ({
     date: zonedParseDate(key),
     key,
   }))

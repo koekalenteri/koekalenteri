@@ -1,4 +1,6 @@
 import type { JsonConfirmedEvent } from '../types'
+import { addDays } from 'date-fns'
+import { formatDate } from '../i18n/dates'
 import { getResultsBlocker, getStartListBlocker, getStartNumbersBlocker, isStartListFlagPublished } from './publishing'
 import { groupParticipantsByClass } from './registration'
 
@@ -93,6 +95,25 @@ describe('lib/publishing', () => {
       expect(getResultsBlocker(event({ state: 'ended' }), 'ALO')).toBe('startList')
       expect(getResultsBlocker(event({ startListPublished: { ALO: true } }), 'ALO')).toBe('state')
       expect(getResultsBlocker(event({ startListPublished: { ALO: true }, state: 'ended' }), 'ALO')).toBeUndefined()
+    })
+
+    it('refuses a day that has not begun, though the trial is under way (KOE-1510)', () => {
+      // The first day is today, the second tomorrow: the trial has started but the second day has not.
+      // Days in Finnish time, so the case holds in the hours UTC is still on the day before.
+      const today = formatDate(now, 'yyyy-MM-dd')
+      const tomorrow = formatDate(addDays(now, 1), 'yyyy-MM-dd')
+      const running = event({
+        classes: [
+          { class: 'ALO', date: today },
+          { class: 'ALO', date: tomorrow },
+        ],
+        endDate: tomorrow,
+        startDate: today,
+        startListPublished: { ALO: true },
+      })
+
+      expect(getResultsBlocker(running, 'ALO', today)).toBeUndefined()
+      expect(getResultsBlocker(running, 'ALO', tomorrow)).toBe('state')
     })
   })
 

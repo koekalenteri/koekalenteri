@@ -4,6 +4,7 @@ import {
   canPublishResults,
   canPublishStartList,
   getEventStateForClass,
+  hasDayStarted,
   isEntryEditingClosed,
   isStartListAvailable,
   isStartListAvailableForClass,
@@ -84,13 +85,16 @@ export const getStartNumbersBlocker = (
 
 /**
  * A result reaches the public only on the start list's rows, so it waits on the list; and there is
- * nothing to publish before the dogs have run.
+ * nothing to publish before the dogs have run. Each day is published on its own (KOE-1510), so a day
+ * that has not begun has nothing to publish either, however far the trial is.
  */
 export const getResultsBlocker = (
   event: PublishingEvent,
-  eventClass: RegistrationClass | undefined
+  eventClass: RegistrationClass | undefined,
+  day?: string | Date
 ): PublishBlocker | undefined => {
   if (!isStartListPublished(event, classEntry(event, eventClass))) return 'startList'
   if (!canPublishResults(getEventStateForClass(event, eventClass), event)) return 'state'
+  if (day && !hasDayStarted(day)) return 'state'
   return undefined
 }

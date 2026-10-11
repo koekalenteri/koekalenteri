@@ -11,6 +11,7 @@ import {
   exportEventToStage,
   putEvent,
   putInvitationAttachment,
+  putResultsPublished,
   putStartNumbers,
 } from '@/api/event'
 import { putStationTurn } from '@/api/station'
@@ -18,9 +19,8 @@ import { getChangedTopLevelKeys } from '@/lib/diff'
 import {
   compareEventsByDate,
   copyDogEvent,
-  getResultsPublishedClassMap,
   getStartListPublishedClassMap,
-  isResultsPublished,
+  isResultsPublishedForDay,
   sanitizeDogEvent,
 } from '@/lib/event'
 import { classEntry, isStartListPublished } from '@/lib/publishing'
@@ -59,21 +59,6 @@ export const buildStartListClassPublishedPatch = (
     ...getStartListPublishedClassMap(event),
     [eventClass]: published,
   },
-})
-
-/** A class's flag in the per-class map, or the one flag of a classless event (KOE-1464). */
-export const buildResultsPublishedPatch = (
-  event: DogEvent,
-  eventClass: RegistrationClass | undefined,
-  published: boolean
-): Patch<DogEvent> & { id: string } => ({
-  id: event.id,
-  resultsPublished: eventClass
-    ? {
-        ...getResultsPublishedClassMap(event),
-        [eventClass]: published,
-      }
-    : published,
 })
 
 export const buildStartListPublishedPatch = (
@@ -325,15 +310,21 @@ export const useAdminEventActions = () => {
     return saved
   }
 
+  /**
+   * One day's results of a class, or of a classless event, published or hidden (KOE-1510). The request
+   * names the day and the server folds it into the stored flag: a client's copy has been through the
+   * JSON reviver, so its stored days are dates and would not go back as the day keys they were.
+   */
   async function setResultsPublished(
     event: DogEvent,
     eventClass: RegistrationClass | undefined,
+    date: string,
     published: boolean
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
-    if (isResultsPublished(event, eventClass) === published) return event
+    if (isResultsPublishedForDay(event, eventClass, date) === published) return event
 
-    const saved = await putEvent(buildResultsPublishedPatch(event, eventClass, published), token)
+    const { event: saved } = await putResultsPublished(event.id, { date, eventClass, published }, token)
     await storeSaved(saved)
 
     return saved

@@ -1,0 +1,28 @@
+  PutResultsPublishedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/PutResultsPublishedFunction
+      Handler: handler.default
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        # The public start list is rebuilt from the event's registrations once a day's results change.
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
+      Events:
+        PutResultsPublished:
+          Type: Api
+          Properties:
+            Path: /admin/results-published/{eventId}
+            Method: PUT
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
