@@ -21,8 +21,8 @@ import { LoadingPage } from './LoadingPage'
 import { loader, Component as RegistrationInvitation } from './RegistrationInvitation'
 
 // Mock dependencies
-vi.mock('../api/event', () => ({ getEvent: vi.fn() }))
-vi.mock('../api/registration', () => ({ getRegistration: vi.fn(), patchRegistration: vi.fn() }))
+vi.mock('../api/event')
+vi.mock('../api/registration')
 
 describe('RegistrationInvitation', () => {
   beforeAll(() => vi.useFakeTimers())

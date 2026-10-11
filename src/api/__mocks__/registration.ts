@@ -83,21 +83,23 @@ export async function getRegistrations(
   })
 }
 
-export async function getRegistration(
-  eventId: string,
-  id: string,
-  _editToken?: string,
-  _signal?: AbortSignal
-): Promise<Registration | undefined> {
-  return new Promise((resolve, reject) => {
-    const registration = (mockRegistrations[eventId] || []).find((item) => item.id === id)
-    if (!registration) {
-      reject(new Error(`Registration not found ${eventId}/${id}`))
-    } else {
-      process.nextTick(() => resolve(registration))
-    }
-  })
-}
+export const getRegistration = vi.fn(
+  async (
+    eventId: string,
+    id: string,
+    _editToken?: string,
+    _signal?: AbortSignal
+  ): Promise<Registration | undefined> => {
+    return new Promise((resolve, reject) => {
+      const registration = (mockRegistrations[eventId] || []).find((item) => item.id === id)
+      if (!registration) {
+        reject(new Error(`Registration not found ${eventId}/${id}`))
+      } else {
+        process.nextTick(() => resolve(registration))
+      }
+    })
+  }
+)
 
 export const getRegistrationAuditTrail = async (
   _eventId: string,
@@ -121,16 +123,18 @@ export async function postRegistration(
   return Promise.resolve({ ...registration, id })
 }
 
-export async function patchRegistration(
-  request: RegistrationPatchRequest,
-  _editToken?: string,
-  _idToken?: string,
-  _signal?: AbortSignal
-): Promise<Registration> {
-  const registration = mockRegistrations[request.eventId]?.find((item) => item.id === request.id)
-  if (!registration) throw new Error(`Registration not found ${request.eventId}/${request.id}`)
-  return applyPatchOperations(registration, request.operations)
-}
+export const patchRegistration = vi.fn(
+  async (
+    request: RegistrationPatchRequest,
+    _editToken?: string,
+    _idToken?: string,
+    _signal?: AbortSignal
+  ): Promise<Registration> => {
+    const registration = mockRegistrations[request.eventId]?.find((item) => item.id === request.id)
+    if (!registration) throw new Error(`Registration not found ${request.eventId}/${request.id}`)
+    return applyPatchOperations(registration, request.operations)
+  }
+)
 
 export async function postAdminRegistration(
   registration: RegistrationCreateRequest,

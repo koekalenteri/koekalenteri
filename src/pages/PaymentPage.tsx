@@ -4,12 +4,13 @@ import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { Suspense, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await, useLoaderData, useParams } from 'react-router'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
+import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
 import { printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
@@ -20,7 +21,6 @@ import { LoadingPage } from './LoadingPage'
 import { ProviderButton } from './paymentPage/ProviderButton'
 import {
   createNewRegistration,
-  languageAtom,
   newRegistrationAtom,
   readStoredIdToken,
   registrationAtom,
@@ -77,14 +77,8 @@ export const PaymentPageWithData = ({
   responseErrorMessage,
   responseStatus,
 }: Props) => {
-  const [language, setLanguage] = useAtom(languageAtom)
   const { t } = useTranslation()
-
-  useEffect(() => {
-    if (registration && language !== registration.language) {
-      setLanguage(registration.language)
-    }
-  }, [language, registration?.language, registration, setLanguage])
+  useRegistrationLanguage(registration?.language)
 
   if (!event) {
     return <>{t('error.eventNotFound')}</>

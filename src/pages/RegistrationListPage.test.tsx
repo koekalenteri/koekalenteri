@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { act, fireEvent, screen } from '@testing-library/react'
+import i18n from 'i18next'
 import { Provider } from 'jotai'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -13,6 +14,7 @@ import { APIError } from '../api/http'
 import * as registrationApi from '../api/registration'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
+import { languageStorageKey } from '../lib/client/storage'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises, renderSuspended, renderSuspendedWithUserEvents } from '../test-utils/utils'
 import { RegistrationListPage } from './RegistrationListPage'
@@ -45,8 +47,12 @@ describe('RegistrationListPage', () => {
   afterEach(async () => {
     localStorage.clear()
     sessionStorage.clear()
+    // A test that switches the language leaves it in i18next and <html lang>; the next one starts in Finnish.
+    document.documentElement.lang = 'fi'
+    await i18n.changeLanguage('fi')
     vi.restoreAllMocks()
-    vi.clearAllMocks()
+    // The API mocks are vi.fn: a spy's mockResolvedValue stays on them until reset to their own body.
+    vi.resetAllMocks()
     vi.useRealTimers()
   })
 
@@ -115,6 +121,18 @@ describe('RegistrationListPage', () => {
 
     // Check that the main components are rendered
     expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
+  })
+
+  it('shows the page in the registration language over the stored one (KOE-1508)', async () => {
+    localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...registrationWithStaticDates, language: 'en' })
+
+    await renderWithRouter('/r/test1/nou-registration')
+    await flushPromises()
+
+    expect(i18n.language).toBe('en')
+    expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('en'))
+    expect(document.documentElement.lang).toBe('en')
   })
 
   it('keeps editing and cancelling behind the row menu', async () => {
