@@ -28,6 +28,11 @@ describe('Title', () => {
     expect(heading()).toHaveTextContent(/\(Kevätkoe\)$/)
   })
 
+  it('leaves the name out of the heading of a trial that has none', () => {
+    renderTitle({ ...eventWithStaticDates, name: '' })
+    expect(heading()).toHaveTextContent(/test location$/)
+  })
+
   describeInLanguage('en', () => {
     it.each([
       ['its English name', named, /\(Spring trial\)$/],

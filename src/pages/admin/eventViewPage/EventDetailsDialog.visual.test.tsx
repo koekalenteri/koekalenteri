@@ -75,6 +75,9 @@ describeInLanguage('en', () => {
   it("titles the event's details with its English name", async () => {
     const screen = await renderDialog()
 
+    // The capture is the title, not the whole dialog: the dialog holds the whole EventForm, which has
+    // screenshots of its own, and its section headings (h6) under this h2 fail axe's heading-order,
+    // a finding about EventForm inside a dialog that this change does not touch.
     const title = screen.getByRole('heading', { level: 2 })
     await expect.element(title).toHaveTextContent('Autumn trial')
     await expect(title).toMatchScreenshot('event-details-dialog-title-en')

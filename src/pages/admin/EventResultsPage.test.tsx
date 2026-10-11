@@ -306,6 +306,20 @@ describe('EventResultsPage', () => {
   })
 
   // The secretary browsing in English reads the trial's English name where one is kept (KOE-1453).
+  it('names the trial in Finnish in a Finnish view', async () => {
+    await renderQualitativePage('fi', {}, { ...eventWithStaticDates, name: 'Kevätkoe', names: { en: 'Spring trial' } })
+    await flushPromises()
+
+    expect(screen.getByText(/test location \(Kevätkoe\)$/)).toBeInTheDocument()
+  })
+
+  it('leaves the name out of the heading of a trial that has none', async () => {
+    await renderQualitativePage('fi', {}, { ...eventWithStaticDates, name: '' })
+    await flushPromises()
+
+    expect(screen.getByText(/test location$/)).toBeInTheDocument()
+  })
+
   describeInLanguage('en', () => {
     it.each([
       [

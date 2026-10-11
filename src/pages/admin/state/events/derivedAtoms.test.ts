@@ -40,6 +40,27 @@ describe('admin event derived atoms', () => {
     await expect(store.get(adminFilteredEventsAtom)).resolves.toEqual([today])
   })
 
+  // The list shows an English user the English name (KOE-1453), so the search finds what is shown,
+  // and still the Finnish name every trial has.
+  it.each([
+    ['its English name', 'autumn'],
+    ['its Finnish name', 'syyskoe'],
+  ])('finds an event by %s', async (_case, filter) => {
+    const named: DogEvent = {
+      ...event('named', new Date('2026-06-10T00:00:00.000+03:00')),
+      name: 'Syyskoe',
+      names: { en: 'Autumn trial' },
+    }
+    const other = event('other', new Date('2026-06-10T00:00:00.000+03:00'))
+
+    const store = createStore()
+    store.set(adminEventsAtom, [named, other])
+    store.set(adminEventFilterTextAtom, filter)
+    store.set(adminShowPastEventsAtom, false)
+
+    await expect(store.get(adminFilteredEventsAtom)).resolves.toEqual([named])
+  })
+
   it('serves the selected event synchronously once the events have loaded', () => {
     const selected = event('selected', new Date('2026-05-28T00:00:00.000+03:00'))
     const other = event('other', new Date('2026-05-29T00:00:00.000+03:00'))

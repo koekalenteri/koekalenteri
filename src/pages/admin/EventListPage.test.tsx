@@ -16,7 +16,14 @@ import { getUser } from '../../api/user'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
-import { AtomObserver, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { describeInLanguage } from '../../test-utils/language'
+import {
+  AtomObserver,
+  flushPromises,
+  renderSuspendedWithUserEvents,
+  runPendingTimers,
+  TEST_ID_TOKEN,
+} from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventListPage, { canViewEvent, getEventDoubleClickPath } from './EventListPage'
 import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './state'
@@ -29,7 +36,7 @@ vi.mock('../../api/user')
 
 describe('EventListPage', () => {
   beforeAll(() => vi.useFakeTimers())
-  afterEach(() => vi.runOnlyPendingTimers())
+  afterEach(() => runPendingTimers())
   afterAll(() => vi.useRealTimers())
 
   it('renders', async () => {
@@ -89,6 +96,42 @@ describe('EventListPage', () => {
     await flushPromises()
 
     expect(screen.getByRole('button', { name: 'copyToEnvironment' })).toBeInTheDocument()
+  })
+
+  // The copy dialog names the event the way the list row does (KOE-1453).
+  describeInLanguage('en', () => {
+    it('names the event in the copy dialog by its English name', async () => {
+      const named = { ...eventWithEntryClosed, name: 'Syyskoe', names: { en: 'Autumn trial' } }
+      const { user } = await renderSuspendedWithUserEvents(
+        <ThemeProvider theme={theme}>
+          <Provider
+            initializeState={({ set }) => {
+              set(idTokenAtom, TEST_ID_TOKEN)
+              set(adminEventsAtom, [named])
+              set(adminEventIdAtom, named.id)
+            }}
+          >
+            <MemoryRouter>
+              <Suspense fallback={<div>loading...</div>}>
+                <SnackbarProvider>
+                  <ConfirmProvider>
+                    <EventListPage />
+                  </ConfirmProvider>
+                </SnackbarProvider>
+              </Suspense>
+            </MemoryRouter>
+          </Provider>
+        </ThemeProvider>,
+        undefined,
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'copyToEnvironment' }))
+      await flushPromises()
+
+      expect(within(screen.getByRole('dialog')).getByText('Autumn trial')).toBeInTheDocument()
+    })
   })
 
   it('offers the copy to another environment to admins only', async () => {

@@ -1,4 +1,4 @@
-import type { ConfirmedEvent } from '@/types'
+import type { ConfirmedEvent, Language } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -27,10 +27,10 @@ vi.mock('@/api/organizer')
 const named: ConfirmedEvent = { ...eventWithStaticDates, name: 'Kevätkoe', names: { en: 'Spring trial' } }
 const finnishOnly: ConfirmedEvent = { ...eventWithStaticDates, name: 'Kevätkoe' }
 
-const renderDialog = async (event: ConfirmedEvent) => {
+const renderDialog = async (event: ConfirmedEvent, language: Language) => {
   await renderSuspended(
     <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <TestProvider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
@@ -67,7 +67,7 @@ describe('EventDetailsDialog', () => {
   afterAll(() => vi.useRealTimers())
 
   it('is titled with the Finnish name in a Finnish view', async () => {
-    await renderDialog(named)
+    await renderDialog(named, 'fi')
     expect(title()).toHaveTextContent('Kevätkoe')
   })
 
@@ -76,7 +76,7 @@ describe('EventDetailsDialog', () => {
       ['its English name', named, 'Spring trial'],
       ['its Finnish name when it has no English one', finnishOnly, 'Kevätkoe'],
     ])('is titled with %s', async (_case, event, expected) => {
-      await renderDialog(event)
+      await renderDialog(event, 'en')
       expect(title()).toHaveTextContent(expected)
     })
   })

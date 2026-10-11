@@ -21,12 +21,12 @@ import { formatDistance } from '../../i18n/dates'
 import { reportError } from '../../lib/client/error'
 import { firstSelectedRow, rowSelectionModel } from '../../lib/datagrid'
 import { apiStage, copyTargets, isDevEnv } from '../../lib/env'
-import { hasEntryStarted, isEventDeletable } from '../../lib/event'
+import { hasEntryStarted, isEventDeletable, localizedEventName } from '../../lib/event'
 import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
-import { isAdminAtom } from '../state'
+import { isAdminAtom, languageAtom } from '../state'
 import { useRecentUpdateRowClassName } from '../state/recentUpdates'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
@@ -64,6 +64,7 @@ export default function EventListPage() {
   const [selectedEventID, setSelectedEventID] = useAtom(adminEventIdAtom)
   const [visibilityModel, setVisibilityModel] = useAtom(adminEventColumnsAtom)
   const selectedEvent = useAtomValue(adminCurrentEventAtom)
+  const language = useAtomValue(languageAtom)
   const actions = useAdminEventActions()
   const columns = useEventListColumns()
   const orgs = useAtomValue(adminUserEventOrganizersAtom)
@@ -198,7 +199,7 @@ export default function EventListPage() {
       </Stack>
       {copyToOpen && selectedEvent && (
         <CopyToEnvironmentDialog
-          eventName={selectedEvent.name}
+          eventName={localizedEventName(selectedEvent, language)}
           onClose={closeCopyTo}
           onCopy={actions.copyCurrentToEnvironment}
           open
