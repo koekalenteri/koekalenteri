@@ -123,6 +123,7 @@ describe('App', () => {
   it('follows a language another tab stores', async () => {
     renderApp()
     expect(await screen.findByRole('navigation', { name: 'Sivutus navigaatio' })).toBeInTheDocument()
+    expect(screen.getByText('maanantaina')).toBeInTheDocument()
 
     storeLanguage('en')
     // The setup's localStorage is a plain object, which jsdom refuses as the init's storageArea.
@@ -136,6 +137,8 @@ describe('App', () => {
     expect(i18n.language).toBe('en')
     expect(document.documentElement.lang).toBe('en')
     expect(screen.getByRole('navigation', { name: 'pagination navigation' })).toBeInTheDocument()
+    // A language switch keeps the page, and a half-filled form on it, where it is.
+    expect(pageMounted).toHaveBeenCalledTimes(1)
   })
 
   it('does not refresh the session before it has been initialized', async () => {
