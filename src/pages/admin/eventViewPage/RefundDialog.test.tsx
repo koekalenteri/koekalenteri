@@ -4,17 +4,16 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import i18next from 'i18next'
 import { Provider } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
 import { Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { APIError } from '@/api/http'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import { describeWithTranslations } from '@/test-utils/language'
 import { flushPromises } from '@/test-utils/utils'
 import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { RefundDailog as RefundDialog } from './RefundDialog'
@@ -29,10 +28,9 @@ vi.mock('../state/registrations/actions', async () => ({
 }))
 
 // The file's other tests read keys; the English one reads the app's real English (KOE-1511).
-vi.mock('react-i18next', async (importOriginal) => {
-  const original = await importOriginal<typeof import('react-i18next')>()
-  return { ...original, useTranslation: vi.fn(original.useTranslation) }
-})
+vi.mock('react-i18next', async (importOriginal) =>
+  (await import('@/test-utils/language')).spyOnUseTranslation(importOriginal)
+)
 
 vi.mock('notistack', async () => ({
   ...(await vi.importActual<typeof import('notistack')>('notistack')),
@@ -469,19 +467,8 @@ describe('RefundDialog', () => {
     })
   })
 
-  describe('in English (KOE-1511)', () => {
-    const keysOnly = vi.mocked(useTranslation).getMockImplementation()
-    beforeEach(() => {
-      vi.mocked(useTranslation).mockImplementation(() => {
-        const t = i18next.getFixedT('en')
-        const response: [typeof t, typeof i18next, boolean] = [t, i18next, true]
-        return Object.assign(response, { i18n: i18next, ready: true, t })
-      })
-    })
-    afterEach(() => {
-      if (keysOnly) vi.mocked(useTranslation).mockImplementation(keysOnly)
-    })
-
+  // The refusal in the reading language (KOE-1511).
+  describeWithTranslations('en', () => {
     it('shows the Paytrail refusal in the reading language, not the Finnish audit text', async () => {
       mockRefundImplementation = vi.fn().mockRejectedValue(
         new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {

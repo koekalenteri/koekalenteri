@@ -1,6 +1,6 @@
 import type { Language } from '@/types'
 import i18n from 'i18next'
-import { afterEach, beforeEach, describe } from 'vitest'
+import { afterEach, beforeEach, describe, vi } from 'vitest'
 
 /**
  * Switches the page to the language the way the app's language menu does: i18next, which every
@@ -23,6 +23,46 @@ export const describeInLanguage = (language: Language, tests: () => void): void 
   describe(`in ${language}`, () => {
     beforeEach(() => switchLanguage(language))
     afterEach(() => switchLanguage('fi'))
+    tests()
+  })
+}
+
+/**
+ * A `vi.mock('react-i18next', …)` factory whose `useTranslation` is a spy around the one the project
+ * gives (keys only in the frontend project), so `describeWithTranslations` can switch it to the
+ * app's real text. vi.mock is hoisted above imports, so the file reaches this through a dynamic import:
+ *
+ * ```ts
+ * vi.mock('react-i18next', async (importOriginal) =>
+ *   (await import('@/test-utils/language')).spyOnUseTranslation(importOriginal)
+ * )
+ * ```
+ */
+export const spyOnUseTranslation = async (importOriginal: () => Promise<typeof import('react-i18next')>) => {
+  const original = await importOriginal()
+  return { ...original, useTranslation: vi.fn(original.useTranslation) }
+}
+
+/**
+ * The tests inside read the app's real text in `language`, where the file's other tests read keys.
+ * Needs the file to mock react-i18next with `spyOnUseTranslation`. The module is read when a test
+ * starts, not imported here: that mock's factory imports this file, and a static import of the
+ * module it is still building would wait on itself.
+ */
+export const describeWithTranslations = (language: Language, tests: () => void): void => {
+  describe(`in ${language}, with the app's text`, () => {
+    let restore: (() => void) | undefined
+    beforeEach(async () => {
+      const useTranslation = vi.mocked((await import('react-i18next')).useTranslation)
+      const keysOnly = useTranslation.getMockImplementation()
+      restore = keysOnly && (() => useTranslation.mockImplementation(keysOnly))
+      useTranslation.mockImplementation(() => {
+        const t = i18n.getFixedT(language)
+        const response: [typeof t, typeof i18n, boolean] = [t, i18n, true]
+        return Object.assign(response, { i18n, ready: true, t })
+      })
+    })
+    afterEach(() => restore?.())
     tests()
   })
 }

@@ -7,7 +7,6 @@ import { render, screen } from '@testing-library/react'
 import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 import mockResponse from '../api/__mocks__/paymentCreate.response.json'
@@ -16,6 +15,7 @@ import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { languageStorageKey } from '../lib/client/storage'
 import { Path } from '../routeConfig'
+import { describeWithTranslations } from '../test-utils/language'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 import AppSnackbarProvider from './components/AppSnackbarProvider'
 import LoadingIndicator from './components/LoadingIndicator'
@@ -27,10 +27,9 @@ vi.mock('../api/payment')
 vi.mock('../api/registration')
 
 // The file's other tests read keys; the English ones read the app's real English (KOE-1513).
-vi.mock('react-i18next', async (importOriginal) => {
-  const original = await importOriginal<typeof import('react-i18next')>()
-  return { ...original, useTranslation: vi.fn(original.useTranslation) }
-})
+vi.mock('react-i18next', async (importOriginal) =>
+  (await import('@/test-utils/language')).spyOnUseTranslation(importOriginal)
+)
 vi.mock('react-router', async () => ({
   ...(await vi.importActual<typeof import('react-router')>('react-router')),
   useParams: vi.fn(),
@@ -163,6 +162,44 @@ describe('PaymentPage', () => {
     await flushPromises()
     expect(screen.queryByRole('progressbar')).toBeNull()
     expect(screen.getByText('paymentPage.choosePaymentMethod')).toBeInTheDocument()
+  })
+
+  // The loader's answer reaches the page: a Paytrail refusal is named, not left to the status (KOE-1513).
+  it('names a Paytrail refusal the loader got', async () => {
+    mockUseParams.mockImplementation(() => ({
+      id: testRegistration.eventId,
+      registrationId: testRegistration.id,
+    }))
+
+    const path = Path.payment(testRegistration)
+    const routes: RouteObject[] = [
+      {
+        element: <PaymentPage />,
+        hydrateFallbackElement: <LoadingIndicator />,
+        loader: async () => ({
+          response: Promise.resolve({ paytrailError: '{"message":"Rejected"}', status: 400 }),
+        }),
+        path,
+      },
+    ]
+
+    render(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider>
+            <Suspense fallback={<div>loading...</div>}>
+              <AppSnackbarProvider>
+                <DataMemoryRouter initialEntries={[path]} routes={routes} />
+              </AppSnackbarProvider>
+            </Suspense>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    expect(screen.getByText('paymentPage.errorPaytrail error, status')).toBeInTheDocument()
+    expect(screen.queryByText('paymentPage.choosePaymentMethod')).toBeNull()
   })
 
   describe('PaymentPageWithData', () => {
@@ -471,19 +508,7 @@ describe('PaymentPage', () => {
 
     // Paytrail's refusal in the payer's language, with Paytrail's status and words whatever they came
     // as (KOE-1513). Its status is Paytrail's, so it is not read as this API's own 500 or 404.
-    describe('in English (KOE-1513)', () => {
-      const keysOnly = vi.mocked(useTranslation).getMockImplementation()
-      beforeEach(() => {
-        vi.mocked(useTranslation).mockImplementation(() => {
-          const t = i18n.getFixedT('en')
-          const response: [typeof t, typeof i18n, boolean] = [t, i18n, true]
-          return Object.assign(response, { i18n, ready: true, t })
-        })
-      })
-      afterEach(() => {
-        if (keysOnly) vi.mocked(useTranslation).mockImplementation(keysOnly)
-      })
-
+    describeWithTranslations('en', () => {
       it.each([
         [
           'its JSON answer',
