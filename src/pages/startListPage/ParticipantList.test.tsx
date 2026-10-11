@@ -7,6 +7,7 @@ import i18n from 'i18next'
 import { enqueueSnackbar } from 'notistack'
 import { downloadXlsx } from '../../lib/client/xlsx'
 import { startListSpreadsheetRows } from '../../lib/startList'
+import { freezeClockAt } from '../../test-utils/freezeClock'
 import { ParticipantList } from './ParticipantList'
 
 /**
@@ -77,6 +78,10 @@ vi.mock('./RegistrationDetails', () => ({
 }))
 
 describe('ParticipantList', () => {
+  // The trial's first day: a class still at 'picked' is not ready yet. Past the trial, an explicit
+  // publish would open it (KOE-1509), so the fixture's 2023 dates must not go by under the tests.
+  freezeClockAt('2023-01-01')
+
   const writeText = vi.fn()
   const mockEvent: PublicConfirmedEvent = {
     classes: [

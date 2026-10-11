@@ -1,11 +1,13 @@
 import type { JsonConfirmedEvent } from '../types'
 import { freezeClockAt } from '../test-utils/freezeClock'
 import {
+  classEntry,
   getResultsBlocker,
   getStartListBlocker,
   getStartNumbersBlocker,
   isResultsPublishedState,
   isStartListFlagPublished,
+  isStartListPublished,
 } from './publishing'
 import { groupParticipantsByClass } from './registration'
 
@@ -120,6 +122,28 @@ describe('lib/publishing', () => {
         expect(getResultsBlocker(running, 'ALO', '2026-09-13')).toBe('state')
       })
     })
+
+    describe('after a trial whose class stayed picked (KOE-1509, KOE-1510)', () => {
+      freezeClockAt('2026-09-20')
+
+      it('lets each day be published once the list is', () => {
+        const picked = event({
+          classes: [
+            { class: 'ALO', date: '2026-09-12', state: 'picked' },
+            { class: 'ALO', date: '2026-09-13', state: 'picked' },
+          ],
+          endDate: '2026-09-13',
+          startDate: '2026-09-12',
+          startListPublished: { ALO: true },
+          state: 'picked',
+        })
+
+        expect(getResultsBlocker(picked, 'ALO', '2026-09-13')).toBeUndefined()
+        expect(getResultsBlocker({ ...picked, startListPublished: { ALO: false } }, 'ALO', '2026-09-13')).toBe(
+          'startList'
+        )
+      })
+    })
   })
 
   describe('isResultsPublishedState (KOE-1510)', () => {
@@ -137,6 +161,30 @@ describe('lib/publishing', () => {
       [undefined, false],
     ])('reads %j as a results flag: %s', (value, expected) => {
       expect(isResultsPublishedState(value)).toBe(expected)
+    })
+  })
+
+  describe('a picked class whose trial is over (KOE-1509)', () => {
+    freezeClockAt('2026-06-15')
+
+    // A one-day NOME-B with only ALO: the place notices went, the invitations never did.
+    const picked = event({
+      classes: [{ class: 'ALO', date: '2026-06-13', state: 'picked' }],
+      endDate: '2026-06-13',
+      entryEndDate: '2026-05-23',
+      entryStartDate: '2026-05-02',
+      startDate: '2026-06-13',
+      startListPublished: { ALO: true },
+      state: 'picked',
+    })
+
+    it('reads the published list the way the admin let it be published', () => {
+      expect(getStartListBlocker(picked, 'ALO', [uninvited])).toBeUndefined()
+      expect(isStartListPublished(picked, classEntry(picked, 'ALO'))).toBe(true)
+    })
+
+    it('lets its results be published', () => {
+      expect(getResultsBlocker(picked, 'ALO')).toBeUndefined()
     })
   })
 

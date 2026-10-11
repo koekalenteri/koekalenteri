@@ -268,6 +268,24 @@ describe('putResultsPublishedLambda', () => {
     expect(row.resultsPublished).toEqual({ ALO: false, AVO: ['2026-09-12'] })
   })
 
+  it('publishes the results of a past picked class whose start list was published (KOE-1509)', async () => {
+    // Place notices went, invitations never did: the class stays 'picked' after the trial.
+    store(
+      twoDays({
+        classes: [{ class: 'ALO', date: '2025-03-01', state: 'picked' }],
+        endDate: '2025-03-01',
+        startDate: '2025-03-01',
+        startListPublished: { ALO: true },
+        state: 'picked',
+      })
+    )
+
+    await putResultsPublishedLambda(apiEvent({ date: '2025-03-01', eventClass: 'ALO', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
+    expect(row.resultsPublished).toEqual({ ALO: ['2025-03-01'] })
+  })
+
   it('refuses a day that has not begun', async () => {
     vi.setSystemTime(new Date('2026-09-12T18:00:00+03:00'))
 
