@@ -1,7 +1,7 @@
 import type { StationTurnItem } from './StationTurnControls'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { SnackbarProvider } from 'notistack'
+import AppSnackbarProvider from '../AppSnackbarProvider'
 import { StationScoring } from './StationScoring'
 
 const judge = { id: 223, name: 'Tuomari 2' }
@@ -38,7 +38,7 @@ const dogs = [
 const renderScoring = (props: Partial<Parameters<typeof StationScoring>[0]> = {}) => {
   const onSave = vi.fn().mockResolvedValue({ conflicts: [], saved: [{ id: 'run-1' }], unchanged: [] })
   render(
-    <SnackbarProvider>
+    <AppSnackbarProvider>
       <StationScoring
         eventType="NOME-B"
         onSave={onSave}
@@ -48,7 +48,7 @@ const renderScoring = (props: Partial<Parameters<typeof StationScoring>[0]> = {}
         turns={[]}
         {...props}
       />
-    </SnackbarProvider>
+    </AppSnackbarProvider>
   )
   return { onSave }
 }

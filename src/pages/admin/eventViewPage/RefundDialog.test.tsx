@@ -7,7 +7,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import i18next from 'i18next'
 import { Provider } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider, useSnackbar } from 'notistack'
+import { useSnackbar } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { eventWithStaticDates } from '@/__mockData__/events'
@@ -16,6 +16,7 @@ import { APIError } from '@/api/http'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import { flushPromises } from '@/test-utils/utils'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { RefundDailog as RefundDialog } from './RefundDialog'
 
 // Mock the useAdminRegistrationActions hook
@@ -82,11 +83,11 @@ const Wrapper = ({ children }: { readonly children: ReactNode }) => {
     <ThemeProvider theme={theme}>
       <Provider>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <ConfirmProvider>
               <Suspense fallback={<>loading...</>}>{children}</Suspense>
             </ConfirmProvider>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </LocalizationProvider>
       </Provider>
     </ThemeProvider>

@@ -3,13 +3,13 @@ import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import { describeInLanguage } from '@/test-utils/language'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { RefundDailog as RefundDialog } from './RefundDialog'
 
 const payment: Transaction = {
@@ -50,11 +50,11 @@ const renderOpen = (language: Language = 'fi') =>
   render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
-        <SnackbarProvider>
+        <AppSnackbarProvider>
           <ConfirmProvider>
             <RefundDialog event={eventWithStaticDates} open registration={registrationWithStaticDates} />
           </ConfirmProvider>
-        </SnackbarProvider>
+        </AppSnackbarProvider>
       </LocalizationProvider>
     </ThemeProvider>
   )
@@ -84,7 +84,7 @@ it('offers the overpaid part first', async () => {
   const screen = await render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <SnackbarProvider>
+        <AppSnackbarProvider>
           <ConfirmProvider>
             <RefundDialog
               event={{ ...eventWithStaticDates, cost: 100, costMember: 100 }}
@@ -92,7 +92,7 @@ it('offers the overpaid part first', async () => {
               registration={{ ...registrationWithStaticDates, group: { key: '2021-02-10-ap', number: 1 } }}
             />
           </ConfirmProvider>
-        </SnackbarProvider>
+        </AppSnackbarProvider>
       </LocalizationProvider>
     </ThemeProvider>
   )
@@ -111,7 +111,7 @@ it('picks the payment the overpaid part comes out of', async () => {
   const screen = await render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <SnackbarProvider>
+        <AppSnackbarProvider>
           <ConfirmProvider>
             <RefundDialog
               event={{ ...eventWithStaticDates, cost: 100, costMember: 100 }}
@@ -119,7 +119,7 @@ it('picks the payment the overpaid part comes out of', async () => {
               registration={{ ...registrationWithStaticDates, group: { key: '2021-02-10-ap', number: 1 } }}
             />
           </ConfirmProvider>
-        </SnackbarProvider>
+        </AppSnackbarProvider>
       </LocalizationProvider>
     </ThemeProvider>
   )
@@ -136,7 +136,7 @@ it('explains a partial refund as the part kept back in the handling fee', async 
   const screen = await render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <SnackbarProvider>
+        <AppSnackbarProvider>
           <ConfirmProvider>
             <RefundDialog
               event={{ ...eventWithStaticDates, cost: 100, costMember: 100 }}
@@ -144,7 +144,7 @@ it('explains a partial refund as the part kept back in the handling fee', async 
               registration={{ ...registrationWithStaticDates, group: { key: '2021-02-10-ap', number: 1 } }}
             />
           </ConfirmProvider>
-        </SnackbarProvider>
+        </AppSnackbarProvider>
       </LocalizationProvider>
     </ThemeProvider>
   )

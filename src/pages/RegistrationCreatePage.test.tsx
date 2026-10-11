@@ -5,7 +5,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen } from '@testing-library/react'
 import { format } from 'date-fns'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../__mockData__/events'
@@ -14,6 +13,7 @@ import * as eventApi from '../api/event'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents, runPendingTimers } from '../test-utils/utils'
+import AppSnackbarProvider from './components/AppSnackbarProvider'
 import { ErrorPage } from './ErrorPage'
 import { Component as RegistrationCreatePage } from './RegistrationCreatePage'
 import { newRegistrationAtom } from './state'
@@ -65,9 +65,9 @@ describe('RegistrationCreatePage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider initializeState={registration ? ({ set }) => set(newRegistrationAtom, registration) : undefined}>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>

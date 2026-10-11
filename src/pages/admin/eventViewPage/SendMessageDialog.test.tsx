@@ -5,7 +5,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
@@ -17,6 +16,7 @@ import {
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '@/test-utils/utils'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { idTokenAtom } from '../../state'
 import { adminEmailTemplatesAtom, adminEventsAtom } from '../state'
 import SendMessageDialog from './SendMessageDialog'
@@ -67,11 +67,11 @@ const createWrapper =
         }}
       >
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <ConfirmProvider>
               <Suspense fallback={<>loading...</>}>{children}</Suspense>
             </ConfirmProvider>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </LocalizationProvider>
       </Provider>
     </ThemeProvider>

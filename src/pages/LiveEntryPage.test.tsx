@@ -2,11 +2,11 @@ import type { RouteObject } from 'react-router'
 import type { StationEntry } from '../types'
 import { ThemeProvider } from '@mui/material'
 import { cleanup, screen, within } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { getStationEntry, putStationEntry } from '../api/station'
 import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
+import AppSnackbarProvider from './components/AppSnackbarProvider'
 import { Component as LiveEntryPage } from './LiveEntryPage'
 
 vi.mock('../api/station')
@@ -45,9 +45,9 @@ const renderPage = () => {
 
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
-      <SnackbarProvider>
+      <AppSnackbarProvider>
         <DataMemoryRouter initialEntries={[Path.liveEntry('event-1', 'post-1', 'link-token')]} routes={routes} />
-      </SnackbarProvider>
+      </AppSnackbarProvider>
     </ThemeProvider>,
     undefined,
     { advanceTimers: vi.advanceTimersByTime }

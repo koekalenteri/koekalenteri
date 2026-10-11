@@ -7,7 +7,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen, within } from '@testing-library/react'
 import { addDays } from 'date-fns'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -21,6 +20,7 @@ import { Path } from '../../routeConfig'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { describeInLanguage } from '../../test-utils/language'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
@@ -47,9 +47,9 @@ const renderPage = (language: Language) => {
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <DataMemoryRouter initialEntries={[Path.admin.results(eventWithStaticDates.id)]} routes={routes} />
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </LocalizationProvider>
@@ -78,9 +78,9 @@ const renderScoringPage = (language: Language, registrations = registrationsToEv
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <DataMemoryRouter initialEntries={[Path.admin.results(eventWithStations.id)]} routes={routes} />
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </LocalizationProvider>
@@ -119,9 +119,9 @@ const renderQualitativePage = (
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <DataMemoryRouter initialEntries={[Path.admin.results(event.id)]} routes={routes} />
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </LocalizationProvider>

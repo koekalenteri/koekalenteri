@@ -1,7 +1,6 @@
 import type { Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
@@ -11,6 +10,7 @@ import { eventRegistrationDateKey } from '@/lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { describeInLanguage } from '@/test-utils/language'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { idTokenAtom } from '../../state'
 import ClassEntrySelection from './ClassEntrySelection'
 
@@ -18,11 +18,11 @@ import ClassEntrySelection from './ClassEntrySelection'
 const Frame = ({ children, width = 1200 }: { readonly children: React.ReactNode; readonly width?: number }) => (
   <div data-testid="visual-root" style={{ background: '#fff', width }}>
     <ThemeProvider theme={theme}>
-      <SnackbarProvider>
+      <AppSnackbarProvider>
         <ConfirmProvider>
           <Suspense fallback={<div>loading...</div>}>{children}</Suspense>
         </ConfirmProvider>
-      </SnackbarProvider>
+      </AppSnackbarProvider>
     </ThemeProvider>
   </div>
 )

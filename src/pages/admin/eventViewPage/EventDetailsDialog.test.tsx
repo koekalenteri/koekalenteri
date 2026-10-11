@@ -3,7 +3,6 @@ import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import theme from '@/assets/Theme'
@@ -12,6 +11,7 @@ import { Path } from '@/routeConfig'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { describeInLanguage } from '@/test-utils/language'
 import { DataMemoryRouter, flushPromises, renderSuspended, runPendingTimers, TEST_ID_TOKEN } from '@/test-utils/utils'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { idTokenAtom } from '../../state'
 import { adminEventsAtom } from '../state'
 import EventDetailsDialog from './EventDetailsDialog'
@@ -37,14 +37,14 @@ const renderDialog = async (event: ConfirmedEvent, language: Language) => {
             set(adminEventsAtom, [event])
           }}
         >
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <Suspense fallback={<div>loading...</div>}>
               <DataMemoryRouter
                 initialEntries={[Path.admin.viewEvent(event.id)]}
                 routes={[{ element: <EventDetailsDialog eventId={event.id} open />, path: Path.admin.viewEvent() }]}
               />
             </Suspense>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </TestProvider>
       </LocalizationProvider>
     </ThemeProvider>

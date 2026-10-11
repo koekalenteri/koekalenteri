@@ -1,12 +1,12 @@
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import AdminHomePage from './AdminHomePage'
 
@@ -38,13 +38,13 @@ describe('AdminHomePage', () => {
     await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <Authenticator.Provider>
               <Suspense fallback={<div>loading...</div>}>
                 <DataMemoryRouter initialEntries={[Path.admin.root]} routes={routes} />
               </Suspense>
             </Authenticator.Provider>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </Provider>
       </ThemeProvider>
     )
@@ -74,13 +74,13 @@ describe('AdminHomePage', () => {
     await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <Authenticator.Provider>
               <Suspense fallback={<div>loading...</div>}>
                 <DataMemoryRouter initialEntries={[Path.admin.index]} routes={routes} />
               </Suspense>
             </Authenticator.Provider>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </Provider>
       </ThemeProvider>
     )

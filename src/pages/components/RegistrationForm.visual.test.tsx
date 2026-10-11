@@ -1,7 +1,6 @@
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
@@ -10,6 +9,7 @@ import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { TestProvider } from '../../test-utils/AtomProvider'
+import AppSnackbarProvider from './AppSnackbarProvider'
 import RegistrationForm from './RegistrationForm'
 
 // The Handler/Payer sections slide open or shut behind a Collapse whose auto height is measured
@@ -23,7 +23,7 @@ const Frame = ({ children, width = 1000 }: { readonly children: React.ReactNode;
     <ThemeProvider theme={stillTheme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <Suspense fallback={<div>loading...</div>}>
-          <SnackbarProvider>{children}</SnackbarProvider>
+          <AppSnackbarProvider>{children}</AppSnackbarProvider>
         </Suspense>
       </LocalizationProvider>
     </ThemeProvider>

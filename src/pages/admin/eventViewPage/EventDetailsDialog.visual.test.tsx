@@ -3,7 +3,6 @@ import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
@@ -16,6 +15,7 @@ import { TestProvider } from '@/test-utils/AtomProvider'
 import { freezeClockAt } from '@/test-utils/freezeClock'
 import { describeInLanguage } from '@/test-utils/language'
 import { DataMemoryRouter } from '@/test-utils/utils'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { adminEventsAtom, adminEventTypesAtom, adminJudgesAtom, adminOrganizersAtom, adminUsersAtom } from '../state'
 import EventDetailsDialog from './EventDetailsDialog'
 
@@ -55,14 +55,14 @@ const renderDialog = async () => {
             set(adminUsersAtom, [])
           }}
         >
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <Suspense fallback={<div>loading...</div>}>
               <DataMemoryRouter
                 initialEntries={[Path.admin.viewEvent(event.id)]}
                 routes={[{ element: <EventDetailsDialog eventId={event.id} open />, path: Path.admin.viewEvent() }]}
               />
             </Suspense>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </TestProvider>
       </LocalizationProvider>
     </ThemeProvider>

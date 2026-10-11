@@ -1,7 +1,7 @@
 import type { StationTurnItem } from './StationTurnControls'
 import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { SnackbarProvider } from 'notistack'
+import AppSnackbarProvider from '../AppSnackbarProvider'
 import { StationTurnControls } from './StationTurnControls'
 
 const openTurn: StationTurnItem = {
@@ -13,9 +13,9 @@ const openTurn: StationTurnItem = {
 const renderControls = (props: Partial<Parameters<typeof StationTurnControls>[0]> = {}) => {
   const onTurn = vi.fn().mockResolvedValue(undefined)
   render(
-    <SnackbarProvider>
+    <AppSnackbarProvider>
       <StationTurnControls onTurn={onTurn} station={{ id: 'post-1', tasks: 1 }} turns={[]} {...props} />
-    </SnackbarProvider>
+    </AppSnackbarProvider>
   )
   return { onTurn }
 }

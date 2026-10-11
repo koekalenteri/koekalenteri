@@ -6,7 +6,6 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
 import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useParams } from 'react-router'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
@@ -17,6 +16,7 @@ import { locales } from '../i18n'
 import { languageStorageKey } from '../lib/client/storage'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
+import AppSnackbarProvider from './components/AppSnackbarProvider'
 import LoadingIndicator from './components/LoadingIndicator'
 import { loader, Component as PaymentPage, PaymentPageWithData } from './PaymentPage'
 import { createNewRegistration, newRegistrationAtom } from './state'
@@ -106,9 +106,9 @@ describe('PaymentPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -146,9 +146,9 @@ describe('PaymentPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -540,9 +540,9 @@ describe('PaymentPage', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider store={store}>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>

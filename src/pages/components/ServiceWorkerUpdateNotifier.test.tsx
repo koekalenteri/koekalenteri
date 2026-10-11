@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import { act, render, screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -8,6 +7,7 @@ import {
   consumeServiceWorkerUpdated,
   subscribeToServiceWorkerUpdates,
 } from '../../serviceWorkerRegistration'
+import AppSnackbarProvider from './AppSnackbarProvider'
 import ServiceWorkerUpdateNotifier from './ServiceWorkerUpdateNotifier'
 
 vi.mock('react-i18next', () => ({
@@ -49,7 +49,7 @@ const switchLanguage = (next: Translate) => {
 const useMockTranslation = () => ({ t: useSyncExternalStore(subscribeToLanguage, () => translate) })
 
 const Providers = ({ children }: { readonly children: ReactNode }) => (
-  <SnackbarProvider autoHideDuration={null}>{children}</SnackbarProvider>
+  <AppSnackbarProvider autoHideDuration={null}>{children}</AppSnackbarProvider>
 )
 
 const renderNotifier = () => render(<ServiceWorkerUpdateNotifier />, { wrapper: Providers })

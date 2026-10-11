@@ -1,11 +1,11 @@
 import { ThemeProvider } from '@mui/material'
 import { fireEvent, screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import { adminUserIdAtom } from './state'
 import UsersPage from './UsersPage'
@@ -24,9 +24,9 @@ describe('OrganizerListPage', () => {
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <UsersPage />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>
@@ -50,9 +50,9 @@ describe('OrganizerListPage', () => {
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <UsersPage />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>
@@ -80,9 +80,9 @@ describe('OrganizerListPage', () => {
         >
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <UsersPage />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>
@@ -111,9 +111,9 @@ describe('OrganizerListPage', () => {
         >
           <MemoryRouter>
             <Suspense fallback={<Fallback />}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <UsersPage />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>

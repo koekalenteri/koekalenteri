@@ -6,7 +6,6 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen } from '@testing-library/react'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -19,6 +18,7 @@ import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { describeInLanguage } from '../../test-utils/language'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import StationResultsPage from './StationResultsPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
@@ -41,12 +41,12 @@ const renderPage = (language: Language, stationId: string) => {
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <DataMemoryRouter
                 initialEntries={[Path.admin.stationResults(eventWithStaticDates.id, stationId)]}
                 routes={routes}
               />
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </LocalizationProvider>
@@ -71,9 +71,9 @@ const renderStation = (language: Language, stationId = 'post-2', event = eventWi
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <DataMemoryRouter initialEntries={[Path.admin.stationResults(event.id, stationId)]} routes={routes} />
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </LocalizationProvider>

@@ -3,12 +3,12 @@ import type { Registration, RegistrationDate } from '@/types'
 import { act, render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '@/__mockData__/registrations'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
+import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import ClassEntrySelection from './ClassEntrySelection'
 
 const mockSaveGroups = vi.fn().mockResolvedValue(undefined)
@@ -109,11 +109,11 @@ vi.mock('./SendMessageDialog', () => ({
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
     <Provider>
-      <SnackbarProvider>
+      <AppSnackbarProvider>
         <ConfirmProvider>
           <Suspense fallback={<>loading...</>}>{props.children}</Suspense>
         </ConfirmProvider>
-      </SnackbarProvider>
+      </AppSnackbarProvider>
     </Provider>
   )
 }

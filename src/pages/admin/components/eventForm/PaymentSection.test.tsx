@@ -3,12 +3,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
 import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import PaymentSection from './PaymentSection'
 
@@ -20,9 +20,9 @@ const renderPaymentSection = (testEvent: any, onChange: any, extraProps: Record<
         <Provider>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <PaymentSection event={testEvent} onChange={onChange} open {...extraProps} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>

@@ -5,7 +5,6 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
 import i18n from 'i18next'
 import { Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
@@ -17,6 +16,7 @@ import { languageStorageKey } from '../lib/client/storage'
 import { invitationAttachmentFileName } from '../lib/fileName'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
+import AppSnackbarProvider from './components/AppSnackbarProvider'
 import { LoadingPage } from './LoadingPage'
 import { loader, Component as RegistrationInvitation } from './RegistrationInvitation'
 
@@ -53,9 +53,9 @@ describe('RegistrationInvitation', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<LoadingPage />}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -90,9 +90,9 @@ describe('RegistrationInvitation', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<LoadingPage />}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -129,9 +129,9 @@ describe('RegistrationInvitation', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<LoadingPage />}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>
@@ -190,9 +190,9 @@ describe('RegistrationInvitation', () => {
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider>
             <Suspense fallback={<LoadingPage />}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </Provider>
         </LocalizationProvider>

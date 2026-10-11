@@ -4,12 +4,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { act, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { createMatchMedia, renderSuspended } from '../test-utils/utils'
+import AppSnackbarProvider from './components/AppSnackbarProvider'
 import { SearchPage } from './SearchPage'
 
 vi.mock('../api/event')
@@ -25,11 +25,11 @@ const renderPage = (path: string, locale: Locale) =>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locale}>
         <Provider>
           <Suspense fallback={<div>loading...</div>}>
-            <SnackbarProvider>
+            <AppSnackbarProvider>
               <MemoryRouter initialEntries={[path]}>
                 <SearchPage />
               </MemoryRouter>
-            </SnackbarProvider>
+            </AppSnackbarProvider>
           </Suspense>
         </Provider>
       </LocalizationProvider>

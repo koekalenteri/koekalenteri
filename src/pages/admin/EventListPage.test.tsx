@@ -1,7 +1,6 @@
 import { ThemeProvider } from '@mui/material'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter, useLocation } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -24,6 +23,7 @@ import {
   runPendingTimers,
   TEST_ID_TOKEN,
 } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventListPage, { canViewEvent, getEventDoubleClickPath } from './EventListPage'
 import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './state'
@@ -47,11 +47,11 @@ describe('EventListPage', () => {
           <AtomObserver node={adminEventIdAtom} onChange={onChange} />
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <EventListPage />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>
@@ -78,11 +78,11 @@ describe('EventListPage', () => {
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <EventListPage />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>
@@ -114,11 +114,11 @@ describe('EventListPage', () => {
         >
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <EventListPage />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>
@@ -180,11 +180,11 @@ describe('EventListPage', () => {
         >
           <MemoryRouter>
             <Suspense fallback={<Fallback />}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <EventListPage />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>
@@ -220,11 +220,11 @@ describe('EventListPage', () => {
           <MemoryRouter>
             <Where />
             <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
+              <AppSnackbarProvider>
                 <ConfirmProvider>
                   <EventListPage />
                 </ConfirmProvider>
-              </SnackbarProvider>
+              </AppSnackbarProvider>
             </Suspense>
           </MemoryRouter>
         </Provider>
@@ -282,11 +282,11 @@ describe('EventListPage', () => {
             <MemoryRouter>
               <Where />
               <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
+                <AppSnackbarProvider>
                   <ConfirmProvider>
                     <EventListPage />
                   </ConfirmProvider>
-                </SnackbarProvider>
+                </AppSnackbarProvider>
               </Suspense>
             </MemoryRouter>
           </Provider>

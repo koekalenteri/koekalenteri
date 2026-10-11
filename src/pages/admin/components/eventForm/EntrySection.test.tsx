@@ -4,13 +4,13 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import * as env from '@/lib/env'
+import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
 import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import EntrySection from './EntrySection'
 
@@ -34,9 +34,9 @@ describe('EntrySection', () => {
           <Provider>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
+                <AppSnackbarProvider>
                   <EntrySection event={testEvent} onChange={onChange} open />
-                </SnackbarProvider>
+                </AppSnackbarProvider>
               </Suspense>
             </MemoryRouter>
           </Provider>
@@ -82,9 +82,9 @@ describe('EntrySection', () => {
           <Provider>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
+                <AppSnackbarProvider>
                   <EntrySection event={testEvent} onChange={onChange} open />
-                </SnackbarProvider>
+                </AppSnackbarProvider>
               </Suspense>
             </MemoryRouter>
           </Provider>
@@ -126,9 +126,9 @@ describe('EntrySection', () => {
           <Provider>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
+                <AppSnackbarProvider>
                   <EntrySection event={testEvent} entryDatesChanged onChange={onChange} open />
-                </SnackbarProvider>
+                </AppSnackbarProvider>
               </Suspense>
             </MemoryRouter>
           </Provider>
@@ -155,7 +155,7 @@ describe('EntrySection', () => {
           <Provider>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
+                <AppSnackbarProvider>
                   <EntrySection
                     event={testEvent}
                     errors={[
@@ -166,7 +166,7 @@ describe('EntrySection', () => {
                     ]}
                     open
                   />
-                </SnackbarProvider>
+                </AppSnackbarProvider>
               </Suspense>
             </MemoryRouter>
           </Provider>
@@ -192,9 +192,9 @@ describe('EntrySection', () => {
           <Provider>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>
+                <AppSnackbarProvider>
                   <EntrySection event={testEvent} onChange={onChange} open />
-                </SnackbarProvider>
+                </AppSnackbarProvider>
               </Suspense>
             </MemoryRouter>
           </Provider>

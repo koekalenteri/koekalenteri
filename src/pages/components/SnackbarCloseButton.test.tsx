@@ -16,6 +16,7 @@ const Notice = () => {
 
 describe('SnackbarCloseButton', () => {
   it('is named for screen readers and closes its snackbar', async () => {
+    // A bare provider on purpose: the button is the action under test, not the app's default one.
     render(
       <SnackbarProvider action={closeAction} autoHideDuration={null}>
         <Notice />

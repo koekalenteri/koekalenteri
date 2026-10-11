@@ -2,11 +2,11 @@ import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { screen } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises, renderSuspended } from '../../test-utils/utils'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import AdminHomePage from './AdminHomePage'
 
 vi.mock('../../api/user', () => ({ getUser: () => undefined }))
@@ -35,13 +35,13 @@ describe('AdminHomePage', () => {
     await renderSuspended(
       <ThemeProvider theme={theme}>
         <Provider>
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <Authenticator.Provider>
               <Suspense fallback={<div>loading...</div>}>
                 <DataMemoryRouter initialEntries={[Path.admin.root]} routes={routes} />
               </Suspense>
             </Authenticator.Provider>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </Provider>
       </ThemeProvider>
     )

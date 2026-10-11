@@ -1,5 +1,4 @@
 import { ThemeProvider } from '@mui/material/styles'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
@@ -9,6 +8,7 @@ import { TestProvider } from '../../test-utils/AtomProvider'
 import { describeInLanguage } from '../../test-utils/language'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
+import AppSnackbarProvider from './AppSnackbarProvider'
 import { SideMenu } from './SideMenu'
 
 // The admin section is the part of the menu with the longest labels, so it is the part that shows
@@ -37,11 +37,11 @@ const renderAt = async ({ height, width }: { height: number; width: number }, op
     <ThemeProvider theme={theme}>
       <TestProvider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
         <MemoryRouter>
-          <SnackbarProvider>
+          <AppSnackbarProvider>
             <Suspense fallback={<div>loading...</div>}>
               <SideMenu open={open} onClose={vi.fn()} />
             </Suspense>
-          </SnackbarProvider>
+          </AppSnackbarProvider>
         </MemoryRouter>
       </TestProvider>
     </ThemeProvider>

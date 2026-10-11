@@ -4,7 +4,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import {
   eventWithStaticDates,
@@ -15,15 +14,16 @@ import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from
 import { locales } from '@/i18n'
 import { merge } from '@/lib/utils'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
+import AppSnackbarProvider from '../AppSnackbarProvider'
 import { EntryInfo } from './EntryInfo'
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
       <Provider>
-        <SnackbarProvider>
+        <AppSnackbarProvider>
           <Suspense fallback={<div>loading...</div>}>{props.children}</Suspense>
-        </SnackbarProvider>
+        </AppSnackbarProvider>
       </Provider>
     </LocalizationProvider>
   )

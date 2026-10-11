@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { CollectionResponse, User } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { useAtomValue } from 'jotai'
-import { SnackbarProvider } from 'notistack'
+import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
 import { idTokenAtom } from '@/pages/state'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { expectConsoleOutput } from '@/test-utils/consoleGuard'
@@ -38,7 +38,7 @@ const wrapper =
         store.set(adminUsersAtom, users)
       }}
     >
-      <SnackbarProvider>{children}</SnackbarProvider>
+      <AppSnackbarProvider>{children}</AppSnackbarProvider>
     </TestProvider>
   )
 

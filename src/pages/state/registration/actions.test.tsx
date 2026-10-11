@@ -2,7 +2,6 @@ import type React from 'react'
 import type { ManualTestResult } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { createStore, Provider } from 'jotai'
-import { SnackbarProvider } from 'notistack'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { APIError } from '@/api/http'
@@ -13,18 +12,13 @@ import { useRegistrationActions } from './actions'
 const mockEnqueueSnackbar = vi.fn()
 
 vi.mock('notistack', () => ({
-  SnackbarProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useSnackbar: () => ({ enqueueSnackbar: mockEnqueueSnackbar }),
 }))
 
 vi.mock('@/api/registration')
 
 function wrapper({ children }: { readonly children: React.ReactNode }) {
-  return (
-    <Provider>
-      <SnackbarProvider>{children}</SnackbarProvider>
-    </Provider>
-  )
+  return <Provider>{children}</Provider>
 }
 
 describe('useRegistrationActions', () => {
@@ -215,9 +209,7 @@ describe('useRegistrationActions when logged in', () => {
     const store = createStore()
     store.set(idTokenAtom, idToken)
     const loggedIn = ({ children }: { readonly children: React.ReactNode }) => (
-      <Provider store={store}>
-        <SnackbarProvider>{children}</SnackbarProvider>
-      </Provider>
+      <Provider store={store}>{children}</Provider>
     )
     const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token' }
     vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(savedRegistration)
