@@ -5,7 +5,15 @@ import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/event'
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
-import { getAdminEvents, getEvent, getEventAuditTrail, getEvents, putEvent, searchEventKcIdChoices } from './event'
+import {
+  getAdminEvents,
+  getEvent,
+  getEventAuditTrail,
+  getEvents,
+  putEvent,
+  putResultsPublished,
+  searchEventKcIdChoices,
+} from './event'
 
 fetchMock.enableMocks()
 
@@ -198,6 +206,30 @@ test('searchEventKcIdChoices', async () => {
       description: 'Osallistumismaksu sisältää keittolounaan.',
     })
   )
+})
+
+test('putResultsPublished names one day of one class (KOE-1510)', async () => {
+  fetchMock.mockResponseOnce((req) =>
+    req.method === 'PUT'
+      ? Promise.resolve(JSON.stringify({ event: { ...emptyEvent, resultsPublished: { ALO: ['2026-09-12'] } } }))
+      : Promise.reject(new Error(`${req.method} !== 'PUT'`))
+  )
+
+  const { event: saved } = await putResultsPublished(
+    'TestEventID',
+    { date: '2026-09-12', eventClass: 'ALO', published: true },
+    'token'
+  )
+
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/results-published/TestEventID`,
+    expect.objectContaining({
+      body: JSON.stringify({ date: '2026-09-12', eventClass: 'ALO', published: true }),
+      headers: expect.objectContaining({ Authorization: 'Bearer token' }),
+      method: 'PUT',
+    })
+  )
+  expect(saved.resultsPublished).toEqual({ ALO: [expect.any(Date)] })
 })
 
 /**

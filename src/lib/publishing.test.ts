@@ -1,6 +1,5 @@
 import type { JsonConfirmedEvent } from '../types'
-import { addDays } from 'date-fns'
-import { formatDate } from '../i18n/dates'
+import { freezeClockAt } from '../test-utils/freezeClock'
 import { getResultsBlocker, getStartListBlocker, getStartNumbersBlocker, isStartListFlagPublished } from './publishing'
 import { groupParticipantsByClass } from './registration'
 
@@ -97,23 +96,23 @@ describe('lib/publishing', () => {
       expect(getResultsBlocker(event({ startListPublished: { ALO: true }, state: 'ended' }), 'ALO')).toBeUndefined()
     })
 
-    it('refuses a day that has not begun, though the trial is under way (KOE-1510)', () => {
-      // The first day is today, the second tomorrow: the trial has started but the second day has not.
-      // Days in Finnish time, so the case holds in the hours UTC is still on the day before.
-      const today = formatDate(now, 'yyyy-MM-dd')
-      const tomorrow = formatDate(addDays(now, 1), 'yyyy-MM-dd')
-      const running = event({
-        classes: [
-          { class: 'ALO', date: today },
-          { class: 'ALO', date: tomorrow },
-        ],
-        endDate: tomorrow,
-        startDate: today,
-        startListPublished: { ALO: true },
-      })
+    describe('on the first day of a two-day trial (KOE-1510)', () => {
+      freezeClockAt('2026-09-12')
 
-      expect(getResultsBlocker(running, 'ALO', today)).toBeUndefined()
-      expect(getResultsBlocker(running, 'ALO', tomorrow)).toBe('state')
+      it('refuses a day that has not begun, though the trial is under way', () => {
+        const running = event({
+          classes: [
+            { class: 'ALO', date: '2026-09-12' },
+            { class: 'ALO', date: '2026-09-13' },
+          ],
+          endDate: '2026-09-13',
+          startDate: '2026-09-12',
+          startListPublished: { ALO: true },
+        })
+
+        expect(getResultsBlocker(running, 'ALO', '2026-09-12')).toBeUndefined()
+        expect(getResultsBlocker(running, 'ALO', '2026-09-13')).toBe('state')
+      })
     })
   })
 

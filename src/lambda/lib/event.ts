@@ -16,14 +16,15 @@ import { randomUUID } from 'node:crypto'
 import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
-import { withResultsDay } from '../../lib/event'
+import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
-import { LambdaError } from './lambda'
+import { httpError, LambdaError } from './lambda'
 import { createPatch } from './patch'
 import { createRegistrationPatches, getReadyRegistrationsByEventId, getRegistrationsByEventId } from './registration'
 
@@ -466,8 +467,27 @@ interface ResultsDayPublish {
 }
 
 /**
+ * The condition a whole-flag write is held to: the event row is still the one the fold was made from.
+ * The flag cannot be compared by value (a list), so its row's own timestamp stands in for it.
+ */
+const unchangedSince = ({ updatedAt }: JsonConfirmedEvent) =>
+  updatedAt
+    ? {
+        expression: '#updatedAt = :updatedAtRead',
+        names: { '#updatedAt': 'updatedAt' },
+        values: { ':updatedAtRead': updatedAt },
+      }
+    : { expression: 'attribute_not_exists(#updatedAt)', names: { '#updatedAt': 'updatedAt' } }
+
+/**
  * Publish or hide one day's results on the event record (KOE-1510). The scope is folded here from the
  * stored day keys, never from a client's copy, whose JSON reviver has turned them into dates.
+ *
+ * Two secretaries can publish at once. Where the stored flag already is a class map, only the class's
+ * own entry is written, so the other class's publish made meanwhile stays. Where it is not (a plain
+ * flag about to become a map, or a classless event's one scope), the whole flag is written on condition
+ * that the row has not changed since it was read, and a lost race is refused rather than overwritten.
+ * The answer is the flag as stored after the write, the other secretary's change included.
  *
  * `updatedAt` moves with the flag so an incremental fetch carries it, as with the start numbers
  * (KOE-1352). `modifiedAt` stays: publishing is not an edit to the event.
@@ -477,9 +497,30 @@ export const setResultsPublishedState = async (
   { date, eventClass, published }: ResultsDayPublish,
   now: Date = new Date()
 ): Promise<Pick<JsonConfirmedEvent, 'resultsPublished' | 'updatedAt'>> => {
-  const resultsPublished = withResultsDay(confirmedEvent, eventClass, date, published)
+  const next = withResultsDay(confirmedEvent, eventClass, date, published)
   const updatedAt = now.toISOString()
-  await dynamoDB.update({ id: confirmedEvent.id }, { set: { resultsPublished, updatedAt } }, eventTable)
+  const key = { id: confirmedEvent.id }
 
-  return { resultsPublished, updatedAt }
+  try {
+    const output =
+      eventClass && isResultsPublishedClassMap(confirmedEvent.resultsPublished) && isResultsPublishedClassMap(next)
+        ? await dynamoDB.update(
+            key,
+            { set: { [`resultsPublished.${eventClass}`]: next[eventClass], updatedAt } },
+            eventTable,
+            'ALL_NEW'
+          )
+        : await dynamoDB.update(
+            key,
+            { set: { resultsPublished: next, updatedAt } },
+            eventTable,
+            'ALL_NEW',
+            unchangedSince(confirmedEvent)
+          )
+
+    return { resultsPublished: output?.Attributes?.resultsPublished ?? next, updatedAt }
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) throw httpError(409, { error: 'resultsPublishedChanged' })
+    throw error
+  }
 }

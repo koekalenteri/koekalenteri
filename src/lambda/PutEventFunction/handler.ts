@@ -5,6 +5,7 @@ import {
   getEventSeason,
   isEntryOpen,
   isEventDeletable,
+  isSameResultsPublished,
   isStartNumbersAvailable,
   isStartNumbersAvailableForClass,
   uniqueClasses,
@@ -196,6 +197,21 @@ const checkPutEventRequestShape = (patchRequest: boolean, item: Patch<JsonConfir
   }
 }
 
+/**
+ * Results are published a day at a time through PutResultsPublishedFunction, which folds the day into
+ * the stored flag and holds it to its rules (KOE-1510); a save never changes it. A save that still
+ * carries the flag comes from a browser tab loaded before that. The same value is dropped, and a
+ * different one is refused, so the old panel reports a failure instead of claiming a change that never
+ * happened. A new event has no results, whatever a copy carried.
+ */
+const dropResultsPublished = (item: Patch<JsonConfirmedEvent>, existing: JsonConfirmedEvent | undefined) => {
+  if (!Object.hasOwn(item, 'resultsPublished')) return
+  if (existing && !isSameResultsPublished(existing, item.resultsPublished)) {
+    throw httpError(409, { error: 'resultsPublishedMoved' })
+  }
+  delete item.resultsPublished
+}
+
 /** Checks that depend on the previously stored event, once it has been looked up; a failed one is thrown. */
 const checkPutEventAgainstExisting = (
   user: JsonUser,
@@ -240,10 +256,6 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   const item: Patch<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
   validateBody(eventBodySchema, item)
-  // Results are published a day at a time through PutResultsPublishedFunction, which folds the day
-  // into the stored flag and holds it to its rules (KOE-1510). A flag riding an event save, a stale
-  // copy or one a client-side copy of the event carried, is never taken: the stored one stays.
-  delete item.resultsPublished
 
   const clientModifiedAt = item.modifiedAt
 
@@ -252,6 +264,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
 
   checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
+  dropResultsPublished(item, existing)
 
   if (item.kcId != null && item.kcId !== existing?.kcId) {
     const conflict = await findEventWithKcId(item.kcId, existing?.id)

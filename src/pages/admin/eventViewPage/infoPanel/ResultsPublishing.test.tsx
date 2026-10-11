@@ -63,6 +63,21 @@ describe('ResultsPublishing', () => {
     })
   })
 
+  it('always lets published results be hidden, though the start list has gone (KOE-1510)', async () => {
+    // Publishing waits on the list; hiding never does, here as on the server.
+    const { onSetResultsPublished, user } = renderSection({
+      ...oneDay,
+      resultsPublished: true,
+      startListPublished: false,
+    })
+
+    const hide = screen.getByRole('button', { name: 'eventManagement.results.hide' })
+    expect(hide).toBeEnabled()
+    await user.click(hide)
+
+    expect(onSetResultsPublished).toHaveBeenCalledWith(undefined, '2021-02-10', false)
+  })
+
   it('waits for the start list of a classless event', () => {
     renderSection({ ...oneDay, startListPublished: false })
 

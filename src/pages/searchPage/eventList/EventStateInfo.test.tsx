@@ -129,6 +129,17 @@ describe('EventStateInfo', () => {
     expect(screen.getByRole('link', { name: 'viewStartList' })).toBeInTheDocument()
   })
 
+  it('links to the results once both days of the trial are published (KOE-1510)', () => {
+    const event = heldIn2021({
+      resultsPublished: ['2021-02-10', '2021-02-11'],
+      startListPublished: true,
+      state: 'picked',
+    })
+    render(<EventStateInfo event={event} />, { wrapper: Wrapper })
+
+    expect(screen.getByRole('link', { name: 'viewResults' })).toBeInTheDocument()
+  })
+
   it('shows no link for a classless event left picked whose day has not come', () => {
     // The flag alone does not open it: neither the state nor the dates have reached the invitations.
     const event = eventOf({ startListPublished: true, state: 'picked' })

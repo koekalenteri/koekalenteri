@@ -30,6 +30,21 @@ describe('buildEventSavePatch', () => {
     })
   })
 
+  it('never sends the results flag, which only its own endpoint changes (KOE-1510)', () => {
+    const current = { ...eventWithStaticDates, resultsPublished: true }
+
+    // A full save of a new or other event, and a diff in which the form's copy of the flag is stale.
+    expect(buildEventSavePatch({ ...current, id: '' }, current)).not.toHaveProperty('resultsPublished')
+    expect(buildEventSavePatch({ ...current, name: 'Uusi', resultsPublished: false }, current)).toEqual({
+      id: current.id,
+      name: 'Uusi',
+    })
+    expect(buildEventSavePatch(current, current, { name: 'Uusi', resultsPublished: false })).toEqual({
+      id: current.id,
+      name: current.name,
+    })
+  })
+
   it('materializes arrays from sparse form diffs', () => {
     const current = {
       ...eventWithStaticDates,

@@ -13,7 +13,7 @@ import { TZDate } from '@date-fns/tz'
 import { addDays, differenceInDays } from 'date-fns'
 import i18n from 'i18next'
 import { eventWithEntryClosing, eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
-import { formatDate, TIME_ZONE } from '../i18n/dates'
+import { formatDate, TIME_ZONE, zonedParseDate } from '../i18n/dates'
 import { freezeClockAt } from '../test-utils/freezeClock'
 import {
   applyNewGroupsToDogEventClass,
@@ -58,6 +58,7 @@ import {
   isResultsAvailableForRegistration,
   isResultsPublished,
   isResultsPublishedForDay,
+  isSameResultsPublished,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartListAvailableForRegistration,
@@ -1791,11 +1792,69 @@ describe('results published day by day', () => {
     })
   })
 
+  describe('isSameResultsPublished', () => {
+    const event = { ...twoDays, classes: twoDays.classes.map((item) => ({ ...item, state: undefined })) }
+
+    it('reads the same days the same way, however they are written', () => {
+      const stored = { ...event, resultsPublished: { ALO: ['2026-09-12'], AVO: true } }
+
+      expect(isSameResultsPublished(stored, { ALO: [new Date('2026-09-11T21:00:00.000Z')], AVO: ['2026-09-12'] })).toBe(
+        true
+      )
+      expect(isSameResultsPublished(stored, { ALO: ['2026-09-11T21:00:00.000Z'], AVO: true })).toBe(true)
+      // Every day listed is every day.
+      expect(
+        isSameResultsPublished({ ...event, resultsPublished: true }, { ALO: ['2026-09-13', '2026-09-12'], AVO: true })
+      ).toBe(true)
+    })
+
+    it('tells a different day, a hide or a missing class apart', () => {
+      const stored = { ...event, resultsPublished: { ALO: ['2026-09-12'], AVO: true } }
+
+      expect(isSameResultsPublished(stored, { ALO: ['2026-09-13'], AVO: true })).toBe(false)
+      expect(isSameResultsPublished(stored, { ALO: false, AVO: true })).toBe(false)
+      expect(isSameResultsPublished(stored, { ALO: ['2026-09-12'] })).toBe(false)
+      expect(isSameResultsPublished(stored, null)).toBe(false)
+      expect(isSameResultsPublished({ ...event, resultsPublished: undefined }, null)).toBe(true)
+    })
+  })
+
   describe('hasDayStarted', () => {
     it('opens a day at its midnight in Finnish time', () => {
       expect(hasDayStarted('2026-09-13', new Date('2026-09-12T23:59:00+03:00'))).toBe(false)
       expect(hasDayStarted('2026-09-13', new Date('2026-09-13T00:00:00+03:00'))).toBe(true)
       expect(hasDayStarted(new Date('2026-09-12'), new Date('2026-09-12T08:00:00+03:00'))).toBe(true)
+    })
+  })
+
+  /**
+   * A browser east of Finland read a bare day key as its own midnight, which in Tokyo is the evening
+   * before in Finland: the second day keyed as the first, showed as published and could be published on
+   * the first day, only for the server to refuse it.
+   */
+  describe('in a browser east of Finland', () => {
+    beforeEach(() => {
+      vi.stubEnv('TZ', 'Asia/Tokyo')
+    })
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it('runs in the zone it says it does', () => {
+      // Tokyo midnight is 18:00 the day before in Finland; without this the cases below prove nothing.
+      expect(new Date(2026, 8, 13).toISOString()).toBe('2026-09-12T15:00:00.000Z')
+    })
+
+    it('keeps a bare day key the day it names', () => {
+      const firstDay = { resultsPublished: { ALO: [zonedParseDate('2026-09-12')] } }
+
+      expect(isResultsPublishedForDay(firstDay, 'ALO', '2026-09-12')).toBe(true)
+      expect(isResultsPublishedForDay(firstDay, 'ALO', '2026-09-13')).toBe(false)
+    })
+
+    it('opens a bare day key at its midnight in Finnish time', () => {
+      expect(hasDayStarted('2026-09-13', new Date('2026-09-12T23:30:00+03:00'))).toBe(false)
+      expect(hasDayStarted('2026-09-13', new Date('2026-09-13T00:00:00+03:00'))).toBe(true)
     })
   })
 
@@ -1814,6 +1873,13 @@ describe('results published day by day', () => {
     it('shows the dog of the published day only', () => {
       expect(isResultsAvailableForRegistration(classless, { group: { date: new Date('2026-09-26') } })).toBe(true)
       expect(isResultsAvailableForRegistration(classless, { group: { date: new Date('2026-09-27') } })).toBe(false)
+    })
+
+    it('reads a dog without a day of its own as running on the first day', () => {
+      const noDay = { group: {} }
+
+      expect(isResultsAvailableForRegistration(classless, noDay)).toBe(true)
+      expect(isResultsAvailableForRegistration({ ...classless, resultsPublished: ['2026-09-27'] }, noDay)).toBe(false)
     })
 
     it('lists the trial among those with results once a day is out', () => {
@@ -2034,6 +2100,14 @@ describe('isEventLive', () => {
       const sunday = new Date('2026-09-13T10:00:00+03:00')
       const sundayTurn = [{ startedAt: new Date('2026-09-13T08:00:00+03:00') }]
       expect(isEventLive({ ...twoDays, liveTurns: sundayTurn }, sunday)).toBe(true)
+    })
+
+    it('stays live while another class of the day is unpublished', () => {
+      // AVO runs on Saturday too: ALO's day being out does not end the day.
+      const withAvo = { ...twoDays, classes: [...twoDays.classes, { class: 'AVO' as const, date: '2026-09-12' }] }
+      const evening = new Date('2026-09-12T18:00:00+03:00')
+
+      expect(isEventLive({ ...withAvo, liveTurns: running }, evening)).toBe(true)
     })
 
     it('reads a classless event by its own day', () => {

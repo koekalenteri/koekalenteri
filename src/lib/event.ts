@@ -36,7 +36,7 @@ import { formatDate, TIME_ZONE, zonedDateString, zonedEndOfDay, zonedParseDate, 
 import { LANGUAGES } from '../types'
 import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
-import { unique, uniqueDate } from './utils'
+import { isDateOnlyString, isObject, unique, uniqueDate } from './utils'
 
 type EventVitals = Partial<
   Pick<PublicDogEvent | JsonPublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
@@ -368,7 +368,7 @@ export const canPublishResults = (
 export const hasDayStarted = (day: Date | string, now = new Date()) =>
   zonedParseDate(startListAvailabilityDateKey(day)) <= now
 
-const isResultsPublishedClassMap = (
+export const isResultsPublishedClassMap = (
   resultsPublished: JsonDogEvent['resultsPublished']
 ): resultsPublished is Partial<Record<RegistrationClass, ResultsDayScope>> =>
   typeof resultsPublished === 'object' && resultsPublished !== null && !Array.isArray(resultsPublished)
@@ -394,7 +394,7 @@ const getResultsDayScope = (
 export const isResultsPublishedForDay = (
   event: Pick<JsonDogEvent, 'resultsPublished'>,
   eventClass: RegistrationClass | undefined,
-  date: Date | string | undefined
+  date: DayInput
 ) => scopeHasDay(getResultsDayScope(event, eventClass), date)
 
 type ResultsDaysEvent = Pick<JsonDogEvent, 'resultsPublished'> & ClassDaysEvent
@@ -457,16 +457,20 @@ export const isResultsAvailableForClass = (
 
 type ResultsFoldEvent = Pick<JsonDogEvent, 'resultsPublished' | 'classes' | 'startDate' | 'endDate'>
 
-/** A class's results scope as it is stored: day keys only, `true` for every day and `false` for none. */
+type ResultsDayChange = { day: string; published: boolean }
+
+/** A scope as it is stored: day keys only, `true` for every day and `false` for none. */
+const foldScopeOnDays = (scope: ResultsDayScope, days: string[], change?: ResultsDayChange): ResultsDayScope => {
+  const keys = scopeKeys(scope, days)
+  return foldDayScope(change ? withDayKey(keys, change.day, change.published) : keys, days)
+}
+
+/** A class's results scope, or a classless event's, as it is stored. */
 const foldResultsScope = (
   event: ResultsFoldEvent,
   eventClass: RegistrationClass | undefined,
-  change?: { day: string; published: boolean }
-): ResultsDayScope => {
-  const days = getClassDays(event, eventClass)
-  const keys = scopeKeys(getResultsDayScope(event, eventClass), days)
-  return foldDayScope(change ? withDayKey(keys, change.day, change.published) : keys, days)
-}
+  change?: ResultsDayChange
+) => foldScopeOnDays(getResultsDayScope(event, eventClass), getClassDays(event, eventClass), change)
 
 /**
  * The stored flag once one day of the class, or of a classless event, is published or hidden
@@ -487,6 +491,39 @@ export const withResultsDay = (
     result[item] = foldResultsScope(event, item, item === eventClass ? change : undefined)
   }
   return result
+}
+
+/** A scope as a client sent it; anything not shaped like one publishes nothing. */
+const toDayScope = (value: unknown): ResultsDayScope => {
+  if (typeof value === 'boolean') return value
+  if (!Array.isArray(value)) return false
+  return value.filter((entry): entry is string | Date => typeof entry === 'string' || entry instanceof Date)
+}
+
+/** The scope a sent flag gives the class, or the classless event: a class map has nothing for the latter. */
+const sentDayScope = (sent: unknown, eventClass: RegistrationClass | undefined): ResultsDayScope => {
+  if (!isObject(sent)) return toDayScope(sent)
+  return eventClass ? toDayScope(sent[eventClass]) : false
+}
+
+/** Two folded scopes name the same days: both lists of the same keys, or the same plain flag. */
+const isSameScope = (left: ResultsDayScope, right: ResultsDayScope) =>
+  Array.isArray(left) && Array.isArray(right)
+    ? left.length === right.length && left.every((key, index) => key === right[index])
+    : left === right
+
+/**
+ * Whether a results flag publishes the same days of the event's classes, or of a classless event, as
+ * the stored one (KOE-1510). Read through the day keys, so a client's copy whose days the JSON reviver
+ * turned into dates, or that went back out as timestamps, still compares equal to what is stored.
+ */
+export const isSameResultsPublished = (event: ResultsFoldEvent, sent: unknown): boolean => {
+  const classes = uniqueClasses(event)
+  const scopes: Array<RegistrationClass | undefined> = classes.length ? classes : [undefined]
+  return scopes.every((eventClass) => {
+    const days = getClassDays(event, eventClass)
+    return isSameScope(foldResultsScope(event, eventClass), foldScopeOnDays(sentDayScope(sent, eventClass), days))
+  })
 }
 
 export type EventProgressStep =
@@ -703,6 +740,9 @@ type AvailabilityEvent = {
 }
 type AvailabilityRegistration = { class?: string | null; group: { date?: Date | string; time?: RegistrationTime } }
 
+/** A day as stored (a yyyy-MM-dd key), as the JSON reviver hands it over (a date), or not known. */
+type DayInput = Date | string | undefined
+
 /**
  * The class entry a registration belongs to, matched on the day it runs.
  *
@@ -825,7 +865,7 @@ const scopeDayKeys = (scope: Array<string | Date>) => scopeSlotKeys(scope).filte
 type DayScope = StartNumbersDayScope | ResultsDayScope
 
 /** Whether a scope covers the day: a list by its whole days, a plain flag every day alike. */
-const scopeHasDay = (scope: DayScope, date: Date | string | undefined) =>
+const scopeHasDay = (scope: DayScope, date: DayInput) =>
   Array.isArray(scope) ? !!date && scopeDayKeys(scope).includes(startListAvailabilityDateKey(date)) : scope
 
 /** Whether a scope covers every one of the days; a list covers nothing of a class without days. */
@@ -862,7 +902,7 @@ export const foldDayScope = (keys: string[], days: string[]): DayScope => {
 export const isStartNumbersPublishedForDay = (
   event: Pick<JsonDogEvent, 'startNumbersPublished'>,
   eventClass: string | undefined,
-  date: Date | string | undefined
+  date: DayInput
 ) => scopeHasDay(getStartNumbersDayScope(event, eventClass), date)
 
 /**
@@ -872,7 +912,7 @@ export const isStartNumbersPublishedForDay = (
 export const isStartNumbersPublishedForSlot = (
   event: Pick<JsonDogEvent, 'startNumbersPublished'>,
   eventClass: string | undefined,
-  date: Date | string | undefined,
+  date: DayInput,
   time?: RegistrationTime
 ) => {
   const scope = getStartNumbersDayScope(event, eventClass)
@@ -1049,7 +1089,12 @@ export const isResultsAvailableForRegistration = (
   return eventClass ? isResultsAvailableForClass(event, eventClass) : false
 }
 
-const startListAvailabilityDateKey = (date: Date | string) => formatDate(date, 'yyyy-MM-dd')
+/**
+ * A day as its key in Finnish time. A key already is one and passes through unchanged: parsed, it would
+ * be read as midnight where the browser is, which east of Finland falls on the day before (KOE-1510).
+ */
+const startListAvailabilityDateKey = (date: Date | string) =>
+  isDateOnlyString(date) ? date : formatDate(date, 'yyyy-MM-dd')
 
 export const isStartListPublishedForClass = (event: Pick<JsonDogEvent, 'startListPublished'>, eventClass: string) =>
   isStartListPublishedClassMap(event.startListPublished)

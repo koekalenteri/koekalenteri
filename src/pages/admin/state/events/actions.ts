@@ -28,7 +28,21 @@ import { eventsAtom, userAtom, validIdTokenAtom } from '@/pages/state'
 import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 
+/**
+ * What an event save sends. Never the results flag: results are published a day at a time through
+ * their own endpoint (KOE-1510), and the server refuses a save whose flag differs from the stored one.
+ * A form holding an older copy of the flag would otherwise fail its save.
+ */
 export const buildEventSavePatch = (
+  event: Patch<DogEvent>,
+  currentAdminEvent?: DogEvent | null,
+  formChanges?: Patch<DogEvent>
+): Patch<DogEvent> => {
+  const { resultsPublished: _resultsPublished, ...patch } = buildEventChanges(event, currentAdminEvent, formChanges)
+  return patch
+}
+
+const buildEventChanges = (
   event: Patch<DogEvent>,
   currentAdminEvent?: DogEvent | null,
   formChanges?: Patch<DogEvent>

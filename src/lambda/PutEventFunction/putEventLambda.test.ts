@@ -616,29 +616,52 @@ describe('putEventLambda', () => {
       expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
     })
 
-    it.each([true, false, { ALO: true }])(
-      'does not let an event save change the results flag (%j) (KOE-1510)',
-      async (resultsPublished) => {
-        // Results go out a day at a time only through PutResultsPublishedFunction, which folds the day
-        // into the stored flag; a flag riding a save would publish days nobody named.
-        authorizeMock.mockResolvedValueOnce(mockSecretary)
-        getEventMock.mockResolvedValueOnce({
-          ...classless,
-          resultsPublished: ['2025-03-01'],
-          startListPublished: true,
-          state: 'ended',
-        })
+    /**
+     * Results go out a day at a time only through PutResultsPublishedFunction (KOE-1510). A save still
+     * carrying the flag comes from a tab loaded before that: the stored flag is never changed by it.
+     */
+    describe('a save carrying the results flag', () => {
+      const firstDayOut: JsonDogEvent = {
+        ...classless,
+        resultsPublished: ['2025-06-01'],
+        startListPublished: true,
+        state: 'ended',
+      }
 
-        const res = await publish({ resultsPublished })
+      it.each([
+        ['the same day key', ['2025-06-01']],
+        // The old panel's copy went through the reviver and back out as the instant of Finnish midnight.
+        ['the same day as a timestamp', ['2025-05-31T21:00:00.000Z']],
+      ])('drops %s and saves the rest', async (_name, resultsPublished) => {
+        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        getEventMock.mockResolvedValueOnce(firstDayOut)
+
+        const res = await publish({ name: 'Uusi nimi', resultsPublished })
 
         expect(res.statusCode).toEqual(200)
         expect(patchEventMock).toHaveBeenCalledWith(
           'existing',
           expect.anything(),
-          expect.objectContaining({ resultsPublished: ['2025-03-01'] })
+          expect.objectContaining({ name: 'Uusi nimi', resultsPublished: ['2025-06-01'] })
         )
-      }
-    )
+      })
+
+      it.each([
+        ['a hide', false],
+        ['a publish of every day', true],
+        ['another day', ['2025-06-02']],
+        ['a class map, which has nothing for a classless trial', { ALO: true }],
+      ])('refuses %s, so the old panel cannot report a change that never happened', async (_name, resultsPublished) => {
+        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        getEventMock.mockResolvedValueOnce(firstDayOut)
+
+        const res = await publish({ resultsPublished })
+
+        expect(res.statusCode).toEqual(409)
+        expect(JSON.parse(res.body)).toEqual({ error: 'resultsPublishedMoved' })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+    })
 
     it('does not let an event save publish the start numbers', async () => {
       // Numbers go out only through PutStartNumbersFunction, which freezes them as it publishes.
