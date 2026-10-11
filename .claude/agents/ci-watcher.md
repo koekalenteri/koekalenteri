@@ -27,7 +27,7 @@ Downloads and scratch files go to a directory of your own (`mktemp -d`), never i
 | e2e | `gh run download <run> -n e2e-report` → `test-results/**/error-context.md` | The page state at the failure: which field is empty, which button disabled, which dialog missing. |
 | Visual | `gh run download <run> -n visual-screenshot-diffs` (actual PNGs); the reference is `__screenshots__/<Test>.visual.test.tsx/<name>-chromium-linux.png` on the PR branch | Look at both images with Read. Say what changed and whether it is what the PR meant to change. |
 | Sonar gate | `curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=koekalenteri_koekalenteri&pullRequest=<pr>"` | Each failing condition with actual vs threshold. |
-| Sonar issues | `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED` | rule, file:line, message. Check `AGENTS.md` "Static Analysis (Sonar)" for the house fix. |
+| Sonar issues | `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED&ps=100` | `total`, and per issue rule, file:line, message. Every one, also when the gate is OK: the gate checks ratings, not the count. Check `AGENTS.md` "Static Analysis (Sonar)" for the house fix. |
 | Coverage | `api/measures/component_tree?component=koekalenteri_koekalenteri&pullRequest=<pr>&metricKeys=new_coverage,new_uncovered_lines,new_uncovered_conditions&qualifiers=FIL&ps=100` (value is `measures[].periods[0].value`), then `api/sources/lines?key=koekalenteri_koekalenteri:<path>&pullRequest=<pr>` | The new lines with `lineHits == 0` and the new lines with `coveredConditions < conditions`, as file:line with the branch that no test takes. |
 | Duplication | same component_tree call with `new_duplicated_lines`, then `api/duplications/show?key=…&pullRequest=<pr>` | Which block repeats where. |
 
@@ -54,5 +54,6 @@ Return one package, failures first, most blocking first. For each item:
 - **Belongs to**: `this PR`, `main` (the orchestrator fixes it in a PR of its own), or `user`
   (a decision: a Sonar profile change, a rule to switch off, a secret).
 
-End with the checks that passed, by name, so green is stated, not assumed. If something could
+End with the checks that passed, by name, and the Sonar gate status and open issue `total`, so
+green is stated, not assumed. If something could
 not be read (an artifact expired, the API refused), say so instead of reporting it as passing.

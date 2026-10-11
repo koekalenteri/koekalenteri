@@ -1,6 +1,6 @@
 ---
 name: ticket
-description: Take one Jira issue from pickup to a reviewed pull request with green CI. This session orchestrates; an implementer subagent does the work, reviewer subagents check it from separate angles, and a ci-watcher digs out every red check and Sonar finding. Use when the user hands over an issue key, e.g. "/ticket KOE-1490".
+description: Take one Jira issue from pickup to a reviewed pull request with green CI and no new Sonar issues. This session orchestrates; an implementer subagent does the work, reviewer subagents check it from separate angles, and a ci-watcher digs out every red check and Sonar finding. Use when the user hands over an issue key, e.g. "/ticket KOE-1490".
 ---
 
 # /ticket <KEY>
@@ -22,7 +22,7 @@ reports. The gate is the pull request and the user's merge; nothing here approve
 
 Start `implementer` in the background with `isolation: "worktree"`. Give it the key, the branch
 name (`koe-<n>-<slug>`), the cause and how it was established, and what is already verified.
-Wait for its report: the PR URL and the failing-test evidence.
+It opens the PR as a draft. Wait for its report: the PR URL and the failing-test evidence.
 
 ## 3. Review and CI, in parallel
 
@@ -44,22 +44,40 @@ When all have reported:
 - Findings that belong to `main` (a test failing there too, a clock failure, a Sonar profile
   change): not the implementer's. Fix them in a separate PR without an issue key, or tell the
   user if the decision is theirs.
+- Every open Sonar issue on the PR is a finding for the implementer, also when the gate is OK.
+  The gate checks ratings, duplication and hotspots, not the issue count, so a PR with new code
+  smells passes it (#1450 did with 8). Only an issue on a line the PR did not touch, or one from
+  a rule SonarCloud just added, belongs elsewhere.
 - Send the rest to the implementer through `SendMessage` (its agent ID from step 2), as one
   package. Do not start a new implementer; its context is the point.
 
 After its fix, run step 3 again with only the CI watcher and the reviewers whose findings were
 addressed. At most two feedback rounds; what is still open after that goes to the user.
 
-## 5. Report
+## 5. Ready and report
 
-Check from the source: `gh pr view <pr> --json state,commits`, `gh pr checks <pr>`, the Sonar
-gate for the PR. Then tell the user: the PR, what was wrong and what changed, the review rounds
-and what they caught, CI state per check, and anything open or waiting on them.
+Check from the source, not from the agents' reports:
+
+- `gh pr view <pr> --json state,isDraft,commits` and `gh pr checks <pr>`: every check passed.
+- `api/qualitygates/project_status?projectKey=koekalenteri_koekalenteri&pullRequest=<pr>`:
+  status `OK`, for the PR's last commit.
+- `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED`:
+  `total` is `0`, or every remaining issue was sorted to `main` or `user` in step 4.
+- Every review finding is fixed, or answered with evidence.
+
+Only when all of these hold, mark the PR ready: `gh pr ready <pr>`. Otherwise it stays a draft
+and the report says which item is missing.
+
+Then tell the user: the PR and whether it is ready, what was wrong and what changed, the review
+rounds and what they caught, CI state per check, the Sonar gate and issue count, and anything
+open or waiting on them.
 
 ## Rules
 
 - No CI, test or Sonar housekeeping issues in Jira; those PRs carry no issue key.
 - Production only with the user's permission, also for reading.
 - Agents never merge, queue, enable auto-merge or push to main.
+- A PR is a draft until step 5 says otherwise. Only the orchestrator marks it ready, and before
+  sending new work to a PR that is already ready, turns it back: `gh pr ready <pr> --undo`.
 - Before sending a follow-up to a PR, check it is still open; a merged PR gets a new one from
   `origin/main`.

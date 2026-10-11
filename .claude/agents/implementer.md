@@ -29,6 +29,8 @@ commits on the same branch.
 - Changed UI gets a screenshot test and both baselines (`AGENTS.md`, Visual Test Convention).
   Look at every PNG you regenerate.
 - Before pushing, list each new branch you added and the test that takes it.
+- The PR must not add Sonar issues, not even ones the gate lets through. Write it the way
+  `AGENTS.md` "Static Analysis (Sonar)" says the first time.
 
 ## The PR
 
@@ -38,8 +40,9 @@ commits on the same branch.
   `feat(email): … (KOE-1469, KOE-1381)`. `jira-testable` comments on the keys it finds after the
   merge, and only the title is sure to reach main: the squash body is sometimes empty, and a
   `Refs: KOE-x` line is never a claim (`claimedKeys` in `scripts/lib/jira.mjs`).
-- `git rebase origin/main`, push, `gh pr create`. Never merge, queue or enable auto-merge, never
-  push to main.
+- `git rebase origin/main`, push, `gh pr create --draft`. The orchestrator marks it ready once
+  CI, Sonar and the reviews are clean; never run `gh pr ready` yourself. Never merge, queue or
+  enable auto-merge, never push to main.
 - Comment on the Jira issue with the PR link: what was wrong, what changed, what to try. Every
   reference is a Markdown link (`AGENTS.md`, Jira Automation).
 
