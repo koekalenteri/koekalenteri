@@ -3,13 +3,12 @@ import type { DogEvent, Registration } from '../types'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import i18n from 'i18next'
-import { useAtomValue } from 'jotai'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await, Navigate, useLoaderData } from 'react-router'
 import { getEvent } from '../api/event'
 import { getRegistration, patchRegistration } from '../api/registration'
+import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
 import { eventTypeLabel, localizedEventName } from '../lib/event'
 import { invitationAttachmentFileName } from '../lib/fileName'
 import { createPatchOperations } from '../lib/patch'
@@ -17,7 +16,7 @@ import { getInvitationReadStatus } from '../lib/registration'
 import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
 import { LoadingPage } from './LoadingPage'
-import { languageAtom, readStoredIdToken } from './state'
+import { readStoredIdToken } from './state'
 
 interface DeferredData {
   url?: string
@@ -45,8 +44,6 @@ export const deferredLoader = async (
   })
 
   if (!event || !registration) throw new Error('not found')
-
-  await i18n.changeLanguage(registration.language)
 
   if (getInvitationReadStatus(registration) !== 'read-latest') {
     const updatedRegistration = { ...registration, invitationRead: true }
@@ -78,61 +75,75 @@ export const loader = ({ params, request }: { params: Params<string>; request: R
   }
 }
 
+interface InvitationProps {
+  readonly event: DogEvent
+  readonly registration: Registration
+  readonly url: string
+}
+
+const Invitation = ({ event, registration, url }: InvitationProps) => {
+  const { t } = useTranslation()
+  const language = useRegistrationLanguage(registration.language)
+
+  return (
+    <main style={{ padding: '8px' }}>
+      <Paper sx={{ p: 1 }}>
+        <Typography variant="caption">{t('invitation.event')}</Typography>
+        <Typography>
+          {eventTypeLabel(event)} {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}{' '}
+          {event.location} ({localizedEventName(event, language)})
+        </Typography>
+        <Typography variant="caption">{t('invitation.registeredDog')}</Typography>
+        <Typography>
+          {registration.dog.titles} {registration.dog.regNo} {registration.dog.name}
+        </Typography>
+        <Typography variant="caption">{t('invitation.handler')}</Typography>
+        <Typography>{registration.handler?.name}</Typography>
+      </Paper>
+      {registration.invitationAttachmentUpdatedAt && (
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+            pt: 1,
+          }}
+        >
+          {t('invitation.attachmentUpdated', { date: registration.invitationAttachmentUpdatedAt })}
+        </Typography>
+      )}
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'start',
+          gap: 1,
+          py: 1,
+        }}
+      >
+        <LinkButton target="_blank" to={url} text={t('invitation.open')} />
+        <LinkButton
+          download={invitationAttachmentFileName(registration)}
+          to={`${url}?dl`}
+          text={t('invitation.download')}
+        />
+      </Stack>
+    </main>
+  )
+}
+
 export const Component = () => {
   const loaderData: { data: Promise<DeferredData> } = useLoaderData()
   const { t } = useTranslation()
-  const language = useAtomValue(languageAtom)
 
   return (
     <Suspense fallback={<LoadingPage />}>
       <Await resolve={loaderData.data} errorElement={<div>{t('invitation.openingFailed')}</div>}>
-        {({ url, event, registration }: DeferredData) => {
-          if (!url) return <Navigate replace to={Path.registration(registration)} />
-
-          return (
-            <main style={{ padding: '8px' }}>
-              <Paper sx={{ p: 1 }}>
-                <Typography variant="caption">{t('invitation.event')}</Typography>
-                <Typography>
-                  {eventTypeLabel(event)} {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}{' '}
-                  {event.location} ({localizedEventName(event, language)})
-                </Typography>
-                <Typography variant="caption">{t('invitation.registeredDog')}</Typography>
-                <Typography>
-                  {registration.dog.titles} {registration.dog.regNo} {registration.dog.name}
-                </Typography>
-                <Typography variant="caption">{t('invitation.handler')}</Typography>
-                <Typography>{registration.handler?.name}</Typography>
-              </Paper>
-              {registration.invitationAttachmentUpdatedAt && (
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: 'text.secondary',
-                    pt: 1,
-                  }}
-                >
-                  {t('invitation.attachmentUpdated', { date: registration.invitationAttachmentUpdatedAt })}
-                </Typography>
-              )}
-              <Stack
-                direction="row"
-                sx={{
-                  alignItems: 'start',
-                  gap: 1,
-                  py: 1,
-                }}
-              >
-                <LinkButton target="_blank" to={url} text={t('invitation.open')} />
-                <LinkButton
-                  download={invitationAttachmentFileName(registration)}
-                  to={`${url}?dl`}
-                  text={t('invitation.download')}
-                />
-              </Stack>
-            </main>
+        {({ url, event, registration }: DeferredData) =>
+          url ? (
+            <Invitation event={event} registration={registration} url={url} />
+          ) : (
+            <Navigate replace to={Path.registration(registration)} />
           )
-        }}
+        }
       </Await>
     </Suspense>
   )
