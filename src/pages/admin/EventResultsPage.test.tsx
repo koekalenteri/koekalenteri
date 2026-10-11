@@ -19,6 +19,7 @@ import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
+import { describeInLanguage } from '../../test-utils/language'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
@@ -302,6 +303,37 @@ describe('EventResultsPage', () => {
     // lookup that stands in its place.
     expect(screen.getByText(/event\.kcId/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'event.kcIdLookup' })).not.toBeInTheDocument()
+  })
+
+  // The secretary browsing in English reads the trial's English name where one is kept (KOE-1453).
+  it('names the trial in Finnish in a Finnish view', async () => {
+    await renderQualitativePage('fi', {}, { ...eventWithStaticDates, name: 'Kevätkoe', names: { en: 'Spring trial' } })
+    await flushPromises()
+
+    expect(screen.getByText(/test location \(Kevätkoe\)$/)).toBeInTheDocument()
+  })
+
+  it('leaves the name out of the heading of a trial that has none', async () => {
+    await renderQualitativePage('fi', {}, { ...eventWithStaticDates, name: '' })
+    await flushPromises()
+
+    expect(screen.getByText(/test location$/)).toBeInTheDocument()
+  })
+
+  describeInLanguage('en', () => {
+    it.each([
+      [
+        'its English name',
+        { ...eventWithStaticDates, name: 'Kevätkoe', names: { en: 'Spring trial' } },
+        'Spring trial',
+      ],
+      ['its Finnish name when it has no English one', { ...eventWithStaticDates, name: 'Kevätkoe' }, 'Kevätkoe'],
+    ])('names the trial by %s', async (_case, event, expected) => {
+      await renderQualitativePage('en', {}, event)
+      await flushPromises()
+
+      expect(screen.getByText(new RegExp(String.raw`test location \(${expected}\)$`))).toBeInTheDocument()
+    })
   })
 
   it('lists the dogs that ran, one row each, with a slot for every task in the round', async () => {

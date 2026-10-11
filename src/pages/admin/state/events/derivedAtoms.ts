@@ -76,6 +76,20 @@ export const adminCurrentEventAtom = atom(
   }
 )
 
+/**
+ * What the event list search reads for an event: one line per name the event goes by, the Finnish
+ * name and each translation (KOE-1453), in the order the list shows its fields. The list shows the
+ * name in the UI language, but the search finds an event by its name in any language, and a search
+ * may span the name and the fields beside it ("syyskoe vaasa", "autumn trial vaasa") without joining
+ * one name's fields to another name. An event without translations reads exactly as it always did.
+ */
+const searchLines = (event: DogEvent): string[] =>
+  [event.name, ...Object.values(event.names ?? {})].map((name) =>
+    [event.eventType, name, event.location, event.official?.name, event.secretary?.name]
+      .join(' ')
+      .toLocaleLowerCase(i18next.language)
+  )
+
 export const adminFilteredEventsAtom = atom(async (get) => {
   const events = await get(adminEventsAtom)
   const filter = get(adminEventFilterTextAtom).toLocaleLowerCase(i18next.language)
@@ -84,11 +98,7 @@ export const adminFilteredEventsAtom = atom(async (get) => {
     (event) =>
       !event.deletedAt &&
       (showPast || !event.endDate || !isEventOver(event)) &&
-      (!filter ||
-        [event.eventType, event.name, event.location, event.official?.name, event.secretary?.name]
-          .join(' ')
-          .toLocaleLowerCase(i18next.language)
-          .includes(filter))
+      (!filter || searchLines(event).some((line) => line.includes(filter)))
   )
 })
 

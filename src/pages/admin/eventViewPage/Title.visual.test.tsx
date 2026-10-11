@@ -5,13 +5,15 @@ import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import theme from '@/assets/Theme'
+import { TestProvider } from '@/test-utils/AtomProvider'
 import { ARROW_TOLERANCE, iconOffsetFromHeadingLine } from '@/test-utils/headingAlignment'
+import { describeInLanguage } from '@/test-utils/language'
 import Title from './Title'
 
 const VIEWPORT = { height: 300, width: 900 }
 
 /** A named trial, so the heading shows every part it can: type, dates, location and name. */
-const event: ConfirmedEvent = { ...eventWithStaticDates, name: 'Kevätkokeet' }
+const event: ConfirmedEvent = { ...eventWithStaticDates, name: 'Kevätkokeet', names: { en: 'Spring trials' } }
 
 // The head of the event view: the way back to the list (KOE-541), the heading with the trial's name
 // (KOE-647), and the progress stepper beneath them.
@@ -35,6 +37,29 @@ it('heads the event view with a way back, the trial and its progress', async () 
   ).toBeLessThan(ARROW_TOLERANCE)
 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-view-title')
+})
+
+// A secretary browsing in English reads the trial's English name where one is kept (KOE-1453).
+describeInLanguage('en', () => {
+  it('names the trial in English', async () => {
+    await page.viewport(VIEWPORT.width, VIEWPORT.height)
+
+    const screen = await render(
+      <div data-testid="visual-root" style={{ background: '#fff', boxSizing: 'border-box', padding: 8, width: '100%' }}>
+        <ThemeProvider theme={theme}>
+          {/* A store of its own, which reads the language from i18next as the app's does on load. */}
+          <TestProvider>
+            <MemoryRouter>
+              <Title event={event} />
+            </MemoryRouter>
+          </TestProvider>
+        </ThemeProvider>
+      </div>
+    )
+
+    await expect.element(screen.getByRole('heading', { level: 5 })).toHaveTextContent(/\(Spring trials\)$/)
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-view-title-en')
+  })
 })
 
 /**

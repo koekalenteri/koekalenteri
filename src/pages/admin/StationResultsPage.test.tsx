@@ -17,6 +17,7 @@ import { putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
+import { describeInLanguage } from '../../test-utils/language'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import StationResultsPage from './StationResultsPage'
@@ -210,6 +211,30 @@ describe('StationResultsPage', () => {
 
     // The post is part of the address, so a stale link must not land on an empty scoring screen.
     expect(screen.getByText('error.eventNotFound')).toBeInTheDocument()
+  })
+
+  // The post's screen names the trial the way the results page does: in English for a secretary
+  // browsing in English where an English name is kept (KOE-1453), the event type when it has no name.
+  const namedStations: ConfirmedEvent = { ...eventWithStations, kcId: undefined, names: { en: 'Results trial' } }
+
+  it('names the trial in Finnish in a Finnish view', async () => {
+    await renderStation('fi', 'post-2', namedStations)
+    await flushPromises()
+
+    expect(screen.getByText('Tuloskoe')).toBeInTheDocument()
+  })
+
+  describeInLanguage('en', () => {
+    it.each([
+      ['its English name', namedStations, 'Results trial'],
+      ['its Finnish name when it has no English one', { ...eventWithStations, kcId: undefined }, 'Tuloskoe'],
+      ['its event type when it has no name', { ...eventWithStations, kcId: undefined, name: '' }, 'NOWT'],
+    ])('names the trial by %s', async (_case, event, expected) => {
+      await renderStation('en', 'post-2', event)
+      await flushPromises()
+
+      expect(screen.getByText(expected)).toBeInTheDocument()
+    })
   })
 
   it('names the post and queues the dogs due through it', async () => {

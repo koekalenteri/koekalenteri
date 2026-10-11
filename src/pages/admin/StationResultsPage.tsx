@@ -11,11 +11,12 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { getStationLink } from '../../api/station'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
+import { localizedEventName } from '../../lib/event'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import { StationScoring } from '../components/stationScoring/StationScoring'
-import { idTokenAtom } from '../state'
+import { idTokenAtom, languageAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { StationPhasesEditor } from './eventResultsPage/StationPhasesEditor'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
@@ -28,6 +29,7 @@ import { useSaveEventResults } from './state/registrations/actions'
  */
 export default function StationResultsPage() {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
   const { id: eventId = '', stationId = '' } = useParams()
   useAdminEventScope(eventId)
   const token = useAtomValue(idTokenAtom)
@@ -86,7 +88,7 @@ export default function StationResultsPage() {
   if (!event?.id || !station) return <EventNotFound />
 
   const kcId = event.kcId ? ` · ${t('event.kcId')} ${event.kcId}` : ''
-  const subtitle = `${event.name || event.eventType}${kcId}`
+  const subtitle = `${localizedEventName(event, language) || event.eventType}${kcId}`
   // A format whose phases are the post's own gets them written here, at the post, on the day.
   const format = liveFormat(event.eventType)
   const ownPhases = format.tasks === 'phases' && !format.phases

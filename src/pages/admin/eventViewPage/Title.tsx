@@ -1,15 +1,19 @@
 import type { ConfirmedEvent } from '@/types'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
-import { eventTypeLabel } from '@/lib/event'
+import { eventTypeLabel, localizedEventName } from '@/lib/event'
 import { Path } from '@/routeConfig'
+import { languageAtom } from '../../state'
 import { BackLink } from '../components/BackLink'
 import EventStateStepper from './EventStateStepper'
 
 export default function Title({ event }: { readonly event: ConfirmedEvent }) {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
   const type = eventTypeLabel(event)
+  const name = localizedEventName(event, language)
 
   return (
     <>
@@ -21,7 +25,7 @@ export default function Title({ event }: { readonly event: ConfirmedEvent }) {
         <BackLink headingVariant="h5" label={t('backToEventsList')} to={Path.admin.events} />
         <Typography variant="h5">
           {type}, {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}, {event.location}
-          {event.name ? ` (${event.name})` : ''}
+          {name ? ` (${name})` : ''}
         </Typography>
       </Stack>
       <EventStateStepper event={event} />
