@@ -40,9 +40,9 @@ import {
   getStartListPublishedClassMap,
   getStartNumbersDayTimes,
   getUniqueEventClasses,
+  hasAvailableResults,
   hasExplicitPlacesForClass,
   hasMockTrialChoice,
-  hasPublishedResults,
   hasRetrieveTypeChoice,
   hasSharedReserveList,
   isDetaultEntryEndDate,
@@ -1553,16 +1553,35 @@ describe('publishing results', () => {
     })
   })
 
-  describe('hasPublishedResults', () => {
-    it('is true as soon as any class is public', () => {
-      expect(hasPublishedResults({ resultsPublished: true })).toBe(true)
-      expect(hasPublishedResults({ resultsPublished: { ALO: false, AVO: true } })).toBe(true)
+  describe('hasAvailableResults', () => {
+    // Held in 2021 and left 'picked': only the dates and the flags open anything.
+    const past = { endDate: new Date('2021-02-11'), startDate: new Date('2021-02-10'), state: 'picked' as const }
+    const classes = [{ class: 'ALO' as const }, { class: 'AVO' as const }]
+
+    it('needs the list and the results of a classless event public', () => {
+      expect(hasAvailableResults({ ...past, resultsPublished: true, startListPublished: true })).toBe(true)
+      expect(hasAvailableResults({ ...past, resultsPublished: true, startListPublished: false })).toBe(false)
+      expect(hasAvailableResults({ ...past, resultsPublished: false, startListPublished: true })).toBe(false)
     })
 
-    it('is false with nothing published', () => {
-      expect(hasPublishedResults({})).toBe(false)
-      expect(hasPublishedResults({ resultsPublished: false })).toBe(false)
-      expect(hasPublishedResults({ resultsPublished: { ALO: false } })).toBe(false)
+    it('waits for the dogs to have run', () => {
+      const ahead = { endDate: addDays(new Date(), 31), startDate: addDays(new Date(), 30), state: 'picked' as const }
+      expect(hasAvailableResults({ ...ahead, resultsPublished: true, startListPublished: true })).toBe(false)
+    })
+
+    it('needs one class with both its list and its results public', () => {
+      expect(hasAvailableResults({ ...past, classes, resultsPublished: { AVO: true }, startListPublished: true })).toBe(
+        true
+      )
+      // ALO's list is public and AVO's results are, but no class has both.
+      expect(
+        hasAvailableResults({
+          ...past,
+          classes,
+          resultsPublished: { AVO: true },
+          startListPublished: { ALO: true, AVO: false },
+        })
+      ).toBe(false)
     })
   })
 
