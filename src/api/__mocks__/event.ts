@@ -59,12 +59,12 @@ export async function getAdminEvents(_signal?: AbortSignal): Promise<DogEvent[]>
   })
 }
 
-export async function getEvent(id: string, _signal?: AbortSignal): Promise<DogEvent> {
+export const getEvent = vi.fn(async (id: string, _signal?: AbortSignal): Promise<DogEvent> => {
   return new Promise((resolve, reject) => {
     const event = mockEvents.find((item) => item.id === id)
     process.nextTick(() => (event ? resolve(event) : reject(new Error('not found'))))
   })
-}
+})
 
 export const putStartNumbers = vi.fn(async (_eventId: string, _request: unknown, _token?: string) => ({
   event: mockEvents[0],

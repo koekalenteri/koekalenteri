@@ -7,6 +7,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
+import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
 import { useRegistrationSubscription } from '../hooks/useRegistrationSubscription'
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
@@ -25,7 +26,7 @@ import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import { InfoBox } from './registrationListPage/InfoBox'
 import { PaymentDialog } from './registrationListPage/PaymentDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
-import { languageAtom, registrationAtom, spaAtom, useConfirmedEvent } from './state'
+import { registrationAtom, spaAtom, useConfirmedEvent } from './state'
 import { useRegistrationActions } from './state/registration/actions'
 
 export interface RegistrationListPageProps {
@@ -44,7 +45,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   const [registration, setRegistration] = useAtom(
     registrationAtom(`${params.id ?? ''}:${params.registrationId ?? ''}:${params.editToken ?? ''}`)
   )
-  const [language, setLanguage] = useAtom(languageAtom)
+  useRegistrationLanguage(registration?.language)
   const spa = useAtomValue(spaAtom)
   const eventNotFound = event === null
   const { t } = useTranslation()
@@ -211,12 +212,6 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
       setPaymentOpen((current) => current ?? true)
     }
   }, [confirm, event, registration, costResult])
-
-  useEffect(() => {
-    if (registration?.language && registration.language !== language) {
-      setLanguage(registration.language)
-    }
-  }, [language, registration?.language, setLanguage])
 
   useEffect(() => {
     if (!registration || registration.cancelled) return

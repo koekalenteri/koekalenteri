@@ -11,15 +11,16 @@ import theme from '../assets/Theme'
 import { locales } from '../i18n'
 // The open/download links' black/bold/underlined look is a global class, not a theme override.
 import '../index.css'
+import { languageStorageKey } from '../lib/client/storage'
 import { Path } from '../routeConfig'
 import { TestProvider } from '../test-utils/AtomProvider'
-import { describeInLanguage } from '../test-utils/language'
+import { describeInLanguage, switchLanguage } from '../test-utils/language'
 import { DataMemoryRouter } from '../test-utils/utils'
 import { LoadingPage } from './LoadingPage'
 import { Component as RegistrationInvitation } from './RegistrationInvitation'
 
 /** The page with its invitation loaded, as the route renders it. */
-const renderInvitation = (language: Language = 'fi') => {
+const renderInvitation = (language: Language = 'fi', registrationLanguage: Language = language) => {
   const invitationUrl = '/test-invitation-url'
   const path = Path.invitation(registrationWithStaticDates)
   const routes: RouteObject[] = [
@@ -32,6 +33,7 @@ const renderInvitation = (language: Language = 'fi') => {
           registration: {
             ...registrationWithStaticDates,
             invitationAttachmentUpdatedAt: new Date('2026-07-28T10:00:00.000Z'),
+            language: registrationLanguage,
           },
           url: invitationUrl,
         }),
@@ -60,6 +62,21 @@ it('shows the printable invitation with its open/download links', async () => {
 
   await expect.element(screen.getByRole('link', { name: 'Avaa koekutsu' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-invitation-open')
+})
+
+describe('a registration in English opened by a reader who chose Finnish', () => {
+  afterEach(async () => {
+    localStorage.removeItem(languageStorageKey)
+    await switchLanguage('fi')
+  })
+
+  it('shows the whole page in English (KOE-1508)', async () => {
+    const screen = await renderInvitation('fi', 'en')
+
+    await expect.element(screen.getByRole('link', { name: 'Open invitation' })).toBeVisible()
+    await expect.element(screen.getByText('Registered dog')).toBeVisible()
+    expect(document.documentElement.lang).toBe('en')
+  })
 })
 
 // The guide's English page shows the page in English (KOE-1437).
