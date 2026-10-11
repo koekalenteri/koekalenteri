@@ -217,12 +217,16 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
     >
       <Box sx={{ pt: 2, px: 2 }}>
         {!singlePost && (
-          <Typography variant="h6">
+          <Typography variant="h3" component="h1">
             {t('event.station')} {station.number}
           </Typography>
         )}
         {subtitle && (
-          <Typography color={singlePost ? undefined : 'text.secondary'} variant={singlePost ? 'h6' : 'body2'}>
+          <Typography
+            color={singlePost ? undefined : 'text.secondary'}
+            component={singlePost ? 'h1' : 'p'}
+            variant={singlePost ? 'h3' : 'body2'}
+          >
             {subtitle}
           </Typography>
         )}
@@ -259,7 +263,7 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
 
       {selected && (
         <Stack spacing={2} sx={{ flexGrow: 1, overflow: 'auto', px: 2 }}>
-          <Typography variant="h6">
+          <Typography variant="h3" component="h2">
             {selected.group?.number}. {selected.dog.name}
           </Typography>
           {selected.handler?.name && (

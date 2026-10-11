@@ -112,7 +112,7 @@ export default function OrganizerStatsPage() {
 
   return (
     <Stack spacing={4} sx={{ p: 1, width: '100%' }}>
-      <Typography variant="h4">{t('stats.admin.overviewTitle')}</Typography>
+      <Typography variant="h1">{t('stats.admin.overviewTitle')}</Typography>
 
       <AutocompleteSingle
         disabled={orgs.length < 2}

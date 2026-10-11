@@ -72,21 +72,11 @@
       "empty-table-header": 15
     }
   },
-  "src/pages/admin/eventViewPage/MessageRecipientsDialog.visual.test.tsx": {
-    "message-recipients": {
-      "heading-order": 1
-    },
-    "message-recipients-en": {
-      "heading-order": 1
-    }
-  },
   "src/pages/admin/eventViewPage/SendMessageDialog.visual.test.tsx": {
     "send-message-dialog-open": {
-      "heading-order": 1,
       "label": 1
     },
     "send-message-dialog-open-en": {
-      "heading-order": 1,
       "label": 1
     }
   },

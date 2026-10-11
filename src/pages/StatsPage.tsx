@@ -57,7 +57,7 @@ export function Component() {
     <>
       <Header />
       <Box sx={{ mt: HEADER_HEIGHT, overflow: 'auto', p: 2 }}>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h1" gutterBottom>
           {t('stats.title')} {t('stats.beta')}
         </Typography>
 

@@ -31,11 +31,9 @@ export const DocsPage = () => {
             {t('docs.title')}
           </Link>
           {title ? (
-            <Typography variant="h4" component="h1">
-              {title}
-            </Typography>
+            <Typography variant="h1">{title}</Typography>
           ) : (
-            <Typography variant="h6" component="h1">
+            <Typography variant="h3" component="h1">
               {t('docs.notFound')}
             </Typography>
           )}

@@ -310,6 +310,7 @@ const ResultCard = ({ registration, qualitative, controls }: CardProps) => {
         <Box>
           <Typography
             variant="subtitle1"
+            component="h2"
             sx={{
               fontWeight: 600,
               lineHeight: 1.3,

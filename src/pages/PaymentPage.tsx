@@ -103,7 +103,9 @@ export const PaymentPageWithData = ({
         }}
       >
         <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
-        <Typography variant="h5">{message}</Typography>
+        <Typography variant="h2" component="h1">
+          {message}
+        </Typography>
       </Grid>
       <Divider sx={{ my: 1 }} />
       <RegistrationDetails event={event} registration={registration} />
@@ -150,7 +152,9 @@ export const PaymentPageWithData = ({
         }}
       >
         <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
-        <Typography variant="h5">{t('paymentPage.choosePaymentMethod')}</Typography>
+        <Typography variant="h2" component="h1">
+          {t('paymentPage.choosePaymentMethod')}
+        </Typography>
         <Typography variant="caption">
           {/** biome-ignore lint/security/noDangerouslySetInnerHtml: yolo */}
           <span dangerouslySetInnerHTML={{ __html: response.terms }} />
@@ -159,7 +163,9 @@ export const PaymentPageWithData = ({
 
       {response.groups.map((group) => (
         <Paper key={group.id} sx={{ m: 1, p: 1 }} elevation={0}>
-          <Typography variant="h6">{group.name}</Typography>
+          <Typography variant="h3" component="h2">
+            {group.name}
+          </Typography>
           <Grid container spacing={1}>
             {response.providers
               .filter((provider) => provider.group === group.id)

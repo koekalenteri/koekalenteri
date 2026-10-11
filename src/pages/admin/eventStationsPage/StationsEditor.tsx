@@ -88,7 +88,7 @@ function StationsEditor({ event, disabled, onChange }: Props) {
       {days.map((day) => (
         <Box key={zonedDateString(day)} sx={{ width: '100%' }}>
           {days.length > 1 && (
-            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+            <Typography variant="subtitle2" component="h2" sx={{ mb: 0.5 }}>
               {t('dateFormat.wdshort', { date: day })}
             </Typography>
           )}

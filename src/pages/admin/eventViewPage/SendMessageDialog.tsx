@@ -231,7 +231,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
               </AccordionDetails>
             </Accordion>
 
-            <Typography variant="h6">{t('eventManagement.sendMessageDialog.message')}</Typography>
+            <Typography variant="h3">{t('eventManagement.sendMessageDialog.message')}</Typography>
 
             <Paper sx={{ bgcolor: 'background.form', p: 1, width: '100%' }}>
               <AutocompleteSingle
@@ -269,7 +269,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
             </Paper>
             {selectedTemplate?.id === 'invitation' && (
               <>
-                <Typography variant="h6">{t('eventManagement.sendMessageDialog.attachment')}</Typography>
+                <Typography variant="h3">{t('eventManagement.sendMessageDialog.attachment')}</Typography>
                 <Paper sx={{ bgcolor: 'background.form', p: 1, width: '100%' }}>
                   {invitationAttachments.length ? (
                     <Stack spacing={0.5}>
@@ -296,7 +296,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
             )}
           </Box>
           <Box sx={{ width: '60%' }}>
-            <Typography variant="h6">{t('eventManagement.sendMessageDialog.preview')}</Typography>
+            <Typography variant="h3">{t('eventManagement.sendMessageDialog.preview')}</Typography>
             <Paper sx={{ p: 1, width: '100%' }}>
               {t('eventManagement.sendMessageDialog.subject')}:&nbsp;{preview.subject}
               {/** biome-ignore lint/security/noDangerouslySetInnerHtml: yolo */}

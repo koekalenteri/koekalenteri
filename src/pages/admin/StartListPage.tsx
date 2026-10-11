@@ -88,7 +88,7 @@ export default function StartListPage() {
               <TableBody>
                 <TableRow>
                   <TableCell colSpan={9}>
-                    <Typography variant="h5">{heading}</Typography>
+                    <Typography variant="h2">{heading}</Typography>
                   </TableCell>
                 </TableRow>
                 {Object.keys(group).map((eventClass) =>

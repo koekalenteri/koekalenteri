@@ -56,7 +56,9 @@ export default function EventStationsPage() {
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
       <Box sx={{ pt: 2, px: 2 }}>
-        <Typography variant="h6">{t('event.stationsSectionTitle')}</Typography>
+        <Typography variant="h3" component="h1">
+          {t('event.stationsSectionTitle')}
+        </Typography>
         <Typography
           variant="body2"
           sx={{

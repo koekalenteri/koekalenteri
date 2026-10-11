@@ -1,10 +1,12 @@
 import type { CreatePaymentResponse, Language, PublicConfirmedEvent } from '../types'
+import { ThemeProvider } from '@mui/material/styles'
 import { Provider } from 'jotai'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
+import theme from '../assets/Theme'
 // The "Takaisin" link's black/bold/underlined look is a global class, not a theme override.
 import '../index.css'
 import { describeInLanguage } from '../test-utils/language'
@@ -66,18 +68,20 @@ const renderAt = async ({ height, width }: { height: number; width: number }, la
   await page.viewport(width, height)
 
   return render(
-    <div data-testid="visual-root" style={{ background: '#fff', width }}>
-      <Provider>
-        <MemoryRouter>
-          <PaymentPageWithData
-            registrationId={registration.id}
-            event={event as PublicConfirmedEvent}
-            registration={{ ...registration, language }}
-            response={response}
-          />
-        </MemoryRouter>
-      </Provider>
-    </div>
+    <ThemeProvider theme={theme}>
+      <div data-testid="visual-root" style={{ background: '#fff', width }}>
+        <Provider>
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId={registration.id}
+              event={event as PublicConfirmedEvent}
+              registration={{ ...registration, language }}
+              response={response}
+            />
+          </MemoryRouter>
+        </Provider>
+      </div>
+    </ThemeProvider>
   )
 }
 

@@ -31,7 +31,7 @@ const StartListGroup = ({ colSpan, group, heading, eventClass, time, reserve, sh
       {sharedReserve ? null : (
         <TableRow>
           <TableCell colSpan={colSpan}>
-            <Typography variant="h6">{eventClass + (timeText ? ` - ${timeText}` : '')}</Typography>
+            <Typography variant="h3">{eventClass + (timeText ? ` - ${timeText}` : '')}</Typography>
           </TableCell>
         </TableRow>
       )}

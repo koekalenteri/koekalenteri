@@ -405,7 +405,7 @@ const ClassEntrySelection = ({
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <Typography variant="h6">
+      <Typography variant="h3" component="h2">
         {t('eventManagement.participantSelection.participants', {
           class: eventClass ?? t('eventManagement.allClasses'),
         })}
@@ -538,7 +538,7 @@ const ClassEntrySelection = ({
             justifyContent: 'space-between',
           }}
         >
-          <Typography variant="h6">{t('eventManagement.participantSelection.registered')}</Typography>
+          <Typography variant="h3">{t('eventManagement.participantSelection.registered')}</Typography>
           <UnlockArrange
             checked={unlockArrange}
             disabled={movementDisabled || reserveNotNotified}
@@ -568,7 +568,7 @@ const ClassEntrySelection = ({
           onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
           onReject={handleReject({ key: 'reserve', number: 0 })}
         />
-        <Typography variant="h6">{t('eventManagement.participantSelection.cancelled')}</Typography>
+        <Typography variant="h3">{t('eventManagement.participantSelection.cancelled')}</Typography>
         <DroppableDataGrid
           canDrop={(item: DragItem | undefined) => !movementDisabled && item?.groupKey !== GROUP_KEY_CANCELLED}
           columns={cancelledColumns}

@@ -274,7 +274,9 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
             }}
           >
             <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
-            <Typography variant="h5">{t('entryList')}</Typography>
+            <Typography variant="h2" component="h1">
+              {t('entryList')}
+            </Typography>
           </Grid>
           <Grid>
             <InfoBox
@@ -302,7 +304,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
         {/* What this registration bought and at what price - the event's full price list says nothing
             about the choices made in it (KOE-1055). */}
         <Box sx={{ mb: 1, p: { md: 1, xs: 0.5 }, width: '100%' }}>
-          <Typography variant="h5">{t('paymentDetails')}</Typography>
+          <Typography variant="h2">{t('paymentDetails')}</Typography>
           <PaymentDetails event={event} registration={registration} includeTotal includePayable={payable > 0} />
         </Box>
         <CancelDialog

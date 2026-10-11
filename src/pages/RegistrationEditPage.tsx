@@ -86,7 +86,8 @@ export default function RegistrationEditPage() {
       />
       {registration.cancelled ? (
         <Typography
-          variant="h5"
+          variant="h2"
+          component="p"
           align="center"
           sx={{
             color: 'info.main',

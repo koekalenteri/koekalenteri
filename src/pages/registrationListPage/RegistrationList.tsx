@@ -218,7 +218,7 @@ export default function RegistrationList({
 
   return (
     <Box sx={{ mb: 1, p: { md: 1, xs: 0.5 }, width: '100%' }}>
-      <Typography variant="h5">{t('registration.registeredDogs')}</Typography>
+      <Typography variant="h2">{t('registration.registeredDogs')}</Typography>
       <Box sx={{ '& .cancelled': { opacity: 0.75 }, height: 120, width: '100%' }}>
         <StyledDataGrid
           hideFooter={true}

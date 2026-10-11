@@ -90,13 +90,13 @@ export const RulesBody = ({ document }: Props) => {
       )}
       {visible.parts.map((part) => (
         <Box key={part.number} component="section">
-          <Typography variant="h5" component="h2" sx={{ mt: 4 }}>
+          <Typography variant="h2" sx={{ mt: 4 }}>
             {part.number}: {part.title}
           </Typography>
           {!searching && part.intro ? <DocsBody html={part.intro} /> : null}
           {part.chapters.map((chapter) => (
             <Box key={chapter.id} component="section" id={chapter.id} sx={{ scrollMarginTop: 80 }}>
-              <Typography variant="h6" component="h3" sx={{ mt: 3 }}>
+              <Typography variant="h3" sx={{ mt: 3 }}>
                 {chapter.title}
               </Typography>
               {!searching && chapter.intro ? <DocsBody html={chapter.intro} /> : null}

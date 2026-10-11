@@ -36,7 +36,7 @@ const EventNotFound = () => {
         >
           <ErrorOutlineIcon color="error" sx={{ fontSize: 64, mb: 2 }} />
 
-          <Typography variant="h4" component="h1" gutterBottom>
+          <Typography variant="h1" gutterBottom>
             {t('error.eventNotFound')}
           </Typography>
 
