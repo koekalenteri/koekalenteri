@@ -12,10 +12,12 @@ import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS } from '../../t
 import { idTokenAtom } from '../state'
 import EventBreakdownPage from './EventBreakdownPage'
 
-// The page reads the year when its module loads; see freezeClockAt for why the clock is frozen here,
+// The page reads the year when its module loads; see freezeClockNow for why the clock is frozen here,
 // ahead of the imports.
-vi.hoisted(() => vi.useFakeTimers({ now: new Date('2026-10-07T09:00:00Z'), toFake: ['Date'] }))
-afterAll(() => vi.useRealTimers())
+await vi.hoisted(async () => {
+  const { freezeClockNow } = await import('../../test-utils/freezeClock')
+  freezeClockNow('2026-10-07')
+})
 
 const YEAR = 2026
 
@@ -89,5 +91,7 @@ it('tabulates the year per club and event type under the page heading', async ()
   await expect.element(screen.getByText('Hämeen Noutajat ry').first()).toBeVisible()
   await expect.element(screen.getByRole('heading', { level: 1 })).toBeVisible()
   expect(screen.getByRole('heading').elements()).toHaveLength(1)
+  // The frozen day decides the year picked.
+  await expect.element(screen.getByRole('button', { name: '2026', pressed: true })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-breakdown-page')
 })

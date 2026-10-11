@@ -11,10 +11,12 @@ import { DataMemoryRouter, TEST_ID_TOKEN } from '../test-utils/utils'
 import { Component as StatsPage } from './StatsPage'
 import { idTokenAtom } from './state'
 
-// The page reads the year when its module loads; see freezeClockAt for why the clock is frozen here,
+// The page reads the year when its module loads; see freezeClockNow for why the clock is frozen here,
 // ahead of the imports.
-vi.hoisted(() => vi.useFakeTimers({ now: new Date('2026-10-07T09:00:00Z'), toFake: ['Date'] }))
-afterAll(() => vi.useRealTimers())
+await vi.hoisted(async () => {
+  const { freezeClockNow } = await import('../test-utils/freezeClock')
+  freezeClockNow('2026-10-07')
+})
 
 // The header is the app's, with its own tests; this one is about the page under it.
 vi.mock('./components/Header', () => ({ default: () => null }))

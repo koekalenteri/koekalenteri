@@ -10,10 +10,12 @@ import { idTokenAtom } from '../state'
 import OrganizerStatsPage from './OrganizerStatsPage'
 import { ALL_EVENT_TYPES_ID, adminCapacityStatsEventTypeAtom } from './state'
 
-// The page and its year atom read the year when their modules load; see freezeClockAt for why the
+// The page and its year atom read the year when their modules load; see freezeClockNow for why the
 // clock is frozen here, ahead of the imports.
-vi.hoisted(() => vi.useFakeTimers({ now: new Date('2026-10-07T09:00:00Z'), toFake: ['Date'] }))
-afterAll(() => vi.useRealTimers())
+await vi.hoisted(async () => {
+  const { freezeClockNow } = await import('../../test-utils/freezeClock')
+  freezeClockNow('2026-10-07')
+})
 
 // The capacity pick is kept in local storage.
 afterAll(() => localStorage.clear())

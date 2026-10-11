@@ -62,6 +62,8 @@ it('shows a cancelled registration with the notice as text, not a heading', asyn
   // The trial is the one heading; the cancellation notice under it is not one.
   await expect.element(screen.getByText('Tämä ilmoittautuminen on peruttu')).toBeVisible()
   await expect.element(screen.getByRole('heading', { level: 2, name: /test location/ })).toBeVisible()
+  // The one text read off today: how long ago the dog's details were fetched (1.2.2021).
+  await expect.element(screen.getByText(/rajapinnasta 6 vuotta sitten/)).toBeVisible()
   expect(screen.getByRole('heading').elements()).toHaveLength(1)
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-edit-page-cancelled')
 })

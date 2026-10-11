@@ -1,6 +1,9 @@
 import { TZDate } from '@date-fns/tz'
 import { TIME_ZONE } from '../i18n/dates'
 
+/** Midday of `day` in Helsinki, so no time zone lands it on a neighbour. */
+const middayOf = (day: string) => new TZDate(`${day}T12:00:00`, TIME_ZONE).getTime()
+
 /**
  * Freezes the calling file's clock to one day, so that a screenshot of anything date-shaped renders
  * the same picture whatever day it runs on.
@@ -20,25 +23,46 @@ import { TIME_ZONE } from '../i18n/dates'
  *
  * A component that reads the clock when its own module loads (a `CURRENT_YEAR` at module scope, an
  * atom like `adminStatsYearAtom` whose initial value is `new Date().getFullYear()`) has read it before
- * any `beforeAll`, so this hook is too late for it. Such a test freezes `Date` ahead of the imports
- * instead, at the same instant (midday in Helsinki), and restores it when the file is done:
- *
- *     vi.hoisted(() => vi.useFakeTimers({ now: new Date('2026-10-07T09:00:00Z'), toFake: ['Date'] }))
- *     afterAll(() => vi.useRealTimers())
- *
- * `vi.hoisted` runs before the imports are evaluated and cannot import this helper, so the instant is
- * written out there. Assert something the frozen day decides (the selected year) before the capture,
- * so a wrong instant fails the test rather than slipping under the screenshot tolerance.
+ * any `beforeAll`, so this hook is too late for it: freeze it with {@link freezeClockNow} instead.
  *
  * @param day the frozen day as `yyyy-MM-dd`; midday, so no time zone lands it on a neighbour.
  * @returns the frozen instant in milliseconds, for fixtures that count back from "now".
  */
 export const freezeClockAt = (day: string) => {
-  const frozen = new TZDate(`${day}T12:00:00`, TIME_ZONE).getTime()
+  const frozen = middayOf(day)
 
   beforeAll(() => {
     vi.useFakeTimers({ now: frozen, toFake: ['Date'] })
   })
+
+  afterAll(() => {
+    vi.useRealTimers()
+  })
+
+  return frozen
+}
+
+/**
+ * Freezes the calling file's clock to one day right away, for a component that reads the clock when
+ * its own module loads (see {@link freezeClockAt}). Call it from `vi.hoisted`, which runs before the
+ * file's imports are evaluated; the helper comes in through a dynamic import there:
+ *
+ *     await vi.hoisted(async () => {
+ *       const { freezeClockNow } = await import('../test-utils/freezeClock')
+ *       freezeClockNow('2026-10-07')
+ *     })
+ *
+ * The visual setup file has already loaded `@date-fns/tz` with the real `Date` by then, so TZDate
+ * keeps formatting in Helsinki under the fake. Assert something the frozen day decides (the selected
+ * year) before the capture, so a wrong day fails the test rather than slipping under the screenshot
+ * tolerance.
+ *
+ * @param day the frozen day as `yyyy-MM-dd`; midday in Helsinki, as in {@link freezeClockAt}.
+ * @returns the frozen instant in milliseconds.
+ */
+export const freezeClockNow = (day: string) => {
+  const frozen = middayOf(day)
+  vi.useFakeTimers({ now: frozen, toFake: ['Date'] })
 
   afterAll(() => {
     vi.useRealTimers()
