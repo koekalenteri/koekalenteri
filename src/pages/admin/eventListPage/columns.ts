@@ -1,9 +1,9 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { DogEvent, EventClass } from '@/types'
 import { useTranslation } from 'react-i18next'
+import { stringToLang } from '@/i18n/language'
 import { localeSortComparator } from '@/lib/datagrid'
 import { eventTypeLabel, getEventTitle, localizedEventName } from '@/lib/event'
-import { stringToLang } from '@/pages/state/user/language'
 
 type StartEndDate = { start: Date; end: Date }
 

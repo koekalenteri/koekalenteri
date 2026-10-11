@@ -67,7 +67,9 @@ export default defineConfig({
         // Components under visual test may transitively import modules that read process.env at
         // import time (amplify-env); a browser has no process, so give the expressions something
         // to compile against.
+        // The project's own define replaces the root one, so the build time is repeated here.
         define: {
+          __BUILD_TIMESTAMP__: '0',
           'process.env': {},
         },
         test: {

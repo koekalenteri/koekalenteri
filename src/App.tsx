@@ -38,8 +38,8 @@ function App() {
   useAuthSessionRefresh(authSessionInitialized ? idToken : undefined)
 
   useEffect(() => {
-    // The stored choice is the source of truth; i18n boots on the fallback and must realign after
-    // a reload, or everything comparing the two starts to disagree (KOE-1268).
+    // The stored choice is the source of truth. i18n boots in it (src/i18n/index.ts); this effect is
+    // the guard that brings i18n back to it when the choice changes later (KOE-1268, KOE-1457).
     if (i18n.language !== language) void i18n.changeLanguage(language)
     document.documentElement.lang = language
   }, [language])

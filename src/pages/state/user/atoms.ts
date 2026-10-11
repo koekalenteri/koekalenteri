@@ -2,9 +2,10 @@ import type { Language } from '@/types'
 import i18n from 'i18next'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
+import { isLanguage, stringToLang } from '@/i18n/language'
+import { languageStorageKey } from '@/lib/client/storage'
 import { isValidIdToken } from '@/lib/token'
 import { atomWithLocalStorage, atomWithSessionStorage, parseStorageJSON } from '../storage'
-import { stringToLang } from './language'
 
 export const idTokenAtom = atomWithLocalStorage<string | undefined>('idToken', undefined)
 
@@ -22,8 +23,10 @@ export const readStoredIdToken = (): string | undefined => {
 }
 export const tokenValidityRevisionAtom = atom(0)
 
-const storedLanguageAtom = atomWithLocalStorage<Language>('language', 'fi', {
+const storedLanguageAtom = atomWithLocalStorage<Language>(languageStorageKey, 'fi', {
   getInitialValue: () => stringToLang(i18n.language),
+  // The same rule the boot reader applies (readStoredLanguage), so a stored "sv" is Finnish in both.
+  refine: (value) => (isLanguage(value) ? value : 'fi'),
 })
 export const languageAtom = atom(
   (get) => get(storedLanguageAtom),

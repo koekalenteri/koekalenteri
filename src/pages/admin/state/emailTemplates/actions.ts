@@ -1,17 +1,15 @@
-import type { EmailTemplate, EmailTemplateError, Language } from '@/types'
+import type { EmailTemplate, EmailTemplateError } from '@/types'
 import i18next from 'i18next'
 import { useAtom, useAtomValue } from 'jotai'
 import { putEmailTemplate } from '@/api/email'
 import { APIError } from '@/api/http'
+import { isLanguage } from '@/i18n/language'
 import { isObject } from '@/lib/utils'
 import { validIdTokenAtom } from '@/pages/state'
-import { LANGUAGES } from '@/types'
 import { adminEmailTemplatesAtom } from './atoms'
 
 type EmailTemplateSaveResult = { ok: true } | { ok: false; error: EmailTemplateError }
 
-const languages: ReadonlySet<unknown> = new Set(LANGUAGES)
-const isLanguage = (value: unknown): value is Language => languages.has(value)
 const numberOrNothing = (value: unknown): number | undefined => (typeof value === 'number' ? value : undefined)
 
 /**

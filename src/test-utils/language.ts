@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe } from 'vitest'
  * so a component that formats by the atom agrees with its labels. The MUI and date-fns locales are
  * the frame's to pass (`muiLocales[language]` and `locales[language]`, as App.tsx does).
  */
-const switchLanguage = async (language: Language): Promise<void> => {
+export const switchLanguage = async (language: Language): Promise<void> => {
   document.documentElement.lang = language
   await i18n.changeLanguage(language)
 }

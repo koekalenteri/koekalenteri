@@ -133,8 +133,8 @@ describe('serviceWorkerRegistration', () => {
   })
 
   it('reports an applied update once', async () => {
-    window.sessionStorage.setItem('service-worker-updated', JSON.stringify({ from: '1.10.2', to: '1.10.3' }))
-    const { consumeServiceWorkerUpdated } = await import('./serviceWorkerRegistration')
+    const { consumeServiceWorkerUpdated, updatedSessionKey } = await import('./serviceWorkerRegistration')
+    window.sessionStorage.setItem(updatedSessionKey, JSON.stringify({ from: '1.10.2', to: '1.10.3' }))
 
     expect(consumeServiceWorkerUpdated()).toEqual({ from: '1.10.2', to: '1.10.3' })
     expect(consumeServiceWorkerUpdated()).toBeUndefined()
