@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Await, Navigate, useLoaderData } from 'react-router'
+import { Await, Navigate, useLoaderData, useLocation } from 'react-router'
 import { getEvent } from '../api/event'
 import { getRegistration, patchRegistration } from '../api/registration'
 import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
@@ -133,6 +133,8 @@ const Invitation = ({ event, registration, url }: InvitationProps) => {
 export const Component = () => {
   const loaderData: { data: Promise<DeferredData> } = useLoaderData()
   const { t } = useTranslation()
+  // The query goes along, so a link from the admin side keeps its mark (KOE-1512).
+  const { search } = useLocation()
 
   return (
     <Suspense fallback={<LoadingPage />}>
@@ -141,7 +143,7 @@ export const Component = () => {
           url ? (
             <Invitation event={event} registration={registration} url={url} />
           ) : (
-            <Navigate replace to={Path.registration(registration)} />
+            <Navigate replace to={{ pathname: Path.registration(registration), search }} />
           )
         }
       </Await>

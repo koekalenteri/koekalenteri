@@ -46,10 +46,15 @@ describe('routeConfig', () => {
 
     it('leaves other links alone', () => {
       const html = markParticipantLinksFromAdmin(
-        '<a href="https://koekalenteri.snj.fi/r/event-1/registration-1">site</a><a href="/event/NOU/event-1">event</a><a>none</a>'
+        '<a href="https://koekalenteri.snj.fi/r/event-1/registration-1">site</a><a href="/event/NOU/event-1">event</a><a>none</a><a href="">empty</a>'
       )
 
-      expect(hrefs(html)).toEqual(['https://koekalenteri.snj.fi/r/event-1/registration-1', '/event/NOU/event-1', null])
+      expect(hrefs(html)).toEqual([
+        'https://koekalenteri.snj.fi/r/event-1/registration-1',
+        '/event/NOU/event-1',
+        null,
+        '',
+      ])
     })
 
     it('returns HTML without such links as it was', () => {

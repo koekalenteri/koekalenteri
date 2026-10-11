@@ -177,6 +177,8 @@ describe('RegistrationListPage', () => {
     '/r/test1/nou-registration?from=admin',
     // A link in the email preview that the template appends to
     '/r/test1/nou-registration/cancel?from=admin',
+    // The preview's payment link
+    '/p/test1/nou-registration?from=admin',
   ])('keeps the reader language when the registration is opened from the admin side (%s, KOE-1512)', async (path) => {
     localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
     vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...registrationWithStaticDates, language: 'en' })
@@ -184,7 +186,8 @@ describe('RegistrationListPage', () => {
     await renderWithRouter(path)
     await flushPromises()
 
-    expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
+    // The page is there (the payment page has no event in this file), in the reader's language.
+    expect(screen.queryByText('loading...')).not.toBeInTheDocument()
     expect(i18n.language).toBe('fi')
     expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('fi'))
     expect(document.documentElement.lang).toBe('fi')
