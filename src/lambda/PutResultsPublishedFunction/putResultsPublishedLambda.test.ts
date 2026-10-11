@@ -1,7 +1,9 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonConfirmedEvent, ResultsDayScope, ResultsPublishedState } from '../../types'
+import { isDeepStrictEqual } from 'node:util'
 import { vi } from 'vitest'
 import { isResultsAvailableForRegistration, isResultsPublishedClassMap } from '../../lib/event'
+import { isRegistrationClass } from '../../lib/registration'
 import { answerRejections, asJsonConfirmedEvent, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
@@ -11,7 +13,7 @@ const mockAudit = vi.fn()
 const mockEventAuditKey = vi.fn(({ id }) => `event:${id}`)
 const mockRegistrationAuditKey = vi.fn(({ eventId, id }) => `${eventId}:${id}`)
 const mockAuthorizeWithMemberOf = vi.fn()
-const mockGetAuthorizedEvent = vi.fn()
+const mockRead = vi.fn()
 const mockUpdate = vi.fn()
 const mockPublishEventPatch = vi.fn()
 const mockPublishPublicStartList = vi.fn()
@@ -28,10 +30,9 @@ vi.doMock('../lib/audit', () => ({
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMemberOf }))
-vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEvent }))
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
-    return { update: mockUpdate }
+    return { read: mockRead, update: mockUpdate }
   }),
 }))
 vi.doMock('../lib/ws/actions', () => ({ publishEventPatch: mockPublishEventPatch }))
@@ -60,12 +61,13 @@ const twoDays = (overrides: Partial<JsonConfirmedEvent> = {}) =>
 const apiEvent = (body: unknown): APIGatewayProxyEvent =>
   constructPartialAPIGwEvent({ body: JSON.stringify(body), headers: {} })
 
-type UpdateCondition = { expression: string; values?: Record<string, unknown> }
+type UpdateCondition = { expression: string; names: Record<string, string>; values?: Record<string, unknown> }
 
 /**
  * The event row as DynamoDB would hold it: an update sets top-level fields or one entry of a map by its
- * dotted path, honours the condition on the row's `updatedAt`, and answers with the row after the
- * write, so two requests made from the same reading can be played against one row.
+ * dotted path, holds the write to the value it was folded from (the whole flag, or the class's entry),
+ * and answers with the row after the write, so two requests made from the same reading can be played
+ * against one row.
  */
 let row: JsonConfirmedEvent
 
@@ -76,14 +78,25 @@ type ResultsSet = {
   [path: `resultsPublished.${string}`]: ResultsDayScope
 }
 
+/** The stored value a condition names: the class's entry where it names one, or else the whole flag. */
+const conditionedValue = ({ names }: UpdateCondition) => {
+  const eventClass = names['#resultsClass']
+  const flag = row.resultsPublished
+  if (!eventClass) return flag
+  return isResultsPublishedClassMap(flag) && isRegistrationClass(eventClass) ? flag[eventClass] : undefined
+}
+
+const holds = (condition: UpdateCondition) =>
+  isDeepStrictEqual(conditionedValue(condition), condition.values?.[':resultsRead'])
+
 const applyUpdate = async (
   _key: unknown,
   { set }: { set: ResultsSet },
   _table: unknown,
   _returnValues: unknown,
-  condition?: UpdateCondition
+  condition: UpdateCondition
 ) => {
-  if (condition && row.updatedAt !== condition.values?.[':updatedAtRead']) {
+  if (!holds(condition)) {
     throw Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
   }
   const { resultsPublished, updatedAt, ...entries } = set
@@ -98,7 +111,7 @@ const applyUpdate = async (
 /** Store the event, and have every request read the row as it then is. */
 const store = (event: JsonConfirmedEvent) => {
   row = event
-  mockGetAuthorizedEvent.mockImplementation(async () => structuredClone(row))
+  mockRead.mockImplementation(async () => structuredClone(row))
 }
 
 describe('putResultsPublishedLambda', () => {
@@ -141,7 +154,8 @@ describe('putResultsPublishedLambda', () => {
       { id: 'event-1' },
       { set: { 'resultsPublished.ALO': true, updatedAt: expect.any(String) } },
       expect.any(String),
-      'ALL_NEW'
+      'ALL_NEW',
+      expect.objectContaining({ values: { ':resultsRead': ['2026-09-12'] } })
     )
     expect(row.resultsPublished).toEqual({ ALO: true, AVO: false })
   })
@@ -150,7 +164,7 @@ describe('putResultsPublishedLambda', () => {
     // Two secretaries, one per class, each with the event as it was before either published.
     const before = twoDays({ resultsPublished: { ALO: false, AVO: false } })
     store(before)
-    mockGetAuthorizedEvent.mockResolvedValueOnce(structuredClone(before)).mockResolvedValueOnce(structuredClone(before))
+    mockRead.mockResolvedValueOnce(structuredClone(before)).mockResolvedValueOnce(structuredClone(before))
 
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: true }))
@@ -163,10 +177,25 @@ describe('putResultsPublishedLambda', () => {
     )
   })
 
+  it('refuses the second of two writes to the same class made from one reading', async () => {
+    // One secretary hides ALO's Saturday while another publishes its Sunday, both from the same row.
+    const before = twoDays({ resultsPublished: { ALO: ['2026-09-12'], AVO: false } })
+    store(before)
+    mockRead.mockResolvedValueOnce(structuredClone(before)).mockResolvedValueOnce(structuredClone(before))
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: false }))
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-13', eventClass: 'ALO', published: true }))
+
+    // The hide stands: the publish was folded from the Saturday it no longer sees.
+    expect(row.resultsPublished).toEqual({ ALO: false, AVO: false })
+    expect(mockResponse).toHaveBeenLastCalledWith(409, { error: 'resultsPublishedChanged' }, expect.anything())
+    expect(mockAudit).toHaveBeenCalledTimes(1)
+  })
+
   it('refuses the second of two publishes that would each write the whole flag', async () => {
     // No map yet: the first publish turns the flag into one, so the second's reading is out of date.
-    const before = twoDays({ updatedAt: '2026-09-13T04:00:00.000Z' })
-    mockGetAuthorizedEvent.mockResolvedValueOnce(structuredClone(before)).mockResolvedValueOnce(structuredClone(before))
+    const before = twoDays()
+    mockRead.mockResolvedValueOnce(structuredClone(before)).mockResolvedValueOnce(structuredClone(before))
 
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: true }))
@@ -174,6 +203,32 @@ describe('putResultsPublishedLambda', () => {
     expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: false })
     expect(mockResponse).toHaveBeenLastCalledWith(409, { error: 'resultsPublishedChanged' }, expect.anything())
     expect(mockAudit).toHaveBeenCalledTimes(1)
+  })
+
+  it('is not refused by a write to the rest of the row', async () => {
+    // A registration or an invitation moved updatedAt between the read and the write; the flag is as read.
+    const before = twoDays()
+    store({ ...before, updatedAt: '2026-09-13T04:59:00.000Z' })
+    mockRead.mockResolvedValueOnce(structuredClone(before))
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
+
+    expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: false })
+  })
+
+  it('reads the event as last written', async () => {
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
+
+    expect(mockRead).toHaveBeenCalledWith({ id: 'event-1' }, expect.anything(), true)
+  })
+
+  it('refuses a secretary of another organizer', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org-2'], user: { id: 'u2', name: 'Muu' } })
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(403, { error: 'Forbidden' }, expect.anything())
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
   it('writes the class it publishes back as day keys, even where an earlier write let a timestamp in', async () => {

@@ -130,7 +130,13 @@ describe('lib/event', () => {
       mockRead.mockResolvedValueOnce(eventObj)
       const result = await getEvent(eventId)
       expect(result).toEqual(eventObj)
-      expect(mockRead).toHaveBeenCalledWith({ id: eventId }, expect.anything())
+      expect(mockRead).toHaveBeenCalledWith({ id: eventId }, expect.anything(), false)
+    })
+
+    it('reads the row as last written when asked to (KOE-1510)', async () => {
+      mockRead.mockResolvedValueOnce(eventObj)
+      await getEvent(eventId, true)
+      expect(mockRead).toHaveBeenCalledWith({ id: eventId }, expect.anything(), true)
     })
 
     it('throws LambdaError(404) when not found', async () => {
@@ -1337,14 +1343,15 @@ describe('lib/event', () => {
       updatedAt: '2026-09-13T04:00:00.000Z',
     })
     const now = new Date('2026-09-13T15:00:00.000Z')
+    const written = (resultsPublished: unknown) => ({ Attributes: { id: 'event-1', resultsPublished } })
 
     beforeEach(() => {
       mockUpdate.mockReset()
     })
 
-    it('writes only the class entry of a stored class map, and answers with the row after (KOE-1510)', async () => {
+    it('writes only the class entry of a stored map, held to the entry it was folded from (KOE-1510)', async () => {
       // Another secretary's AVO publish landed meanwhile: the stored row has it, the reading did not.
-      mockUpdate.mockResolvedValueOnce({ Attributes: { resultsPublished: { ALO: true, AVO: true } } })
+      mockUpdate.mockResolvedValueOnce(written({ ALO: true, AVO: true }))
 
       const state = await setResultsPublishedState(
         twoDays,
@@ -1356,23 +1363,41 @@ describe('lib/event', () => {
         { id: 'event-1' },
         { set: { 'resultsPublished.ALO': true, updatedAt: '2026-09-13T15:00:00.000Z' } },
         expect.any(String),
-        'ALL_NEW'
+        'ALL_NEW',
+        {
+          expression: 'attribute_exists(#id) AND #resultsPublished.#resultsClass = :resultsRead',
+          names: { '#id': 'id', '#resultsClass': 'ALO', '#resultsPublished': 'resultsPublished' },
+          values: { ':resultsRead': ['2026-09-12'] },
+        }
       )
       expect(state).toEqual({ resultsPublished: { ALO: true, AVO: true }, updatedAt: '2026-09-13T15:00:00.000Z' })
     })
 
-    it('hides one day and leaves the other as it was', async () => {
-      const state = await setResultsPublishedState(
-        twoDays,
-        { date: '2026-09-12', eventClass: 'ALO', published: false },
+    it('holds a class missing from the map to still being missing', async () => {
+      mockUpdate.mockResolvedValueOnce(written({ ALO: ['2026-09-12'], AVO: true }))
+
+      await setResultsPublishedState(
+        asJsonConfirmedEvent({ ...twoDays, classes: [...twoDays.classes, { class: 'AVO', date: '2026-09-12' }] }),
+        { date: '2026-09-12', eventClass: 'AVO', published: true },
         now
       )
 
-      expect(state.resultsPublished).toEqual({ ALO: false })
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { 'resultsPublished.AVO': true, updatedAt: '2026-09-13T15:00:00.000Z' } },
+        expect.any(String),
+        'ALL_NEW',
+        {
+          expression: 'attribute_exists(#id) AND attribute_not_exists(#resultsPublished.#resultsClass)',
+          names: { '#id': 'id', '#resultsClass': 'AVO', '#resultsPublished': 'resultsPublished' },
+        }
+      )
     })
 
-    it('writes a flag that is not yet a map whole, on condition the row is as it was read', async () => {
-      await setResultsPublishedState(
+    it('writes a flag that is not yet a map whole, held to the flag as read', async () => {
+      mockUpdate.mockResolvedValueOnce(written({ ALO: ['2026-09-12'] }))
+
+      const state = await setResultsPublishedState(
         { ...twoDays, resultsPublished: true },
         { date: '2026-09-13', eventClass: 'ALO', published: false },
         now
@@ -1384,16 +1409,19 @@ describe('lib/event', () => {
         expect.any(String),
         'ALL_NEW',
         {
-          expression: '#updatedAt = :updatedAtRead',
-          names: { '#updatedAt': 'updatedAt' },
-          values: { ':updatedAtRead': '2026-09-13T04:00:00.000Z' },
+          expression: 'attribute_exists(#id) AND #resultsPublished = :resultsRead',
+          names: { '#id': 'id', '#resultsPublished': 'resultsPublished' },
+          values: { ':resultsRead': true },
         }
       )
+      expect(state.resultsPublished).toEqual({ ALO: ['2026-09-12'] })
     })
 
-    it('holds a row without a timestamp to still having none', async () => {
+    it('holds a classless event without a flag to still having none', async () => {
+      mockUpdate.mockResolvedValueOnce(written(['2026-09-12']))
+
       await setResultsPublishedState(
-        { ...twoDays, classes: [], resultsPublished: undefined, updatedAt: undefined },
+        { ...twoDays, classes: [], resultsPublished: undefined },
         { date: '2026-09-12', published: true },
         now
       )
@@ -1403,19 +1431,18 @@ describe('lib/event', () => {
         { set: { resultsPublished: ['2026-09-12'], updatedAt: '2026-09-13T15:00:00.000Z' } },
         expect.any(String),
         'ALL_NEW',
-        { expression: 'attribute_not_exists(#updatedAt)', names: { '#updatedAt': 'updatedAt' } }
+        {
+          expression: 'attribute_exists(#id) AND attribute_not_exists(#resultsPublished)',
+          names: { '#id': 'id', '#resultsPublished': 'resultsPublished' },
+        }
       )
     })
 
-    it('refuses a write the row has moved past, as a conflict', async () => {
+    it('refuses a write the flag has moved past, or a deleted event, as a conflict', async () => {
       mockUpdate.mockRejectedValueOnce(Object.assign(new Error('failed'), { name: 'ConditionalCheckFailedException' }))
 
       await expect(
-        setResultsPublishedState(
-          { ...twoDays, resultsPublished: undefined },
-          { date: '2026-09-12', eventClass: 'ALO', published: true },
-          now
-        )
+        setResultsPublishedState(twoDays, { date: '2026-09-12', eventClass: 'ALO', published: false }, now)
       ).rejects.toMatchObject({ body: { error: 'resultsPublishedChanged' }, status: 409 })
     })
 
@@ -1425,6 +1452,14 @@ describe('lib/event', () => {
       await expect(
         setResultsPublishedState(twoDays, { date: '2026-09-13', eventClass: 'ALO', published: true }, now)
       ).rejects.toThrow('throttled')
+    })
+
+    it('does not answer for a row that came back without a flag', async () => {
+      mockUpdate.mockResolvedValueOnce({ Attributes: { id: 'event-1' } })
+
+      await expect(
+        setResultsPublishedState(twoDays, { date: '2026-09-13', eventClass: 'ALO', published: true }, now)
+      ).rejects.toThrow('the written row holds no results flag')
     })
   })
 })

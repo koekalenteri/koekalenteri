@@ -1,4 +1,5 @@
 import type { AuditActor, GroupChangeReason } from '../../lib/audit'
+import type { ClassOrNone } from '../../lib/event'
 import type {
   ConfirmedEventStates,
   EventClassState,
@@ -11,12 +12,13 @@ import type {
   Patch,
   Registration,
   RegistrationClass,
+  ResultsPublishedState,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
 import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
-import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
+import { isResultsPublishedClassMap, isResultsPublishedState, withResultsDay } from '../../lib/event'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { mapWithConcurrency } from '../../lib/utils'
@@ -64,8 +66,9 @@ export interface EventChange {
 const EVENT_CLASS_STATES: EventClassState[] = ['picked', 'invited', 'started', 'ended'] as const
 const EVENT_STATES: EventState[] = ['confirmed', ...EVENT_CLASS_STATES] as const
 
-export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string): Promise<T> => {
-  const jsonEvent = await dynamoDB.read<T>({ id }, eventTable)
+/** `consistent` reads the row as last written, for a caller about to write back what it folds from it. */
+export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string, consistent = false): Promise<T> => {
+  const jsonEvent = await dynamoDB.read<T>({ id }, eventTable, consistent)
   if (!jsonEvent) {
     throw new LambdaError(404, `Event with id '${id}' was not found`)
   }
@@ -467,27 +470,51 @@ interface ResultsDayPublish {
 }
 
 /**
- * The condition a whole-flag write is held to: the event row is still the one the fold was made from.
- * The flag cannot be compared by value (a list), so its row's own timestamp stands in for it.
+ * What a results write is held to (KOE-1510). The event still exists, so an update never leaves a stub
+ * row holding only the flag. And the value the fold was made from is still the one stored, so of two
+ * secretaries working from the same reading the second is refused rather than undoing the first.
+ * DynamoDB compares a list or a map by value: against DynamoDB-local, a condition on either, and on one
+ * entry of a map, passed for an equal value and failed for a different one. The flag itself is
+ * therefore the guard, and writes to the rest of the row (registrations, invitations, start numbers)
+ * never refuse a publish.
  */
-const unchangedSince = ({ updatedAt }: JsonConfirmedEvent) =>
-  updatedAt
-    ? {
-        expression: '#updatedAt = :updatedAtRead',
-        names: { '#updatedAt': 'updatedAt' },
-        values: { ':updatedAtRead': updatedAt },
-      }
-    : { expression: 'attribute_not_exists(#updatedAt)', names: { '#updatedAt': 'updatedAt' } }
+const foldedFrom = (path: string, names: Record<string, string>, previous: unknown) => {
+  const valueCheck = previous === undefined ? `attribute_not_exists(${path})` : `${path} = :resultsRead`
+  return {
+    expression: `attribute_exists(#id) AND ${valueCheck}`,
+    names: { '#id': 'id', ...names },
+    ...(previous === undefined ? {} : { values: { ':resultsRead': previous } }),
+  }
+}
+
+/** The write of one day's change: the class's own entry of a stored map, or else the whole flag. */
+const resultsWrite = (confirmedEvent: JsonConfirmedEvent, eventClass: ClassOrNone, next: ResultsPublishedState) => {
+  const stored = confirmedEvent.resultsPublished
+  if (eventClass && isResultsPublishedClassMap(stored) && isResultsPublishedClassMap(next)) {
+    return {
+      condition: foldedFrom(
+        '#resultsPublished.#resultsClass',
+        { '#resultsClass': eventClass, '#resultsPublished': 'resultsPublished' },
+        stored[eventClass]
+      ),
+      set: { [`resultsPublished.${eventClass}`]: next[eventClass] },
+    }
+  }
+  return {
+    condition: foldedFrom('#resultsPublished', { '#resultsPublished': 'resultsPublished' }, stored),
+    set: { resultsPublished: next },
+  }
+}
 
 /**
  * Publish or hide one day's results on the event record (KOE-1510). The scope is folded here from the
  * stored day keys, never from a client's copy, whose JSON reviver has turned them into dates.
  *
  * Two secretaries can publish at once. Where the stored flag already is a class map, only the class's
- * own entry is written, so the other class's publish made meanwhile stays. Where it is not (a plain
- * flag about to become a map, or a classless event's one scope), the whole flag is written on condition
- * that the row has not changed since it was read, and a lost race is refused rather than overwritten.
- * The answer is the flag as stored after the write, the other secretary's change included.
+ * own entry is written, so another class's publish made meanwhile stays. Where it is not (a plain flag
+ * about to become a map, or a classless event's one scope), the whole flag is written. Either write
+ * lands only on the value it was folded from (see foldedFrom), and a lost race is refused as a
+ * conflict. The answer is the flag as stored after the write, another class's change included.
  *
  * `updatedAt` moves with the flag so an incremental fetch carries it, as with the start numbers
  * (KOE-1352). `modifiedAt` stays: publishing is not an edit to the event.
@@ -497,30 +524,28 @@ export const setResultsPublishedState = async (
   { date, eventClass, published }: ResultsDayPublish,
   now: Date = new Date()
 ): Promise<Pick<JsonConfirmedEvent, 'resultsPublished' | 'updatedAt'>> => {
-  const next = withResultsDay(confirmedEvent, eventClass, date, published)
   const updatedAt = now.toISOString()
-  const key = { id: confirmedEvent.id }
+  const { condition, set } = resultsWrite(
+    confirmedEvent,
+    eventClass,
+    withResultsDay(confirmedEvent, eventClass, date, published)
+  )
 
+  let output: Awaited<ReturnType<typeof dynamoDB.update>>
   try {
-    const output =
-      eventClass && isResultsPublishedClassMap(confirmedEvent.resultsPublished) && isResultsPublishedClassMap(next)
-        ? await dynamoDB.update(
-            key,
-            { set: { [`resultsPublished.${eventClass}`]: next[eventClass], updatedAt } },
-            eventTable,
-            'ALL_NEW'
-          )
-        : await dynamoDB.update(
-            key,
-            { set: { resultsPublished: next, updatedAt } },
-            eventTable,
-            'ALL_NEW',
-            unchangedSince(confirmedEvent)
-          )
-
-    return { resultsPublished: output?.Attributes?.resultsPublished ?? next, updatedAt }
+    output = await dynamoDB.update(
+      { id: confirmedEvent.id },
+      { set: { ...set, updatedAt } },
+      eventTable,
+      'ALL_NEW',
+      condition
+    )
   } catch (error) {
     if (isConditionalCheckFailure(error)) throw httpError(409, { error: 'resultsPublishedChanged' })
     throw error
   }
+
+  const resultsPublished: unknown = output.Attributes?.resultsPublished
+  if (!isResultsPublishedState(resultsPublished)) throw new Error('the written row holds no results flag')
+  return { resultsPublished, updatedAt }
 }

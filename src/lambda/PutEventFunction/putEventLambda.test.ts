@@ -1,6 +1,9 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
 import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
+// Loaded before the clock is faked: @date-fns/tz's TZDate extends the Date it finds at load, and on a
+// fake Date it formats in the host zone, so a CI runner in UTC read Finnish midnight as the day before.
+import '../../i18n/dates'
 
 vi.useFakeTimers()
 vi.setSystemTime(new Date('2025-03-22T12:45:33+0200'))
@@ -261,6 +264,24 @@ describe('putEventLambda', () => {
       user: 'Test User',
     })
     expect(res.statusCode).toEqual(200)
+  })
+
+  it('creates a new event without the results flag a copy carried (KOE-1510)', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({
+        endDate: '2025-06-02',
+        eventType: 'TEST',
+        resultsPublished: true,
+        startDate: '2025-06-01',
+      })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    expect(getEventMock).not.toHaveBeenCalled()
+    expect(saveEventMock).toHaveBeenCalledWith(expect.not.objectContaining({ resultsPublished: expect.anything() }))
+    expect(saveEventMock).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'TEST', id: 'new-id' }))
   })
 
   it('should update an event', async () => {
@@ -658,7 +679,8 @@ describe('putEventLambda', () => {
         const res = await publish({ resultsPublished })
 
         expect(res.statusCode).toEqual(409)
-        expect(JSON.parse(res.body)).toEqual({ error: 'resultsPublishedMoved' })
+        // The answer the old tab's form already reads as "reload and redo".
+        expect(JSON.parse(res.body)).toMatchObject({ error: 'staleData' })
         expect(patchEventMock).not.toHaveBeenCalled()
       })
     })

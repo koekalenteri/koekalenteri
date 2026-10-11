@@ -5,8 +5,8 @@ import { getResultsBlocker } from '../../lib/publishing'
 import { isRegistrationClass } from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { setResultsPublishedState } from '../lib/event'
-import { getAuthorizedEvent } from '../lib/eventAuth'
+import { getEvent, setResultsPublishedState } from '../lib/event'
+import { assertEventOrganizerAccess } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { publishEventPatch } from '../lib/ws/actions'
@@ -53,7 +53,9 @@ const putResultsPublishedLambda = lambda('putResultsPublished', async (event) =>
   if (typeof body.published !== 'boolean') throw httpError(422, 'nothing to do')
   const { published } = body
 
-  const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
+  // Read as last written: a secretary's quick hide and publish must not fold from the row before the hide.
+  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId, true)
+  assertEventOrganizerAccess(user, memberOf, confirmedEvent)
   const eventClass = requestedClass(confirmedEvent, body.eventClass)
   const date = body.date
   if (typeof date !== 'string' || !getClassDays(confirmedEvent, eventClass).includes(date)) {

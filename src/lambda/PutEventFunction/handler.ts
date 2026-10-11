@@ -207,7 +207,9 @@ const checkPutEventRequestShape = (patchRequest: boolean, item: Patch<JsonConfir
 const dropResultsPublished = (item: Patch<JsonConfirmedEvent>, existing: JsonConfirmedEvent | undefined) => {
   if (!Object.hasOwn(item, 'resultsPublished')) return
   if (existing && !isSameResultsPublished(existing, item.resultsPublished)) {
-    throw httpError(409, { error: 'resultsPublishedMoved' })
+    // staleData, which that tab's event form already answers with "reload and redo"; a plain failure
+    // would only have it retry the same request for ever.
+    throw httpError(409, { error: 'staleData', message: 'Results are published a day at a time; reload the event' })
   }
   delete item.resultsPublished
 }

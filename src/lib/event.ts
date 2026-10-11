@@ -393,7 +393,7 @@ const getResultsDayScope = (
 /** Whether one day's results of the class, or of a classless event, are out (KOE-1510). */
 export const isResultsPublishedForDay = (
   event: Pick<JsonDogEvent, 'resultsPublished'>,
-  eventClass: RegistrationClass | undefined,
+  eventClass: ClassOrNone,
   date: DayInput
 ) => scopeHasDay(getResultsDayScope(event, eventClass), date)
 
@@ -466,11 +466,8 @@ const foldScopeOnDays = (scope: ResultsDayScope, days: string[], change?: Result
 }
 
 /** A class's results scope, or a classless event's, as it is stored. */
-const foldResultsScope = (
-  event: ResultsFoldEvent,
-  eventClass: RegistrationClass | undefined,
-  change?: ResultsDayChange
-) => foldScopeOnDays(getResultsDayScope(event, eventClass), getClassDays(event, eventClass), change)
+const foldResultsScope = (event: ResultsFoldEvent, eventClass: ClassOrNone, change?: ResultsDayChange) =>
+  foldScopeOnDays(getResultsDayScope(event, eventClass), getClassDays(event, eventClass), change)
 
 /**
  * The stored flag once one day of the class, or of a classless event, is published or hidden
@@ -479,7 +476,7 @@ const foldResultsScope = (
  */
 export const withResultsDay = (
   event: ResultsFoldEvent,
-  eventClass: RegistrationClass | undefined,
+  eventClass: ClassOrNone,
   day: string,
   published: boolean
 ): ResultsPublishedState => {
@@ -493,6 +490,14 @@ export const withResultsDay = (
   return result
 }
 
+const isDayScope = (value: unknown): value is ResultsDayScope =>
+  typeof value === 'boolean' ||
+  (Array.isArray(value) && value.every((entry) => typeof entry === 'string' || entry instanceof Date))
+
+/** A value shaped like a stored results flag: one day scope, or a map of them by class. */
+export const isResultsPublishedState = (value: unknown): value is ResultsPublishedState =>
+  isDayScope(value) || (isObject(value) && Object.values(value).every(isDayScope))
+
 /** A scope as a client sent it; anything not shaped like one publishes nothing. */
 const toDayScope = (value: unknown): ResultsDayScope => {
   if (typeof value === 'boolean') return value
@@ -501,7 +506,7 @@ const toDayScope = (value: unknown): ResultsDayScope => {
 }
 
 /** The scope a sent flag gives the class, or the classless event: a class map has nothing for the latter. */
-const sentDayScope = (sent: unknown, eventClass: RegistrationClass | undefined): ResultsDayScope => {
+const sentDayScope = (sent: unknown, eventClass: ClassOrNone): ResultsDayScope => {
   if (!isObject(sent)) return toDayScope(sent)
   return eventClass ? toDayScope(sent[eventClass]) : false
 }
@@ -519,7 +524,7 @@ const isSameScope = (left: ResultsDayScope, right: ResultsDayScope) =>
  */
 export const isSameResultsPublished = (event: ResultsFoldEvent, sent: unknown): boolean => {
   const classes = uniqueClasses(event)
-  const scopes: Array<RegistrationClass | undefined> = classes.length ? classes : [undefined]
+  const scopes: ClassOrNone[] = classes.length ? classes : [undefined]
   return scopes.every((eventClass) => {
     const days = getClassDays(event, eventClass)
     return isSameScope(foldResultsScope(event, eventClass), foldScopeOnDays(sentDayScope(sent, eventClass), days))
@@ -739,6 +744,9 @@ type AvailabilityEvent = {
   startDate: Date | string
 }
 type AvailabilityRegistration = { class?: string | null; group: { date?: Date | string; time?: RegistrationTime } }
+
+/** A class, or none for a classless event (NOU, NOME-A), whose one flag covers the whole event. */
+export type ClassOrNone = RegistrationClass | undefined
 
 /** A day as stored (a yyyy-MM-dd key), as the JSON reviver hands it over (a date), or not known. */
 type DayInput = Date | string | undefined
