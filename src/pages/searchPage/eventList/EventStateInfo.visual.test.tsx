@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router'
 import { render } from 'vitest-browser-react'
+import { eventWithStaticDates } from '@/__mockData__/events'
 import theme from '@/assets/Theme'
 import { EventStateInfo } from './EventStateInfo'
 
@@ -16,7 +17,10 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 it('says the start list is live while a post is being run (KOE-1259)', async () => {
   const screen = await render(
     <Frame>
-      <EventStateInfo id="event-1" live startListPublished state="invited" />
+      <EventStateInfo
+        event={{ ...eventWithStaticDates, classes: [], id: 'event-1', startListPublished: true, state: 'invited' }}
+        live
+      />
     </Frame>
   )
 
