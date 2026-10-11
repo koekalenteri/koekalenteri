@@ -730,7 +730,8 @@
     "error412": "Payment provider is not configured for this event",
     "error500": "Payment could not be created, please try again later",
     "error501MerchantInactive": "The association's payment service contract is not active. The registration could not be received. Please contact the trial secretary {{contact}}",
-    "registrationNotFound": "Registration {{registrationId}} not found."
+    "registrationNotFound": "Registration {{registrationId}} not found.",
+    "title": "Paying for the registration"
   },
   "paymentStatus": {
     "duplicate": "This payment was captured after another registration for the dog had already been paid. Please contact the trial secretary to arrange a refund.",
@@ -1178,7 +1179,8 @@
     "ownerIsMember": "Owner is a member",
     "reserve": "Reserve",
     "reserveNotice": "Notice period",
-    "sire": "sire"
+    "sire": "sire",
+    "title": "Start list"
   },
   "startListCopied": "List copied",
   "startListCopyFailed": "Copying the list to the clipboard failed",

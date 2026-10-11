@@ -90,7 +90,8 @@ it('stacks each result row in a single column on a phone', async () => {
 // theme's h4. The theme's h4 is a heading level of the app's outline now (KOE-1506), so the toolbar
 // keeps MUI's own h4 through an override instead of shrinking with it.
 describe('the date picker on a phone', () => {
-  // The picker greys out the days past today; a day of its own keeps the capture still (KOE-1423).
+  // The picker offers the days from nine months after the dog's birth up to today, so the dog's birth
+  // date goes in as the registration form passes it, and a day of its own keeps today still (KOE-1423).
   freezeClockAt('2026-09-07')
 
   it("opens a result's date picker on a phone with the chosen date at its full size", async () => {
@@ -102,6 +103,7 @@ describe('the date picker on a phone', () => {
     const screen = await render(
       <Frame width={392}>
         <QualifyingResultsInfo
+          dob={reg.dog.dob}
           regNo={reg.dog.regNo}
           requirements={requirements}
           results={reg.results}

@@ -8,6 +8,9 @@
     }
   },
   "src/pages/PaymentPage.visual.test.tsx": {
+    "payment-page-already-paid": {
+      "nested-interactive": 1
+    },
     "payment-page-methods-desktop": {
       "nested-interactive": 1
     },

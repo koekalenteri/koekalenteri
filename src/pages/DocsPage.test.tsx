@@ -68,6 +68,21 @@ describe('DocsPage', () => {
     expect(screen.queryByRole('heading', { level: 4, name: /MUUTOKSET SÄÄNTÖIHIN/ })).not.toBeInTheDocument()
   })
 
+  // A search can match a subsection and not the section it belongs to: §2.2.3 without §2.2. The
+  // outline must not jump from the chapter's h3 to the subsection's h5 (KOE-1506).
+  it('keeps the heading levels unbroken when a search finds only a subsection', async () => {
+    const user = userEvent.setup()
+    renderAt('/docs/rules/retriever-trials')
+    await flushPromises()
+
+    await user.type(screen.getByRole('searchbox', { name: 'docs.rulesSearch' }), 'vähimmäisnoutoetäisyys')
+
+    expect(await screen.findByRole('heading', { name: /^§2\.2\.3/ })).toBeInTheDocument()
+    const levels = screen.getAllByRole('heading').map((heading) => Number(heading.tagName.slice(1)))
+    const jumps = levels.slice(1).filter((level, index) => level > levels[index] + 1)
+    expect(jumps).toEqual([])
+  })
+
   it('says so when the path names no page', async () => {
     renderAt('/docs/no-such-page')
     await flushPromises()

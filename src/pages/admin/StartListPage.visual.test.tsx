@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
+import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { TIME_ZONE } from '../../i18n/dates'
@@ -11,7 +12,7 @@ import { TestProvider } from '../../test-utils/AtomProvider'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import StartListPage from './StartListPage'
-import { adminEventRegistrationsAtom } from './state'
+import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 
 // The list needs an admin user to render at all (hasAdminAccessAtom); give it one instead of
 // hitting the network, the way EventListPage.visual.test.tsx does for this page family.
@@ -41,6 +42,7 @@ it('prints the start list grouped by class and time, with a reserve list', async
         <TestProvider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminEventsAtom, [{ ...eventWithParticipantsInvited, location: 'Vaasa' }])
             set(adminEventRegistrationsAtom(registrations[0].eventId), registrations)
           }}
         >
@@ -57,5 +59,8 @@ it('prints the start list grouped by class and time, with a reserve list', async
   )
 
   await expect.element(screen.getByText('Dog Name 20').first()).toBeVisible()
+  // The days and classes are headings under the page's own title, which only a screen reader reads:
+  // on paper the list starts with the first day (KOE-1506).
+  await expect.element(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Starttilista: NOME-B Vaasa')
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-desktop')
 })

@@ -16,6 +16,7 @@ import { ErrorInfo } from './components/ErrorInfo'
 import LinkButton from './components/LinkButton'
 import { PaymentDetails } from './components/PaymentDetails'
 import { RegistrationDetails } from './components/RegistrationDetails'
+import { SCREEN_READER_ONLY } from './components/screenReaderOnly'
 import { LoadingPage } from './LoadingPage'
 import { ProviderButton } from './paymentPage/ProviderButton'
 import {
@@ -103,7 +104,12 @@ export const PaymentPageWithData = ({
         }}
       >
         <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
-        <Typography variant="h2" component="h1">
+        {/* A notice is a sentence, often an error, not the page's name: a screen reader is given the
+            page's title and then the notice, which keeps the size it had (KOE-1506). */}
+        <Typography variant="h1" style={SCREEN_READER_ONLY}>
+          {t('paymentPage.title')}
+        </Typography>
+        <Typography variant="h2" component="p">
           {message}
         </Typography>
       </Grid>

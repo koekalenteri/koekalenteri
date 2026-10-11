@@ -730,7 +730,8 @@
     "error412": "Maksupalvelua ei ole määritetty tälle yhdistykselle",
     "error500": "Maksun luonti epäonnistui, yritä myöhemmin uudelleen",
     "error501MerchantInactive": "Yhdistyksen maksupalvelusopimus ei ole voimassa. Ilmoittautumista ei voitu ottaa vastaan. Ota yhteyttä kokeen koesihteeriin {{contact}}",
-    "registrationNotFound": "Ilmoittautumista {{registrationId}} ei löydy."
+    "registrationNotFound": "Ilmoittautumista {{registrationId}} ei löydy.",
+    "title": "Ilmoittautumisen maksu"
   },
   "paymentStatus": {
     "duplicate": "Maksu veloitettiin sen jälkeen, kun koiran toinen ilmoittautuminen oli jo maksettu. Ota yhteyttä koesihteeriin maksun palauttamiseksi.",
@@ -1178,7 +1179,8 @@
     "ownerIsMember": "Omistaja on jäsen",
     "reserve": "Varalla",
     "reserveNotice": "Varoitusaika",
-    "sire": "i."
+    "sire": "i.",
+    "title": "Starttilista"
   },
   "startListCopied": "Lista kopioitu",
   "startListCopyFailed": "Listan kopiointi leikepöydälle epäonnistui",

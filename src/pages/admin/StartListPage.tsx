@@ -1,4 +1,4 @@
-import type { Registration, RegistrationTime } from '../../types'
+import type { DogEvent, Language, Registration, RegistrationTime } from '../../types'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -11,16 +11,17 @@ import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { hasSharedReserveList } from '../../lib/event'
+import { eventTypeLabel, hasSharedReserveList, localizedEventName } from '../../lib/event'
 import {
   getRegistrationClass,
   getRegistrationGroupTime,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { keysOf } from '../../lib/typeGuards'
-import { hasAdminAccessAtom, useUserActions } from '../state'
+import { SCREEN_READER_ONLY } from '../components/screenReaderOnly'
+import { hasAdminAccessAtom, languageAtom, useUserActions } from '../state'
 import StartListGroup from './startListPage/StartListGroup'
-import { adminEventRegistrationsAtom } from './state'
+import { adminEventAtom, adminEventRegistrationsAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
 
 type GroupedRegs = Record<string | number, Record<string, Record<RegistrationTime, Registration[]>>>
@@ -32,6 +33,13 @@ const RESERVE_KEY = 'varalla'
  */
 const SHARED_RESERVE_CLASS = '*'
 
+/** The trial the list is for, as the public start list names it in its own heading. */
+const eventTitle = (event: DogEvent, language: Language) => {
+  const name = localizedEventName(event, language)
+  const title = `${eventTypeLabel(event)} ${event.location}`
+  return name ? `${title} (${name})` : title
+}
+
 export default function StartListPage() {
   const { t } = useTranslation()
   const actions = useUserActions()
@@ -39,6 +47,8 @@ export default function StartListPage() {
   const params = useParams()
   const eventId = params.id ?? ''
   useAdminEventScope(eventId)
+  const event = useAtomValue(adminEventAtom(eventId))
+  const language = useAtomValue(languageAtom)
   const allRegistrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled).sort(sortRegistrationsByDateClassTimeAndNumber)
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
@@ -76,6 +86,11 @@ export default function StartListPage() {
         p: 1,
       }}
     >
+      {/* The page's title for a screen reader. The page is printed, and a visible title would add a
+          line above the first day on paper (KOE-1506). */}
+      <Typography variant="h1" style={SCREEN_READER_ONLY}>
+        {event ? `${t('startList.title')}: ${eventTitle(event, language)}` : t('startList.title')}
+      </Typography>
       <TableContainer component={Paper}>
         {groupKeys.map((groupKey) => {
           const reserve = groupKey === RESERVE_KEY

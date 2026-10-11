@@ -64,7 +64,11 @@ const registration = {
  * The page at a screen's width. The payer sees the page in the language they entered in -- the page
  * switches to the registration's language itself -- so that is where the language goes.
  */
-const renderAt = async ({ height, width }: { height: number; width: number }, language: Language = 'fi') => {
+const renderAt = async (
+  { height, width }: { height: number; width: number },
+  language: Language = 'fi',
+  responseStatus?: number
+) => {
   await page.viewport(width, height)
 
   return render(
@@ -76,7 +80,8 @@ const renderAt = async ({ height, width }: { height: number; width: number }, la
               registrationId={registration.id}
               event={event as PublicConfirmedEvent}
               registration={{ ...registration, language }}
-              response={response}
+              response={responseStatus ? undefined : response}
+              responseStatus={responseStatus}
             />
           </MemoryRouter>
         </Provider>
@@ -97,6 +102,17 @@ it('wraps the payment method groups on a phone', async () => {
 
   await expect.element(screen.getByRole('img', { name: 'Mastercard' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-methods-phone')
+})
+
+// A notice in place of the methods: the sentence keeps its size, and the page's title above it is for
+// a screen reader only, so the notice is not announced as the page's name (KOE-1506).
+it('tells the payer the registration is already paid', async () => {
+  const screen = await renderAt(DESKTOP, 'fi', 204)
+
+  await expect.element(screen.getByText('Ilmoittautuminen on jo maksettu')).toBeVisible()
+  await expect.element(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ilmoittautumisen maksu')
+  expect(screen.getByRole('heading', { name: 'Ilmoittautuminen on jo maksettu' }).query()).toBeNull()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-already-paid')
 })
 
 // The guide's English page shows the page in English (KOE-1437).
