@@ -9,7 +9,7 @@ let activatingUpdate = false
 let watchingControllerChanges = false
 const updatedSessionKey = 'service-worker-updated'
 
-type VersionChange = {
+export type VersionChange = {
   from: string
   to: string
 }

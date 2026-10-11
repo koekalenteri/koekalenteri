@@ -1,4 +1,5 @@
 import type { SnackbarKey } from 'notistack'
+import type { VersionChange } from '../../serviceWorkerRegistration'
 import Button from '@mui/material/Button'
 import { lightFormat } from 'date-fns'
 import { useSnackbar } from 'notistack'
@@ -40,29 +41,45 @@ const whatsNewAction = (version: string) => (snackbarKey: SnackbarKey) => (
   <WhatsNewAction snackbarKey={snackbarKey} version={version} />
 )
 
-function ServiceWorkerUpdateNotifier() {
+interface UpdateNoticeProps {
+  readonly versionChange: VersionChange
+}
+
+/**
+ * The notice's text, translated when it renders rather than when it is enqueued. After the update's
+ * reload i18next boots on the fallback language and App switches it to the stored one in its own
+ * effect, which React runs after the notifier's, so a string translated in the notifier's effect
+ * stays Finnish for a reader who chose English (KOE-1457).
+ */
+const UpdateNotice = ({ versionChange }: UpdateNoticeProps) => {
   const { t } = useTranslation()
+
+  // In development the version number rarely changes, so the build time is the only thing that
+  // tells the reloaded build apart from the old one. The update reloaded the page, so this bundle
+  // is the update itself and its own build time is the one to report.
+  if (versionChange.from === versionChange.to) {
+    return t('app.updatedBuild', {
+      date: lightFormat(appBuildTime, 'dd.MM.yyyy'),
+      time: lightFormat(appBuildTime, 'HH:mm'),
+      to: versionChange.to,
+    })
+  }
+
+  return t('app.updated', versionChange)
+}
+
+function ServiceWorkerUpdateNotifier() {
   const { enqueueSnackbar } = useSnackbar()
   const notifiedWorker = useRef<ServiceWorker | undefined>(undefined)
 
   useEffect(() => {
     const versionChange = consumeServiceWorkerUpdated()
     if (versionChange) {
-      // In development the version number rarely changes, so the build time is
-      // the only thing that tells the reloaded build apart from the old one.
-      // The update reloaded the page, so this bundle is the update itself and
-      // its own build time is the one to report.
+      const message = <UpdateNotice versionChange={versionChange} />
       if (versionChange.from === versionChange.to) {
-        enqueueSnackbar(
-          t('app.updatedBuild', {
-            date: lightFormat(appBuildTime, 'dd.MM.yyyy'),
-            time: lightFormat(appBuildTime, 'HH:mm'),
-            to: versionChange.to,
-          }),
-          { variant: 'success' }
-        )
+        enqueueSnackbar(message, { variant: 'success' })
       } else {
-        enqueueSnackbar(t('app.updated', versionChange), {
+        enqueueSnackbar(message, {
           action: whatsNewAction(versionChange.to),
           variant: 'success',
         })
@@ -75,7 +92,7 @@ function ServiceWorkerUpdateNotifier() {
       notifiedWorker.current = worker
       activateServiceWorkerUpdate(registration, worker)
     })
-  }, [enqueueSnackbar, t])
+  }, [enqueueSnackbar])
 
   return null
 }
