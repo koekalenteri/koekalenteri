@@ -1,6 +1,3 @@
-import i18n from 'i18next'
-import { createStore } from 'jotai'
-import { languageAtom } from '@/pages/state'
 import { getStorageKeysStartingWith, languageStorageKey, readStoredLanguage } from './storage'
 
 describe('storageCleaners', () => {
@@ -26,11 +23,9 @@ describe('storageCleaners', () => {
 })
 
 describe('readStoredLanguage', () => {
-  afterEach(async () => {
+  afterEach(() => {
     vi.restoreAllMocks()
     localStorage.clear()
-    await i18n.changeLanguage('fi')
-    document.documentElement.lang = 'fi'
   })
 
   it.each([
@@ -53,21 +48,6 @@ describe('readStoredLanguage', () => {
       throw new Error('SecurityError')
     })
 
-    expect(readStoredLanguage()).toBe('fi')
-  })
-
-  // The language menu writes through languageAtom and the next boot reads with readStoredLanguage;
-  // the two must meet on the same key and format (KOE-1457).
-  it('reads back the choice the language menu stored', () => {
-    createStore().set(languageAtom, 'en')
-
-    expect(readStoredLanguage()).toBe('en')
-  })
-
-  it('agrees with languageAtom on an unknown stored language', () => {
-    localStorage.setItem(languageStorageKey, JSON.stringify('sv'))
-
-    expect(createStore().get(languageAtom)).toBe('fi')
     expect(readStoredLanguage()).toBe('fi')
   })
 })

@@ -55,9 +55,9 @@ describe('ServiceWorkerUpdateNotifier', () => {
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('update-notice-en')
   })
 
-  // i18next boots in the reader's stored language (src/i18n/index.ts); here it is set the way the
-  // language menu sets it, before the notifier mounts.
-  it('shows the build time notice in the stored language', async () => {
+  // At boot i18next is already in the reader's language (src/i18n/index.ts, tested there); this is
+  // the build time notice rendered in English from its first frame, with no switch after it.
+  it('shows the build time notice in the language i18next has when the notifier mounts', async () => {
     await switchLanguage('en')
     window.sessionStorage.setItem(updatedSessionKey, JSON.stringify({ from: '1.10.3', to: '1.10.3' }))
 

@@ -1,5 +1,6 @@
 import i18n from 'i18next'
 import { createStore } from 'jotai'
+import { languageStorageKey, readStoredLanguage } from '@/lib/client/storage'
 import { expectConsoleOutput } from '@/test-utils/consoleGuard'
 import { idTokenAtom, languageAtom, readStoredIdToken } from './atoms'
 import { validIdTokenAtom } from './derivedAtoms'
@@ -55,6 +56,29 @@ describe('languageAtom', () => {
       i18n.language = language
       const snapshot = createStore()
       expect(snapshot.get(languageAtom)).toEqual(expected)
+    })
+  })
+
+  describe('and the boot reader', () => {
+    afterEach(async () => {
+      localStorage.clear()
+      await i18n.changeLanguage('fi')
+      document.documentElement.lang = 'fi'
+    })
+
+    // The language menu writes through languageAtom and the next boot reads with readStoredLanguage;
+    // the two must meet on the same key and format (KOE-1457).
+    it('reads back the choice the language menu stored', () => {
+      createStore().set(languageAtom, 'en')
+
+      expect(readStoredLanguage()).toBe('en')
+    })
+
+    it('agrees with languageAtom on an unknown stored language', () => {
+      localStorage.setItem(languageStorageKey, JSON.stringify('sv'))
+
+      expect(createStore().get(languageAtom)).toBe('fi')
+      expect(readStoredLanguage()).toBe('fi')
     })
   })
 })

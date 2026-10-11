@@ -6,15 +6,15 @@ import { Provider } from 'jotai'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './i18n'
-
 import App from './App'
 import theme from './assets/Theme'
+import { setDocumentLanguage } from './i18n/language'
 import { registerServiceWorker, unregisterServiceWorker } from './serviceWorkerRegistration'
 
 import './index.css'
 
 // i18next has booted in the stored language (./i18n); the document says the same before anything renders.
-document.documentElement.lang = i18n.language
+setDocumentLanguage(document.documentElement, i18n.language)
 
 const container = document.getElementById('root')
 
