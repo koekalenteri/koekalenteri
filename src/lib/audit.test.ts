@@ -1,4 +1,4 @@
-import type { AuditRecord } from '../types'
+import type { AuditRecord, JsonAuditRecord } from '../types'
 import type { AuditMessage } from './audit'
 import i18next from 'i18next'
 import { i18nInitOptions } from '../i18n/config'
@@ -22,6 +22,7 @@ import {
   eventSavedAudit,
   formatAuditDetail,
   formatAuditMessage,
+  formatAuditRow,
   groupChangeAudit,
   internalNotesChangedAudit,
   invitationAwaitingPaymentAudit,
@@ -107,7 +108,7 @@ describe('groupChangeAudit', () => {
     })
   })
 
-  // A cancellation's reason edited on a dog that never stood in a group: no group to name (KOE-1511).
+  // A guard: no row when neither side names a group; today's callers always pass one (KOE-1511).
   it('writes no row when neither side has a group', () => {
     expect(groupChangeAudit(undefined, undefined, 'move')).toBeUndefined()
   })
@@ -232,6 +233,16 @@ describe('resultSavedAudit', () => {
   })
 })
 
+/** The changes of an event edit, as getEventAuditMessages writes them. */
+const eventNameChange = { field: 'name', labelKey: 'event.name', next: { text: 'b' }, previous: { text: 'a' } }
+const classPlacesChange = {
+  field: 'classes.0.places',
+  labelKey: 'audit.fields.classPlaces',
+  labelParams: { eventClass: 'VOI', eventDate: '2026-09-18T21:00:00.000Z' },
+  next: { text: '6' },
+  previous: { text: '5' },
+}
+
 /** Every message, built as a lambda builds it. */
 const groupRow = (...args: Parameters<typeof groupChangeAudit>): AuditMessage => {
   const row = groupChangeAudit(...args)
@@ -242,7 +253,7 @@ const groupRow = (...args: Parameters<typeof groupChangeAudit>): AuditMessage =>
 const dayGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 2, time: 'ip' as const }
 const kpGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-kp', number: 4, time: 'kp' as const }
 
-const messages: Array<[string, AuditMessage]> = [
+const messages: Array<[string, AuditMessage & Pick<JsonAuditRecord, 'changes'>]> = [
   ['startNumberPublished', startNumberPublishedAudit(1)],
   ['startNumberReleased', startNumberReleasedAudit(2)],
   ['startNumberSaved', startNumberSavedAudit(3)],
@@ -297,7 +308,8 @@ const messages: Array<[string, AuditMessage]> = [
   ['eventCreated', eventCreatedAudit()],
   ['eventDeleted', eventDeletedAudit()],
   ['eventSaved', eventSavedAudit()],
-  ['changed', eventChangedAudit([{ field: 'name', next: { text: 'b' }, previous: { text: 'a' } }])],
+  ['changed', eventChangedAudit([eventNameChange])],
+  ['changed (class places)', eventChangedAudit([classPlacesChange, eventNameChange])],
   ['startListPublished', startListAudit(true)],
   ['startListHidden', startListAudit(false)],
   ['classStartListPublished', startListAudit(true, 'ALO')],
@@ -347,7 +359,7 @@ describe('each audit message', () => {
   // the placeholder in the text.
   it.each(messages)('%s fills every placeholder in both languages', (_name, row) => {
     for (const t of [fi(), en()]) {
-      const text = formatAuditMessage(t, row)
+      const text = formatAuditRow(t, row)
       expect(text).not.toMatch(/\{\{|\}\}/)
       expect(text).not.toBe(t('audit.unknown', { key: row.messageKey }))
     }
@@ -443,6 +455,26 @@ describe('formatAuditMessage', () => {
     expect(
       formatAuditMessage(en(), emailSentAudit('registration.email.subject_refund', ['a@example.com'], 'Oma aihe'))
     ).toBe('Email: Oma aihe, to: a@example.com')
+  })
+})
+
+describe('formatAuditRow', () => {
+  // The trail reads an edit by its changes' labels, not by its key (KOE-1511).
+  it.each([
+    ['fi', 'Muutti: VOI 19.9.2026 – paikkoja, Nimi'],
+    ['en', 'Changed: VOI 19.9.2026 – places, Name'],
+  ] as const)('names the changes of an edit in %s', (language, expected) => {
+    const t = language === 'fi' ? fi() : en()
+    expect(formatAuditRow(t, eventChangedAudit([classPlacesChange, eventNameChange]))).toBe(expected)
+  })
+
+  it('names a change without a label by its field', () => {
+    const change = { field: 'notes', next: { text: 'b' }, previous: { state: 'empty' as const } }
+    expect(formatAuditRow(en(), eventChangedAudit([change]))).toBe('Changed: notes')
+  })
+
+  it('reads a row without changes by its message', () => {
+    expect(formatAuditRow(en(), eventSavedAudit())).toBe('Event saved')
   })
 })
 

@@ -101,8 +101,8 @@ const groupChangeKey = (previous: AuditGroup, group: AuditGroup): AuditMessageKe
 
 /**
  * A group change as a row that names the group on either side; the reader names the sides by the
- * same rule. A change with no group on either side (a cancellation's reason edited on a dog that was
- * never placed) says nothing of groups and writes no row (KOE-1511).
+ * same rule. A guard: when neither side names a group, no row is written (KOE-1511). Today's callers
+ * always pass one, as normalizeRegistrationGroups gives every registration a group.
  */
 export const groupChangeAudit = (
   previous: AuditGroup,
@@ -464,6 +464,29 @@ export const auditLabelParams = (params?: AuditReadParams) => {
 const labelInstant = (value: unknown): Date | undefined => {
   if (value instanceof Date) return value
   return typeof value === 'string' && value ? new Date(value) : undefined
+}
+
+/** A change's label in the reader's language, or its field when it has no label. */
+export const formatAuditChangeLabel = (t: TFunction, { field, labelKey, labelParams }: JsonAuditChange): string => {
+  if (!labelKey) return field
+
+  // A label names a field from several namespaces (`event`, `registration`, `cost`, `costNames`), so
+  // it is not held to the audit namespaces above. Safe as a key: one this bundle lacks reads as the
+  // field through `defaultValue`.
+  return t(labelKey as ParseKeys<'translation'>, { ...auditLabelParams(labelParams), defaultValue: field })
+}
+
+/**
+ * A row as the trail reads it: an edit as "Changed: " and the label of each change, any other row by
+ * its message.
+ */
+export const formatAuditRow = (
+  t: TFunction,
+  row: Pick<JsonAuditRecord, 'changes' | 'message' | 'messageKey'> & { messageParams?: AuditReadParams }
+): string => {
+  if (!row.changes?.length) return formatAuditMessage(t, row)
+
+  return `${t('audit.changed')}: ${row.changes.map((change) => formatAuditChangeLabel(t, change)).join(', ')}`
 }
 
 export const formatAuditDetail = (t: TFunction, { detailKey, detailParams }: JsonAuditDetail) => {

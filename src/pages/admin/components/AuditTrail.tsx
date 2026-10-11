@@ -1,4 +1,3 @@
-import type { ParseKeys } from 'i18next'
 import type { AuditRecord } from '@/types'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
@@ -10,7 +9,7 @@ import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '@/i18n/dates'
-import { auditLabelParams, auditRecordId, formatAuditDetail, formatAuditMessage } from '@/lib/audit'
+import { auditRecordId, formatAuditChangeLabel, formatAuditDetail, formatAuditRow } from '@/lib/audit'
 import CollapsibleSection from '../../components/CollapsibleSection'
 
 interface Props {
@@ -25,14 +24,7 @@ type AuditDetail = NonNullable<AuditRecord['details']>[number]
 const useAuditFormatter = () => {
   const { t } = useTranslation()
 
-  const changeLabel = (change: AuditChange) => {
-    if (!change.labelKey) return change.field
-
-    return t(change.labelKey as ParseKeys<'translation'>, {
-      ...auditLabelParams(change.labelParams),
-      defaultValue: change.field,
-    })
-  }
+  const changeLabel = (change: AuditChange) => formatAuditChangeLabel(t, change)
 
   const changeValue = (value: AuditChangeValueData) => {
     if (value.state === 'empty') return t('audit.empty')
@@ -45,11 +37,7 @@ const useAuditFormatter = () => {
     return `${sign} ${label}:${text.includes('\n') ? '\n' : ' '}${text}`
   }
 
-  const message = (row: AuditRecord) => {
-    if (row.changes?.length) return `${t('audit.changed')}: ${row.changes.map(changeLabel).join(', ')}`
-
-    return formatAuditMessage(t, row)
-  }
+  const message = (row: AuditRecord) => formatAuditRow(t, row)
 
   const detail = (item: AuditDetail) => formatAuditDetail(t, item)
 

@@ -561,8 +561,8 @@ describe('lib/event', () => {
       expect(mockAudit).toHaveBeenCalled()
     })
 
-    // A cancellation's reason edited on a dog with no group on either side: nothing of groups to say
-    // (KOE-1511). It used to read "Ryhmä: siirto".
+    // A guard: no row when neither side names a group. Today's callers always pass one, as
+    // normalizeRegistrationGroups gives every registration a group (KOE-1511).
     it('writes no group row when neither side has a group', async () => {
       await saveGroup({ eventId: 'e6', id: 'r6' }, undefined, { name: 'user' }, 'move')
 
