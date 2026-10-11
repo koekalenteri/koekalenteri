@@ -20,6 +20,17 @@ const matches = (section: RulesSection, words: readonly string[]) =>
   words.every((word) => section.text.includes(word) || section.number.startsWith(word))
 
 /**
+ * The heading a section takes: h4, and h5 for a subsection under its section. A search can match a
+ * subsection and leave its section out (§2.2.3 without §2.2); the subsection then stands one level up,
+ * so the outline does not jump from the chapter's h3 to h5 (KOE-1506).
+ */
+const sectionHeading = (section: RulesSection, shown: readonly RulesSection[]) => {
+  if (section.level === 1) return 'h4'
+  const underItsSection = shown.some((other) => other.level === 1 && section.number.startsWith(`${other.number}.`))
+  return underItsSection ? 'h5' : 'h4'
+}
+
+/**
  * The Kennel Club's rules as a page: the whole text, searchable, every section under an anchor of
  * its own (`#s-4-4` is §4.4) so the application and the guides can point at the rule they act on.
  * The text is extracted from the official PDF, and the page says so; where they differ, the PDF
@@ -90,13 +101,13 @@ export const RulesBody = ({ document }: Props) => {
       )}
       {visible.parts.map((part) => (
         <Box key={part.number} component="section">
-          <Typography variant="h5" component="h2" sx={{ mt: 4 }}>
+          <Typography variant="h2" sx={{ mt: 4 }}>
             {part.number}: {part.title}
           </Typography>
           {!searching && part.intro ? <DocsBody html={part.intro} /> : null}
           {part.chapters.map((chapter) => (
             <Box key={chapter.id} component="section" id={chapter.id} sx={{ scrollMarginTop: 80 }}>
-              <Typography variant="h6" component="h3" sx={{ mt: 3 }}>
+              <Typography variant="h3" sx={{ mt: 3 }}>
                 {chapter.title}
               </Typography>
               {!searching && chapter.intro ? <DocsBody html={chapter.intro} /> : null}
@@ -104,7 +115,7 @@ export const RulesBody = ({ document }: Props) => {
                 <Box key={section.id} component="section" id={section.id} sx={{ scrollMarginTop: 80 }}>
                   <Typography
                     variant={section.level === 1 ? 'subtitle1' : 'subtitle2'}
-                    component={section.level === 1 ? 'h4' : 'h5'}
+                    component={sectionHeading(section, chapter.sections)}
                     sx={{ fontWeight: 'bold', mt: 2 }}
                   >
                     <Link href={`#${section.id}`} color="text.secondary" underline="hover" sx={{ mr: 1 }}>

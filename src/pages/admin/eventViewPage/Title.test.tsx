@@ -18,7 +18,7 @@ const renderTitle = (event: ConfirmedEvent) =>
     </TestProvider>
   )
 
-const heading = () => screen.getByRole('heading', { level: 5 })
+const heading = () => screen.getByRole('heading', { level: 1 })
 
 // The secretary browsing in English reads the trial's English name where one is kept (KOE-1453);
 // the Finnish name stays the one every trial has.

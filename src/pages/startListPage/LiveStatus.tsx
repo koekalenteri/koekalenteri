@@ -191,7 +191,9 @@ export const LiveStatus = ({
         my: 1,
       }}
     >
-      <Typography variant="h6">{t('liveStatus.title')}</Typography>
+      <Typography variant="h3" component="h2">
+        {t('liveStatus.title')}
+      </Typography>
       <Stack
         direction="row"
         useFlexGap

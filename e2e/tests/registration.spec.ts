@@ -41,7 +41,7 @@ test.describe('registering and paying', { annotation: issue('KOE-1477'), tag: ['
 
     await payment.payAtBank('Maksa')
 
-    await expect(page.getByRole('heading', { name: 'Olen maksanut' })).toBeVisible()
+    await expect(page.getByRole('main').getByText('Olen maksanut')).toBeVisible()
     await expect(page.getByRole('main')).toContainText(/Maksettu\s*50,00\s*€/)
     expect(await readRegistration(key.eventId, key.id)).toMatchObject({ paidAmount: 50, paymentStatus: 'SUCCESS' })
     const templates = (await sentTo(owner.email)).map((message) => message.template)
@@ -69,8 +69,8 @@ test.describe('registering and paying', { annotation: issue('KOE-1477'), tag: ['
     await payment.payAtBank('Väärennetty paluu')
 
     // The page stays in "verifying"; neither the callback nor the verify call accepts the signature.
-    await expect(page.getByRole('heading', { name: /^Maksu vastaanotettu, vahvistetaan vielä/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Olen maksanut' })).toBeHidden()
+    await expect(page.getByRole('main').getByText(/^Maksu vastaanotettu, vahvistetaan vielä/)).toBeVisible()
+    await expect(page.getByRole('main').getByText('Olen maksanut')).toBeHidden()
     const registration = await readRegistration(key.eventId, key.id)
     expect(registration?.paymentStatus).not.toBe('SUCCESS')
     expect(registration?.paidAt).toBeUndefined()

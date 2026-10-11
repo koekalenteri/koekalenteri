@@ -17,6 +17,7 @@ import { ErrorInfo } from './components/ErrorInfo'
 import LinkButton from './components/LinkButton'
 import { PaymentDetails } from './components/PaymentDetails'
 import { RegistrationDetails } from './components/RegistrationDetails'
+import { SCREEN_READER_ONLY } from './components/screenReaderOnly'
 import { LoadingPage } from './LoadingPage'
 import { ProviderButton } from './paymentPage/ProviderButton'
 import {
@@ -97,7 +98,14 @@ export const PaymentPageWithData = ({
         }}
       >
         <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
-        <Typography variant="h5">{message}</Typography>
+        {/* A notice is a sentence, often an error, not the page's name: a screen reader is given the
+            page's title and then the notice, which keeps the size it had (KOE-1506). */}
+        <Typography variant="h1" style={SCREEN_READER_ONLY}>
+          {t('paymentPage.title')}
+        </Typography>
+        <Typography variant="h2" component="p">
+          {message}
+        </Typography>
       </Grid>
       <Divider sx={{ my: 1 }} />
       <RegistrationDetails event={event} registration={registration} />
@@ -144,7 +152,9 @@ export const PaymentPageWithData = ({
         }}
       >
         <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
-        <Typography variant="h5">{t('paymentPage.choosePaymentMethod')}</Typography>
+        <Typography variant="h2" component="h1">
+          {t('paymentPage.choosePaymentMethod')}
+        </Typography>
         <Typography variant="caption">
           {/** biome-ignore lint/security/noDangerouslySetInnerHtml: yolo */}
           <span dangerouslySetInnerHTML={{ __html: response.terms }} />
@@ -153,7 +163,9 @@ export const PaymentPageWithData = ({
 
       {response.groups.map((group) => (
         <Paper key={group.id} sx={{ m: 1, p: 1 }} elevation={0}>
-          <Typography variant="h6">{group.name}</Typography>
+          <Typography variant="h3" component="h2">
+            {group.name}
+          </Typography>
           <Grid container spacing={1}>
             {response.providers
               .filter((provider) => provider.group === group.id)

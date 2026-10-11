@@ -21,6 +21,9 @@ declare module '@mui/material/styles/createPalette' {
 
 export const HEADER_HEIGHT = '36px'
 
+/** MUI's own type scale, as this theme had it before it set its heading sizes (KOE-1506). */
+const muiTypography = responsiveFontSizes(createTheme()).typography
+
 const theme = createTheme({
   breakpoints: {
     values: {
@@ -56,6 +59,13 @@ const theme = createTheme({
         desktopModeMediaQuery: '(min-width:600px)',
       },
     },
+    MuiDatePickerToolbar: {
+      styleOverrides: {
+        // The phone picker's chosen date is set in the h4 variant, which is a heading size here; the
+        // date keeps the size MUI drew it at.
+        title: muiTypography.h4,
+      },
+    },
     MuiStack: {
       defaultProps: {
         useFlexGap: true,
@@ -69,6 +79,14 @@ const theme = createTheme({
     MuiToggleButtonGroup: {
       defaultProps: {
         color: 'success',
+      },
+    },
+    MuiTypography: {
+      defaultProps: {
+        // MUI renders a subtitle as an h6 by default, so every label, column header and summary line
+        // set in subtitle type became a heading and broke the outline (KOE-1506). A subtitle is a
+        // paragraph; one that is a heading names its level with `component`.
+        variantMapping: { subtitle1: 'p', subtitle2: 'p' },
       },
     },
   },
@@ -128,10 +146,22 @@ const theme = createTheme({
       main: '#9a4b00', // 6.21 / 5.55
     },
   },
+  /**
+   * A heading's level comes from where it sits on the page, so each level has to be a size a heading
+   * at that level can wear (KOE-1506). MUI's own scale starts at 6rem, which pushed every section
+   * heading down to h6 for its size and left the levels jumping. h1 to h3 are MUI's h4 to h6 moved up
+   * three steps, so a page title and a section heading look as they did; h4 and h5 continue the
+   * scale below h3.
+   */
   typography: {
     button: {
       textTransform: 'none',
     },
+    h1: { fontSize: '2.125rem', fontWeight: 400, letterSpacing: '0.00735em', lineHeight: 1.235 },
+    h2: { fontSize: '1.5rem', fontWeight: 400, letterSpacing: '0em', lineHeight: 1.334 },
+    h3: { fontSize: '1.25rem', fontWeight: 500, letterSpacing: '0.0075em', lineHeight: 1.6 },
+    h4: { fontSize: '1.125rem', fontWeight: 500, letterSpacing: '0.0075em', lineHeight: 1.6 },
+    h5: { fontSize: '1rem', fontWeight: 500, letterSpacing: '0.0075em', lineHeight: 1.6 },
   },
   zIndex: {
     drawer: 1000,

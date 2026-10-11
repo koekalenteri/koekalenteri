@@ -22,8 +22,10 @@ export function EntryPageHeader({ eventId, title, children }: Props) {
   return (
     <Box sx={{ pt: 2, px: 2 }}>
       <Stack direction="row" sx={{ alignItems: 'flex-start', columnGap: 1 }}>
-        <BackLink headingVariant="h6" label={t('results.backToEvent')} to={Path.admin.viewEvent(eventId)} />
-        <Typography variant="h6">{title}</Typography>
+        <BackLink headingVariant="h3" label={t('results.backToEvent')} to={Path.admin.viewEvent(eventId)} />
+        <Typography variant="h3" component="h1">
+          {title}
+        </Typography>
       </Stack>
       {children}
     </Box>

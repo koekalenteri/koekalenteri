@@ -33,7 +33,7 @@ it('heads the event view with a way back, the trial and its progress', async () 
   const back = screen.getByRole('link', { name: 'Takaisin tapahtumalistaan' })
   await expect.element(back).toBeVisible()
   expect(
-    Math.abs(iconOffsetFromHeadingLine(back.element(), screen.getByRole('heading', { level: 5 }).element()))
+    Math.abs(iconOffsetFromHeadingLine(back.element(), screen.getByRole('heading', { level: 1 }).element()))
   ).toBeLessThan(ARROW_TOLERANCE)
 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-view-title')
@@ -57,7 +57,7 @@ describeInLanguage('en', () => {
       </div>
     )
 
-    await expect.element(screen.getByRole('heading', { level: 5 })).toHaveTextContent(/\(Spring trials\)$/)
+    await expect.element(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/\(Spring trials\)$/)
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-view-title-en')
   })
 })
@@ -84,7 +84,7 @@ it('folds the way back into the arrow on a phone, still on the heading row', asy
   await expect.element(back).toBeVisible()
 
   const backBox = back.element().getBoundingClientRect()
-  const heading = screen.getByRole('heading', { level: 5 }).element()
+  const heading = screen.getByRole('heading', { level: 1 }).element()
   const headingBox = heading.getBoundingClientRect()
 
   // The words take no width: what is left is the arrow and the button's own padding.

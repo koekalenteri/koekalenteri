@@ -27,16 +27,14 @@ export const DocsIndexPage = () => {
           sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxWidth: 900, mt: HEADER_HEIGHT, p: 2 }}
           data-testid="docs-index"
         >
-          <Typography variant="h4" component="h1">
-            {t('docs.title')}
-          </Typography>
+          <Typography variant="h1">{t('docs.title')}</Typography>
           {AUDIENCES.map((audience) => {
             const forAudience = pages.filter((page) => page.audience === audience)
             if (!forAudience.length) return null
 
             return (
               <Box key={audience} sx={{ mt: 2 }}>
-                <Typography variant="h6" component="h2">
+                <Typography variant="h3" component="h2">
                   {t(`docs.audience.${audience}`)}
                 </Typography>
                 <List dense>
@@ -53,7 +51,7 @@ export const DocsIndexPage = () => {
           })}
           {rules.length > 0 && (
             <Box sx={{ mt: 2 }}>
-              <Typography variant="h6" component="h2">
+              <Typography variant="h3" component="h2">
                 {t('docs.rules')}
               </Typography>
               <List dense>

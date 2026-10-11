@@ -34,7 +34,7 @@ it('heads a batch entry screen with the way back beside the title', async () => 
   const back = screen.getByRole('link', { name: 'Takaisin tapahtumaan' })
   await expect.element(back).toBeVisible()
   expect(
-    Math.abs(iconOffsetFromHeadingLine(back.element(), screen.getByRole('heading', { level: 6 }).element()))
+    Math.abs(iconOffsetFromHeadingLine(back.element(), screen.getByRole('heading', { level: 1 }).element()))
   ).toBeLessThan(ARROW_TOLERANCE)
 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('entry-page-header')
@@ -50,7 +50,7 @@ it('folds the way back into the arrow on a phone', async () => {
   await expect.element(back).toBeVisible()
   expect(back.element().getBoundingClientRect().width).toBeLessThan(60)
   expect(
-    Math.abs(iconOffsetFromHeadingLine(back.element(), screen.getByRole('heading', { level: 6 }).element()))
+    Math.abs(iconOffsetFromHeadingLine(back.element(), screen.getByRole('heading', { level: 1 }).element()))
   ).toBeLessThan(ARROW_TOLERANCE)
 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('entry-page-header-phone')
@@ -72,7 +72,7 @@ it('keeps the arrow on the first line when the heading wraps', async () => {
   )
 
   const back = screen.getByRole('link', { name: 'Takaisin tapahtumaan' })
-  const heading = screen.getByRole('heading', { level: 6 }).element()
+  const heading = screen.getByRole('heading', { level: 1 }).element()
   await expect.element(back).toBeVisible()
 
   // Really wrapped: more than one line of heading beneath the arrow.

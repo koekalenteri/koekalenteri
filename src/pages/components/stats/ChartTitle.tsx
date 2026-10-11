@@ -29,7 +29,9 @@ export default function ChartTitle({ title, info, filters }: Props) {
         alignItems: 'center',
       }}
     >
-      <Typography variant="h6">{titleWithFilters(title, filters)}</Typography>
+      <Typography variant="h3" component="h2">
+        {titleWithFilters(title, filters)}
+      </Typography>
       {info ? (
         <Tooltip title={info} enterTouchDelay={0}>
           <IconButton aria-label={info} size="small">

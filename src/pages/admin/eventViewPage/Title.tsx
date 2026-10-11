@@ -22,8 +22,8 @@ export default function Title({ event }: { readonly event: ConfirmedEvent }) {
           the heading's row, because everything below is the entry list and a row spent here is a row
           taken from it — see BackLink for what happens to the words when the screen narrows. */}
       <Stack direction="row" sx={{ alignItems: 'flex-start', columnGap: 1 }}>
-        <BackLink headingVariant="h5" label={t('backToEventsList')} to={Path.admin.events} />
-        <Typography variant="h5">
+        <BackLink headingVariant="h2" label={t('backToEventsList')} to={Path.admin.events} />
+        <Typography variant="h2" component="h1">
           {type}, {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}, {event.location}
           {name ? ` (${name})` : ''}
         </Typography>

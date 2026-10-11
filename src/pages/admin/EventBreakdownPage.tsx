@@ -51,7 +51,7 @@ export default function EventBreakdownPage() {
 
   return (
     <Stack spacing={2} sx={{ p: 1, width: '100%' }}>
-      <Typography variant="h4">{t('stats.admin.eventBreakdownTitle')}</Typography>
+      <Typography variant="h1">{t('stats.admin.eventBreakdownTitle')}</Typography>
       <Typography
         sx={{
           color: 'text.secondary',

@@ -1,10 +1,12 @@
 import type { CreatePaymentResponse, Language, PublicConfirmedEvent } from '../types'
+import { ThemeProvider } from '@mui/material/styles'
 import { Provider } from 'jotai'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
+import theme from '../assets/Theme'
 // The "Takaisin" link's black/bold/underlined look is a global class, not a theme override.
 import '../index.css'
 import { describeInLanguage } from '../test-utils/language'
@@ -62,22 +64,29 @@ const registration = {
  * The page at a screen's width. The payer sees the page in the language they entered in -- the page
  * switches to the registration's language itself -- so that is where the language goes.
  */
-const renderAt = async ({ height, width }: { height: number; width: number }, language: Language = 'fi') => {
+const renderAt = async (
+  { height, width }: { height: number; width: number },
+  language: Language = 'fi',
+  responseStatus?: number
+) => {
   await page.viewport(width, height)
 
   return render(
-    <div data-testid="visual-root" style={{ background: '#fff', width }}>
-      <Provider>
-        <MemoryRouter>
-          <PaymentPageWithData
-            registrationId={registration.id}
-            event={event as PublicConfirmedEvent}
-            registration={{ ...registration, language }}
-            response={response}
-          />
-        </MemoryRouter>
-      </Provider>
-    </div>
+    <ThemeProvider theme={theme}>
+      <div data-testid="visual-root" style={{ background: '#fff', width }}>
+        <Provider>
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId={registration.id}
+              event={event as PublicConfirmedEvent}
+              registration={{ ...registration, language }}
+              response={responseStatus ? undefined : response}
+              responseStatus={responseStatus}
+            />
+          </MemoryRouter>
+        </Provider>
+      </div>
+    </ThemeProvider>
   )
 }
 
@@ -93,6 +102,17 @@ it('wraps the payment method groups on a phone', async () => {
 
   await expect.element(screen.getByRole('img', { name: 'Mastercard' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-methods-phone')
+})
+
+// A notice in place of the methods: the sentence keeps its size, and the page's title above it is for
+// a screen reader only, so the notice is not announced as the page's name (KOE-1506).
+it('tells the payer the registration is already paid', async () => {
+  const screen = await renderAt(DESKTOP, 'fi', 204)
+
+  await expect.element(screen.getByText('Ilmoittautuminen on jo maksettu')).toBeVisible()
+  await expect.element(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ilmoittautumisen maksu')
+  expect(screen.getByRole('heading', { name: 'Ilmoittautuminen on jo maksettu' }).query()).toBeNull()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-already-paid')
 })
 
 // The guide's English page shows the page in English (KOE-1437).

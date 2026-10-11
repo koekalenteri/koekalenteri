@@ -20,13 +20,13 @@ export const SupportPage = () => {
       <Header />
       <Box sx={{ display: 'flex', height: '100%' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, mt: HEADER_HEIGHT, overflow: 'auto', p: 1 }}>
-          <Typography variant="h6">
+          <Typography variant="h3" component="h1">
             Huomasitko, että koekalenteri toimii oudosti tai ei toimi niinkuin pitää?
           </Typography>
-          <Typography variant="h6">
+          <Typography variant="h6" component="p">
             Voit lähettää virheraportin suoraan <Link href={issueHref}>täältä</Link>
           </Typography>
-          <Typography variant="h6">
+          <Typography variant="h6" component="p">
             Tai voit lähettää sähköpostia osoitteeseen{' '}
             <Link href={`mailto:${supportEmail}?subject="Palaute`}>{supportEmail}</Link>
           </Typography>

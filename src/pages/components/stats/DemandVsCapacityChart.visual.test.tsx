@@ -2,6 +2,7 @@ import type { CapacityStatsEntry } from '@/types/Stats'
 import { render } from 'vitest-browser-react'
 import { ALL_CLASSES_ID } from './CapacityUtilizationChart'
 import DemandVsCapacityChart from './DemandVsCapacityChart'
+import { ChartFrame } from './statsVisualFixtures'
 
 const month = (
   month: string,
@@ -34,9 +35,9 @@ const data = [
 
 it('draws the waiting list above the places line only where demand exceeded capacity', async () => {
   const screen = await render(
-    <div data-testid="chart-root" style={{ background: '#fff', padding: 16, width: 1000 }}>
+    <ChartFrame>
       <DemandVsCapacityChart classKey={ALL_CLASSES_ID} data={data} filters={['Auran Nuuskut ry', 'NOME-B']} />
-    </div>
+    </ChartFrame>
   )
 
   await expect.element(screen.getByText('Kysyntä suhteessa paikkoihin – Auran Nuuskut ry – NOME-B')).toBeVisible()

@@ -88,7 +88,9 @@ export function Component() {
         reserved={entry.reserved}
         header={
           <Box sx={{ pt: 2, px: 2 }}>
-            <Typography variant="h6">{t('startNumbers.title')}</Typography>
+            <Typography variant="h3" component="h1">
+              {t('startNumbers.title')}
+            </Typography>
             <Typography
               variant="body2"
               sx={{

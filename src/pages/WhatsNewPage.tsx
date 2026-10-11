@@ -31,18 +31,16 @@ export const WhatsNewPage = () => {
           sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxWidth: 900, mt: HEADER_HEIGHT, p: 2 }}
           data-testid="whats-new"
         >
-          <Typography variant="h4" component="h1">
-            {t('docs.whatsNew')}
-          </Typography>
+          <Typography variant="h1">{t('docs.whatsNew')}</Typography>
           {notes.map((note) => (
             <Box key={note.version} component="section" id={note.version} sx={{ mt: 3 }}>
-              <Typography variant="h5" component="h2" sx={{ mb: 1 }}>
+              <Typography variant="h2" sx={{ mb: 1 }}>
                 {t('docs.version', { version: note.version })}
                 <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1.5 }}>
                   {t('dateFormat.date', { date: parseISO(note.date) })}
                 </Typography>
               </Typography>
-              <DocsBody html={note.html} />
+              <DocsBody html={note.html} sectionLevel={3} />
             </Box>
           ))}
         </Box>

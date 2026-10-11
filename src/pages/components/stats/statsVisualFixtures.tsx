@@ -1,11 +1,18 @@
 import type { YearlyStatsResponse } from '@/api/stats'
 import type { CapacityStatsEntry } from '@/types/Stats'
+import { ThemeProvider } from '@mui/material/styles'
+import theme from '@/assets/Theme'
 
-/** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
+/**
+ * Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable,
+ * and the app's theme sets the chart title in the size the stats pages give it.
+ */
 export const ChartFrame = ({ children }: { readonly children: React.ReactNode }) => (
-  <div data-testid="chart-root" style={{ background: '#fff', padding: 16, width: 1000 }}>
-    {children}
-  </div>
+  <ThemeProvider theme={theme}>
+    <div data-testid="chart-root" style={{ background: '#fff', padding: 16, width: 1000 }}>
+      {children}
+    </div>
+  </ThemeProvider>
 )
 
 export const capacityEntry = (
