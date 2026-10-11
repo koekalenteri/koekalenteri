@@ -4,14 +4,16 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import * as jotai from 'jotai'
 import * as router from 'react-router'
 import { getStartList } from '../api/registration'
+import { flushPromises } from '../test-utils/utils'
 import { StartListPage } from './StartListPage'
 import * as pageState from './state'
 
 vi.mock('../api/registration', () => ({ getStartList: vi.fn() }))
 
 // The page is tested through the subscription's own contract: the hook hands it either the rows the
-// server composed or, when they did not fit in one message, nothing at all.
-let liveListener: ((participants: PublicRegistration[] | undefined) => void) | undefined
+// server composed or, when they did not fit in one message, nothing at all, with the server time they
+// were read.
+let liveListener: ((participants: PublicRegistration[] | undefined, version?: number) => void) | undefined
 vi.mock('../hooks/usePublicStartListSubscription', () => ({
   usePublicStartListSubscription: (_eventId: string | undefined, listener: typeof liveListener) => {
     liveListener = listener
@@ -125,7 +127,7 @@ describe('StartListPage', () => {
     liveListener = undefined
     vi.mocked(getStartList).mockReset()
     mockUseParams.mockReturnValue({ id: 'event-1' })
-    mockUseLoaderData.mockReturnValue(mockParticipants)
+    mockUseLoaderData.mockReturnValue({ participants: mockParticipants })
     mockUseAtomValue.mockReturnValue(null)
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue(mockEvent)
   })
@@ -159,13 +161,107 @@ describe('StartListPage', () => {
   })
 
   it('fetches the list when the rows did not fit in one message', async () => {
-    vi.mocked(getStartList).mockResolvedValueOnce([...mockParticipants, { ...mockParticipants[0], class: 'ALO' }])
+    vi.mocked(getStartList).mockResolvedValueOnce({
+      participants: [...mockParticipants, { ...mockParticipants[0], class: 'ALO' }],
+    })
     render(<StartListPage />)
 
     act(() => liveListener?.(undefined))
 
     expect(getStartList).toHaveBeenCalledWith('event-1')
     await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
+  })
+
+  describe('when live updates and fetches race each other (KOE-1516)', () => {
+    const rows = (count: number) => Array.from({ length: count }, (_, index) => ({ ...mockParticipants[0], index }))
+    const shows = (count: number) =>
+      expect(screen.getByTestId('participant-list')).toHaveTextContent(`Participants: ${count},`)
+
+    it('keeps the newer rows when an older message arrives after them', async () => {
+      render(<StartListPage />)
+
+      act(() => liveListener?.(rows(2), 200))
+      await waitFor(() => shows(2))
+
+      // The slower sender read before the newer one: its rows still show what was just hidden.
+      act(() => liveListener?.(rows(3), 100))
+
+      await flushPromises(false)
+      shows(2)
+    })
+
+    it('takes a message read in the same millisecond, so the later arrival wins', async () => {
+      render(<StartListPage />)
+
+      act(() => liveListener?.(rows(2), 200))
+      act(() => liveListener?.(rows(3), 200))
+
+      await waitFor(() => shows(3))
+    })
+
+    it('drops an unversioned message once a versioned one has been shown', async () => {
+      render(<StartListPage />)
+
+      act(() => liveListener?.(rows(2), 200))
+      await waitFor(() => shows(2))
+
+      // A Lambda still running the code from before versions, during a deploy.
+      act(() => liveListener?.(rows(3), undefined))
+
+      await flushPromises(false)
+      shows(2)
+    })
+
+    it('does not let a loader result older than the live rows on screen overwrite them', async () => {
+      mockUseLoaderData.mockReturnValue({ participants: rows(1), version: 100 })
+      const { rerender } = render(<StartListPage />)
+
+      act(() => liveListener?.(rows(2), 200))
+      await waitFor(() => shows(2))
+
+      mockUseLoaderData.mockReturnValue({ participants: rows(3), version: 150 })
+      rerender(<StartListPage />)
+
+      await flushPromises(false)
+      shows(2)
+
+      // A newer one does.
+      mockUseLoaderData.mockReturnValue({ participants: rows(4), version: 250 })
+      rerender(<StartListPage />)
+
+      await waitFor(() => shows(4))
+    })
+
+    it('does not let a fetch overtaken by a newer message overwrite it', async () => {
+      let resolveFetch: (value: { participants: PublicRegistration[]; version: number }) => void = () => {}
+      vi.mocked(getStartList).mockReturnValueOnce(
+        new Promise((resolve) => {
+          resolveFetch = resolve
+        })
+      )
+      render(<StartListPage />)
+
+      act(() => liveListener?.(undefined, 200))
+      act(() => liveListener?.(rows(3), 300))
+      await waitFor(() => shows(3))
+
+      await act(async () => resolveFetch({ participants: rows(2), version: 250 }))
+
+      shows(3)
+    })
+
+    it("takes the next event's rows whatever their version", async () => {
+      const { rerender } = render(<StartListPage />)
+
+      act(() => liveListener?.(rows(2), 200))
+      await waitFor(() => shows(2))
+
+      mockUseParams.mockReturnValue({ id: 'event-2' })
+      mockUseLoaderData.mockReturnValue({ participants: rows(3), version: 50 })
+      rerender(<StartListPage />)
+
+      await waitFor(() => shows(3))
+    })
   })
 
   it('shows export actions to a global admin', () => {
@@ -211,7 +307,7 @@ describe('StartListPage', () => {
   })
 
   it('shows error message when participants list is empty', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [],
@@ -224,7 +320,7 @@ describe('StartListPage', () => {
   })
 
   it('renders the list when participants are empty but the event has published classes', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
@@ -237,7 +333,7 @@ describe('StartListPage', () => {
   })
 
   it('shows error message when participants are empty and no class is published', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
@@ -250,7 +346,7 @@ describe('StartListPage', () => {
   })
 
   it('renders the list when at least one class is published and another is unpublished', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [
@@ -266,7 +362,7 @@ describe('StartListPage', () => {
   })
 
   it('renders the list when a class is invited and published even if the event is only confirmed', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [

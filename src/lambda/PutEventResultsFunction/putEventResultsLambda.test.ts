@@ -153,6 +153,7 @@ describe('putEventResultsLambda', () => {
     )
     // A published result shows on the public row too, so the readers of the list get it (KOE-1358).
     expect(mockPublishPublicStartList).toHaveBeenCalledTimes(1)
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
   })
 
   it('audits each dog whose result was recorded', async () => {

@@ -351,7 +351,7 @@ describe('putRegistrationGroupsLambda', () => {
       event.organizer.id
     )
     // Moving a dog, and cancelling one, both rewrite the published rows (KOE-1358).
-    expect(mockPublishPublicStartList).toHaveBeenCalledWith(expect.objectContaining({ id: event.id }))
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith(event.id)
   })
 
   it('should move to last place', async () => {

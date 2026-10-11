@@ -2,13 +2,37 @@ import type { TFunction } from 'i18next'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import i18n from 'i18next'
-import { startListSpreadsheetRows } from './startList'
+import { isStartListUpToDate, parseStartListVersion, startListSpreadsheetRows } from './startList'
 
 /**
  * The real translator. The test setup already initialises i18n, so there is no need for a hand-kept
  * copy of the strings — a parallel list drifts from the locale silently, and a renamed key fails here.
  */
 const t = i18n.getFixedT('en') as TFunction
+
+describe('isStartListUpToDate (KOE-1516)', () => {
+  it.each([
+    { expected: true, incoming: 100, shown: undefined, what: 'anything replaces rows with no version' },
+    { expected: true, incoming: undefined, shown: undefined, what: 'an unversioned list replaces an unversioned one' },
+    { expected: true, incoming: 200, shown: 100, what: 'a newer version replaces an older one' },
+    { expected: true, incoming: 100, shown: 100, what: 'the same millisecond: the later arrival wins' },
+    { expected: false, incoming: 99, shown: 100, what: 'an older version does not' },
+    { expected: false, incoming: undefined, shown: 100, what: 'nor does an unversioned one once a version was taken' },
+  ])('$what', ({ expected, incoming, shown }) => {
+    expect(isStartListUpToDate(shown, incoming)).toBe(expected)
+  })
+})
+
+describe('parseStartListVersion', () => {
+  it.each([
+    { expected: 1234, value: '1234' },
+    { expected: undefined, value: null },
+    { expected: undefined, value: '' },
+    { expected: undefined, value: 'soon' },
+  ])('reads $value as $expected', ({ expected, value }) => {
+    expect(parseStartListVersion(value)).toBe(expected)
+  })
+})
 
 describe('startListSpreadsheetRows', () => {
   it('creates localized headers and typed date cells for registrations', () => {

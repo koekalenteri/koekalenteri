@@ -105,7 +105,7 @@ describe('putClassStartNumbersLambda', () => {
     expect(payload.patches).toHaveLength(2)
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith('event-1', payload.patches, 'org-1')
     // The numbers are on the public rows as well, once the class has published them (KOE-1358).
-    expect(mockPublishPublicStartList).toHaveBeenCalledWith(confirmedEvent)
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith(confirmedEvent.id)
   })
 
   it('attributes the write to the class, so the trail says who drew', async () => {

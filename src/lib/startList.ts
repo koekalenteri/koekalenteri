@@ -5,6 +5,31 @@ import { zonedDateString } from '../i18n/dates'
 import { formatDogName } from './dog'
 import { formatResultMarks } from './results'
 
+/**
+ * The response header that carries a fetched start list's version: the server time taken just
+ * before the rows were read, the same clock as the `version` of a live `public:start-list` message
+ * (KOE-1516). A header rather than a field keeps the response body the plain array it has been.
+ */
+export const START_LIST_VERSION_HEADER = 'X-Start-List-Version'
+
+/**
+ * Whether rows with version `incoming` may replace the rows on screen, which have version `shown`.
+ * Live messages and fetches race each other, so the page keeps the highest version it has accepted.
+ * Equal versions are accepted, so of two reads in the same millisecond the later arrival wins.
+ *
+ * Nothing versioned shown yet means anything goes, versionless included: a backend deployed before
+ * versions sends none. Once a version has been accepted, a versionless one is no longer trusted.
+ */
+/** The version a fetch's header carries; absent or unreadable is no version. */
+export const parseStartListVersion = (value: string | null): number | undefined => {
+  if (!value) return undefined
+  const version = Number(value)
+  return Number.isFinite(version) ? version : undefined
+}
+
+export const isStartListUpToDate = (shown: number | undefined, incoming: number | undefined): boolean =>
+  shown === undefined || (incoming !== undefined && incoming >= shown)
+
 export function startListSpreadsheetRows(
   participants: PublicRegistration[],
   event: PublicConfirmedEvent,

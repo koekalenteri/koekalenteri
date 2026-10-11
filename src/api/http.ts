@@ -23,6 +23,10 @@ interface HttpResponse<T> {
   status: number
 }
 
+interface HttpFullResponse<T> extends HttpResponse<T> {
+  headers: Headers
+}
+
 interface HttpRequestInit extends RequestInit {
   coalesceRevision?: number | string
   timeoutMs?: number
@@ -139,20 +143,18 @@ const reportRequestError = (error: unknown) => {
 const retryRequest = async <T>(
   path: string,
   init: HttpRequestInit,
-  reviveDates: boolean,
-  returnStatus: boolean
-): Promise<T | HttpResponse<T> | undefined> => {
+  reviveDates: boolean
+): Promise<HttpFullResponse<T> | undefined> => {
   await new Promise((resolve) => setTimeout(resolve, NETWORK_RETRY_DELAY_MS))
   if (init.signal?.aborted) return undefined
-  return httpWithTimeout<T>(path, init, reviveDates, returnStatus)
+  return httpWithTimeout<T>(path, init, reviveDates)
 }
 
 async function httpWithTimeout<T>(
   path: string,
   init: HttpRequestInit,
-  reviveDates: boolean = true,
-  returnStatus: boolean = false
-): Promise<T | HttpResponse<T>> {
+  reviveDates: boolean = true
+): Promise<HttpFullResponse<T>> {
   const url = API_BASE_URL + path
   const { coalesceRevision: _coalesceRevision, timeoutMs = getDefaultHttpTimeoutMs(), ...requestInit } = init
 
@@ -186,10 +188,7 @@ async function httpWithTimeout<T>(
       throw new APIError(response, json)
     }
     const parsed = parseJSON(text, reviveDates) as T
-    if (returnStatus) {
-      return { data: parsed, status: response.status }
-    }
-    return parsed
+    return { data: parsed, headers: response.headers, status: response.status }
   } catch (err) {
     clearTimeout(timer)
 
@@ -201,14 +200,9 @@ async function httpWithTimeout<T>(
   }
 }
 
-async function http<T>(
-  path: string,
-  init: HttpRequestInit,
-  reviveDates: boolean = true,
-  returnStatus: boolean = false
-): Promise<T | HttpResponse<T>> {
+async function http<T>(path: string, init: HttpRequestInit, reviveDates: boolean = true): Promise<HttpFullResponse<T>> {
   try {
-    const result = await httpWithTimeout<T>(path, init, reviveDates, returnStatus)
+    const result = await httpWithTimeout<T>(path, init, reviveDates)
 
     return result
   } catch (initialError) {
@@ -218,7 +212,7 @@ async function http<T>(
     // mutations are deliberately left to their callers because their outcome may be unknown.
     if (shouldRetryRequest(init, err)) {
       try {
-        const result = await retryRequest<T>(path, init, reviveDates, returnStatus)
+        const result = await retryRequest<T>(path, init, reviveDates)
         if (result !== undefined) return result
       } catch (retryError) {
         err = retryError
@@ -230,14 +224,34 @@ async function http<T>(
   }
 }
 
+const dataOf = async <T>(request: Promise<HttpFullResponse<T>>): Promise<T> => (await request).data
+
+const statusOf = async <T>(request: Promise<HttpFullResponse<T>>): Promise<HttpResponse<T>> => {
+  const { data, status } = await request
+  return { data, status }
+}
+
+const getResponse = <T>(path: string, init: HttpRequestInit | undefined, reviveDates: boolean) => {
+  const request = () => http<T>(path, { method: 'GET', ...init }, reviveDates)
+  const coalesceKey = getCoalesceKey(path, init, reviveDates)
+  return coalesceKey ? coalesceRequest(coalesceKey, request) : request()
+}
+
 const HTTP = {
   async delete<T, U>(path: string, body: T, init?: HttpRequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'DELETE', ...init }, reviveDates) as Promise<U>
+    return dataOf(http<U>(path, { body: JSON.stringify(body), method: 'DELETE', ...init }, reviveDates))
   },
   async get<T>(path: string, init?: HttpRequestInit, reviveDates: boolean = true): Promise<T> {
-    const request = () => http<T>(path, { method: 'GET', ...init }, reviveDates) as Promise<T>
-    const coalesceKey = getCoalesceKey(path, init, reviveDates)
-    return coalesceKey ? coalesceRequest(coalesceKey, request) : request()
+    return dataOf(getResponse<T>(path, init, reviveDates))
+  },
+  /** A GET whose caller also needs the response headers, which `get` leaves out. */
+  async getWithHeaders<T>(
+    path: string,
+    init?: HttpRequestInit,
+    reviveDates: boolean = true
+  ): Promise<{ data: T; headers: Headers }> {
+    const { data, headers } = await getResponse<T>(path, init, reviveDates)
+    return { data, headers }
   },
   async patch<T, U>(
     path: string,
@@ -245,9 +259,7 @@ const HTTP = {
     init?: HttpRequestInit,
     reviveDates: boolean = true
   ): Promise<HttpResponse<U>> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'PATCH', ...init }, reviveDates, true) as Promise<
-      HttpResponse<U>
-    >
+    return statusOf(http<U>(path, { body: JSON.stringify(body), method: 'PATCH', ...init }, reviveDates))
   },
   async post<T, U>(
     path: string,
@@ -255,9 +267,7 @@ const HTTP = {
     init?: HttpRequestInit,
     reviveDates: boolean = true
   ): Promise<HttpResponse<U>> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'POST', ...init }, reviveDates, true) as Promise<
-      HttpResponse<U>
-    >
+    return statusOf(http<U>(path, { body: JSON.stringify(body), method: 'POST', ...init }, reviveDates))
   },
   async postRaw<T extends BodyInit, U>(
     path: string,
@@ -265,10 +275,10 @@ const HTTP = {
     init?: HttpRequestInit,
     reviveDates: boolean = true
   ): Promise<U> {
-    return http<U>(path, { body, method: 'POST', ...init }, reviveDates) as Promise<U>
+    return dataOf(http<U>(path, { body, method: 'POST', ...init }, reviveDates))
   },
   async put<T, U>(path: string, body: T, init?: HttpRequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'PUT', ...init }, reviveDates) as Promise<U>
+    return dataOf(http<U>(path, { body: JSON.stringify(body), method: 'PUT', ...init }, reviveDates))
   },
 }
 

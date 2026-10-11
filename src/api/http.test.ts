@@ -40,6 +40,15 @@ describe('http', () => {
       expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/test/`, expect.any(Object))
     })
 
+    it('hands the headers over too when the caller asks for them', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(['ok']), { headers: { 'X-Start-List-Version': '1234' } })
+
+      const { data, headers } = await http.getWithHeaders('/with-headers/')
+
+      expect(data).toEqual(['ok'])
+      expect(headers.get('X-Start-List-Version')).toBe('1234')
+    })
+
     it('sends the client version so old bundles are identifiable in the access log', async () => {
       fetchMock.mockResponse(JSON.stringify('ok'))
 

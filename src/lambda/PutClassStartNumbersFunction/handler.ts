@@ -47,7 +47,7 @@ const putClassStartNumbersLambda = lambda('putClassStartNumbers', async (event) 
 
   if (patches.length) {
     await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
-    await publishPublicStartList(confirmedEvent)
+    await publishPublicStartList(eventId)
   }
 
   return response(200, { patches }, event)

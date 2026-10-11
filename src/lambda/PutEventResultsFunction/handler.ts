@@ -30,7 +30,7 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
   // should see the whole screenful rather than watch it arrive dog by dog.
   if (patches.length) {
     await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
-    await publishPublicStartList(confirmedEvent)
+    await publishPublicStartList(eventId)
   }
 
   // The dogs that did not conflict are already written, so a resubmission only has to carry the ones

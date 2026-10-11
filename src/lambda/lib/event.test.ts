@@ -129,7 +129,13 @@ describe('lib/event', () => {
       mockRead.mockResolvedValueOnce(eventObj)
       const result = await getEvent(eventId)
       expect(result).toEqual(eventObj)
-      expect(mockRead).toHaveBeenCalledWith({ id: eventId }, expect.anything())
+      expect(mockRead).toHaveBeenCalledWith({ id: eventId }, expect.anything(), false)
+    })
+
+    it('reads consistently when asked to (KOE-1516)', async () => {
+      mockRead.mockResolvedValueOnce(eventObj)
+      await getEvent(eventId, { consistent: true })
+      expect(mockRead).toHaveBeenCalledWith({ id: eventId }, expect.anything(), true)
     })
 
     it('throws LambdaError(404) when not found', async () => {
@@ -936,7 +942,7 @@ describe('lib/event', () => {
 
       const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(change?.startList).toBe(next)
+      expect(change?.startList).toBe(true)
     })
 
     it('leaves the start list out of a change no reader of it can see', async () => {
@@ -1059,7 +1065,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { classes: next.classes, eventId: existing.id },
-        startList: next,
+        startList: true,
       })
     })
 
@@ -1088,7 +1094,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { classes: next.classes, eventId: existing.id, judges: next.judges },
-        startList: next,
+        startList: true,
       })
     })
 
@@ -1124,7 +1130,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { classes: next.classes, eventId: existing.id },
-        startList: next,
+        startList: true,
       })
     })
 
@@ -1166,7 +1172,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { eventId: existing.id, ...next },
-        startList: next,
+        startList: true,
       })
     })
 
@@ -1214,7 +1220,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { eventId: existing.id, state: 'draft' },
-        startList: next,
+        startList: true,
       })
     })
   })
@@ -1246,7 +1252,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { ...event, eventId: event.id },
-        startList: event,
+        startList: true,
       })
     })
   })

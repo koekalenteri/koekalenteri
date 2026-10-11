@@ -251,7 +251,7 @@ describe('registrationWorkflow', () => {
         [expect.objectContaining({ id: saved.id }), expect.objectContaining({ id: 'other' })],
         'org-1'
       )
-      expect(mockPublishPublicStartList).toHaveBeenCalledWith(recounted)
+      expect(mockPublishPublicStartList).toHaveBeenCalledWith(recounted.id)
       expect(mockMarkNewRegistrationPhase.mock.calls.map((call) => call[3])).toEqual([
         'newRegistrationAuditAt',
         'newRegistrationEmailSentAt',
@@ -343,7 +343,7 @@ describe('registrationWorkflow', () => {
         [expect.objectContaining({ id: 'moved' })],
         'org-1'
       )
-      expect(mockPublishPublicStartList).toHaveBeenCalledWith(recounted)
+      expect(mockPublishPublicStartList).toHaveBeenCalledWith(recounted.id)
       expect(mockClaimNewRegistrationPostProcessing).not.toHaveBeenCalled()
     })
 

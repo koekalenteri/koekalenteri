@@ -36,13 +36,37 @@ Outbound messages include a `scope` field so clients can route updates.
 | Scope | Audience | Payload |
 | --- | --- | --- |
 | `public:event-patch` | Public connections, excluding admin recipients that already received the admin patch | Sanitized public event patch with `eventId`. |
-| `public:start-list` | Connections watching the event's published start list | `{ eventId, participants }` with the rows exactly as the public fetch composes them, or `{ eventId, stale: true }` when they exceed the message size and must be fetched instead. |
+| `public:start-list` | Connections watching the event's published start list | `{ eventId, participants, version }` with the rows exactly as the public fetch composes them, or `{ eventId, stale: true, version }` when they exceed the message size and must be fetched instead. See "Start list versions" below. |
 | `admin:event-patch` | Admin channel subscribers and event subscribers allowed to see the organizer's event | Admin event patch with `eventId`. |
 | `admin:event-registrations` | Admin channel subscribers and event subscribers allowed to see the organizer's event | `{ eventId, patch }` registration patch list. |
 | `participant:registration-patch` | Connections whose edit token was verified for the specific registration | `{ eventId, registrationId, patch }` with participant-visible payment state only. |
 | `admin:audit-record` | Authenticated subscribers of the specific event | `{ eventId, record }` newly written audit record. |
 | `admin:data-invalidation` | Admin channel subscribers | `{ collections }` names the reference-data collections clients must refetch through their authorized HTTP APIs. |
 | `admin:event-viewers` | Event subscribers allowed to see the organizer's event | `{ eventId, viewers }`, where `viewers` contains distinct subscribed user IDs. |
+
+### Start list versions
+
+Two senders that change an event at the same time can deliver their `public:start-list` messages in
+either order, so each one carries `version`: the server time (`Date.now()`, epoch milliseconds) taken
+after the sender's own write and just before `publishPublicStartList` reads the event and its
+registrations again, consistently. The public fetch (`GET /startlist/{eventId}`) reads the same way
+and sends its stamp in the `X-Start-List-Version` header, so the page orders its fetches against the
+messages by the same clock (KOE-1516).
+
+The page keeps the highest version it has accepted and turns away anything older
+(`isStartListUpToDate` in `src/lib/startList.ts`). The highest version was read after every write that
+has a broadcast behind it, so an open page always ends on what is stored. Before any versioned list
+has been accepted an unversioned one is taken, for a backend deployed before versions; after that it
+is not.
+
+Accepted risks:
+
+- **Same millisecond.** Equal versions are accepted, so of two reads stamped in the same millisecond
+  the later arrival wins, whichever read first.
+- **Clock skew between Lambdas.** The stamps of two containers are only as comparable as their clocks.
+  An older read can win only if the skew exceeds the time between a sender's write and its own stamp,
+  which includes the registration patch broadcast and the connection lookup (tens of milliseconds);
+  Lambda clocks are kept in step by Amazon Time Sync to well under a millisecond.
 
 ## Connection model
 

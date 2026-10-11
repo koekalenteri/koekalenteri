@@ -282,7 +282,7 @@ describe('putStartNumbersLambda', () => {
       'org-1'
     )
     // And the rows themselves, so the reader gets them without fetching the list (KOE-1358).
-    expect(mockPublishPublicStartList).toHaveBeenCalledWith(expect.objectContaining({ id: 'event-1' }))
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
   })
 
   it('writes drawn numbers through the same endpoint', async () => {
@@ -314,7 +314,7 @@ describe('putStartNumbersLambda', () => {
     expect(mockPublishEventPatch).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()
     // The numbers are on the rows, though, so a published list has to be sent again.
-    expect(mockPublishPublicStartList).toHaveBeenCalledWith(expect.objectContaining({ id: 'event-1' }))
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
   })
 
   it('releases the lock when a validation refuses the write', async () => {
