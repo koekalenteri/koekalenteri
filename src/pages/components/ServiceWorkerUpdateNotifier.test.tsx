@@ -56,6 +56,8 @@ const renderNotifier = () => render(<ServiceWorkerUpdateNotifier />, { wrapper: 
 
 describe('ServiceWorkerUpdateNotifier', () => {
   beforeEach(() => {
+    // The real one is one-shot: it removes the stored change as it reads it, so a test hands the
+    // change out once and every later call finds nothing.
     mockConsumeUpdated.mockReturnValue(undefined)
     mockSubscribe.mockReturnValue(vi.fn())
     switchLanguage((key) => key)
@@ -94,7 +96,7 @@ describe('ServiceWorkerUpdateNotifier', () => {
   })
 
   it('notifies after an update has been applied', async () => {
-    mockConsumeUpdated.mockReturnValue({ from: '1.10.2', to: '1.10.3' })
+    mockConsumeUpdated.mockReturnValueOnce({ from: '1.10.2', to: '1.10.3' })
     switchLanguage((key, options) => `${key}:${options?.from}→${options?.to}`)
 
     renderNotifier()
@@ -102,14 +104,13 @@ describe('ServiceWorkerUpdateNotifier', () => {
     expect(await screen.findByText('app.updated:1.10.2→1.10.3')).toBeInTheDocument()
   })
 
-  // After the update's reload i18next starts in Finnish and App switches it to the stored language
-  // only after the notifier's effect has enqueued the notice, so the text has to follow the switch
-  // (KOE-1457).
+  // The notice stays on screen while the reader may switch the language, so its text is translated
+  // when it renders, not when it is enqueued (KOE-1457).
   it.each([
     { key: 'app.updated', name: 'version change', versionChange: { from: '1.10.2', to: '1.10.3' } },
     { key: 'app.updatedBuild', name: 'build time', versionChange: { from: '1.10.3', to: '1.10.3' } },
   ])('shows the $name notice in the language switched to after it was enqueued', async ({ versionChange, key }) => {
-    mockConsumeUpdated.mockReturnValue(versionChange)
+    mockConsumeUpdated.mockReturnValueOnce(versionChange)
     switchLanguage((k) => `fi:${k}`)
 
     renderNotifier()
@@ -124,7 +125,7 @@ describe('ServiceWorkerUpdateNotifier', () => {
   // The notice is the one moment a reader is told the application changed, so it has to lead
   // straight to what changed (KOE-1398).
   it('links the notice to the new version’s release notes', async () => {
-    mockConsumeUpdated.mockReturnValue({ from: '1.10.2', to: '1.10.3' })
+    mockConsumeUpdated.mockReturnValueOnce({ from: '1.10.2', to: '1.10.3' })
 
     renderNotifier()
 
@@ -132,7 +133,7 @@ describe('ServiceWorkerUpdateNotifier', () => {
   })
 
   it('reports the build time when the version number did not change', async () => {
-    mockConsumeUpdated.mockReturnValue({ from: '1.10.3', to: '1.10.3' })
+    mockConsumeUpdated.mockReturnValueOnce({ from: '1.10.3', to: '1.10.3' })
     switchLanguage((key, options) => `${key}:${options?.to}:${options?.date} ${options?.time}`)
 
     renderNotifier()

@@ -41,23 +41,27 @@ const whatsNewAction = (version: string) => (snackbarKey: SnackbarKey) => (
   <WhatsNewAction snackbarKey={snackbarKey} version={version} />
 )
 
+/**
+ * In development the version number rarely changes, so the build time is the only thing that tells
+ * the reloaded build apart from the old one.
+ */
+const isSameVersion = ({ from, to }: VersionChange) => from === to
+
 interface UpdateNoticeProps {
   readonly versionChange: VersionChange
 }
 
 /**
- * The notice's text, translated when it renders rather than when it is enqueued. After the update's
- * reload i18next boots on the fallback language and App switches it to the stored one in its own
- * effect, which React runs after the notifier's, so a string translated in the notifier's effect
- * stays Finnish for a reader who chose English (KOE-1457).
+ * The notice's text, translated when it renders rather than when it is enqueued, so it follows any
+ * language change while it is on screen. A string translated in the notifier's effect stayed in
+ * whatever language i18next had at mount (KOE-1457).
  */
 const UpdateNotice = ({ versionChange }: UpdateNoticeProps) => {
   const { t } = useTranslation()
 
-  // In development the version number rarely changes, so the build time is the only thing that
-  // tells the reloaded build apart from the old one. The update reloaded the page, so this bundle
-  // is the update itself and its own build time is the one to report.
-  if (versionChange.from === versionChange.to) {
+  // The update reloaded the page, so this bundle is the update itself and its own build time is the
+  // one to report.
+  if (isSameVersion(versionChange)) {
     return t('app.updatedBuild', {
       date: lightFormat(appBuildTime, 'dd.MM.yyyy'),
       time: lightFormat(appBuildTime, 'HH:mm'),
@@ -75,15 +79,9 @@ function ServiceWorkerUpdateNotifier() {
   useEffect(() => {
     const versionChange = consumeServiceWorkerUpdated()
     if (versionChange) {
-      const message = <UpdateNotice versionChange={versionChange} />
-      if (versionChange.from === versionChange.to) {
-        enqueueSnackbar(message, { variant: 'success' })
-      } else {
-        enqueueSnackbar(message, {
-          action: whatsNewAction(versionChange.to),
-          variant: 'success',
-        })
-      }
+      // A same-version build has no release notes of its own to link to.
+      const action = isSameVersion(versionChange) ? undefined : whatsNewAction(versionChange.to)
+      enqueueSnackbar(<UpdateNotice versionChange={versionChange} />, { action, variant: 'success' })
     }
 
     return subscribeToServiceWorkerUpdates((registration, worker) => {

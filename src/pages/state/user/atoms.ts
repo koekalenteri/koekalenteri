@@ -2,9 +2,9 @@ import type { Language } from '@/types'
 import i18n from 'i18next'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
+import { languageStorageKey, stringToLang } from '@/i18n/language'
 import { isValidIdToken } from '@/lib/token'
 import { atomWithLocalStorage, atomWithSessionStorage, parseStorageJSON } from '../storage'
-import { stringToLang } from './language'
 
 export const idTokenAtom = atomWithLocalStorage<string | undefined>('idToken', undefined)
 
@@ -22,7 +22,7 @@ export const readStoredIdToken = (): string | undefined => {
 }
 export const tokenValidityRevisionAtom = atom(0)
 
-const storedLanguageAtom = atomWithLocalStorage<Language>('language', 'fi', {
+const storedLanguageAtom = atomWithLocalStorage<Language>(languageStorageKey, 'fi', {
   getInitialValue: () => stringToLang(i18n.language),
 })
 export const languageAtom = atom(

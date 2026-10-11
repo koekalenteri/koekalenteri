@@ -7,7 +7,8 @@ const updateListeners = new Set<UpdateListener>()
 let waitingUpdate: { registration: ServiceWorkerRegistration; worker: ServiceWorker } | undefined
 let activatingUpdate = false
 let watchingControllerChanges = false
-const updatedSessionKey = 'service-worker-updated'
+/** Where the version change waits across the update's reload, for the notice after it. */
+export const updatedSessionKey = 'service-worker-updated'
 
 export type VersionChange = {
   from: string
