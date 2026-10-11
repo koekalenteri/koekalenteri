@@ -155,7 +155,7 @@
     "@vitest/coverage-v8": "^4.1.11",
     "axe-core": "^4.14.0",
     "babel-loader": "^10.1.1",
-    "concurrently": "^10.0.5",
+    "concurrently": "^10.0.6",
     "css-loader": "^7.1.5",
     "css-mediaquery": "^0.1.2",
     "dotenv": "^17.4.2",
