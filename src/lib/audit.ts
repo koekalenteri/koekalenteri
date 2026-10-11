@@ -451,11 +451,17 @@ export const formatAuditMessage = (
  * never through the day reader above, which would take a UTC-10 reader's local noon for a bare day.
  */
 export const auditLabelParams = (params?: AuditReadParams) => {
-  const eventDate = params?.eventDate
+  const eventDate = labelInstant(params?.eventDate)
   return {
     ...params,
-    ...(eventDate ? { eventDate: formatDate(new Date(String(eventDate)), 'd.M.yyyy') } : {}),
+    ...(eventDate ? { eventDate: formatDate(eventDate, 'd.M.yyyy') } : {}),
   }
+}
+
+/** The instant a label parameter names: a Date the reviver made, or the ISO text the WebSocket carries. */
+const labelInstant = (value: unknown): Date | undefined => {
+  if (value instanceof Date) return value
+  return typeof value === 'string' && value ? new Date(value) : undefined
 }
 
 export const formatAuditDetail = (t: TFunction, { detailKey, detailParams }: JsonAuditDetail) => {

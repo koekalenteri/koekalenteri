@@ -412,5 +412,8 @@ describe('auditLabelParams', () => {
   it('leaves parameters without a date as they are', () => {
     expect(auditLabelParams({ eventClass: 'ALO' })).toEqual({ eventClass: 'ALO' })
     expect(auditLabelParams()).toEqual({})
+    // Neither a Date nor text: nothing to read a day from, so it is left as it came.
+    expect(auditLabelParams({ eventDate: 5 })).toEqual({ eventDate: 5 })
+    expect(auditLabelParams({ eventDate: '' })).toEqual({ eventDate: '' })
   })
 })

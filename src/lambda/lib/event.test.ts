@@ -899,6 +899,12 @@ describe('lib/event', () => {
       expect(reserve?.group?.number).toBe(1)
 
       expect(mockAudit).toHaveBeenCalledTimes(2)
+      // The repair says it was the automatic placement, by key (KOE-1442).
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          messageParams: expect.objectContaining({ reasonKey: 'audit.groupReason.automatic' }),
+        })
+      )
     })
   })
 

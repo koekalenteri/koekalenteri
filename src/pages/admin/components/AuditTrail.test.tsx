@@ -49,6 +49,24 @@ describe('AuditTrail', () => {
     expect(screen.getByText(/04\.08\.2026 13:30:00 Testikäyttäjä/)).toBeInTheDocument()
   })
 
+  it('names a change without a label key by its field', () => {
+    render(
+      <AuditTrail
+        auditTrail={[
+          auditRecord({
+            changes: [{ field: 'notes', next: { text: 'uusi' }, previous: { state: 'empty' } }],
+            message: 'Muutti: notes',
+            messageKey: 'audit.changed',
+          }),
+        ]}
+        fullHeight
+      />,
+      { wrapper: Wrapper }
+    )
+
+    expect(screen.getByText('audit.changed: notes')).toBeInTheDocument()
+  })
+
   it('shows the stored message for a key outside the audit translations', () => {
     render(<AuditTrail auditTrail={[auditRecord({ message: 'Tallennettu teksti', messageKey: 'x' })]} fullHeight />, {
       wrapper: Wrapper,
