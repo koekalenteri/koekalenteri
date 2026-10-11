@@ -1,7 +1,10 @@
 import type { Language } from '../types'
 import { LANGUAGES } from '../types'
 
-export const isLanguage = (value: unknown): value is Language => LANGUAGES.some((language) => language === value)
+// Widened to unknown so membership can be asked of any value; has() alone narrows nothing.
+const languageSet: ReadonlySet<unknown> = new Set(LANGUAGES)
+
+export const isLanguage = (value: unknown): value is Language => languageSet.has(value)
 
 /** The one rule for what counts as a language: one the app has, and Finnish for anything else. */
 export const stringToLang = (value?: unknown): Language => (isLanguage(value) ? value : 'fi')
