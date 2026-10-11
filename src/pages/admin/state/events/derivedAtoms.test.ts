@@ -40,28 +40,39 @@ describe('admin event derived atoms', () => {
     await expect(store.get(adminFilteredEventsAtom)).resolves.toEqual([today])
   })
 
-  // The list shows an English user the English name (KOE-1453), so the search finds what is shown,
-  // and still the Finnish name every trial has.
-  it.each([
-    ['its English name', 'autumn'],
-    ['its Finnish name', 'syyskoe'],
-    // The name and the place read side by side, as they did before translations (KOE-1453).
-    ['its Finnish name and place', 'syyskoe vaasa'],
-  ])('finds an event by %s', async (_case, filter) => {
-    const named: DogEvent = {
-      ...event('named', new Date('2026-06-10T00:00:00.000+03:00')),
-      location: 'Vaasa',
-      name: 'Syyskoe',
-      names: { en: 'Autumn trial' },
-    }
-    const other = event('other', new Date('2026-06-10T00:00:00.000+03:00'))
+  // The list shows an English user the English name (KOE-1453), so the search finds an event by its
+  // name in any language, whatever the UI language, and a search may span the name and the fields
+  // beside it in the list, as it did before translations.
+  const named: DogEvent = {
+    ...event('named', new Date('2026-06-10T00:00:00.000+03:00')),
+    eventType: 'NOME-B',
+    location: 'Vaasa',
+    name: 'Syyskoe',
+    names: { en: 'Autumn trial' },
+  }
+  const other = event('other', new Date('2026-06-10T00:00:00.000+03:00'))
 
+  const search = (filter: string) => {
     const store = createStore()
     store.set(adminEventsAtom, [named, other])
     store.set(adminEventFilterTextAtom, filter)
     store.set(adminShowPastEventsAtom, false)
+    return store.get(adminFilteredEventsAtom)
+  }
 
-    await expect(store.get(adminFilteredEventsAtom)).resolves.toEqual([named])
+  it.each([
+    ['its English name', 'autumn'],
+    ['its Finnish name', 'syyskoe'],
+    ['its Finnish name and place', 'syyskoe vaasa'],
+    ['its English name and place', 'autumn trial vaasa'],
+    ['its event type and English name', 'nome-b autumn'],
+  ])('finds an event by %s', async (_case, filter) => {
+    await expect(search(filter)).resolves.toEqual([named])
+  })
+
+  it('does not join a translated name to the fields of another name', async () => {
+    // "Sihteeri" ends the Finnish line and "Autumn" starts no line after it.
+    await expect(search('sihteeri autumn')).resolves.toEqual([])
   })
 
   it('serves the selected event synchronously once the events have loaded', () => {
