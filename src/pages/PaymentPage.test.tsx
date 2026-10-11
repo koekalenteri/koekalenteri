@@ -3,11 +3,11 @@ import type { CreatePaymentResponse, PublicConfirmedEvent } from '../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
-import { useParams } from 'react-router'
+import { MemoryRouter, useParams } from 'react-router'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 import mockResponse from '../api/__mocks__/paymentCreate.response.json'
 import { createPayment } from '../api/payment'
@@ -19,7 +19,7 @@ import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 import AppSnackbarProvider from './components/AppSnackbarProvider'
 import LoadingIndicator from './components/LoadingIndicator'
 import { loader, Component as PaymentPage, PaymentPageWithData } from './PaymentPage'
-import { createNewRegistration, newRegistrationAtom } from './state'
+import { createNewRegistration, languageAtom, newRegistrationAtom } from './state'
 
 vi.mock('../api/event')
 vi.mock('../api/payment')
@@ -44,6 +44,8 @@ describe('PaymentPage', () => {
     vi.clearAllMocks()
     // A test that switches the language leaves it in storage, i18next and <html lang>; the next one starts in Finnish.
     localStorage.clear()
+    // The language each registration was settled in for this tab (KOE-1512).
+    sessionStorage.clear()
     document.documentElement.lang = 'fi'
     await i18n.changeLanguage('fi')
   })
@@ -165,11 +167,13 @@ describe('PaymentPage', () => {
 
       render(
         <Provider>
-          <PaymentPageWithData
-            registrationId="test-reg-id"
-            event={null}
-            registration={{ ...testRegistration, language: 'en' }}
-          />
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId="test-reg-id"
+              event={null}
+              registration={{ ...testRegistration, language: 'en' }}
+            />
+          </MemoryRouter>
         </Provider>
       )
       await flushPromises()
@@ -188,7 +192,9 @@ describe('PaymentPage', () => {
 
       render(
         <Provider>
-          <PaymentPageWithData registrationId="test-reg-id" event={null} registration={registration} />
+          <MemoryRouter>
+            <PaymentPageWithData registrationId="test-reg-id" event={null} registration={registration} />
+          </MemoryRouter>
         </Provider>
       )
       await flushPromises()
@@ -197,10 +203,41 @@ describe('PaymentPage', () => {
       expect(i18n.language).toBe('en')
     })
 
+    it('keeps a language picked from the menu when the page is opened again in the same tab (KOE-1512)', async () => {
+      localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
+      const store = createStore()
+      const page = (
+        <Provider store={store}>
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId="test-reg-id"
+              event={null}
+              registration={{ ...testRegistration, language: 'en' }}
+            />
+          </MemoryRouter>
+        </Provider>
+      )
+
+      const first = render(page)
+      await flushPromises()
+      expect(i18n.language).toBe('en')
+
+      // The reader picks Finnish from the menu, goes back to the registration page and returns.
+      act(() => store.set(languageAtom, 'fi'))
+      first.unmount()
+      render(page)
+      await flushPromises()
+
+      expect(i18n.language).toBe('fi')
+      expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('fi'))
+    })
+
     it('should show error message when event is not found', async () => {
       const { container } = render(
         <Provider>
-          <PaymentPageWithData registrationId="test-reg-id" event={null} registration={testRegistration} />
+          <MemoryRouter>
+            <PaymentPageWithData registrationId="test-reg-id" event={null} registration={testRegistration} />
+          </MemoryRouter>
         </Provider>
       )
 
@@ -212,11 +249,13 @@ describe('PaymentPage', () => {
     it('should show error message when registration is not found', async () => {
       const { container } = render(
         <Provider>
-          <PaymentPageWithData
-            registrationId="test-reg-id"
-            event={asPaymentEvent({ id: 'test-id' })}
-            registration={null}
-          />
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId="test-reg-id"
+              event={asPaymentEvent({ id: 'test-id' })}
+              registration={null}
+            />
+          </MemoryRouter>
         </Provider>
       )
 
@@ -266,12 +305,14 @@ describe('PaymentPage', () => {
     it('should show error message when response.groups is not available', async () => {
       const { container } = render(
         <Provider>
-          <PaymentPageWithData
-            registrationId="test-reg-id"
-            event={asPaymentEvent({ id: 'test-id' })}
-            registration={testRegistration}
-            response={{} as CreatePaymentResponse}
-          />
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId="test-reg-id"
+              event={asPaymentEvent({ id: 'test-id' })}
+              registration={testRegistration}
+              response={{} as CreatePaymentResponse}
+            />
+          </MemoryRouter>
         </Provider>
       )
 

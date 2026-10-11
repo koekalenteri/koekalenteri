@@ -30,6 +30,8 @@ describe('RegistrationInvitation', () => {
     vi.runOnlyPendingTimers()
     // The language a test switches to is kept in localStorage and i18next; the next test starts in Finnish.
     localStorage.clear()
+    // The language each registration was settled in for this tab (KOE-1512).
+    sessionStorage.clear()
     document.documentElement.lang = 'fi'
     await i18n.changeLanguage('fi')
   })

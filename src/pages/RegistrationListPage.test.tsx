@@ -4,9 +4,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { act, fireEvent, screen } from '@testing-library/react'
 import i18n from 'i18next'
-import { Provider } from 'jotai'
+import { createStore, Provider } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { Suspense } from 'react'
+import { Link, useParams } from 'react-router'
 import { eventWithParticipantsInvited } from '../__mockData__/events'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
@@ -18,7 +19,9 @@ import { languageStorageKey } from '../lib/client/storage'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises, renderSuspended, renderSuspendedWithUserEvents } from '../test-utils/utils'
 import AppSnackbarProvider from './components/AppSnackbarProvider'
+import { PaymentPageWithData } from './PaymentPage'
 import { RegistrationListPage } from './RegistrationListPage'
+import { languageAtom } from './state'
 
 vi.mock('../lib/client/navigation', async () => ({
   redirectTo: vi.fn(),
@@ -42,6 +45,27 @@ vi.mock('notistack', async () => ({
   enqueueSnackbar: vi.fn(),
 }))
 
+/**
+ * The payment page as far as the language is concerned: the loader's work is not under test here, so
+ * the page gets the same registration the registration page read and no event, and a way back that
+ * goes where the payment page's own goBack goes.
+ */
+const PaymentStub = () => {
+  const { id = '', registrationId = '' } = useParams()
+  const registration = {
+    ...unpaidRegistrationWithStaticDates,
+    eventId: id,
+    id: registrationId,
+    language: 'en' as const,
+  }
+  return (
+    <>
+      <PaymentPageWithData registrationId={registrationId} event={null} registration={registration} />
+      <Link to={Path.registration(registration)}>goBack</Link>
+    </>
+  )
+}
+
 describe('RegistrationListPage', () => {
   beforeEach(() => vi.useFakeTimers())
 
@@ -60,12 +84,21 @@ describe('RegistrationListPage', () => {
   // Helper function to render the component with router
   const renderWithRouter = async (
     path: string,
-    props: { cancel?: boolean; confirm?: boolean; invitation?: boolean } = {}
+    props: { cancel?: boolean; confirm?: boolean; invitation?: boolean } = {},
+    store?: ReturnType<typeof createStore>
   ) => {
     const routes: RouteObject[] = [
       {
         element: <RegistrationListPage {...props} />,
         path: '/r/:id/:registrationId',
+      },
+      {
+        element: <RegistrationListPage {...props} />,
+        path: '/r/:id/:registrationId/access/:editToken',
+      },
+      {
+        element: <PaymentStub />,
+        path: '/p/:id/:registrationId',
       },
       {
         element: <RegistrationListPage cancel={true} />,
@@ -96,7 +129,7 @@ describe('RegistrationListPage', () => {
     const result = await renderSuspendedWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <Provider>
+          <Provider store={store}>
             <Suspense fallback={<div>loading...</div>}>
               <AppSnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
@@ -124,16 +157,62 @@ describe('RegistrationListPage', () => {
     expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
   })
 
-  it('shows the page in the registration language over the stored one (KOE-1508)', async () => {
+  it.each(['/r/test1/nou-registration', '/r/test1/nou-registration/access/edit-token'])(
+    'shows the page opened from an email link (%s) in the registration language (KOE-1508, KOE-1512)',
+    async (path) => {
+      localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...registrationWithStaticDates, language: 'en' })
+
+      await renderWithRouter(path)
+      await flushPromises()
+
+      expect(i18n.language).toBe('en')
+      expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('en'))
+      expect(document.documentElement.lang).toBe('en')
+    }
+  )
+
+  it('keeps the reader language when the registration is opened from the admin dialog (KOE-1512)', async () => {
     localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
     vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...registrationWithStaticDates, language: 'en' })
 
-    await renderWithRouter('/r/test1/nou-registration')
+    await renderWithRouter('/r/test1/nou-registration?from=admin')
     await flushPromises()
 
+    expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
+    expect(i18n.language).toBe('fi')
+    expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('fi'))
+    expect(document.documentElement.lang).toBe('fi')
+  })
+
+  it('keeps a language picked from the menu after the switch, here and on the payment page (KOE-1512)', async () => {
+    localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...unpaidRegistrationWithStaticDates,
+      language: 'en',
+      shouldPay: true,
+    })
+    const store = createStore()
+
+    const { user } = await renderWithRouter('/r/test1/unpaid-nou-registration', {}, store)
+    await flushPromises()
     expect(i18n.language).toBe('en')
-    expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('en'))
-    expect(document.documentElement.lang).toBe('en')
+
+    // The reader picks Finnish from the language menu.
+    act(() => store.set(languageAtom, 'fi'))
+    await flushPromises()
+    expect(i18n.language).toBe('fi')
+
+    await user.click(screen.getByRole('button', { name: 'registration.cta.pay' }))
+    await flushPromises()
+    expect(screen.getByText('error.eventNotFound')).toBeInTheDocument()
+    expect(i18n.language).toBe('fi')
+
+    await user.click(screen.getByRole('link', { name: 'goBack' }))
+    await flushPromises()
+    expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
+    expect(i18n.language).toBe('fi')
+    expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('fi'))
   })
 
   it('keeps editing and cancelling behind the row menu', async () => {

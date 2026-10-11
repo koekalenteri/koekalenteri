@@ -83,7 +83,7 @@ interface InvitationProps {
 
 const Invitation = ({ event, registration, url }: InvitationProps) => {
   const { t } = useTranslation()
-  const language = useRegistrationLanguage(registration.language)
+  const language = useRegistrationLanguage(registration)
 
   return (
     <main style={{ padding: '8px' }}>

@@ -130,7 +130,7 @@ export default function RegistrationDialogBase({
         >
           {title} ({registration.language})
           <Typography variant="caption">
-            <a target="_blank" href={Path.registration(registration)} rel="noopener">
+            <a target="_blank" href={Path.registrationFromAdmin(registration)} rel="noopener">
               {registration.id}
             </a>
           </Typography>

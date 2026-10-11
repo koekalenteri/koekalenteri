@@ -8,6 +8,13 @@ export const WS_API_URL = process.env.REACT_APP_WS_API_URL ?? 'wss://127.0.0.1'
 const ADMIN_ROOT = '/admin'
 const ADMIN_EVENTS = `${ADMIN_ROOT}/event`
 
+/** The query parameter that marks an entry from the admin side (`Path.registrationFromAdmin`). */
+const FROM_PARAM = 'from'
+const FROM_ADMIN = 'admin'
+
+/** Whether a page was opened through `Path.registrationFromAdmin`, given the location's search. */
+export const isFromAdmin = (search: string) => new URLSearchParams(search).get(FROM_PARAM) === FROM_ADMIN
+
 type RegistrationIds = Pick<Registration, 'eventId' | 'id'>
 type ParticipantRegistration = RegistrationIds & Pick<Registration, 'editToken'>
 
@@ -63,6 +70,12 @@ export const Path = {
     return `/event/${event.eventType}/${event.id}`
   },
   registration: (registration: ParticipantRegistration) => participantPath('r', registration),
+  /**
+   * The registrant's page as the admin side links to it: marked, so opening it keeps the secretary's
+   * language instead of switching to the registration's (KOE-1512).
+   */
+  registrationFromAdmin: (registration: ParticipantRegistration) =>
+    `${participantPath('r', registration)}?${FROM_PARAM}=${FROM_ADMIN}`,
   registrationOk: (registration: ParticipantRegistration) => participantPath('r', registration, '/saved'),
   startList: (id: string = ':id') => `/startlist/${id}`,
   stats: '/stats',

@@ -35,3 +35,35 @@ export const readStoredLanguage = (): Language => {
     return 'fi'
   }
 }
+
+/**
+ * Registrations whose language this tab has settled, for a tab whose sessionStorage cannot be
+ * written (a private window, blocked site data): it then holds for as long as the page is loaded.
+ */
+const settledInMemory = new Set<string>()
+
+const registrationLanguageKey = (registrationId: string) => `registrationLanguage/${registrationId}`
+
+/**
+ * Whether this tab has already decided which language a registrant's pages are shown in: switched to
+ * the registration's language when the page was opened from a link, or kept as it was when opened
+ * from the admin side. A settled registration never switches again, so a language picked from the
+ * menu stays across the registration and payment pages, a reload and the payment provider's return
+ * (KOE-1512). Kept per tab, so a link opened again in a new tab decides afresh.
+ */
+export const isRegistrationLanguageSettled = (registrationId: string): boolean => {
+  if (settledInMemory.has(registrationId)) return true
+  try {
+    return sessionStorage.getItem(registrationLanguageKey(registrationId)) !== null
+  } catch {
+    return false
+  }
+}
+
+export const settleRegistrationLanguage = (registrationId: string) => {
+  try {
+    sessionStorage.setItem(registrationLanguageKey(registrationId), 'true')
+  } catch {
+    settledInMemory.add(registrationId)
+  }
+}
