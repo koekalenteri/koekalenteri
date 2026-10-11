@@ -1,7 +1,6 @@
-import type { JsonConfirmedEvent, RegistrationClass } from '../../types'
+import type { ClassOrNone, JsonConfirmedEvent } from '../../types'
 import { resultsPublishedAudit } from '../../lib/audit'
 import { getClassDays, uniqueClasses } from '../../lib/event'
-import { getResultsBlocker } from '../../lib/publishing'
 import { isRegistrationClass } from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
@@ -27,7 +26,7 @@ interface ResultsPublishedRequest {
 const requestedClass = (
   confirmedEvent: JsonConfirmedEvent,
   eventClass: ResultsPublishedRequest['eventClass']
-): RegistrationClass | undefined => {
+): ClassOrNone => {
   const classes = uniqueClasses(confirmedEvent)
   if (classes.length === 0) {
     if (eventClass !== undefined) throw httpError(422, 'invalid class')
@@ -62,29 +61,23 @@ const putResultsPublishedLambda = lambda('putResultsPublished', async (event) =>
     throw httpError(422, 'invalid date')
   }
 
-  if (published) {
-    const reason = getResultsBlocker(confirmedEvent, eventClass, date)
-    if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'results', reason })
-  }
-
-  const state = await setResultsPublishedState(confirmedEvent, { date, eventClass, published })
-  confirmedEvent.resultsPublished = state.resultsPublished
-  confirmedEvent.updatedAt = state.updatedAt
+  // Held to the publishing rules, and on a conflict judged and folded again from the row as written.
+  const saved = await setResultsPublishedState(confirmedEvent, { date, eventClass, published })
 
   await audit({
-    auditKey: eventAuditKey(confirmedEvent),
+    auditKey: eventAuditKey(saved),
     ...resultsPublishedAudit(published, { date, eventClass }),
     user: user.name,
   })
 
   await publishEventPatch(
-    { eventId, resultsPublished: confirmedEvent.resultsPublished, updatedAt: confirmedEvent.updatedAt },
-    confirmedEvent.organizer.id
+    { eventId, resultsPublished: saved.resultsPublished, updatedAt: saved.updatedAt },
+    saved.organizer.id
   )
   // A result has no transport of its own: an open start list learns of it only as its rows rebuilt.
-  await publishPublicStartList(confirmedEvent)
+  await publishPublicStartList(saved)
 
-  return response(200, { event: confirmedEvent }, event)
+  return response(200, { event: saved }, event)
 })
 
 export default putResultsPublishedLambda

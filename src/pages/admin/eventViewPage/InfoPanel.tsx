@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import type { StartNumbersTime } from '@/lib/event'
-import type { AuditRecord, ConfirmedEvent, Registration, RegistrationClass } from '@/types'
+import type { AuditRecord, ClassOrNone, ConfirmedEvent, Registration, RegistrationClass } from '@/types'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import MenuOpen from '@mui/icons-material/MenuOpen'
 import Box from '@mui/material/Box'
@@ -36,11 +36,7 @@ import StartNumbersPublishing from './infoPanel/StartNumbersPublishing'
 
 interface Props {
   readonly event: ConfirmedEvent
-  readonly onSetResultsPublished?: (
-    eventClass: RegistrationClass | undefined,
-    date: string,
-    published: boolean
-  ) => Promise<unknown>
+  readonly onSetResultsPublished?: (eventClass: ClassOrNone, date: string, published: boolean) => Promise<unknown>
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly onSetStartNumbersPublished?: (
     eventClass: RegistrationClass | undefined,

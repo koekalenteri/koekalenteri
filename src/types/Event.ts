@@ -51,6 +51,9 @@ export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<R
  */
 export type ResultsDayScope = boolean | Array<string | Date>
 
+/** A class, or none for a classless event (NOU, NOME-A), whose one flag covers the whole event. */
+export type ClassOrNone = RegistrationClass | undefined
+
 /**
  * Per class like `StartListPublishedState`, or one scope for a classless event, but not the same
  * default. An absent start list flag means published, for records that predate it; an absent results

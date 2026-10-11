@@ -1,6 +1,6 @@
 import type { StartNumbersRequest } from '@/api/event'
 import type { StartNumbersTime } from '@/lib/event'
-import type { DogEvent, Patch, RegistrationClass, StationTurnOp } from '@/types'
+import type { ClassOrNone, DogEvent, Patch, RegistrationClass, StationTurnOp } from '@/types'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { enqueueSnackbar } from 'notistack'
@@ -331,7 +331,7 @@ export const useAdminEventActions = () => {
    */
   async function setResultsPublished(
     event: DogEvent,
-    eventClass: RegistrationClass | undefined,
+    eventClass: ClassOrNone,
     date: string,
     published: boolean
   ): Promise<DogEvent | undefined> {

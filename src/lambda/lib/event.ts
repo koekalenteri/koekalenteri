@@ -1,6 +1,6 @@
 import type { AuditActor, GroupChangeReason } from '../../lib/audit'
-import type { ClassOrNone } from '../../lib/event'
 import type {
+  ClassOrNone,
   ConfirmedEventStates,
   EventClassState,
   EventState,
@@ -18,14 +18,15 @@ import { randomUUID } from 'node:crypto'
 import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
-import { isResultsPublishedClassMap, isResultsPublishedState, withResultsDay } from '../../lib/event'
+import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
+import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
+import { foldedFrom, retryOnConditionFailure } from './conditionalWrite'
 import { httpError, LambdaError } from './lambda'
 import { createPatch } from './patch'
 import { createRegistrationPatches, getReadyRegistrationsByEventId, getRegistrationsByEventId } from './registration'
@@ -469,22 +470,11 @@ interface ResultsDayPublish {
   published: boolean
 }
 
-/**
- * What a results write is held to (KOE-1510). The event still exists, so an update never leaves a stub
- * row holding only the flag. And the value the fold was made from is still the one stored, so of two
- * secretaries working from the same reading the second is refused rather than undoing the first.
- * DynamoDB compares a list or a map by value: against DynamoDB-local, a condition on either, and on one
- * entry of a map, passed for an equal value and failed for a different one. The flag itself is
- * therefore the guard, and writes to the rest of the row (registrations, invitations, start numbers)
- * never refuse a publish.
- */
-const foldedFrom = (path: string, names: Record<string, string>, previous: unknown) => {
-  const valueCheck = previous === undefined ? `attribute_not_exists(${path})` : `${path} = :resultsRead`
-  return {
-    expression: `attribute_exists(#id) AND ${valueCheck}`,
-    names: { '#id': 'id', ...names },
-    ...(previous === undefined ? {} : { values: { ':resultsRead': previous } }),
-  }
+/** A publish of results refused by the publishing rules, as the panel would have greyed it (KOE-1466). */
+const publishBlocked = (confirmedEvent: JsonConfirmedEvent, { date, eventClass, published }: ResultsDayPublish) => {
+  if (!published) return undefined
+  const reason = getResultsBlocker(confirmedEvent, eventClass, date)
+  return reason && httpError(422, { error: 'publishBlocked', eventClass, publish: 'results', reason })
 }
 
 /** The write of one day's change: the class's own entry of a stored map, or else the whole flag. */
@@ -507,45 +497,66 @@ const resultsWrite = (confirmedEvent: JsonConfirmedEvent, eventClass: ClassOrNon
 }
 
 /**
- * Publish or hide one day's results on the event record (KOE-1510). The scope is folded here from the
- * stored day keys, never from a client's copy, whose JSON reviver has turned them into dates.
- *
- * Two secretaries can publish at once. Where the stored flag already is a class map, only the class's
- * own entry is written, so another class's publish made meanwhile stays. Where it is not (a plain flag
- * about to become a map, or a classless event's one scope), the whole flag is written. Either write
- * lands only on the value it was folded from (see foldedFrom), and a lost race is refused as a
- * conflict. The answer is the flag as stored after the write, another class's change included.
- *
- * `updatedAt` moves with the flag so an incremental fetch carries it, as with the start numbers
- * (KOE-1352). `modifiedAt` stays: publishing is not an edit to the event.
+ * One attempt: judge the publish by the publishing rules, fold the day into the flag as read, and
+ * write it on condition that the flag is still as read (see foldedFrom). Answers with the event as
+ * written, its flag read off the row.
  */
-export const setResultsPublishedState = async (
+const writeResultsDay = async (
   confirmedEvent: JsonConfirmedEvent,
-  { date, eventClass, published }: ResultsDayPublish,
-  now: Date = new Date()
-): Promise<Pick<JsonConfirmedEvent, 'resultsPublished' | 'updatedAt'>> => {
-  const updatedAt = now.toISOString()
+  request: ResultsDayPublish,
+  updatedAt: string
+): Promise<JsonConfirmedEvent> => {
+  const blocked = publishBlocked(confirmedEvent, request)
+  if (blocked) throw blocked
+
+  const { date, eventClass, published } = request
   const { condition, set } = resultsWrite(
     confirmedEvent,
     eventClass,
     withResultsDay(confirmedEvent, eventClass, date, published)
   )
-
-  let output: Awaited<ReturnType<typeof dynamoDB.update>>
-  try {
-    output = await dynamoDB.update(
-      { id: confirmedEvent.id },
-      { set: { ...set, updatedAt } },
-      eventTable,
-      'ALL_NEW',
-      condition
-    )
-  } catch (error) {
-    if (isConditionalCheckFailure(error)) throw httpError(409, { error: 'resultsPublishedChanged' })
-    throw error
-  }
+  const output = await dynamoDB.update(
+    { id: confirmedEvent.id },
+    { set: { ...set, updatedAt } },
+    eventTable,
+    'ALL_NEW',
+    condition
+  )
 
   const resultsPublished: unknown = output.Attributes?.resultsPublished
   if (!isResultsPublishedState(resultsPublished)) throw new Error('the written row holds no results flag')
-  return { resultsPublished, updatedAt }
+  return { ...confirmedEvent, resultsPublished, updatedAt }
+}
+
+const RESULTS_WRITE_ATTEMPTS = 3
+
+/**
+ * Publish or hide one day's results on the event record (KOE-1510). The request is a change of one
+ * day, and the scope is folded here from the stored day keys, never from a client's copy, whose JSON
+ * reviver has turned them into dates.
+ *
+ * Several secretaries publish at once, and one can hide two days in quick succession. Where the stored
+ * flag already is a class map, only the class's own entry is written, so another class's publish made
+ * meanwhile stays; where it is not (a plain flag about to become a map, or a classless event's one
+ * scope), the whole flag is. Either write lands only on the flag it was folded from. When another
+ * write got there first, the row is read again as last written, the rules are judged and the day
+ * folded afresh, and the write is tried again; only after RESULTS_WRITE_ATTEMPTS is it a conflict.
+ *
+ * `updatedAt` moves with the flag so an incremental fetch carries it, as with the start numbers
+ * (KOE-1352). `modifiedAt` stays: publishing is not an edit to the event.
+ */
+export const setResultsPublishedState = (
+  confirmedEvent: JsonConfirmedEvent,
+  request: ResultsDayPublish,
+  now: Date = new Date()
+): Promise<JsonConfirmedEvent> => {
+  const updatedAt = now.toISOString()
+  return retryOnConditionFailure(
+    async (attempt) => {
+      const current = attempt === 1 ? confirmedEvent : await getEvent<JsonConfirmedEvent>(confirmedEvent.id, true)
+      return writeResultsDay(current, request, updatedAt)
+    },
+    RESULTS_WRITE_ATTEMPTS,
+    () => httpError(409, { error: 'resultsPublishedChanged' })
+  )
 }

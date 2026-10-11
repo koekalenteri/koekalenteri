@@ -1759,10 +1759,32 @@ describe('results published day by day', () => {
       })
     })
 
-    it('folds the last day into a plain true and the last hidden day into false', () => {
+    it('lists every day it publishes, never folding them into a plain true, and empties to false', () => {
       const firstDay = { ...event, resultsPublished: { ALO: ['2026-09-12'] } }
-      expect(withResultsDay(firstDay, 'ALO', '2026-09-13', true)).toEqual({ ALO: true, AVO: false })
+      expect(withResultsDay(firstDay, 'ALO', '2026-09-13', true)).toEqual({
+        ALO: ['2026-09-12', '2026-09-13'],
+        AVO: false,
+      })
       expect(withResultsDay(firstDay, 'ALO', '2026-09-12', false)).toEqual({ ALO: false, AVO: false })
+    })
+
+    it('leaves a day the event form adds later unpublished', () => {
+      // AVO runs on Saturday only: publishing it must not publish a Sunday added afterwards.
+      const published = withResultsDay({ ...event, resultsPublished: undefined }, 'AVO', '2026-09-12', true)
+      expect(published).toEqual({ ALO: false, AVO: ['2026-09-12'] })
+
+      const withSunday = {
+        ...event,
+        classes: [...event.classes, { class: 'AVO' as const, date: '2026-09-13', state: undefined }],
+        resultsPublished: published,
+      }
+      expect(isResultsPublishedForDay(withSunday, 'AVO', '2026-09-12')).toBe(true)
+      expect(isResultsPublishedForDay(withSunday, 'AVO', '2026-09-13')).toBe(false)
+    })
+
+    it('keeps a stored true as it is, its meaning included, and publishing a day on it changes nothing', () => {
+      const everyDay = { ...event, resultsPublished: { ALO: true, AVO: true } }
+      expect(withResultsDay(everyDay, 'ALO', '2026-09-13', true)).toEqual({ ALO: true, AVO: true })
     })
 
     it('hides one day of a class published as a whole and keeps the other', () => {
@@ -1780,14 +1802,14 @@ describe('results published day by day', () => {
     it('stores the days as day keys, even where a revived date found its way into the flag', () => {
       // A date stands where the client's reviver would have put one; the stored list holds keys only.
       const revived = { ...event, resultsPublished: { ALO: [new Date('2026-09-12T09:00:00.000Z')] } }
-      expect(withResultsDay(revived, 'AVO', '2026-09-12', true)).toEqual({ ALO: ['2026-09-12'], AVO: true })
+      expect(withResultsDay(revived, 'AVO', '2026-09-12', true)).toEqual({ ALO: ['2026-09-12'], AVO: ['2026-09-12'] })
     })
 
     it('publishes a classless event day by day as its one scope', () => {
       const classless = { classes: [], endDate: '2026-09-27', resultsPublished: undefined, startDate: '2026-09-26' }
       expect(withResultsDay(classless, undefined, '2026-09-26', true)).toEqual(['2026-09-26'])
-      expect(withResultsDay({ ...classless, resultsPublished: ['2026-09-26'] }, undefined, '2026-09-27', true)).toBe(
-        true
+      expect(withResultsDay({ ...classless, resultsPublished: ['2026-09-26'] }, undefined, '2026-09-27', true)).toEqual(
+        ['2026-09-26', '2026-09-27']
       )
     })
   })
@@ -1816,6 +1838,17 @@ describe('results published day by day', () => {
       expect(isSameResultsPublished(stored, { ALO: ['2026-09-12'] })).toBe(false)
       expect(isSameResultsPublished(stored, null)).toBe(false)
       expect(isSameResultsPublished({ ...event, resultsPublished: undefined }, null)).toBe(true)
+    })
+
+    it('reads a classless event by its one scope, and a class map sent for it as publishing nothing', () => {
+      const classless = { classes: [], endDate: '2026-09-27', startDate: '2026-09-26' }
+      const firstDay = { ...classless, resultsPublished: ['2026-09-26'] }
+
+      expect(isSameResultsPublished(firstDay, ['2026-09-26'])).toBe(true)
+      expect(isSameResultsPublished(firstDay, ['2026-09-27'])).toBe(false)
+      expect(isSameResultsPublished(firstDay, { NOU: true })).toBe(false)
+      expect(isSameResultsPublished({ ...classless, resultsPublished: false }, { ALO: true })).toBe(true)
+      expect(isSameResultsPublished({ ...classless, resultsPublished: true }, ['2026-09-27', '2026-09-26'])).toBe(true)
     })
   })
 

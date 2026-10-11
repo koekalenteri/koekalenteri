@@ -3,8 +3,8 @@ import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
 import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
-import { isConditionalCheckFailure } from '../lib/api-gw'
 import { authorizeAdmin } from '../lib/auth'
+import { foldedFrom, retryOnConditionFailure } from '../lib/conditionalWrite'
 import { markMigrationApplied, readAppliedMigrations } from '../lib/dataVersions'
 import { isDirectInvoke, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
@@ -120,11 +120,8 @@ const migrateRow = (item: JsonDogEvent, pending: Pending[]): ReadRow => {
  * The write only lands on a row that still exists and that nobody moved since it was read. Without
  * the existence check an update of a deleted row would create a stub holding only the migrated fields.
  */
-const existsAndUnchangedSince = (readUpdatedAt: string | undefined) => ({
-  expression: `attribute_exists(#id) AND ${readUpdatedAt === undefined ? 'attribute_not_exists(#updatedAt)' : '#updatedAt = :read'}`,
-  names: { '#id': 'id', '#updatedAt': 'updatedAt' },
-  ...(readUpdatedAt === undefined ? {} : { values: { ':read': readUpdatedAt } }),
-})
+const existsAndUnchangedSince = (readUpdatedAt: string | undefined) =>
+  foldedFrom('#updatedAt', { '#updatedAt': 'updatedAt' }, readUpdatedAt)
 
 /**
  * Writes only the fields the migrations changed, plus the bump. A whole-row Put would also write back
@@ -141,29 +138,30 @@ const existsAndUnchangedSince = (readUpdatedAt: string | undefined) => ({
  * MAX_WRITE_ATTEMPTS writes. Returns what changed in the row that was finally written, nothing when
  * the row is gone or needs nothing any more.
  */
-const writeRow = async (row: ReadRow, pending: Pending[], attempt = 1): Promise<boolean[]> => {
+const writeMigratedRow = async (row: ReadRow): Promise<boolean[]> => {
   if (!row.changed.some(Boolean)) return row.changed
 
   const { remove, set } = createPatch(row.item, row.before)
-  try {
-    await dynamoDB.update(
-      { id: row.item.id },
-      { ...(remove ? { remove } : {}), set: { ...set, updatedAt: new Date().toISOString() } },
-      undefined,
-      undefined,
-      existsAndUnchangedSince(row.readUpdatedAt)
-    )
-    return row.changed
-  } catch (error) {
-    if (!isConditionalCheckFailure(error)) throw error
-    if (attempt >= MAX_WRITE_ATTEMPTS) {
-      throw new LambdaError(409, `Event ${row.item.id} kept changing while it was migrated`)
-    }
-    const fresh = await dynamoDB.read<JsonDogEvent>({ id: row.item.id }, undefined, true)
-    if (!fresh) return pending.map(() => false)
-    return writeRow(migrateRow(fresh, pending), pending, attempt + 1)
-  }
+  await dynamoDB.update(
+    { id: row.item.id },
+    { ...(remove ? { remove } : {}), set: { ...set, updatedAt: new Date().toISOString() } },
+    undefined,
+    undefined,
+    existsAndUnchangedSince(row.readUpdatedAt)
+  )
+  return row.changed
 }
+
+const writeRow = (row: ReadRow, pending: Pending[]): Promise<boolean[]> =>
+  retryOnConditionFailure(
+    async (attempt) => {
+      if (attempt === 1) return writeMigratedRow(row)
+      const fresh = await dynamoDB.read<JsonDogEvent>({ id: row.item.id }, undefined, true)
+      return fresh ? writeMigratedRow(migrateRow(fresh, pending)) : pending.map(() => false)
+    },
+    MAX_WRITE_ATTEMPTS,
+    () => new LambdaError(409, `Event ${row.item.id} kept changing while it was migrated`)
+  )
 
 /**
  * The admin button (API Gateway) is a forced full run, so a correction run is always possible. The

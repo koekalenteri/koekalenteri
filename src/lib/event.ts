@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next'
 import type {
+  ClassOrNone,
   ConfirmedEvent,
   ConfirmedEventStates,
   DeepPartial,
@@ -459,19 +460,28 @@ type ResultsFoldEvent = Pick<JsonDogEvent, 'resultsPublished' | 'classes' | 'sta
 
 type ResultsDayChange = { day: string; published: boolean }
 
-/** A scope as it is stored: day keys only, `true` for every day and `false` for none. */
-const foldScopeOnDays = (scope: ResultsDayScope, days: string[], change?: ResultsDayChange): ResultsDayScope => {
-  const keys = scopeKeys(scope, days)
-  return foldDayScope(change ? withDayKey(keys, change.day, change.published) : keys, days)
-}
+/** A list of day keys as stored: none is `false`. */
+const keysOrNone = (keys: string[]): ResultsDayScope => (keys.length ? keys : false)
 
-/** A class's results scope, or a classless event's, as it is stored. */
-const foldResultsScope = (event: ResultsFoldEvent, eventClass: ClassOrNone, change?: ResultsDayChange) =>
-  foldScopeOnDays(getResultsDayScope(event, eventClass), getClassDays(event, eventClass), change)
+/**
+ * A class's results scope, or a classless event's, as it is stored after an optional change of one day
+ * (KOE-1510). Unlike the start numbers, a list never collapses to `true`: `true` means every day, so a
+ * day the event form adds later would be published as its results were entered. A stored plain flag
+ * is kept as it is, `true` keeping its meaning for a day added later, and publishing a day on it
+ * changes nothing; hiding a day of it lists the days that stay out.
+ */
+const foldResultsScope = (event: ResultsFoldEvent, eventClass: ClassOrNone, change?: ResultsDayChange) => {
+  const scope = getResultsDayScope(event, eventClass)
+  if (!change) return typeof scope === 'boolean' ? scope : keysOrNone(sortedDayKeys(scopeSlotKeys(scope)))
+  if (scope === true && change.published) return true
+
+  const keys = scopeKeys(scope, getClassDays(event, eventClass))
+  return keysOrNone(sortedDayKeys(withDayKey(keys, change.day, change.published)))
+}
 
 /**
  * The stored flag once one day of the class, or of a classless event, is published or hidden
- * (KOE-1510). Only the named day changes, whatever the clock says about the others. Every class is
+ * (KOE-1510). Only the named day changes, whatever the clock says about the others. Every list is
  * written back as day keys, so no date an earlier write let in survives the next.
  */
 export const withResultsDay = (
@@ -490,19 +500,13 @@ export const withResultsDay = (
   return result
 }
 
-const isDayScope = (value: unknown): value is ResultsDayScope =>
-  typeof value === 'boolean' ||
-  (Array.isArray(value) && value.every((entry) => typeof entry === 'string' || entry instanceof Date))
-
-/** A value shaped like a stored results flag: one day scope, or a map of them by class. */
-export const isResultsPublishedState = (value: unknown): value is ResultsPublishedState =>
-  isDayScope(value) || (isObject(value) && Object.values(value).every(isDayScope))
+/** One entry of a stored day list: a day key, or the date the JSON reviver made of one. */
+export const isDayEntry = (entry: unknown): entry is string | Date => typeof entry === 'string' || entry instanceof Date
 
 /** A scope as a client sent it; anything not shaped like one publishes nothing. */
 const toDayScope = (value: unknown): ResultsDayScope => {
   if (typeof value === 'boolean') return value
-  if (!Array.isArray(value)) return false
-  return value.filter((entry): entry is string | Date => typeof entry === 'string' || entry instanceof Date)
+  return Array.isArray(value) ? value.filter(isDayEntry) : false
 }
 
 /** The scope a sent flag gives the class, or the classless event: a class map has nothing for the latter. */
@@ -511,23 +515,23 @@ const sentDayScope = (sent: unknown, eventClass: ClassOrNone): ResultsDayScope =
   return eventClass ? toDayScope(sent[eventClass]) : false
 }
 
-/** Two folded scopes name the same days: both lists of the same keys, or the same plain flag. */
-const isSameScope = (left: ResultsDayScope, right: ResultsDayScope) =>
-  Array.isArray(left) && Array.isArray(right)
-    ? left.length === right.length && left.every((key, index) => key === right[index])
-    : left === right
+/** The days a scope publishes, in order: `true` is every day of the class. */
+const publishedKeys = (scope: ResultsDayScope, days: string[]) => sortedDayKeys(scopeKeys(scope, days))
 
 /**
  * Whether a results flag publishes the same days of the event's classes, or of a classless event, as
  * the stored one (KOE-1510). Read through the day keys, so a client's copy whose days the JSON reviver
- * turned into dates, or that went back out as timestamps, still compares equal to what is stored.
+ * turned into dates, or that went back out as timestamps, still compares equal to what is stored, and
+ * `true` equals the list of every day.
  */
 export const isSameResultsPublished = (event: ResultsFoldEvent, sent: unknown): boolean => {
   const classes = uniqueClasses(event)
   const scopes: ClassOrNone[] = classes.length ? classes : [undefined]
   return scopes.every((eventClass) => {
     const days = getClassDays(event, eventClass)
-    return isSameScope(foldResultsScope(event, eventClass), foldScopeOnDays(sentDayScope(sent, eventClass), days))
+    const stored = publishedKeys(getResultsDayScope(event, eventClass), days)
+    const theirs = publishedKeys(sentDayScope(sent, eventClass), days)
+    return stored.length === theirs.length && stored.every((key, index) => key === theirs[index])
   })
 }
 
@@ -745,9 +749,6 @@ type AvailabilityEvent = {
 }
 type AvailabilityRegistration = { class?: string | null; group: { date?: Date | string; time?: RegistrationTime } }
 
-/** A class, or none for a classless event (NOU, NOME-A), whose one flag covers the whole event. */
-export type ClassOrNone = RegistrationClass | undefined
-
 /** A day as stored (a yyyy-MM-dd key), as the JSON reviver hands it over (a date), or not known. */
 type DayInput = Date | string | undefined
 
@@ -894,13 +895,16 @@ export const scopeKeys = (scope: DayScope, days: string[]): string[] => {
 export const withDayKey = (keys: string[], day: string, published: boolean) =>
   published ? [...keys, day] : keys.filter((key) => key !== day)
 
+/** Keys in order and without repeats. */
+const sortedDayKeys = (keys: string[]) => [...new Set(keys)].sort((a, b) => a.localeCompare(b))
+
 /**
  * A list of keys folded back into the stored scope: in order and without repeats, `true` once it
  * covers every day and `false` once it is empty. A class published day by day therefore ends up
  * stored as it was before day lists existed.
  */
 export const foldDayScope = (keys: string[], days: string[]): DayScope => {
-  const next = [...new Set(keys)].sort((a, b) => a.localeCompare(b))
+  const next = sortedDayKeys(keys)
   if (next.length === 0) return false
   if (days.every((day) => next.includes(day))) return true
   return next

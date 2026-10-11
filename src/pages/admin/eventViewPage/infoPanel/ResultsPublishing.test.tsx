@@ -1,5 +1,5 @@
 import type { ConfirmedEvent } from '@/types'
-import { screen, within } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
 import { eventWithStaticDates } from '@/__mockData__/events'
@@ -76,6 +76,20 @@ describe('ResultsPublishing', () => {
     await user.click(hide)
 
     expect(onSetResultsPublished).toHaveBeenCalledWith(undefined, '2021-02-10', false)
+  })
+
+  it('keeps a row button disabled while its request is on its way (KOE-1510)', async () => {
+    let answer: (value: unknown) => void = () => {}
+    const pending = vi.fn(() => new Promise((resolve) => (answer = resolve)))
+    const { user } = renderSection({ ...oneDay, resultsPublished: true }, pending)
+
+    const hide = screen.getByRole('button', { name: 'eventManagement.results.hide' })
+    await user.click(hide)
+    expect(hide).toBeDisabled()
+
+    await act(async () => answer(undefined))
+    expect(hide).toBeEnabled()
+    expect(pending).toHaveBeenCalledTimes(1)
   })
 
   it('waits for the start list of a classless event', () => {

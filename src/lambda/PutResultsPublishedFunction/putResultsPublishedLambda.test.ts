@@ -87,7 +87,7 @@ const conditionedValue = ({ names }: UpdateCondition) => {
 }
 
 const holds = (condition: UpdateCondition) =>
-  isDeepStrictEqual(conditionedValue(condition), condition.values?.[':resultsRead'])
+  isDeepStrictEqual(conditionedValue(condition), condition.values?.[':foldedFrom'])
 
 const applyUpdate = async (
   _key: unknown,
@@ -145,19 +145,19 @@ describe('putResultsPublishedLambda', () => {
     expect(isResultsAvailableForRegistration(row, dog('2026-09-13'))).toBe(false)
   })
 
-  it('folds the last day of a class into a plain true, writing only that class', async () => {
+  it('lists the last day of a class beside the first, writing only that class', async () => {
     store(twoDays({ resultsPublished: { ALO: ['2026-09-12'], AVO: false } }))
 
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-13', eventClass: 'ALO', published: true }))
 
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'event-1' },
-      { set: { 'resultsPublished.ALO': true, updatedAt: expect.any(String) } },
+      { set: { 'resultsPublished.ALO': ['2026-09-12', '2026-09-13'], updatedAt: expect.any(String) } },
       expect.any(String),
       'ALL_NEW',
-      expect.objectContaining({ values: { ':resultsRead': ['2026-09-12'] } })
+      expect.objectContaining({ values: { ':foldedFrom': ['2026-09-12'] } })
     )
-    expect(row.resultsPublished).toEqual({ ALO: true, AVO: false })
+    expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12', '2026-09-13'], AVO: false })
   })
 
   it('lands two publishes made from the same reading of a class map', async () => {
@@ -169,15 +169,15 @@ describe('putResultsPublishedLambda', () => {
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: true }))
 
-    expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: true })
+    expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: ['2026-09-12'] })
     // What the second answer sends on is the stored flag, the first secretary's day included.
     expect(mockPublishEventPatch).toHaveBeenLastCalledWith(
-      expect.objectContaining({ resultsPublished: { ALO: ['2026-09-12'], AVO: true } }),
+      expect.objectContaining({ resultsPublished: { ALO: ['2026-09-12'], AVO: ['2026-09-12'] } }),
       'org-1'
     )
   })
 
-  it('refuses the second of two writes to the same class made from one reading', async () => {
+  it('lands two writes to the same class made from one reading, the second folded afresh', async () => {
     // One secretary hides ALO's Saturday while another publishes its Sunday, both from the same row.
     const before = twoDays({ resultsPublished: { ALO: ['2026-09-12'], AVO: false } })
     store(before)
@@ -186,23 +186,46 @@ describe('putResultsPublishedLambda', () => {
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: false }))
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-13', eventClass: 'ALO', published: true }))
 
-    // The hide stands: the publish was folded from the Saturday it no longer sees.
-    expect(row.resultsPublished).toEqual({ ALO: false, AVO: false })
-    expect(mockResponse).toHaveBeenLastCalledWith(409, { error: 'resultsPublishedChanged' }, expect.anything())
-    expect(mockAudit).toHaveBeenCalledTimes(1)
+    // The hide stands: the publish was refused once, read the row again and added Sunday to it.
+    expect(row.resultsPublished).toEqual({ ALO: ['2026-09-13'], AVO: false })
+    expect(mockResponse).toHaveBeenLastCalledWith(200, expect.anything(), expect.anything())
+    expect(mockAudit).toHaveBeenCalledTimes(2)
   })
 
-  it('refuses the second of two publishes that would each write the whole flag', async () => {
-    // No map yet: the first publish turns the flag into one, so the second's reading is out of date.
+  it('lands two hides of a classless trial in quick succession (KOE-1510)', async () => {
+    // The hide has no confirmation, so a secretary can hide Saturday and Sunday before either answers.
+    const before = twoDays({ classes: [], eventType: 'NOU', resultsPublished: ['2026-09-12', '2026-09-13'] })
+    store(before)
+    mockRead.mockResolvedValueOnce(structuredClone(before)).mockResolvedValueOnce(structuredClone(before))
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', published: false }))
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-13', published: false }))
+
+    expect(row.resultsPublished).toBe(false)
+    expect(mockAudit).toHaveBeenCalledTimes(2)
+  })
+
+  it('lands the first publishes of two classes made when neither had a flag', async () => {
     const before = twoDays()
     mockRead.mockResolvedValueOnce(structuredClone(before)).mockResolvedValueOnce(structuredClone(before))
 
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: true }))
 
-    expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: false })
-    expect(mockResponse).toHaveBeenLastCalledWith(409, { error: 'resultsPublishedChanged' }, expect.anything())
-    expect(mockAudit).toHaveBeenCalledTimes(1)
+    expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: ['2026-09-12'] })
+  })
+
+  it('answers a conflict once the attempts run out, and records nothing', async () => {
+    mockUpdate.mockRejectedValue(
+      Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
+    )
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
+
+    expect(mockUpdate).toHaveBeenCalledTimes(3)
+    expect(mockResponse).toHaveBeenCalledWith(409, { error: 'resultsPublishedChanged' }, expect.anything())
+    expect(mockAudit).not.toHaveBeenCalled()
+    expect(mockPublishEventPatch).not.toHaveBeenCalled()
   })
 
   it('is not refused by a write to the rest of the row', async () => {
@@ -239,6 +262,12 @@ describe('putResultsPublishedLambda', () => {
     expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: false })
   })
 
+  it('stores the only day of a class as that day, never as every day', async () => {
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: true }))
+
+    expect(row.resultsPublished).toEqual({ ALO: false, AVO: ['2026-09-12'] })
+  })
+
   it('refuses a day that has not begun', async () => {
     vi.setSystemTime(new Date('2026-09-12T18:00:00+03:00'))
 
@@ -272,7 +301,7 @@ describe('putResultsPublishedLambda', () => {
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', published: true }))
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-13', published: true }))
 
-    expect(row.resultsPublished).toBe(true)
+    expect(row.resultsPublished).toEqual(['2026-09-12', '2026-09-13'])
   })
 
   it.each([

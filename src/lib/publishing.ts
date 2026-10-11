@@ -1,16 +1,26 @@
-import type { ConfirmedEvent, DogEvent, JsonConfirmedEvent, RegistrationClass } from '../types'
+import type {
+  ClassOrNone,
+  ConfirmedEvent,
+  DogEvent,
+  JsonConfirmedEvent,
+  RegistrationClass,
+  ResultsDayScope,
+  ResultsPublishedState,
+} from '../types'
 import type { InvitationAttachmentRegistration } from './registration'
 import {
   canPublishResults,
   canPublishStartList,
   getEventStateForClass,
   hasDayStarted,
+  isDayEntry,
   isEntryEditingClosed,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartListPublishedForClass,
 } from './event'
-import { getInvitationRecipients } from './registration'
+import { getInvitationRecipients, isRegistrationClass } from './registration'
+import { isObject } from './utils'
 
 /**
  * The order a trial is published in — start list, then its numbers, then the results riding on it —
@@ -90,7 +100,7 @@ export const getStartNumbersBlocker = (
  */
 export const getResultsBlocker = (
   event: PublishingEvent,
-  eventClass: RegistrationClass | undefined,
+  eventClass: ClassOrNone,
   day?: string | Date
 ): PublishBlocker | undefined => {
   if (!isStartListPublished(event, classEntry(event, eventClass))) return 'startList'
@@ -98,3 +108,14 @@ export const getResultsBlocker = (
   if (day && !hasDayStarted(day)) return 'state'
   return undefined
 }
+
+const isDayScope = (value: unknown): value is ResultsDayScope =>
+  typeof value === 'boolean' || (Array.isArray(value) && value.every(isDayEntry))
+
+/**
+ * A value shaped like a stored results flag (KOE-1510): one day scope, or a map of them keyed by
+ * class. Read where a written row comes back from the database, so nothing is taken on trust.
+ */
+export const isResultsPublishedState = (value: unknown): value is ResultsPublishedState =>
+  isDayScope(value) ||
+  (isObject(value) && Object.entries(value).every(([key, scope]) => isRegistrationClass(key) && isDayScope(scope)))

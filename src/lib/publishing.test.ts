@@ -1,6 +1,12 @@
 import type { JsonConfirmedEvent } from '../types'
 import { freezeClockAt } from '../test-utils/freezeClock'
-import { getResultsBlocker, getStartListBlocker, getStartNumbersBlocker, isStartListFlagPublished } from './publishing'
+import {
+  getResultsBlocker,
+  getStartListBlocker,
+  getStartNumbersBlocker,
+  isResultsPublishedState,
+  isStartListFlagPublished,
+} from './publishing'
 import { groupParticipantsByClass } from './registration'
 
 const now = new Date()
@@ -113,6 +119,24 @@ describe('lib/publishing', () => {
         expect(getResultsBlocker(running, 'ALO', '2026-09-12')).toBeUndefined()
         expect(getResultsBlocker(running, 'ALO', '2026-09-13')).toBe('state')
       })
+    })
+  })
+
+  describe('isResultsPublishedState (KOE-1510)', () => {
+    it.each([
+      [true, true],
+      [false, true],
+      [['2026-09-12'], true],
+      [[new Date('2026-09-12')], true],
+      [{ ALO: true }, true],
+      [{ ALO: ['2026-09-12'] }, true],
+      [{ ALO: 'x' }, false],
+      [{ foo: true }, false],
+      [[1], false],
+      [null, false],
+      [undefined, false],
+    ])('reads %j as a results flag: %s', (value, expected) => {
+      expect(isResultsPublishedState(value)).toBe(expected)
     })
   })
 
