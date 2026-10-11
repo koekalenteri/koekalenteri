@@ -313,7 +313,6 @@ describe('paymentSuccessLambda', () => {
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      message: 'Maksu (Paytrail), 50,00\u00a0€',
       messageKey: 'audit.messages.payment',
       messageParams: { amount: '50,00\u00a0€', provider: 'Paytrail' },
       user: 'user123',
@@ -397,7 +396,6 @@ describe('paymentSuccessLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: 'event123:reg456',
-        message: expect.stringContaining('Päällekkäinen maksu'),
         messageKey: 'audit.messages.paymentDuplicate',
         messageParams: expect.objectContaining({ registrationId: 'other-registration' }),
       })
@@ -405,7 +403,6 @@ describe('paymentSuccessLambda', () => {
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: 'event123:other-registration',
-        message: expect.stringContaining('maksun ilmoittautuminen: reg456'),
         messageKey: 'audit.messages.paymentDuplicateOther',
         messageParams: expect.objectContaining({ registrationId: 'reg456' }),
       })

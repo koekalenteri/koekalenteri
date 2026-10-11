@@ -1,5 +1,12 @@
 import type { GroupChangeReason } from '../../lib/audit'
-import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonUser, RegistrationGroupMove } from '../../types'
+import type {
+  EmailTemplateId,
+  EventState,
+  JsonConfirmedEvent,
+  JsonRegistration,
+  JsonUser,
+  RegistrationGroupMove,
+} from '../../types'
 import { invitationAwaitingPaymentAudit } from '../../lib/audit'
 import { hasSharedReserveList } from '../../lib/event'
 import { isInvitationAwaitingPayment, shouldSendInvitationAfterPayment } from '../../lib/payment'
@@ -47,17 +54,14 @@ const regString = (r: JsonRegistration) =>
 
 const auditSentMessages = async (
   event: JsonConfirmedEvent,
-  label: string,
-  labelKey: string,
+  template: EmailTemplateId,
   registrations: JsonRegistration[],
   ok: string[],
   failed: string[],
   user: JsonUser
 ) => {
   if (!ok.length && !failed.length) return
-  await audit(
-    createSentRegistrationMessagesAudit({ event, failed, label, labelKey, ok, registrations, user: user.name })
-  )
+  await audit(createSentRegistrationMessagesAudit({ event, failed, ok, registrations, template, user: user.name }))
 }
 
 const updateItems = async (oldItems: JsonRegistration[], moves: RegistrationGroupMove[], user: JsonUser) => {
@@ -226,15 +230,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user,
       ''
     )
-    await auditSentMessages(
-      confirmedEvent,
-      'Koepaikkailmoitus',
-      'emailTemplate.picked',
-      newParticipants,
-      pickedOk,
-      pickedFailed,
-      user
-    )
+    await auditSentMessages(confirmedEvent, 'picked', newParticipants, pickedOk, pickedFailed, user)
 
     /**
      * The koekutsu only goes to a place that has been paid for: a dog lifted from the reserve list
@@ -255,15 +251,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
           ''
         )
       : { failed: [], ok: [] }
-    await auditSentMessages(
-      confirmedEvent,
-      'Koekutsu',
-      'emailTemplate.invitation',
-      invitedParticipants,
-      invitedOk,
-      invitedFailed,
-      user
-    )
+    await auditSentMessages(confirmedEvent, 'invitation', invitedParticipants, invitedOk, invitedFailed, user)
 
     await mapWithConcurrency(awaitingPayment, REGISTRATION_WRITE_CONCURRENCY, (reg) =>
       audit({
@@ -300,15 +288,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user,
       ''
     )
-    await auditSentMessages(
-      confirmedEvent,
-      'Varasijailmoitus',
-      'emailTemplate.reserve',
-      movedReserve,
-      reserveOk,
-      reserveFailed,
-      user
-    )
+    await auditSentMessages(confirmedEvent, 'reserve', movedReserve, reserveOk, reserveFailed, user)
 
     await updateReserveNotified(movedReserve)
 
@@ -344,15 +324,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     user,
     'cancel'
   )
-  await auditSentMessages(
-    confirmedEvent,
-    'Peruutusilmoitus',
-    'emailTemplate.cancel-early',
-    cancelled,
-    cancelledOk,
-    cancelledFailed,
-    user
-  )
+  await auditSentMessages(confirmedEvent, 'cancel-early', cancelled, cancelledOk, cancelledFailed, user)
 
   // audit cancellations
   for (const reg of cancelled) {

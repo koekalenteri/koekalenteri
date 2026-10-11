@@ -330,7 +330,6 @@ describe('putAdminRegistrationLambda', () => {
     // The secretary's entry is named by its key in the trail (KOE-1442).
     expect(mockDynamoDB.write).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Lisäsi ilmoittautumisen',
         messageKey: 'audit.messages.registrationAdded',
         user: 'Test User',
       }),

@@ -9,6 +9,7 @@ import { alpha } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { auditRecordId } from '@/hooks/useAuditTrailSubscription'
 import { formatDate } from '@/i18n/dates'
 import { auditLabelParams, formatAuditDetail, formatAuditMessage } from '@/lib/audit'
 import CollapsibleSection from '../../components/CollapsibleSection'
@@ -201,7 +202,8 @@ export const AuditTrail = ({ auditTrail, fullHeight = false }: Props) => {
   if (!auditTrail) return null
 
   const rows = auditTrail.map((row) => {
-    const rowId = `${row.timestamp.toISOString()}-${row.user}-${row.message}`
+    // The table's own key, and what the row says: a new row has no message (KOE-1511), an old one no key.
+    const rowId = `${auditRecordId(row)}-${row.messageKey ?? row.message}`
     return (
       <AuditTrailRow
         key={rowId}

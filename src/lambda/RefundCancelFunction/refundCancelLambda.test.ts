@@ -49,9 +49,9 @@ describe('refundCancelLambda', () => {
   // The failed refund is named by its key, the provider by its display name as the other refund rows
   // name it, and the amount as parts (KOE-1442).
   it.each([
-    ['nordea', 'Palautus epäonnistui (Nordea), 10,00 €', 'Nordea'],
-    ['email refund', 'Palautus epäonnistui (Sähköposti + tilisiirto), 10,00 €', 'Sähköposti + tilisiirto'],
-  ])('audits a failed refund through %s', async (provider, message, providerParam) => {
+    ['nordea', 'Nordea'],
+    ['email refund', 'Sähköposti + tilisiirto'],
+  ])('audits a failed refund through %s', async (provider, providerParam) => {
     let audited: AuditMessage | undefined
     mockCancelTransaction.mockImplementationOnce(async ({ auditMessage }) => {
       audited = auditMessage(transaction(provider), undefined)
@@ -62,7 +62,6 @@ describe('refundCancelLambda', () => {
 
     expect(res.statusCode).toEqual(200)
     expect(audited).toEqual({
-      message,
       messageKey: 'audit.messages.refundFailed',
       messageParams: { amount: '10,00 €', provider: providerParam },
     })

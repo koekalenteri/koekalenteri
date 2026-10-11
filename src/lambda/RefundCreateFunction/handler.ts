@@ -113,13 +113,13 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   } catch (error: unknown) {
     await releaseTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
-      const auditMessage = refundPaytrailErrorAudit(error)
       await audit({
         auditKey: registrationAuditKey(registration),
-        ...auditMessage,
+        ...refundPaytrailErrorAudit(error),
         user: user.name,
       })
-      return response(error.status, { error: error.error, message: auditMessage.message }, event)
+      // Paytrail's own words; the dialog puts them in the secretary's language (KOE-1511).
+      return response(error.status, { error: error.error }, event)
     }
 
     throw error

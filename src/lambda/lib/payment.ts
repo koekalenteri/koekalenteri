@@ -99,13 +99,9 @@ export const releaseTransactionCreation = async (
 export const formatPaytrailErrorMessage = (operation: string, error: PaytrailError) =>
   `${operation} epäonnistui Paytrailissa (${error.status}): ${parsePaytrailErrorMessage(error.error)}`
 
-/** A refund Paytrail refused, for the registration's trail; its `message` is also what the secretary is answered. */
+/** A refund Paytrail refused, for the registration's trail. */
 export const refundPaytrailErrorAudit = (error: PaytrailError) =>
-  refundPaytrailFailedAudit(
-    formatPaytrailErrorMessage('Maksun palautus', error),
-    error.status,
-    parsePaytrailErrorMessage(error.error)
-  )
+  refundPaytrailFailedAudit(error.status, error.error ? parsePaytrailErrorMessage(error.error) : undefined)
 
 interface CancelTransactionOptions<T extends JsonTransaction> {
   auditMessage: (transaction: T, provider: string | undefined) => AuditMessage

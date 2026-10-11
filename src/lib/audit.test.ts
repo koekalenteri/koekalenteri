@@ -16,7 +16,6 @@ import {
   eventCopiedToAudit,
   formatAuditDetail,
   formatAuditMessage,
-  formatGroupAuditInfo,
   groupChangeAudit,
   internalNotesChangedAudit,
   invitationAwaitingPaymentAudit,
@@ -49,35 +48,17 @@ describe('auditUser', () => {
   })
 })
 
-describe('formatGroupAuditInfo', () => {
-  it('names the lists and a day group in Finnish', () => {
-    expect(formatGroupAuditInfo(undefined)).toBe('')
-    expect(formatGroupAuditInfo({ key: 'cancelled', number: 5 })).toBe('Peruneet #5')
-    expect(formatGroupAuditInfo({ key: 'reserve', number: 1 })).toBe('Ilmoittautuneet #1')
-    expect(
-      formatGroupAuditInfo({ date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 20, time: 'ip' })
-    ).toBe('la 3.8. ip #20')
-    expect(
-      formatGroupAuditInfo({ date: '2026-10-31T22:00:00.000Z', key: '2026-11-01-ap', number: 3, time: 'ap' })
-    ).toBe('su 1.11. ap #3')
-  })
-})
-
 describe('groupChangeAudit', () => {
   const dayGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 2, time: 'ip' as const }
 
-  it('gives a move its groups as parts and its reason as a key (KOE-1442)', () => {
+  it('gives a move its groups as parts and its reason as a key, and no text of its own (KOE-1511)', () => {
     expect(groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move')).toEqual({
-      message: 'Ryhmä: la 3.8. ip #2 -> Ilmoittautuneet #1 siirto',
       messageKey: 'audit.messages.groupChanged',
       messageParams: {
         fromDate: '2024-08-03',
         fromNumber: 2,
-        fromTime: 'ip',
         fromTimeKey: 'audit.time.ip',
-        reason: 'siirto',
         reasonKey: 'audit.groupReason.move',
-        toGroup: 'Ilmoittautuneet',
         toGroupKey: 'eventManagement.participantSelection.registered',
         toNumber: 1,
       },
@@ -86,12 +67,9 @@ describe('groupChangeAudit', () => {
 
   it('names the first placement without a previous group', () => {
     expect(groupChangeAudit(undefined, { key: 'cancelled', number: 3 }, 'automatic')).toEqual({
-      message: 'Ryhmä: Peruneet #3 (automaattinen sijoitus)',
       messageKey: 'audit.messages.groupSet',
       messageParams: {
-        reason: '(automaattinen sijoitus)',
         reasonKey: 'audit.groupReason.automatic',
-        toGroup: 'Peruneet',
         toGroupKey: 'eventManagement.participantSelection.cancelled',
         toNumber: 3,
       },
@@ -100,64 +78,53 @@ describe('groupChangeAudit', () => {
 
   it('leaves out what a group does not have', () => {
     expect(groupChangeAudit(undefined, { key: 'kp', number: 4 })).toEqual({
-      message: 'Ryhmä: #4',
       messageKey: 'audit.messages.groupSet',
       messageParams: { toNumber: 4 },
     })
   })
 
-  it('writes only the Finnish line when the registration has no group', () => {
+  it('names a registration left without a group by the group it had', () => {
     expect(groupChangeAudit({ key: 'reserve', number: 1 }, undefined, 'consequence')).toEqual({
-      message: 'Ryhmä: Ilmoittautuneet #1 ->  seuraus',
+      messageKey: 'audit.messages.groupRemoved',
+      messageParams: {
+        fromGroupKey: 'eventManagement.participantSelection.registered',
+        fromNumber: 1,
+        reasonKey: 'audit.groupReason.consequence',
+      },
     })
   })
 })
 
 describe('startNumberSavedAudit', () => {
   it.each([
-    [4, undefined, 'audit.messages.startNumberSaved', 'Starttinumero tallennettu: 4', { number: 4 }],
-    [4, 4, 'audit.messages.startNumberSaved', 'Starttinumero tallennettu: 4', { number: 4 }],
-    [13, 9, 'audit.messages.startNumberChanged', 'Starttinumero tallennettu: 9 -> 13', { number: 13, previous: 9 }],
-  ])('saves %s over %s as %s', (number, previous, messageKey, message, messageParams) => {
-    expect(startNumberSavedAudit(number, previous)).toEqual({ message, messageKey, messageParams })
+    [4, undefined, 'audit.messages.startNumberSaved', { number: 4 }],
+    [4, 4, 'audit.messages.startNumberSaved', { number: 4 }],
+    [13, 9, 'audit.messages.startNumberChanged', { number: 13, previous: 9 }],
+  ])('saves %s over %s as %s', (number, previous, messageKey, messageParams) => {
+    expect(startNumberSavedAudit(number, previous)).toEqual({ messageKey, messageParams })
   })
 })
 
 describe('startNumbersPublishedAudit', () => {
   it.each([
-    [true, {}, 'audit.messages.startNumbersPublished', 'Starttinumerot julkaistu', undefined],
-    [false, {}, 'audit.messages.startNumbersHidden', 'Starttinumerot piilotettu', undefined],
-    [
-      true,
-      { eventClass: 'ALO' },
-      'audit.messages.classStartNumbersPublished',
-      'ALO starttinumerot julkaistu',
-      { eventClass: 'ALO' },
-    ],
-    [
-      false,
-      { date: '2026-09-12' },
-      'audit.messages.startNumbersHiddenDay',
-      'Starttinumerot piilotettu la 12.9.',
-      { date: '2026-09-12' },
-    ],
+    [true, {}, 'audit.messages.startNumbersPublished', undefined],
+    [false, {}, 'audit.messages.startNumbersHidden', undefined],
+    [true, { eventClass: 'ALO' }, 'audit.messages.classStartNumbersPublished', { eventClass: 'ALO' }],
+    [false, { date: '2026-09-12' }, 'audit.messages.startNumbersHiddenDay', { date: '2026-09-12' }],
     [
       true,
       { date: '2026-09-12', eventClass: 'ALO', time: 'ap' },
       'audit.messages.classStartNumbersPublishedDay',
-      'ALO starttinumerot julkaistu la 12.9. ap',
-      { date: '2026-09-12', eventClass: 'ALO', time: 'ap', timeKey: 'audit.time.ap' },
+      { date: '2026-09-12', eventClass: 'ALO', timeKey: 'audit.time.ap' },
     ],
     [
       false,
       { date: '2026-09-12', eventClass: 'ALO' },
       'audit.messages.classStartNumbersHiddenDay',
-      'ALO starttinumerot piilotettu la 12.9.',
       { date: '2026-09-12', eventClass: 'ALO' },
     ],
-  ])('published %s in %j', (published, scope, messageKey, message, messageParams) => {
+  ])('published %s in %j', (published, scope, messageKey, messageParams) => {
     expect(startNumbersPublishedAudit(published, scope)).toEqual({
-      message,
       messageKey,
       ...(messageParams ? { messageParams } : {}),
     })
@@ -176,13 +143,8 @@ describe('emailDeliveryFailedAudit', () => {
         },
         { detailKey: 'audit.details.deliveryReason', detailParams: { reason: 'abuse' } },
       ],
-      message: 'Sähköpostin toimitus epäonnistui (merkittiin roskapostiksi): a@example.com',
       messageKey: 'audit.messages.emailDeliveryFailed',
-      messageParams: {
-        email: 'a@example.com',
-        status: 'merkittiin roskapostiksi',
-        statusKey: 'audit.deliveryStatus.complaint',
-      },
+      messageParams: { email: 'a@example.com', statusKey: 'audit.deliveryStatus.complaint' },
     })
   })
 
@@ -199,31 +161,49 @@ describe('emailSubjectAuditKey', () => {
   })
 })
 
-describe('resultSavedAudit', () => {
+describe('registrationCancelledAudit', () => {
   it.each([
-    [false, '', 'audit.messages.resultSaved', 'Tallensi tuloksen'],
-    [true, '', 'audit.messages.resultChanged', 'Muutti tulosta'],
-  ])('changed %s without a result text', (changed, result, messageKey, message) => {
-    expect(resultSavedAudit(changed, result)).toEqual({ message, messageKey })
-  })
-
-  it.each([
-    [false, 'audit.messages.resultSavedDetail', 'Tallensi tuloksen: HYV, 20 p'],
-    [true, 'audit.messages.resultChangedDetail', 'Muutti tulosta: HYV, 20 p'],
-  ])('changed %s with a result text', (changed, messageKey, message) => {
-    expect(resultSavedAudit(changed, 'HYV, 20 p')).toEqual({
-      message,
-      messageKey,
-      messageParams: { result: 'HYV, 20 p' },
+    ['a predefined reason by its key', 'dog-heat', { reasonKey: 'registration.cancelReason.dog-heat' }],
+    ["the entrant's own words as written", 'auto hajosi', { reason: 'auto hajosi' }],
+    ['a missing reason by its key', undefined, { reasonKey: 'audit.reasonMissing' }],
+  ])('names %s', (_case, cancelReason, messageParams) => {
+    expect(registrationCancelledAudit(cancelReason)).toEqual({
+      messageKey: 'audit.messages.registrationCancelled',
+      messageParams,
     })
   })
 })
 
-/**
- * Every message, built as a lambda builds it. Read back in Finnish it has to say exactly what its
- * stored `message` says: a Finnish trail looks as it did before the keys, and the two never drift
- * apart (KOE-1442).
- */
+describe('refundPaytrailFailedAudit', () => {
+  it("keeps Paytrail's own words, or names a missing one by a key", () => {
+    expect(refundPaytrailFailedAudit(400, 'Revert failed')).toEqual({
+      messageKey: 'audit.messages.refundPaytrailFailed',
+      messageParams: { error: 'Revert failed', status: 400 },
+    })
+    expect(refundPaytrailFailedAudit(500)).toEqual({
+      messageKey: 'audit.messages.refundPaytrailFailed',
+      messageParams: { errorKey: 'audit.unknownError', status: 500 },
+    })
+  })
+})
+
+describe('resultSavedAudit', () => {
+  it.each([
+    [false, 'audit.messages.resultSaved'],
+    [true, 'audit.messages.resultChanged'],
+  ])('changed %s without a result text', (changed, messageKey) => {
+    expect(resultSavedAudit(changed, '')).toEqual({ messageKey })
+  })
+
+  it.each([
+    [false, 'audit.messages.resultSavedDetail'],
+    [true, 'audit.messages.resultChangedDetail'],
+  ])('changed %s with a result text', (changed, messageKey) => {
+    expect(resultSavedAudit(changed, 'HYV, 20 p')).toEqual({ messageKey, messageParams: { result: 'HYV, 20 p' } })
+  })
+})
+
+/** Every message, built as a lambda builds it. */
 const dayGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 2, time: 'ip' as const }
 const kpGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-kp', number: 4, time: 'kp' as const }
 
@@ -239,44 +219,26 @@ const messages: Array<[string, AuditMessage]> = [
   ['startNumbersHidden', startNumbersPublishedAudit(false)],
   ['classStartNumbersHidden', startNumbersPublishedAudit(false, { eventClass: 'ALO' })],
   ['classStartNumbersHiddenDay', startNumbersPublishedAudit(false, { date: '2026-09-12', eventClass: 'ALO' })],
-  // Not only Saturday: the short and the abbreviated Finnish weekday agree on "la" alone.
-  ['startNumbersPublishedDay (Sunday)', startNumbersPublishedAudit(true, { date: '2026-09-13', eventClass: 'ALO' })],
-  ['startNumbersPublishedDay (Monday)', startNumbersPublishedAudit(true, { date: '2026-09-14', time: 'ip' })],
-  [
-    'groupChanged (Sunday)',
-    groupChangeAudit(
-      { date: '2026-10-31T22:00:00.000Z', key: '2026-11-01-ap', number: 3, time: 'ap' },
-      { key: 'reserve', number: 1 },
-      'move'
-    ),
-  ],
   [
     'classStartNumbersPublishedDay',
     startNumbersPublishedAudit(true, { date: '2026-09-12', eventClass: 'ALO', time: 'ip' }),
   ],
   ['startNumbersEntered', startNumbersEnteredAudit(5)],
-  ['startNumbersEntered (one)', startNumbersEnteredAudit(1)],
   ['startNumbersEnteredClass', startNumbersEnteredAudit(1, 'AVO')],
-  ['emailSentTo', emailSentAudit('Koekutsu', 'emailTemplate.invitation', ['a@example.com', 'b@example.com'])],
-  ['emailFailedTo', emailFailedAudit('Koekutsu', 'emailTemplate.invitation', ['a@example.com'])],
+  ['emailSentTo', emailSentAudit('emailTemplate.invitation', ['a@example.com', 'b@example.com'])],
+  ['emailFailedTo', emailFailedAudit('emailTemplate.invitation', ['a@example.com'])],
   ['emailBlocked', emailBlockedAudit(4)],
-  ['emailBlocked (one)', emailBlockedAudit(1)],
   ['emailDeliveryFailed', emailDeliveryFailedAudit({ email: 'a@example.com', status: 'bounce' })],
   ['emailDeliveryFailed (complaint)', emailDeliveryFailedAudit({ email: 'a@example.com', status: 'complaint' })],
-  [
-    'emailDeliveryFailed (template, reason)',
-    emailDeliveryFailedAudit({ email: 'a@example.com', reason: 'abuse', status: 'complaint', template: 'picked' }),
-  ],
   ['groupChanged', groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move')],
   ['groupChanged (consequence)', groupChangeAudit(dayGroup, { ...dayGroup, number: 1 }, 'consequence')],
   ['groupChanged (no reason)', groupChangeAudit(kpGroup, { key: 'cancelled', number: 5 })],
   ['groupSet', groupChangeAudit(undefined, { key: 'reserve', number: 2 }, 'automatic')],
-  ['groupSet (kp, no day)', groupChangeAudit(undefined, { key: 'kp', number: 4 })],
+  ['groupRemoved', groupChangeAudit({ key: 'cancelled', number: 2 }, undefined, 'consequence')],
   ['registrationCreated', registrationCreatedAudit()],
   ['registrationAdded', registrationAddedAudit()],
   ['registrationConfirmed', registrationConfirmedAudit()],
-  ['registrationCancelled', registrationCancelledAudit('Koiran juoksut', 'registration.cancelReason.dog-heat')],
-  ['registrationCancelled (own words)', registrationCancelledAudit('auto hajosi')],
+  ['registrationCancelled', registrationCancelledAudit('dog-heat')],
   ['registrationCancelled (no reason)', registrationCancelledAudit()],
   ['registrationDaysOutsideEvent', registrationDaysMismatchAudit('1.1.2030')],
   ['registrationDaysOutsideClass', registrationDaysMismatchAudit('1.1.2030, 2.1.2030', 'ALO')],
@@ -289,10 +251,8 @@ const messages: Array<[string, AuditMessage]> = [
   ['refundPending', paymentAudit('refundPending', 'Nordea', '19,00 €')],
   ['paymentDuplicate', duplicatePaymentAudit('Nordea', '19,00 €', 'reg-2')],
   ['paymentDuplicateOther', duplicatePaymentOfOtherAudit('Nordea', '19,00 €', 'reg-1')],
-  [
-    'refundPaytrailFailed',
-    refundPaytrailFailedAudit('Maksun palautus epäonnistui Paytrailissa (400): Revert failed', 400, 'Revert failed'),
-  ],
+  ['refundPaytrailFailed', refundPaytrailFailedAudit(400, 'Revert failed')],
+  ['refundPaytrailFailed (no error)', refundPaytrailFailedAudit(500)],
   ['resultSaved', resultSavedAudit(false, '')],
   ['resultChangedDetail', resultSavedAudit(true, 'HYV, 20/30 p')],
   ['eventCopiedTo', eventCopiedToAudit('test', 'copy-1')],
@@ -308,28 +268,55 @@ beforeAll(async () => {
   registerFormatters(i18n)
 })
 
-describe('the Finnish reading of each audit message', () => {
-  it.each(messages)('%s reads as its stored message', (_name, row) => {
+describe('each audit message', () => {
+  it.each(messages)('%s stores a key and no text of its own (KOE-1511)', (_name, row) => {
     expect(row.messageKey).toEqual(expect.any(String))
-    expect(formatAuditMessage(fi(), row)).toBe(row.message)
+    expect(row).not.toHaveProperty('message')
   })
 
-  // Not `exists`, which would find the Finnish fallback.
-  it.each(messages)('%s has an English translation', (_name, { messageKey }) => {
-    expect(i18n.getResource('en', 'translation', messageKey ?? '')).toEqual(expect.any(String))
-  })
-
-  // A translated part keeps its Finnish text beside the key, for a reader without the key; the two
-  // must say the same, or the stored message and the Finnish reading would part ways.
-  it.each(messages)("%s stores each translated part's Finnish text", (_name, { messageParams = {} }) => {
-    for (const [name, value] of Object.entries(messageParams)) {
-      if (!name.endsWith('Key') || typeof value !== 'string') continue
-      expect(i18n.getResource('fi', 'translation', value)).toBe(messageParams[name.slice(0, -'Key'.length)])
+  // Not `exists`, which would find the Finnish fallback for English.
+  it.each(messages)('%s names keys that both languages have', (_name, { messageKey, messageParams = {} }) => {
+    const keys = [
+      messageKey,
+      ...Object.entries(messageParams)
+        .filter(([name]) => name.endsWith('Key'))
+        .map(([, value]) => value),
+    ]
+    for (const key of keys) {
+      expect(i18n.getResource('fi', 'translation', String(key))).toEqual(expect.any(String))
+      expect(i18n.getResource('en', 'translation', String(key))).toEqual(expect.any(String))
     }
   })
 })
 
-describe('formatAuditMessage in English', () => {
+describe('formatAuditMessage', () => {
+  it.each([
+    [
+      groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move'),
+      'Ryhmä: la 3.8. ip #2 -> Ilmoittautuneet #1 siirto',
+    ],
+    [
+      groupChangeAudit(
+        { date: '2026-10-31T22:00:00.000Z', key: '2026-11-01-ap', number: 3, time: 'ap' },
+        { key: 'reserve', number: 1 },
+        'move'
+      ),
+      'Ryhmä: su 1.11. ap #3 -> Ilmoittautuneet #1 siirto',
+    ],
+    [groupChangeAudit(kpGroup, { key: 'cancelled', number: 5 }), 'Ryhmä: la 3.8. kp #4 -> Peruneet #5'],
+    [groupChangeAudit({ key: 'reserve', number: 1 }, undefined, 'consequence'), 'Ryhmä: Ilmoittautuneet #1 -> seuraus'],
+    [startNumbersPublishedAudit(true, { date: '2026-09-14', time: 'ip' }), 'Starttinumerot julkaistu ma 14.9. ip'],
+    [registrationCancelledAudit('dog-heat'), 'Ilmoittautuminen peruttiin, syy: Koiran juoksut'],
+    [registrationCancelledAudit(), 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'],
+    [refundPaytrailFailedAudit(500), 'Maksun palautus epäonnistui Paytrailissa (500): Tuntematon virhe'],
+    [
+      emailDeliveryFailedAudit({ email: 'a@example.com', status: 'complaint' }),
+      'Sähköpostin toimitus epäonnistui (merkittiin roskapostiksi): a@example.com',
+    ],
+  ])('reads %j in Finnish as %j', (row, finnish) => {
+    expect(formatAuditMessage(fi(), row)).toBe(finnish)
+  })
+
   it.each([
     [groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move'), 'Group: Sat 3.8. pm #2 -> Registered #1 move'],
     [groupChangeAudit(kpGroup, { key: 'cancelled', number: 5 }), 'Group: Sat 3.8. #4 -> Cancelled #5'],
@@ -338,6 +325,9 @@ describe('formatAuditMessage in English', () => {
     [startNumbersEnteredAudit(3), 'Start numbers entered for 3 dogs'],
     [emailBlockedAudit(1), 'Message blocked in the test environment (1 recipient)'],
     [registrationCancelledAudit(), 'Registration cancelled, reason: (not filled in)'],
+    [registrationCancelledAudit('auto hajosi'), 'Registration cancelled, reason: auto hajosi'],
+    [refundPaytrailFailedAudit(400, 'Revert failed'), 'Refund failed at Paytrail (400): Revert failed'],
+    [refundPaytrailFailedAudit(500), 'Refund failed at Paytrail (500): Unknown error'],
     [
       startNumbersPublishedAudit(true, { date: '2026-09-12', eventClass: 'ALO', time: 'ap' }),
       'ALO start numbers published Sat 12.9. am',
@@ -346,7 +336,8 @@ describe('formatAuditMessage in English', () => {
       emailDeliveryFailedAudit({ email: 'a@example.com', status: 'bounce' }),
       'Email delivery failed (bounced): a@example.com',
     ],
-  ])('%j reads %j', (row, english) => {
+    [emailSentAudit('emailTemplate.invitation', ['a@example.com']), 'Email: Invitation, to: a@example.com'],
+  ])('reads %j in English as %j', (row, english) => {
     expect(formatAuditMessage(en(), row)).toBe(english)
   })
 
@@ -355,7 +346,7 @@ describe('formatAuditMessage in English', () => {
     const revived = { ...row, messageParams: { ...row.messageParams, fromDate: parseDateOnlyString('2024-08-03') } }
 
     expect(formatAuditMessage(en(), revived)).toBe('Group: Sat 3.8. pm #2 -> Registered #1 move')
-    expect(formatAuditMessage(fi(), revived)).toBe(row.message)
+    expect(formatAuditMessage(fi(), revived)).toBe('Ryhmä: la 3.8. ip #2 -> Ilmoittautuneet #1 siirto')
   })
 
   it('shows a free text the API revived into a Date as the text it was', () => {
@@ -370,19 +361,24 @@ describe('formatAuditMessage in English', () => {
     )
   })
 
-  it('shows the stored text for a key outside the audit translations, and for one this bundle lacks', () => {
-    expect(formatAuditMessage(en(), { message: 'Tallennettu', messageKey: 'x.y' })).toBe('Tallennettu')
+  it('shows an old row by the text stored with it', () => {
     expect(formatAuditMessage(en(), { message: 'Tallennettu' })).toBe('Tallennettu')
+    expect(formatAuditMessage(en(), { message: 'Tallennettu', messageKey: 'x.y' })).toBe('Tallennettu')
     expect(formatAuditMessage(en(), { message: 'Tallennettu', messageKey: 'audit.messages.notYet' })).toBe(
       'Tallennettu'
     )
   })
 
+  it('names a key this bundle does not know, rather than showing nothing (KOE-1511)', () => {
+    expect(formatAuditMessage(en(), { messageKey: 'audit.messages.notYet' })).toBe(
+      'Unknown entry: audit.messages.notYet'
+    )
+    expect(formatAuditMessage(fi(), { messageKey: 'x.y' })).toBe('Tuntematon merkintä: x.y')
+  })
+
   it('falls back to the stored part when its key is missing', () => {
     expect(
-      formatAuditMessage(en(), {
-        ...emailSentAudit('Oma aihe', 'registration.email.subject_refund', ['a@example.com']),
-      })
+      formatAuditMessage(en(), emailSentAudit('registration.email.subject_refund', ['a@example.com'], 'Oma aihe'))
     ).toBe('Email: Oma aihe, to: a@example.com')
   })
 })

@@ -35,7 +35,8 @@ export interface JsonAuditRecord {
   timestamp: string
   user: string
   userSource?: AuditUserSource
-  message: string
+  /** The Finnish text of a row written before the keys (KOE-1442); a new row has only its key (KOE-1511). */
+  message?: string
 }
 
 export interface AuditRecord extends Omit<JsonAuditRecord, 'timestamp' | 'messageParams'> {

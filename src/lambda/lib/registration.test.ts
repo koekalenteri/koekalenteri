@@ -90,10 +90,9 @@ describe('createSentRegistrationMessagesAudit', () => {
     const record = createSentRegistrationMessagesAudit({
       event: { id: 'event-id' },
       failed: ['first@example.com', 'second@example.com'],
-      label: 'Koekutsu',
-      labelKey: 'emailTemplate.invitation',
       ok: ['success@example.com'],
       registrations: [{ class: 'ALO' }, { class: 'ALO' }],
+      template: 'invitation',
       user: 'Test User',
     })
 
@@ -105,13 +104,12 @@ describe('createSentRegistrationMessagesAudit', () => {
           detailParams: { recipients: 'first@example.com\nsecond@example.com' },
         },
       ],
-      message: 'Koekutsu luokkaan ALO lähetetty: onnistui 1, epäonnistui 2',
       messageKey: 'audit.messages.classEmailSent',
       messageParams: {
         eventClass: 'ALO',
         failed: 2,
         ok: 1,
-        template: 'Koekutsu',
+        template: 'invitation',
         templateKey: 'emailTemplate.invitation',
       },
       user: 'Test User',
@@ -122,21 +120,19 @@ describe('createSentRegistrationMessagesAudit', () => {
     const record = createSentRegistrationMessagesAudit({
       event: { id: 'event-id' },
       failed: [],
-      label: 'Koepaikkailmoitus',
-      labelKey: 'emailTemplate.picked',
       ok: ['success@example.com'],
       registrations: [{ class: 'ALO' }, { class: 'AVO' }, { class: undefined }],
+      template: 'picked',
       user: 'Test User',
     })
 
     expect(record).toEqual({
       auditKey: 'event:event-id',
-      message: 'Koepaikkailmoitus lähetetty: onnistui 1, epäonnistui 0',
       messageKey: 'audit.messages.emailSent',
       messageParams: {
         failed: 0,
         ok: 1,
-        template: 'Koepaikkailmoitus',
+        template: 'picked',
         templateKey: 'emailTemplate.picked',
       },
       user: 'Test User',
@@ -747,11 +743,9 @@ describe('registration', () => {
       expect(mockAudit).toHaveBeenCalledTimes(2)
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'testALOInvited:testALOInvited1',
-        message: 'Sähköposti: Koekutsu, vastaanottajat: handler1@example.com, owner1@example.com',
         messageKey: 'audit.messages.emailSentTo',
         messageParams: {
           recipients: 'handler1@example.com, owner1@example.com',
-          template: 'Koekutsu',
           templateKey: 'emailTemplate.invitation',
         },
         user: 'admin-user',
@@ -981,11 +975,9 @@ describe('registration', () => {
       // Check audit entries for failure
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'testALOInvited:testALOInvited2',
-        message: 'Lähetys epäonnistui: Koekutsu: handler2@example.com, owner2@example.com',
         messageKey: 'audit.messages.emailFailedTo',
         messageParams: {
           recipients: 'handler2@example.com, owner2@example.com',
-          template: 'Koekutsu',
           templateKey: 'emailTemplate.invitation',
         },
         user: 'admin-user',

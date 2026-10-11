@@ -114,7 +114,6 @@ describe('putStartNumbersLambda', () => {
     )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'ALO starttinumerot julkaistu',
         messageKey: 'audit.messages.classStartNumbersPublished',
         messageParams: { eventClass: 'ALO' },
         user: 'Sihteeri',
@@ -124,7 +123,6 @@ describe('putStartNumbersLambda', () => {
     // carries the number the secretary sees on the work list (KOE-1355).
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event-1:run-1',
-      message: 'Starttinumero julkaistu: 1',
       messageKey: 'audit.messages.startNumberPublished',
       messageParams: { number: 1 },
       user: 'Sihteeri',
@@ -176,7 +174,6 @@ describe('putStartNumbersLambda', () => {
     )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'ALO starttinumerot julkaistu la 12.9.',
         messageKey: 'audit.messages.classStartNumbersPublishedDay',
         messageParams: { date: '2026-09-12', eventClass: 'ALO' },
       })
@@ -209,9 +206,8 @@ describe('putStartNumbersLambda', () => {
     )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'ALO starttinumerot julkaistu la 12.9. ap',
         messageKey: 'audit.messages.classStartNumbersPublishedDay',
-        messageParams: { date: '2026-09-12', eventClass: 'ALO', time: 'ap', timeKey: 'audit.time.ap' },
+        messageParams: { date: '2026-09-12', eventClass: 'ALO', timeKey: 'audit.time.ap' },
       })
     )
   })
@@ -304,14 +300,12 @@ describe('putStartNumbersLambda', () => {
     )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Starttinumero syötetty 1 koiralle (ALO)',
         messageKey: 'audit.messages.startNumbersEnteredClass',
         messageParams: { count: 1, eventClass: 'ALO' },
       })
     )
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event-1:run-1',
-      message: 'Starttinumero tallennettu: 1 -> 4',
       messageKey: 'audit.messages.startNumberChanged',
       messageParams: { number: 4, previous: 1 },
       user: 'Sihteeri',

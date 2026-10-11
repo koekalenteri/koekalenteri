@@ -265,7 +265,7 @@ describe('payment', () => {
 
       await cancelTransaction<JsonPaymentTransaction>({
         auditActor: () => ({ name: 'unused' }),
-        auditMessage: () => ({ message: 'unused' }),
+        auditMessage: () => ({ messageKey: 'unused' }),
         params,
         statusField: 'paymentStatus',
         updateProvider: true,
@@ -284,7 +284,7 @@ describe('payment', () => {
       await expect(
         cancelTransaction<JsonPaymentTransaction>({
           auditActor: () => ({ name: 'unused' }),
-          auditMessage: () => ({ message: 'unused' }),
+          auditMessage: () => ({ messageKey: 'unused' }),
           params,
           statusField: 'paymentStatus',
         })
@@ -303,15 +303,22 @@ describe('payment', () => {
     )
   })
 
-  it('audits a refused refund with Paytrail status and message as parameters (KOE-1442)', () => {
+  it('audits a refused refund with Paytrail status and message as parameters, and no Finnish text (KOE-1511)', () => {
     const error = Object.assign(new Error('400 Revert failed'), {
       error: JSON.stringify({ message: 'Revert failed' }),
       status: 400,
     })
     expect(refundPaytrailErrorAudit(error)).toEqual({
-      message: 'Maksun palautus epäonnistui Paytrailissa (400): Revert failed',
       messageKey: 'audit.messages.refundPaytrailFailed',
       messageParams: { error: 'Revert failed', status: 400 },
+    })
+  })
+
+  it('names a refusal Paytrail gave no words for by a key', () => {
+    const error = Object.assign(new Error('500 undefined'), { error: undefined, status: 500 })
+    expect(refundPaytrailErrorAudit(error)).toEqual({
+      messageKey: 'audit.messages.refundPaytrailFailed',
+      messageParams: { errorKey: 'audit.unknownError', status: 500 },
     })
   })
 })

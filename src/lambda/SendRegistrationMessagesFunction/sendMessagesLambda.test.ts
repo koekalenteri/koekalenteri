@@ -231,13 +231,12 @@ describe('sendMessagesLambda', () => {
     )
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event:event123',
-      message: 'Koekutsu luokkaan ALO lähetetty: onnistui 1, epäonnistui 0',
       messageKey: 'audit.messages.classEmailSent',
       messageParams: {
         eventClass: 'ALO',
         failed: 0,
         ok: 1,
-        template: 'Koekutsu',
+        template: 'invitation',
         templateKey: 'emailTemplate.invitation',
       },
       user: 'Test User',
@@ -276,7 +275,6 @@ describe('sendMessagesLambda', () => {
 
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Koekutsu lähetetty: onnistui 1, epäonnistui 0',
         messageKey: 'audit.messages.emailSent',
         messageParams: expect.not.objectContaining({ eventClass: expect.anything() }),
       })
@@ -310,13 +308,12 @@ describe('sendMessagesLambda', () => {
     expect(mockUpdate).not.toHaveBeenCalled()
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event:event123',
-      message: 'Koepaikkailmoitus luokkaan ALO lähetetty: onnistui 1, epäonnistui 0',
       messageKey: 'audit.messages.classEmailSent',
       messageParams: {
         eventClass: 'ALO',
         failed: 0,
         ok: 1,
-        template: 'Koepaikkailmoitus',
+        template: 'picked',
         templateKey: 'emailTemplate.picked',
       },
       user: 'Test User',
@@ -419,13 +416,12 @@ describe('sendMessagesLambda', () => {
           detailParams: { recipients: 'recipient@example.com' },
         },
       ],
-      message: 'Koekutsu luokkaan ALO lähetetty: onnistui 0, epäonnistui 1',
       messageKey: 'audit.messages.classEmailSent',
       messageParams: {
         eventClass: 'ALO',
         failed: 1,
         ok: 0,
-        template: 'Koekutsu',
+        template: 'invitation',
         templateKey: 'emailTemplate.invitation',
       },
       user: 'Test User',

@@ -4,10 +4,12 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import i18next from 'i18next'
 import { Provider } from 'jotai'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider, useSnackbar } from 'notistack'
 import { Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { APIError } from '@/api/http'
@@ -24,6 +26,12 @@ vi.mock('../state/registrations/actions', async () => ({
     transactions: vi.fn().mockResolvedValue(mockTransactions),
   }),
 }))
+
+// The file's other tests read keys; the English one reads the app's real English (KOE-1511).
+vi.mock('react-i18next', async (importOriginal) => {
+  const original = await importOriginal<typeof import('react-i18next')>()
+  return { ...original, useTranslation: vi.fn(original.useTranslation) }
+})
 
 vi.mock('notistack', async () => ({
   ...(await vi.importActual<typeof import('notistack')>('notistack')),
@@ -414,14 +422,13 @@ describe('RefundDialog', () => {
     })
   })
 
-  it('shows Paytrail refund errors from API response', async () => {
+  it('shows the parsed Paytrail error with its status', async () => {
     const paytrailMessage =
       'API refund failed and provider does not support email refunds. Provider message: Revert failed'
 
     mockRefundImplementation = vi.fn().mockRejectedValue(
       new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {
         error: JSON.stringify({ message: paytrailMessage, status: 'error' }),
-        message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
       })
     )
 
@@ -432,33 +439,45 @@ describe('RefundDialog', () => {
 
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith(
-        `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
-        { persist: true, variant: 'error' }
-      )
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.error.provider message, status', {
+        persist: true,
+        variant: 'error',
+      })
     })
   })
 
-  it('shows parsed Paytrail error when API response has no message', async () => {
-    const paytrailMessage =
-      'API refund failed and provider does not support email refunds. Provider message: Revert failed'
-
-    mockRefundImplementation = vi.fn().mockRejectedValue(
-      new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {
-        error: JSON.stringify({ message: paytrailMessage, status: 'error' }),
+  describe('in English (KOE-1511)', () => {
+    const keysOnly = vi.mocked(useTranslation).getMockImplementation()
+    beforeEach(() => {
+      vi.mocked(useTranslation).mockImplementation(() => {
+        const t = i18next.getFixedT('en')
+        const response: [typeof t, typeof i18next, boolean] = [t, i18next, true]
+        return Object.assign(response, { i18n: i18next, ready: true, t })
       })
-    )
-
-    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
-      wrapper: Wrapper,
     })
-    await flushPromises()
+    afterEach(() => {
+      if (keysOnly) vi.mocked(useTranslation).mockImplementation(keysOnly)
+    })
 
-    fireEvent.click(screen.getByText('refund'))
-    await waitFor(() => {
-      expect(enqueueSnackbarMock).toHaveBeenCalledWith('registration.refundDialog.error.provider message', {
-        persist: true,
-        variant: 'error',
+    it('shows the Paytrail refusal in the reading language, not the Finnish audit text', async () => {
+      mockRefundImplementation = vi.fn().mockRejectedValue(
+        new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {
+          error: JSON.stringify({ message: 'Revert failed', status: 'error' }),
+          message: 'Maksun palautus epäonnistui Paytrailissa (400): Revert failed',
+        })
+      )
+
+      render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Refund' }))
+      await waitFor(() => {
+        expect(enqueueSnackbarMock).toHaveBeenCalledWith('The refund failed at Paytrail (400): Revert failed', {
+          persist: true,
+          variant: 'error',
+        })
       })
     })
   })

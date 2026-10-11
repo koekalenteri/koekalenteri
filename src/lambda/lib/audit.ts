@@ -78,8 +78,7 @@ const eventAuditExcludedFields = new Set<string>([
 type EventAuditMessage = {
   changes?: JsonAuditChange[]
   details?: JsonAuditDetail[]
-  message: string
-  messageKey?: string
+  messageKey: string
   messageParams?: Record<string, string | number | boolean>
 }
 
@@ -95,7 +94,6 @@ const getStartListAuditMessages = (
 
     return [
       {
-        message: `Starttilista ${item.startListPublished ? 'julkaistu' : 'piilotettu'}`,
         messageKey: item.startListPublished ? 'audit.messages.startListPublished' : 'audit.messages.startListHidden',
       },
     ]
@@ -120,7 +118,6 @@ const getStartListAuditMessages = (
   return Object.entries(nextMap)
     .filter(([eventClass, published]) => existingMap[eventClass as RegistrationClass] !== published)
     .map(([eventClass, published]) => ({
-      message: `${eventClass} starttilista ${published ? 'julkaistu' : 'piilotettu'}`,
       messageKey: published ? 'audit.messages.classStartListPublished' : 'audit.messages.classStartListHidden',
       messageParams: { eventClass },
     }))
@@ -186,9 +183,9 @@ export const getEventAuditMessages = (
   existing: JsonConfirmedEvent | undefined,
   item: Patch<JsonConfirmedEvent>
 ): EventAuditMessage[] => {
-  if (!existing) return [{ message: 'Tapahtuma luotu', messageKey: 'audit.messages.eventCreated' }]
+  if (!existing) return [{ messageKey: 'audit.messages.eventCreated' }]
   if (item.deletedAt && !existing.deletedAt) {
-    return [{ message: 'Tapahtuma poistettu', messageKey: 'audit.messages.eventDeleted' }]
+    return [{ messageKey: 'audit.messages.eventDeleted' }]
   }
 
   const messages: EventAuditMessage[] = getStartListAuditMessages(existing, item)
@@ -215,12 +212,11 @@ export const getEventAuditMessages = (
   if (changes.length) {
     messages.push({
       changes,
-      message: `Muutti: ${changes.map((change) => change.field).join(', ')}`,
       messageKey: 'audit.changed',
     })
   }
 
-  return messages.length ? messages : [{ message: 'Tapahtuma tallennettu', messageKey: 'audit.messages.eventSaved' }]
+  return messages.length ? messages : [{ messageKey: 'audit.messages.eventSaved' }]
 }
 
 export const audit = async (item: Omit<JsonAuditRecord, 'timestamp'>) => {

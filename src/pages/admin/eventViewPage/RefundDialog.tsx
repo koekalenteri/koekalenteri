@@ -254,15 +254,12 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
     (error: APIError): string | null => {
       if (!isObject(error.body)) return null
 
-      if (typeof error.body.message === 'string' && error.body.message) {
-        return error.body.message
-      }
-
+      // Paytrail's own words, in the reader's sentence: never a text the API wrote in Finnish (KOE-1511).
       if (typeof error.body.error === 'string' && error.body.error) {
         try {
           const details = JSON.parse(error.body.error)
           if (typeof details?.message === 'string' && details.message) {
-            return t('registration.refundDialog.error.provider', { message: details.message })
+            return t('registration.refundDialog.error.provider', { message: details.message, status: error.status })
           }
         } catch {
           return null

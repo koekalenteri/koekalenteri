@@ -9,7 +9,6 @@ import type {
   RegistrationTemplateContext,
 } from '../../types'
 import { createHmac, timingSafeEqual } from 'node:crypto'
-import { getFixedT } from '../../i18n/lambda'
 import {
   auditUser,
   emailFailedAudit,
@@ -22,7 +21,6 @@ import {
   GROUP_KEY_RESERVE,
   getRegistrationClass,
   isParticipantGroup,
-  isPredefinedReason,
   isRegistrationClass,
   PUBLIC_REGISTRATION_FIELDS,
   PUBLIC_REGISTRATION_UPDATE_FIELDS,
@@ -46,27 +44,24 @@ const NEW_REGISTRATION_LEASE_DURATION_MS = 90 * 1000
 type SentRegistrationMessagesAudit = {
   event: Pick<JsonConfirmedEvent, 'id'>
   failed: string[]
-  label: string
-  labelKey: string
   ok: string[]
   registrations: Pick<JsonRegistration, 'class'>[]
+  template: EmailTemplateId
   user: string
 }
 
 export const createSentRegistrationMessagesAudit = ({
   event,
   failed,
-  label,
-  labelKey,
   ok,
   registrations,
+  template,
   user,
 }: SentRegistrationMessagesAudit) => {
   const messageClasses = [
     ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
   ]
   const messageClass = messageClasses.length === 1 ? messageClasses[0] : undefined
-  const classDescription = messageClass ? ` luokkaan ${messageClass}` : ''
 
   return {
     auditKey: eventAuditKey(event),
@@ -80,14 +75,13 @@ export const createSentRegistrationMessagesAudit = ({
           ],
         }
       : {}),
-    message: `${label}${classDescription} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
     messageKey: messageClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent',
     messageParams: {
       ...(messageClass ? { eventClass: messageClass } : {}),
       failed: failed.length,
       ok: ok.length,
-      template: label,
-      templateKey: labelKey,
+      template,
+      templateKey: `emailTemplate.${template}`,
     },
     user,
   }
@@ -459,16 +453,15 @@ export const sendTemplatedEmailToEventRegistrations = async (
   user: AuditActor,
   context: RegistrationTemplateContext
 ) => {
-  const t = getFixedT('fi')
   const sentAt = new Date().toISOString()
-  const templateName = t(`emailTemplate.${template}`)
   const ok: string[] = []
   const failed: string[] = []
   const sendToRegistration = async (registration: JsonRegistration) => {
     const editToken = getRegistrationEditToken(registration)
     const to = emailTo(registration, template)
     const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, editToken, text)
-    const auditSubject = context ? data.subject : templateName
+    // A context's email goes by its subject, which the reader's bundle may not name (KOE-1455).
+    const auditSubject = context ? data.subject : undefined
     const auditSubjectKey = context ? emailSubjectAuditKey(context) : `emailTemplate.${template}`
     try {
       await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
@@ -483,7 +476,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       ok.push(...to)
       await audit({
         auditKey: registrationAuditKey(registration),
-        ...emailSentAudit(auditSubject, auditSubjectKey, to),
+        ...emailSentAudit(auditSubjectKey, to, auditSubject),
         ...auditUser(user),
       })
       await setLastEmail(registration, getLastEmail(template, context, registration, sentAt))
@@ -504,10 +497,10 @@ export const sendTemplatedEmailToEventRegistrations = async (
       failed.push(...to)
       await audit({
         auditKey: registrationAuditKey(registration),
-        ...emailFailedAudit(auditSubject, auditSubjectKey, to),
+        ...emailFailedAudit(auditSubjectKey, to, auditSubject),
         ...auditUser(user),
       })
-      logger.error('failed to send registration email', { error: e, template: auditSubject })
+      logger.error('failed to send registration email', { context, error: e, template })
     }
   }
   // One at a time, in order: the SES send rate (AGENTS.md, Promises and async).
@@ -639,16 +632,7 @@ export const findExistingRegistrationToEventForDog = async (
   })
 }
 
-export const getCancelAuditMessage = (data: JsonRegistration) => {
-  if (!data.cancelReason) return registrationCancelledAudit()
-
-  if (isPredefinedReason(data.cancelReason)) {
-    const reasonKey = `registration.cancelReason.${data.cancelReason}` as const
-    return registrationCancelledAudit(getFixedT('fi')(reasonKey), reasonKey)
-  }
-
-  return registrationCancelledAudit(data.cancelReason)
-}
+export const getCancelAuditMessage = (data: JsonRegistration) => registrationCancelledAudit(data.cancelReason)
 
 const omitTechnicalRegistrationFields = (registration: JsonRegistration): Partial<JsonRegistration> => {
   const { modifiedAt: _modifiedAt, modifiedBy: _modifiedBy, updatedAt: _updatedAt, ...comparable } = registration

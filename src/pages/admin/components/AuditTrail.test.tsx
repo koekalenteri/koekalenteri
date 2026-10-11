@@ -14,13 +14,12 @@ i18n.use(initReactI18next).init(i18nInitOptions())
 
 const auditRecord = (overrides: Partial<AuditRecord> = {}): AuditRecord => ({
   auditKey: 'event:test-event',
-  message: 'Koekutsu luokkaan ALO lähetetty: onnistui 1, epäonnistui 0',
   messageKey: 'audit.messages.classEmailSent',
   messageParams: {
     eventClass: 'ALO',
     failed: 0,
     ok: 1,
-    template: 'Koekutsu',
+    template: 'invitation',
     templateKey: 'emailTemplate.invitation',
   },
   timestamp: new Date('2026-08-04T10:30:00.000Z'),
@@ -42,7 +41,7 @@ describe('AuditTrail', () => {
   it('formats class-specific email messages', () => {
     render(<AuditTrail auditTrail={[auditRecord()]} fullHeight />, { wrapper: Wrapper })
 
-    // The stored message rides along as the default, for a key this bundle does not have.
+    // An empty default tells a key this bundle does not have from one it has (KOE-1511).
     expect(
       screen.getByText('audit.messages.classEmailSent eventClass, failed, ok, template, templateKey, defaultValue')
     ).toBeInTheDocument()
@@ -55,7 +54,6 @@ describe('AuditTrail', () => {
         auditTrail={[
           auditRecord({
             changes: [{ field: 'notes', next: { text: 'uusi' }, previous: { state: 'empty' } }],
-            message: 'Muutti: notes',
             messageKey: 'audit.changed',
           }),
         ]}
@@ -75,12 +73,19 @@ describe('AuditTrail', () => {
     expect(screen.getByText('Tallennettu teksti')).toBeInTheDocument()
   })
 
+  it('names a key it cannot read rather than leaving the row empty (KOE-1511)', () => {
+    render(<AuditTrail auditTrail={[auditRecord({ messageKey: 'x', messageParams: undefined })]} fullHeight />, {
+      wrapper: Wrapper,
+    })
+
+    expect(screen.getByText('audit.unknown key')).toBeInTheDocument()
+  })
+
   it('names the groups of a move from their parts (KOE-1442)', () => {
     render(
       <AuditTrail
         auditTrail={[
           auditRecord({
-            message: 'Ryhmä: la 7.11. ip #2 -> Ilmoittautuneet #1',
             messageKey: 'audit.messages.groupChanged',
             messageParams: {
               fromDate: '2026-11-07',
@@ -124,12 +129,11 @@ describe('AuditTrail', () => {
                 detailParams: { recipients: 'handler@example.com' },
               },
             ],
-            message: 'Koekutsu luokkaan ALO lähetetty: onnistui 0, epäonnistui 1',
             messageParams: {
               eventClass: 'ALO',
               failed: 1,
               ok: 0,
-              template: 'Koekutsu',
+              template: 'invitation',
               templateKey: 'emailTemplate.invitation',
             },
           }),

@@ -73,7 +73,6 @@ describe('audit', () => {
               previous: { state: 'empty' },
             },
           ],
-          message: 'Muutti: eventType',
           messageKey: 'audit.changed',
         },
       ])
@@ -94,7 +93,6 @@ describe('audit', () => {
 
       expect(messages).toEqual([
         {
-          message: 'ALO starttilista julkaistu',
           messageKey: 'audit.messages.classStartListPublished',
           messageParams: { eventClass: 'ALO' },
         },
@@ -102,14 +100,14 @@ describe('audit', () => {
     })
 
     it.each([
-      { expected: 'Starttilista julkaistu', state: 'picked' as const },
-      { expected: 'Tapahtuma tallennettu', state: 'invited' as const },
+      { expected: 'audit.messages.startListPublished', state: 'picked' as const },
+      { expected: 'audit.messages.eventSaved', state: 'invited' as const },
     ])('records the first publish of an absent flag on a past $state trial as $expected', ({ expected, state }) => {
       // No flag reads as published only where the workflow invited (KOE-1465).
       const past = { ...event, endDate: '2025-03-01', startDate: '2025-03-01', state }
       const messages = getEventAuditMessages(past, { id: 'event-id', startListPublished: true })
 
-      expect(messages.map(({ message }) => message)).toEqual([expected])
+      expect(messages).toEqual([{ messageKey: expected }])
     })
 
     it('records class place changes without derived or no-op fields', () => {
@@ -140,15 +138,23 @@ describe('audit', () => {
               previous: { text: '5' },
             },
           ],
-          message: 'Muutti: classes.0.places',
           messageKey: 'audit.changed',
         },
       ])
     })
 
+    it('writes a created or deleted event by its key alone (KOE-1511)', () => {
+      expect(getEventAuditMessages(undefined, { id: event.id })).toEqual([
+        { messageKey: 'audit.messages.eventCreated' },
+      ])
+      expect(getEventAuditMessages(event, { deletedAt: '2026-10-11T10:00:00.000Z', id: event.id })).toEqual([
+        { messageKey: 'audit.messages.eventDeleted' },
+      ])
+    })
+
     it('omits patch fields that do not change the stored event', () => {
       expect(getEventAuditMessages(event, { id: event.id, placesPerDay: null })).toEqual([
-        { message: 'Tapahtuma tallennettu', messageKey: 'audit.messages.eventSaved' },
+        { messageKey: 'audit.messages.eventSaved' },
       ])
     })
   })

@@ -139,7 +139,6 @@ describe('putAdminRegistrationNotesLambda', () => {
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      message: 'Muutti sisäistä kommenttia',
       messageKey: 'audit.messages.internalNotesChanged',
       user: 'Test User',
     })

@@ -271,7 +271,6 @@ describe('refundCreateLambda', () => {
     const paytrailError = JSON.stringify({ message: paytrailMessage, status: 'error' })
     mockRefundPayment.mockRejectedValueOnce(new MockPaytrailError(400, paytrailError))
     mockRefundPaytrailErrorAudit.mockReturnValueOnce({
-      message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
       messageKey: 'audit.messages.refundPaytrailFailed',
       messageParams: { error: paytrailMessage, status: 400 },
     })
@@ -280,7 +279,6 @@ describe('refundCreateLambda', () => {
 
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
       messageKey: 'audit.messages.refundPaytrailFailed',
       messageParams: { error: paytrailMessage, status: 400 },
       user: 'Test User',
@@ -289,7 +287,6 @@ describe('refundCreateLambda', () => {
       400,
       {
         error: paytrailError,
-        message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
       },
       event
     )
@@ -442,7 +439,6 @@ describe('refundCreateLambda', () => {
     // Verify audit was called
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      message: 'Palautus on kesken (Paytrail), 10,00 €',
       messageKey: 'audit.messages.refundPending',
       messageParams: { amount: '10,00 €', provider: 'Paytrail' },
       user: 'Test User',
@@ -485,7 +481,6 @@ describe('refundCreateLambda', () => {
     // Verify audit was called
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      message: 'Palautus on kesken (Sähköposti + tilisiirto), 10,00 €',
       messageKey: 'audit.messages.refundPending',
       messageParams: { amount: '10,00 €', provider: 'Sähköposti + tilisiirto' },
       user: 'Test User',
