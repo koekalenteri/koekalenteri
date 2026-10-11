@@ -304,6 +304,12 @@ export type StartListAvailabilityEvent = Pick<JsonDogEvent, 'state' | 'startList
     classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
   }
 
+/** What a per-class results gate reads besides the dates. */
+type ResultsGateFlags = Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'>
+
+/** The event-wide results gates: the start list's own reading plus the results flag. */
+type ResultsAvailabilityEvent = StartListAvailabilityEvent & Pick<JsonDogEvent, 'resultsPublished'>
+
 export const isStartListAvailable = (event: StartListAvailabilityEvent) => {
   const { classes, state, startListPublished } = event
 
@@ -401,7 +407,7 @@ export const isEventLive = (
  * and means hiding a list hides the results riding on it.
  */
 export const isResultsAvailableForClass = (
-  event: Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'> & EventVitals,
+  event: ResultsGateFlags & EventVitals,
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
 ) =>
   isStartListAvailableForClass(event, eventClass) &&
@@ -917,27 +923,24 @@ export const getStartNumbersPublishedClassMap = ({
 }
 
 /**
- * Whether this dog's result may be shown.
- *
- * Gated on its own class and nothing else: a start list can be public long before any result is, so an
- * unpublished result must not ride out on the back of a published list.
- */
-/**
  * Whether any results can be read on the public start list page: some class whose list and results are
  * both public, the same class for both. A list public in one class and results in another show nothing.
  * A classless event (NOU, NOME-A) publishes its results as the one flag for the whole event (KOE-1464).
  */
-export const hasAvailableResults = (
-  event: Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'> &
-    EventDates & { classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>> }
-): boolean => {
+export const hasAvailableResults = (event: ResultsAvailabilityEvent): boolean => {
   if (event.classes?.length) return event.classes.some((eventClass) => isResultsAvailableForClass(event, eventClass))
 
   return isStartListAvailable(event) && canPublishResults(event.state, event) && isResultsPublished(event)
 }
 
+/**
+ * Whether this dog's result may be shown.
+ *
+ * Gated on its own class and nothing else: a start list can be public long before any result is, so an
+ * unpublished result must not ride out on the back of a published list.
+ */
 export const isResultsAvailableForRegistration = (
-  event: Pick<JsonDogEvent, 'state' | 'resultsPublished' | 'startListPublished'> & AvailabilityEvent & EventDates,
+  event: ResultsAvailabilityEvent & AvailabilityEvent,
   registration: AvailabilityRegistration
 ) => {
   if (!event.classes?.length) return hasAvailableResults(event)
