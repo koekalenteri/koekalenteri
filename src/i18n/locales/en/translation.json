@@ -535,6 +535,7 @@
       }
     },
     "results": {
+      "changedMeanwhile": "The results were published or hidden elsewhere at the same time. Please try again.",
       "confirm": "Publish the results for class {{eventClass}} in Koekalenteri?",
       "confirmDay": "Publish the results for class {{eventClass}} on {{day}} in Koekalenteri?",
       "confirmEvent": "Publish the results in Koekalenteri?",

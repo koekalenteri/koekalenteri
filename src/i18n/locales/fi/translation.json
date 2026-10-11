@@ -535,6 +535,7 @@
       }
     },
     "results": {
+      "changedMeanwhile": "Tulosten julkaisua muutettiin samaan aikaan toisaalla. Yritä uudelleen.",
       "confirm": "Haluatko varmasti julkaista luokan {{eventClass}} tulokset Koekalenterissa?",
       "confirmDay": "Haluatko varmasti julkaista luokan {{eventClass}} tulokset {{day}} Koekalenterissa?",
       "confirmEvent": "Haluatko varmasti julkaista tulokset Koekalenterissa?",

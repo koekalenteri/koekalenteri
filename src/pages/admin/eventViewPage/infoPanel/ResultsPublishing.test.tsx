@@ -3,6 +3,7 @@ import { act, screen, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
 import { eventWithStaticDates } from '@/__mockData__/events'
+import { APIError } from '@/api/http'
 import { renderWithUserEvents } from '@/test-utils/utils'
 import ResultsPublishing from './ResultsPublishing'
 
@@ -90,6 +91,28 @@ describe('ResultsPublishing', () => {
     await act(async () => answer(undefined))
     expect(hide).toBeEnabled()
     expect(pending).toHaveBeenCalledTimes(1)
+  })
+
+  it('says the results changed meanwhile when the server kept losing the race (KOE-1510)', async () => {
+    const refused = vi
+      .fn()
+      .mockRejectedValue(new APIError(new Response(null, { status: 409 }), { error: 'resultsPublishedChanged' }))
+    const { user } = renderSection({ ...oneDay, resultsPublished: true }, refused)
+
+    await user.click(screen.getByRole('button', { name: 'eventManagement.results.hide' }))
+
+    expect(enqueueSnackbar).toHaveBeenCalledWith('eventManagement.results.changedMeanwhile', expect.anything())
+  })
+
+  it('says only that the save failed for any other failure', async () => {
+    const { user } = renderSection(
+      { ...oneDay, resultsPublished: true },
+      vi.fn().mockRejectedValue(new Error('offline'))
+    )
+
+    await user.click(screen.getByRole('button', { name: 'eventManagement.results.hide' }))
+
+    expect(enqueueSnackbar).toHaveBeenCalledWith('eventManagement.results.saveFailed', expect.anything())
   })
 
   it('waits for the start list of a classless event', () => {

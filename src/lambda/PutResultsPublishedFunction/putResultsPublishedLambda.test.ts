@@ -86,8 +86,12 @@ const conditionedValue = ({ names }: UpdateCondition) => {
   return isResultsPublishedClassMap(flag) && isRegistrationClass(eventClass) ? flag[eventClass] : undefined
 }
 
-const holds = (condition: UpdateCondition) =>
-  isDeepStrictEqual(conditionedValue(condition), condition.values?.[':foldedFrom'])
+/** As DynamoDB reads it: absent where the condition says so, else present and equal to the value read. */
+const holds = (condition: UpdateCondition) => {
+  const stored = conditionedValue(condition)
+  if (condition.expression.includes('attribute_not_exists')) return stored === undefined
+  return stored !== undefined && isDeepStrictEqual(stored, condition.values?.[':foldedFrom'])
+}
 
 const applyUpdate = async (
   _key: unknown,
@@ -228,15 +232,24 @@ describe('putResultsPublishedLambda', () => {
     expect(mockPublishEventPatch).not.toHaveBeenCalled()
   })
 
-  it('is not refused by a write to the rest of the row', async () => {
-    // A registration or an invitation moved updatedAt between the read and the write; the flag is as read.
-    const before = twoDays()
-    store({ ...before, updatedAt: '2026-09-13T04:59:00.000Z' })
-    mockRead.mockResolvedValueOnce(structuredClone(before))
+  it('holds the write to the flag alone, so a write to the rest of the row does not refuse it', async () => {
+    // A registration or an invitation moves updatedAt between the read and the write; the flag is as read.
+    store(twoDays({ resultsPublished: { ALO: false } }))
 
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
 
-    expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: false })
+    expect(mockUpdate).toHaveBeenCalledTimes(1)
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { id: 'event-1' },
+      { set: { 'resultsPublished.ALO': ['2026-09-12'], updatedAt: expect.any(String) } },
+      expect.any(String),
+      'ALL_NEW',
+      {
+        expression: 'attribute_exists(#id) AND #resultsPublished.#resultsClass = :foldedFrom',
+        names: { '#id': 'id', '#resultsClass': 'ALO', '#resultsPublished': 'resultsPublished' },
+        values: { ':foldedFrom': false },
+      }
+    )
   })
 
   it('reads the event as last written', async () => {
@@ -260,6 +273,15 @@ describe('putResultsPublishedLambda', () => {
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
 
     expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: false })
+  })
+
+  it('publishes a class the stored map does not name yet', async () => {
+    store(twoDays({ resultsPublished: { ALO: ['2026-09-12'] } }))
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
+    expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: ['2026-09-12'] })
   })
 
   it('stores the only day of a class as that day, never as every day', async () => {

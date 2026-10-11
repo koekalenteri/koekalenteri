@@ -13,6 +13,7 @@ import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedParseDate } from '@/i18n/dates'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { refusalCode } from '@/lib/client/startNumberErrors'
 import { getClassDays, isResultsPublishedForDay, uniqueClasses } from '@/lib/event'
 import { getResultsBlocker, isStartListPublished } from '@/lib/publishing'
 import { scoresAtPosts } from '@/lib/results'
@@ -115,8 +116,13 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
         await onSetResultsPublished?.(eventClass, day, published)
         const notice = messageKey(published ? 'publishedSnack' : 'hidden', eventClass, multiDay)
         enqueueSnackbar(t(notice, params), { variant: 'success' })
-      } catch {
-        enqueueSnackbar(t('eventManagement.results.saveFailed'), errorSnackbarOptions)
+      } catch (error) {
+        // Another publish of the same results kept landing first; the server gave up retrying (KOE-1510).
+        const changed = refusalCode(error) === 'resultsPublishedChanged'
+        enqueueSnackbar(
+          t(changed ? 'eventManagement.results.changedMeanwhile' : 'eventManagement.results.saveFailed'),
+          errorSnackbarOptions
+        )
       } finally {
         markInFlight(rowKey(row), false)
       }

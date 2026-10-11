@@ -11,6 +11,8 @@ import {
   eventWithStaticDatesAnd3Classes,
   eventWithStaticDatesAndClass,
 } from '../../__mockData__/events'
+import { mockEvents } from '../../api/__mocks__/event'
+import { putResultsPublished } from '../../api/event'
 import theme from '../../assets/Theme'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { locales } from '../../i18n'
@@ -264,6 +266,52 @@ describe('EventViewPage', () => {
     await flushPromises()
 
     expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'AVO', 'VOI'])
+  })
+
+  it('hides one day of the results through the results endpoint (KOE-1510)', async () => {
+    // The NOU trial ran on 10.2. and 11.2.; both days' results are out.
+    const published = {
+      ...eventWithStaticDates,
+      id: 'results-published',
+      resultsPublished: true,
+      startListPublished: true,
+      state: 'invited' as const,
+    }
+    mockEvents.push(published)
+    const routes: RouteObject[] = [{ element: <EventViewPage />, path: Path.admin.viewEvent() }]
+
+    try {
+      const { user } = await renderSuspendedWithUserEvents(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <Provider>
+              <Suspense fallback={<div>loading...</div>}>
+                <AppSnackbarProvider>
+                  <ConfirmProvider>
+                    <DataMemoryRouter initialEntries={[Path.admin.viewEvent(published.id)]} routes={routes} />
+                  </ConfirmProvider>
+                </AppSnackbarProvider>
+              </Suspense>
+            </Provider>
+          </LocalizationProvider>
+        </ThemeProvider>
+      )
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'eventManagement.open' }))
+      await flushPromises()
+      const [firstDay] = screen.getAllByRole('button', { name: 'eventManagement.results.hide' })
+      await user.click(firstDay)
+      await flushPromises()
+
+      expect(putResultsPublished).toHaveBeenCalledWith(
+        published.id,
+        { date: '2021-02-10', eventClass: undefined, published: false },
+        'id-token'
+      )
+    } finally {
+      mockEvents.splice(mockEvents.indexOf(published), 1)
+    }
   })
 
   it('shows other viewers and hides the current user from the viewer banner', async () => {

@@ -551,12 +551,11 @@ export const setResultsPublishedState = (
   now: Date = new Date()
 ): Promise<JsonConfirmedEvent> => {
   const updatedAt = now.toISOString()
-  return retryOnConditionFailure(
-    async (attempt) => {
-      const current = attempt === 1 ? confirmedEvent : await getEvent<JsonConfirmedEvent>(confirmedEvent.id, true)
-      return writeResultsDay(current, request, updatedAt)
-    },
-    RESULTS_WRITE_ATTEMPTS,
-    () => httpError(409, { error: 'resultsPublishedChanged' })
-  )
+  return retryOnConditionFailure({
+    exhausted: () => httpError(409, { error: 'resultsPublishedChanged' }),
+    initial: confirmedEvent,
+    maxAttempts: RESULTS_WRITE_ATTEMPTS,
+    reread: () => getEvent<JsonConfirmedEvent>(confirmedEvent.id, true),
+    work: (current) => writeResultsDay(current, request, updatedAt),
+  })
 }

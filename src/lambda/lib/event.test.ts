@@ -1386,6 +1386,28 @@ describe('lib/event', () => {
       })
     })
 
+    it('holds a class missing from the map to still being missing', async () => {
+      // An entry never written is absent, not false: a condition on false would never hold.
+      const withAvo = asJsonConfirmedEvent({
+        ...twoDays,
+        classes: [...twoDays.classes, { class: 'AVO', date: '2026-09-12' }],
+      })
+      mockUpdate.mockResolvedValueOnce(written({ ALO: ['2026-09-12'], AVO: ['2026-09-12'] }))
+
+      await setResultsPublishedState(withAvo, { date: '2026-09-12', eventClass: 'AVO', published: true }, now)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { 'resultsPublished.AVO': ['2026-09-12'], updatedAt: '2026-09-13T15:00:00.000Z' } },
+        expect.any(String),
+        'ALL_NEW',
+        {
+          expression: 'attribute_exists(#id) AND attribute_not_exists(#resultsPublished.#resultsClass)',
+          names: { '#id': 'id', '#resultsClass': 'AVO', '#resultsPublished': 'resultsPublished' },
+        }
+      )
+    })
+
     it('writes a flag that is not yet a map whole, held to the flag as read', async () => {
       mockUpdate.mockResolvedValueOnce(written({ ALO: ['2026-09-12'] }))
 

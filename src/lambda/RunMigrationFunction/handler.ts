@@ -153,15 +153,17 @@ const writeMigratedRow = async (row: ReadRow): Promise<boolean[]> => {
 }
 
 const writeRow = (row: ReadRow, pending: Pending[]): Promise<boolean[]> =>
-  retryOnConditionFailure(
-    async (attempt) => {
-      if (attempt === 1) return writeMigratedRow(row)
+  retryOnConditionFailure<ReadRow | undefined, boolean[]>({
+    exhausted: () => new LambdaError(409, `Event ${row.item.id} kept changing while it was migrated`),
+    initial: row,
+    maxAttempts: MAX_WRITE_ATTEMPTS,
+    reread: async () => {
       const fresh = await dynamoDB.read<JsonDogEvent>({ id: row.item.id }, undefined, true)
-      return fresh ? writeMigratedRow(migrateRow(fresh, pending)) : pending.map(() => false)
+      return fresh && migrateRow(fresh, pending)
     },
-    MAX_WRITE_ATTEMPTS,
-    () => new LambdaError(409, `Event ${row.item.id} kept changing while it was migrated`)
-  )
+    // A row deleted meanwhile needs nothing any more.
+    work: (current) => (current ? writeMigratedRow(current) : Promise.resolve(pending.map(() => false))),
+  })
 
 /**
  * The admin button (API Gateway) is a forced full run, so a correction run is always possible. The

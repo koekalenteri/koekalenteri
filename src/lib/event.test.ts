@@ -26,6 +26,7 @@ import {
   defaultEntryStartDate,
   eventRegistrationDateKey,
   eventTypeLabel,
+  foldDayScope,
   getEventClassesByDays,
   getEventDays,
   getEventProgress,
@@ -1959,6 +1960,22 @@ describe('results published day by day', () => {
       expect(withResultsDay({ ...classless, resultsPublished: ['2026-09-26'] }, undefined, '2026-09-27', true)).toEqual(
         ['2026-09-26', '2026-09-27']
       )
+    })
+  })
+
+  describe('foldDayScope (the start numbers collapse)', () => {
+    const days = ['2026-09-12', '2026-09-13']
+
+    it('empties to false', () => {
+      expect(foldDayScope([], days)).toBe(false)
+    })
+
+    it('collapses every day to true, repeats and order aside', () => {
+      expect(foldDayScope(['2026-09-13', '2026-09-12', '2026-09-13'], days)).toBe(true)
+    })
+
+    it('keeps part of the days as a sorted list without repeats', () => {
+      expect(foldDayScope(['2026-09-13', '2026-09-13/ip', '2026-09-13'], days)).toEqual(['2026-09-13', '2026-09-13/ip'])
     })
   })
 

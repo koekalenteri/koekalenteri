@@ -18,23 +18,39 @@ export const foldedFrom = (path: string, names: Record<string, string>, previous
   }
 }
 
+interface ConditionalWrite<R, T> {
+  /** The reading the caller already has, which the first attempt works from. */
+  initial: R
+  /** Reads the row again, as last written, for the next attempt. */
+  reread: () => Promise<R>
+  /** Works out the write from a reading and makes it, on condition the row is still as read. */
+  work: (reading: R) => Promise<T>
+  maxAttempts: number
+  /** The caller's own conflict, thrown once the attempts run out. */
+  exhausted: () => Error
+}
+
 /**
- * Runs a conditional write, and again when its condition failed because the row moved meanwhile: each
- * attempt reads the row afresh and redoes its work from it. `write` gets the attempt number, the
- * first working from what the caller already read. After `maxAttempts` the caller's own conflict is
- * thrown; any other failure passes through at once.
+ * Runs a conditional write, and again when its condition failed because the row moved meanwhile: the
+ * first attempt works from the caller's reading, each later one from the row read afresh, so the work
+ * is redone from what was actually stored. After `maxAttempts` the caller's own conflict is thrown;
+ * any other failure passes through at once.
  */
-export const retryOnConditionFailure = async <T>(
-  write: (attempt: number) => Promise<T>,
-  maxAttempts: number,
-  exhausted: () => Error,
-  attempt = 1
-): Promise<T> => {
-  try {
-    return await write(attempt)
-  } catch (error) {
-    if (!isConditionalCheckFailure(error)) throw error
-    if (attempt >= maxAttempts) throw exhausted()
-    return retryOnConditionFailure(write, maxAttempts, exhausted, attempt + 1)
+export const retryOnConditionFailure = <R, T>({
+  initial,
+  reread,
+  work,
+  maxAttempts,
+  exhausted,
+}: ConditionalWrite<R, T>): Promise<T> => {
+  const attempt = async (reading: R, number: number): Promise<T> => {
+    try {
+      return await work(reading)
+    } catch (error) {
+      if (!isConditionalCheckFailure(error)) throw error
+      if (number >= maxAttempts) throw exhausted()
+      return attempt(await reread(), number + 1)
+    }
   }
+  return attempt(initial, 1)
 }
