@@ -204,8 +204,12 @@ export const splitEvenly = (total: number, count: number): number[] => {
 /**
  * `items.map(fn)` with at most `limit` calls in flight: a pool of `limit` workers, each taking the
  * next item as soon as its own is done, so one slow call holds up one worker rather than a batch.
- * The results keep the items' order. A rejected call rejects the whole map, as `Promise.all` does;
- * a caller that wants every item attempted catches inside `fn`.
+ * The results keep the items' order. A caller that wants every item attempted catches inside `fn`.
+ *
+ * A rejected call stops the map: no further item is started, the calls already in flight are
+ * waited for, and then the map rejects with the first error. So a caller's own error handling (a
+ * `finally` releasing a lock, say) never runs while writes are still going on, which it would if
+ * the map rejected as soon as `Promise.all` does.
  */
 export const mapWithConcurrency = async <T, R>(
   items: readonly T[],
@@ -214,14 +218,22 @@ export const mapWithConcurrency = async <T, R>(
 ): Promise<R[]> => {
   const results: R[] = []
   let next = 0
+  let failure: { error: unknown } | undefined
   const work = async (): Promise<void> => {
+    if (failure) return
     const index = next++
     if (index >= items.length) return
-    results[index] = await fn(items[index], index)
+    try {
+      results[index] = await fn(items[index], index)
+    } catch (error) {
+      failure ??= { error }
+      return
+    }
     return work()
   }
   const workers = Math.min(Math.max(1, Math.floor(limit)), items.length)
   await Promise.all(Array.from({ length: workers }, work))
+  if (failure) throw failure.error
   return results
 }
 

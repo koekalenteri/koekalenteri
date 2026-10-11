@@ -846,6 +846,68 @@ describe('utils', () => {
         })
       ).rejects.toThrow('second failed')
     })
+
+    describe('after a call rejects', () => {
+      const deferred = () => {
+        let resolve: () => void = () => {}
+        let reject: (error: Error) => void = () => {}
+        const promise = new Promise<void>((res, rej) => {
+          resolve = res
+          reject = rej
+        })
+        return { promise, reject, resolve }
+      }
+      // Lets every continuation queued so far run, so a worker that would pick up the next item has.
+      const settleMicrotasks = () => new Promise<void>((resolve) => setImmediate(resolve))
+
+      const startPool = () => {
+        const calls = [deferred(), deferred(), deferred(), deferred()]
+        const started: number[] = []
+        let settled = false
+        const run = mapWithConcurrency([0, 1, 2, 3], 2, (item) => {
+          started.push(item)
+          return calls[item].promise
+        }).finally(() => {
+          settled = true
+        })
+        // Observed through `settled` and the rejection below, never left floating.
+        const outcome = run.catch((error: unknown) => error)
+        return { calls, isSettled: () => settled, outcome, started }
+      }
+
+      it('starts no new item', async () => {
+        const { calls, outcome, started } = startPool()
+
+        calls[0].reject(new Error('first failed'))
+        await settleMicrotasks()
+        calls[1].resolve()
+
+        await expect(outcome).resolves.toEqual(new Error('first failed'))
+        expect(started).toEqual([0, 1])
+      })
+
+      it('settles only after the items already in flight have settled', async () => {
+        const { calls, isSettled, outcome } = startPool()
+
+        calls[0].reject(new Error('first failed'))
+        await settleMicrotasks()
+        expect(isSettled()).toBe(false)
+
+        calls[1].resolve()
+        await expect(outcome).resolves.toEqual(new Error('first failed'))
+        expect(isSettled()).toBe(true)
+      })
+
+      it('rejects with the first error when several calls reject', async () => {
+        const { calls, outcome } = startPool()
+
+        calls[1].reject(new Error('second failed'))
+        await settleMicrotasks()
+        calls[0].reject(new Error('first failed'))
+
+        await expect(outcome).resolves.toEqual(new Error('second failed'))
+      })
+    })
   })
 
   describe('withTimeout', () => {
