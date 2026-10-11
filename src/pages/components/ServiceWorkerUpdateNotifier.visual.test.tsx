@@ -1,10 +1,10 @@
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
-import { SnackbarProvider } from 'notistack'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
 import { updatedSessionKey } from '../../serviceWorkerRegistration'
 import { switchLanguage } from '../../test-utils/language'
+import AppSnackbarProvider from './AppSnackbarProvider'
 import ServiceWorkerUpdateNotifier from './ServiceWorkerUpdateNotifier'
 
 // The snackbar is position: fixed; the frame's transform makes it the containing block, so the
@@ -21,9 +21,9 @@ const renderNotifier = () =>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Frame>
-        <SnackbarProvider anchorOrigin={{ horizontal: 'right', vertical: 'top' }} autoHideDuration={null}>
+        <AppSnackbarProvider autoHideDuration={null}>
           <ServiceWorkerUpdateNotifier />
-        </SnackbarProvider>
+        </AppSnackbarProvider>
       </Frame>
     </ThemeProvider>
   )

@@ -13,7 +13,8 @@ function SnackbarCloseButton({ snackbarKey }: Props) {
   const { closeSnackbar } = useSnackbar()
 
   return (
-    <IconButton aria-label={t('close')} size="small" onClick={() => closeSnackbar(snackbarKey)}>
+    // The notice's own text colour: the default grey is all but lost on the darker variants (KOE-1507).
+    <IconButton aria-label={t('close')} color="inherit" size="small" onClick={() => closeSnackbar(snackbarKey)}>
       <Close fontSize="small" />
     </IconButton>
   )

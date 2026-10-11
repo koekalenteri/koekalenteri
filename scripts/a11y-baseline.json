@@ -95,11 +95,6 @@
       "aria-prohibited-attr": 1
     }
   },
-  "src/pages/components/ServiceWorkerUpdateNotifier.visual.test.tsx": {
-    "update-notice-en": {
-      "color-contrast": 2
-    }
-  },
   "src/pages/searchPage/eventList/EventStateInfo.visual.test.tsx": {
     "event-state-info-live": {
       "nested-interactive": 1
