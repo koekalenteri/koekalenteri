@@ -6,7 +6,7 @@ describe('isLanguage', () => {
     expect(isLanguage(language)).toBe(true)
   })
 
-  it.each([['sv'], ['EN'], [''], [undefined], [null], [1]])('rejects %j', (value) => {
+  it.each([['sv'], ['EN'], [''], [undefined], [null], [1], [{}]])('rejects %j', (value) => {
     expect(isLanguage(value)).toBe(false)
   })
 })
@@ -16,7 +16,7 @@ describe('stringToLang', () => {
     expect(stringToLang(language)).toBe(language)
   })
 
-  it.each([['sv'], ['en-US'], [undefined], [null], [{}]])('reads %j as Finnish', (value) => {
+  it.each([['sv'], ['en-US'], [undefined], [null]])('reads %j as Finnish', (value) => {
     expect(stringToLang(value)).toBe('fi')
   })
 })

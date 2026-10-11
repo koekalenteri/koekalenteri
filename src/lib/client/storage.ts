@@ -1,5 +1,5 @@
 import type { Language } from '../../types'
-import { stringToLang } from '../../i18n/language'
+import { isLanguage } from '../../i18n/language'
 
 export const getStorageKeysStartingWith = (prefixes: string[]) => {
   const keys: string[] = []
@@ -22,13 +22,15 @@ export const languageStorageKey = 'language'
 /**
  * The reader's stored language choice, for code that runs before the atom store: i18next has to boot
  * in it, or everything rendered before App's realign effect is Finnish (KOE-1457). It reads the value
- * by the same rule as `languageAtom` (`stringToLang`), so anything missing, unreadable or unknown is
+ * by the same rule as `languageAtom` (`isLanguage`), so anything missing, unreadable or unknown is
  * Finnish.
  */
 export const readStoredLanguage = (): Language => {
   try {
     const stored = localStorage.getItem(languageStorageKey)
-    return stored === null ? 'fi' : stringToLang(JSON.parse(stored))
+    if (stored === null) return 'fi'
+    const parsed: unknown = JSON.parse(stored)
+    return isLanguage(parsed) ? parsed : 'fi'
   } catch {
     return 'fi'
   }
