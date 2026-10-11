@@ -21,6 +21,9 @@ declare module '@mui/material/styles/createPalette' {
 
 export const HEADER_HEIGHT = '36px'
 
+/** MUI's own type scale, as this theme had it before it set its heading sizes (KOE-1506). */
+const muiTypography = responsiveFontSizes(createTheme()).typography
+
 const theme = createTheme({
   breakpoints: {
     values: {
@@ -54,6 +57,13 @@ const theme = createTheme({
     MuiDatePicker: {
       defaultProps: {
         desktopModeMediaQuery: '(min-width:600px)',
+      },
+    },
+    MuiDatePickerToolbar: {
+      styleOverrides: {
+        // The phone picker's chosen date is set in the h4 variant, which is a heading size here; the
+        // date keeps the size MUI drew it at.
+        title: muiTypography.h4,
       },
     },
     MuiStack: {

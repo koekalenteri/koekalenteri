@@ -7,6 +7,7 @@ import { registrationWithManualResults, registrationWithStaticDatesAndClass } fr
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
 import { getRequirements } from '@/rules'
+import { freezeClockAt } from '@/test-utils/freezeClock'
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -83,4 +84,40 @@ it('stacks each result row in a single column on a phone', async () => {
 
   await expect.element(screen.getByRole('textbox', { name: 'Tuomari' }).nth(1)).toHaveValue('Manual Judge')
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('qualifying-results-info-manual-phone')
+})
+
+// On a phone a result's date opens MUI's mobile picker, whose toolbar sets the chosen date in the
+// theme's h4. The theme's h4 is a heading level of the app's outline now (KOE-1506), so the toolbar
+// keeps MUI's own h4 through an override instead of shrinking with it.
+describe('the date picker on a phone', () => {
+  // The picker greys out the days past today; a day of its own keeps the capture still (KOE-1423).
+  freezeClockAt('2026-09-07')
+
+  it("opens a result's date picker on a phone with the chosen date at its full size", async () => {
+    const reg = registrationWithManualResults
+    const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+
+    await page.viewport(392, 900)
+
+    const screen = await render(
+      <Frame width={392}>
+        <QualifyingResultsInfo
+          regNo={reg.dog.regNo}
+          requirements={requirements}
+          results={reg.results}
+          qualifyingResults={reg.qualifyingResults}
+          open
+        />
+      </Frame>
+    )
+
+    await screen
+      .getByRole('button', { name: /^Choose date/ })
+      .nth(1)
+      .click()
+
+    const dialog = screen.getByRole('dialog')
+    await expect.element(dialog.getByRole('gridcell', { selected: true })).toBeVisible()
+    await expect(dialog).toMatchScreenshot('qualifying-results-info-date-picker-phone')
+  })
 })

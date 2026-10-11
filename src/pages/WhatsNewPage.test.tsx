@@ -28,8 +28,11 @@ describe('WhatsNewPage', () => {
       .getAllByRole('heading', { level: 2, name: /docs\.version/ })
       .map((heading) => heading.textContent)
     expect(versions.length).toBeGreaterThanOrEqual(2)
-    // A heading from the notes' own markdown: the release is rendered, not just named.
-    expect(screen.getAllByRole('heading', { level: 2, name: 'Uutta' }).length).toBeGreaterThan(0)
+    // A heading from the notes' own markdown: the release is rendered, not just named. The note's
+    // sections sit under its version, and their audiences under them (KOE-1506).
+    expect(screen.getAllByRole('heading', { level: 3, name: 'Uutta' }).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('heading', { level: 4, name: 'Ilmoittautujalle' }).length).toBeGreaterThan(0)
+    expect(screen.queryAllByRole('heading', { level: 2, name: 'Uutta' })).toHaveLength(0)
   })
 
   it('gives every release an anchor named by its version', async () => {

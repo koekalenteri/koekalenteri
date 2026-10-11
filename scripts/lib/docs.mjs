@@ -238,8 +238,24 @@ const splitShots = (body, language, file, screenshots) => {
 
 const processor = unified().use(remarkParse).use(remarkGfm).use(remarkHtml)
 
+/** Moves every heading one level down, so a document's `##` lands under a heading the page draws. */
+const demoteHeadings = () => (tree) => {
+  const demote = (node) => {
+    if (node.type === 'heading') node.depth = Math.min(node.depth + 1, 6)
+    node.children?.forEach(demote)
+  }
+  demote(tree)
+}
+
+/**
+ * A release note's sections sit under the version heading the page draws as h2, so the note's own
+ * `##` is an h3 and its `###` an h4 (KOE-1506). The notes keep the levels a reader of the markdown
+ * expects; the shift is the page's business.
+ */
+const noteProcessor = unified().use(remarkParse).use(remarkGfm).use(demoteHeadings).use(remarkHtml)
+
 /** The body as the generated module's html parts, with every `{t:key}` and `!shot` bound. */
-const renderBody = async (body, language, file, screenshots) => {
+const renderBody = async (body, language, file, screenshots, markdownProcessor = processor) => {
   const html = []
   const shots = []
   const untranslatedShots = []
@@ -249,7 +265,7 @@ const renderBody = async (body, language, file, screenshots) => {
       shots.push(part.ref)
       if (!part.translated) untranslatedShots.push(part.ref)
     } else if (part.markdown.trim()) {
-      html.push(String(await processor.process(resolveTranslations(part.markdown, language, file))))
+      html.push(String(await markdownProcessor.process(resolveTranslations(part.markdown, language, file))))
     }
   }
 
@@ -257,10 +273,10 @@ const renderBody = async (body, language, file, screenshots) => {
 }
 
 /** What every document shares: where it is, what it says, and what its translation was made from. */
-const readDocument = async (file, screenshots) => {
+const readDocument = async (file, screenshots, markdownProcessor = processor) => {
   const { language, path } = pageIdentity(file)
   const { body, data, frontmatterLines } = parseFrontmatter(readFileSync(file, 'utf8'), file)
-  const { html, shots, untranslatedShots } = await renderBody(body, language, file, screenshots)
+  const { html, shots, untranslatedShots } = await renderBody(body, language, file, screenshots, markdownProcessor)
 
   return {
     body,
@@ -310,7 +326,7 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/
  * under, and the file exists before the version does -- that is the gate (KOE-1398).
  */
 const readReleaseNote = async (file, screenshots) => {
-  const { data, ...document } = await readDocument(file, screenshots)
+  const { data, ...document } = await readDocument(file, screenshots, noteProcessor)
   const version = document.path.slice(NOTES_PATH.length + 1)
 
   if (!VERSION.test(version)) throw new Error(`${file}: a release note is named by its version, like 1.11.3.md`)

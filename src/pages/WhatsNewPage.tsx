@@ -40,7 +40,7 @@ export const WhatsNewPage = () => {
                   {t('dateFormat.date', { date: parseISO(note.date) })}
                 </Typography>
               </Typography>
-              <DocsBody html={note.html} />
+              <DocsBody html={note.html} sectionLevel={3} />
             </Box>
           ))}
         </Box>
