@@ -163,6 +163,26 @@ export const startNumbersPublishedAudit = (published: boolean, { date, eventClas
   )
 }
 
+/**
+ * One day's results published or hidden, for a class or for a classless event (KOE-1510). Every
+ * publish names its day, so the trail always says which day went out.
+ */
+export const resultsPublishedAudit = (
+  published: boolean,
+  { date, eventClass }: { date: string; eventClass?: string }
+) => {
+  if (eventClass) {
+    return auditMessage(
+      published ? 'audit.messages.classResultsPublishedDay' : 'audit.messages.classResultsHiddenDay',
+      { eventClass, ...dayParams('', date) }
+    )
+  }
+  return auditMessage(
+    published ? 'audit.messages.resultsPublishedDay' : 'audit.messages.resultsHiddenDay',
+    dayParams('', date)
+  )
+}
+
 export const startNumbersEnteredAudit = (count: number, eventClass?: string) =>
   eventClass
     ? auditMessage('audit.messages.startNumbersEnteredClass', { count, eventClass })

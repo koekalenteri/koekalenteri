@@ -1,15 +1,26 @@
-import type { ConfirmedEvent, DogEvent, JsonConfirmedEvent, RegistrationClass } from '../types'
+import type {
+  ClassOrNone,
+  ConfirmedEvent,
+  DogEvent,
+  JsonConfirmedEvent,
+  RegistrationClass,
+  ResultsDayScope,
+  ResultsPublishedState,
+} from '../types'
 import type { InvitationAttachmentRegistration } from './registration'
 import {
   canPublishResults,
   canPublishStartList,
   getEventStateForClass,
+  hasDayStarted,
+  isDayEntry,
   isEntryEditingClosed,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartListPublishedForClass,
 } from './event'
-import { getInvitationRecipients } from './registration'
+import { getInvitationRecipients, isRegistrationClass } from './registration'
+import { isObject } from './utils'
 
 /**
  * The order a trial is published in — start list, then its numbers, then the results riding on it —
@@ -84,13 +95,27 @@ export const getStartNumbersBlocker = (
 
 /**
  * A result reaches the public only on the start list's rows, so it waits on the list; and there is
- * nothing to publish before the dogs have run.
+ * nothing to publish before the dogs have run. Each day is published on its own (KOE-1510), so a day
+ * that has not begun has nothing to publish either, however far the trial is.
  */
 export const getResultsBlocker = (
   event: PublishingEvent,
-  eventClass: RegistrationClass | undefined
+  eventClass: ClassOrNone,
+  day?: string | Date
 ): PublishBlocker | undefined => {
   if (!isStartListPublished(event, classEntry(event, eventClass))) return 'startList'
   if (!canPublishResults(getEventStateForClass(event, eventClass), event)) return 'state'
+  if (day && !hasDayStarted(day)) return 'state'
   return undefined
 }
+
+const isDayScope = (value: unknown): value is ResultsDayScope =>
+  typeof value === 'boolean' || (Array.isArray(value) && value.every(isDayEntry))
+
+/**
+ * A value shaped like a stored results flag (KOE-1510): one day scope, or a map of them keyed by
+ * class. Read where a written row comes back from the database, so nothing is taken on trust.
+ */
+export const isResultsPublishedState = (value: unknown): value is ResultsPublishedState =>
+  isDayScope(value) ||
+  (isObject(value) && Object.entries(value).every(([key, scope]) => isRegistrationClass(key) && isDayScope(scope)))

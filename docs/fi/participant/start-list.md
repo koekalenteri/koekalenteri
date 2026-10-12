@@ -44,8 +44,8 @@ lopullinen toisen ollessa vielä aakkosjärjestyksessä.
 Kun järjestäjä on julkaissut luokan tulokset, jokaisen koirakon rivin viimeinen rivi on sen
 tulos: luokka ja palkintosija, esimerkiksi AVO1, tai nolla ja viiva sääntöjen mukaan. Jos tuomari
 keskeytti kokeen, tuloksen perässä on merkintä *{t:results.marks.interrupted}*. Tulokset
-julkaistaan luokittain, joten sivulla voi olla luokkia, joiden tulokset ovat jo näkyvissä, ja
-luokkia, joilla ei vielä ole niitä.
+julkaistaan luokittain, ja useampipäiväisessä kokeessa päivä kerrallaan, joten sivulla voi olla
+luokkia, joiden tulokset ovat jo näkyvissä, ja luokkia, joilla ei vielä ole niitä.
 
 Tulokset näkyvät vain Koekalenterin starttilistalla. Kennelliiton jalostustietojärjestelmään ne
 kirjataan Koekalenterista riippumatta.

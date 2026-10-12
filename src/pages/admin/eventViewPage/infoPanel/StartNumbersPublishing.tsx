@@ -11,12 +11,12 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
+import { refusalCode } from '@/api/http'
 import { zonedParseDate } from '@/i18n/dates'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { refusalCode } from '@/lib/client/startNumberErrors'
 import {
+  getClassDays,
   getPublishedStartNumbersSlots,
-  getStartNumbersClassDays,
   getStartNumbersDayTimes,
   isStartNumbersPublishedForDay,
   isStartNumbersPublishedForSlot,
@@ -59,7 +59,7 @@ interface ClassDay {
 
 /** The days a class runs, one per class entry — or the event's own days where it has no classes. */
 const classDays = (event: ConfirmedEvent, className: string): ClassDay[] =>
-  getStartNumbersClassDays(event, event.classes.length ? className : undefined).map((key) => ({
+  getClassDays(event, event.classes.length ? className : undefined).map((key) => ({
     date: zonedParseDate(key),
     key,
   }))
