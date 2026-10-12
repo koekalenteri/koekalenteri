@@ -93,6 +93,30 @@ const claimOf = (saved: JsonRegistration) => ({
   token: 'token',
 })
 
+/**
+ * Records the writes and the start list publish in the order they happen: the published list's
+ * version is the time it was read, so it has to be read after the writes (KOE-1516).
+ */
+const recordPublishOrder = ({ repair }: { repair: boolean }) => {
+  const steps: string[] = []
+  if (repair) {
+    mockRepairReadyRegistrationGroups.mockImplementationOnce(async () => {
+      await Promise.resolve()
+      steps.push('repair groups')
+      return [{ group: { key: 'reserve', number: 1 }, id: 'moved' }]
+    })
+  }
+  mockUpdateRegistrations.mockImplementationOnce(async () => {
+    await Promise.resolve()
+    steps.push('recount')
+    return recounted
+  })
+  mockPublishPublicStartList.mockImplementationOnce(async () => {
+    steps.push('publish start list')
+  })
+  return steps
+}
+
 describe('registrationWorkflow', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -347,6 +371,14 @@ describe('registrationWorkflow', () => {
       expect(mockClaimNewRegistrationPostProcessing).not.toHaveBeenCalled()
     })
 
+    it('publishes the start list only after the repair and the recount are written (KOE-1516)', async () => {
+      const steps = recordPublishOrder({ repair: true })
+
+      await resolve(registration, 'other-key')
+
+      expect(steps).toEqual(['repair groups', 'recount', 'publish start list'])
+    })
+
     it('broadcasts nothing when the repair moved no one', async () => {
       await resolve(registration, 'other-key')
 
@@ -368,6 +400,14 @@ describe('registrationWorkflow', () => {
       existing: JsonRegistration,
       flags?: Parameters<typeof finalizeRegistrationUpdate>[0]['flags']
     ) => finalizeRegistrationUpdate({ existing, flags, groupPatches: [], origin, registration: saved, user })
+
+    it('publishes the start list only after the recount is written (KOE-1516)', async () => {
+      const steps = recordPublishOrder({ repair: false })
+
+      await finalize({ ...registration, notes: 'changed' }, registration)
+
+      expect(steps).toEqual(['recount', 'publish start list'])
+    })
 
     it('recounts, broadcasts, audits the change and tells the participant', async () => {
       const saved = { ...registration, notes: 'changed' }

@@ -108,6 +108,29 @@ describe('putClassStartNumbersLambda', () => {
     expect(mockPublishPublicStartList).toHaveBeenCalledWith(confirmedEvent.id)
   })
 
+  it('publishes the start list only after the draw is written and the lock is released (KOE-1516)', async () => {
+    // The published list's version is the time it was read, so it has to be read after the writes.
+    const steps: string[] = []
+    const step = (name: string) => async () => {
+      await Promise.resolve()
+      steps.push(name)
+    }
+    mockUpdateRegistrationField.mockImplementation(step('write number'))
+    mockLockRegistrationGroups.mockResolvedValue(step('release lock'))
+    mockPublishPublicStartList.mockImplementation(step('publish start list'))
+
+    await putClassStartNumbersLambda(
+      apiEvent({
+        numbers: [
+          { id: 'alo-1', startNumber: 2 },
+          { id: 'alo-2', startNumber: 1 },
+        ],
+      })
+    )
+
+    expect(steps).toEqual(['write number', 'write number', 'release lock', 'publish start list'])
+  })
+
   it('attributes the write to the class, so the trail says who drew', async () => {
     await putClassStartNumbersLambda(apiEvent({ numbers: [{ id: 'alo-1', startNumber: 2 }] }))
 
