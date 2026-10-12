@@ -37,6 +37,13 @@ const storeIn = (language: Language) => {
 
 const finnishStore = () => storeIn('fi')
 
+/** The tab hidden or shown, as the browser reports it. */
+const setTabVisibility = (state: DocumentVisibilityState) =>
+  act(() => {
+    vi.spyOn(document, 'visibilityState', 'get').mockReturnValue(state)
+    document.dispatchEvent(new Event('visibilitychange'))
+  })
+
 const pickFromMenu = (store: ReturnType<typeof createStore>, language: Language) =>
   act(() => store.set(languageAtom, language))
 
@@ -79,6 +86,28 @@ describe('useRegistrationLanguage', () => {
 
     expect(result.current).toBe('fi')
     expect(storedLanguage()).toBe(JSON.stringify('fi'))
+  })
+
+  it('keeps the picked language when the tab is hidden and shown again', () => {
+    const store = finnishStore()
+    const { result } = renderPage(store, english)
+    pickFromMenu(store, 'fi')
+
+    // Switching to another tab and back: the page was settled when it opened in sight.
+    setTabVisibility('hidden')
+    setTabVisibility('visible')
+
+    expect(result.current).toBe('fi')
+    expect(storedLanguage()).toBe(JSON.stringify('fi'))
+  })
+
+  it('decides for each registration on its own', () => {
+    const store = finnishStore()
+    renderPage(store, { eventId: 'event-1', id: 'registration-fi', language: 'fi' }).unmount()
+
+    const { result } = renderPage(store, english)
+
+    expect(result.current).toBe('en')
   })
 
   it('keeps the language when opened from the admin side, also on the next page', () => {
@@ -147,11 +176,7 @@ describe('useRegistrationLanguage', () => {
   })
 
   describe('in a tab opened in the background', () => {
-    const showTab = () =>
-      act(() => {
-        vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible')
-        document.dispatchEvent(new Event('visibilitychange'))
-      })
+    const showTab = () => setTabVisibility('visible')
 
     beforeEach(() => {
       vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
