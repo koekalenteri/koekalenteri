@@ -121,6 +121,11 @@ interface ResponseOptions {
    * all, i.e. the response is revalidated every time. Only applied to successful responses.
    */
   maxAge?: number
+  /**
+   * Headers to send beside the body. The browser lets the page read them across origins only when
+   * they are named in Access-Control-Expose-Headers, so they are.
+   */
+  headers?: Record<string, string>
   /** Restrict caching to the requesting browser. Required for anything behind authentication. */
   private?: boolean
 }
@@ -129,7 +134,7 @@ export const response = <T = unknown>(
   statusCode: number,
   body: T,
   event: APIGatewayProxyEvent,
-  { maxAge, private: isPrivate }: ResponseOptions = {}
+  { headers, maxAge, private: isPrivate }: ResponseOptions = {}
 ): APIGatewayProxyResult => {
   const acceptEncoding = event.headers?.['Accept-Encoding'] ?? event.headers?.['accept-encoding'] ?? ''
 
@@ -138,6 +143,8 @@ export const response = <T = unknown>(
     headers: {
       'Access-Control-Allow-Origin': allowOrigin(event),
       'Content-Type': 'application/json',
+      ...headers,
+      ...(headers ? { 'Access-Control-Expose-Headers': Object.keys(headers).join(', ') } : {}),
     },
     statusCode: statusCode,
   }

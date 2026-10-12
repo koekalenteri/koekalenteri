@@ -225,9 +225,16 @@ export const applyViewers = (current: EventViewer[], next: EventViewer[]) => {
 
 /**
  * Receives the published start list of the subscribed event, or `undefined` when the rows did not
- * fit in one message and have to be fetched instead.
+ * fit in one message and have to be fetched instead. `version` is the server time the rows were read
+ * (KOE-1516), `undefined` from a backend that sends none. `eventId` is the event the message was
+ * addressed to, which a listener replaced on render may no longer be watching. Ordering is the
+ * listener's job, since it also orders its own fetches against the messages.
  */
-export type PublicStartListListener = (participants: PublicRegistration[] | undefined) => void
+export type PublicStartListListener = (
+  participants: PublicRegistration[] | undefined,
+  version: number | undefined,
+  eventId: string
+) => void
 
 interface WebSocketContextValue {
   viewers: EventViewer[]
@@ -602,8 +609,9 @@ export const useWebSocket = () => {
 
     // The rows were composed and sanitized by the server, and parseJSON has revived their dates —
     // the same trust boundary as an event patch. `stale` means they did not fit in one message.
-    if (Array.isArray(data.participants)) subscription.listener(data.participants)
-    else if (data.stale === true) subscription.listener(undefined)
+    const version = typeof data.version === 'number' ? data.version : undefined
+    if (Array.isArray(data.participants)) subscription.listener(data.participants, version, subscription.eventId)
+    else if (data.stale === true) subscription.listener(undefined, version, subscription.eventId)
 
     return true
   }, [])

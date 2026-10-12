@@ -943,7 +943,7 @@ describe('lib/event', () => {
 
       const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(change?.startList).toBe(next)
+      expect(change?.startList).toBe(true)
     })
 
     it('leaves the start list out of a change no reader of it can see', async () => {
@@ -1066,7 +1066,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { classes: next.classes, eventId: existing.id },
-        startList: next,
+        startList: true,
       })
     })
 
@@ -1095,7 +1095,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { classes: next.classes, eventId: existing.id, judges: next.judges },
-        startList: next,
+        startList: true,
       })
     })
 
@@ -1131,7 +1131,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { classes: next.classes, eventId: existing.id },
-        startList: next,
+        startList: true,
       })
     })
 
@@ -1173,7 +1173,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { eventId: existing.id, ...next },
-        startList: next,
+        startList: true,
       })
     })
 
@@ -1221,7 +1221,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { eventId: existing.id, state: 'draft' },
-        startList: next,
+        startList: true,
       })
     })
   })
@@ -1253,7 +1253,7 @@ describe('lib/event', () => {
         audience: 'public',
         organizerId: 'org-1',
         patch: { ...event, eventId: event.id },
-        startList: event,
+        startList: true,
       })
     })
   })

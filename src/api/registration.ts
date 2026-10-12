@@ -6,12 +6,14 @@ import type {
   EventResult,
   IncrementalCollectionResponse,
   PublicRegistration,
+  PublicStartList,
   Registration,
   RegistrationCreateRequest,
   RegistrationGroupMove,
   RegistrationPatchRequest,
   Transaction,
 } from '../types'
+import { startListVersionOf } from '../lib/startList'
 import http, { withRegistrationAuth, withToken, withUserRouteFallback } from './http'
 
 export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]>
@@ -164,12 +166,12 @@ export async function putRegistrationGroups(
   ).data
 }
 
-export async function getStartList(
-  eventId: string,
-  token?: string,
-  signal?: AbortSignal
-): Promise<PublicRegistration[]> {
-  return http.get<PublicRegistration[]>(`/startlist/${eventId}`, withToken({ signal }, token))
+export async function getStartList(eventId: string, token?: string, signal?: AbortSignal): Promise<PublicStartList> {
+  const { data, headers } = await http.getWithHeaders<PublicRegistration[]>(
+    `/startlist/${eventId}`,
+    withToken({ signal }, token)
+  )
+  return { participants: data, version: startListVersionOf(headers) }
 }
 
 export async function getStartListPreview(

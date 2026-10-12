@@ -4,17 +4,25 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import * as jotai from 'jotai'
 import * as router from 'react-router'
 import { getStartList } from '../api/registration'
-import { StartListPage } from './StartListPage'
+import { StartListPage, startListLoader } from './StartListPage'
 import * as pageState from './state'
 
-vi.mock('../api/registration', () => ({ getStartList: vi.fn() }))
+vi.mock('../api/registration')
 
-// The page is tested through the subscription's own contract: the hook hands it either the rows the
-// server composed or, when they did not fit in one message, nothing at all.
-let liveListener: ((participants: PublicRegistration[] | undefined) => void) | undefined
+// The ordering rules are usePublicStartList's and tested there; the page is tested for handing the
+// loader's rows and the live ones on to the list, through the subscription's own contract.
+type LiveListener = (
+  participants: PublicRegistration[] | undefined,
+  version: number | undefined,
+  eventId: string
+) => void
+let liveListener:
+  | ((participants: PublicRegistration[] | undefined, version?: number, messageEventId?: string) => void)
+  | undefined
 vi.mock('../hooks/usePublicStartListSubscription', () => ({
-  usePublicStartListSubscription: (_eventId: string | undefined, listener: typeof liveListener) => {
-    liveListener = listener
+  usePublicStartListSubscription: (eventId: string | undefined, listener: LiveListener) => {
+    liveListener = (participants, version, messageEventId = eventId ?? '') =>
+      listener(participants, version, messageEventId)
   },
 }))
 
@@ -60,6 +68,9 @@ vi.mock('./components/LoadingIndicator', () => ({
   __esModule: true,
   default: () => <div role="progressbar" />,
 }))
+
+const shows = (count: number) =>
+  expect(screen.getByTestId('participant-list')).toHaveTextContent(`Participants: ${count},`)
 
 describe('StartListPage', () => {
   const mockUseLoaderData = router.useLoaderData as import('vitest').Mock
@@ -123,9 +134,9 @@ describe('StartListPage', () => {
 
   beforeEach(() => {
     liveListener = undefined
-    vi.mocked(getStartList).mockReset()
+    vi.mocked(getStartList).mockClear()
     mockUseParams.mockReturnValue({ id: 'event-1' })
-    mockUseLoaderData.mockReturnValue(mockParticipants)
+    mockUseLoaderData.mockReturnValue({ participants: mockParticipants })
     mockUseAtomValue.mockReturnValue(null)
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue(mockEvent)
   })
@@ -148,24 +159,25 @@ describe('StartListPage', () => {
 
     act(() => liveListener?.([...mockParticipants, { ...mockParticipants[0], class: 'ALO' }]))
 
-    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
+    await waitFor(() => shows(2))
     expect(getStartList).not.toHaveBeenCalled()
 
     // And withdrawing them just as much: the rows on screen still carry numbers that are no longer public.
     act(() => liveListener?.(mockParticipants))
 
-    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 1'))
+    await waitFor(() => shows(1))
     expect(getStartList).not.toHaveBeenCalled()
   })
 
-  it('fetches the list when the rows did not fit in one message', async () => {
-    vi.mocked(getStartList).mockResolvedValueOnce([...mockParticipants, { ...mockParticipants[0], class: 'ALO' }])
-    render(<StartListPage />)
+  it('loads the list of the event in the address, and nothing without one', async () => {
+    vi.mocked(getStartList).mockResolvedValueOnce({ participants: mockParticipants, version: 5 })
 
-    act(() => liveListener?.(undefined))
-
-    expect(getStartList).toHaveBeenCalledWith('event-1')
-    await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
+    await expect(startListLoader({ params: { id: 'event-1' } })).resolves.toEqual({
+      participants: mockParticipants,
+      version: 5,
+    })
+    await expect(startListLoader({ params: {} })).resolves.toEqual({ participants: [] })
+    expect(getStartList).toHaveBeenCalledTimes(1)
   })
 
   it('shows export actions to a global admin', () => {
@@ -211,7 +223,7 @@ describe('StartListPage', () => {
   })
 
   it('shows error message when participants list is empty', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [],
@@ -224,7 +236,7 @@ describe('StartListPage', () => {
   })
 
   it('renders the list when participants are empty but the event has published classes', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
@@ -237,7 +249,7 @@ describe('StartListPage', () => {
   })
 
   it('shows error message when participants are empty and no class is published', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
@@ -250,7 +262,7 @@ describe('StartListPage', () => {
   })
 
   it('renders the list when at least one class is published and another is unpublished', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [
@@ -266,7 +278,7 @@ describe('StartListPage', () => {
   })
 
   it('renders the list when a class is invited and published even if the event is only confirmed', () => {
-    mockUseLoaderData.mockReturnValue([])
+    mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [

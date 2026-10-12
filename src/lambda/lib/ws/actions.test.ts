@@ -16,10 +16,15 @@ const mockBuildEventViewersPayload = vi.fn((eventId: string, viewers: unknown[])
 const mockBuildRegistrationPatchPayload = vi.fn((eventId: string, patch: unknown[]) => ({ eventId, patch }))
 const mockToEventViewers = vi.fn((audience: unknown[]) => audience)
 const mockBumpDataVersion = vi.fn().mockResolvedValue(undefined)
+const mockPublishPublicStartList = vi.fn().mockResolvedValue(undefined)
 
 // The version bump writes to DynamoDB; unmocked, it reached for real credentials and logged the refusal.
 vi.doMock('../dataVersions', () => ({
   bumpDataVersion: mockBumpDataVersion,
+}))
+
+vi.doMock('./publicStartList', () => ({
+  publishPublicStartList: mockPublishPublicStartList,
 }))
 
 vi.doMock('./broadcast', () => ({
@@ -54,6 +59,7 @@ const {
   publishParticipantRegistrationPatch,
   publishAdminDataInvalidation,
   publishEventViewers,
+  publishEventChange,
 } = await import('./actions')
 
 describe('ws/actions', () => {
@@ -61,6 +67,7 @@ describe('ws/actions', () => {
     broadcastConfigurations.length = 0
     mockBroadcast.mockClear()
     mockRemoveConnection.mockClear()
+    mockPublishPublicStartList.mockClear()
     mockEventAudience.mockClear()
     mockOrganizerAudience.mockClear()
     mockPublicAudience.mockClear()
@@ -302,5 +309,24 @@ describe('ws/actions', () => {
     await call.onGoneConnection('gone-1')
 
     expect(mockRemoveConnection).toHaveBeenCalledWith('gone-1')
+  })
+
+  describe('publishEventChange', () => {
+    it('rebuilds the published start list by the event id alone when the change moved it (KOE-1516)', async () => {
+      await publishEventChange({
+        audience: 'public',
+        organizerId: 'org-1',
+        patch: { eventId: 'event-1', resultsPublished: { ALO: false } },
+        startList: true,
+      })
+
+      expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
+    })
+
+    it('leaves the start list alone when the change did not move it', async () => {
+      await publishEventChange({ audience: 'public', organizerId: 'org-1', patch: { eventId: 'event-1', name: 'x' } })
+
+      expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+    })
   })
 })

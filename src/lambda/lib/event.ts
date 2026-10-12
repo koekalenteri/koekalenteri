@@ -60,8 +60,12 @@ export interface EventChange {
   audience: 'admin' | 'public'
   organizerId: string
   patch: Patch<JsonDogEvent> & { eventId: string }
-  /** The event whose published start list changed with it, if any. */
-  startList?: JsonDogEvent
+  /**
+   * Whether the published start list moved with the change. Only a flag: the list is rebuilt from
+   * what is stored, never from the copy the change was computed on, which a concurrent save may
+   * already have overtaken (KOE-1516).
+   */
+  startList?: true
 }
 
 const EVENT_CLASS_STATES: EventClassState[] = ['picked', 'invited', 'started', 'ended'] as const
@@ -120,7 +124,7 @@ export const saveEvent = async (data: JsonDogEvent): Promise<EventChange> => {
 
   // The publication flags live on the event, so publishing or hiding the list changes what its
   // readers may see without any registration changing (KOE-1358).
-  return { audience: 'public', organizerId: data.organizer.id, patch, startList: data }
+  return { audience: 'public', organizerId: data.organizer.id, patch, startList: true }
 }
 
 export const patchEvent = async (
@@ -151,7 +155,7 @@ export const patchEvent = async (
         audience: 'public',
         organizerId: next.organizer.id,
         patch: { eventId, ...(becomesPublic ? next : changes) },
-        ...(becomesPublic || affectsPublicStartList(changes) ? { startList: next } : {}),
+        ...(becomesPublic || affectsPublicStartList(changes) ? { startList: true } : {}),
       }
 
   return { change, event: await getEvent<JsonDogEvent>(eventId) }

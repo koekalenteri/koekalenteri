@@ -286,6 +286,18 @@ describe('getStartList', () => {
     expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/startlist/test-id`, expect.any(Object))
   })
 
+  it('returns the rows with the version their header carries (KOE-1516)', async () => {
+    fetchMock.mockResponseOnce(JSON.stringify([]), { headers: { 'X-Start-List-Version': '1234' } })
+
+    await expect(getStartList('test-id')).resolves.toEqual({ participants: [], version: 1234 })
+  })
+
+  it('returns no version when the backend sends none', async () => {
+    fetchMock.mockResponseOnce(JSON.stringify([]))
+
+    await expect(getStartList('test-id')).resolves.toEqual({ participants: [], version: undefined })
+  })
+
   it('should call authenticated preview endpoint', async () => {
     await getStartListPreview('test-id', 'test-token')
     expect(fetchMock).toHaveBeenCalledTimes(1)

@@ -282,7 +282,24 @@ describe('putStartNumbersLambda', () => {
       'org-1'
     )
     // And the rows themselves, so the reader gets them without fetching the list (KOE-1358).
-    expect(mockPublishPublicStartList).toHaveBeenCalledWith(expect.objectContaining({ id: 'event-1' }))
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
+  })
+
+  it('publishes the start list only after the numbers and the flag are written and the lock is released (KOE-1516)', async () => {
+    // The published list's version is the time it was read, so it has to be read after the writes.
+    const steps: string[] = []
+    const step = (name: string) => async () => {
+      await Promise.resolve()
+      steps.push(name)
+    }
+    mockUpdateRegistrationField.mockImplementation(step('write number'))
+    mockUpdate.mockImplementation(step('write flag'))
+    mockReleaseLock.mockImplementation(step('release lock'))
+    mockPublishPublicStartList.mockImplementation(step('publish start list'))
+
+    await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
+
+    expect(steps).toEqual(['write number', 'write number', 'write flag', 'release lock', 'publish start list'])
   })
 
   it('writes drawn numbers through the same endpoint', async () => {
@@ -314,7 +331,7 @@ describe('putStartNumbersLambda', () => {
     expect(mockPublishEventPatch).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()
     // The numbers are on the rows, though, so a published list has to be sent again.
-    expect(mockPublishPublicStartList).toHaveBeenCalledWith(expect.objectContaining({ id: 'event-1' }))
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
   })
 
   it('releases the lock when a validation refuses the write', async () => {

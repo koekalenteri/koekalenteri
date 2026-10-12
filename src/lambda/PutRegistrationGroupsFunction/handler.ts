@@ -340,7 +340,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   const changedRegistrations = createRegistrationPatches(updatedItems, oldItems)
   await publishRegistrationPatches(eventId, changedRegistrations, confirmedEvent.organizer.id)
   // Moving a dog between groups, and cancelling one, both change the published rows.
-  await publishPublicStartList(confirmedEvent)
+  await publishPublicStartList(eventId)
   const responseItems = await Promise.all(
     updatedItems.map(async (registration) =>
       adminRegistrationResponse(registration, getRegistrationEditToken(registration))

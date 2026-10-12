@@ -243,6 +243,17 @@ describe('lambda', () => {
         expect(result.headers).not.toHaveProperty('Vary')
       })
 
+      it('sends extra headers and lets the browser read them across origins', () => {
+        const result = response(200, [], mockEvent, { headers: { 'X-Start-List-Version': '1234' } })
+
+        expect(result.headers).toEqual({
+          'Access-Control-Allow-Origin': 'https://koekalenteri.snj.fi',
+          'Access-Control-Expose-Headers': 'X-Start-List-Version',
+          'Content-Type': 'application/json',
+          'X-Start-List-Version': '1234',
+        })
+      })
+
       it('should compress large responses when gzip is accepted', () => {
         // Create a large response body
         const largeBody = { data: 'x'.repeat(5000) }

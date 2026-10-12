@@ -40,6 +40,15 @@ describe('http', () => {
       expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/test/`, expect.any(Object))
     })
 
+    it('hands the headers over too when the caller asks for them', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(['ok']), { headers: { 'X-Start-List-Version': '1234' } })
+
+      const { data, headers } = await http.getWithHeaders('/with-headers/')
+
+      expect(data).toEqual(['ok'])
+      expect(headers.get('X-Start-List-Version')).toBe('1234')
+    })
+
     it('sends the client version so old bundles are identifiable in the access log', async () => {
       fetchMock.mockResponse(JSON.stringify('ok'))
 
@@ -441,6 +450,12 @@ describe('http', () => {
 
       expect(err.statusText).toBe('body message')
       expect(err.message).toBe('400 body message')
+    })
+
+    it("keeps the failed response's headers", () => {
+      const response = new Response('', { headers: { 'X-Start-List-Version': '1234' }, status: 404 })
+
+      expect(new APIError(response, '').headers.get('X-Start-List-Version')).toBe('1234')
     })
 
     it('should fallback to default status text when body object has no message', () => {

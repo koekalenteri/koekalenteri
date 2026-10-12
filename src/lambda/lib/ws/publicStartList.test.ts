@@ -5,6 +5,7 @@ import { asJsonConfirmedEvent, asJsonRegistration } from '../../test-utils/helpe
 
 const mockPublicStartListAudience = vi.fn()
 const mockGetRegistrationsByEventId = vi.fn()
+const mockGetEvent = vi.fn()
 const mockRemoveConnection = vi.fn()
 
 type BroadcastArgs = {
@@ -23,6 +24,7 @@ vi.doMock('./broadcast', () => ({ broadcast: mockBroadcast }))
 vi.doMock('./connectionRepository', () => ({ removeConnection: mockRemoveConnection }))
 vi.doMock('./connectionSelectors', () => ({ publicStartListAudience: mockPublicStartListAudience }))
 vi.doMock('../registration', () => ({ getRegistrationsByEventId: mockGetRegistrationsByEventId }))
+vi.doMock('../event', () => ({ getEvent: mockGetEvent }))
 
 const { buildPublicStartListPayload, publishPublicStartList } = await import('./publicStartList')
 
@@ -54,16 +56,23 @@ describe('ws/publicStartList', () => {
     sentPayload = undefined
     mockPublicStartListAudience.mockResolvedValue([{ connectionId: 'reader' }])
     mockGetRegistrationsByEventId.mockResolvedValue([registration('Aapo', 1)])
+    mockGetEvent.mockResolvedValue(publishedEvent)
+    vi.useFakeTimers({ now: new Date('2025-01-01T10:00:00.000Z'), toFake: ['Date'] })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('sends the published rows to the readers watching the event', async () => {
-    await expect(publishPublicStartList(publishedEvent)).resolves.toEqual({
+    await expect(publishPublicStartList('event-1')).resolves.toEqual({
       attempted: 1,
       failed: 0,
       gone: 0,
       sent: 1,
     })
 
+    expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith('event-1', true)
     expect(sentPayload).toEqual({
       eventId: 'event-1',
       participants: [
@@ -76,40 +85,64 @@ describe('ws/publicStartList', () => {
         }),
       ],
       scope: 'public:start-list',
+      version: Date.parse('2025-01-01T10:00:00.000Z'),
     })
+  })
+
+  it('composes the rows from what is stored, read consistently, not from a copy the caller holds (KOE-1516)', async () => {
+    // A hide that landed while the sender was still working: the stored event already says so.
+    mockGetEvent.mockResolvedValueOnce({ ...publishedEvent, startListPublished: { ALO: false } })
+
+    await publishPublicStartList('event-1')
+
+    expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
+    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(sentPayload).toEqual({
+      eventId: 'event-1',
+      participants: [],
+      scope: 'public:start-list',
+      version: Date.parse('2025-01-01T10:00:00.000Z'),
+    })
+  })
+
+  it('stamps the version before reading, so a later stamp never describes an earlier read (KOE-1516)', async () => {
+    mockGetEvent.mockImplementationOnce(async () => {
+      vi.setSystemTime(new Date('2025-01-01T10:00:05.000Z'))
+      return publishedEvent
+    })
+
+    await publishPublicStartList('event-1')
+
+    expect(sentPayload).toEqual(expect.objectContaining({ version: Date.parse('2025-01-01T10:00:00.000Z') }))
   })
 
   it('costs nothing but the lookup when nobody is watching', async () => {
     mockPublicStartListAudience.mockResolvedValueOnce([])
 
-    await expect(publishPublicStartList(publishedEvent)).resolves.toEqual({
+    await expect(publishPublicStartList('event-1')).resolves.toEqual({
       attempted: 0,
       failed: 0,
       gone: 0,
       sent: 0,
     })
 
+    expect(mockGetEvent).not.toHaveBeenCalled()
     expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
     expect(mockBroadcast).not.toHaveBeenCalled()
   })
 
-  it('uses the registrations the caller already read', async () => {
-    await publishPublicStartList(publishedEvent, [registration('Vieno', 2)])
-
-    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
-    expect(sentPayload).toEqual(
-      expect.objectContaining({
-        participants: [expect.objectContaining({ dog: { name: 'Vieno', regNo: 'REG-2' } })],
-      })
-    )
-  })
-
   it('takes the rows away when the list is no longer available', async () => {
     const hidden: JsonDogEvent = { ...publishedEvent, startListPublished: { ALO: false } }
+    mockGetEvent.mockResolvedValueOnce(hidden)
 
-    await publishPublicStartList(hidden)
+    await publishPublicStartList('event-1')
 
-    expect(sentPayload).toEqual({ eventId: 'event-1', participants: [], scope: 'public:start-list' })
+    expect(sentPayload).toEqual({
+      eventId: 'event-1',
+      participants: [],
+      scope: 'public:start-list',
+      version: Date.parse('2025-01-01T10:00:00.000Z'),
+    })
   })
 
   it('asks for a fetch instead when the rows do not fit in one message', () => {
@@ -122,10 +155,11 @@ describe('ws/publicStartList', () => {
       owner: 'Omistaja',
     }))
 
-    expect(buildPublicStartListPayload('event-1', rows)).toEqual({
+    expect(buildPublicStartListPayload('event-1', rows, 1234)).toEqual({
       eventId: 'event-1',
       scope: 'public:start-list',
       stale: true,
+      version: 1234,
     })
   })
 })

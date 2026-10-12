@@ -351,7 +351,39 @@ describe('putRegistrationGroupsLambda', () => {
       event.organizer.id
     )
     // Moving a dog, and cancelling one, both rewrite the published rows (KOE-1358).
-    expect(mockPublishPublicStartList).toHaveBeenCalledWith(expect.objectContaining({ id: event.id }))
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith(event.id)
+  })
+
+  it('publishes the start list only after every write, the lock release included (KOE-1516)', async () => {
+    // The published list's version is the time it was read, so it has to be read after the writes.
+    const steps: string[] = []
+    mockDynamoDB.update.mockImplementation(async () => {
+      await Promise.resolve()
+      steps.push('write')
+      return { $metadata: {} }
+    })
+    mockPublishPublicStartList.mockImplementation(async () => {
+      steps.push('publish start list')
+    })
+    try {
+      const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+      authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+      mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+      mockDynamoDB.read.mockResolvedValue(event)
+      const reg = jsonRegistrationsToEventWithParticipantsInvited[5]
+
+      await putRegistrationGroupsLambda(
+        constructAPIGwEvent(
+          [{ cancelled: false, eventId: event.id, group: { key: 'reserve', number: 3 }, id: reg.id }],
+          { pathParameters: { eventId: event.id } }
+        )
+      )
+
+      expect(steps).toEqual(['write', 'write', 'write', 'write', 'write', 'publish start list'])
+    } finally {
+      mockDynamoDB.update.mockReset()
+      mockPublishPublicStartList.mockReset()
+    }
   })
 
   it('should move to last place', async () => {

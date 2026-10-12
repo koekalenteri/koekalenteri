@@ -413,6 +413,29 @@ describe('putEventLambda', () => {
     )
   })
 
+  it('sends the change, start list and all, only after the event is written (KOE-1516)', async () => {
+    // The published list's version is the time it was read, so it has to be read after the write.
+    const steps: string[] = []
+    const stored: JsonDogEvent = { ...mockEvent, startListPublished: false, state: 'invited' }
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce(stored)
+    patchEventMock.mockImplementationOnce(async (eventId, _existing, next) => {
+      await Promise.resolve()
+      steps.push('write event')
+      return {
+        change: { audience: 'public', organizerId: next.organizer.id, patch: { eventId }, startList: true },
+        event: next,
+      }
+    })
+    mockPublishEventChange.mockImplementationOnce(async () => {
+      steps.push('publish change')
+    })
+
+    await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startListPublished: true }))
+
+    expect(steps).toEqual(['write event', 'publish change'])
+  })
+
   it('freezes an absent start number state for a classless event', async () => {
     const stored: JsonDogEvent = { ...mockEvent, startListPublished: false, state: 'invited' }
     authorizeMock.mockResolvedValueOnce(mockSecretary)
