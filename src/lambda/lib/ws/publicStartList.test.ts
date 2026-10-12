@@ -72,6 +72,7 @@ describe('ws/publicStartList', () => {
       sent: 1,
     })
 
+    expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith('event-1', true)
     expect(sentPayload).toEqual({
       eventId: 'event-1',
       participants: [
@@ -95,7 +96,7 @@ describe('ws/publicStartList', () => {
     await publishPublicStartList('event-1')
 
     expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
-    expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith('event-1', true)
+    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
     expect(sentPayload).toEqual({
       eventId: 'event-1',
       participants: [],

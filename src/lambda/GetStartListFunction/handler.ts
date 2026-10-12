@@ -1,35 +1,25 @@
-import type { JsonPublicRegistration } from '../../types'
-import { isStartListAvailable } from '../../lib/event'
 import { START_LIST_VERSION_HEADER } from '../../lib/startList'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId } from '../lib/registration'
-import { buildPublicStartList } from '../lib/startList'
+import { readPublishedStartList } from '../lib/startList'
 
 const getStartListLambda = lambda('getStartList', async (event) => {
   const preview = event.resource === '/admin/startlist/{eventId}'
   const auth = preview ? await authorizeWithMemberOf(event) : undefined
 
   const eventId = getParam(event, 'eventId')
-  // Stamped before the reads, on the clock the live messages use, so the page can tell whether a
-  // live update it already shows is newer than this answer (KOE-1516). The reads are consistent
-  // for the same reason: a fetch a `stale` message asked for must see the write that sent it.
-  const version = Date.now()
-  const confirmedEvent = await getEvent(eventId, true)
-  if (auth && !auth.user.admin && !auth.memberOf.includes(confirmedEvent.organizer.id)) {
-    throw new LambdaError(403, 'Forbidden')
-  }
+  // Read the same way as the live messages, and stamped with the same clock, so the page can tell
+  // whether a live update it already shows is newer than this answer (KOE-1516).
+  const { available, participants, version } = await readPublishedStartList(eventId, {
+    checkEvent: (confirmedEvent) => {
+      if (auth && !auth.user.admin && !auth.memberOf.includes(confirmedEvent.organizer.id)) {
+        throw new LambdaError(403, 'Forbidden')
+      }
+    },
+    preview,
+  })
 
-  const startListAvailable = preview || isStartListAvailable(confirmedEvent)
-  let publicRegs: JsonPublicRegistration[] = []
-
-  if (startListAvailable) {
-    const items = await getRegistrationsByEventId(eventId, true)
-    publicRegs = buildPublicStartList(confirmedEvent, items, preview)
-  }
-
-  return response(startListAvailable ? 200 : 404, publicRegs, event, {
+  return response(available ? 200 : 404, participants, event, {
     headers: { [START_LIST_VERSION_HEADER]: String(version) },
   })
 })

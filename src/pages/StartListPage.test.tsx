@@ -227,9 +227,12 @@ describe('StartListPage', () => {
       // Between the render for event-2 and the resubscribe, the socket still delivers event-1's
       // messages, and the subscription hands them to the newest handler: event-2's.
       act(() => liveListener?.(rows(4), 400, 'event-1'))
+      // Nor may one that asks for a fetch start one for the event the page has left.
+      act(() => liveListener?.(undefined, 400, 'event-1'))
       await flushPromises(false)
 
       shows(3)
+      expect(getStartList).not.toHaveBeenCalledWith('event-1', undefined, expect.anything())
     })
 
     it('does not let a loader result older than the live rows on screen overwrite them', async () => {
@@ -346,23 +349,31 @@ describe('StartListPage', () => {
     })
 
     it("keeps a late fetch for the event the page left out of the next event's list", async () => {
-      // An answer already on its way when the page moved on: it ignores the abort and still lands.
+      // Answers already on their way when the page moved on: they ignore the abort and still land.
       let releaseFirst: (list: PublicStartList) => void = () => {}
-      let firstSignal: AbortSignal | undefined
-      vi.mocked(getStartList).mockImplementationOnce((_eventId, _token, signal) => {
-        firstSignal = signal
-        return new Promise((resolve) => {
-          releaseFirst = resolve
+      const signals: Array<AbortSignal | undefined> = []
+      vi.mocked(getStartList)
+        .mockImplementationOnce((_eventId, _token, signal) => {
+          signals.push(signal)
+          return new Promise((resolve) => {
+            releaseFirst = resolve
+          })
         })
-      })
+        .mockImplementationOnce((_eventId, _token, signal) => {
+          signals.push(signal)
+          return new Promise(() => {})
+        })
       const { rerender } = render(<StartListPage />)
       act(() => liveListener?.(undefined, 200))
+      act(() => liveListener?.(undefined, 210))
 
       mockUseParams.mockReturnValue({ id: 'event-2' })
       mockUseLoaderData.mockReturnValue({ participants: rows(3), version: 50 })
       rerender(<StartListPage />)
       await waitFor(() => shows(3))
-      expect(firstSignal?.aborted).toBe(true)
+      // Both of the event's fetches are cancelled, not only the latest.
+      expect(signals).toHaveLength(2)
+      expect(signals.map((signal) => signal?.aborted)).toEqual([true, true])
 
       act(() => liveListener?.(rows(4), 400))
       await waitFor(() => shows(4))
@@ -459,8 +470,8 @@ describe('StartListPage', () => {
       mockUseParams.mockReturnValue({})
       render(<StartListPage />)
 
-      act(() => liveListener?.(undefined, 300))
-      act(() => liveListener?.(rows(2), 300))
+      act(() => liveListener?.(undefined, 300, 'event-1'))
+      act(() => liveListener?.(rows(2), 300, 'event-1'))
       await flushPromises(false)
 
       shows(1)

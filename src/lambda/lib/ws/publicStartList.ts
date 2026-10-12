@@ -1,8 +1,5 @@
 import type { JsonPublicRegistration } from '../../../types'
-import { isStartListAvailable } from '../../../lib/event'
-import { getEvent } from '../event'
-import { getRegistrationsByEventId } from '../registration'
-import { buildPublicStartList } from '../startList'
+import { readPublishedStartList } from '../startList'
 import { broadcast } from './broadcast'
 import { removeConnection } from './connectionRepository'
 import { publicStartListAudience } from './connectionSelectors'
@@ -27,8 +24,8 @@ export const buildPublicStartListPayload = (
 
 /**
  * Sends the published start list to the readers watching this event (KOE-1358). The rows are
- * composed here, on the server, from the same builder the public fetch uses, so nothing beyond the
- * published truth leaves the Lambda.
+ * composed here, on the server, by the same reader as the public fetch (`readPublishedStartList`),
+ * so nothing beyond the published truth leaves the Lambda.
  *
  * The subscriber lookup comes first, so an event nobody is watching costs the query and nothing
  * else. Then the event and its registrations are read again, consistently: the caller's copy was
@@ -43,12 +40,9 @@ export const publishPublicStartList = async (eventId: string) => {
   const audience = await publicStartListAudience(eventId)
   if (!audience.length) return { attempted: 0, failed: 0, gone: 0, sent: 0 }
 
-  const version = Date.now()
-  const confirmedEvent = await getEvent(eventId, true)
-  const items = await getRegistrationsByEventId(eventId, true)
   // A start list that is not available is published as empty rather than skipped: unpublishing has
   // to take the rows away from the readers who already have them.
-  const participants = isStartListAvailable(confirmedEvent) ? buildPublicStartList(confirmedEvent, items) : []
+  const { participants, version } = await readPublishedStartList(eventId)
   const payload = buildPublicStartListPayload(eventId, participants, version)
 
   return broadcast({
