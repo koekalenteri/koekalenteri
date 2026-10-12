@@ -134,7 +134,7 @@ describe('lib/event', () => {
 
     it('reads consistently when asked to (KOE-1516)', async () => {
       mockRead.mockResolvedValueOnce(eventObj)
-      await getEvent(eventId, { consistent: true })
+      await getEvent(eventId, true)
       expect(mockRead).toHaveBeenCalledWith({ id: eventId }, expect.anything(), true)
     })
 

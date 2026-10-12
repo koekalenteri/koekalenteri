@@ -2,12 +2,7 @@ import type { PublicRegistration, PublicStartList } from '../types'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { APIError } from '../api/http'
 import { getStartList } from '../api/registration'
-import {
-  isStartListUpToDate,
-  newestStartListVersion,
-  parseStartListVersion,
-  START_LIST_VERSION_HEADER,
-} from '../lib/startList'
+import { isStartListUpToDate, newestStartListVersion, startListVersionOf } from '../lib/startList'
 import { usePublicStartListSubscription } from './usePublicStartListSubscription'
 
 interface ShownStartList extends PublicStartList {
@@ -43,7 +38,7 @@ const fetchStartList = async (eventId: string, signal: AbortSignal): Promise<Pub
     return await getStartList(eventId, undefined, signal)
   } catch (error) {
     if (error instanceof APIError && error.status === 404) {
-      return { participants: [], version: parseStartListVersion(error.headers.get(START_LIST_VERSION_HEADER)) }
+      return { participants: [], version: startListVersionOf(error.headers) }
     }
     return undefined
   }

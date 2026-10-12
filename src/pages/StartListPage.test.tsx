@@ -78,6 +78,9 @@ vi.mock('./components/LoadingIndicator', () => ({
   default: () => <div role="progressbar" />,
 }))
 
+const shows = (count: number) =>
+  expect(screen.getByTestId('participant-list')).toHaveTextContent(`Participants: ${count},`)
+
 describe('StartListPage', () => {
   const mockUseLoaderData = router.useLoaderData as import('vitest').Mock
   const mockUseParams = router.useParams as import('vitest').Mock
@@ -190,8 +193,6 @@ describe('StartListPage', () => {
 
   describe('when live updates and fetches race each other (KOE-1516)', () => {
     const rows = (count: number) => Array.from({ length: count }, (_, index) => ({ ...mockParticipants[0], index }))
-    const shows = (count: number) =>
-      expect(screen.getByTestId('participant-list')).toHaveTextContent(`Participants: ${count},`)
 
     it('keeps the newer rows when an older message arrives after them', async () => {
       render(<StartListPage />)
@@ -285,8 +286,6 @@ describe('StartListPage', () => {
 
   describe('refetching through the real http layer (KOE-1516)', () => {
     const rows = (count: number) => Array.from({ length: count }, (_, index) => ({ ...mockParticipants[0], index }))
-    const shows = (count: number) =>
-      expect(screen.getByTestId('participant-list')).toHaveTextContent(`Participants: ${count},`)
     const answer = (count: number, version?: number) => {
       const headers: Record<string, string> = version === undefined ? {} : { 'X-Start-List-Version': String(version) }
       return { body: JSON.stringify(rows(count)), headers }
@@ -407,6 +406,18 @@ describe('StartListPage', () => {
 
       await waitFor(() => shows(0))
       expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('shows a fetch whose stamp lags the rows on screen, since it read after them', async () => {
+      // A container whose clock runs behind: the fetch started after the message, so it read after it.
+      fetchMock.mockResponseOnce(() => Promise.resolve(answer(3, 290)))
+      render(<StartListPage />)
+      act(() => liveListener?.(rows(2), 300))
+      await waitFor(() => shows(2))
+
+      act(() => liveListener?.(undefined, 300))
+
+      await waitFor(() => shows(3))
     })
 
     it('does not lift an unversioned fetch over the versioned rows on screen', async () => {

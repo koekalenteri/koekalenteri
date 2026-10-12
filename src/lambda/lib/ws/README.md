@@ -76,6 +76,13 @@ Accepted risks:
 
 - **Same millisecond.** Equal versions are accepted, so of two reads stamped in the same millisecond
   the later arrival wins, whichever read first.
+- **A replayed write among three overlapping saves.** The stamp is taken before the reads, so a slow
+  reader stamped at 100 can show a write W, and then a sender stamped at 120 that read before W is
+  accepted and takes W away again for a moment. It always converges: the writer of W stamps after its
+  own write, higher than both, and its message puts W back.
+- **GetStartList updated after the publishers during a deploy.** A refetch answered by the old
+  GetStartList has no header, and once a versioned list is shown such an answer is turned away, so a
+  list too large for one message stays behind until the new GetStartList is out.
 - **Clock skew between Lambdas.** The stamps of two containers are only as comparable as their clocks.
   An older read can win only if the skew exceeds the time between a sender's write and its own stamp,
   which includes the registration patch broadcast and the connection lookup (tens of milliseconds);

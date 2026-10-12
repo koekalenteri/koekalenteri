@@ -27,6 +27,10 @@ export const parseStartListVersion = (value: string | null): number | undefined 
  * Nothing versioned shown yet means anything goes, versionless included: a backend deployed before
  * versions sends none. Once a version has been accepted, a versionless one is no longer trusted.
  */
+/** The version a start list response carries in its header, if any. */
+export const startListVersionOf = (headers: Headers): number | undefined =>
+  parseStartListVersion(headers.get(START_LIST_VERSION_HEADER))
+
 export const isStartListUpToDate = (shown: number | undefined, incoming: number | undefined): boolean =>
   shown === undefined || (incoming !== undefined && incoming >= shown)
 

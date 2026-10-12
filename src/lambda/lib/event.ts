@@ -67,7 +67,7 @@ const EVENT_STATES: EventState[] = ['confirmed', ...EVENT_CLASS_STATES] as const
 
 export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(
   id: string,
-  { consistent = false }: { consistent?: boolean } = {}
+  consistent: boolean = false
 ): Promise<T> => {
   const jsonEvent = await dynamoDB.read<T>({ id }, eventTable, consistent)
   if (!jsonEvent) {

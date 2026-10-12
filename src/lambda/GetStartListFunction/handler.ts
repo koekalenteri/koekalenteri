@@ -16,7 +16,7 @@ const getStartListLambda = lambda('getStartList', async (event) => {
   // live update it already shows is newer than this answer (KOE-1516). The reads are consistent
   // for the same reason: a fetch a `stale` message asked for must see the write that sent it.
   const version = Date.now()
-  const confirmedEvent = await getEvent(eventId, { consistent: true })
+  const confirmedEvent = await getEvent(eventId, true)
   if (auth && !auth.user.admin && !auth.memberOf.includes(confirmedEvent.organizer.id)) {
     throw new LambdaError(403, 'Forbidden')
   }

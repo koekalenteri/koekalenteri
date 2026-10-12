@@ -94,7 +94,7 @@ describe('ws/publicStartList', () => {
 
     await publishPublicStartList('event-1')
 
-    expect(mockGetEvent).toHaveBeenCalledWith('event-1', { consistent: true })
+    expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
     expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith('event-1', true)
     expect(sentPayload).toEqual({
       eventId: 'event-1',

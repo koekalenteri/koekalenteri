@@ -82,7 +82,7 @@ describe('getStartListLambda', () => {
       vi.useRealTimers()
     }
 
-    expect(mockGetEvent).toHaveBeenCalledWith('event123', { consistent: true })
+    expect(mockGetEvent).toHaveBeenCalledWith('event123', true)
     expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ consistent: true }))
     expect(mockResponse).toHaveBeenCalledWith(200, [], event, {
       headers: { 'X-Start-List-Version': String(Date.parse('2025-01-01T10:00:00.000Z')) },
@@ -516,7 +516,7 @@ describe('getStartListLambda', () => {
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, { consistent: true })
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(404, [], event, versionHeader)
   })
@@ -599,7 +599,7 @@ describe('getStartListLambda', () => {
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, { consistent: true })
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).toHaveBeenCalledWith({
       consistent: true,
       key: 'eventId = :eventId',
@@ -736,7 +736,7 @@ describe('getStartListLambda', () => {
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, { consistent: true })
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).toHaveBeenCalledWith({
       consistent: true,
       key: 'eventId = :eventId',
@@ -756,7 +756,7 @@ describe('getStartListLambda', () => {
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, { consistent: true })
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).toHaveBeenCalledWith({
       consistent: true,
       key: 'eventId = :eventId',
@@ -775,7 +775,7 @@ describe('getStartListLambda', () => {
     await expect(getStartListLambda(event)).rejects.toThrow(error)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, { consistent: true })
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).not.toHaveBeenCalled()
     expect(mockResponse).not.toHaveBeenCalled()
   })
@@ -792,7 +792,7 @@ describe('getStartListLambda', () => {
     await expect(getStartListLambda(event)).rejects.toThrow(error)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, { consistent: true })
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).toHaveBeenCalledWith({
       consistent: true,
       key: 'eventId = :eventId',

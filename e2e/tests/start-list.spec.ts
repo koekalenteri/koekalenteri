@@ -16,8 +16,9 @@ test('the public start list answers with a version the page can read across orig
     state: 'invited',
   })
 
+  const startListUrl = `${API_URL}/startlist/${event.id}`
   const startList = page.waitForResponse(
-    (response) => new URL(response.url()).pathname === `/dev/startlist/${event.id}`
+    (response) => new URL(response.url()).pathname === new URL(startListUrl).pathname
   )
   await page.goto(`/startlist/${event.id}`)
   expect((await startList).status()).toBe(200)
@@ -26,7 +27,7 @@ test('the public start list answers with a version the page can read across orig
   // lets through, since the API is another origin. So the header is read the way the page reads it.
   const version = await page.evaluate(
     async (url) => (await fetch(url)).headers.get('X-Start-List-Version'),
-    `${API_URL}/startlist/${event.id}`
+    startListUrl
   )
   expect(version).toMatch(/^\d+$/)
 })

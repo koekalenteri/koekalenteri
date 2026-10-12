@@ -44,7 +44,7 @@ export const publishPublicStartList = async (eventId: string) => {
   if (!audience.length) return { attempted: 0, failed: 0, gone: 0, sent: 0 }
 
   const version = Date.now()
-  const confirmedEvent = await getEvent(eventId, { consistent: true })
+  const confirmedEvent = await getEvent(eventId, true)
   const items = await getRegistrationsByEventId(eventId, true)
   // A start list that is not available is published as empty rather than skipped: unpublishing has
   // to take the rows away from the readers who already have them.

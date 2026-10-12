@@ -7,6 +7,7 @@ import {
   newestStartListVersion,
   parseStartListVersion,
   startListSpreadsheetRows,
+  startListVersionOf,
 } from './startList'
 
 /**
@@ -25,6 +26,13 @@ describe('isStartListUpToDate (KOE-1516)', () => {
     { expected: false, incoming: undefined, shown: 100, what: 'nor does an unversioned one once a version was taken' },
   ])('$what', ({ expected, incoming, shown }) => {
     expect(isStartListUpToDate(shown, incoming)).toBe(expected)
+  })
+})
+
+describe('startListVersionOf', () => {
+  it('reads the version header, and nothing without one', () => {
+    expect(startListVersionOf(new Headers({ 'X-Start-List-Version': '1234' }))).toBe(1234)
+    expect(startListVersionOf(new Headers())).toBeUndefined()
   })
 })
 

@@ -13,7 +13,7 @@ import type {
   RegistrationPatchRequest,
   Transaction,
 } from '../types'
-import { parseStartListVersion, START_LIST_VERSION_HEADER } from '../lib/startList'
+import { startListVersionOf } from '../lib/startList'
 import http, { withRegistrationAuth, withToken, withUserRouteFallback } from './http'
 
 export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]>
@@ -171,7 +171,7 @@ export async function getStartList(eventId: string, token?: string, signal?: Abo
     `/startlist/${eventId}`,
     withToken({ signal }, token)
   )
-  return { participants: data, version: parseStartListVersion(headers.get(START_LIST_VERSION_HEADER)) }
+  return { participants: data, version: startListVersionOf(headers) }
 }
 
 export async function getStartListPreview(
