@@ -19,11 +19,19 @@ vi.mock('notistack', async (importOriginal) => ({
 
 // The page is tested through the subscription's own contract: the hook hands it either the rows the
 // server composed or, when they did not fit in one message, nothing at all, with the server time they
-// were read.
-let liveListener: ((participants: PublicRegistration[] | undefined, version?: number) => void) | undefined
+// were read and the event the message was addressed to (by default the one subscribed to).
+type LiveListener = (
+  participants: PublicRegistration[] | undefined,
+  version: number | undefined,
+  eventId: string
+) => void
+let liveListener:
+  | ((participants: PublicRegistration[] | undefined, version?: number, messageEventId?: string) => void)
+  | undefined
 vi.mock('../hooks/usePublicStartListSubscription', () => ({
-  usePublicStartListSubscription: (_eventId: string | undefined, listener: typeof liveListener) => {
-    liveListener = listener
+  usePublicStartListSubscription: (eventId: string | undefined, listener: LiveListener) => {
+    liveListener = (participants, version, messageEventId = eventId ?? '') =>
+      listener(participants, version, messageEventId)
   },
 }))
 
@@ -205,6 +213,22 @@ describe('StartListPage', () => {
       act(() => liveListener?.(rows(3), 200))
 
       await waitFor(() => shows(3))
+    })
+
+    it("drops a message for the event the page just left that reaches the next event's handler", async () => {
+      const { rerender } = render(<StartListPage />)
+
+      mockUseParams.mockReturnValue({ id: 'event-2' })
+      mockUseLoaderData.mockReturnValue({ participants: rows(3), version: 50 })
+      rerender(<StartListPage />)
+      await waitFor(() => shows(3))
+
+      // Between the render for event-2 and the resubscribe, the socket still delivers event-1's
+      // messages, and the subscription hands them to the newest handler: event-2's.
+      act(() => liveListener?.(rows(4), 400, 'event-1'))
+      await flushPromises(false)
+
+      shows(3)
     })
 
     it('does not let a loader result older than the live rows on screen overwrite them', async () => {

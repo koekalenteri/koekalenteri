@@ -67,8 +67,8 @@ describe('usePublicStartListSubscription', () => {
     // A listener that closes over page state changes on every render; resubscribing for that would
     // send a message per render.
     expect(subscribePublicStartList).toHaveBeenCalledTimes(1)
-    capturedListener?.(rows, 1234)
-    expect(latest).toHaveBeenCalledWith(rows, 1234)
+    capturedListener?.(rows, 1234, 'event-1')
+    expect(latest).toHaveBeenCalledWith(rows, 1234, 'event-1')
     expect(first).not.toHaveBeenCalled()
   })
 })

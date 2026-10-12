@@ -25,7 +25,9 @@ export function usePublicStartListSubscription(eventId: string | undefined, list
   useEffect(() => {
     if (!eventId) return
 
-    subscribePublicStartList(eventId, (participants, version) => listenerRef.current(participants, version))
+    subscribePublicStartList(eventId, (participants, version, messageEventId) =>
+      listenerRef.current(participants, version, messageEventId)
+    )
     return () => unsubscribePublicStartList()
   }, [eventId, subscribePublicStartList, unsubscribePublicStartList])
 }

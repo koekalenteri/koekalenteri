@@ -524,7 +524,8 @@ describe('useWebSocket', () => {
     // The version goes with the rows: the page orders them against its fetches by it (KOE-1516).
     expect(listener).toHaveBeenCalledWith(
       [{ class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } }],
-      200
+      200,
+      'event-1'
     )
   })
 
@@ -540,7 +541,7 @@ describe('useWebSocket', () => {
       })
     })
 
-    expect(listener).toHaveBeenCalledWith([], undefined)
+    expect(listener).toHaveBeenCalledWith([], undefined, 'event-1')
   })
 
   it('passes on a start list that did not fit in one message as nothing to apply', () => {
@@ -555,7 +556,7 @@ describe('useWebSocket', () => {
       })
     })
 
-    expect(listener).toHaveBeenCalledWith(undefined, 300)
+    expect(listener).toHaveBeenCalledWith(undefined, 300, 'event-1')
   })
 
   it('ignores a start list message that carries neither rows nor a request to fetch them', () => {

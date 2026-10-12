@@ -108,16 +108,18 @@ export function usePublicStartList(eventId: string | undefined, loaded: PublicSt
   )
 
   const handleLiveParticipants = useCallback(
-    (fresh: PublicRegistration[] | undefined, version: number | undefined) => {
-      if (!eventId) return
+    (fresh: PublicRegistration[] | undefined, version: number | undefined, messageEventId: string) => {
+      // The handler is replaced on render but the subscription only on the next effect, so in between
+      // a message for the event the page has left can reach the next event's handler (KOE-1516).
+      if (messageEventId !== eventIdRef.current) return
       const shownVersion = shownRef.current.version
       if (fresh && (version !== undefined || shownVersion === undefined)) {
-        offer(eventId, { participants: fresh, version })
+        offer(messageEventId, { participants: fresh, version })
         return
       }
-      refetch(eventId, newestStartListVersion(version, shownVersion))
+      refetch(messageEventId, newestStartListVersion(version, shownVersion))
     },
-    [eventId, offer, refetch]
+    [offer, refetch]
   )
   usePublicStartListSubscription(eventId, handleLiveParticipants)
 
