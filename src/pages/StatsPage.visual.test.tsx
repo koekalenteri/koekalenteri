@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router'
 import type { AllYearlyStatsResponse, YearlyStatsResponse } from '../api/stats'
 import type { RetentionStats } from '../types/Stats'
+import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { Suspense } from 'react'
 import { page } from 'vitest/browser'
@@ -62,6 +63,7 @@ it('puts each chart under the page heading, one level below it', async () => {
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 1000 }}>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <TestProvider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
             <DataMemoryRouter initialEntries={['/stats']} routes={routes} />

@@ -25,7 +25,7 @@ const middayOf = (day: string) => new TZDate(`${day}T12:00:00`, TIME_ZONE).getTi
  * atom like `adminStatsYearAtom` whose initial value is `new Date().getFullYear()`) has read it before
  * any `beforeAll`, so this hook is too late for it: freeze it with {@link freezeClockNow} instead.
  *
- * @param day the frozen day as `yyyy-MM-dd`; midday, so no time zone lands it on a neighbour.
+ * @param day the frozen day as `yyyy-MM-dd`
  * @returns the frozen instant in milliseconds, for fixtures that count back from "now".
  */
 export const freezeClockAt = (day: string) => {
@@ -43,9 +43,8 @@ export const freezeClockAt = (day: string) => {
 }
 
 /**
- * Freezes the calling file's clock to one day right away, for a component that reads the clock when
- * its own module loads (see {@link freezeClockAt}). Call it from `vi.hoisted`, which runs before the
- * file's imports are evaluated; the helper comes in through a dynamic import there:
+ * Freezes the clock at once; see {@link freezeClockAt} for when. Call it from `vi.hoisted`, which runs
+ * before the file's imports are evaluated; the helper comes in through a dynamic import there:
  *
  *     await vi.hoisted(async () => {
  *       const { freezeClockNow } = await import('../test-utils/freezeClock')
@@ -57,7 +56,7 @@ export const freezeClockAt = (day: string) => {
  * year) before the capture, so a wrong day fails the test rather than slipping under the screenshot
  * tolerance.
  *
- * @param day the frozen day as `yyyy-MM-dd`; midday in Helsinki, as in {@link freezeClockAt}.
+ * @param day the frozen day as `yyyy-MM-dd`
  * @returns the frozen instant in milliseconds.
  */
 export const freezeClockNow = (day: string) => {

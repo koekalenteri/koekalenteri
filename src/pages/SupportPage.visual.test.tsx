@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
@@ -18,6 +19,7 @@ it('opens with the question as the heading of the page', async () => {
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 800 }}>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <DataMemoryRouter initialEntries={['/support']} routes={routes} />
       </ThemeProvider>
     </div>

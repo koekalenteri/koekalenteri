@@ -1,3 +1,4 @@
+import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
@@ -11,6 +12,7 @@ it('says the trial is gone, as the heading of the page', async () => {
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', height: 500, width: 800 }}>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <MemoryRouter>
           <EventNotFound />
         </MemoryRouter>

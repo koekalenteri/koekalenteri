@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -45,6 +46,7 @@ it('titles the page with the entry list and its sections one level below', async
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 1000 }}>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <TestProvider>
             <AppSnackbarProvider>

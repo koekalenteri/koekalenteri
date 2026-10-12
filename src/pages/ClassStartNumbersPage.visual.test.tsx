@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router'
 import type { ClassStartNumbers } from '../types'
 import { TZDate } from '@date-fns/tz'
+import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
@@ -65,6 +66,7 @@ it("opens one class's draw sheet under the page's own heading", async () => {
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', display: 'flex', height: 500, width: 900 }}>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <TestProvider>
           <AppSnackbarProvider>
             <DataMemoryRouter

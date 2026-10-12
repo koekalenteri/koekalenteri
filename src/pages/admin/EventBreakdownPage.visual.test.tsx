@@ -1,5 +1,6 @@
 import type { AllYearlyStatsResponse } from '../../api/stats'
 import type { EventBreakdownEntry } from '../../types/Stats'
+import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
@@ -76,6 +77,7 @@ it('tabulates the year per club and event type under the page heading', async ()
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 1000 }}>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <TestProvider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>

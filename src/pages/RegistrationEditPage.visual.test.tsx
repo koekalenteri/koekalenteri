@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -46,6 +47,7 @@ it('shows a cancelled registration with the notice as text, not a heading', asyn
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 1000 }}>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <TestProvider>
             <AppSnackbarProvider>

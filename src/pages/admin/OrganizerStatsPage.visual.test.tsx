@@ -1,3 +1,4 @@
+import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
@@ -47,6 +48,7 @@ it('puts each chart under the page heading, one level below it', async () => {
   const screen = await render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 1000 }}>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <TestProvider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
