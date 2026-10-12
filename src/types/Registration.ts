@@ -415,6 +415,16 @@ export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' |
   group: PublicRegistrationGroup
 }
 
+/**
+ * The published start list as the public page holds it: the rows, and the server time they were
+ * read, which orders a fetch against the live messages (KOE-1516). No version means a backend that
+ * does not send one yet.
+ */
+export interface PublicStartList {
+  participants: PublicRegistration[]
+  version?: number
+}
+
 export interface JsonQualifyingResult extends JsonTestResult {
   official: boolean
   qualifying?: boolean

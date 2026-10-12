@@ -11,7 +11,9 @@ import { useWebSocketContext } from './useWebSocket'
  * patches broadcast to every anonymous reader.
  *
  * `listener` receives the published rows, or `undefined` when they did not fit in one message and
- * have to be fetched instead. It may change on every render; the latest one is always called.
+ * have to be fetched instead, and the server time they were read. Messages can arrive out of order,
+ * so the listener keeps the highest version (KOE-1516). It may change on every render; the latest
+ * one is always called.
  *
  * Must be rendered inside `WebSocketProvider`.
  */
@@ -23,7 +25,9 @@ export function usePublicStartListSubscription(eventId: string | undefined, list
   useEffect(() => {
     if (!eventId) return
 
-    subscribePublicStartList(eventId, (participants) => listenerRef.current(participants))
+    subscribePublicStartList(eventId, (participants, version, messageEventId) =>
+      listenerRef.current(participants, version, messageEventId)
+    )
     return () => unsubscribePublicStartList()
   }, [eventId, subscribePublicStartList, unsubscribePublicStartList])
 }

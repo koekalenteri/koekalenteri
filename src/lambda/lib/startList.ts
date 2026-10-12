@@ -1,6 +1,7 @@
 import type { JsonDogEvent, JsonPublicRegistration, JsonPublicRegistrationGroup, JsonRegistration } from '../../types'
 import {
   isResultsAvailableForRegistration,
+  isStartListAvailable,
   isStartListAvailableForRegistration,
   isStartNumbersAvailableForRegistration,
 } from '../../lib/event'
@@ -12,6 +13,8 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { resultMarks } from '../../lib/results'
+import { getEvent } from './event'
+import { getRegistrationsByEventId } from './registration'
 
 /**
  * `ownerHandles` collapses the public row to "owner & handler", which only reads correctly when the
@@ -35,7 +38,7 @@ const publishedOwnerHandles = (reg: JsonRegistration): boolean | undefined => {
  * The caller decides whether the list is available at all; `preview` bypasses the per-registration
  * publication checks for the organizer's own preview.
  */
-export const buildPublicStartList = (
+const buildPublicStartList = (
   confirmedEvent: JsonDogEvent,
   registrations: JsonRegistration[],
   preview = false
@@ -148,4 +151,29 @@ const publicGroup = (
 ): JsonPublicRegistrationGroup => {
   if (!preview && !numbersAvailable) return { ...group, number: undefined }
   return reg.startGroup ?? group
+}
+
+/**
+ * The published start list as both of its readers compose it: the public fetch (GetStartList) and
+ * the live message (`publishPublicStartList`). The page orders one against the other by `version`,
+ * so they read it the one way (KOE-1516).
+ *
+ * `version` is the server time taken before the reads, and the reads are consistent: whatever was
+ * written before the stamp is in the rows. A list that is not available reads as no rows, without
+ * reading the registrations. `checkEvent` sees the event before them and may throw, so a refused
+ * caller costs no registration query either.
+ */
+export const readPublishedStartList = async (
+  eventId: string,
+  { checkEvent, preview = false }: { checkEvent?: (event: JsonDogEvent) => void; preview?: boolean } = {}
+) => {
+  const version = Date.now()
+  const confirmedEvent = await getEvent(eventId, true)
+  checkEvent?.(confirmedEvent)
+  const available = preview || isStartListAvailable(confirmedEvent)
+  const participants = available
+    ? buildPublicStartList(confirmedEvent, await getRegistrationsByEventId(eventId, true), preview)
+    : []
+
+  return { available, participants, version }
 }

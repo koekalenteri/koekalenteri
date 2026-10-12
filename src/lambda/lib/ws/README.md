@@ -36,13 +36,57 @@ Outbound messages include a `scope` field so clients can route updates.
 | Scope | Audience | Payload |
 | --- | --- | --- |
 | `public:event-patch` | Public connections, excluding admin recipients that already received the admin patch | Sanitized public event patch with `eventId`. |
-| `public:start-list` | Connections watching the event's published start list | `{ eventId, participants }` with the rows exactly as the public fetch composes them, or `{ eventId, stale: true }` when they exceed the message size and must be fetched instead. |
+| `public:start-list` | Connections watching the event's published start list | `{ eventId, participants, version }` with the rows exactly as the public fetch composes them, or `{ eventId, stale: true, version }` when they exceed the message size and must be fetched instead. See "Start list versions" below. |
 | `admin:event-patch` | Admin channel subscribers and event subscribers allowed to see the organizer's event | Admin event patch with `eventId`. |
 | `admin:event-registrations` | Admin channel subscribers and event subscribers allowed to see the organizer's event | `{ eventId, patch }` registration patch list. |
 | `participant:registration-patch` | Connections whose edit token was verified for the specific registration | `{ eventId, registrationId, patch }` with participant-visible payment state only. |
 | `admin:audit-record` | Authenticated subscribers of the specific event | `{ eventId, record }` newly written audit record. |
 | `admin:data-invalidation` | Admin channel subscribers | `{ collections }` names the reference-data collections clients must refetch through their authorized HTTP APIs. |
 | `admin:event-viewers` | Event subscribers allowed to see the organizer's event | `{ eventId, viewers }`, where `viewers` contains distinct subscribed user IDs. |
+
+### Start list versions
+
+Two senders that change an event at the same time can deliver their `public:start-list` messages in
+either order, so each one carries `version`: the server time (`Date.now()`, epoch milliseconds) taken
+after the sender's own write and just before `publishPublicStartList` reads the event and its
+registrations again, consistently. The public fetch (`GET /startlist/{eventId}`) reads the same way
+and sends its stamp in the `X-Start-List-Version` header, so the page orders its fetches against the
+messages by the same clock (KOE-1516).
+
+The page (`usePublicStartList` in `src/hooks`) keeps the highest version it has accepted and turns
+away anything older (`isStartListUpToDate` in `src/lib/startList.ts`). The highest version was read
+after every write that has a broadcast behind it, so an open page always ends on what is stored.
+
+- A message the page cannot use as it is, `stale`, or unversioned once a version has been accepted
+  (a Lambda from before versions, during a deploy), is answered with a fetch on a request of its own:
+  it never joins a fetch already in flight, so it reads after the message that asked for it.
+- A versioned answer to that fetch therefore counts as at least as new as the newest version known
+  when it started, even if its own stamp says less. Only a list that arrived while it was in flight
+  outranks it. An unversioned answer stays unversioned: only a GetStartList from before versions sends
+  one, and it read eventually consistent.
+- Not available (404) is taken as no rows, the same as the live message for an unpublished list, with
+  the version the 404 carries.
+- A failed fetch is not retried on top of the http layer's own retry (a GET, once, on a network
+  error); the next message brings the list.
+- Before any versioned list has been accepted, an unversioned message or loader result is taken as it
+  is, for a backend deployed before versions.
+- Leaving the event cancels its fetches; a fetch for an event the page has left is never shown.
+
+Accepted risks:
+
+- **Same millisecond.** Equal versions are accepted, so of two reads stamped in the same millisecond
+  the later arrival wins, whichever read first.
+- **A replayed write among three overlapping saves.** The stamp is taken before the reads, so a slow
+  reader stamped at 100 can show a write W, and then a sender stamped at 120 that read before W is
+  accepted and takes W away again for a moment. It always converges: the writer of W stamps after its
+  own write, higher than both, and its message puts W back.
+- **GetStartList updated after the publishers during a deploy.** A refetch answered by the old
+  GetStartList has no header, and once a versioned list is shown such an answer is turned away, so a
+  list too large for one message stays behind until the new GetStartList is out.
+- **Clock skew between Lambdas.** The stamps of two containers are only as comparable as their clocks.
+  An older read can win only if the skew exceeds the time between a sender's write and its own stamp,
+  which includes the registration patch broadcast and the connection lookup (tens of milliseconds);
+  Lambda clocks are kept in step by Amazon Time Sync to well under a millisecond.
 
 ## Connection model
 

@@ -45,4 +45,10 @@ bug is fixed. See [README.md](README.md) for how they run.
 | a secretary › whose role has been taken away cannot save an event | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478) |
 | a secretary › is told when saving is refused | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1482](https://koekalenteri.atlassian.net/browse/KOE-1482) |
 
-14 tests.
+## start-list.spec.ts
+
+| Test | Tags | Issues |
+| --- | --- | --- |
+| the public start list answers with a version the page can read across origins | `@public` | [KOE-1516](https://koekalenteri.atlassian.net/browse/KOE-1516) the page orders its fetches against the live updates by it |
+
+15 tests.

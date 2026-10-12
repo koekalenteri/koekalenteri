@@ -137,7 +137,7 @@ export const publishEventChange = async ({ audience, organizerId, patch, startLi
     await publishEventPatch(patch, organizerId)
   }
 
-  if (startList) await publishPublicStartList(startList)
+  if (startList) await publishPublicStartList(patch.eventId)
 }
 
 /**

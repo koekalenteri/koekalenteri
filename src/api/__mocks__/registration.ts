@@ -2,6 +2,7 @@ import type {
   AuditRecord,
   ConfirmedEvent,
   EventResult,
+  PublicStartList,
   Registration,
   RegistrationCreateRequest,
   RegistrationGroupMove,
@@ -169,8 +170,8 @@ export async function putRegistrationGroups(
   throw new Error('not implemented')
 }
 
-export async function getStartList(eventId: string, _token?: string, _signal?: AbortSignal): Promise<Registration[]> {
-  return new Promise((resolve, reject) => {
+const getMockStartList = (eventId: string): Promise<Registration[]> =>
+  new Promise((resolve, reject) => {
     const registrations = mockRegistrations[eventId]?.filter((r) => Boolean(r.group?.date))
     if (!registrations?.length) {
       reject(new Error('not found'))
@@ -178,10 +179,13 @@ export async function getStartList(eventId: string, _token?: string, _signal?: A
       process.nextTick(() => resolve(registrations))
     }
   })
-}
+
+export const getStartList = vi.fn(
+  async (_eventId: string, _token?: string, _signal?: AbortSignal): Promise<PublicStartList> => ({ participants: [] })
+)
 
 export const getStartListPreview = vi.fn(
-  async (eventId: string, _token: string, _signal?: AbortSignal): Promise<Registration[]> => getStartList(eventId)
+  async (eventId: string, _token: string, _signal?: AbortSignal): Promise<Registration[]> => getMockStartList(eventId)
 )
 
 /**

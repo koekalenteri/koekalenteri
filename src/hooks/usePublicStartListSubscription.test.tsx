@@ -1,15 +1,14 @@
 import type { ReactNode } from 'react'
 import type { PublicRegistration } from '../types'
+import type { PublicStartListListener } from './useWebSocket'
 import { renderHook } from '@testing-library/react'
 import { usePublicStartListSubscription } from './usePublicStartListSubscription'
 import { WebSocketContext } from './useWebSocket'
 
-let capturedListener: ((participants: PublicRegistration[] | undefined) => void) | undefined
-const subscribePublicStartList = vi.fn(
-  (_eventId: string, listener: (participants: PublicRegistration[] | undefined) => void) => {
-    capturedListener = listener
-  }
-)
+let capturedListener: PublicStartListListener | undefined
+const subscribePublicStartList = vi.fn((_eventId: string, listener: PublicStartListListener) => {
+  capturedListener = listener
+})
 const unsubscribePublicStartList = vi.fn()
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -59,8 +58,7 @@ describe('usePublicStartListSubscription', () => {
     const rows: PublicRegistration[] = []
 
     const { rerender } = renderHook(
-      ({ listener }: { listener: (participants: PublicRegistration[] | undefined) => void }) =>
-        usePublicStartListSubscription('event-1', listener),
+      ({ listener }: { listener: PublicStartListListener }) => usePublicStartListSubscription('event-1', listener),
       { initialProps: { listener: first }, wrapper }
     )
 
@@ -69,8 +67,8 @@ describe('usePublicStartListSubscription', () => {
     // A listener that closes over page state changes on every render; resubscribing for that would
     // send a message per render.
     expect(subscribePublicStartList).toHaveBeenCalledTimes(1)
-    capturedListener?.(rows)
-    expect(latest).toHaveBeenCalledWith(rows)
+    capturedListener?.(rows, 1234, 'event-1')
+    expect(latest).toHaveBeenCalledWith(rows, 1234, 'event-1')
     expect(first).not.toHaveBeenCalled()
   })
 })

@@ -75,7 +75,7 @@ const putResultsPublishedLambda = lambda('putResultsPublished', async (event) =>
     saved.organizer.id
   )
   // A result has no transport of its own: an open start list learns of it only as its rows rebuilt.
-  await publishPublicStartList(saved)
+  await publishPublicStartList(eventId)
 
   return response(200, { event: saved }, event)
 })

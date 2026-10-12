@@ -516,13 +516,32 @@ describe('useWebSocket', () => {
           eventId: 'event-1',
           participants: [{ class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } }],
           scope: 'public:start-list',
+          version: 200,
         }),
       })
     })
 
-    expect(listener).toHaveBeenCalledWith([
-      { class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } },
-    ])
+    // The version goes with the rows: the page orders them against its fetches by it (KOE-1516).
+    expect(listener).toHaveBeenCalledWith(
+      [{ class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } }],
+      200,
+      'event-1'
+    )
+  })
+
+  it('passes on a message from a backend that sends no version as unversioned', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const listener = vi.fn()
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      result.current.subscribePublicStartList('event-1', listener)
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', participants: [], scope: 'public:start-list', version: 'soon' }),
+      })
+    })
+
+    expect(listener).toHaveBeenCalledWith([], undefined, 'event-1')
   })
 
   it('passes on a start list that did not fit in one message as nothing to apply', () => {
@@ -533,11 +552,26 @@ describe('useWebSocket', () => {
     act(() => {
       result.current.subscribePublicStartList('event-1', listener)
       mockWebSocketInstance.onmessage?.({
-        data: JSON.stringify({ eventId: 'event-1', scope: 'public:start-list', stale: true }),
+        data: JSON.stringify({ eventId: 'event-1', scope: 'public:start-list', stale: true, version: 300 }),
       })
     })
 
-    expect(listener).toHaveBeenCalledWith(undefined)
+    expect(listener).toHaveBeenCalledWith(undefined, 300, 'event-1')
+  })
+
+  it('ignores a start list message that carries neither rows nor a request to fetch them', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const listener = vi.fn()
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      result.current.subscribePublicStartList('event-1', listener)
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', scope: 'public:start-list', version: 300 }),
+      })
+    })
+
+    expect(listener).not.toHaveBeenCalled()
   })
 
   it('ignores a start list for another event', () => {

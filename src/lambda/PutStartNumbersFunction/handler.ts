@@ -141,7 +141,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
     )
   }
 
-  if (patches.length || publicationChanged) await publishPublicStartList(confirmedEvent)
+  if (patches.length || publicationChanged) await publishPublicStartList(eventId)
 
   return response(200, { event: confirmedEvent, patches }, event)
 })

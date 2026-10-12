@@ -153,7 +153,7 @@ const publishRegistrationChange = async (
   ]
   const publish = strict ? publishRegistrationPatchesStrict : publishRegistrationPatches
   await publish(registration.eventId, patches, confirmedEvent.organizer.id)
-  await publishPublicStartList(confirmedEvent)
+  await publishPublicStartList(confirmedEvent.id)
 }
 
 /**
@@ -382,7 +382,7 @@ export const resolveDuplicateRegistration = async ({
     if (groupPatches.length) {
       const recounted = await recountRegistrations(duplicate.eventId)
       await publishRegistrationPatches(duplicate.eventId, groupPatches, recounted.organizer.id)
-      await publishPublicStartList(recounted)
+      await publishPublicStartList(recounted.id)
     }
     return { conflict: duplicate }
   }

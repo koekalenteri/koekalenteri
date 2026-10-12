@@ -380,8 +380,23 @@ describe('putResultsPublishedLambda', () => {
       { eventId: 'event-1', resultsPublished: { ALO: ['2026-09-12'], AVO: false }, updatedAt: expect.any(String) },
       'org-1'
     )
-    expect(mockPublishPublicStartList).toHaveBeenCalledWith(
-      expect.objectContaining({ resultsPublished: { ALO: ['2026-09-12'], AVO: false } })
-    )
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
+  })
+
+  it('publishes the start list only after the day is written (KOE-1516)', async () => {
+    // The published list's version is the time it was read, so it has to be read after the write.
+    const steps: string[] = []
+    mockUpdate.mockImplementation(async (...args: Parameters<typeof applyUpdate>) => {
+      const written = await applyUpdate(...args)
+      steps.push('write day')
+      return written
+    })
+    mockPublishPublicStartList.mockImplementation(async () => {
+      steps.push('publish start list')
+    })
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: false }))
+
+    expect(steps).toEqual(['write day', 'publish start list'])
   })
 })

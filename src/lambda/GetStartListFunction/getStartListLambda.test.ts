@@ -42,6 +42,8 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 
 const { default: getStartListLambda } = await import('./handler')
 
+const versionHeader = { headers: { 'X-Start-List-Version': expect.stringMatching(/^\d+$/) } }
+
 describe('getStartListLambda', () => {
   const event = constructPartialAPIGwEvent({
     body: '',
@@ -54,6 +56,36 @@ describe('getStartListLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({
       memberOf: ['org123'],
       user: { id: 'user123', roles: { org123: 'secretary' } },
+    })
+  })
+
+  it('reads consistently and says when it read, so a live update older than this fetch cannot replace it (KOE-1516)', async () => {
+    vi.useFakeTimers({ now: new Date('2025-01-01T10:00:00.000Z'), toFake: ['Date'] })
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockImplementationOnce(async () => {
+      // The stamp is taken before the reads: a clock that moved during them must not show.
+      vi.setSystemTime(new Date('2025-01-01T10:00:05.000Z'))
+      return {
+        classes: [{ class: 'ALO', state: 'invited' }],
+        id: 'event123',
+        organizer: { id: 'org123' },
+        startDate: '2025-01-01',
+        startListPublished: { ALO: true },
+        state: 'invited',
+      }
+    })
+    mockQuery.mockResolvedValueOnce([])
+
+    try {
+      await getStartListLambda(event)
+    } finally {
+      vi.useRealTimers()
+    }
+
+    expect(mockGetEvent).toHaveBeenCalledWith('event123', true)
+    expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ consistent: true }))
+    expect(mockResponse).toHaveBeenCalledWith(200, [], event, {
+      headers: { 'X-Start-List-Version': String(Date.parse('2025-01-01T10:00:00.000Z')) },
     })
   })
 
@@ -400,7 +432,8 @@ describe('getStartListLambda', () => {
           ownerHandles: undefined,
         },
       ],
-      previewEvent
+      previewEvent,
+      versionHeader
     )
   })
 
@@ -473,6 +506,18 @@ describe('getStartListLambda', () => {
     expect(mockQuery).not.toHaveBeenCalled()
   })
 
+  it("lets a global admin preview another organizer's event", async () => {
+    const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: [], user: { admin: true, id: 'admin1', roles: {} } })
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
+
+    await getStartListLambda(previewEvent)
+
+    expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ consistent: true }))
+    expect(mockResponse).toHaveBeenCalledWith(200, [], previewEvent, versionHeader)
+  })
+
   it('returns 404 if start list is not available', async () => {
     const eventId = 'event123'
     const confirmedEvent = { id: eventId, startListPublished: false, state: 'draft' }
@@ -483,9 +528,9 @@ describe('getStartListLambda', () => {
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).not.toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(404, [], event)
+    expect(mockResponse).toHaveBeenCalledWith(404, [], event, versionHeader)
   })
 
   it('returns 200 with public registrations if start list is available', async () => {
@@ -566,12 +611,13 @@ describe('getStartListLambda', () => {
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).toHaveBeenCalledWith({
+      consistent: true,
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
     })
-    expect(mockResponse).toHaveBeenCalledWith(200, expectedPublicRegs, event)
+    expect(mockResponse).toHaveBeenCalledWith(200, expectedPublicRegs, event, versionHeader)
   })
 
   it('lists every owner and only collapses owner & handler for a single owner', async () => {
@@ -663,7 +709,8 @@ describe('getStartListLambda', () => {
           ownerHandles: undefined,
         },
       ],
-      event
+      event,
+      versionHeader
     )
   })
 
@@ -701,12 +748,13 @@ describe('getStartListLambda', () => {
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).toHaveBeenCalledWith({
+      consistent: true,
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
     })
-    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
+    expect(mockResponse).toHaveBeenCalledWith(200, [], event, versionHeader)
   })
 
   it('returns 200 with an empty list if query returns undefined but the start list is available', async () => {
@@ -720,12 +768,13 @@ describe('getStartListLambda', () => {
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).toHaveBeenCalledWith({
+      consistent: true,
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
     })
-    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
+    expect(mockResponse).toHaveBeenCalledWith(200, [], event, versionHeader)
   })
 
   it('passes through errors from getEvent', async () => {
@@ -738,7 +787,7 @@ describe('getStartListLambda', () => {
     await expect(getStartListLambda(event)).rejects.toThrow(error)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).not.toHaveBeenCalled()
     expect(mockResponse).not.toHaveBeenCalled()
   })
@@ -755,8 +804,9 @@ describe('getStartListLambda', () => {
     await expect(getStartListLambda(event)).rejects.toThrow(error)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockQuery).toHaveBeenCalledWith({
+      consistent: true,
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
     })
