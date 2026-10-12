@@ -4,8 +4,6 @@ import { ThemeProvider } from '@mui/material/styles'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import theme from '../assets/Theme'
-// The links' black/bold/underlined look is a global class, not a theme override.
-import '../index.css'
 import { DataMemoryRouter } from '../test-utils/utils'
 import { SupportPage } from './SupportPage'
 
