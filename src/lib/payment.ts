@@ -1,5 +1,6 @@
 import type {
   CustomCost,
+  JsonConfirmedEvent,
   JsonRegistration,
   JsonTransaction,
   MinimalEventForCost,
@@ -7,6 +8,7 @@ import type {
   PaymentBalanceRegistration,
   PaytrailRefusalBody,
   Registration,
+  RegistrationGroupKey,
 } from '../types'
 import type { AuditActor } from './audit'
 import type { InvitationAttachmentEvent, InvitationAttachmentRegistration } from './registration'
@@ -99,6 +101,15 @@ export const getPaymentStatus = (
   return 'paymentStatus.missing'
 }
 
+export type PaymentStatusKey = ReturnType<typeof getPaymentStatus>
+
+/**
+ * Whether the status line reads as paid, which the euro sign beside it shows too: a fee paid in full
+ * or in part. A fee that went back is not paid, whatever the payment's own status (KOE-1526).
+ */
+export const isPaidStatus = (status: PaymentStatusKey): boolean =>
+  status === 'paymentStatus.success' || status === 'paymentStatus.partial'
+
 /**
  * Whether the place has been paid for. A trial that costs nothing has nothing to wait for, and a
  * part payment counts too: a missing remainder is the secretary's business, not the invitation's.
@@ -116,22 +127,57 @@ export const isRegistrationPaid = (
   calculateCost(event, registration).amount <= 0
 
 /** A registration as the participant's own pages hold it: no group, and the server's word on what is owed. */
-export type ParticipantPaymentRegistration = PaymentBalanceRegistration & Pick<Registration, 'paidAt' | 'paymentDue'>
+export type ParticipantPaymentRegistration = PaymentBalanceRegistration & Pick<Registration, 'paymentDue'>
 
 /**
- * What the participant still owes, as their own pages show it. Their responses leave out the group
- * the balance reads, so once something has been paid the server's `paymentDue` decides: a reserve
- * whose fee went back owes nothing, and owes it again once lifted into a place (KOE-1526). Before
- * a payment nothing can have gone back, and the fee as the form reads it now is the answer, so an
- * edit shows at once. A response from before the field falls back to the same reading.
+ * What the participant still owes, as their own pages show it. Their responses leave out the group,
+ * and the group matters only for a fee that went back: a reserve owes nothing, and owes the fee again
+ * once lifted into a place (KOE-1526). That is the server's `paymentDue`. Every other entry reads its
+ * balance here, so a change in the form, a membership tick or an optional cost, shows at once
+ * (KOE-722). A response from before the field falls back to the same reading.
  */
 export const getParticipantPaymentDue = (
   event: MinimalEventForCost,
   registration: ParticipantPaymentRegistration
 ): number =>
-  registration.paidAt && registration.paymentDue !== undefined
+  isPaymentReturned(registration) && registration.paymentDue !== undefined
     ? registration.paymentDue
     : getPaymentBalance(event, registration).due
+
+/**
+ * Whether the participant is offered the payment link: nothing paid yet, or a part still owed. A
+ * payment in progress is waited for, and paying at confirmation waits for a place. GetRegistration
+ * and the payment patches ask this alike, so the pay button does not come and go (KOE-1526).
+ */
+export const shouldParticipantPay = (
+  event: { paymentTime?: 'registration' | 'confirmation' },
+  registration: Pick<Registration, 'cancelled' | 'paymentStatus'> & { group?: RegistrationGroupKey },
+  due: number
+): boolean => {
+  if (registration.cancelled || registration.paymentStatus === 'PENDING') return false
+  const owes = registration.paymentStatus !== 'SUCCESS' || due > 0
+  if (event.paymentTime === 'confirmation') return owes && isParticipantGroup(registration.group?.key)
+  return owes
+}
+
+/** What the participant's pages read of the fee: what is still owed, and whether to offer the payment link. */
+export interface ParticipantPaymentState {
+  paymentDue: number
+  shouldPay: boolean
+}
+
+/**
+ * The participant's payment state, decided from the whole row: both parts read the group, which the
+ * participant never receives (KOE-1515), so they go out in its place (KOE-1526). Every response and
+ * payment patch to the participant takes it from here.
+ */
+export const getParticipantPaymentState = (
+  event: MinimalEventForCost & Pick<JsonConfirmedEvent, 'paymentTime'>,
+  registration: PaymentBalanceRegistration
+): ParticipantPaymentState => {
+  const paymentDue = getPaymentBalance(event, registration).due
+  return { paymentDue, shouldPay: shouldParticipantPay(event, registration, paymentDue) }
+}
 
 /**
  * Whether a paid fee no longer matches what the entry adds up to: a part missing or paid over. What

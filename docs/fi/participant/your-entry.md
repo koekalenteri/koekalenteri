@@ -30,7 +30,7 @@ vaiheessa ilmoittautumisesi on.
 | Rivi | Mitä se voi sanoa |
 | --- | --- |
 | etusija | *{t:registration.priority.hasPriority}* tai *{t:registration.priority.noPriority}* — etusijan perusteet ovat kokeen tiedoissa |
-| maksu | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}* tai *{t:paymentStatus.pending}*; jos maksusta puuttuu osa, rivi kertoo summan |
+| maksu | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}*, *{t:paymentStatus.pending}* tai *{t:paymentStatus.refunded}*; jos maksusta puuttuu osa, rivi kertoo summan |
 | vaihe | *{t:registration.status.received}*, *{t:registration.status.placeOffered}*, *{t:registration.status.confirmed}*, *{t:registration.status.confirmedAndInvitationRead}* tai *{t:registration.status.cancelled}* |
 
 Samat tiedot ovat koiran rivillä kuvakkeina; niiden selitys tulee näkyviin, kun hiiren vie

@@ -31,6 +31,10 @@ type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
 const paymentDue = (event: PublicDogEvent, registration: StrippedRegistration): number =>
   isConfirmedEvent(event) ? getParticipantPaymentDue(event, registration) : 0
 
+/** What the payment line reads, which its euro sign shows too (KOE-1526). */
+const paymentStatusOf = (event: PublicDogEvent, registration: StrippedRegistration) =>
+  getPaymentStatus(registration, event, paymentDue(event, registration))
+
 interface Props {
   readonly disabled?: boolean
   readonly event: PublicDogEvent
@@ -59,10 +63,8 @@ const RegistrationListItemTooltipIcons = ({
       />
       <TooltipIcon
         key="payment"
-        text={t(getPaymentStatus(registration, event, paymentDue(event, registration)), {
-          amount: formatMoney(paymentDue(event, registration)),
-        })}
-        icon={<PaymentIcon paymentStatus={registration.paymentStatus} fontSize="small" />}
+        text={t(paymentStatusOf(event, registration), { amount: formatMoney(paymentDue(event, registration)) })}
+        icon={<PaymentIcon status={paymentStatusOf(event, registration)} fontSize="small" />}
       />
     </>
   )
@@ -89,7 +91,7 @@ const RegistrationListItemIcons = ({
         }}
       >
         <PriorityIcon dim priority={priority} fontSize="small" />
-        <PaymentIcon dim paymentStatus={registration.paymentStatus} fontSize="small" />
+        <PaymentIcon dim status={paymentStatusOf(event, registration)} fontSize="small" />
       </Box>
     </IconsTooltip>
   )

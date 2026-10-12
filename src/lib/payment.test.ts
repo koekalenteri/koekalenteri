@@ -2,10 +2,13 @@ import type { MinimalEventForCost, MinimalRegistrationForCost, PaymentStatus, Re
 import { addDays } from 'date-fns'
 import {
   canRefundExcess,
+  getParticipantPaymentDue,
+  getParticipantPaymentState,
   getPaymentStatus,
   getProviderName,
   getRegistrationPaymentDetails,
   isInvitationAwaitingPayment,
+  isPaidStatus,
   isPaymentUnsettled,
   isPaytrailRefusal,
   isRegistrationPaid,
@@ -13,11 +16,83 @@ import {
   paytrailErrorMessage,
   paytrailErrorText,
   paytrailRefusalBody,
+  shouldParticipantPay,
   shouldSendInvitationAfterPayment,
   transactionActor,
 } from './payment'
 
 describe('payment', () => {
+  // KOE-1526: the participant's pages have no group, so the server says what a returned fee owes.
+  describe('the participant payment state', () => {
+    const event: MinimalEventForCost = { cost: 40, costMember: 35, entryStartDate: new Date('2026-01-01') }
+    const member = {
+      createdAt: new Date('2026-01-02'),
+      dog: { breedCode: '110' as const },
+      owner: { membership: true },
+      ownerHandles: true,
+    }
+
+    describe('getParticipantPaymentDue', () => {
+      it('reads a paid place as the form has it, so a change shows at once (KOE-722)', () => {
+        const paid = { ...member, paidAmount: 35, paymentDue: 0 }
+        expect(getParticipantPaymentDue(event, { ...paid, owner: { membership: false } })).toBe(5)
+      })
+
+      it.each([
+        ['nothing while it is a reserve', 0],
+        ['the fee again once it has a place', 35],
+      ])("takes the server's word for a fee that went back: %s", (_name, paymentDue) => {
+        expect(getParticipantPaymentDue(event, { ...member, paidAmount: 35, paymentDue, refundAmount: 35 })).toBe(
+          paymentDue
+        )
+      })
+
+      it('reads a returned fee itself when a response came without the due', () => {
+        expect(getParticipantPaymentDue(event, { ...member, paidAmount: 35, refundAmount: 35 })).toBe(0)
+      })
+    })
+
+    describe('shouldParticipantPay', () => {
+      const place = { key: '2026-08-15-ap' }
+      it.each<[string, Parameters<typeof shouldParticipantPay>[1], number, 'registration' | 'confirmation', boolean]>([
+        ['an unpaid entry', {}, 40, 'registration', true],
+        ['a paid entry', { paymentStatus: 'SUCCESS' }, 0, 'registration', false],
+        ['a paid entry still owing a part', { paymentStatus: 'SUCCESS' }, 5, 'registration', true],
+        ['a payment in progress', { paymentStatus: 'PENDING' }, 40, 'registration', false],
+        ['a cancelled entry', { cancelled: true }, 40, 'registration', false],
+        ['a reserve paying at confirmation', { group: { key: 'reserve' } }, 40, 'confirmation', false],
+        ['a place paying at confirmation', { group: place }, 40, 'confirmation', true],
+      ])('for %s', (_name, registration, due, paymentTime, expected) => {
+        expect(shouldParticipantPay({ paymentTime }, registration, due)).toBe(expected)
+      })
+    })
+
+    it('getParticipantPaymentState asks a lifted reserve whose fee went back to pay it', () => {
+      const returned = {
+        ...member,
+        owner: { membership: false },
+        paidAmount: 40,
+        paymentStatus: 'SUCCESS' as const,
+        refundAmount: 40,
+      }
+      const priced = { ...event, paymentTime: 'registration' as const }
+      expect(getParticipantPaymentState(priced, { ...returned, group: { key: 'reserve' } })).toEqual({
+        paymentDue: 0,
+        shouldPay: false,
+      })
+    })
+
+    it.each([
+      ['paymentStatus.success', true],
+      ['paymentStatus.partial', true],
+      ['paymentStatus.refunded', false],
+      ['paymentStatus.missing', false],
+      ['paymentStatus.pending', false],
+    ] as const)('isPaidStatus reads %s as paid: %s', (status, expected) => {
+      expect(isPaidStatus(status)).toBe(expected)
+    })
+  })
+
   describe('isPaytrailRefusal', () => {
     it.each([
       ['a marked refusal', { error: 'Revert failed', provider: 'paytrail' }, true],

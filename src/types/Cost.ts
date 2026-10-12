@@ -1,4 +1,10 @@
-import type { JsonPublicConfirmedEvent, MinimalRegistrationForMembership, PublicConfirmedEvent, Registration } from '.'
+import type {
+  JsonPublicConfirmedEvent,
+  MinimalRegistrationForMembership,
+  PublicConfirmedEvent,
+  Registration,
+  RegistrationGroupKey,
+} from '.'
 import type { BreedCode } from './Dog'
 import type { KeyofExcluding } from './utility'
 
@@ -46,7 +52,7 @@ export interface MinimalRegistrationForCost
 export interface PaymentBalanceRegistration
   extends MinimalRegistrationForCost,
     Pick<Registration, 'cancelled' | 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'> {
-  group?: { key: string }
+  group?: RegistrationGroupKey
 }
 
 /** Where an entry's money stands against its fee, in euros. See `getPaymentBalance`. */

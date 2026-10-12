@@ -1,7 +1,8 @@
+import type { ParticipantPaymentState } from '../../../lib/payment'
 import type { JsonDogEvent, JsonRegistration, Patch } from '../../../types'
 import type { EventPatchPayload, EventViewerPayload, RegistrationPatchPayload, WebSocketConnection } from './types'
 
-type ParticipantPaymentRegistration = Pick<JsonRegistration, 'eventId' | 'id'> & Partial<JsonRegistration>
+type PaymentPatchSource = Pick<JsonRegistration, 'eventId' | 'id'> & Partial<JsonRegistration>
 
 export const buildEventPatchPayload = (eventId: string, patch: Patch<JsonDogEvent>): EventPatchPayload => ({
   eventId,
@@ -14,12 +15,13 @@ export const buildRegistrationPatchPayload = (
 ): RegistrationPatchPayload => ({ eventId, patch })
 
 /**
- * The payment state the participant's page shows. `paymentDue` is the caller's: the balance reads the
- * group, which the participant never receives, and their page takes the due from here (KOE-1526).
+ * The payment state the participant's page shows. The due and the pay button are the caller's
+ * (`getParticipantPaymentState`): both read the group, which the participant never receives, and a
+ * patch that decided the button on its own would contradict GetRegistration (KOE-1526).
  */
 export const buildParticipantPaymentPatch = (
-  registration: ParticipantPaymentRegistration,
-  paymentDue: number
+  registration: PaymentPatchSource,
+  { paymentDue, shouldPay }: ParticipantPaymentState
 ): Patch<JsonRegistration> => ({
   confirmed: registration.confirmed,
   eventId: registration.eventId,
@@ -29,7 +31,7 @@ export const buildParticipantPaymentPatch = (
   paidAt: registration.paidAt,
   paymentDue,
   paymentStatus: registration.paymentStatus,
-  shouldPay: registration.paymentStatus === 'SUCCESS' ? false : registration.shouldPay,
+  shouldPay,
   state: registration.state,
   updatedAt: registration.updatedAt,
 })

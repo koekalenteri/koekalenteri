@@ -9,9 +9,10 @@ import {
   emailSubjectAuditKey,
   paymentAudit,
 } from '../../lib/audit'
-import { getCostSegmentName, getPaymentBalance } from '../../lib/cost'
+import { getCostSegmentName, getNetPaidAmount } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
 import {
+  getParticipantPaymentState,
   getProviderName,
   getRegistrationPaymentDetails,
   shouldSendInvitationAfterPayment,
@@ -168,7 +169,11 @@ const applyPaymentToRegistration = async (
     }
     if (duplicatePayment) return { appliedPayment, duplicatePayment, previouslyPaid, registration }
 
-    previouslyPaid = registration.paidAmount ?? 0
+    // What the receipt and the confirmation count as paid before: the payment less what went back,
+    // and nothing of a payment that went back, as for the balance (KOE-1526). The stored amount
+    // itself stays gross, as the database adds the payment to it.
+    const storedPaid = registration.paidAmount ?? 0
+    previouslyPaid = getNetPaidAmount(registration)
     const confirmed = Boolean(registration.messagesSent?.picked || registration.confirmed)
     const applied = await applySuccessfulPayment(
       transaction,
@@ -181,7 +186,7 @@ const applyPaymentToRegistration = async (
     )
     appliedPayment = applied.applied
     if (appliedPayment) {
-      registration.paidAmount = previouslyPaid + transaction.amount / 100
+      registration.paidAmount = storedPaid + transaction.amount / 100
       registration.paidAt = applied.appliedAt
       registration.paymentStatus = 'SUCCESS'
       registration.state = 'ready'
@@ -328,7 +333,7 @@ const handleSuccessfulPayment = async (
   await publishParticipantRegistrationPatch(
     registration.eventId,
     registrationId,
-    buildParticipantPaymentPatch(registration, getPaymentBalance(paidEvent, registration).due)
+    buildParticipantPaymentPatch(registration, getParticipantPaymentState(paidEvent, registration))
   )
 
   const workflowClaim = await claimPostPaymentWorkflow(transaction.transactionId)

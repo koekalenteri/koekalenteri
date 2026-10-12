@@ -682,6 +682,53 @@ describe('paymentSuccessLambda', () => {
       expect(confirmationContexts()).toEqual(['update'])
     })
 
+    // KOE-1526 review: a reserve whose fee went back has paid nothing towards the place it was
+    // lifted into, so its payment is a first one: in the receipt and in the confirmation alike.
+    describe('a reserve whose fee was refunded, paying for the place it was lifted into', () => {
+      beforeEach(() => {
+        mockGetRegistration.mockResolvedValue({
+          eventId: 'event123',
+          group: { key: 'ALO-AP', number: 1 },
+          id: 'reg456',
+          language: 'fi',
+          paidAmount: 50,
+          payer: { email: 'test@example.com' },
+          paymentStatus: 'SUCCESS',
+          refundAmount: 45,
+          refundHandlingCost: 5,
+          state: 'ready',
+        })
+      })
+
+      it('confirms it as a registration', async () => {
+        await paymentSuccessLambda(event)
+
+        expect(confirmationContexts()).toEqual([''])
+      })
+
+      it('records and receipts nothing as paid before it', async () => {
+        await paymentSuccessLambda(event)
+
+        expect(mockApplySuccessfulPayment).toHaveBeenCalledWith(
+          expect.any(Object),
+          'event123',
+          'reg456',
+          'paytrail',
+          false,
+          true,
+          0
+        )
+        expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+          'receipt',
+          'fi',
+          expect.any(String),
+          ['test@example.com'],
+          expect.objectContaining({ previouslyPaid: undefined, totalPaid: '50,00\u00a0€' }),
+          expect.any(Array)
+        )
+      })
+    })
+
     it('still confirms a first payment as a registration when its callback is retried', async () => {
       mockRead.mockResolvedValue({
         amount: 5000,

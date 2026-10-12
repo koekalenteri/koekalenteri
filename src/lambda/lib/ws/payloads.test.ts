@@ -39,7 +39,7 @@ describe('ws/payloads', () => {
           paymentStatus: 'SUCCESS',
           state: 'ready',
         },
-        0
+        { paymentDue: 0, shouldPay: false }
       )
     ).toEqual({
       confirmed: true,

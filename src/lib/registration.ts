@@ -17,6 +17,7 @@ import type {
   PublicDogEvent,
   Registration,
   RegistrationClass,
+  RegistrationGroupKey,
   RegistrationOwner,
   RegistrationPerson,
   RegistrationTemplateContext,
@@ -551,33 +552,31 @@ export const isScorableRegistration = <T extends JsonRegistration | Registration
   reg: Pick<T, 'cancelled' | 'group'>
 ): boolean => isParticipantGroup(getRegistrationGroupKey(reg))
 
+/** The money a refund decision reads: what was paid, what went back, and the handling fee kept. */
+type RefundField = 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
+
 /** Whether any of what was paid is still with the organizer, handling fees counted as kept. */
-export const hasRefundableBalance = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
-): boolean => (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) + (reg.refundHandlingCost ?? 0)
+export const hasRefundableBalance = <T extends JsonRegistration | Registration>(reg: Pick<T, RefundField>): boolean =>
+  (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) + (reg.refundHandlingCost ?? 0)
 
 export const canRefund = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
+  reg: Pick<T, 'cancelled' | 'group' | RefundField>
 ): boolean => hasRefundableBalance(reg) && REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
 
 /**
  * Whether a payment has gone back: something was refunded and nothing of what was paid is left,
  * the handling fee kept from the refund aside. Such an entry has not paid for a place (KOE-1526).
  */
-export const isPaymentReturned = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
-): boolean => (reg.refundAmount ?? 0) > 0 && !hasRefundableBalance(reg)
+export const isPaymentReturned = <T extends JsonRegistration | Registration>(reg: Pick<T, RefundField>): boolean =>
+  (reg.refundAmount ?? 0) > 0 && !hasRefundableBalance(reg)
 
 /**
  * A reserve that did not get a place and had its fee back: it owes nothing while it has no place,
  * and owes the fee again once it is lifted into one (KOE-1526). An entry without a group counts as a
  * reserve, as it does for the refund.
  */
-export const isReturnedReserve = (
-  reg: Pick<Registration, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'> & {
-    group?: Pick<JsonRegistrationGroup, 'key'>
-  }
-): boolean => !isParticipantGroup(reg.group?.key) && isPaymentReturned(reg)
+export const isReturnedReserve = (reg: Pick<Registration, RefundField> & { group?: RegistrationGroupKey }): boolean =>
+  !isParticipantGroup(reg.group?.key) && isPaymentReturned(reg)
 
 export const getSelectedAdditionalCosts = (
   event: MinimalEventForCost,

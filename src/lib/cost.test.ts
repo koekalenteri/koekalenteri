@@ -1082,24 +1082,34 @@ describe('hasDifferentMemberPrice', () => {
 
     // The prod row of KOE-1526: a reserve that did not get a place and had its fee back.
     it.each([
-      ['refunded in full', { refundAmount: 40, refundHandlingCost: 0 }, 0],
-      ['refunded less a handling fee', { refundAmount: 35, refundHandlingCost: 5 }, 5],
-    ])('neither owes nor holds anything for a reserve whose fee was %s (KOE-1526)', (_name, refund, paid) => {
+      ['refunded in full', { refundAmount: 40, refundHandlingCost: 0 }],
+      ['refunded less a handling fee', { refundAmount: 35, refundHandlingCost: 5 }],
+    ])('neither owes nor holds anything for a reserve whose fee was %s (KOE-1526)', (_name, refund) => {
       expect(getPaymentBalance(event, entry(false, { group: reserve, paidAmount: 40, ...refund }))).toEqual({
         cost: 40,
         due: 0,
         excess: 0,
-        paid,
+        paid: 0,
       })
     })
 
-    it('owes the fee again when a reserve whose fee was refunded is lifted into a place (KOE-1526)', () => {
+    // The handling fee kept from the refund paid for the refund, not towards a later place.
+    it('owes the whole fee again when a reserve whose fee was refunded is lifted into a place (KOE-1526)', () => {
       expect(
         getPaymentBalance(
           event,
           entry(false, { group: participant, paidAmount: 40, refundAmount: 35, refundHandlingCost: 5 })
         )
-      ).toEqual({ cost: 40, due: 35, excess: 0, paid: 5 })
+      ).toEqual({ cost: 40, due: 40, excess: 0, paid: 0 })
+    })
+
+    it('keeps a handling fee on the paid side when part of the payment is left (KOE-1460)', () => {
+      expect(
+        getPaymentBalance(
+          event,
+          entry(false, { group: participant, paidAmount: 50, refundAmount: 8, refundHandlingCost: 2 })
+        )
+      ).toEqual({ cost: 40, due: 0, excess: 2, paid: 42 })
     })
 
     it('still owes the fee for a reserve that has not paid', () => {

@@ -407,5 +407,27 @@ describe('RegistrationTooltipContent', () => {
       expect(tooltipKeys()).not.toContain('registration.tooltip.paymentDue')
       expect(tooltipKeys()).not.toContain('registration.tooltip.paymentExcess')
     })
+
+    // The report of KOE-1526: reserve #1 had its whole fee back and read as owing it again.
+    it('says the fee was refunded, and nothing of a missing part, for a reserve whose fee went back', () => {
+      render(
+        <RegistrationTooltipContent
+          event={pricedEvent}
+          reg={{
+            ...paid(40, false),
+            group: { key: 'reserve', number: 1 },
+            refundAmount: 40,
+            refundAt: new Date('2026-01-10'),
+            refundHandlingCost: 0,
+            refundStatus: 'SUCCESS',
+          }}
+          priority={false}
+          manualResultCount={0}
+          rankingPoints={0}
+        />
+      )
+      expect(tooltipKeys()).toContain('registration.tooltip.refunded')
+      expect(tooltipKeys()).not.toContain('registration.tooltip.paymentDue')
+    })
   })
 })

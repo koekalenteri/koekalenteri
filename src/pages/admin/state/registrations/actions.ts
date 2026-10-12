@@ -362,14 +362,15 @@ export const useAdminRegistrationActions = (eventId: string) => {
       const result = await createRefund(transactionId, amount, handlingCost, token)
 
       if (result?.status === 'pending' || result?.status === 'ok') {
-        const refundSucceeded = result.status === 'ok' && result.provider !== 'email refund'
-
+        // The row reads at once as it will once the refund is applied: the amount and the handling fee
+        // kept from it go together, or a reserve whose fee is on its way back would read as owing the
+        // kept part in the meantime (KOE-1526). A pending or emailed refund shows as pending.
         updateAdminRegistration({
           ...reg,
           refundAmount: (reg.refundAmount ?? 0) + amount / 100,
           refundAt: new Date(),
-          ...(refundSucceeded ? { refundHandlingCost: (reg.refundHandlingCost ?? 0) + handlingCost / 100 } : {}),
-          refundStatus: result?.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
+          refundHandlingCost: (reg.refundHandlingCost ?? 0) + handlingCost / 100,
+          refundStatus: result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
         })
       }
 

@@ -1,3 +1,4 @@
+import type { PaymentStatusKey } from '../../lib/payment'
 import type { PublicDogEvent, Registration } from '../../types'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
@@ -12,7 +13,7 @@ import Paper from '@mui/material/Paper'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatMoney } from '../../lib/money'
-import { getParticipantPaymentDue, getPaymentStatus } from '../../lib/payment'
+import { getParticipantPaymentDue, getPaymentStatus, isPaidStatus } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
@@ -23,8 +24,8 @@ const priorityIconColor = (event: PublicDogEvent, registration: Registration) =>
 const priorityStatus = (event: PublicDogEvent, registration: Registration) =>
   hasPriority(event, registration) ? 'registration.priority.hasPriority' : 'registration.priority.noPriority'
 
-const paymentIconColor = (registration: Registration) =>
-  registration.paymentStatus === 'SUCCESS' ? 'primary.main' : 'transparent'
+/** The euro sign says what the line beside it says: a fee that went back is not paid (KOE-1526). */
+const paymentIconColor = (status: PaymentStatusKey) => (isPaidStatus(status) ? 'primary.main' : 'transparent')
 
 const registrationStatus = (registration: Registration) => {
   if (registration.cancelled) {
@@ -58,9 +59,10 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
   // names the missing part, the same amount the payment button collects. The server decides it once
   // something has been paid, as only it knows whether a refunded reserve has a place (KOE-1526).
   const paymentDue = isConfirmedEvent(event) ? getParticipantPaymentDue(event, registration) : 0
+  const paymentStatus = getPaymentStatus(registration, event, paymentDue)
   const paymentStatusText = paymentVerificationInProgress
     ? t('registration.notifications.paymentVerifying')
-    : t(getPaymentStatus(registration, event, paymentDue), { amount: formatMoney(paymentDue) })
+    : t(paymentStatus, { amount: formatMoney(paymentDue) })
 
   return (
     <Paper sx={{ bgcolor: 'background.selected', m: 1, p: 1 }}>
@@ -89,7 +91,7 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
             ) : null
           }
         >
-          <ListItemIcon sx={{ color: paymentIconColor(registration), minWidth: 32 }}>
+          <ListItemIcon sx={{ color: paymentIconColor(paymentStatus), minWidth: 32 }}>
             <EuroOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText

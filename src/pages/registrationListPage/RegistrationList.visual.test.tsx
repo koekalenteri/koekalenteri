@@ -71,3 +71,34 @@ it('offers paying the part still missing of a paid fee', async () => {
   await expect.element(screen.getByRole('button', { name: 'Maksa ilmoittautuminen' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-list-part-missing')
 })
+
+// A reserve whose fee went back (KOE-1526): nothing to pay, and the euro sign is as dim as the line
+// beside it says, not lit as paid.
+it('shows a refunded fee as not paid, with nothing to pay', async () => {
+  await page.viewport(VIEWPORT.width, VIEWPORT.height)
+
+  const screen = await render(
+    <div data-testid="visual-root" style={{ background: '#fff', boxSizing: 'border-box', padding: 8, width: '100%' }}>
+      <ThemeProvider theme={finnishTheme}>
+        <MemoryRouter>
+          <RegistrationList
+            event={event}
+            rows={[
+              {
+                ...registrationWithStaticDates,
+                paymentDue: 0,
+                refundAmount: 123,
+                refundHandlingCost: 0,
+                shouldPay: false,
+              },
+            ]}
+            onUnregister={noop}
+          />
+        </MemoryRouter>
+      </ThemeProvider>
+    </div>
+  )
+
+  await expect.element(screen.getByText('Ilmoitetut koirat')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('registration-list-refunded')
+})

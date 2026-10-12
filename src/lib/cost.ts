@@ -16,7 +16,7 @@ import type {
   PublicConfirmedEvent,
 } from '../types'
 import { addDays } from 'date-fns/addDays'
-import { isMember, isReturnedReserve } from './registration'
+import { isMember, isPaymentReturned, isReturnedReserve } from './registration'
 
 export const getEarlyBirdEndDate = (
   event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
@@ -328,11 +328,18 @@ export const calculateCost = (event: MinimalEventForCost, registration: MinimalR
 const toCents = (amount: number) => Math.round(amount * 100)
 
 /**
- * What the entrant has paid and not had back: a refund, whole or partial, comes off what was paid
- * (KOE-1460). A handling fee kept from a refund is not refunded, so it stays on the paid side.
+ * What the entrant has paid towards the fee and not had back: a refund, whole or partial, comes off
+ * what was paid (KOE-1460). A handling fee kept from a refund is not refunded, so it stays on the
+ * paid side while part of the payment is left. A payment that went back counts as nothing paid, the
+ * kept fee included: that fee paid for the refund, not towards a place the entry gets later
+ * (KOE-1526).
  */
-const getNetPaidAmount = (registration: Pick<PaymentBalanceRegistration, 'paidAmount' | 'refundAmount'>): number =>
-  (toCents(registration.paidAmount ?? 0) - toCents(registration.refundAmount ?? 0)) / 100
+export const getNetPaidAmount = (
+  registration: Pick<PaymentBalanceRegistration, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
+): number =>
+  isPaymentReturned(registration)
+    ? 0
+    : (toCents(registration.paidAmount ?? 0) - toCents(registration.refundAmount ?? 0)) / 100
 
 /** A payment recorded before the amounts were kept: a successful status without a `paidAmount`. */
 export const isPaymentWithoutAmount = (
@@ -342,8 +349,8 @@ export const isPaymentWithoutAmount = (
 /**
  * Where the entry's money stands against its fee. The fee is recomputed from the entry as it reads
  * now, so a membership tick removed after a member-price payment shows as `due` (KOE-722) and one
- * added after a full-price payment as `excess` (KOE-1382). A handling fee kept from a refund stays
- * on the paid side. A cancelled entry owes nothing and holds no excess: what it paid is the
+ * added after a full-price payment as `excess` (KOE-1382). What counts as paid is `getNetPaidAmount`.
+ * A cancelled entry owes nothing and holds no excess: what it paid is the
  * ordinary refund's business. Neither does a reserve whose fee went back to it, until it is lifted
  * into a place and owes the fee again (KOE-1526). A payment recorded before the amounts were kept
  * (a status without a `paidAmount`) is taken to have covered the fee.

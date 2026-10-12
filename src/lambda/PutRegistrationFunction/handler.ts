@@ -2,9 +2,9 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { AuditActor } from '../../lib/audit'
 import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
 import { registrationCreatedAudit } from '../../lib/audit'
-import { getPaymentBalance } from '../../lib/cost'
 import { isEntryOpen, isEventOver } from '../../lib/event'
 import { InvalidPatchError } from '../../lib/patch'
+import { getParticipantPaymentState } from '../../lib/payment'
 import { qualifyJsonRegistration } from '../../lib/qualification'
 import {
   isCompleteRegistration,
@@ -158,10 +158,6 @@ const startNewRegistration = async (
   return undefined
 }
 
-/** The saved registration as its participant receives it, with what is still owed of the fee (KOE-1526). */
-const participantResponse = (confirmedEvent: JsonConfirmedEvent, registration: JsonRegistration, editToken: string) =>
-  participantRegistrationResponse(registration, editToken, getPaymentBalance(confirmedEvent, registration).due)
-
 const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const timestamp = new Date().toISOString()
   const linkOrigin = getFrontendOrigin(event)
@@ -186,7 +182,10 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   if (!existing) {
     const retried = await startNewRegistration(registration, confirmedEvent, user, linkOrigin, timestamp)
-    if (retried) return response(200, participantResponse(confirmedEvent, retried.completed, retried.editToken), event)
+    if (retried) {
+      const payment = getParticipantPaymentState(confirmedEvent, retried.completed)
+      return response(200, participantRegistrationResponse(retried.completed, retried.editToken, payment), event)
+    }
   }
 
   // modification info is always updated
@@ -233,12 +232,18 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
       registration: savedData,
       user,
     })
-    return response(200, participantResponse(confirmedEvent, completed, getRegistrationEditToken(completed)), event)
+    const payment = getParticipantPaymentState(confirmedEvent, completed)
+    return response(
+      200,
+      participantRegistrationResponse(completed, getRegistrationEditToken(completed), payment),
+      event
+    )
   }
 
   await finalizeRegistrationUpdate({ existing, flags, groupPatches, origin: linkOrigin, registration: savedData, user })
 
-  return response(200, participantResponse(confirmedEvent, savedData, getRegistrationEditToken(savedData)), event)
+  const payment = getParticipantPaymentState(confirmedEvent, savedData)
+  return response(200, participantRegistrationResponse(savedData, getRegistrationEditToken(savedData), payment), event)
 })
 
 export default putRegistrationLambda

@@ -1,6 +1,6 @@
 import type { JsonConfirmedEvent } from '../../types'
-import { getPaymentBalance } from '../../lib/cost'
 import { isEventOver } from '../../lib/event'
+import { getParticipantPaymentState } from '../../lib/payment'
 import { getSentInvitationAttachment, isParticipantGroup } from '../../lib/registration'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
@@ -39,21 +39,12 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
 
   // A paid place can still owe: the fee rose after it was paid (KOE-722), and the payment link
   // charges the difference. A reserve whose fee went back owes nothing until it has a place, which
-  // only the group tells, so the due goes out with the response (KOE-1526).
-  const { due } = getPaymentBalance(dogEvent, registration)
-  if (!registration.cancelled) {
-    const shouldPay = registration.paymentStatus !== 'PENDING' && (registration.paymentStatus !== 'SUCCESS' || due > 0)
-
-    if (dogEvent.paymentTime === 'confirmation') {
-      registration.shouldPay = isParticipantGroup(registration?.group?.key) && shouldPay
-    } else {
-      registration.shouldPay = shouldPay
-    }
-  }
+  // only the group tells, so the due and the pay button go out with the response (KOE-1526).
+  const payment = getParticipantPaymentState(dogEvent, registration)
 
   // The group and the other fields a participant must not see are left out last: the derivations
   // above read them.
-  return response(200, participantRegistrationResponse(registration, editToken, due), event)
+  return response(200, participantRegistrationResponse(registration, editToken, payment), event)
 })
 
 export default getRegistrationLambda

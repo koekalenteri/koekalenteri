@@ -100,7 +100,6 @@ describe('PaymentDetails', () => {
         ...registration,
         optionalCosts: [],
         paidAmount: 35,
-        paidAt: new Date('2025-08-02T09:05:00Z'),
         paymentDue,
         refundAmount: 35,
       },

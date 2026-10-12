@@ -209,6 +209,37 @@ describe('ws/subscriptionService', () => {
     expect(mockSubscribeRegistrationConnection).toHaveBeenCalledWith('c1', 'e1', 'r1')
   })
 
+  // KOE-1526 review: the subscribe answer and GetRegistration must agree on the pay button. A reserve
+  // whose fee went back and that was then lifted into a place owes the fee and should pay.
+  it('asks a lifted reserve whose fee was refunded to pay, as GetRegistration does', async () => {
+    const registration = {
+      createdAt: '2026-07-25T10:00:00.000Z',
+      dog: { breedCode: '122' },
+      editTokenVersion: 1,
+      eventId: 'e1',
+      group: { key: '2026-08-15-ap', number: 1 },
+      id: 'r1',
+      owner: { membership: false },
+      ownerHandles: true,
+      paidAmount: 50,
+      paymentStatus: 'SUCCESS',
+      refundAmount: 50,
+    }
+    mockGetEvent.mockResolvedValueOnce({
+      cost: 50,
+      entryStartDate: '2026-07-01',
+      id: 'e1',
+      paymentTime: 'registration',
+    })
+    mockGetRegistration.mockResolvedValueOnce(registration).mockResolvedValueOnce(registration)
+
+    await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).resolves.toEqual(
+      expect.objectContaining({
+        patch: expect.objectContaining({ paymentDue: 50, shouldPay: true }),
+      })
+    )
+  })
+
   it('unsubscribes from a registration', async () => {
     await expect(unsubscribeFromRegistration('c1')).resolves.toEqual({ unsubscribed: true })
     expect(mockUnsubscribeRegistrationConnection).toHaveBeenCalledWith('c1')

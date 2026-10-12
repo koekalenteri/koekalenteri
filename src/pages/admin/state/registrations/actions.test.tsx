@@ -6,7 +6,9 @@ import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { sendTemplatedEmail } from '@/api/email'
 import { APIError } from '@/api/http'
+import { createRefund } from '@/api/payment'
 import * as registrationApi from '@/api/registration'
+import { isPaymentUnsettled } from '@/lib/payment'
 import { idTokenAtom } from '@/pages/state'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventAtom, adminEventsAtom } from '../events'
@@ -26,6 +28,7 @@ vi.mock('notistack', () => ({
 }))
 
 vi.mock('@/api/email')
+vi.mock('@/api/payment')
 vi.mock('@/api/registration')
 
 function wrapper({ children }: { readonly children: React.ReactNode }) {
@@ -337,5 +340,48 @@ describe('useAdminRegistrationActions', () => {
     })
 
     expect(result.current.event).toMatchObject({ startListPublished: false, state: 'invited' })
+  })
+
+  // KOE-1526 review: the row must read right after the click as it will once the refund is applied.
+  // A reserve paid 50 and had 45 back with 5 kept: its fee went back, so nothing is missing.
+  it.each([
+    ['an email refund', { provider: 'email refund', status: 'ok' as const, transactionId: 'r-1' }],
+    ['a pending refund', { provider: 'nordea', status: 'pending' as const, transactionId: 'r-1' }],
+    ['a refund made at once', { provider: 'nordea', status: 'ok' as const, transactionId: 'r-1' }],
+  ])('keeps the handling fee with %s', async (_name, response) => {
+    const reserve = {
+      ...registrationWithStaticDates,
+      group: { key: 'reserve', number: 1 },
+      paidAmount: 50,
+    }
+    const event = { ...eventWithStaticDates, cost: 50 }
+    vi.mocked(createRefund).mockResolvedValueOnce(response)
+    const { result } = renderHook(
+      () => ({
+        actions: useAdminRegistrationActions(eventWithStaticDates.id),
+        registrations: useAtomValue(adminProjectedEventRegistrationsAtom(eventWithStaticDates.id)),
+      }),
+      {
+        wrapper: ({ children }: { readonly children: React.ReactNode }) => (
+          <Provider
+            initializeState={({ set }) => {
+              set(idTokenAtom, TEST_ID_TOKEN)
+              set(adminEventsAtom, [event])
+              set(adminEventRegistrationsAtom(event.id), [reserve])
+            }}
+          >
+            {children}
+          </Provider>
+        ),
+      }
+    )
+
+    await act(async () => {
+      await result.current.actions.refund(reserve, 'payment-1', 4500, 500)
+    })
+
+    const row = result.current.registrations.find((r) => r.id === reserve.id)
+    expect(row).toMatchObject({ refundAmount: 45, refundHandlingCost: 5 })
+    expect(row && isPaymentUnsettled(event, row)).toBe(false)
   })
 })
