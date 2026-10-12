@@ -452,6 +452,12 @@ describe('http', () => {
       expect(err.message).toBe('400 body message')
     })
 
+    it("keeps the failed response's headers", () => {
+      const response = new Response('', { headers: { 'X-Start-List-Version': '1234' }, status: 404 })
+
+      expect(new APIError(response, '').headers.get('X-Start-List-Version')).toBe('1234')
+    })
+
     it('should fallback to default status text when body object has no message', () => {
       const response = new Response('bad', { status: 500, statusText: 'fallback status' })
 

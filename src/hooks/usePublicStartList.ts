@@ -1,11 +1,14 @@
 import type { PublicRegistration, PublicStartList } from '../types'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { APIError } from '../api/http'
 import { getStartList } from '../api/registration'
-import { isStartListUpToDate, newestStartListVersion } from '../lib/startList'
+import {
+  isStartListUpToDate,
+  newestStartListVersion,
+  parseStartListVersion,
+  START_LIST_VERSION_HEADER,
+} from '../lib/startList'
 import { usePublicStartListSubscription } from './usePublicStartListSubscription'
-
-/** How long a failed refetch waits before its one retry. */
-export const START_LIST_REFETCH_RETRY_MS = 2000
 
 interface ShownStartList extends PublicStartList {
   eventId: string | undefined
@@ -27,25 +30,22 @@ const nextShownStartList = (
   return { eventId, ...offered }
 }
 
-const waitFor = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
 /**
  * Fetches the list on its own request, never joining one already in flight: the signal keeps the
- * http layer from coalescing it, so the answer is read after the message that asked for it. A
- * failure is retried once, a little later; after that the next message brings the list.
+ * http layer from coalescing it, so the answer is read after the message that asked for it.
+ *
+ * Not available (404) means nothing is published, which a live message sends as no rows, so it is
+ * taken as just that. Any other failure was already retried and reported by the http layer; the
+ * next message brings the list.
  */
-const fetchStartList = async (
-  eventId: string,
-  signal: AbortSignal,
-  retries = 1
-): Promise<PublicStartList | undefined> => {
+const fetchStartList = async (eventId: string, signal: AbortSignal): Promise<PublicStartList | undefined> => {
   try {
     return await getStartList(eventId, undefined, signal)
-  } catch {
-    if (signal.aborted || retries <= 0) return undefined
-    await waitFor(START_LIST_REFETCH_RETRY_MS)
-    if (signal.aborted) return undefined
-    return fetchStartList(eventId, signal, retries - 1)
+  } catch (error) {
+    if (error instanceof APIError && error.status === 404) {
+      return { participants: [], version: parseStartListVersion(error.headers.get(START_LIST_VERSION_HEADER)) }
+    }
+    return undefined
   }
 }
 
@@ -56,19 +56,21 @@ const fetchStartList = async (
  * Every list carries `version`, the server time its rows were read, and the newest one wins. A
  * message that cannot be used as it is (too large for one message, or unversioned once versions are
  * in use, i.e. sent by a Lambda from before them during a deploy) is answered with a fetch instead.
- * That fetch starts after the message arrived, so it read after the message did: it counts as at
- * least as new as the newest version known when it started, whatever its own header says or lacks.
- * Only a list that arrived while it was in flight can outrank it.
+ * That fetch starts after the message arrived, so it read after the message did: a versioned answer
+ * counts as at least as new as the newest version known when it started, whatever its own stamp
+ * says. Only a list that arrived while it was in flight can outrank it. An unversioned answer comes
+ * from a GetStartList from before versions, which read eventually consistent, so it stays
+ * unversioned.
  */
 export function usePublicStartList(eventId: string | undefined, loaded: PublicStartList): PublicRegistration[] {
   const [shown, setShown] = useState<ShownStartList>(() => ({ eventId, ...loaded }))
   const shownRef = useRef(shown)
   const eventIdRef = useRef(eventId)
   eventIdRef.current = eventId
-  const fetchingRef = useRef<{ eventId: string | undefined; signal: AbortSignal } | undefined>(undefined)
+  const fetchingRef = useRef<{ controller: AbortController; eventId: string } | undefined>(undefined)
 
   const offer = useCallback((forEventId: string | undefined, offered: PublicStartList) => {
-    // A fetch for the event the page has left must not put its dogs under the next one's header.
+    // An answer for the event the page has left must not take the place of the next one's rows.
     if (forEventId !== eventIdRef.current) return
     const next = nextShownStartList(shownRef.current, forEventId, offered)
     if (next === shownRef.current) return
@@ -78,21 +80,28 @@ export function usePublicStartList(eventId: string | undefined, loaded: PublicSt
 
   useEffect(() => offer(eventId, loaded), [eventId, loaded, offer])
 
-  // One signal per event: leaving the event cancels its refetches and their retries.
+  // Leaving the event, or the page, cancels the event's fetches.
   useEffect(() => {
-    const controller = new AbortController()
-    fetchingRef.current = { eventId, signal: controller.signal }
-    return () => controller.abort()
+    if (!eventId) return
+    return () => {
+      const fetching = fetchingRef.current
+      if (fetching?.eventId !== eventId) return
+      fetching.controller.abort()
+      fetchingRef.current = undefined
+    }
   }, [eventId])
 
   const refetch = useCallback(
     (forEventId: string, floor: number | undefined) => {
-      const fetching = fetchingRef.current
-      if (fetching?.eventId !== forEventId) return
-      void fetchStartList(forEventId, fetching.signal).then((fetched) => {
-        if (fetched) {
-          offer(forEventId, { ...fetched, version: newestStartListVersion(fetched.version, floor) })
-        }
+      let fetching = fetchingRef.current
+      if (fetching?.eventId !== forEventId) {
+        fetching = { controller: new AbortController(), eventId: forEventId }
+        fetchingRef.current = fetching
+      }
+      void fetchStartList(forEventId, fetching.controller.signal).then((fetched) => {
+        if (!fetched) return
+        const version = fetched.version === undefined ? undefined : newestStartListVersion(fetched.version, floor)
+        offer(forEventId, { ...fetched, version })
       })
     },
     [offer]

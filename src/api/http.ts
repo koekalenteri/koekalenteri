@@ -90,6 +90,8 @@ export class APIError extends Error {
   status: number
   statusText: string
   body?: Body
+  /** The failed response's headers, for an endpoint that says more in them than in its body. */
+  headers: Headers
 
   constructor(response: Response, body: Body) {
     const jsonStatus = getStatusFromBody(body)
@@ -99,6 +101,7 @@ export class APIError extends Error {
     this.status = response.status
     this.statusText = statusText
     this.body = body
+    this.headers = response.headers
   }
 }
 

@@ -180,20 +180,9 @@ const getMockStartList = (eventId: string): Promise<Registration[]> =>
     }
   })
 
-export async function getStartList(eventId: string, _token?: string, _signal?: AbortSignal): Promise<PublicStartList> {
-  const registrations = await getMockStartList(eventId)
-  return {
-    participants: registrations.map(({ breeder, cancelled, class: regClass, dog, group, handler, owner }) => ({
-      breeder: breeder?.name ?? '',
-      cancelled,
-      class: regClass,
-      dog,
-      group: { date: group?.date, key: group?.key ?? '', number: group?.number ?? 0, time: group?.time },
-      handler: handler?.name ?? '',
-      owner: owner?.name ?? '',
-    })),
-  }
-}
+export const getStartList = vi.fn(
+  async (_eventId: string, _token?: string, _signal?: AbortSignal): Promise<PublicStartList> => ({ participants: [] })
+)
 
 export const getStartListPreview = vi.fn(
   async (eventId: string, _token: string, _signal?: AbortSignal): Promise<Registration[]> => getMockStartList(eventId)

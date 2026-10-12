@@ -60,9 +60,14 @@ after every write that has a broadcast behind it, so an open page always ends on
 - A message the page cannot use as it is, `stale`, or unversioned once a version has been accepted
   (a Lambda from before versions, during a deploy), is answered with a fetch on a request of its own:
   it never joins a fetch already in flight, so it reads after the message that asked for it.
-- That fetch therefore counts as at least as new as the newest version known when it started, whether
-  its header says less or is missing. Only a list that arrived while it was in flight outranks it. A
-  failed fetch is retried once, two seconds later.
+- A versioned answer to that fetch therefore counts as at least as new as the newest version known
+  when it started, even if its own stamp says less. Only a list that arrived while it was in flight
+  outranks it. An unversioned answer stays unversioned: only a GetStartList from before versions sends
+  one, and it read eventually consistent.
+- Not available (404) is taken as no rows, the same as the live message for an unpublished list, with
+  the version the 404 carries.
+- A failed fetch is not retried on top of the http layer's own retry (a GET, once, on a network
+  error); the next message brings the list.
 - Before any versioned list has been accepted, an unversioned message or loader result is taken as it
   is, for a backend deployed before versions.
 - Leaving the event cancels its fetches; a fetch for an event the page has left is never shown.
