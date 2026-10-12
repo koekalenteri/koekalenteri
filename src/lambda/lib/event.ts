@@ -1,5 +1,6 @@
 import type { AuditActor, GroupChangeReason } from '../../lib/audit'
 import type {
+  ClassOrNone,
   ConfirmedEventStates,
   EventClassState,
   EventState,
@@ -10,18 +11,23 @@ import type {
   JsonRegistrationGroupInfo,
   Patch,
   Registration,
+  RegistrationClass,
+  ResultsPublishedState,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
 import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
+import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
+import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
-import { LambdaError } from './lambda'
+import { foldedFrom, retryOnConditionFailure } from './conditionalWrite'
+import { httpError, LambdaError } from './lambda'
 import { createPatch } from './patch'
 import { createRegistrationPatches, getReadyRegistrationsByEventId, getRegistrationsByEventId } from './registration'
 
@@ -61,8 +67,9 @@ export interface EventChange {
 const EVENT_CLASS_STATES: EventClassState[] = ['picked', 'invited', 'started', 'ended'] as const
 const EVENT_STATES: EventState[] = ['confirmed', ...EVENT_CLASS_STATES] as const
 
-export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string): Promise<T> => {
-  const jsonEvent = await dynamoDB.read<T>({ id }, eventTable)
+/** `consistent` reads the row as last written, for a caller about to write back what it folds from it. */
+export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string, consistent = false): Promise<T> => {
+  const jsonEvent = await dynamoDB.read<T>({ id }, eventTable, consistent)
   if (!jsonEvent) {
     throw new LambdaError(404, `Event with id '${id}' was not found`)
   }
@@ -454,3 +461,101 @@ export const linkedEventProjection = (confirmedEvent: JsonConfirmedEvent): JsonL
   names: confirmedEvent.names,
   startDate: confirmedEvent.startDate,
 })
+
+interface ResultsDayPublish {
+  /** The class whose day changes; absent for a classless event. */
+  eventClass?: RegistrationClass
+  /** The day, yyyy-MM-dd. Only this day changes (KOE-1510). */
+  date: string
+  published: boolean
+}
+
+/** A publish of results refused by the publishing rules, as the panel would have greyed it (KOE-1466). */
+const publishBlocked = (confirmedEvent: JsonConfirmedEvent, { date, eventClass, published }: ResultsDayPublish) => {
+  if (!published) return undefined
+  const reason = getResultsBlocker(confirmedEvent, eventClass, date)
+  return reason && httpError(422, { error: 'publishBlocked', eventClass, publish: 'results', reason })
+}
+
+/** The write of one day's change: the class's own entry of a stored map, or else the whole flag. */
+const resultsWrite = (confirmedEvent: JsonConfirmedEvent, eventClass: ClassOrNone, next: ResultsPublishedState) => {
+  const stored = confirmedEvent.resultsPublished
+  if (eventClass && isResultsPublishedClassMap(stored) && isResultsPublishedClassMap(next)) {
+    return {
+      condition: foldedFrom(
+        '#resultsPublished.#resultsClass',
+        { '#resultsClass': eventClass, '#resultsPublished': 'resultsPublished' },
+        stored[eventClass]
+      ),
+      set: { [`resultsPublished.${eventClass}`]: next[eventClass] },
+    }
+  }
+  return {
+    condition: foldedFrom('#resultsPublished', { '#resultsPublished': 'resultsPublished' }, stored),
+    set: { resultsPublished: next },
+  }
+}
+
+/**
+ * One attempt: judge the publish by the publishing rules, fold the day into the flag as read, and
+ * write it on condition that the flag is still as read (see foldedFrom). Answers with the event as
+ * written, its flag read off the row.
+ */
+const writeResultsDay = async (
+  confirmedEvent: JsonConfirmedEvent,
+  request: ResultsDayPublish,
+  updatedAt: string
+): Promise<JsonConfirmedEvent> => {
+  const blocked = publishBlocked(confirmedEvent, request)
+  if (blocked) throw blocked
+
+  const { date, eventClass, published } = request
+  const { condition, set } = resultsWrite(
+    confirmedEvent,
+    eventClass,
+    withResultsDay(confirmedEvent, eventClass, date, published)
+  )
+  const output = await dynamoDB.update(
+    { id: confirmedEvent.id },
+    { set: { ...set, updatedAt } },
+    eventTable,
+    'ALL_NEW',
+    condition
+  )
+
+  const resultsPublished: unknown = output.Attributes?.resultsPublished
+  if (!isResultsPublishedState(resultsPublished)) throw new Error('the written row holds no results flag')
+  return { ...confirmedEvent, resultsPublished, updatedAt }
+}
+
+const RESULTS_WRITE_ATTEMPTS = 3
+
+/**
+ * Publish or hide one day's results on the event record (KOE-1510). The request is a change of one
+ * day, and the scope is folded here from the stored day keys, never from a client's copy, whose JSON
+ * reviver has turned them into dates.
+ *
+ * Several secretaries publish at once, and one can hide two days in quick succession. Where the stored
+ * flag already is a class map, only the class's own entry is written, so another class's publish made
+ * meanwhile stays; where it is not (a plain flag about to become a map, or a classless event's one
+ * scope), the whole flag is. Either write lands only on the flag it was folded from. When another
+ * write got there first, the row is read again as last written, the rules are judged and the day
+ * folded afresh, and the write is tried again; only after RESULTS_WRITE_ATTEMPTS is it a conflict.
+ *
+ * `updatedAt` moves with the flag so an incremental fetch carries it, as with the start numbers
+ * (KOE-1352). `modifiedAt` stays: publishing is not an edit to the event.
+ */
+export const setResultsPublishedState = (
+  confirmedEvent: JsonConfirmedEvent,
+  request: ResultsDayPublish,
+  now: Date = new Date()
+): Promise<JsonConfirmedEvent> => {
+  const updatedAt = now.toISOString()
+  return retryOnConditionFailure({
+    exhausted: () => httpError(409, { error: 'resultsPublishedChanged' }),
+    initial: confirmedEvent,
+    maxAttempts: RESULTS_WRITE_ATTEMPTS,
+    reread: () => getEvent<JsonConfirmedEvent>(confirmedEvent.id, true),
+    work: (current) => writeResultsDay(current, request, updatedAt),
+  })
+}

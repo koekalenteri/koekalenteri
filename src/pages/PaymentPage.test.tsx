@@ -3,11 +3,11 @@ import type { CreatePaymentResponse, PublicConfirmedEvent } from '../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
-import { useParams } from 'react-router'
+import { MemoryRouter, useParams } from 'react-router'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 import mockResponse from '../api/__mocks__/paymentCreate.response.json'
 import { createPayment } from '../api/payment'
@@ -15,16 +15,21 @@ import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { languageStorageKey } from '../lib/client/storage'
 import { Path } from '../routeConfig'
+import { describeWithTranslations } from '../test-utils/language'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 import AppSnackbarProvider from './components/AppSnackbarProvider'
 import LoadingIndicator from './components/LoadingIndicator'
 import { loader, Component as PaymentPage, PaymentPageWithData } from './PaymentPage'
-import { createNewRegistration, newRegistrationAtom } from './state'
+import { createNewRegistration, languageAtom, newRegistrationAtom } from './state'
 
 vi.mock('../api/event')
 vi.mock('../api/payment')
 vi.mock('../api/registration')
 
+// The file's other tests read keys; the English ones read the app's real English (KOE-1513).
+vi.mock('react-i18next', async (importOriginal) =>
+  (await import('../test-utils/language')).spyOnUseTranslation(importOriginal)
+)
 vi.mock('react-router', async () => ({
   ...(await vi.importActual<typeof import('react-router')>('react-router')),
   useParams: vi.fn(),
@@ -44,6 +49,8 @@ describe('PaymentPage', () => {
     vi.clearAllMocks()
     // A test that switches the language leaves it in storage, i18next and <html lang>; the next one starts in Finnish.
     localStorage.clear()
+    // The language each registration was settled in for this tab (KOE-1512).
+    sessionStorage.clear()
     document.documentElement.lang = 'fi'
     await i18n.changeLanguage('fi')
   })
@@ -159,17 +166,57 @@ describe('PaymentPage', () => {
     expect(screen.getByText('paymentPage.choosePaymentMethod')).toBeInTheDocument()
   })
 
+  // The loader's answer reaches the page: a Paytrail refusal is named, not left to the status (KOE-1513).
+  it('names a Paytrail refusal the loader got', async () => {
+    mockUseParams.mockImplementation(() => ({
+      id: testRegistration.eventId,
+      registrationId: testRegistration.id,
+    }))
+
+    const path = Path.payment(testRegistration)
+    const routes: RouteObject[] = [
+      {
+        element: <PaymentPage />,
+        hydrateFallbackElement: <LoadingIndicator />,
+        loader: async () => ({
+          response: Promise.resolve({ paytrailError: '{"message":"Rejected"}', status: 400 }),
+        }),
+        path,
+      },
+    ]
+
+    render(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider>
+            <Suspense fallback={<div>loading...</div>}>
+              <AppSnackbarProvider>
+                <DataMemoryRouter initialEntries={[path]} routes={routes} />
+              </AppSnackbarProvider>
+            </Suspense>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    expect(screen.getByText('paymentPage.errorPaytrail error, status')).toBeInTheDocument()
+    expect(screen.queryByText('paymentPage.choosePaymentMethod')).toBeNull()
+  })
+
   describe('PaymentPageWithData', () => {
     it('shows the page in the registration language over the stored one (KOE-1508)', async () => {
       localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
 
       render(
         <Provider>
-          <PaymentPageWithData
-            registrationId="test-reg-id"
-            event={null}
-            registration={{ ...testRegistration, language: 'en' }}
-          />
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId="test-reg-id"
+              event={null}
+              registration={{ ...testRegistration, language: 'en' }}
+            />
+          </MemoryRouter>
         </Provider>
       )
       await flushPromises()
@@ -188,7 +235,9 @@ describe('PaymentPage', () => {
 
       render(
         <Provider>
-          <PaymentPageWithData registrationId="test-reg-id" event={null} registration={registration} />
+          <MemoryRouter>
+            <PaymentPageWithData registrationId="test-reg-id" event={null} registration={registration} />
+          </MemoryRouter>
         </Provider>
       )
       await flushPromises()
@@ -197,10 +246,41 @@ describe('PaymentPage', () => {
       expect(i18n.language).toBe('en')
     })
 
+    it('keeps a language picked from the menu when the page is opened again in the same tab (KOE-1512)', async () => {
+      localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
+      const store = createStore()
+      const page = (
+        <Provider store={store}>
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId="test-reg-id"
+              event={null}
+              registration={{ ...testRegistration, language: 'en' }}
+            />
+          </MemoryRouter>
+        </Provider>
+      )
+
+      const first = render(page)
+      await flushPromises()
+      expect(i18n.language).toBe('en')
+
+      // The reader picks Finnish from the menu, goes back to the registration page and returns.
+      act(() => store.set(languageAtom, 'fi'))
+      first.unmount()
+      render(page)
+      await flushPromises()
+
+      expect(i18n.language).toBe('fi')
+      expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('fi'))
+    })
+
     it('should show error message when event is not found', async () => {
       const { container } = render(
         <Provider>
-          <PaymentPageWithData registrationId="test-reg-id" event={null} registration={testRegistration} />
+          <MemoryRouter>
+            <PaymentPageWithData registrationId="test-reg-id" event={null} registration={testRegistration} />
+          </MemoryRouter>
         </Provider>
       )
 
@@ -212,11 +292,13 @@ describe('PaymentPage', () => {
     it('should show error message when registration is not found', async () => {
       const { container } = render(
         <Provider>
-          <PaymentPageWithData
-            registrationId="test-reg-id"
-            event={asPaymentEvent({ id: 'test-id' })}
-            registration={null}
-          />
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId="test-reg-id"
+              event={asPaymentEvent({ id: 'test-id' })}
+              registration={null}
+            />
+          </MemoryRouter>
         </Provider>
       )
 
@@ -266,12 +348,14 @@ describe('PaymentPage', () => {
     it('should show error message when response.groups is not available', async () => {
       const { container } = render(
         <Provider>
-          <PaymentPageWithData
-            registrationId="test-reg-id"
-            event={asPaymentEvent({ id: 'test-id' })}
-            registration={testRegistration}
-            response={{} as CreatePaymentResponse}
-          />
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId="test-reg-id"
+              event={asPaymentEvent({ id: 'test-id' })}
+              registration={testRegistration}
+              response={{} as CreatePaymentResponse}
+            />
+          </MemoryRouter>
         </Provider>
       )
 
@@ -463,49 +547,62 @@ describe('PaymentPage', () => {
       expect(container).toHaveTextContent('paymentPage.error501MerchantInactive contact')
     })
 
-    it('should show payment error message from backend', async () => {
-      const event = {
-        cost: 50,
-        id: 'test-id',
-        paymentTime: 'registration' as const,
-      }
-      const registration = {
-        ...testRegistration,
-        totalAmount: 50,
-      }
+    // Paytrail's refusal in the payer's language, with Paytrail's status and words whatever they came
+    // as (KOE-1513). Its status is Paytrail's, so it is not read as this API's own 500 or 404.
+    describeWithTranslations('en', () => {
+      it.each([
+        [
+          'its JSON answer',
+          400,
+          JSON.stringify({ message: 'Paytrail provider rejected payment', status: 'error' }),
+          'Payment could not be created at Paytrail (400): Paytrail provider rejected payment',
+        ],
+        [
+          'a plain-text answer',
+          503,
+          'Service Unavailable',
+          'Payment could not be created at Paytrail (503): Service Unavailable',
+        ],
+        ['an empty answer', 500, '', 'Payment could not be created at Paytrail (500): Unknown error'],
+        [
+          'a status this API also answers',
+          404,
+          'Not Found',
+          'Payment could not be created at Paytrail (404): Not Found',
+        ],
+      ])('names a Paytrail refusal with %s', async (_case, status, paytrailError, expected) => {
+        const registration = { ...testRegistration, language: 'en' as const, totalAmount: 50 }
+        const routes: RouteObject[] = [
+          {
+            element: (
+              <PaymentPageWithData
+                registrationId="test-reg-id"
+                event={asPaymentEvent({ cost: 50, id: 'test-id', paymentTime: 'registration' })}
+                registration={registration}
+                response={undefined}
+                paytrailError={paytrailError}
+                responseStatus={status}
+              />
+            ),
+            path: '/test-path',
+          },
+        ]
 
-      const routes: RouteObject[] = [
-        {
-          element: (
-            <PaymentPageWithData
-              registrationId="test-reg-id"
-              event={asPaymentEvent(event)}
-              registration={registration}
-              response={undefined}
-              responseErrorMessage="Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment"
-              responseStatus={400}
-            />
-          ),
-          path: '/test-path',
-        },
-      ]
+        render(
+          <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.en}>
+              <Provider>
+                <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+              </Provider>
+            </LocalizationProvider>
+          </ThemeProvider>
+        )
+        await flushPromises()
 
-      const { container } = render(
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <Provider>
-              <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-            </Provider>
-          </LocalizationProvider>
-        </ThemeProvider>
-      )
-
-      await flushPromises()
-
-      expect(container).toHaveTextContent(
-        'Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment'
-      )
-      expect(container).not.toHaveTextContent('paymentPage.choosePaymentMethod')
+        expect(screen.getByText(expected)).toBeInTheDocument()
+        expect(screen.queryByText(i18n.t('paymentPage.error500', { lng: 'en' }))).toBeNull()
+        expect(screen.queryByText(i18n.t('paymentPage.error404', { lng: 'en' }))).toBeNull()
+      })
     })
   })
 

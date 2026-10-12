@@ -2,7 +2,7 @@ import { enqueueSnackbar } from 'notistack'
 import { appVersion } from '../lib/version'
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
-import http, { APIError, withRegistrationAuth, withToken, withUserRouteFallback } from './http'
+import http, { APIError, refusalCode, withRegistrationAuth, withToken, withUserRouteFallback } from './http'
 
 fetchMock.enableMocks()
 vi.mock('notistack', () => ({
@@ -518,5 +518,26 @@ describe('http', () => {
       expect(err.statusText).toBe('raw-body-message')
       expect(err.message).toBe('500 raw-body-message')
     })
+  })
+})
+
+/** A 422 as the API layer hands it on: the parsed body, whatever shape it came in. */
+const refusal = (body: Record<string, unknown> | string) => new APIError(new Response(null, { status: 422 }), body)
+
+describe('refusalCode', () => {
+  // One reading for every structured refusal, so a screen that only needs to know which one it is
+  // does not grow its own copy of the check (KOE-1267).
+  it('reads the code a structured refusal carries', () => {
+    expect(refusalCode(refusal({ error: 'startNumbersIncomplete', message: 'missing 1' }))).toBe(
+      'startNumbersIncomplete'
+    )
+  })
+
+  it.each([
+    ['a body that is not an object', refusal('nope')],
+    ['a body with no code', refusal({ message: 'no code here' })],
+    ['anything that is not an API error', new Error('offline')],
+  ])('has nothing to say about %s', (_name, error) => {
+    expect(refusalCode(error)).toBeUndefined()
   })
 })

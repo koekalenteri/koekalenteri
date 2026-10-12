@@ -37,8 +37,6 @@ class MockPaytrailError extends Error {
   }
 }
 
-const mockFormatPaytrailErrorMessage = vi.fn<(operation: string, error: MockPaytrailError) => string>()
-
 vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
 }))
@@ -54,7 +52,6 @@ vi.doMock('../lib/paytrail', () => ({
 
 vi.doMock('../lib/payment', () => ({
   claimTransactionCreation: mockClaimTransactionCreation,
-  formatPaytrailErrorMessage: mockFormatPaytrailErrorMessage,
   getTransactionsByReference: mockGetTransactionsByReference,
   paymentDescription: vi.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
   releaseTransactionCreation: mockReleaseTransactionCreation,
@@ -453,23 +450,30 @@ describe('paymentCreateLambda', () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it('returns Paytrail payment errors with user-visible message', async () => {
-    const paytrailMessage = 'API payment failed. Provider message: Something went wrong'
-    const paytrailError = JSON.stringify({ message: paytrailMessage, status: 'error' })
-    mockCreatePayment.mockRejectedValueOnce(new MockPaytrailError(400, paytrailError))
-    mockFormatPaytrailErrorMessage.mockReturnValueOnce(
-      `Maksun luonti epäonnistui Paytrailissa (400): ${paytrailMessage}`
-    )
+  // Paytrail's own words at its own status, marked as Paytrail's: the payment page puts them in the
+  // payer's language (KOE-1513). No Finnish sentence is written here.
+  it.each([
+    ['its JSON answer', 400, JSON.stringify({ message: 'Provider rejected payment', status: 'error' })],
+    ['a plain-text 5xx', 503, 'Service Unavailable'],
+  ])('answers a Paytrail refusal with %s', async (_case, status, paytrailError) => {
+    mockCreatePayment.mockRejectedValueOnce(new MockPaytrailError(status, paytrailError))
 
     const result = await paymentCreateLambda(event)
 
-    expect(result.statusCode).toEqual(400)
-    expect(JSON.parse(result.body)).toEqual({
-      error: paytrailError,
-      message: `Maksun luonti epäonnistui Paytrailissa (400): ${paytrailMessage}`,
-    })
+    expect(result.statusCode).toEqual(status)
+    expect(JSON.parse(result.body)).toEqual({ error: paytrailError, provider: 'paytrail' })
+    expect(mockReleaseTransactionCreation).toHaveBeenCalledTimes(1)
     expect(mockWrite).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()
+  })
+
+  it('marks a Paytrail 5xx without words as Paytrail, with an empty error', async () => {
+    mockCreatePayment.mockRejectedValueOnce(new MockPaytrailError(502, undefined))
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(502)
+    expect(JSON.parse(result.body)).toEqual({ error: '', provider: 'paytrail' })
   })
 
   it('calculates partial payment correctly if some amount is already paid', async () => {

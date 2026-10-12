@@ -142,6 +142,28 @@ export async function putStartNumbers(
   )
 }
 
+export interface ResultsPublishedRequest {
+  /** The class whose day changes; absent for a classless event. */
+  eventClass?: RegistrationClass
+  /** The one day (yyyy-MM-dd) published or hidden; the others stay as they are (KOE-1510). */
+  date: string
+  published: boolean
+}
+
+/** The one endpoint that publishes or hides results, a day at a time (KOE-1510). */
+export async function putResultsPublished(
+  eventId: string,
+  request: ResultsPublishedRequest,
+  token?: string,
+  signal?: AbortSignal
+): Promise<{ event: DogEvent }> {
+  return http.put<ResultsPublishedRequest, { event: DogEvent }>(
+    `/admin/results-published/${eventId}`,
+    request,
+    withToken({ signal }, token)
+  )
+}
+
 export async function searchEventKcIdChoices(
   request: SearchEventKcIdChoicesRequest,
   token?: string,

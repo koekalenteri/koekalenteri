@@ -6,11 +6,13 @@ import { render, screen } from '@testing-library/react'
 import i18n from 'i18next'
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
+import { useLocation } from 'react-router'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import { getEvent } from '../api/event'
 import { getRegistration } from '../api/registration'
 import theme from '../assets/Theme'
+import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
 import { locales } from '../i18n'
 import { languageStorageKey } from '../lib/client/storage'
 import { invitationAttachmentFileName } from '../lib/fileName'
@@ -30,6 +32,8 @@ describe('RegistrationInvitation', () => {
     vi.runOnlyPendingTimers()
     // The language a test switches to is kept in localStorage and i18next; the next test starts in Finnish.
     localStorage.clear()
+    // The language each registration was settled in for this tab (KOE-1512).
+    sessionStorage.clear()
     document.documentElement.lang = 'fi'
     await i18n.changeLanguage('fi')
   })
@@ -101,6 +105,42 @@ describe('RegistrationInvitation', () => {
     await flushPromises()
 
     expect(screen.getByText('registration-page')).toBeInTheDocument()
+  })
+
+  it('keeps the admin mark through the redirect, so the registration page keeps the language (KOE-1512)', async () => {
+    localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
+    const registration = { ...registrationWithStaticDates, language: 'en' as const }
+    const path = `${Path.invitation(registration)}?from=admin`
+    // The registration page as far as the language goes: the hook it calls, on the address it lands on.
+    const RegistrationPage = () => {
+      useRegistrationLanguage(registration)
+      return <>registration-page{useLocation().search}</>
+    }
+    const routes: RouteObject[] = [
+      {
+        element: <RegistrationInvitation />,
+        hydrateFallbackElement: <>hydrate fallback</>,
+        loader: async () => ({ data: Promise.resolve({ event: eventWithStaticDates, registration }) }),
+        path: 'r/:id/:registrationId/invitation',
+      },
+      {
+        element: <RegistrationPage />,
+        path: 'r/:id/:registrationId',
+      },
+    ]
+
+    render(
+      <Provider>
+        <Suspense fallback={<LoadingPage />}>
+          <DataMemoryRouter initialEntries={[path]} routes={routes} />
+        </Suspense>
+      </Provider>
+    )
+    await flushPromises()
+
+    expect(i18n.language).toBe('fi')
+    expect(localStorage.getItem(languageStorageKey)).toBe(JSON.stringify('fi'))
+    expect(screen.getByText('registration-page?from=admin')).toBeInTheDocument()
   })
 
   it('renders invitation page when URL is available', async () => {

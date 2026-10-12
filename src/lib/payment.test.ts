@@ -12,6 +12,7 @@ import {
   PROVIDER_NAMES,
   paytrailErrorMessage,
   paytrailErrorText,
+  paytrailRefusalBody,
   shouldSendInvitationAfterPayment,
   transactionActor,
 } from './payment'
@@ -27,6 +28,19 @@ describe('payment', () => {
       ['text', 'Refund already in progress', false],
     ])('takes %s as %s', (_case, body, expected) => {
       expect(isPaytrailRefusal(body)).toBe(expected)
+    })
+  })
+
+  // What PaymentCreate and RefundCreate answer when Paytrail refuses, and isPaytrailRefusal reads it back.
+  describe('paytrailRefusalBody', () => {
+    it.each([
+      ['its words', '{"message":"Rejected"}', '{"message":"Rejected"}'],
+      ['an empty error for no words', undefined, ''],
+    ])('marks a refusal with %s', (_case, error, expected) => {
+      const body = paytrailRefusalBody(error)
+
+      expect(body).toEqual({ error: expected, provider: 'paytrail' })
+      expect(isPaytrailRefusal(body)).toBe(true)
     })
   })
 

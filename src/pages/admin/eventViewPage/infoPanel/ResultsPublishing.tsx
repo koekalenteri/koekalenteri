@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, RegistrationClass } from '@/types'
+import type { ClassOrNone, ConfirmedEvent } from '@/types'
 import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined'
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined'
 import Box from '@mui/material/Box'
@@ -9,10 +9,12 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { refusalCode } from '@/api/http'
+import { zonedParseDate } from '@/i18n/dates'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { isResultsPublished, uniqueClasses } from '@/lib/event'
+import { getClassDays, isResultsPublishedForDay, uniqueClasses } from '@/lib/event'
 import { getResultsBlocker, isStartListPublished } from '@/lib/publishing'
 import { scoresAtPosts } from '@/lib/results'
 import { Path } from '@/routeConfig'
@@ -27,26 +29,44 @@ interface Props {
    * Passed in rather than taken from the action hook here: that hook reads an async atom, and reading
    * it during this render suspends the whole panel on a click.
    */
-  readonly onSetResultsPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
+  readonly onSetResultsPublished?: (eventClass: ClassOrNone, date: string, published: boolean) => Promise<unknown>
 }
 
 interface ResultsRow {
   /** The class, or the event type for a classless event. */
   readonly name: string
   /** The class the publish request is for; undefined for the classless event. */
-  readonly eventClass: RegistrationClass | undefined
+  readonly eventClass: ClassOrNone
+  /** The day the row publishes, yyyy-MM-dd (KOE-1510). */
+  readonly day: string
+  /** Whether the trial runs on several days, so the row names its day. */
+  readonly multiDay: boolean
 }
 
 /**
- * One row per class, or a single row for the whole event where it has no classes (NOU, NOME-A): a
- * classless event publishes its results as one flag, and without the row it had no button at all
- * (KOE-1464).
+ * One row per class and day, or per day of the whole event where it has no classes (NOU, NOME-A): a
+ * classless event publishes its results as one scope, and without a row it had no button at all
+ * (KOE-1464). Each day of a class is published on its own, so a second day's results stay off the web
+ * while they are being entered (KOE-1510).
  */
 const getResultsRows = (event: ConfirmedEvent): ResultsRow[] => {
   const classes = uniqueClasses(event)
-  return classes.length
+  const multiDay = getClassDays(event).length > 1
+  const rows = classes.length
     ? classes.map((eventClass) => ({ eventClass, name: eventClass }))
     : [{ eventClass: undefined, name: event.eventType }]
+  return rows.flatMap((row) => getClassDays(event, row.eventClass).map((day) => ({ ...row, day, multiDay })))
+}
+
+/** A row's own key: its class, or the event type, and its day. */
+const rowKey = ({ day, name }: ResultsRow) => `${name}/${day}`
+
+type ResultsMessage = 'confirm' | 'hidden' | 'publishedSnack'
+
+/** A confirmation or a notice, for a class or the whole event, naming the day on a multi-day trial. */
+const messageKey = (message: ResultsMessage, eventClass: ClassOrNone, withDay: boolean) => {
+  const subject = eventClass ? message : (`${message}Event` as const)
+  return `eventManagement.results.${subject}${withDay ? 'Day' : ''}` as const
 }
 
 /**
@@ -65,32 +85,49 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
   const confirm = useConfirm()
   const rows = getResultsRows(event)
 
+  const dayLabel = useCallback((day: string) => t('dateFormat.wdshort', { date: zonedParseDate(day) }), [t])
+  // The rows whose request is on its way: a second click would only race the first (KOE-1510).
+  const [inFlight, setInFlight] = useState<ReadonlySet<string>>(() => new Set())
+  const markInFlight = useCallback((key: string, pending: boolean) => {
+    setInFlight((current) => {
+      const next = new Set(current)
+      if (pending) next.add(key)
+      else next.delete(key)
+      return next
+    })
+  }, [])
+
   const toggle = useCallback(
-    async (eventClass: RegistrationClass | undefined, published: boolean) => {
+    async (row: ResultsRow, published: boolean) => {
+      const { day, eventClass, multiDay } = row
+      const params = { day: dayLabel(day), eventClass }
       if (published) {
         // Publishing is the step that cannot be quietly undone in the reader's mind, so it is asked for.
         const { confirmed } = await confirm({
           confirmationText: t('eventManagement.results.publish'),
-          description: eventClass
-            ? t('eventManagement.results.confirm', { eventClass })
-            : t('eventManagement.results.confirmEvent'),
+          description: t(messageKey('confirm', eventClass, multiDay), params),
           title: t('eventManagement.results.confirmTitle'),
         })
         if (!confirmed) return
       }
 
+      markInFlight(rowKey(row), true)
       try {
-        await onSetResultsPublished?.(eventClass, published)
-        const classMessage = published ? 'eventManagement.results.publishedSnack' : 'eventManagement.results.hidden'
-        const eventMessage = published
-          ? 'eventManagement.results.publishedSnackEvent'
-          : 'eventManagement.results.hiddenEvent'
-        enqueueSnackbar(eventClass ? t(classMessage, { eventClass }) : t(eventMessage), { variant: 'success' })
-      } catch {
-        enqueueSnackbar(t('eventManagement.results.saveFailed'), errorSnackbarOptions)
+        await onSetResultsPublished?.(eventClass, day, published)
+        const notice = messageKey(published ? 'publishedSnack' : 'hidden', eventClass, multiDay)
+        enqueueSnackbar(t(notice, params), { variant: 'success' })
+      } catch (error) {
+        // Another publish of the same results kept landing first; the server gave up retrying (KOE-1510).
+        const changed = refusalCode(error) === 'resultsPublishedChanged'
+        enqueueSnackbar(
+          t(changed ? 'eventManagement.results.changedMeanwhile' : 'eventManagement.results.saveFailed'),
+          errorSnackbarOptions
+        )
+      } finally {
+        markInFlight(rowKey(row), false)
       }
     },
-    [confirm, onSetResultsPublished, t]
+    [confirm, dayLabel, markInFlight, onSetResultsPublished, t]
   )
 
   return (
@@ -123,19 +160,21 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
         </Stack>
       }
     >
-      {rows.map(({ eventClass, name }) => {
-        const published = isResultsPublished(event, eventClass)
+      {rows.map((row) => {
+        const { day, eventClass, multiDay, name } = row
+        const published = isResultsPublishedForDay(event, eventClass, day)
         // Results travel on the start list's rows, so publishing them while it is hidden would
         // change nothing a spectator can see. Say so rather than leaving a dead button.
         const startListPublished = isStartListPublished(
           event,
           event.classes.find((item) => item.class === eventClass)
         )
-        // The same rules the server holds a publish to (KOE-1466).
-        const ready = !getResultsBlocker(event, eventClass)
+        // The same rules the server holds a publish of this day to (KOE-1466, KOE-1510); hiding is
+        // always allowed.
+        const ready = published || !getResultsBlocker(event, eventClass, day)
 
         return (
-          <TableRow key={name}>
+          <TableRow key={rowKey(row)}>
             <TableCell align="left">
               <Box
                 sx={{
@@ -149,7 +188,7 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
                     fontWeight: 'bold',
                   }}
                 >
-                  {name}
+                  {multiDay ? `${name} ${dayLabel(day)}` : name}
                 </Typography>
                 {published && (
                   <Typography
@@ -180,8 +219,8 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
             <TableCell align="right">
               <Button
                 color={published ? 'secondary' : 'primary'}
-                disabled={!ready}
-                onClick={() => toggle(eventClass, !published)}
+                disabled={!ready || inFlight.has(rowKey(row))}
+                onClick={() => toggle(row, !published)}
                 size="small"
                 sx={{ whiteSpace: 'nowrap' }}
                 variant={ready ? 'contained' : 'outlined'}
