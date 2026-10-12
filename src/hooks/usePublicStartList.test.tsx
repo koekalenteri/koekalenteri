@@ -347,6 +347,32 @@ describe('usePublicStartList (KOE-1516)', () => {
       await waitFor(() => shows(3))
     })
 
+    it('lifts the fetch an unversioned message asks for to the version on screen', async () => {
+      fetchMock.mockResponseOnce(() => Promise.resolve(answer(3, 290)))
+      const { shows } = renderStartList()
+      act(() => liveListener?.(rows(2), 300))
+      await waitFor(() => shows(2))
+
+      // The message carries no version, so the floor is what the page already shows.
+      act(() => liveListener?.(rows(4), undefined))
+
+      await waitFor(() => shows(3))
+    })
+
+    it('ranks the fetch at the stale message version, so an older message cannot follow it', async () => {
+      fetchMock.mockResponseOnce(() => Promise.resolve(answer(3, 290)))
+      const { shows } = renderStartList({ eventId: 'event-1', loaded: { participants: rows(1), version: 200 } })
+
+      act(() => liveListener?.(undefined, 300))
+      await waitFor(() => shows(3))
+
+      // Read before the stale message's 300: the fetch, read after it, outranks it.
+      act(() => liveListener?.(rows(2), 295))
+      await flushPromises(false)
+
+      shows(3)
+    })
+
     it('tells the reader once when the connection drops during a background fetch', async () => {
       expectConsoleOutput(/reportError/)
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
