@@ -1,6 +1,6 @@
 import type { StartNumbersRequest } from '@/api/event'
 import type { StartNumbersTime } from '@/lib/event'
-import type { DogEvent, Patch, RegistrationClass, StationTurnOp } from '@/types'
+import type { ClassOrNone, DogEvent, Patch, RegistrationClass, StationTurnOp } from '@/types'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { enqueueSnackbar } from 'notistack'
@@ -11,6 +11,7 @@ import {
   exportEventToStage,
   putEvent,
   putInvitationAttachment,
+  putResultsPublished,
   putStartNumbers,
 } from '@/api/event'
 import { putStationTurn } from '@/api/station'
@@ -18,9 +19,8 @@ import { getChangedTopLevelKeys } from '@/lib/diff'
 import {
   compareEventsByDate,
   copyDogEvent,
-  getResultsPublishedClassMap,
   getStartListPublishedClassMap,
-  isResultsPublished,
+  isResultsPublishedForDay,
   sanitizeDogEvent,
 } from '@/lib/event'
 import { classEntry, isStartListPublished } from '@/lib/publishing'
@@ -28,7 +28,21 @@ import { eventsAtom, userAtom, validIdTokenAtom } from '@/pages/state'
 import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 
+/**
+ * What an event save sends. Never the results flag: results are published a day at a time through
+ * their own endpoint (KOE-1510), and the server refuses a save whose flag differs from the stored one.
+ * A form holding an older copy of the flag would otherwise fail its save.
+ */
 export const buildEventSavePatch = (
+  event: Patch<DogEvent>,
+  currentAdminEvent?: DogEvent | null,
+  formChanges?: Patch<DogEvent>
+): Patch<DogEvent> => {
+  const { resultsPublished: _resultsPublished, ...patch } = buildEventChanges(event, currentAdminEvent, formChanges)
+  return patch
+}
+
+const buildEventChanges = (
   event: Patch<DogEvent>,
   currentAdminEvent?: DogEvent | null,
   formChanges?: Patch<DogEvent>
@@ -59,21 +73,6 @@ export const buildStartListClassPublishedPatch = (
     ...getStartListPublishedClassMap(event),
     [eventClass]: published,
   },
-})
-
-/** A class's flag in the per-class map, or the one flag of a classless event (KOE-1464). */
-export const buildResultsPublishedPatch = (
-  event: DogEvent,
-  eventClass: RegistrationClass | undefined,
-  published: boolean
-): Patch<DogEvent> & { id: string } => ({
-  id: event.id,
-  resultsPublished: eventClass
-    ? {
-        ...getResultsPublishedClassMap(event),
-        [eventClass]: published,
-      }
-    : published,
 })
 
 export const buildStartListPublishedPatch = (
@@ -325,15 +324,21 @@ export const useAdminEventActions = () => {
     return saved
   }
 
+  /**
+   * One day's results of a class, or of a classless event, published or hidden (KOE-1510). The request
+   * names the day and the server folds it into the stored flag: a client's copy has been through the
+   * JSON reviver, so its stored days are dates and would not go back as the day keys they were.
+   */
   async function setResultsPublished(
     event: DogEvent,
-    eventClass: RegistrationClass | undefined,
+    eventClass: ClassOrNone,
+    date: string,
     published: boolean
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
-    if (isResultsPublished(event, eventClass) === published) return event
+    if (isResultsPublishedForDay(event, eventClass, date) === published) return event
 
-    const saved = await putEvent(buildResultsPublishedPatch(event, eventClass, published), token)
+    const { event: saved } = await putResultsPublished(event.id, { date, eventClass, published }, token)
     await storeSaved(saved)
 
     return saved

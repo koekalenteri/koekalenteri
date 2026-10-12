@@ -57,6 +57,10 @@ const renderInvitation = (language: Language = 'fi', registrationLanguage: Langu
   )
 }
 
+// Every render opens the page as from an email link in a fresh tab: the tab's decision about the
+// registration's language (KOE-1512) would otherwise carry over to the next test of the same id.
+beforeEach(() => sessionStorage.clear())
+
 it('shows the printable invitation with its open/download links', async () => {
   const screen = await renderInvitation()
 

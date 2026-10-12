@@ -45,7 +45,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   const [registration, setRegistration] = useAtom(
     registrationAtom(`${params.id ?? ''}:${params.registrationId ?? ''}:${params.editToken ?? ''}`)
   )
-  useRegistrationLanguage(registration?.language)
+  useRegistrationLanguage(registration)
   const spa = useAtomValue(spaAtom)
   const eventNotFound = event === null
   const { t } = useTranslation()

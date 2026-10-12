@@ -5,6 +5,7 @@ import {
   getResultsBlocker,
   getStartListBlocker,
   getStartNumbersBlocker,
+  isResultsPublishedState,
   isStartListFlagPublished,
   isStartListPublished,
 } from './publishing'
@@ -101,6 +102,65 @@ describe('lib/publishing', () => {
       expect(getResultsBlocker(event({ state: 'ended' }), 'ALO')).toBe('startList')
       expect(getResultsBlocker(event({ startListPublished: { ALO: true } }), 'ALO')).toBe('state')
       expect(getResultsBlocker(event({ startListPublished: { ALO: true }, state: 'ended' }), 'ALO')).toBeUndefined()
+    })
+
+    describe('on the first day of a two-day trial (KOE-1510)', () => {
+      freezeClockAt('2026-09-12')
+
+      it('refuses a day that has not begun, though the trial is under way', () => {
+        const running = event({
+          classes: [
+            { class: 'ALO', date: '2026-09-12' },
+            { class: 'ALO', date: '2026-09-13' },
+          ],
+          endDate: '2026-09-13',
+          startDate: '2026-09-12',
+          startListPublished: { ALO: true },
+        })
+
+        expect(getResultsBlocker(running, 'ALO', '2026-09-12')).toBeUndefined()
+        expect(getResultsBlocker(running, 'ALO', '2026-09-13')).toBe('state')
+      })
+    })
+
+    describe('after a trial whose class stayed picked (KOE-1509, KOE-1510)', () => {
+      freezeClockAt('2026-09-20')
+
+      it('lets each day be published once the list is', () => {
+        const picked = event({
+          classes: [
+            { class: 'ALO', date: '2026-09-12', state: 'picked' },
+            { class: 'ALO', date: '2026-09-13', state: 'picked' },
+          ],
+          endDate: '2026-09-13',
+          startDate: '2026-09-12',
+          startListPublished: { ALO: true },
+          state: 'picked',
+        })
+
+        expect(getResultsBlocker(picked, 'ALO', '2026-09-13')).toBeUndefined()
+        expect(getResultsBlocker({ ...picked, startListPublished: { ALO: false } }, 'ALO', '2026-09-13')).toBe(
+          'startList'
+        )
+      })
+    })
+  })
+
+  describe('isResultsPublishedState (KOE-1510)', () => {
+    it.each([
+      [true, true],
+      [false, true],
+      [['2026-09-12'], true],
+      [[new Date('2026-09-12')], true],
+      [{ ALO: true }, true],
+      [{ ALO: ['2026-09-12'] }, true],
+      [{ ALO: 'x' }, false],
+      [{ foo: true }, false],
+      [[1], false],
+      [null, false],
+      [undefined, false],
+    ])('reads %j as a results flag: %s', (value, expected) => {
+      expect(isResultsPublishedState(value)).toBe(expected)
     })
   })
 

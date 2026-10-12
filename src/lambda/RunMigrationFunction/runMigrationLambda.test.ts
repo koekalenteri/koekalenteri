@@ -600,9 +600,9 @@ describe('runMigrationLambda', () => {
     // The key attribute and the updatedAt the row had when it was read: a deleted row must not come
     // back as a stub of the migrated fields, and a row someone moved must not be written over.
     const existsAndUnchanged = (read: string) => ({
-      expression: 'attribute_exists(#id) AND #updatedAt = :read',
+      expression: 'attribute_exists(#id) AND #updatedAt = :foldedFrom',
       names: { '#id': 'id', '#updatedAt': 'updatedAt' },
-      values: { ':read': read },
+      values: { ':foldedFrom': read },
     })
 
     beforeEach(() => {

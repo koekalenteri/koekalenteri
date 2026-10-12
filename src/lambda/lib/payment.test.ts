@@ -42,7 +42,6 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const {
   cancelTransaction,
   claimTransactionCreation,
-  formatPaytrailErrorMessage,
   paymentDescription,
   refundPaytrailErrorAudit,
   releaseTransactionCreation,
@@ -291,28 +290,6 @@ describe('payment', () => {
       ).rejects.toMatchObject({ status: 404 })
       expect(mockGetRegistration).not.toHaveBeenCalled()
     })
-  })
-
-  it('formats Paytrail errors consistently', () => {
-    const error = Object.assign(new Error('400 Invalid request'), {
-      error: JSON.stringify({ message: 'Invalid request' }),
-      status: 400,
-    })
-    expect(formatPaytrailErrorMessage('Maksun luonti', error)).toBe(
-      'Maksun luonti epäonnistui Paytrailissa (400): Invalid request'
-    )
-  })
-
-  it.each([
-    [
-      'plain text as it came',
-      'Service Unavailable',
-      'Maksun luonti epäonnistui Paytrailissa (503): Service Unavailable',
-    ],
-    ['no words as unknown', undefined, 'Maksun luonti epäonnistui Paytrailissa (503): Tuntematon virhe'],
-  ])('formats a Paytrail error with %s', (_case, text, expected) => {
-    const error = Object.assign(new Error(`503 ${text}`), { error: text, status: 503 })
-    expect(formatPaytrailErrorMessage('Maksun luonti', error)).toBe(expected)
   })
 
   it('audits a refusal answered in plain text as that text', () => {

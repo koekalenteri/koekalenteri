@@ -4,10 +4,13 @@ import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass, St
 import { formatDate } from '../../i18n/dates'
 import { startNumberPublishedAudit, startNumberReleasedAudit, startNumberSavedAudit } from '../../lib/audit'
 import {
-  getStartNumbersClassDays,
+  foldDayScope,
+  getClassDays,
   getStartNumbersDayScope,
   getStartNumbersPublishedClassMap,
+  scopeKeys,
   startNumbersSlotKey,
+  withDayKey,
 } from '../../lib/event'
 import { getRegistrationClass, isScorableRegistration, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { mapWithConcurrency } from '../../lib/utils'
@@ -271,10 +274,6 @@ const writeStartNumber = async (
   return { id: registration.id, startGroup }
 }
 
-/** The stored entries of a scope as slot keys; a stored day may have come back as a date. */
-const scopeSlotKeys = (scope: Array<string | Date>) =>
-  scope.map((entry) => (typeof entry === 'string' && entry.includes('/') ? entry : placementDay(entry)))
-
 const isHalfOf = (date: string) => (key: string) => key.startsWith(`${date}/`)
 
 /**
@@ -293,18 +292,18 @@ const withSlot = (
   time: StartNumbersTime | undefined,
   published: boolean
 ): StartNumbersDayScope => {
-  let current: string[] = []
-  if (Array.isArray(scope)) current = scopeSlotKeys(scope)
-  else if (scope) current = days
+  const current = scopeKeys(scope, days)
   const half = isHalfOf(date)
   const slot = startNumbersSlotKey(date, time)
 
   let next: string[]
   if (!time) {
     // The whole day: its halves have nothing to add or keep.
-    next = published
-      ? [...current.filter((key) => !half(key)), date]
-      : current.filter((key) => key !== date && !half(key))
+    next = withDayKey(
+      current.filter((key) => !half(key)),
+      date,
+      published
+    )
   } else if (published) {
     next = current.includes(date) ? current : [...current, slot]
   } else if (current.includes(date)) {
@@ -321,11 +320,7 @@ const withSlot = (
   if (halves.length > 0 && !next.includes(date) && halves.every((key) => next.includes(key))) {
     next = [...next.filter((key) => !half(key)), date]
   }
-  next = [...new Set(next)].sort((a, b) => a.localeCompare(b))
-
-  if (next.length === 0) return false
-  if (days.every((day) => next.includes(day))) return true
-  return next
+  return foldDayScope(next, days)
 }
 
 interface StartNumbersPublishScope {
@@ -356,7 +351,7 @@ export const setStartNumbersPublishedState = async (
   const scope: StartNumbersDayScope = date
     ? withSlot(
         getStartNumbersDayScope(confirmedEvent, eventClass),
-        getStartNumbersClassDays(confirmedEvent, eventClass),
+        getClassDays(confirmedEvent, eventClass),
         dayTimes,
         date,
         time,

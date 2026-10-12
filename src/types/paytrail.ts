@@ -30,8 +30,9 @@ export interface RefundPaymentResponse {
 }
 
 /**
- * The body of a refund Paytrail refused: its own words (JSON or not, empty when it gave none), marked
- * as Paytrail's so the dialog tells it from the API's own `{ error }` answers (KOE-1511).
+ * The body of a payment creation or refund Paytrail refused: its own words (JSON or not, empty when it
+ * gave none), marked as Paytrail's so PaymentPage and the refund dialog tell it from the API's own
+ * `{ error }` answers (KOE-1511, KOE-1513).
  */
 export interface PaytrailRefusalBody {
   error: string

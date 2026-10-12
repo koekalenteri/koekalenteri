@@ -5,12 +5,12 @@ import {
   getEventSeason,
   isEntryOpen,
   isEventDeletable,
-  isResultsPublished,
+  isSameResultsPublished,
   isStartNumbersAvailable,
   isStartNumbersAvailableForClass,
   uniqueClasses,
 } from '../../lib/event'
-import { getResultsBlocker, getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
+import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
 import { eventBodySchema } from '../../lib/schema/event'
 import { patchMerge } from '../../lib/utils'
@@ -98,8 +98,8 @@ const newlyPublished = (
 
 /**
  * The panel greys its buttons by the publishing rules, but a button is no guard: the same rules hold
- * here, from the same code (KOE-1466). The start list waits on its participants and their invitations,
- * the results on the start list and on the trial having run.
+ * here, from the same code (KOE-1466). The start list waits on its participants and their invitations.
+ * The results are not published here at all, see putEventLambda.
  */
 const checkPublishing = async (
   existing: JsonConfirmedEvent | undefined,
@@ -111,19 +111,12 @@ const checkPublishing = async (
   const startLists = Object.hasOwn(item, 'startListPublished')
     ? newlyPublished(data, isStartListFlagPublished, existing)
     : []
-  const results = Object.hasOwn(item, 'resultsPublished') ? newlyPublished(data, isResultsPublished, existing) : []
-
   if (startLists.length) {
     const participants = groupParticipantsByClass(await getRegistrationsByEventId(data.id))
     for (const eventClass of startLists) {
       const reason = getStartListBlocker(data, eventClass, participants[eventClass ?? data.eventType] ?? [])
       if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'startList', reason })
     }
-  }
-
-  for (const eventClass of results) {
-    const reason = getResultsBlocker(data, eventClass)
-    if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'results', reason })
   }
 }
 
@@ -161,8 +154,6 @@ const initializeNewEvent = (item: Patch<JsonConfirmedEvent>, timestamp: string, 
   // The numbers are the secretary's own decision (KOE-1006); old events lack the field and read as
   // published, so only a new event starts from the explicit 'not yet'.
   item.startNumbersPublished = false
-  // A new event has no results to have published; a client-side copy would otherwise carry the flag.
-  delete item.resultsPublished
 }
 
 const invalidEventDateField = (data: JsonConfirmedEvent) =>
@@ -204,6 +195,23 @@ const checkPutEventRequestShape = (patchRequest: boolean, item: Patch<JsonConfir
   if (patchRequest && !item.id) {
     throw httpError(400, { message: 'Bad request: PATCH requires id' })
   }
+}
+
+/**
+ * Results are published a day at a time through PutResultsPublishedFunction, which folds the day into
+ * the stored flag and holds it to its rules (KOE-1510); a save never changes it. A save that still
+ * carries the flag comes from a browser tab loaded before that. The same value is dropped, and a
+ * different one is refused, so the old panel reports a failure instead of claiming a change that never
+ * happened. A new event has no results, whatever a copy carried.
+ */
+const dropResultsPublished = (item: Patch<JsonConfirmedEvent>, existing: JsonConfirmedEvent | undefined) => {
+  if (!Object.hasOwn(item, 'resultsPublished')) return
+  if (existing && !isSameResultsPublished(existing, item.resultsPublished)) {
+    // staleData, which that tab's event form already answers with "reload and redo"; a plain failure
+    // would only have it retry the same request for ever.
+    throw httpError(409, { error: 'staleData', message: 'Results are published a day at a time; reload the event' })
+  }
+  delete item.resultsPublished
 }
 
 /** Checks that depend on the previously stored event, once it has been looked up; a failed one is thrown. */
@@ -258,6 +266,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
 
   checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
+  dropResultsPublished(item, existing)
 
   if (item.kcId != null && item.kcId !== existing?.kcId) {
     const conflict = await findEventWithKcId(item.kcId, existing?.id)

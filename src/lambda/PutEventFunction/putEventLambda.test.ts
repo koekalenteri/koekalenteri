@@ -1,6 +1,9 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
 import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
+// Loaded before the clock is faked: @date-fns/tz's TZDate extends the Date it finds at load, and on a
+// fake Date it formats in the host zone, so a CI runner in UTC read Finnish midnight as the day before.
+import '../../i18n/dates'
 
 vi.useFakeTimers()
 vi.setSystemTime(new Date('2025-03-22T12:45:33+0200'))
@@ -261,6 +264,24 @@ describe('putEventLambda', () => {
       user: 'Test User',
     })
     expect(res.statusCode).toEqual(200)
+  })
+
+  it('creates a new event without the results flag a copy carried (KOE-1510)', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({
+        endDate: '2025-06-02',
+        eventType: 'TEST',
+        resultsPublished: true,
+        startDate: '2025-06-01',
+      })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    expect(getEventMock).not.toHaveBeenCalled()
+    expect(saveEventMock).toHaveBeenCalledWith(expect.not.objectContaining({ resultsPublished: expect.anything() }))
+    expect(saveEventMock).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'TEST', id: 'new-id' }))
   })
 
   it('should update an event', async () => {
@@ -628,29 +649,6 @@ describe('putEventLambda', () => {
       )
     })
 
-    it('publishes the results of a past picked class whose start list was published (KOE-1509)', async () => {
-      // Place notices went, invitations never did: the class stays 'picked' after the trial.
-      const pastPicked: JsonDogEvent = {
-        ...mockEvent,
-        classes: [{ class: 'ALO', date: '2025-03-01', state: 'picked' }],
-        endDate: '2025-03-01',
-        startDate: '2025-03-01',
-        startListPublished: { ALO: true },
-        state: 'picked',
-      }
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
-      getEventMock.mockResolvedValueOnce(pastPicked)
-
-      const res = await publish({ resultsPublished: { ALO: true } })
-
-      expect(res.statusCode).toEqual(200)
-      expect(patchEventMock).toHaveBeenCalledWith(
-        'existing',
-        expect.anything(),
-        expect.objectContaining({ resultsPublished: { ALO: true } })
-      )
-    })
-
     it('always lets a start list be hidden', async () => {
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true })
@@ -662,37 +660,52 @@ describe('putEventLambda', () => {
       expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
     })
 
-    it('refuses results on an unpublished start list', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
-      getEventMock.mockResolvedValueOnce({ ...classless, state: 'ended' })
+    /**
+     * Results go out a day at a time only through PutResultsPublishedFunction (KOE-1510). A save still
+     * carrying the flag comes from a tab loaded before that: the stored flag is never changed by it.
+     */
+    describe('a save carrying the results flag', () => {
+      const firstDayOut: JsonDogEvent = {
+        ...classless,
+        resultsPublished: ['2025-06-01'],
+        startListPublished: true,
+        state: 'ended',
+      }
 
-      const res = await publish({ resultsPublished: true })
+      it.each([
+        ['the same day key', ['2025-06-01']],
+        // The old panel's copy went through the reviver and back out as the instant of Finnish midnight.
+        ['the same day as a timestamp', ['2025-05-31T21:00:00.000Z']],
+      ])('drops %s and saves the rest', async (_name, resultsPublished) => {
+        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        getEventMock.mockResolvedValueOnce(firstDayOut)
 
-      expect(JSON.parse(res.body)).toMatchObject({ publish: 'results', reason: 'startList' })
-      expect(patchEventMock).not.toHaveBeenCalled()
-    })
+        const res = await publish({ name: 'Uusi nimi', resultsPublished })
 
-    it('refuses results before the trial has run', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
-      getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true })
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          expect.anything(),
+          expect.objectContaining({ name: 'Uusi nimi', resultsPublished: ['2025-06-01'] })
+        )
+      })
 
-      const res = await publish({ resultsPublished: true })
+      it.each([
+        ['a hide', false],
+        ['a publish of every day', true],
+        ['another day', ['2025-06-02']],
+        ['a class map, which has nothing for a classless trial', { ALO: true }],
+      ])('refuses %s, so the old panel cannot report a change that never happened', async (_name, resultsPublished) => {
+        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        getEventMock.mockResolvedValueOnce(firstDayOut)
 
-      expect(JSON.parse(res.body)).toMatchObject({ publish: 'results', reason: 'state' })
-    })
+        const res = await publish({ resultsPublished })
 
-    it('publishes the results of a trial that has run on its published start list', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
-      getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true, state: 'ended' })
-
-      const res = await publish({ resultsPublished: true })
-
-      expect(res.statusCode).toEqual(200)
-      expect(patchEventMock).toHaveBeenCalledWith(
-        'existing',
-        expect.anything(),
-        expect.objectContaining({ resultsPublished: true })
-      )
+        expect(res.statusCode).toEqual(409)
+        // The answer the old tab's form already reads as "reload and redo".
+        expect(JSON.parse(res.body)).toMatchObject({ error: 'staleData' })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
     })
 
     it('does not let an event save publish the start numbers', async () => {
