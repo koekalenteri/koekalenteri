@@ -136,7 +136,10 @@ describe('useRegistrationLanguage', () => {
     const store = finnishStore()
     const registration = { ...english, id: 'registration-no-session-storage' }
 
-    renderPage(store, registration).unmount()
+    const first = renderPage(store, registration)
+    expect(first.result.current).toBe('en')
+    expect(i18n.language).toBe('en')
+    first.unmount()
     pickFromMenu(store, 'fi')
     const { result } = renderPage(store, registration, Path.payment(registration))
 
@@ -169,7 +172,7 @@ describe('useRegistrationLanguage', () => {
 
     it('stores the language and settles once the tab is shown', () => {
       const store = finnishStore()
-      renderPage(store, english)
+      const first = renderPage(store, english)
 
       // A visibility change that leaves the tab hidden still cannot store anything.
       act(() => {
@@ -181,6 +184,11 @@ describe('useRegistrationLanguage', () => {
       expect(storedLanguage()).toBe(JSON.stringify('en'))
 
       pickFromMenu(store, 'fi')
+      // The tab shown again, the page still open: stored once, the switch is not made again.
+      showTab()
+      expect(first.result.current).toBe('fi')
+      expect(storedLanguage()).toBe(JSON.stringify('fi'))
+
       const { result } = renderPage(store, english, Path.payment(english))
       expect(result.current).toBe('fi')
     })
