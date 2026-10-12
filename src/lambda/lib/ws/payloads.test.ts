@@ -27,16 +27,20 @@ describe('ws/payloads', () => {
 
   it('buildParticipantPaymentPatch exposes only participant payment state', () => {
     expect(
-      buildParticipantPaymentPatch({
-        confirmed: true,
-        eventId: 'e1',
-        id: 'r1',
-        internalNotes: 'secret',
-        paidAmount: 50,
-        paidAt: '2026-08-16T10:00:00.000Z',
-        paymentStatus: 'SUCCESS',
-        state: 'ready',
-      })
+      buildParticipantPaymentPatch(
+        {
+          confirmed: true,
+          eventId: 'e1',
+          group: { key: 'reserve', number: 1 },
+          id: 'r1',
+          internalNotes: 'secret',
+          paidAmount: 50,
+          paidAt: '2026-08-16T10:00:00.000Z',
+          paymentStatus: 'SUCCESS',
+          state: 'ready',
+        },
+        0
+      )
     ).toEqual({
       confirmed: true,
       eventId: 'e1',
@@ -44,6 +48,7 @@ describe('ws/payloads', () => {
       messagesSent: undefined,
       paidAmount: 50,
       paidAt: '2026-08-16T10:00:00.000Z',
+      paymentDue: 0,
       paymentStatus: 'SUCCESS',
       shouldPay: false,
       state: 'ready',

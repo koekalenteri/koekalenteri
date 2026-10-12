@@ -13,8 +13,13 @@ export const buildRegistrationPatchPayload = (
   patch: Patch<JsonRegistration>[]
 ): RegistrationPatchPayload => ({ eventId, patch })
 
+/**
+ * The payment state the participant's page shows. `paymentDue` is the caller's: the balance reads the
+ * group, which the participant never receives, and their page takes the due from here (KOE-1526).
+ */
 export const buildParticipantPaymentPatch = (
-  registration: ParticipantPaymentRegistration
+  registration: ParticipantPaymentRegistration,
+  paymentDue: number
 ): Patch<JsonRegistration> => ({
   confirmed: registration.confirmed,
   eventId: registration.eventId,
@@ -22,6 +27,7 @@ export const buildParticipantPaymentPatch = (
   messagesSent: registration.messagesSent,
   paidAmount: registration.paidAmount,
   paidAt: registration.paidAt,
+  paymentDue,
   paymentStatus: registration.paymentStatus,
   shouldPay: registration.paymentStatus === 'SUCCESS' ? false : registration.shouldPay,
   state: registration.state,

@@ -1,4 +1,4 @@
-import type { JsonRegistration, JsonTransaction } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { getFixedT } from '../../i18n/lambda'
 import {
@@ -9,7 +9,7 @@ import {
   emailSubjectAuditKey,
   paymentAudit,
 } from '../../lib/audit'
-import { getCostSegmentName } from '../../lib/cost'
+import { getCostSegmentName, getPaymentBalance } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
 import {
   getProviderName,
@@ -22,6 +22,7 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import {
   fixRegistrationGroups,
+  getEvent,
   lockRegistrationGroups,
   lockRegistrationPayments,
   updateRegistrations,
@@ -321,11 +322,13 @@ const handleSuccessfulPayment = async (
   if (duplicatePayment) return true
 
   // Notify the participant as soon as the payment has been persisted. Receipt,
-  // confirmation email, and admin-side reconciliation may continue afterwards.
+  // confirmation email, and admin-side reconciliation may continue afterwards. The page takes what
+  // is still owed from the patch: it holds no group to work it out from (KOE-1526).
+  const paidEvent = await getEvent<JsonConfirmedEvent>(eventId)
   await publishParticipantRegistrationPatch(
     registration.eventId,
     registrationId,
-    buildParticipantPaymentPatch(registration)
+    buildParticipantPaymentPatch(registration, getPaymentBalance(paidEvent, registration).due)
   )
 
   const workflowClaim = await claimPostPaymentWorkflow(transaction.transactionId)

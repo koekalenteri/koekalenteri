@@ -753,6 +753,7 @@
     "missing": "Test payment is still missing",
     "partial": "{{amount}} of the fee is still missing",
     "pending": "Waiting for payment processing",
+    "refunded": "The test fee has been refunded",
     "success": "I have paid",
     "waitingForConfirmation": "Payable after confirmation"
   },

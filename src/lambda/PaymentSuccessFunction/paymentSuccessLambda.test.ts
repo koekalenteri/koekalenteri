@@ -16,6 +16,7 @@ const mockRead = vi.fn()
 const mockUpdate = vi.fn()
 const mockWrite = vi.fn()
 const mockUpdateRegistrations = vi.fn()
+const mockGetEvent = vi.fn()
 const mockFixRegistrationGroups = vi.fn(async (registrations: any[]) => registrations)
 const mockLockRegistrationGroups = vi.fn().mockResolvedValue(async () => undefined)
 const mockLockRegistrationPayments = vi.fn().mockResolvedValue(async () => undefined)
@@ -89,6 +90,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 
 vi.doMock('../lib/event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
+  getEvent: mockGetEvent,
   lockRegistrationGroups: mockLockRegistrationGroups,
   lockRegistrationPayments: mockLockRegistrationPayments,
   updateRegistrations: mockUpdateRegistrations,
@@ -177,6 +179,7 @@ describe('paymentSuccessLambda', () => {
       name: 'Test Event',
       organizer: { id: 'org-1' },
     })
+    mockGetEvent.mockResolvedValue({ cost: 50, id: 'event123', name: 'Test Event', organizer: { id: 'org-1' } })
 
     mockGetFixedT.mockReturnValue((key: string, _options?: Record<string, any>) => {
       if (key === 'dateFormat.long') return '1.1.2025'
@@ -269,6 +272,8 @@ describe('paymentSuccessLambda', () => {
       expect.objectContaining({
         eventId: 'event123',
         id: 'reg456',
+        // The page holds no group, so the patch says what is left to pay (KOE-1526).
+        paymentDue: 0,
         paymentStatus: 'SUCCESS',
         shouldPay: false,
       })

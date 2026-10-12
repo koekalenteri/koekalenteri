@@ -43,3 +43,26 @@ it('turns the payment mark amber when the fee and the payment no longer match', 
   await expect.element(screen.getByTestId('visual-root')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-mark-unsettled')
 })
+
+// KOE-1526: a reserve that had its whole fee back owes nothing, so its piggy bank stays plain; lifted
+// into a place it owes the fee again and turns amber.
+it('keeps the refund mark plain for a reserve whose fee was refunded', async () => {
+  const refunded = (key: string): Registration => ({
+    ...paid(40, false),
+    group: { key, number: 1 },
+    id: `refunded-${key}`,
+    refundAmount: 40,
+    refundAt: registrationWithStaticDates.createdAt,
+    refundHandlingCost: 0,
+    refundStatus: 'SUCCESS',
+  })
+  const screen = await render(
+    <Frame>
+      <RegistrationIcons event={event} reg={refunded('reserve')} />
+      <RegistrationIcons event={event} reg={refunded('2021-02-10-ap')} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByTestId('visual-root')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-mark-refunded-reserve')
+})

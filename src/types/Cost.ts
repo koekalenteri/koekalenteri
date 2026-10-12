@@ -38,10 +38,16 @@ export interface MinimalRegistrationForCost
   dog: Pick<Registration['dog'], 'breedCode'>
 }
 
-/** What the balance reads beside the fee: the money in, the money returned, and whether it counts. */
+/**
+ * What the balance reads beside the fee: the money in, the money returned, and whether it counts. The
+ * group says whether a returned fee is owed again; only its key is read, so a stored row and a parsed
+ * one both fit.
+ */
 export interface PaymentBalanceRegistration
   extends MinimalRegistrationForCost,
-    Pick<Registration, 'cancelled' | 'paymentStatus' | 'refundAmount'> {}
+    Pick<Registration, 'cancelled' | 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'> {
+  group?: { key: string }
+}
 
 /** Where an entry's money stands against its fee, in euros. See `getPaymentBalance`. */
 export interface PaymentBalance {

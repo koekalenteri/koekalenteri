@@ -1,5 +1,6 @@
-import type { JsonDogEvent } from '../../../types'
+import type { JsonConfirmedEvent, JsonDogEvent } from '../../../types'
 import type { WebSocketConnection } from './types'
+import { getPaymentBalance } from '../../../lib/cost'
 import { getEvent } from '../../lib/event'
 import { LambdaError } from '../../lib/lambda'
 import { getRegistration, verifyRegistrationEditToken } from '../../lib/registration'
@@ -109,10 +110,11 @@ export const subscribeToRegistration = async (
   verifyRegistrationEditToken(registration, editToken)
   await subscribeRegistrationConnection(connection.connectionId, eventId, registrationId)
   const currentRegistration = await getRegistration(eventId, registrationId)
+  const dogEvent = await getEvent<JsonConfirmedEvent>(eventId)
 
   return {
     eventId,
-    patch: buildParticipantPaymentPatch(currentRegistration),
+    patch: buildParticipantPaymentPatch(currentRegistration, getPaymentBalance(dogEvent, currentRegistration).due),
     registrationId,
     scope: 'participant:registration-patch',
     subscribed: true,

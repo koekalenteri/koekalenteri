@@ -54,6 +54,10 @@ Jos koesihteeri palauttaa maksusta osan, esimerkiksi liikaa maksetun osuuden, ma
 maksetun summan alla rivi *{t:registration.refunded}*, ja maksettava summa on laskettu
 palautuksen jälkeen.
 
+Jos olet varasijalla etkä saa koepaikkaa, koesihteeri palauttaa koemaksun. Maksurivillä lukee
+silloin *{t:paymentStatus.refunded}*, eikä sinulta pyydetä maksua. Jos saat paikan myöhemmin,
+koemaksu on taas maksettava, ja maksurivi ja painike **{t:registration.cta.pay}** palaavat.
+
 ## Koepaikan vahvistaminen
 
 Kun koesihteeri on valinnut osallistujat, saat koepaikkailmoituksen. Sen linkki avaa sivun ja

@@ -88,6 +88,27 @@ describe('PaymentDetails', () => {
     expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent('0,00 €')
   })
 
+  // KOE-1526: the participant's page has no group, so the server's due says whether a refunded
+  // reserve owes the fee again.
+  it.each([
+    ['nothing while the reserve has no place', 0, '0,00 €'],
+    ['the fee again once the reserve has a place', 35, '35,00 €'],
+  ])('asks a reserve whose fee was refunded for %s (KOE-1526)', (_name, paymentDue, payable) => {
+    setup({
+      includePayable: true,
+      registration: {
+        ...registration,
+        optionalCosts: [],
+        paidAmount: 35,
+        paidAt: new Date('2025-08-02T09:05:00Z'),
+        paymentDue,
+        refundAmount: 35,
+      },
+    })
+
+    expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent(payable)
+  })
+
   it('says nothing about payments that have not been made', () => {
     setup()
 

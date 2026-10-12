@@ -171,16 +171,35 @@ describe('ws/subscriptionService', () => {
   })
 
   it('subscribes to a registration only after validating its edit token', async () => {
-    const registration = { editTokenVersion: 1, eventId: 'e1', id: 'r1' }
+    const registration = {
+      createdAt: '2026-07-25T10:00:00.000Z',
+      dog: { breedCode: '122' },
+      editTokenVersion: 1,
+      eventId: 'e1',
+      group: { key: 'reserve', number: 1 },
+      id: 'r1',
+      owner: { membership: false },
+      ownerHandles: true,
+    }
+    mockGetEvent.mockResolvedValueOnce({ cost: 50, entryStartDate: '2026-07-01', id: 'e1' })
+    // A reserve whose fee went back: the page has no group, so the patch says it owes nothing (KOE-1526).
     mockGetRegistration.mockResolvedValueOnce(registration).mockResolvedValueOnce({
       ...registration,
+      paidAmount: 50,
       paymentStatus: 'SUCCESS',
+      refundAmount: 50,
     })
 
     await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).resolves.toEqual(
       expect.objectContaining({
         eventId: 'e1',
-        patch: expect.objectContaining({ eventId: 'e1', id: 'r1', paymentStatus: 'SUCCESS', shouldPay: false }),
+        patch: expect.objectContaining({
+          eventId: 'e1',
+          id: 'r1',
+          paymentDue: 0,
+          paymentStatus: 'SUCCESS',
+          shouldPay: false,
+        }),
         registrationId: 'r1',
         scope: 'participant:registration-patch',
         subscribed: true,

@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react'
-import type { MinimalEventForCost, MinimalRegistrationForCost, Registration } from '../../types'
+import type { ParticipantPaymentRegistration } from '../../lib/payment'
+import type { MinimalEventForCost } from '../../types'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
-import { getCostSegmentName, getNetPaidAmount, hasDifferentMemberPrice } from '../../lib/cost'
+import { getCostSegmentName, hasDifferentMemberPrice } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
-import { getRegistrationPaymentDetails } from '../../lib/payment'
+import { getParticipantPaymentDue, getRegistrationPaymentDetails } from '../../lib/payment'
 import { languageAtom } from '../state'
 import InfoTableContainerGrid from './InfoTableContainerGrid'
 import InfoTableNumberGrid from './InfoTableNumberGrid'
@@ -15,7 +16,7 @@ import InfoTableTextGrid from './InfoTableTextGrid'
 
 interface Props {
   readonly event: MinimalEventForCost
-  readonly registration: MinimalRegistrationForCost & Partial<Pick<Registration, 'refundAmount'>>
+  readonly registration: ParticipantPaymentRegistration
   readonly includePayable?: boolean
   readonly includeTotal?: boolean
 }
@@ -88,7 +89,8 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
             reads the full payment as still standing (KOE-1460). */}
         {refundAmount > 0 ? <PaymentRow name={t('registration.refunded')} amount={-refundAmount} /> : null}
         {includePayable ? (
-          <PaymentRow bold name={t('registration.toBePaid')} amount={details.total - getNetPaidAmount(registration)} />
+          // What the payment link collects: a reserve's refunded fee is not asked for again (KOE-1526).
+          <PaymentRow bold name={t('registration.toBePaid')} amount={getParticipantPaymentDue(event, registration)} />
         ) : null}
       </InfoTableContainerGrid>
     </Box>

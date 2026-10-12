@@ -414,16 +414,32 @@ describe('paymentCreateLambda', () => {
     expect(mockCreatePayment).toHaveBeenCalledWith(expect.objectContaining({ amount: 1000 }))
   })
 
-  it('charges a refunded fee again', async () => {
+  it('charges a refunded fee again once the entry holds a place', async () => {
     mockRead.mockReset()
     mockRead
-      .mockResolvedValueOnce(createMockRegistration({ paidAmount: 40, refundAmount: 40 }))
+      .mockResolvedValueOnce(
+        createMockRegistration({ group: { key: '2026-08-15-ap', number: 1 }, paidAmount: 40, refundAmount: 40 })
+      )
       .mockResolvedValueOnce(createMockOrganizer())
 
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toEqual(200)
     expect(mockCreatePayment).toHaveBeenCalledWith(expect.objectContaining({ amount: 4000 }))
+  })
+
+  it('does not charge a reserve whose fee was refunded (KOE-1526)', async () => {
+    mockRead.mockReset()
+    mockRead
+      .mockResolvedValueOnce(
+        createMockRegistration({ group: { key: 'reserve', number: 1 }, paidAmount: 40, refundAmount: 40 })
+      )
+      .mockResolvedValueOnce(createMockOrganizer())
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(204)
+    expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
   it('returns 204 if registration is already paid', async () => {

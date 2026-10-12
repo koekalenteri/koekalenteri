@@ -38,6 +38,29 @@ it('names the part of the fee still missing', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('info-box-part-missing')
 })
 
+// A reserve that did not get a place and had its fee back: it owes nothing, and the line says the
+// fee went back rather than that it was paid (KOE-1526).
+it('says the fee was refunded to a reserve', async () => {
+  const screen = await render(
+    <Frame>
+      <InfoBox
+        event={{ ...eventWithStaticDates, paymentTime: 'registration' }}
+        registration={{
+          ...registrationWithStaticDates,
+          paymentDue: 0,
+          refundAmount: 123,
+          refundHandlingCost: 0,
+          shouldPay: false,
+        }}
+        onConfirm={noop}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Koemaksu on palautettu')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('info-box-refunded')
+})
+
 // The guide's English page shows the box in English (KOE-1437).
 describeInLanguage('en', () => {
   it('names the part of the fee still missing', async () => {

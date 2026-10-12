@@ -285,6 +285,11 @@ export interface JsonRegistration extends JsonDbRecord {
   eventResult?: JsonEventResult
   state?: 'creating' | 'ready'
   shouldPay?: boolean
+  /**
+   * What is still owed of the fee, as the server decides it from the whole row. Only in the
+   * participant's responses and payment patches, which leave out the group it depends on (KOE-1526).
+   */
+  paymentDue?: number
   totalAmount?: number
   selectedCost?: DogEventCostSegment
   /** Durable, at-least-once completion markers for a newly created registration. */

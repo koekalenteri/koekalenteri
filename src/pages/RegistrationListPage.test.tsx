@@ -533,6 +533,41 @@ describe('RegistrationListPage', () => {
     expect(dialog).toBeVisible()
   })
 
+  // KOE-1526: the owner's response carries no group, so the server says what is still owed.
+  describe('a fee refunded to a reserve', () => {
+    const refunded = {
+      ...registrationWithStaticDates,
+      refundAmount: 123,
+      refundAt: registrationWithStaticDates.createdAt,
+      refundHandlingCost: 0,
+      refundStatus: 'SUCCESS' as const,
+    }
+
+    it('asks for nothing while the reserve has no place', async () => {
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...refunded, paymentDue: 0 })
+      await renderWithRouter('/r/test1/nou-registration')
+      await flushPromises()
+
+      expect(screen.getByText('registration.refunded')).toBeInTheDocument()
+      expect(screen.queryByText('registration.toBePaid')).not.toBeInTheDocument()
+      expect(screen.getAllByText(/paymentStatus\.refunded/).length).toBeGreaterThan(0)
+    })
+
+    it('asks for the fee again once the reserve is lifted into a place', async () => {
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...refunded,
+        messagesSent: { picked: true },
+        paymentDue: 123,
+        shouldPay: true,
+      })
+      await renderWithRouter('/r/test1/nou-registration')
+      await flushPromises()
+
+      const dialog = await screen.findByRole('dialog', { name: 'registration.paymentDialog.title' })
+      expect(dialog).toBeVisible()
+    })
+  })
+
   it('polls pending payment as a bounded websocket fallback', async () => {
     vi.useRealTimers()
     vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })

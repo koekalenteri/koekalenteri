@@ -283,4 +283,36 @@ describe('getRegistration', () => {
       expect(reg.shouldPay).toBe(expected)
     }
   )
+
+  // The prod row of KOE-1526: a reserve that had its whole fee back. The participant gets no group,
+  // so what is owed goes with the response.
+  it.each<[string, { key: string; number: number }, number, boolean]>([
+    ['owes nothing while it is a reserve', { key: 'reserve', number: 1 }, 0, false],
+    ['owes the fee again once lifted into a place', { key: '2026-08-15-ap', number: 1 }, 130, true],
+  ])('a reserve whose fee was refunded %s (KOE-1526)', async (_name, group, paymentDue, shouldPay) => {
+    mockGetEvent.mockReturnValueOnce({
+      ...mockEventWithInvitationAttachment,
+      cost: 130,
+      costMember: 130,
+      paymentTime: 'registration',
+    })
+    mockGetRegistration.mockReturnValueOnce({
+      ...registrationsToEventWithParticipantsInvited[0],
+      group,
+      paidAmount: 130,
+      paymentStatus: 'SUCCESS',
+      refundAmount: 130,
+      refundHandlingCost: 0,
+    })
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.paymentDue).toBe(paymentDue)
+    expect(reg.shouldPay).toBe(shouldPay)
+    expect(reg.group).toBeUndefined()
+  })
 })

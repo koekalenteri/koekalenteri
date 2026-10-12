@@ -11,9 +11,8 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { getPaymentBalance } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
-import { getPaymentStatus } from '../../lib/payment'
+import { getParticipantPaymentDue, getPaymentStatus } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
@@ -56,8 +55,9 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
   const needsPayment =
     Boolean(registration.shouldPay) && registration.paymentStatus !== 'DUPLICATE' && !paymentVerificationInProgress
   // A paid place reads as paid until its fee rises above what was paid (KOE-722): then the line
-  // names the missing part, the same amount the payment button collects.
-  const paymentDue = isConfirmedEvent(event) ? getPaymentBalance(event, registration).due : 0
+  // names the missing part, the same amount the payment button collects. The server decides it once
+  // something has been paid, as only it knows whether a refunded reserve has a place (KOE-1526).
+  const paymentDue = isConfirmedEvent(event) ? getParticipantPaymentDue(event, registration) : 0
   const paymentStatusText = paymentVerificationInProgress
     ? t('registration.notifications.paymentVerifying')
     : t(getPaymentStatus(registration, event, paymentDue), { amount: formatMoney(paymentDue) })

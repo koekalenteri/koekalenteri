@@ -10,9 +10,8 @@ import { Box } from '@mui/system'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { getPaymentBalance } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
-import { getPaymentStatus } from '../../lib/payment'
+import { getParticipantPaymentDue, getPaymentStatus } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
@@ -26,10 +25,11 @@ type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
 
 /**
  * What is still owed of the fee. A paid place can owe again when its fee rose after the payment,
- * a membership tick taken off by the secretary (KOE-722), and then paying is offered once more.
+ * a membership tick taken off by the secretary (KOE-722), and then paying is offered once more. A
+ * reserve's refunded fee is owed again only once it has a place, which the server says (KOE-1526).
  */
 const paymentDue = (event: PublicDogEvent, registration: StrippedRegistration): number =>
-  isConfirmedEvent(event) ? getPaymentBalance(event, registration).due : 0
+  isConfirmedEvent(event) ? getParticipantPaymentDue(event, registration) : 0
 
 interface Props {
   readonly disabled?: boolean

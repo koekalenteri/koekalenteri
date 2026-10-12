@@ -223,11 +223,13 @@ export const adminRegistrationResponse = <T extends Partial<JsonRegistration>>(r
  * A registration as its owner or handler receives it through the edit link. The fields a participant
  * must not see are decided here: the dog's result, the secretary's own notes, and the group and the
  * start number. No participant page reads them, and before their publication each would tell more
- * than the public start list does (KOE-1515). The caller derives what it needs from them before this.
+ * than the public start list does (KOE-1515). The caller derives what it needs from them before this:
+ * `paymentDue` is the balance's due, which reads the group (KOE-1526).
  */
 export const participantRegistrationResponse = <T extends Partial<JsonRegistration>>(
   registration: T,
-  editToken: string
+  editToken: string,
+  paymentDue: number
 ) => {
   const {
     eventResult: _eventResult,
@@ -236,7 +238,7 @@ export const participantRegistrationResponse = <T extends Partial<JsonRegistrati
     startGroup: _startGroup,
     ...visible
   } = adminRegistrationResponse(registration, editToken)
-  return visible
+  return { ...visible, paymentDue }
 }
 
 export const getRegistration = async (eventId: string, registrationId: string): Promise<JsonRegistration> => {

@@ -90,3 +90,27 @@ it('shows a refund beside the payment it came out of', async () => {
   await expect.element(screen.getByText('Palautettu')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-details-refunded-phone')
 })
+
+it('asks nothing of a reserve whose fee was refunded', async () => {
+  // KOE-1526: the payment page showed the refunded fee as payable again; the server's due says it is not.
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
+      <Frame width={PHONE}>
+        <PaymentDetails
+          event={event}
+          registration={{
+            ...registration,
+            paidAmount: 55,
+            paidAt: new Date('2025-08-02T09:05:00Z'),
+            paymentDue: 0,
+            refundAmount: 55,
+          }}
+          includePayable
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Maksettava')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-details-refunded-reserve-phone')
+})

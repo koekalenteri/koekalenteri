@@ -753,6 +753,7 @@
     "missing": "Koemaksu puuttuu vielä",
     "partial": "Maksusta puuttuu {{amount}}",
     "pending": "Odottaa maksun käsittelyä",
+    "refunded": "Koemaksu on palautettu",
     "success": "Olen maksanut",
     "waitingForConfirmation": "Maksetaan paikan vahvistuttua"
   },

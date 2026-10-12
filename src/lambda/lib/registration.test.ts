@@ -1158,9 +1158,10 @@ describe('registration access', () => {
 
   it('never returns the stored token version to a participant', () => {
     const stored = { editTokenVersion: 3, id: 'registration' }
-    expect(participantRegistrationResponse(stored, 'raw-token')).toEqual({
+    expect(participantRegistrationResponse(stored, 'raw-token', 0)).toEqual({
       editToken: 'raw-token',
       id: 'registration',
+      paymentDue: 0,
     })
   })
 
@@ -1176,9 +1177,18 @@ describe('registration access', () => {
     }
 
     it('leaves the result, the notes and the groups out of the participant response (KOE-1515)', () => {
-      expect(participantRegistrationResponse(stored, 'raw-token')).toEqual({
+      expect(participantRegistrationResponse(stored, 'raw-token', 0)).toEqual({
         editToken: 'raw-token',
         id: 'registration',
+        paymentDue: 0,
+      })
+    })
+
+    it('says what is still owed in place of the group it was worked out from (KOE-1526)', () => {
+      expect(participantRegistrationResponse(stored, 'raw-token', 50)).toEqual({
+        editToken: 'raw-token',
+        id: 'registration',
+        paymentDue: 50,
       })
     })
 

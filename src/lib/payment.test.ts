@@ -109,6 +109,24 @@ describe('payment', () => {
       expect(getPaymentStatus({ paymentStatus: undefined }, undefined, 5)).toEqual('paymentStatus.missing')
     })
 
+    describe('a fee that has been returned (KOE-1526)', () => {
+      const returned = { paidAmount: 50, paymentStatus: 'SUCCESS' as const, refundAmount: 45, refundHandlingCost: 5 }
+
+      it('says the fee was refunded when nothing is owed', () => {
+        expect(getPaymentStatus(returned, undefined, 0)).toEqual('paymentStatus.refunded')
+      })
+
+      it('says the fee is missing once the place owes it again', () => {
+        expect(getPaymentStatus(returned, undefined, 45)).toEqual('paymentStatus.missing')
+      })
+
+      it('still reads as paid when only an overpaid part was refunded', () => {
+        expect(getPaymentStatus({ ...returned, refundAmount: 10, refundHandlingCost: 0 }, undefined, 0)).toEqual(
+          'paymentStatus.success'
+        )
+      })
+    })
+
     describe('with event parameter', () => {
       it('should return waitingForConfirmation when paymentTime is confirmation and registration not confirmed', () => {
         expect(
@@ -144,7 +162,8 @@ describe('payment', () => {
 
   describe('isRegistrationPaid', () => {
     const event: MinimalEventForCost = { cost: 40, costMember: 40, entryStartDate: new Date('2026-01-01') }
-    const registration: MinimalRegistrationForCost & Pick<Registration, 'paymentStatus'> = {
+    const registration: MinimalRegistrationForCost &
+      Pick<Registration, 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'> = {
       createdAt: new Date('2026-01-02'),
       dog: { breedCode: '110' },
       owner: { membership: false },
@@ -169,6 +188,31 @@ describe('payment', () => {
 
     it('is not paid while the payment is only pending', () => {
       expect(isRegistrationPaid(event, { ...registration, paymentStatus: 'PENDING' })).toBe(false)
+    })
+
+    it('is paid when a payment was recorded before the amounts were kept', () => {
+      expect(isRegistrationPaid(event, { ...registration, paymentStatus: 'SUCCESS' })).toBe(true)
+    })
+
+    it.each([
+      ['in full', { refundAmount: 40, refundHandlingCost: 0 }],
+      ['less a handling fee', { refundAmount: 35, refundHandlingCost: 5 }],
+    ])('is not paid once the payment was refunded %s (KOE-1526)', (_name, refund) => {
+      expect(isRegistrationPaid(event, { ...registration, paidAmount: 40, paymentStatus: 'SUCCESS', ...refund })).toBe(
+        false
+      )
+    })
+
+    it('is paid when part of the payment is left after a refund (KOE-1526)', () => {
+      expect(
+        isRegistrationPaid(event, {
+          ...registration,
+          paidAmount: 50,
+          paymentStatus: 'SUCCESS',
+          refundAmount: 35,
+          refundHandlingCost: 5,
+        })
+      ).toBe(true)
     })
   })
 
@@ -196,6 +240,12 @@ describe('payment', () => {
     it('waits for an unpaid place lifted into an invited class', () => {
       expect(isInvitationAwaitingPayment(event, participant)).toBe(true)
       expect(shouldSendInvitationAfterPayment(event, participant)).toBe(false)
+    })
+
+    it('waits for a reserve whose fee was refunded and that is then lifted into a place (KOE-1526)', () => {
+      const refunded = { ...paid, refundAmount: 40, refundHandlingCost: 0 }
+      expect(isInvitationAwaitingPayment(event, refunded)).toBe(true)
+      expect(shouldSendInvitationAfterPayment(event, refunded)).toBe(false)
     })
 
     it('sends once that place is paid for', () => {
@@ -457,6 +507,27 @@ describe('payment', () => {
 
       it('is not unsettled, only unpaid, when nothing has been paid', () => {
         expect(isPaymentUnsettled(event, member)).toBe(false)
+      })
+
+      // The prod row of KOE-1526: reserve #1, paid 40 and had all of it back.
+      const refundedReserve = {
+        ...member,
+        group: { key: 'reserve', number: 1 },
+        owner: { membership: false },
+        paidAmount: 40,
+        paidAt,
+        paymentStatus: 'SUCCESS' as const,
+        refundAmount: 40,
+        refundHandlingCost: 0,
+      }
+
+      it('is settled for a reserve whose fee was refunded (KOE-1526)', () => {
+        expect(isPaymentUnsettled(event, refundedReserve)).toBe(false)
+      })
+
+      it('is unsettled when that reserve is lifted into a place (KOE-1526)', () => {
+        const place = { key: '2026-08-15-ap', number: 1 }
+        expect(isPaymentUnsettled(event, { ...refundedReserve, group: place })).toBe(true)
       })
     })
   })

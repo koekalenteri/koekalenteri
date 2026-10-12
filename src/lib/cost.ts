@@ -16,7 +16,7 @@ import type {
   PublicConfirmedEvent,
 } from '../types'
 import { addDays } from 'date-fns/addDays'
-import { isMember } from './registration'
+import { isMember, isReturnedReserve } from './registration'
 
 export const getEarlyBirdEndDate = (
   event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
@@ -331,26 +331,31 @@ const toCents = (amount: number) => Math.round(amount * 100)
  * What the entrant has paid and not had back: a refund, whole or partial, comes off what was paid
  * (KOE-1460). A handling fee kept from a refund is not refunded, so it stays on the paid side.
  */
-export const getNetPaidAmount = (
-  registration: Pick<PaymentBalanceRegistration, 'paidAmount' | 'refundAmount'>
-): number => (toCents(registration.paidAmount ?? 0) - toCents(registration.refundAmount ?? 0)) / 100
+const getNetPaidAmount = (registration: Pick<PaymentBalanceRegistration, 'paidAmount' | 'refundAmount'>): number =>
+  (toCents(registration.paidAmount ?? 0) - toCents(registration.refundAmount ?? 0)) / 100
+
+/** A payment recorded before the amounts were kept: a successful status without a `paidAmount`. */
+export const isPaymentWithoutAmount = (
+  registration: Pick<PaymentBalanceRegistration, 'paidAmount' | 'paymentStatus'>
+) => registration.paidAmount === undefined && registration.paymentStatus === 'SUCCESS'
 
 /**
  * Where the entry's money stands against its fee. The fee is recomputed from the entry as it reads
  * now, so a membership tick removed after a member-price payment shows as `due` (KOE-722) and one
  * added after a full-price payment as `excess` (KOE-1382). A handling fee kept from a refund stays
  * on the paid side. A cancelled entry owes nothing and holds no excess: what it paid is the
- * ordinary refund's business. A payment recorded before the amounts were kept (a status without a
- * `paidAmount`) is taken to have covered the fee.
+ * ordinary refund's business. Neither does a reserve whose fee went back to it, until it is lifted
+ * into a place and owes the fee again (KOE-1526). A payment recorded before the amounts were kept
+ * (a status without a `paidAmount`) is taken to have covered the fee.
  */
 export const getPaymentBalance = (
   event: MinimalEventForCost,
   registration: PaymentBalanceRegistration
 ): PaymentBalance => {
   const costCents = toCents(calculateCost(event, registration).amount)
-  const legacyPayment = registration.paidAmount === undefined && registration.paymentStatus === 'SUCCESS'
+  const legacyPayment = isPaymentWithoutAmount(registration)
   const paidCents = legacyPayment ? costCents : toCents(getNetPaidAmount(registration))
-  const settled = Boolean(registration.cancelled)
+  const settled = Boolean(registration.cancelled) || isReturnedReserve(registration)
 
   return {
     cost: costCents / 100,

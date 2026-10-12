@@ -37,10 +37,11 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
     }
   }
 
+  // A paid place can still owe: the fee rose after it was paid (KOE-722), and the payment link
+  // charges the difference. A reserve whose fee went back owes nothing until it has a place, which
+  // only the group tells, so the due goes out with the response (KOE-1526).
+  const { due } = getPaymentBalance(dogEvent, registration)
   if (!registration.cancelled) {
-    // A paid place can still owe: the fee rose after it was paid (KOE-722), and the payment link
-    // charges the difference.
-    const { due } = getPaymentBalance(dogEvent, registration)
     const shouldPay = registration.paymentStatus !== 'PENDING' && (registration.paymentStatus !== 'SUCCESS' || due > 0)
 
     if (dogEvent.paymentTime === 'confirmation') {
@@ -52,7 +53,7 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
 
   // The group and the other fields a participant must not see are left out last: the derivations
   // above read them.
-  return response(200, participantRegistrationResponse(registration, editToken), event)
+  return response(200, participantRegistrationResponse(registration, editToken, due), event)
 })
 
 export default getRegistrationLambda
