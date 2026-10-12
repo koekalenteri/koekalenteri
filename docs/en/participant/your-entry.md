@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationInvitation.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
-sourceHash: d12476
+sourceHash: b4c831
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -54,6 +54,9 @@ part, you get a receipt and the message *{t:registration.email.subject_update}*.
 If the secretary refunds part of the payment, the overpaid part say, the payment details show a
 *{t:registration.refunded}* line under the amount paid, and what is left to pay is counted after
 the refund.
+If a handling fee was kept from the refund, it shows on a line of its own,
+*{t:registration.refundHandlingCost}*. The fee is the price of the refund and does not count as
+paid towards the entry fee.
 
 If you are on the reserve list and do not get a place, the secretary refunds the fee. The payment
 line then reads *{t:paymentStatus.refunded}*, and nothing is asked of you. Should you get a place

@@ -50,6 +50,7 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
   const costSegmentName = getCostSegmentName(details.strategy)
   const paidAmount = registration.paidAmount ?? 0
   const refundAmount = registration.refundAmount ?? 0
+  const refundHandlingCost = registration.refundHandlingCost ?? 0
 
   // Only show "for members" when the member price actually differs from base price. It says that
   // about the participation fee alone: an optional service has no member price of its own to compare.
@@ -88,6 +89,11 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
         {/* A refund, the overpaid part or the whole fee, is money back: without its row the entrant
             reads the full payment as still standing (KOE-1460). */}
         {refundAmount > 0 ? <PaymentRow name={t('registration.refunded')} amount={-refundAmount} /> : null}
+        {/* The fee kept from a refund paid for the refund, not for the place (KOE-1526): without its
+            row the paid and refunded lines would not add up to what is left to pay. */}
+        {refundHandlingCost > 0 ? (
+          <PaymentRow name={t('registration.refundHandlingCost')} amount={-refundHandlingCost} />
+        ) : null}
         {includePayable ? (
           // What the payment link collects: a reserve's refunded fee is not asked for again (KOE-1526).
           <PaymentRow bold name={t('registration.toBePaid')} amount={getParticipantPaymentDue(event, registration)} />

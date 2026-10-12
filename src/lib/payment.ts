@@ -1,12 +1,13 @@
 import type {
   CustomCost,
-  JsonConfirmedEvent,
   JsonRegistration,
   JsonTransaction,
   MinimalEventForCost,
   MinimalRegistrationForCost,
   PaymentBalanceRegistration,
+  PaymentTime,
   PaytrailRefusalBody,
+  PublicDogEvent,
   Registration,
   RegistrationGroupKey,
 } from '../types'
@@ -32,6 +33,7 @@ import {
   shouldSendInvitationToRegistration,
 } from './registration'
 import { capitalize } from './string'
+import { isConfirmedEvent } from './typeGuards'
 import { isObject } from './utils'
 
 export const PROVIDER_NAMES: Record<string, string> = {
@@ -67,6 +69,9 @@ const hasName = (provider?: string): provider is keyof typeof PROVIDER_NAMES => 
 export const getProviderName = (provider?: string) =>
   hasName(provider) ? PROVIDER_NAMES[provider] : capitalize(provider ?? '')
 
+/** When the trial is paid for, all a payment decision reads of the event besides its fee. */
+type PaymentTimeEvent = { paymentTime?: PaymentTime }
+
 type PaymentStatusRegistration = Pick<
   Registration,
   'paymentStatus' | 'confirmed' | 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
@@ -86,11 +91,7 @@ const getSuccessfulPaymentStatus = (registration: PaymentStatusRegistration, due
  * been paid once: a member price paid by someone who was not a member (KOE-722) reads as a part
  * missing, not as paid.
  */
-export const getPaymentStatus = (
-  registration: PaymentStatusRegistration,
-  event?: { paymentTime?: 'registration' | 'confirmation' },
-  due = 0
-) => {
+export const getPaymentStatus = (registration: PaymentStatusRegistration, event?: PaymentTimeEvent, due = 0) => {
   if (registration.paymentStatus === 'SUCCESS') return getSuccessfulPaymentStatus(registration, due)
   if (registration.paymentStatus === 'DUPLICATE') return 'paymentStatus.duplicate'
   if (registration.paymentStatus === 'PENDING') return 'paymentStatus.pending'
@@ -134,7 +135,9 @@ export type ParticipantPaymentRegistration = PaymentBalanceRegistration & Pick<R
  * and the group matters only for a fee that went back: a reserve owes nothing, and owes the fee again
  * once lifted into a place (KOE-1526). That is the server's `paymentDue`. Every other entry reads its
  * balance here, so a change in the form, a membership tick or an optional cost, shows at once
- * (KOE-722). A response from before the field falls back to the same reading.
+ * (KOE-722). Every participant response and payment patch carries the field; a secretary's row has
+ * the group and reads its own balance. Without either, a fee that went back reads as a reserve's, as
+ * an entry with no group does everywhere: nothing owed.
  */
 export const getParticipantPaymentDue = (
   event: MinimalEventForCost,
@@ -145,16 +148,41 @@ export const getParticipantPaymentDue = (
     : getPaymentBalance(event, registration).due
 
 /**
+ * What the participant's own pages show as still owed. A trial that is not confirmed yet shows no
+ * amount: the fee is not asked for before the trial is.
+ */
+export const getShownPaymentDue = (event: PublicDogEvent, registration: ParticipantPaymentRegistration): number =>
+  isConfirmedEvent(event) ? getParticipantPaymentDue(event, registration) : 0
+
+/**
+ * Whether the participant's pages offer paying, on the status box and on the dog's row alike: the
+ * server's `shouldPay`, which only it can decide as it reads the group (KOE-1526). Not while a
+ * payment is being verified, and not for a payment charged twice, whatever a stale answer says.
+ */
+export const isPaymentOffered = (
+  registration: Pick<Registration, 'paymentStatus' | 'shouldPay'>,
+  paymentVerificationInProgress: boolean
+): boolean =>
+  Boolean(registration.shouldPay) && registration.paymentStatus !== 'DUPLICATE' && !paymentVerificationInProgress
+
+/**
  * Whether the participant is offered the payment link: nothing paid yet, or a part still owed. A
- * payment in progress is waited for, and paying at confirmation waits for a place. GetRegistration
+ * payment in progress is waited for, a payment charged twice waits for its refund, and paying at
+ * confirmation waits for a place. GetRegistration
  * and the payment patches ask this alike, so the pay button does not come and go (KOE-1526).
  */
 export const shouldParticipantPay = (
-  event: { paymentTime?: 'registration' | 'confirmation' },
+  event: PaymentTimeEvent,
   registration: Pick<Registration, 'cancelled' | 'paymentStatus'> & { group?: RegistrationGroupKey },
   due: number
 ): boolean => {
-  if (registration.cancelled || registration.paymentStatus === 'PENDING') return false
+  if (
+    registration.cancelled ||
+    registration.paymentStatus === 'PENDING' ||
+    registration.paymentStatus === 'DUPLICATE'
+  ) {
+    return false
+  }
   const owes = registration.paymentStatus !== 'SUCCESS' || due > 0
   if (event.paymentTime === 'confirmation') return owes && isParticipantGroup(registration.group?.key)
   return owes
@@ -172,7 +200,7 @@ export interface ParticipantPaymentState {
  * payment patch to the participant takes it from here.
  */
 export const getParticipantPaymentState = (
-  event: MinimalEventForCost & Pick<JsonConfirmedEvent, 'paymentTime'>,
+  event: MinimalEventForCost & PaymentTimeEvent,
   registration: PaymentBalanceRegistration
 ): ParticipantPaymentState => {
   const paymentDue = getPaymentBalance(event, registration).due

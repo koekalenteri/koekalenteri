@@ -391,13 +391,19 @@ describe('paymentSuccessLambda', () => {
       { set: { paymentStatus: 'DUPLICATE', updatedAt: expect.any(String) } },
       'registration-table-not-found-in-env'
     )
-    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith('event123', 'reg456', {
-      eventId: 'event123',
-      id: 'reg456',
-      paymentStatus: 'DUPLICATE',
-      shouldPay: false,
-      updatedAt: expect.any(String),
-    })
+    // The same rule as GetRegistration: a payment charged twice offers no pay button (KOE-1526).
+    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({
+        eventId: 'event123',
+        id: 'reg456',
+        paymentDue: 50,
+        paymentStatus: 'DUPLICATE',
+        shouldPay: false,
+        updatedAt: expect.any(String),
+      })
+    )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: 'event123:reg456',
@@ -727,6 +733,33 @@ describe('paymentSuccessLambda', () => {
           expect.any(Array)
         )
       })
+    })
+
+    // A payer who had part of the fee back still has the rest standing: the receipt counts it.
+    it('receipts what is left of an earlier payment after a refund', async () => {
+      mockGetRegistration.mockResolvedValue({
+        eventId: 'event123',
+        id: 'reg456',
+        language: 'fi',
+        paidAmount: 50,
+        payer: { email: 'test@example.com' },
+        paymentStatus: 'SUCCESS',
+        refundAmount: 10,
+        refundHandlingCost: 0,
+        state: 'ready',
+      })
+
+      // The callback pays 50 on top: 40 standing before it, 90 in all.
+      await paymentSuccessLambda(event)
+
+      expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+        'receipt',
+        'fi',
+        expect.any(String),
+        ['test@example.com'],
+        expect.objectContaining({ previouslyPaid: '40,00\u00a0€', totalPaid: '90,00\u00a0€' }),
+        expect.any(Array)
+      )
     })
 
     it('still confirms a first payment as a registration when its callback is retried', async () => {

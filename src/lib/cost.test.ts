@@ -1103,13 +1103,25 @@ describe('hasDifferentMemberPrice', () => {
       ).toEqual({ cost: 40, due: 40, excess: 0, paid: 0 })
     })
 
-    it('keeps a handling fee on the paid side when part of the payment is left (KOE-1460)', () => {
+    // A kept handling fee is the price of the refund, never a payment towards the place (KOE-1526):
+    // paid 50 for a 40 fee, 8 of the 10 over refunded and 2 kept, and the fee is settled.
+    it('takes a kept handling fee off what was paid, so an overpaid part refunded less a fee settles', () => {
       expect(
         getPaymentBalance(
           event,
           entry(false, { group: participant, paidAmount: 50, refundAmount: 8, refundHandlingCost: 2 })
         )
-      ).toEqual({ cost: 40, due: 0, excess: 2, paid: 42 })
+      ).toEqual({ cost: 40, due: 0, excess: 0, paid: 40 })
+    })
+
+    // A reserve paid 50, had 45 back with 5 kept, was lifted into a place and paid 50 again.
+    it('reads a lifted reserve that paid its fee again as settled, the kept fee not paid over (KOE-1526)', () => {
+      expect(
+        getPaymentBalance(
+          makeEvent(50, 50),
+          entry(false, { group: participant, paidAmount: 100, refundAmount: 45, refundHandlingCost: 5 })
+        )
+      ).toEqual({ cost: 50, due: 0, excess: 0, paid: 50 })
     })
 
     it('still owes the fee for a reserve that has not paid', () => {
@@ -1122,13 +1134,13 @@ describe('hasDifferentMemberPrice', () => {
     })
 
     it('keeps the balance of a reserve that has part of its payment left (KOE-1526)', () => {
-      // Two payments of 25, one refunded less a handling fee: 10 of the 50 is still the entrant's.
+      // Two payments of 25, one refunded less a handling fee: 10 of the 50 still pays for the place.
       expect(
         getPaymentBalance(
           event,
           entry(false, { group: reserve, paidAmount: 50, refundAmount: 35, refundHandlingCost: 5 })
         )
-      ).toEqual({ cost: 40, due: 25, excess: 0, paid: 15 })
+      ).toEqual({ cost: 40, due: 30, excess: 0, paid: 10 })
     })
 
     it('neither owes nor holds anything for a cancelled entry', () => {

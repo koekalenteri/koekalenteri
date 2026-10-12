@@ -53,6 +53,9 @@ maksanut puuttuvan osan, saat kuitin ja viestin *{t:registration.email.subject_u
 Jos koesihteeri palauttaa maksusta osan, esimerkiksi liikaa maksetun osuuden, maksutiedoissa on
 maksetun summan alla rivi *{t:registration.refunded}*, ja maksettava summa on laskettu
 palautuksen jälkeen.
+Jos palautuksesta on pidätetty käsittelykulu, se näkyy omalla rivillään
+*{t:registration.refundHandlingCost}*. Käsittelykulu on palautuksen hinta, eikä sitä lasketa
+koemaksun maksuksi.
 
 Jos olet varasijalla etkä saa koepaikkaa, koesihteeri palauttaa koemaksun. Maksurivillä lukee
 silloin *{t:paymentStatus.refunded}*, eikä sinulta pyydetä maksua. Jos saat paikan myöhemmin,

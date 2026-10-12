@@ -108,6 +108,25 @@ describe('PaymentDetails', () => {
     expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent(payable)
   })
 
+  // KOE-1526: the kept handling fee is the price of the refund, so it has its own line and the
+  // rows add up to what is left to pay.
+  it('shows the handling fee kept from a refund on its own line', () => {
+    setup({
+      includePayable: true,
+      registration: {
+        ...registration,
+        optionalCosts: [],
+        paidAmount: 35,
+        paymentDue: 35,
+        refundAmount: 30,
+        refundHandlingCost: 5,
+      },
+    })
+
+    expect(screen.getByText('registration.refundHandlingCost').nextSibling).toHaveTextContent('−5,00 €')
+    expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent('35,00 €')
+  })
+
   it('says nothing about payments that have not been made', () => {
     setup()
 

@@ -16,7 +16,7 @@ import type {
   PublicConfirmedEvent,
 } from '../types'
 import { addDays } from 'date-fns/addDays'
-import { isMember, isPaymentReturned, isReturnedReserve } from './registration'
+import { isMember, isReturnedReserve } from './registration'
 
 export const getEarlyBirdEndDate = (
   event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
@@ -328,18 +328,19 @@ export const calculateCost = (event: MinimalEventForCost, registration: MinimalR
 const toCents = (amount: number) => Math.round(amount * 100)
 
 /**
- * What the entrant has paid towards the fee and not had back: a refund, whole or partial, comes off
- * what was paid (KOE-1460). A handling fee kept from a refund is not refunded, so it stays on the
- * paid side while part of the payment is left. A payment that went back counts as nothing paid, the
- * kept fee included: that fee paid for the refund, not towards a place the entry gets later
- * (KOE-1526).
+ * What the entrant has paid towards the fee: what was paid, less what was refunded (KOE-1460) and
+ * less the handling fee kept from a refund. That fee is the price of the refund, never a payment
+ * towards the place (KOE-1526): an overpaid part refunded less a fee leaves the fee settled, and a
+ * reserve lifted into a place after its fee went back owes all of it. The same sum as
+ * `hasRefundableBalance` compares.
  */
 export const getNetPaidAmount = (
   registration: Pick<PaymentBalanceRegistration, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
 ): number =>
-  isPaymentReturned(registration)
-    ? 0
-    : (toCents(registration.paidAmount ?? 0) - toCents(registration.refundAmount ?? 0)) / 100
+  (toCents(registration.paidAmount ?? 0) -
+    toCents(registration.refundAmount ?? 0) -
+    toCents(registration.refundHandlingCost ?? 0)) /
+  100
 
 /** A payment recorded before the amounts were kept: a successful status without a `paidAmount`. */
 export const isPaymentWithoutAmount = (

@@ -86,7 +86,7 @@ const recordDuplicatePayment = async (
   duplicateOf: Pick<JsonRegistration, 'eventId' | 'id'>,
   provider: string | undefined,
   transactionExists: boolean,
-  registration: Parameters<typeof registrationAuditKey>[0]
+  registration: JsonRegistration
 ) => {
   const duplicateOfRegistrationId = duplicateOf.id
   const duplicatePaymentAt = new Date().toISOString()
@@ -123,13 +123,14 @@ const recordDuplicatePayment = async (
     { set: { paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt } },
     registrationTable
   )
-  await publishParticipantRegistrationPatch(registration.eventId, registration.id, {
-    eventId: registration.eventId,
-    id: registration.id,
-    paymentStatus: 'DUPLICATE',
-    shouldPay: false,
-    updatedAt: duplicatePaymentAt,
-  })
+  // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
+  const duplicateRow: JsonRegistration = { ...registration, paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt }
+  const dogEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
+  await publishParticipantRegistrationPatch(
+    registration.eventId,
+    registration.id,
+    buildParticipantPaymentPatch(duplicateRow, getParticipantPaymentState(dogEvent, duplicateRow))
+  )
   await audit({
     auditKey: registrationAuditKey(registration),
     ...duplicatePaymentAudit(providerName, amount, duplicateOfRegistrationId),

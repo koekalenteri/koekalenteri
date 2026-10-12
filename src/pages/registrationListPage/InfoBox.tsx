@@ -13,9 +13,8 @@ import Paper from '@mui/material/Paper'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatMoney } from '../../lib/money'
-import { getParticipantPaymentDue, getPaymentStatus, isPaidStatus } from '../../lib/payment'
+import { getPaymentStatus, getShownPaymentDue, isPaidStatus, isPaymentOffered } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
-import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
 
 const priorityIconColor = (event: PublicDogEvent, registration: Registration) =>
@@ -53,12 +52,11 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
   const { t } = useTranslation()
   const navigate = useNavigate()
   const needsConfirmation = !registration.cancelled && !registration.confirmed && !!registration.messagesSent?.picked
-  const needsPayment =
-    Boolean(registration.shouldPay) && registration.paymentStatus !== 'DUPLICATE' && !paymentVerificationInProgress
+  const needsPayment = isPaymentOffered(registration, paymentVerificationInProgress)
   // A paid place reads as paid until its fee rises above what was paid (KOE-722): then the line
   // names the missing part, the same amount the payment button collects. The server decides it once
   // something has been paid, as only it knows whether a refunded reserve has a place (KOE-1526).
-  const paymentDue = isConfirmedEvent(event) ? getParticipantPaymentDue(event, registration) : 0
+  const paymentDue = getShownPaymentDue(event, registration)
   const paymentStatus = getPaymentStatus(registration, event, paymentDue)
   const paymentStatusText = paymentVerificationInProgress
     ? t('registration.notifications.paymentVerifying')

@@ -24,6 +24,8 @@ const event: PublicDogEvent = { ...eventWithStaticDates, paymentTime: 'registrat
 
 const noop = () => {}
 
+// The server's shouldPay decides the payment action (KOE-1526); these rows have it as GetRegistration
+// would answer them.
 // One row with a fee still to pay and one already cancelled — the two shapes the actions column has
 // to tell apart. Since KOE-973 the row carries the payment action and the menu button only: editing
 // and cancelling live behind the menu, because as bare icons the red cross was taken for a payment
@@ -37,7 +39,7 @@ it('offers paying on the row and hides editing behind the menu', async () => {
         <MemoryRouter>
           <RegistrationList
             event={event}
-            rows={[unpaidRegistrationWithStaticDates, registrationWithStaticDatesCancelled]}
+            rows={[{ ...unpaidRegistrationWithStaticDates, shouldPay: true }, registrationWithStaticDatesCancelled]}
             onUnregister={noop}
           />
         </MemoryRouter>
@@ -60,7 +62,7 @@ it('offers paying the part still missing of a paid fee', async () => {
         <MemoryRouter>
           <RegistrationList
             event={{ ...event, cost: 130, costMember: 123 }}
-            rows={[registrationWithStaticDates]}
+            rows={[{ ...registrationWithStaticDates, shouldPay: true }]}
             onUnregister={noop}
           />
         </MemoryRouter>

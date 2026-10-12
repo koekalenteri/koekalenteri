@@ -1,5 +1,6 @@
 import type { MinimalEventForCost, MinimalRegistrationForCost, PaymentStatus, Registration } from '../types'
 import { addDays } from 'date-fns'
+import { eventWithStaticDates } from '../__mockData__/events'
 import {
   canRefundExcess,
   getParticipantPaymentDue,
@@ -7,8 +8,10 @@ import {
   getPaymentStatus,
   getProviderName,
   getRegistrationPaymentDetails,
+  getShownPaymentDue,
   isInvitationAwaitingPayment,
   isPaidStatus,
+  isPaymentOffered,
   isPaymentUnsettled,
   isPaytrailRefusal,
   isRegistrationPaid,
@@ -60,6 +63,7 @@ describe('payment', () => {
         ['a paid entry still owing a part', { paymentStatus: 'SUCCESS' }, 5, 'registration', true],
         ['a payment in progress', { paymentStatus: 'PENDING' }, 40, 'registration', false],
         ['a cancelled entry', { cancelled: true }, 40, 'registration', false],
+        ['a payment charged twice', { paymentStatus: 'DUPLICATE' }, 40, 'registration', false],
         ['a reserve paying at confirmation', { group: { key: 'reserve' } }, 40, 'confirmation', false],
         ['a place paying at confirmation', { group: place }, 40, 'confirmation', true],
       ])('for %s', (_name, registration, due, paymentTime, expected) => {
@@ -80,6 +84,31 @@ describe('payment', () => {
         paymentDue: 0,
         shouldPay: false,
       })
+    })
+
+    describe('getShownPaymentDue', () => {
+      const shown = { ...eventWithStaticDates, cost: 40, costMember: 35 }
+      it('shows what is owed once the trial is confirmed', () => {
+        expect(getShownPaymentDue({ ...shown, state: 'confirmed' }, { ...member, owner: { membership: false } })).toBe(
+          40
+        )
+      })
+
+      it('shows nothing owed before the trial is confirmed', () => {
+        expect(getShownPaymentDue({ ...shown, state: 'tentative' }, { ...member, owner: { membership: false } })).toBe(
+          0
+        )
+      })
+    })
+
+    it.each<[string, Parameters<typeof isPaymentOffered>[0], boolean, boolean]>([
+      ['when the server says to pay', { shouldPay: true }, false, true],
+      ['when the server says not to', { shouldPay: false }, false, false],
+      ['without an answer', {}, false, false],
+      ['for a payment charged twice', { paymentStatus: 'DUPLICATE', shouldPay: true }, false, false],
+      ['while a payment is being verified', { shouldPay: true }, true, false],
+    ])('isPaymentOffered offers paying %s: %s', (_name, registration, verifying, expected) => {
+      expect(isPaymentOffered(registration, verifying)).toBe(expected)
     })
 
     it.each([
@@ -598,6 +627,19 @@ describe('payment', () => {
 
       it('is settled for a reserve whose fee was refunded (KOE-1526)', () => {
         expect(isPaymentUnsettled(event, refundedReserve)).toBe(false)
+      })
+
+      it('is settled, with nothing to refund, once the lifted reserve has paid its fee again (KOE-1526)', () => {
+        // Paid 40, had 35 back with 5 kept, lifted, paid 40 again: the kept 5 is not paid over.
+        const repaid = {
+          ...refundedReserve,
+          group: { key: '2026-08-15-ap', number: 1 },
+          paidAmount: 80,
+          refundAmount: 35,
+          refundHandlingCost: 5,
+        }
+        expect(isPaymentUnsettled(event, repaid)).toBe(false)
+        expect(canRefundExcess(event, repaid)).toBe(false)
       })
 
       it('is unsettled when that reserve is lifted into a place (KOE-1526)', () => {
