@@ -4,8 +4,11 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import * as jotai from 'jotai'
 import * as router from 'react-router'
 import { getStartList } from '../api/registration'
+import { START_LIST_REFETCH_RETRY_MS } from '../hooks/usePublicStartList'
+import { expectConsoleOutput } from '../test-utils/consoleGuard'
+import fetchMock from '../test-utils/fetchMock'
 import { flushPromises } from '../test-utils/utils'
-import { StartListPage } from './StartListPage'
+import { StartListPage, startListLoader } from './StartListPage'
 import * as pageState from './state'
 
 vi.mock('../api/registration', () => ({ getStartList: vi.fn() }))
@@ -168,7 +171,7 @@ describe('StartListPage', () => {
 
     act(() => liveListener?.(undefined))
 
-    expect(getStartList).toHaveBeenCalledWith('event-1')
+    expect(getStartList).toHaveBeenCalledWith('event-1', undefined, expect.any(AbortSignal))
     await waitFor(() => expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 2'))
   })
 
@@ -262,6 +265,163 @@ describe('StartListPage', () => {
 
       await waitFor(() => shows(3))
     })
+  })
+
+  describe('refetching through the real http layer (KOE-1516)', () => {
+    const rows = (count: number) => Array.from({ length: count }, (_, index) => ({ ...mockParticipants[0], index }))
+    const shows = (count: number) =>
+      expect(screen.getByTestId('participant-list')).toHaveTextContent(`Participants: ${count},`)
+    const answer = (count: number, version?: number) => {
+      const headers: Record<string, string> = version === undefined ? {} : { 'X-Start-List-Version': String(version) }
+      return { body: JSON.stringify(rows(count)), headers }
+    }
+    const heldAnswer = () => {
+      let release: (count: number, version?: number) => void = () => {}
+      fetchMock.mockResponseOnce(
+        () =>
+          new Promise((resolve) => {
+            release = (count, version) => resolve(answer(count, version))
+          })
+      )
+      return (count: number, version?: number) => release(count, version)
+    }
+
+    // Every fetch the page starts, so a test can wait for the late ones to land before it looks.
+    let fetches: Promise<unknown>[] = []
+    const fetchesSettle = async () => {
+      await act(async () => {
+        await Promise.allSettled(fetches)
+      })
+      await flushPromises(false)
+    }
+
+    beforeEach(async () => {
+      const { getStartList: realGetStartList } =
+        await vi.importActual<typeof import('../api/registration')>('../api/registration')
+      fetches = []
+      fetchMock.resetMocks()
+      fetchMock.enableMocks()
+      vi.mocked(getStartList).mockImplementation((...args) => {
+        const fetched = realGetStartList(...args)
+        fetches.push(fetched)
+        return fetched
+      })
+    })
+
+    afterEach(() => {
+      fetchMock.disableMocks()
+    })
+
+    it('gives a second stale message a request of its own instead of joining the first', async () => {
+      const releaseFirst = heldAnswer()
+      fetchMock.mockResponseOnce(() => Promise.resolve(answer(2, 180)))
+      render(<StartListPage />)
+
+      // Two saves of a list too large for one message: the second write landed after the first
+      // fetch had already read.
+      act(() => liveListener?.(undefined, 100))
+      act(() => liveListener?.(undefined, 170))
+      await waitFor(() => shows(2))
+
+      releaseFirst(1, 150)
+      await fetchesSettle()
+
+      shows(2)
+      expect(fetchMock).toHaveBeenCalledTimes(2)
+    })
+
+    it("keeps a late fetch for the event the page left out of the next event's list", async () => {
+      const releaseFirst = heldAnswer()
+      const { rerender } = render(<StartListPage />)
+      act(() => liveListener?.(undefined, 200))
+
+      mockUseParams.mockReturnValue({ id: 'event-2' })
+      mockUseLoaderData.mockReturnValue({ participants: rows(3), version: 50 })
+      rerender(<StartListPage />)
+      await waitFor(() => shows(3))
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+
+      releaseFirst(1, 300)
+      await fetchesSettle()
+
+      shows(3)
+    })
+
+    it('fetches the list when an unversioned message follows a versioned one', async () => {
+      fetchMock.mockResponseOnce(() => Promise.resolve(answer(4, 250)))
+      render(<StartListPage />)
+      act(() => liveListener?.(rows(2), 200))
+      await waitFor(() => shows(2))
+
+      // A Lambda from before versions, still running during a deploy, hides some rows.
+      act(() => liveListener?.(rows(3), undefined))
+
+      await waitFor(() => shows(4))
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('takes an unversioned fetch as at least as new as what was known when it started', async () => {
+      fetchMock.mockResponseOnce(() => Promise.resolve(answer(3)))
+      render(<StartListPage />)
+      act(() => liveListener?.(rows(2), 200))
+      await waitFor(() => shows(2))
+
+      act(() => liveListener?.(undefined, 300))
+      await waitFor(() => shows(3))
+
+      // The fetch counts as version 300, so a message read before it does not replace it.
+      act(() => liveListener?.(rows(1), 250))
+      await flushPromises(false)
+      shows(3)
+    })
+
+    it('retries a failed refetch once, a little later', async () => {
+      expectConsoleOutput(/reportError/)
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      try {
+        fetchMock.mockResponseOnce(() => Promise.resolve({ body: '{}', status: 500 }))
+        fetchMock.mockResponseOnce(() => Promise.resolve(answer(3, 310)))
+        render(<StartListPage />)
+        act(() => liveListener?.(rows(2), 200))
+
+        act(() => liveListener?.(undefined, 300))
+        await act(async () => vi.advanceTimersByTimeAsync(START_LIST_REFETCH_RETRY_MS))
+
+        shows(3)
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('gives up after the one retry, leaving the next message to bring the list', async () => {
+      expectConsoleOutput(/reportError/, /reportError/)
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+      try {
+        fetchMock.mockResponse(() => Promise.resolve({ body: '{}', status: 500 }))
+        render(<StartListPage />)
+        act(() => liveListener?.(rows(2), 200))
+
+        act(() => liveListener?.(undefined, 300))
+        await act(async () => vi.advanceTimersByTimeAsync(START_LIST_REFETCH_RETRY_MS * 3))
+
+        shows(2)
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
+  it('loads the list of the event in the address, and nothing without one', async () => {
+    vi.mocked(getStartList).mockResolvedValueOnce({ participants: mockParticipants, version: 5 })
+
+    await expect(startListLoader({ params: { id: 'event-1' } })).resolves.toEqual({
+      participants: mockParticipants,
+      version: 5,
+    })
+    await expect(startListLoader({ params: {} })).resolves.toEqual({ participants: [] })
+    expect(getStartList).toHaveBeenCalledTimes(1)
   })
 
   it('shows export actions to a global admin', () => {

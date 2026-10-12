@@ -2,7 +2,12 @@ import type { TFunction } from 'i18next'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import i18n from 'i18next'
-import { isStartListUpToDate, parseStartListVersion, startListSpreadsheetRows } from './startList'
+import {
+  isStartListUpToDate,
+  newestStartListVersion,
+  parseStartListVersion,
+  startListSpreadsheetRows,
+} from './startList'
 
 /**
  * The real translator. The test setup already initialises i18n, so there is no need for a hand-kept
@@ -20,6 +25,18 @@ describe('isStartListUpToDate (KOE-1516)', () => {
     { expected: false, incoming: undefined, shown: 100, what: 'nor does an unversioned one once a version was taken' },
   ])('$what', ({ expected, incoming, shown }) => {
     expect(isStartListUpToDate(shown, incoming)).toBe(expected)
+  })
+})
+
+describe('newestStartListVersion', () => {
+  it.each([
+    { a: undefined, b: undefined, expected: undefined },
+    { a: 100, b: undefined, expected: 100 },
+    { a: undefined, b: 200, expected: 200 },
+    { a: 300, b: 200, expected: 300 },
+    { a: 100, b: 200, expected: 200 },
+  ])('of $a and $b is $expected', ({ a, b, expected }) => {
+    expect(newestStartListVersion(a, b)).toBe(expected)
   })
 })
 

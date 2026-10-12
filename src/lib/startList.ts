@@ -12,6 +12,13 @@ import { formatResultMarks } from './results'
  */
 export const START_LIST_VERSION_HEADER = 'X-Start-List-Version'
 
+/** The version a fetch's header carries; absent or unreadable is no version. */
+export const parseStartListVersion = (value: string | null): number | undefined => {
+  if (!value) return undefined
+  const version = Number(value)
+  return Number.isFinite(version) ? version : undefined
+}
+
 /**
  * Whether rows with version `incoming` may replace the rows on screen, which have version `shown`.
  * Live messages and fetches race each other, so the page keeps the highest version it has accepted.
@@ -20,15 +27,15 @@ export const START_LIST_VERSION_HEADER = 'X-Start-List-Version'
  * Nothing versioned shown yet means anything goes, versionless included: a backend deployed before
  * versions sends none. Once a version has been accepted, a versionless one is no longer trusted.
  */
-/** The version a fetch's header carries; absent or unreadable is no version. */
-export const parseStartListVersion = (value: string | null): number | undefined => {
-  if (!value) return undefined
-  const version = Number(value)
-  return Number.isFinite(version) ? version : undefined
-}
-
 export const isStartListUpToDate = (shown: number | undefined, incoming: number | undefined): boolean =>
   shown === undefined || (incoming !== undefined && incoming >= shown)
+
+/** The newer of two versions, either of which may be missing. */
+export const newestStartListVersion = (a: number | undefined, b: number | undefined): number | undefined => {
+  if (a === undefined) return b
+  if (b === undefined) return a
+  return Math.max(a, b)
+}
 
 export function startListSpreadsheetRows(
   participants: PublicRegistration[],

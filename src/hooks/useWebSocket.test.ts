@@ -558,6 +558,21 @@ describe('useWebSocket', () => {
     expect(listener).toHaveBeenCalledWith(undefined, 300)
   })
 
+  it('ignores a start list message that carries neither rows nor a request to fetch them', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const listener = vi.fn()
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      result.current.subscribePublicStartList('event-1', listener)
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', scope: 'public:start-list', version: 300 }),
+      })
+    })
+
+    expect(listener).not.toHaveBeenCalled()
+  })
+
   it('ignores a start list for another event', () => {
     mockWebSocketInstance.readyState = WebSocket.OPEN
     const listener = vi.fn()

@@ -53,11 +53,19 @@ registrations again, consistently. The public fetch (`GET /startlist/{eventId}`)
 and sends its stamp in the `X-Start-List-Version` header, so the page orders its fetches against the
 messages by the same clock (KOE-1516).
 
-The page keeps the highest version it has accepted and turns away anything older
-(`isStartListUpToDate` in `src/lib/startList.ts`). The highest version was read after every write that
-has a broadcast behind it, so an open page always ends on what is stored. Before any versioned list
-has been accepted an unversioned one is taken, for a backend deployed before versions; after that it
-is not.
+The page (`usePublicStartList` in `src/hooks`) keeps the highest version it has accepted and turns
+away anything older (`isStartListUpToDate` in `src/lib/startList.ts`). The highest version was read
+after every write that has a broadcast behind it, so an open page always ends on what is stored.
+
+- A message the page cannot use as it is, `stale`, or unversioned once a version has been accepted
+  (a Lambda from before versions, during a deploy), is answered with a fetch on a request of its own:
+  it never joins a fetch already in flight, so it reads after the message that asked for it.
+- That fetch therefore counts as at least as new as the newest version known when it started, whether
+  its header says less or is missing. Only a list that arrived while it was in flight outranks it. A
+  failed fetch is retried once, two seconds later.
+- Before any versioned list has been accepted, an unversioned message or loader result is taken as it
+  is, for a backend deployed before versions.
+- Leaving the event cancels its fetches; a fetch for an event the page has left is never shown.
 
 Accepted risks:
 

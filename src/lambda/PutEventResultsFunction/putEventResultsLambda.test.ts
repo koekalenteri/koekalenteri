@@ -133,6 +133,27 @@ describe('putEventResultsLambda', () => {
     expect(savedResult()).toMatchObject({ maxPoints: 20, points: 17 })
   })
 
+  it('publishes the start list only after every result is written (KOE-1516)', async () => {
+    // The published list's version is the time it was read, so it has to be read after the writes.
+    const steps: string[] = []
+    mockUpdateRegistrationField.mockImplementation(async (_eventId: string, id: string) => {
+      await Promise.resolve()
+      steps.push(`write ${id}`)
+    })
+    mockPublishPublicStartList.mockImplementation(async () => {
+      steps.push('publish start list')
+    })
+
+    await putEventResultsLambda(
+      apiEvent([
+        { eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' },
+        { eventResult: { tasks: scores(10, 10, 10, 10) }, id: 'reg-2' },
+      ])
+    )
+
+    expect(steps).toEqual(['write reg-1', 'write reg-2', 'publish start list'])
+  })
+
   it('broadcasts the batch once rather than dog by dog', async () => {
     await putEventResultsLambda(
       apiEvent([
