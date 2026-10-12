@@ -506,6 +506,18 @@ describe('getStartListLambda', () => {
     expect(mockQuery).not.toHaveBeenCalled()
   })
 
+  it("lets a global admin preview another organizer's event", async () => {
+    const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: [], user: { admin: true, id: 'admin1', roles: {} } })
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
+
+    await getStartListLambda(previewEvent)
+
+    expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ consistent: true }))
+    expect(mockResponse).toHaveBeenCalledWith(200, [], previewEvent, versionHeader)
+  })
+
   it('returns 404 if start list is not available', async () => {
     const eventId = 'event123'
     const confirmedEvent = { id: eventId, startListPublished: false, state: 'draft' }
