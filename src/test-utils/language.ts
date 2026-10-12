@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest'
 import type { Language } from '@/types'
 import i18n from 'i18next'
 import { afterEach, beforeEach, describe, vi } from 'vitest'
@@ -27,6 +28,11 @@ export const describeInLanguage = (language: Language, tests: () => void): void 
   })
 }
 
+type UseTranslation = typeof import('react-i18next')['useTranslation']
+
+/** The spy the file's react-i18next mock put in place, for `describeWithTranslations` to switch. */
+let registeredUseTranslation: Mock<UseTranslation> | undefined
+
 /**
  * A `vi.mock('react-i18next', …)` factory whose `useTranslation` is a spy around the one the project
  * gives (keys only in the frontend project), so `describeWithTranslations` can switch it to the
@@ -40,33 +46,59 @@ export const describeInLanguage = (language: Language, tests: () => void): void 
  */
 export const spyOnUseTranslation = async (importOriginal: () => Promise<typeof import('react-i18next')>) => {
   const original = await importOriginal()
-  return { ...original, useTranslation: vi.fn(original.useTranslation) }
+  const useTranslation = vi.fn(original.useTranslation)
+  registeredUseTranslation = useTranslation
+  return { ...original, useTranslation }
 }
+
+/**
+ * The spy `spyOnUseTranslation` put in place of react-i18next's `useTranslation`. A file that uses
+ * `describeWithTranslations` without that mock is told so, rather than leaving its later tests in
+ * another language.
+ */
+export const spiedUseTranslation = (useTranslation: Mock<UseTranslation> | undefined): Mock<UseTranslation> => {
+  if (!useTranslation) {
+    throw new Error(
+      "describeWithTranslations needs vi.mock('react-i18next', …) with spyOnUseTranslation in the test file"
+    )
+  }
+  return useTranslation
+}
+
+/**
+ * The real `useTranslation` in `language`: the namespace and key prefix the component asks for are
+ * kept, so `useTranslation('breed')` reads breed names, not keys.
+ */
+const translationIn =
+  (language: Language) =>
+  (...[ns, options]: Parameters<UseTranslation>) => {
+    // One namespace, a list of them (the first one leads, as in react-i18next), or the default.
+    const namespaces = typeof ns === 'string' ? ns : (ns?.filter((name) => name !== undefined) ?? null)
+    const t = i18n.getFixedT(language, namespaces, options?.keyPrefix)
+    const response: [typeof t, typeof i18n, boolean] = [t, i18n, true]
+    return Object.assign(response, { i18n, ready: true, t })
+  }
 
 /**
  * The tests inside see the view in `language` with the app's real text, where the file's other tests
  * read keys: the page switches to `language` as `describeInLanguage` does, and `useTranslation` gives
- * that language's `t`. Needs the file to mock react-i18next with `spyOnUseTranslation`. The module is
- * read when a test starts, not imported here: that mock's factory imports this file, and a static
- * import of the module it is still building would wait on itself.
+ * that language's `t` for the namespace asked for. Needs the file to mock react-i18next with
+ * `spyOnUseTranslation`, which hands this file its spy: react-i18next is not imported here, since
+ * that mock's factory imports this file and an import of the module it is still building would wait
+ * on itself.
  */
 export const describeWithTranslations = (language: Language, tests: () => void): void => {
   describe(`in ${language}, with the app's text`, () => {
-    const spiedUseTranslation = async () => vi.mocked((await import('react-i18next')).useTranslation)
     beforeEach(async () => {
+      const useTranslation = spiedUseTranslation(registeredUseTranslation)
       await switchLanguage(language)
-      const useTranslation = await spiedUseTranslation()
-      useTranslation.mockImplementation(() => {
-        const t = i18n.getFixedT(language)
-        const response: [typeof t, typeof i18n, boolean] = [t, i18n, true]
-        return Object.assign(response, { i18n, ready: true, t })
-      })
+      useTranslation.mockImplementation(translationIn(language))
     })
-    // Back to the factory's own useTranslation, whatever the test queued on it.
+    // Finnish first, so a failing reset cannot leave the rest of the file in `language`; then back to
+    // the factory's own useTranslation, whatever the test queued on it.
     afterEach(async () => {
-      const useTranslation = await spiedUseTranslation()
-      useTranslation.mockReset()
       await switchLanguage('fi')
+      spiedUseTranslation(registeredUseTranslation).mockReset()
     })
     tests()
   })
