@@ -98,13 +98,20 @@ describe('getAdminRegistrationsLambda', () => {
 
   it('returns stored registrations without mutating their groups if authorized', async () => {
     const eventId = 'event123'
+    // The secretary's views keep what a participant's response leaves out (KOE-1515).
+    const secretaryFields = {
+      eventResult: { result: 'ALO1' },
+      group: { key: 'ap', number: 1 },
+      internalNotes: 'call the owner',
+      startGroup: { key: 'ap', number: 7 },
+    }
     const allRegistrations = [
-      { class: 'ALO', eventId, id: 'reg1', state: 'ready' },
+      { class: 'ALO', eventId, id: 'reg1', state: 'ready', ...secretaryFields },
       { class: 'ALO', eventId, id: 'reg2', state: 'pending' }, // Should be filtered out
       { class: 'AVO', eventId, id: 'reg3', state: 'ready' },
     ]
     const filteredRegistrations = [
-      { class: 'ALO', eventId, id: 'reg1', state: 'ready' },
+      { class: 'ALO', eventId, id: 'reg1', state: 'ready', ...secretaryFields },
       { class: 'AVO', eventId, id: 'reg3', state: 'ready' },
     ]
     mockGetParam.mockReturnValueOnce(eventId)
@@ -127,7 +134,7 @@ describe('getAdminRegistrationsLambda', () => {
 
   it('handles empty query results', async () => {
     const eventId = 'event123'
-    const emptyRegistrations: any[] = []
+    const emptyRegistrations: unknown[] = []
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(emptyRegistrations)
@@ -145,7 +152,7 @@ describe('getAdminRegistrationsLambda', () => {
 
   it('handles undefined query results', async () => {
     const eventId = 'event123'
-    const emptyRegistrations: any[] = []
+    const emptyRegistrations: unknown[] = []
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(undefined)
@@ -168,7 +175,7 @@ describe('getAdminRegistrationsLambda', () => {
       { class: 'ALO', eventId, id: 'reg2', state: 'cancelled' },
       { class: 'AVO', eventId, id: 'reg3', state: 'draft' },
     ]
-    const filteredRegistrations: any[] = [] // All registrations are filtered out
+    const filteredRegistrations: unknown[] = [] // All registrations are filtered out
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(allRegistrations)

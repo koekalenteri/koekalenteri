@@ -88,6 +88,30 @@ describe('getRegistration', () => {
     expect(reg.shouldPay).toBeFalsy()
   })
 
+  it('leaves the result, the notes and the groups out after deriving from them (KOE-1515)', async () => {
+    const stored = registrationsToEventWithParticipantsInvited[0]
+    mockGetRegistration.mockImplementationOnce(() => ({
+      ...stored,
+      eventResult: { result: 'ALO1', updatedAt: new Date('2026-08-01T12:00:00.000Z'), updatedBy: 'Secretary' },
+      internalNotes: 'call the owner',
+      paymentStatus: 'SUCCESS',
+      startGroup: stored.group,
+    }))
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg).not.toHaveProperty('eventResult')
+    expect(reg).not.toHaveProperty('internalNotes')
+    expect(reg).not.toHaveProperty('group')
+    expect(reg).not.toHaveProperty('startGroup')
+    // The invitation is still derived from the group the response leaves out.
+    expect(reg.invitationAttachment).toEqual('alo.pdf')
+  })
+
   it('does not disclose a registration when edit-token authorization fails', async () => {
     mockAuthorizeRegistrationRead.mockImplementationOnce(() => {
       throw new LambdaError(404, 'not found')

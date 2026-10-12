@@ -14,10 +14,10 @@ import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import {
+  adminRegistrationResponse,
   applyOwnerOverrides,
   getRegistration,
   getRegistrationEditToken,
-  participantRegistrationResponse,
   registrationConflictBody,
   removeNewRegistrationWorkflowMetadata,
   removeRegistrationCreationMetadata,
@@ -135,7 +135,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
       registration,
       user,
     })
-    if (retried) return response(200, participantRegistrationResponse(retried.completed, retried.editToken), event)
+    if (retried) return response(200, adminRegistrationResponse(retried.completed, retried.editToken), event)
     initializeNewRegistration(registration, timestamp, user, 'ready')
   }
 
@@ -163,12 +163,12 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
       registration: savedData,
       user,
     })
-    return response(200, participantRegistrationResponse(completed, getRegistrationEditToken(completed)), event)
+    return response(200, adminRegistrationResponse(completed, getRegistrationEditToken(completed)), event)
   }
 
   await finalizeRegistrationUpdate({ existing, groupPatches, origin, registration: savedData, user })
 
-  return response(200, participantRegistrationResponse(savedData, getRegistrationEditToken(savedData)), event)
+  return response(200, adminRegistrationResponse(savedData, getRegistrationEditToken(savedData)), event)
 })
 
 export default putAdminRegistrationLambda

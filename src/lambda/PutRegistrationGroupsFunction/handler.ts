@@ -29,12 +29,12 @@ import { parseJSONWithFallback } from '../lib/json'
 import { getParam, httpError, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import {
+  adminRegistrationResponse,
   createRegistrationPatches,
   createSentRegistrationMessagesAudit,
   getCancelAuditMessage,
   getReadyRegistrationsByEventId,
   getRegistrationEditToken,
-  participantRegistrationResponse,
   sendTemplatedEmailToEventRegistrations,
   updateReserveNotified,
 } from '../lib/registration'
@@ -343,7 +343,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   await publishPublicStartList(confirmedEvent)
   const responseItems = await Promise.all(
     updatedItems.map(async (registration) =>
-      participantRegistrationResponse(registration, getRegistrationEditToken(registration))
+      adminRegistrationResponse(registration, getRegistrationEditToken(registration))
     )
   )
 

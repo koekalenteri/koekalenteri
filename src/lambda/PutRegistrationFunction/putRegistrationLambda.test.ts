@@ -522,6 +522,34 @@ describe('putRegistrationLabmda', () => {
     expect(errorSpy).not.toHaveBeenCalled()
   })
 
+  it('answers a save without the result, the notes or the groups (KOE-1515)', async () => {
+    const group = { date: eventWithStaticDates.startDate, key: 'ap', number: 2, time: 'ap' }
+    const existingJson = {
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      eventResult: { result: 'AVO1' },
+      group,
+      internalNotes: 'call the owner',
+      startGroup: { ...group, number: 7 },
+    }
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registrationWithStaticDates,
+        notes: 'updated notes',
+      })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const body = JSON.parse(res.body)
+    expect(body.notes).toEqual('updated notes')
+    expect(body).not.toHaveProperty('eventResult')
+    expect(body).not.toHaveProperty('internalNotes')
+    expect(body).not.toHaveProperty('group')
+    expect(body).not.toHaveProperty('startGroup')
+  })
+
   it('should clear email delivery status from response after sending update email', async () => {
     const existingJson = {
       ...JSON.parse(JSON.stringify(registrationWithStaticDates)),

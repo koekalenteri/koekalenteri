@@ -1,16 +1,12 @@
 import { authorizeEvent } from '../lib/eventAuth'
 import { changedItemsSince, collectionCursor, parseDateParam } from '../lib/incremental'
 import { getParam, lambda, response } from '../lib/lambda'
-import {
-  getRegistrationEditToken,
-  getRegistrationsByEventId,
-  participantRegistrationResponse,
-} from '../lib/registration'
+import { adminRegistrationResponse, getRegistrationEditToken, getRegistrationsByEventId } from '../lib/registration'
 
 const withEditTokens = (items: Awaited<ReturnType<typeof getRegistrationsByEventId>>) =>
   Promise.all(
     (items ?? []).map(async (registration) =>
-      participantRegistrationResponse(registration, getRegistrationEditToken(registration))
+      adminRegistrationResponse(registration, getRegistrationEditToken(registration))
     )
   )
 

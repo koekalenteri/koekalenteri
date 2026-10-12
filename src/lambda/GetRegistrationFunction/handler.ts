@@ -50,10 +50,8 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
     }
   }
 
-  // Make sure not to leak information to user
-  delete registration.group
-  delete registration.internalNotes
-
+  // The group and the other fields a participant must not see are left out last: the derivations
+  // above read them.
   return response(200, participantRegistrationResponse(registration, editToken), event)
 })
 
