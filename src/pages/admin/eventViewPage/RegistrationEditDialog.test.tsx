@@ -76,6 +76,26 @@ describe('RegistrationEditDialog', () => {
     expect(screen.getByRole('button', { name: 'registration.cta.saveChanges' })).toBeInTheDocument()
   })
 
+  it("links to the registrant's page marked as opened from the admin side (KOE-1512)", async () => {
+    await renderSuspended(
+      <RegistrationEditDialog
+        event={eventWithStaticDates}
+        open={true}
+        registrationId={registrationWithStaticDates.id}
+      />,
+      {
+        wrapper: Wrapper,
+      }
+    )
+    await flushPromises()
+
+    // The mark keeps the secretary's language: the page would otherwise switch to the registration's.
+    expect(screen.getByRole('link', { name: registrationWithStaticDates.id })).toHaveAttribute(
+      'href',
+      `/r/${registrationWithStaticDates.eventId}/${registrationWithStaticDates.id}?from=admin`
+    )
+  })
+
   it('renders when registration is cancelled', async () => {
     await renderSuspended(
       <RegistrationEditDialog

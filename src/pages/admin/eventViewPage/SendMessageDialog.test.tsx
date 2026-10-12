@@ -154,6 +154,40 @@ describe('SendMessageDialog', () => {
     expect(screen.getByRole('heading', { name: registrationWithStaticDates.dog.name })).toBeInTheDocument()
   })
 
+  it("marks the preview's links to the registrant's pages as opened from the admin side (KOE-1512)", async () => {
+    const links = {
+      HtmlPart:
+        '<a href="{{link}}">open</a> <a href="{{link}}/cancel">cancel</a> <a href="{{paymentLink}}">pay</a> <a href="{{invitationLink}}">invitation</a>',
+      SubjectPart: 'Ilmoittautuminen',
+      TemplateName: 'registration',
+      TextPart: '',
+    }
+    const linkTemplate: EmailTemplate = { ...registrationTemplate, ses: { en: links, fi: links } }
+    await renderSuspended(
+      <SendMessageDialog
+        registrations={[registrationWithStaticDates]}
+        open={true}
+        event={eventWithStaticDates}
+        templateId="registration"
+      />,
+      { wrapper: createWrapper({ emailTemplates: [linkTemplate] }) }
+    )
+    await flushPromises()
+
+    // Following one keeps the secretary's language; the same links in the sent email stay unmarked.
+    const registrationPath = `/${registrationWithStaticDates.eventId}/${registrationWithStaticDates.id}`
+    expect(screen.getByRole('link', { name: 'open' })).toHaveAttribute('href', `/r${registrationPath}?from=admin`)
+    expect(screen.getByRole('link', { name: 'cancel' })).toHaveAttribute(
+      'href',
+      `/r${registrationPath}/cancel?from=admin`
+    )
+    expect(screen.getByRole('link', { name: 'pay' })).toHaveAttribute('href', `/p${registrationPath}?from=admin`)
+    expect(screen.getByRole('link', { name: 'invitation' })).toHaveAttribute(
+      'href',
+      `/r${registrationPath}/invitation?from=admin`
+    )
+  })
+
   it('shows the event invitation attachment when sending invitations', async () => {
     await renderSuspended(
       <SendMessageDialog

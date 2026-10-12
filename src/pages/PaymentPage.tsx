@@ -79,7 +79,7 @@ export const PaymentPageWithData = ({
   responseStatus,
 }: Props) => {
   const { t } = useTranslation()
-  useRegistrationLanguage(registration?.language)
+  useRegistrationLanguage(registration)
 
   if (!event) {
     return <>{t('error.eventNotFound')}</>

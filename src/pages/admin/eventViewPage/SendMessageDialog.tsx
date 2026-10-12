@@ -32,7 +32,7 @@ import { useRegistrationEmailTemplateData } from '@/hooks/useRegistrationEmailTe
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { invitationAttachmentFileName } from '@/lib/fileName'
 import { getRegistrationClass, getRegistrationEmails } from '@/lib/registration'
-import { Path } from '@/routeConfig'
+import { markParticipantLinksFromAdmin, Path } from '@/routeConfig'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { validIdTokenAtom } from '../../state'
@@ -119,7 +119,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       return { html: '', subject: '' }
     }
     return {
-      html: compiledTemplate(previewData),
+      html: markParticipantLinksFromAdmin(compiledTemplate(previewData)),
       subject: compiledSubject(previewData),
     }
   }, [compiledTemplate, compiledSubject, previewData])

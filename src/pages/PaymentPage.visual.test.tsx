@@ -90,6 +90,10 @@ const renderAt = async (
   )
 }
 
+// Every render opens the page as from an email link in a fresh tab: the tab's decision about the
+// registration's language (KOE-1512) would otherwise carry over to the next test of the same id.
+beforeEach(() => sessionStorage.clear())
+
 it('lays out the payment method groups on a desktop', async () => {
   const screen = await renderAt(DESKTOP)
 
