@@ -6,7 +6,7 @@ import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
 import { eventWithStaticDates } from '../../__mockData__/events'
-import { registrationWithStaticDates } from '../../__mockData__/registrations'
+import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { createMatchMedia, flushPromises, renderWithUserEvents, runPendingTimers } from '../../test-utils/utils'
@@ -187,6 +187,48 @@ describe('RegistrationForm', () => {
     await flushPromises()
 
     expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('7,00')
+  })
+
+  // KOE-1526 review: a lifted reserve whose fee went back owes the fee as the form reads it, so an
+  // optional cost added in the form shows at once. The server's due only says it has a place.
+  it('shows what a lifted reserve whose fee went back owes as the form changes', async () => {
+    const event = {
+      ...eventWithStaticDates,
+      cost: { normal: 50, optionalAdditionalCosts: [{ cost: 10, description: { fi: 'Iltaruokailu' } }] },
+      costMember: undefined,
+    }
+    const lifted = {
+      ...registrationWithStaticDates,
+      optionalCosts: [],
+      paidAmount: 50,
+      paymentDue: 50,
+      refundAmount: 50,
+      refundHandlingCost: 0,
+      selectedCost: 'normal' as const,
+    }
+    const { rerender } = render(<RegistrationForm event={event} registration={lifted} />, { wrapper: Wrapper })
+    await flushPromises()
+    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('50,00')
+
+    rerender(<RegistrationForm event={event} registration={{ ...lifted, optionalCosts: [0] }} />)
+    await flushPromises()
+
+    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('60,00')
+  })
+
+  // KOE-1526 review: at confirmation-time payment the line follows the pay offer, not the confirmation.
+  it('asks for the fee now when paying is offered before the place is confirmed', async () => {
+    const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const picked = {
+      ...unpaidRegistrationWithStaticDates,
+      confirmed: false,
+      messagesSent: { picked: true },
+      shouldPay: true,
+    }
+    render(<RegistrationForm event={event} registration={picked} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent(/^registration\.paymentToBePaid /)
   })
 
   it('should render optional costs', async () => {

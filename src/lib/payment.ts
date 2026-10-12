@@ -9,7 +9,7 @@ import type {
   PaytrailRefusalBody,
   PublicDogEvent,
   Registration,
-  RegistrationGroupKey,
+  RegistrationGroupHolder,
 } from '../types'
 import type { AuditActor } from './audit'
 import type { InvitationAttachmentEvent, InvitationAttachmentRegistration } from './registration'
@@ -19,6 +19,7 @@ import {
   getApplicableStrategy,
   getEarlyBirdDates,
   getPaymentBalance,
+  getPlaceDue,
   isPaymentWithoutAmount,
   selectCost,
 } from './cost'
@@ -72,33 +73,37 @@ export const getProviderName = (provider?: string) =>
 /** When the trial is paid for, all a payment decision reads of the event besides its fee. */
 type PaymentTimeEvent = { paymentTime?: PaymentTime }
 
+/** What the pay offer reads: the server's word on the participant's pages, the group on the secretary's. */
+type PayOfferRegistration = Pick<Registration, 'cancelled' | 'shouldPay'> & RegistrationGroupHolder
+
 type PaymentStatusRegistration = Pick<
   Registration,
-  'paymentStatus' | 'confirmed' | 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
->
+  'paymentStatus' | 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
+> &
+  PayOfferRegistration
 
 /**
- * A payment that went through: paid, a part of it missing, or given back. A fee that went back to a
- * reserve reads as refunded, not as paid, and as missing again once the place owes it (KOE-1526).
+ * Whether a fee paid at confirmation still waits for a place, which is what the pay offer reads: the
+ * participant's pages have the server's `shouldPay`, the secretary's the group, and a new entry
+ * neither (KOE-1526). The confirmation itself does not decide it: a picked place may pay before
+ * confirming.
  */
-const getSuccessfulPaymentStatus = (registration: PaymentStatusRegistration, due: number) => {
-  if (isPaymentReturned(registration)) return due > 0 ? 'paymentStatus.missing' : 'paymentStatus.refunded'
-  return due > 0 ? 'paymentStatus.partial' : 'paymentStatus.success'
-}
+export const isPaymentWaitingForPlace = (event: PaymentTimeEvent, registration: PayOfferRegistration): boolean =>
+  event.paymentTime === 'confirmation' &&
+  !(registration.shouldPay ?? isParticipantGroup(getRegistrationGroupKey(registration)))
 
 /**
  * The key of what the entrant reads about the fee. `due` is what is still owed of a fee that has
  * been paid once: a member price paid by someone who was not a member (KOE-722) reads as a part
- * missing, not as paid.
+ * missing, not as paid. A fee that went back reads as refunded, whatever a later payment attempt
+ * left behind, and as missing once the place owes it again (KOE-1526).
  */
 export const getPaymentStatus = (registration: PaymentStatusRegistration, event?: PaymentTimeEvent, due = 0) => {
-  if (registration.paymentStatus === 'SUCCESS') return getSuccessfulPaymentStatus(registration, due)
   if (registration.paymentStatus === 'DUPLICATE') return 'paymentStatus.duplicate'
   if (registration.paymentStatus === 'PENDING') return 'paymentStatus.pending'
-  // If payment is after confirmation and registration is not yet confirmed, show different message
-  if (event?.paymentTime === 'confirmation' && !registration.confirmed) {
-    return 'paymentStatus.waitingForConfirmation'
-  }
+  if (isPaymentReturned(registration)) return due > 0 ? 'paymentStatus.missing' : 'paymentStatus.refunded'
+  if (registration.paymentStatus === 'SUCCESS') return due > 0 ? 'paymentStatus.partial' : 'paymentStatus.success'
+  if (event && isPaymentWaitingForPlace(event, registration)) return 'paymentStatus.waitingForConfirmation'
   return 'paymentStatus.missing'
 }
 
@@ -142,10 +147,12 @@ export type ParticipantPaymentRegistration = PaymentBalanceRegistration & Pick<R
 export const getParticipantPaymentDue = (
   event: MinimalEventForCost,
   registration: ParticipantPaymentRegistration
-): number =>
-  isPaymentReturned(registration) && registration.paymentDue !== undefined
-    ? registration.paymentDue
-    : getPaymentBalance(event, registration).due
+): number => {
+  if (!isPaymentReturned(registration) || registration.paymentDue === undefined) {
+    return getPaymentBalance(event, registration).due
+  }
+  return registration.paymentDue === 0 ? 0 : getPlaceDue(event, registration)
+}
 
 /**
  * What the participant's own pages show as still owed. A trial that is not confirmed yet shows no
@@ -166,26 +173,26 @@ export const isPaymentOffered = (
   Boolean(registration.shouldPay) && registration.paymentStatus !== 'DUPLICATE' && !paymentVerificationInProgress
 
 /**
- * Whether the participant is offered the payment link: nothing paid yet, or a part still owed. A
- * payment in progress is waited for, a payment charged twice waits for its refund, and paying at
- * confirmation waits for a place. GetRegistration
- * and the payment patches ask this alike, so the pay button does not come and go (KOE-1526).
+ * Whether the participant is offered the payment link: the balance owes something. Whatever a
+ * payment attempt left, a cancelled one say, does not decide it (KOE-1526). A payment in progress is
+ * waited for, a payment charged twice waits for its refund, and paying at confirmation waits for a
+ * place. GetRegistration and the payment patches ask this alike, so the pay button does not come and
+ * go.
  */
 export const shouldParticipantPay = (
   event: PaymentTimeEvent,
-  registration: Pick<Registration, 'cancelled' | 'paymentStatus'> & { group?: RegistrationGroupKey },
+  registration: Pick<Registration, 'cancelled' | 'paymentStatus'> & RegistrationGroupHolder,
   due: number
 ): boolean => {
   if (
     registration.cancelled ||
+    due <= 0 ||
     registration.paymentStatus === 'PENDING' ||
     registration.paymentStatus === 'DUPLICATE'
   ) {
     return false
   }
-  const owes = registration.paymentStatus !== 'SUCCESS' || due > 0
-  if (event.paymentTime === 'confirmation') return owes && isParticipantGroup(registration.group?.key)
-  return owes
+  return event.paymentTime !== 'confirmation' || isParticipantGroup(getRegistrationGroupKey(registration))
 }
 
 /** What the participant's pages read of the fee: what is still owed, and whether to offer the payment link. */

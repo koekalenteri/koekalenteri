@@ -3,7 +3,7 @@ import type {
   MinimalRegistrationForMembership,
   PublicConfirmedEvent,
   Registration,
-  RegistrationGroupKey,
+  RegistrationGroupHolder,
 } from '.'
 import type { BreedCode } from './Dog'
 import type { KeyofExcluding } from './utility'
@@ -51,9 +51,8 @@ export interface MinimalRegistrationForCost
  */
 export interface PaymentBalanceRegistration
   extends MinimalRegistrationForCost,
-    Pick<Registration, 'cancelled' | 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'> {
-  group?: RegistrationGroupKey
-}
+    Pick<Registration, 'cancelled' | 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'>,
+    RegistrationGroupHolder {}
 
 /** Where an entry's money stands against its fee, in euros. See `getPaymentBalance`. */
 export interface PaymentBalance {

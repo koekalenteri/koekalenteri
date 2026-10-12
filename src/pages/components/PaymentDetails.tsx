@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { ParticipantPaymentRegistration } from '../../lib/payment'
-import type { MinimalEventForCost } from '../../types'
+import type { MinimalEventForCost, PublicDogEvent } from '../../types'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
@@ -8,14 +8,15 @@ import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
 import { getCostSegmentName, hasDifferentMemberPrice } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
-import { getParticipantPaymentDue, getRegistrationPaymentDetails } from '../../lib/payment'
+import { getRegistrationPaymentDetails, getShownPaymentDue } from '../../lib/payment'
 import { languageAtom } from '../state'
 import InfoTableContainerGrid from './InfoTableContainerGrid'
 import InfoTableNumberGrid from './InfoTableNumberGrid'
 import InfoTableTextGrid from './InfoTableTextGrid'
 
 interface Props {
-  readonly event: MinimalEventForCost
+  /** The trial as the page holds it: what is to pay shows only once it is confirmed (KOE-1526). */
+  readonly event: PublicDogEvent & MinimalEventForCost
   readonly registration: ParticipantPaymentRegistration
   readonly includePayable?: boolean
   readonly includeTotal?: boolean
@@ -96,7 +97,7 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
         ) : null}
         {includePayable ? (
           // What the payment link collects: a reserve's refunded fee is not asked for again (KOE-1526).
-          <PaymentRow bold name={t('registration.toBePaid')} amount={getParticipantPaymentDue(event, registration)} />
+          <PaymentRow bold name={t('registration.toBePaid')} amount={getShownPaymentDue(event, registration)} />
         ) : null}
       </InfoTableContainerGrid>
     </Box>

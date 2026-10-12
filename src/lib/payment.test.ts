@@ -50,6 +50,13 @@ describe('payment', () => {
         )
       })
 
+      // The server's due says only whether the entry holds a place; the amount is the form's own, so
+      // a change to a lifted reserve's entry shows at once (KOE-1526 review).
+      it('reads the amount of a lifted reserve whose fee went back as the form has it', () => {
+        const lifted = { ...member, paidAmount: 35, paymentDue: 35, refundAmount: 35 }
+        expect(getParticipantPaymentDue(event, { ...lifted, owner: { membership: false } })).toBe(40)
+      })
+
       it('reads a returned fee itself when a response came without the due', () => {
         expect(getParticipantPaymentDue(event, { ...member, paidAmount: 35, refundAmount: 35 })).toBe(0)
       })
@@ -61,6 +68,11 @@ describe('payment', () => {
         ['an unpaid entry', {}, 40, 'registration', true],
         ['a paid entry', { paymentStatus: 'SUCCESS' }, 0, 'registration', false],
         ['a paid entry still owing a part', { paymentStatus: 'SUCCESS' }, 5, 'registration', true],
+        // What the last attempt left does not matter: the balance decides (KOE-1526 review).
+        ['a returned fee whose next payment was cancelled', { paymentStatus: 'CANCEL' }, 0, 'registration', false],
+        ['a returned fee whose next payment was never made', { paymentStatus: 'NEW' }, 0, 'registration', false],
+        ['an entry to a trial that costs nothing', {}, 0, 'registration', false],
+        ['a paid place paying at confirmation', { group: place, paymentStatus: 'SUCCESS' }, 0, 'confirmation', false],
         ['a payment in progress', { paymentStatus: 'PENDING' }, 40, 'registration', false],
         ['a cancelled entry', { cancelled: true }, 40, 'registration', false],
         ['a payment charged twice', { paymentStatus: 'DUPLICATE' }, 40, 'registration', false],
@@ -71,7 +83,7 @@ describe('payment', () => {
       })
     })
 
-    it('getParticipantPaymentState asks a lifted reserve whose fee went back to pay it', () => {
+    it('getParticipantPaymentState asks nothing of a reserve whose fee went back, and the fee once it has a place', () => {
       const returned = {
         ...member,
         owner: { membership: false },
@@ -83,6 +95,10 @@ describe('payment', () => {
       expect(getParticipantPaymentState(priced, { ...returned, group: { key: 'reserve' } })).toEqual({
         paymentDue: 0,
         shouldPay: false,
+      })
+      expect(getParticipantPaymentState(priced, { ...returned, group: { key: '2026-08-15-ap' } })).toEqual({
+        paymentDue: 40,
+        shouldPay: true,
       })
     })
 
@@ -224,6 +240,13 @@ describe('payment', () => {
         expect(getPaymentStatus(returned, undefined, 45)).toEqual('paymentStatus.missing')
       })
 
+      it.each(['CANCEL', 'NEW'] as const)(
+        'says the fee was refunded when the next payment attempt left %s',
+        (paymentStatus) => {
+          expect(getPaymentStatus({ ...returned, paymentStatus }, undefined, 0)).toEqual('paymentStatus.refunded')
+        }
+      )
+
       it('still reads as paid when only an overpaid part was refunded', () => {
         expect(getPaymentStatus({ ...returned, refundAmount: 10, refundHandlingCost: 0 }, undefined, 0)).toEqual(
           'paymentStatus.success'
@@ -232,34 +255,45 @@ describe('payment', () => {
     })
 
     describe('with event parameter', () => {
-      it('should return waitingForConfirmation when paymentTime is confirmation and registration not confirmed', () => {
+      // At confirmation-time payment the line follows the pay offer: the server's shouldPay, which
+      // reads the place, not the confirmation (KOE-1526 review).
+      it('should return waitingForConfirmation when paymentTime is confirmation and paying is not offered', () => {
         expect(
-          getPaymentStatus({ confirmed: false, paymentStatus: undefined }, { paymentTime: 'confirmation' })
+          getPaymentStatus({ paymentStatus: undefined, shouldPay: false }, { paymentTime: 'confirmation' })
         ).toEqual('paymentStatus.waitingForConfirmation')
       })
 
-      it('should return missing when paymentTime is confirmation and registration is confirmed', () => {
+      it('should return missing when paymentTime is confirmation and paying is offered before confirming', () => {
         expect(
-          getPaymentStatus({ confirmed: true, paymentStatus: undefined }, { paymentTime: 'confirmation' })
+          getPaymentStatus({ paymentStatus: undefined, shouldPay: true }, { paymentTime: 'confirmation' })
+        ).toEqual('paymentStatus.missing')
+      })
+
+      it("should read a secretary's row by its group", () => {
+        expect(
+          getPaymentStatus(
+            { group: { key: '2026-08-15-ap' }, paymentStatus: undefined },
+            { paymentTime: 'confirmation' }
+          )
         ).toEqual('paymentStatus.missing')
       })
 
       it('should return missing when paymentTime is registration and registration not confirmed', () => {
-        expect(
-          getPaymentStatus({ confirmed: false, paymentStatus: undefined }, { paymentTime: 'registration' })
-        ).toEqual('paymentStatus.missing')
+        expect(getPaymentStatus({ paymentStatus: undefined }, { paymentTime: 'registration' })).toEqual(
+          'paymentStatus.missing'
+        )
       })
 
       it('should return success when payment is successful regardless of confirmation state', () => {
-        expect(
-          getPaymentStatus({ confirmed: false, paymentStatus: 'SUCCESS' }, { paymentTime: 'confirmation' })
-        ).toEqual('paymentStatus.success')
+        expect(getPaymentStatus({ paymentStatus: 'SUCCESS' }, { paymentTime: 'confirmation' })).toEqual(
+          'paymentStatus.success'
+        )
       })
 
       it('should return pending when payment is pending regardless of confirmation state', () => {
-        expect(
-          getPaymentStatus({ confirmed: false, paymentStatus: 'PENDING' }, { paymentTime: 'confirmation' })
-        ).toEqual('paymentStatus.pending')
+        expect(getPaymentStatus({ paymentStatus: 'PENDING' }, { paymentTime: 'confirmation' })).toEqual(
+          'paymentStatus.pending'
+        )
       })
     })
   })
@@ -387,11 +421,13 @@ describe('payment', () => {
   })
 
   describe('getRegistrationPaymentDetails', () => {
-    const event: any = {
+    const event: MinimalEventForCost = {
       cost: 10,
       costMember: 5,
+      entryStartDate: new Date('2026-01-01'),
     }
-    const registration: any = {
+    const registration: MinimalRegistrationForCost = {
+      createdAt: new Date('2026-01-02'),
       dog: {},
       ownerHandles: true,
     }
@@ -504,7 +540,7 @@ describe('payment', () => {
       }
       const registrationWithOptional = {
         ...registration,
-        dog: { breedCode: '101' },
+        dog: { breedCode: '101' as const },
         owner: { membership: false },
       }
       expect(getRegistrationPaymentDetails(eventWithOptional, registrationWithOptional)).toEqual({
@@ -541,7 +577,7 @@ describe('payment', () => {
       const registrationWithOptional = {
         ...registration,
         owner: { membership: false },
-        selectedCost: 'custom',
+        selectedCost: 'custom' as const,
       }
       expect(getRegistrationPaymentDetails(eventWithOptional, registrationWithOptional)).toEqual({
         cost: 1,

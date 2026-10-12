@@ -17,7 +17,7 @@ import type {
   PublicDogEvent,
   Registration,
   RegistrationClass,
-  RegistrationGroupKey,
+  RegistrationGroupHolder,
   RegistrationOwner,
   RegistrationPerson,
   RegistrationTemplateContext,
@@ -512,9 +512,7 @@ export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Re
   return hasSharedReserveList(reg.eventType) ? GROUP_KEY_RESERVE : `${GROUP_KEY_RESERVE}-${classOrType}`
 }
 
-export const getRegistrationGroupKey = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'cancelled' | 'group'>
-) => {
+export const getRegistrationGroupKey = (reg: Pick<Registration, 'cancelled'> & RegistrationGroupHolder): string => {
   if (reg.cancelled) {
     return GROUP_KEY_CANCELLED
   }
@@ -575,8 +573,9 @@ export const isPaymentReturned = <T extends JsonRegistration | Registration>(reg
  * and owes the fee again once it is lifted into one (KOE-1526). An entry without a group counts as a
  * reserve, as it does for the refund.
  */
-export const isReturnedReserve = (reg: Pick<Registration, RefundField> & { group?: RegistrationGroupKey }): boolean =>
-  !isParticipantGroup(reg.group?.key) && isPaymentReturned(reg)
+export const isReturnedReserve = (
+  reg: Pick<Registration, 'cancelled' | RefundField> & RegistrationGroupHolder
+): boolean => !isParticipantGroup(getRegistrationGroupKey(reg)) && isPaymentReturned(reg)
 
 export const getSelectedAdditionalCosts = (
   event: MinimalEventForCost,

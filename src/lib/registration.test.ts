@@ -590,7 +590,7 @@ describe('lib/registration', () => {
     })
 
     it('should return the group.key for non-cancelled registration', () => {
-      expect(getRegistrationGroupKey({ group: { key: 'test', number: 1 } })).toEqual('test')
+      expect(getRegistrationGroupKey({ group: { key: 'test' } })).toEqual('test')
     })
 
     it('should default to reserver', () => {

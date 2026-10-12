@@ -9,11 +9,11 @@ import RegistrationList from './RegistrationList'
 
 const noop = () => {}
 
-/** Paying at entry; the fee is what the trial says it is. */
-const eventCosting = (cost: number, paymentTime: PublicDogEvent['paymentTime'] = 'registration'): PublicDogEvent => ({
+/** The fee is 123, what registrationWithStaticDates has paid; paying at entry unless told otherwise. */
+const eventCosting = (paymentTime: PublicDogEvent['paymentTime'] = 'registration'): PublicDogEvent => ({
   ...eventWithStaticDates,
-  cost,
-  costMember: cost,
+  cost: 123,
+  costMember: 123,
   paymentTime,
 })
 
@@ -37,20 +37,20 @@ const payAction = () => screen.queryByRole('button', { name: 'registration.actio
 // behind it. Whether to offer it is the server's `shouldPay`, the same answer the status box's pay
 // button reads: only the server knows the group (KOE-1526).
 describe('RegistrationList', () => {
-  it('offers paying again when the fee rose above what was paid (KOE-722)', () => {
-    renderList(eventCosting(130), { ...registrationWithStaticDates, shouldPay: true })
+  it("offers paying when the server's shouldPay says so", () => {
+    renderList(eventCosting(), { ...registrationWithStaticDates, shouldPay: true })
 
     expect(payAction()).toBeInTheDocument()
   })
 
-  it('does not offer paying a fee that has been paid as it reads', () => {
-    renderList(eventCosting(123), { ...registrationWithStaticDates, shouldPay: false })
+  it("does not offer paying when the server's shouldPay says not to", () => {
+    renderList(eventCosting(), { ...registrationWithStaticDates, shouldPay: false })
 
     expect(payAction()).not.toBeInTheDocument()
   })
 
   it('offers paying to a place picked but not yet confirmed when the trial is paid at confirmation', () => {
-    renderList(eventCosting(123, 'confirmation'), {
+    renderList(eventCosting('confirmation'), {
       ...unpaidRegistrationWithStaticDates,
       confirmed: false,
       messagesSent: { picked: true },
@@ -61,7 +61,7 @@ describe('RegistrationList', () => {
   })
 
   it('does not offer paying to a confirmed entry moved back to the reserve list', () => {
-    renderList(eventCosting(123, 'confirmation'), {
+    renderList(eventCosting('confirmation'), {
       ...unpaidRegistrationWithStaticDates,
       confirmed: true,
       shouldPay: false,
@@ -71,13 +71,13 @@ describe('RegistrationList', () => {
   })
 
   it('does not offer paying a payment charged twice', () => {
-    renderList(eventCosting(123), { ...unpaidRegistrationWithStaticDates, paymentStatus: 'DUPLICATE', shouldPay: true })
+    renderList(eventCosting(), { ...unpaidRegistrationWithStaticDates, paymentStatus: 'DUPLICATE', shouldPay: true })
 
     expect(payAction()).not.toBeInTheDocument()
   })
 
   it('does not offer paying while a payment is being verified', () => {
-    renderList(eventCosting(123), { ...unpaidRegistrationWithStaticDates, shouldPay: true }, true)
+    renderList(eventCosting(), { ...unpaidRegistrationWithStaticDates, shouldPay: true }, true)
 
     expect(payAction()).not.toBeInTheDocument()
   })

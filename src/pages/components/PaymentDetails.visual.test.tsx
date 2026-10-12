@@ -1,6 +1,7 @@
-import type { MinimalEventForCost, MinimalRegistrationForCost } from '../../types'
+import type { MinimalEventForCost, MinimalRegistrationForCost, PublicDogEvent } from '../../types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
+import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { TestProvider } from '../../test-utils/AtomProvider'
 import { languageAtom } from '../state'
@@ -16,7 +17,9 @@ const Frame = ({ children, width = 600 }: { readonly children: React.ReactNode; 
 /** A phone's worth of width, less the page's own margins. */
 const PHONE = 360
 
-const event: MinimalEventForCost = {
+/** A confirmed trial: the details show what is to pay only for one (KOE-1526). */
+const event: PublicDogEvent & MinimalEventForCost = {
+  ...eventWithStaticDates,
   cost: {
     earlyBird: { cost: 35, days: 7 },
     normal: 45,

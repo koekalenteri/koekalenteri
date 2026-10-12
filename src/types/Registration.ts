@@ -314,6 +314,11 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
 /** What a decision that only asks which group an entry is in reads of it: a stored and a parsed group alike. */
 export type RegistrationGroupKey = Pick<JsonRegistrationGroup, 'key'>
 
+/** An entry as a decision that asks only which group it is in reads it. */
+export interface RegistrationGroupHolder {
+  group?: RegistrationGroupKey
+}
+
 /** The public row's group: the number is withheld until the class's start numbers are published. */
 export type JsonPublicRegistrationGroup = Omit<JsonRegistrationGroup, 'number'> & { number?: number }
 export type PublicRegistrationGroup = Omit<RegistrationGroup, 'number'> & { number?: number }

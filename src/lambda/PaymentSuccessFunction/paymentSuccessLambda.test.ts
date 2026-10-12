@@ -1,3 +1,4 @@
+import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
@@ -17,7 +18,7 @@ const mockUpdate = vi.fn()
 const mockWrite = vi.fn()
 const mockUpdateRegistrations = vi.fn()
 const mockGetEvent = vi.fn()
-const mockFixRegistrationGroups = vi.fn(async (registrations: any[]) => registrations)
+const mockFixRegistrationGroups = vi.fn(async (registrations: unknown[]) => registrations)
 const mockLockRegistrationGroups = vi.fn().mockResolvedValue(async () => undefined)
 const mockLockRegistrationPayments = vi.fn().mockResolvedValue(async () => undefined)
 const mockGetReadyRegistrationsByEventId = vi.fn().mockResolvedValue([])
@@ -61,7 +62,7 @@ vi.doMock('../lib/payment', () => ({
 
 vi.doMock('../lib/registration', () => ({
   clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
-  createRegistrationPatch: vi.fn((registration: any, existing: any = {}) => ({
+  createRegistrationPatch: vi.fn((registration: Record<string, unknown>, existing: Record<string, unknown> = {}) => ({
     eventId: registration.eventId,
     id: registration.id,
     ...Object.fromEntries(Object.entries(registration).filter(([key, value]) => existing[key] !== value)),
@@ -181,7 +182,7 @@ describe('paymentSuccessLambda', () => {
     })
     mockGetEvent.mockResolvedValue({ cost: 50, id: 'event123', name: 'Test Event', organizer: { id: 'org-1' } })
 
-    mockGetFixedT.mockReturnValue((key: string, _options?: Record<string, any>) => {
+    mockGetFixedT.mockReturnValue((key: string, _options?: Record<string, unknown>) => {
       if (key === 'dateFormat.long') return '1.1.2025'
       return key
     })
@@ -192,11 +193,13 @@ describe('paymentSuccessLambda', () => {
     })
 
     mockEmailTo.mockReturnValue(['test@example.com'])
-    mockRegistrationEmailTags.mockImplementation((registration: any, template: any) => [
-      { Name: 'eventId', Value: registration.eventId },
-      { Name: 'registrationId', Value: registration.id },
-      { Name: 'template', Value: template },
-    ])
+    mockRegistrationEmailTags.mockImplementation(
+      (registration: Pick<JsonRegistration, 'eventId' | 'id'>, template: string) => [
+        { Name: 'eventId', Value: registration.eventId },
+        { Name: 'registrationId', Value: registration.id },
+        { Name: 'template', Value: template },
+      ]
+    )
 
     mockSendTemplatedMail.mockResolvedValue(undefined)
   })
@@ -733,6 +736,27 @@ describe('paymentSuccessLambda', () => {
           expect.any(Array)
         )
       })
+    })
+
+    // A registration that has never been paid has no amount stored: the payment is all of it.
+    it('records a first payment on a registration with no amount stored', async () => {
+      mockGetRegistration.mockResolvedValue({
+        eventId: 'event123',
+        id: 'reg456',
+        language: 'fi',
+        payer: { email: 'test@example.com' },
+        paymentStatus: 'PENDING',
+        state: 'ready',
+      })
+
+      await paymentSuccessLambda(event)
+
+      expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.objectContaining({ paidAmount: 50, paymentStatus: 'SUCCESS' })
+      )
+      expect(confirmationContexts()).toEqual([''])
     })
 
     // A payer who had part of the fee back still has the rest standing: the receipt counts it.

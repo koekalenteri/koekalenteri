@@ -1,5 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { GridColDef } from '@mui/x-data-grid'
+import type { PaymentStatusKey } from '../../lib/payment'
 import type { BreedCode, PublicDogEvent, Registration } from '../../types'
 import CancelOutlined from '@mui/icons-material/CancelOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
@@ -22,10 +23,6 @@ import { SCREEN_READER_ONLY } from '../components/screenReaderOnly'
 
 type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
 
-/** What the payment line reads, which its euro sign shows too (KOE-1526). */
-const paymentStatusOf = (event: PublicDogEvent, registration: StrippedRegistration) =>
-  getPaymentStatus(registration, event, getShownPaymentDue(event, registration))
-
 interface Props {
   readonly disabled?: boolean
   readonly event: PublicDogEvent
@@ -35,15 +32,16 @@ interface Props {
 }
 
 interface RegistrationListItemTooltipIconsProps {
-  registration: StrippedRegistration
+  paymentDue: number
+  paymentStatus: PaymentStatusKey
   priority: boolean | 0.5
 }
 
 const RegistrationListItemTooltipIcons = ({
-  registration,
+  paymentDue,
+  paymentStatus,
   priority,
-  event,
-}: RegistrationListItemTooltipIconsProps & { event: PublicDogEvent }) => {
+}: RegistrationListItemTooltipIconsProps) => {
   const { t } = useTranslation()
   return (
     <>
@@ -54,8 +52,8 @@ const RegistrationListItemTooltipIcons = ({
       />
       <TooltipIcon
         key="payment"
-        text={t(paymentStatusOf(event, registration), { amount: formatMoney(getShownPaymentDue(event, registration)) })}
-        icon={<PaymentIcon status={paymentStatusOf(event, registration)} fontSize="small" />}
+        text={t(paymentStatus, { amount: formatMoney(paymentDue) })}
+        icon={<PaymentIcon status={paymentStatus} fontSize="small" />}
       />
     </>
   )
@@ -69,9 +67,14 @@ const RegistrationListItemIcons = ({
   registration: StrippedRegistration
 }) => {
   const priority = hasPriority(event, registration)
+  // What the payment line reads, which its euro sign shows too (KOE-1526).
+  const paymentDue = getShownPaymentDue(event, registration)
+  const paymentStatus = getPaymentStatus(registration, event, paymentDue)
   return (
     <IconsTooltip
-      icons={<RegistrationListItemTooltipIcons registration={registration} priority={priority} event={event} />}
+      icons={
+        <RegistrationListItemTooltipIcons paymentDue={paymentDue} paymentStatus={paymentStatus} priority={priority} />
+      }
       placement="bottom-start"
     >
       <Box
@@ -82,7 +85,7 @@ const RegistrationListItemIcons = ({
         }}
       >
         <PriorityIcon dim priority={priority} fontSize="small" />
-        <PaymentIcon dim status={paymentStatusOf(event, registration)} fontSize="small" />
+        <PaymentIcon dim status={paymentStatus} fontSize="small" />
       </Box>
     </IconsTooltip>
   )

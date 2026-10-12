@@ -12,7 +12,7 @@ import { useRegistrationSubscription } from '../hooks/useRegistrationSubscriptio
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { getEventStateForClass } from '../lib/event'
-import { getParticipantPaymentDue } from '../lib/payment'
+import { getShownPaymentDue } from '../lib/payment'
 import { getRegistrationClass, getRegistrationEmails } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
@@ -68,7 +68,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     [allDisabled, event]
   )
   // The server's word once something has been paid: this page has no group to tell a reserve by (KOE-1526).
-  const paymentDue = event && registration ? getParticipantPaymentDue(event, registration) : 0
+  const paymentDue = event && registration ? getShownPaymentDue(event, registration) : 0
 
   const handleCancel = useCallback(
     (reason: string) => {
