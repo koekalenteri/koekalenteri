@@ -15,6 +15,7 @@ import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { languageStorageKey } from '../lib/client/storage'
 import { Path } from '../routeConfig'
+import { describeWithTranslations } from '../test-utils/language'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 import AppSnackbarProvider from './components/AppSnackbarProvider'
 import LoadingIndicator from './components/LoadingIndicator'
@@ -25,6 +26,10 @@ vi.mock('../api/event')
 vi.mock('../api/payment')
 vi.mock('../api/registration')
 
+// The file's other tests read keys; the English ones read the app's real English (KOE-1513).
+vi.mock('react-i18next', async (importOriginal) =>
+  (await import('../test-utils/language')).spyOnUseTranslation(importOriginal)
+)
 vi.mock('react-router', async () => ({
   ...(await vi.importActual<typeof import('react-router')>('react-router')),
   useParams: vi.fn(),
@@ -159,6 +164,44 @@ describe('PaymentPage', () => {
     await flushPromises()
     expect(screen.queryByRole('progressbar')).toBeNull()
     expect(screen.getByText('paymentPage.choosePaymentMethod')).toBeInTheDocument()
+  })
+
+  // The loader's answer reaches the page: a Paytrail refusal is named, not left to the status (KOE-1513).
+  it('names a Paytrail refusal the loader got', async () => {
+    mockUseParams.mockImplementation(() => ({
+      id: testRegistration.eventId,
+      registrationId: testRegistration.id,
+    }))
+
+    const path = Path.payment(testRegistration)
+    const routes: RouteObject[] = [
+      {
+        element: <PaymentPage />,
+        hydrateFallbackElement: <LoadingIndicator />,
+        loader: async () => ({
+          response: Promise.resolve({ paytrailError: '{"message":"Rejected"}', status: 400 }),
+        }),
+        path,
+      },
+    ]
+
+    render(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider>
+            <Suspense fallback={<div>loading...</div>}>
+              <AppSnackbarProvider>
+                <DataMemoryRouter initialEntries={[path]} routes={routes} />
+              </AppSnackbarProvider>
+            </Suspense>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    expect(screen.getByText('paymentPage.errorPaytrail error, status')).toBeInTheDocument()
+    expect(screen.queryByText('paymentPage.choosePaymentMethod')).toBeNull()
   })
 
   describe('PaymentPageWithData', () => {
@@ -504,49 +547,62 @@ describe('PaymentPage', () => {
       expect(container).toHaveTextContent('paymentPage.error501MerchantInactive contact')
     })
 
-    it('should show payment error message from backend', async () => {
-      const event = {
-        cost: 50,
-        id: 'test-id',
-        paymentTime: 'registration' as const,
-      }
-      const registration = {
-        ...testRegistration,
-        totalAmount: 50,
-      }
+    // Paytrail's refusal in the payer's language, with Paytrail's status and words whatever they came
+    // as (KOE-1513). Its status is Paytrail's, so it is not read as this API's own 500 or 404.
+    describeWithTranslations('en', () => {
+      it.each([
+        [
+          'its JSON answer',
+          400,
+          JSON.stringify({ message: 'Paytrail provider rejected payment', status: 'error' }),
+          'Payment could not be created at Paytrail (400): Paytrail provider rejected payment',
+        ],
+        [
+          'a plain-text answer',
+          503,
+          'Service Unavailable',
+          'Payment could not be created at Paytrail (503): Service Unavailable',
+        ],
+        ['an empty answer', 500, '', 'Payment could not be created at Paytrail (500): Unknown error'],
+        [
+          'a status this API also answers',
+          404,
+          'Not Found',
+          'Payment could not be created at Paytrail (404): Not Found',
+        ],
+      ])('names a Paytrail refusal with %s', async (_case, status, paytrailError, expected) => {
+        const registration = { ...testRegistration, language: 'en' as const, totalAmount: 50 }
+        const routes: RouteObject[] = [
+          {
+            element: (
+              <PaymentPageWithData
+                registrationId="test-reg-id"
+                event={asPaymentEvent({ cost: 50, id: 'test-id', paymentTime: 'registration' })}
+                registration={registration}
+                response={undefined}
+                paytrailError={paytrailError}
+                responseStatus={status}
+              />
+            ),
+            path: '/test-path',
+          },
+        ]
 
-      const routes: RouteObject[] = [
-        {
-          element: (
-            <PaymentPageWithData
-              registrationId="test-reg-id"
-              event={asPaymentEvent(event)}
-              registration={registration}
-              response={undefined}
-              responseErrorMessage="Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment"
-              responseStatus={400}
-            />
-          ),
-          path: '/test-path',
-        },
-      ]
+        render(
+          <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.en}>
+              <Provider>
+                <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+              </Provider>
+            </LocalizationProvider>
+          </ThemeProvider>
+        )
+        await flushPromises()
 
-      const { container } = render(
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <Provider>
-              <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-            </Provider>
-          </LocalizationProvider>
-        </ThemeProvider>
-      )
-
-      await flushPromises()
-
-      expect(container).toHaveTextContent(
-        'Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment'
-      )
-      expect(container).not.toHaveTextContent('paymentPage.choosePaymentMethod')
+        expect(screen.getByText(expected)).toBeInTheDocument()
+        expect(screen.queryByText(i18n.t('paymentPage.error500', { lng: 'en' }))).toBeNull()
+        expect(screen.queryByText(i18n.t('paymentPage.error404', { lng: 'en' }))).toBeNull()
+      })
     })
   })
 

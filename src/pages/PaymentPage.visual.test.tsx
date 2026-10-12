@@ -67,7 +67,8 @@ const registration = {
 const renderAt = async (
   { height, width }: { height: number; width: number },
   language: Language = 'fi',
-  responseStatus?: number
+  responseStatus?: number,
+  paytrailError?: string
 ) => {
   await page.viewport(width, height)
 
@@ -82,6 +83,7 @@ const renderAt = async (
               registration={{ ...registration, language }}
               response={responseStatus ? undefined : response}
               responseStatus={responseStatus}
+              paytrailError={paytrailError}
             />
           </MemoryRouter>
         </Provider>
@@ -119,8 +121,28 @@ it('tells the payer the registration is already paid', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-already-paid')
 })
 
+/** Paytrail's own JSON answer to a payment it would not create. */
+const PAYTRAIL_REFUSAL = JSON.stringify({ message: 'Validation failed', status: 'error' })
+
+// Paytrail's refusal, with its status and words, in the payer's language (KOE-1513).
+it('tells the payer Paytrail refused the payment', async () => {
+  const screen = await renderAt(DESKTOP, 'fi', 400, PAYTRAIL_REFUSAL)
+
+  const notice = 'Maksun luonti epäonnistui Paytrailissa (400): Validation failed'
+  await expect.element(screen.getByText(notice)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-paytrail-refusal')
+})
+
 // The guide's English page shows the page in English (KOE-1437).
 describeInLanguage('en', () => {
+  it('tells the payer Paytrail refused the payment', async () => {
+    const screen = await renderAt(DESKTOP, 'en', 400, PAYTRAIL_REFUSAL)
+
+    const notice = 'Payment could not be created at Paytrail (400): Validation failed'
+    await expect.element(screen.getByText(notice)).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-paytrail-refusal-en')
+  })
+
   it('lays out the payment method groups on a desktop', async () => {
     const screen = await renderAt(DESKTOP, 'en')
 

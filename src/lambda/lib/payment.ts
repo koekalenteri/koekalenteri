@@ -97,9 +97,6 @@ export const releaseTransactionCreation = async (
   }
 }
 
-export const formatPaytrailErrorMessage = (operation: string, error: PaytrailError) =>
-  `${operation} epäonnistui Paytrailissa (${error.status}): ${paytrailErrorText(error.error) ?? 'Tuntematon virhe'}`
-
 /** A refund Paytrail refused, for the registration's trail. */
 export const refundPaytrailErrorAudit = (error: PaytrailError) =>
   refundPaytrailFailedAudit(error.status, paytrailErrorText(error.error))
