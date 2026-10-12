@@ -147,6 +147,20 @@ vi.doMock('../lib/emailSuppression', () => ({
 
 const { default: putRegistrationLabmda } = await import('./handler')
 
+/** What only the secretary may see of a stored registration (KOE-1515). */
+const secretaryGroup = { date: eventWithStaticDates.startDate, key: 'ap', number: 2, time: 'ap' as const }
+const secretaryOnlyFields = {
+  eventResult: { result: 'AVO1' },
+  group: secretaryGroup,
+  internalNotes: 'call the owner',
+  startGroup: { ...secretaryGroup, number: 7 },
+}
+const expectNoSecretaryOnlyFields = (body: unknown) => {
+  Object.keys(secretaryOnlyFields).forEach((field) => {
+    expect(body).not.toHaveProperty(field)
+  })
+}
+
 describe('putRegistrationLabmda', () => {
   vi.spyOn(console, 'debug').mockImplementation(() => undefined)
   vi.spyOn(console, 'log').mockImplementation(() => undefined)
@@ -169,6 +183,25 @@ describe('putRegistrationLabmda', () => {
   afterAll(() => {
     vi.useRealTimers()
     CONFIG.stageName = stageName
+  })
+
+  it('answers a new registration without the group it was placed in (KOE-1515)', async () => {
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    // The completed registration is the stored row after the groups were reconciled.
+    mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce({
+      registration: { ...JSON.parse(JSON.stringify(registrationWithStaticDates)), ...secretaryOnlyFields },
+      release: async () => undefined,
+      token: 'test-token',
+    })
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...registration } = registrationWithStaticDates
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registration, state: 'ready' }))
+
+    expect(res.statusCode).toBe(200)
+    const body = JSON.parse(res.body)
+    expect(body.id).toBe(registrationWithStaticDates.id)
+    expectNoSecretaryOnlyFields(body)
   })
 
   it('should do happy path for new registration', async () => {
@@ -430,7 +463,13 @@ describe('putRegistrationLabmda', () => {
   it('resumes a same-key confirmation-time create that wins while waiting for the lock', async () => {
     const eventWithConfirmationPayment = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
     const request = { ...registrationWithStaticDates, creationIdempotencyKey: 'same-key', id: undefined }
-    const winner = { ...JSON.parse(JSON.stringify(request)), id: 'winning-registration', state: 'ready' }
+    // The winner found under the lock may already be placed and scored; the answer leaves those out (KOE-1515).
+    const winner = {
+      ...JSON.parse(JSON.stringify(request)),
+      ...secretaryOnlyFields,
+      id: 'winning-registration',
+      state: 'ready',
+    }
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(undefined).mockResolvedValueOnce(winner)
     mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(undefined)
@@ -442,6 +481,7 @@ describe('putRegistrationLabmda', () => {
     const body = JSON.parse(res.body)
     expect(body.id).toBe(winner.id)
     expect(body.editToken).toBe(await libRegistration.getRegistrationEditToken(winner))
+    expectNoSecretaryOnlyFields(body)
   })
 
   it('should reject new registration with suppressed email address', async () => {
@@ -520,6 +560,24 @@ describe('putRegistrationLabmda', () => {
     })
     // A rejected request is the request's fault and logs at info, not as an error of ours (KOE-1342).
     expect(errorSpy).not.toHaveBeenCalled()
+  })
+
+  it('answers a save without the result, the notes or the groups (KOE-1515)', async () => {
+    const existingJson = { ...JSON.parse(JSON.stringify(registrationWithStaticDates)), ...secretaryOnlyFields }
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registrationWithStaticDates,
+        notes: 'updated notes',
+      })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const body = JSON.parse(res.body)
+    expect(body.notes).toEqual('updated notes')
+    expectNoSecretaryOnlyFields(body)
   })
 
   it('should clear email delivery status from response after sending update email', async () => {
@@ -1479,8 +1537,10 @@ describe('putRegistrationLabmda', () => {
   it('returns a concurrent idempotent retry while the original request holds the workflow lease', async () => {
     vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    // The stored registration may already be placed and scored; the retry answers it without those (KOE-1515).
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
       ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      ...secretaryOnlyFields,
       creationIdempotencyKey: 'secret-create-key',
     })
     mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(undefined)
@@ -1496,6 +1556,7 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(200)
     expect(mockApplyNewRegistrationStatsOnce).not.toHaveBeenCalled()
     expect(mockMarkNewRegistrationPhase).not.toHaveBeenCalled()
+    expectNoSecretaryOnlyFields(JSON.parse(res.body))
   })
 
   it('should return 400 for patch registration without eventId and id', async () => {

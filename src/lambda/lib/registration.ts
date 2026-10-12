@@ -212,13 +212,31 @@ export const applyOwnerOverrides = (data: JsonRegistration): void => {
   if (payer) data.payer = payer
 }
 
+/** A registration as the secretary's views receive it: everything stored, with the edit link's token. */
+export const adminRegistrationResponse = <T extends Partial<JsonRegistration>>(registration: T, editToken: string) => {
+  const result = removeRegistrationCreationMetadata({ ...registration, editToken })
+  delete result.editTokenVersion
+  return result
+}
+
+/**
+ * A registration as its owner or handler receives it through the edit link. The fields a participant
+ * must not see are decided here: the dog's result, the secretary's own notes, and the group and the
+ * start number. No participant page reads them, and before their publication each would tell more
+ * than the public start list does (KOE-1515). The caller derives what it needs from them before this.
+ */
 export const participantRegistrationResponse = <T extends Partial<JsonRegistration>>(
   registration: T,
   editToken: string
 ) => {
-  const result = removeRegistrationCreationMetadata({ ...registration, editToken })
-  delete result.editTokenVersion
-  return result
+  const {
+    eventResult: _eventResult,
+    group: _group,
+    internalNotes: _internalNotes,
+    startGroup: _startGroup,
+    ...visible
+  } = adminRegistrationResponse(registration, editToken)
+  return visible
 }
 
 export const getRegistration = async (eventId: string, registrationId: string): Promise<JsonRegistration> => {

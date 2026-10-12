@@ -137,6 +137,15 @@ vi.doMock('../lib/ws/actions', () => ({
 
 const { default: putAdminRegistrationLambda } = await import('./handler')
 
+/** What the secretary's views keep of a stored registration and a participant's answer leaves out (KOE-1515). */
+const secretaryGroup = { date: '2024-01-01', key: 'ap', number: 2, time: 'ap' as const }
+const secretaryOnlyFields = {
+  eventResult: { result: 'ALO1', updatedAt: '2024-01-01T12:00:00.000Z', updatedBy: 'Secretary' },
+  group: secretaryGroup,
+  internalNotes: 'call the owner',
+  startGroup: { ...secretaryGroup, number: 7 },
+}
+
 describe('putAdminRegistrationLambda', () => {
   const _errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
   const event = constructPartialAPIGwEvent({
@@ -594,6 +603,55 @@ describe('putAdminRegistrationLambda', () => {
       'org-1'
     )
     expect(result.statusCode).toBe(200)
+  })
+
+  describe('answers with the fields only the secretary sees (KOE-1515)', () => {
+    it('on an update', async () => {
+      mockGetRegistration.mockResolvedValueOnce({
+        eventId: 'event123',
+        id: 'reg456',
+        state: 'ready',
+        ...secretaryOnlyFields,
+      })
+
+      const result = await putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({ eventId: 'event123', id: 'reg456', notes: 'patched notes' }),
+        httpMethod: 'PATCH',
+      })
+
+      expect(result.statusCode).toBe(200)
+      expect(JSON.parse(result.body)).toMatchObject(secretaryOnlyFields)
+    })
+
+    it('on a new registration', async () => {
+      mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce({
+        registration: { eventId: 'event123', id: 'reg456', state: 'ready', ...secretaryOnlyFields },
+        release: async () => undefined,
+        token: 'test-token',
+      })
+      const request = JSON.parse(event.body ?? '')
+      delete request.id
+
+      const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(request) })
+
+      expect(result.statusCode).toBe(200)
+      expect(JSON.parse(result.body)).toMatchObject(secretaryOnlyFields)
+    })
+
+    it('on a repeated create that finds the stored registration first', async () => {
+      const request = JSON.parse(event.body ?? '')
+      delete request.id
+      request.creationIdempotencyKey = 'same-key'
+      const winner = { ...request, ...secretaryOnlyFields, id: 'winning-registration', state: 'ready' }
+      mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(winner)
+      mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(undefined)
+
+      const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(request) })
+
+      expect(result.statusCode).toBe(200)
+      expect(JSON.parse(result.body)).toMatchObject({ id: 'winning-registration', ...secretaryOnlyFields })
+    })
   })
 
   it('clears email delivery status from response after sending update email', async () => {

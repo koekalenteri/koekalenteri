@@ -66,6 +66,7 @@ const {
   recordLastEmail,
   sendTemplatedEmailToEventRegistrations,
   patchRegistration,
+  adminRegistrationResponse,
   participantRegistrationResponse,
   publicRegistrationPatch,
   removeRegistrationCreationMetadata,
@@ -1160,6 +1161,36 @@ describe('registration access', () => {
     expect(participantRegistrationResponse(stored, 'raw-token')).toEqual({
       editToken: 'raw-token',
       id: 'registration',
+    })
+  })
+
+  describe('the fields only the secretary sees', () => {
+    const group = { date: '2026-08-01', key: '2026-08-01-ap', number: 3, time: 'ap' as const }
+    const stored = {
+      editTokenVersion: 3,
+      eventResult: { result: 'AVO1', updatedAt: '2026-08-01T12:00:00.000Z', updatedBy: 'Secretary' },
+      group,
+      id: 'registration',
+      internalNotes: 'call the owner',
+      startGroup: { ...group, number: 7 },
+    }
+
+    it('leaves the result, the notes and the groups out of the participant response (KOE-1515)', () => {
+      expect(participantRegistrationResponse(stored, 'raw-token')).toEqual({
+        editToken: 'raw-token',
+        id: 'registration',
+      })
+    })
+
+    it('keeps them in the admin response', () => {
+      expect(adminRegistrationResponse(stored, 'raw-token')).toEqual({
+        editToken: 'raw-token',
+        eventResult: { result: 'AVO1', updatedAt: '2026-08-01T12:00:00.000Z', updatedBy: 'Secretary' },
+        group,
+        id: 'registration',
+        internalNotes: 'call the owner',
+        startGroup: { ...group, number: 7 },
+      })
     })
   })
 })
