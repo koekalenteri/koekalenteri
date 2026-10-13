@@ -114,7 +114,7 @@ const processOperations = (
   names: Record<string, string>,
   values: Record<string, string>,
   seenFields: Set<string>,
-  type: 'SET' | 'ADD'
+  type: 'SET' | 'ADD' | 'DELETE'
 ): string | null => {
   if (!operations || Object.keys(operations).length === 0) {
     return null
@@ -171,6 +171,19 @@ const processRemoveOperations = (
   }
 
   return parts.length > 0 ? `REMOVE ${parts.join(', ')}` : null
+}
+
+/**
+ * DynamoDB's document client marshals a string/number/binary set attribute back into a native JS
+ * `Set` on read. Nothing downstream can serialize that: `JSON.stringify(new Set(...))` is `"{}"`, so
+ * an API response built straight from a read row would silently drop the field (KOE-1529). Every
+ * read path normalizes it to a plain, sorted array instead, so no caller ever sees a `Set`.
+ */
+const denormalizeSets = <T extends object>(item: T): T => {
+  for (const [key, value] of Object.entries(item)) {
+    if (value instanceof Set) Object.assign(item, { [key]: [...value].sort() })
+  }
+  return item
 }
 
 /**
@@ -259,7 +272,7 @@ export default class CustomDynamoClient {
       const data = await this.docClient.send(new ScanCommand(scanParams))
 
       if (data.Items) {
-        items.push(...(data.Items as T[]))
+        items.push(...(data.Items as T[]).map(denormalizeSets))
       }
 
       lastEvaluatedKey = data.LastEvaluatedKey
@@ -285,7 +298,7 @@ export default class CustomDynamoClient {
         const params: BatchGetCommandInput = { RequestItems: requestItems }
         logDb('DB.batchGet', params)
         const data = await this.docClient.send(new BatchGetCommand(params))
-        items.push(...((data.Responses?.[tableName] ?? []) as T[]))
+        items.push(...((data.Responses?.[tableName] ?? []) as T[]).map(denormalizeSets))
         requestItems = Object.keys(data.UnprocessedKeys ?? {}).length ? data.UnprocessedKeys : undefined
       }
     }
@@ -309,7 +322,7 @@ export default class CustomDynamoClient {
     if (consistent) params.ConsistentRead = true
     logDb('DB.get', params)
     const data = await this.docClient.send(new GetCommand(params))
-    return data.Item as T
+    return data.Item ? denormalizeSets(data.Item as T) : undefined
   }
 
   /**
@@ -351,7 +364,7 @@ export default class CustomDynamoClient {
       const data = await this.docClient.send(new QueryCommand(pageParams))
 
       if (data.Items) {
-        items.push(...(data.Items as T[]))
+        items.push(...(data.Items as T[]).map(denormalizeSets))
       }
 
       lastEvaluatedKey = data.LastEvaluatedKey
@@ -450,6 +463,9 @@ export default class CustomDynamoClient {
       set?: Record<string, any>
       add?: Record<string, any>
       remove?: string[]
+      /** DynamoDB's set-difference action: removes the given elements from a set attribute, unlike
+       * `remove`, which drops the whole attribute. Pass a native `Set` as the value (KOE-1529). */
+      delete?: Record<string, unknown>
     },
     table?: string,
     returnValues?: ReturnValue,
@@ -473,6 +489,11 @@ export default class CustomDynamoClient {
     const removeExpression = processRemoveOperations(updates.remove, names, seenFields)
     if (removeExpression) {
       expressionParts.push(removeExpression)
+    }
+
+    const deleteExpression = processOperations(updates.delete, names, values, seenFields, 'DELETE')
+    if (deleteExpression) {
+      expressionParts.push(deleteExpression)
     }
 
     // If no operations were provided, throw an error
@@ -511,7 +532,9 @@ export default class CustomDynamoClient {
     }
 
     logDb('DB.update', params)
-    return this.docClient.send(new UpdateCommand(params))
+    const result = await this.docClient.send(new UpdateCommand(params))
+    if (result.Attributes) denormalizeSets(result.Attributes)
+    return result
   }
 
   async delete(key: Record<string, number | string | undefined> | null, table?: string): Promise<boolean> {

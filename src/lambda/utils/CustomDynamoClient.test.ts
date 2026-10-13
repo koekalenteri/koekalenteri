@@ -232,6 +232,16 @@ describe('CustomDynamoClient', () => {
       expect(result).toEqual({ id: '1', name: 'Test' })
     })
 
+    it('normalizes a string set attribute into a sorted plain array', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Item: { id: '1', openPayments: new Set(['b', 'a']) } })
+
+      const result = await client.read<{ id: string; openPayments: string[] }>({ id: '1' })
+
+      expect(result).toEqual({ id: '1', openPayments: ['a', 'b'] })
+      expect(Array.isArray(result?.openPayments)).toBe(true)
+    })
+
     it('returns undefined when key is null', async () => {
       const client = new CustomDynamoClient('TestTable')
 
@@ -276,6 +286,15 @@ describe('CustomDynamoClient', () => {
         TableName: 'test-table',
       })
       expect(result).toEqual([{ id: '1' }, { id: '2' }])
+    })
+
+    it('normalizes a string set attribute on each item into a sorted plain array', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Items: [{ id: '1', openRefunds: new Set(['r2', 'r1']) }] })
+
+      const result = await client.query({ key: 'id = :id', values: { ':id': '1' } })
+
+      expect(result).toEqual([{ id: '1', openRefunds: ['r1', 'r2'] }])
     })
 
     it('returns undefined when key is falsy', async () => {
@@ -568,6 +587,15 @@ describe('CustomDynamoClient', () => {
       })
     })
 
+    it('normalizes a string set attribute on each item into a sorted plain array', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Responses: { 'test-table': [{ id: '1', openPayments: new Set(['b', 'a']) }] } })
+
+      const items = await client.batchGet([{ id: '1' }])
+
+      expect(items).toEqual([{ id: '1', openPayments: ['a', 'b'] }])
+    })
+
     it('does not call DynamoDB without keys', async () => {
       const client = new CustomDynamoClient('TestTable')
 
@@ -795,6 +823,35 @@ describe('CustomDynamoClient', () => {
         TableName: 'test-table',
         UpdateExpression: 'ADD #count :count, #points :points',
       })
+    })
+
+    it('updates an item with a DELETE operation, removing elements from a set', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { delete: { openPayments: new Set(['t1']) } })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        ExpressionAttributeNames: { '#openPayments': 'openPayments' },
+        ExpressionAttributeValues: { ':openPayments': new Set(['t1']) },
+        Key: { id: '1' },
+        TableName: 'test-table',
+        UpdateExpression: 'DELETE #openPayments :openPayments',
+      })
+    })
+
+    it('normalizes a returned Attributes set into a sorted plain array', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Attributes: { openPayments: new Set(['b', 'a']) } })
+
+      const result = await client.update(
+        { id: '1' },
+        { delete: { openPayments: new Set(['t1']) } },
+        undefined,
+        'UPDATED_OLD'
+      )
+
+      expect(result.Attributes).toEqual({ openPayments: ['a', 'b'] })
     })
 
     it('updates an item with both SET and ADD operations', async () => {
