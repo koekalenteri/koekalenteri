@@ -326,14 +326,6 @@ export const calculateCost = (event: MinimalEventForCost, registration: MinimalR
   return { amount, cost, segment }
 }
 
-/**
- * What an entry that holds a place still owes: the fee as the entry reads now, less what was paid
- * towards it. The participant's pages read a returned fee's amount with this once the server has
- * said the entry holds a place, so an edit in the form shows at once (KOE-1526).
- */
-export const getPlaceDue = (event: MinimalEventForCost, registration: PaymentBalanceRegistration): number =>
-  Math.max(0, toCents(calculateCost(event, registration).amount) - toCents(getNetPaidAmount(registration))) / 100
-
 /** A payment recorded before the amounts were kept: a successful status without a `paidAmount`. */
 export const isPaymentWithoutAmount = (
   registration: Pick<PaymentBalanceRegistration, 'paidAmount' | 'paymentStatus'>

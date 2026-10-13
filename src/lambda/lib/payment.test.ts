@@ -2,7 +2,8 @@ import type { JsonConfirmedEvent, JsonPaymentTransaction, JsonRefundTransaction,
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { jsonEmptyEvent } from '../../__mockData__/emptyEvent'
-import { eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
+import { eventWithALOClassInvited, eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
+import { jsonRegistrationsToEventWithALOInvited } from '../../__mockData__/registrations'
 import { loggedLines } from '../test-utils/logs'
 
 const mockAudit = vi.fn<() => Promise<void>>()
@@ -18,7 +19,10 @@ vi.doMock('./audit', () => ({
   registrationAuditKey: (registration: { eventId: string; id: string }) => `${registration.eventId}:${registration.id}`,
 }))
 vi.doMock('./event', () => ({ getEvent: mockGetEvent }))
-vi.doMock('./registration', () => ({ getRegistration: mockGetRegistration }))
+vi.doMock('./registration', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./registration')>()),
+  getRegistration: mockGetRegistration,
+}))
 vi.doMock('./secrets', () => ({
   getPaytrailConfig: vi.fn(() => Promise.resolve({ PAYTRAIL_SECRET: 'test-secret' })),
 }))
@@ -36,6 +40,8 @@ const {
   cancelTransaction,
   claimTransactionCreation,
   getParticipantRow,
+  participantPaymentPatch,
+  participantResponse,
   paymentDescription,
   refundPaytrailErrorAudit,
   releaseTransactionCreation,
@@ -231,6 +237,35 @@ describe('payment', () => {
       mockQuery.mockResolvedValueOnce(transactions)
 
       await expect(getParticipantRow(pending)).resolves.toEqual({ ...pending, paymentStatus: expected })
+    })
+
+    // The two ways a participant's answer leaves the server read the row the same way.
+    describe('the participant answers built from a stored row', () => {
+      const stalePending: JsonRegistration = {
+        ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
+        paidAmount: undefined,
+        paymentStatus: 'PENDING',
+      }
+      const event: JsonConfirmedEvent = JSON.parse(
+        JSON.stringify({ ...eventWithALOClassInvited, cost: 50, costMember: 50, paymentTime: 'registration' })
+      )
+      beforeEach(() => {
+        mockQuery.mockResolvedValueOnce([{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }])
+      })
+
+      it('participantResponse answers a stale PENDING as NEW, payable', async () => {
+        await expect(participantResponse(stalePending, 'raw-token', event)).resolves.toMatchObject({
+          paymentStatus: 'NEW',
+          shouldPay: true,
+        })
+      })
+
+      it('participantPaymentPatch patches a stale PENDING as NEW, payable', async () => {
+        await expect(participantPaymentPatch(stalePending, event)).resolves.toMatchObject({
+          paymentStatus: 'NEW',
+          shouldPay: true,
+        })
+      })
     })
 
     it('leaves any other status as it is, without reading the transactions', async () => {

@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationInvitation.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
-sourceHash: 477eed
+sourceHash: 03d1c3
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -32,7 +32,7 @@ and what stage your entry is at.
 | Line | What it can say |
 | --- | --- |
 | priority | *{t:registration.priority.hasPriority}* or *{t:registration.priority.noPriority}* — the grounds for priority are in the trial's details |
-| payment | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}*, *{t:paymentStatus.pending}* or *{t:paymentStatus.refunded}*; when part of the fee is missing, the line names the amount |
+| payment | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}*, *{t:paymentStatus.pending}*, *{t:paymentStatus.refunded}* or *{t:paymentStatus.notCharged}*; when part of the fee is missing, the line names the amount |
 | stage | *{t:registration.status.received}*, *{t:registration.status.placeOffered}*, *{t:registration.status.confirmed}*, *{t:registration.status.confirmedAndInvitationRead}* or *{t:registration.status.cancelled}* |
 
 The same facts appear as icons on the dog's row; hover over the icons to see what they mean.
@@ -47,7 +47,8 @@ and the status updates by itself in a moment.
 The button shows only while something is unpaid. If the trial is paid only once you have a place,
 the payment line reads *{t:paymentStatus.waitingForConfirmation}* until the secretary offers you
 one. From then on the line reads *{t:paymentStatus.missing}* and the button is there, also before
-you have accepted the place. Something may also become payable later, if the
+you have accepted the place. If the trial has been cancelled or costs nothing, nothing is charged:
+the line reads *{t:paymentStatus.notCharged}* and there is no button. Something may also become payable later, if the
 secretary corrects your entry so that its price rises — by removing a membership tick, say. The
 line then names the missing amount and the button comes back. Once you have paid the missing
 part, you get a receipt and the message *{t:registration.email.subject_update}*.

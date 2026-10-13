@@ -603,6 +603,7 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(200)
     const body = JSON.parse(res.body)
     expect(body.paymentDue).toBe(due)
+    expect(body.shouldPay).toBe(due > 0)
     expect(body).not.toHaveProperty('group')
   })
 

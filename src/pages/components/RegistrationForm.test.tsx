@@ -189,33 +189,6 @@ describe('RegistrationForm', () => {
     expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('7,00')
   })
 
-  // KOE-1526 review: a lifted reserve whose fee went back owes the fee as the form reads it, so an
-  // optional cost added in the form shows at once. The server's due only says it has a place.
-  it('shows what a lifted reserve whose fee went back owes as the form changes', async () => {
-    const event = {
-      ...eventWithStaticDates,
-      cost: { normal: 50, optionalAdditionalCosts: [{ cost: 10, description: { fi: 'Iltaruokailu' } }] },
-      costMember: undefined,
-    }
-    const lifted = {
-      ...registrationWithStaticDates,
-      optionalCosts: [],
-      paidAmount: 50,
-      paymentDue: 50,
-      refundAmount: 50,
-      refundHandlingCost: 0,
-      selectedCost: 'normal' as const,
-    }
-    const { rerender } = render(<RegistrationForm event={event} registration={lifted} />, { wrapper: Wrapper })
-    await flushPromises()
-    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('50,00')
-
-    rerender(<RegistrationForm event={event} registration={{ ...lifted, optionalCosts: [0] }} />)
-    await flushPromises()
-
-    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('60,00')
-  })
-
   // KOE-1526 review: at confirmation-time payment the line follows the pay offer, not the confirmation.
   it('asks for the fee now when paying is offered before the place is confirmed', async () => {
     const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }

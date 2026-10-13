@@ -17,7 +17,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation } from '@/lib/dog'
 import { isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
-import { canRefundExcess, getParticipantPaymentState } from '@/lib/payment'
+import { canRefundExcess, canRequestPaymentFor } from '@/lib/payment'
 import {
   canRefund,
   GROUP_KEY_CANCELLED,
@@ -152,20 +152,6 @@ const getMovementActions = (options: RegistrationActionsOptions & { groupKey: st
   return getParticipantMovementActions(options)
 }
 
-/**
- * A place whose fee is still short can be asked for it: nothing paid yet, or a member price paid by
- * someone who was not a member (KOE-722). The request is the participant's pay offer, so it is the
- * same state (KOE-1526): paying at confirmation only a place has a link to send, a cancelled entry
- * owes nothing, and a payment charged twice waits for its refund. The secretary's row has no
- * transactions to tell a payment in progress from one left at Paytrail, so a stored PENDING does not
- * hold the request back: PaymentCreate decides that when the link is opened, with a 409 for a payment
- * truly in progress.
- */
-const canRequestPayment = (event: DogEvent, row: Registration): boolean =>
-  // The confirmed check narrows the event to one with a fee; the state below repeats it as a rule.
-  isConfirmedEvent(event) &&
-  getParticipantPaymentState(event, row.paymentStatus === 'PENDING' ? { ...row, paymentStatus: 'NEW' } : row).shouldPay
-
 const createRegistrationActions = (options: RegistrationActionsOptions): ReactElement<GridActionsCellItemProps>[] => {
   const { callbacks, event, row, t } = options
   const actionsDisabled = Boolean(callbacks?.actionsDisabled)
@@ -232,7 +218,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
     />
   )
 
-  if (canRequestPayment(event, row)) {
+  if (canRequestPaymentFor(event, row)) {
     actions.push(
       <GridActionsCellItem
         key="requestPayment"

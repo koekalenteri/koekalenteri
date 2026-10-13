@@ -30,7 +30,7 @@ vaiheessa ilmoittautumisesi on.
 | Rivi | Mitä se voi sanoa |
 | --- | --- |
 | etusija | *{t:registration.priority.hasPriority}* tai *{t:registration.priority.noPriority}* — etusijan perusteet ovat kokeen tiedoissa |
-| maksu | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}*, *{t:paymentStatus.pending}* tai *{t:paymentStatus.refunded}*; jos maksusta puuttuu osa, rivi kertoo summan |
+| maksu | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}*, *{t:paymentStatus.pending}*, *{t:paymentStatus.refunded}* tai *{t:paymentStatus.notCharged}*; jos maksusta puuttuu osa, rivi kertoo summan |
 | vaihe | *{t:registration.status.received}*, *{t:registration.status.placeOffered}*, *{t:registration.status.confirmed}*, *{t:registration.status.confirmedAndInvitationRead}* tai *{t:registration.status.cancelled}* |
 
 Samat tiedot ovat koiran rivillä kuvakkeina; niiden selitys tulee näkyviin, kun hiiren vie
@@ -46,7 +46,8 @@ päivittyy itsestään hetken kuluttua.
 Painike näkyy vain silloin, kun jotain on maksamatta. Jos koe maksetaan vasta, kun sinulla on
 koepaikka, maksurivillä lukee *{t:paymentStatus.waitingForConfirmation}* siihen asti, kun
 koesihteeri tarjoaa sinulle paikan. Siitä alkaen rivillä lukee *{t:paymentStatus.missing}*, ja
-painike on näkyvissä jo ennen kuin olet vahvistanut paikan. Maksettavaa voi tulla myös jälkikäteen,
+painike on näkyvissä jo ennen kuin olet vahvistanut paikan. Jos koe on peruttu tai se on maksuton,
+mitään ei peritä: rivillä lukee *{t:paymentStatus.notCharged}*, eikä painiketta ole. Maksettavaa voi tulla myös jälkikäteen,
 jos koesihteeri korjaa ilmoittautumisen tietoja niin, että hinta nousee — esimerkiksi poistaa
 jäsenyysmerkinnän. Silloin rivi kertoo puuttuvan summan ja painike palaa näkyviin. Kun olet
 maksanut puuttuvan osan, saat kuitin ja viestin *{t:registration.email.subject_update}*.

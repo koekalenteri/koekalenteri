@@ -1005,6 +1005,20 @@ describe('fee against what was paid', () => {
     expect(actions.some((action) => action.key === 'requestPayment')).toBe(offered)
   })
 
+  // KOE-1526: a reserve whose fee went back owes nothing to ask for; lifted into a place it owes it.
+  it.each([
+    ['a reserve', { key: 'reserve', number: 1 }, false],
+    ['a place', { key: 'testing', number: 1 }, true],
+  ])('offers a payment request for a fee that went back to %s: %s', (_name, group, offered) => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, { requestPayment: vi.fn() })
+    )
+    const actionsColumn = result.current.entryColumns.find((col) => col.field === 'actions')
+
+    const actions = getRowActions(actionsColumn, paidRow(123, { group, refundAmount: 123 }))
+    expect(actions.some((action) => action.key === 'requestPayment')).toBe(offered)
+  })
+
   it('does not ask a cancelled entry for anything', () => {
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes)

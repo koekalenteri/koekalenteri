@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
+import { DIM_OPACITY } from '../components/icons/constants'
 import RegistrationList from './RegistrationList'
 
 const noop = () => {}
@@ -74,6 +75,17 @@ describe('RegistrationList', () => {
     renderList(eventCosting(), { ...unpaidRegistrationWithStaticDates, paymentStatus: 'DUPLICATE', shouldPay: true })
 
     expect(payAction()).not.toBeInTheDocument()
+  })
+
+  // KOE-1526 review: the screenshot comparator lets an icon-only change through, so the dimming of
+  // the row's euro sign is pinned here: a fee that went back is not paid, a paid fee is.
+  it.each([
+    ['a fee that went back', { paymentDue: 0, refundAmount: 123, refundHandlingCost: 0 }, String(DIM_OPACITY)],
+    ['a paid fee', {}, '1'],
+  ])('dims the euro sign of %s', (_name, overrides, opacity) => {
+    renderList(eventCosting(), { ...registrationWithStaticDates, shouldPay: false, ...overrides })
+
+    expect(screen.getAllByTestId('EuroOutlinedIcon')[0]).toHaveAttribute('opacity', opacity)
   })
 
   it('does not offer paying while a payment is being verified', () => {
