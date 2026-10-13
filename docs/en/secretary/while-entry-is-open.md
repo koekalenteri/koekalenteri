@@ -9,7 +9,7 @@ covers:
   - src/pages/admin/eventViewPage/InfoPanel.tsx
   - src/pages/admin/eventViewPage/RefundDialog.tsx
   - src/pages/admin/eventViewPage/RegistrationEditDialog.tsx
-sourceHash: 991443
+sourceHash: d83622
 ---
 
 While entry is open the calendar does most of the work by itself: entries accumulate, payments
@@ -63,7 +63,8 @@ menu on the entry's row (⋮) and choose **{t:registration.actions.refundPayment
 
 !shot[RefundDialog/refund-dialog-open] Refunding a payment
 
-The dialog lists the entry's payments. Pick the one to refund, enter a *{t:registration.refundDialog.handlingCost}* if the club
+The dialog first shows the entry's cart as it is now, then lists its payments below it. Pick the
+one to refund, enter a *{t:registration.refundDialog.handlingCost}* if the club
 keeps one, and add an internal comment if you like — the entrant does not see it. **Refund** makes
 the refund through Paytrail to the same payment method the payment came from. The refunded amount
 then shows on the entry's row.

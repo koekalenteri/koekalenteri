@@ -1,7 +1,7 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
 import type { ParseKeys } from 'i18next'
 import type { ChangeEventHandler } from 'react'
-import type { MinimalEventForCost, RefundPaymentResponse, Registration, Transaction } from '@/types'
+import type { MinimalEventForCost, PublicDogEvent, RefundPaymentResponse, Registration, Transaction } from '@/types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -27,6 +27,7 @@ import { canRefundExcess, isPaytrailRefusal, paytrailErrorText } from '@/lib/pay
 import { GROUP_KEY_RESERVE } from '@/lib/registration'
 import { isObject } from '@/lib/utils'
 import { NullComponent } from '../../components/NullComponent'
+import { PaymentDetails } from '../../components/PaymentDetails'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../state/registrations/actions'
 import { RefundFooter } from './refundDialog/RefundFooter'
@@ -48,7 +49,7 @@ const refundTextKey = (excessOnly: boolean, canHaveHandlingCosts: boolean) => {
 
 interface Props {
   /** The trial's fee is what the payment is measured against: it tells whether a part was paid over. */
-  readonly event: MinimalEventForCost
+  readonly event: PublicDogEvent & MinimalEventForCost
   readonly registration: Registration
   readonly open?: boolean
   readonly onClose?: () => void
@@ -372,6 +373,9 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
             </RadioGroup>
           </FormControl>
         )}
+        {/* The cart as it is now, not as it was when the fee was paid (KOE-1103): an edit since
+            then shows directly against what the transactions table below says was paid. */}
+        <PaymentDetails event={event} registration={registration} includePayable />
         <StyledDataGrid
           loading={loading}
           checkboxSelection
