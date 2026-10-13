@@ -43,9 +43,10 @@ euromerkki, jonka nimi on *{t:registration.actions.pay}*. Kumpikin vie Paytraili
 Kun palaat maksusta, sivu ilmoittaa *{t:registration.notifications.paymentVerifying}* ja tila
 päivittyy itsestään hetken kuluttua.
 
-Painike näkyy vain silloin, kun jotain on maksamatta. Jos koe maksetaan vasta koepaikan
-vahvistuttua, maksurivillä lukee siihen asti *{t:paymentStatus.waitingForConfirmation}* ja
-painike ilmestyy vasta, kun olet vahvistanut paikan. Maksettavaa voi tulla myös jälkikäteen,
+Painike näkyy vain silloin, kun jotain on maksamatta. Jos koe maksetaan vasta, kun sinulla on
+koepaikka, maksurivillä lukee *{t:paymentStatus.waitingForConfirmation}* siihen asti, kun
+koesihteeri tarjoaa sinulle paikan. Siitä alkaen rivillä lukee *{t:paymentStatus.missing}*, ja
+painike on näkyvissä jo ennen kuin olet vahvistanut paikan. Maksettavaa voi tulla myös jälkikäteen,
 jos koesihteeri korjaa ilmoittautumisen tietoja niin, että hinta nousee — esimerkiksi poistaa
 jäsenyysmerkinnän. Silloin rivi kertoo puuttuvan summan ja painike palaa näkyviin. Kun olet
 maksanut puuttuvan osan, saat kuitin ja viestin *{t:registration.email.subject_update}*.

@@ -1,10 +1,10 @@
-import type { Registration } from '@/types'
+import type { Registration, RegistrationRefundAmounts } from '@/types'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import { isPaymentReturned } from '@/lib/registration'
 
 interface PaymentIconProps {
-  reg: Pick<Registration, 'paidAmount' | 'paidAt' | 'refundAmount' | 'refundHandlingCost' | 'refundStatus'>
+  reg: RegistrationRefundAmounts & Pick<Registration, 'paidAt' | 'refundStatus'>
   /** The fee has been paid, but not the amount it now adds up to: a part missing, or paid over. */
   unsettled?: boolean
 }

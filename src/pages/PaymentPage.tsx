@@ -1,5 +1,6 @@
 import type { Params } from 'react-router'
 import type { CreatePaymentResult } from '../api/payment'
+import type { PaymentStatusKey } from '../lib/payment'
 import type { CreatePaymentResponse, PublicConfirmedEvent, Registration } from '../types'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
@@ -65,6 +66,13 @@ interface Props {
   readonly responseStatus?: number
 }
 
+/** The payment line's statuses that leave nothing to pay on this page: the page says so instead. */
+const NOTICE_STATUSES = new Set<PaymentStatusKey>([
+  'paymentStatus.notCharged',
+  'paymentStatus.refunded',
+  'paymentStatus.waitingForConfirmation',
+])
+
 const paymentErrorStatusKey = {
   403: 'paymentPage.error403',
   404: 'paymentPage.error404',
@@ -117,15 +125,16 @@ export const PaymentPageWithData = ({
     </Paper>
   )
 
-  // The notice says what the status line says (KOE-1526): paying at confirmation waits for a place,
-  // not for the confirmation, and a fee that went back was refunded, not paid.
+  // The notice says what the status line says (KOE-1526), whatever PaymentCreate answered: paying at
+  // confirmation waits for a place, not for the confirmation; a fee that went back was refunded, not
+  // paid; and a trial that is not confirmed charges nothing.
   const { status: paymentStatus } = getShownPayment(event, registration)
-  if (paymentStatus === 'paymentStatus.waitingForConfirmation') {
+  if (NOTICE_STATUSES.has(paymentStatus)) {
     return renderNotice(t(paymentStatus))
   }
 
   if (responseStatus === 204) {
-    return renderNotice(t(paymentStatus === 'paymentStatus.refunded' ? paymentStatus : 'paymentPage.alreadyPaid'))
+    return renderNotice(t('paymentPage.alreadyPaid'))
   }
 
   // Paytrail's refusal before the status branches: its status is Paytrail's, not this API's.

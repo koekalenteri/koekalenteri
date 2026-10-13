@@ -15,11 +15,13 @@ import type {
   Patch,
   PaymentBalance,
   PublicDogEvent,
+  RefundField,
   Registration,
   RegistrationClass,
-  RegistrationGroupHolder,
   RegistrationOwner,
   RegistrationPerson,
+  RegistrationPlacement,
+  RegistrationRefundAmounts,
   RegistrationTemplateContext,
   RegistrationTime,
 } from '../types'
@@ -512,7 +514,7 @@ export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Re
   return hasSharedReserveList(reg.eventType) ? GROUP_KEY_RESERVE : `${GROUP_KEY_RESERVE}-${classOrType}`
 }
 
-export const getRegistrationGroupKey = (reg: Pick<Registration, 'cancelled'> & RegistrationGroupHolder): string => {
+export const getRegistrationGroupKey = (reg: RegistrationPlacement): string => {
   if (reg.cancelled) {
     return GROUP_KEY_CANCELLED
   }
@@ -550,9 +552,6 @@ export const isScorableRegistration = <T extends JsonRegistration | Registration
   reg: Pick<T, 'cancelled' | 'group'>
 ): boolean => isParticipantGroup(getRegistrationGroupKey(reg))
 
-/** The money a refund decision reads: what was paid, what went back, and the handling fee kept. */
-type RefundField = 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
-
 /** Whether any of what was paid is still with the organizer, handling fees counted as kept. */
 export const hasRefundableBalance = <T extends JsonRegistration | Registration>(reg: Pick<T, RefundField>): boolean =>
   getNetPaidAmount(reg) > 0
@@ -573,9 +572,8 @@ export const isPaymentReturned = <T extends JsonRegistration | Registration>(reg
  * and owes the fee again once it is lifted into one (KOE-1526). An entry without a group counts as a
  * reserve, as it does for the refund.
  */
-export const isReturnedReserve = (
-  reg: Pick<Registration, 'cancelled' | RefundField> & RegistrationGroupHolder
-): boolean => !isParticipantGroup(getRegistrationGroupKey(reg)) && isPaymentReturned(reg)
+export const isReturnedReserve = (reg: RegistrationPlacement & RegistrationRefundAmounts): boolean =>
+  !isParticipantGroup(getRegistrationGroupKey(reg)) && isPaymentReturned(reg)
 
 export const getSelectedAdditionalCosts = (
   event: MinimalEventForCost,

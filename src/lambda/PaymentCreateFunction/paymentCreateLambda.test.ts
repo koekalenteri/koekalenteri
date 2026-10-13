@@ -242,6 +242,7 @@ describe('paymentCreateLambda', () => {
             reference: 'event123:reg456',
             status: 'new',
             transactionId: 'tx123',
+            type: 'payment',
             user: 'Test User',
           }),
         }),
@@ -639,6 +640,7 @@ describe('paymentCreateLambda', () => {
       reference: 'event123:reg456',
       status: 'new',
       transactionId: 'oldTx',
+      type: 'payment',
     }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
@@ -655,6 +657,7 @@ describe('paymentCreateLambda', () => {
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'oldPendingTx',
+      type: 'payment',
     }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
@@ -669,6 +672,7 @@ describe('paymentCreateLambda', () => {
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'freshPendingTx',
+      type: 'payment',
     }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
@@ -677,12 +681,38 @@ describe('paymentCreateLambda', () => {
     expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
   })
 
+  // KOE-1526 review: refunds share the payment's reference; a refund Paytrail is working on is not
+  // a payment in progress, and PaymentCreate leaves it alone, stale or not.
+  it.each([
+    ['fresh', 2],
+    ['stale', 10],
+  ])('neither waits for nor touches a %s pending refund', async (_name, minutes) => {
+    mockGetTransactionsByReference.mockResolvedValue([
+      {
+        createdAt: new Date(Date.now() - minutes * 60 * 1000).toISOString(),
+        reference: 'event123:reg456',
+        status: 'pending',
+        transactionId: 'pendingRefundTx',
+        type: 'refund',
+      },
+    ])
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(mockUpdateTransactionStatus).not.toHaveBeenCalledWith(
+      expect.objectContaining({ transactionId: 'pendingRefundTx' }),
+      'fail'
+    )
+  })
+
   it('returns 409 if there is a non-stale pending transaction', async () => {
     const existingTransaction = {
       createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'freshPendingTx',
+      type: 'payment',
     }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
@@ -730,6 +760,7 @@ describe('paymentCreateLambda', () => {
         reference: 'event123:reg456',
         status: 'pending',
         transactionId: 'freshPendingTx',
+        type: 'payment',
       },
     ])
 

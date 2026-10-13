@@ -12,6 +12,7 @@ import { auditUser } from '../../lib/audit'
 import {
   getParticipantPaymentState,
   isEventOpenForPayment,
+  isPaymentInProgress,
   isPaymentOpenForPlace,
   isStalePendingPayment,
   paytrailRefusalBody,
@@ -70,7 +71,8 @@ const inspectExistingTransactions = async (reference: string) => {
   let reusableNewTransaction: JsonPaymentTransaction | undefined
 
   for (const tx of existingTransactions) {
-    if (tx.status !== 'new' && tx.status !== 'pending') {
+    // A refund shares the payment's reference; it is RefundCreate's to finish, never touched here.
+    if (tx.type !== 'payment' || (tx.status !== 'new' && tx.status !== 'pending')) {
       continue
     }
 
@@ -79,7 +81,7 @@ const inspectExistingTransactions = async (reference: string) => {
       continue
     }
 
-    if (tx.status === 'pending') {
+    if (isPaymentInProgress(tx)) {
       freshPendingTransaction = true
       continue
     }

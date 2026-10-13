@@ -1,4 +1,12 @@
-import type { DogEvent, JsonRegistration, JsonTransaction, PaymentStatus, PaymentTime, Registration } from '../../types'
+import type {
+  DogEvent,
+  JsonPaymentTransaction,
+  JsonRegistration,
+  JsonTransaction,
+  PaymentStatus,
+  PaymentTime,
+  Registration,
+} from '../../types'
 import { addDays } from 'date-fns'
 import { vi } from 'vitest'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
@@ -42,7 +50,19 @@ vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-const mockGetTransactionsByReference = vi.fn(() => [] as JsonTransaction[])
+/** A payment transaction of the fixture registration, as the transaction table stores it. */
+const paymentTransaction = (overrides: Partial<JsonPaymentTransaction> = {}): JsonPaymentTransaction => ({
+  amount: 5000,
+  createdAt: new Date().toISOString(),
+  reference: 'testInvited:testInvited1',
+  stamp: 'stamp-1',
+  status: 'new',
+  transactionId: 'transaction-1',
+  type: 'payment',
+  ...overrides,
+})
+
+const mockGetTransactionsByReference = vi.fn((): JsonTransaction[] => [])
 
 // The registration's transactions, which tell a payment in progress from one left at Paytrail
 // (getParticipantRow reads them through the client, KOE-1526).
@@ -194,9 +214,7 @@ describe('getRegistration', () => {
   /** A stored PENDING in these cases is a payment Paytrail is still working on (KOE-1526). */
   const inProgressWhenPending = (paymentStatus: PaymentStatus | undefined) => {
     if (paymentStatus === 'PENDING') {
-      mockGetTransactionsByReference.mockReturnValueOnce([
-        { createdAt: new Date().toISOString(), status: 'pending', type: 'payment' } as JsonTransaction,
-      ])
+      mockGetTransactionsByReference.mockReturnValueOnce([paymentTransaction({ status: 'pending' })])
     }
   }
 
@@ -207,11 +225,7 @@ describe('getRegistration', () => {
       paymentStatus: 'PENDING',
     })
     mockGetTransactionsByReference.mockReturnValueOnce([
-      {
-        createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-        status: 'pending',
-        type: 'payment',
-      } as JsonTransaction,
+      paymentTransaction({ createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(), status: 'pending' }),
     ])
 
     const res = await getRegistrationLambda(
@@ -228,7 +242,7 @@ describe('getRegistration', () => {
       ...registrationsToEventWithParticipantsInvited[0],
       paymentStatus: 'PENDING',
     })
-    mockGetTransactionsByReference.mockReturnValueOnce([{ status: 'new' } as JsonTransaction])
+    mockGetTransactionsByReference.mockReturnValueOnce([paymentTransaction()])
 
     const res = await getRegistrationLambda(
       constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '456' } })

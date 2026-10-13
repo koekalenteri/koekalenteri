@@ -1195,12 +1195,17 @@ describe('registration access', () => {
       }
     })
 
-    // The state is worked out here from the same row, so it reads the group it leaves out.
+    // The state is worked out here from the same row, so it reads the group it leaves out: a reserve
+    // whose fee went back owes nothing, the same row in a place owes the fee again.
     it('says what is still owed in place of the group it was worked out from (KOE-1526)', () => {
-      const cost = typeof participantEvent.cost === 'number' ? participantEvent.cost : 0
-      expect(participantRegistrationResponse(stored, 'raw-token', participantEvent)).toMatchObject({
-        paymentDue: cost,
-        shouldPay: cost > 0,
+      const returned = { ...stored, paidAmount: 50, paymentStatus: 'SUCCESS' as const, refundAmount: 50 }
+      const fee = { ...participantEvent, cost: 50, costMember: 50 }
+      expect(
+        participantRegistrationResponse({ ...returned, group: { key: 'reserve', number: 1 } }, 'raw-token', fee)
+      ).toMatchObject({ paymentDue: 0, shouldPay: false })
+      expect(participantRegistrationResponse(returned, 'raw-token', fee)).toMatchObject({
+        paymentDue: 50,
+        shouldPay: true,
       })
     })
 

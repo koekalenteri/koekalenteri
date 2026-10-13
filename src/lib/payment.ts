@@ -10,7 +10,8 @@ import type {
   PaytrailRefusalBody,
   PublicDogEvent,
   Registration,
-  RegistrationGroupHolder,
+  RegistrationPlacement,
+  RegistrationRefundAmounts,
 } from '../types'
 import type { AuditActor } from './audit'
 import type { InvitationAttachmentEvent, InvitationAttachmentRegistration } from './registration'
@@ -75,17 +76,15 @@ export const getProviderName = (provider?: string) =>
 type PaymentTimeEvent = { paymentTime?: PaymentTime }
 
 /** What the pay offer reads: the server's word on the participant's pages, the group on the secretary's. */
-type PayOfferRegistration = Pick<Registration, 'cancelled' | 'paymentStatus' | 'shouldPay'> & RegistrationGroupHolder
+type PayOfferRegistration = RegistrationPlacement & Pick<Registration, 'paymentStatus' | 'shouldPay'>
 
 /**
  * Whether the trial lets the entry pay as far as its place goes: paying at entry anyone may, paying
  * at confirmation only a place. The pay offer, the waiting text and the secretary's payment request
  * read this one rule (KOE-1526).
  */
-export const isPaymentOpenForPlace = (
-  event: PaymentTimeEvent,
-  registration: Pick<Registration, 'cancelled'> & RegistrationGroupHolder
-): boolean => event.paymentTime !== 'confirmation' || isParticipantGroup(getRegistrationGroupKey(registration))
+export const isPaymentOpenForPlace = (event: PaymentTimeEvent, registration: RegistrationPlacement): boolean =>
+  event.paymentTime !== 'confirmation' || isParticipantGroup(getRegistrationGroupKey(registration))
 
 /**
  * A payment in progress, or one charged twice: either holds the pay offer back, place or no place.
@@ -95,8 +94,7 @@ export const isPaymentOpenForPlace = (
 const isPaymentHeld = (registration: Pick<Registration, 'paymentStatus'>): boolean =>
   registration.paymentStatus === 'PENDING' || registration.paymentStatus === 'DUPLICATE'
 
-type PaymentStatusRegistration = Pick<Registration, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'> &
-  PayOfferRegistration
+type PaymentStatusRegistration = RegistrationRefundAmounts & PayOfferRegistration
 
 /**
  * Whether a fee paid at confirmation still waits for a place, which is what the pay offer reads: the
@@ -116,11 +114,17 @@ export const isPaymentWaitingForPlace = (event: PaymentTimeEvent, registration: 
  * missing, not as paid. A fee that went back reads as refunded, whatever a later payment attempt
  * left behind, and as missing once the place owes it again (KOE-1526).
  */
-export const getPaymentStatus = (registration: PaymentStatusRegistration, event?: PaymentTimeEvent, due = 0) => {
+export const getPaymentStatus = (
+  registration: PaymentStatusRegistration,
+  event?: PaymentTimeEvent & { state?: EventState },
+  due = 0
+) => {
   if (registration.paymentStatus === 'DUPLICATE') return 'paymentStatus.duplicate'
   if (registration.paymentStatus === 'PENDING') return 'paymentStatus.pending'
   if (isPaymentReturned(registration)) return due > 0 ? 'paymentStatus.missing' : 'paymentStatus.refunded'
   if (registration.paymentStatus === 'SUCCESS') return due > 0 ? 'paymentStatus.partial' : 'paymentStatus.success'
+  // A trial that is not confirmed asks nothing: the line says neither missing nor waiting (KOE-1526).
+  if (event && !isEventOpenForPayment(event)) return 'paymentStatus.notCharged'
   if (event && isPaymentWaitingForPlace(event, registration)) return 'paymentStatus.waitingForConfirmation'
   return 'paymentStatus.missing'
 }
@@ -144,7 +148,7 @@ export const isPaidStatus = (status: PaymentStatusKey): boolean =>
  */
 export const isRegistrationPaid = (
   event: MinimalEventForCost,
-  registration: MinimalRegistrationForCost & Pick<Registration, 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'>
+  registration: MinimalRegistrationForCost & Pick<Registration, 'paymentStatus'> & RegistrationRefundAmounts
 ): boolean => hasStandingPayment(registration) || calculateCost(event, registration).amount <= 0
 
 /**
@@ -152,7 +156,7 @@ export const isRegistrationPaid = (
  * recorded before the amounts were kept. What the paid rule and the secretary's paid line read.
  */
 export const hasStandingPayment = (
-  registration: Pick<Registration, 'paidAmount' | 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'>
+  registration: RegistrationRefundAmounts & Pick<Registration, 'paymentStatus'>
 ): boolean => isPaymentWithoutAmount(registration) || hasRefundableBalance(registration)
 
 /** A registration as the participant's own pages hold it: no group, and the server's word on what is owed. */
@@ -224,7 +228,7 @@ export const isPaymentOffered = (
  */
 export const shouldParticipantPay = (
   event: PaymentTimeEvent,
-  registration: Pick<Registration, 'cancelled' | 'paymentStatus'> & RegistrationGroupHolder,
+  registration: RegistrationPlacement & Pick<Registration, 'paymentStatus'>,
   due: number
 ): boolean => {
   if (registration.cancelled || due <= 0 || isPaymentHeld(registration)) return false
@@ -263,6 +267,19 @@ export const isStalePendingPayment = (createdAt?: string, statusAt?: string) => 
 }
 
 /**
+ * A payment Paytrail is still working on: a payment transaction, pending, younger than the stale
+ * limit. What PaymentCreate answers 409 for, and the only thing a stored PENDING may stand for
+ * (`getParticipantRow`). A refund shares the payment's reference and is never a payment in progress
+ * (KOE-1526).
+ */
+export const isPaymentInProgress = (
+  transaction: Pick<JsonTransaction, 'createdAt' | 'status' | 'statusAt' | 'type'>
+): boolean =>
+  transaction.type === 'payment' &&
+  transaction.status === 'pending' &&
+  !isStalePendingPayment(transaction.createdAt, transaction.statusAt)
+
+/**
  * Whether a paid fee no longer matches what the entry adds up to: a part missing or paid over. What
  * the secretary's payment mark turns amber for; a never-paid place is not unsettled, just unpaid.
  */
@@ -291,7 +308,8 @@ type InvitationPaymentEvent = InvitationAttachmentEvent &
 
 type InvitationPaymentRegistration = InvitationAttachmentRegistration &
   MinimalRegistrationForCost &
-  Pick<JsonRegistration | Registration, 'cancelled' | 'group' | 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'>
+  Pick<JsonRegistration | Registration, 'cancelled' | 'group' | 'paymentStatus'> &
+  RegistrationRefundAmounts
 
 /**
  * Whether the koekutsu round has been sent for this registration: its own class is invited, or the

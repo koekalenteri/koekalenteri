@@ -11,6 +11,7 @@ const mockGetRegistration = vi.fn<() => Promise<Partial<JsonRegistration>>>()
 const mockRead = vi.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | undefined>>()
 const mockUpdate = vi.fn<() => Promise<unknown>>()
 const mockDocumentTransaction = vi.fn<CustomDynamoClient['documentTransaction']>()
+const mockQuery = vi.fn<() => Promise<Partial<JsonPaymentTransaction | JsonRefundTransaction>[] | undefined>>()
 
 vi.doMock('./audit', () => ({
   audit: mockAudit,
@@ -25,7 +26,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       documentTransaction: mockDocumentTransaction,
-      query: vi.fn(),
+      query: mockQuery,
       read: mockRead,
       update: mockUpdate,
     }
@@ -34,6 +35,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const {
   cancelTransaction,
   claimTransactionCreation,
+  getParticipantRow,
   paymentDescription,
   refundPaytrailErrorAudit,
   releaseTransactionCreation,
@@ -210,6 +212,31 @@ describe('payment', () => {
           type: 'refund',
         })
       )
+    })
+  })
+
+  // KOE-1526 review: a stored PENDING holds the pay offer only while a payment Paytrail is working on
+  // is fresh, the rule PaymentCreate answers 409 for.
+  describe('getParticipantRow', () => {
+    const pending = { eventId: 'event-1', id: 'registration-1', paymentStatus: 'PENDING' as const }
+    const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60 * 1000).toISOString()
+
+    it.each<[string, Partial<JsonPaymentTransaction | JsonRefundTransaction>[] | undefined, string]>([
+      ['a fresh pending payment', [{ createdAt: minutesAgo(1), status: 'pending', type: 'payment' }], 'PENDING'],
+      ['a stale pending payment', [{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }], 'NEW'],
+      ['a payment left new at Paytrail', [{ createdAt: minutesAgo(1), status: 'new', type: 'payment' }], 'NEW'],
+      ['a fresh pending refund', [{ createdAt: minutesAgo(1), status: 'pending', type: 'refund' }], 'NEW'],
+      ['no transactions', undefined, 'NEW'],
+    ])('reads a stored PENDING with %s as %s', async (_name, transactions, expected) => {
+      mockQuery.mockResolvedValueOnce(transactions)
+
+      await expect(getParticipantRow(pending)).resolves.toEqual({ ...pending, paymentStatus: expected })
+    })
+
+    it('leaves any other status as it is, without reading the transactions', async () => {
+      const paid = { ...pending, paymentStatus: 'SUCCESS' as const }
+      await expect(getParticipantRow(paid)).resolves.toBe(paid)
+      expect(mockQuery).not.toHaveBeenCalled()
     })
   })
 

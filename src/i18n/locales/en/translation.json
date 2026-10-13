@@ -751,6 +751,7 @@
   "paymentStatus": {
     "duplicate": "This payment was captured after another registration for the dog had already been paid. Please contact the trial secretary to arrange a refund.",
     "missing": "Test payment is still missing",
+    "notCharged": "No test fee is charged",
     "partial": "{{amount}} of the fee is still missing",
     "pending": "Waiting for payment processing",
     "refunded": "The test fee has been refunded",

@@ -312,9 +312,18 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
 }
 
 /** An entry as a decision that asks only which group it is in reads it: a stored and a parsed group alike. */
-export interface RegistrationGroupHolder {
+interface RegistrationGroupHolder {
   group?: Pick<JsonRegistrationGroup, 'key'>
 }
+
+/** Where an entry stands as far as its place goes: whether it was cancelled, and its group. */
+export interface RegistrationPlacement extends Pick<Registration, 'cancelled'>, RegistrationGroupHolder {}
+
+/** The money a refund decision reads: what was paid, what went back, and the handling fee kept. */
+export type RefundField = 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
+
+/** A registration's money as the refund and balance rules read it. */
+export type RegistrationRefundAmounts = Pick<Registration, RefundField>
 
 /** The public row's group: the number is withheld until the class's start numbers are published. */
 export type JsonPublicRegistrationGroup = Omit<JsonRegistrationGroup, 'number'> & { number?: number }

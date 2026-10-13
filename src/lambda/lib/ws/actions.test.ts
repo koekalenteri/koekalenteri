@@ -1,7 +1,14 @@
 import { vi } from 'vitest'
 
-const broadcastConfigurations: unknown[] = []
-const mockBroadcast = vi.fn((configuration: unknown) => {
+/** What a publish hands the broadcaster: who gets it, and what they get. */
+interface BroadcastConfiguration {
+  audience: () => Promise<unknown[]>
+  buildPayload: (audience?: unknown[]) => unknown
+  onGoneConnection?: (id: string) => Promise<void>
+}
+
+const broadcastConfigurations: BroadcastConfiguration[] = []
+const mockBroadcast = vi.fn((configuration: BroadcastConfiguration) => {
   broadcastConfigurations.push(configuration)
   return Promise.resolve({ attempted: 0, failed: 0, gone: 0, sent: 0 })
 })
@@ -226,8 +233,7 @@ describe('ws/actions', () => {
       registrationId: 'r1',
     })
 
-    const participant = broadcastConfigurations.at(-1) as { buildPayload: () => unknown }
-    expect(participant.buildPayload()).toEqual({
+    expect(broadcastConfigurations.at(-1)?.buildPayload()).toEqual({
       eventId: 'e1',
       patch: participantPatch,
       registrationId: 'r1',
@@ -324,9 +330,9 @@ describe('ws/actions', () => {
   it('send uses onGoneConnection handler to remove a gone connection', async () => {
     await publishPublicEvent({ entries: 5, eventId: 'e1' })
 
-    const call = broadcastConfigurations[0] as { onGoneConnection: (id: string) => Promise<void> } | undefined
-    expect(call).toBeTruthy()
-    if (!call) throw new Error('missing broadcast call')
+    const call = broadcastConfigurations[0]
+    expect(call?.onGoneConnection).toBeTruthy()
+    if (!call?.onGoneConnection) throw new Error('missing broadcast call')
 
     await call.onGoneConnection('gone-1')
 

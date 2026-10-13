@@ -162,6 +162,7 @@ const getMovementActions = (options: RegistrationActionsOptions & { groupKey: st
  * truly in progress.
  */
 const canRequestPayment = (event: DogEvent, row: Registration): boolean =>
+  // The confirmed check narrows the event to one with a fee; the state below repeats it as a rule.
   isConfirmedEvent(event) &&
   getParticipantPaymentState(event, row.paymentStatus === 'PENDING' ? { ...row, paymentStatus: 'NEW' } : row).shouldPay
 

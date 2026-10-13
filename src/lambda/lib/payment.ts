@@ -15,7 +15,7 @@ import type { PaytrailError } from './paytrail'
 import { getFixedT } from '../../i18n/lambda'
 import { auditUser, refundPaytrailFailedAudit } from '../../lib/audit'
 import { localizedEventName } from '../../lib/event'
-import { isStalePendingPayment, paytrailErrorText } from '../../lib/payment'
+import { isPaymentInProgress, paytrailErrorText } from '../../lib/payment'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -23,7 +23,7 @@ import { getEvent } from './event'
 import { LambdaError } from './lambda'
 import { logger } from './log'
 import { paytrail } from './paytrail'
-import { getRegistration } from './registration'
+import { getRegistration, participantRegistrationResponse } from './registration'
 import { buildParticipantPaymentPatch } from './ws/payloads'
 
 const { registrationTable, transactionTable } = CONFIG
@@ -158,11 +158,13 @@ export const cancelTransaction = async <T extends JsonTransaction>({
       registrationTable
     )
     const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-    const row = await getParticipantRow({ ...registration, [statusField]: 'CANCEL', updatedAt })
     cancelled = {
       eventId,
       organizerId: confirmedEvent.organizer.id,
-      participantPatch: buildParticipantPaymentPatch(row, confirmedEvent),
+      participantPatch: await participantPaymentPatch(
+        { ...registration, [statusField]: 'CANCEL', updatedAt },
+        confirmedEvent
+      ),
       patch: { eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt },
       registrationId,
     }
@@ -439,11 +441,29 @@ export const getParticipantRow = async <T extends Pick<JsonRegistration, 'eventI
 ): Promise<T> => {
   if (registration.paymentStatus !== 'PENDING') return registration
   const transactions = await getTransactionsByReference(`${registration.eventId}:${registration.id}`)
-  const inProgress = transactions?.some(
-    (tx) => tx.type !== 'refund' && tx.status === 'pending' && !isStalePendingPayment(tx.createdAt, tx.statusAt)
-  )
+  const inProgress = transactions?.some(isPaymentInProgress)
   return inProgress ? registration : { ...registration, paymentStatus: 'NEW' }
 }
+
+/**
+ * A stored registration as its participant receives it: read through `getParticipantRow` first, so
+ * no answer is built from a stored PENDING that is not a payment in progress (KOE-1526).
+ * GetRegistration and PutRegistration answer through this.
+ */
+export const participantResponse = async (
+  registration: JsonRegistration,
+  editToken: string,
+  event: JsonConfirmedEvent
+) => participantRegistrationResponse(await getParticipantRow(registration), editToken, event)
+
+/**
+ * The participant's payment patch of a stored registration, read through `getParticipantRow` first.
+ * The subscribe answer and the cancel patch are built through this. PaymentSuccess builds its patch
+ * directly: the row it sends has just been written SUCCESS or DUPLICATE, which `getParticipantRow`
+ * leaves as it is.
+ */
+export const participantPaymentPatch = async (registration: JsonRegistration, event: JsonConfirmedEvent) =>
+  buildParticipantPaymentPatch(await getParticipantRow(registration), event)
 
 const shouldRefreshTransactionStatus = (transaction: JsonPaymentTransaction | JsonRefundTransaction) =>
   transaction.type === 'refund'

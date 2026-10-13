@@ -1,4 +1,4 @@
-import type { Registration } from '../types'
+import type { RegistrationRefundAmounts } from '../types'
 
 const currency = 'EUR'
 const moneyFormatter = Intl.NumberFormat('fi-FI', { currency, style: 'currency' })
@@ -18,9 +18,7 @@ export const toCents = (amount: number) => Math.round(amount * 100)
  * reserve lifted into a place after its fee went back owes all of it. Counted in cents, so a refund
  * and a fee that add up to the payment leave nothing.
  */
-export const getNetPaidAmount = (
-  registration: Pick<Registration, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
-): number =>
+export const getNetPaidAmount = (registration: RegistrationRefundAmounts): number =>
   (toCents(registration.paidAmount ?? 0) -
     toCents(registration.refundAmount ?? 0) -
     toCents(registration.refundHandlingCost ?? 0)) /
