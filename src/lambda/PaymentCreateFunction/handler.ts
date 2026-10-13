@@ -84,6 +84,11 @@ const inspectExistingTransactions = async (
     if (isStalePendingPayment(tx.createdAt, tx.statusAt)) {
       // Resolves the stale attempt and drops it from the open set, same as every other writer, but
       // with no audit row: nothing failed here, the attempt was simply never finished (KOE-1529).
+      // Sequential on purpose, not fanned out: a registration realistically has at most one or two
+      // stale transactions here, this loop already keeps running state across its whole scan
+      // (reusableNewTransaction, freshPendingTransaction), and each stale transaction's own pair of
+      // writes (the transaction row, then the registration's open set) is easiest to reason about
+      // one at a time rather than interleaved with another stale transaction's pair.
       await failUnfinishedTransaction(tx)
       await dropOpenTransaction(registration, 'openPayments', tx.transactionId)
       continue

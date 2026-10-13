@@ -242,6 +242,17 @@ describe('CustomDynamoClient', () => {
       expect(Array.isArray(result?.openPayments)).toBe(true)
     })
 
+    // A number set must sort numerically, not lexicographically: the default comparator would put
+    // 10 before 2.
+    it('normalizes a number set attribute into a numerically sorted plain array', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Item: { id: '1', years: new Set([10, 2, 1]) } })
+
+      const result = await client.read<{ id: string; years: number[] }>({ id: '1' })
+
+      expect(result).toEqual({ id: '1', years: [1, 2, 10] })
+    })
+
     it('returns undefined when key is null', async () => {
       const client = new CustomDynamoClient('TestTable')
 

@@ -179,9 +179,13 @@ const processRemoveOperations = (
  * an API response built straight from a read row would silently drop the field (KOE-1529). Every
  * read path normalizes it to a plain, sorted array instead, so no caller ever sees a `Set`.
  */
+/** A number set sorts lexicographically under the default comparator (10 before 2); this works for
+ * both the string and number sets DynamoDB can return. */
+const compareSetMembers = (a: string | number, b: string | number) => (a < b ? -1 : a > b ? 1 : 0)
+
 const denormalizeSets = <T extends object>(item: T): T => {
   for (const [key, value] of Object.entries(item)) {
-    if (value instanceof Set) Object.assign(item, { [key]: [...value].sort() })
+    if (value instanceof Set) Object.assign(item, { [key]: [...value].sort(compareSetMembers) })
   }
   return item
 }

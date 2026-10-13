@@ -24,6 +24,6 @@ export class PaymentPage {
     await this.page.getByRole('heading', { name: 'Valitse maksutapa' }).waitFor()
     await this.page.getByRole('button', { name: 'E2E-pankki' }).click()
     await this.page.getByRole('heading', { name: 'E2E-pankki' }).waitFor()
-    await this.page.getByRole('button', { name: outcome }).click()
+    await this.page.getByRole('button', { exact: true, name: outcome }).click()
   }
 }
