@@ -87,6 +87,7 @@ describe('PaymentIcon', () => {
     render(<PaymentIcon event={event} reg={reg} />)
 
     expect(screen.queryByTestId('EuroOutlinedIcon')).not.toBeInTheDocument()
+    expect(screen.getByTestId('ProductionQuantityLimitsIcon')).toBeInTheDocument()
     // react-i18next is mocked to echo the key back in this project (src/__mocks__/react-i18next).
     expect(screen.getByRole('img', { name: 'registration.paidExcess' })).toBeInTheDocument()
   })

@@ -28,10 +28,10 @@ const paid = (paidAmount: number, membership: boolean): Registration => ({
   paidAmount,
 })
 
-// Three rows the secretary tells apart by the euro sign alone: paid as it reads, a member price
-// paid by a non-member (KOE-722), and the full price paid by a member (KOE-1382). The last two
-// turn the sign amber - the money does not match the fee, whichever way.
-it('turns the payment mark amber when the fee and the payment no longer match', async () => {
+// Three rows the secretary tells apart at a glance: paid as it reads, a member price paid by a
+// non-member (KOE-722) - a part is missing, so the euro sign turns amber - and the full price
+// paid by a member (KOE-1382) - paid over, so the row shows the overpaid mark instead (KOE-1104).
+it('turns the payment mark amber for a missing part and shows the overpaid mark for a paid-over one', async () => {
   const screen = await render(
     <Frame>
       <RegistrationIcons event={event} reg={paid(40, false)} />
