@@ -179,10 +179,50 @@ interface UnfinishedTransactionCancel<T extends JsonTransaction> {
 }
 
 /**
- * Cancels a payment or refund Paytrail did not finish, the one step PaymentVerify and the provider's
- * cancel callback share (KOE-1526): the transaction to fail, so PaymentCreate never reuses its payment
- * response; the registration's PENDING to CANCEL; and one audit entry for the one cancel, written by
- * whichever moves the transaction. The other finds the transaction failed already and does nothing.
+ * Moves a transaction Paytrail did not finish to fail, and removes its payment response so
+ * PaymentCreate never reuses it. Only a transaction still new or pending moves: one that went through
+ * (a replayed fail return) or was failed already by another writer is left as it is. Answers whether
+ * this call moved it.
+ */
+const failUnfinishedTransaction = async (transaction: JsonTransaction, provider: string | undefined) => {
+  try {
+    await dynamoDB.update(
+      { transactionId: transaction.transactionId },
+      {
+        remove: ['paymentResponse'],
+        set: { ...(provider ? { provider } : {}), status: 'fail', statusAt: new Date().toISOString() },
+      },
+      transactionTable,
+      undefined,
+      {
+        expression: '#status IN (:new, :pending)',
+        names: { '#status': 'status' },
+        values: { ':new': 'new', ':pending': 'pending' },
+      }
+    )
+    return true
+  } catch (error) {
+    if (!isConditionalCheckFailure(error)) throw error
+    return false
+  }
+}
+
+/**
+ * Cancels a payment or refund Paytrail did not finish, the one step PaymentVerify's failed return and
+ * the provider's cancel callback share (KOE-1526). Both read the transaction eventually consistently,
+ * so every write here is conditional on what it changes:
+ *
+ * - A transaction read as finished (ok) is a replayed fail return: nothing is touched or audited.
+ * - The registration's PENDING becomes CANCEL first, whether or not this call moves the transaction,
+ *   so an earlier writer of the transaction (the admin's refresh from Paytrail, say) or a failure
+ *   between the writes does not leave it PENDING: a retry finds the work still to do.
+ * - The transaction moves to fail only while it is still new or pending.
+ * - The cancel is audited once: by the call whose registration write changed it, or, when the
+ *   registration was not PENDING to begin with, by the call that moved the transaction.
+ *
+ * The two writes are not one DynamoDB transaction on purpose: either condition may fail on its own
+ * (the transaction failed by another writer, the registration paid by another payment), and the
+ * other write must still happen. An audit lost to a failure after both writes is not repeated.
  */
 export const cancelUnfinishedTransaction = async <T extends JsonTransaction>({
   auditActor,
@@ -193,19 +233,21 @@ export const cancelUnfinishedTransaction = async <T extends JsonTransaction>({
   transaction,
   updateProvider = false,
 }: UnfinishedTransactionCancel<T>): Promise<CancelledRegistration | undefined> => {
-  const updated = await updateTransactionStatus(transaction, 'fail', updateProvider ? provider : undefined)
-  if (!updated) {
-    logger.info('transaction already marked as failed', { transactionId: transaction.transactionId })
+  if (transaction.status === 'ok') {
+    logger.info('transaction already finished, not cancelled', { transactionId: transaction.transactionId })
     return undefined
   }
 
   const cancelled = await cancelRegistrationStatus(registration, statusField)
+  const moved = await failUnfinishedTransaction(transaction, updateProvider ? provider : undefined)
 
-  await audit({
-    auditKey: registrationAuditKey(registration),
-    ...auditMessage(transaction, provider),
-    ...auditUser(auditActor(transaction)),
-  })
+  if (cancelled || (moved && registration[statusField] !== 'PENDING')) {
+    await audit({
+      auditKey: registrationAuditKey(registration),
+      ...auditMessage(transaction, provider),
+      ...auditUser(auditActor(transaction)),
+    })
+  }
 
   return cancelled
 }
