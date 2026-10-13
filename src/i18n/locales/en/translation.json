@@ -994,7 +994,6 @@
       "excessTitle": "The entrant has paid over the fee: entry fee {{cost}}, paid {{paid}}",
       "handlingCost": "Handling fee",
       "noCostsText": "The selected payment was made in a version of Koekalenteri prior to the refund feature. Such a payment can only be refunded in full through Koekalenteri.",
-      "previouslyChargedHandlingCost": "Previously charged handling fee",
       "refundTotal": "To be refunded",
       "status": {
         "ok": "Payment refunded",

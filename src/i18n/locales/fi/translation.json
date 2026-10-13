@@ -994,7 +994,6 @@
       "excessTitle": "Ilmoittautuja on maksanut liikaa: osallistumismaksu {{cost}}, maksettu {{paid}}",
       "handlingCost": "Käsittelykulu",
       "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta.",
-      "previouslyChargedHandlingCost": "Aiemmin veloitettu käsittelykulu",
       "refundTotal": "Palautetaan",
       "status": {
         "ok": "Maksu palautettu",

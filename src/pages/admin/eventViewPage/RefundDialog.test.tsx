@@ -194,11 +194,9 @@ describe('RefundDialog', () => {
     })
     await flushPromises()
 
-    const previouslyChargedLabel = screen.getByText('registration.refundDialog.previouslyChargedHandlingCost:')
-    expect(previouslyChargedLabel).toBeInTheDocument()
-    // The breakdown above the table also shows a kept handling fee (KOE-1103), so the amount is
-    // scoped to this paragraph rather than asserted uniquely on the page.
-    expect(within(previouslyChargedLabel.closest('p') as HTMLElement).getByText('7,00 €')).toBeInTheDocument()
+    // The breakdown above the table shows the kept handling fee as its own row (KOE-1103), which
+    // replaced the dialog's separate "previously charged" paragraph that said the same thing twice.
+    expect(screen.getByText('registration.refundHandlingCost').nextSibling).toHaveTextContent('−7,00 €')
 
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
@@ -558,9 +556,15 @@ describe('RefundDialog', () => {
       await flushPromises()
 
       const dialog = screen.getByRole('dialog')
-      expect(within(dialog).getByText('Osallistumismaksu')).toBeInTheDocument()
+      const breakdownLabel = within(dialog).getByText('Osallistumismaksu')
+      expect(breakdownLabel).toBeInTheDocument()
       expect(within(dialog).getByText('Maksettu')).toBeInTheDocument()
       expect(within(dialog).getByText('Palautettu')).toBeInTheDocument()
+
+      // Not just present, but above the table (KOE-1103): the breakdown's node must precede the
+      // transactions grid in document order, so moving it below the table fails here too.
+      const grid = within(dialog).getByRole('grid')
+      expect(breakdownLabel.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
   })
 

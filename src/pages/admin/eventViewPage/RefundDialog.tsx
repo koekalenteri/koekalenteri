@@ -409,12 +409,6 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
             },
           }}
         ></StyledDataGrid>
-        {(registration.refundHandlingCost ?? 0) > 0 && (
-          <DialogContentText sx={{ my: 1 }}>
-            <span>{t('registration.refundDialog.previouslyChargedHandlingCost')}:</span>{' '}
-            <strong>{formatMoney(registration.refundHandlingCost ?? 0)}</strong>
-          </DialogContentText>
-        )}
         <DialogContentText
           sx={{
             display: selectedTransactions.length ? undefined : 'none',
