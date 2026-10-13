@@ -10,9 +10,15 @@
 # regenerates just that component's linux baseline. With no args this only verifies (matches CI).
 set -euo pipefail
 
-# Keep in step with the `playwright` devDependency: the image ships the browser build that version
-# expects, and a stale tag fails with "Executable doesn't exist at /ms-playwright/...".
-IMAGE="mcr.microsoft.com/playwright:v1.63.0-noble"
+# Take the image tag from the installed playwright package rather than a hardcoded constant: the
+# image must ship the browser build that version expects, and a stale tag fails with "Executable
+# doesn't exist at /ms-playwright/...". A constant drifts out of step on every dependency bump.
+if [ ! -f node_modules/playwright/package.json ]; then
+  echo "node_modules/playwright is missing; run npm ci first" >&2
+  exit 1
+fi
+PLAYWRIGHT_VERSION=$(node -p "require('./node_modules/playwright/package.json').version")
+IMAGE="mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble"
 
 # Visual tests live wherever their component does, so every __screenshots__ directory under src is
 # copied back.
