@@ -222,7 +222,7 @@ describe('RegistrationForm', () => {
       ...unpaidRegistrationWithStaticDates,
       confirmed: true,
       messagesSent: { picked: true },
-      paymentStatus: 'PENDING' as const,
+      paymentInProgress: true,
       shouldPay: false,
     }
     render(<RegistrationForm event={event} registration={pending} />, { wrapper: Wrapper })

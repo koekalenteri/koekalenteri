@@ -4,15 +4,16 @@ import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import { isPaymentReturned } from '@/lib/registration'
 
 interface PaymentIconProps {
-  reg: RegistrationRefundAmounts & Pick<Registration, 'paidAt' | 'refundStatus'>
+  reg: RegistrationRefundAmounts & Pick<Registration, 'openRefunds' | 'paidAt'>
   /** The fee has been paid, but not the amount it now adds up to: a part missing, or paid over. */
   unsettled?: boolean
 }
 
 const PaymentIcon = ({ reg, unsettled }: PaymentIconProps) => {
   // The piggy bank for money that went back, or is on its way; a refunded fee paid again is paid
-  // and shows the euro sign (KOE-1526).
-  if (isPaymentReturned(reg) || reg.refundStatus === 'PENDING') {
+  // and shows the euro sign (KOE-1526). "On its way" reads from the open refund set, not a stored
+  // PENDING, which said nothing of which refund (KOE-1529).
+  if (isPaymentReturned(reg) || (reg.openRefunds?.length ?? 0) > 0) {
     return <SavingsOutlined color={unsettled ? 'warning' : undefined} fontSize="small" />
   }
   return (

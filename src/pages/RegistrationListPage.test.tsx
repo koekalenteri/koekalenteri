@@ -614,7 +614,7 @@ describe('RegistrationListPage', () => {
       .spyOn(registrationApi, 'getRegistration')
       .mockResolvedValueOnce({
         ...unpaidRegistrationWithStaticDates,
-        paymentStatus: 'PENDING',
+        paymentInProgress: true,
       })
       .mockResolvedValue({
         ...unpaidRegistrationWithStaticDates,

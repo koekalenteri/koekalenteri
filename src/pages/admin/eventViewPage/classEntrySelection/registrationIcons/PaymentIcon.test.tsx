@@ -30,10 +30,11 @@ describe('PaymentIcon', () => {
     expect(screen.getByTestId('EuroOutlinedIcon')).toBeInTheDocument()
   })
 
-  it('should render SavingsOutlined icon when refundStatus is PENDING', () => {
+  // KOE-1529: reads the open refund set, not a stored refundStatus.
+  it('should render SavingsOutlined icon when openRefunds is not empty', () => {
     const reg = {
+      openRefunds: ['t1'],
       paidAt: new Date(),
-      refundStatus: 'PENDING' as const,
     }
 
     render(<PaymentIcon reg={reg} />)

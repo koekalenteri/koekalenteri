@@ -79,7 +79,8 @@ type PaymentTimeEvent = { paymentTime?: PaymentTime }
 type EventStateHolder = { state?: EventState }
 
 /** What the pay offer reads: the server's word on the participant's pages, the group on the secretary's. */
-type PayOfferRegistration = RegistrationPlacement & Pick<Registration, 'paymentStatus' | 'shouldPay'>
+type PayOfferRegistration = RegistrationPlacement &
+  Pick<Registration, 'paymentInProgress' | 'paymentStatus' | 'shouldPay'>
 
 /**
  * Whether the trial lets the entry pay as far as its place goes: paying at entry anyone may, paying
@@ -91,11 +92,12 @@ export const isPaymentOpenForPlace = (event: PaymentTimeEvent, registration: Reg
 
 /**
  * A payment in progress, or one charged twice: either holds the pay offer back, place or no place.
- * A stored PENDING means a payment in progress only once the server has read its transactions
- * (`getParticipantRow`): the participant's state is built from such a row (KOE-1526).
+ * `paymentInProgress` is the server's own word, computed from the registration's open payment ids
+ * (`computePaymentInProgress`); it says nothing by itself on a row that never had one computed, which
+ * is exactly the secretary's row (KOE-1529, replacing a stored PENDING read via `getParticipantRow`).
  */
-const isPaymentHeld = (registration: Pick<Registration, 'paymentStatus'>): boolean =>
-  registration.paymentStatus === 'PENDING' || registration.paymentStatus === 'DUPLICATE'
+const isPaymentHeld = (registration: Pick<Registration, 'paymentInProgress' | 'paymentStatus'>): boolean =>
+  Boolean(registration.paymentInProgress) || registration.paymentStatus === 'DUPLICATE'
 
 type PaymentStatusRegistration = RegistrationRefundAmounts & PayOfferRegistration
 
@@ -125,7 +127,7 @@ export const getPaymentStatus = (
   due = 0
 ) => {
   if (registration.paymentStatus === 'DUPLICATE') return 'paymentStatus.duplicate'
-  if (registration.paymentStatus === 'PENDING') return 'paymentStatus.pending'
+  if (registration.paymentInProgress) return 'paymentStatus.pending'
   if (isPaymentReturned(registration)) return due > 0 ? 'paymentStatus.missing' : 'paymentStatus.refunded'
   if (hasStandingPayment(registration)) return due > 0 ? 'paymentStatus.partial' : 'paymentStatus.success'
   if (due <= 0 || (event && !isEventOpenForPayment(event))) return 'paymentStatus.notCharged'
@@ -230,7 +232,7 @@ export const isPaymentOffered = (
  */
 export const shouldParticipantPay = (
   event: PaymentTimeEvent,
-  registration: RegistrationPlacement & Pick<Registration, 'paymentStatus'>,
+  registration: RegistrationPlacement & Pick<Registration, 'paymentInProgress' | 'paymentStatus'>,
   due: number
 ): boolean => {
   if (registration.cancelled || due <= 0 || isPaymentHeld(registration)) return false
@@ -282,21 +284,14 @@ export const isPaymentInProgress = (
   !isStalePendingPayment(transaction.createdAt, transaction.statusAt)
 
 /**
- * A row whose stored PENDING is not a payment in progress, as the pay offer reads it: NEW, payable
- * again (KOE-1526). The server uses it once the transactions show no payment in progress
- * (`getParticipantRow`); the secretary's request for any PENDING, having no transactions to read.
- */
-export const asPaymentNotInProgress = <T extends Pick<Registration, 'paymentStatus'>>(row: T): T =>
-  row.paymentStatus === 'PENDING' ? { ...row, paymentStatus: 'NEW' } : row
-
-/**
  * Whether the secretary may send a payment request: the participant's pay offer, read from the
- * secretary's row (KOE-1526). That row has no transactions to tell a payment in progress from one
- * left at Paytrail, so a stored PENDING does not hold the request back; PaymentCreate decides when
- * the link is opened, with a 409 for a payment truly in progress. A duplicate waits for its refund.
+ * secretary's row (KOE-1526). That row never has `paymentInProgress` computed (the secretary's list
+ * does not BatchGet every registration's open transactions), so it never holds the request back on
+ * its own; PaymentCreate decides when the link is actually opened, with a 409 for a payment truly in
+ * progress. A duplicate still waits for its refund (KOE-1529).
  */
 export const canRequestPaymentFor = (event: Partial<DogEvent>, row: PaymentBalanceRegistration): boolean =>
-  isConfirmedEvent(event) && getParticipantPaymentState(event, asPaymentNotInProgress(row)).shouldPay
+  isConfirmedEvent(event) && getParticipantPaymentState(event, row).shouldPay
 
 /**
  * Whether a paid fee no longer matches what the entry adds up to: a part missing or paid over. What

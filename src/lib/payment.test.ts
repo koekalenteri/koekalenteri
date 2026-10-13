@@ -2,7 +2,6 @@ import type { MinimalEventForCost, MinimalRegistrationForCost, PaymentStatus, Re
 import { addDays } from 'date-fns'
 import { eventWithStaticDates } from '../__mockData__/events'
 import {
-  asPaymentNotInProgress,
   canRefundExcess,
   canRequestPaymentFor,
   getParticipantPaymentDue,
@@ -51,15 +50,6 @@ describe('payment', () => {
     })
   })
 
-  it.each([
-    ['PENDING', 'NEW'],
-    ['CANCEL', 'CANCEL'],
-    ['SUCCESS', 'SUCCESS'],
-    [undefined, undefined],
-  ] as const)('asPaymentNotInProgress reads a stored %s as %s', (paymentStatus, expected) => {
-    expect(asPaymentNotInProgress({ id: 'r1', paymentStatus })).toEqual({ id: 'r1', paymentStatus: expected })
-  })
-
   // KOE-1526 review: the secretary's request is the pay offer read from a row without transactions.
   describe('canRequestPaymentFor', () => {
     const event = { cost: 40, costMember: 40, entryStartDate: new Date('2026-01-01'), state: 'confirmed' as const }
@@ -72,7 +62,9 @@ describe('payment', () => {
 
     it.each([
       ['an unpaid entry', {}, true],
-      ['a stored PENDING, which may be a payment left at Paytrail', { paymentStatus: 'PENDING' as const }, true],
+      // A legacy PENDING, or no `paymentInProgress` at all (the secretary's row never has it
+      // computed): neither holds the request back any more (KOE-1529).
+      ['a legacy stored PENDING', { paymentStatus: 'PENDING' as const }, true],
       ['a payment charged twice', { paymentStatus: 'DUPLICATE' as const }, false],
       ['a paid entry', { paidAmount: 40, paymentStatus: 'SUCCESS' as const }, false],
     ])('for %s: %s', (_name, overrides, expected) => {
@@ -150,7 +142,10 @@ describe('payment', () => {
         ['a returned fee whose next payment was never made', { paymentStatus: 'NEW' }, 0, 'registration', false],
         ['an entry to a trial that costs nothing', {}, 0, 'registration', false],
         ['a paid place paying at confirmation', { group: place, paymentStatus: 'SUCCESS' }, 0, 'confirmation', false],
-        ['a payment in progress', { paymentStatus: 'PENDING' }, 40, 'registration', false],
+        ['a payment in progress', { paymentInProgress: true }, 40, 'registration', false],
+        // The stored legacy value alone says nothing of which transaction it was about, so it no
+        // longer holds the offer back by itself (KOE-1529).
+        ['a legacy PENDING with nothing actually open', { paymentStatus: 'PENDING' }, 40, 'registration', true],
         ['a cancelled entry', { cancelled: true }, 40, 'registration', false],
         ['a payment charged twice', { paymentStatus: 'DUPLICATE' }, 40, 'registration', false],
         ['a reserve paying at confirmation', { group: { key: 'reserve' } }, 40, 'confirmation', false],
@@ -185,7 +180,7 @@ describe('payment', () => {
       it.each<[string, Parameters<typeof isPaymentWaitingForPlace>[1], boolean]>([
         ['an entry the server offers paying', { shouldPay: true }, false],
         ['an entry the server does not offer paying', { shouldPay: false }, true],
-        ['a payment in progress', { paymentStatus: 'PENDING', shouldPay: false }, false],
+        ['a payment in progress', { paymentInProgress: true, shouldPay: false }, false],
         ['a payment charged twice', { paymentStatus: 'DUPLICATE', shouldPay: false }, false],
         ["a secretary's row in a place", { group: { key: '2026-08-15-ap' } }, false],
         ["a secretary's row on the reserve list", { group: { key: 'reserve' } }, true],
@@ -324,11 +319,17 @@ describe('payment', () => {
     it.each<[PaymentStatus | undefined, string]>([
       ['SUCCESS', 'paymentStatus.success'],
       ['DUPLICATE', 'paymentStatus.duplicate'],
-      ['PENDING', 'paymentStatus.pending'],
+      // A legacy PENDING no longer reads as pending by itself: `paymentInProgress` says that now
+      // (KOE-1529).
+      ['PENDING', 'paymentStatus.notCharged'],
       // Nothing paid and nothing owed: nothing is charged (KOE-1526).
       [undefined, 'paymentStatus.notCharged'],
     ])('When status is %p should return %p', (paymentStatus, expected) => {
       expect(getPaymentStatus({ paymentStatus })).toEqual(expected)
+    })
+
+    it('reads paymentInProgress, not a stored PENDING, as pending (KOE-1529)', () => {
+      expect(getPaymentStatus({ paymentInProgress: true, paymentStatus: undefined })).toEqual('paymentStatus.pending')
     })
 
     it('names the missing part when a paid fee still owes (KOE-722)', () => {
@@ -449,9 +450,9 @@ describe('payment', () => {
         ).toEqual('paymentStatus.success')
       })
 
-      it('should return pending when payment is pending regardless of confirmation state', () => {
+      it('should return pending when a payment is in progress regardless of confirmation state', () => {
         expect(
-          getPaymentStatus({ paymentStatus: 'PENDING' }, { paymentTime: 'confirmation', state: 'confirmed' }, 40)
+          getPaymentStatus({ paymentInProgress: true }, { paymentTime: 'confirmation', state: 'confirmed' }, 40)
         ).toEqual('paymentStatus.pending')
       })
     })
