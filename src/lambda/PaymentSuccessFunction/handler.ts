@@ -9,8 +9,8 @@ import {
   emailSubjectAuditKey,
   paymentAudit,
 } from '../../lib/audit'
-import { getCostSegmentName, getNetPaidAmount } from '../../lib/cost'
-import { formatMoney } from '../../lib/money'
+import { getCostSegmentName } from '../../lib/cost'
+import { formatMoney, getNetPaidAmount } from '../../lib/money'
 import {
   getParticipantPaymentState,
   getProviderName,

@@ -989,6 +989,21 @@ describe('fee against what was paid', () => {
     expect(getRowActions(actionsColumn, paidRow(123)).some((action) => action.key === 'requestPayment')).toBe(false)
   })
 
+  // KOE-1526 review: the request follows the participant's pay offer; a payment in progress would
+  // answer it with a 409, and a duplicate waits for its refund.
+  it.each(['PENDING', 'DUPLICATE'] as const)(
+    'does not offer a payment request while the payment is %s',
+    (paymentStatus) => {
+      const { result } = renderHook(() =>
+        useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, { requestPayment: vi.fn() })
+      )
+      const actionsColumn = result.current.entryColumns.find((col) => col.field === 'actions')
+
+      const actions = getRowActions(actionsColumn, paidRow(100, { paymentStatus }))
+      expect(actions.some((action) => action.key === 'requestPayment')).toBe(false)
+    }
+  )
+
   it('does not ask a cancelled entry for anything', () => {
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes)

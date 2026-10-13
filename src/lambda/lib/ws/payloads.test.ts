@@ -37,6 +37,10 @@ describe('ws/payloads', () => {
           paidAmount: 50,
           paidAt: '2026-08-16T10:00:00.000Z',
           paymentStatus: 'SUCCESS',
+          refundAmount: 50,
+          refundAt: '2026-08-17T11:37:27.000Z',
+          refundHandlingCost: 0,
+          refundStatus: 'SUCCESS',
           state: 'ready',
         },
         { paymentDue: 0, shouldPay: false }
@@ -50,6 +54,11 @@ describe('ws/payloads', () => {
       paidAt: '2026-08-16T10:00:00.000Z',
       paymentDue: 0,
       paymentStatus: 'SUCCESS',
+      // The page reads the refund to know whether to take the due from the server (KOE-1526).
+      refundAmount: 50,
+      refundAt: '2026-08-17T11:37:27.000Z',
+      refundHandlingCost: 0,
+      refundStatus: 'SUCCESS',
       shouldPay: false,
       state: 'ready',
       updatedAt: undefined,

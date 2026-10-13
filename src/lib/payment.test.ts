@@ -13,6 +13,7 @@ import {
   isPaidStatus,
   isPaymentOffered,
   isPaymentUnsettled,
+  isPaymentWaitingForPlace,
   isPaytrailRefusal,
   isRegistrationPaid,
   PROVIDER_NAMES,
@@ -99,6 +100,25 @@ describe('payment', () => {
       expect(getParticipantPaymentState(priced, { ...returned, group: { key: '2026-08-15-ap' } })).toEqual({
         paymentDue: 40,
         shouldPay: true,
+      })
+    })
+
+    // KOE-1526 review: a payment in progress or charged twice turns the pay offer off, but the place
+    // is no less a place for it.
+    describe('isPaymentWaitingForPlace', () => {
+      it.each<[string, Parameters<typeof isPaymentWaitingForPlace>[1], boolean]>([
+        ['an entry the server offers paying', { shouldPay: true }, false],
+        ['an entry the server does not offer paying', { shouldPay: false }, true],
+        ['a payment in progress', { paymentStatus: 'PENDING', shouldPay: false }, false],
+        ['a payment charged twice', { paymentStatus: 'DUPLICATE', shouldPay: false }, false],
+        ["a secretary's row in a place", { group: { key: '2026-08-15-ap' } }, false],
+        ["a secretary's row on the reserve list", { group: { key: 'reserve' } }, true],
+      ])('at confirmation-time payment, %s', (_name, registration, expected) => {
+        expect(isPaymentWaitingForPlace({ paymentTime: 'confirmation' }, registration)).toBe(expected)
+      })
+
+      it('never waits when the trial is paid at entry', () => {
+        expect(isPaymentWaitingForPlace({ paymentTime: 'registration' }, { shouldPay: false })).toBe(false)
       })
     })
 
@@ -267,6 +287,12 @@ describe('payment', () => {
         expect(
           getPaymentStatus({ paymentStatus: undefined, shouldPay: true }, { paymentTime: 'confirmation' })
         ).toEqual('paymentStatus.missing')
+      })
+
+      it('should return waitingForConfirmation for a new entry with neither an answer nor a group', () => {
+        expect(getPaymentStatus({ paymentStatus: undefined }, { paymentTime: 'confirmation' })).toEqual(
+          'paymentStatus.waitingForConfirmation'
+        )
       })
 
       it("should read a secretary's row by its group", () => {

@@ -235,7 +235,7 @@ describe('ws/subscriptionService', () => {
 
     await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).resolves.toEqual(
       expect.objectContaining({
-        patch: expect.objectContaining({ paymentDue: 50, shouldPay: true }),
+        patch: expect.objectContaining({ paymentDue: 50, refundAmount: 50, shouldPay: true }),
       })
     )
   })

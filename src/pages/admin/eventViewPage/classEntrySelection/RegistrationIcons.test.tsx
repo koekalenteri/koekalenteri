@@ -104,12 +104,12 @@ describe('RegistrationIcons component', () => {
     expect(screen.getByTestId('StarBorderOutlinedIcon')).toBeInTheDocument()
   })
 
-  it('should render refund icon when registration has been refunded', () => {
-    // Mock a registration with refund
+  // The piggy bank is for a payment that went back; a part refunded leaves a paid fee (KOE-1526).
+  it('should render refund icon when the payment has been refunded', () => {
     const mockReg = createMockRegistration({
       paidAmount: 5000,
       paidAt: new Date(),
-      refundAmount: 2500,
+      refundAmount: 5000,
       refundAt: new Date(),
     })
 

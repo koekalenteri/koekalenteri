@@ -27,7 +27,7 @@ import type { AuditActor } from './audit'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { hasSharedReserveList, isEntryClosed, localizedEventDescription, localizedEventName } from './event'
-import { formatMoney } from './money'
+import { formatMoney, getNetPaidAmount } from './money'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from './priority'
 import { isDefined } from './typeGuards'
 import { isObject, unique } from './utils'
@@ -555,7 +555,7 @@ type RefundField = 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
 
 /** Whether any of what was paid is still with the organizer, handling fees counted as kept. */
 export const hasRefundableBalance = <T extends JsonRegistration | Registration>(reg: Pick<T, RefundField>): boolean =>
-  (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) + (reg.refundHandlingCost ?? 0)
+  getNetPaidAmount(reg) > 0
 
 export const canRefund = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'group' | RefundField>

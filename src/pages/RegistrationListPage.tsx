@@ -12,7 +12,7 @@ import { useRegistrationSubscription } from '../hooks/useRegistrationSubscriptio
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { getEventStateForClass } from '../lib/event'
-import { getShownPaymentDue } from '../lib/payment'
+import { getShownPaymentDue, isPaymentOffered } from '../lib/payment'
 import { getRegistrationClass, getRegistrationEmails } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
@@ -207,10 +207,16 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     // it and its backdrop would swallow the confirm button (KOE-1265). It opens once confirmed.
     if (confirm && !registration.confirmed) return
 
-    if (paymentDue > 0 && registration.messagesSent?.picked) {
+    // The same offer as the pay button: the server's shouldPay, never while a payment is being
+    // verified (KOE-1526).
+    if (
+      paymentDue > 0 &&
+      registration.messagesSent?.picked &&
+      isPaymentOffered(registration, paymentVerificationInProgress)
+    ) {
       setPaymentOpen((current) => current ?? true)
     }
-  }, [confirm, event, registration, paymentDue])
+  }, [confirm, event, registration, paymentDue, paymentVerificationInProgress])
 
   useEffect(() => {
     if (!registration || registration.cancelled) return

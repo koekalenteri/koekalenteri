@@ -83,6 +83,35 @@ describe('CancelDialog', () => {
     expect(screen.getByRole('option', { name: 'registration.cancelReason.unpaid' })).toBeInTheDocument()
   })
 
+  // The unpaid reason by the payment rule in a confirmed trial; by the mark of a payment in one not
+  // confirmed yet, which has no fee to read (KOE-1526).
+  it.each([
+    [
+      'a paid entry in a confirmed trial',
+      publicEventWithStaticDatesAndClass,
+      registrationWithStaticDatesAndClass,
+      false,
+    ],
+    [
+      'a paid entry in a tentative trial',
+      { ...publicEventWithStaticDatesAndClass, state: 'tentative' as const },
+      registrationWithStaticDatesAndClass,
+      false,
+    ],
+    [
+      'an unpaid entry in a tentative trial',
+      { ...publicEventWithStaticDatesAndClass, state: 'tentative' as const },
+      unpaidRegistrationWithStaticDatesAndClass,
+      true,
+    ],
+  ])('offers the unpaid reason for %s: %s', async (_name, event, registration, offered) => {
+    const { user } = renderWithUserEvents(<CancelDialog admin event={event} open registration={registration} />)
+
+    await user.click(screen.getByLabelText('registration.cancelDialog.reason'))
+
+    expect(Boolean(screen.queryByRole('option', { name: 'registration.cancelReason.unpaid' }))).toBe(offered)
+  })
+
   it('should render for admin, with reason preselected', () => {
     render(
       <CancelDialog

@@ -231,6 +231,35 @@ describe('RegistrationForm', () => {
     expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent(/^registration\.paymentToBePaid /)
   })
 
+  it('says a new entry pays once its place is confirmed when the trial is paid at confirmation', async () => {
+    const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const { group: _group, ...entry } = { ...unpaidRegistrationWithStaticDates, id: '' }
+    render(<RegistrationForm event={event} registration={entry} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(
+      /^registration\.paymentToBePaidAfterConfirmation 123,00/
+    )
+  })
+
+  // KOE-1526 review: a payment in progress turns the pay offer off, not the place.
+  it('asks for the fee of a confirmed place while its payment is in progress', async () => {
+    const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const pending = {
+      ...unpaidRegistrationWithStaticDates,
+      confirmed: true,
+      messagesSent: { picked: true },
+      paymentStatus: 'PENDING' as const,
+      shouldPay: false,
+    }
+    render(<RegistrationForm event={event} registration={pending} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(
+      /^registration\.paymentToBePaid 123,00/
+    )
+  })
+
   it('should render optional costs', async () => {
     const event = {
       ...eventWithStaticDates,

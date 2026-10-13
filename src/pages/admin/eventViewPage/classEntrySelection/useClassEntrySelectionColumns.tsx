@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next'
 import { getPaymentBalance } from '@/lib/cost'
 import { breedAbbreviation } from '@/lib/dog'
 import { isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
-import { canRefundExcess } from '@/lib/payment'
+import { canRefundExcess, shouldParticipantPay } from '@/lib/payment'
 import {
   canRefund,
   GROUP_KEY_CANCELLED,
@@ -26,7 +26,6 @@ import {
   getLastEmailText,
   getRegistrationClass,
   getRegistrationGroupKey,
-  isParticipantGroup,
   isPredefinedReason,
 } from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
@@ -156,14 +155,12 @@ const getMovementActions = (options: RegistrationActionsOptions & { groupKey: st
 
 /**
  * A place whose fee is still short can be asked for it: nothing paid yet, or a member price paid by
- * someone who was not a member (KOE-722). Paying at confirmation, only a picked place has a payment
- * link to send. A cancelled entry owes nothing.
+ * someone who was not a member (KOE-722). The request is the participant's pay offer, so it follows
+ * the same rule (KOE-1526): paying at confirmation only a place has a link to send, a cancelled entry
+ * owes nothing, and a payment in progress or charged twice is not asked for again.
  */
-const canRequestPayment = (event: DogEvent, row: Registration, groupKey: string): boolean =>
-  groupKey !== GROUP_KEY_CANCELLED &&
-  isConfirmedEvent(event) &&
-  getPaymentBalance(event, row).due > 0 &&
-  (event.paymentTime !== 'confirmation' || isParticipantGroup(groupKey))
+const canRequestPayment = (event: DogEvent, row: Registration): boolean =>
+  isConfirmedEvent(event) && shouldParticipantPay(event, row, getPaymentBalance(event, row).due)
 
 const createRegistrationActions = (options: RegistrationActionsOptions): ReactElement<GridActionsCellItemProps>[] => {
   const { callbacks, event, row, t } = options
@@ -231,7 +228,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
     />
   )
 
-  if (canRequestPayment(event, row, groupKey)) {
+  if (canRequestPayment(event, row)) {
     actions.push(
       <GridActionsCellItem
         key="requestPayment"

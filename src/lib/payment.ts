@@ -74,23 +74,36 @@ export const getProviderName = (provider?: string) =>
 type PaymentTimeEvent = { paymentTime?: PaymentTime }
 
 /** What the pay offer reads: the server's word on the participant's pages, the group on the secretary's. */
-type PayOfferRegistration = Pick<Registration, 'cancelled' | 'shouldPay'> & RegistrationGroupHolder
+type PayOfferRegistration = Pick<Registration, 'cancelled' | 'paymentStatus' | 'shouldPay'> & RegistrationGroupHolder
 
-type PaymentStatusRegistration = Pick<
-  Registration,
-  'paymentStatus' | 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
-> &
+/**
+ * Whether the trial lets the entry pay as far as its place goes: paying at entry anyone may, paying
+ * at confirmation only a place. The pay offer, the waiting text and the secretary's payment request
+ * read this one rule (KOE-1526).
+ */
+const isPaymentOpenForPlace = (
+  event: PaymentTimeEvent,
+  registration: Pick<Registration, 'cancelled'> & RegistrationGroupHolder
+): boolean => event.paymentTime !== 'confirmation' || isParticipantGroup(getRegistrationGroupKey(registration))
+
+/** A payment in progress, or one charged twice: either holds the pay offer back, place or no place. */
+const isPaymentHeld = (registration: Pick<Registration, 'paymentStatus'>): boolean =>
+  registration.paymentStatus === 'PENDING' || registration.paymentStatus === 'DUPLICATE'
+
+type PaymentStatusRegistration = Pick<Registration, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'> &
   PayOfferRegistration
 
 /**
  * Whether a fee paid at confirmation still waits for a place, which is what the pay offer reads: the
  * participant's pages have the server's `shouldPay`, the secretary's the group, and a new entry
  * neither (KOE-1526). The confirmation itself does not decide it: a picked place may pay before
- * confirming.
+ * confirming. A payment in progress or charged twice turns the offer off for its own reason, so it
+ * says nothing of the place: it does not wait.
  */
-export const isPaymentWaitingForPlace = (event: PaymentTimeEvent, registration: PayOfferRegistration): boolean =>
-  event.paymentTime === 'confirmation' &&
-  !(registration.shouldPay ?? isParticipantGroup(getRegistrationGroupKey(registration)))
+export const isPaymentWaitingForPlace = (event: PaymentTimeEvent, registration: PayOfferRegistration): boolean => {
+  if (event.paymentTime !== 'confirmation' || isPaymentHeld(registration)) return false
+  return !(registration.shouldPay ?? isPaymentOpenForPlace(event, registration))
+}
 
 /**
  * The key of what the entrant reads about the fee. `due` is what is still owed of a fee that has
@@ -184,15 +197,8 @@ export const shouldParticipantPay = (
   registration: Pick<Registration, 'cancelled' | 'paymentStatus'> & RegistrationGroupHolder,
   due: number
 ): boolean => {
-  if (
-    registration.cancelled ||
-    due <= 0 ||
-    registration.paymentStatus === 'PENDING' ||
-    registration.paymentStatus === 'DUPLICATE'
-  ) {
-    return false
-  }
-  return event.paymentTime !== 'confirmation' || isParticipantGroup(getRegistrationGroupKey(registration))
+  if (registration.cancelled || due <= 0 || isPaymentHeld(registration)) return false
+  return isPaymentOpenForPlace(event, registration)
 }
 
 /** What the participant's pages read of the fee: what is still owed, and whether to offer the payment link. */

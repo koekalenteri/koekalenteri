@@ -1124,6 +1124,15 @@ describe('hasDifferentMemberPrice', () => {
       ).toEqual({ cost: 50, due: 0, excess: 0, paid: 50 })
     })
 
+    it('settles a reserve whose fee went back to the cent less a fee (KOE-1526)', () => {
+      expect(
+        getPaymentBalance(
+          makeEvent(10.05, 10.05),
+          entry(false, { group: reserve, paidAmount: 10.05, refundAmount: 9.85, refundHandlingCost: 0.2 })
+        )
+      ).toEqual({ cost: 10.05, due: 0, excess: 0, paid: 0 })
+    })
+
     it('still owes the fee for a reserve that has not paid', () => {
       expect(getPaymentBalance(event, entry(false, { group: reserve }))).toEqual({
         cost: 40,

@@ -31,6 +31,11 @@ export const buildParticipantPaymentPatch = (
   paidAt: registration.paidAt,
   paymentDue,
   paymentStatus: registration.paymentStatus,
+  // The page reads the refund to know a fee that went back, and only then takes the due from here.
+  refundAmount: registration.refundAmount,
+  refundAt: registration.refundAt,
+  refundHandlingCost: registration.refundHandlingCost,
+  refundStatus: registration.refundStatus,
   shouldPay,
   state: registration.state,
   updatedAt: registration.updatedAt,

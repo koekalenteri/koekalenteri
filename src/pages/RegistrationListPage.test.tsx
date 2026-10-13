@@ -8,7 +8,7 @@ import { createStore, Provider } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { Suspense } from 'react'
 import { Link, useParams } from 'react-router'
-import { eventWithParticipantsInvited } from '../__mockData__/events'
+import { eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
 import { APIError } from '../api/http'
@@ -524,6 +524,13 @@ describe('RegistrationListPage', () => {
   })
 
   it('opens payment dialog automatically', async () => {
+    // GetRegistration offers paying to a picked place that owes its fee (KOE-1526).
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...unpaidRegistrationWithStaticDates,
+      id: 'unpaid-picked-nou-registration',
+      messagesSent: { picked: true },
+      shouldPay: true,
+    })
     await renderWithRouter('/r/test1/unpaid-picked-nou-registration')
 
     await flushPromises()
@@ -565,6 +572,38 @@ describe('RegistrationListPage', () => {
 
       const dialog = await screen.findByRole('dialog', { name: 'registration.paymentDialog.title' })
       expect(dialog).toBeVisible()
+    })
+  })
+
+  // KOE-1526 review: the payment dialog opens on the same offer as the pay button, the server's
+  // shouldPay, and not while a payment is being verified.
+  describe('the payment dialog follows the pay offer', () => {
+    it('stays closed for a picked entry moved back to the reserve list when paying at confirmation', async () => {
+      vi.spyOn(eventApi, 'getEvent').mockResolvedValue({ ...eventWithStaticDates, paymentTime: 'confirmation' })
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        messagesSent: { picked: true },
+        paymentDue: 123,
+        shouldPay: false,
+      })
+      await renderWithRouter('/r/test1/unpaid-nou-registration')
+      await flushPromises()
+
+      expect(screen.queryByRole('dialog', { name: 'registration.paymentDialog.title' })).not.toBeInTheDocument()
+    })
+
+    it('stays closed while a payment is being verified', async () => {
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        messagesSent: { picked: true },
+        paymentDue: 123,
+        paymentStatus: 'NEW',
+        shouldPay: true,
+      })
+      await renderWithRouter('/r/test1/unpaid-nou-registration?payment=verifying')
+      await flushPromises()
+
+      expect(screen.queryByRole('dialog', { name: 'registration.paymentDialog.title' })).not.toBeInTheDocument()
     })
   })
 

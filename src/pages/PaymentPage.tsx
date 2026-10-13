@@ -12,7 +12,7 @@ import { Await, useLoaderData, useParams } from 'react-router'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
 import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
-import { paytrailErrorText } from '../lib/payment'
+import { getPaymentStatus, getShownPaymentDue, paytrailErrorText } from '../lib/payment'
 import { printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
@@ -117,13 +117,15 @@ export const PaymentPageWithData = ({
     </Paper>
   )
 
-  // If payment is after confirmation but registration is not confirmed yet, show message
-  if (event.paymentTime === 'confirmation' && !registration.shouldPay) {
-    return renderNotice(t('paymentStatus.waitingForConfirmation'))
+  // The notice says what the status line says (KOE-1526): paying at confirmation waits for a place,
+  // not for the confirmation, and a fee that went back was refunded, not paid.
+  const paymentStatus = getPaymentStatus(registration, event, getShownPaymentDue(event, registration))
+  if (paymentStatus === 'paymentStatus.waitingForConfirmation') {
+    return renderNotice(t(paymentStatus))
   }
 
   if (responseStatus === 204) {
-    return renderNotice(t('paymentPage.alreadyPaid'))
+    return renderNotice(t(paymentStatus === 'paymentStatus.refunded' ? paymentStatus : 'paymentPage.alreadyPaid'))
   }
 
   // Paytrail's refusal before the status branches: its status is Paytrail's, not this API's.

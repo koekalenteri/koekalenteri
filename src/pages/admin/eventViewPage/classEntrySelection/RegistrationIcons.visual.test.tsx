@@ -66,3 +66,25 @@ it('keeps the refund mark plain for a reserve whose fee was refunded', async () 
   await expect.element(screen.getByTestId('visual-root')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-mark-refunded-reserve')
 })
+
+// KOE-1526 review: refunded as a reserve, lifted into a place and paid again. The fee is paid and
+// settled, so the euro sign shows as for any paid place, not the piggy bank of a fee that went back.
+it('shows a refunded fee paid again as paid', async () => {
+  const paidAgain: Registration = {
+    ...paid(80, false),
+    group: { key: '2021-02-10-ap', number: 1 },
+    id: 'paid-again',
+    refundAmount: 40,
+    refundAt: registrationWithStaticDates.createdAt,
+    refundHandlingCost: 0,
+    refundStatus: 'SUCCESS',
+  }
+  const screen = await render(
+    <Frame>
+      <RegistrationIcons event={event} reg={paidAgain} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByTestId('visual-root')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-mark-paid-again')
+})

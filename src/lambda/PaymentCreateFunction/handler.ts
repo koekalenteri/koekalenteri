@@ -136,7 +136,8 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   // What is still owed of the fee as the entry reads now: the whole of it, or the part a corrected
-  // membership added after a member-price payment (KOE-722). A refund counts as unpaid again.
+  // membership added after a member-price payment (KOE-722). A fee that went back is owed again only
+  // once the entry holds a place; a reserve's is settled, and gets 204 (KOE-1526).
   const amount = Math.round(100 * getPaymentBalance(jsonEvent, registration).due)
   if (amount <= 0) {
     return response<string>(204, 'Already paid', event)

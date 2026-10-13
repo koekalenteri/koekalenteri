@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router'
-import type { CreatePaymentResponse, PublicConfirmedEvent } from '../types'
+import type { CreatePaymentResponse, PublicConfirmedEvent, Registration } from '../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -406,6 +406,67 @@ describe('PaymentPage', () => {
       expect(container).toHaveTextContent('registration.toBePaid')
       // Should not show payment method selector
       expect(container).not.toHaveTextContent('paymentPage.choosePaymentMethod')
+    })
+
+    // KOE-1526 review: the notice reads the same facts as the status line.
+    describe('the notice of a payment link that has nothing to collect', () => {
+      const renderPage = (paymentTime: 'confirmation' | 'registration', registration: Registration) =>
+        render(
+          <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+              <Provider>
+                <DataMemoryRouter
+                  initialEntries={['/test-path']}
+                  routes={[
+                    {
+                      element: (
+                        <PaymentPageWithData
+                          registrationId="test-reg-id"
+                          event={asPaymentEvent({ cost: 50, id: 'test-id', paymentTime })}
+                          registration={registration}
+                          responseStatus={204}
+                        />
+                      ),
+                      path: '/test-path',
+                    },
+                  ]}
+                />
+              </Provider>
+            </LocalizationProvider>
+          </ThemeProvider>
+        )
+
+      it('says a paid place at confirmation-time payment is paid, not waiting', async () => {
+        const { container } = renderPage('confirmation', {
+          ...testRegistration,
+          confirmed: true,
+          group: { key: '2026-08-15-ap', number: 1 },
+          paidAmount: 50,
+          paymentDue: 0,
+          paymentStatus: 'SUCCESS',
+          shouldPay: false,
+        })
+        await flushPromises()
+
+        expect(container).not.toHaveTextContent('paymentStatus.waitingForConfirmation')
+        expect(container).toHaveTextContent('paymentPage.alreadyPaid')
+      })
+
+      it('says a fee that went back was refunded, not paid', async () => {
+        const { container } = renderPage('registration', {
+          ...testRegistration,
+          paidAmount: 50,
+          paymentDue: 0,
+          paymentStatus: 'SUCCESS',
+          refundAmount: 50,
+          refundHandlingCost: 0,
+          shouldPay: false,
+        })
+        await flushPromises()
+
+        expect(container).toHaveTextContent('paymentStatus.refunded')
+        expect(container).not.toHaveTextContent('paymentPage.alreadyPaid')
+      })
     })
 
     it('should allow payment when payment is after confirmation and registration is confirmed', async () => {
