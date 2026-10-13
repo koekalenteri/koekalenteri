@@ -54,8 +54,9 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
   const needsConfirmation = !registration.cancelled && !registration.confirmed && !!registration.messagesSent?.picked
   const needsPayment = isPaymentOffered(registration, paymentVerificationInProgress)
   // A paid place reads as paid until its fee rises above what was paid (KOE-722): then the line
-  // names the missing part, the same amount the payment button collects. The server decides it once
-  // something has been paid, as only it knows whether a refunded reserve has a place (KOE-1526).
+  // names the missing part, the same amount the payment button collects. For a fee that went back the
+  // server decides it, as only it knows whether the reserve has a place (getParticipantPaymentDue,
+  // KOE-1526).
   const { due: paymentDue, status: paymentStatus } = getShownPayment(event, registration)
   const paymentStatusText = paymentVerificationInProgress
     ? t('registration.notifications.paymentVerifying')

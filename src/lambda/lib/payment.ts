@@ -15,7 +15,7 @@ import type { PaytrailError } from './paytrail'
 import { getFixedT } from '../../i18n/lambda'
 import { auditUser, refundPaytrailFailedAudit } from '../../lib/audit'
 import { localizedEventName } from '../../lib/event'
-import { isPaymentInProgress, paytrailErrorText } from '../../lib/payment'
+import { asPaymentNotInProgress, isPaymentInProgress, paytrailErrorText } from '../../lib/payment'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -127,6 +127,36 @@ export interface CancelledRegistration {
   registrationId: string
 }
 
+/**
+ * Writes a cancelled payment or refund on a registration and says what to send on: the plain change
+ * for the admins, and the participant's payment state, so an open page gets its pay offer back
+ * (KOE-1526). PaymentVerify and the provider's cancel callback (`cancelTransaction`) both cancel
+ * through this; whichever comes first writes it, and the other finds the status no longer PENDING.
+ */
+export const cancelRegistrationStatus = async (
+  registration: JsonRegistration,
+  statusField: RegistrationStatusField
+): Promise<CancelledRegistration> => {
+  const { eventId, id: registrationId } = registration
+  const updatedAt = new Date().toISOString()
+  await dynamoDB.update(
+    { eventId, id: registrationId },
+    { set: { [statusField]: 'CANCEL', updatedAt } },
+    registrationTable
+  )
+  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  return {
+    eventId,
+    organizerId: confirmedEvent.organizer.id,
+    participantPatch: await participantPaymentPatch(
+      { ...registration, [statusField]: 'CANCEL', updatedAt },
+      confirmedEvent
+    ),
+    patch: { eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt },
+    registrationId,
+  }
+}
+
 export const cancelTransaction = async <T extends JsonTransaction>({
   auditMessage,
   auditActor,
@@ -149,26 +179,8 @@ export const cancelTransaction = async <T extends JsonTransaction>({
     return
   }
 
-  let cancelled: CancelledRegistration | undefined
-  if (registration[statusField] === 'PENDING') {
-    const updatedAt = new Date().toISOString()
-    await dynamoDB.update(
-      { eventId, id: registrationId },
-      { set: { [statusField]: 'CANCEL', updatedAt } },
-      registrationTable
-    )
-    const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-    cancelled = {
-      eventId,
-      organizerId: confirmedEvent.organizer.id,
-      participantPatch: await participantPaymentPatch(
-        { ...registration, [statusField]: 'CANCEL', updatedAt },
-        confirmedEvent
-      ),
-      patch: { eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt },
-      registrationId,
-    }
-  }
+  const cancelled =
+    registration[statusField] === 'PENDING' ? await cancelRegistrationStatus(registration, statusField) : undefined
 
   await audit({
     auditKey: registrationAuditKey(registration),
@@ -442,7 +454,7 @@ export const getParticipantRow = async <T extends Pick<JsonRegistration, 'eventI
   if (registration.paymentStatus !== 'PENDING') return registration
   const transactions = await getTransactionsByReference(`${registration.eventId}:${registration.id}`)
   const inProgress = transactions?.some(isPaymentInProgress)
-  return inProgress ? registration : { ...registration, paymentStatus: 'NEW' }
+  return inProgress ? registration : asPaymentNotInProgress(registration)
 }
 
 /**

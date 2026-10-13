@@ -282,14 +282,21 @@ export const isPaymentInProgress = (
   !isStalePendingPayment(transaction.createdAt, transaction.statusAt)
 
 /**
+ * A row whose stored PENDING is not a payment in progress, as the pay offer reads it: NEW, payable
+ * again (KOE-1526). The server uses it once the transactions show no payment in progress
+ * (`getParticipantRow`); the secretary's request for any PENDING, having no transactions to read.
+ */
+export const asPaymentNotInProgress = <T extends Pick<Registration, 'paymentStatus'>>(row: T): T =>
+  row.paymentStatus === 'PENDING' ? { ...row, paymentStatus: 'NEW' } : row
+
+/**
  * Whether the secretary may send a payment request: the participant's pay offer, read from the
  * secretary's row (KOE-1526). That row has no transactions to tell a payment in progress from one
  * left at Paytrail, so a stored PENDING does not hold the request back; PaymentCreate decides when
  * the link is opened, with a 409 for a payment truly in progress. A duplicate waits for its refund.
  */
 export const canRequestPaymentFor = (event: Partial<DogEvent>, row: PaymentBalanceRegistration): boolean =>
-  isConfirmedEvent(event) &&
-  getParticipantPaymentState(event, row.paymentStatus === 'PENDING' ? { ...row, paymentStatus: 'NEW' } : row).shouldPay
+  isConfirmedEvent(event) && getParticipantPaymentState(event, asPaymentNotInProgress(row)).shouldPay
 
 /**
  * Whether a paid fee no longer matches what the entry adds up to: a part missing or paid over. What

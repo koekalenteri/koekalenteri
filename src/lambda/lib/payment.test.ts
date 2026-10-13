@@ -37,6 +37,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   }),
 }))
 const {
+  cancelRegistrationStatus,
   cancelTransaction,
   claimTransactionCreation,
   getParticipantRow,
@@ -272,6 +273,30 @@ describe('payment', () => {
       const paid = { ...pending, paymentStatus: 'SUCCESS' as const }
       await expect(getParticipantRow(paid)).resolves.toBe(paid)
       expect(mockQuery).not.toHaveBeenCalled()
+    })
+  })
+
+  // The one cancel PaymentVerify and the provider's callback share (KOE-1526).
+  describe('cancelRegistrationStatus', () => {
+    it('writes a cancelled refund and answers both patches', async () => {
+      const registration: JsonRegistration = {
+        ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
+        refundStatus: 'PENDING',
+      }
+
+      const cancelled = await cancelRegistrationStatus(registration, 'refundStatus')
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { eventId: registration.eventId, id: registration.id },
+        { set: { refundStatus: 'CANCEL', updatedAt: expect.any(String) } },
+        expect.any(String)
+      )
+      expect(cancelled).toMatchObject({
+        organizerId: 'organizer-1',
+        participantPatch: { id: registration.id, refundStatus: 'CANCEL' },
+        patch: { eventId: registration.eventId, id: registration.id, refundStatus: 'CANCEL' },
+        registrationId: registration.id,
+      })
     })
   })
 

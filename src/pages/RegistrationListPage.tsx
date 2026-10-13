@@ -67,7 +67,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     () => !event || allDisabled || isPast(subDays(event.startDate, 1)),
     [allDisabled, event]
   )
-  // The server's word once something has been paid: this page has no group to tell a reserve by (KOE-1526).
+  // What the page shows as owed: the server's word only for a fee that went back, which needs the
+  // group this page does not have (getParticipantPaymentDue, KOE-1526).
   const paymentDue = event && registration ? getShownPaymentDue(event, registration) : 0
 
   const handleCancel = useCallback(

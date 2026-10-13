@@ -26,7 +26,7 @@ import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import {
   claimTransactionCreation,
   getTransactionsByReference,
@@ -105,26 +105,26 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   const jsonEvent = await getEvent<JsonConfirmedEvent>(eventId)
 
   if (registration.cancelled) {
-    return response<string>(404, 'Registration not found', event)
+    throw httpError(404, 'Registration not found')
   }
 
   // A trial that is not confirmed, a cancelled one say, asks nothing of anyone (KOE-1526).
   if (!isEventOpenForPayment(jsonEvent)) {
-    return response<string>(404, 'Event is not open for payment', event)
+    throw httpError(404, 'Event is not open for payment')
   }
 
   if (registration.paymentStatus === 'DUPLICATE') {
-    return response<string>(409, 'Duplicate payment requires a refund', event)
+    throw httpError(409, 'Duplicate payment requires a refund')
   }
 
   // Paying at confirmation, only a place pays: the rule the pay offer reads (KOE-1526).
   if (!isPaymentOpenForPlace(jsonEvent, registration)) {
-    return response<string>(403, 'Payment not allowed - registration must be picked first', event)
+    throw httpError(403, 'Payment not allowed - registration must be picked first')
   }
 
   const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
   if (!organizer?.paytrailMerchantId) {
-    return response<string>(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`, event)
+    throw httpError(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`)
   }
 
   const reference = `${eventId}:${registrationId}`
@@ -135,7 +135,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   if (freshPendingTransaction) {
-    return response<string>(409, 'Payment already in progress', event)
+    throw httpError(409, 'Payment already in progress')
   }
 
   // What is still owed of the fee as the entry reads now: the whole of it, or the part a corrected
@@ -170,7 +170,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   if (
     !(await claimTransactionCreation(dynamoDB, 'payment', eventId, registrationId, stamp, STALE_PENDING_PAYMENT_AGE_MS))
   ) {
-    return response<string>(409, 'Payment already in progress', event)
+    throw httpError(409, 'Payment already in progress')
   }
 
   let result: CreatePaymentResponse | undefined | null

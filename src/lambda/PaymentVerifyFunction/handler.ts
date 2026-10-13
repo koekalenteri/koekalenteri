@@ -1,17 +1,16 @@
-import type { JsonConfirmedEvent, JsonTransaction, VerifyPaymentResponse } from '../../types'
+import type { JsonTransaction, VerifyPaymentResponse } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { auditUser, paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
 import { getProviderName, transactionActor } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { parseParams, verifyParams } from '../lib/payment'
+import { cancelRegistrationStatus, parseParams, verifyParams } from '../lib/payment'
 import { getRegistration, getRegistrationEditToken } from '../lib/registration'
-import { publishRegistrationPatches } from '../lib/ws/actions'
+import { publishCancelledRegistration } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.transactionTable)
@@ -38,23 +37,9 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
 
     if (status === 'error') {
       if (registration.paymentStatus === 'PENDING') {
-        const updatedAt = new Date().toISOString()
-        await dynamoDB.update(
-          { eventId, id: registrationId },
-          {
-            set: {
-              paymentStatus: 'CANCEL',
-              updatedAt,
-            },
-          },
-          CONFIG.registrationTable
-        )
-        const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
-        await publishRegistrationPatches(
-          eventId,
-          [{ eventId, id: registrationId, paymentStatus: 'CANCEL', updatedAt }],
-          confirmedEvent.organizer.id
-        )
+        // Written and sent on as the provider's cancel callback does: to the admins, and to the
+        // participant's open page, which gets its pay button back without a reload (KOE-1526).
+        await publishCancelledRegistration(await cancelRegistrationStatus(registration, 'paymentStatus'))
 
         const provider = params['checkout-provider']
 

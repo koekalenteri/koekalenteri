@@ -2,6 +2,7 @@ import type { MinimalEventForCost, MinimalRegistrationForCost, PaymentStatus, Re
 import { addDays } from 'date-fns'
 import { eventWithStaticDates } from '../__mockData__/events'
 import {
+  asPaymentNotInProgress,
   canRefundExcess,
   canRequestPaymentFor,
   getParticipantPaymentDue,
@@ -48,6 +49,15 @@ describe('payment', () => {
     ])('reads %s as in progress: %s', (_name, transaction, expected) => {
       expect(isPaymentInProgress(transaction)).toBe(expected)
     })
+  })
+
+  it.each([
+    ['PENDING', 'NEW'],
+    ['CANCEL', 'CANCEL'],
+    ['SUCCESS', 'SUCCESS'],
+    [undefined, undefined],
+  ] as const)('asPaymentNotInProgress reads a stored %s as %s', (paymentStatus, expected) => {
+    expect(asPaymentNotInProgress({ id: 'r1', paymentStatus })).toEqual({ id: 'r1', paymentStatus: expected })
   })
 
   // KOE-1526 review: the secretary's request is the pay offer read from a row without transactions.
