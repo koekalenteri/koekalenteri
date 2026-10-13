@@ -2,7 +2,14 @@
  * The tests' own rows in the local DynamoDB. Every test writes what it needs under ids of its own
  * and never empties a table, so tests do not depend on each other's order or leftovers.
  */
-import type { JsonConfirmedEvent, JsonDog, JsonRegistration, JsonUser, Organizer } from '../../src/types'
+import type {
+  JsonAuditRecord,
+  JsonConfirmedEvent,
+  JsonDog,
+  JsonRegistration,
+  JsonUser,
+  Organizer,
+} from '../../src/types'
 import { randomInt, randomUUID } from 'node:crypto'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
@@ -20,6 +27,7 @@ const client = DynamoDBDocumentClient.from(
 
 /** The table names CustomDynamoClient derives from the template's logical ids. */
 const TABLES = {
+  audit: 'audit-table',
   dog: 'dog-table',
   event: 'event-table',
   organizer: 'organizer-table',
@@ -158,6 +166,21 @@ export const readRegistration = async (eventId: string, id: string) =>
   (await client.send(new GetCommand({ Key: { eventId, id }, TableName: TABLES.registration }))).Item as
     | JsonRegistration
     | undefined
+
+/**
+ * The audit trail of one registration, oldest first: `registrationAuditKey` is `eventId:id`, the
+ * partition key every payment/refund audit row is written under (KOE-1529).
+ */
+export const readAuditTrail = async (eventId: string, id: string) => {
+  const result = await client.send(
+    new QueryCommand({
+      ExpressionAttributeValues: { ':auditKey': `${eventId}:${id}` },
+      KeyConditionExpression: 'auditKey = :auditKey',
+      TableName: TABLES.audit,
+    })
+  )
+  return (result.Items ?? []) as JsonAuditRecord[]
+}
 
 /**
  * The events of an organizer, whole. The index the admin list reads projects only some fields, so

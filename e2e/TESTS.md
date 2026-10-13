@@ -24,6 +24,8 @@ bug is fixed. See [README.md](README.md) for how they run.
 | --- | --- | --- |
 | registering and paying › a paid registration is stored as paid, confirmed by email and shown as paid | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477) |
 | registering and paying › a cancelled payment leaves the registration unpaid and offers the methods again | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477) |
+| registering and paying › a cancel callback Paytrail delivers twice still settles once | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477) |
+| registering and paying › a cancelled payment followed by a successful one leaves one failure and one payment on the trail | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477) |
 | registering and paying › a return signed with the wrong secret is not taken as a payment | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477)<br>[KOE-1484](https://koekalenteri.atlassian.net/browse/KOE-1484) the page still says the payment is being verified |
 
 ## search.spec.ts
@@ -51,4 +53,4 @@ bug is fixed. See [README.md](README.md) for how they run.
 | --- | --- | --- |
 | the public start list answers with a version the page can read across origins | `@public` | [KOE-1516](https://koekalenteri.atlassian.net/browse/KOE-1516) the page orders its fetches against the live updates by it |
 
-15 tests.
+17 tests.

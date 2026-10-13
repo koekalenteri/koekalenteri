@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 
-type BankOutcome = 'Maksa' | 'Peruuta' | 'Väärennetty paluu'
+type BankOutcome = 'Maksa' | 'Peruuta' | 'Peruuta (kahdesti)' | 'Väärennetty paluu'
 
 /**
  * The payment step: `/p/<eventId>/<registrationId>/...` lists the methods Paytrail returned, and
