@@ -126,13 +126,30 @@ describe('RefundDialog', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
-  it('titles the dialog with the dog name, not the registration number (KOE-1462)', async () => {
-    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
-      wrapper: Wrapper,
-    })
-    await flushPromises()
+  // The title in the reader's real text, not just the i18n option keys (KOE-1462).
+  describeWithTranslations('fi', () => {
+    it('titles the dialog with the dog name, not the registration number', async () => {
+      render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
 
-    expect(screen.getByText('registration.refundDialog.title dogName, payer')).toBeInTheDocument()
+      expect(screen.getByText('Maksun palautus, Dog Name 10 / Owner Name')).toBeInTheDocument()
+      expect(screen.queryByText(/TESTDOG-0010/)).not.toBeInTheDocument()
+    })
+
+    it('falls back to the registration number for a dog with no name', async () => {
+      const registration = {
+        ...registrationWithStaticDates,
+        dog: { ...registrationWithStaticDates.dog, name: undefined },
+      }
+      render(<RefundDialog event={eventWithStaticDates} registration={registration} open={true} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(screen.getByText('Maksun palautus, TESTDOG-0010 / Owner Name')).toBeInTheDocument()
+    })
   })
 
   it('displays transaction data correctly', async () => {
