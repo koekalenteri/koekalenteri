@@ -4,19 +4,52 @@ import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
-interface CancelOptions {
+interface SettleOptions {
   auditMessage: (transaction: JsonRefundTransaction, provider: string | undefined) => AuditMessage
 }
 
-const mockCancelTransaction = vi.fn<(options: CancelOptions) => Promise<undefined>>()
+const mockResolveCallbackTransaction = vi.fn()
+const mockSettleFailedTransaction = vi.fn<(...args: unknown[]) => Promise<{ cancelled?: unknown }>>()
+const mockPublishCancelledRegistration = vi.fn()
 
-vi.doMock('../lib/payment', () => ({ cancelTransaction: mockCancelTransaction }))
+vi.doMock('../lib/payment', () => ({
+  resolveCallbackTransaction: mockResolveCallbackTransaction,
+  settleFailedTransaction: mockSettleFailedTransaction,
+}))
+
+vi.doMock('../lib/ws/actions', () => ({
+  publishCancelledRegistration: mockPublishCancelledRegistration,
+}))
 
 const { default: refundCancelLambda } = await import('./handler')
 
 describe('refundCancelLambda', () => {
   vi.spyOn(console, 'debug').mockImplementation(() => undefined)
   const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+
+  const transaction = (provider?: string): JsonRefundTransaction => ({
+    amount: 1000,
+    createdAt: '2026-08-16T10:00:00.000Z',
+    ...(provider ? { provider } : {}),
+    reference: 'event123:reg456',
+    stamp: 'stamp-1',
+    status: 'pending',
+    transactionId: 'tx123',
+    type: 'refund',
+    user: 'Sihteeri',
+  })
+  const registration = { eventId: 'event123', id: 'reg456' }
+
+  beforeEach(() => {
+    mockSettleFailedTransaction.mockResolvedValue({})
+    mockResolveCallbackTransaction.mockResolvedValue({
+      eventId: 'event123',
+      provider: undefined,
+      registration,
+      registrationId: 'reg456',
+      transaction: transaction(),
+    })
+  })
 
   afterEach(() => {
     vi.clearAllMocks()
@@ -32,18 +65,20 @@ describe('refundCancelLambda', () => {
           'request did not contain transaction-id, this happens when transaction was not actually created, ignoring request',
       })
     )
+    expect(mockResolveCallbackTransaction).not.toHaveBeenCalled()
   })
 
-  const transaction = (provider?: string): JsonRefundTransaction => ({
-    amount: 1000,
-    createdAt: '2026-08-16T10:00:00.000Z',
-    ...(provider ? { provider } : {}),
-    reference: 'event123:reg456',
-    stamp: 'stamp-1',
-    status: 'pending',
-    transactionId: 'tx123',
-    type: 'refund',
-    user: 'Sihteeri',
+  // Not updateProvider: the write reads the transaction's own stored provider, not the callback's
+  // (KOE-1529, same as before).
+  it('does not pass a provider along to be written', async () => {
+    await refundCancelLambda(constructAPIGwEvent('test', { query: { 'checkout-transaction-id': 'tx123' } }))
+
+    expect(mockSettleFailedTransaction).toHaveBeenCalledWith(
+      transaction(),
+      registration,
+      'openRefunds',
+      expect.not.objectContaining({ provider: expect.anything() })
+    )
   })
 
   // The failed refund is named by its key, the provider by its display name as the other refund rows
@@ -53,9 +88,10 @@ describe('refundCancelLambda', () => {
     ['email refund', 'Sähköposti + tilisiirto'],
   ])('audits a failed refund through %s', async (provider, providerParam) => {
     let audited: AuditMessage | undefined
-    mockCancelTransaction.mockImplementationOnce(async ({ auditMessage }) => {
-      audited = auditMessage(transaction(provider), undefined)
-      return undefined
+    mockSettleFailedTransaction.mockImplementationOnce(async (...args: unknown[]) => {
+      const options = args[3] as SettleOptions
+      audited = options.auditMessage(transaction(provider), undefined)
+      return {}
     })
 
     const res = await refundCancelLambda(constructAPIGwEvent('test', { query: { 'checkout-transaction-id': 'tx123' } }))
@@ -65,5 +101,20 @@ describe('refundCancelLambda', () => {
       messageKey: 'audit.messages.refundFailed',
       messageParams: { amount: '10,00 €', provider: providerParam },
     })
+  })
+
+  it('publishes whatever the step found changed', async () => {
+    const cancelled = {
+      eventId: 'event123',
+      organizerId: 'org1',
+      participantPatch: {},
+      patch: {},
+      registrationId: 'reg456',
+    }
+    mockSettleFailedTransaction.mockResolvedValueOnce({ cancelled })
+
+    await refundCancelLambda(constructAPIGwEvent('test', { query: { 'checkout-transaction-id': 'tx123' } }))
+
+    expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
   })
 })

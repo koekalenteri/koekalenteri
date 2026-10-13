@@ -1,14 +1,13 @@
 import type { JsonTransaction, VerifyPaymentResponse } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-import { auditUser, paymentAudit } from '../../lib/audit'
+import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
 import { getProviderName, transactionActor } from '../../lib/payment'
 import { CONFIG } from '../config'
-import { audit, registrationAuditKey } from '../lib/audit'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { cancelRegistrationStatus, parseParams, verifyParams } from '../lib/payment'
+import { parseParams, settleFailedTransaction, verifyParams } from '../lib/payment'
 import { getRegistration, getRegistrationEditToken } from '../lib/registration'
 import { publishCancelledRegistration } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -36,19 +35,15 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
     const editToken = getRegistrationEditToken(registration)
 
     if (status === 'error') {
-      if (registration.paymentStatus === 'PENDING') {
-        // Written and sent on as the provider's cancel callback does: to the admins, and to the
-        // participant's open page, which gets its pay button back without a reload (KOE-1526).
-        await publishCancelledRegistration(await cancelRegistrationStatus(registration, 'paymentStatus'))
-
-        const provider = params['checkout-provider']
-
-        await audit({
-          auditKey: registrationAuditKey(registration),
-          ...paymentAudit('paymentFailed', getProviderName(provider), formatMoney(transaction.amount / 100)),
-          ...auditUser(transactionActor(transaction)),
-        })
-      }
+      // Settled through the same step the provider's cancel callback uses: whichever of the two
+      // reaches it first writes the row and publishes, the other finds nothing left to change
+      // (KOE-1526, KOE-1529). The open page gets its pay button back without a reload.
+      const settled = await settleFailedTransaction(transaction, registration, 'openPayments', {
+        auditActor: transactionActor,
+        auditMessage: (t, p) => paymentAudit('paymentFailed', getProviderName(p), formatMoney(t.amount / 100)),
+        provider: params['checkout-provider'],
+      })
+      if (settled.cancelled) await publishCancelledRegistration(settled.cancelled)
     }
 
     return response<VerifyPaymentResponse>(200, { editToken, eventId, paymentStatus, registrationId, status }, event)

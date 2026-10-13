@@ -3,16 +3,22 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import { getFixedT } from '../../i18n/lambda'
 import { emailSentAudit, emailSubjectAuditKey, paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
-import { getProviderName } from '../../lib/payment'
+import { getProviderName, transactionActor } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { applySuccessfulRefund, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import {
+  applySuccessfulRefund,
+  parseParams,
+  settleFailedTransaction,
+  updateTransactionStatus,
+  verifyParams,
+} from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationEditToken } from '../lib/registration'
-import { publishRegistrationPatches } from '../lib/ws/actions'
+import { publishCancelledRegistration, publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, transactionTable } = CONFIG
@@ -67,6 +73,17 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
 
   const registration = await getRegistration(eventId, registrationId)
   const editToken = getRegistrationEditToken(registration)
+
+  if (status === 'fail') {
+    // Settled through the same step every other failure writer uses (KOE-1529).
+    const settled = await settleFailedTransaction(transaction, registration, 'openRefunds', {
+      auditActor: transactionActor,
+      auditMessage: (t, p) => paymentAudit('refundFailed', getProviderName(p), formatMoney(t.amount / 100)),
+      provider: params['checkout-provider'],
+    })
+    if (settled.cancelled) await publishCancelledRegistration(settled.cancelled)
+    return response(200, undefined, event)
+  }
 
   if (status !== 'ok') {
     await updateTransactionStatus(transaction, status)

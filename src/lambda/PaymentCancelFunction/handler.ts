@@ -4,7 +4,7 @@ import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
 import { getProviderName, transactionActor } from '../../lib/payment'
 import { lambda, response } from '../lib/lambda'
-import { cancelTransaction } from '../lib/payment'
+import { resolveCallbackTransaction, settleFailedTransaction } from '../lib/payment'
 import { publishCancelledRegistration } from '../lib/ws/actions'
 
 /**
@@ -12,16 +12,15 @@ import { publishCancelledRegistration } from '../lib/ws/actions'
  */
 const paymentCancelLambda = lambda('paymentCancel', async (event) => {
   const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
-  const cancelled = await cancelTransaction<JsonTransaction>({
+  const { provider, registration, transaction } = await resolveCallbackTransaction<JsonTransaction>(params)
+
+  const settled = await settleFailedTransaction(transaction, registration, 'openPayments', {
     auditActor: transactionActor,
-    auditMessage: (transaction, provider) =>
-      paymentAudit('paymentFailed', getProviderName(provider), formatMoney(transaction.amount / 100)),
-    params,
-    statusField: 'paymentStatus',
-    updateProvider: true,
+    auditMessage: (t, p) => paymentAudit('paymentFailed', getProviderName(p), formatMoney(t.amount / 100)),
+    provider,
   })
 
-  if (cancelled) await publishCancelledRegistration(cancelled)
+  if (settled.cancelled) await publishCancelledRegistration(settled.cancelled)
 
   return response(200, undefined, event)
 })

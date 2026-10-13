@@ -29,7 +29,13 @@ import {
 } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
 import { createDynamoLease } from '../lib/lease'
-import { applySuccessfulPayment, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import {
+  applySuccessfulPayment,
+  parseParams,
+  settleFailedTransaction,
+  updateTransactionStatus,
+  verifyParams,
+} from '../lib/payment'
 import {
   clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
@@ -40,6 +46,7 @@ import {
   sendTemplatedEmailToEventRegistrations,
 } from '../lib/registration'
 import {
+  publishCancelledRegistration,
   publishEventCounts,
   publishParticipantRegistrationPatch,
   publishRegistrationPatchesStrict,
@@ -119,7 +126,10 @@ const recordDuplicatePayment = async (
   }
   await dynamoDB.update(
     { eventId: registration.eventId, id: registration.id },
-    { set: { paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt } },
+    {
+      delete: { openPayments: new Set([transaction.transactionId]) },
+      set: { paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt },
+    },
     registrationTable
   )
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
@@ -470,6 +480,16 @@ const paymentSuccessLambda = lambda('paymentSuccess', async (event) => {
 
   if (status === 'ok') {
     await handleSuccessfulPayment(eventId, registrationId, transaction, provider, Boolean(storedTransaction))
+  } else if (status === 'fail') {
+    // Settled through the same step every other failure writer uses (KOE-1529): a success callback
+    // reporting fail is as final as the provider's own cancel callback.
+    const registration = await getRegistration(eventId, registrationId)
+    const settled = await settleFailedTransaction(transaction, registration, 'openPayments', {
+      auditActor: transactionActor,
+      auditMessage: (t, p) => paymentAudit('paymentFailed', getProviderName(p), formatMoney(t.amount / 100)),
+      provider,
+    })
+    if (settled.cancelled) await publishCancelledRegistration(settled.cancelled)
   } else {
     await updateTransactionStatus(transaction, status, provider)
   }

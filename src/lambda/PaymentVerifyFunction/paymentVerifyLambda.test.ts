@@ -12,14 +12,10 @@ const mockParseParams = vi.fn()
 const mockVerifyParams = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockGetRegistrationEditToken = vi.fn()
-const mockAudit = vi.fn()
-const mockRegistrationAuditKey = vi.fn()
 const mockRead = vi.fn()
-const mockUpdate = vi.fn()
 const mockGetEvent = vi.fn()
-const mockPublishRegistrationPatches = vi.fn()
 const mockPublishCancelledRegistration = vi.fn()
-const mockCancelRegistrationStatus = vi.fn()
+const mockSettleFailedTransaction = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -34,14 +30,13 @@ vi.doMock('../lib/event', () => ({
 
 vi.doMock('../lib/ws/actions', () => ({
   publishCancelledRegistration: mockPublishCancelledRegistration,
-  publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
-// The cancel is the shared workflow cancelTransaction uses too, tested in lib/payment; this handler
-// only has to hand it the row and send on both patches it answers with (KOE-1526).
+// The settle is the shared step every other failure writer uses too, tested in lib/payment; this
+// handler only has to hand it the row and send on whatever it answers with (KOE-1526, KOE-1529).
 vi.doMock('../lib/payment', () => ({
-  cancelRegistrationStatus: mockCancelRegistrationStatus,
   parseParams: mockParseParams,
+  settleFailedTransaction: mockSettleFailedTransaction,
   verifyParams: mockVerifyParams,
 }))
 
@@ -50,16 +45,10 @@ vi.doMock('../lib/registration', () => ({
   getRegistrationEditToken: mockGetRegistrationEditToken,
 }))
 
-vi.doMock('../lib/audit', () => ({
-  audit: mockAudit,
-  registrationAuditKey: mockRegistrationAuditKey,
-}))
-
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       read: mockRead,
-      update: mockUpdate,
     }
   }),
 }))
@@ -104,13 +93,11 @@ describe('paymentVerifyLambda', () => {
     mockGetRegistration.mockResolvedValue({
       eventId: 'event123',
       id: 'reg456',
-      paymentStatus: 'PENDING',
+      openPayments: ['tx123'],
     })
     mockGetRegistrationEditToken.mockReturnValue('edit-token')
 
-    mockRegistrationAuditKey.mockReturnValue('event123:reg456')
-
-    mockUpdate.mockResolvedValue({})
+    mockSettleFailedTransaction.mockResolvedValue({ changed: false, moved: false })
   })
 
   it('verifies a successful payment correctly', async () => {
@@ -139,14 +126,12 @@ describe('paymentVerifyLambda', () => {
     expect(mockGetRegistrationEditToken).toHaveBeenCalledWith({
       eventId: 'event123',
       id: 'reg456',
-      paymentStatus: 'PENDING',
+      openPayments: ['tx123'],
     })
 
-    // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
-
-    // Verify audit entry was NOT created
-    expect(mockAudit).not.toHaveBeenCalled()
+    // Verify the settle step was never reached for a successful payment
+    expect(mockSettleFailedTransaction).not.toHaveBeenCalled()
+    expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(
@@ -174,11 +159,11 @@ describe('paymentVerifyLambda', () => {
     const cancelled = {
       eventId: 'event123',
       organizerId: 'org-1',
-      participantPatch: { eventId: 'event123', id: 'reg456', paymentStatus: 'CANCEL', shouldPay: true },
-      patch: { eventId: 'event123', id: 'reg456', paymentStatus: 'CANCEL', updatedAt: '2026-08-01T00:00:00.000Z' },
+      participantPatch: { eventId: 'event123', id: 'reg456', paymentInProgress: false, shouldPay: true },
+      patch: { eventId: 'event123', id: 'reg456', openPayments: [] },
       registrationId: 'reg456',
     }
-    mockCancelRegistrationStatus.mockResolvedValueOnce(cancelled)
+    mockSettleFailedTransaction.mockResolvedValueOnce({ cancelled, changed: true, moved: true })
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
       provider: 'paytrail',
@@ -192,24 +177,27 @@ describe('paymentVerifyLambda', () => {
     // Verify transaction was retrieved
     expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
 
-    // Verify registration was retrieved for failed payment
+    // Verify registration was retrieved for a failed payment
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    // The cancel is written and sent on to the admins and to the participant's open page alike:
-    // a page still holding PENDING gets its pay button back without a reload (KOE-1526).
-    expect(mockCancelRegistrationStatus).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456', paymentStatus: 'PENDING' },
-      'paymentStatus'
+    // Settled through the one step the provider's own cancel callback uses too (KOE-1526, KOE-1529).
+    expect(mockSettleFailedTransaction).toHaveBeenCalledWith(
+      {
+        amount: 5000,
+        reference: 'event123:reg456',
+        status: 'pending',
+        transactionId: 'tx123',
+        user: 'user123',
+      },
+      { eventId: 'event123', id: 'reg456', openPayments: ['tx123'] },
+      'openPayments',
+      {
+        auditActor: expect.any(Function),
+        auditMessage: expect.any(Function),
+        provider: 'paytrail',
+      }
     )
     expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
-
-    // Verify audit entry was created
-    expect(mockAudit).toHaveBeenCalledWith({
-      auditKey: 'event123:reg456',
-      messageKey: 'audit.messages.paymentFailed',
-      messageParams: { amount: '50,00\u00a0€', provider: 'Paytrail' },
-      user: 'user123',
-    })
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(
@@ -225,7 +213,9 @@ describe('paymentVerifyLambda', () => {
     )
   })
 
-  it('does not update registration if payment status is not PENDING', async () => {
+  // A toistettu (retried) or racing fail return finds the settle step has nothing left to change
+  // (rule 4): the handler still calls it every time, idempotently, and just does not publish again.
+  it('calls the settle step every time, but publishes nothing once the transaction has already settled', async () => {
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
       provider: 'paytrail',
@@ -237,21 +227,14 @@ describe('paymentVerifyLambda', () => {
     mockGetRegistration.mockResolvedValueOnce({
       eventId: 'event123',
       id: 'reg456',
-      paymentStatus: 'CANCEL', // Already cancelled
+      openPayments: [],
     })
 
     await paymentVerifyLambda(event)
 
-    // Verify registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
-
-    // Verify registration payment status was NOT updated
-    expect(mockCancelRegistrationStatus).not.toHaveBeenCalled()
+    expect(mockSettleFailedTransaction).toHaveBeenCalledTimes(1)
     expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
-    expect(mockUpdate).not.toHaveBeenCalled()
-
-    // Verify audit entry was NOT created
-    expect(mockAudit).not.toHaveBeenCalled()
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(

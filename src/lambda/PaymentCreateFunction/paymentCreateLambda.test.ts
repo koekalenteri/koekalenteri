@@ -9,7 +9,8 @@ const mockAuthorize = vi.fn<() => Promise<{ id: string; name: string } | null>>(
 const mockGetEvent = vi.fn<() => Promise<JsonDogEvent | undefined>>()
 const mockCreatePayment = vi.fn<() => Promise<CreatePaymentResponse | null>>()
 const mockGetTransactionsByReference = vi.fn<() => Promise<any[] | undefined>>()
-const mockUpdateTransactionStatus = vi.fn<() => Promise<boolean>>()
+const mockFailUnfinishedTransaction = vi.fn<() => Promise<boolean>>()
+const mockDropOpenTransaction = vi.fn<() => Promise<boolean>>()
 const mockRead =
   vi.fn<(_key: Record<string, string>, _tableName: string) => Promise<JsonRegistration | Organizer | undefined>>()
 const mockWrite = vi.fn()
@@ -52,10 +53,11 @@ vi.doMock('../lib/paytrail', () => ({
 
 vi.doMock('../lib/payment', () => ({
   claimTransactionCreation: mockClaimTransactionCreation,
+  dropOpenTransaction: mockDropOpenTransaction,
+  failUnfinishedTransaction: mockFailUnfinishedTransaction,
   getTransactionsByReference: mockGetTransactionsByReference,
   paymentDescription: vi.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
   releaseTransactionCreation: mockReleaseTransactionCreation,
-  updateTransactionStatus: mockUpdateTransactionStatus,
 }))
 
 vi.doMock('../lib/registration', () => ({
@@ -183,7 +185,8 @@ describe('paymentCreateLambda', () => {
     mockCreatePayment.mockResolvedValue(createMockPaymentResponse())
     mockAuthorize.mockResolvedValue({ id: 'user123', name: 'Test User' })
     mockGetTransactionsByReference.mockResolvedValue([])
-    mockUpdateTransactionStatus.mockResolvedValue(true)
+    mockFailUnfinishedTransaction.mockResolvedValue(true)
+    mockDropOpenTransaction.mockResolvedValue(true)
   })
 
   it('creates a payment successfully for a member', async () => {
@@ -650,7 +653,14 @@ describe('paymentCreateLambda', () => {
     await paymentCreateLambda(event)
 
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith('event123:reg456')
-    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
+    // Resolved and dropped, with no audit row: nothing failed here, the attempt was simply never
+    // finished (KOE-1529).
+    expect(mockFailUnfinishedTransaction).toHaveBeenCalledWith(existingTransaction)
+    expect(mockDropOpenTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openPayments',
+      'oldTx'
+    )
   })
 
   it('should cancel existing stale pending transactions for the same reference', async () => {
@@ -666,7 +676,12 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
+    expect(mockFailUnfinishedTransaction).toHaveBeenCalledWith(existingTransaction)
+    expect(mockDropOpenTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openPayments',
+      'oldPendingTx'
+    )
   })
 
   it('should not cancel fresh pending transactions within safety margin', async () => {
@@ -681,7 +696,8 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
+    expect(mockFailUnfinishedTransaction).not.toHaveBeenCalled()
+    expect(mockDropOpenTransaction).not.toHaveBeenCalled()
   })
 
   // KOE-1526 review: refunds share the payment's reference; a refund Paytrail is working on is not
@@ -703,9 +719,8 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toEqual(200)
-    expect(mockUpdateTransactionStatus).not.toHaveBeenCalledWith(
-      expect.objectContaining({ transactionId: 'pendingRefundTx' }),
-      'fail'
+    expect(mockFailUnfinishedTransaction).not.toHaveBeenCalledWith(
+      expect.objectContaining({ transactionId: 'pendingRefundTx' })
     )
   })
 

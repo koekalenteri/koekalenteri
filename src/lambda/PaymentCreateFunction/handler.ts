@@ -2,6 +2,7 @@ import type {
   CreatePaymentResponse,
   JsonConfirmedEvent,
   JsonPaymentTransaction,
+  JsonRegistration,
   Organizer,
   PaymentItem,
   TransactionItem,
@@ -29,10 +30,11 @@ import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
 import {
   claimTransactionCreation,
+  dropOpenTransaction,
+  failUnfinishedTransaction,
   getTransactionsByReference,
   paymentDescription,
   releaseTransactionCreation,
-  updateTransactionStatus,
 } from '../lib/payment'
 import { PaytrailError, paytrail } from '../lib/paytrail'
 import { authorizeRegistrationEdit, getRegistration } from '../lib/registration'
@@ -60,7 +62,10 @@ const toPaytrailItem = (item: TransactionItem): PaymentItem => ({
 const canReuseNewTransaction = (current: JsonPaymentTransaction | undefined, candidate: JsonPaymentTransaction) =>
   !current || new Date(candidate.createdAt).getTime() > new Date(current.createdAt).getTime()
 
-const inspectExistingTransactions = async (reference: string) => {
+const inspectExistingTransactions = async (
+  reference: string,
+  registration: Pick<JsonRegistration, 'eventId' | 'id'>
+) => {
   const existingTransactions = await getTransactionsByReference(reference)
 
   if (!existingTransactions) {
@@ -77,7 +82,10 @@ const inspectExistingTransactions = async (reference: string) => {
     }
 
     if (isStalePendingPayment(tx.createdAt, tx.statusAt)) {
-      await updateTransactionStatus(tx, 'fail')
+      // Resolves the stale attempt and drops it from the open set, same as every other writer, but
+      // with no audit row: nothing failed here, the attempt was simply never finished (KOE-1529).
+      await failUnfinishedTransaction(tx)
+      await dropOpenTransaction(registration, 'openPayments', tx.transactionId)
       continue
     }
 
@@ -128,7 +136,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   const reference = `${eventId}:${registrationId}`
-  const { freshPendingTransaction, reusableNewTransaction } = await inspectExistingTransactions(reference)
+  const { freshPendingTransaction, reusableNewTransaction } = await inspectExistingTransactions(reference, registration)
 
   if (reusableNewTransaction?.paymentResponse) {
     return response<CreatePaymentResponse>(200, reusableNewTransaction.paymentResponse, event)
@@ -230,12 +238,11 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     {
       Update: {
         ConditionExpression: 'attribute_exists(id)',
-        ExpressionAttributeNames: { '#status': 'paymentStatus' },
-        ExpressionAttributeValues: { ':pending': 'PENDING', ':updatedAt': updatedAt },
+        ExpressionAttributeValues: { ':transactionId': new Set([transaction.transactionId]), ':updatedAt': updatedAt },
         Key: { eventId, id: registrationId },
         TableName: registrationTable,
         UpdateExpression:
-          'SET #status = :pending, updatedAt = :updatedAt REMOVE paymentCreationAt, paymentCreationStamp',
+          'SET updatedAt = :updatedAt REMOVE paymentCreationAt, paymentCreationStamp ADD openPayments :transactionId',
       },
     },
   ])

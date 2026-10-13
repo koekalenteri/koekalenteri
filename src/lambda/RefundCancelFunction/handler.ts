@@ -2,10 +2,10 @@ import type { JsonRefundTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
-import { getProviderName } from '../../lib/payment'
+import { getProviderName, transactionActor } from '../../lib/payment'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { cancelTransaction } from '../lib/payment'
+import { resolveCallbackTransaction, settleFailedTransaction } from '../lib/payment'
 import { publishCancelledRegistration } from '../lib/ws/actions'
 
 /**
@@ -21,15 +21,16 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
     return response(200, undefined, event)
   }
 
-  const cancelled = await cancelTransaction<JsonRefundTransaction>({
-    auditActor: (transaction) => ({ name: transaction.user }),
-    auditMessage: (transaction) =>
-      paymentAudit('refundFailed', getProviderName(transaction.provider), formatMoney(transaction.amount / 100)),
-    params,
-    statusField: 'refundStatus',
+  const { registration, transaction } = await resolveCallbackTransaction<JsonRefundTransaction>(params)
+
+  // The provider is not updated here, as before: only the status moves, read from the transaction's
+  // own stored provider for the audit line (KOE-1529).
+  const settled = await settleFailedTransaction(transaction, registration, 'openRefunds', {
+    auditActor: transactionActor,
+    auditMessage: (t) => paymentAudit('refundFailed', getProviderName(t.provider), formatMoney(t.amount / 100)),
   })
 
-  if (cancelled) await publishCancelledRegistration(cancelled)
+  if (settled.cancelled) await publishCancelledRegistration(settled.cancelled)
 
   return response(200, undefined, event)
 })

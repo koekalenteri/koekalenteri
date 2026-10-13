@@ -144,8 +144,28 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     type: 'refund',
     user: user.name,
   }
-  const refundStatus = result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS'
+  // Every refund opens: it waits until applySuccessfulRefund (via the refundSuccess callback) or
+  // settleFailedTransaction drops it again. `refundStatus` itself is written only for a synchronous,
+  // already-settled refund (KOE-1529): PENDING is never written any more, and a pending or email
+  // refund's own SUCCESS comes later, from applySuccessfulRefund, once it has actually been applied.
+  const isPendingRefund = result.status === 'pending' || result.provider === 'email refund'
   const updatedAt = new Date().toISOString()
+  const registrationUpdate = isPendingRefund
+    ? {
+        ExpressionAttributeValues: { ':transactionId': new Set([transaction.transactionId]), ':updatedAt': updatedAt },
+        UpdateExpression:
+          'SET updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
+      }
+    : {
+        ExpressionAttributeNames: { '#status': 'refundStatus' },
+        ExpressionAttributeValues: {
+          ':status': 'SUCCESS',
+          ':transactionId': new Set([transaction.transactionId]),
+          ':updatedAt': updatedAt,
+        },
+        UpdateExpression:
+          'SET #status = :status, updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
+      }
   await dynamoDB.documentTransaction([
     {
       Put: {
@@ -157,16 +177,14 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     {
       Update: {
         ConditionExpression: 'attribute_exists(id)',
-        ExpressionAttributeNames: { '#status': 'refundStatus' },
-        ExpressionAttributeValues: { ':status': refundStatus, ':updatedAt': updatedAt },
         Key: { eventId, id: registrationId },
         TableName: registrationTable,
-        UpdateExpression: 'SET #status = :status, updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp',
+        ...registrationUpdate,
       },
     },
   ])
 
-  if (result.status === 'pending' || result.provider === 'email refund') {
+  if (isPendingRefund) {
     await audit({
       auditKey: registrationAuditKey(registration),
       ...paymentAudit('refundPending', getProviderName(transaction.provider), formatMoney(amount / 100)),
