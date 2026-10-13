@@ -45,12 +45,37 @@ describe('atomic payment registration updates', () => {
         }),
       },
       {
+        // The transaction is no longer open once applied (KOE-1529).
         Update: expect.objectContaining({
-          ExpressionAttributeValues: expect.objectContaining({ ':amount': 50 }),
+          ExpressionAttributeValues: expect.objectContaining({
+            ':amount': 50,
+            ':transactionId': new Set(['transaction-1']),
+          }),
           Key: { eventId: 'event-1', id: 'registration-1' },
-          UpdateExpression: expect.stringContaining('ADD paidAmount :amount'),
+          UpdateExpression: expect.stringContaining('ADD paidAmount :amount DELETE openPayments :transactionId'),
         }),
       },
+    ])
+  })
+
+  // KOE-1529 correction: the condition on the transaction row stays exactly
+  // `attribute_not_exists(registrationAppliedAt)`, with no check of the transaction's own status.
+  // A success callback must still apply a payment this app had already marked fail elsewhere --
+  // money that arrived is money -- so the row is deliberately not protected by the same
+  // "unresolved" condition settleFailedTransaction and updateTransactionStatus use.
+  it('still applies a payment whose transaction row was already marked fail', async () => {
+    const failedTransaction: JsonTransaction = { ...payment, status: 'fail' }
+
+    const result = await applySuccessfulPayment(failedTransaction, 'event-1', 'registration-1', undefined, false)
+
+    expect(result.applied).toBe(true)
+    expect(mockDocumentTransaction).toHaveBeenCalledWith([
+      expect.objectContaining({
+        Update: expect.objectContaining({
+          ConditionExpression: 'attribute_exists(transactionId) AND attribute_not_exists(registrationAppliedAt)',
+        }),
+      }),
+      expect.anything(),
     ])
   })
 
@@ -91,9 +116,16 @@ describe('atomic payment registration updates', () => {
     expect(mockDocumentTransaction).toHaveBeenCalledWith(
       expect.arrayContaining([
         {
+          // The refund is no longer open once applied (KOE-1529).
           Update: expect.objectContaining({
-            ExpressionAttributeValues: expect.objectContaining({ ':amount': 10, ':handlingCost': 2.5 }),
-            UpdateExpression: expect.stringContaining('ADD refundAmount :amount, refundHandlingCost :handlingCost'),
+            ExpressionAttributeValues: expect.objectContaining({
+              ':amount': 10,
+              ':handlingCost': 2.5,
+              ':transactionId': new Set(['refund-1']),
+            }),
+            UpdateExpression: expect.stringContaining(
+              'ADD refundAmount :amount, refundHandlingCost :handlingCost DELETE openRefunds :transactionId'
+            ),
           }),
         },
       ])

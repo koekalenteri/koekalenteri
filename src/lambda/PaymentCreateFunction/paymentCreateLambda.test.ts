@@ -251,9 +251,13 @@ describe('paymentCreateLambda', () => {
         }),
       },
       {
+        // Rule 1: opens, never writes paymentStatus PENDING any more (KOE-1529).
         Update: expect.objectContaining({
           ConditionExpression: 'attribute_exists(id)',
+          ExpressionAttributeValues: expect.objectContaining({ ':transactionId': new Set(['tx123']) }),
           Key: { eventId: 'event123', id: 'reg456' },
+          UpdateExpression:
+            'SET updatedAt = :updatedAt REMOVE paymentCreationAt, paymentCreationStamp ADD openPayments :transactionId',
         }),
       },
     ])
