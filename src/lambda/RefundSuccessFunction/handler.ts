@@ -21,7 +21,7 @@ import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationE
 import { publishCancelledRegistration, publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const { frontendURL, emailFrom, transactionTable } = CONFIG
+const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
@@ -98,6 +98,16 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   )
   if (!applied) return response(200, undefined, event)
 
+  // Strongly consistent, the same convention settleFailedTransaction uses: applySuccessfulRefund
+  // just DELETEd this transaction's id from openRefunds in the same atomic write, and the admin
+  // patch below must say so, or an open tab keeps showing "palautus kesken" until a reload
+  // (KOE-1529).
+  const updatedRegistration = await dynamoDB.read<JsonRegistration>(
+    { eventId, id: registrationId },
+    registrationTable,
+    true
+  )
+
   const t = getFixedT(registration.language)
   const amount = transaction.amount / 100
   const provider = params['checkout-provider']
@@ -167,7 +177,16 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   })
   await publishRegistrationPatches(
     eventId,
-    [{ emailDeliveryStatus: null, eventId, id: registrationId, ...changes, updatedAt }],
+    [
+      {
+        emailDeliveryStatus: null,
+        eventId,
+        id: registrationId,
+        openRefunds: updatedRegistration?.openRefunds,
+        ...changes,
+        updatedAt,
+      },
+    ],
     confirmedEvent.organizer.id
   )
 

@@ -117,4 +117,10 @@ describe('refundCancelLambda', () => {
 
     expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
   })
+
+  it('does not publish when nothing changed', async () => {
+    await refundCancelLambda(constructAPIGwEvent('test', { query: { 'checkout-transaction-id': 'tx123' } }))
+
+    expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
+  })
 })

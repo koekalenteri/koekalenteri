@@ -30,7 +30,7 @@ import {
 } from './payment'
 
 describe('payment', () => {
-  // The one reading of a payment in progress, which PaymentCreate's 409 and getParticipantRow share.
+  // The one reading of a payment in progress, which PaymentCreate's 409 and computePaymentInProgress share.
   describe('isPaymentInProgress', () => {
     const now = new Date('2026-08-15T12:00:00.000Z')
     const minutesAgo = (minutes: number) => new Date(now.getTime() - minutes * 60 * 1000).toISOString()

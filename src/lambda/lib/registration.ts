@@ -226,7 +226,9 @@ export const adminRegistrationResponse = <T extends Partial<JsonRegistration>>(r
  * start number. No participant page reads them, and before their publication each would tell more
  * than the public start list does (KOE-1515). The caller derives what it needs from them before this:
  * the payment state reads the group, so it is worked out here from the same row (KOE-1526). The row
- * is the stored one as `getParticipantRow` reads it.
+ * is the stored one, with `paymentInProgress` already computed by the caller (`participantResponse`
+ * in `lib/payment.ts`) and `openPayments`/`openRefunds` excluded below, never sent as raw ids
+ * (KOE-1529).
  */
 export const participantRegistrationResponse = <T extends JsonRegistration>(
   registration: T,

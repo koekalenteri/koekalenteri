@@ -93,8 +93,9 @@ export const isPaymentOpenForPlace = (event: PaymentTimeEvent, registration: Reg
 /**
  * A payment in progress, or one charged twice: either holds the pay offer back, place or no place.
  * `paymentInProgress` is the server's own word, computed from the registration's open payment ids
- * (`computePaymentInProgress`); it says nothing by itself on a row that never had one computed, which
- * is exactly the secretary's row (KOE-1529, replacing a stored PENDING read via `getParticipantRow`).
+ * (`computePaymentInProgress`, replacing a stored PENDING read through the transactions by hand); it
+ * says nothing by itself on a row that never had one computed, which is exactly the secretary's row
+ * (KOE-1529).
  */
 const isPaymentHeld = (registration: Pick<Registration, 'paymentInProgress' | 'paymentStatus'>): boolean =>
   Boolean(registration.paymentInProgress) || registration.paymentStatus === 'DUPLICATE'
@@ -272,9 +273,9 @@ export const isStalePendingPayment = (createdAt?: string, statusAt?: string) => 
 
 /**
  * A payment Paytrail is still working on: a payment transaction, pending, younger than the stale
- * limit. What PaymentCreate answers 409 for, and the only thing a stored PENDING may stand for
- * (`getParticipantRow`). A refund shares the payment's reference and is never a payment in progress
- * (KOE-1526).
+ * limit. What PaymentCreate answers 409 for, and the rule `computePaymentInProgress` applies to each
+ * of a registration's open payment ids (KOE-1529). A refund shares the payment's reference and is
+ * never a payment in progress (KOE-1526).
  */
 export const isPaymentInProgress = (
   transaction: Pick<JsonTransaction, 'createdAt' | 'status' | 'statusAt' | 'type'>

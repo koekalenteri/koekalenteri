@@ -136,6 +136,42 @@ describe('RefundDialog', () => {
     expect(screen.getByText('50,00 €')).toBeInTheDocument()
   })
 
+  // KOE-1529: a pending refund no longer bumps refundStatus or updatedAt on its own, so the cache
+  // key the reload effect compares against must include openRefunds, or a refund that settles while
+  // the dialog is open would never be re-fetched.
+  it('reloads the transaction list when only openRefunds changes', async () => {
+    const { rerender } = render(
+      <RefundDialog
+        event={eventWithStaticDates}
+        registration={{ ...registrationWithStaticDates, openRefunds: ['refund-123'] }}
+        open={true}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+    expect(screen.getByText('50,00 €')).toBeInTheDocument()
+
+    mockTransactions = [
+      {
+        ...defaultMockTransactions[0],
+        amount: 7500,
+        transactionId: 'payment-456',
+      },
+    ]
+
+    rerender(
+      <RefundDialog
+        event={eventWithStaticDates}
+        registration={{ ...registrationWithStaticDates, openRefunds: [] }}
+        open={true}
+      />
+    )
+    await flushPromises()
+
+    expect(screen.getAllByText('75,00 €').length).toBeGreaterThan(0)
+    expect(screen.queryByText('50,00 €')).not.toBeInTheDocument()
+  })
+
   it('does not charge a handling cost by default for a reserve registration', async () => {
     mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
 

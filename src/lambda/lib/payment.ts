@@ -148,13 +148,17 @@ const isConditionalCheckFailed = (error: unknown): boolean =>
  * Conditional write on the transaction row: only a still-unresolved transaction becomes `fail`.
  * Returns whether this call was the one that moved it, which is what gates the audit row (KOE-1529).
  */
-export const failUnfinishedTransaction = async (transaction: JsonTransaction, provider?: string): Promise<boolean> => {
+export const failUnfinishedTransaction = async (
+  transaction: JsonTransaction,
+  provider?: string,
+  statusAt: string = new Date().toISOString()
+): Promise<boolean> => {
   try {
     await dynamoDB.update(
       { transactionId: transaction.transactionId },
       {
         remove: ['paymentResponse'],
-        set: { status: 'fail', statusAt: new Date().toISOString(), ...(provider ? { provider } : {}) },
+        set: { status: 'fail', statusAt, ...(provider ? { provider } : {}) },
       },
       transactionTable,
       undefined,
@@ -170,17 +174,21 @@ export const failUnfinishedTransaction = async (transaction: JsonTransaction, pr
 /**
  * Removes the transaction id from the registration's open set, unconditionally and repeatably: a
  * retry after a crash between this write and `failUnfinishedTransaction`'s still finishes (KOE-1529).
- * Returns whether the id was actually a member before the removal -- the signal for whether anything
- * needs to be published, since an old or repeated call that finds the id already gone changes nothing.
+ * Bumps `updatedAt` in the same write -- the secretary's incremental refresh
+ * (`changedItemsSince`) filters on it, so a row whose only open attempt just failed must not look
+ * unchanged after a websocket gap. Returns whether the id was actually a member before the removal
+ * -- the signal for whether anything needs to be published, since an old or repeated call that finds
+ * the id already gone changes nothing.
  */
 export const dropOpenTransaction = async (
   registration: Pick<JsonRegistration, 'eventId' | 'id'>,
   field: OpenSetField,
-  transactionId: string
+  transactionId: string,
+  updatedAt: string = new Date().toISOString()
 ): Promise<boolean> => {
   const result = await dynamoDB.update(
     { eventId: registration.eventId, id: registration.id },
-    { delete: { [field]: new Set([transactionId]) } },
+    { delete: { [field]: new Set([transactionId]) }, set: { updatedAt } },
     registrationTable,
     'UPDATED_OLD'
   )
@@ -220,8 +228,11 @@ export const settleFailedTransaction = async (
   field: OpenSetField,
   options: SettleFailedTransactionAudit
 ): Promise<SettledTransaction> => {
-  const moved = await failUnfinishedTransaction(transaction, options.provider)
-  const changed = await dropOpenTransaction(registration, field, transaction.transactionId)
+  // Shared between the transaction's own statusAt and the registration's updatedAt: one failure is
+  // one moment, and the incremental refresh reading updatedAt should see it as of that moment.
+  const now = new Date().toISOString()
+  const moved = await failUnfinishedTransaction(transaction, options.provider, now)
+  const changed = await dropOpenTransaction(registration, field, transaction.transactionId, now)
 
   if (moved) {
     await audit({

@@ -344,11 +344,14 @@ describe('useAdminRegistrationActions', () => {
 
   // KOE-1526 review: the row must read right after the click as it will once the refund is applied.
   // A reserve paid 50 and had 45 back with 5 kept: its fee went back, so nothing is missing.
-  it.each([
-    ['an email refund', { provider: 'email refund', status: 'ok' as const, transactionId: 'r-1' }],
-    ['a pending refund', { provider: 'nordea', status: 'pending' as const, transactionId: 'r-1' }],
-    ['a refund made at once', { provider: 'nordea', status: 'ok' as const, transactionId: 'r-1' }],
-  ])('keeps the handling fee with %s', async (_name, response) => {
+  // KOE-1529: the server ADDs to openRefunds for every refund it creates, synchronous ones
+  // included, but only a synchronous one is also written refundStatus SUCCESS -- a pending or
+  // emailed one waits for refundSuccess to actually settle it.
+  it.each<[string, { provider: string; status: 'ok' | 'pending'; transactionId: string }, boolean]>([
+    ['an email refund', { provider: 'email refund', status: 'ok', transactionId: 'r-1' }, false],
+    ['a pending refund', { provider: 'nordea', status: 'pending', transactionId: 'r-1' }, false],
+    ['a refund made at once', { provider: 'nordea', status: 'ok', transactionId: 'r-1' }, true],
+  ])('keeps the handling fee with %s', async (_name, response, isSynchronous) => {
     const reserve = {
       ...registrationWithStaticDates,
       group: { key: 'reserve', number: 1 },
@@ -381,7 +384,8 @@ describe('useAdminRegistrationActions', () => {
     })
 
     const row = result.current.registrations.find((r) => r.id === reserve.id)
-    expect(row).toMatchObject({ refundAmount: 45, refundHandlingCost: 5 })
+    expect(row).toMatchObject({ openRefunds: ['r-1'], refundAmount: 45, refundHandlingCost: 5 })
+    expect(row?.refundStatus).toBe(isSynchronous ? 'SUCCESS' : undefined)
     expect(row && isPaymentUnsettled(event, row)).toBe(false)
   })
 })

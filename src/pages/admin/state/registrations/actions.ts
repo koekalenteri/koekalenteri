@@ -368,10 +368,12 @@ export const useAdminRegistrationActions = (eventId: string) => {
         // more -- the server only applies it, with the real amounts, once refundSuccess actually
         // settles it -- so this mirrors the server: `openRefunds` carries the "still open" mark for
         // PaymentIcon/RegistrationTooltipContent instead, and refundStatus is left alone (KOE-1529).
+        // The server ADDs to openRefunds for every refund it creates, synchronous ones included --
+        // only refundStatus SUCCESS is withheld for a pending or emailed one.
         const isPendingRefund = result.status === 'pending' || result.provider === 'email refund'
         updateAdminRegistration({
           ...reg,
-          openRefunds: isPendingRefund ? [...(reg.openRefunds ?? []), result.transactionId] : reg.openRefunds,
+          openRefunds: [...(reg.openRefunds ?? []), result.transactionId],
           refundAmount: (reg.refundAmount ?? 0) + amount / 100,
           refundAt: new Date(),
           refundHandlingCost: (reg.refundHandlingCost ?? 0) + handlingCost / 100,

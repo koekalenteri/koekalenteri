@@ -16,7 +16,7 @@ const mockAudit = vi.fn<() => Promise<void>>()
 const mockGetEvent = vi.fn<() => Promise<Partial<JsonConfirmedEvent>>>()
 const mockGetRegistration = vi.fn<() => Promise<Partial<JsonRegistration>>>()
 const mockRead = vi.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | JsonRegistration | undefined>>()
-const mockUpdate = vi.fn<() => Promise<{ Attributes?: Record<string, unknown> }>>()
+const mockUpdate = vi.fn<(...args: unknown[]) => Promise<{ Attributes?: Record<string, unknown> }>>()
 const mockDocumentTransaction = vi.fn<CustomDynamoClient['documentTransaction']>()
 const mockQuery = vi.fn<() => Promise<Partial<JsonPaymentTransaction | JsonRefundTransaction>[] | undefined>>()
 const mockBatchGet = vi.fn<() => Promise<Partial<JsonPaymentTransaction>[]>>()
@@ -321,14 +321,29 @@ describe('payment', () => {
   describe('dropOpenTransaction', () => {
     const registration = { eventId: 'event-1', id: 'registration-1' }
 
-    it('removes only the given id, unconditionally, and reports it was open', async () => {
+    it('removes only the given id, unconditionally, bumps updatedAt, and reports it was open', async () => {
       mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1', 'transaction-2'] } })
 
       await expect(dropOpenTransaction(registration, 'openPayments', 'transaction-1')).resolves.toBe(true)
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { eventId: 'event-1', id: 'registration-1' },
-        { delete: { openPayments: new Set(['transaction-1']) } },
+        { delete: { openPayments: new Set(['transaction-1']) }, set: { updatedAt: expect.any(String) } },
+        expect.any(String),
+        'UPDATED_OLD'
+      )
+    })
+
+    // The secretary's incremental refresh filters on updatedAt; a row whose only open attempt just
+    // failed must not look unchanged after a websocket gap (KOE-1529).
+    it('shares the given timestamp as updatedAt when one is passed in', async () => {
+      mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } })
+
+      await dropOpenTransaction(registration, 'openPayments', 'transaction-1', '2026-10-13T12:00:00.000Z')
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { eventId: 'event-1', id: 'registration-1' },
+        { delete: { openPayments: new Set(['transaction-1']) }, set: { updatedAt: '2026-10-13T12:00:00.000Z' } },
         expect.any(String),
         'UPDATED_OLD'
       )
@@ -482,6 +497,12 @@ describe('payment', () => {
         expect.any(String),
         true // strongly consistent (correction #2)
       )
+      // The transaction's statusAt and the registration's updatedAt are the same moment: the
+      // secretary's incremental refresh reads updatedAt, and must see this as of when it happened,
+      // not some other time (KOE-1529, round 1 part 2).
+      const failWrite = mockUpdate.mock.calls[0]?.[1] as { set: { statusAt: string } }
+      const dropWrite = mockUpdate.mock.calls[1]?.[1] as { set: { updatedAt: string } }
+      expect(failWrite.set.statusAt).toEqual(dropWrite.set.updatedAt)
       expect(mockAudit).toHaveBeenCalledTimes(1)
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:registration-1',
