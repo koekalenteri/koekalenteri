@@ -372,14 +372,18 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
-  // KOE-1529, round 1 part 3: a delayed (bank transfer) payment was read as in progress by an
+  // KOE-1529, round 2 part 3: a delayed (bank transfer) payment was read as in progress by an
   // earlier, full GetRegistration, which stored paymentInProgress: true alongside openPayments on
   // the participant's own page. When the ok callback applies it, the published patch must say so is
   // no longer true, or getPaymentStatus (which checks paymentInProgress first) keeps the page saying
   // "Odottaa maksun käsittelyä" for a fee that is actually paid, until a reload the verifying budget
-  // may no longer give.
+  // may no longer give. The first two getRegistration calls (handleSuccessfulPayment's own fetch and
+  // applyPaymentToRegistration's re-fetch) answer with the stale, pre-apply row; only the third, the
+  // strongly consistent re-read this test pins, reflects applySuccessfulPayment's DELETE from
+  // openPayments. Without that re-read, the handler would pass the stale row straight through and
+  // this assertion would fail.
   it('clears paymentInProgress in the published patch once a delayed payment is applied', async () => {
-    mockGetRegistration.mockResolvedValue({
+    const beforeApply = {
       dog: { regNo: 'FI12345' },
       eventId: 'event123',
       id: 'reg456',
@@ -390,7 +394,17 @@ describe('paymentSuccessLambda', () => {
       paymentInProgress: true,
       paymentStatus: 'PENDING',
       state: 'creating',
-    })
+    }
+    mockGetRegistration
+      .mockResolvedValueOnce(beforeApply)
+      .mockResolvedValueOnce(beforeApply)
+      .mockResolvedValueOnce({
+        ...beforeApply,
+        openPayments: [],
+        paidAmount: 50,
+        paymentStatus: 'SUCCESS',
+        state: 'ready',
+      })
 
     await paymentSuccessLambda(event)
 
@@ -430,9 +444,11 @@ describe('paymentSuccessLambda', () => {
     mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
       { dog: { regNo: 'FI12345' }, eventId: 'event123', id: 'other-registration', state: 'ready' },
     ])
-    // Both getRegistration calls (handleSuccessfulPayment's own, and applyPaymentToRegistration's
-    // re-fetch, whose result is what recordDuplicatePayment actually uses) return the same row here.
-    mockGetRegistration.mockResolvedValue({
+    // getRegistration is called three times here: handleSuccessfulPayment's own fetch,
+    // applyPaymentToRegistration's re-fetch (whose result decides the duplicate), and
+    // recordDuplicatePayment's strongly consistent re-read after its own DELETE from openPayments --
+    // only the third reflects it (KOE-1529, round 2 part 3).
+    const beforeApply = {
       dog: { regNo: 'FI12345' },
       eventId: 'event123',
       id: 'reg456',
@@ -443,7 +459,16 @@ describe('paymentSuccessLambda', () => {
       paymentInProgress: true,
       paymentStatus: 'PENDING',
       state: 'creating',
-    })
+    }
+    mockGetRegistration
+      .mockResolvedValueOnce(beforeApply)
+      .mockResolvedValueOnce(beforeApply)
+      .mockResolvedValueOnce({
+        ...beforeApply,
+        openPayments: [],
+        paymentStatus: 'DUPLICATE',
+        updatedAt: '2025-01-01T00:00:00.000Z',
+      })
 
     await paymentSuccessLambda(event)
 
@@ -451,6 +476,7 @@ describe('paymentSuccessLambda', () => {
     expect(mockSendTemplatedMail).not.toHaveBeenCalled()
     expect(mockLockRegistrationPayments).toHaveBeenCalledWith('event123')
     expect(mockGetReadyRegistrationsByEventId).toHaveBeenCalledWith('event123', true)
+    expect(mockGetRegistration).toHaveBeenCalledTimes(3)
     expect(mockUpdate).toHaveBeenCalledWith(
       { transactionId: 'tx123' },
       expect.objectContaining({

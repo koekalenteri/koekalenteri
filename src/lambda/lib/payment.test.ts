@@ -16,7 +16,7 @@ const mockAudit = vi.fn<() => Promise<void>>()
 const mockGetEvent = vi.fn<() => Promise<Partial<JsonConfirmedEvent>>>()
 const mockGetRegistration = vi.fn<() => Promise<Partial<JsonRegistration>>>()
 const mockRead = vi.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | JsonRegistration | undefined>>()
-const mockUpdate = vi.fn<(...args: unknown[]) => Promise<{ Attributes?: Record<string, unknown> }>>()
+const mockUpdate = vi.fn<() => Promise<{ Attributes?: Record<string, unknown> }>>()
 const mockDocumentTransaction = vi.fn<CustomDynamoClient['documentTransaction']>()
 const mockQuery = vi.fn<() => Promise<Partial<JsonPaymentTransaction | JsonRefundTransaction>[] | undefined>>()
 const mockBatchGet = vi.fn<() => Promise<Partial<JsonPaymentTransaction>[]>>()
@@ -484,6 +484,11 @@ describe('payment', () => {
     }
 
     it('fails the transaction, drops it from the open set, audits once, and builds a fresh patch', async () => {
+      // Frozen: the transaction's statusAt and the registration's updatedAt must be the exact same
+      // moment, not just equal to each other by coincidence of two Date.now() calls a test without
+      // a frozen clock only catches some of the time (KOE-1529, round 2 part 2).
+      const FIXED = '2026-08-16T12:00:00.000Z'
+      vi.useFakeTimers().setSystemTime(new Date(FIXED))
       mockUpdate.mockResolvedValueOnce({}) // failUnfinishedTransaction
       mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } }) // dropOpenTransaction
       mockRead.mockResolvedValueOnce({ ...registration, openPayments: [] }) // the strongly consistent re-read
@@ -497,12 +502,23 @@ describe('payment', () => {
         expect.any(String),
         true // strongly consistent (correction #2)
       )
-      // The transaction's statusAt and the registration's updatedAt are the same moment: the
-      // secretary's incremental refresh reads updatedAt, and must see this as of when it happened,
-      // not some other time (KOE-1529, round 1 part 2).
-      const failWrite = mockUpdate.mock.calls[0]?.[1] as { set: { statusAt: string } }
-      const dropWrite = mockUpdate.mock.calls[1]?.[1] as { set: { updatedAt: string } }
-      expect(failWrite.set.statusAt).toEqual(dropWrite.set.updatedAt)
+      // The secretary's incremental refresh reads updatedAt, and must see this as of the one moment
+      // the failure actually happened (KOE-1529, round 1 part 2).
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        1,
+        { transactionId: 'transaction-1' },
+        expect.objectContaining({ set: expect.objectContaining({ statusAt: FIXED }) }),
+        expect.any(String),
+        undefined,
+        expect.any(Object)
+      )
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        2,
+        { eventId: 'event-1', id: 'registration-1' },
+        expect.objectContaining({ set: expect.objectContaining({ updatedAt: FIXED }) }),
+        expect.any(String),
+        'UPDATED_OLD'
+      )
       expect(mockAudit).toHaveBeenCalledTimes(1)
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:registration-1',

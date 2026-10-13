@@ -249,13 +249,23 @@ export const participantRegistrationResponse = <T extends JsonRegistration>(
   return { ...visible, ...payment }
 }
 
-export const getRegistration = async (eventId: string, registrationId: string): Promise<JsonRegistration> => {
+/**
+ * `consistent` asks for a strongly consistent read: the convention every writer that just changed
+ * the row and must publish its current state uses, rather than publish from a possibly stale,
+ * eventually consistent copy (KOE-1529).
+ */
+export const getRegistration = async (
+  eventId: string,
+  registrationId: string,
+  consistent = false
+): Promise<JsonRegistration> => {
   const registration = await dynamoDB.read<JsonRegistration>(
     {
       eventId: eventId,
       id: registrationId,
     },
-    registrationTable
+    registrationTable,
+    consistent
   )
   if (!registration) {
     throw new LambdaError(404, `Registration with id '${registrationId}' for event with id '${eventId}' was not found`)

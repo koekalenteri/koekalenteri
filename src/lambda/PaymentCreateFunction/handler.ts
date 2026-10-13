@@ -2,6 +2,7 @@ import type {
   CreatePaymentResponse,
   JsonConfirmedEvent,
   JsonPaymentTransaction,
+  JsonRefundTransaction,
   JsonRegistration,
   Organizer,
   PaymentItem,
@@ -22,6 +23,7 @@ import {
 import { registrationActor } from '../../lib/registration'
 import { paymentCreateSchema } from '../../lib/schema/payment'
 import { splitName } from '../../lib/string'
+import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
@@ -62,6 +64,11 @@ const toPaytrailItem = (item: TransactionItem): PaymentItem => ({
 const canReuseNewTransaction = (current: JsonPaymentTransaction | undefined, candidate: JsonPaymentTransaction) =>
   !current || new Date(candidate.createdAt).getTime() > new Date(current.createdAt).getTime()
 
+// A refund shares the payment's reference; it is RefundCreate's to finish, never touched here. A
+// type predicate, not a plain boolean, so the rest of the loop below narrows without a cast.
+const isUnfinishedPayment = (tx: JsonPaymentTransaction | JsonRefundTransaction): tx is JsonPaymentTransaction =>
+  tx.type === 'payment' && (tx.status === 'new' || tx.status === 'pending')
+
 const inspectExistingTransactions = async (
   reference: string,
   registration: Pick<JsonRegistration, 'eventId' | 'id'>
@@ -74,23 +81,13 @@ const inspectExistingTransactions = async (
 
   let freshPendingTransaction = false
   let reusableNewTransaction: JsonPaymentTransaction | undefined
+  const staleTransactions: JsonPaymentTransaction[] = []
 
   for (const tx of existingTransactions) {
-    // A refund shares the payment's reference; it is RefundCreate's to finish, never touched here.
-    if (tx.type !== 'payment' || (tx.status !== 'new' && tx.status !== 'pending')) {
-      continue
-    }
+    if (!isUnfinishedPayment(tx)) continue
 
     if (isStalePendingPayment(tx.createdAt, tx.statusAt)) {
-      // Resolves the stale attempt and drops it from the open set, same as every other writer, but
-      // with no audit row: nothing failed here, the attempt was simply never finished (KOE-1529).
-      // Sequential on purpose, not fanned out: a registration realistically has at most one or two
-      // stale transactions here, this loop already keeps running state across its whole scan
-      // (reusableNewTransaction, freshPendingTransaction), and each stale transaction's own pair of
-      // writes (the transaction row, then the registration's open set) is easiest to reason about
-      // one at a time rather than interleaved with another stale transaction's pair.
-      await failUnfinishedTransaction(tx)
-      await dropOpenTransaction(registration, 'openPayments', tx.transactionId)
+      staleTransactions.push(tx)
       continue
     }
 
@@ -99,10 +96,21 @@ const inspectExistingTransactions = async (
       continue
     }
 
-    if (canReuseNewTransaction(reusableNewTransaction, tx as JsonPaymentTransaction)) {
-      reusableNewTransaction = tx as JsonPaymentTransaction
+    if (canReuseNewTransaction(reusableNewTransaction, tx)) {
+      reusableNewTransaction = tx
     }
   }
+
+  // Resolves each stale attempt and drops it from the open set, same as every other writer, but
+  // with no audit row: nothing failed here, the attempt was simply never finished (KOE-1529).
+  // One at a time, in order (AGENTS.md, Promises and async): a registration realistically has at
+  // most one or two stale transactions here, and each one's own pair of writes (the transaction
+  // row, then the registration's open set) is easiest to reason about settled fully before the
+  // next one starts, rather than interleaved with it.
+  await mapWithConcurrency(staleTransactions, 1, async (tx) => {
+    await failUnfinishedTransaction(tx)
+    await dropOpenTransaction(registration, 'openPayments', tx.transactionId)
+  })
 
   return { freshPendingTransaction, reusableNewTransaction }
 }

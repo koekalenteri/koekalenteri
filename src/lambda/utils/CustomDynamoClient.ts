@@ -181,7 +181,11 @@ const processRemoveOperations = (
  */
 /** A number set sorts lexicographically under the default comparator (10 before 2); this works for
  * both the string and number sets DynamoDB can return. */
-const compareSetMembers = (a: string | number, b: string | number) => (a < b ? -1 : a > b ? 1 : 0)
+const compareSetMembers = (a: string | number, b: string | number): number => {
+  if (a < b) return -1
+  if (a > b) return 1
+  return 0
+}
 
 const denormalizeSets = <T extends object>(item: T): T => {
   for (const [key, value] of Object.entries(item)) {

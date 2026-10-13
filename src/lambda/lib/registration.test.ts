@@ -64,6 +64,7 @@ const {
   findExistingRegistrationToEventForDog,
   hasRegistrationChanges,
   markNewRegistrationPhase,
+  getRegistration,
   getRegistrationsByEventId,
   getReadyRegistrationsByEventId,
   groupRegistrationsByClass,
@@ -638,6 +639,45 @@ describe('registration', () => {
     })
   })
 
+  describe('getRegistration', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    it('reads eventually consistent by default', async () => {
+      mockDynamoDB.read.mockResolvedValueOnce(asJsonRegistration({ eventId: 'event-id', id: 'reg-id' }))
+
+      await getRegistration('event-id', 'reg-id')
+
+      expect(mockDynamoDB.read).toHaveBeenCalledWith(
+        { eventId: 'event-id', id: 'reg-id' },
+        CONFIG.registrationTable,
+        false
+      )
+    })
+
+    // Every writer that just changed the row and must publish its current state asks for this
+    // (KOE-1529): an eventually consistent read could still answer with the row from before the
+    // write.
+    it('reads strongly consistently when asked', async () => {
+      mockDynamoDB.read.mockResolvedValueOnce(asJsonRegistration({ eventId: 'event-id', id: 'reg-id' }))
+
+      await getRegistration('event-id', 'reg-id', true)
+
+      expect(mockDynamoDB.read).toHaveBeenCalledWith(
+        { eventId: 'event-id', id: 'reg-id' },
+        CONFIG.registrationTable,
+        true
+      )
+    })
+
+    it('throws a 404 when the registration does not exist', async () => {
+      mockDynamoDB.read.mockResolvedValueOnce(undefined)
+
+      await expect(getRegistration('event-id', 'missing-id')).rejects.toMatchObject({ status: 404 })
+    })
+  })
+
   describe('patchRegistration', () => {
     beforeEach(() => {
       vi.clearAllMocks()
@@ -677,7 +717,8 @@ describe('registration', () => {
           eventId: 'event-id',
           id: 'reg-id',
         },
-        'registration-table-not-found-in-env'
+        'registration-table-not-found-in-env',
+        false
       )
       expect(result).toEqual(next)
     })

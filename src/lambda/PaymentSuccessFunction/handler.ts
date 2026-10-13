@@ -133,22 +133,15 @@ const recordDuplicatePayment = async (
     registrationTable
   )
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
-  // paymentInProgress is recomputed from the open set with this transaction's id already taken out
-  // -- the DELETE above already removed it in the table -- rather than left at whatever it was on
-  // the row this handler started with (KOE-1529, round 1 part 3).
+  // Strongly consistent, the same convention every other writer in this ticket uses: the DELETE
+  // above already removed this transaction's id in the table, and paymentInProgress is recomputed
+  // from that row, not a local guess at what it now looks like (KOE-1529, round 2 part 3).
   const dogEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
+  const updatedRegistration = await getRegistration(registration.eventId, registration.id, true)
   await publishParticipantRegistrationPatch(
     registration.eventId,
     registration.id,
-    await participantPaymentPatch(
-      {
-        ...registration,
-        openPayments: registration.openPayments?.filter((id) => id !== transaction.transactionId),
-        paymentStatus: 'DUPLICATE',
-        updatedAt: duplicatePaymentAt,
-      },
-      dogEvent
-    )
+    await participantPaymentPatch(updatedRegistration, dogEvent)
   )
   await audit({
     auditKey: registrationAuditKey(registration),
@@ -348,21 +341,19 @@ const handleSuccessfulPayment = async (
 
   // Notify the participant as soon as the payment has been persisted. Receipt,
   // confirmation email, and admin-side reconciliation may continue afterwards. The page takes what
-  // is still owed from the patch: it holds no group to work it out from (KOE-1526).
-  // paymentInProgress is recomputed with this transaction's id taken out of the local copy of the
-  // open set -- applySuccessfulPayment already DELETEd it in the table -- rather than left at
-  // whatever it was on the row applyPaymentToRegistration started with: a delayed (bank transfer)
-  // payment read as in progress by an earlier GetRegistration must not still read that way once this
-  // callback applies it, or the page keeps saying "Odottaa maksun käsittelyä" for a paid fee until a
-  // reload the verifying budget may no longer give (KOE-1529, round 1 part 3).
+  // is still owed from the patch: it holds no group to work it out from (KOE-1526). Strongly
+  // consistent, the same convention every other writer in this ticket uses: applySuccessfulPayment
+  // already DELETEd this transaction's id in the table, and paymentInProgress is recomputed from
+  // that row, not a local guess at what it now looks like. A delayed (bank transfer) payment read
+  // as in progress by an earlier GetRegistration must not still read that way once this callback
+  // applies it, or the page keeps saying "Odottaa maksun käsittelyä" for a paid fee until a reload
+  // the verifying budget may no longer give (KOE-1529, round 2 part 3).
   const paidEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const updatedRegistration = await getRegistration(registration.eventId, registrationId, true)
   await publishParticipantRegistrationPatch(
     registration.eventId,
     registrationId,
-    await participantPaymentPatch(
-      { ...registration, openPayments: registration.openPayments?.filter((id) => id !== transaction.transactionId) },
-      paidEvent
-    )
+    await participantPaymentPatch(updatedRegistration, paidEvent)
   )
 
   const workflowClaim = await claimPostPaymentWorkflow(transaction.transactionId)
