@@ -126,6 +126,15 @@ describe('RefundDialog', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
+  it('titles the dialog with the dog name, not the registration number (KOE-1462)', async () => {
+    render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+      wrapper: Wrapper,
+    })
+    await flushPromises()
+
+    expect(screen.getByText('registration.refundDialog.title dogName, payer')).toBeInTheDocument()
+  })
+
   it('displays transaction data correctly', async () => {
     render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
       wrapper: Wrapper,

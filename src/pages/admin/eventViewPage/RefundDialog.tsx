@@ -341,7 +341,7 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
   return (
     <Dialog open={!!open} maxWidth="md" fullWidth>
       <DialogTitle>
-        {t('registration.refundDialog.title', { payer: registration.payer?.name, regNo: registration.dog.regNo })}
+        {t('registration.refundDialog.title', { dogName: registration.dog.name, payer: registration.payer?.name })}
       </DialogTitle>
       <DialogContent>
         <DialogContentText sx={{ mb: 1 }}>{t('registration.refundDialog.text')}</DialogContentText>
