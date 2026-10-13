@@ -344,9 +344,11 @@ describe('RegistrationIcons component', () => {
   })
 
   it('should handle paid registration without refund', () => {
-    // Mock a registration that is paid but not refunded
+    // Mock a registration that is paid but not refunded. The amount matches the mock event's fee
+    // (123, see emptyEvent.ts) exactly, so the balance is settled and shows the plain euro sign,
+    // not the overpaid mark (KOE-1104).
     const mockReg = createMockRegistration({
-      paidAmount: 5000,
+      paidAmount: 123,
       paidAt: new Date(),
       refundAmount: 0,
       refundAt: undefined,

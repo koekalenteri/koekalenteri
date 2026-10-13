@@ -67,6 +67,23 @@ it('keeps the refund mark plain for a reserve whose fee was refunded', async () 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-mark-refunded-reserve')
 })
 
+// KOE-1104: the overpaid part can still be returned, so the row gets its own mark instead of the
+// amber euro sign. The condition is money, not group: an overpaid reserve shows it too.
+it('shows the overpaid mark when the fee is paid over', async () => {
+  const screen = await render(
+    <Frame>
+      <RegistrationIcons event={event} reg={{ ...paid(45, false), group: { key: '2021-02-10-ap', number: 1 } }} />
+      <RegistrationIcons
+        event={event}
+        reg={{ ...paid(45, false), group: { key: 'reserve', number: 1 }, id: 'overpaid-reserve' }}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByTestId('visual-root')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-mark-overpaid')
+})
+
 // KOE-1526 review: refunded as a reserve, lifted into a place and paid again. The fee is paid and
 // settled, so the euro sign shows as for any paid place, not the piggy bank of a fee that went back.
 it('shows a refunded fee paid again as paid', async () => {

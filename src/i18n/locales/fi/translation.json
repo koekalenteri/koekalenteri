@@ -951,6 +951,7 @@
     "owners": "Omistajien tiedot",
     "paid": "Maksettu",
     "paidAndConfirmed": "Osallistumismaksu maksettu ja osallistuminen vahvistettu.\nKuitti on lähetetty sähköpostiosoitteeseen:\n{{to}}",
+    "paidExcess": "Ilmoittautuja on maksanut liikaa",
     "payer": "Maksajan tiedot",
     "payment": "Maksutiedot",
     "paymentDialog": {
